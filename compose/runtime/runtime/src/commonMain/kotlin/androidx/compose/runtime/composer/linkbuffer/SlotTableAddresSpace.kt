@@ -898,14 +898,25 @@ internal class SlotMoveManager(val source: Array<Any?>, var destination: Array<A
 
     fun move(destinationOffset: Int, startIndex: Int, endIndex: Int) {
         if (source === destination) {
-            if (startIndex == destinationOffset) return
+            if (destinationOffset == startIndex) {
+                // Source and destination are the same; nothing to copy. The next move is guaranteed
+                // to not be contiguous with the pending region if we have one. Eagerly flushing
+                // might let the next move operation avoid the array copy branch below if the
+                // start of the current pending range is immediately after this stationary range.
+                flush()
+                if (endIndex > highest) highest = endIndex
+                return
+            }
             val destinationEnd = destinationOffset + (endIndex - startIndex)
             if (!destination.allUnallocated(destinationOffset, destinationEnd)) {
                 // One or more slots are allocated, we need to copy before proceeding
                 destination = source.copyOf()
             }
         }
-        if (pendingMoveEnd == startIndex) {
+        if (
+            pendingMoveEnd == startIndex &&
+                pendingMoveOffset + (pendingMoveEnd - pendingMoveStart) == destinationOffset
+        ) {
             pendingMoveEnd = endIndex
         } else {
             flush()

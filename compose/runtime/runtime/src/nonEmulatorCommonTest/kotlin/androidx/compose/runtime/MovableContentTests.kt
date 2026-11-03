@@ -2176,6 +2176,70 @@ class MovableContentTests {
         expectChanges()
         revalidate()
     }
+
+    @Test
+    fun removeAndInsertWithMoveAway_inPlaceLinkTableSlotsCompaction() = compositionTest {
+        var position by mutableIntStateOf(0)
+        var skipItem by mutableIntStateOf(5)
+        val content = movableContentOf { Marker() }
+
+        compose {
+            remember { 0 }
+            remember { 1 }
+            Row {
+                remember { 2 }
+                remember { 3 }
+                if (position == -1) content()
+                Column {
+                    repeat(10) { item ->
+                        key(item) {
+                            if (skipItem != item) Text("Item $item")
+                            if (position == item) content()
+                        }
+                    }
+                }
+            }
+        }
+
+        validate {
+            Row {
+                if (position == -1) Marker()
+                Column {
+                    repeat(10) { item ->
+                        if (skipItem != item) Text("Item $item")
+                        if (position == item) Marker()
+                    }
+                }
+            }
+        }
+
+        repeat(10) { markerPosition ->
+            repeat(10) { skip ->
+                position = -1
+                skipItem = -1
+                expectChanges()
+                revalidate()
+                // Move the marker and delete an item.
+                position = markerPosition
+                skipItem = skip
+                expectChanges()
+                revalidate()
+                // Move the marker away and insert an item
+                position = -1
+                skipItem = -1
+                expectChanges()
+                // Move the marker back
+                position = markerPosition
+                expectChanges()
+                revalidate()
+                // Move the marker way and delete an item
+                position = -1
+                skipItem = skip
+                expectChanges()
+                revalidate()
+            }
+        }
+    }
 }
 
 @Stable
