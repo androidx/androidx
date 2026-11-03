@@ -72,7 +72,10 @@ class TrivialListPaginatedScrollBenchmark(private val compilationMode: Compilati
                 trace("TrivialListPaginatedScroll#drag_$i") {
                     // From center we scroll 2/3 of it which is 1/3 of the screen.
                     lazyColumn.drag(Point(0, lazyColumn.visibleCenter.y / 3))
-                    device.waitForComposeIdleOrThrow()
+                    // Loading the next page shows a progress indicator for a simulated network
+                    // delay after the scroll fling reaches the end of the list, which takes longer
+                    // than the default idle timeout.
+                    device.waitForComposeIdleOrThrow(timeoutMillis = 5_000L)
                 }
             }
         }
