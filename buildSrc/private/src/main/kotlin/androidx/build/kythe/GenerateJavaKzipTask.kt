@@ -121,6 +121,7 @@ constructor(private val execOperations: ExecOperations) : DefaultTask() {
                 "--add-exports=jdk.internal.opt/jdk.internal.opt=ALL-UNNAMED",
                 // b/491251612
                 "--sun-misc-unsafe-memory-access=allow",
+                "--enable-native-access=ALL-UNNAMED",
             )
             it.environment("KYTHE_CORPUS", ANDROIDX_CORPUS)
             it.environment("KYTHE_KZIP_ENCODING", "proto")
