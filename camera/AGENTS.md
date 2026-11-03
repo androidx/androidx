@@ -49,10 +49,10 @@ description: >-
 >
 > **Optional Internal Companion**: When `$CAMERAX_INTERNAL_TOOLS_DIR` is set and
 > `$CAMERAX_INTERNAL_TOOLS_DIR/AGENTS_INTERNAL.md` is present (or if unset and a
-> `code_search` tool is available in the environment, by querying
-> `f:camerax.*AGENTS_INTERNAL\.md$`), also read `AGENTS_INTERNAL.md` (and its
-> modular skills in the sibling `skills/` directory) for supplementary internal
-> guidelines and physical lab runner workflows.
+> `code_search` or `skill_search` tool is available in the environment, by
+> querying `f:camerax.*AGENTS_INTERNAL\.md$` or discovering internal skills),
+> also read `AGENTS_INTERNAL.md` (and its modular skills in the sibling
+> `skills/` directory) for supplementary internal guidelines and lab workflows.
 
 # Project: CameraX
 
@@ -94,6 +94,15 @@ isolated search snippets:
    Multi-Model Verification Gate** ([`camerax-code-review`][skill-review] Modes
    2, 3, or 5 with the Two-Turn Blind Read Barrier) **before** presenting the
    final answer to the user.
+4. **Subagents, Swarms & Orchestration (`invoke_subagent`, `swarm`,
+   `run_workflow`)**: When delegating work to subagents, swarms, or workflows,
+   orchestrators must follow model routing and quota rules, while instructing
+   **every** worker in **Step 1 of its brief** to read `camera/AGENTS.md` (and
+   matching skills under `camera/.agents/skills/`) and enforce module ownership
+   (`camera-camera2` -> `camera-camera2-pipe`), `@CameraScope` vs.
+   `@UseCaseCameraScope` lifecycle boundaries, partial re-bind vs. full unbind,
+   the Fix-Scope Boundary Rule, and read-only workspace safety (unless assigned
+   an isolated Git worktree or branch).
 
 ## Standards & Guidelines Hierarchy
 
@@ -310,33 +319,12 @@ invariants:
 ## Git Commit Messages & Amend (CameraX Overrides)
 
 Read [`camerax-guidelines-governance`][skill-gov] (`## Git Commit Messages` and
-`### Git Commit Amend`) and the repo-wide `manage_commits` skill before
-committing or amending:
-
-```
-<Commit Title>
-
-<Additional details about the change.>
-
-RelNote: <release note text>
-Bug: <bug id>
-Test: <test instructions>
-```
-
-- **Commit Title & Body**: Imperative summary strictly `<= 50` chars (or `< 60`
-  chars) to prevent Gerrit upload warnings; body lines `<= 72` chars explaining
-  the problem, context, and approach.
-- **RelNote (CameraX Override over `manage_commits`)**: Focus on observable
-  developer impact (never mention internal test apps like `core-test-app`). Add
-  **only** for public API changes (`camera/**/api/`) or bugs impacting public
-  users; **omit `RelNote` entirely** for internal fixes, unreleased API
-  follow-ups, refactorings, test/doc updates, or `@RestrictTo` changes without
-  user-facing impact (`RelNote: N/A` only when reverting a public API change).
-- **Bug, Test & `Change-Id` Preservation on Amend**: Prefix each bug ID with
-  `Bug: <id>` on its own line and state added/modified tests in `Test:`. When
-  running `git commit --amend`, **never** use `-m` alone without appending the
-  existing `Change-Id:` line from `git log -1` (recover via `git reflog` if
-  lost).
+`### Git Commit Amend`) and repo-wide `manage_commits` before committing:
+- **Title & Body**: Imperative title strictly `<= 50` chars; body lines `<= 72`.
+- **RelNote**: Required ONLY for public API (`camera/**/api/`) or user bugs;
+  omit `RelNote` entirely for internal, test, doc, or `@RestrictTo` changes.
+- **Bug & Test**: Prefix bug IDs with `Bug: <id>`, list tests in `Test:`.
+- **Amend**: Never run `git commit --amend -m` without preserving `Change-Id:`.
 
 ## Description of sub-projects:
 

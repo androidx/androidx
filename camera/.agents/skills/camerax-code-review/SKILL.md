@@ -198,10 +198,12 @@ applicable. Prioritize clarity and conciseness.
           and surrounding callers (plus `git --no-lazy-fetch blame` /
           `git --no-lazy-fetch log` when explaining why code exists) to verify
           the code actually behaves as claimed.
-        - **Rubric Classification Audit**: Verify whether the diagnosis or
-          explanation properly maps to Section 6 (Step 1 Internal Contract vs.
-          Step 2 Platform Spec vs. Step 3 Hardware/HAL Quirk vs. Sub-case 3B
-          Test-Only Constraint) or a physical test fixture/environment defect.
+        - **Rubric Classification & 5-Gate Audit**: Verify whether the diagnosis
+          properly maps to Section 6 (Step 1 Internal Contract vs. Step 2
+          Platform Spec vs. Step 3 Hardware/HAL Quirk vs. Sub-case 3B Test-Only
+          Constraint) or a physical test fixture/environment defect, and
+          satisfies the **5-Gate Deep Root-Cause Protocol**
+          (`camerax-triage-and-quirks` Section 6.D).
     *   **Mode 3 — Implementation, Solution Proposal & Architectural Planning
         (Plan Audit):**
         - **Architectural Fit, Object Job & Public Contract Fidelity**: Read all
@@ -236,10 +238,16 @@ applicable. Prioritize clarity and conciseness.
         - **Competing Design Trade-Offs**: When multiple valid solutions exist,
           compare independent model perspectives to select the most idiomatic,
           minimal-complexity design before implementation.
-        - **Quirk Precision & Test Determinism**: Verify that proposed
-          `DeviceQuirk` mappings avoid magic heuristics, check OS version
-          ceiling persistence (Section 6.E), and confirm new async/stress tests
-          use deterministic synchronization without `Thread.sleep()`.
+        - **Quirk Precision, 5-Gate Anti-Broad-Quirk Audit & Test Determinism**:
+          Verify that proposed `DeviceQuirk` mappings avoid magic heuristics,
+          pass the **5-Gate Deep Root-Cause Protocol** in
+          `camerax-triage-and-quirks/SKILL.md` Section 6.D (never disabling a
+          working CameraX feature via a broad `DeviceQuirk` when only
+          raw-framework or synthetic harness tests fail, and never altering
+          fleet-wide test semantics to mask single-device defects), check OS
+          version ceiling persistence (Section 6.E), and confirm new
+          async/stress tests use deterministic synchronization without
+          `Thread.sleep()`.
         - **Documentation & KDoc Integrity**: Confirm public API docs and guide
           updates are accurate, wrapped at 80 characters, and 100% public-safe.
 6.  **Universal Clean-Context Multi-Model Verification Loop (Canonical Gate —
@@ -409,12 +417,14 @@ applicable. Prioritize clarity and conciseness.
           tool-call turn and record its own independent diagnosis or numbers
           *before* reading `<scratch_or_tmp>/draft_deliverable.md` in a
           subsequent turn.
-        - **Post-Blind Adjudication Turn (Round 2+):** Only *after* the verifier
-          has posted its independent cold audit, provide it a neutral list of
-          prior `PATCHED_PENDING_REAUDIT` and `DISMISSED_WITH_PROOF` items
-          (location + original finding text only; never the author's rationale)
-          so it can explicitly mark each item `VERIFIED_RESOLVED`, `REGRESSED`,
-          or `UPHELD`/`REJECTED` (where a rejected dismissal returns to `OPEN`).
+        - **Post-Blind Adjudication Turn (Round 2+, Compact Tag Reply — Zero
+          Report Rewrites):** Only *after* the verifier has posted its
+          independent cold audit, provide it a neutral list of prior
+          `PATCHED_PENDING_REAUDIT` and `DISMISSED_WITH_PROOF` items (location +
+          original finding text only; never the author's rationale) for a
+          **compact inline status reply (`<= 15` lines: `VERIFIED_RESOLVED` /
+          `REGRESSED` / `UPHELD` / `REJECTED`)** without re-reading files or
+          rewriting a second report file.
         - **Three Orthogonal Hostile Critic Lenses**: Instruct every verifier to
           audit across three complementary lenses: (1) *Correctness,
           Concurrency & Lifecycle Invariants* (`@CameraScope` vs.
@@ -469,9 +479,15 @@ applicable. Prioritize clarity and conciseness.
         files, and the surrounding CameraX codebase widely. Read-only verifiers
         must never edit files, switch `git` branches, or run parallel
         `./gradlew` builds.
-    *   **Autonomous Multi-Round Convergence Loop (Default 3 Rounds / Auto-Scale
-        up to 5 Rounds, Ephemeral Defect Ledger, Priority Repair &
-        Anti-Oscillation):**
+    *   **Autonomous Convergence Loop (Adaptive 1-Pass Read-Only Audit & Code
+        Convergence up to 5 Rounds):**
+        0. *Adaptive 1-Pass Read-Only Audit vs. Multi-Round Code Convergence:*
+           For read-only reviews, triage analyses, architectural plans, or
+           technical Q&A where no code edits are made by the agent (or when
+           Round 1 confirms 0 defects), exit after **1 cross-family pass**.
+           Never run 3 to 5 rounds on read-only tasks unless Round 1 overturns
+           the primary root cause or architecture. Multi-round convergence
+           (R2–R5) is strictly reserved for iterative code-change repair loops.
         1. *Autonomous Multi-Turn Execution (No Conversational Yielding Between
            Rounds):* Never pause to ask the user for permission between
            intermediate review-and-fix rounds. Autonomously execute the state

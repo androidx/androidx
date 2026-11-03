@@ -305,13 +305,63 @@ three layers in order:
         repeating request parameters?
      d. **State Machine & Lifecycle**: Are buffers, surfaces, or encoders being
         prematurely closed, stalled, or failing to receive warmup frames?
-   - **Decision Rubric**:
+   - **Decision Rubric & 5-Gate Deep Root-Cause Protocol (Before Disabling Any
+     Feature/Extension via a `DeviceQuirk` or Skipping a Test)**:
      - If CameraX can fix the behavior by correctly configuring parameters,
        aligning with standards, or avoiding invalid combinations, **fix the
        core implementation**.
      - Only implement a `DeviceQuirk` when CameraX's configuration is 100%
        compliant with Android platform specifications, and the device failure is
        conclusively proven to be an unrecoverable vendor driver/HAL defect.
+     - **Gate 1 — Telemetry Granularity & Production vs. Synthetic/Raw-Framework
+       Split**: Never treat a multi-test failure or bug report as a monolithic
+       device breakdown. Inspect test history and telemetry for **every
+       individual test class and method** on the target device. Always
+       distinguish production CameraX API tests (`camera-core`,
+       `camera-camera2`, `camera-video`, `camera-view`, `camera-extensions`)
+       exercising real app user journeys from synthetic harness or raw-framework
+       tests (which bypass CameraX's pipeline, adapters, and workarounds). If
+       CameraX production API tests pass and real user journeys are protected
+       while only raw framework or synthetic harness tests fail, **STOP**—never
+       disable the feature in a production CameraX `DeviceQuirk` (e.g.,
+       `ExtensionDisabledQuirk` or disabling workarounds).
+     - **Gate 2 — Chronological Causal Precedence (First-Causal Failure vs.
+       Teardown Cascades)**: In logcat, traces, and console logs,
+       chronologically separate the **first causal error or stall** during
+       active operation (e.g., driver frame drop, HAL buffer stall, invalid
+       parameter, or missing state prerequisite) from **downstream teardown
+       cascades** (e.g., session closure errors, surface release exceptions, or
+       subsequent timeout crashes when `tearDown()` runs while an in-flight
+       operation remains uncompleted). Never cite a teardown crash or a
+       secondary timeout as the primary root cause without first explaining why
+       the primary operation failed or stalled beforehand.
+     - **Gate 3 — Production Pipeline Parity Audit (Real-Issue-First vs. Test
+       Harness Defect)**: Compare how the failing test configures and drives the
+       camera session against CameraX's production pipeline (e.g., stream
+       coexistence rules, 3A/flash state synchronization, repeating metadata
+       prerequisites, and lifecycle sequencing). Determine whether:
+       1. *CameraX Production Has a Gap*: Real CameraX users can hit the bug ->
+          fix the core CameraX pipeline or add a targeted runtime workaround
+          (e.g., awaiting prerequisite state or metadata) rather than disabling
+          the entire feature or mode.
+       2. *CameraX Production Already Protects Users, and Only a Raw / Synthetic
+          Test Lacks that Prerequisite*: Keep the feature enabled in CameraX
+          production (`DeviceQuirk` untouched) and evaluate Gate 4.
+     - **Gate 4 — Fleet-Wide Test Semantics & Coverage Preservation Check**:
+       Before modifying a shared test class to make it pass on an anomalous
+       device, inspect its `git log -S` history and class KDoc to verify what
+       contract or boundary the test was designed to exercise (e.g., isolated
+       capture-only sessions, rapid reconfiguration, or concurrent stream
+       transitions). If modifying the test globally would weaken test rigor or
+       alter coverage across the device fleet, preserve the original test
+       semantics globally, add a narrowly scoped device/OS skip (e.g., targeted
+       `assumeFalse` for the specific device, hardware level, or mode), and open
+       a dedicated tracking issue documenting the vendor defect.
+     - **Gate 5 — Mandatory On-Device Hypothesis Verification**: Whenever a root
+       cause or candidate fix is proposed for a hardware-dependent failure, run
+       a targeted reproduction and verification test directly on the physical
+       lab device to empirically prove both the failure mechanism and the fix
+       before finalizing the CL.
 
 ##### E. Device Quirk OS Version Ceilings (The Upstream OS Upgrade Trap)
 When inspecting or authoring quirks with OS version checks (e.g.,
