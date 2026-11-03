@@ -71,7 +71,8 @@ internal interface GlanceAdaptiveAppWidgetDelegate : GlanceAdaptiveWidgetDelegat
      * Completes the configuration of the widget being configured by [activity], storing [widgetId]
      * and [options] in its options, then setting the [Activity.RESULT_OK] result expected by the
      * host. The result is not set if this throws. This is a blocking call that returns only once
-     * the options are stored and the result is set.
+     * the options are stored and the result is set. The widget is then updated with them, and
+     * lookups see the new widgetId immediately.
      *
      * @param activity The configuration [Activity] started with
      *   [android.appwidget.AppWidgetManager.ACTION_APPWIDGET_CONFIGURE].
@@ -80,7 +81,8 @@ internal interface GlanceAdaptiveAppWidgetDelegate : GlanceAdaptiveWidgetDelegat
      *   must not be blank.
      * @param options The configuration options to store in the options of the configured widget.
      * @throws IllegalArgumentException if [activity]'s intent does not carry a valid
-     *   [android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID], or if [widgetId] is blank.
+     *   [android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID], if that widget is not a widget of
+     *   one of this app's [GlanceAdaptiveWidgetReceiver]s, or if [widgetId] is blank.
      */
     fun setConfigurationResult(activity: Activity, widgetId: String?, options: Bundle)
 }

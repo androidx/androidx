@@ -17,11 +17,17 @@
 package androidx.glance.adaptive.appwidget
 
 import android.app.Activity
+import android.app.Application
 import android.appwidget.AppWidgetManager
+import android.appwidget.AppWidgetProvider
+import android.appwidget.AppWidgetProviderInfo
+import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
 import androidx.glance.adaptive.appwidget.BaseWidgetDelegateTestRule.TestReceiver
+import androidx.glance.adaptive.appwidget.BaseWidgetDelegateTestRule.TestTemplate
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertThrows
 import org.junit.Rule
 import org.junit.Test
@@ -44,6 +50,9 @@ import org.robolectric.annotation.Config
 class BaseWidgetDelegateConfigurationResultTest {
 
     @get:Rule val rule = BaseWidgetDelegateTestRule()
+
+    /** A provider of this app that is not a [GlanceAdaptiveWidgetReceiver]. */
+    private class PlainAppWidgetProvider : AppWidgetProvider()
 
     @Test
     fun setConfigurationResult_withoutAppWidgetIdExtra_throwsAndDoesNotSetResult() {
@@ -313,4 +322,239 @@ class BaseWidgetDelegateConfigurationResultTest {
         assertThat(shadowOf(activity).resultCode).isEqualTo(Activity.RESULT_CANCELED)
         assertThat(shadowOf(activity).resultIntent).isNull()
     }
+
+    @Test
+    fun setConfigurationResult_forWidgetOfAnotherApp_throwsBeforeReadingOptions() {
+        val otherProvider = ComponentName("com.example.other", "com.example.other.WidgetReceiver")
+        bindWidget(711, otherProvider)
+        val activity = configurationActivity(711)
+
+        assertThrows(IllegalArgumentException::class.java) {
+            rule
+                .delegate()
+                .setConfigurationResult(
+                    activity = activity,
+                    widgetId = null,
+                    options = Bundle().apply { putString("meal_window", "lunch") },
+                )
+        }
+
+        verify(rule.appWidgetManager, never()).getAppWidgetOptions(any())
+        verify(rule.appWidgetManager, never()).updateAppWidgetOptions(any(), any())
+        assertNothingCachedOrSent(711)
+        assertThat(shadowOf(activity).resultCode).isEqualTo(Activity.RESULT_CANCELED)
+        assertThat(shadowOf(activity).resultIntent).isNull()
+    }
+
+    @Test
+    fun setConfigurationResult_forWidgetOfReceiverThatIsNotGlanceAdaptive_throws() {
+        bindWidget(712, rule.componentOf(PlainAppWidgetProvider::class.java.name))
+        val activity = configurationActivity(712)
+
+        assertThrows(IllegalArgumentException::class.java) {
+            rule
+                .delegate()
+                .setConfigurationResult(
+                    activity = activity,
+                    widgetId = "window_lunch",
+                    options = Bundle.EMPTY,
+                )
+        }
+
+        verify(rule.appWidgetManager, never()).updateAppWidgetOptions(any(), any())
+        assertNothingCachedOrSent(712)
+        assertThat(shadowOf(activity).resultCode).isEqualTo(Activity.RESULT_CANCELED)
+    }
+
+    @Test
+    fun setConfigurationResult_forWidgetOfMissingReceiverClass_throws() {
+        bindWidget(713, rule.componentOf("${rule.context.packageName}.RemovedWidgetReceiver"))
+        val activity = configurationActivity(713)
+
+        assertThrows(IllegalArgumentException::class.java) {
+            rule
+                .delegate()
+                .setConfigurationResult(
+                    activity = activity,
+                    widgetId = "window_lunch",
+                    options = Bundle.EMPTY,
+                )
+        }
+
+        verify(rule.appWidgetManager, never()).updateAppWidgetOptions(any(), any())
+        assertNothingCachedOrSent(713)
+        assertThat(shadowOf(activity).resultCode).isEqualTo(Activity.RESULT_CANCELED)
+    }
+
+    @Test
+    fun setConfigurationResult_forUnboundAppWidgetId_throws() {
+        val activity = configurationActivity(714)
+
+        assertThrows(IllegalArgumentException::class.java) {
+            rule
+                .delegate()
+                .setConfigurationResult(
+                    activity = activity,
+                    widgetId = "window_lunch",
+                    options = Bundle.EMPTY,
+                )
+        }
+
+        verify(rule.appWidgetManager, never()).updateAppWidgetOptions(any(), any())
+        assertNothingCachedOrSent(714)
+        assertThat(shadowOf(activity).resultCode).isEqualTo(Activity.RESULT_CANCELED)
+    }
+
+    @Test
+    fun setConfigurationResult_sendsUpdateWithPendingRenderToken() {
+        rule.setupBoundWidget(715, TestReceiver::class.java.name)
+        val activity = configurationActivity(715)
+
+        rule
+            .delegate()
+            .setConfigurationResult(
+                activity = activity,
+                widgetId = "window_lunch",
+                options = Bundle.EMPTY,
+            )
+
+        // So that the widget is updated, even if the platform sends no options change broadcast.
+        val update = sentUpdates().single()
+        assertThat(update.component?.className).isEqualTo(TestReceiver::class.java.name)
+        assertThat(update.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS))
+            .asList()
+            .containsExactly(715)
+        val token = update.getStringExtra(WidgetOptionsCache.EXTRA_RENDER_TOKEN)
+        assertThat(WidgetOptionsCache.consumePendingRender(715, token)).isTrue()
+        // Nothing library-internal is stored with the options.
+        assertThat(
+                rule.appWidgetManager
+                    .getAppWidgetOptions(715)
+                    .containsKey(WidgetOptionsCache.EXTRA_RENDER_TOKEN)
+            )
+            .isFalse()
+    }
+
+    @Test
+    fun setConfigurationResult_onWidgetWithFallbackWidgetId_writesNewWidgetIdThroughToCache() {
+        rule.setupBoundWidget(716, TestReceiver::class.java.name, widgetId = "fallback_widget_id")
+        WidgetOptionsCache.cacheWidgetOptionsIfMissing(
+            716,
+            rule.appWidgetManager.getAppWidgetOptions(716),
+        )
+        val activity = configurationActivity(716)
+
+        rule
+            .delegate()
+            .setConfigurationResult(
+                activity = activity,
+                widgetId = "window_lunch",
+                options = Bundle.EMPTY,
+            )
+
+        // Seen by lookups before the options change broadcast is delivered.
+        assertThat(WidgetOptionsCache.getCachedWidgetId(716)).isEqualTo("window_lunch")
+    }
+
+    @Test
+    fun setConfigurationResult_whenStoringFails_doesNotCacheWidgetIdOrSendUpdate() {
+        rule.setupBoundWidget(717, TestReceiver::class.java.name)
+        val activity = configurationActivity(717)
+        doThrow(RuntimeException("Simulated IPC write failure"))
+            .whenever(rule.appWidgetManager)
+            .updateAppWidgetOptions(eq(717), any())
+
+        assertThrows(RuntimeException::class.java) {
+            rule
+                .delegate()
+                .setConfigurationResult(
+                    activity = activity,
+                    widgetId = "window_lunch",
+                    options = Bundle.EMPTY,
+                )
+        }
+
+        assertThat(WidgetOptionsCache.getCachedWidgetId(717)).isNull()
+        assertThat(WidgetOptionsCache.hasPendingRender(717)).isFalse()
+        assertThat(sentUpdates()).isEmpty()
+        assertThat(shadowOf(activity).resultCode).isEqualTo(Activity.RESULT_CANCELED)
+    }
+
+    @Test
+    fun setConfigurationResult_thenImmediatePushUpdate_reachesWidgetUnderNewWidgetId() = runTest {
+        // No options change broadcast is delivered in between, and a lookup already cached
+        // the fallback widgetId.
+        rule.registerReceiverInManifest(TestReceiver::class.java.name)
+        rule.setupBoundWidget(718, TestReceiver::class.java.name, widgetId = "fallback_widget_id")
+        WidgetOptionsCache.cacheWidgetOptionsIfMissing(
+            718,
+            rule.appWidgetManager.getAppWidgetOptions(718),
+        )
+
+        rule
+            .delegate()
+            .setConfigurationResult(
+                activity = configurationActivity(718),
+                widgetId = "window_lunch",
+                options = Bundle.EMPTY,
+            )
+        rule
+            .delegate()
+            .pushUpdate(
+                widgetName = "test_widget",
+                currentData = TestTemplate(),
+                widgetIds = setOf("window_lunch"),
+            )
+
+        assertThat(rule.capturedUpdatedIds()).containsExactly(listOf(718))
+    }
+
+    @Test
+    fun setConfigurationResult_whenReadingExistingOptionsFails_propagatesAndDoesNotSetResult() {
+        // With no widgetId requested, the current one is read from the widget's options first.
+        rule.setupBoundWidget(719, TestReceiver::class.java.name, widgetId = "existing_widget_id")
+        val activity = configurationActivity(719)
+        val failure = RuntimeException("Simulated IPC read failure")
+        doThrow(failure).whenever(rule.appWidgetManager).getAppWidgetOptions(719)
+
+        val thrown =
+            assertThrows(RuntimeException::class.java) {
+                rule
+                    .delegate()
+                    .setConfigurationResult(
+                        activity = activity,
+                        widgetId = null,
+                        options = Bundle.EMPTY,
+                    )
+            }
+
+        assertThat(thrown).isSameInstanceAs(failure)
+        verify(rule.appWidgetManager, never()).updateAppWidgetOptions(eq(719), any())
+        assertThat(shadowOf(activity).resultCode).isEqualTo(Activity.RESULT_CANCELED)
+    }
+
+    private fun bindWidget(appWidgetId: Int, provider: ComponentName) {
+        val info = AppWidgetProviderInfo().apply { this.provider = provider }
+        shadowOf(AppWidgetManager.getInstance(rule.context)).addBoundWidget(appWidgetId, info)
+    }
+
+    private fun sentUpdates(): List<Intent> =
+        shadowOf(rule.context as Application).broadcastIntents.filter {
+            it.action == AppWidgetManager.ACTION_APPWIDGET_UPDATE
+        }
+
+    /** Asserts that nothing was cached for [appWidgetId], and that no update was sent. */
+    private fun assertNothingCachedOrSent(appWidgetId: Int) {
+        assertThat(WidgetOptionsCache.getCachedWidgetId(appWidgetId)).isNull()
+        assertThat(WidgetOptionsCache.hasPendingRender(appWidgetId)).isFalse()
+        assertThat(sentUpdates()).isEmpty()
+    }
+
+    private fun configurationActivity(appWidgetId: Int): Activity =
+        Robolectric.buildActivity(
+                Activity::class.java,
+                Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
+                    .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId),
+            )
+            .get()
 }

@@ -369,13 +369,19 @@ internal class BaseWidgetDelegate(
      * It is not a suspend function so that the result is always set before the caller finishes
      * [activity].
      *
+     * The options are stored with [updateOptionsAndRerender]: lookups such as [pushUpdate] see the
+     * new widgetId as soon as this returns, and the widget is then updated through
+     * [GlanceAdaptiveWidgetReceiver], even if the host sends no update after configuration and even
+     * if only [options] changed.
+     *
      * @param activity Configuration [Activity] started with
      *   [AppWidgetManager.ACTION_APPWIDGET_CONFIGURE].
      * @param widgetId Widget instance String identifier to assign to the configured widget. If
      *   null, the one already stored for the widget is kept, or one is generated if there is none.
      * @param options Configuration options to store in the options of the configured widget.
      * @throws IllegalArgumentException if [activity]'s intent does not carry a valid
-     *   [AppWidgetManager.EXTRA_APPWIDGET_ID], or if [widgetId] is blank.
+     *   [AppWidgetManager.EXTRA_APPWIDGET_ID], if that widget is not a widget of one of this app's
+     *   [GlanceAdaptiveWidgetReceiver]s, or if [widgetId] is blank.
      */
     override fun setConfigurationResult(activity: Activity, widgetId: String?, options: Bundle) {
         val appWidgetId =
@@ -388,15 +394,28 @@ internal class BaseWidgetDelegate(
                 "valid EXTRA_APPWIDGET_ID"
         }
 
+        val validRequestedWidgetId = requireValidRequestedWidgetId(widgetId)
+        // Checked so that Glance identifiers are never written into another widget's options: a
+        // widget of this app whose receiver is not a GlanceAdaptiveWidgetReceiver, or a widget of
+        // another app, which getAppWidgetInfo only returns if this app also hosts it (for example,
+        // a launcher) or holds BIND_APPWIDGET.
+        val provider = appWidgetManager.getAppWidgetInfo(appWidgetId)?.provider
+        require(provider != null && provider.isGlanceAdaptiveWidgetReceiverOf(context)) {
+            "appWidgetId $appWidgetId is not a widget of a GlanceAdaptiveWidgetReceiver of " +
+                "${context.packageName}, so it cannot be configured through setConfigurationResult"
+        }
+
         val requestedWidgetId =
-            requireValidRequestedWidgetId(widgetId)
+            validRequestedWidgetId
                 ?: appWidgetManager
                     .getAppWidgetOptions(appWidgetId)
                     ?.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID)
                     ?.takeIf { it.isNotBlank() }
         // Merged into the options the host placed the widget with. Stored before the result is
         // set, so that the result is not set if storing fails.
-        appWidgetManager.updateAppWidgetOptions(
+        appWidgetManager.updateOptionsAndRerender(
+            context,
+            provider,
             appWidgetId,
             optionsWithWidgetId(requestedWidgetId, options),
         )
@@ -487,3 +506,15 @@ internal class BaseWidgetDelegate(
  */
 private val AppWidgetProviderInfo.isHomeScreenProvider: Boolean
     get() = (widgetCategory and AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN) != 0
+
+/** Whether this component is a [GlanceAdaptiveWidgetReceiver] of the app owning [context]. */
+private fun ComponentName.isGlanceAdaptiveWidgetReceiverOf(context: Context): Boolean {
+    if (packageName != context.packageName) return false
+    val receiverClass =
+        try {
+            context.classLoader.loadClass(className)
+        } catch (e: ClassNotFoundException) {
+            return false
+        }
+    return GlanceAdaptiveWidgetReceiver::class.java.isAssignableFrom(receiverClass)
+}

@@ -138,6 +138,11 @@ public suspend fun GlanceAdaptiveWidgetManager.requestPin(
  * and returns only once the options are stored and the result is set. It is not a suspend function
  * so that the result is always set before the caller finishes the [Activity].
  *
+ * Once the options are stored, [pushUpdate][GlanceAdaptiveWidgetManager.pushUpdate] and
+ * [getActiveInstances][GlanceAdaptiveWidgetManager.getActiveInstances] see the new widgetId, and
+ * the widget is updated through [GlanceAdaptiveWidgetReceiver.onUpdate], even if the host sends no
+ * update after configuration.
+ *
  * Configuration activities are only used by AppWidget hosts, so this operation is provided by this
  * artifact as an extension rather than by [GlanceAdaptiveWidgetManager] itself.
  *
@@ -148,7 +153,8 @@ public suspend fun GlanceAdaptiveWidgetManager.requestPin(
  *   generated if there is none. It must not be blank.
  * @param options Optional configuration options to store in the options of the configured widget.
  * @throws IllegalArgumentException if [activity]'s intent does not carry a valid
- *   [android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID], or if [widgetId] is blank.
+ *   [android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID], if that widget is not a widget of one
+ *   of this app's [GlanceAdaptiveWidgetReceiver]s, or if [widgetId] is blank.
  * @throws IllegalStateException if this manager is not backed by an AppWidget delegate, for example
  *   if it was created for another surface.
  */
