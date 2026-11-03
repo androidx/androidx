@@ -422,7 +422,7 @@ public object ComposeFoundationFlags {
     // TODO: Remove this flag once it has soaked (b/580078347)
     @field:Suppress("MutableBareField")
     @JvmField
-    public var isBorderUsesGraphicsLayerForGenericShapesEnabled: Boolean = false
+    public var isBorderUsesGraphicsLayerForGenericShapesEnabled: Boolean = true
 
     /**
      * Controls whether [androidx.compose.foundation.text.BasicTextField] and
