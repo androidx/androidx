@@ -219,6 +219,30 @@ class BaselineProfileRuleTest {
             )
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = 31)
+    fun captureLoadOrder() {
+        val config =
+            BaselineProfileConfig.Builder(
+                    packageName = Arguments.getTargetPackageNameOrThrow(),
+                    profileBlock = {
+                        startActivityAndWait(Intent(ACTION))
+                        device.waitForIdle()
+                    },
+                )
+                .setMaxIterations(1)
+                .setIncludeInStartupProfile(true)
+                .setMaxLoadOrderIterations(1)
+                .setRestrictLoadOrderToDataDirectory(false)
+                .build()
+
+        val result = baselineRule.collectWithResults(config = config)
+        assertTrue(
+            /* message = */ "Load order files should exist",
+            /* condition = */ result.loadOrderFiles.isNotEmpty(),
+        )
+    }
+
     companion object {
         private const val ACTION =
             "androidx.benchmark.integration.macrobenchmark.target.EMPTY_ACTIVITY"
@@ -239,7 +263,7 @@ class BaselineProfileRuleTest {
             if (predicate(line, next)) remaining.removeAt(0)
         }
 
-        if (remaining.size > 0) {
+        if (remaining.isNotEmpty()) {
             fail(
                 """
                 The following lines were not found in order:
