@@ -298,14 +298,14 @@ class GlanceAdaptiveAppWidgetManagerTest {
         assertThat((output as RemoteViewsRenderOutput).provider(context))
             .isSameInstanceAs(remoteViews)
         // Other widgets and surfaces are left to the defaults, and TestTemplate has none.
-        assertThrows(IllegalArgumentException::class.java) {
+        assertThrows(IllegalStateException::class.java) {
             AppWidgetTemplateRegistry.render(
                 TestTemplate(),
                 AppWidgetSurface.MOBILE_LOCK_SCREEN,
                 widgetName = "other_widget",
             )
         }
-        assertThrows(IllegalArgumentException::class.java) {
+        assertThrows(IllegalStateException::class.java) {
             AppWidgetTemplateRegistry.render(
                 TestTemplate(),
                 AppWidgetSurface.MOBILE_HOME_SCREEN,
@@ -327,7 +327,7 @@ class GlanceAdaptiveAppWidgetManagerTest {
             )
         }
         assertThat(delegate.callCount).isEqualTo(0)
-        assertThrows(IllegalArgumentException::class.java) {
+        assertThrows(IllegalStateException::class.java) {
             AppWidgetTemplateRegistry.render(
                 TestTemplate(),
                 AppWidgetSurface.MOBILE_HOME_SCREEN,
