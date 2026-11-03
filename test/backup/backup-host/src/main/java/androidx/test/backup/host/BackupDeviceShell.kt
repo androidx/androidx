@@ -20,12 +20,14 @@ import com.android.adblib.AdbSession
 import com.android.adblib.DeviceSelector
 import com.android.adblib.RemoteFileMode
 import com.android.adblib.ShellCommandOutput
+import com.android.adblib.deviceProperties
 import com.android.adblib.shellAsText
 import java.io.IOException
 import java.nio.file.Path
 import java.time.Duration
 import java.util.Locale
 import java.util.UUID
+import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.time.Duration as KotlinDuration
 import kotlin.time.Duration.Companion.seconds
@@ -51,6 +53,9 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, val serialN
 
     /** Runs [command] through the device shell and returns its output. */
     suspend fun exec(command: String): ShellCommandOutput {
+        if (logger.isLoggable(Level.FINE)) {
+            logger.fine("adb -s $serialNumber shell $command")
+        }
         @Suppress("AdbDeviceServicesCommand")
         return adbSession.deviceServices.shellAsText(device, command)
     }
@@ -196,6 +201,14 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, val serialN
             ?.toLongOrNull()
     }
 
+    /** Returns whether [packageName] is installed on the device. */
+    suspend fun isPackageInstalled(packageName: String): Boolean =
+        exec("pm path ${quoteIfNeeded(packageName)}").stdout.isNotBlank()
+
+    /** Returns cached read-only (`ro.*`) system properties of the device. */
+    suspend fun readonlyProperties(): Map<String, String> =
+        adbSession.deviceServices.deviceProperties(device).allReadonly()
+
     /** Returns the value of the system property [name], or null if it isn't set. */
     suspend fun getProperty(name: String): String? =
         exec("getprop ${quoteIfNeeded(name)}").stdout.trim().ifEmpty { null }
@@ -286,8 +299,8 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, val serialN
      * @throws IOException if the package manager does not report success
      */
     suspend fun uninstallPackage(packageName: String) {
+        if (!isPackageInstalled(packageName)) return
         val pkg = quoteIfNeeded(packageName)
-        if (exec("pm path $pkg").stdout.isBlank()) return
         logger.info("Uninstalling $packageName via pm uninstall...")
         val output = exec("pm uninstall $pkg")
         if (!output.reportsSuccess()) {
