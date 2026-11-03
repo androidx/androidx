@@ -37,6 +37,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.Implementation
 import org.robolectric.annotation.Implements
+import org.robolectric.annotation.RealObject
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadow.api.Shadow
 import org.robolectric.util.ReflectionHelpers
@@ -211,6 +212,50 @@ class AudioStreamImplTest {
         assertThat(shadowAudioRecord(audioRecord).isReleased).isTrue()
     }
 
+    @Config(minSdk = 29)
+    @Test
+    fun start_silenceNotifiedDuringStartRecording_doesNotNotifyDuplicate() {
+        val notifiedStates = mutableListOf<Boolean>()
+        audioStream.setCallback(
+            object : AudioStream.AudioStreamCallback {
+                override fun onSilenceStateChanged(isSilenced: Boolean) {
+                    notifiedStates.add(isSilenced)
+                }
+            },
+            directExecutor(),
+        )
+        val audioRecord = getCurrentAudioRecord()
+        shadowAudioRecord(audioRecord).onStartRecording = {
+            audioStream.notifySilenced(false)
+        }
+
+        audioStream.start()
+
+        assertThat(notifiedStates).containsExactly(false)
+    }
+
+    @Config(minSdk = 29)
+    @Test
+    fun start_silencedTrueDuringStartRecordingWithNullConfig_doesNotOverwriteWithFalse() {
+        val notifiedStates = mutableListOf<Boolean>()
+        audioStream.setCallback(
+            object : AudioStream.AudioStreamCallback {
+                override fun onSilenceStateChanged(isSilenced: Boolean) {
+                    notifiedStates.add(isSilenced)
+                }
+            },
+            directExecutor(),
+        )
+        val audioRecord = getCurrentAudioRecord()
+        shadowAudioRecord(audioRecord).onStartRecording = {
+            audioStream.notifySilenced(true)
+        }
+
+        audioStream.start()
+
+        assertThat(notifiedStates).containsExactly(true)
+    }
+
     private fun createAudioStream(quirks: Quirks): AudioStreamImpl =
         AudioStreamImpl(
             AudioSettings.builder()
@@ -238,6 +283,8 @@ class AudioStreamImplTest {
 
     @Implements(AudioRecord::class)
     class ShadowAudioRecord {
+        @RealObject private lateinit var realAudioRecord: AudioRecord
+
         companion object {
             @Implementation
             @JvmStatic
@@ -249,9 +296,22 @@ class AudioStreamImplTest {
         /** The registered recording callbacks. */
         val registeredCallbacks = mutableSetOf<AudioManager.AudioRecordingCallback>()
 
+        /** Optional hook invoked during [AudioRecord.startRecording]. */
+        var onStartRecording: (() -> Unit)? = null
+
         /** Whether [AudioRecord.release] has been called. */
         var isReleased = false
             private set
+
+        @Implementation
+        fun startRecording() {
+            Shadow.directlyOn<Void?, AudioRecord>(
+                realAudioRecord,
+                AudioRecord::class.java,
+                "startRecording",
+            )
+            onStartRecording?.invoke()
+        }
 
         @Implementation(minSdk = 29)
         fun getActiveRecordingConfiguration(): AudioRecordingConfiguration? {

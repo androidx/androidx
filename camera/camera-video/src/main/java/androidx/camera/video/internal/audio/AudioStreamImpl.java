@@ -154,22 +154,26 @@ public class AudioStreamImpl implements AudioStream {
             checkAudioRecordInitialStateOrReleaseAndThrow(mAudioRecord);
         }
 
+        mTotalFramesRead = 0;
+        mShouldFallbackToSystemTime = false;
+        mNotifiedSilenceState.set(null);
         mAudioRecord.startRecording();
         if (mAudioRecord.getRecordingState() != AudioRecord.RECORDSTATE_RECORDING) {
             mIsStarted.set(false);
             throw new AudioStreamException("Unable to start AudioRecord with state: "
                     + mAudioRecord.getRecordingState());
         }
-        mTotalFramesRead = 0;
-        mShouldFallbackToSystemTime = false;
-        mNotifiedSilenceState.set(null);
-        boolean isSilenced = false;
         if (Build.VERSION.SDK_INT >= 29) {
             AudioRecordingConfiguration config = Api29Impl.getActiveRecordingConfiguration(
                     mAudioRecord);
-            isSilenced = config != null && Api29Impl.isClientSilenced(config);
+            if (config != null) {
+                notifySilenced(Api29Impl.isClientSilenced(config));
+            } else {
+                notifyDefaultSilencedIfNeeded();
+            }
+        } else {
+            notifySilenced(false);
         }
-        notifySilenced(isSilenced);
     }
 
     @SuppressLint("MissingPermission")
@@ -256,6 +260,16 @@ public class AudioStreamImpl implements AudioStream {
         if (executor != null && callback != null) {
             if (!Objects.equals(mNotifiedSilenceState.getAndSet(isSilenced), isSilenced)) {
                 executor.execute(() -> callback.onSilenceStateChanged(isSilenced));
+            }
+        }
+    }
+
+    private void notifyDefaultSilencedIfNeeded() {
+        Executor executor = mCallbackExecutor;
+        AudioStreamCallback callback = mAudioStreamCallback;
+        if (executor != null && callback != null) {
+            if (mNotifiedSilenceState.compareAndSet(null, false)) {
+                executor.execute(() -> callback.onSilenceStateChanged(false));
             }
         }
     }
