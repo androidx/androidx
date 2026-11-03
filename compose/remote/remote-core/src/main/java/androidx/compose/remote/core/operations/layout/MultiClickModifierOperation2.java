@@ -18,6 +18,16 @@ package androidx.compose.remote.core.operations.layout;
 // This class duplicates parts of MultiClickModifier until that class is removed.
 // CPD-OFF
 
+import static androidx.compose.remote.core.input.PointerInputRouter.EVENT_TYPE_POINTER;
+import static androidx.compose.remote.core.input.PointerInputRouter.POINTER_PASS_FINAL;
+import static androidx.compose.remote.core.input.PointerInputRouter.POINTER_PASS_MAIN;
+import static androidx.compose.remote.core.input.PointerInputRouter.POINTER_STATUS_CONSUMED;
+import static androidx.compose.remote.core.input.PointerInputRouter.POINTER_STATUS_NOT_CONSUMED;
+import static androidx.compose.remote.core.input.PointerInputRouter.POINTER_SUBTYPE_CANCEL;
+import static androidx.compose.remote.core.input.PointerInputRouter.POINTER_SUBTYPE_DOWN;
+import static androidx.compose.remote.core.input.PointerInputRouter.POINTER_SUBTYPE_MOVE;
+import static androidx.compose.remote.core.input.PointerInputRouter.POINTER_SUBTYPE_UP;
+
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
@@ -28,9 +38,11 @@ import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
+import androidx.compose.remote.core.events.Event;
+import androidx.compose.remote.core.events.EventHandler;
+import androidx.compose.remote.core.input.MetadataUtil;
 import androidx.compose.remote.core.operations.TextData;
 import androidx.compose.remote.core.operations.Utils;
-import androidx.compose.remote.core.operations.layout.managers.LayoutManager;
 import androidx.compose.remote.core.operations.layout.modifiers.ModifierOperation;
 import androidx.compose.remote.core.operations.paint.PaintBundle;
 import androidx.compose.remote.core.operations.utilities.ColorUtils;
@@ -49,21 +61,46 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents a click modifier + actions This modifier supports single click, double click as well
- * as long press interactions. It aims to replace ClickModifierOperation.
+ * Multi click modifier (single click, long press or double click) dispatched through the unified
+ * pointer input router.
+ *
+ * <p>Same opcode and wire format as {@link MultiClickModifier}: each operation detects exactly one
+ * gesture, selected by {@code clickType}. Gestures are detected in the <em>main</em> pass with
+ * Compose-like semantics (a tap requires an unconsumed down; a consumed move — also observed in the
+ * final pass — or a move outside the bounds cancels the press).
+ *
+ * <p>Several of these modifiers are typically stacked on one component (e.g. {@code
+ * combinedClickable} emits {@code SINGLE, LONG, DOUBLE}). They coordinate through consumption,
+ * relying on the main pass visiting a component's modifiers inner to outer, i.e. in <b>reverse</b>
+ * list order:
+ *
+ * <ul>
+ *   <li>{@code DOUBLE} consumes the <em>down</em> of the second tap, so a {@code SINGLE} placed
+ *       before it in the list never starts for that tap.
+ *   <li>{@code LONG} consumes the <em>up</em> once the long press has been performed, so a {@code
+ *       SINGLE} placed before it in the list does not also click.
+ *   <li>{@code SINGLE} behaves like {@link ClickModifierOperation2}.
+ * </ul>
+ *
+ * <p>The long press is detected while the pointer is held, by polling the clock from {@link
+ * #paint}; the modifier requests repaints while a press is pending, as the legacy player did in
+ * its draw loop. If no frame was painted after the timeout elapsed, it is detected on release
+ * instead.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MultiClickModifierOperation2 extends PaintOperation
         implements Container,
                 ModifierOperation,
                 DecoratorComponent,
-                ClickHandler,
+                EventHandler,
                 AccessibleComponent {
     private static final int OP_CODE = Operations.MODIFIER_MULTI_CLICK;
 
     public static final int CLICK_TYPE_SINGLE = 0;
     public static final int CLICK_TYPE_LONG = 1;
     public static final int CLICK_TYPE_DOUBLE = 2;
+
+    private static final int NO_POINTER = -1;
 
     int mClickType = CLICK_TYPE_SINGLE;
 
@@ -75,9 +112,34 @@ public class MultiClickModifierOperation2 extends PaintOperation
     float mWidth = 0;
     float mHeight = 0;
 
-    public float @NonNull [] locationInWindow = new float[2];
+    private @Nullable Component mComponent;
+    private final @NonNull PaintBundle mPaint = new PaintBundle();
 
-    @NonNull PaintBundle mPaint = new PaintBundle();
+    // ---------------------------------------------------------------------------------------
+    // Gesture state
+    // ---------------------------------------------------------------------------------------
+    private int mPointerId = NO_POINTER;
+    private long mDownTimeMillis;
+    private float mDownX;
+    private float mDownY;
+
+    /** LONG: set once the long press fired for the current press. */
+    private boolean mLongPressPerformed;
+
+    /** LONG: document of the press in flight, needed to run the actions from {@link #paint}. */
+    private @Nullable CoreDocument mPressDocument;
+
+    /** DOUBLE: whether a first tap is waiting for its second tap. */
+    private boolean mHasFirstTap;
+
+    /** DOUBLE: time / position of the up that ended the first tap. */
+    private long mLastTapUpTimeMillis;
+
+    private float mLastTapUpX;
+    private float mLastTapUpY;
+
+    /** DOUBLE: the current press is the second tap of a double tap. */
+    private boolean mDoubleTapCandidate;
 
     public MultiClickModifierOperation2() {}
 
@@ -114,14 +176,13 @@ public class MultiClickModifierOperation2 extends PaintOperation
      *
      * @param x starting position x of the ripple
      * @param y starting position y of the ripple
+     * @param timeStampMillis animation start timestamp in milliseconds
      */
     public void animateRipple(float x, float y, long timeStampMillis) {
         mAnimateRippleStart = timeStampMillis;
         mAnimateRippleX = x;
         mAnimateRippleY = y;
     }
-
-    @NonNull public ArrayList<Operation> mList = new ArrayList<>();
 
     @NonNull
     @Override
@@ -167,6 +228,8 @@ public class MultiClickModifierOperation2 extends PaintOperation
 
     @Override
     public void paint(@NonNull PaintContext context) {
+        checkLongPress(context.getContext());
+
         if (mAnimateRippleStart == 0) {
             return;
         }
@@ -213,13 +276,17 @@ public class MultiClickModifierOperation2 extends PaintOperation
             @NonNull Component component,
             float width,
             float height) {
+        mComponent = component;
         mWidth = width;
         mHeight = height;
     }
 
+
+    @NonNull public ArrayList<Operation> mList = new ArrayList<>();
+
     @Override
     public void serializeToString(int indent, @NonNull StringSerializer serializer) {
-        if (mClickType == 0) {
+        if (mClickType == CLICK_TYPE_SINGLE) {
             serializer.append(indent, "CLICK_MODIFIER");
         } else {
             serializer.append(indent, "CLICK_MODIFIER " + mClickType);
@@ -231,78 +298,267 @@ public class MultiClickModifierOperation2 extends PaintOperation
         }
     }
 
+    /**
+     * Returns whether this handler matches the given event type.
+     *
+     * @param eventType event type identifier
+     * @return true if event is a pointer event
+     */
     @Override
-    public boolean onClick(
-            @NonNull RemoteContext context,
-            @NonNull CoreDocument document,
-            @NonNull Component component,
-            float x,
-            float y) {
-        if (mClickType != CLICK_TYPE_SINGLE || !component.isVisible()) {
-            return false;
-        }
-        performAction(context, document, component, x, y);
-        context.hapticEffect(3);
-        return true;
+    public boolean matchesEvent(int eventType) {
+        return eventType == EVENT_TYPE_POINTER;
     }
 
+    /**
+     * Handles a pointer event and triggers the actions when the configured gesture completes.
+     *
+     * @param context current remote context
+     * @param document document containing this component
+     * @param event pointer event being dispatched
+     * @return status indicating whether the event was consumed
+     */
     @Override
-    public boolean onLongPress(
-            @NonNull RemoteContext context,
-            @NonNull CoreDocument document,
-            @NonNull Component component,
-            float x,
-            float y) {
-        if (mClickType != CLICK_TYPE_LONG || !component.isVisible()) {
-            return false;
-        }
-        performAction(context, document, component, x, y);
-        context.hapticEffect(0);
-        return true;
-    }
+    public int onEvent(
+            @NonNull RemoteContext context, @NonNull CoreDocument document, @NonNull Event event) {
+        int metadata = event.getMetadata();
+        int pass = MetadataUtil.unpackPass(metadata);
+        int subtype = MetadataUtil.unpackSubtype(metadata);
+        boolean consumed = MetadataUtil.unpackConsumed(metadata) == POINTER_STATUS_CONSUMED;
 
-    @Override
-    public boolean onDoubleClick(
-            @NonNull RemoteContext context,
-            @NonNull CoreDocument document,
-            @NonNull Component component,
-            float x,
-            float y) {
-        if (mClickType != CLICK_TYPE_DOUBLE || !component.isVisible()) {
-            return false;
-        }
-        performAction(context, document, component, x, y);
-        context.hapticEffect(3);
-        return true;
-    }
-
-    private void performAction(
-            @NonNull RemoteContext context,
-            @NonNull CoreDocument document,
-            @NonNull Component component,
-            float x,
-            float y) {
-        if (context.getTouchVersion() == LayoutManager.FIX_TOUCH_EVENT) {
-            if (context.isAnimationEnabled()) {
-                // x and y are already content-relative coordinates
-                animateRipple(x, y, context.getClock().millis());
+        if (pass == POINTER_PASS_FINAL) {
+            // Cancel by position consumption: an ancestor took over the gesture in its main pass.
+            if (isPressed() && consumed && subtype == POINTER_SUBTYPE_MOVE) {
+                cancelPress();
             }
+            return POINTER_STATUS_NOT_CONSUMED;
+        }
+        if (pass != POINTER_PASS_MAIN) {
+            return POINTER_STATUS_NOT_CONSUMED;
+        }
+
+        float[] data = event.getData();
+        if (data == null || data.length < 3) {
+            return POINTER_STATUS_NOT_CONSUMED;
+        }
+        int pointerId = (int) data[0];
+        float x = data[1];
+        float y = data[2];
+
+        switch (subtype) {
+            case POINTER_SUBTYPE_DOWN:
+                return onDown(context, document, pointerId, x, y, consumed);
+            case POINTER_SUBTYPE_MOVE:
+                if (isPressed(pointerId) && (consumed || !inBounds(x, y))) {
+                    // TODO(b/585250534): consider touch slop for beyond bounds calculation.
+                    cancelPress();
+                }
+                return POINTER_STATUS_NOT_CONSUMED;
+            case POINTER_SUBTYPE_UP:
+                return onUp(context, document, pointerId, x, y, consumed);
+            case POINTER_SUBTYPE_CANCEL:
+                if (isPressed(pointerId)) {
+                    cancelPress();
+                }
+                return POINTER_STATUS_NOT_CONSUMED;
+            default:
+                return POINTER_STATUS_NOT_CONSUMED;
+        }
+    }
+
+    private int onDown(
+            @NonNull RemoteContext context,
+            @NonNull CoreDocument document,
+            int pointerId,
+            float x,
+            float y,
+            boolean consumed) {
+        if (consumed || isPressed()) {
+            // Claimed by a descendant or an inner modifier, or a second pointer: ignore.
+            return POINTER_STATUS_NOT_CONSUMED;
+        }
+        long now = context.getClock().millis();
+        mPointerId = pointerId;
+        mDownTimeMillis = now;
+        mDownX = x;
+        mDownY = y;
+        mLongPressPerformed = false;
+        mDoubleTapCandidate = false;
+
+        switch (mClickType) {
+            case CLICK_TYPE_SINGLE:
+                return POINTER_STATUS_CONSUMED;
+            case CLICK_TYPE_LONG:
+                mPressDocument = document;
+                // Start polling the clock from paint().
+                context.needsRepaint();
+                return POINTER_STATUS_NOT_CONSUMED;
+            case CLICK_TYPE_DOUBLE:
+                mDoubleTapCandidate =
+                        mHasFirstTap
+                                && now - mLastTapUpTimeMillis <= context.getDoubleTapTimeoutMillis()
+                                && isWithinDoubleTapSlop(context, x, y);
+                // The second tap is ours; the first is only observed so that a single click
+                // modifier underneath still fires.
+                return mDoubleTapCandidate ? POINTER_STATUS_CONSUMED : POINTER_STATUS_NOT_CONSUMED;
+            default:
+                return POINTER_STATUS_NOT_CONSUMED;
+        }
+    }
+
+    private int onUp(
+            @NonNull RemoteContext context,
+            @NonNull CoreDocument document,
+            int pointerId,
+            float x,
+            float y,
+            boolean consumed) {
+        if (!isPressed(pointerId)) {
+            return POINTER_STATUS_NOT_CONSUMED;
+        }
+        int status = POINTER_STATUS_NOT_CONSUMED;
+        switch (mClickType) {
+            case CLICK_TYPE_SINGLE:
+                if (!consumed && performAction(context, document, x, y)) {
+                    context.hapticEffect(3);
+                    status = POINTER_STATUS_CONSUMED;
+                }
+                break;
+            case CLICK_TYPE_LONG:
+                if (!mLongPressPerformed && isLongPressTimeoutElapsed(context)) {
+                    // No frame was painted since the timeout elapsed: detect the long press on
+                    // release, so that the gesture does not depend on frames being drawn.
+                    performLongPress(context);
+                }
+                if (mLongPressPerformed) {
+                    // Swallow the up so that a single click modifier underneath does not fire.
+                    status = POINTER_STATUS_CONSUMED;
+                }
+                break;
+            case CLICK_TYPE_DOUBLE:
+                if (mDoubleTapCandidate) {
+                    if (!consumed && performAction(context, document, x, y)) {
+                        context.hapticEffect(3);
+                        status = POINTER_STATUS_CONSUMED;
+                    }
+                    // A third tap starts over.
+                    mHasFirstTap = false;
+                } else {
+                    mHasFirstTap = true;
+                    mLastTapUpTimeMillis = context.getClock().millis();
+                    mLastTapUpX = x;
+                    mLastTapUpY = y;
+                }
+                break;
+            default:
+                break;
+        }
+        endPress();
+        return status;
+    }
+
+    /**
+     * Fires the long press if the pointer has been held long enough, and keeps requesting
+     * repaints until then. Called from {@link #paint} while a long press is pending.
+     *
+     * @param context current remote context
+     */
+    private void checkLongPress(@NonNull RemoteContext context) {
+        if (mClickType != CLICK_TYPE_LONG || !isPressed() || mLongPressPerformed) {
+            return;
+        }
+        if (isLongPressTimeoutElapsed(context)) {
+            performLongPress(context);
         } else {
-            locationInWindow[0] = 0f;
-            locationInWindow[1] = 0f;
-            component.getLocationInWindow(context, locationInWindow);
-            if (context.isAnimationEnabled()) {
-                animateRipple(
-                        x - locationInWindow[0],
-                        y - locationInWindow[1],
-                        context.getClock().millis());
-            }
+            context.needsRepaint();
+        }
+    }
+
+    private boolean isLongPressTimeoutElapsed(@NonNull RemoteContext context) {
+        return context.getClock().millis() - mDownTimeMillis >= context.getLongPressTimeoutMillis();
+    }
+
+    /** Runs the long press actions for the press in flight, at the position of its down. */
+    private void performLongPress(@NonNull RemoteContext context) {
+        mLongPressPerformed = true;
+        CoreDocument document = mPressDocument;
+        if (document != null && performAction(context, document, mDownX, mDownY)) {
+            context.hapticEffect(0);
+        }
+    }
+
+    private void cancelPress() {
+        mDoubleTapCandidate = false;
+        endPress();
+    }
+
+    private void endPress() {
+        mPointerId = NO_POINTER;
+        mLongPressPerformed = false;
+        mPressDocument = null;
+    }
+
+    private boolean isPressed() {
+        return mPointerId != NO_POINTER;
+    }
+
+    private boolean isPressed(int pointerId) {
+        return isPressed() && mPointerId == pointerId;
+    }
+
+    private boolean inBounds(float x, float y) {
+        return x >= 0 && y >= 0 && x < mWidth && y < mHeight;
+    }
+
+    private boolean isWithinDoubleTapSlop(@NonNull RemoteContext context, float x, float y) {
+        float slop = context.getDoubleTapSlop();
+        float dx = x - mLastTapUpX;
+        float dy = y - mLastTapUpY;
+        return dx * dx + dy * dy < slop * slop;
+    }
+
+    /**
+     * Performs a click that does not come from a pointer, for example an accessibility click.
+     * Only a {@link #CLICK_TYPE_SINGLE} modifier reacts to it.
+     *
+     * <p>The ripple starts at the center of the component, as there is no pointer position.
+     *
+     * @param context current remote context
+     * @param document document containing this component
+     * @return true if the click was performed
+     */
+    public boolean performClick(@NonNull RemoteContext context, @NonNull CoreDocument document) {
+        // TODO(b/586559163): replace this method with a new type of event for accessibility.
+        //  matchesEvent returns true for that type too, and onEvent runs the click without
+        //  the ripple when the subtype is click.
+        if (mClickType != CLICK_TYPE_SINGLE
+                || !performAction(context, document, mWidth / 2f, mHeight / 2f)) {
+            return false;
+        }
+        context.hapticEffect(3);
+        return true;
+    }
+
+    /**
+     * Runs the actions and starts the ripple.
+     *
+     * @return false if the hosting component is not laid out or not visible
+     */
+    private boolean performAction(
+            @NonNull RemoteContext context, @NonNull CoreDocument document, float x, float y) {
+        Component component = mComponent;
+        if (component == null || !component.isVisible()) {
+            return false;
+        }
+        if (context.isAnimationEnabled()) {
+            // x and y are component local coordinates.
+            animateRipple(x, y, context.getClock().millis());
         }
         for (Operation o : mList) {
             if (o instanceof ActionOperation) {
                 ((ActionOperation) o).runAction(context, document);
             }
         }
+        return true;
     }
 
     /**
@@ -315,7 +571,13 @@ public class MultiClickModifierOperation2 extends PaintOperation
         return "ClickModifier";
     }
 
-    /** Write the operation on the buffer */
+    /**
+     * Write the operation on the buffer. The wire format is identical to {@link
+     * MultiClickModifier}.
+     *
+     * @param buffer wire buffer to write to
+     * @param clickType the gesture to detect
+     */
     public static void apply(@NonNull WireBuffer buffer, int clickType) {
         buffer.start(OP_CODE);
         buffer.writeInt(clickType);

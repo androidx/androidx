@@ -32,6 +32,7 @@ import androidx.compose.remote.core.operations.layout.ClickModifierOperation2;
 import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.layout.DecoratorComponent;
 import androidx.compose.remote.core.operations.layout.MultiClickModifier;
+import androidx.compose.remote.core.operations.layout.MultiClickModifierOperation2;
 import androidx.compose.remote.core.operations.layout.TouchHandler;
 import androidx.compose.remote.core.operations.loom.ExpansionContext;
 import androidx.compose.remote.core.operations.loom.LoomManager;
@@ -173,6 +174,10 @@ public class ComponentModifiers extends PaintOperation
                 context.translate(-tx, -ty);
                 ((MultiClickModifier) op).paint(context);
                 context.translate(tx, ty);
+            } else if (op instanceof MultiClickModifierOperation2) {
+                context.translate(-tx, -ty);
+                ((MultiClickModifierOperation2) op).paint(context);
+                context.translate(tx, ty);
             } else if (op instanceof PaintOperation) {
                 ((PaintOperation) op).paint(context);
             }
@@ -204,6 +209,8 @@ public class ComponentModifiers extends PaintOperation
             } else if (op instanceof ClickModifierOperation2) {
                 ((DecoratorComponent) op).layout(context, component, width, height);
             } else if (op instanceof MultiClickModifier) {
+                ((DecoratorComponent) op).layout(context, component, width, height);
+            } else if (op instanceof MultiClickModifierOperation2) {
                 ((DecoratorComponent) op).layout(context, component, width, height);
             } else if (op instanceof DecoratorComponent) {
                 ((DecoratorComponent) op).layout(context, component, w, h);
@@ -269,6 +276,12 @@ public class ComponentModifiers extends PaintOperation
                 // TODO(b/586559163): send an event of a new type for accessibility instead,
                 //  and remove this check.
                 if (((ClickModifierOperation2) op).performClick(context, document)) {
+                    handled = true;
+                }
+            } else if (op instanceof MultiClickModifierOperation2) {
+                // TODO(b/586559163): send an event of a new type for accessibility instead,
+                //  and remove this check.
+                if (((MultiClickModifierOperation2) op).performClick(context, document)) {
                     handled = true;
                 }
             }

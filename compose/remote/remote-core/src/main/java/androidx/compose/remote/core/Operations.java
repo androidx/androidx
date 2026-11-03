@@ -130,6 +130,7 @@ import androidx.compose.remote.core.operations.layout.ImpulseProcess;
 import androidx.compose.remote.core.operations.layout.LayoutComponentContent;
 import androidx.compose.remote.core.operations.layout.LoopOperation;
 import androidx.compose.remote.core.operations.layout.MultiClickModifier;
+import androidx.compose.remote.core.operations.layout.MultiClickModifierOperation2;
 import androidx.compose.remote.core.operations.layout.RootLayoutComponent;
 import androidx.compose.remote.core.operations.layout.TouchCancelModifierOperation;
 import androidx.compose.remote.core.operations.layout.TouchDownModifierOperation;
@@ -686,6 +687,8 @@ public class Operations {
         customMap.put(Operations.TOUCH_EXPRESSION, TouchExpressionOperation2::read);
         customMap.remove(Operations.MODIFIER_SCROLL);
         customMap.put(Operations.MODIFIER_SCROLL, ScrollModifierOperation2::read);
+        customMap.remove(Operations.MODIFIER_MULTI_CLICK);
+        customMap.put(Operations.MODIFIER_MULTI_CLICK, MultiClickModifierOperation2::read);
         return customMap;
     }
 
