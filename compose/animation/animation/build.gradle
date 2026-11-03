@@ -90,5 +90,6 @@ androidx {
     inceptionYear = "2019"
     description = "Compose animation library"
     samples(project(":compose:animation:animation:animation-samples"))
+    enableRobolectric()
 }
 
