@@ -44,6 +44,20 @@ class CommonLifecycleRegistryTest {
     }
 
     @Test
+    fun getCurrentStateFlow() {
+        val stateFlow = mRegistry.currentStateFlow
+        assertThat(stateFlow.value).isEqualTo(Lifecycle.State.INITIALIZED)
+
+        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+        assertThat(stateFlow.value).isEqualTo(Lifecycle.State.RESUMED)
+
+        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        assertThat(stateFlow.value).isEqualTo(Lifecycle.State.DESTROYED)
+
+        assertThat(mRegistry.currentStateFlow).isSameInstanceAs(stateFlow)
+    }
+
+    @Test
     fun moveInitializedToDestroyed() {
         assertThrows<IllegalStateException> {
                 mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
