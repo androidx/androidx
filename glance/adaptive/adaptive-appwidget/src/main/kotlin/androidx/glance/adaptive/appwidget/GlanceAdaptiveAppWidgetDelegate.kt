@@ -38,6 +38,10 @@ internal interface GlanceAdaptiveAppWidgetDelegate : GlanceAdaptiveWidgetDelegat
      *
      * @param widgetName The developer-defined identifier of the widget definition.
      * @param previewData The declarative template data payload to render as a preview.
+     * @throws IllegalArgumentException if [widgetName] cannot be resolved, see
+     *   [GlanceAdaptiveWidgetReceiver.widgetName].
+     * @throws IllegalStateException if [widgetName] cannot be resolved, see
+     *   [GlanceAdaptiveWidgetReceiver.widgetName].
      */
     suspend fun setPreview(widgetName: String, previewData: GlanceAdaptiveTemplate)
 
@@ -52,6 +56,10 @@ internal interface GlanceAdaptiveAppWidgetDelegate : GlanceAdaptiveWidgetDelegat
      * @param options The configuration options to store in the options of the pinned widget.
      * @param successCallback The [PendingIntent] to send once the widget is pinned, if any.
      * @return true if the request was sent to the launcher, false otherwise.
+     * @throws IllegalArgumentException if [widgetName] cannot be resolved, see
+     *   [GlanceAdaptiveWidgetReceiver.widgetName].
+     * @throws IllegalStateException if [widgetName] cannot be resolved, see
+     *   [GlanceAdaptiveWidgetReceiver.widgetName].
      */
     suspend fun requestPin(
         widgetName: String,

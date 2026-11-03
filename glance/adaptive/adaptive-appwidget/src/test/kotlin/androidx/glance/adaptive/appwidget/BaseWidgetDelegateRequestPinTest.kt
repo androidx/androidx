@@ -24,7 +24,6 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Looper
-import android.util.Log
 import androidx.glance.adaptive.appwidget.BaseWidgetDelegateTestRule.DuplicateTestReceiver
 import androidx.glance.adaptive.appwidget.BaseWidgetDelegateTestRule.TestReceiver
 import androidx.glance.adaptive.appwidget.BaseWidgetDelegateTestRule.TestTemplate
@@ -46,7 +45,6 @@ import org.mockito.kotlin.verify
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
-import org.robolectric.shadows.ShadowLog
 
 /** Tests [BaseWidgetDelegate.requestPin]. */
 @Config(sdk = [Config.TARGET_SDK])
@@ -75,10 +73,15 @@ class BaseWidgetDelegateRequestPinTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun requestPin_withoutMatchingReceiver_returnsFalse() = runTest {
+    fun requestPin_withoutMatchingReceiver_throws() = runTest {
         enablePinning()
 
-        assertThat(requestPin(widgetName = "unregistered_widget")).isFalse()
+        val error = runCatching {
+            requestPin(widgetName = "unregistered_widget")
+        }
+            .exceptionOrNull()
+
+        assertThat(error).isInstanceOf(IllegalArgumentException::class.java)
         verify(rule.appWidgetManager, never()).requestPinAppWidget(any(), anyOrNull(), anyOrNull())
     }
 
@@ -97,24 +100,16 @@ class BaseWidgetDelegateRequestPinTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun requestPin_withSeveralMatchingReceivers_pinsHomeScreenOneAndLogsWarning() = runTest {
+    fun requestPin_withSeveralMatchingReceivers_throwsListingThem() = runTest {
         enablePinning()
-        rule.registerReceiverInManifest(
-            TestReceiver::class.java.name,
-            widgetCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD,
-        )
+        rule.registerReceiverInManifest(TestReceiver::class.java.name)
         rule.registerReceiverInManifest(DuplicateTestReceiver::class.java.name)
 
-        assertThat(requestPin()).isTrue()
+        val error = runCatching { requestPin() }.exceptionOrNull()
 
-        verify(rule.appWidgetManager)
-            .requestPinAppWidget(
-                eq(rule.componentOf(DuplicateTestReceiver::class.java.name)),
-                any(),
-                anyOrNull(),
-            )
-        val warnings = ShadowLog.getLogsForTag("BaseWidgetDelegate").filter { it.type == Log.WARN }
-        assertThat(warnings).hasSize(1)
+        assertThat(error).isInstanceOf(IllegalArgumentException::class.java)
+        assertThat(error).hasMessageThat().contains(DuplicateTestReceiver::class.java.name)
+        verify(rule.appWidgetManager, never()).requestPinAppWidget(any(), anyOrNull(), anyOrNull())
     }
 
     @Test

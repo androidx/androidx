@@ -83,6 +83,12 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
      *
      * This identifier should correspond to the widget template definition or layout configuration
      * registered with the adaptive widget framework.
+     *
+     * It is read from an instance created with the receiver's no-argument constructor, so it must
+     * return a constant value. It must be unique per app. Every operation that takes a `widgetName`
+     * throws [IllegalArgumentException] if no receiver, or more than one receiver, declares it, and
+     * [IllegalStateException] if a receiver of the app cannot be instantiated to read it. Disabled
+     * receivers are included.
      */
     public abstract val widgetName: String
 

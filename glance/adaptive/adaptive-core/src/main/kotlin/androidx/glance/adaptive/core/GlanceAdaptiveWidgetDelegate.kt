@@ -36,6 +36,9 @@ public interface GlanceAdaptiveWidgetDelegate {
      * @param widgetIds Optional collection of developer target widget instance String identifiers.
      *   If omitted (`null`), updates broadcast to all instances matching [widgetName]. If an empty
      *   collection is passed, no widgets will be updated.
+     * @throws IllegalArgumentException if [widgetName] does not identify exactly one widget of the
+     *   app.
+     * @throws IllegalStateException if a widget of the app cannot be read to resolve [widgetName].
      */
     public suspend fun pushUpdate(
         widgetName: String,
@@ -48,6 +51,9 @@ public interface GlanceAdaptiveWidgetDelegate {
      * of this device.
      *
      * @param widgetName The developer-defined identifier of the widget definition.
+     * @throws IllegalArgumentException if [widgetName] does not identify exactly one widget of the
+     *   app.
+     * @throws IllegalStateException if a widget of the app cannot be read to resolve [widgetName].
      */
     public suspend fun getActiveInstances(widgetName: String): List<WidgetInstanceInfo>
 }

@@ -51,9 +51,13 @@ class BaseWidgetDelegatePushUpdateTest {
     @get:Rule val rule = BaseWidgetDelegateTestRule()
 
     @Test
-    fun pushUpdate_withoutReceivers_doesNotComposeOrUpdate() = runTest {
-        rule.delegate().pushUpdate(widgetName = "test_widget", currentData = TestTemplate())
+    fun pushUpdate_withoutReceivers_throwsAndDoesNotComposeOrUpdate() = runTest {
+        val error = runCatching {
+            rule.delegate().pushUpdate(widgetName = "test_widget", currentData = TestTemplate())
+        }
+            .exceptionOrNull()
 
+        assertThat(error).isInstanceOf(IllegalArgumentException::class.java)
         verify(rule.mockRenderer, never()).invoke(any(), any())
         verify(rule.appWidgetManager, never()).updateAppWidget(any<IntArray>(), any<RemoteViews>())
     }
@@ -76,12 +80,16 @@ class BaseWidgetDelegatePushUpdateTest {
     }
 
     @Test
-    fun pushUpdate_withMismatchingReceiver_doesNotComposeOrUpdate() = runTest {
+    fun pushUpdate_withMismatchingReceiver_throwsAndDoesNotComposeOrUpdate() = runTest {
         rule.setupBoundWidget(301, OtherReceiver::class.java.name)
         rule.registerReceiverInManifest(OtherReceiver::class.java.name)
 
-        rule.delegate().pushUpdate(widgetName = "test_widget", currentData = TestTemplate())
+        val error = runCatching {
+            rule.delegate().pushUpdate(widgetName = "test_widget", currentData = TestTemplate())
+        }
+            .exceptionOrNull()
 
+        assertThat(error).isInstanceOf(IllegalArgumentException::class.java)
         verify(rule.mockRenderer, never()).invoke(any(), any())
         verify(rule.appWidgetManager, never()).updateAppWidget(any<IntArray>(), any<RemoteViews>())
     }

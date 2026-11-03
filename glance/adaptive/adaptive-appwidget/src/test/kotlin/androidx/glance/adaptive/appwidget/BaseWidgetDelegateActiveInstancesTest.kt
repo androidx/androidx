@@ -41,7 +41,19 @@ class BaseWidgetDelegateActiveInstancesTest {
     @get:Rule val rule = BaseWidgetDelegateTestRule()
 
     @Test
-    fun getActiveInstances_withoutReceivers_returnsEmptyList() = runTest {
+    fun getActiveInstances_withoutReceivers_throws() = runTest {
+        val error = runCatching {
+            rule.delegate().getActiveInstances("test_widget")
+        }
+            .exceptionOrNull()
+
+        assertThat(error).isInstanceOf(IllegalArgumentException::class.java)
+    }
+
+    @Test
+    fun getActiveInstances_withReceiverButNoPlacements_returnsEmptyList() = runTest {
+        rule.registerReceiverInManifest(TestReceiver::class.java.name)
+
         assertThat(rule.delegate().getActiveInstances("test_widget")).isEmpty()
     }
 

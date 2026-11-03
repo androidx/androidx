@@ -86,6 +86,7 @@ class BaseWidgetDelegateTestRule : ExternalResource() {
         mockRenderer = mock()
         appWidgetManager = spy(AppWidgetManager.getInstance(context))
         WidgetOptionsCache.clear()
+        WidgetInstanceRepository.resetForTesting()
         GlanceRemoteViewsComposer.resetForTesting()
         AppWidgetTemplateRegistry.resetForTesting()
         AppWidgetTemplateRegistry.registerDefault(

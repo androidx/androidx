@@ -24,8 +24,10 @@ import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.collection.MutableIntList
 import androidx.collection.mutableIntListOf
+import java.lang.reflect.InvocationTargetException
 
 /**
  * Repository responsible for resolving active platform AppWidget instances matching target widget
@@ -37,65 +39,57 @@ internal class WidgetInstanceRepository(
     private val appWidgetManager: AppWidgetManager = AppWidgetManager.getInstance(context),
 ) {
     /**
-     * Finds all receiver [ComponentName]s matching [widgetName] declared in the current package.
+     * Resolves the single receiver [ComponentName] declaring [widgetName] in the current package,
+     * including disabled receivers.
+     *
+     * @throws IllegalArgumentException if no receiver, or more than one receiver, declares
+     *   [widgetName].
+     * @throws IllegalStateException if a [GlanceAdaptiveWidgetReceiver] subclass declared in the
+     *   manifest cannot be instantiated to read its [GlanceAdaptiveWidgetReceiver.widgetName].
      */
-    fun findReceiverComponentsForWidgetName(widgetName: String): Set<ComponentName> {
-        val result = mutableSetOf<ComponentName>()
-        val packageManager = context.packageManager
-        val updateIntent =
-            Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE).apply {
-                setPackage(context.packageName)
-            }
-        val widgetReceivers =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                packageManager.queryBroadcastReceivers(
-                    updateIntent,
-                    PackageManager.ResolveInfoFlags.of(0),
-                )
-            } else {
-                // The ResolveInfoFlags overload is only available from API 33.
-                @Suppress("DEPRECATION")
-                packageManager.queryBroadcastReceivers(updateIntent, /* flags= */ 0)
-            }
-
-        for (idx in widgetReceivers.indices) {
-            val resolveInfo = widgetReceivers[idx]
-            val receiverInfo = resolveInfo.activityInfo ?: continue
-            val componentName = ComponentName(receiverInfo.packageName, receiverInfo.name)
-            if (isReceiverForWidgetName(receiverInfo, widgetName)) {
-                result.add(componentName)
+    fun resolveReceiverComponent(widgetName: String): ComponentName {
+        val receivers = allReceiversGroupedByWidgetName()
+        val components = receivers[widgetName].orEmpty()
+        require(components.isNotEmpty()) {
+            "No GlanceAdaptiveWidgetReceiver in ${context.packageName} declares widgetName " +
+                "$widgetName. Check for a typo or a missing <receiver> declaration."
+        }
+        require(components.size == 1) {
+            buildString {
+                append("widgetName $widgetName must be unique per app, but is declared by ")
+                for (i in components.indices) {
+                    if (i > 0) append(", ")
+                    append(components[i].className)
+                }
             }
         }
-        return result
+        return components[0]
     }
 
     /**
-     * Queries package broadcast receivers matching [AppWidgetManager.ACTION_APPWIDGET_UPDATE],
-     * resolves receivers matching [widgetName], and collects active appWidgetIds per
-     * [ComponentName].
+     * Resolves the receiver declaring [widgetName] with [resolveReceiverComponent], then collects
+     * its active appWidgetIds matching [widgetIds], or all of them if [widgetIds] is null.
+     *
+     * @return The matching appWidgetIds keyed by the receiver [ComponentName], or an empty map if
+     *   none match.
+     * @throws IllegalArgumentException if [widgetName] cannot be resolved, see
+     *   [resolveReceiverComponent].
+     * @throws IllegalStateException if [widgetName] cannot be resolved, see
+     *   [resolveReceiverComponent].
      */
     fun findAppWidgetIdsForWidgetName(
         widgetName: String,
         widgetIds: Set<String>?,
     ): Map<ComponentName, IntArray> {
+        // Resolved first, so that an unknown widgetName fails even when nothing is targeted.
+        val componentName = resolveReceiverComponent(widgetName)
         if (widgetIds != null && widgetIds.isEmpty()) {
             return emptyMap()
         }
 
-        val matchingComponents = findReceiverComponentsForWidgetName(widgetName)
-        if (matchingComponents.isEmpty()) return emptyMap()
-
-        val componentToAppWidgetIds = mutableMapOf<ComponentName, MutableIntList>()
-        for (componentName in matchingComponents) {
-            val matchingIds = getMatchingAppWidgetIds(componentName, widgetIds)
-            if (matchingIds.isNotEmpty()) {
-                componentToAppWidgetIds[componentName] = matchingIds
-            }
-        }
-
-        return componentToAppWidgetIds.mapValues { (_, ids) ->
-            IntArray(ids.size) { index -> ids[index] }
-        }
+        val matchingIds = getMatchingAppWidgetIds(componentName, widgetIds)
+        if (matchingIds.isEmpty()) return emptyMap()
+        return mapOf(componentName to IntArray(matchingIds.size) { index -> matchingIds[index] })
     }
 
     /** Retrieves active appWidgetIds for [componentName] and filters those matching [widgetIds]. */
@@ -114,23 +108,98 @@ internal class WidgetInstanceRepository(
     }
 
     /**
-     * Checks if the broadcast receiver represented by [receiverInfo] matches the target
-     * [widgetName] by reflectively reading [GlanceAdaptiveWidgetReceiver.widgetName].
+     * Returns the receivers per [GlanceAdaptiveWidgetReceiver.widgetName] of the current package,
+     * read with [readAllReceiversGroupedByWidgetName] on first use and then shared by every
+     * repository of the process, see [receiversByPackage].
      */
-    private fun isReceiverForWidgetName(receiverInfo: ActivityInfo, widgetName: String): Boolean {
-        return runCatching {
-                val receiverClass = context.classLoader.loadClass(receiverInfo.name)
-                if (GlanceAdaptiveWidgetReceiver::class.java.isAssignableFrom(receiverClass)) {
-                    val constructor = receiverClass.getDeclaredConstructor()
-                    constructor.isAccessible = true
-                    val instance = constructor.newInstance() as GlanceAdaptiveWidgetReceiver
-                    instance.widgetName == widgetName
-                } else {
-                    false
-                }
+    private fun allReceiversGroupedByWidgetName(): Map<String, List<ComponentName>> {
+        val packageName = context.packageName
+        synchronized(lock) { receiversByPackage[packageName] }
+            ?.let { cached ->
+                return cached
             }
-            .getOrDefault(false)
+        // Read outside the lock, as it queries PackageManager and instantiates receivers.
+        val receivers = readAllReceiversGroupedByWidgetName()
+        synchronized(lock) { receiversByPackage[packageName] = receivers }
+        return receivers
     }
+
+    /**
+     * Reads the [GlanceAdaptiveWidgetReceiver.widgetName] of every receiver of
+     * [AppWidgetManager.ACTION_APPWIDGET_UPDATE] declared in the current package, including
+     * disabled ones, as an app can disable a widget receiver at runtime.
+     */
+    private fun readAllReceiversGroupedByWidgetName(): Map<String, List<ComponentName>> {
+        val packageManager = context.packageManager
+        val updateIntent =
+            Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE).apply {
+                setPackage(context.packageName)
+            }
+        val flags = PackageManager.MATCH_DISABLED_COMPONENTS
+        val widgetReceivers =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageManager.queryBroadcastReceivers(
+                    updateIntent,
+                    PackageManager.ResolveInfoFlags.of(flags.toLong()),
+                )
+            } else {
+                // The ResolveInfoFlags overload is only available from API 33.
+                @Suppress("DEPRECATION") packageManager.queryBroadcastReceivers(updateIntent, flags)
+            }
+
+        val result = HashMap<String, MutableList<ComponentName>>()
+        for (idx in widgetReceivers.indices) {
+            val receiverInfo = widgetReceivers[idx].activityInfo ?: continue
+            val widgetName = readWidgetName(receiverInfo) ?: continue
+            result
+                .getOrPut(widgetName) { mutableListOf() }
+                .add(ComponentName(receiverInfo.packageName, receiverInfo.name))
+        }
+        return result
+    }
+
+    /**
+     * Reads the [GlanceAdaptiveWidgetReceiver.widgetName] of the receiver represented by
+     * [receiverInfo] by instantiating it with its no-argument constructor, the same constructor the
+     * platform uses to deliver broadcasts.
+     *
+     * @return The widgetName, or null if the receiver is not a [GlanceAdaptiveWidgetReceiver].
+     * @throws IllegalStateException if the receiver cannot be instantiated or its widgetName cannot
+     *   be read.
+     */
+    private fun readWidgetName(receiverInfo: ActivityInfo): String? {
+        val receiverClass =
+            try {
+                context.classLoader.loadClass(receiverInfo.name)
+            } catch (e: ClassNotFoundException) {
+                // Not a receiver of this library: the platform reports it when delivering to it.
+                return null
+            }
+        if (!GlanceAdaptiveWidgetReceiver::class.java.isAssignableFrom(receiverClass)) return null
+
+        val receiver =
+            try {
+                val constructor = receiverClass.getDeclaredConstructor()
+                constructor.isAccessible = true
+                constructor.newInstance() as GlanceAdaptiveWidgetReceiver
+            } catch (e: InvocationTargetException) {
+                val cause = e.targetException ?: e
+                if (cause is Error) throw cause
+                throw IllegalStateException(cannotReadWidgetName(receiverInfo), cause)
+            } catch (e: ReflectiveOperationException) {
+                throw IllegalStateException(cannotReadWidgetName(receiverInfo), e)
+            }
+        return try {
+            receiver.widgetName
+        } catch (e: Exception) {
+            throw IllegalStateException(cannotReadWidgetName(receiverInfo), e)
+        }
+    }
+
+    private fun cannotReadWidgetName(receiverInfo: ActivityInfo): String =
+        "Cannot read the widgetName of ${receiverInfo.name}. GlanceAdaptiveWidgetReceiver " +
+            "subclasses need a no-argument constructor, and their constructor, initializers and " +
+            "widgetName must not throw."
 
     /**
      * Checks whether an individual platform integer [appWidgetId] matches the requested collection
@@ -151,5 +220,24 @@ internal class WidgetInstanceRepository(
 
         WidgetOptionsCache.cacheWidgetOptionsIfMissing(appWidgetId, options)
         return storedWidgetId in widgetIds
+    }
+
+    companion object {
+        private val lock = Any()
+
+        /**
+         * Receiver [ComponentName]s per [GlanceAdaptiveWidgetReceiver.widgetName], per package,
+         * read from the manifest on first use. The set of receivers is fixed in the manifest for
+         * the lifetime of the process, so it is read once per process and shared by every
+         * repository, and so by every manager. A failure is not cached, so every lookup fails until
+         * the receiver is fixed. Concurrent first lookups may each read the manifest, which is
+         * harmless.
+         */
+        private val receiversByPackage = HashMap<String, Map<String, List<ComponentName>>>()
+
+        @VisibleForTesting
+        internal fun resetForTesting() {
+            synchronized(lock) { receiversByPackage.clear() }
+        }
     }
 }

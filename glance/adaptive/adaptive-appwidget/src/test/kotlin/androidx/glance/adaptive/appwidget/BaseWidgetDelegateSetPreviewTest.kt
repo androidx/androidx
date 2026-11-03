@@ -23,6 +23,7 @@ import android.widget.RemoteViews
 import androidx.glance.adaptive.appwidget.BaseWidgetDelegateTestRule.TestReceiver
 import androidx.glance.adaptive.appwidget.BaseWidgetDelegateTestRule.TestTemplate
 import androidx.test.filters.SdkSuppress
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
@@ -82,9 +83,15 @@ class BaseWidgetDelegateSetPreviewTest {
     @Test
     @Config(sdk = [35])
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM)
-    fun setPreview_withoutMatchingReceivers_doesNotComposeOrSetPreview() = runTest {
-        rule.delegate().setPreview(widgetName = "unregistered_widget", previewData = TestTemplate())
+    fun setPreview_withoutMatchingReceivers_throwsAndDoesNotComposeOrSetPreview() = runTest {
+        val error = runCatching {
+            rule
+                .delegate()
+                .setPreview(widgetName = "unregistered_widget", previewData = TestTemplate())
+        }
+            .exceptionOrNull()
 
+        assertThat(error).isInstanceOf(IllegalArgumentException::class.java)
         verify(rule.mockRenderer, never()).invoke(any(), any())
         verify(rule.appWidgetManager, never())
             .setWidgetPreview(any<ComponentName>(), any<Int>(), any<RemoteViews>())
