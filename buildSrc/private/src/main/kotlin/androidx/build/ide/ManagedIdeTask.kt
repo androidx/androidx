@@ -505,7 +505,7 @@ fun ManagedIdeTask.installIntellijPlugins(configBaseDir: File, plugins: List<Ide
     val pluginsDirFile = configBaseDir.resolve("plugins").also { it.mkdirs() }
     plugins.forEach { plugin ->
         val pluginInstallDir = File(pluginsDirFile, plugin.targetDirectoryName)
-        val marker = File(pluginInstallDir, plugin.checksum)
+        val marker = File(pluginInstallDir, "${plugin.checksum}.installed")
         if (pluginInstallDir.exists() && marker.exists()) return@forEach
 
         val pluginZip = File(pluginsDirFile, plugin.zipName)
@@ -518,6 +518,7 @@ fun ManagedIdeTask.installIntellijPlugins(configBaseDir: File, plugins: List<Ide
         pluginZip.verifyChecksum(plugin.checksum)
 
         println("Installing plugin into ${pluginsDirFile.absolutePath}")
+        fileSystemOperations.delete { it.delete(pluginInstallDir) }
         fileSystemOperations.copy { copySpec ->
             copySpec.from(archiveOperations.zipTree(pluginZip))
             copySpec.into(pluginsDirFile)
