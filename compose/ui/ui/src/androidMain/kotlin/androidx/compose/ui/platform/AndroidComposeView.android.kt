@@ -907,6 +907,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     private var onReadyForComposition: ((ComposeViewContext) -> Unit)? = null
 
     private var _legacyTextInputServiceAndroid: TextInputServiceAndroid? = null
+    private var interceptedTextInputServiceAndroid: TextInputServiceAndroid? = null
     private val legacyTextInputServiceAndroid: TextInputServiceAndroid
         get() =
             _legacyTextInputServiceAndroid
@@ -929,7 +930,9 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         get() =
             _textInputService
                 ?: TextInputService(
-                        platformTextInputServiceInterceptor(legacyTextInputServiceAndroid)
+                        platformTextInputServiceInterceptor(legacyTextInputServiceAndroid).also {
+                            interceptedTextInputServiceAndroid = it as? TextInputServiceAndroid
+                        }
                     )
                     .also { _textInputService = it }
 
@@ -3433,7 +3436,10 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                 ?: return legacyTextInputServiceAndroid.createInputConnection(outAttrs)
         // Don't bring this up before the ?: - if this returns null, we SHOULD NOT fall back to
         // the legacy input system.
-        return parentSession.createInputConnection(outAttrs)
+        return parentSession.createInputConnection(outAttrs)?.also {
+            (interceptedTextInputServiceAndroid ?: legacyTextInputServiceAndroid)
+                .onInputConnectionCreated()
+        }
     }
 
     override fun calculateLocalPosition(positionInWindow: Offset): Offset {

@@ -27,12 +27,15 @@ import androidx.compose.ui.text.MultiParagraphIntrinsics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.CommitTextCommand
 import androidx.compose.ui.text.input.EditProcessor
+import androidx.compose.ui.text.input.FinishComposingTextCommand
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.SetComposingTextCommand
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.text.input.TextInputSession
@@ -48,6 +51,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -312,5 +316,61 @@ class TextFieldDelegateTest {
                     range.end + offsetAmount,
                 )
             )
+    }
+
+    @Test
+    fun onEditCommand_finishComposingTextWithoutComposition_doesNotCallOnValueChangeOrUpdateState() {
+        val realProcessor = EditProcessor()
+        val initialValue = TextFieldValue(text = "abc def ghi", selection = TextRange(0, 3))
+        realProcessor.reset(initialValue, null)
+        val session = mock<TextInputSession>()
+
+        TextFieldDelegate.onEditCommand(
+            ops = listOf(FinishComposingTextCommand()),
+            editProcessor = realProcessor,
+            onValueChange = onValueChange,
+            session = session,
+        )
+
+        verify(session, never()).updateState(any(), any())
+        verify(onValueChange, never()).invoke(any())
+    }
+
+    @Test
+    fun onEditCommand_finishComposingTextWithComposition_callsOnValueChangeAndUpdateState() {
+        val realProcessor = EditProcessor()
+        realProcessor.apply(listOf(SetComposingTextCommand("abc", 1)))
+        assertThat(realProcessor.toTextFieldValue().composition).isEqualTo(TextRange(0, 3))
+        val session = mock<TextInputSession>()
+
+        TextFieldDelegate.onEditCommand(
+            ops = listOf(FinishComposingTextCommand()),
+            editProcessor = realProcessor,
+            onValueChange = onValueChange,
+            session = session,
+        )
+
+        val expected = TextFieldValue(text = "abc", selection = TextRange(3), composition = null)
+        verify(session, times(1)).updateState(eq(null), eq(expected))
+        verify(onValueChange, times(1)).invoke(eq(expected))
+    }
+
+    @Test
+    fun onEditCommand_change_callsOnValueChangeAndUpdateState() {
+        val realProcessor = EditProcessor()
+        val initialValue = TextFieldValue(text = "abc", selection = TextRange(3))
+        realProcessor.reset(initialValue, null)
+        val session = mock<TextInputSession>()
+
+        TextFieldDelegate.onEditCommand(
+            ops = listOf(CommitTextCommand("d", 1)),
+            editProcessor = realProcessor,
+            onValueChange = onValueChange,
+            session = session,
+        )
+
+        val expected = TextFieldValue(text = "abcd", selection = TextRange(4))
+        verify(session, times(1)).updateState(eq(null), eq(expected))
+        verify(onValueChange, times(1)).invoke(eq(expected))
     }
 }

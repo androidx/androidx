@@ -97,6 +97,17 @@ public object AndroidComposeUiFlags {
     public var isOutOfFrameSchedulerForTextInputEventsEnabled: Boolean = true
 
     /**
+     * When enabled, focusing a Compose text field in a newly focused `ComposeView` starts a single
+     * input method session instead of restarting the session immediately after creation. This
+     * prevents the soft keyboard from dropping early keystrokes typed while the keyboard is
+     * opening.
+     */
+    // TODO(b/584257035): Cleanup once proven stable.
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isSkipRedundantRestartInputOnInitialFocusEnabled: Boolean = true
+
+    /**
      * With this flag on, a node that gains input focus while it is outside the accessibility tree
      * (for example a lazy list item composed by BeyondBoundsLayout for keyboard navigation) or
      * while it is not visible to the user dispatches TYPE_VIEW_FOCUSED once it becomes visible,
