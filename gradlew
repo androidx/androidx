@@ -193,6 +193,65 @@ else
   disableCi=false
 fi
 
+function setGradleAndKotlinDaemonMemoryLimits() {
+  local is_running_in_ci="$1"
+  OS_NAME=$(uname -s)
+  TOTAL_SYSTEM_MEM_GB=0
+
+  if [[ "${OS_NAME}" == "Linux" ]]; then
+    # Get total memory in KB on the machine
+    TOTAL_MEM_KB=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+    TOTAL_SYSTEM_MEM_GB=$(( TOTAL_MEM_KB / 1024 / 1024 ))
+  elif [[ "${OS_NAME}" == "Darwin" ]]; then
+    # Get total memory in bytes on macOS using sysctl, then convert to GB
+    TOTAL_MEM_BYTES=$(sysctl -n hw.memsize)
+    TOTAL_SYSTEM_MEM_GB=$(( TOTAL_MEM_BYTES / 1024 / 1024 / 1024 ))
+  fi
+
+  if (( TOTAL_SYSTEM_MEM_GB > 0 )); then
+    # calculate 40% of system memory
+    CALCULATED_MEM_GB=$(( TOTAL_SYSTEM_MEM_GB * 40 / 100 ))
+
+    # clamp between min 8 GB and max 38 GB
+    if (( CALCULATED_MEM_GB < 8 )); then
+      GRADLE_MEM_GB=8
+    elif (( CALCULATED_MEM_GB > 38 )); then
+      GRADLE_MEM_GB=38
+    else
+      GRADLE_MEM_GB=${CALCULATED_MEM_GB}
+    fi
+
+    KOTLIN_MEM_GB=$(( GRADLE_MEM_GB / 2 ))
+
+    if (( KOTLIN_MEM_GB > 16 )); then
+      KOTLIN_MEM_GB=16
+    fi
+
+    GRADLE_MEMORY_OVERRIDE="${GRADLE_MEM_GB}g"
+    KOTLIN_MEMORY_OVERRIDE="${KOTLIN_MEM_GB}g"
+
+    # If we are running in CI, we want to additionally set
+    if [[ "$is_running_in_ci" = "true" ]]; then
+      # Set the initial heap size to match the max heap size,
+      # by replacing a string like "-Xmx1g" with one like "-Xms1g -Xmx1g"
+      # First sed command replaces Gradle daemon -Xmx and second replaces Kotlin compiler daemon -Xmx
+      ORG_GRADLE_JVMARGS="$(echo "${ORG_GRADLE_JVMARGS}" | sed "s/-Xmx\([^ ]*\)/-Xms${GRADLE_MEMORY_OVERRIDE} -Xmx${GRADLE_MEMORY_OVERRIDE}/" | sed "s/,-Xmx\([^, ]*\)/,-Xms${KOTLIN_MEMORY_OVERRIDE},-Xmx${KOTLIN_MEMORY_OVERRIDE}/")"
+
+      # Increase the compiler cache size: b/260643754. Remove when updating to JDK 20 (https://bugs.openjdk.org/browse/JDK-8295724)
+      ORG_GRADLE_JVMARGS="$(echo "${ORG_GRADLE_JVMARGS}" | sed "s|$| -XX:ReservedCodeCacheSize=576M|")"
+    else
+      # If we are not running in CI, we want to only set the max heap size for gradle and kotlin daemons.
+      ORG_GRADLE_JVMARGS="$(echo "${ORG_GRADLE_JVMARGS}" | sed "s/-Xmx\([^ ]*\)/-Xmx${GRADLE_MEMORY_OVERRIDE}/" | sed "s/,-Xmx\([^, ]*\)/,-Xmx${KOTLIN_MEMORY_OVERRIDE}/")"
+    fi
+  fi
+}
+
+if [[ " ${@} " =~ " --ci " ]]; then
+  setGradleAndKotlinDaemonMemoryLimits "true"
+else
+  setGradleAndKotlinDaemonMemoryLimits "false"
+fi
+
 # Expand some arguments
 for compact in "--ci" "--strict" "--clean" "--no-ci"; do
   expanded=""
@@ -204,8 +263,7 @@ for compact in "--ci" "--strict" "--clean" "--no-ci"; do
        -Pandroidx.enableAffectedModuleDetection\
        -Pandroidx.printTimestamps\
        -Pandroid.experimental.forceDeterministicApk=true\
-       --no-watch-fs\
-       -Pandroidx.highMemory"
+       --no-watch-fs"
     fi
   fi
   if [ "$compact" == "--strict" ]; then
@@ -251,54 +309,6 @@ for compact in "--ci" "--strict" "--clean" "--no-ci"; do
     done
   fi
 done
-
-# automatically raise memory if machine memory is more than 32GB
-HIGH_MEM_THRESHOLD_KB=$(( 64 * 1024 * 1024 ))  # 64 GB in KB
-MEDIUM_MEM_THRESHOLD_KB=$(( 32 * 1024 * 1024 ))  # 32 GB in KB
-
-OS_NAME=$(uname -s)
-TOTAL_MEM_KB=0
-
-if [[ "${OS_NAME}" == "Linux" ]]; then
-  # Get total memory in KB on the machine
-  TOTAL_MEM_KB=$(grep MemTotal /proc/meminfo | awk '{print $2}')
-elif [[ "${OS_NAME}" == "Darwin" ]]; then
-  # Get total memory in bytes on macOS using sysctl, then convert to KB
-  TOTAL_MEM_BYTES=$(sysctl -n hw.memsize)
-  TOTAL_MEM_KB=$(( TOTAL_MEM_BYTES / 1024 ))
-fi
-
-if [[ " ${@} " =~ " -Pandroidx.highMemory " ]]; then
-  MAX_MEMORY_OVERRIDE=38g
-else
-  # determine the memory total
-  if (( TOTAL_MEM_KB >= MEDIUM_MEM_THRESHOLD_KB && TOTAL_MEM_KB < HIGH_MEM_THRESHOLD_KB )); then
-    MAX_MEMORY_OVERRIDE=19g
-  elif (( TOTAL_MEM_KB >= HIGH_MEM_THRESHOLD_KB )); then
-    MAX_MEMORY_OVERRIDE=38g
-  fi
-fi
-
-if [[ " ${@} " =~ " -Pandroidx.lowMemory " ]]; then
-  if [[ " ${@} " =~ " -Pandroidx.highMemory " ]]; then
-    echo "androidx.lowMemory overriding androidx.highMemory"
-    echo
-  fi
-  unset MAX_MEMORY_OVERRIDE
-fi
-
-# checking if the MAX_MEMORY_OVERRIDE variable is set using -v doesn't work on a lot of mac
-# machines, this is a workaround for that
-if [[ -n "${MAX_MEMORY_OVERRIDE+x}" ]]; then
-  # Set the initial heap size to match the max heap size,
-  # by replacing a string like "-Xmx1g" with one like "-Xms1g -Xmx1g"
-
-  # First sed command replaces Gradle daemon -Xmx and second replaces Kotlin compliler deamon -Xmx
-  ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s/-Xmx\([^ ]*\)/-Xms$MAX_MEMORY_OVERRIDE -Xmx$MAX_MEMORY_OVERRIDE/" | sed "s/,-Xmx\([^, ]*\)/,-Xms$MAX_MEMORY_OVERRIDE,-Xmx$MAX_MEMORY_OVERRIDE/")"
-
-  # Increase the compiler cache size: b/260643754 . Remove when updating to JDK 20 ( https://bugs.openjdk.org/browse/JDK-8295724 )
-  ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s|$| -XX:ReservedCodeCacheSize=576M|")"
-fi
 
 # check whether the user has requested profiling via yourkit
 yourkitArgPrefix="androidx.profile.yourkitAgentPath"
