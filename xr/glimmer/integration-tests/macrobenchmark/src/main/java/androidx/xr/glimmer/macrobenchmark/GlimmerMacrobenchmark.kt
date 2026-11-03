@@ -66,10 +66,15 @@ class GlimmerMacrobenchmark(private val compilationMode: CompilationMode) {
 
             // Verify we scrolled down the list: Item: 0 has scrolled off screen, Item: 4 is
             // visible, and we did not overscroll to the end.
-            check(!device.hasObject(By.text("Item: 0"))) {
+            // waitForIdle() can return before the fling ends because Compose doesn't send
+            // accessibility events to UiAutomator, so wait until the first item is gone.
+            device.waitOrThrow(Until.gone(By.text("Item: 0")), TIMEOUT_MS) {
                 "List did not scroll past the start bound."
             }
-            check(device.hasObject(By.text("Item: 4"))) { "Item: 4 is not visible on screen." }
+            // Wait until the scrolled-in item is visible in the accessibility tree.
+            device.waitOrThrow(Until.hasObject(By.text("Item: 4")), TIMEOUT_MS) {
+                "Item: 4 is not visible on screen."
+            }
             check(!device.hasObject(By.text("Item: 19"))) {
                 "List scrolled to the end bound (overscroll)."
             }
