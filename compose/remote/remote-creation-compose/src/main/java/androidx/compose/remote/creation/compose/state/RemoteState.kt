@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
+@file:JvmName("RemoteStateKt")
+@file:JvmMultifileClass
+
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
-import androidx.compose.remote.creation.compose.layout.RemoteCanvas
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.layout.RemoteComposeNode
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 
 /**
@@ -237,39 +236,6 @@ public interface MutableRemoteState<T> : RemoteState<T> {
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val asEncodedMutable: MutableRemoteState<*>
         get() = this
-}
-
-internal class RemoteHoistNode : RemoteComposeNode() {
-    var states: Array<out RemoteState<*>> = emptyArray()
-
-    override val supportsComponentToken: Boolean
-        get() = false
-
-    override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
-        for (state in states) {
-            if (state is BaseRemoteState<*>) {
-                state.getIdForCreationState(creationState)
-            }
-        }
-    }
-}
-
-/**
- * Explicitly registers one or more [RemoteState] expressions to be hoisted and evaluated at the
- * current container level in the document hierarchy.
- *
- * This ensures the operations underlying the given states (such as string formatting or
- * mathematical operations) are emitted at this container level, so that they are evaluated whenever
- * this container is rendered, rather than being trapped inside a conditionally hidden child
- * container (such as an inactive branch of a RemoteStateLayout).
- *
- * @param states The remote state expressions to hoist to the current container scope.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RemoteComposable
-@Composable
-public fun Hoist(vararg states: RemoteState<*>) {
-    RemoteComposeNode(factory = ::RemoteHoistNode, update = { set(states) { this.states = it } })
 }
 
 /** The cache key for this remote state within the RemoteComposeCreationState. */

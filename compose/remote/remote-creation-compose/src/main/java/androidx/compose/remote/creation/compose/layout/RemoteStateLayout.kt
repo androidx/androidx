@@ -93,7 +93,7 @@ public fun <T : Enum<T>> RemoteStateLayout(
     content: @RemoteComposable @Composable (T) -> Unit,
 ) {
     val stateMachine = remember {
-        RemoteStateMachine(currentState.intValue, currentState.enumEntries)
+        RemoteStateMachine(currentState.ordinal, currentState.enumEntries)
     }
     StateLayout(stateMachine, modifier, content)
 }

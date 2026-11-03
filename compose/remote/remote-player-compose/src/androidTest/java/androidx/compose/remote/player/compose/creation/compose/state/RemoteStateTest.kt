@@ -30,6 +30,7 @@ import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.creation.compose.state.toRemoteString
 import androidx.compose.remote.testing.RemoteContentTestRule
 import androidx.compose.runtime.remember
 import androidx.test.core.app.ApplicationProvider

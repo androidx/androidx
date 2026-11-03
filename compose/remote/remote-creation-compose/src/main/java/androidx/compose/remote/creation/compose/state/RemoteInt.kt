@@ -17,20 +17,20 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.core.operations.TextFromFloat.GROUPING_BY3
+import androidx.compose.remote.core.operations.TextFromFloat.PAD_AFTER_NONE
+import androidx.compose.remote.core.operations.TextFromFloat.PAD_PRE_NONE
+import androidx.compose.remote.core.operations.TextFromFloat.SEPARATOR_COMMA_PERIOD
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteInt.OperationKey
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.annotation.RememberInComposition
-import androidx.compose.runtime.remember
-import java.text.DecimalFormat
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.withSign
 
 private const val OP_ABS = 0x100000000L + IntegerExpressionEvaluator.I_ABS
 private const val OP_ADD = 0x100000000L + IntegerExpressionEvaluator.I_ADD
@@ -64,9 +64,11 @@ public abstract class RemoteInt
 internal constructor(
     @get:Suppress("AutoBoxing") public override val constantValueOrNull: Int?,
     cacheKey: RemoteStateCacheKey,
-    internal val arrayProvider: (creationState: RemoteComposeCreationState) -> LongArray,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val arrayProvider: (creationState: RemoteComposeCreationState) -> LongArray,
 ) : BaseRemoteState<Int>(cacheKey) {
-    internal enum class OperationKey(
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public enum class OperationKey(
         override val precedence: Int = 100,
         public val symbol: String? = null,
     ) : RemoteOperation {
@@ -196,7 +198,13 @@ internal constructor(
         return creationState.getOrPutLongArray(cacheKey) { arrayProvider(creationState) }
     }
 
-    internal fun hasBeenWrittenToDoc(creationState: RemoteComposeCreationState) =
+    /**
+     * Returns `true` if this [RemoteInt] already has a variable ID in [creationState].
+     *
+     * @param creationState state tracking written variable IDs
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun hasBeenWrittenToDoc(creationState: RemoteComposeCreationState): Boolean =
         creationState.remoteVariableToId.contains(cacheKey)
 
     /**
@@ -243,32 +251,17 @@ internal constructor(
     }
 
     /**
-     * Converts this [RemoteInt] to a [RemoteString] using the specified [format].
+     * Converts this [RemoteInt] to a [RemoteString] using the default localized integer format.
      *
-     * This method maps the localized ICU [android.icu.text.DecimalFormat] configuration (including
-     * padding, rounding, and digit constraints) to a remote-compatible string representation. It
-     * specifically handles complex padding logic and threshold-based selections to ensure the
-     * formatted output remains consistent when evaluated on the remote target.
-     *
-     * @param format The [android.icu.text.DecimalFormat] used to format the integer value. Defaults
-     *   to [DefaultIntegerFormat].
      * @return A [RemoteString] representing the formatted integer value.
      */
-    public fun toRemoteString(
-        format: android.icu.text.DecimalFormat = DefaultIntegerFormat
-    ): RemoteString = formatRemoteInt(this, format)
-
-    /**
-     * Converts this [RemoteInt] to a [RemoteString] using the specified [format].
-     *
-     * This method maps the localized [DecimalFormat] symbols (such as separators and grouping
-     * sizes) and configuration (such as padding and rounding) to a remote-compatible string
-     * representation.
-     *
-     * @param format The [DecimalFormat] to use for determining separators, grouping, and padding.
-     * @return A [RemoteString] representing the formatted integer.
-     */
-    public fun toRemoteString(format: DecimalFormat): RemoteString = formatRemoteInt(this, format)
+    public fun toRemoteString(): RemoteString =
+        toRemoteFloat()
+            .toRemoteStringWithPadding(
+                before = 40,
+                after = 0,
+                flags = SEPARATOR_COMMA_PERIOD or GROUPING_BY3 or PAD_AFTER_NONE or PAD_PRE_NONE,
+            )
 
     /**
      * Returns a [RemoteInt] that is a reference of this RemoteInt.
@@ -679,7 +672,8 @@ internal constructor(
  * [extras]. Inlining is preferred as long as the resulting array length is less than
  * [MAX_SAFE_LONG_ARRAY].
  */
-internal fun combineToLongArray(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun combineToLongArray(
     creationState: RemoteComposeCreationState,
     remoteInts: Array<RemoteInt>,
     vararg extras: Long,
@@ -939,7 +933,7 @@ internal fun comparisonOp(
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun copySign(v: RemoteInt, sign: RemoteInt): RemoteInt =
     binaryOp(v, sign, OperationKey.CopySign, OP_COPY_SIGN) { a, b ->
-        Math.copySign(a.toDouble(), b.toDouble()).toInt()
+        a.toDouble().withSign(b.toDouble()).toInt()
     }
 
 /**
@@ -1062,7 +1056,8 @@ internal constructor(
          * @param id The existing mutable ID.
          * @return A [MutableRemoteInt] instance mapping to the ID.
          */
-        internal fun createMutableForId(id: Long): MutableRemoteInt =
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun createMutableForId(id: Long): MutableRemoteInt =
             MutableRemoteInt(
                 constantValueOrNull = null,
                 cacheKey = RemoteStateIdKey(id.toInt()),
@@ -1236,7 +1231,8 @@ public fun selectIfGe(
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class RemoteIntExpression
 @RememberInComposition
-internal constructor(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public constructor(
     public override val constantValueOrNull: Int?,
     cacheKey: RemoteStateCacheKey,
     arrayProvider: (creationState: RemoteComposeCreationState) -> LongArray,
@@ -1384,44 +1380,6 @@ internal class RemoteIntSelect(
     ) {
     val hasConstantBranches: Boolean
         get() = ifTrue.constantValueOrNull != null && ifFalse.constantValueOrNull != null
-}
-
-/**
- * Factory composable for mutable remote integer state.
- *
- * @param initialValue The initial [Int] value.
- * @return A [MutableRemoteInt] instance that will be remembered across recompositions.
- */
-@Deprecated(
-    message = "Use remember { MutableRemoteInt(initialValue) } instead.",
-    replaceWith =
-        ReplaceWith(
-            "remember { MutableRemoteInt(initialValue) }",
-            "androidx.compose.runtime.remember",
-        ),
-)
-@Composable
-@RemoteComposable
-public fun rememberMutableRemoteInt(initialValue: Int): MutableRemoteInt {
-    return remember { MutableRemoteInt(initialValue) }
-}
-
-/**
- * Remembers a named remote integer expression.
- *
- * @param name A unique name to identify this state within its [domain].
- * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
- * @param defaultValue The initial [Int] value.
- * @return A [RemoteInt] instance representing the named expression.
- */
-@Composable
-@RemoteComposable
-public fun rememberNamedRemoteInt(
-    name: String,
-    defaultValue: Int,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
-): RemoteInt {
-    return remember(name, domain) { createNamedRemoteInt(name, defaultValue, domain) }
 }
 
 /** Extension property to convert an [Int] to a [RemoteInt]. */

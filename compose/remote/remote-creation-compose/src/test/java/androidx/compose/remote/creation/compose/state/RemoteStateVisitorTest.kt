@@ -37,14 +37,14 @@ class RemoteStateVisitorTest {
                 when (target) {
                     is RemoteBoolean -> target.intValue
                     is RemoteDp -> target.value
-                    is RemoteEnum<*> -> target.intValue
+                    is RemoteEnum<*> -> target.ordinal
                     else -> target
                 }
             val unwrappedRep =
                 when (rep) {
                     is RemoteBoolean -> rep.intValue
                     is RemoteDp -> rep.value
-                    is RemoteEnum<*> -> rep.intValue
+                    is RemoteEnum<*> -> rep.ordinal
                     else -> rep
                 }
             unwrappedTarget to unwrappedRep

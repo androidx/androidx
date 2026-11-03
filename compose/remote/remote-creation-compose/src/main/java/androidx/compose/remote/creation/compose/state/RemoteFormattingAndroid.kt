@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@file:JvmName("RemoteFormattingAndroidKt")
 
 package androidx.compose.remote.creation.compose.state
 
 import android.icu.text.DecimalFormat as IcuDecimalFormat
 import android.icu.text.DecimalFormatSymbols as IcuDecimalFormatSymbols
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.TextFromFloat.GROUPING_BY3
 import androidx.compose.remote.core.operations.TextFromFloat.GROUPING_BY32
 import androidx.compose.remote.core.operations.TextFromFloat.GROUPING_BY4
@@ -42,6 +41,8 @@ import kotlin.math.pow
 
 internal val DefaultDecimalFormat = IcuDecimalFormat()
 internal val DefaultIntegerFormat = IcuDecimalFormat().apply { maximumFractionDigits = 0 }
+
+internal data class TextFromFloatOptions(val before: Int, val after: Int, val flags: Int)
 
 internal fun IcuDecimalFormat.toTextFromFloatOptions(): TextFromFloatOptions {
     val decimalSeparator = decimalFormatSymbols.decimalSeparator
@@ -227,3 +228,57 @@ internal fun formatRemoteInt(value: RemoteInt, format: DecimalFormat): RemoteStr
     icuFormat.negativePrefix = format.negativePrefix
     return formatRemoteInt(value, icuFormat)
 }
+
+/**
+ * Returns a [RemoteString] that evaluates to the result of this [RemoteFloat] formatted according
+ * to the provided [android.icu.text.DecimalFormat].
+ *
+ * This method maps the localized [android.icu.text.DecimalFormat] symbols (such as separators,
+ * padding, rounding, and digit constraints) to a remote-compatible string representation. It
+ * specifically handles complex padding logic and threshold-based selections to ensure the formatted
+ * output remains consistent when evaluated on the remote target.
+ *
+ * @param format The ICU [android.icu.text.DecimalFormat] to use for determining formatting options
+ *   like separators, grouping, and padding width.
+ * @return A [RemoteString] representing the formatted float.
+ */
+public fun RemoteFloat.toRemoteString(format: IcuDecimalFormat): RemoteString =
+    formatRemoteFloat(this, format)
+
+/**
+ * Returns a [RemoteString] that evaluates to the result of this [RemoteFloat] formatted according
+ * to the provided [DecimalFormat].
+ *
+ * This method maps the localized [DecimalFormat] symbols (such as separators and grouping sizes)
+ * and configuration (such as padding and rounding) to a remote-compatible string representation.
+ *
+ * @param format The [DecimalFormat] to use for determining separators, grouping, and padding.
+ * @return A [RemoteString] representing the formatted float.
+ */
+public fun RemoteFloat.toRemoteString(@Suppress("UseIcu") format: DecimalFormat): RemoteString =
+    formatRemoteFloat(this, format)
+
+/**
+ * Converts this [RemoteInt] to a [RemoteString] using the specified
+ * [android.icu.text.DecimalFormat].
+ *
+ * This method maps the localized [android.icu.text.DecimalFormat] symbols (such as separators,
+ * padding, and digit constraints) to a remote-compatible string representation.
+ *
+ * @param format The [android.icu.text.DecimalFormat] used to format the integer value.
+ * @return A [RemoteString] representing the formatted integer value.
+ */
+public fun RemoteInt.toRemoteString(format: IcuDecimalFormat): RemoteString =
+    formatRemoteInt(this, format)
+
+/**
+ * Converts this [RemoteInt] to a [RemoteString] using the specified [DecimalFormat].
+ *
+ * This method maps the localized [DecimalFormat] symbols (such as separators and grouping sizes)
+ * and configuration (such as padding and rounding) to a remote-compatible string representation.
+ *
+ * @param format The [DecimalFormat] to use for determining separators, grouping, and padding.
+ * @return A [RemoteString] representing the formatted integer.
+ */
+public fun RemoteInt.toRemoteString(@Suppress("UseIcu") format: DecimalFormat): RemoteString =
+    formatRemoteInt(this, format)

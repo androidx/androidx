@@ -72,6 +72,7 @@ import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.selectIfGt
 import androidx.compose.remote.creation.compose.state.selectIfLt
+import androidx.compose.remote.creation.compose.state.toRemoteString
 import androidx.compose.remote.creation.compose.util.MyRemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.util.TestRemoteComposeBuffer
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
@@ -83,6 +84,7 @@ import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontVariation
 import com.google.common.truth.Truth.assertThat
+import java.text.DecimalFormat
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Before
@@ -1882,12 +1884,12 @@ class RemoteCanvasTest {
         val condition2 = createNamedRemoteBoolean("cond2", true)
 
         remoteCanvas.drawConditionally(condition1) {
-            val str = x.toRemoteString(java.text.DecimalFormat("#0"))
+            val str = x.toRemoteString(DecimalFormat("#0"))
             remoteCanvas.drawText(str, 10f.rf, 10f.rf, RemotePaint())
         }
 
         remoteCanvas.drawConditionally(condition2) {
-            val str = x.toRemoteString(java.text.DecimalFormat("#0"))
+            val str = x.toRemoteString(DecimalFormat("#0"))
             remoteCanvas.drawText(str, 20f.rf, 20f.rf, RemotePaint())
         }
 
@@ -1920,12 +1922,12 @@ class RemoteCanvasTest {
         val condition2 = createNamedRemoteBoolean("cond2", true)
 
         remoteCanvas.drawConditionally(condition1) {
-            val str = x.toRemoteString(java.text.DecimalFormat("#0"))
+            val str = x.toRemoteString(DecimalFormat("#0"))
             remoteCanvas.drawText(str, 10f.rf, 10f.rf, RemotePaint())
         }
 
         remoteCanvas.drawConditionally(condition2) {
-            val str = x.toRemoteString(java.text.DecimalFormat("#0"))
+            val str = x.toRemoteString(DecimalFormat("#0"))
             remoteCanvas.drawText(str, 20f.rf, 20f.rf, RemotePaint())
         }
 
