@@ -528,9 +528,7 @@ class DataClassProcessorTest {
                 invocation.assertCompilationResult { compilationDidFail() }
             } else {
                 invocation.assertCompilationResult {
-                    hasErrorContaining(
-                        "Element 'foo.bar.MyDataClass' references a type that is not present"
-                    )
+                    hasErrorContaining("Element 'user' references a type that is not present")
                 }
             }
         }

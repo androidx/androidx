@@ -37,6 +37,7 @@ import androidx.room3.compiler.processing.util.getParameter
 import androidx.room3.compiler.processing.util.getProperty
 import androidx.room3.compiler.processing.util.kspProcessingEnv
 import androidx.room3.compiler.processing.util.kspResolver
+import androidx.room3.compiler.processing.util.runKspTest
 import androidx.room3.compiler.processing.util.runProcessorTest
 import androidx.room3.compiler.processing.util.runProcessorTestWithoutKsp
 import com.google.devtools.ksp.KspExperimental
@@ -1361,6 +1362,85 @@ class XElementTest {
             isInstanceOf<KspSyntheticFileMemberContainer>()
         } else {
             isInstanceOf<KspFileMemberContainer>()
+        }
+    }
+
+    @Test
+    fun nonConstAnnotationArgFailsValidation() {
+        val kotlinSource =
+            Source.kotlin(
+                "test.MyClass.kt",
+                """
+                package test
+                enum class TestEnum { FOO }
+                annotation class MyAnnotation(
+                    val value: String = "[default]",
+                    val values: Array<String> = [],
+                )
+                annotation class OuterAnnotation(val items: Array<MyAnnotation>)
+                class ValidDefaults(@MyAnnotation val prop: String)
+                class DirectProp(@property:MyAnnotation("'${'$'}{TestEnum.FOO}'") val prop: String)
+                class FieldTarget(@field:MyAnnotation("'${'$'}{TestEnum.FOO}'") val prop: String)
+                class GetterTarget(@get:MyAnnotation("'${'$'}{TestEnum.FOO}'") val prop: String)
+                class SetterTarget(@set:MyAnnotation("'${'$'}{TestEnum.FOO}'") var prop: String)
+                class SetParamTarget(@setparam:MyAnnotation("'${'$'}{TestEnum.FOO}'") var prop: String)
+                class NestedArrayArg(
+                    @OuterAnnotation(items = [MyAnnotation("'${'$'}{TestEnum.FOO}'")]) val prop: String
+                )
+                class KotlinArrayArg(
+                    @MyAnnotation(values = ["ok", "'${'$'}{TestEnum.FOO}'"]) val prop: String
+                )
+                class ParamTarget {
+                    fun foo(@MyAnnotation("'${'$'}{TestEnum.FOO}'") arg: String) {}
+                }
+                """
+                    .trimIndent(),
+            )
+        val javaSource =
+            Source.java(
+                "test.JavaArrayArg",
+                """
+                package test;
+                public class JavaArrayArg {
+                    static final String NON_CONST = String.valueOf(1);
+                    @MyAnnotation(values = {"ok", NON_CONST})
+                    public String prop;
+                }
+                """
+                    .trimIndent(),
+            )
+        runKspTest(sources = listOf(kotlinSource, javaSource)) { invocation ->
+            invocation.assertCompilationResult { compilationDidFail() }
+            val results =
+                listOf(
+                        "ValidDefaults",
+                        "DirectProp",
+                        "FieldTarget",
+                        "GetterTarget",
+                        "SetterTarget",
+                        "SetParamTarget",
+                        "NestedArrayArg",
+                        "KotlinArrayArg",
+                        "JavaArrayArg",
+                        "ParamTarget",
+                    )
+                    .associateWith {
+                        invocation.processingEnv.requireTypeElement("test.$it").validate()
+                    }
+            assertThat(results)
+                .containsExactly(
+                    "ValidDefaults" to true,
+                    "DirectProp" to false,
+                    "FieldTarget" to false,
+                    "GetterTarget" to false,
+                    "SetterTarget" to false,
+                    "SetParamTarget" to false,
+                    "NestedArrayArg" to false,
+                    // Kotlin's Analysis API drops non-constant array items before KSP sees them.
+                    "KotlinArrayArg" to true,
+                    "JavaArrayArg" to false,
+                    "ParamTarget" to false,
+                )
         }
     }
 

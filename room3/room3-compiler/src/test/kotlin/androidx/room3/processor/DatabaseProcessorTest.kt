@@ -1653,6 +1653,76 @@ class DatabaseProcessorTest {
         }
     }
 
+    @Test
+    fun nonConstColumnDefaultValue() {
+        val source =
+            Source.kotlin(
+                "MyDb.kt",
+                """
+                package foo.bar
+                import androidx.room3.*
+                enum class LogoDisplayMode { FLOAT }
+                @Entity
+                data class Song(
+                    @PrimaryKey val id: Int,
+                    @ColumnInfo(defaultValue = "'${'$'}{LogoDisplayMode.FLOAT}'")
+                    val logoDisplayMode: LogoDisplayMode = LogoDisplayMode.FLOAT,
+                )
+                @Database(entities = [Song::class], version = 1, exportSchema = false)
+                abstract class MyDb : RoomDatabase()
+                """
+                    .trimIndent(),
+            )
+        runKspProcessorTest(
+            sources = listOf(source),
+            symbolProcessorProviders = listOf(RoomProcessor.Provider()),
+        ) { result ->
+            result.hasErrorCount(2)
+            result
+                .hasErrorContaining(
+                    "Element 'logoDisplayMode' references a type that is not present"
+                )
+                .onLine(8)
+            result.hasErrorContaining("RoomProcessor was unable to process 'foo.bar.MyDb'")
+        }
+    }
+
+    @Test
+    fun nonConstInheritedColumnDefaultValue() {
+        val source =
+            Source.kotlin(
+                "MyDb.kt",
+                """
+                package foo.bar
+                import androidx.room3.*
+                enum class LogoDisplayMode { FLOAT }
+                abstract class BaseSong {
+                    @ColumnInfo(defaultValue = "'${'$'}{LogoDisplayMode.FLOAT}'")
+                    val logoDisplayMode: LogoDisplayMode = LogoDisplayMode.FLOAT
+                }
+                @Entity
+                data class Song(@PrimaryKey val id: Int) : BaseSong()
+                @Entity
+                data class Album(@PrimaryKey val id: Int) : BaseSong()
+                @Database(entities = [Song::class, Album::class], version = 1, exportSchema = false)
+                abstract class MyDb : RoomDatabase()
+                """
+                    .trimIndent(),
+            )
+        runKspProcessorTest(
+            sources = listOf(source),
+            symbolProcessorProviders = listOf(RoomProcessor.Provider()),
+        ) { result ->
+            result.hasErrorCount(2)
+            result
+                .hasErrorContaining(
+                    "Element 'logoDisplayMode' references a type that is not present"
+                )
+                .onLine(6)
+            result.hasErrorContaining("RoomProcessor was unable to process 'foo.bar.MyDb'")
+        }
+    }
+
     private fun resolveDatabaseViews(
         views: Map<String, Set<String>>,
         body: (List<DatabaseView>, XTestInvocation) -> Unit,

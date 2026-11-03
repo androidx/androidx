@@ -24,7 +24,6 @@ import androidx.room3.compiler.processing.XNullability
 import com.google.devtools.ksp.symbol.AnnotationUseSiteTarget
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFile
-import com.google.devtools.ksp.validate
 import com.squareup.javapoet.ClassName
 import com.squareup.kotlinpoet.javapoet.toKClassName
 
@@ -84,7 +83,7 @@ internal class KspFileMemberContainer(
         get() = this
 
     override fun validate(): Boolean {
-        return ksFile.validate()
+        return ksFile.validateWithAnnotations()
     }
 
     companion object {

@@ -57,8 +57,7 @@ internal constructor(
     }
 
     private fun doProcess(): FtsEntity {
-        if (!element.validate()) {
-            context.reportMissingTypeReference(element.qualifiedName)
+        if (!context.validateTypeElement(element)) {
             return FtsEntity(
                 element = element,
                 tableName = element.name,
