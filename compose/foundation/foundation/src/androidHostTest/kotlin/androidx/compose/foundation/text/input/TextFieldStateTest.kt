@@ -22,6 +22,7 @@ import androidx.compose.foundation.text.input.internal.TransformedTextFieldState
 import androidx.compose.foundation.text.input.internal.commitText
 import androidx.compose.foundation.text.input.internal.setComposingText
 import androidx.compose.foundation.text.input.internal.withImeScope
+import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
@@ -1041,6 +1042,590 @@ class TextFieldStateTest {
         assertThat(state.userCommit).isTrue()
         assertThat(state.suggestionSelected).isFalse()
     }
+
+    // region onTextChanged
+
+    @Test
+    fun onTextChanged_calledOnEdit_withNewText() {
+        val calls = mutableListOf<String>()
+        val state =
+            TextFieldState("hello", TextRange(5), onTextChanged = { calls += it.toString() })
+
+        state.edit { replace(length, length, " world") }
+
+        assertThat(calls).containsExactly("hello world")
+    }
+
+    @Test
+    fun onTextChanged_argumentIsSameInstanceAsText() {
+        lateinit var state: TextFieldState
+        var argument: CharSequence? = null
+        state = TextFieldState(onTextChanged = { argument = it })
+
+        state.edit { replace(length, length, "hello") }
+
+        assertThat(argument).isSameInstanceAs(state.text)
+    }
+
+    @Test
+    fun onTextChanged_notCalledOnSelectionOnlyEdit() {
+        var calls = 0
+        val state = TextFieldState("hello", TextRange(0), onTextChanged = { calls++ })
+
+        state.edit { selection = TextRange(2, 4) }
+
+        assertThat(calls).isEqualTo(0)
+        assertThat(state.selection).isEqualTo(TextRange(2, 4))
+    }
+
+    @Test
+    fun onTextChanged_notCalledOnStyleOnlyEdit() {
+        var calls = 0
+        val state = TextFieldState("hello", onTextChanged = { calls++ })
+
+        state.edit { addStyle(SpanStyle(color = Color.Red), 0, 5) }
+
+        assertThat(calls).isEqualTo(0)
+    }
+
+    @Test
+    fun onTextChanged_notCalledWhenEditLeavesTextEqual() {
+        var calls = 0
+        val state = TextFieldState("hello", onTextChanged = { calls++ })
+
+        state.edit {
+            replace(length, length, " world")
+            delete(5, length)
+        }
+        state.edit { replace(0, 5, "hello") }
+
+        assertThat(calls).isEqualTo(0)
+    }
+
+    @Test
+    fun onTextChanged_notCalledOnCompositionOnlyChange() {
+        var calls = 0
+        val state = TextFieldState("hello", onTextChanged = { calls++ })
+
+        state.editAsUser(null) { setComposition(0, 5) }
+        state.editAsUser(null) { commitComposition() }
+
+        assertThat(calls).isEqualTo(0)
+    }
+
+    @Test
+    fun onTextChanged_calledOnImeCommit() {
+        val calls = mutableListOf<String>()
+        val state = TextFieldState(onTextChanged = { calls += it.toString() })
+
+        DefaultImeEditCommandScope(TransformedTextFieldState(state)).commitText("hello", 1)
+
+        assertThat(calls).containsExactly("hello")
+    }
+
+    @Test
+    fun onTextChanged_calledOnEachComposingTextUpdate_thatChangesText() {
+        val calls = mutableListOf<String>()
+        val state = TextFieldState(onTextChanged = { calls += it.toString() })
+        val scope = DefaultImeEditCommandScope(TransformedTextFieldState(state))
+
+        scope.setComposingText("h", 1)
+        scope.setComposingText("he", 1)
+        // Same text, only the composing region is finalized.
+        scope.commitText("he", 1)
+
+        assertThat(calls).containsExactly("h", "he").inOrder()
+    }
+
+    @Test
+    fun onTextChanged_calledOnUserSelectionChange_isNotCalled() {
+        var calls = 0
+        val state = TextFieldState("hello", TextRange(3), onTextChanged = { calls++ })
+
+        state.editAsUser(null) { selection = TextRange.Zero }
+
+        assertThat(calls).isEqualTo(0)
+    }
+
+    @Test
+    fun onTextChanged_calledOnUndoAndRedo() {
+        val calls = mutableListOf<String>()
+        val state = TextFieldState(onTextChanged = { calls += it.toString() })
+
+        state.edit { replace(length, length, "a") }
+        state.edit { replace(length, length, "b") }
+        state.undoState.undo()
+        state.undoState.redo()
+
+        assertThat(calls).containsExactly("a", "ab", "a", "ab").inOrder()
+    }
+
+    @Test
+    fun onTextChanged_calledWithInputTransformationResult() {
+        val calls = mutableListOf<String>()
+        val state = TextFieldState(onTextChanged = { calls += it.toString() })
+        val uppercase = InputTransformation {
+            replace(0, length, asCharSequence().toString().uppercase())
+        }
+
+        DefaultImeEditCommandScope(
+                TransformedTextFieldState(state, inputTransformation = uppercase)
+            )
+            .commitText("hello", 1)
+
+        assertThat(calls).containsExactly("HELLO")
+    }
+
+    @Test
+    fun onTextChanged_notCalled_whenInputTransformationRevertsAllChanges() {
+        var calls = 0
+        val state = TextFieldState("hello", onTextChanged = { calls++ })
+        val rejectAll = InputTransformation { revertAllChanges() }
+
+        state.editAsUser(rejectAll) { replace(length, length, " world") }
+
+        assertThat(state.text.toString()).isEqualTo("hello")
+        assertThat(calls).isEqualTo(0)
+    }
+
+    @Test
+    fun onTextChanged_notCalled_whenInputTransformationOnlyMovesSelection() {
+        var calls = 0
+        val state = TextFieldState("hello", TextRange(5), onTextChanged = { calls++ })
+        val moveCursor = InputTransformation { selection = TextRange(0) }
+
+        state.editAsUser(moveCursor) { selection = TextRange(2) }
+
+        assertThat(state.selection).isEqualTo(TextRange(0))
+        assertThat(calls).isEqualTo(0)
+    }
+
+    @Test
+    fun onTextChanged_calledOnConvenienceMethods() {
+        val calls = mutableListOf<String>()
+        val state = TextFieldState(onTextChanged = { calls += it.toString() })
+
+        state.setTextAndPlaceCursorAtEnd("hello")
+        state.setTextAndSelectAll("world")
+        state.clearText()
+
+        assertThat(calls).containsExactly("hello", "world", "").inOrder()
+    }
+
+    @Test
+    fun onTextChanged_selectionIsAlreadyUpdated() {
+        lateinit var state: TextFieldState
+        var observedSelection: TextRange? = null
+        state = TextFieldState(onTextChanged = { observedSelection = state.selection })
+
+        state.edit {
+            replace(length, length, "hello")
+            selection = TextRange(1, 3)
+        }
+
+        assertThat(observedSelection).isEqualTo(TextRange(1, 3))
+    }
+
+    @Test
+    fun onTextChanged_runsAfterImeListener() {
+        val order = mutableListOf<String>()
+        val state = TextFieldState(onTextChanged = { order += "onTextChanged" })
+        state.addNotifyImeListener { _, _, _ -> order += "ime" }
+
+        state.edit { replace(length, length, "hello") }
+
+        assertThat(order).containsExactly("ime", "onTextChanged").inOrder()
+    }
+
+    @Test
+    fun onTextChanged_undoStateIncludesCommit_whenCallbackRuns() {
+        val canUndoInCallback = mutableListOf<Boolean>()
+        lateinit var state: TextFieldState
+        state = TextFieldState(onTextChanged = { canUndoInCallback += state.undoState.canUndo })
+
+        DefaultImeEditCommandScope(TransformedTextFieldState(state)).commitText("a", 1)
+        state.undoState.clearHistory()
+        state.edit { replace(length, length, "b") }
+
+        assertThat(canUndoInCallback).containsExactly(true, true).inOrder()
+    }
+
+    @Test
+    fun onTextChanged_editOnSameState_throws() {
+        var editInCallback = true
+        val calls = mutableListOf<String>()
+        lateinit var state: TextFieldState
+        state =
+            TextFieldState(
+                onTextChanged = {
+                    calls += it.toString()
+                    if (editInCallback) state.edit { replace(length, length, "!") }
+                }
+            )
+
+        val error =
+            assertFailsWith<IllegalStateException> { state.edit { replace(length, length, "a") } }
+
+        assertThat(error)
+            .hasMessageThat()
+            .isEqualTo(
+                "TextFieldState cannot be edited from its onTextChanged callback. Use an " +
+                    "InputTransformation to intercept and modify user input."
+            )
+        // The commit that called onTextChanged stays committed.
+        assertThat(state.text.toString()).isEqualTo("a")
+        // The state is usable afterwards and onTextChanged runs again.
+        editInCallback = false
+        state.edit { replace(length, length, "b") }
+        assertThat(state.text.toString()).isEqualTo("ab")
+        assertThat(calls).containsExactly("a", "ab").inOrder()
+    }
+
+    @Test
+    fun onTextChanged_editOnSameState_throws_fromUserInput() {
+        var editInCallback = true
+        val calls = mutableListOf<String>()
+        lateinit var state: TextFieldState
+        state =
+            TextFieldState(
+                onTextChanged = {
+                    calls += it.toString()
+                    if (editInCallback) state.edit { replace(length, length, "!") }
+                }
+            )
+        val scope = DefaultImeEditCommandScope(TransformedTextFieldState(state))
+
+        assertFailsWith<IllegalStateException> { scope.commitText("a", 1) }
+
+        assertThat(state.text.toString()).isEqualTo("a")
+        editInCallback = false
+        // The IME scope that saw the exception keeps its pending command, so use a new scope.
+        DefaultImeEditCommandScope(TransformedTextFieldState(state)).commitText("b", 1)
+        state.edit { replace(length, length, "c") }
+        assertThat(state.text.toString()).isEqualTo("abc")
+        assertThat(calls).containsExactly("a", "ab", "abc").inOrder()
+    }
+
+    @Test
+    fun onTextChanged_userInputOnSameState_throws() {
+        lateinit var scope: DefaultImeEditCommandScope
+        val state = TextFieldState(onTextChanged = { scope.commitText("!", 1) })
+        scope = DefaultImeEditCommandScope(TransformedTextFieldState(state))
+
+        assertFailsWith<IllegalStateException> { state.edit { replace(length, length, "a") } }
+
+        assertThat(state.text.toString()).isEqualTo("a")
+    }
+
+    @Test
+    fun onTextChanged_editHelpersOnSameState_throw() {
+        val helpers =
+            listOf<TextFieldState.() -> Unit>(
+                { setTextAndPlaceCursorAtEnd("x") },
+                { setTextAndSelectAll("x") },
+                { clearText() },
+            )
+        helpers.forEach { helper ->
+            lateinit var state: TextFieldState
+            state = TextFieldState(onTextChanged = { state.helper() })
+
+            assertFailsWith<IllegalStateException> { state.edit { replace(length, length, "a") } }
+            assertThat(state.text.toString()).isEqualTo("a")
+        }
+    }
+
+    @Test
+    fun onTextChanged_undoOnSameState_throws() {
+        var undoInCallback = false
+        lateinit var state: TextFieldState
+        state = TextFieldState(onTextChanged = { if (undoInCallback) state.undoState.undo() })
+        state.edit { replace(length, length, "a") }
+
+        undoInCallback = true
+        assertFailsWith<IllegalStateException> { state.edit { replace(length, length, "b") } }
+        assertThat(state.text.toString()).isEqualTo("ab")
+
+        // Undo history is not changed by the failed call.
+        undoInCallback = false
+        state.undoState.undo()
+        assertThat(state.text.toString()).isEqualTo("a")
+        state.undoState.undo()
+        assertThat(state.text.toString()).isEmpty()
+    }
+
+    @Test
+    fun onTextChanged_redoOnSameState_throws() {
+        var redoInCallback = false
+        lateinit var state: TextFieldState
+        state = TextFieldState(onTextChanged = { if (redoInCallback) state.undoState.redo() })
+        state.edit { replace(length, length, "a") }
+        state.edit { replace(length, length, "b") }
+        state.undoState.undo()
+
+        redoInCallback = true
+        assertFailsWith<IllegalStateException> { state.undoState.undo() }
+        assertThat(state.text.toString()).isEmpty()
+
+        redoInCallback = false
+        state.undoState.redo()
+        assertThat(state.text.toString()).isEqualTo("a")
+    }
+
+    @Test
+    fun onTextChanged_allowsEditingAnotherState() {
+        lateinit var first: TextFieldState
+        lateinit var second: TextFieldState
+        val secondCalls = mutableListOf<String>()
+        first = TextFieldState(onTextChanged = { second.setTextAndPlaceCursorAtEnd(it.toString()) })
+        second = TextFieldState(onTextChanged = { secondCalls += it.toString() })
+
+        first.edit { replace(length, length, "hello") }
+
+        assertThat(second.text.toString()).isEqualTo("hello")
+        assertThat(secondCalls).containsExactly("hello")
+    }
+
+    @Test
+    fun onTextChanged_statesThatWriteToEachOther_throwInsteadOfLooping() {
+        lateinit var first: TextFieldState
+        lateinit var second: TextFieldState
+        first = TextFieldState(onTextChanged = { second.edit { replace(length, length, "1") } })
+        second = TextFieldState(onTextChanged = { first.edit { replace(length, length, "2") } })
+
+        val error =
+            assertFailsWith<IllegalStateException> { first.edit { replace(length, length, "a") } }
+
+        assertThat(error)
+            .hasMessageThat()
+            .isEqualTo(
+                "TextFieldState cannot be edited from its onTextChanged callback. Use an " +
+                    "InputTransformation to intercept and modify user input."
+            )
+        assertThat(first.text.toString()).isEqualTo("a")
+        assertThat(second.text.toString()).isEqualTo("1")
+        // Both states are usable afterwards.
+        first.onTextChanged = null
+        second.onTextChanged = null
+        first.edit { replace(length, length, "b") }
+        second.edit { replace(length, length, "c") }
+        assertThat(first.text.toString()).isEqualTo("ab")
+        assertThat(second.text.toString()).isEqualTo("1c")
+    }
+
+    @Test
+    fun onTextChanged_stateIsUsable_afterCallbackThrows() {
+        class ExpectedException : RuntimeException()
+        var shouldThrow = true
+        val state = TextFieldState(onTextChanged = { if (shouldThrow) throw ExpectedException() })
+
+        assertFailsWith<ExpectedException> { state.edit { replace(length, length, "first") } }
+        // The change is committed before the callback runs.
+        assertThat(state.text.toString()).isEqualTo("first")
+
+        shouldThrow = false
+        state.edit { replace(length, length, "second") }
+        assertThat(state.text.toString()).isEqualTo("firstsecond")
+    }
+
+    @Test
+    fun onTextChanged_stateIsUsable_afterCallbackThrows_fromUserInput() {
+        class ExpectedException : RuntimeException()
+        var shouldThrow = true
+        val state = TextFieldState(onTextChanged = { if (shouldThrow) throw ExpectedException() })
+        val scope = DefaultImeEditCommandScope(TransformedTextFieldState(state))
+
+        assertFailsWith<ExpectedException> { scope.commitText("first", 1) }
+        assertThat(state.text.toString()).isEqualTo("first")
+
+        shouldThrow = false
+        // The IME scope that saw the exception keeps its pending command, so use a new scope.
+        DefaultImeEditCommandScope(TransformedTextFieldState(state)).commitText("second", 1)
+        assertThat(state.text.toString()).isEqualTo("firstsecond")
+        state.undoState.undo()
+        assertThat(state.text.toString()).isEmpty()
+    }
+
+    @Test
+    fun onTextChanged_editInsideEditBlock_stillThrows() {
+        lateinit var state: TextFieldState
+        state = TextFieldState(onTextChanged = {})
+
+        assertFailsWith<IllegalStateException> {
+            state.edit { state.edit { replace(length, length, "x") } }
+        }
+    }
+
+    @Test
+    fun onTextChanged_canBeReassignedAndCleared() {
+        val state = TextFieldState("abc")
+        var calls = 0
+
+        state.onTextChanged = { calls++ }
+        state.edit { replace(length, length, "d") }
+        assertThat(calls).isEqualTo(1)
+
+        state.onTextChanged = null
+        state.edit { replace(length, length, "e") }
+        assertThat(calls).isEqualTo(1)
+    }
+
+    @Test
+    fun onTextChanged_isSnapshotIsolated() {
+        val calls = mutableListOf<String>()
+        val state = TextFieldState("a", onTextChanged = { calls += "initial:$it" })
+
+        // Uncommitted write in a disposed snapshot does not leak onto the global state.
+        val discarded = Snapshot.takeMutableSnapshot()
+        try {
+            discarded.enter { state.onTextChanged = { calls += "discarded:$it" } }
+            state.edit { replace(length, length, "b") }
+            assertThat(calls).containsExactly("initial:ab")
+        } finally {
+            discarded.dispose()
+        }
+
+        state.edit { replace(length, length, "c") }
+        assertThat(calls).containsExactly("initial:ab", "initial:abc").inOrder()
+
+        // Committed snapshot write updates the callback for subsequent edits.
+        val applied = Snapshot.takeMutableSnapshot()
+        try {
+            applied.enter { state.onTextChanged = { calls += "applied:$it" } }
+            applied.apply().check()
+        } finally {
+            applied.dispose()
+        }
+
+        state.edit { replace(length, length, "d") }
+        assertThat(calls).containsExactly("initial:ab", "initial:abc", "applied:abcd").inOrder()
+    }
+
+    @Test
+    fun onTextChanged_editDoesNotRecordReadObservationOnCallback() {
+        val state = TextFieldState("a", onTextChanged = {})
+        val readObjects = mutableSetOf<Any>()
+
+        Snapshot.observe(readObserver = { readObjects += it }) {
+            state.edit { replace(length, length, "b") }
+            state.editAsUser(null) { replace(length, length, "c") }
+            state.undoState.undo()
+        }
+
+        val modifiedByCallbackReassign = mutableSetOf<Any>()
+        val handle = Snapshot.registerApplyObserver { changed, _ ->
+            modifiedByCallbackReassign.addAll(changed)
+        }
+        try {
+            Snapshot.withMutableSnapshot { state.onTextChanged = {} }
+        } finally {
+            handle.dispose()
+        }
+
+        assertThat(modifiedByCallbackReassign).isNotEmpty()
+        assertThat(readObjects.intersect(modifiedByCallbackReassign)).isEmpty()
+    }
+
+    @Test
+    fun onTextChanged_longText_handlesAllEditPaths() {
+        val longPrefix = "a".repeat(250)
+        val calls = mutableListOf<Int>()
+        val state =
+            TextFieldState(
+                initialText = longPrefix,
+                initialSelection = TextRange(longPrefix.length),
+                onTextChanged = { calls += it.length },
+            )
+
+        // Appending 1 character at the end changes length (250 -> 251).
+        state.editAsUser(null) { replace(length, length, "b") }
+        assertThat(calls).containsExactly(251)
+
+        // Selection-only and composition-only user edits on long text do not call onTextChanged.
+        state.editAsUser(null) { selection = TextRange(100) }
+        state.editAsUser(null) { setComposition(0, 10) }
+        state.editAsUser(null) { commitComposition() }
+        assertThat(calls).containsExactly(251)
+
+        // Single-char in-place replacement with identical char does not call onTextChanged.
+        state.edit { replace(250, 251, "b") }
+        state.editAsUser(null) { replace(250, 251, "b") }
+        assertThat(calls).containsExactly(251)
+
+        // Single-char in-place replacement with different char calls onTextChanged.
+        state.editAsUser(null) { replace(250, 251, "c") }
+        assertThat(calls).containsExactly(251, 251).inOrder()
+
+        // Disjoint edits whose length deltas cancel out still detect text change vs no-op.
+        state.edit {
+            delete(0, 1)
+            replace(length, length, "a")
+        }
+        // Deleting 'a' at 0 and appending 'a' after 'c' turns "aaa...ac" into "aaa...ca", which
+        // differs at indices 249..250.
+        assertThat(calls).hasSize(3)
+
+        // Undo and redo on long text call onTextChanged.
+        state.undoState.undo()
+        state.undoState.redo()
+        assertThat(calls).hasSize(5)
+
+        // InputTransformation reverting user edit on long text does not call onTextChanged.
+        state.editAsUser(InputTransformation { revertAllChanges() }) {
+            replace(length, length, "z")
+        }
+        assertThat(calls).hasSize(5)
+
+        // InputTransformation modifying text when user only moved selection calls onTextChanged.
+        state.editAsUser(InputTransformation { replace(length, length, "!") }) {
+            selection = TextRange(0)
+        }
+        assertThat(calls).hasSize(6)
+        assertThat(calls.last()).isEqualTo(252)
+    }
+
+    @Test
+    fun saver_withOnTextChanged_attachesCallbackToRestoredState() {
+        val original = TextFieldState("hello", TextRange(2, 4))
+        original.edit { replace(length, length, " world") }
+        val calls = mutableListOf<String>()
+        val saver = TextFieldState.Saver(onTextChanged = { calls += it.toString() })
+
+        val saved = with(saver) { SaverScope { true }.save(original) }
+        val restored = saver.restore(saved!!)!!
+
+        assertThat(restored.text.toString()).isEqualTo("hello world")
+        restored.edit { replace(length, length, "!") }
+        assertThat(calls).containsExactly("hello world!")
+        // Undo history is restored as well.
+        restored.undoState.undo()
+        restored.undoState.undo()
+        assertThat(restored.text.toString()).isEqualTo("hello")
+    }
+
+    @Test
+    fun saver_withoutOnTextChanged_restoresStateWithoutCallback() {
+        var calls = 0
+        val original = TextFieldState("hello", onTextChanged = { calls++ })
+
+        val saved = with(TextFieldState.Saver) { SaverScope { true }.save(original) }
+        val restored = TextFieldState.Saver.restore(saved!!)!!
+
+        restored.edit { replace(length, length, "!") }
+        assertThat(calls).isEqualTo(0)
+        assertThat(restored.onTextChanged).isNull()
+    }
+
+    @Test
+    fun saver_withNullOnTextChanged_savesSameFormatAsSaver() {
+        val original = TextFieldState("hello", TextRange(1, 2))
+
+        val saved = with(TextFieldState.Saver) { SaverScope { true }.save(original) }
+        val savedWithNull = with(TextFieldState.Saver(null)) { SaverScope { true }.save(original) }
+
+        assertThat(savedWithNull).isEqualTo(saved)
+    }
+
+    // endregion
 
     private fun runTestWithSnapshotsThenCancelChildren(testBody: suspend TestScope.() -> Unit) {
         val globalWriteObserverHandle = Snapshot.registerGlobalWriteObserver {

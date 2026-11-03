@@ -62,6 +62,7 @@ public class UndoState internal constructor(private val state: TextFieldState) {
      * @see redo
      */
     public fun undo() {
+        state.checkNotInOnTextChanged()
         state.textUndoManager.undo(state)
     }
 
@@ -74,6 +75,7 @@ public class UndoState internal constructor(private val state: TextFieldState) {
      * @see undo
      */
     public fun redo() {
+        state.checkNotInOnTextChanged()
         state.textUndoManager.redo(state)
     }
 
