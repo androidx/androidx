@@ -71,7 +71,12 @@ public class DefaultAndroidImageResourceByContentUriResolver
         }
 
         if (VERSION.SDK_INT >= 28) {
-            return ConstrainedImageDecoder.decodeDrawable(mContentResolver, resourceUri);
+            try {
+                return ConstrainedImageDecoder.decodeDrawable(mContentResolver, resourceUri);
+            } catch (IOException ex) {
+                throw new ResourceAccessException(
+                        "Error while reading URI " + resource.getContentUri(), ex);
+            }
         }
 
         try (InputStream inStream = mContentResolver.openInputStream(resourceUri)) {

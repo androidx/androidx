@@ -33,6 +33,7 @@ import androidx.wear.protolayout.renderer.inflater.ResourceResolvers.ResourceAcc
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /** Resource resolver for inline resources. */
@@ -149,7 +150,7 @@ public class DefaultInlineImageResourceResolver implements InlineImageResourceRe
                 return ConstrainedImageDecoder.decodeBitmap(data, widthPx, heightPx);
             } catch (IllegalArgumentException e) {
                 throw new ResourceAccessException("InlineImage native size out of bounds.", e);
-            } catch (RuntimeException e) {
+            } catch (IOException | RuntimeException e) {
                 Log.e(TAG, "Unable to load structured bitmap.");
                 return null;
             }

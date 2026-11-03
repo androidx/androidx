@@ -27,6 +27,7 @@ import android.util.Size
 import android.util.TypedValue
 import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
+import java.io.IOException
 import java.nio.ByteBuffer
 
 internal object ConstrainedImageDecoder {
@@ -48,6 +49,7 @@ internal object ConstrainedImageDecoder {
     @JvmOverloads
     @RequiresApi(28)
     @SuppressLint("ResourceType")
+    @Throws(IOException::class)
     fun decodeDrawable(
         res: Resources,
         @DrawableRes resId: Int,
@@ -70,6 +72,7 @@ internal object ConstrainedImageDecoder {
 
     @JvmStatic
     @RequiresApi(28)
+    @Throws(IOException::class)
     fun decodeDrawable(contentResolver: ContentResolver, uri: Uri): Drawable {
         return ImageDecoder.decodeDrawable(
             ImageDecoder.createSource(contentResolver, uri),
@@ -79,6 +82,7 @@ internal object ConstrainedImageDecoder {
 
     @JvmStatic
     @RequiresApi(31)
+    @Throws(IOException::class)
     fun decodeBitmap(data: ByteArray, targetWidthPx: Int, targetHeightPx: Int): Bitmap {
         return ImageDecoder.decodeBitmap(ImageDecoder.createSource(ByteBuffer.wrap(data))) {
             decoder,
