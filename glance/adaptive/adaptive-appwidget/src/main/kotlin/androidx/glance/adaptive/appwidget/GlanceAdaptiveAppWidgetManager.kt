@@ -38,7 +38,19 @@ public fun GlanceAdaptiveWidgetManager(context: Context): GlanceAdaptiveWidgetMa
  * Sets dynamic preview data rendered in host widget pickers for the specified [widgetName].
  *
  * On devices running Android 14 and earlier (pre-API 35), dynamic widget previews are not supported
- * by the platform and this operation completes as a safe no-op.
+ * by the platform and this operation completes as a safe no-op, once [widgetName] has been
+ * resolved.
+ *
+ * Each call counts against the platform's preview update rate limit, so call this only when the
+ * preview content changes, for example after a data change rather than on every app start.
+ *
+ * Picker categories with the same layout, such as home screen and search box, are set with one
+ * platform call. Categories with different layouts, such as home screen and keyguard, are set
+ * independently: once every category has been attempted, the first failure is thrown with the
+ * others attached as suppressed exceptions. If the platform rejects a preview, typically because of
+ * its rate limit, the remaining categories are not attempted, as they would be rejected too. A
+ * failure never clears a preview: the picker keeps the last accepted one, or the static preview
+ * declared by the widget.
  *
  * @param widgetName Developer widget definition String identifier matching
  *   [GlanceAdaptiveWidgetReceiver.widgetName].
@@ -46,8 +58,10 @@ public fun GlanceAdaptiveWidgetManager(context: Context): GlanceAdaptiveWidgetMa
  *   render as a preview.
  * @throws IllegalArgumentException if [widgetName] cannot be resolved, see
  *   [GlanceAdaptiveWidgetReceiver.widgetName].
- * @throws IllegalStateException if this manager was not created for AppWidget hosts, or if
- *   [widgetName] cannot be resolved, see [GlanceAdaptiveWidgetReceiver.widgetName].
+ * @throws IllegalStateException if this manager was not created for AppWidget hosts, if
+ *   [widgetName] cannot be resolved (see [GlanceAdaptiveWidgetReceiver.widgetName]), or if the
+ *   platform rejects a preview, typically because of its rate limit. Do not retry immediately: call
+ *   this again only when the preview content changes.
  * @see android.appwidget.AppWidgetManager.setWidgetPreview
  * @see GlanceAdaptiveWidgetManager.pushUpdate
  */
