@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Immutable
+import kotlin.jvm.JvmInline
 
 /**
  * Controls offscreen buffer compositing and alpha modulation for graphics layers.
@@ -27,7 +28,7 @@ import androidx.compose.runtime.Immutable
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
-@kotlin.jvm.JvmInline
+@JvmInline
 public value class RemoteCompositingStrategy internal constructor(public val value: Int) {
 
     override fun toString(): String =

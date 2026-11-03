@@ -53,6 +53,7 @@ import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.width
+import androidx.compose.remote.creation.compose.modifier.widthIn
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
@@ -733,5 +734,85 @@ class RemoteComponentEmbeddedPlayerTest {
         assertThat(outerComp1).isEqualTo(outerDrawComp)
         assertThat(outerComp1.hashCode()).isEqualTo(outerDrawComp.hashCode())
         assertThat(outerComp1).isNotEqualTo(innerComp)
+    }
+
+    @Test
+    fun remoteComponent_sharedExpressionInCanvasAndChildModifier_doesNotReadStaleDataPassId() {
+        var hostSize by mutableStateOf(DpSize(200.dp, 120.dp))
+
+        rule.setRemoteContent(
+            remoteCreationDisplayInfo = displayInfo(240f, 240f),
+            playComposableWrapper = { content ->
+                Box(modifier = Modifier.size(hostSize)) { content() }
+            },
+        ) {
+            RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
+                val columnComp = remoteComponent()
+
+                // 1. Container whose drawWithContent uses remoteComponent().width / 2f.rf multiple
+                //    times (hoisting a CSE FloatExpression inside CanvasOperations) while its child
+                //    uses the identical expression in Modifier.widthIn(max = ...).
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.fillMaxWidth().height(50.rdp).drawWithContent {
+                            val halfWidth = remoteComponent().width / 2f.rf
+                            val paint = RemotePaint { color = Color.Blue.rc }
+                            drawRect(
+                                paint = paint,
+                                topLeft = RemoteOffset.Zero,
+                                size = RemoteSize(halfWidth, 10f.rf),
+                            )
+                            drawRect(
+                                paint = paint,
+                                topLeft = RemoteOffset(halfWidth, 10f.rf),
+                                size = RemoteSize(halfWidth, 10f.rf),
+                            )
+                            drawContent()
+                        }
+                ) {
+                    val childMaxDp = (remoteComponent().width / 2f.rf).toRemoteDp()
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.widthIn(max = childMaxDp)
+                                .fillMaxWidth()
+                                .height(20.rdp)
+                                .semantics { contentDescription = "DrawWithContentChild".rs }
+                    )
+                }
+
+                // 2. Sibling RemoteCanvas that hoists columnComp.width / 2f.rf multiple times
+                //    inside CanvasContent before a sibling layout node uses the same expression.
+                RemoteCanvas(modifier = RemoteModifier.size(80.rdp, 20.rdp)) {
+                    val halfColWidth = columnComp.width / 2f.rf
+                    val paint = RemotePaint { color = Color.Green.rc }
+                    drawRect(
+                        paint = paint,
+                        topLeft = RemoteOffset.Zero,
+                        size = RemoteSize(halfColWidth, 8f.rf),
+                    )
+                    drawRect(
+                        paint = paint,
+                        topLeft = RemoteOffset(halfColWidth, 8f.rf),
+                        size = RemoteSize(halfColWidth, 8f.rf),
+                    )
+                }
+
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.width((columnComp.width / 2f.rf).toRemoteDp())
+                            .height(20.rdp)
+                            .semantics { contentDescription = "AfterCanvasSibling".rs }
+                )
+            }
+        }
+
+        rule.onNodeWithContentDescription("DrawWithContentChild").assertWidthIsEqualTo(100.dp)
+        rule.onNodeWithContentDescription("AfterCanvasSibling").assertWidthIsEqualTo(100.dp)
+
+        hostSize = DpSize(160.dp, 120.dp)
+        rule.waitForIdle()
+
+        rule.onNodeWithContentDescription("DrawWithContentChild").assertWidthIsEqualTo(80.dp)
+        rule.onNodeWithContentDescription("AfterCanvasSibling").assertWidthIsEqualTo(80.dp)
     }
 }

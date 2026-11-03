@@ -58,7 +58,7 @@ import androidx.wear.compose.remote.material3.RemoteIcon
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RemoteComposable
 @Composable
-@Suppress("RestrictedApiAndroidX") // createReference, RemoteFloat.times
+@Suppress("RestrictedApiAndroidX") // createReference
 public fun RemotePrimaryGestureIndicator(
     progress: RemoteFloat,
     modifier: RemoteModifier = RemoteModifier,
@@ -67,7 +67,9 @@ public fun RemotePrimaryGestureIndicator(
     val imageVector =
         remember(progress) {
             val stage =
-                primaryGestureStageFromTime((progress * Tokens.DurationSeconds).createReference())
+                primaryGestureStageFromTime(
+                    (progress * Tokens.DurationSeconds.rf).createReference()
+                )
             primaryGestureImageVector(stage)
         }
     RemoteIcon(

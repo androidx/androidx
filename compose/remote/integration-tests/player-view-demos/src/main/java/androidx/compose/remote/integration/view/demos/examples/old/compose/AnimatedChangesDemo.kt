@@ -26,7 +26,9 @@ import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteTimeVariables
+import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -35,9 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Preview
 @Composable
 @RemoteComposable
-@Suppress(
-    "RestrictedApiAndroidX"
-) // Referring to RemoteOffset, animateFloat, component, height, translate, width
+@Suppress("RestrictedApiAndroidX") // translate
 fun AnimatedChangesDemo() {
     RemoteColumn(
         modifier = RemoteModifier.fillMaxSize(),
@@ -45,14 +45,12 @@ fun AnimatedChangesDemo() {
         horizontalAlignment = RemoteAlignment.CenterHorizontally,
     ) {
         RemoteCanvas(modifier = RemoteModifier.fillMaxSize().background(Color.White.rc)) {
-            val width = remote.component.width
-            val height = remote.component.height
             val centerX = width / 2.rf
             val centerY = height / 2.rf
             val rad = width.min(height) / 4.rf
 
             val beat = RemoteTimeVariables.continuousSeconds * 2.rf
-            val anim = remote.animateFloat(beat, duration = 0.5f)
+            val anim = animateRemoteFloatAsState(beat, remoteTween(durationMillis = 500))
 
             translate(0.rf, anim * 100.rf) {
                 drawCircle(
@@ -63,15 +61,15 @@ fun AnimatedChangesDemo() {
             }
 
             run {
-                val color = android.graphics.Color.rgb(0x7B, 0x00, 0xFF)
+                val color = Color(0xFF7B00FF).rc
                 val len = centerY
                 drawLine(
-                    paint = RemotePaint().apply { this.color = Color(color).rc },
+                    paint = RemotePaint().apply { this.color = color },
                     start = RemoteOffset(centerX, 0.rf),
                     end = RemoteOffset(centerX, len),
                 )
                 drawCircle(
-                    paint = RemotePaint().apply { this.color = Color(color).rc },
+                    paint = RemotePaint().apply { this.color = color },
                     radius = rad,
                     center = RemoteOffset(centerX, len),
                 )

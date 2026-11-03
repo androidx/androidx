@@ -40,8 +40,10 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.remotePath
+import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.tooling.preview.RemotePreviewWrapper
@@ -124,10 +126,10 @@ fun RcSimpleClock1(
         verticalAlignment = RemoteAlignment.CenterVertically,
     ) {
         RemoteCanvas(modifier = RemoteModifier.fillMaxWidth().fillMaxHeight()) {
-            val w = remote.component.width
-            val h = remote.component.height
-            val centerX = remote.component.centerX
-            val centerY = remote.component.centerY
+            val w = width
+            val h = height
+            val centerX = center.x
+            val centerY = center.y
             val rad = centerX.min(centerY)
             val top = centerY - rad
             val bezel_thick: Float = 100f
@@ -261,7 +263,7 @@ fun RcSimpleClock1(
             // =========== DATE Complication ===========
             val dateLeft = centerX + rad - bezel_thick - 115f
             val dateTop = centerY - 30f
-            val dateRight = remote.component.width - 140f
+            val dateRight = w - 140f
             val dateBottom = centerY + 30f
             val cx = dateLeft + 40f
             drawRect(
@@ -282,7 +284,11 @@ fun RcSimpleClock1(
                     RemoteOffset(centerX, centerY),
                 )
                 for (i in 0 until 7) {
-                    val anim = remote.animateFloat((timeSeconds + i.toFloat()) * 360f / 7f, 0.2f)
+                    val anim =
+                        animateRemoteFloatAsState(
+                            (timeSeconds + i.toFloat()) * 360f / 7f,
+                            remoteTween(durationMillis = 200),
+                        )
                     rotate(anim, RemoteOffset(centerX, centerY)) {
                         drawAnchoredText(
                             days[6 - i].rs,

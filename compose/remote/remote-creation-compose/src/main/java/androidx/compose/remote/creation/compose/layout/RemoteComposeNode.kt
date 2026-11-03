@@ -244,24 +244,26 @@ internal abstract class RemoteComposeNode : RemoteComponentTokenProvider {
             val firstEntry = drawEntries[0]
             val hasOffset = firstEntry.paddingLeft != null || firstEntry.paddingTop != null
 
-            creationState.document.startCanvasOperations()
-            if (hasOffset) {
-                remoteCanvas.save()
-                remoteCanvas.translate(
-                    firstEntry.paddingLeft ?: 0f.rf,
-                    firstEntry.paddingTop ?: 0f.rf,
-                )
+            creationState.withCanvasOperationsScope {
+                creationState.document.startCanvasOperations()
+                if (hasOffset) {
+                    remoteCanvas.save()
+                    remoteCanvas.translate(
+                        firstEntry.paddingLeft ?: 0f.rf,
+                        firstEntry.paddingTop ?: 0f.rf,
+                    )
+                }
+                firstEntry.modifier.onDraw(currentScope)
+                if (hasOffset) {
+                    remoteCanvas.restore()
+                }
+                componentToken?.let {
+                    creationState.beginComponentContent(it)
+                    creationState.disableDirectComponentEmission(it)
+                }
+                remoteCanvas.flush()
+                creationState.document.endCanvasOperations()
             }
-            firstEntry.modifier.onDraw(currentScope)
-            if (hasOffset) {
-                remoteCanvas.restore()
-            }
-            componentToken?.let {
-                creationState.beginComponentContent(it)
-                creationState.disableDirectComponentEmission(it)
-            }
-            remoteCanvas.flush()
-            creationState.document.endCanvasOperations()
         }
 
         componentToken?.let { creationState.disableDirectComponentEmission(it) }

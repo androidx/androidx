@@ -121,7 +121,6 @@ import androidx.wear.compose.material3.TextConfiguration
  */
 @Composable
 @RemoteComposable
-@Suppress("RestrictedApiAndroidX")
 public fun RemoteEdgeButton(
     onClick: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
@@ -509,7 +508,6 @@ private val TargetSidePadding: RemoteDp = 20.rdp
 public class RemoteEdgeButtonShape(
     public val buttonSize: RemoteEdgeButtonSize = RemoteEdgeButtonSize.Small
 ) : RemoteShape {
-    @Suppress("RestrictedApiAndroidX")
     override fun createOutline(
         size: RemoteSize,
         layoutDirection: LayoutDirection,
@@ -535,7 +533,6 @@ public class RemoteEdgeButtonShape(
      * @return a [RemoteOutline] for this shape
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Suppress("RestrictedApiAndroidX")
     public fun createOutline(
         size: RemoteSize,
         layoutDirection: LayoutDirection,
@@ -630,26 +627,27 @@ internal fun calculateEdgeButtonContentWidth(
     actualButtonWidth: RemoteDp,
     buttonHeight: RemoteDp,
 ): RemoteDp {
-    // Calculation operates in DP space using RemoteFloats.
-    val extraSmallHeight = RemoteEdgeButtonSize.ExtraSmall.maximumHeight.value
-    val bottomPadding = RemoteEdgeButtonDefaults.VerticalPadding.value
-    val extraSmallEllipseHeight = ExtraSmallEllipseHeight.value
+    // Calculation operates in DP space using public RemoteDp arithmetic so constant heights fold
+    // at creation time.
+    val extraSmallHeight = RemoteEdgeButtonSize.ExtraSmall.maximumHeight
+    val bottomPadding = RemoteEdgeButtonDefaults.VerticalPadding
+    val extraSmallEllipseHeight = ExtraSmallEllipseHeight
     val buttonToEllipseRatio = ButtonToEllipseRatio
-    val targetSidePadding = TargetSidePadding.value
+    val targetSidePadding = TargetSidePadding
 
-    val h = buttonHeight.value
-    val w = actualButtonWidth.value
-
-    val finalFadeProgress = clamp(1f.rf - h / extraSmallHeight, 0f.rf, 1f.rf)
+    val finalFadeProgress = clamp(1f.rf - buttonHeight / extraSmallHeight, 0f.rf, 1f.rf)
     val ellipseHeight =
-        (extraSmallEllipseHeight + (h - extraSmallHeight) * buttonToEllipseRatio) *
-            (1f.rf - finalFadeProgress) + h * finalFadeProgress
+        (extraSmallEllipseHeight + (buttonHeight - extraSmallHeight) * buttonToEllipseRatio) *
+            (1f.rf - finalFadeProgress) + buttonHeight * finalFadeProgress
 
-    val screenRadius = w / 2f.rf
-    val diff = max(screenRadius - bottomPadding - ellipseHeight / 2f.rf, 0f.rf)
-    val localHalfWidth = sqrt(max(screenRadius * screenRadius - diff * diff, 0f.rf))
-    val r = h - ellipseHeight / 2f.rf
+    val screenRadius = actualButtonWidth / 2f.rf
+    val diff = max(screenRadius - bottomPadding - ellipseHeight / 2f.rf, 0.rdp)
+    val screenRadiusScalar = screenRadius / 1.rdp
+    val diffScalar = diff / 1.rdp
+    val localHalfWidth =
+        sqrt(max(screenRadiusScalar * screenRadiusScalar - diffScalar * diffScalar, 0f.rf))
+            .asRemoteDp()
+    val r = buttonHeight - ellipseHeight / 2f.rf
 
-    val contentWidth = max(localHalfWidth - targetSidePadding - r, 0f.rf) * 2f.rf
-    return contentWidth.asRemoteDp()
+    return max(localHalfWidth - targetSidePadding - r, 0.rdp) * 2f.rf
 }

@@ -108,7 +108,7 @@ internal constructor(public val hintProgress: RemoteFloat)
 @Composable
 @RemoteComposable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Suppress("RestrictedApiAndroidX")
+@Suppress("RestrictedApiAndroidX") // LocalRemoteComposeCreationState
 public fun rememberRemoteOneHandedGestureClickIndicatorState():
     RemoteOneHandedGestureClickIndicatorState {
     val creationState = LocalRemoteComposeCreationState.current
@@ -196,7 +196,7 @@ public fun RemoteOneHandedGestureClickIndicator(
 @Composable
 @RemoteComposable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Suppress("RestrictedApiAndroidX")
+@Suppress("RestrictedApiAndroidX") // createReference
 public fun RemoteOneHandedGestureClickIndicator(
     modifier: RemoteModifier = RemoteModifier,
     hintProgress: RemoteFloat = 0f.rf,
@@ -207,12 +207,12 @@ public fun RemoteOneHandedGestureClickIndicator(
 ) {
     // Hoisted via createReference() so the player evaluates `t` and `indicatorScale` once per
     // frame instead of duplicating their expressions at each use site.
-    val t = (clamp(hintProgress, 0f, 1f) * HintTimeline.TotalSeconds).createReference()
+    val t = (clamp(hintProgress, 0f.rf, 1f.rf) * HintTimeline.TotalSeconds.rf).createReference()
 
-    val enterProgress = clamp(t / HintTimeline.EnterDurationSeconds, 0f.rf, 1f.rf)
+    val enterProgress = clamp(t / HintTimeline.EnterDurationSeconds.rf, 0f.rf, 1f.rf)
     val exitProgress =
         clamp(
-            (t - HintTimeline.ExitStartSeconds) / HintTimeline.ExitDurationSeconds,
+            (t - HintTimeline.ExitStartSeconds.rf) / HintTimeline.ExitDurationSeconds.rf,
             0f.rf,
             1f.rf,
         )
@@ -221,7 +221,7 @@ public fun RemoteOneHandedGestureClickIndicator(
     val contentAlpha = 1f.rf - indicatorScale
     val gestureProgress =
         clamp(
-            (t - HintTimeline.GestureStartSeconds) / HintTimeline.GestureDurationSeconds,
+            (t - HintTimeline.GestureStartSeconds.rf) / HintTimeline.GestureDurationSeconds.rf,
             0f.rf,
             1f.rf,
         )
@@ -253,7 +253,7 @@ public fun RemoteOneHandedGestureClickIndicator(
  *
  * @param creationState The creation state of the document being built.
  */
-@Suppress("RestrictedApiAndroidX")
+@Suppress("RestrictedApiAndroidX") // RemoteComposeCreationState
 private class PrimaryHintRegistration(private val creationState: RemoteComposeCreationState) :
     RememberObserver {
     init {
