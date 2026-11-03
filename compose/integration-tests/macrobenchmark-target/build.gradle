@@ -59,6 +59,7 @@ dependencies {
     // but it doesn't work in androidx.
     // See aosp/1804059
     implementation "androidx.lifecycle:lifecycle-common-java8:2.5.1"
+    implementation(project(":compose:animation:animation"))
     implementation(project(":compose:foundation:foundation-layout"))
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:material:material"))
@@ -70,6 +71,11 @@ dependencies {
     implementation(project(":profileinstaller:profileinstaller"))
     implementation(project(":constraintlayout:constraintlayout-compose"))
     implementation("io.coil-kt.coil3:coil-compose-android:3.1.0") {
+        jetbrainsComposeExcludeGroups.each { group ->
+            exclude group: group
+        }
+    }
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.1.0") {
         jetbrainsComposeExcludeGroups.each { group ->
             exclude group: group
         }

@@ -40,4 +40,6 @@ dependencies {
     implementation(libs.testCore)
     implementation(libs.testRunner)
     implementation(libs.testUiautomator)
+    implementation(libs.kotlinCoroutinesCore)
+    implementation(libs.okhttpMockwebserver)
 }
