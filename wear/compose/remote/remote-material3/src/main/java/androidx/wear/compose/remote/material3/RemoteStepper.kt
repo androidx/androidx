@@ -48,6 +48,8 @@ import androidx.compose.runtime.Immutable
  * [RemoteStepper] allows users to make a selection from a range of values. It's a full-screen
  * control with increase and decrease buttons, and a slot in the middle for value or other content.
  *
+ * Example of a [RemoteStepper] with a [RemoteFloat] value:
+ *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteStepperSample
  * @param value Current value of the Stepper.
  * @param steps The number of steps between the min and max value of the [valueRange].
@@ -161,6 +163,8 @@ public fun RemoteStepper(
 /**
  * [RemoteStepper] allows users to make a selection from a range of values. It's a full-screen
  * control with increase and decrease buttons, and a slot in the middle for value or other content.
+ *
+ * Example of a [RemoteStepper] with a [RemoteInt] value:
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteStepperIntegerSample
  * @param value Current value of the Stepper.

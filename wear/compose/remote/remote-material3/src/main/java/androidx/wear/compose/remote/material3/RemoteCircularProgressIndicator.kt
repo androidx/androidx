@@ -45,6 +45,8 @@ import androidx.compose.ui.graphics.StrokeCap
  * Animates changes to [progress] with the [RemoteMotionScheme.slowEffectsSpec] of
  * [RemoteMaterialTheme.motionScheme].
  *
+ * Example of a [RemoteCircularProgressIndicator] showing static progress:
+ *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteCircularProgressIndicatorSample
  *
  * Example that changes [progress] on click:

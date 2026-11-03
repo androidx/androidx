@@ -69,6 +69,8 @@ import androidx.wear.compose.remote.material3.internal.RemoteIcons
 /**
  * [RemoteSlider] allows users to make a selection from a range of values.
  *
+ * Example of a [RemoteSlider] with a [RemoteFloat] value and discrete steps:
+ *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteSliderSample
  * @param value Current value of the Slider.
  * @param steps The number of steps between the min and max value of the [valueRange].
@@ -189,6 +191,8 @@ public fun RemoteSlider(
 
 /**
  * [RemoteSlider] allows users to make a selection from a range of values.
+ *
+ * Example of a [RemoteSlider] with a [RemoteInt] value and discrete steps:
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteSliderIntegerSample
  * @param value Current value of the Slider.

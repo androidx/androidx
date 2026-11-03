@@ -90,6 +90,8 @@ import androidx.wear.compose.remote.material3.RemoteButtonDefaults.defaultButton
  *
  * [RemoteButton] can be enabled or disabled. A disabled button will not respond to click events.
  *
+ * Example of a single-slot [RemoteButton] updating tap count on click:
+ *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteButtonSimpleSample
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
@@ -141,6 +143,9 @@ public fun RemoteButton(
  *
  * [RemoteButton] can be enabled or disabled. A disabled button will not respond to click events.
  *
+ * Example of a [RemoteButton] with a [RemoteButtonDefaults.containerPainter] image background:
+ *
+ * @sample androidx.wear.compose.remote.material3.samples.RemoteButtonWithContainerPainterSample
  * @param onClick Will be called when the user clicks the button
  * @param containerPainter The background image of this [RemoteButton] when enabled
  * @param modifier Modifier to be applied to the button
@@ -212,8 +217,9 @@ public fun RemoteButton(
  *
  * [RemoteButton] can be enabled or disabled. A disabled button will not respond to click events.
  *
- * Example of a [RemoteButton] with an image background, an icon and a secondary label:
+ * Example of a [RemoteButton] with an icon and a secondary label:
  *
+ * @sample androidx.wear.compose.remote.material3.samples.RemoteButtonWithIconAndSecondaryLabelSample
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param secondaryLabel A slot for providing the button's secondary label. The contents are
@@ -332,6 +338,8 @@ public fun RemoteButton(
  *
  * [RemoteCompactButton] can be enabled or disabled. A disabled button will not respond to click
  * events.
+ *
+ * Example of a [RemoteCompactButton] with an icon and label:
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteCompactButtonSimpleSample
  * @param onClick Will be called when the user clicks the button

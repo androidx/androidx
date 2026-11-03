@@ -16,7 +16,7 @@
 
 package androidx.wear.compose.remote.material3.previews
 
-import androidx.compose.remote.creation.compose.action.RemoteAction
+import androidx.compose.remote.creation.compose.action.combinedAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -79,7 +79,7 @@ public fun RemoteRadioButtonWithSecondaryLabelPreview(
 public fun RemoteRadioButtonSelected() {
     RemoteRadioButton(
         selected = true.rb,
-        onSelect = RemoteAction.Empty,
+        onSelect = combinedAction(),
         label = { RemoteText("Selected".rs) },
     )
 }
@@ -89,7 +89,7 @@ public fun RemoteRadioButtonSelected() {
 public fun RemoteRadioButtonUnselected() {
     RemoteRadioButton(
         selected = false.rb,
-        onSelect = RemoteAction.Empty,
+        onSelect = combinedAction(),
         label = { RemoteText("Unselected".rs) },
     )
 }
@@ -99,7 +99,7 @@ public fun RemoteRadioButtonUnselected() {
 public fun RemoteRadioButtonDisabledSelected() {
     RemoteRadioButton(
         selected = true.rb,
-        onSelect = RemoteAction.Empty,
+        onSelect = combinedAction(),
         enabled = false.rb,
         label = { RemoteText("Disabled Selected".rs) },
     )
@@ -110,7 +110,7 @@ public fun RemoteRadioButtonDisabledSelected() {
 public fun RemoteRadioButtonDisabledUnselected() {
     RemoteRadioButton(
         selected = false.rb,
-        onSelect = RemoteAction.Empty,
+        onSelect = combinedAction(),
         enabled = false.rb,
         label = { RemoteText("Disabled Unselected".rs) },
     )
@@ -121,7 +121,7 @@ public fun RemoteRadioButtonDisabledUnselected() {
 public fun RemoteRadioButtonWithIcon() {
     RemoteRadioButton(
         selected = true.rb,
-        onSelect = RemoteAction.Empty,
+        onSelect = combinedAction(),
         icon = { RemoteIcon(TestImageVectors.VolumeUp, contentDescription = null) },
         label = { RemoteText("With Icon".rs) },
     )
@@ -132,7 +132,7 @@ public fun RemoteRadioButtonWithIcon() {
 public fun RemoteRadioButtonWithSecondaryLabel() {
     RemoteRadioButton(
         selected = true.rb,
-        onSelect = RemoteAction.Empty,
+        onSelect = combinedAction(),
         label = { RemoteText("Main Label".rs) },
         secondaryLabel = { RemoteText("Secondary".rs) },
     )

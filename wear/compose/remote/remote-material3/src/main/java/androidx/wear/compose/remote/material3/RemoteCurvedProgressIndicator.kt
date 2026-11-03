@@ -51,8 +51,12 @@ private val RADIANS_TO_DEGREES = (180f / PI.toFloat()).rf
  * To also animate the start and end of the progress, for example for a timer or a goal, use
  * [RemoteIntroOutroCurvedProgressIndicator].
  *
- * @sample androidx.wear.compose.remote.material3.samples.RemoteCurvedProgressIndicatorSample For an
- *   animated progress, see:
+ * Example of a [RemoteCurvedProgressIndicator] displaying a progress arc:
+ *
+ * @sample androidx.wear.compose.remote.material3.samples.RemoteCurvedProgressIndicatorSample
+ *
+ * Example that animates [progress] changes on click:
+ *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteCurvedProgressIndicatorAnimatedSample
  * @param progress A float value representing progress (typically 0f to 1f).
  * @param modifier Modifier to be applied to the canvas.
@@ -119,6 +123,9 @@ public fun RemoteCurvedProgressIndicator(
  * follows [progress] exactly. Pass a progress that is clamped to its range, so that reaching the
  * end gives exactly its end value.
  *
+ * Example of a [RemoteIntroOutroCurvedProgressIndicator] stepping from start to completion:
+ *
+ * @sample androidx.wear.compose.remote.material3.samples.RemoteIntroOutroCurvedProgressIndicatorSample
  * @param progress A float value representing progress, from 0f to 1f.
  * @param modifier Modifier to be applied to the canvas.
  * @param enabled controls the enabled state. When enabled is `false`, this component will appear

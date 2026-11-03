@@ -46,6 +46,9 @@ import androidx.wear.compose.material3.LocalTextConfiguration
  * - If a parameter is _not_ set, (`null` or [androidx.compose.ui.unit.TextUnit.Unspecified]), then
  *   the corresponding value from [style] will be used instead.
  *
+ * Example of styling [RemoteText] with [RemoteMaterialTheme.typography] and theme colors:
+ *
+ * @sample androidx.wear.compose.remote.material3.samples.RemoteTextSample
  * @param text The text to be displayed.
  * @param modifier [RemoteModifier] to apply to this layout node.
  * @param color [RemoteColor] to apply to the text.

@@ -41,6 +41,8 @@ import androidx.compose.ui.semantics.Role
  * The items are laid out in a row with the optional icon at the start, a column containing the two
  * label slots and a Checkbox at the end.
  *
+ * Example of a [RemoteCheckboxButton] toggling its checked state on click:
+ *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteCheckboxButtonSample
  * @param checked Boolean flag indicating whether this button is currently checked.
  * @param onCheckedChange Callback to be invoked when this button is clicked.

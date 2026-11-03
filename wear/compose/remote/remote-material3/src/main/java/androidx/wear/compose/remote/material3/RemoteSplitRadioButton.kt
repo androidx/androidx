@@ -65,6 +65,8 @@ import androidx.wear.compose.material3.TextConfiguration
  * containing [label] and optional [secondaryLabel] is clickable and triggers [onContainerClick].
  * The second area contains a radio selection control and triggers [onSelectionClick].
  *
+ * Example of a [RemoteSplitRadioButton] with separate container and radio selection actions:
+ *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteSplitRadioButtonSample
  * @param selected [RemoteBoolean] flag indicating whether this button is currently selected.
  * @param onSelectionClick RemoteAction to be invoked when the selection control is clicked.

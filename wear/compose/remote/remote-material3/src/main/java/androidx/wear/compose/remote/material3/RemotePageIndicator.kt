@@ -75,6 +75,9 @@ internal class DefaultRemotePageIndicatorState(
 /**
  * Creates and remembers a [RemotePageIndicatorState].
  *
+ * Example of remembering state for a [RemoteHorizontalPageIndicator]:
+ *
+ * @sample androidx.wear.compose.remote.material3.samples.RemoteHorizontalPageIndicatorSample
  * @param pageCount Total number of pages.
  * @param selectedPage The currently selected page index.
  * @param pageOffset The current offset from the start of the selected page, as a ratio of the page
@@ -128,6 +131,8 @@ public object RemotePageIndicatorDefaults {
  * A horizontal page indicator curved along the bottom edge of the screen. Pages are indicated as a
  * Circle shape.
  *
+ * Example of a [RemoteHorizontalPageIndicator] curved along the bottom of the screen:
+ *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteHorizontalPageIndicatorSample
  * @param state The state object of the page indicator.
  * @param modifier The modifier to be applied to the layout.
@@ -163,6 +168,8 @@ public fun RemoteHorizontalPageIndicator(
 /**
  * A vertical page indicator curved along the right edge of the screen. Pages are indicated as a
  * Circle shape.
+ *
+ * Example of a [RemoteVerticalPageIndicator] curved along the side of the screen:
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteVerticalPageIndicatorSample
  * @param state The state object of the page indicator.

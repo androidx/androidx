@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX")
-
 package androidx.wear.compose.remote.material3.previews
 
 import androidx.compose.remote.creation.compose.action.hostAction
@@ -27,7 +25,6 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
-import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
@@ -136,8 +133,8 @@ private fun RemoteButtonWithMultilineLabelPreview(
 fun RemoteButtonWithSecondaryLabel() {
     RemoteButton(
         onClick = testAction,
-        secondaryLabel = { RemoteText(RemoteString("secondaryLabel")) },
-        label = { RemoteText(RemoteString("label")) },
+        secondaryLabel = { RemoteText("secondaryLabel".rs) },
+        label = { RemoteText("label".rs) },
     )
 }
 
