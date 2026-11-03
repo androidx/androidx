@@ -16,8 +16,7 @@
 
 package androidx.ink.authoring
 
-import androidx.annotation.UiThread
-import androidx.annotation.WorkerThread
+import android.os.Build
 
 /**
  * An interface that can be implemented to provide custom inking functionality which replaces or
@@ -60,8 +59,12 @@ public interface ShapeWorkflow<
      * single shape type, but multiple shape types are supported. The returned integer value serves
      * as a unique identifier - there are no limits on its value, and the numeric value of one type
      * compared to another is meaningless beyond the fact that they are distinct.
+     *
+     * This will typically be called on a separate render thread, but before
+     * [Build.VERSION_CODES.Q], there is no separate render thread and the UI thread is used
+     * instead.
      */
-    @WorkerThread public fun getShapeType(shapeSpec: ShapeSpecT): Int
+    public fun getShapeType(shapeSpec: ShapeSpecT): Int
 
     /**
      * Called when a new [InProgressShape] is needed for the given [shapeType] to represent a shape.
@@ -72,20 +75,27 @@ public interface ShapeWorkflow<
      * unnecessary work in [InProgressShape.start] and the functions that are called at a high
      * frequency in [InProgressShape] like [InProgressShape.enqueueInputs] and
      * [InProgressShape.update].
+     *
+     * This will typically be called on a separate render thread, but before
+     * [Build.VERSION_CODES.Q], there is no separate render thread and the UI thread is used
+     * instead.
      */
-    @WorkerThread public fun create(shapeType: Int): InProgressShapeT
+    public fun create(shapeType: Int): InProgressShapeT
 
     /**
      * An object that is called to render an [InProgressShapeT] instance to an
-     * [android.graphics.Canvas]. A standard, pure Ink implementation would be based on
+     * [android.graphics.Canvas]. This will typically be called on a separate render thread, but
+     * before [Build.VERSION_CODES.Q], there is no separate render thread and the UI thread is used
+     * instead. A standard, pure Ink implementation would be based on
      * [androidx.ink.rendering.android.canvas.CanvasStrokeRenderer].
      */
-    @get:WorkerThread public val inProgressShapeRenderer: InProgressShapeRenderer<InProgressShapeT>
+    public val inProgressShapeRenderer: InProgressShapeRenderer<InProgressShapeT>
 
     /**
      * An object that is called to render a [CompletedShapeT] instance to an
-     * [android.graphics.Canvas]. A standard, pure Ink implementation would be based on
+     * [android.graphics.Canvas]. This will only ever be used on the UI thread. A standard, pure Ink
+     * implementation would be based on
      * [androidx.ink.rendering.android.canvas.CanvasStrokeRenderer].
      */
-    @get:UiThread public val completedShapeRenderer: CompletedShapeRenderer<CompletedShapeT>
+    public val completedShapeRenderer: CompletedShapeRenderer<CompletedShapeT>
 }

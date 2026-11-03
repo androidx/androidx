@@ -142,12 +142,12 @@ package androidx.ink.authoring {
   }
 
   @SuppressCompatibility @androidx.ink.authoring.ExperimentalInkCustomShapeWorkflowApi public interface ShapeWorkflow<ShapeSpecT, InProgressShapeT extends androidx.ink.authoring.InProgressShape<? super ShapeSpecT, ? extends CompletedShapeT>, CompletedShapeT> {
-    method @WorkerThread public InProgressShapeT create(int shapeType);
-    method @InaccessibleFromKotlin @UiThread public androidx.ink.authoring.CompletedShapeRenderer<CompletedShapeT> getCompletedShapeRenderer();
-    method @InaccessibleFromKotlin @WorkerThread public androidx.ink.authoring.InProgressShapeRenderer<InProgressShapeT> getInProgressShapeRenderer();
-    method @WorkerThread public int getShapeType(ShapeSpecT shapeSpec);
-    property @UiThread public abstract androidx.ink.authoring.CompletedShapeRenderer<CompletedShapeT> completedShapeRenderer;
-    property @WorkerThread public abstract androidx.ink.authoring.InProgressShapeRenderer<InProgressShapeT> inProgressShapeRenderer;
+    method public InProgressShapeT create(int shapeType);
+    method @InaccessibleFromKotlin public androidx.ink.authoring.CompletedShapeRenderer<CompletedShapeT> getCompletedShapeRenderer();
+    method @InaccessibleFromKotlin public androidx.ink.authoring.InProgressShapeRenderer<InProgressShapeT> getInProgressShapeRenderer();
+    method public int getShapeType(ShapeSpecT shapeSpec);
+    property public abstract androidx.ink.authoring.CompletedShapeRenderer<CompletedShapeT> completedShapeRenderer;
+    property public abstract androidx.ink.authoring.InProgressShapeRenderer<InProgressShapeT> inProgressShapeRenderer;
   }
 
 }

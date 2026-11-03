@@ -21,6 +21,7 @@ import android.graphics.Matrix
 import android.view.MotionEvent
 import android.view.View
 import androidx.annotation.RestrictTo
+import androidx.collection.MutableIntObjectMap
 import androidx.ink.brush.Brush
 import androidx.input.motionprediction.MotionEventPredictor
 
@@ -120,6 +121,15 @@ public class ShapeGestureCallback<ShapeSpecT : Any>(
                 shapeToWorldTransformForNewShapes = shapeToWorldTransformForNewShapes,
                 isRestrictedToSingleShape = isRestrictedToSingleShape,
             ) {
+            override fun hasUnfinishedShapes(): Boolean = inProgressShapesView.hasUnfinishedShapes()
+
+            override fun hasUnfinishedShapes(deviceId: Int): Boolean =
+                inProgressShapesView.hasUnfinishedShapes(deviceId)
+
+            override fun onCancelUnfinishedShapes(deviceId: Int) {
+                inProgressShapesView.cancelUnfinishedShapes(deviceId)
+            }
+
             override fun onStartShape(
                 event: MotionEvent,
                 pointerId: Int,
@@ -256,6 +266,16 @@ public class StrokeGestureCallback(
                 shapeToWorldTransformForNewShapes = strokeToWorldTransformForNewStrokes,
                 isRestrictedToSingleShape = isRestrictedToSingleStroke,
             ) {
+            override fun hasUnfinishedShapes(): Boolean =
+                inProgressStrokesView.hasUnfinishedStrokes()
+
+            override fun hasUnfinishedShapes(deviceId: Int): Boolean =
+                inProgressStrokesView.hasUnfinishedStrokes(deviceId)
+
+            override fun onCancelUnfinishedShapes(deviceId: Int) {
+                inProgressStrokesView.cancelUnfinishedStrokes(deviceId)
+            }
+
             override fun onStartShape(
                 event: MotionEvent,
                 pointerId: Int,
@@ -297,12 +317,20 @@ public class StrokeGestureCallback(
 
 /** Common touch logic between [StrokeGestureCallback] and [ShapeGestureCallback]. */
 private abstract class GestureCallback(
-    view: View,
+    private val view: View,
     val motionEventToWorldTransformForNewShapes: Matrix = Matrix(),
     val shapeToWorldTransformForNewShapes: Matrix = Matrix(),
     var isRestrictedToSingleShape: Boolean = false,
 ) : View.OnTouchListener {
-    private val motionEventPredictor = MotionEventPredictor.newInstance(view)
+    // TODO(b/576719718): Delete this map and use a single MotionEventPredictor once
+    // MotionEventPredictor (MultiPointerPredictor) supports multiple simultaneous input devices.
+    private val deviceIdToMotionEventPredictor = MutableIntObjectMap<MotionEventPredictor>()
+
+    abstract fun hasUnfinishedShapes(): Boolean
+
+    abstract fun hasUnfinishedShapes(deviceId: Int): Boolean
+
+    abstract fun onCancelUnfinishedShapes(deviceId: Int)
 
     abstract fun onStartShape(
         event: MotionEvent,
@@ -318,16 +346,33 @@ private abstract class GestureCallback(
     abstract fun onCancelShape(event: MotionEvent, pointerId: Int): Boolean
 
     /**
-     * Update the relevant shapes based on the pointers on [event]. If the event's action is
-     * [MotionEvent.ACTION_DOWN] or [MotionEvent.ACTION_POINTER_DOWN], a new shape is started for
-     * the action's pointer (the pointer corresponding to [MotionEvent.getActionIndex]). If the
-     * event's action is [MotionEvent.ACTION_MOVE], in progress shapes are updated for each pointer
-     * in the event. If the event's action is [MotionEvent.ACTION_UP] or
-     * [MotionEvent.ACTION_POINTER_UP], the shape for the action's pointer is canceled if
-     * FLAG_CANCELED is set in the event flags and finished otherwise. If the event's action is
-     * [MotionEvent.ACTION_CANCEL], all in progress shapes are canceled. The shape most recently
-     * started for a pointer with the relevant pointer ID is considered to correspond to that
-     * pointer. If there is no such shape for an update, the update is ignored.
+     * Update the relevant shapes based on the pointers on [event].
+     *
+     * If the event's action is [MotionEvent.ACTION_DOWN]:
+     * - If [isRestrictedToSingleShape] is `true` and a shape is already in progress, the event is
+     *   ignored (returns `false`).
+     * - Otherwise, any unfinished shapes from a previous interrupted gesture on the same input
+     *   device ([MotionEvent.getDeviceId]) are canceled, and a new shape is started for the
+     *   action's pointer ([MotionEvent.getActionIndex]).
+     *
+     * If the event's action is [MotionEvent.ACTION_POINTER_DOWN]:
+     * - If [isRestrictedToSingleShape] is `true`, the event is ignored (returns `false`).
+     * - Otherwise, a new shape is started for the action's pointer.
+     *
+     * If the event's action is [MotionEvent.ACTION_MOVE], in progress shapes for the event's device
+     * are updated for each pointer in the event.
+     *
+     * If the event's action is [MotionEvent.ACTION_UP] or [MotionEvent.ACTION_POINTER_UP], the
+     * shape for the action's pointer on the event's device is canceled if
+     * [MotionEvent.FLAG_CANCELED] is set in the event flags and finished otherwise.
+     *
+     * If the event's action is [MotionEvent.ACTION_CANCEL], all in progress shapes for the event's
+     * device are canceled (or only the shape for the action's pointer if
+     * [MotionEvent.getActionIndex] is non-zero).
+     *
+     * The shape most recently started for a pointer with the relevant device ID and pointer ID is
+     * considered to correspond to that pointer. If there is no such shape for an update, the update
+     * is ignored.
      *
      * @param view [View] that originally received the [event].
      * @param event [MotionEvent] to be processed.
@@ -335,16 +380,25 @@ private abstract class GestureCallback(
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouch(view: View?, event: MotionEvent?): Boolean {
         if (view == null || event == null) return false
+        val motionEventPredictor =
+            deviceIdToMotionEventPredictor.getOrPut(event.deviceId) {
+                MotionEventPredictor.newInstance(this.view)
+            }
         motionEventPredictor.record(event)
+
         val primaryPointerId = event.getPointerId(event.actionIndex)
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN,
             MotionEvent.ACTION_POINTER_DOWN -> {
                 if (
                     isRestrictedToSingleShape &&
-                        event.actionMasked == MotionEvent.ACTION_POINTER_DOWN
+                        (event.actionMasked == MotionEvent.ACTION_POINTER_DOWN ||
+                            hasUnfinishedShapes())
                 ) {
                     return false
+                }
+                if (event.actionMasked == MotionEvent.ACTION_DOWN) {
+                    onCancelUnfinishedShapes(event.deviceId)
                 }
                 view.requestUnbufferedDispatch(event)
                 onStartShape(
@@ -383,7 +437,14 @@ private abstract class GestureCallback(
                 } else {
                     onFinishShape(event, pointerId = primaryPointerId)
                 }
-            MotionEvent.ACTION_CANCEL -> return onCancelShape(event, pointerId = primaryPointerId)
+            MotionEvent.ACTION_CANCEL -> {
+                if (event.actionIndex != 0) {
+                    return onCancelShape(event, pointerId = primaryPointerId)
+                }
+                return hasUnfinishedShapes(event.deviceId).also {
+                    onCancelUnfinishedShapes(event.deviceId)
+                }
+            }
         }
         return false
     }

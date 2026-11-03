@@ -31,7 +31,7 @@ import androidx.annotation.AttrRes
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
-import androidx.collection.MutableIntObjectMap
+import androidx.collection.MutableLongObjectMap
 import androidx.core.graphics.withMatrix
 import androidx.core.view.ViewCompat
 import androidx.ink.authoring.internal.CanvasInProgressStrokesRenderHelperV21
@@ -273,6 +273,7 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
     }
 
     /** Contains everything that is initialized with [startShape] or [eagerInit]. */
+    @UiThread
     private inner class InitializedState(
         shapeWorkflow: ShapeWorkflow<ShapeSpecT, InProgressShapeT, CompletedShapeT>
     ) {
@@ -364,11 +365,11 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
     private val finishedStrokes = mutableMapOf<InProgressStrokeId, CompletedShapeT>()
 
     // The simplified version of the API assumes that there is only one stroke in progress with a
-    // given pointer ID at a time (i.e. that each stroke in a gesture is finished or cancelled
-    // before
-    // strokes in the next gesture are started, input for strokes from different gestures are not
-    // interleaved).
-    private val pointerIdToInProgressStrokeId = MutableIntObjectMap<InProgressStrokeId>()
+    // given (device ID, pointer ID) pair at a time (i.e. that each stroke in a gesture on a given
+    // device is finished or cancelled before strokes in the next gesture on that device are
+    // started,
+    // and input for strokes from different gestures on the same device are not interleaved).
+    private val deviceAndPointerIdToInProgressStrokeId = MutableLongObjectMap<InProgressStrokeId>()
 
     /**
      * Add a listener to be notified when shapes are finished. These shapes will continue to be
@@ -466,7 +467,12 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
                 strokeUnitLengthCm =
                     strokeUnitLengthCm(motionEventToWorldTransform, shapeToWorldTransform),
             )
-            .also { strokeId -> pointerIdToInProgressStrokeId.put(pointerId, strokeId) }
+            .also { strokeId ->
+                deviceAndPointerIdToInProgressStrokeId.put(
+                    deviceAndPointerId(event, pointerId),
+                    strokeId,
+                )
+            }
 
     private fun strokeUnitLengthCm(
         motionEventToWorldTransform: Matrix,
@@ -576,7 +582,8 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
         addToShape(
             event,
             pointerId,
-            pointerIdToInProgressStrokeId[pointerId] ?: return false,
+            deviceAndPointerIdToInProgressStrokeId[deviceAndPointerId(event, pointerId)]
+                ?: return false,
             prediction,
         )
         return true
@@ -649,10 +656,15 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * @param shapeId The [InProgressStrokeId] of the shape to be finished.
      */
     public fun finishShape(event: MotionEvent, pointerId: Int, shapeId: InProgressStrokeId) {
-        // Remove the strokeId from the map. If it corresponded to this pointer ID (the usual case),
-        // we can do that in the fast way.
-        if (!pointerIdToInProgressStrokeId.remove(pointerId, shapeId)) {
-            pointerIdToInProgressStrokeId.removeIf { _, v -> v == shapeId }
+        // Remove the strokeId from the map. If it corresponded to this (device ID, pointer ID) pair
+        // (the usual case), we can do that in the fast way.
+        if (
+            !deviceAndPointerIdToInProgressStrokeId.remove(
+                deviceAndPointerId(event, pointerId),
+                shapeId,
+            )
+        ) {
+            deviceAndPointerIdToInProgressStrokeId.removeIf { _, v -> v == shapeId }
         }
         initializedState?.inProgressStrokesManager?.finishStroke(event, pointerId, shapeId)
     }
@@ -670,7 +682,9 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * @return Whether the pointer corresponded to an in-progress shape.
      */
     public fun finishShape(event: MotionEvent, pointerId: Int): Boolean {
-        val strokeId = pointerIdToInProgressStrokeId.remove(pointerId) ?: return false
+        val strokeId =
+            deviceAndPointerIdToInProgressStrokeId.remove(deviceAndPointerId(event, pointerId))
+                ?: return false
         val state = initializedState ?: return false
         state.inProgressStrokesManager.finishStroke(event, pointerId, strokeId)
         return true
@@ -690,7 +704,7 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
         // In general, use of the StrokeInput[Batch] API won't be mixed with the MotionEvent API
         // (especially the version that isn't keeping track of StrokeId explicitly), so this map
         // will be empty. Even if not, we would expect it to be short.
-        pointerIdToInProgressStrokeId.removeIf { _, v -> v == shapeId }
+        deviceAndPointerIdToInProgressStrokeId.removeIf { _, v -> v == shapeId }
         initializedState?.inProgressStrokesManager?.finishStroke(input, shapeId)
     }
 
@@ -723,7 +737,7 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
     @JvmOverloads
     public fun cancelShape(shapeId: InProgressStrokeId, event: MotionEvent? = null) {
         // Linear scan, but we expect the number of in-progress strokes to be small.
-        pointerIdToInProgressStrokeId.removeIf { _, v -> v == shapeId }
+        deviceAndPointerIdToInProgressStrokeId.removeIf { _, v -> v == shapeId }
         initializedState?.inProgressStrokesManager?.cancelStroke(shapeId, event)
     }
 
@@ -736,7 +750,9 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * @return Whether the pointer corresponded to an in-progress shape.
      */
     public fun cancelShape(event: MotionEvent, pointerId: Int): Boolean {
-        val strokeId = pointerIdToInProgressStrokeId.remove(pointerId) ?: return false
+        val strokeId =
+            deviceAndPointerIdToInProgressStrokeId.remove(deviceAndPointerId(event, pointerId))
+                ?: return false
         val state = initializedState ?: return false
         state.inProgressStrokesManager.cancelStroke(strokeId, event)
         return true
@@ -744,13 +760,37 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
 
     /** Cancel all in-progress shapes. */
     public fun cancelUnfinishedShapes() {
+        deviceAndPointerIdToInProgressStrokeId.clear()
         initializedState?.inProgressStrokesManager?.cancelUnfinishedStrokes()
+    }
+
+    /** Cancel all in-progress shapes for the specified device ID. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    public fun cancelUnfinishedShapes(deviceId: Int) {
+        val state = initializedState ?: return
+        deviceAndPointerIdToInProgressStrokeId.removeIf { deviceAndPointerId, strokeId ->
+            (unpackDeviceId(deviceAndPointerId) == deviceId).also { willRemove ->
+                if (willRemove) {
+                    state.inProgressStrokesManager.cancelStroke(strokeId, event = null)
+                }
+            }
+        }
     }
 
     /** Returns true if there are any in-progress shapes. */
     public fun hasUnfinishedShapes(): Boolean {
         val state = initializedState ?: return false
         return state.inProgressStrokesManager.hasUnfinishedStrokes()
+    }
+
+    /** Returns true if there are any in-progress shapes for the specified device ID. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    public fun hasUnfinishedShapes(deviceId: Int): Boolean {
+        if (initializedState == null) return false
+        deviceAndPointerIdToInProgressStrokeId.forEachKey { deviceAndPointerId ->
+            if (unpackDeviceId(deviceAndPointerId) == deviceId) return true
+        }
+        return false
     }
 
     /**
@@ -803,7 +843,7 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
         cancelAllInProgress: Boolean = false,
     ): Boolean {
         val state = initializedState ?: return true // Nothing to flush if it's not initialized.
-        pointerIdToInProgressStrokeId.clear()
+        deviceAndPointerIdToInProgressStrokeId.clear()
         return state.inProgressStrokesManager.flush(timeout, timeoutUnit, cancelAllInProgress)
     }
 
@@ -861,8 +901,14 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
         initializedState?.removeFinishedShapesView()
     }
 
-    private companion object {
+    internal companion object {
         val IDENTITY_MATRIX = Matrix()
+
+        internal fun deviceAndPointerId(event: MotionEvent, pointerId: Int): Long =
+            (event.deviceId.toLong() shl 32) or (pointerId.toLong() and 0xFFFF_FFFFL)
+
+        internal fun unpackDeviceId(deviceAndPointerId: Long): Int =
+            (deviceAndPointerId ushr 32).toInt()
     }
 }
 

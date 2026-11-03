@@ -18,13 +18,15 @@ package androidx.ink.authoring
 
 import android.graphics.Canvas
 import android.graphics.Matrix
+import android.os.Build
 
 @ExperimentalInkCustomShapeWorkflowApi
 /** Implement this interface to render an [InProgressShape]. */
 public interface InProgressShapeRenderer<in InProgressShapeT : InProgressShape<*, *>> {
     /**
      * Draw the given [InProgressShape] onto the provided [Canvas], with the given transform. This
-     * will be called on the render thread.
+     * will typically be called on a separate render thread, but before [Build.VERSION_CODES.Q],
+     * there is no separate render thread and the UI thread is used instead.
      *
      * @param canvas The [Canvas] to draw to.
      * @param shape The [InProgressShape] to draw.
