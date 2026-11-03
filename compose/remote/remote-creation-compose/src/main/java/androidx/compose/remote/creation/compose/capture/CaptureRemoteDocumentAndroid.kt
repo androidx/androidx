@@ -76,6 +76,9 @@ import kotlinx.coroutines.flow.flow
  * This is a suspending function that performs the composition and rendering, returning a
  * [RemoteCapturedDocument] which contains the serialized bytes and metadata.
  *
+ * Example of capturing a single RemoteCompose document as a byte array:
+ *
+ * @sample androidx.compose.remote.creation.compose.samples.CaptureSingleRemoteDocumentSample
  * @param context The Android [Context] to use.
  * @param creationDisplayInfo Details about the virtual display to capture for (size, density,
  *   etc.). Defaults to display metrics derived from [context].
@@ -198,6 +201,9 @@ public suspend fun captureSingleRemoteDocument(
  * about one per second is throttled, and a warning is logged. The latest state is still emitted
  * once the throttle allows.
  *
+ * Example of capturing a [Flow] of updated RemoteCompose documents as state changes:
+ *
+ * @sample androidx.compose.remote.creation.compose.samples.CaptureRemoteDocumentSample
  * @param context The Android [Context] to use.
  * @param creationDisplayInfo Details about the virtual display to capture for (size, density,
  *   etc.).

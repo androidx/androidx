@@ -27,6 +27,9 @@ import androidx.collection.IntObjectMap
  * document. It contains the serialized view hierarchy as a byte array and a map of any associated
  * `PendingIntent`s that need to be resolved on the host side.
  *
+ * Example of capturing a [RemoteCapturedDocument] and reading its serialized [bytes]:
+ *
+ * @sample androidx.compose.remote.creation.compose.samples.CaptureSingleRemoteDocumentSample
  * @property bytes The bytes of the Remote Compose document.
  * @property pendingIntents A map of integer identifiers to `PendingIntent` objects.
  */
