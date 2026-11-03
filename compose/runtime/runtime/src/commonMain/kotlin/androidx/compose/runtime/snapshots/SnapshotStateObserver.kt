@@ -539,7 +539,14 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
             }
 
             currentScope = previousScope
-            currentScopeReads = previousReads
+            // Restore currentScopeReads in case nested observation of the same scope already
+            // allocated them.
+            currentScopeReads =
+                if (previousReads == null && previousScope != null) {
+                    scopeToValues[previousScope]
+                } else {
+                    previousReads
+                }
             currentToken = previousToken
             currentFirstReadCount = previousFirstReadCount
         }

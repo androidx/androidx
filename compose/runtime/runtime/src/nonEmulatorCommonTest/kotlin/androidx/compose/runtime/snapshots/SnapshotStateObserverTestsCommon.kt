@@ -1293,6 +1293,59 @@ class SnapshotStateObserverTestsCommon {
         }
     }
 
+    @Test
+    fun nestedObservationOfTheSameScopeIsClearedWithTheScope() {
+        val changes = mutableListOf<Any>()
+        val changeBlock: (Any) -> Unit = { changes += it }
+
+        runSimpleTest { stateObserver, _ ->
+            val stateA = mutableIntStateOf(0)
+            val stateB = mutableIntStateOf(0)
+            val scope = ValueWrapper("scope")
+            Snapshot.notifyObjectsInitialized()
+
+            // Keeps the callback's observations alive after scope is cleared.
+            stateObserver.observeReads(ValueWrapper("other"), changeBlock) { stateB.intValue }
+            stateObserver.observeReads(scope, changeBlock) {
+                stateObserver.observeReads(scope, changeBlock) { stateA.intValue }
+                stateB.intValue
+            }
+            stateObserver.clear(scope)
+
+            stateA.intValue++
+            Snapshot.sendApplyNotifications()
+            assertEquals(emptyList(), changes)
+        }
+    }
+
+    @Test
+    fun nestedObservationOfTheSameScopeThroughAnotherScopeIsClearedWithTheScope() {
+        val changes = mutableListOf<Any>()
+        val changeBlock: (Any) -> Unit = { changes += it }
+
+        runSimpleTest { stateObserver, _ ->
+            val stateA = mutableIntStateOf(0)
+            val stateB = mutableIntStateOf(0)
+            val scope = ValueWrapper("scope")
+            val otherScope = ValueWrapper("otherScope")
+            Snapshot.notifyObjectsInitialized()
+
+            // Keeps the callback's observations alive after scope is cleared.
+            stateObserver.observeReads(ValueWrapper("other"), changeBlock) { stateB.intValue }
+            stateObserver.observeReads(scope, changeBlock) {
+                stateObserver.observeReads(otherScope, changeBlock) {
+                    stateObserver.observeReads(scope, changeBlock) { stateA.intValue }
+                }
+                stateB.intValue
+            }
+            stateObserver.clear(scope)
+
+            stateA.intValue++
+            Snapshot.sendApplyNotifications()
+            assertEquals(emptyList(), changes)
+        }
+    }
+
     private fun runSimpleTest(
         block: (modelObserver: SnapshotStateObserver, data: MutableState<Int>) -> Unit
     ) {
