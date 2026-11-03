@@ -27,7 +27,9 @@ import android.os.Build
  */
 internal class MeshGradientRendererImpl : BaseMeshGradientRenderer() {
 
-    private val paint = android.graphics.Paint()
+    // Setting the color here as White as it keeps the vertex color unchanged under kModulate.
+    // See b/531056914
+    private val paint = android.graphics.Paint().apply { color = android.graphics.Color.WHITE }
 
     override fun createColorsBuffer(vertexCount: Int): IntArray =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) IntArray(vertexCount)
