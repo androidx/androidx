@@ -159,7 +159,7 @@ internal fun Cursor.toPersonMatches(): Set<PersonMatch> {
     val rows = readRows {
         val person =
             Person(
-                id = PersonId(getString(lookupKeyIndex), getString(packageIndex)),
+                id = PersonId(getString(packageIndex), getString(lookupKeyIndex)),
                 displayName = getStringOrNull(displayNameIndex),
                 photoUri = getStringOrNull(photoUriIndex)?.toUri(),
                 capabilities = capabilitiesFromReachabilityBitmask(getInt(capabilityIndex)),
@@ -189,7 +189,7 @@ internal fun Cursor.toGroupMatches(): Set<GroupMatch> {
     val rows = readRows {
         val group =
             Group(
-                id = GroupId(getString(lookupKeyIndex), getString(packageIndex)),
+                id = GroupId(getString(packageIndex), getString(lookupKeyIndex)),
                 displayName = getStringOrNull(displayNameIndex),
             )
         GroupMatch(group, setOf(checkNotNull(readSelection().toGroupCriterion())))

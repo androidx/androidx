@@ -21,23 +21,23 @@ import androidx.annotation.RestrictTo
 /** Unique identifier for a group record within a specific People Directory application. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class GroupId(
-    /** Stable, opaque string key identifying the group. */
-    public val lookupKey: String,
     /** Android package name of the People Directory application. */
     public val directoryPackage: String,
+    /** Stable, opaque string key identifying the group. */
+    public val lookupKey: String,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is GroupId) return false
-        return lookupKey == other.lookupKey && directoryPackage == other.directoryPackage
+        return directoryPackage == other.directoryPackage && lookupKey == other.lookupKey
     }
 
     override fun hashCode(): Int {
-        var result = lookupKey.hashCode()
-        result = 31 * result + directoryPackage.hashCode()
+        var result = directoryPackage.hashCode()
+        result = 31 * result + lookupKey.hashCode()
         return result
     }
 
     override fun toString(): String =
-        "GroupId(lookupKey=$lookupKey, directoryPackage=$directoryPackage)"
+        "GroupId(directoryPackage=$directoryPackage, lookupKey=$lookupKey)"
 }

@@ -116,7 +116,7 @@ class PlatformPeopleBackendTest {
     fun createInteractionRequest_withoutThePlatformProvider_returnsNull() = runTest {
         val backend = PlatformPeopleBackend(context, StandardTestDispatcher(testScheduler))
         val interaction =
-            peopleInteraction(PersonId("user_123", "com.example.voip"), Capability.VOICE)
+            peopleInteraction(PersonId("com.example.voip", "user_123"), Capability.VOICE)
 
         val result = backend.createInteractionRequest(interaction)
 
@@ -281,7 +281,7 @@ class PlatformPeopleBackendTest {
     @Test
     fun queryPersons_emptyQuery_returnsAnEmptyResultWithoutQueryingTheProvider() = runTest {
         val provider = setupPlatformPeopleProvider {
-            addPerson(id = PersonId("p1", VOIP), criteria = setOf(PHONE))
+            addPerson(id = PersonId(VOIP, "p1"), criteria = setOf(PHONE))
         }
         val backend = PlatformPeopleBackend(context, StandardTestDispatcher(testScheduler))
         // The DSL rejects empty queries, but a result's empty partition can be queried again.
@@ -326,7 +326,7 @@ class PlatformPeopleBackendTest {
     fun queryPersons_samePersonMatchedByTwoInputs_mergesIntoOneMatch() = runTest {
         setupPlatformPeopleProvider {
             addPerson(
-                id = PersonId("lookup_1", VOIP),
+                id = PersonId(VOIP, "lookup_1"),
                 displayName = "Alice",
                 isKnown = true,
                 criteria = setOf(PHONE, EMAIL),
@@ -342,7 +342,7 @@ class PlatformPeopleBackendTest {
         val result = backend.queryPersons(query)
 
         val match = result.matches.single()
-        assertThat(match.person.id).isEqualTo(PersonId("lookup_1", VOIP))
+        assertThat(match.person.id).isEqualTo(PersonId(VOIP, "lookup_1"))
         assertThat(match.criteria).containsExactly(PHONE, EMAIL)
         assertThat(result.unhandledQuery.isEmpty()).isTrue()
         assertThat(result.matchedQuery).isEqualTo(query)
@@ -351,7 +351,7 @@ class PlatformPeopleBackendTest {
     @Test
     fun queryPersons_unhandledCriteriaInCursorExtras_reachTheResult() = runTest {
         setupPlatformPeopleProvider {
-            addPerson(id = PersonId("lookup_1", VOIP), criteria = setOf(PHONE))
+            addPerson(id = PersonId(VOIP, "lookup_1"), criteria = setOf(PHONE))
             unhandledPersonCriteria[VOIP] = setOf(EMAIL)
             unhandledPersonCriteria[CHAT] = setOf(PHONE)
         }
@@ -366,7 +366,7 @@ class PlatformPeopleBackendTest {
 
         val result = backend.queryPersons(query)
 
-        assertThat(result.matches.map { it.person.id }).containsExactly(PersonId("lookup_1", VOIP))
+        assertThat(result.matches.map { it.person.id }).containsExactly(PersonId(VOIP, "lookup_1"))
         assertThat(result.matchesFor(VOIP, PHONE)).hasSize(1)
         assertThat(result.matchedQuery).isEqualTo(personQuery(VOIP) { addPhones(PHONE.number) })
         // SMS returned no answer, so its criteria were evaluated without a match.
@@ -395,7 +395,7 @@ class PlatformPeopleBackendTest {
         val g1 = Criterion.GroupLookupKey("g1")
         val g2 = Criterion.GroupLookupKey("g2")
         setupPlatformPeopleProvider {
-            addGroup(id = GroupId("g1", CHAT), displayName = "Family", criteria = setOf(g1))
+            addGroup(id = GroupId(CHAT, "g1"), displayName = "Family", criteria = setOf(g1))
             unhandledGroupCriteria[CHAT] = setOf(g2)
         }
         val backend = PlatformPeopleBackend(context, StandardTestDispatcher(testScheduler))
@@ -403,9 +403,9 @@ class PlatformPeopleBackendTest {
         val result = backend.queryGroups(groupQuery(CHAT) { addLookupKeys("g1", "g2") })
 
         assertThat(result.matches)
-            .containsExactly(GroupMatch(Group(GroupId("g1", CHAT), "Family"), setOf(g1)))
+            .containsExactly(GroupMatch(Group(GroupId(CHAT, "g1"), "Family"), setOf(g1)))
         assertThat(result.matches.map { it.group })
-            .containsExactly(Group(GroupId("g1", CHAT), "Family"))
+            .containsExactly(Group(GroupId(CHAT, "g1"), "Family"))
         assertThat(result.unhandledQuery).isEqualTo(groupQuery(CHAT) { addLookupKeys("g2") })
     }
 

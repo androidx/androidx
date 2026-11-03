@@ -56,7 +56,7 @@ class CursorsTest {
             )
 
         val match = cursor.use { it.toPersonMatches().single() }
-        assertThat(match.person.id).isEqualTo(PersonId("p1", PKG))
+        assertThat(match.person.id).isEqualTo(PersonId(PKG, "p1"))
         assertThat(match.criteria).containsExactly(phone1, email).inOrder()
     }
 
@@ -71,7 +71,7 @@ class CursorsTest {
         val matches = cursor.use { it.toPersonMatches() }
 
         assertThat(matches.map { it.person.id })
-            .containsExactly(PersonId("p1", PKG), PersonId("p1", OTHER_PKG))
+            .containsExactly(PersonId(PKG, "p1"), PersonId(OTHER_PKG, "p1"))
     }
 
     @Test
@@ -187,7 +187,7 @@ class CursorsTest {
             assertThat(it.toGroupMatches())
                 .containsExactly(
                     GroupMatch(
-                        Group(id = GroupId("g1", PKG), displayName = "Family"),
+                        Group(id = GroupId(PKG, "g1"), displayName = "Family"),
                         setOf(Criterion.GroupLookupKey("g1"), Criterion.GroupLookupKey("G1")),
                     )
                 )
@@ -198,7 +198,7 @@ class CursorsTest {
     fun groupResult_cursorRoundTrip_preservesMatchesAndUnhandled() {
         val g1 = Criterion.GroupLookupKey("g1")
         val g2 = Criterion.GroupLookupKey("g2")
-        val family = Group(id = GroupId("g1", PKG), displayName = "Family")
+        val family = Group(id = GroupId(PKG, "g1"), displayName = "Family")
         val original = directoryGroupResult {
             addMatch(family, g1)
             addUnhandled(g2)
@@ -258,7 +258,7 @@ class CursorsTest {
                 .containsExactly(
                     PersonMatch(
                         Person(
-                            id = PersonId("lookup_1", PKG),
+                            id = PersonId(PKG, "lookup_1"),
                             displayName = "Alice",
                             photoUri = Uri.parse("https://example.com/alice.jpg"),
                             capabilities = setOf(Capability.VOICE, Capability.VIDEO),
@@ -268,7 +268,7 @@ class CursorsTest {
                     ),
                     PersonMatch(
                         Person(
-                            id = PersonId("lookup_2", OTHER_PKG),
+                            id = PersonId(OTHER_PKG, "lookup_2"),
                             displayName = "Bob",
                             photoUri = null,
                             capabilities = setOf(Capability.MESSAGE),
@@ -308,7 +308,7 @@ class CursorsTest {
 
     private fun person(lookupKey: String = "p1", name: String = "Alice") =
         Person(
-            id = PersonId(lookupKey, PKG),
+            id = PersonId(PKG, lookupKey),
             displayName = name,
             photoUri = null,
             capabilities = setOf(Capability.MESSAGE),

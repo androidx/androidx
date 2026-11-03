@@ -147,7 +147,7 @@ class PersonQueryResultTest {
 
     private fun person(lookupKey: String, directoryPackage: String, name: String) =
         Person(
-            id = PersonId(lookupKey, directoryPackage),
+            id = PersonId(directoryPackage, lookupKey),
             displayName = name,
             photoUri = null,
             capabilities = emptySet(),

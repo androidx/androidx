@@ -34,7 +34,7 @@ class PersonTest {
 
         val person =
             Person(
-                id = PersonId("key_123", "com.example.voip"),
+                id = PersonId("com.example.voip", "key_123"),
                 displayName = "Alice Smith",
                 photoUri = photoUri,
                 capabilities = setOf(Capability.VOICE, Capability.VIDEO),
@@ -51,7 +51,7 @@ class PersonTest {
     fun properties_whenOptionalPropertiesEmpty_exposeNullOrEmpty() {
         val person =
             Person(
-                id = PersonId("key_123", "com.example.voip"),
+                id = PersonId("com.example.voip", "key_123"),
                 displayName = null,
                 photoUri = null,
                 capabilities = emptySet(),
@@ -68,7 +68,7 @@ class PersonTest {
     fun capabilityConvenienceProperties_reflectUnderlyingCapabilities() {
         val person =
             Person(
-                id = PersonId("key_123", "com.example.voip"),
+                id = PersonId("com.example.voip", "key_123"),
                 displayName = null,
                 photoUri = null,
                 capabilities = setOf(Capability.VOICE, Capability.VIDEO),
@@ -84,7 +84,7 @@ class PersonTest {
     fun equals_comparesEveryProperty() {
         fun person(displayName: String?) =
             Person(
-                id = PersonId("key_123", "com.example.voip"),
+                id = PersonId("com.example.voip", "key_123"),
                 displayName = displayName,
                 photoUri = null,
                 capabilities = emptySet(),
@@ -100,7 +100,7 @@ class PersonTest {
     fun personMatch_exposesPersonAndCriteria_andComparesCriteria() {
         val person =
             Person(
-                id = PersonId("key_123", "com.example.voip"),
+                id = PersonId("com.example.voip", "key_123"),
                 displayName = null,
                 photoUri = null,
                 capabilities = emptySet(),
@@ -121,7 +121,7 @@ class PersonTest {
     fun personMatch_withoutCriteria_throws() {
         val person =
             Person(
-                id = PersonId("key_123", "com.example.voip"),
+                id = PersonId("com.example.voip", "key_123"),
                 displayName = null,
                 photoUri = null,
                 capabilities = emptySet(),

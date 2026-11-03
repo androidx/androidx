@@ -36,7 +36,7 @@ class PeopleInteractionTest {
 
     @Test
     fun parse_validPersonInteraction_returnsParsedInteraction() {
-        val personId = PersonId("alice_123", directoryPackage())
+        val personId = PersonId(directoryPackage(), "alice_123")
         val intent =
             interactionIntent(
                 PeopleContractCompat.Intents.PEOPLE_INTERACTION_TYPE_VOICE,
@@ -56,7 +56,7 @@ class PeopleInteractionTest {
 
     @Test
     fun parse_validGroupInteraction_returnsParsedInteraction() {
-        val groupId = GroupId("group_xyz", directoryPackage())
+        val groupId = GroupId(directoryPackage(), "group_xyz")
         val intent =
             interactionIntent(
                 PeopleContractCompat.Intents.PEOPLE_INTERACTION_TYPE_MESSAGE,
@@ -73,7 +73,7 @@ class PeopleInteractionTest {
 
     @Test
     fun parse_wrongAction_returnsNull() {
-        val personId = PersonId("alice_123", directoryPackage())
+        val personId = PersonId(directoryPackage(), "alice_123")
         val intent =
             interactionIntent(
                 PeopleContractCompat.Intents.PEOPLE_INTERACTION_TYPE_VOICE,
@@ -100,7 +100,7 @@ class PeopleInteractionTest {
         val intent =
             interactionIntent(
                 "unknown",
-                peopleInteraction(PersonId("p1", directoryPackage()), Capability.VOICE)
+                peopleInteraction(PersonId(directoryPackage(), "p1"), Capability.VOICE)
                     .toInteractionQueryArgs(),
             )
 
@@ -171,8 +171,8 @@ class PeopleInteractionTest {
         val parsed = PeopleInteraction.parse(context(), intent)
 
         assertThat(parsed).isEqualTo(interaction)
-        assertThat(parsed!!.targetPersonId).isEqualTo(PersonId("p1", directoryPackage()))
-        assertThat(parsed.targetGroupId).isEqualTo(GroupId("g1", directoryPackage()))
+        assertThat(parsed!!.targetPersonId).isEqualTo(PersonId(directoryPackage(), "p1"))
+        assertThat(parsed.targetGroupId).isEqualTo(GroupId(directoryPackage(), "g1"))
     }
 
     @Test
@@ -238,7 +238,7 @@ class PeopleInteractionTest {
         val parsed = PeopleInteraction.parse(context(), intent)
 
         assertThat(parsed)
-            .isEqualTo(peopleInteraction(PersonId("alice", directoryPackage()), Capability.VIDEO))
+            .isEqualTo(peopleInteraction(PersonId(directoryPackage(), "alice"), Capability.VIDEO))
     }
 
     @Test
@@ -283,7 +283,7 @@ class PeopleInteractionTest {
 
     @Test
     fun constructor_withPersonId_targetsItsLookupKey() {
-        val personId = PersonId("alice_123", "com.example.voip")
+        val personId = PersonId("com.example.voip", "alice_123")
 
         val interaction = peopleInteraction(personId, Capability.VOICE)
 
@@ -296,7 +296,7 @@ class PeopleInteractionTest {
 
     @Test
     fun constructor_withGroupId_targetsItsLookupKey() {
-        val groupId = GroupId("g1", "com.example.chat")
+        val groupId = GroupId("com.example.chat", "g1")
 
         val interaction = peopleInteraction(groupId, Capability.MESSAGE)
 
@@ -364,13 +364,13 @@ class PeopleInteractionTest {
         assertThat(interaction.targetCriteria)
             .containsExactly(Criterion.Phone("+16505550100"), Criterion.PersonLookupKey("user_1"))
             .inOrder()
-        assertThat(interaction.targetPersonId).isEqualTo(PersonId("user_1", "com.example.voip"))
+        assertThat(interaction.targetPersonId).isEqualTo(PersonId("com.example.voip", "user_1"))
     }
 
     @Test
     fun peopleInteraction_withCriteriaBlock_equalsIdOverload() {
         assertThat(peopleInteraction("com.example.voip", Capability.VIDEO) { addLookupKeys("u") })
-            .isEqualTo(peopleInteraction(PersonId("u", "com.example.voip"), Capability.VIDEO))
+            .isEqualTo(peopleInteraction(PersonId("com.example.voip", "u"), Capability.VIDEO))
     }
 
     @Test

@@ -26,16 +26,16 @@ class PersonIdTest {
 
     @Test
     fun properties_whenConstructed_exposeGivenValues() {
-        val id = PersonId(lookupKey = "user_42", directoryPackage = "com.example.voip")
+        val id = PersonId(directoryPackage = "com.example.voip", lookupKey = "user_42")
 
-        assertThat(id.lookupKey).isEqualTo("user_42")
         assertThat(id.directoryPackage).isEqualTo("com.example.voip")
+        assertThat(id.lookupKey).isEqualTo("user_42")
     }
 
     @Test
     fun equals_withSameValues_returnsTrue() {
-        val id = PersonId("user_42", "com.example.voip")
-        val same = PersonId("user_42", "com.example.voip")
+        val id = PersonId("com.example.voip", "user_42")
+        val same = PersonId("com.example.voip", "user_42")
 
         assertThat(same).isEqualTo(id)
         assertThat(same.hashCode()).isEqualTo(id.hashCode())
@@ -43,8 +43,8 @@ class PersonIdTest {
 
     @Test
     fun equals_withDifferentValues_returnsFalse() {
-        val id = PersonId("user_42", "com.example.voip")
-        val other = PersonId("user_99", "com.example.voip")
+        val id = PersonId("com.example.voip", "user_42")
+        val other = PersonId("com.example.voip", "user_99")
 
         assertThat(other).isNotEqualTo(id)
     }

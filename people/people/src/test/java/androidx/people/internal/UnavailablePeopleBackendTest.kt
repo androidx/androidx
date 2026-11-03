@@ -96,7 +96,7 @@ class UnavailablePeopleBackendTest {
     @Test
     fun createInteractionRequest_withPersonId_returnsNull() = runTest {
         val interaction =
-            peopleInteraction(PersonId("user_1", "com.example.voip"), Capability.VOICE)
+            peopleInteraction(PersonId("com.example.voip", "user_1"), Capability.VOICE)
 
         val result = backend.createInteractionRequest(interaction)
 
@@ -105,7 +105,7 @@ class UnavailablePeopleBackendTest {
 
     @Test
     fun createInteractionRequest_withGroupId_returnsNull() = runTest {
-        val interaction = peopleInteraction(GroupId("g1", "com.example.chat"), Capability.MESSAGE)
+        val interaction = peopleInteraction(GroupId("com.example.chat", "g1"), Capability.MESSAGE)
 
         val result = backend.createInteractionRequest(interaction)
 
