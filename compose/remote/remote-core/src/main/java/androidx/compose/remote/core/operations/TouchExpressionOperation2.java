@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 The Android Open Source Project
+ * Copyright (C) 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,20 +21,28 @@ package androidx.compose.remote.core.operations;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.REPEATED_FLOAT;
+import static androidx.compose.remote.core.input.PointerInputRouter.EVENT_TYPE_POINTER;
+import static androidx.compose.remote.core.input.PointerInputRouter.POINTER_PASS_MAIN;
+import static androidx.compose.remote.core.input.PointerInputRouter.POINTER_STATUS_CONSUMED;
+import static androidx.compose.remote.core.input.PointerInputRouter.POINTER_STATUS_NOT_CONSUMED;
+import static androidx.compose.remote.core.input.PointerInputRouter.POINTER_SUBTYPE_CANCEL;
+import static androidx.compose.remote.core.input.PointerInputRouter.POINTER_SUBTYPE_DOWN;
+import static androidx.compose.remote.core.input.PointerInputRouter.POINTER_SUBTYPE_MOVE;
+import static androidx.compose.remote.core.input.PointerInputRouter.POINTER_SUBTYPE_UP;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Limits;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
-import androidx.compose.remote.core.TouchListener;
 import androidx.compose.remote.core.VariableProvider;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
-import androidx.compose.remote.core.operations.layout.Component;
-import androidx.compose.remote.core.operations.layout.RootLayoutComponent;
-import androidx.compose.remote.core.operations.layout.managers.LayoutManager;
+import androidx.compose.remote.core.events.Event;
+import androidx.compose.remote.core.events.EventHandler;
+import androidx.compose.remote.core.input.MetadataUtil;
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression;
 import androidx.compose.remote.core.operations.utilities.NanMap;
 import androidx.compose.remote.core.operations.utilities.touch.VelocityEasing;
@@ -48,72 +56,114 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Operation to deal with Touch handling (typically on canvas) This support handling of many typical
- * touch behaviours. Including animating to Notched, positions. and tweaking the dynamics of the
- * animation.
+ * Touch expression operation dispatched through the unified pointer input router.
+ *
+ * <p>Creates a float variable whose value is driven by pointer movement through an RPN
+ * expression, combined with deceleration physics, notch snapping and haptic feedback. This is
+ * the {@link EventHandler} based replacement for {@link TouchExpression}: it shares the same wire
+ * format and opcode, but receives pointer events from the {@code PointerInputRouter} instead of
+ * the legacy {@code TouchListener} / {@code CoreDocument.touchDown} path.
+ *
+ * <p>Differences from {@link TouchExpression}:
+ *
+ * <ul>
+ *   <li>Hit testing is performed by the router; this operation no longer tracks its component's
+ *       bounds in window coordinates.
+ *   <li>{@code TOUCH_POS_X} / {@code TOUCH_POS_Y} inside the expression are fed from the pointer
+ *       event, in coordinates local to the hosting component, instead of being read from the
+ *       {@link RemoteContext}.
+ *   <li>Pointer events are consumed while a gesture is active, and a down event that has already
+ *       been consumed by a descendant is ignored.
+ * </ul>
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TouchExpressionOperation2 extends Operation
-        implements ComponentData, VariableSupport, TouchListener, Serializable, VariableProvider {
+        implements ComponentData, VariableSupport, Serializable, VariableProvider, EventHandler {
     private static final int OP_CODE = Operations.TOUCH_EXPRESSION;
     private static final String CLASS_NAME = "TouchExpression";
-    private float mDefValue;
-    private float mOutDefValue;
+
+    /** Stop with some deceleration */
+    public static final int STOP_GENTLY = TouchExpression.STOP_GENTLY;
+
+    /** Stop only at the start or end */
+    public static final int STOP_ENDS = TouchExpression.STOP_ENDS;
+
+    /** Stop on touch up */
+    public static final int STOP_INSTANTLY = TouchExpression.STOP_INSTANTLY;
+
+    /** Stop at evenly spaced notches */
+    public static final int STOP_NOTCHES_EVEN = TouchExpression.STOP_NOTCHES_EVEN;
+
+    /** Stop at a collection points described in percents of the range */
+    public static final int STOP_NOTCHES_PERCENTS = TouchExpression.STOP_NOTCHES_PERCENTS;
+
+    /** Stop at a collection of point described in absolute coordinates */
+    public static final int STOP_NOTCHES_ABSOLUTE = TouchExpression.STOP_NOTCHES_ABSOLUTE;
+
+    /** Jump to the absolute position of the point */
+    public static final int STOP_ABSOLUTE_POS = TouchExpression.STOP_ABSOLUTE_POS;
+
+    /** Stop at evenly spaced single step notches */
+    public static final int STOP_NOTCHES_SINGLE_EVEN = TouchExpression.STOP_NOTCHES_SINGLE_EVEN;
+
+    /** Mode in which the output is the change of the expression since the down event. */
+    private static final int MODE_DELTA = 0;
+
+    /** Mode in which the output is the absolute value of the expression. */
+    private static final int MODE_ABSOLUTE = 1;
+
+    // ---------------------------------------------------------------------------------------
+    // Wire format fields
+    // ---------------------------------------------------------------------------------------
     private int mId;
     public float @Nullable [] mSrcExp;
-    int mMode = 1; // 0 = delta, 1 = absolute
-    float mMax = 1;
-    float mMin = 1;
-    float mOutMax = 1;
-    float mOutMin = 1;
-    float mValue = 0;
-    float mMaxAtDown = Float.NaN;
-    float mMinAtDown = Float.NaN;
-    boolean mUnmodified = true;
-    private float[] mPreCalcValue;
-    private float mLastChange = Float.NaN;
-    private float mLastCalculatedValue = Float.NaN;
-    AnimatedFloatExpression mExp = new AnimatedFloatExpression();
+    private final float mDefValue;
+    private final float mMin;
+    private final float mMax;
+    private final float mVelocityId;
+    private final int mTouchEffects;
+    private final int mStopMode;
+    private final float @NonNull [] mStopSpec;
+    private final float @Nullable [] mEasingSpec;
 
-    private VelocityEasing mEasyTouch = new VelocityEasing();
+    // ---------------------------------------------------------------------------------------
+    // Derived configuration
+    // ---------------------------------------------------------------------------------------
+    private final int mMode;
+    private final boolean mWrapMode;
+    private float mMaxTime = 1;
+    private float mMaxAcceleration = 5;
+    private float mMaxVelocity = 7;
+
+    // ---------------------------------------------------------------------------------------
+    // Resolved (per frame) values
+    // ---------------------------------------------------------------------------------------
+    private float mOutDefValue;
+    private float mOutMin = 1;
+    private float mOutMax = 1;
+    private float @Nullable [] mOutStopSpec;
+    private float @Nullable [] mPreCalcValue;
+
+    // ---------------------------------------------------------------------------------------
+    // Gesture state
+    // ---------------------------------------------------------------------------------------
+    private final AnimatedFloatExpression mExp = new AnimatedFloatExpression();
+    private final VelocityEasing mEasyTouch = new VelocityEasing();
+    private boolean mUnmodified = true;
+    private boolean mTouchDown = false;
     private boolean mEasingToStop = false;
     private float mTouchUpTime = 0;
     private float mCurrentValue = Float.NaN;
-    private boolean mTouchDown = false;
-    float mMaxTime = 1;
-    float mMaxAcceleration = 5;
-    float mMaxVelocity = 7;
-    int mStopMode = 0;
-    boolean mWrapMode = false;
-    float[] mNotches;
-    float[] mStopSpec;
-    float[] mOutStopSpec;
-    int mTouchEffects;
-    float mVelocityId;
+    private float mLastValue = 0;
+    private float mMaxAtDown = Float.NaN;
+    private float mMinAtDown = Float.NaN;
+    private float mValueAtDown; // The currently "displayed" value at down
+    private float mDownTouchValue; // The calculated value at down
 
-    /** Stop with some deceleration */
-    public static final int STOP_GENTLY = 0;
+    /** Last pointer position, in coordinates local to the hosting component. */
+    private float mTouchX = 0f;
 
-    /** Stop only at the start or end */
-    public static final int STOP_ENDS = 2;
-
-    /** Stop on touch up */
-    public static final int STOP_INSTANTLY = 1;
-
-    /** Stop at evenly spaced notches */
-    public static final int STOP_NOTCHES_EVEN = 3;
-
-    /** Stop at a collection points described in percents of the range */
-    public static final int STOP_NOTCHES_PERCENTS = 4;
-
-    /** Stop at a collection of point described in absolute cordnates */
-    public static final int STOP_NOTCHES_ABSOLUTE = 5;
-
-    /** Jump to the absolute position of the point */
-    public static final int STOP_ABSOLUTE_POS = 6;
-
-    /** Stop at evenly spaced single step notches */
-    public static final int STOP_NOTCHES_SINGLE_EVEN = 7;
+    private float mTouchY = 0f;
 
     @Override
     public int getId() {
@@ -126,16 +176,16 @@ public class TouchExpressionOperation2 extends Operation
     }
 
     /**
-     * create a touch expression
+     * Creates a touch expression.
      *
-     * @param id The float id the value is output to
-     * @param exp the expression (containing TOUCH_* )
+     * @param id the float id the value is output to
+     * @param exp the expression (containing TOUCH_*)
      * @param defValue the default value
      * @param min the minimum value
      * @param max the maximum value
      * @param touchEffects the type of touch mode
      * @param velocityId the velocity (not used)
-     * @param stopMode the behaviour on touch oup
+     * @param stopMode the behaviour on touch up
      * @param stopSpec the parameters that affect the touch up behaviour
      * @param easingSpec the easing parameters for coming to a stop
      */
@@ -150,33 +200,36 @@ public class TouchExpressionOperation2 extends Operation
             int stopMode,
             float @Nullable [] stopSpec,
             float @Nullable [] easingSpec) {
-        this.mId = id;
-        this.mSrcExp = exp;
+        mId = id;
+        mSrcExp = exp;
         mOutDefValue = mDefValue = defValue;
-        mMode = STOP_ABSOLUTE_POS == stopMode ? 1 : 0;
+        mMode = STOP_ABSOLUTE_POS == stopMode ? MODE_ABSOLUTE : MODE_DELTA;
         mOutMax = mMax = max;
-        if (stopSpec != null) {
-            mOutStopSpec = Arrays.copyOf(stopSpec, stopSpec.length);
-        }
         mTouchEffects = touchEffects;
         mVelocityId = velocityId;
+        mStopMode = stopMode;
+        mStopSpec = stopSpec != null ? stopSpec : new float[0];
+        mOutStopSpec = Arrays.copyOf(mStopSpec, mStopSpec.length);
+        mEasingSpec = easingSpec;
         if (Float.isNaN(min) && Utils.idFromNan(min) == 0) {
             mWrapMode = true;
+            mMin = min;
         } else {
+            mWrapMode = false;
             mOutMin = mMin = min;
         }
-        mStopMode = stopMode;
-        mStopSpec = stopSpec;
-        if (easingSpec != null) {
-            if (easingSpec.length >= 4) {
-                if (Float.floatToRawIntBits(easingSpec[0]) == 0) {
-                    mMaxTime = easingSpec[1];
-                    mMaxAcceleration = easingSpec[2];
-                    mMaxVelocity = easingSpec[3];
-                }
+        if (easingSpec != null && easingSpec.length >= 4) {
+            if (Float.floatToRawIntBits(easingSpec[0]) == 0) {
+                mMaxTime = easingSpec[1];
+                mMaxAcceleration = easingSpec[2];
+                mMaxVelocity = easingSpec[3];
             }
         }
     }
+
+    // ---------------------------------------------------------------------------------------
+    // VariableSupport
+    // ---------------------------------------------------------------------------------------
 
     @Override
     public void updateVariables(@NonNull RemoteContext context) {
@@ -189,44 +242,37 @@ public class TouchExpressionOperation2 extends Operation
         if (Float.isNaN(mMax)) {
             mOutMax = context.getFloat(Utils.idFromNan(mMax));
         }
-        if (Float.isNaN(mMin)) {
+        if (!mWrapMode && Float.isNaN(mMin)) {
             mOutMin = context.getFloat(Utils.idFromNan(mMin));
         }
         if (Float.isNaN(mDefValue)) {
             mOutDefValue = context.getFloat(Utils.idFromNan(mDefValue));
         }
 
-        boolean value_changed = false;
         for (int i = 0; i < mSrcExp.length; i++) {
             float v = mSrcExp[i];
             if (Float.isNaN(v)
                     && !AnimatedFloatExpression.isMathOperator(v)
                     && !NanMap.isDataVariable(v)) {
-                float newValue = context.getFloat(Utils.idFromNan(v));
-
-                mPreCalcValue[i] = newValue;
-
+                int id = Utils.idFromNan(v);
+                if (id == RemoteContext.ID_TOUCH_POS_X) {
+                    // Touch positions are fed from the pointer event, in local coordinates.
+                    mPreCalcValue[i] = mTouchX;
+                } else if (id == RemoteContext.ID_TOUCH_POS_Y) {
+                    mPreCalcValue[i] = mTouchY;
+                } else {
+                    mPreCalcValue[i] = context.getFloat(id);
+                }
             } else {
-                mPreCalcValue[i] = mSrcExp[i];
+                mPreCalcValue[i] = v;
             }
         }
         for (int i = 0; i < mStopSpec.length; i++) {
             float v = mStopSpec[i];
             if (Float.isNaN(v)) {
-                float newValue = context.getFloat(Utils.idFromNan(v));
-                mOutStopSpec[i] = newValue;
+                mOutStopSpec[i] = context.getFloat(Utils.idFromNan(v));
             } else {
                 mOutStopSpec[i] = v;
-            }
-        }
-        float v = mLastCalculatedValue;
-        if (value_changed) { // inputs changed check if output changed
-            v = mExp.eval(mPreCalcValue, mPreCalcValue.length);
-            if (v != mLastCalculatedValue) {
-                mLastChange = context.getAnimationTime();
-                mLastCalculatedValue = v;
-            } else {
-                value_changed = false;
             }
         }
     }
@@ -236,20 +282,21 @@ public class TouchExpressionOperation2 extends Operation
         if (Float.isNaN(mMax)) {
             context.listensTo(Utils.idFromNan(mMax), this);
         }
-        if (Float.isNaN(mMin)) {
+        if (!mWrapMode && Float.isNaN(mMin)) {
             context.listensTo(Utils.idFromNan(mMin), this);
         }
         if (Float.isNaN(mDefValue)) {
             context.listensTo(Utils.idFromNan(mDefValue), this);
         }
-        if (mComponent == null) {
-            context.addTouchListener(this);
-        }
         for (float v : mSrcExp) {
             if (Float.isNaN(v)
                     && !AnimatedFloatExpression.isMathOperator(v)
                     && !NanMap.isDataVariable(v)) {
-                context.listensTo(Utils.idFromNan(v), this);
+                int id = Utils.idFromNan(v);
+                // Touch positions come from pointer events, not from context variables.
+                if (id != RemoteContext.ID_TOUCH_POS_X && id != RemoteContext.ID_TOUCH_POS_Y) {
+                    context.listensTo(id, this);
+                }
             }
         }
         for (float v : mStopSpec) {
@@ -258,6 +305,234 @@ public class TouchExpressionOperation2 extends Operation
             }
         }
     }
+
+    // ---------------------------------------------------------------------------------------
+    // EventHandler
+    // ---------------------------------------------------------------------------------------
+
+    /**
+     * Returns whether this handler matches the given event type.
+     *
+     * @param eventType event type identifier
+     * @return true if event is a pointer event
+     */
+    @Override
+    public boolean matchesEvent(int eventType) {
+        return eventType == EVENT_TYPE_POINTER;
+    }
+
+    /**
+     * Handles a pointer event and drives the touch expression value.
+     *
+     * <p>Event data layout: {@code [pointerId, localX, localY, velocityX, velocityY]}.
+     *
+     * @param context current remote context
+     * @param document document containing this operation
+     * @param event pointer event being dispatched
+     * @return status indicating whether the event was consumed
+     */
+    @Override
+    public int onEvent(
+            @NonNull RemoteContext context, @NonNull CoreDocument document, @NonNull Event event) {
+        int metadata = event.getMetadata();
+        if (MetadataUtil.unpackPass(metadata) != POINTER_PASS_MAIN) {
+            return POINTER_STATUS_NOT_CONSUMED;
+        }
+
+        float[] data = event.getData();
+        if (data == null || data.length < 3) {
+            return POINTER_STATUS_NOT_CONSUMED;
+        }
+        float x = data[1];
+        float y = data[2];
+        int subtype = MetadataUtil.unpackSubtype(metadata);
+
+        switch (subtype) {
+            case POINTER_SUBTYPE_DOWN:
+                if (MetadataUtil.unpackConsumed(metadata) == POINTER_STATUS_CONSUMED) {
+                    // A descendant already claimed this pointer.
+                    return POINTER_STATUS_NOT_CONSUMED;
+                }
+                onPointerDown(context, x, y);
+                return POINTER_STATUS_CONSUMED;
+            case POINTER_SUBTYPE_MOVE:
+                if (!mTouchDown) {
+                    return POINTER_STATUS_NOT_CONSUMED;
+                }
+                onPointerMove(context, x, y);
+                return POINTER_STATUS_CONSUMED;
+            case POINTER_SUBTYPE_UP:
+                if (!mTouchDown) {
+                    return POINTER_STATUS_NOT_CONSUMED;
+                }
+                float velocityX = data.length > 4 ? data[3] : 0f;
+                float velocityY = data.length > 4 ? data[4] : 0f;
+                onPointerUp(context, x, y, velocityX, velocityY);
+                return POINTER_STATUS_CONSUMED;
+            case POINTER_SUBTYPE_CANCEL:
+                if (!mTouchDown) {
+                    return POINTER_STATUS_NOT_CONSUMED;
+                }
+                onPointerCancel(context, x, y);
+                return POINTER_STATUS_CONSUMED;
+            default:
+                return POINTER_STATUS_NOT_CONSUMED;
+        }
+    }
+
+    /**
+     * Returns whether a pointer is currently driving this expression.
+     *
+     * @return true between a pointer down and the matching up / cancel
+     */
+    public boolean isPointerDown() {
+        return mTouchDown;
+    }
+
+    /**
+     * Starts a gesture at the given position. Stops any in-flight easing and, in delta mode,
+     * anchors the output to its current value.
+     *
+     * <p>Exposed so that hosting operations (e.g. a scroll modifier) can drive the expression
+     * directly instead of routing through {@link #onEvent}.
+     *
+     * @param context current remote context
+     * @param x pointer x position, local to the hosting component
+     * @param y pointer y position, local to the hosting component
+     */
+    public void onPointerDown(@NonNull RemoteContext context, float x, float y) {
+        setTouchPosition(context, x, y);
+        touchDown(context);
+    }
+
+    /**
+     * Updates the gesture with a new pointer position and recomputes the output value.
+     *
+     * @param context current remote context
+     * @param x pointer x position, local to the hosting component
+     * @param y pointer y position, local to the hosting component
+     */
+    public void onPointerMove(@NonNull RemoteContext context, float x, float y) {
+        if (!mTouchDown) {
+            return;
+        }
+        setTouchPosition(context, x, y);
+        touchDrag(context);
+    }
+
+    /**
+     * Ends the gesture and starts easing towards the stop position.
+     *
+     * @param context current remote context
+     * @param x pointer x position, local to the hosting component
+     * @param y pointer y position, local to the hosting component
+     * @param velocityX pointer x velocity in pixels per second
+     * @param velocityY pointer y velocity in pixels per second
+     */
+    public void onPointerUp(
+            @NonNull RemoteContext context, float x, float y, float velocityX, float velocityY) {
+        if (!mTouchDown) {
+            return;
+        }
+        setTouchPosition(context, x, y);
+        touchUp(context, velocityX, velocityY);
+    }
+
+    /**
+     * Cancels the gesture; behaves like an up with no velocity.
+     *
+     * @param context current remote context
+     * @param x pointer x position, local to the hosting component
+     * @param y pointer y position, local to the hosting component
+     */
+    public void onPointerCancel(@NonNull RemoteContext context, float x, float y) {
+        onPointerUp(context, x, y, 0f, 0f);
+    }
+
+    /**
+     * Records the pointer position and refreshes the pre-calculated expression inputs.
+     *
+     * @param context current remote context
+     * @param x pointer x position, local to the hosting component
+     * @param y pointer y position, local to the hosting component
+     */
+    private void setTouchPosition(@NonNull RemoteContext context, float x, float y) {
+        mTouchX = x;
+        mTouchY = y;
+        updateVariables(context);
+    }
+
+    private void touchDown(@NonNull RemoteContext context) {
+        mEasingToStop = false;
+        mTouchDown = true;
+        mUnmodified = false;
+        if (mMode == MODE_DELTA) {
+            mValueAtDown = context.getFloat(mId);
+            if (STOP_NOTCHES_SINGLE_EVEN == mStopMode) {
+                float min = mWrapMode ? 0 : mOutMin;
+                int evenSpacing = (int) mOutStopSpec[0];
+                float notchMax = (mOutStopSpec.length > 1) ? mOutStopSpec[1] : mOutMax;
+                float step = (notchMax - min) / evenSpacing;
+                float notch = mValueAtDown;
+                mMaxAtDown = notch + step;
+                mMinAtDown = notch - step;
+            }
+            mDownTouchValue = evaluate(context);
+        }
+        context.needsRepaint();
+    }
+
+    private void touchDrag(@NonNull RemoteContext context) {
+        apply(context);
+        context.needsRepaint();
+    }
+
+    /**
+     * Ends the gesture and starts easing towards the stop position.
+     *
+     * @param context current remote context
+     * @param velocityX pointer x velocity in pixels per second
+     * @param velocityY pointer y velocity in pixels per second
+     */
+    private void touchUp(@NonNull RemoteContext context, float velocityX, float velocityY) {
+        mTouchDown = false;
+        if (mStopMode == STOP_INSTANTLY) {
+            return;
+        }
+        // Calculate the slope of the expression with respect to the pointer velocity, using a
+        // small displacement along the velocity vector.
+        float dt = 0.0001f;
+        float v = evaluate(context);
+        for (int i = 0; i < mSrcExp.length; i++) {
+            if (Float.isNaN(mSrcExp[i])) {
+                int id = Utils.idFromNan(mSrcExp[i]);
+                if (id == RemoteContext.ID_TOUCH_POS_X) {
+                    mPreCalcValue[i] = mTouchX + velocityX * dt;
+                } else if (id == RemoteContext.ID_TOUCH_POS_Y) {
+                    mPreCalcValue[i] = mTouchY + velocityY * dt;
+                }
+            }
+        }
+        float vdt = evaluate(context);
+        float slope = (vdt - v) / dt; // the rate of change with respect to the pointer movement
+        float value = context.getFloat(mId);
+
+        mTouchUpTime = context.getAnimationTime();
+
+        float dest = getStopPosition(value, slope);
+        float time = Math.min(2, mMaxTime * Math.abs(dest - value) / (2 * mMaxVelocity));
+        mEasyTouch.config(value, dest, slope, time, mMaxAcceleration, mMaxVelocity, null);
+        mEasingToStop = true;
+        context.needsRepaint();
+    }
+
+    private float evaluate(@NonNull RemoteContext context) {
+        return mExp.eval(context.getCollectionsAccess(), mPreCalcValue, mPreCalcValue.length);
+    }
+
+    // ---------------------------------------------------------------------------------------
+    // Value computation
+    // ---------------------------------------------------------------------------------------
 
     private float wrap(float pos) {
         if (!mWrapMode) {
@@ -274,11 +549,10 @@ public class TouchExpressionOperation2 extends Operation
         float target = pos + slope / 2f;
         if (mWrapMode) {
             pos = wrap(pos);
-            target = pos += +slope / 2f;
+            target = pos + slope / 2f;
         } else {
             target = Math.max(Math.min(target, mOutMax), mOutMin);
         }
-        float[] positions = new float[mStopSpec.length];
         float min = mWrapMode ? 0 : mOutMin;
 
         switch (mStopMode) {
@@ -301,10 +575,9 @@ public class TouchExpressionOperation2 extends Operation
                 }
                 return notch;
             case STOP_NOTCHES_PERCENTS:
-                positions = new float[mStopSpec.length];
                 float minPos = min;
                 float minPosDist = Math.abs(mOutMin - target);
-                for (int i = 0; i < positions.length; i++) {
+                for (int i = 0; i < mStopSpec.length; i++) {
                     float p = mOutMin + mStopSpec[i] * (mOutMax - mOutMin);
                     float dist = Math.abs(p - target);
                     if (minPosDist > dist) {
@@ -314,14 +587,13 @@ public class TouchExpressionOperation2 extends Operation
                 }
                 return minPos;
             case STOP_NOTCHES_ABSOLUTE:
-                positions = mStopSpec;
                 minPos = mOutMin;
                 minPosDist = Math.abs(mOutMin - target);
-                for (int i = 0; i < positions.length; i++) {
-                    float dist = Math.abs(positions[i] - target);
+                for (int i = 0; i < mStopSpec.length; i++) {
+                    float dist = Math.abs(mStopSpec[i] - target);
                     if (minPosDist > dist) {
                         minPosDist = dist;
-                        minPos = positions[i];
+                        minPos = mStopSpec[i];
                     }
                 }
                 return minPos;
@@ -331,18 +603,15 @@ public class TouchExpressionOperation2 extends Operation
         }
     }
 
-    void haptic(RemoteContext context) {
+    private void haptic(@NonNull RemoteContext context) {
         int touch = (mTouchEffects & 0xFF);
         if ((mTouchEffects & (1 << 15)) != 0) {
             touch = context.getInteger(mTouchEffects & 0x7FFF);
         }
-
         context.hapticEffect(touch);
     }
 
-    float mLastValue = 0;
-
-    void crossNotchCheck(RemoteContext context) {
+    private void crossNotchCheck(@NonNull RemoteContext context) {
         float prev = mLastValue;
         float next = mCurrentValue;
         mLastValue = next;
@@ -384,66 +653,20 @@ public class TouchExpressionOperation2 extends Operation
                 }
                 break;
             case STOP_GENTLY:
-        }
-    }
-
-    float mScrLeft, mScrRight, mScrTop, mScrBottom;
-
-    @Nullable Component mComponent;
-
-    /**
-     * Set the component the touch expression is in (if any)
-     *
-     * @param component the component, or null if outside
-     */
-    @Override
-    public void setComponent(@Nullable Component component) {
-        mComponent = component;
-        if (mComponent != null) {
-            try {
-                RootLayoutComponent root = mComponent.getRoot();
-                root.setHasTouchListeners(true);
-            } catch (Exception e) {
-            }
-        }
-    }
-
-    private void updateBounds(@NonNull RemoteContext context) {
-        Component comp = mComponent;
-        if (comp != null) {
-            if (context.getTouchVersion() == LayoutManager.FIX_TOUCH_EVENT) {
-                mScrLeft = 0;
-                mScrTop = 0;
-                mScrRight = comp.getWidth();
-                mScrBottom = comp.getHeight();
-            } else {
-                float x = comp.getX();
-                float y = comp.getY();
-                float w = comp.getWidth();
-                float h = comp.getHeight();
-                comp = comp.getParent();
-                while (comp != null) {
-                    x += comp.getX();
-                    y += comp.getY();
-                    comp = comp.getParent();
-                }
-                mScrLeft = x;
-                mScrTop = y;
-                mScrRight = w + x;
-                mScrBottom = h + y;
-            }
+            default:
+                break;
         }
     }
 
     @Override
     public void apply(@NonNull RemoteContext context) {
-        updateBounds(context);
         if (context.mRemoteComposeState.isFloatOverridden(mId)) {
             // An override (ValueFloatChange, rcDoc variable mapping, host named-variable
             // override) set our output: take it as the new position and resume owning the id.
             if (!mTouchDown) {
-                // Refresh min/max first (as touchDown does): on this path they may still hold
-                // the values read before layout, and the adopted value is clamped to them below.
+                // Refresh min/max first (as a pointer down does): on this path they may still
+                // hold the values read before layout, and the adopted value is clamped to them
+                // below.
                 updateVariables(context);
                 mUnmodified = false;
                 mEasingToStop = false;
@@ -474,10 +697,8 @@ public class TouchExpressionOperation2 extends Operation
             return;
         }
         if (mTouchDown) {
-            float value =
-                    mExp.eval(context.getCollectionsAccess(), mPreCalcValue, mPreCalcValue.length);
-
-            if (mMode == 0) {
+            float value = evaluate(context);
+            if (mMode == MODE_DELTA) {
                 value = mValueAtDown + (value - mDownTouchValue);
             }
             if (mWrapMode) {
@@ -499,109 +720,27 @@ public class TouchExpressionOperation2 extends Operation
         context.loadFloat(mId, wrap(mCurrentValue));
     }
 
-    float mValueAtDown; // The currently "displayed" value at down
-    float mDownTouchValue; // The calculated value at down
-
-    @Override
-    public void touchDown(@NonNull RemoteContext context, float x, float y) {
-        if (!(x >= mScrLeft && x <= mScrRight && y >= mScrTop && y <= mScrBottom)) {
-            // "NOT IN WINDOW " + x + ", " + y + " " + mScrLeft + ", " + mScrTop);
-            return;
-        }
-        mEasingToStop = false;
-        mTouchDown = true;
-        mUnmodified = false;
-        if (mMode == 0) {
-            mValueAtDown = context.getFloat(mId);
-            if (STOP_NOTCHES_SINGLE_EVEN == mStopMode) {
-                float min = mWrapMode ? 0 : mOutMin;
-                int evenSpacing = (int) mOutStopSpec[0];
-                float notchMax = (mOutStopSpec.length > 1) ? mOutStopSpec[1] : mOutMax;
-                float step = (notchMax - min) / evenSpacing;
-                float notch = mValueAtDown;
-                mMaxAtDown = notch + step;
-                mMinAtDown = notch - step;
-            }
-
-            mDownTouchValue =
-                    mExp.eval(context.getCollectionsAccess(), mPreCalcValue, mPreCalcValue.length);
-        }
-        context.needsRepaint();
-    }
-
-    @Override
-    public void touchUp(@NonNull RemoteContext context, float x, float y, float dx, float dy) {
-        // calculate the slope (using small changes)
-        if (!mTouchDown) {
-            return;
-        }
-        mTouchDown = false;
-        float dt = 0.0001f;
-        if (mStopMode == STOP_INSTANTLY) {
-            return;
-        }
-        float v = mExp.eval(context.getCollectionsAccess(), mPreCalcValue, mPreCalcValue.length);
-        if (context.getTouchVersion() == LayoutManager.FIX_TOUCH_EVENT) {
-            for (int i = 0; i < mSrcExp.length; i++) {
-                if (Float.isNaN(mSrcExp[i])) {
-                    int id = Utils.idFromNan(mSrcExp[i]);
-                    if (id == RemoteContext.ID_TOUCH_POS_X) {
-                        mPreCalcValue[i] += dx * dt;
-                    } else if (id == RemoteContext.ID_TOUCH_POS_Y) {
-                        mPreCalcValue[i] += dy * dt;
-                    }
-                }
-            }
-        } else {
-            for (int i = 0; i < mSrcExp.length; i++) {
-                if (Float.isNaN(mSrcExp[i])) {
-                    int id = Utils.idFromNan(mSrcExp[i]);
-                    if (id == RemoteContext.ID_TOUCH_POS_X) {
-                        mPreCalcValue[i] = x + dx * dt;
-                    } else if (id == RemoteContext.ID_TOUCH_POS_Y) {
-                        mPreCalcValue[i] = y + dy * dt;
-                    }
-                }
-            }
-        }
-        float vdt = mExp.eval(context.getCollectionsAccess(), mPreCalcValue, mPreCalcValue.length);
-        float slope = (vdt - v) / dt; // the rate of change with respect to the dx,dy movement
-        float value = context.getFloat(mId);
-
-        mTouchUpTime = context.getAnimationTime();
-
-        float dest = getStopPosition(value, slope);
-        float time = Math.min(2, mMaxTime * Math.abs(dest - value) / (2 * mMaxVelocity));
-        mEasyTouch.config(value, dest, slope, time, mMaxAcceleration, mMaxVelocity, null);
-        mEasingToStop = true;
-        context.needsRepaint();
-    }
-
-    @Override
-    public void touchDrag(@NonNull RemoteContext context, float x, float y) {
-        if (!mTouchDown) {
-            return;
-        }
-        apply(context);
-        context.needsRepaint();
-    }
+    // ---------------------------------------------------------------------------------------
+    // Serialization
+    // ---------------------------------------------------------------------------------------
 
     @Override
     public void write(@NonNull WireBuffer buffer) {
         apply(
                 buffer,
                 mId,
-                mValue,
+                mDefValue,
                 mMin,
                 mMax,
                 mVelocityId,
                 mTouchEffects,
                 mSrcExp,
                 mStopMode,
-                mNotches,
-                null);
+                mStopSpec,
+                mEasingSpec);
     }
 
+    @NonNull
     @Override
     public String toString() {
         String[] labels = new String[mSrcExp.length];
@@ -610,22 +749,41 @@ public class TouchExpressionOperation2 extends Operation
                 labels[i] = "[" + Utils.idStringFromNan(mSrcExp[i]) + "]";
             }
         }
-        if (mPreCalcValue == null) {
-            return CLASS_NAME
-                    + "["
-                    + mId
-                    + "] = ("
-                    + AnimatedFloatExpression.toString(mSrcExp, labels)
-                    + ") - "
-                    + mLastChange;
-        }
+        float[] values = mPreCalcValue != null ? mPreCalcValue : mSrcExp;
         return CLASS_NAME
                 + "["
                 + mId
                 + "] = ("
-                + AnimatedFloatExpression.toString(mPreCalcValue, labels)
-                + ") - "
-                + mLastChange;
+                + AnimatedFloatExpression.toString(values, labels)
+                + ")";
+    }
+
+    @NonNull
+    @Override
+    public String deepToString(@NonNull String indent) {
+        return indent + toString();
+    }
+
+    @Override
+    public void serialize(@NonNull MapSerializer serializer) {
+        serializer
+                .addType(CLASS_NAME)
+                .add("id", mId)
+                .add("defValue", mDefValue, mOutDefValue)
+                .add("min", mMin, mOutMin)
+                .add("max", mMax, mOutMax)
+                .add("mode", mMode)
+                .addFloatExpressionSrc("srcExp", mSrcExp);
+    }
+
+    /** Returns {@code mStopMode}. */
+    public int getStopMode() {
+        return mStopMode;
+    }
+
+    /** Returns {@code mStopSpec}. */
+    public float @NonNull [] getStopSpec() {
+        return mStopSpec;
     }
 
     // ===================== static ======================
@@ -650,11 +808,12 @@ public class TouchExpressionOperation2 extends Operation
     }
 
     /**
-     * Writes out the operation to the buffer
+     * Writes out the operation to the buffer. The wire format is identical to {@link
+     * TouchExpression}.
      *
      * @param buffer The buffer to write to
      * @param id the id of the resulting float
-     * @param value the float expression array
+     * @param value the initial value
      * @param min the minimum allowed value
      * @param max the maximum allowed value
      * @param velocityId the velocity id
@@ -676,35 +835,18 @@ public class TouchExpressionOperation2 extends Operation
             int touchMode,
             float @Nullable [] touchSpec,
             float @Nullable [] easingSpec) {
-        buffer.start(OP_CODE);
-        buffer.writeInt(id);
-        buffer.writeFloat(value);
-        buffer.writeFloat(min);
-        buffer.writeFloat(max);
-        buffer.writeFloat(velocityId);
-        buffer.writeInt(touchEffects);
-        buffer.writeInt(exp.length);
-        for (float v : exp) {
-            buffer.writeFloat(v);
-        }
-        int len = 0;
-        if (touchSpec != null) {
-            len = touchSpec.length;
-        }
-        buffer.writeInt((touchMode << 16) | len);
-        for (int i = 0; i < len; i++) {
-            buffer.writeFloat(touchSpec[i]);
-        }
-
-        if (easingSpec != null) {
-            len = easingSpec.length;
-        } else {
-            len = 0;
-        }
-        buffer.writeInt(len);
-        for (int i = 0; i < len; i++) {
-            buffer.writeFloat(easingSpec[i]);
-        }
+        TouchExpression.apply(
+                buffer,
+                id,
+                value,
+                min,
+                max,
+                velocityId,
+                touchEffects,
+                exp,
+                touchMode,
+                touchSpec,
+                easingSpec);
     }
 
     /**
@@ -786,34 +928,6 @@ public class TouchExpressionOperation2 extends Operation
                 .field(REPEATED_FLOAT, "stopSpec", "Parameters for stop behavior (e.g., notches)")
                 .field(INT, "easingLen", "The length of the easing spec")
                 .field(REPEATED_FLOAT, "easingSpec", "Parameters for deceleration easing");
-    }
-
-    @NonNull
-    @Override
-    public String deepToString(@NonNull String indent) {
-        return indent + toString();
-    }
-
-    @Override
-    public void serialize(@NonNull MapSerializer serializer) {
-        serializer
-                .addType(CLASS_NAME)
-                .add("id", mId)
-                .add("defValue", mDefValue, mOutDefValue)
-                .add("min", mMin, mOutMin)
-                .add("max", mMax, mOutMax)
-                .add("mode", mMode)
-                .addFloatExpressionSrc("srcExp", mSrcExp);
-    }
-
-    /** Returns {@code mStopMode}. */
-    public int getStopMode() {
-        return mStopMode;
-    }
-
-    /** Returns {@code mStopSpec}. */
-    public float @Nullable [] getStopSpec() {
-        return mStopSpec;
     }
 }
 // CPD-ON

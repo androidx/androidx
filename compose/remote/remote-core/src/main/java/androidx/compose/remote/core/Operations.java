@@ -116,6 +116,7 @@ import androidx.compose.remote.core.operations.TextTransform;
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.core.operations.TimeAttribute;
 import androidx.compose.remote.core.operations.TouchExpression;
+import androidx.compose.remote.core.operations.TouchExpressionOperation2;
 import androidx.compose.remote.core.operations.UpdateDynamicFloatList;
 import androidx.compose.remote.core.operations.WakeIn;
 import androidx.compose.remote.core.operations.layout.CanvasContent;
@@ -680,6 +681,8 @@ public class Operations {
         // Replace specific opcodes with your alternative Operation readers:
         customMap.remove(Operations.MODIFIER_CLICK);
         customMap.put(Operations.MODIFIER_CLICK, ClickModifierOperation2::read);
+        customMap.remove(Operations.TOUCH_EXPRESSION);
+        customMap.put(Operations.TOUCH_EXPRESSION, TouchExpressionOperation2::read);
         return customMap;
     }
 
