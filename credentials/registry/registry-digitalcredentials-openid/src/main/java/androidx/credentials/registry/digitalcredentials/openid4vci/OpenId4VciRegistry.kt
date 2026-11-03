@@ -22,6 +22,7 @@ import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Build
+import androidx.annotation.RequiresPermission
 import androidx.credentials.DigitalCredential.Companion.TYPE_DIGITAL_CREDENTIAL
 import androidx.credentials.ExperimentalDigitalCredentialApi
 import androidx.credentials.registry.digitalcredentials.openid4vci.filter.OpenId4VciFilter
@@ -40,8 +41,10 @@ import org.json.JSONObject
  *
  * @property entries list of credential entries containing subtitle and explainer. Must not be
  *   empty.
- * @property holderDisplayData optional display metadata for the credential holder. Only privileged
- *   apps can set this to override the default app name and icon.
+ * @property holderDisplayData optional display metadata for the credential holder. Overriding the
+ *   default application name and icon requires the registering app to hold
+ *   `android.permission.SUBSTITUTE_SHARE_TARGET_APP_NAME_AND_ICON`; otherwise, the system ignores
+ *   the override and falls back to the default app name and icon.
  * @throws IllegalArgumentException if [entries] is empty
  */
 public class OpenId4VciDisplayData(
@@ -131,15 +134,19 @@ public class OpenId4VciDisplayData(
     /**
      * Holds display metadata for the credential holder.
      *
-     * Only privileged apps can use this to override the default app name and icon.
+     * Overriding the default application name and icon requires the registering app to hold
+     * `android.permission.SUBSTITUTE_SHARE_TARGET_APP_NAME_AND_ICON`; otherwise, the system ignores
+     * the override and falls back to the default app name and icon.
      *
      * @property name optional name of the holder or wallet app
      * @property icon optional icon bytes of the holder or wallet app
      */
-    public class HolderDisplayData(
-        public val name: String? = null,
-        public val icon: ByteArray? = null,
+    public class HolderDisplayData
+    @RequiresPermission(
+        value = "android.permission.SUBSTITUTE_SHARE_TARGET_APP_NAME_AND_ICON",
+        conditional = true,
     )
+    constructor(public val name: String? = null, public val icon: ByteArray? = null)
 }
 
 /**
