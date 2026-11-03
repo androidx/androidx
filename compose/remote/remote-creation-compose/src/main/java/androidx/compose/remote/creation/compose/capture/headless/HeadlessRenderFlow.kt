@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.capture.headless
 import androidx.compose.runtime.Applier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
+import androidx.tracing.trace
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
@@ -124,7 +125,9 @@ internal fun <T : Any> headlessRenderFlow(
                 // effects started by the initial composition then also run under the started
                 // write tracker and after the session's invalidation observer is registered.
                 session.awaitRunning()
-                withContext(recomposerDispatcher) { composition.setContent(content) }
+                withContext(recomposerDispatcher) {
+                    trace(lazyLabel = { "$name:setContent" }) { composition.setContent(content) }
+                }
 
                 var previous: T? = null
                 var emittedOutputs = 0

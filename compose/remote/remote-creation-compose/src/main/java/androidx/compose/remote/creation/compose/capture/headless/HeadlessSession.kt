@@ -19,6 +19,8 @@ package androidx.compose.remote.creation.compose.capture.headless
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.snapshots.ObserverHandle
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.tracing.traceAsync
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.TimeSource
 import kotlinx.coroutines.CancellationException
@@ -38,14 +40,14 @@ import kotlinx.coroutines.launch
  *
  * @param parentContext the context the session runs in; its `Job` is used as the recomposer's
  *   parent, its dispatcher (if any) is narrowed to one thread.
- * @param name names the single-threaded dispatcher slice, for debugging.
+ * @param name names the single-threaded dispatcher slice and trace sections.
  * @param nanoTime the time stamped on frames, see [HeadlessFrameClock]; defaults to nanoseconds
  *   elapsed on [timeSource] since the session was created.
  * @param timeSource measures the time between paced frames, see [HeadlessFrameClock].
  */
 internal class HeadlessSession(
     parentContext: CoroutineContext,
-    name: String,
+    private val name: String,
     nanoTime: (() -> Long)? = null,
     timeSource: TimeSource = TimeSource.Monotonic,
 ) : AutoCloseable {
@@ -198,15 +200,20 @@ internal class HeadlessSession(
         synchronized(lock) {
             check(state == State.Started) { "Cannot await quiescence: session is $state" }
         }
-        return awaitRecomposerQuiescence(
-            recomposer = recomposer,
-            frameClock = frameClock,
-            recomposerDispatcher = recomposerDispatcher,
-            writeTracker = writeTracker,
-            maxIterations = maxIterations,
-            pacedFrames = pacedFrames,
-            maxFrames = maxFrames,
-        )
+        return traceAsync(
+            lazyMethodName = { "$name:settle" },
+            lazyCookie = traceCookie::incrementAndGet,
+        ) {
+            awaitRecomposerQuiescence(
+                recomposer = recomposer,
+                frameClock = frameClock,
+                recomposerDispatcher = recomposerDispatcher,
+                writeTracker = writeTracker,
+                maxIterations = maxIterations,
+                pacedFrames = pacedFrames,
+                maxFrames = maxFrames,
+            )
+        }
     }
 
     /** Whether [close] has been called. */
@@ -240,3 +247,5 @@ internal class HeadlessSession(
         }
     }
 }
+
+private val traceCookie = AtomicInteger()
