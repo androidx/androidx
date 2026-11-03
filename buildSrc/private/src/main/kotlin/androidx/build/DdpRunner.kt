@@ -125,16 +125,23 @@ abstract class DdpRunner : DefaultTask() {
 
     @get:Input abstract val device: ListProperty<String>
 
+    @get:Input abstract val googleApplicationCredentials: Property<String>
+
+    @get:Optional
+    @get:Input
+    @get:Option(option = "useOrchestrator", description = "true if orchestrator should be used")
+    abstract val useOrchestrator: Property<String>
+
     @TaskAction
     fun execThings() {
-        if (
-            project.providers.environmentVariable("GOOGLE_APPLICATION_CREDENTIALS").get().isEmpty()
-        ) {
+        if (googleApplicationCredentials.get().isEmpty()) {
             throw Exception(
                 "Running tests in DDP requires credentials, you have not set up " +
                     "GOOGLE_APPLICATION_CREDENTIALS, follow go/androidx-onboarding#remote-build-cache"
             )
         }
+        val user = System.getProperty("user.name")
+
         val testApk =
             testLoader.get().load(testFolder.get())
                 ?: throw RuntimeException("Cannot load required APK for task: $name")
@@ -145,10 +152,7 @@ abstract class DdpRunner : DefaultTask() {
                     appLoader.get().load(appFolder.get())
                         ?: throw RuntimeException("Cannot load required APK for task: $name")
                 appApk.elements.single().outputFile
-            } else {
-                "gs://androidx-ftl-test-results/github-ci-action/placeholderApp/" +
-                    "d345c82828c355acc1432535153cf1dcf456e559c26f735346bf5f38859e0512.apk"
-            }
+            } else null
         try {
             execOperations.printCommandAndExec { it.commandLine("gcloud", "--version") }
         } catch (_: Exception) {
@@ -166,7 +170,6 @@ abstract class DdpRunner : DefaultTask() {
         }
         val hasFilters = filterList.isNotEmpty()
         val filters = filterList.joinToString(separator = ",")
-
         val shouldPull = pullScreenshots.isPresent && pullScreenshots.get() == "true"
 
         execOperations.printCommandAndExec {
@@ -180,9 +183,10 @@ abstract class DdpRunner : DefaultTask() {
                     "sessions",
                     "submit",
                     "instrumentation",
-                    "--apps=$appApkPath",
+                    if (appLoader.isPresent) "--apps=$appApkPath" else null,
                     "--test=$testApkPath",
-                    "--bucket-name=androidx-dev-prod-test-results",
+                    "--bucket-name=androidx-ddp-local-run-results/$user",
+                    "--labels=owner=$user",
                     if (hasFilters) "--test-targets" else null,
                     if (hasFilters) filters else null,
                     if (shouldPull) "--paths-to-pull" else null,
@@ -191,11 +195,16 @@ abstract class DdpRunner : DefaultTask() {
                     } else null,
                     if (testTimeout.isPresent) "--instrumentation-timeout" else null,
                     if (testTimeout.isPresent) testTimeout.get() else null,
-                    if (shardCount.isPresent) "--sharding-option=uniform" else null,
-                    if (shardCount.isPresent) "--uniform-sharding-count" else null,
-                    if (shardCount.isPresent) shardCount.get() else null,
+                    if (shardCount.isPresent) "--sharding-option=smart" else null,
+                    if (shardCount.isPresent) "--smart-sharding-target-duration=2m" else null,
+                    if (shardCount.isPresent) "--smart-sharding-record-name=shard" else null,
+                    if (shardCount.isPresent) "--bucket-name=androidx-ddp-local-run-results/$user"
+                    else null,
+                    if (shardCount.isPresent) "--smart-sharding-max-shard-count=${shardCount.get()}"
+                    else null,
                     if (instrumentationArgs.isPresent) "--additional-test-options" else null,
                     if (instrumentationArgs.isPresent) instrumentationArgs.get() else null,
+                    if (useOrchestrator.isPresent) "--orchestrator-version=auto" else null,
                 ) + getDeviceArguments()
             )
         }
@@ -323,6 +332,9 @@ private fun Project.registerRunner(
             task.apkPackageName.set(namespace)
             task.testFolder.set(artifacts.get(SingleArtifact.APK))
             task.testLoader.set(artifacts.getBuiltArtifactsLoader())
+            task.googleApplicationCredentials.set(
+                providers.environmentVariable("GOOGLE_APPLICATION_CREDENTIALS").orElse("")
+            )
         }
     }
 }
