@@ -15,31 +15,32 @@
  */
 package androidx.compose.remote.creation.compose.state
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RcPlatformServices
+import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.core.VariableSupport
+import androidx.compose.remote.core.operations.FloatExpression
+import androidx.compose.remote.core.operations.ShaderData
+import androidx.compose.remote.core.operations.utilities.ArrayAccess
+import androidx.compose.remote.core.operations.utilities.DataMap
+import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
-import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
-import androidx.compose.remote.player.core.platform.AndroidRemoteContext
-import androidx.compose.ui.geometry.Size
-import androidx.test.filters.SdkSuppress
+import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.annotation.Config
 
-@SdkSuppress(minSdkVersion = 29)
 @RunWith(TestParameterInjector::class)
-@Config(sdk = [Config.TARGET_SDK])
 class RemoteFloatOperationTest {
-    val context =
-        AndroidRemoteContext().apply {
-            useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
+    private val context = TestRemoteContext()
+    private val creationState =
+        RemoteComposeCreationState().apply {
+            document = RemoteComposeWriter(RcPlatformServices.None)
+            remoteDensity = RemoteDensity(1f.rf, 1f.rf)
         }
-    val creationState = RemoteComposeCreationState(AndroidxRcPlatformServices(), Size(1f, 1f))
 
     enum class Operation(
         val opName: String,
@@ -68,7 +69,15 @@ class RemoteFloatOperationTest {
             RemoteFloat.OperationKey.Sqrt,
             isUnary = true,
         ),
-        ABS("abs", { a, _ -> abs(a) }, -10f, 0f, 10f, RemoteFloat.OperationKey.Abs, isUnary = true),
+        ABS(
+            "abs",
+            { a, _ -> abs(a) },
+            -10f,
+            0f,
+            10f,
+            RemoteFloat.OperationKey.Abs,
+            isUnary = true,
+        ),
         SIGN(
             "sign",
             { a, _ -> sign(a) },
@@ -113,7 +122,15 @@ class RemoteFloatOperationTest {
             RemoteFloat.OperationKey.Floor,
             isUnary = true,
         ),
-        LOG("log", { a, _ -> log(a) }, 100f, 0f, 2f, RemoteFloat.OperationKey.Log, isUnary = true),
+        LOG(
+            "log",
+            { a, _ -> log(a) },
+            100f,
+            0f,
+            2f,
+            RemoteFloat.OperationKey.Log,
+            isUnary = true,
+        ),
         LN(
             "ln",
             { a, _ -> ln(a) },
@@ -242,7 +259,7 @@ class RemoteFloatOperationTest {
                     op.fn(op.a.rf.createReference(true), op.b.rf.createReference(true))
             }
         val resultId = result.getIdForCreationState(creationState)
-        makeAndPaintCoreDocument()
+        evaluateCoreDocument()
         assertWithMessage("Operation ${op.opName} failed with constants")
             .that(context.getFloat(resultId))
             .isWithin(0.001f)
@@ -279,11 +296,123 @@ class RemoteFloatOperationTest {
         }
     }
 
-    private fun makeAndPaintCoreDocument() =
+    private fun evaluateCoreDocument() =
         CoreDocument().apply {
             val buffer = creationState.document.buffer
             buffer.buffer.index = 0
             initFromBuffer(buffer)
-            paint(context, 0)
+            initializeContext(context)
         }
+
+    private class TestRemoteContext : RemoteContext() {
+        private val floats = HashMap<Int, Float>()
+
+        override fun clearVariables() {
+            super.clearVariables()
+            floats.clear()
+        }
+
+        override fun loadFloat(id: Int, value: Float) {
+            floats[id] = value
+        }
+
+        override fun overrideFloat(id: Int, value: Float) {
+            floats[id] = value
+        }
+
+        override fun getFloat(id: Int): Float = floats[id] ?: Float.NaN
+
+        override fun loadPathData(instanceId: Int, winding: Int, floatPath: FloatArray) {}
+
+        override fun getPathData(instanceId: Int): FloatArray? = null
+
+        override fun loadVariableName(varName: String, varId: Int, varType: Int) {}
+
+        override fun loadColor(id: Int, color: Int) {}
+
+        override fun setNamedColorOverride(colorName: String, color: Int) {}
+
+        override fun setNamedStringOverride(stringName: String, value: String) {}
+
+        override fun clearNamedStringOverride(stringName: String) {}
+
+        override fun setNamedBooleanOverride(booleanName: String, value: Boolean) {}
+
+        override fun clearNamedBooleanOverride(booleanName: String) {}
+
+        override fun setNamedIntegerOverride(integerName: String, value: Int) {}
+
+        override fun clearNamedIntegerOverride(integerName: String) {}
+
+        override fun setNamedFloatOverride(floatName: String, value: Float) {}
+
+        override fun clearNamedFloatOverride(floatName: String) {}
+
+        override fun setNamedLong(name: String, value: Long) {}
+
+        override fun setNamedDataOverride(dataName: String, value: Any) {}
+
+        override fun clearNamedDataOverride(dataName: String) {}
+
+        override fun addCollection(id: Int, collection: ArrayAccess) {}
+
+        override fun putDataMap(id: Int, map: DataMap) {}
+
+        override fun getDataMap(id: Int): DataMap? = null
+
+        override fun runAction(id: Int, metadata: String) {}
+
+        override fun runNamedAction(id: Int, value: Any?) {}
+
+        override fun putObject(id: Int, value: Any) {}
+
+        override fun getObject(id: Int): Any? = null
+
+        override fun hapticEffect(type: Int) {}
+
+        override fun loadBitmap(
+            imageId: Int,
+            encoding: Short,
+            type: Short,
+            width: Int,
+            height: Int,
+            bitmap: ByteArray,
+        ) {}
+
+        override fun loadText(id: Int, text: String) {}
+
+        override fun getText(id: Int): String? = null
+
+        override fun loadInteger(id: Int, value: Int) {}
+
+        override fun overrideInteger(id: Int, value: Int) {}
+
+        override fun overrideText(id: Int, valueId: Int) {}
+
+        override fun loadAnimatedFloat(id: Int, animatedFloat: FloatExpression) {}
+
+        override fun loadShader(id: Int, value: ShaderData) {}
+
+        override fun getInteger(id: Int): Int = 0
+
+        override fun getLong(id: Int): Long = 0L
+
+        override fun getColor(id: Int): Int = 0
+
+        override fun listensTo(id: Int, variableSupport: VariableSupport) {}
+
+        override fun updateOps(): Int = 0
+
+        override fun getShader(id: Int): ShaderData? = null
+
+        override fun addClickArea(
+            id: Int,
+            contentDescriptionId: Int,
+            left: Float,
+            top: Float,
+            right: Float,
+            bottom: Float,
+            metadataId: Int,
+        ) {}
+    }
 }

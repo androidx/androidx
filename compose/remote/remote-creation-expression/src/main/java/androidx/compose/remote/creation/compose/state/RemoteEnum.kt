@@ -59,8 +59,7 @@ public constructor(
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         intValue.writeToDocument(creationState)
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public enum class OperationKey : RemoteOperation {
+    internal enum class OperationKey : RemoteOperation {
         ToString;
 
         override val precedence: Int

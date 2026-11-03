@@ -609,8 +609,9 @@ class RemoteIntTest {
 
         val op = constant + named
         // flipped because of peephole optimisation
-        assertThat(op.cacheKey)
-            .isEqualTo(RemoteOperationCacheKey.create(RemoteInt.OperationKey.Add, named, constant))
+        val key = op.cacheKey as RemoteOperationCacheKey
+        assertThat(key.op.name).isEqualTo("Add")
+        assertThat(key.args).isEqualTo(listOf(named.cacheKey, constant.cacheKey))
     }
 
     @Test

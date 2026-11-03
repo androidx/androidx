@@ -554,3 +554,16 @@ internal fun toCacheKeyList(args: Array<out Any?>): List<RemoteStateCacheKey> {
         }
     }
 }
+
+/** The cache key for this remote state within the RemoteComposeCreationState. */
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public val RemoteState<*>.cacheKey: RemoteStateCacheKey
+    get() =
+        if (this is BaseRemoteState<*>) cacheKey
+        else throw IllegalArgumentException("Not a BaseRemoteState")
+
+/** The canonical domain identifier for user-defined state in the RemoteCompose wire protocol. */
+internal const val USER_DOMAIN: String = "USER"
+
+/** The canonical domain identifier for system-defined state in the RemoteCompose wire protocol. */
+internal const val SYSTEM_DOMAIN: String = "SYSTEM"

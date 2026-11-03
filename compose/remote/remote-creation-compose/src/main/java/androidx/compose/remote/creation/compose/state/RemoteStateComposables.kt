@@ -15,7 +15,6 @@
  */
 
 @file:JvmName("RemoteStateKt")
-@file:JvmMultifileClass
 
 package androidx.compose.remote.creation.compose.state
 

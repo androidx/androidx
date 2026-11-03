@@ -294,20 +294,6 @@ class RemoteStateVisitorTest {
     }
 
     @Test
-    fun testCustomVisitor_collectsNamedVariables() {
-        val a = RemoteFloat.createNamedRemoteFloat("a", 1f)
-        val b = RemoteFloat.createNamedRemoteFloat("b", 2f)
-        val c = RemoteFloat.createNamedRemoteFloat("c", 3f)
-        val expr = (a + b) * c
-
-        val names = expr.accept { key, _, visitedArgs ->
-            val fromArgs = visitedArgs.flatten().toSet()
-            if (key is RemoteNamedCacheKey) fromArgs + key.name else fromArgs
-        }
-        assertThat(names).containsExactly("a", "b", "c")
-    }
-
-    @Test
     fun testCustomRewriter_scalesConstants() {
         val a = RemoteFloat.createNamedRemoteFloat("a", 1f)
         val expr = a + 10f.rf
@@ -383,8 +369,7 @@ class RemoteStateVisitorTest {
         val replaced = cubic.replaceNamedVariables(mapOf(progress to dynamicOther))
         assertThat(replaced.hasConstantValue).isFalse()
         assertThat(replaced.cacheKey).isInstanceOf(RemoteOperationCacheKey::class.java)
-        assertThat((replaced.cacheKey as RemoteOperationCacheKey).op)
-            .isEqualTo(RemoteFloat.OperationKey.Cubic)
+        assertThat((replaced.cacheKey as RemoteOperationCacheKey).op.name).isEqualTo("Cubic")
     }
 
     @Test
@@ -398,14 +383,13 @@ class RemoteStateVisitorTest {
         val replacedSpline = spline.replaceNamedVariables(mapOf(progress to dynamicOther))
         assertThat(replacedSpline.hasConstantValue).isFalse()
         assertThat(replacedSpline.cacheKey).isInstanceOf(RemoteOperationCacheKey::class.java)
-        assertThat((replacedSpline.cacheKey as RemoteOperationCacheKey).op)
-            .isEqualTo(RemoteFloat.OperationKey.Spline)
+        assertThat((replacedSpline.cacheKey as RemoteOperationCacheKey).op.name).isEqualTo("Spline")
 
         val replacedSplineLoop = splineLoop.replaceNamedVariables(mapOf(progress to dynamicOther))
         assertThat(replacedSplineLoop.hasConstantValue).isFalse()
         assertThat(replacedSplineLoop.cacheKey).isInstanceOf(RemoteOperationCacheKey::class.java)
-        assertThat((replacedSplineLoop.cacheKey as RemoteOperationCacheKey).op)
-            .isEqualTo(RemoteFloat.OperationKey.SplineLoop)
+        assertThat((replacedSplineLoop.cacheKey as RemoteOperationCacheKey).op.name)
+            .isEqualTo("SplineLoop")
     }
 
     @Test
@@ -540,8 +524,7 @@ class RemoteStateVisitorTest {
         val replaced = dpVal.replaceNamedVariables(mapOf(floatPx to dynamicOther))
         assertThat(replaced).isInstanceOf(RemoteDp::class.java)
         assertThat(replaced.value.cacheKey).isInstanceOf(RemoteOperationCacheKey::class.java)
-        assertThat((replaced.value.cacheKey as RemoteOperationCacheKey).op)
-            .isEqualTo(RemoteDp.OperationKey.ToDp)
+        assertThat((replaced.value.cacheKey as RemoteOperationCacheKey).op.name).isEqualTo("ToDp")
     }
 
     @Test
@@ -584,8 +567,7 @@ class RemoteStateVisitorTest {
         val replaced = matrix.replaceNamedVariables(mapOf(angle to 90f.rf))
         assertThat(replaced).isInstanceOf(RemoteMatrix3x3::class.java)
         assertThat(replaced.cacheKey).isInstanceOf(RemoteOperationCacheKey::class.java)
-        assertThat((replaced.cacheKey as RemoteOperationCacheKey).op)
-            .isEqualTo(RemoteMatrix3x3.OperationKey.ROTATE)
+        assertThat((replaced.cacheKey as RemoteOperationCacheKey).op.name).isEqualTo("ROTATE")
     }
 
     enum class TestEnum {

@@ -47,6 +47,7 @@ dependencies {
     lintChecks(project(":compose:remote:remote-lint"))
     lintPublish(project(":compose:remote:remote-lint"))
 
+    api(project(":compose:remote:remote-creation-expression"))
     api(libs.jspecify)
     api("androidx.collection:collection:1.7.0")
     api("androidx.compose.ui:ui:1.11.0")
