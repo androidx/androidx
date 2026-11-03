@@ -53,6 +53,7 @@ abstract interface androidx.compose.animation/SharedTransitionScope : androidx.c
     abstract fun OverlayClip(androidx.compose.ui.graphics/Shape): androidx.compose.animation/SharedTransitionScope.OverlayClip // androidx.compose.animation/SharedTransitionScope.OverlayClip|OverlayClip(androidx.compose.ui.graphics.Shape){}[0]
     open fun (androidx.compose.ui/Modifier).skipToLookaheadPosition(kotlin/Function0<kotlin/Boolean> = ...): androidx.compose.ui/Modifier // androidx.compose.animation/SharedTransitionScope.skipToLookaheadPosition|skipToLookaheadPosition@androidx.compose.ui.Modifier(kotlin.Function0<kotlin.Boolean>){}[0]
     open fun SharedContentConfig(): androidx.compose.animation/SharedTransitionScope.SharedContentConfig // androidx.compose.animation/SharedTransitionScope.SharedContentConfig|SharedContentConfig(){}[0]
+    open fun SharedContentConfig(androidx.compose.animation/SharedTransitionScope.DeferredTransitionBehavior): androidx.compose.animation/SharedTransitionScope.SharedContentConfig // androidx.compose.animation/SharedTransitionScope.SharedContentConfig|SharedContentConfig(androidx.compose.animation.SharedTransitionScope.DeferredTransitionBehavior){}[0]
     open fun SharedContentConfig(kotlin/Boolean): androidx.compose.animation/SharedTransitionScope.SharedContentConfig // androidx.compose.animation/SharedTransitionScope.SharedContentConfig|SharedContentConfig(kotlin.Boolean){}[0]
     open fun rememberSharedContentState(kotlin/Any, androidx.compose.animation/SharedTransitionScope.SharedContentConfig, androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.animation/SharedTransitionScope.SharedContentState // androidx.compose.animation/SharedTransitionScope.rememberSharedContentState|rememberSharedContentState(kotlin.Any;androidx.compose.animation.SharedTransitionScope.SharedContentConfig;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
     open fun rememberSharedContentState(kotlin/Any, androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.animation/SharedTransitionScope.SharedContentState // androidx.compose.animation/SharedTransitionScope.rememberSharedContentState|rememberSharedContentState(kotlin.Any;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
@@ -73,6 +74,8 @@ abstract interface androidx.compose.animation/SharedTransitionScope : androidx.c
     }
 
     abstract interface SharedContentConfig { // androidx.compose.animation/SharedTransitionScope.SharedContentConfig|null[0]
+        open val deferredTransitionBehavior // androidx.compose.animation/SharedTransitionScope.SharedContentConfig.deferredTransitionBehavior|{}deferredTransitionBehavior[0]
+            open fun <get-deferredTransitionBehavior>(): androidx.compose.animation/SharedTransitionScope.DeferredTransitionBehavior // androidx.compose.animation/SharedTransitionScope.SharedContentConfig.deferredTransitionBehavior.<get-deferredTransitionBehavior>|<get-deferredTransitionBehavior>(){}[0]
         open val isEnabled // androidx.compose.animation/SharedTransitionScope.SharedContentConfig.isEnabled|@androidx.compose.animation.SharedTransitionScope.SharedContentState{}isEnabled[0]
             open fun (androidx.compose.animation/SharedTransitionScope.SharedContentState).<get-isEnabled>(): kotlin/Boolean // androidx.compose.animation/SharedTransitionScope.SharedContentConfig.isEnabled.<get-isEnabled>|<get-isEnabled>@androidx.compose.animation.SharedTransitionScope.SharedContentState(){}[0]
         open val permitTransformDuringDeferredTransition // androidx.compose.animation/SharedTransitionScope.SharedContentConfig.permitTransformDuringDeferredTransition|{}permitTransformDuringDeferredTransition[0]
@@ -103,6 +106,21 @@ abstract interface androidx.compose.animation/SharedTransitionScope : androidx.c
             final fun <get-parentSharedContentState>(): androidx.compose.animation/SharedTransitionScope.SharedContentState? // androidx.compose.animation/SharedTransitionScope.SharedContentState.parentSharedContentState.<get-parentSharedContentState>|<get-parentSharedContentState>(){}[0]
 
         final fun prepareTransitionWithInitialVelocity(androidx.compose.ui.unit/Velocity) // androidx.compose.animation/SharedTransitionScope.SharedContentState.prepareTransitionWithInitialVelocity|prepareTransitionWithInitialVelocity(androidx.compose.ui.unit.Velocity){}[0]
+    }
+
+    final value class DeferredTransitionBehavior { // androidx.compose.animation/SharedTransitionScope.DeferredTransitionBehavior|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.animation/SharedTransitionScope.DeferredTransitionBehavior.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // androidx.compose.animation/SharedTransitionScope.DeferredTransitionBehavior.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // androidx.compose.animation/SharedTransitionScope.DeferredTransitionBehavior.toString|toString(){}[0]
+
+        final object Companion { // androidx.compose.animation/SharedTransitionScope.DeferredTransitionBehavior.Companion|null[0]
+            final val FollowContainer // androidx.compose.animation/SharedTransitionScope.DeferredTransitionBehavior.Companion.FollowContainer|{}FollowContainer[0]
+                final fun <get-FollowContainer>(): androidx.compose.animation/SharedTransitionScope.DeferredTransitionBehavior // androidx.compose.animation/SharedTransitionScope.DeferredTransitionBehavior.Companion.FollowContainer.<get-FollowContainer>|<get-FollowContainer>(){}[0]
+            final val SeekToTarget // androidx.compose.animation/SharedTransitionScope.DeferredTransitionBehavior.Companion.SeekToTarget|{}SeekToTarget[0]
+                final fun <get-SeekToTarget>(): androidx.compose.animation/SharedTransitionScope.DeferredTransitionBehavior // androidx.compose.animation/SharedTransitionScope.DeferredTransitionBehavior.Companion.SeekToTarget.<get-SeekToTarget>|<get-SeekToTarget>(){}[0]
+            final val Static // androidx.compose.animation/SharedTransitionScope.DeferredTransitionBehavior.Companion.Static|{}Static[0]
+                final fun <get-Static>(): androidx.compose.animation/SharedTransitionScope.DeferredTransitionBehavior // androidx.compose.animation/SharedTransitionScope.DeferredTransitionBehavior.Companion.Static.<get-Static>|<get-Static>(){}[0]
+        }
     }
 }
 
@@ -228,6 +246,7 @@ final class androidx.compose.animation/MutableContentTransform { // androidx.com
     constructor <init>(kotlin/Boolean, kotlin/Boolean, kotlin/Function0<androidx.compose.ui.geometry/Offset>?, kotlin/Function0<androidx.compose.ui.geometry/Offset>?) // androidx.compose.animation/MutableContentTransform.<init>|<init>(kotlin.Boolean;kotlin.Boolean;kotlin.Function0<androidx.compose.ui.geometry.Offset>?;kotlin.Function0<androidx.compose.ui.geometry.Offset>?){}[0]
 
     final fun initialContentTransform(kotlin/Function2<androidx.compose.animation/TransformScope, androidx.compose.ui.unit/IntSize, kotlin/Unit>) // androidx.compose.animation/MutableContentTransform.initialContentTransform|initialContentTransform(kotlin.Function2<androidx.compose.animation.TransformScope,androidx.compose.ui.unit.IntSize,kotlin.Unit>){}[0]
+    final fun sharedElementProgress(kotlin/Function0<kotlin/Float>) // androidx.compose.animation/MutableContentTransform.sharedElementProgress|sharedElementProgress(kotlin.Function0<kotlin.Float>){}[0]
     final fun targetContentTransform(kotlin/Function2<androidx.compose.animation/TransformScope, androidx.compose.ui.unit/IntSize, kotlin/Unit>) // androidx.compose.animation/MutableContentTransform.targetContentTransform|targetContentTransform(kotlin.Function2<androidx.compose.animation.TransformScope,androidx.compose.ui.unit.IntSize,kotlin.Unit>){}[0]
 }
 

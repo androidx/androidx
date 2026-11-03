@@ -29,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.toSize
@@ -137,10 +138,14 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
     fun tryInitializingCurrentBounds() = stateMachine.tryInitializingCurrentBounds()
 
     fun onSharedTransitionFinished() {
+        pendingTargetBounds = null
         if (enabledEntries.size <= 1 || !enabledEntries.hasVisibleContent()) {
             stateMachine.resetState()
         }
     }
+
+    internal var pendingTargetBounds: Rect? by mutableStateOf(null)
+        private set
 
     /**
      * This is queried by developers for active match. We need to therefore return the possibility
@@ -199,6 +204,14 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
                         val lookaheadSize = it.size.toSize()
                         stateMachine.configureActiveMatch(lookaheadSize, topLeft, structuralOffset)
                     }
+                }
+            }
+        } else if (state.renderTarget && matchState.activeMatchFound) {
+            with(placementScope) {
+                coordinates?.let {
+                    val lookaheadSize = it.size.toSize()
+                    val topLeft = with(scope) { lookaheadRoot.localLookaheadPositionOf(it) }
+                    pendingTargetBounds = Rect(topLeft, lookaheadSize)
                 }
             }
         }

@@ -822,8 +822,9 @@ private const val MaxInterruptionRetention = 3
  * An object that allows manual manipulation of both entering and exiting content during the
  * deferred phase (initiated by [DeferredTransitionState.defer]) of an [AnimatedContent] transition.
  *
- * Use [initialContentTransform] to define transformations for the exiting (initial) content and
- * [targetContentTransform] for the entering (target) content.
+ * Use [initialContentTransform] to define transformations for the exiting (initial) content,
+ * [targetContentTransform] for the entering (target) content, and [sharedElementProgress] to
+ * interpolate detached shared elements between their initial and target bounds.
  *
  * @param initialTransform The [MutableTransform] applied to the exiting (initial) content.
  * @param targetTransform The [MutableTransform] applied to the entering (target) content.
@@ -861,6 +862,22 @@ public class MutableContentTransform(
      */
     public fun targetContentTransform(block: TransformScope.(fullSize: IntSize) -> Unit) {
         targetTransform.update(block)
+    }
+
+    /**
+     * Configures the interpolation progress for shared elements configured with
+     * [SharedTransitionScope.DeferredTransitionBehavior.SeekToTarget] via
+     * [SharedTransitionScope.SharedContentConfig.deferredTransitionBehavior].
+     *
+     * During the deferred phase, these shared elements interpolate their bounds between their
+     * initial (`0f`) and target (`1f`) bounds based on [progress] (clamped to `0f..1f`), rather
+     * than remaining at their initial bounds (`0f`).
+     *
+     * @param progress lambda returning the current interpolation progress between `0f` and `1f`
+     */
+    public fun sharedElementProgress(progress: () -> Float) {
+        initialTransform.sharedElementProgress(progress)
+        targetTransform.sharedElementProgress(progress)
     }
 }
 

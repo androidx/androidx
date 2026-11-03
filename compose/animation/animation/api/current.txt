@@ -260,6 +260,7 @@ package androidx.compose.animation {
     ctor public MutableContentTransform(androidx.compose.animation.MutableTransform initialTransform, androidx.compose.animation.MutableTransform targetTransform);
     ctor @BytecodeOnly @kotlin.PublishedApi internal MutableContentTransform(boolean, boolean, kotlin.jvm.functions.Function0<androidx.compose.ui.geometry.Offset!>?, kotlin.jvm.functions.Function0<androidx.compose.ui.geometry.Offset!>?);
     method public void initialContentTransform(kotlin.jvm.functions.Function2<? super androidx.compose.animation.TransformScope,? super androidx.compose.ui.unit.IntSize,kotlin.Unit> block);
+    method public void sharedElementProgress(kotlin.jvm.functions.Function0<java.lang.Float> progress);
     method public void targetContentTransform(kotlin.jvm.functions.Function2<? super androidx.compose.animation.TransformScope,? super androidx.compose.ui.unit.IntSize,kotlin.Unit> block);
   }
 
@@ -292,7 +293,9 @@ package androidx.compose.animation {
   @androidx.compose.runtime.Stable public interface SharedTransitionScope extends androidx.compose.ui.layout.LookaheadScope {
     method public androidx.compose.animation.SharedTransitionScope.OverlayClip OverlayClip(androidx.compose.ui.graphics.Shape clipShape);
     method public default androidx.compose.animation.SharedTransitionScope.SharedContentConfig SharedContentConfig();
-    method public default androidx.compose.animation.SharedTransitionScope.SharedContentConfig SharedContentConfig(boolean permitTransformDuringDeferredTransition);
+    method @KotlinOnly public default androidx.compose.animation.SharedTransitionScope.SharedContentConfig SharedContentConfig(androidx.compose.animation.SharedTransitionScope.DeferredTransitionBehavior deferredTransitionBehavior);
+    method @Deprecated public default androidx.compose.animation.SharedTransitionScope.SharedContentConfig SharedContentConfig(boolean permitTransformDuringDeferredTransition);
+    method @BytecodeOnly public default androidx.compose.animation.SharedTransitionScope.SharedContentConfig SharedContentConfig-my67O7I(int);
     method @InaccessibleFromKotlin public boolean isTransitionActive();
     method @KotlinOnly @androidx.compose.runtime.Composable public default androidx.compose.animation.SharedTransitionScope.SharedContentState rememberSharedContentState(Object key);
     method @KotlinOnly @androidx.compose.runtime.Composable public default androidx.compose.animation.SharedTransitionScope.SharedContentState rememberSharedContentState(Object key, androidx.compose.animation.SharedTransitionScope.SharedContentConfig config);
@@ -311,6 +314,21 @@ package androidx.compose.animation {
     method public androidx.compose.ui.Modifier skipToLookaheadSize(androidx.compose.ui.Modifier, optional kotlin.jvm.functions.Function0<java.lang.Boolean> enabled);
     method @BytecodeOnly public static androidx.compose.ui.Modifier! skipToLookaheadSize$default(androidx.compose.animation.SharedTransitionScope!, androidx.compose.ui.Modifier!, kotlin.jvm.functions.Function0!, int, Object!);
     property public abstract boolean isTransitionActive;
+  }
+
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public static final value class SharedTransitionScope.DeferredTransitionBehavior {
+    method @BytecodeOnly public static androidx.compose.animation.SharedTransitionScope.DeferredTransitionBehavior! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.compose.animation.SharedTransitionScope.DeferredTransitionBehavior.Companion Companion;
+  }
+
+  public static final class SharedTransitionScope.DeferredTransitionBehavior.Companion {
+    method @BytecodeOnly public int getFollowContainer-EhBA31Y();
+    method @BytecodeOnly public int getSeekToTarget-EhBA31Y();
+    method @BytecodeOnly public int getStatic-EhBA31Y();
+    property public androidx.compose.animation.SharedTransitionScope.DeferredTransitionBehavior FollowContainer;
+    property public androidx.compose.animation.SharedTransitionScope.DeferredTransitionBehavior SeekToTarget;
+    property public androidx.compose.animation.SharedTransitionScope.DeferredTransitionBehavior Static;
   }
 
   public static interface SharedTransitionScope.OverlayClip {
@@ -344,11 +362,13 @@ package androidx.compose.animation {
   public static interface SharedTransitionScope.SharedContentConfig {
     method @KotlinOnly public default androidx.compose.ui.geometry.Rect? alternativeTargetBoundsInTransitionScopeAfterRemoval(androidx.compose.animation.SharedTransitionScope.SharedContentState, androidx.compose.ui.geometry.Rect targetBoundsBeforeRemoval, androidx.compose.ui.geometry.Size sharedTransitionLayoutSize);
     method @BytecodeOnly public default androidx.compose.ui.geometry.Rect? alternativeTargetBoundsInTransitionScopeAfterRemoval-cSwnlzA(androidx.compose.animation.SharedTransitionScope.SharedContentState, androidx.compose.ui.geometry.Rect, long);
-    method @InaccessibleFromKotlin public default boolean getPermitTransformDuringDeferredTransition();
+    method @BytecodeOnly public default int getDeferredTransitionBehavior-EhBA31Y();
+    method @InaccessibleFromKotlin @Deprecated public default boolean getPermitTransformDuringDeferredTransition();
     method @InaccessibleFromKotlin public default boolean getShouldKeepEnabledForOngoingAnimation();
     method @InaccessibleFromKotlin public default boolean isEnabled(androidx.compose.animation.SharedTransitionScope.SharedContentState);
+    property public default androidx.compose.animation.SharedTransitionScope.DeferredTransitionBehavior deferredTransitionBehavior;
     property public default boolean androidx.compose.animation.SharedTransitionScope.SharedContentState.isEnabled;
-    property public default boolean permitTransformDuringDeferredTransition;
+    property @Deprecated public default boolean permitTransformDuringDeferredTransition;
     property public default boolean shouldKeepEnabledForOngoingAnimation;
   }
 
