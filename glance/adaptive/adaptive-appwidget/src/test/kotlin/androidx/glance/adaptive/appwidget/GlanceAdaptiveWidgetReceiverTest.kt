@@ -16,31 +16,45 @@
 
 package androidx.glance.adaptive.appwidget
 
+import android.annotation.SuppressLint
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.os.Build
 import android.os.Bundle
+import android.os.Looper
+import android.util.Log
 import android.util.SizeF
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.util.UUID
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.spy
+import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import org.robolectric.shadow.api.Shadow
+import org.robolectric.shadows.ShadowBroadcastPendingResult
 import org.robolectric.shadows.ShadowLog
 
 @Config(sdk = [Config.TARGET_SDK])
@@ -543,6 +557,28 @@ class GlanceAdaptiveWidgetReceiverTest {
     }
 
     @Test
+    fun onRestored_placementRestoredWithoutWidgetId_getsNewWidgetIdOnFirstUpdate() = runTest {
+        // On Android versions that do not persist custom option extras, they are lost on backup &
+        // restore, and a freshly installed app starts with an empty cache.
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        val receiver = TestReceiver()
+        val oldAppWidgetId = 51
+        val newAppWidgetId = 52
+        setupBoundWidget(context, newAppWidgetId, TestReceiver::class.java.name)
+
+        receiver.onRestored(context, intArrayOf(oldAppWidgetId), intArrayOf(newAppWidgetId))
+        receiver.onUpdate(context, appWidgetManager, intArrayOf(newAppWidgetId))
+
+        val restoredWidgetId =
+            appWidgetManager
+                .getAppWidgetOptions(newAppWidgetId)
+                .getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID)
+        assertThat(UUID.fromString(restoredWidgetId)).isNotNull()
+        assertThat(WidgetOptionsCache.getCachedWidgetId(newAppWidgetId)).isEqualTo(restoredWidgetId)
+    }
+
+    @Test
     fun onReceive_invokesSuspendOnUpdateWhenLocaleChangedReceived() = runTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         setupBoundWidget(context, 101, TestReceiver::class.java.name)
@@ -654,22 +690,49 @@ class GlanceAdaptiveWidgetReceiverTest {
         }
     }
 
-    private class CancellationReceiver : GlanceAdaptiveWidgetReceiver() {
-        override val widgetName: String = "cancellation_widget"
+    /** Throws [failure] from onUpdate(Context), recording what reaches its exception handler. */
+    private class ThrowingReceiver(private val failure: Throwable) :
+        GlanceAdaptiveWidgetReceiver() {
+        override val widgetName: String = "throwing_widget"
 
-        override suspend fun onUpdate(context: Context) {}
+        val uncaughtExceptions = mutableListOf<Throwable>()
+        var broadcastFinishedWhenUncaught = false
 
-        override fun onUpdate(
-            context: Context,
-            appWidgetManager: AppWidgetManager,
-            appWidgetIds: IntArray,
-        ) {
-            throw CancellationException("Simulated cancellation")
+        override val coroutineContext: CoroutineContext =
+            Dispatchers.Unconfined +
+                CoroutineExceptionHandler { _, exception ->
+                    broadcastFinishedWhenUncaught = isBroadcastFinished()
+                    uncaughtExceptions += exception
+                }
+
+        fun isBroadcastFinished(): Boolean =
+            Shadow.extract<ShadowBroadcastPendingResult>(shadowOf(this).originalPendingResult)
+                .future
+                .isDone
+
+        override suspend fun onUpdate(context: Context) {
+            throw failure
         }
     }
 
     @Test
-    fun onReceive_whenExceptionThrownInOnReceive_catchesExceptionAndLogsError() {
+    fun onReceive_whenOverriddenOnUpdateThrows_propagatesException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val receiver = SyncExceptionReceiver()
+        val intent =
+            Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE).apply {
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, intArrayOf(1))
+            }
+
+        val thrown =
+            assertThrows(IllegalStateException::class.java) { receiver.onReceive(context, intent) }
+
+        assertThat(thrown).hasMessageThat().isEqualTo("Synchronous exception in onUpdate")
+        assertThat(ShadowLog.getLogsForTag("GlanceAdaptiveReceiver")).isEmpty()
+    }
+
+    @Test
+    fun onReceive_whenOverriddenOnUpdateThrowsForLocaleChange_propagatesException() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val receiver = SyncExceptionReceiver()
         val intent =
@@ -677,26 +740,130 @@ class GlanceAdaptiveWidgetReceiverTest {
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, intArrayOf(1))
             }
 
-        receiver.onReceive(context, intent)
+        assertThrows(IllegalStateException::class.java) { receiver.onReceive(context, intent) }
 
-        val logs = ShadowLog.getLogsForTag("GlanceAdaptiveReceiver")
-        assertThat(logs).hasSize(1)
-        assertThat(logs[0].throwable).isInstanceOf(IllegalStateException::class.java)
-        assertThat(logs[0].msg).isEqualTo("Error in Glance Adaptive Widget Receiver")
+        assertThat(ShadowLog.getLogsForTag("GlanceAdaptiveReceiver")).isEmpty()
     }
 
     @Test
-    fun onReceive_whenCancellationExceptionThrown_handlesCleanlyWithoutLoggingError() {
+    fun onUpdate_whenSuspendOnUpdateThrows_finishesBroadcastThenLeavesExceptionUncaught() {
+        val failure = IllegalStateException("Simulated developer failure")
+        val receiver = ThrowingReceiver(failure)
+
+        sendUpdateBroadcast(receiver)
+
+        assertThat(receiver.uncaughtExceptions).containsExactly(failure)
+        assertThat(receiver.broadcastFinishedWhenUncaught).isTrue()
+        assertThat(ShadowLog.getLogsForTag("GlanceAdaptiveReceiver")).isEmpty()
+    }
+
+    @Test
+    fun onUpdate_whenSuspendOnUpdateIsCancelled_finishesBroadcastWithoutReportingIt() {
+        val receiver = ThrowingReceiver(CancellationException("Simulated cancellation"))
+
+        sendUpdateBroadcast(receiver)
+
+        assertThat(receiver.uncaughtExceptions).isEmpty()
+        assertThat(receiver.isBroadcastFinished()).isTrue()
+        assertThat(ShadowLog.getLogsForTag("GlanceAdaptiveReceiver")).isEmpty()
+    }
+
+    @Test
+    fun onUpdate_whenAssigningWidgetIdFails_logsErrorRunsOnUpdateAndRetriesOnNextUpdate() =
+        runTest {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            setupBoundWidget(context, 110, TestReceiver::class.java.name)
+            setupBoundWidget(context, 111, TestReceiver::class.java.name)
+            val failingManager = spy(appWidgetManager)
+            doThrow(RuntimeException("Simulated IPC failure"))
+                .whenever(failingManager)
+                .updateAppWidgetOptions(eq(110), any())
+            val receiver = TestReceiver()
+
+            receiver.onUpdate(context, failingManager, intArrayOf(110, 111))
+
+            assertThat(receiver.onUpdateCalled.await()).isTrue()
+            assertThat(storedWidgetId(context, 110)).isNull()
+            assertThat(storedWidgetId(context, 111)).isNotNull()
+            val errors = receiverErrorLogs()
+            assertThat(errors).hasSize(1)
+            assertThat(errors[0].throwable).hasMessageThat().isEqualTo("Simulated IPC failure")
+
+            TestReceiver().onUpdate(context, appWidgetManager, intArrayOf(110))
+
+            assertThat(storedWidgetId(context, 110)).isNotNull()
+        }
+
+    @Test
+    fun onAppWidgetOptionsChanged_whenAssigningWidgetIdFails_logsErrorUpdatesAndRetriesLater() =
+        runTest {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            setupBoundWidget(context, 112, TestReceiver::class.java.name)
+            val failingManager = spy(appWidgetManager)
+            doThrow(RuntimeException("Simulated IPC failure"))
+                .whenever(failingManager)
+                .updateAppWidgetOptions(eq(112), any())
+            val receiver = TestReceiver()
+            val options =
+                Bundle().apply { putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 120) }
+
+            receiver.onAppWidgetOptionsChanged(context, failingManager, 112, options)
+
+            assertThat(receiver.onUpdateCalled.await()).isTrue()
+            assertThat(storedWidgetId(context, 112)).isNull()
+            // Logged once here, and once by the update it triggers, which retries right away.
+            assertThat(receiverErrorLogs()).hasSize(2)
+
+            // Retried even though the options of the widget are now cached.
+            TestReceiver().onUpdate(context, appWidgetManager, intArrayOf(112))
+
+            assertThat(storedWidgetId(context, 112)).isNotNull()
+        }
+
+    @Test
+    fun onReceive_whenListingWidgetsForLocaleChangeFails_logsErrorWithoutUpdating() {
+        val applicationContext = ApplicationProvider.getApplicationContext<Context>()
+        val failingManager = spy(AppWidgetManager.getInstance(applicationContext))
+        doThrow(RuntimeException("Simulated IPC failure"))
+            .whenever(failingManager)
+            .getAppWidgetIds(any())
+        val context =
+            object : ContextWrapper(applicationContext) {
+                override fun getSystemService(name: String): Any? =
+                    if (name == Context.APPWIDGET_SERVICE) failingManager
+                    else super.getSystemService(name)
+            }
+        val receiver = TestReceiver()
+
+        receiver.onReceive(context, Intent(Intent.ACTION_LOCALE_CHANGED))
+
+        assertThat(receiver.onUpdateCalled.isCompleted).isFalse()
+        val errors = receiverErrorLogs()
+        assertThat(errors).hasSize(1)
+        assertThat(errors[0].throwable).hasMessageThat().isEqualTo("Simulated IPC failure")
+    }
+
+    /** Delivers an update broadcast to [receiver] like the platform, with a pending result. */
+    // Registered only to receive a broadcast sent by this test, so no export flag is needed.
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
+    private fun sendUpdateBroadcast(receiver: GlanceAdaptiveWidgetReceiver) {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val receiver = CancellationReceiver()
-        val intent =
-            Intent(Intent.ACTION_LOCALE_CHANGED).apply {
+        context.registerReceiver(receiver, IntentFilter(AppWidgetManager.ACTION_APPWIDGET_UPDATE))
+        context.sendBroadcast(
+            Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE).apply {
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, intArrayOf(1))
             }
-
-        receiver.onReceive(context, intent)
-
-        val logs = ShadowLog.getLogsForTag("GlanceAdaptiveReceiver")
-        assertThat(logs).isEmpty()
+        )
+        shadowOf(Looper.getMainLooper()).idle()
     }
+
+    private fun storedWidgetId(context: Context, appWidgetId: Int): String? =
+        AppWidgetManager.getInstance(context)
+            .getAppWidgetOptions(appWidgetId)
+            .getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID)
+
+    private fun receiverErrorLogs(): List<ShadowLog.LogItem> =
+        ShadowLog.getLogsForTag("GlanceAdaptiveReceiver").filter { it.type == Log.ERROR }
 }
