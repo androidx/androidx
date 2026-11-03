@@ -231,7 +231,7 @@ class SurfaceOperationCountTest {
             numDrawOperations = DrawOperations
             numIntegerExpressions = 0
             numConditionalOperations = 0
-            documentSizeBytes = 5_607
+            documentSizeBytes = 4_113
         }
     }
 

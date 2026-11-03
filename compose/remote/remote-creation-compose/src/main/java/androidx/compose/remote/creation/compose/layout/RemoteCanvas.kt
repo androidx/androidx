@@ -126,6 +126,16 @@ public class RemoteCanvas(
         StandardRemotePaint(it)
     }
 
+    /**
+     * Snapshots [path] at record time. The returned function resolves the wire ID of the path at
+     * write time, writing the path data on first use in the current span.
+     */
+    private fun snapshotPath(path: RemotePath, winding: Int = 0): () -> Int {
+        val span = buffer.insertPoint
+        val pathData = path.createFloatArray()
+        return { span.getOrPutPathData(document, pathData, winding) }
+    }
+
     internal fun usePaintInternal(paint: RemotePaint?) {
         if (paint == null) {
             return
@@ -410,11 +420,19 @@ public class RemoteCanvas(
         stop: RemoteFloat,
         paint: RemotePaint? = null,
     ) {
+        val pathId1 = snapshotPath(path1)
+        val pathId2 = snapshotPath(path2)
         val op =
             recordRenderingOp(paint) {
-                document.drawTweenPath(path1, path2, tween.floatId, start.floatId, stop.floatId)
+                document.drawTweenPath(
+                    pathId1(),
+                    pathId2(),
+                    tween.floatId,
+                    start.floatId,
+                    stop.floatId,
+                )
             }
-        buffer.addRoots(op, path1, path2, tween, start, stop)
+        buffer.addRoots(op, tween, start, stop)
     }
 
     /** Draws text from [text] at ([x], [y]) using the specified [paint]. */
@@ -528,11 +546,13 @@ public class RemoteCanvas(
         vOffset: RemoteFloat,
         paint: RemotePaint? = null,
     ) {
+        val pathId = snapshotPath(path)
         val op =
             recordRenderingOp(paint) {
-                document.drawTextOnPath(text, path, hOffset.floatId, vOffset.floatId)
+                val textId = document.addText(text)
+                document.drawTextOnPath(textId, pathId(), hOffset.floatId, vOffset.floatId)
             }
-        buffer.addRoots(op, path, hOffset, vOffset)
+        buffer.addRoots(op, hOffset, vOffset)
     }
 
     public fun drawTextOnPath(
@@ -542,11 +562,17 @@ public class RemoteCanvas(
         vOffset: RemoteFloat,
         paint: RemotePaint? = null,
     ) {
+        val pathId = snapshotPath(path)
         val op =
             recordRenderingOp(paint) {
-                document.drawTextOnPath(text.id, path, hOffset.floatId, vOffset.floatId)
+                document.drawTextOnPath(
+                    text.id,
+                    pathId(),
+                    hOffset.floatId,
+                    vOffset.floatId,
+                )
             }
-        buffer.addRoots(op, text, path, hOffset, vOffset)
+        buffer.addRoots(op, text, hOffset, vOffset)
     }
 
     /**
@@ -611,19 +637,20 @@ public class RemoteCanvas(
         glyphSpacing: Float,
         paint: RemotePaint? = null,
     ) {
+        val pathId = snapshotPath(path)
         val op =
             recordRenderingOp(paint) {
                 document.drawBitmapFontTextRunOnPath(
                     text.id,
                     bitmapFont.id,
-                    path,
+                    pathId(),
                     start,
                     end,
                     yAdj,
                     glyphSpacing,
                 )
             }
-        buffer.addRoots(op, text, bitmapFont, path)
+        buffer.addRoots(op, text, bitmapFont)
     }
 
     /** Draws a path using the specified [pathFillType] and [paint]. */
@@ -632,16 +659,10 @@ public class RemoteCanvas(
         pathFillType: RemotePathFillType = RemotePathFillType.NonZero,
         paint: RemotePaint? = null,
     ) {
-        val op =
-            recordRenderingOp(paint) {
-                if (pathFillType == RemotePathFillType.NonZero) {
-                    document.drawPath(path)
-                } else {
-                    val pathId = document.addPathData(path, pathFillType.value)
-                    document.drawPath(pathId)
-                }
-            }
-        buffer.addRoots(op, path)
+        val pathId = snapshotPath(path, pathFillType.value)
+        recordRenderingOp(paint) {
+            document.drawPath(pathId())
+        }
     }
 
     /** Draws a bitmap at ([left], [top]) using the specified [paint]. */
@@ -788,14 +809,8 @@ public class RemoteCanvas(
 
     /** Clips the current canvas state to the specified [path]. */
     public fun clipPath(path: RemotePath) {
-        val op =
-            buffer.recordRenderingOp(
-                CanvasOp.Clip {
-                    val pathId = document.addPathData(path)
-                    document.addClipPath(pathId)
-                }
-            )
-        buffer.addRoots(op, path)
+        val pathId = snapshotPath(path)
+        buffer.recordRenderingOp(CanvasOp.Clip { document.addClipPath(pathId()) })
     }
 
     /**

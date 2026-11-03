@@ -28,6 +28,7 @@ import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.PaintData
+import androidx.compose.remote.core.operations.PathData
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.managers.Custom.CustomProperty
 import androidx.compose.remote.core.operations.paint.PaintBundle
@@ -61,6 +62,7 @@ import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.create
 import androidx.compose.remote.creation.compose.state.RemoteIntArray
 import androidx.compose.remote.creation.compose.state.RemoteOperationCacheKey
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePathFillType
 import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
@@ -444,7 +446,7 @@ class RemoteCanvasTest {
         assertThat(fakeBuffer.calls)
             .containsExactly(
                 "addMatrixSave",
-                "addPathData(42)",
+                "addPathData(42, 0)",
                 "addClipPath(42)",
                 "addDrawRect(0.0, 0.0, 100.0, 100.0)",
                 "addMatrixRestore",
@@ -552,28 +554,265 @@ class RemoteCanvasTest {
     }
 
     @Test
-    fun testDrawPath_defaultWinding_deduplicatesRepeatedDraws() {
+    fun testDrawPath_mutatedBeforeFlush_preservesGeometry() {
         setupRemoteCanvas()
 
         val path =
+            RemotePath().apply {
+                moveTo(1f, 2f)
+                lineTo(3f, 4f)
+                quadTo(5f, 6f, 7f, 8f)
+                conicTo(9f, 10f, 11f, 12f, 0.5f)
+                cubicTo(13f, 14f, 15f, 16f, 17f, 18f)
+                close()
+            }
+        val expectedRemotePath =
+            RemotePath().apply {
+                moveTo(1f, 2f)
+                lineTo(3f, 4f)
+                quadTo(5f, 6f, 7f, 8f)
+                conicTo(9f, 10f, 11f, 12f, 0.5f)
+                cubicTo(13f, 14f, 15f, 16f, 17f, 18f)
+                close()
+            }
+
+        remoteCanvas.drawPath(path, paint = RemotePaint())
+        path.reset()
+        remoteCanvas.flush()
+
+        assertThat(fakeBuffer.calls)
+            .containsExactly("addPaint", "addPathData(42, 0)", "addDrawPath(42)")
+            .inOrder()
+
+        val pathData =
+            getOperations(remoteCanvas.document.buffer).filterIsInstance<PathData>().single()
+        assertThat(pathData.floatPath).isEqualTo(expectedRemotePath.createFloatArray())
+        assertThat(pathData.deepToString(""))
+            .isEqualTo(
+                "M 1.0 2.0 L 0.0 0.0 3.0 4.0 Q 0.0 0.0 5.0 6.0 7.0 8.0 " +
+                    "R 0.0 0.0 9.0 10.0 11.0 12.0 0.5 C 0.0 0.0 13.0 14.0 15.0 16.0 17.0 18.0 Z"
+            )
+    }
+
+    @Test
+    fun testDrawPath_mutatedBetweenDraws_emitsDistinctPathData() {
+        setupRemoteCanvas()
+
+        val p =
+            RemotePath().apply {
+                moveTo(10f, 10f)
+                lineTo(20f, 20f)
+            }
+        val expected1 =
+            RemotePath().apply {
+                moveTo(10f, 10f)
+                lineTo(20f, 20f)
+            }
+
+        remoteCanvas.drawPath(p)
+        p.reset()
+        p.lineTo(30f, 30f)
+        remoteCanvas.drawPath(p)
+        remoteCanvas.flush()
+
+        assertThat(fakeBuffer.calls)
+            .containsExactly(
+                "addPathData(42, 0)",
+                "addDrawPath(42)",
+                "addPathData(43, 0)",
+                "addDrawPath(43)",
+            )
+            .inOrder()
+
+        val operations = getOperations(remoteCanvas.document.buffer)
+        val pathDataList = operations.filterIsInstance<PathData>()
+        assertThat(pathDataList).hasSize(2)
+        assertThat(pathDataList[0].floatPath).isEqualTo(expected1.createFloatArray())
+        assertThat(pathDataList[1].floatPath).isEqualTo(p.createFloatArray())
+        assertThat(pathDataList[0].floatPath).isNotEqualTo(pathDataList[1].floatPath)
+    }
+
+    @Test
+    fun testPathMethods_mutatedBeforeFlush_snapshotGeometry() {
+        setupRemoteCanvas()
+
+        val path =
+            RemotePath().apply {
+                moveTo(10f, 10f)
+                lineTo(20f, 20f)
+            }
+        val expectedPath =
+            RemotePath().apply {
+                moveTo(10f, 10f)
+                lineTo(20f, 20f)
+            }
+
+        remoteCanvas.clipPath(path)
+        remoteCanvas.drawTweenPath(path, path, 0.5f.rf, 0f.rf, 1f.rf)
+        remoteCanvas.drawTextOnPath("hello", path, 0f.rf, 0f.rf)
+        remoteCanvas.drawTextOnPath(createNamedRemoteString("str", "hi"), path, 0f.rf, 0f.rf)
+        remoteCanvas.drawBitmapFontTextRunOnPath(
+            createNamedRemoteString("str2", "hey"),
+            RemoteBitmapFont(emptyList()),
+            path,
+            0,
+            3,
+            0f,
+            0f,
+        )
+
+        // Mutate path prior to flush
+        path.reset()
+        path.lineTo(999f, 999f)
+
+        remoteCanvas.flush()
+
+        val operations = getOperations(remoteCanvas.document.buffer)
+        val pathDataList = operations.filterIsInstance<PathData>()
+        assertThat(pathDataList).isNotEmpty()
+        for (pd in pathDataList) {
+            assertThat(pd.floatPath).isEqualTo(expectedPath.createFloatArray())
+        }
+    }
+
+    @Test
+    fun testDrawPath_deduplicatesByContentAndWinding() {
+        setupRemoteCanvas()
+
+        val path1 =
+            RemotePath().apply {
+                moveTo(0f, 0f)
+                lineTo(10f, 10f)
+                close()
+            }
+        val path2 =
             RemotePath().apply {
                 moveTo(0f, 0f)
                 lineTo(10f, 10f)
                 close()
             }
 
-        remoteCanvas.drawPath(path)
-        remoteCanvas.drawPath(path)
+        // Same content, same default winding (0) -> deduplicates to single addPathData(42, 0)
+        remoteCanvas.drawPath(path1, RemotePathFillType.NonZero)
+        remoteCanvas.drawPath(path2, RemotePathFillType.NonZero)
+
+        // Same content, different winding (1) -> distinct addPathData(43, 1)
+        remoteCanvas.drawPath(path1, RemotePathFillType.EvenOdd)
 
         remoteCanvas.flush()
 
         assertThat(fakeBuffer.calls)
             .containsExactly(
-                "addPathData(42)",
+                "addPathData(42, 0)",
                 "addDrawPath(42)",
                 "addDrawPath(42)",
+                "addPathData(43, 1)",
+                "addDrawPath(43)",
             )
             .inOrder()
+    }
+
+    @Test
+    fun testDrawPath_distinctNanVariableIds_emitsDistinctPathDataAndSameNanIdDeduplicates() {
+        setupRemoteCanvas()
+
+        val x1 = with(remoteCanvas) { createNamedRemoteFloat("x1", 10f).floatId }
+        val x2 = with(remoteCanvas) { createNamedRemoteFloat("x2", 10f).floatId }
+        val pathWithX1 =
+            RemotePath().apply {
+                moveTo(0f, 0f)
+                lineTo(x1, 10f)
+            }
+        val pathWithX1Duplicate =
+            RemotePath().apply {
+                moveTo(0f, 0f)
+                lineTo(x1, 10f)
+            }
+        val pathWithX2 =
+            RemotePath().apply {
+                moveTo(0f, 0f)
+                lineTo(x2, 10f)
+            }
+
+        remoteCanvas.drawPath(pathWithX1)
+        remoteCanvas.drawPath(pathWithX1Duplicate)
+        remoteCanvas.drawPath(pathWithX2)
+
+        remoteCanvas.flush()
+
+        assertThat(fakeBuffer.calls)
+            .containsExactly(
+                "setNamedVariable(42, \"USER:x1\", 1)",
+                "setNamedVariable(43, \"USER:x2\", 1)",
+                "addPathData(44, 0)",
+                "addDrawPath(44)",
+                "addDrawPath(44)",
+                "addPathData(45, 0)",
+                "addDrawPath(45)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testDrawPath_doesNotReusePathDataAcrossContainers() {
+        setupRemoteCanvas(
+            profileMask = RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL
+        )
+
+        val path =
+            RemotePath().apply {
+                moveTo(0f, 0f)
+                lineTo(10f, 10f)
+            }
+
+        // Draw in root span
+        remoteCanvas.drawPath(path)
+
+        // Draw in loop container (child span)
+        remoteCanvas.loop(0f.rf, 2f.rf, 1f.rf) { _ ->
+            remoteCanvas.drawPath(path)
+            remoteCanvas.drawPath(path) // deduplicates within the loop container
+        }
+
+        // Draw in forEach container (child span)
+        remoteCanvas.forEach(listOf(1f.rf, 2f.rf)) { _ ->
+            remoteCanvas.drawPath(path)
+            remoteCanvas.drawPath(path) // deduplicates within the forEach container
+        }
+
+        // Draw in pattern container (child span)
+        val pattern = remoteCanvas.definePattern {
+            remoteCanvas.drawPath(path)
+            remoteCanvas.drawPath(path) // deduplicates within the pattern
+        }
+        pattern()
+
+        remoteCanvas.flush()
+
+        val pathDataCalls = fakeBuffer.calls.filter { it.startsWith("addPathData") }
+        // 1 (root span) + 1 (loop container) + 1 (forEach container) + 1 (pattern container) = 4
+        assertThat(pathDataCalls).hasSize(4)
+    }
+
+    @Test
+    fun testDrawPath_elidedConditional_doesNotEmitOrphanedPathData() {
+        setupRemoteCanvas(enableOptimizations = true)
+
+        val path =
+            RemotePath().apply {
+                moveTo(0f, 0f)
+                lineTo(50f, 50f)
+            }
+
+        remoteCanvas.drawConditionally(RemoteBoolean(false)) {
+            remoteCanvas.clipPath(path)
+            remoteCanvas.drawPath(path)
+        }
+        path.reset()
+
+        remoteCanvas.flush()
+
+        assertThat(fakeBuffer.calls).isEmpty()
     }
 
     @Test
@@ -669,7 +908,7 @@ class RemoteCanvasTest {
                 "addPaint",
                 "setNamedVariable(42, \"USER:label\", 0)",
                 "addBitmapFont(43)",
-                "addPathData(44)",
+                "addPathData(44, 0)",
                 "addDrawBitmapFontTextRunOnPath(42, 43, 44)",
             )
             .inOrder()
