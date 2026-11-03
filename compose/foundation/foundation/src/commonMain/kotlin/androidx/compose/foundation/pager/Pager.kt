@@ -23,7 +23,6 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.rememberSplineBasedDecay
-import androidx.compose.foundation.ComposeFoundationFlags.isAbsorbNonGestureNestedScrollInPagerFixEnabled
 import androidx.compose.foundation.ComposeFoundationFlags.isReverseLayoutNestedScrollConnectionInPagerFixEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.OverscrollEffect
@@ -746,7 +745,6 @@ private class DefaultPagerNestedScrollConnection(
 
     private fun Offset.toFloat() = if (orientation == Orientation.Horizontal) x else y
 
-    @OptIn(ExperimentalFoundationApi::class)
     override fun onPostScroll(
         consumed: Offset,
         available: Offset,
@@ -755,11 +753,7 @@ private class DefaultPagerNestedScrollConnection(
         if (source == NestedScrollSource.SideEffect && available.mainAxis() != 0f) {
             throw CancellationException("Scroll cancelled")
         }
-        if (
-            isAbsorbNonGestureNestedScrollInPagerFixEnabled &&
-                !state.isGestureInProgress &&
-                available.mainAxis() != 0f
-        ) {
+        if (!state.isGestureInProgress && available.mainAxis() != 0f) {
             return available.consumeOnOrientation(orientation)
         }
         return Offset.Zero
