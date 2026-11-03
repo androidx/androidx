@@ -18,6 +18,7 @@ package androidx.glance.adaptive.appwidget.renderer
 
 import android.content.Context
 import android.widget.RemoteViews
+import androidx.annotation.RestrictTo
 import androidx.glance.adaptive.core.renderer.ArchetypeRenderer
 import androidx.glance.adaptive.core.renderer.TemplateRenderer
 import androidx.glance.adaptive.core.selection.Dimensions
@@ -61,7 +62,8 @@ internal class RemoteViewsRenderOutput(val provider: (Context) -> RemoteViews) :
  * @param S The type of [GlanceSurface] this renderer targets.
  * @param A The layout archetype resolved for this render pass.
  */
-internal fun interface RemoteViewsTemplateRenderer<
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun interface RemoteViewsTemplateRenderer<
     in T : GlanceAdaptiveTemplate,
     in S : GlanceSurface,
     in A : Any,
@@ -78,7 +80,12 @@ internal fun interface RemoteViewsTemplateRenderer<
      *   [GlanceSurface.dimensions].
      * @return The [RemoteViews] to deliver to the host.
      */
-    fun renderRemoteViews(context: Context, template: T, archetype: A, surface: S): RemoteViews
+    public fun renderRemoteViews(
+        context: Context,
+        template: T,
+        archetype: A,
+        surface: S,
+    ): RemoteViews
 
     override fun render(template: T, archetype: A, surface: S): AppWidgetRenderOutput =
         RemoteViewsRenderOutput { context ->
