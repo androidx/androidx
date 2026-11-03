@@ -80,6 +80,8 @@ internal fun <T> StateLayout(
  * the underlying remote rendering system handles the visibility and transitions between them based
  * on the [currentState].
  *
+ * Interactive example cycling through enum states in a [RemoteStateLayout]:
+ *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteStateLayoutEnumSample
  * @param currentState The [RemoteEnum] governing the available states and the current active state.
  * @param modifier The [RemoteModifier] to be applied to this layout.
@@ -104,6 +106,8 @@ public fun <T : Enum<T>> RemoteStateLayout(
  * This component ensures that both possible states are composed, while the underlying remote
  * rendering system handles the visibility and transitions between them based on the [currentState].
  *
+ * Interactive example toggling between boolean states in a [RemoteStateLayout]:
+ *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteStateLayoutBooleanSample
  * @param currentState The [RemoteBoolean] governing the current active state.
  * @param modifier The [RemoteModifier] to be applied to this layout.
@@ -126,6 +130,8 @@ public fun RemoteStateLayout(
  * This component ensures that all possible states defined in [states] are composed, while the
  * underlying remote rendering system handles the visibility and transitions between them based on
  * the [currentState].
+ *
+ * Interactive example cycling through integer states in a [RemoteStateLayout]:
  *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteStateLayoutIntSample
  * @param currentState The [RemoteInt] governing the current active state.

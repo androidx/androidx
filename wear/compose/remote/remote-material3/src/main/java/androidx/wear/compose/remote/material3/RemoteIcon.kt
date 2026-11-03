@@ -27,11 +27,12 @@ import androidx.compose.runtime.Composable
 /**
  * Composable function that displays an icon using a [RemoteImageVector].
  *
- * @sample androidx.wear.compose.remote.material3.samples.RemoteIconSimpleSample
- *
  * This function provides a way to display icons consistently across both local and remote Compose
  * environments.
  *
+ * Example of displaying a [RemoteIcon]:
+ *
+ * @sample androidx.wear.compose.remote.material3.samples.RemoteIconSimpleSample
  * @param imageVector The [RemoteImageVector] representing the icon to display.
  * @param contentDescription Text used by accessibility services to describe what this icon
  *   represents. This should always be provided unless this icon is used for decorative purposes,

@@ -55,6 +55,8 @@ import androidx.compose.ui.unit.LayoutDirection
  * Animates changes to [progress] with the [RemoteMotionScheme.defaultEffectsSpec] of
  * [RemoteMaterialTheme.motionScheme].
  *
+ * Example of a [RemoteLinearProgressIndicator] showing static progress:
+ *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteLinearProgressIndicatorSample
  *
  * Example that changes [progress] on click:

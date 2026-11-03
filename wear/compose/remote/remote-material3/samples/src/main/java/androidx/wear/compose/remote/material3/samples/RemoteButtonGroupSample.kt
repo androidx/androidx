@@ -22,12 +22,10 @@ import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.remote.creation.compose.action.hostAction
-import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.capture.toRemoteImageVector
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
-import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
@@ -37,7 +35,6 @@ import androidx.wear.compose.remote.material3.RemoteButtonGroup
 import androidx.wear.compose.remote.material3.RemoteIcon
 import androidx.wear.compose.remote.material3.RemoteIconButton
 import androidx.wear.compose.remote.material3.RemoteIconButtonDefaults
-import androidx.wear.compose.remote.material3.RemoteMaterialTheme
 import androidx.wear.compose.remote.material3.previews.utils.RemoteComponentPreviewWrapper
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 
@@ -47,10 +44,18 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 @WearPreviewDevices
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 fun RemoteButtonGroupThreeButtonSample(modifier: RemoteModifier = RemoteModifier) {
+    val icons = listOf(Icons.Filled.MailOutline, Icons.Filled.Favorite, Icons.Filled.Call)
     RemoteButtonGroup(modifier = modifier.fillMaxWidth()) {
-        Button(Icons.Filled.MailOutline.toRemoteImageVector(), RemoteModifier.weight(1f.rf))
-        Button(Icons.Filled.Favorite.toRemoteImageVector(), RemoteModifier.weight(1f.rf))
-        Button(Icons.Filled.Call.toRemoteImageVector(), RemoteModifier.weight(1f.rf))
+        icons.forEach { icon ->
+            RemoteIconButton(
+                onClick = hostAction("button_click".rs),
+                modifier = RemoteModifier.weight(1f.rf),
+                colors = RemoteIconButtonDefaults.filledIconButtonColors(),
+                shape = RemoteButtonDefaults.shape,
+            ) {
+                RemoteIcon(imageVector = icon.toRemoteImageVector(), contentDescription = null)
+            }
+        }
     }
 }
 
@@ -60,43 +65,22 @@ fun RemoteButtonGroupThreeButtonSample(modifier: RemoteModifier = RemoteModifier
 @WearPreviewDevices
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 fun RemoteButtonGroupAnimatedSample(modifier: RemoteModifier = RemoteModifier) {
+    val buttons =
+        listOf(
+            Icons.Filled.MailOutline to 1f.rf,
+            Icons.Filled.Favorite to 1.5f.rf,
+            Icons.Filled.Call to 1f.rf,
+        )
     RemoteButtonGroup(modifier = modifier.fillMaxWidth()) {
-        Button(
-            Icons.Filled.MailOutline.toRemoteImageVector(),
-            RemoteModifier.weight(1f.rf).animateWidth(),
-        )
-        Button(
-            Icons.Filled.Favorite.toRemoteImageVector(),
-            RemoteModifier.weight(1.5f.rf).animateWidth(),
-        )
-        Button(Icons.Filled.Call.toRemoteImageVector(), RemoteModifier.weight(1f.rf).animateWidth())
+        buttons.forEach { (icon, weight) ->
+            RemoteIconButton(
+                onClick = hostAction("button_click".rs),
+                modifier = RemoteModifier.weight(weight).animateWidth(),
+                colors = RemoteIconButtonDefaults.filledIconButtonColors(),
+                shape = RemoteButtonDefaults.shape,
+            ) {
+                RemoteIcon(imageVector = icon.toRemoteImageVector(), contentDescription = null)
+            }
+        }
     }
 }
-
-@Composable
-@RemoteComposable
-private fun Button(imageVector: RemoteImageVector, modifier: RemoteModifier) {
-    RemoteIconButton(
-        testAction,
-        modifier = modifier,
-        enabled = true.rb,
-        colors = tonalColors,
-        shape = RemoteButtonDefaults.shape,
-    ) {
-        RemoteIcon(imageVector = imageVector, contentDescription = null)
-    }
-}
-
-private val tonalColors
-    @Composable
-    get() =
-        RemoteIconButtonDefaults.iconButtonColors()
-            .copy(
-                containerColor = RemoteMaterialTheme.colorScheme.primary,
-                contentColor = RemoteMaterialTheme.colorScheme.onPrimary,
-                disabledContainerColor =
-                    RemoteMaterialTheme.colorScheme.primary.copy(alpha = 0.12f.rf),
-                disabledContentColor = RemoteMaterialTheme.colorScheme.primary.copy(0.38f.rf),
-            )
-
-private val testAction = hostAction("testAction".rs, 1.rf)

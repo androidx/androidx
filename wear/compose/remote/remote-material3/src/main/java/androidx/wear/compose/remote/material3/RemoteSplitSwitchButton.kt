@@ -65,6 +65,8 @@ import androidx.wear.compose.material3.TextConfiguration
  * containing [label] and optional [secondaryLabel] is clickable and triggers [onContainerClick].
  * The second area contains a switch toggle control and triggers [onCheckedChange].
  *
+ * Example of a [RemoteSplitSwitchButton] with separate container and switch toggle actions:
+ *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteSplitSwitchButtonSample
  * @param checked [RemoteBoolean] flag indicating whether this button is currently checked.
  * @param onCheckedChange RemoteAction to be invoked when the toggle control is clicked.

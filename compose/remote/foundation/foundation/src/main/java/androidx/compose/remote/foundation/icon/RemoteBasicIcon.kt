@@ -49,6 +49,9 @@ import androidx.compose.ui.graphics.Color
  * action. Pass `null` only for purely decorative icons, which omits the accessibility content
  * description so accessibility services ignore it.
  *
+ * Example of a tinted [RemoteBasicIcon]:
+ *
+ * @sample androidx.compose.remote.foundation.samples.RemoteBasicIconSample
  * @param imageVector the [RemoteImageVector] to draw inside this icon
  * @param contentDescription localized text used by accessibility services to describe this icon, or
  *   `null` if the icon is purely decorative and has no accessibility description
@@ -57,7 +60,6 @@ import androidx.compose.ui.graphics.Color
  *   ([androidx.compose.ui.graphics.BlendMode.SrcIn] by default, which replaces the icon's RGB
  *   colors with [tint] while preserving alpha rather than multiplying RGBA). Defaults to
  *   [Color.White]
- * @sample androidx.compose.remote.foundation.samples.RemoteBasicIconSample
  */
 @RemoteComposable
 @Composable

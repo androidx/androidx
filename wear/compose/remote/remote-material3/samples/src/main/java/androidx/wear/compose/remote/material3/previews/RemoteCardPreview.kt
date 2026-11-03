@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX")
-
 package androidx.wear.compose.remote.material3.previews
 
-import androidx.compose.remote.creation.compose.action.RemoteAction
+import androidx.compose.remote.creation.compose.action.combinedAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -68,13 +66,13 @@ fun RemoteCardWithImageAndBorderPreview(
 @Composable
 @RemoteComposable
 fun RemoteCardDefault() {
-    RemoteCard(onClick = RemoteAction.Empty) { RemoteText("This is a basic card".rs) }
+    RemoteCard(onClick = combinedAction()) { RemoteText("This is a basic card".rs) }
 }
 
 @Composable
 @RemoteComposable
 fun RemoteCardOutline() {
-    RemoteOutlinedCard(onClick = RemoteAction.Empty) { RemoteText("Outlined variation".rs) }
+    RemoteOutlinedCard(onClick = combinedAction()) { RemoteText("Outlined variation".rs) }
 }
 
 @Composable
@@ -86,7 +84,7 @@ fun RemoteCardWithImage() {
         }
     }
     val containerPainter = RemoteCardDefaults.containerPainter(backgroundImage)
-    RemoteCard(onClick = RemoteAction.Empty, containerPainter = containerPainter) {
+    RemoteCard(onClick = combinedAction(), containerPainter = containerPainter) {
         RemoteText("Card with image".rs)
     }
 }
@@ -101,7 +99,7 @@ fun RemoteCardWithImageAndBorder() {
     }
     val containerPainter = RemoteCardDefaults.containerPainter(backgroundImage)
     RemoteCard(
-        onClick = RemoteAction.Empty,
+        onClick = combinedAction(),
         containerPainter = containerPainter,
         border = RemoteCardDefaults.outlinedCardBorder(),
     ) {

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX")
-
 package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled
@@ -33,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.PreviewWrapper
 import androidx.wear.compose.remote.material3.RemoteCurvedProgressIndicator
+import androidx.wear.compose.remote.material3.RemoteIntroOutroCurvedProgressIndicator
 import androidx.wear.compose.remote.material3.previews.utils.RemoteComponentPreviewWrapper
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 
@@ -66,11 +65,32 @@ public fun RemoteCurvedProgressIndicatorAnimatedSample(
             targetValue = progress,
             animationSpec = remoteTween(durationMillis = 250),
         )
-    val toggleAction = valueChangeAction(progress, ((progress + 0.25f) % 1f).createReference())
+    val toggleAction = valueChangeAction(progress, (progress + 0.25f.rf) % 1f.rf)
 
     RemoteCurvedProgressIndicator(
         progress = animatedProgress,
         modifier = modifier.clickable(toggleAction),
+        startAngle = 135f.rf,
+        sweepAngle = 90f.rf,
+    )
+}
+
+@Sampled
+@RemoteComposable
+@Composable
+@WearPreviewDevices
+@PreviewWrapper(RemoteComponentPreviewWrapper::class)
+public fun RemoteIntroOutroCurvedProgressIndicatorSample(
+    modifier: RemoteModifier = RemoteModifier.size(150.rdp)
+) {
+    val progress = remember { MutableRemoteFloat(0.5f) }
+    val nextProgress =
+        progress.isGreaterThanOrEqualTo(1f.rf).select(ifTrue = 0f.rf, ifFalse = progress + 0.5f.rf)
+    val stepAction = valueChangeAction(progress, nextProgress)
+
+    RemoteIntroOutroCurvedProgressIndicator(
+        progress = progress,
+        modifier = modifier.clickable(stepAction),
         startAngle = 135f.rf,
         sweepAngle = 90f.rf,
     )

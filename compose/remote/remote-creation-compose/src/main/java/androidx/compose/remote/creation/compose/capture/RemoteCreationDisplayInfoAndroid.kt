@@ -82,6 +82,9 @@ public fun rememberRemoteCreationDisplayInfo(
  * This function extracts the display metrics (width, height, and density) from the [Context]'s
  * resources.
  *
+ * Example of creating display info with custom dimensions for document capture:
+ *
+ * @sample androidx.compose.remote.creation.compose.samples.CaptureSingleRemoteDocumentSample
  * @param context The [Context] used to access display metrics.
  * @param size The size of the display.
  * @param isInspectionMode Whether the capture is happening in inspection mode (e.g. for a preview).

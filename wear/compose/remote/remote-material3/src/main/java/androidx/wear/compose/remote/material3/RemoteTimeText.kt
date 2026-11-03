@@ -41,12 +41,19 @@ import androidx.wear.compose.remote.material3.internal.setLuminance
 
 /**
  * A remote composable for displaying the time and surrounding text, designed to curve along the top
- * of a circular screen. This is a remote version of the `TimeText` composable.
+ * of a circular screen.
  *
- * `RemoteTimeText` is typically used at the top of the screen and is the remote equivalent of
- * `androidx.wear.compose.material3.TimeText`.
+ * [RemoteTimeText] is typically used at the top of the screen and is the remote equivalent of
+ * [androidx.wear.compose.material3.TimeText].
  *
- * @param modifier The [RemoteModifier] to be applied to the `RemoteTimeText`.
+ * Example of displaying the current time at the top of a circular screen:
+ *
+ * @sample androidx.wear.compose.remote.material3.samples.RemoteTimeTextSample
+ *
+ * Example of displaying [RemoteTimeText] with leading status text:
+ *
+ * @sample androidx.wear.compose.remote.material3.samples.RemoteTimeTextWithLeadingTextSample
+ * @param modifier The [RemoteModifier] to be applied to the [RemoteTimeText].
  * @param time The text to display as the time. Defaults to a formatted time string from the remote
  *   context.
  * @param fontSize The size of glyphs to use when painting the text.

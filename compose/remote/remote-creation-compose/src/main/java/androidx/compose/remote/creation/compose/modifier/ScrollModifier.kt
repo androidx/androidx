@@ -90,6 +90,9 @@ constructor(
 /**
  * Creates and remembers a [RemoteScrollState].
  *
+ * Example of remembering scroll state for a vertically scrollable column:
+ *
+ * @sample androidx.compose.remote.creation.compose.samples.VerticalScrollSample
  * @param notches The number of equally spaced snap points (notches) along the scroll range. If
  *   greater than 0, the scroll position will snap to the nearest notch when the scroll gesture
  *   ends. If 0, scrolling is continuous.
@@ -113,10 +116,13 @@ internal data class ScrollModifier(val direction: Int, val state: RemoteScrollSt
 /**
  * Modify element to allow it to scroll vertically when its content is larger than its constraints.
  *
+ * Example of enabling vertical scrolling on a
+ * [androidx.compose.remote.creation.compose.layout.RemoteColumn]:
+ *
+ * @sample androidx.compose.remote.creation.compose.samples.VerticalScrollSample
  * @param state The [RemoteScrollState] that tracks and controls the scroll position. It can be
  *   created and remembered using [rememberRemoteScrollState].
  * @return The modified [RemoteModifier].
- * @sample androidx.compose.remote.creation.compose.samples.VerticalScrollSample
  * @see rememberRemoteScrollState
  */
 public fun RemoteModifier.verticalScroll(state: RemoteScrollState): RemoteModifier {
@@ -127,10 +133,13 @@ public fun RemoteModifier.verticalScroll(state: RemoteScrollState): RemoteModifi
  * Modify element to allow it to scroll horizontally when its content is larger than its
  * constraints.
  *
+ * Example of enabling horizontal scrolling on a
+ * [androidx.compose.remote.creation.compose.layout.RemoteRow]:
+ *
+ * @sample androidx.compose.remote.creation.compose.samples.HorizontalScrollSample
  * @param state The [RemoteScrollState] that tracks and controls the scroll position. It can be
  *   created and remembered using [rememberRemoteScrollState].
  * @return The modified [RemoteModifier].
- * @sample androidx.compose.remote.creation.compose.samples.HorizontalScrollSample
  * @see rememberRemoteScrollState
  */
 public fun RemoteModifier.horizontalScroll(state: RemoteScrollState): RemoteModifier {

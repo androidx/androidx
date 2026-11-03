@@ -39,6 +39,9 @@ import androidx.compose.runtime.staticCompositionLocalOf
  * at the top of your application, and then separate [RemoteMaterialTheme]s for different screens /
  * parts of your UI, overriding only the parts of the theme definition that need to change.
  *
+ * Example of customizing [RemoteColorScheme] colors within a [RemoteMaterialTheme]:
+ *
+ * @sample androidx.wear.compose.remote.material3.samples.RemoteMaterialThemeSample
  * @param colorScheme A complete definition of the Material Color theme for this hierarchy
  * @param shapes A set of shapes to be used as this hierarchy's shape system
  * @param typography A set of text styles to be used as this hierarchy's typography system

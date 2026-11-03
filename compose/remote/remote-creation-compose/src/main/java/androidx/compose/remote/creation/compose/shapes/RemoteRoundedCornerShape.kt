@@ -97,6 +97,9 @@ public fun RemoteRoundedCornerShape(corner: RemoteCornerSize): RemoteRoundedCorn
 /**
  * Creates [RemoteRoundedCornerShape] with the same size applied for all four corners.
  *
+ * Example of clipping and bordering a composable with a [RemoteRoundedCornerShape]:
+ *
+ * @sample androidx.compose.remote.creation.compose.samples.ModifierBorderSample
  * @param size Size in [RemoteDp] to apply.
  */
 public fun RemoteRoundedCornerShape(size: RemoteDp): RemoteRoundedCornerShape =

@@ -39,6 +39,8 @@ import androidx.compose.runtime.CompositionLocalProvider
  * Opinionated Wear Material 3 [RemoteCard] that offers a specific 5 slot layout to show information
  * about an application, e.g. a notification.
  *
+ * Example of a [RemoteAppCard] displaying an application name, timestamp, title, and body:
+ *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteAppCardSample
  * @param onClick Will be called when the user clicks the card.
  * @param appName A slot for displaying the application name.

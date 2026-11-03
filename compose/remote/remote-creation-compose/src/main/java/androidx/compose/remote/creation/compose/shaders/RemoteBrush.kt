@@ -84,6 +84,8 @@ public abstract class RemoteShaderBrush internal constructor() : RemoteBrush() {
      * Applies this [RemoteShaderBrush] to a [paint] with a given [size] and [matrix3x3]
      * transformation.
      *
+     * Example of applying a rotated gradient shader brush to a [RemotePaint]:
+     *
      * @sample androidx.compose.remote.creation.compose.samples.RemoteCanvasShaderMatrixSample
      * @param paint The paint to apply the shader to.
      * @param size The size of the area being drawn.

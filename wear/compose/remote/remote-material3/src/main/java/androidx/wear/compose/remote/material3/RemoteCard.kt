@@ -59,6 +59,8 @@ import androidx.compose.ui.layout.ContentScale
  * Is used as the container for more opinionated [RemoteCard] components that take specific content
  * such as icons, images, titles, subtitles and labels.
  *
+ * Example of a basic [RemoteCard]:
+ *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteCardSample
  * @param onClick Will be called when the user clicks the card
  * @param modifier Modifier to be applied to the card
@@ -108,6 +110,8 @@ public fun RemoteCard(
  * recommended to use [RemoteCardDefaults.containerPainter] to create the painter so that a scrim is
  * drawn on top of the container image, ensuring that any content above the background is legible.
  *
+ * Example of a [RemoteCard] with a background image painter:
+ *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteCardWithImageSample
  * @param onClick Will be called when the user clicks the card
  * @param containerPainter The [RemotePainter] to use to draw the container image of the
@@ -152,6 +156,8 @@ public fun RemoteCard(
 
 /**
  * Outlined Wear Material 3 [RemoteCard] that offers a single slot to take any content.
+ *
+ * Example of a [RemoteOutlinedCard]:
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteOutlinedCardSample
  * @param onClick Will be called when the user clicks the card

@@ -39,6 +39,8 @@ import androidx.compose.runtime.CompositionLocalProvider
  * Opinionated Wear Material 3 [RemoteCard] that offers a specific layout to show interactive
  * information about an application, e.g. a message.
  *
+ * Example of a [RemoteTitleCard] with a title, timestamp, and body content:
+ *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteTitleCardSample
  * @param onClick Will be called when the user clicks the card
  * @param title A slot for displaying the title of the card
@@ -140,6 +142,8 @@ public fun RemoteTitleCard(
  * image background to be drawn (the [RemoteCardColors] containerColor property is ignored). It is
  * recommended to use [RemoteCardDefaults.containerPainter] to create the painter so that a scrim is
  * drawn on top of the container image, ensuring that any content above the background is legible.
+ *
+ * Example of a [RemoteTitleCard] with a background image painter:
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteTitleCardWithImageSample
  * @param onClick Will be called when the user clicks the card

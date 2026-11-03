@@ -74,7 +74,6 @@ internal constructor(
     /**
      * Draws a rectangle with the given [paint], [topLeft] offset, and [size].
      *
-     * @sample androidx.compose.remote.creation.compose.samples.RemoteCanvasRectSample
      * @param paint The [RemotePaint] to use for drawing the rectangle.
      * @param topLeft The top left offset of the rectangle.
      * @param size The size of the rectangle.

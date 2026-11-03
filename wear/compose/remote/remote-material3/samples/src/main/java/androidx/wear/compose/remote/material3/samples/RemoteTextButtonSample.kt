@@ -43,20 +43,17 @@ fun RemoteTextButtonSimpleSample(modifier: RemoteModifier = RemoteModifier) {
     val text = "+".rs + tapCount.toRemoteString()
 
     RemoteTextButton(
-        valueChangeAction(tapCount, tapCount + 1),
+        onClick = valueChangeAction(tapCount, tapCount + 1),
         modifier = modifier,
-        colors = filledTonalColor(),
+        colors =
+            RemoteTextButtonDefaults.textButtonColors(
+                containerColor = RemoteMaterialTheme.colorScheme.primary,
+                contentColor = RemoteMaterialTheme.colorScheme.onPrimary,
+                disabledContainerColor =
+                    RemoteMaterialTheme.colorScheme.primary.copy(alpha = 0.12f.rf),
+                disabledContentColor = RemoteMaterialTheme.colorScheme.primary.copy(0.38f.rf),
+            ),
     ) {
         RemoteText(text = text)
     }
 }
-
-@Composable
-private fun filledTonalColor() =
-    RemoteTextButtonDefaults.textButtonColors()
-        .copy(
-            containerColor = RemoteMaterialTheme.colorScheme.primary,
-            contentColor = RemoteMaterialTheme.colorScheme.onPrimary,
-            disabledContainerColor = RemoteMaterialTheme.colorScheme.primary.copy(alpha = 0.12f.rf),
-            disabledContentColor = RemoteMaterialTheme.colorScheme.primary.copy(0.38f.rf),
-        )

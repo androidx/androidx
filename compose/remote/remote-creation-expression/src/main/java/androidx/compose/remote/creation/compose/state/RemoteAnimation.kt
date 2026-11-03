@@ -222,6 +222,9 @@ internal class RemoteSpringSpec(
 /**
  * Creates a [RemoteAnimationSpec] with the given duration in milliseconds and easing curve.
  *
+ * Example of animating alpha with a fixed-duration tween specification:
+ *
+ * @sample androidx.compose.remote.creation.compose.samples.AnimateRemoteFloatSample
  * @param durationMillis Duration of the animation in milliseconds.
  * @param easing Easing curve to apply.
  */
@@ -233,6 +236,9 @@ public fun remoteTween(
 /**
  * Creates a [RemoteAnimationSpec] for physics-based spring animations.
  *
+ * Example of animating size with a spring specification:
+ *
+ * @sample androidx.compose.remote.creation.compose.samples.AnimateRemoteDpSample
  * @param dampingRatio Damping ratio (1.0 = no bounce, < 1.0 = bouncy).
  * @param stiffness Spring stiffness.
  * @param stopThreshold Threshold for stopping velocity/displacement.
@@ -254,6 +260,9 @@ public fun remoteSpring(
 /**
  * Returns a [RemoteFloat] that animates towards [targetValue] whenever it changes.
  *
+ * Example of animating a [RemoteFloat] alpha value when state changes:
+ *
+ * @sample androidx.compose.remote.creation.compose.samples.AnimateRemoteFloatSample
  * @param targetValue The target value to animate towards.
  * @param animationSpec The specification for the animation (e.g. [remoteTween] or [remoteSpring]).
  * @param initialValue Optional initial value if animating from a start value.
@@ -270,6 +279,9 @@ public fun animateRemoteFloatAsState(
 /**
  * Returns a [RemoteDp] that animates towards [targetValue] whenever it changes.
  *
+ * Example of animating a [RemoteDp] dimension when state changes:
+ *
+ * @sample androidx.compose.remote.creation.compose.samples.AnimateRemoteDpSample
  * @param targetValue The target value to animate towards.
  * @param animationSpec The specification for the animation (e.g. [remoteTween] or [remoteSpring]).
  * @param initialValue Optional initial value if animating from a start value.

@@ -62,6 +62,9 @@ import androidx.compose.ui.platform.LocalInspectionMode
  * Don't also put these keys in the [android.content.Intent]: filled in extras never replace extras
  * the [android.content.Intent] already has (see [android.content.Intent.fillIn]).
  *
+ * Example of remembering an action that triggers a [PendingIntent] when clicked:
+ *
+ * @sample androidx.compose.remote.creation.compose.samples.PendingIntentActionSample
  * @param extras The [String] extras to fill in, as key to value pairs.
  * @param pendingIntent A lambda that returns the [PendingIntent] to trigger. The [Context] is
  *   provided to the lambda to ensure it's available during serialization.

@@ -53,8 +53,16 @@ import androidx.compose.runtime.Composable
  * being *created*, not the remote environment where it will be displayed. This means these values
  * are fixed at creation time based on the local density.
  *
+ * Basic text display with custom color and font size:
+ *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteTextSample
+ *
+ * Styling text with bold weight and italic font style:
+ *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteTextStylingSample
+ *
+ * Using standard font families and variable font settings:
+ *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteTextFontFamilySample
  * @param text The text to be displayed.
  * @param modifier The [RemoteModifier] to be applied to this text.

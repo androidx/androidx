@@ -16,7 +16,7 @@
 
 package androidx.wear.compose.remote.material3.previews
 
-import androidx.compose.remote.creation.compose.action.RemoteAction
+import androidx.compose.remote.creation.compose.action.combinedAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -79,7 +79,7 @@ public fun RemoteSwitchButtonWithSecondaryLabelPreview(
 public fun RemoteSwitchButtonChecked() {
     RemoteSwitchButton(
         checked = true.rb,
-        onCheckedChange = RemoteAction.Empty,
+        onCheckedChange = combinedAction(),
         label = { RemoteText("Checked".rs) },
     )
 }
@@ -89,7 +89,7 @@ public fun RemoteSwitchButtonChecked() {
 public fun RemoteSwitchButtonUnchecked() {
     RemoteSwitchButton(
         checked = false.rb,
-        onCheckedChange = RemoteAction.Empty,
+        onCheckedChange = combinedAction(),
         label = { RemoteText("Unchecked".rs) },
     )
 }
@@ -99,7 +99,7 @@ public fun RemoteSwitchButtonUnchecked() {
 public fun RemoteSwitchButtonDisabledChecked() {
     RemoteSwitchButton(
         checked = true.rb,
-        onCheckedChange = RemoteAction.Empty,
+        onCheckedChange = combinedAction(),
         enabled = false.rb,
         label = { RemoteText("Disabled Checked".rs) },
     )
@@ -110,7 +110,7 @@ public fun RemoteSwitchButtonDisabledChecked() {
 public fun RemoteSwitchButtonDisabledUnchecked() {
     RemoteSwitchButton(
         checked = false.rb,
-        onCheckedChange = RemoteAction.Empty,
+        onCheckedChange = combinedAction(),
         enabled = false.rb,
         label = { RemoteText("Disabled Unchecked".rs) },
     )
@@ -121,7 +121,7 @@ public fun RemoteSwitchButtonDisabledUnchecked() {
 public fun RemoteSwitchButtonWithIcon() {
     RemoteSwitchButton(
         checked = true.rb,
-        onCheckedChange = RemoteAction.Empty,
+        onCheckedChange = combinedAction(),
         icon = { RemoteIcon(TestImageVectors.VolumeUp, contentDescription = null) },
         label = { RemoteText("With Icon".rs) },
     )
@@ -132,7 +132,7 @@ public fun RemoteSwitchButtonWithIcon() {
 public fun RemoteSwitchButtonWithSecondaryLabel() {
     RemoteSwitchButton(
         checked = true.rb,
-        onCheckedChange = RemoteAction.Empty,
+        onCheckedChange = combinedAction(),
         label = { RemoteText("Main Label".rs) },
         secondaryLabel = { RemoteText("Secondary".rs) },
     )

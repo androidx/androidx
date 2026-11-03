@@ -75,6 +75,9 @@ internal class BorderModifier(
 /**
  * Draws a border around the element.
  *
+ * Example of drawing a rounded border around a composable:
+ *
+ * @sample androidx.compose.remote.creation.compose.samples.ModifierBorderSample
  * @param width The width of the border.
  * @param color The color of the border.
  * @param shape The shape of the border. When [RemoteRoundedCornerShape] is used, only the

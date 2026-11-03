@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX")
-
 package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
-import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.PreviewWrapper
@@ -39,7 +36,7 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 fun RemoteIconButtonSimpleSample(modifier: RemoteModifier = RemoteModifier) {
     RemoteIconButton(
-        testAction,
+        onClick = hostAction("volume_up".rs),
         modifier = modifier,
         colors = RemoteIconButtonDefaults.filledTonalIconButtonColors(),
     ) {
@@ -50,5 +47,3 @@ fun RemoteIconButtonSimpleSample(modifier: RemoteModifier = RemoteModifier) {
         )
     }
 }
-
-private val testAction = hostAction("testAction".rs, 1.rf)

@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX")
-
 package androidx.wear.compose.remote.material3.previews
 
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
-import androidx.compose.remote.creation.compose.state.RemoteLong.Companion.createNamedRemoteLong
-import androidx.compose.remote.creation.compose.state.deltaFromReferenceInSeconds
+import androidx.compose.remote.creation.compose.state.RemoteTimeVariables
 import androidx.compose.remote.creation.compose.state.floor
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.wear.compose.remote.material3.RemoteHorizontalPageIndicator
 import androidx.wear.compose.remote.material3.RemoteVerticalPageIndicator
@@ -62,10 +58,7 @@ fun RemoteHorizontalPageIndicatorAnimatedPreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
 ) =
     RemoteContentPreview(profile = profile) {
-        RemotePageIndicatorAnimatedPreviewHelper(
-            isHorizontal = true,
-            rememberKey = "preview_start_time_horiz_indicator",
-        )
+        RemotePageIndicatorAnimatedPreviewHelper(isHorizontal = true)
     }
 
 @WearPreviewDevices
@@ -74,18 +67,12 @@ fun RemoteVerticalPageIndicatorAnimatedPreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
 ) =
     RemoteContentPreview(profile = profile) {
-        RemotePageIndicatorAnimatedPreviewHelper(
-            isHorizontal = false,
-            rememberKey = "preview_start_time_vert_indicator",
-        )
+        RemotePageIndicatorAnimatedPreviewHelper(isHorizontal = false)
     }
 
 @Composable
-private fun RemotePageIndicatorAnimatedPreviewHelper(isHorizontal: Boolean, rememberKey: String) {
-    val startTime = remember {
-        createNamedRemoteLong(rememberKey, System.currentTimeMillis())
-    }
-    val animTime = -deltaFromReferenceInSeconds(startTime) * 2f.rf
+private fun RemotePageIndicatorAnimatedPreviewHelper(isHorizontal: Boolean) {
+    val animTime = RemoteTimeVariables.continuousSeconds * 2f.rf
 
     // Continuous scroll simulator (page + offset fraction) cycle over 8 scaled seconds
     val cycleDuration = 8f.rf

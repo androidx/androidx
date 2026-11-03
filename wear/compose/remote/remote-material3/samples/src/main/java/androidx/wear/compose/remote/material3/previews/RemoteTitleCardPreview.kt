@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX")
-
 package androidx.wear.compose.remote.material3.previews
 
-import androidx.compose.remote.creation.compose.action.RemoteAction
+import androidx.compose.remote.creation.compose.action.combinedAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -75,7 +73,7 @@ fun RemoteTitleCardWithImagePreview(
 @RemoteComposable
 fun RemoteTitleCardDefault() {
     RemoteTitleCard(
-        onClick = RemoteAction.Empty,
+        onClick = combinedAction(),
         title = { RemoteText("Card Title".rs) },
         time = { RemoteText("now".rs) },
         subtitle = { RemoteText("Card Subtitle".rs) },
@@ -88,7 +86,7 @@ fun RemoteTitleCardDefault() {
 @RemoteComposable
 fun RemoteTitleCardWithTitleSubtitle() {
     RemoteTitleCard(
-        onClick = RemoteAction.Empty,
+        onClick = combinedAction(),
         title = { RemoteText("Card Title".rs) },
         subtitle = { RemoteText("Card Subtitle".rs) },
     )
@@ -98,7 +96,7 @@ fun RemoteTitleCardWithTitleSubtitle() {
 @RemoteComposable
 fun RemoteTitleCardWithTitleTime() {
     RemoteTitleCard(
-        onClick = RemoteAction.Empty,
+        onClick = combinedAction(),
         title = { RemoteText("Card Title".rs) },
         time = { RemoteText("now".rs) },
     )
@@ -108,7 +106,7 @@ fun RemoteTitleCardWithTitleTime() {
 @RemoteComposable
 fun RemoteTitleCardWithTwoLineTitle() {
     RemoteTitleCard(
-        onClick = RemoteAction.Empty,
+        onClick = combinedAction(),
         title = { RemoteText("First Line Title\nSecond Line Title".rs) },
         time = { RemoteText("now".rs) },
         subtitle = { RemoteText("Card Subtitle".rs) },
@@ -127,7 +125,7 @@ fun RemoteTitleCardWithImage() {
     }
     val containerPainter = RemoteCardDefaults.containerPainter(backgroundImage)
     RemoteTitleCard(
-        onClick = RemoteAction.Empty,
+        onClick = combinedAction(),
         containerPainter = containerPainter,
         title = { RemoteText("Card Title".rs) },
         time = { RemoteText("now".rs) },
@@ -141,7 +139,7 @@ fun RemoteTitleCardWithImage() {
 @RemoteComposable
 fun RemoteTitleCardWithBorder() {
     RemoteTitleCard(
-        onClick = RemoteAction.Empty,
+        onClick = combinedAction(),
         title = { RemoteText("Card Title".rs) },
         time = { RemoteText("now".rs) },
         subtitle = { RemoteText("Card Subtitle".rs) },

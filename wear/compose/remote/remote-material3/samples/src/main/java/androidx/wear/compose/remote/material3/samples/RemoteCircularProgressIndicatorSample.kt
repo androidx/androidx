@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX")
-
 package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled
@@ -63,7 +61,7 @@ public fun RemoteCircularProgressIndicatorAnimatedSample(
     modifier: RemoteModifier = RemoteModifier.size(150.rdp)
 ) {
     val progress = remember { MutableRemoteFloat(0.25f) }
-    val toggleAction = valueChangeAction(progress, ((progress + 0.25f) % 1f).createReference())
+    val toggleAction = valueChangeAction(progress, (progress + 0.25f.rf) % 1f.rf)
 
     // The indicator animates the progress changes.
     RemoteCircularProgressIndicator(progress = progress, modifier.clickable(toggleAction))
