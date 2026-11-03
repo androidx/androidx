@@ -24,15 +24,19 @@ import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.height
+import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.previews.utils.RemoteComponentPreviewWrapper
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewWrapper
 
 @Sampled
+@Preview
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
 fun RemoteColumnSample() {
@@ -44,11 +48,14 @@ fun RemoteColumnSample() {
 }
 
 @Sampled
+@Preview
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
 fun RemoteColumnWeightSample() {
     RemoteColumn(modifier = RemoteModifier.height(200.rdp)) {
-        RemoteBox(modifier = RemoteModifier.weight(0.3f).background(Color.Red.rc))
-        RemoteBox(modifier = RemoteModifier.weight(0.7f).background(Color.Blue.rc))
+        RemoteBox(modifier = RemoteModifier.weight(0.3f.rf).width(100.rdp).background(Color.Red.rc))
+        RemoteBox(
+            modifier = RemoteModifier.weight(0.7f.rf).width(100.rdp).background(Color.Blue.rc)
+        )
     }
 }

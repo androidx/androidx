@@ -49,6 +49,8 @@ internal class RemoteFitBoxNode : RemoteLayoutNode() {
  * - Matches container dimensions to the measured size of the selected child.
  * - Hides completely (`GONE`) if no child fits within the constraints.
  *
+ * Interactive example switching container constraints so [RemoteFitBox] selects the fitting child:
+ *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteFitBoxSample
  * @param modifier modifier applied to this layout
  * @param horizontalAlignment horizontal alignment for children

@@ -19,22 +19,36 @@ package androidx.compose.remote.creation.compose.samples
 import androidx.annotation.Sampled
 import androidx.compose.remote.creation.compose.layout.RemoteImage
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.previews.utils.RemoteComponentPreviewWrapper
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewWrapper
 
 @Sampled
+@Preview
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
 fun RemoteImageSample() {
     val remoteBitmap = remember {
-        RemoteImageBitmap(url = "https://example.com/placeholder.png")
+        val imageBitmap = ImageBitmap(120, 60)
+        Canvas(imageBitmap).apply {
+            drawRect(0f, 0f, 120f, 60f, Paint().apply { color = Color(0xFF1E88E5) })
+            drawCircle(Offset(60f, 30f), 20f, Paint().apply { color = Color(0xFFFFCA28) })
+        }
+        RemoteImageBitmap(imageBitmap)
     }
     RemoteImage(
         bitmap = remoteBitmap,
@@ -45,16 +59,22 @@ fun RemoteImageSample() {
 }
 
 @Sampled
+@Preview
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
 fun RemoteImageFitSample() {
     val remoteBitmap = remember {
-        RemoteImageBitmap(url = "https://example.com/placeholder.png")
+        val imageBitmap = ImageBitmap(120, 60)
+        Canvas(imageBitmap).apply {
+            drawRect(0f, 0f, 120f, 60f, Paint().apply { color = Color(0xFF1E88E5) })
+            drawCircle(Offset(60f, 30f), 20f, Paint().apply { color = Color(0xFFFFCA28) })
+        }
+        RemoteImageBitmap(imageBitmap)
     }
     RemoteImage(
         bitmap = remoteBitmap,
         contentDescription = "Fit Sample".rs,
-        modifier = RemoteModifier.size(100.rdp),
+        modifier = RemoteModifier.size(100.rdp).background(Color.LightGray.rc),
         contentScale = ContentScale.Fit,
     )
 }

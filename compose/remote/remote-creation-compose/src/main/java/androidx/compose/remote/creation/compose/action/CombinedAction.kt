@@ -23,6 +23,9 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 /**
  * Creates an action that's a composite of multiple actions.
  *
+ * Example of updating local remote state and sending a host action from a single click:
+ *
+ * @sample androidx.compose.remote.creation.compose.samples.CombinedActionSample
  * @param actions The actions to combine.
  */
 public fun combinedAction(vararg actions: RemoteAction): RemoteAction = CombinedAction(*actions)

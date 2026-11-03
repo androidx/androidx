@@ -31,9 +31,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewWrapper
 
 @Sampled
+@Preview
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
 fun RemoteTextSample() {
@@ -41,6 +43,7 @@ fun RemoteTextSample() {
 }
 
 @Sampled
+@Preview
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
 fun RemoteTextDynamicFontSizeSample() {
@@ -50,6 +53,7 @@ fun RemoteTextDynamicFontSizeSample() {
 }
 
 @Sampled
+@Preview
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
 fun RemoteTextStylingSample() {
@@ -61,6 +65,7 @@ fun RemoteTextStylingSample() {
 }
 
 @Sampled
+@Preview
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
 fun RemoteTextFontFamilySample() {

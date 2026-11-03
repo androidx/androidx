@@ -34,6 +34,9 @@ public class RemoteRowScope {
     /**
      * Sets the horizontal weight of this element relative to its siblings in the [RemoteRow].
      *
+     * Example of distributing width proportionally across children using [weight]:
+     *
+     * @sample androidx.compose.remote.creation.compose.samples.RemoteRowWeightSample
      * @param weight The proportional width to allocate to this element.
      */
     public fun RemoteModifier.weight(weight: RemoteFloat): RemoteModifier =
@@ -74,7 +77,12 @@ internal class RemoteRowNode : RemoteLayoutNode() {
  * `RemoteRow` allows you to arrange children horizontally and control their [horizontalArrangement]
  * (spacing) and [verticalAlignment].
  *
+ * Example of arranging children horizontally with spacing:
+ *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteRowSample
+ *
+ * Example of distributing horizontal space using [RemoteRowScope.weight]:
+ *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteRowWeightSample
  * @param modifier The modifier to be applied to this row.
  * @param horizontalArrangement The horizontal arrangement of the children.

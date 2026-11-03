@@ -34,9 +34,11 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.sin
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewWrapper
 
 @Sampled
+@Preview
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
 fun RemoteCanvasSample() {
@@ -47,12 +49,11 @@ fun RemoteCanvasSample() {
 }
 
 @Sampled
+@Preview
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
 fun RemoteCanvasAnimationSample() {
-    // This sample uses RemoteTimeVariables.continuousSeconds, demonstrating how to create
-    // time-based
-    // animations on the remote canvas.
+    // Uses RemoteTimeVariables.continuousSeconds for time-based remote canvas animation.
     RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
         val paint = RemotePaint().apply { color = Color.Blue.rc }
 
@@ -68,16 +69,7 @@ fun RemoteCanvasAnimationSample() {
 }
 
 @Sampled
-@PreviewWrapper(RemoteComponentPreviewWrapper::class)
-@Composable
-fun RemoteCanvasRectSample() {
-    RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
-        val paint = RemotePaint().apply { color = Color.Blue.rc }
-        drawRect(paint = paint)
-    }
-}
-
-@Sampled
+@Preview
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
 fun RemoteCanvasShaderMatrixSample() {

@@ -57,6 +57,9 @@ public class RemoteCollapsibleColumnScope {
      * priority items remain visible longer. Items with the same priority are hidden sequentially in
      * reverse layout order (last child with same priority is hidden first).
      *
+     * Example of assigning collapsible priorities to children in a [RemoteCollapsibleColumn]:
+     *
+     * @sample androidx.compose.remote.creation.compose.samples.RemoteCollapsibleColumnSample
      * @param priority The priority of the child. Can be any float value; higher values are
      *   prioritized to remain visible longer.
      */
@@ -95,6 +98,8 @@ internal class RemoteCollapsibleColumnNode : RemoteLayoutNode() {
  * Children can be configured with [RemoteCollapsibleColumnScope.weight] and
  * [RemoteCollapsibleColumnScope.collapsiblePriority] to control how they behave when the column is
  * collapsed.
+ *
+ * Example of hiding lower-priority children when vertical space is constrained:
  *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteCollapsibleColumnSample
  * @param modifier The modifier to apply to this layout.

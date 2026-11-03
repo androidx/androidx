@@ -31,6 +31,9 @@ import androidx.compose.ui.semantics.Role
  * If you need to support double click or long click alongside the single click, consider using
  * [combinedClickable].
  *
+ * Example of toggling remote state when an element is clicked:
+ *
+ * @sample androidx.compose.remote.creation.compose.samples.ClickableValueChangeSample
  * @param onClick will be called when user clicks on the element
  * @param enabled Controls the enabled state. When `false`, [onClick], and this modifier will appear
  *   disabled for accessibility services

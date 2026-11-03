@@ -81,6 +81,9 @@ internal class ValueFloatChangeAction(
  * Creates an [RemoteAction] that updates the value of a [MutableRemoteState] to a new
  * [RemoteState].
  *
+ * Example of toggling a [MutableRemoteState] boolean value on click:
+ *
+ * @sample androidx.compose.remote.creation.compose.samples.ClickableValueChangeSample
  * @param remoteState The mutable remote state to be updated.
  * @param updatedValue The new remote state value to apply.
  * @return An [RemoteAction] representing the value change.

@@ -31,7 +31,12 @@ import androidx.compose.ui.layout.ContentScale
  * A composable that lays out and draws a given [RemoteImageBitmap]. This is the remote equivalent
  * of [androidx.compose.foundation.Image].
  *
+ * Example of displaying a cropped [RemoteImageBitmap]:
+ *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteImageSample
+ *
+ * Example of fitting a [RemoteImageBitmap] inside fixed bounds:
+ *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteImageFitSample
  * @param bitmap the [RemoteImageBitmap] to be drawn.
  * @param contentDescription the Text used by accessibility services to describe what this image

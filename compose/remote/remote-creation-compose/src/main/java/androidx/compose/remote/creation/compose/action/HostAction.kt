@@ -38,6 +38,9 @@ import androidx.compose.remote.creation.compose.state.RemoteString
  *
  * Launcher widgets (`RemoteViews`) only dispatch id actions; use [hostAction] with an `id` there.
  *
+ * Example of dispatching a named action to the host when clicked:
+ *
+ * @sample androidx.compose.remote.creation.compose.samples.HostActionSample
  * @param name The name of the action.
  */
 public fun hostAction(name: RemoteString): RemoteAction = HostAction(name, HostAction.Type.NONE)

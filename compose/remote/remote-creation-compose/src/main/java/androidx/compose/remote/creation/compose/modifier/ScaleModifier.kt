@@ -23,9 +23,11 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
  * vertical axis respectively. Negative scale factors can be used to mirror content across the
  * corresponding horizontal or vertical axis.
  *
+ * Example of scaling a composable independently along the horizontal and vertical axes:
+ *
+ * @sample androidx.compose.remote.creation.compose.samples.ScaleNonUniformSample
  * @param scaleX Multiplier to scale content along the horizontal axis
  * @param scaleY Multiplier to scale content along the vertical axis
- * @sample androidx.compose.remote.creation.compose.samples.ScaleNonUniformSample
  * @see graphicsLayer
  */
 public fun RemoteModifier.scale(scaleX: RemoteFloat, scaleY: RemoteFloat): RemoteModifier =
@@ -34,8 +36,10 @@ public fun RemoteModifier.scale(scaleX: RemoteFloat, scaleY: RemoteFloat): Remot
 /**
  * Scale the contents of both the horizontal and vertical axis uniformly by the same scale factor.
  *
- * @param scale Multiplier to scale content along the horizontal and vertical axis
+ * Example of uniformly scaling a composable along both axes:
+ *
  * @sample androidx.compose.remote.creation.compose.samples.ScaleUniformSample
+ * @param scale Multiplier to scale content along the horizontal and vertical axis
  * @see graphicsLayer
  */
 public fun RemoteModifier.scale(scale: RemoteFloat): RemoteModifier =

@@ -34,6 +34,9 @@ public class RemoteColumnScope {
     /**
      * Sets the vertical weight of this element relative to its siblings in the [RemoteColumn].
      *
+     * Example of distributing height proportionally across children using [weight]:
+     *
+     * @sample androidx.compose.remote.creation.compose.samples.RemoteColumnWeightSample
      * @param weight The proportional height to allocate to this element.
      */
     public fun RemoteModifier.weight(weight: RemoteFloat): RemoteModifier =
@@ -70,7 +73,12 @@ internal class RemoteColumnNode : RemoteLayoutNode() {
  * `RemoteColumn` allows you to arrange children vertically and control their [verticalArrangement]
  * (spacing) and [horizontalAlignment].
  *
+ * Example of arranging children vertically with spacing:
+ *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteColumnSample
+ *
+ * Example of distributing vertical space using [RemoteColumnScope.weight]:
+ *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteColumnWeightSample
  * @param modifier The modifier to be applied to this column.
  * @param verticalArrangement The vertical arrangement of the children.

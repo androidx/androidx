@@ -136,6 +136,8 @@ public val Float.rsp: RemoteTextUnit
 /**
  * Extension property to convert a [RemoteFloat] to a [RemoteTextUnit] in Sp.
  *
+ * Example of computing a dynamic font size from a [RemoteFloat] expression:
+ *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteTextDynamicFontSizeSample
  */
 public val RemoteFloat.rsp: RemoteTextUnit
