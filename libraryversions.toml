@@ -202,6 +202,7 @@ ANNOTATION_KEEP = { group = "androidx.annotation.keep", atomicGroupVersion = "ve
 APPCOMPAT = { group = "androidx.appcompat", atomicGroupVersion = "versions.APPCOMPAT" }
 APPFUNCTIONS = { group = "androidx.appfunctions", atomicGroupVersion = "versions.APPFUNCTIONS" }
 APPSEARCH = { group = "androidx.appsearch", atomicGroupVersion = "versions.APPSEARCH" }
+APPSTATE_DATAFLOW = { group = "androidx.appstate.dataflow", atomicGroupVersion = "versions.APPSTATE" }
 APPSTATE_STATESTORE = { group = "androidx.appstate.statestore", atomicGroupVersion = "versions.APPSTATE" }
 APPSTATE_TRANSFORM = { group = "androidx.appstate.transform", atomicGroupVersion = "versions.APPSTATE" }
 ARCH_CORE = { group = "androidx.arch.core", atomicGroupVersion = "versions.ARCH_CORE" }
