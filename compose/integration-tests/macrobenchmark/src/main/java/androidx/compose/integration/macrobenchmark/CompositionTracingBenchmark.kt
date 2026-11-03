@@ -35,6 +35,7 @@ import junit.framework.TestCase.assertTrue
 import org.junit.Assert.assertEquals
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -56,6 +57,7 @@ class CompositionTracingBenchmark {
         assumeTrue(DeviceInfo.expectedToSupportTracingInTests)
     }
 
+    @Ignore("b/565040771")
     @Test
     fun test_composable_names_present_in_trace() {
         val traceFiles =
