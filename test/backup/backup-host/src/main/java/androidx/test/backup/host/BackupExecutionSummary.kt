@@ -212,7 +212,7 @@ internal class BackupExecutionTracker(
             errorMessage = errorMessage,
         )
 
-    private fun durationOf(stage: BackupExecutionStage): Duration =
+    internal fun durationOf(stage: BackupExecutionStage): Duration =
         durations[stage] ?: Duration.ZERO
 
     private fun elapsedSince(startNanos: Long): Duration = Duration.ofNanos(nanoTime() - startNanos)
