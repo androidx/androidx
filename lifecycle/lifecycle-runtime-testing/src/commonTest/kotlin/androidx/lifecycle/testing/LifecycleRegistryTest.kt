@@ -55,13 +55,16 @@ class LifecycleRegistryTest {
     @Test
     fun getCurrentStateFlow() {
         val lifecycle = lifecycleOwner.lifecycle
-        assertThat(lifecycle.currentStateFlow.value).isEqualTo(Lifecycle.State.INITIALIZED)
+        val stateFlow = lifecycle.currentStateFlow
+        assertThat(stateFlow.value).isEqualTo(Lifecycle.State.INITIALIZED)
 
         lifecycleOwner.currentState = Lifecycle.State.CREATED
         assertThat(lifecycle.currentStateFlow.value).isEqualTo(Lifecycle.State.CREATED)
 
         lifecycleOwner.currentState = Lifecycle.State.DESTROYED
         assertThat(lifecycle.currentStateFlow.value).isEqualTo(Lifecycle.State.DESTROYED)
+
+        assertThat(lifecycle.currentStateFlow).isSameInstanceAs(stateFlow)
     }
 
     @Test

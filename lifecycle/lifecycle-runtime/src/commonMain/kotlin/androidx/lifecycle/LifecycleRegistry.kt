@@ -144,8 +144,8 @@ private constructor(provider: LifecycleOwner, private val enforceMainThread: Boo
         }
 
     private val _currentStateFlow = MutableStateFlow(internalState)
-    override val currentStateFlow: StateFlow<State>
-        get() = _currentStateFlow.asStateFlow()
+    override val currentStateFlow: StateFlow<State> by
+        lazy(LazyThreadSafetyMode.NONE) { _currentStateFlow.asStateFlow() }
 
     /**
      * Sets the current [State] and notifies the [LifecycleObserver]s.
