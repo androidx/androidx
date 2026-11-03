@@ -90,7 +90,10 @@ public abstract class JavaScriptReplyProxy {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_SHARED_ARRAY_BUFFER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public abstract void postMessage(@NonNull SharedArrayBuffer sharedArrayBuffer);
+    public void postMessage(@NonNull SharedArrayBuffer sharedArrayBuffer) {
+        throw new UnsupportedOperationException(
+                "JavaScriptReplyProxy#postMessage is not implemented.");
+    }
 
     /**
      * Executes JavaScript in the frame and world that sent this {@link JavaScriptReplyProxy}. The
