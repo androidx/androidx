@@ -251,13 +251,13 @@ private fun DrawScope.executeOperationsInPass(
             }
             is TextMeasure -> {
                 graph?.textMeasurer = textMeasurer
-                graph?.setTextMeasurePaint(op.mId, paintState.copy())
+                graph?.setTextMeasurePaintSpec(op.mId, paintState.textMeasureSpec)
                 op.paint(evalPaintContext())
             }
             is TextAttribute -> {
                 // Text bounds depend on the paint at this point of the stream.
                 graph?.textMeasurer = textMeasurer
-                graph?.setTextMeasurePaint(op.mId, paintState.copy())
+                graph?.setTextMeasurePaintSpec(op.mId, paintState.textMeasureSpec)
                 op.paint(evalPaintContext())
             }
             is TimeAttribute,

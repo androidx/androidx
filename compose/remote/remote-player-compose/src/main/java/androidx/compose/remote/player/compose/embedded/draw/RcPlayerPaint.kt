@@ -99,6 +99,12 @@ public class ComposeLocalPaint {
      */
     public val sourceBundles: MutableList<PaintBundle> = mutableListOf()
 
+    /**
+     * Compact O(1) text-measurement paint snapshot updated alongside [sourceBundles] so
+     * `TextMeasure` and `TextAttribute` never copy or replay accumulated [PaintBundle] lists.
+     */
+    internal var textMeasureSpec: TextMeasurePaintSpec = TextMeasurePaintSpec.Empty
+
     /** The fill color with the paint's [alpha] folded into its alpha channel. */
     public fun effectiveColor(): Color = Color(color).let { it.copy(alpha = it.alpha * alpha) }
 
@@ -253,6 +259,7 @@ public class ComposeLocalPaint {
         filterQuality = FilterQuality.Low
         alpha = 1f
         sourceBundles.clear()
+        textMeasureSpec = TextMeasurePaintSpec.Empty
     }
 
     internal fun copy(): ComposeLocalPaint =
@@ -285,6 +292,7 @@ public class ComposeLocalPaint {
             copy.filterQuality = filterQuality
             copy.alpha = alpha
             copy.sourceBundles.addAll(sourceBundles)
+            copy.textMeasureSpec = textMeasureSpec
         }
 }
 

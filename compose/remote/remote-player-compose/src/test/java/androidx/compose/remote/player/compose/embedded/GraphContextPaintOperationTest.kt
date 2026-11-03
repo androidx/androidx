@@ -104,29 +104,33 @@ class GraphContextPaintOperationTest {
         val doc =
             CoreDocument(RemoteClock.SYSTEM).apply {
                 operations.add(TextData(textId, "Hello World"))
+                operations.add(TextMeasure(19, textId, TextMeasure.MEASURE_WIDTH))
                 operations.add(
                     PaintData().apply { mPaintData = PaintBundle().apply { setTextSize(48f) } }
                 )
                 operations.add(TextMeasure(20, textId, TextMeasure.MEASURE_WIDTH))
                 operations.add(TextMeasure(21, textId, TextMeasure.MEASURE_HEIGHT))
+                operations.add(NamedVariable(19, NamedVariable.FLOAT_TYPE, "USER:defaultWidth"))
                 operations.add(NamedVariable(20, NamedVariable.FLOAT_TYPE, "USER:width"))
                 operations.add(NamedVariable(21, NamedVariable.FLOAT_TYPE, "USER:height"))
             }
 
         val state = RcPlayerState(doc)
-        // Before canvas execution records a stream paint, TextMeasure falls back to the default
-        // 12px paint size and produces a finite positive width rather than NaN/0.
-        val defaultWidth = state.floatState("width").value
+        // Without a preceding PaintData, TextMeasure falls back to the default 12px paint size and
+        // produces a finite positive width rather than NaN/0.
+        val defaultWidth = state.floatState("defaultWidth").value
         assertThat(defaultWidth.isNaN()).isFalse()
         assertThat(defaultWidth).isGreaterThan(0f)
+
+        // Preceding 48px PaintData is captured during preprocessing and evaluated in GraphContext.
+        val largeWidth = state.floatState("width").value
+        assertThat(largeWidth).isGreaterThan(defaultWidth)
         assertThat(state.floatState("height").value).isGreaterThan(0f)
 
-        // Rendering the canvas stream applies the 48px PaintData to the TextMeasure op.
         rule.setContent { RcPlayer(state = state, modifier = Modifier.size(200.dp, 80.dp)) }
         rule.onRoot().captureToImage()
 
-        val largeWidth = state.floatState("width").value
-        assertThat(largeWidth).isGreaterThan(defaultWidth)
+        assertThat(state.floatState("width").value).isEqualTo(largeWidth)
     }
 
     @Test

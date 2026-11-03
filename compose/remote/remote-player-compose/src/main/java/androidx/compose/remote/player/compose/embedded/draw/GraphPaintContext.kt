@@ -16,9 +16,8 @@
 
 package androidx.compose.remote.player.compose.embedded.draw
 
-import android.content.Context
-import android.content.ContextWrapper
-import android.graphics.Typeface
+import android.graphics.Paint
+import android.graphics.Rect
 import androidx.compose.remote.core.PaintContext
 import androidx.compose.remote.core.PaintOperation
 import androidx.compose.remote.core.RcPlatformServices
@@ -26,17 +25,13 @@ import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.player.compose.embedded.doc.GraphContext
 import androidx.compose.ui.text.TextMeasurer
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.createFontFamilyResolver
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.LayoutDirection
 import java.util.HashMap
+import kotlin.math.roundToInt
 
 /**
  * A draw-nothing [PaintContext] for evaluating value-producing [PaintOperation]s (such as
  * `TextMeasure`, `ColorAttribute`, and `ImageAttribute`) in [GraphContext] and the embedded draw
- * pass, using Compose's [TextMeasurer] for cached text measurement.
+ * pass.
  */
 internal class GraphPaintContext(
     context: RemoteContext,
@@ -45,17 +40,8 @@ internal class GraphPaintContext(
 ) : PaintContext(context) {
     internal var paintState: ComposeLocalPaint = ComposeLocalPaint()
     private val paintStack = ArrayDeque<ComposeLocalPaint>()
-    private var fallbackTextMeasurer: TextMeasurer? = null
-
-    @Suppress("DEPRECATION")
-    private fun obtainFallbackTextMeasurer(): TextMeasurer =
-        fallbackTextMeasurer
-            ?: TextMeasurer(
-                    defaultFontFamilyResolver = obtainFallbackFontFamilyResolver(),
-                    defaultDensity = Density(1f),
-                    defaultLayoutDirection = LayoutDirection.Ltr,
-                )
-                .also { fallbackTextMeasurer = it }
+    private val tmpRect = Rect()
+    private var cachedFontMetrics: Paint.FontMetrics? = null
 
     override fun drawBitmap(
         imageId: Int,
@@ -146,39 +132,28 @@ internal class GraphPaintContext(
             } else {
                 end.coerceIn(safeStart, str.length)
             }
-        val substring = str.substring(safeStart, safeEnd)
-        val density = Density(readContext.density.takeIf { it > 0f } ?: 1f)
-        val measurer = textMeasurer ?: obtainFallbackTextMeasurer()
-        val result =
-            measurer.measure(
-                text = substring,
-                style = paintState.toTextStyle(density, readContext),
-                softWrap = false,
-                maxLines = 1,
-                density = density,
-            )
-        val left = if (result.lineCount > 0) result.getLineLeft(0) else 0f
-        val lineWidth =
-            if (result.lineCount > 0) {
-                result.getLineRight(0) - left
+        val paint = paintState.toNativeTextPaint(readContext)
+        val fontMetrics = cachedFontMetrics ?: paint.fontMetrics.also { cachedFontMetrics = it }
+        paint.getFontMetrics(fontMetrics)
+        paint.getTextBounds(str, safeStart, safeEnd, tmpRect)
+        if ((flags and TEXT_MEASURE_SPACES) != 0) {
+            bounds[0] = 0f
+            bounds[2] = paint.measureText(str, safeStart, safeEnd)
+        } else {
+            bounds[0] = tmpRect.left.toFloat()
+            if ((flags and TEXT_MEASURE_MONOSPACE_WIDTH) != 0) {
+                bounds[2] = paint.measureText(str, safeStart, safeEnd) - tmpRect.left
             } else {
-                result.size.width.toFloat()
+                bounds[2] = tmpRect.right.toFloat()
             }
-        val width =
-            if ((flags and TEXT_MEASURE_SPACES) != 0) {
-                result.size.width.toFloat().coerceAtLeast(lineWidth)
-            } else {
-                lineWidth
-            }
-        val baseline = result.firstBaseline
-        val top = (if (result.lineCount > 0) result.getLineTop(0) else 0f) - baseline
-        val bottom =
-            (if (result.lineCount > 0) result.getLineBottom(0) else result.size.height.toFloat()) -
-                baseline
-        bounds[0] = if ((flags and TEXT_MEASURE_SPACES) != 0) 0f else left
-        bounds[1] = top
-        bounds[2] = bounds[0] + width
-        bounds[3] = bottom
+        }
+        if ((flags and TEXT_MEASURE_FONT_HEIGHT) != 0) {
+            bounds[1] = fontMetrics.ascent.roundToInt().toFloat()
+            bounds[3] = fontMetrics.descent.roundToInt().toFloat()
+        } else {
+            bounds[1] = tmpRect.top.toFloat()
+            bounds[3] = tmpRect.bottom.toFloat()
+        }
     }
 
     override fun layoutComplexText(
@@ -280,22 +255,3 @@ internal class GraphPaintContext(
 
     override fun drawToBitmap(bitmapId: Int, mode: Int, color: Int) {}
 }
-
-private var fallbackFontFamilyResolver: FontFamily.Resolver? = null
-
-@Suppress("DEPRECATION")
-private fun obtainFallbackFontFamilyResolver(): FontFamily.Resolver =
-    fallbackFontFamilyResolver
-        ?: run {
-            val stubContext =
-                object : ContextWrapper(null) {
-                    override fun getApplicationContext(): Context = this
-                }
-            val resourceLoader =
-                object : Font.ResourceLoader {
-                    @Deprecated("Replaced by FontFamily.Resolver")
-                    override fun load(font: Font): Any = Typeface.DEFAULT
-                }
-            createFontFamilyResolver(resourceLoader, stubContext)
-        }
-            .also { fallbackFontFamilyResolver = it }
