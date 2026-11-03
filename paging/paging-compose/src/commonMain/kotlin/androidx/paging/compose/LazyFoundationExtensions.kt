@@ -40,16 +40,7 @@ import kotlin.jvm.JvmSuppressWildcards
  */
 public fun <T : Any> ItemSnapshotList<T>.itemKey(
     key: ((item: @JvmSuppressWildcards T) -> Any)? = null
-): (index: Int) -> Any {
-    return { index ->
-        if (key == null) {
-            getPagingPlaceholderKey(index)
-        } else {
-            val item = get(index)
-            if (item == null) getPagingPlaceholderKey(index) else key(item)
-        }
-    }
-}
+): (index: Int) -> Any = itemKey(key) { index -> get(index) }
 
 /**
  * Returns a factory of stable and unique keys representing the item.
@@ -71,14 +62,17 @@ public fun <T : Any> ItemSnapshotList<T>.itemKey(
  */
 public fun <T : Any> LazyPagingItems<T>.itemKey(
     key: ((item: @JvmSuppressWildcards T) -> Any)? = null
-): (index: Int) -> Any {
-    return { index ->
-        if (key == null) {
-            getPagingPlaceholderKey(index)
-        } else {
-            val item = peek(index)
-            if (item == null) getPagingPlaceholderKey(index) else key(item)
-        }
+): (index: Int) -> Any = itemKey(key) { index -> peek(index) }
+
+private inline fun <T : Any> itemKey(
+    noinline key: ((item: @JvmSuppressWildcards T) -> Any)?,
+    crossinline getItem: (index: Int) -> T?,
+): (index: Int) -> Any = { index ->
+    if (key == null) {
+        getPagingPlaceholderKey(index)
+    } else {
+        val item = getItem(index)
+        if (item == null) getPagingPlaceholderKey(index) else key(item)
     }
 }
 
@@ -101,16 +95,7 @@ public fun <T : Any> LazyPagingItems<T>.itemKey(
  */
 public fun <T : Any> ItemSnapshotList<T>.itemContentType(
     contentType: ((item: @JvmSuppressWildcards T) -> Any?)? = null
-): (index: Int) -> Any? {
-    return { index ->
-        if (contentType == null) {
-            null
-        } else {
-            val item = get(index)
-            if (item == null) PagingPlaceholderContentType else contentType(item)
-        }
-    }
-}
+): (index: Int) -> Any? = itemContentType(contentType) { index -> get(index) }
 
 /**
  * Returns a factory for the content type of the item.
@@ -131,13 +116,16 @@ public fun <T : Any> ItemSnapshotList<T>.itemContentType(
  */
 public fun <T : Any> LazyPagingItems<T>.itemContentType(
     contentType: ((item: @JvmSuppressWildcards T) -> Any?)? = null
-): (index: Int) -> Any? {
-    return { index ->
-        if (contentType == null) {
-            null
-        } else {
-            val item = peek(index)
-            if (item == null) PagingPlaceholderContentType else contentType(item)
-        }
+): (index: Int) -> Any? = itemContentType(contentType) { index -> peek(index) }
+
+private inline fun <T : Any> itemContentType(
+    noinline contentType: ((item: @JvmSuppressWildcards T) -> Any?)?,
+    crossinline getItem: (index: Int) -> T?,
+): (index: Int) -> Any? = { index ->
+    if (contentType == null) {
+        null
+    } else {
+        val item = getItem(index)
+        if (item == null) PagingPlaceholderContentType else contentType(item)
     }
 }
