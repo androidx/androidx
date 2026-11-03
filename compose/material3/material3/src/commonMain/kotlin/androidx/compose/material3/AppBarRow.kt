@@ -46,6 +46,8 @@ import androidx.compose.ui.util.fastForEach
  *   effective maximum. Note: If the number of items supplied is bigger than max, at most max - 1
  *   items will render, since the last one will be dedicated to the overflow composable.
  * @param content The content to be arranged in the row, defined using a dsl with [AppBarRowScope].
+ *
+ * @material3expressive
  */
 @Composable
 @Suppress("ComposableLambdaParameterPosition", "KotlinDefaultParameterOrder")

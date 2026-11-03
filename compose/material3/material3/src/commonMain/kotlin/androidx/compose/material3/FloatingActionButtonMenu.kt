@@ -326,6 +326,8 @@ public interface FloatingActionButtonMenuScope {
  * @param contentColor the preferred color for content inside this FAB Menu Item. Defaults to either
  *   the matching content color for [containerColor], or to the current [LocalContentColor] if
  *   [containerColor] is not a color from the theme.
+ *
+ * @material3expressive
  */
 @Composable
 public fun FloatingActionButtonMenuScope.FloatingActionButtonMenuItem(
