@@ -17,6 +17,8 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.layout.RemoteComponent
+import androidx.compose.remote.creation.compose.layout.RemoteComponentToken
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -241,5 +243,39 @@ class RemoteExpressionJvmTest {
             if (key is RemoteNamedCacheKey) fromArgs + key.name else fromArgs
         }
         assertThat(names).containsExactly("a", "b", "c")
+    }
+
+    @Test
+    fun testRemoteComponent_tokenPropertiesAndEquality() {
+        val token = RemoteComponentToken()
+        val component = RemoteComponent(token)
+
+        assertThat(token.isRequested(RemoteComponentToken.PROP_WIDTH)).isFalse()
+        assertThat(component.width.hasConstantValue).isFalse()
+        assertThat(token.isRequested(RemoteComponentToken.PROP_WIDTH)).isTrue()
+
+        assertThat(token.isRequested(RemoteComponentToken.PROP_HEIGHT)).isFalse()
+        assertThat(component.height.hasConstantValue).isFalse()
+        assertThat(token.isRequested(RemoteComponentToken.PROP_HEIGHT)).isTrue()
+
+        val centerToken = RemoteComponentToken()
+        val centerComponent = RemoteComponent(centerToken)
+        assertThat(centerComponent.centerX.hasConstantValue).isFalse()
+        assertThat(centerToken.isRequested(RemoteComponentToken.PROP_WIDTH)).isTrue()
+        assertThat(centerComponent.centerY.hasConstantValue).isFalse()
+        assertThat(centerToken.isRequested(RemoteComponentToken.PROP_HEIGHT)).isTrue()
+
+        assertThat(component.x.hasConstantValue).isFalse()
+        assertThat(token.isRequested(RemoteComponentToken.PROP_X)).isTrue()
+        assertThat(component.y.hasConstantValue).isFalse()
+        assertThat(token.isRequested(RemoteComponentToken.PROP_Y)).isTrue()
+        assertThat(component.rootX.hasConstantValue).isFalse()
+        assertThat(token.isRequested(RemoteComponentToken.PROP_ROOT_X)).isTrue()
+        assertThat(component.rootY.hasConstantValue).isFalse()
+        assertThat(token.isRequested(RemoteComponentToken.PROP_ROOT_Y)).isTrue()
+
+        assertThat(component).isEqualTo(RemoteComponent(token))
+        assertThat(component.hashCode()).isEqualTo(RemoteComponent(token).hashCode())
+        assertThat(component).isNotEqualTo(centerComponent)
     }
 }

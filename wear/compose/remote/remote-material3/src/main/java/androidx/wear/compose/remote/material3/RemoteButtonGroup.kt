@@ -26,6 +26,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteLayoutScopeMarker
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
 import androidx.compose.remote.creation.compose.layout.RemoteRow
+import androidx.compose.remote.creation.compose.layout.remoteComponent
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.animationSpec
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
@@ -38,6 +39,7 @@ import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteAnimationSpec
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteFloatExpression
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.asRemoteDp
 import androidx.compose.remote.creation.compose.state.max
@@ -133,7 +135,13 @@ internal fun RemoteButtonGroupImpl(
             horizontalArrangement =
                 RemoteArrangement.spacedBy(spacing, RemoteAlignment.CenterHorizontally),
         ) {
-            RemoteButtonGroupScopeImpl(spacing, expansionWidth, contentPadding, pressAnimation)
+            RemoteButtonGroupScopeImpl(
+                    rowWidth = remoteComponent().width,
+                    spacing = spacing,
+                    expansionWidth = expansionWidth,
+                    contentPadding = contentPadding,
+                    pressAnimation = pressAnimation,
+                )
                 .content()
         }
     }
@@ -214,6 +222,7 @@ private class ButtonGroupItem(
 
 /** Scope of the items of a [RemoteButtonGroup] that animate with [pressAnimation], if not null. */
 private class RemoteButtonGroupScopeImpl(
+    private val rowWidth: RemoteFloat,
     private val spacing: RemoteDp,
     private val expansionWidth: RemoteDp,
     private val contentPadding: RemotePaddingValues,
@@ -222,8 +231,8 @@ private class RemoteButtonGroupScopeImpl(
     private val items = mutableListOf<ButtonGroupItem>()
     private val itemsByModifier = mutableMapOf<RemoteModifier, ButtonGroupItem>()
     private var animatedItemCount = 0
-    private val rowWidth = MutableRemoteFloat { componentWidth() }
-    private var resolvedWidths: Array<RemoteFloat>? = null
+    private val resolvedWidths: Array<RemoteFloat> by
+        lazy(LazyThreadSafetyMode.NONE) { computeWidths() }
 
     override fun RemoteModifier.weight(weight: RemoteFloat): RemoteModifier {
         val value = requireNotNull(weight.constantValueOrNull) { "weight must be a constant" }
@@ -274,8 +283,16 @@ private class RemoteButtonGroupScopeImpl(
         return resultModifier
     }
 
-    // Without restricted APIs (`RemoteModifier.foldIn` / `RemoteModifier.Element`), we key on the
-    // `RemoteModifier` instance returned by scope modifiers.
+    // Each child's modifier is built during `content()` before later siblings are composed, while
+    // every item's width depends on the full sibling list (`items.size`, `weights`, `minWidths`,
+    // and `pressedProgress`es). Without restricted APIs (`RemoteModifier.foldIn` /
+    // `RemoteModifier.Element`), we key on the `RemoteModifier` instance returned by scope
+    // modifiers and use `RemoteFloatExpression` to forward-reference `resolvedWidths`, which
+    // lazily calls `computeWidths()` once when the row's children are written to the document.
+    // TODO: Expose a parent-data / custom layout API in remote-creation-compose so scope modifiers
+    // can attach item metadata and the parent layout can resolve child widths directly without
+    // `RemoteFloatExpression` or `itemsByModifier`.
+    @Suppress("RestrictedApiAndroidX") // RemoteFloatExpression
     private fun getOrCreateItem(modifier: RemoteModifier): Pair<ButtonGroupItem, RemoteModifier> {
         val existing = itemsByModifier[modifier]
         if (existing != null) {
@@ -283,13 +300,7 @@ private class RemoteButtonGroupScopeImpl(
         }
         val index = items.size
         val item = ButtonGroupItem()
-        // The width of an item depends on the items declared after it, so widths are resolved when
-        // the first item in the row is written, while the row is still the last component started
-        // in the document (so rowWidth's componentWidth() reads the row's width).
-        val width = MutableRemoteFloat {
-            val widths = resolvedWidths ?: computeWidths(rowWidth).also { resolvedWidths = it }
-            widths[index]
-        }
+        val width = RemoteFloatExpression { resolvedWidths[index] }
         val resultModifier =
             modifier.width(width.asRemoteDp()).let {
                 // Players animate size changes of components by default, which would smooth the
@@ -302,10 +313,12 @@ private class RemoteButtonGroupScopeImpl(
     }
 
     /** The widths of the items, in dp, in a row that is [rowWidth] pixels wide. */
-    private fun computeWidths(rowWidth: RemoteFloat): Array<RemoteFloat> {
-        // The items share the width of the row minus the content padding and the spacing. It's
-        // used by every item, so it's written once.
-        val sharedWidth = MutableRemoteFloat {
+    private fun computeWidths(): Array<RemoteFloat> {
+        if (items.isEmpty()) {
+            return emptyArray()
+        }
+        // The items share the width of the row minus the content padding and the spacing.
+        val sharedWidth =
             max(
                 ((rowWidth / RemoteDensity.Host.density).asRemoteDp() -
                     contentPadding.leftPadding -
@@ -313,7 +326,6 @@ private class RemoteButtonGroupScopeImpl(
                     spacing * (items.size - 1)) / 1.rdp,
                 0f.rf,
             )
-        }
         return buttonGroupWidths(
             minWidths = FloatArray(items.size) { items[it].minWidth },
             weights = FloatArray(items.size) { items[it].weight },
@@ -343,8 +355,7 @@ private fun buttonGroupWidths(
     expansionWidth: RemoteFloat,
     pressedProgresses: Array<RemoteFloat?>,
 ): Array<RemoteFloat> {
-    // The share is used by every item, so it's written once.
-    val share = MutableRemoteFloat { buttonGroupShare(minWidths, weights, sharedWidth) }
+    val share = buttonGroupShare(minWidths, weights, sharedWidth)
     val fitsMinWidths = sharedWidth.isGreaterThanOrEqualTo(minWidths.sum().rf)
     val widths =
         Array(weights.size) { index ->

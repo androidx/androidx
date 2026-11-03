@@ -38,7 +38,7 @@ import androidx.compose.remote.core.operations.Utils.asNan
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.StringUtils
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
-import androidx.compose.remote.creation.compose.layout.RemoteFloatContext
+import androidx.compose.remote.creation.compose.capture.RemoteDocumentScope
 import androidx.compose.remote.creation.compose.state.RemoteFloat.OperationKey
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.annotation.RememberInComposition
@@ -900,26 +900,27 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
         }
 
         /**
-         * Creates a named [RemoteFloat] expression evaluated in a [RemoteFloatContext].
+         * Creates a named [RemoteFloat] with an initial [defaultValue]. This allows referring to a
+         * float by a symbolic name in the remote document. Named remote floats can be set via
+         * AndroidRemoteContext.setNamedFloat.
          *
          * @param name A unique name to identify this state within its [domain].
-         * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
-         * @param expression A lambda that computes the [RemoteFloat] expression.
-         * @return A [RemoteFloat] representing the named float expression.
+         * @param defaultValue The initial [RemoteFloat] value or expression of the named float.
+         * @param domain The domain of the named float (defaults to [RemoteState.Domain.User]). This
+         *   helps avoid name collisions.
+         * @return A [RemoteFloat] representing the named float.
          */
         @JvmStatic
-        public fun createNamedRemoteFloatExpression(
+        public fun createNamedRemoteFloat(
             name: String,
+            defaultValue: RemoteFloat,
             domain: RemoteState.Domain = RemoteState.Domain.User,
-            expression: RemoteFloatContext.() -> RemoteFloat,
         ): RemoteFloat {
             return RemoteFloatExpression(
                 constantValueOrNull = null,
                 cacheKey = RemoteNamedCacheKey(domain, name),
             ) { creationState ->
-                val context = RemoteFloatContext(creationState)
-                val result = expression(context)
-                val initialValueId = result.getFloatIdForCreationState(creationState)
+                val initialValueId = defaultValue.getFloatIdForCreationState(creationState)
                 if (Utils.isVariable(initialValueId)) {
                     val floatId = creationState.document.floatExpression(initialValueId)
                     creationState.document.setFloatName(
@@ -1625,19 +1626,19 @@ internal constructor(
     )
 
     /**
-     * Creates a [MutableRemoteFloat] initialized with the expression evaluated in [value].
+     * Creates a [MutableRemoteFloat] initialized with [initialValue].
      *
-     * @param value A lambda evaluated within [RemoteFloatContext] that provides the initial value.
+     * @param initialValue The initial [RemoteFloat] value or expression.
      */
     @RememberInComposition
     public constructor(
-        value: RemoteFloatContext.() -> RemoteFloat
+        initialValue: RemoteFloat
     ) : this(
         cacheKey = RemoteStateInstanceKey(),
         idProvider = { creationState ->
-            val context = RemoteFloatContext(creationState)
-            val result = value(context)
-            creationState.document.floatExpression(*result.arrayForCreationState(creationState))
+            creationState.document.floatExpression(
+                *initialValue.arrayForCreationState(creationState)
+            )
         },
     )
 
@@ -1678,6 +1679,17 @@ internal constructor(
         }
 
         /**
+         * Creates a new mutable state (allocates an ID) initialized with [initialValue].
+         *
+         * @param initialValue The initial [RemoteFloat] value or expression for the state.
+         * @return A new [MutableRemoteFloat] instance.
+         */
+        @RememberInComposition
+        public operator fun invoke(initialValue: RemoteFloat): MutableRemoteFloat {
+            return MutableRemoteFloat(initialValue)
+        }
+
+        /**
          * Maps an existing mutable ID to a state instance.
          *
          * @param id The existing mutable ID.
@@ -1707,41 +1719,20 @@ public constructor(
 ) : RemoteFloat(cacheKey) {
 
     /**
-     * Creates a [RemoteFloatExpression] from a lambda evaluated within [RemoteFloatContext].
+     * Creates a [RemoteFloatExpression] from a lambda evaluated within [RemoteDocumentScope].
      *
-     * @param value A lambda evaluated within [RemoteFloatContext] that provides the [RemoteFloat].
+     * @param value A lambda evaluated within [RemoteDocumentScope] that provides the [RemoteFloat].
      */
     @RememberInComposition
     public constructor(
-        value: RemoteFloatContext.() -> RemoteFloat
+        value: RemoteDocumentScope.() -> RemoteFloat
     ) : this(
         constantValueOrNull = null,
         cacheKey = RemoteStateInstanceKey(),
         arrayProvider = { creationState ->
-            val context = RemoteFloatContext(creationState)
-            val remoteFloat = value(context)
-            remoteFloat.arrayForCreationState(creationState)
+            value(creationState).arrayForCreationState(creationState)
         },
     )
-
-    public companion object {
-        /**
-         * Creates a [RemoteFloatExpression] from a lambda returning a [FloatArray].
-         *
-         * @param value A lambda returning the raw [FloatArray] representing the expression.
-         */
-        @RememberInComposition
-        public fun fromFloatArray(value: () -> FloatArray): RemoteFloatExpression {
-            return RemoteFloatExpression(
-                constantValueOrNull = null,
-                cacheKey = RemoteStateInstanceKey(),
-                arrayProvider = { creationState ->
-                    val floatArrayId = creationState.document.addFloatArray(value())
-                    floatArrayOf(floatArrayId)
-                },
-            )
-        }
-    }
 
     init {
         if (constantValueOrNull?.isNaN() == true) {
