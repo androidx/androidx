@@ -18,22 +18,32 @@ package androidx.glance.adaptive.appwidget
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
+import android.content.ComponentName
 import android.os.Bundle
+import android.util.Log
 import android.widget.RemoteViews
 import androidx.glance.adaptive.appwidget.BaseWidgetDelegateTestRule.OtherReceiver
 import androidx.glance.adaptive.appwidget.BaseWidgetDelegateTestRule.TestReceiver
 import androidx.glance.adaptive.appwidget.BaseWidgetDelegateTestRule.TestTemplate
 import androidx.glance.adaptive.appwidget.renderer.RemoteViewsTemplateRenderer
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
+import androidx.glance.adaptive.core.GlanceAdaptiveUpdateException
 import androidx.glance.adaptive.core.renderer.TemplateRenderer
 import androidx.glance.adaptive.core.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
+import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.inOrder
@@ -42,6 +52,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLog
 
 /** Tests [BaseWidgetDelegate.pushUpdate]. */
 @Config(sdk = [Config.TARGET_SDK])
@@ -162,15 +173,194 @@ class BaseWidgetDelegatePushUpdateTest {
     }
 
     @Test
-    fun pushUpdate_whenUpdateFailsForOneTarget_stillUpdatesRemainingTargets() = runTest {
+    fun pushUpdate_whenUpdateFailsForOneTarget_updatesRemainingTargetsThenThrows() = runTest {
         rule.setupBoundWidget(
             401,
             TestReceiver::class.java.name,
+            widgetId = "home_widget",
             hostCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN,
         )
         rule.setupBoundWidget(
             402,
             TestReceiver::class.java.name,
+            widgetId = "lock_widget",
+            hostCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD,
+        )
+        rule.registerReceiverInManifest(TestReceiver::class.java.name)
+        // Fail whichever target is delivered first, then behave normally.
+        val failure = IllegalStateException("Simulated host failure")
+        doThrow(failure)
+            .doCallRealMethod()
+            .whenever(rule.appWidgetManager)
+            .updateAppWidget(any<IntArray>(), any<RemoteViews>())
+
+        val error = pushUpdateFailure()
+
+        // Both targets were attempted.
+        val attempts = rule.capturedUpdatedIds()
+        assertThat(attempts).containsExactly(listOf(401), listOf(402))
+        val failedWidgetId = if (attempts.first() == listOf(401)) "home_widget" else "lock_widget"
+        assertThat(error.failedWidgetIds).containsExactly(failedWidgetId)
+        assertThat(error.allFailedWidgetIdsKnown).isTrue()
+        assertThat(error.cause).isSameInstanceAs(failure)
+    }
+
+    @Test
+    fun pushUpdate_whenEveryTargetFails_throwsOneExceptionListingEveryWidgetId() = runTest {
+        rule.setupBoundWidget(
+            411,
+            TestReceiver::class.java.name,
+            widgetId = "home_widget",
+            hostCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN,
+        )
+        rule.setupBoundWidget(
+            412,
+            TestReceiver::class.java.name,
+            widgetId = "lock_widget",
+            hostCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD,
+        )
+        rule.registerReceiverInManifest(TestReceiver::class.java.name)
+        doThrow(IllegalStateException("Simulated host failure"))
+            .whenever(rule.appWidgetManager)
+            .updateAppWidget(any<IntArray>(), any<RemoteViews>())
+
+        val error = pushUpdateFailure()
+
+        assertThat(error.failedWidgetIds).containsExactly("home_widget", "lock_widget")
+        assertThat(error.allFailedWidgetIdsKnown).isTrue()
+        assertThat(error.suppressed).hasLength(1)
+        assertThat(error).hasMessageThat().contains("2 placement(s) of widgetName test_widget")
+    }
+
+    @Test
+    fun pushUpdate_whenComposeFailsForOneTarget_updatesRemainingTargetsThenThrows() = runTest {
+        rule.setupBoundWidget(
+            421,
+            TestReceiver::class.java.name,
+            widgetId = "home_widget",
+            hostCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN,
+        )
+        rule.setupBoundWidget(
+            422,
+            TestReceiver::class.java.name,
+            widgetId = "lock_widget",
+            hostCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD,
+        )
+        rule.registerReceiverInManifest(TestReceiver::class.java.name)
+        whenever(rule.mockRenderer.invoke(any(), eq(AppWidgetSurface.MOBILE_LOCK_SCREEN)))
+            .thenThrow(IllegalStateException("Simulated renderer failure"))
+
+        val error = pushUpdateFailure()
+
+        assertThat(rule.capturedUpdatedIds()).containsExactly(listOf(421))
+        assertThat(error.failedWidgetIds).containsExactly("lock_widget")
+        assertThat(error).hasMessageThat().contains("${AppWidgetSurface.MOBILE_LOCK_SCREEN}")
+        // The size of the failed target is named too.
+        assertThat(error).hasMessageThat().containsMatch("\\d+x\\d+dp")
+    }
+
+    @Test
+    fun pushUpdate_whenTargetedPlacementOptionsCannotBeRead_reportsItAsUnidentified() = runTest {
+        WidgetOptionsCache.clear()
+        rule.setupBoundWidget(431, TestReceiver::class.java.name, widgetId = "widget_a")
+        rule.setupBoundWidget(432, TestReceiver::class.java.name, widgetId = "widget_b")
+        rule.registerReceiverInManifest(TestReceiver::class.java.name)
+        doThrow(RuntimeException("Simulated IPC failure"))
+            .whenever(rule.appWidgetManager)
+            .getAppWidgetOptions(432)
+
+        val error = pushUpdateFailure(widgetIds = setOf("widget_a", "widget_b"))
+
+        assertThat(rule.capturedUpdatedIds()).containsExactly(listOf(431))
+        // Without its options, nothing tells whether the placement was targeted.
+        assertThat(error.failedWidgetIds).isEmpty()
+        assertThat(error.allFailedWidgetIdsKnown).isFalse()
+        assertThat(error).hasMessageThat().contains("1 whose options could not be read")
+    }
+
+    @Test
+    fun pushUpdate_whenCachedPlacementCannotBeSized_reportsItByCachedWidgetId() = runTest {
+        WidgetOptionsCache.clear()
+        rule.setupBoundWidget(441, TestReceiver::class.java.name, widgetId = "widget_a")
+        rule.setupBoundWidget(442, TestReceiver::class.java.name, widgetId = "widget_b")
+        rule.registerReceiverInManifest(TestReceiver::class.java.name)
+        WidgetOptionsCache.cacheWidgetOptionsIfMissing(
+            442,
+            Bundle().apply { putString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID, "widget_b") },
+        )
+        doThrow(RuntimeException("Simulated IPC failure"))
+            .whenever(rule.appWidgetManager)
+            .getAppWidgetOptions(442)
+
+        val error = pushUpdateFailure()
+
+        assertThat(rule.capturedUpdatedIds()).containsExactly(listOf(441))
+        assertThat(error.failedWidgetIds).containsExactly("widget_b")
+        assertThat(error.allFailedWidgetIdsKnown).isTrue()
+    }
+
+    @Test
+    fun pushUpdate_whenListingPlacementsFails_propagatesUnchanged() = runTest {
+        rule.registerReceiverInManifest(TestReceiver::class.java.name)
+        val failure = RuntimeException("Simulated Binder failure")
+        doThrow(failure).whenever(rule.appWidgetManager).getAppWidgetIds(any<ComponentName>())
+
+        val error = runCatching {
+            spiedDelegate().pushUpdate(widgetName = "test_widget", currentData = TestTemplate())
+        }
+            .exceptionOrNull()
+
+        // Coroutine stack trace recovery may copy the exception, so compare type and message.
+        assertThat(error).isInstanceOf(failure.javaClass)
+        assertThat(error).hasMessageThat().isEqualTo(failure.message)
+    }
+
+    @Test
+    fun pushUpdate_withBlankWidgetId_throwsBeforeAnyIpc() = runTest {
+        rule.registerReceiverInManifest(TestReceiver::class.java.name)
+
+        val error = runCatching {
+            spiedDelegate()
+                .pushUpdate(
+                    widgetName = "test_widget",
+                    currentData = TestTemplate(),
+                    widgetIds = setOf("widget_a", " "),
+                )
+        }
+            .exceptionOrNull()
+
+        assertThat(error).isInstanceOf(IllegalArgumentException::class.java)
+        verify(rule.appWidgetManager, never()).getAppWidgetIds(any<ComponentName>())
+    }
+
+    @Test
+    fun pushUpdate_whenCancelled_rethrowsCancellationWithoutWrapping() = runTest {
+        rule.setupBoundWidget(451, TestReceiver::class.java.name, widgetId = "widget_a")
+        rule.registerReceiverInManifest(TestReceiver::class.java.name)
+        doThrow(CancellationException("Simulated cancellation"))
+            .whenever(rule.appWidgetManager)
+            .updateAppWidget(any<IntArray>(), any<RemoteViews>())
+
+        val error = runCatching {
+            rule.delegate().pushUpdate(widgetName = "test_widget", currentData = TestTemplate())
+        }
+            .exceptionOrNull()
+
+        assertThat(error).isInstanceOf(CancellationException::class.java)
+    }
+
+    @Test
+    fun pushUpdate_whenOnePlacementOfSharedWidgetIdFails_reportsThatWidgetId() = runTest {
+        rule.setupBoundWidget(
+            461,
+            TestReceiver::class.java.name,
+            widgetId = "shared_widget",
+            hostCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN,
+        )
+        rule.setupBoundWidget(
+            462,
+            TestReceiver::class.java.name,
+            widgetId = "shared_widget",
             hostCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD,
         )
         rule.registerReceiverInManifest(TestReceiver::class.java.name)
@@ -180,9 +370,78 @@ class BaseWidgetDelegatePushUpdateTest {
             .whenever(rule.appWidgetManager)
             .updateAppWidget(any<IntArray>(), any<RemoteViews>())
 
-        rule.delegate().pushUpdate(widgetName = "test_widget", currentData = TestTemplate())
+        val error = pushUpdateFailure()
 
-        assertThat(rule.capturedUpdatedIds()).containsExactly(listOf(401), listOf(402))
+        // Both targets were attempted, and one placement of the widgetId missed the update.
+        assertThat(rule.capturedUpdatedIds()).hasSize(2)
+        assertThat(error.failedWidgetIds).containsExactly("shared_widget")
+        assertThat(error.allFailedWidgetIdsKnown).isTrue()
+    }
+
+    @Test
+    fun pushUpdate_whenCancelledAfterAFailure_throwsCancellationAndSkipsRemainingTargets() =
+        runTest {
+            rule.setupBoundWidget(
+                471,
+                TestReceiver::class.java.name,
+                widgetId = "home_widget",
+                hostCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN,
+            )
+            rule.setupBoundWidget(
+                472,
+                TestReceiver::class.java.name,
+                widgetId = "lock_widget",
+                hostCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD,
+            )
+            rule.registerReceiverInManifest(TestReceiver::class.java.name)
+            lateinit var call: Deferred<Unit>
+            // The first target fails, and the call is cancelled while it is handled.
+            doAnswer<Unit> {
+                    call.cancel()
+                    throw IllegalStateException("Simulated host failure")
+                }
+                .whenever(rule.appWidgetManager)
+                .updateAppWidget(any<IntArray>(), any<RemoteViews>())
+            call =
+                CoroutineScope(Job()).async(start = CoroutineStart.LAZY) {
+                    rule
+                        .delegate()
+                        .pushUpdate(widgetName = "test_widget", currentData = TestTemplate())
+                }
+
+            val error = runCatching { call.await() }.exceptionOrNull()
+
+            assertThat(error).isInstanceOf(CancellationException::class.java)
+            assertThat(error).isNotInstanceOf(GlanceAdaptiveUpdateException::class.java)
+            assertThat(rule.capturedUpdatedIds()).hasSize(1)
+        }
+
+    /**
+     * A delegate whose repository also uses the spied [rule.appWidgetManager], so that the calls
+     * made to resolve placements can be stubbed too.
+     */
+    private fun spiedDelegate() =
+        BaseWidgetDelegate(
+            context = rule.context,
+            repository = WidgetInstanceRepository(rule.context, rule.appWidgetManager),
+            appWidgetManager = rule.appWidgetManager,
+        )
+
+    /** Runs [BaseWidgetDelegate.pushUpdate], expecting it to report failed placements. */
+    private suspend fun pushUpdateFailure(
+        widgetIds: Set<String>? = null
+    ): GlanceAdaptiveUpdateException {
+        val error = runCatching {
+            spiedDelegate()
+                .pushUpdate(
+                    widgetName = "test_widget",
+                    currentData = TestTemplate(),
+                    widgetIds = widgetIds,
+                )
+        }
+            .exceptionOrNull()
+        assertThat(error).isInstanceOf(GlanceAdaptiveUpdateException::class.java)
+        return error as GlanceAdaptiveUpdateException
     }
 
     private enum class TestArchetype {
@@ -293,7 +552,7 @@ class BaseWidgetDelegatePushUpdateTest {
     }
 
     @Test
-    fun pushUpdate_whenUpdateAppWidgetOptionsThrows_stillUpdatesRemoteViews() = runTest {
+    fun pushUpdate_whenTelemetryWriteFails_logsWarningAndStillUpdatesRemoteViews() = runTest {
         rule.setupBoundWidget(612, TestReceiver::class.java.name)
         rule.registerReceiverInManifest(TestReceiver::class.java.name)
 
@@ -306,5 +565,29 @@ class BaseWidgetDelegatePushUpdateTest {
 
         verify(rule.mockRenderer).invoke(testData, AppWidgetSurface.MOBILE_HOME_SCREEN)
         verify(rule.appWidgetManager).updateAppWidget(eq(intArrayOf(612)), any())
+        assertThat(ShadowLog.getLogsForTag("WidgetTelemetryHandler").filter { it.type == Log.WARN })
+            .hasSize(1)
+    }
+
+    @Test
+    fun pushUpdate_afterTelemetryWriteFailed_retriesItAndCachesNoUnstoredWidgetId() = runTest {
+        rule.setupBoundWidget(613, TestReceiver::class.java.name)
+        rule.registerReceiverInManifest(TestReceiver::class.java.name)
+        doThrow(RuntimeException("Simulated IPC write failure"))
+            .doCallRealMethod()
+            .whenever(rule.appWidgetManager)
+            .updateAppWidgetOptions(eq(613), any())
+
+        rule.delegate().pushUpdate(widgetName = "test_widget", currentData = TestTemplate())
+        // The widgetId generated for the failed write was never stored, so it is not cached.
+        assertThat(WidgetOptionsCache.getCachedWidgetId(613)).isNull()
+
+        rule.delegate().pushUpdate(widgetName = "test_widget", currentData = TestTemplate())
+
+        val storedOptions = rule.appWidgetManager.getAppWidgetOptions(613)
+        assertThat(storedOptions.getBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_ENABLED))
+            .isTrue()
+        assertThat(WidgetOptionsCache.getCachedWidgetId(613))
+            .isEqualTo(storedOptions.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID))
     }
 }

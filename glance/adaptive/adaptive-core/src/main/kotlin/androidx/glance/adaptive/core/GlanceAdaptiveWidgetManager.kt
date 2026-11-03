@@ -43,6 +43,8 @@ constructor(
      * @throws IllegalArgumentException if [widgetName] does not identify exactly one widget of the
      *   app.
      * @throws IllegalStateException if a widget of the app cannot be read to resolve [widgetName].
+     * @throws GlanceAdaptiveUpdateException if some placements could not be updated, once every
+     *   placement has been attempted. It lists the widget instances to retry.
      */
     public suspend fun pushUpdate(widgetName: String, currentData: GlanceAdaptiveTemplate) {
         delegate.pushUpdate(widgetName = widgetName, currentData = currentData, widgetIds = null)
@@ -54,12 +56,15 @@ constructor(
      * @param widgetName Developer widget definition String identifier matching
      *   `GlanceAdaptiveWidgetReceiver.widgetName`.
      * @param widgetIds Target widget instance String identifiers to update. Passing an explicit
-     *   empty collection restricts updates strictly to zero instances.
+     *   empty collection restricts updates strictly to zero instances. Blank identifiers are not
+     *   allowed.
      * @param currentData The declarative template data payload implementing
      *   [GlanceAdaptiveTemplate].
-     * @throws IllegalArgumentException if [widgetName] does not identify exactly one widget of the
-     *   app.
+     * @throws IllegalArgumentException if [widgetIds] contains a blank identifier, or if
+     *   [widgetName] does not identify exactly one widget of the app.
      * @throws IllegalStateException if a widget of the app cannot be read to resolve [widgetName].
+     * @throws GlanceAdaptiveUpdateException if some placements could not be updated, once every
+     *   placement has been attempted. It lists the widget instances to retry.
      */
     public suspend fun pushUpdate(
         widgetName: String,

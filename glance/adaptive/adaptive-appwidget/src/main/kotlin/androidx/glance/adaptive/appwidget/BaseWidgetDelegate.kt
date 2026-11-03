@@ -35,6 +35,7 @@ import androidx.glance.adaptive.core.selection.GlanceSurface
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 
 /**
@@ -63,10 +64,15 @@ internal class BaseWidgetDelegate(
      *   [GlanceAdaptiveWidgetReceiver.widgetName].
      * @param currentData Declarative template data payload implementing [GlanceAdaptiveTemplate].
      * @param widgetIds Optional collection of developer target widget instance String identifiers.
-     *   If an explicit empty collection is passed, no widgets will be updated.
-     * @throws IllegalArgumentException if [widgetName] cannot be resolved, see
-     *   [GlanceAdaptiveWidgetReceiver.widgetName].
+     *   If an explicit empty collection is passed, no widgets will be updated. Placements are
+     *   updated independently: a placement whose options cannot be read, or a [RenderTarget] that
+     *   fails to compose or deliver, does not prevent the others from being updated. Once every
+     *   placement has been attempted, the failures are thrown together.
+     * @throws IllegalArgumentException if [widgetIds] contains a blank identifier, or if
+     *   [widgetName] cannot be resolved, see [GlanceAdaptiveWidgetReceiver.widgetName].
      * @throws IllegalStateException if [widgetName] cannot be resolved.
+     * @throws androidx.glance.adaptive.core.GlanceAdaptiveUpdateException if some placements could
+     *   not be updated, listing their widgetIds.
      */
     override suspend fun pushUpdate(
         widgetName: String,
@@ -74,40 +80,57 @@ internal class BaseWidgetDelegate(
         widgetIds: Set<String>?,
     ): Unit =
         withContext(Dispatchers.IO) {
-            // Resolved before any IPC, so that developer errors are never logged away and fail
-            // even when no widget is placed.
-            repository.resolveReceiverComponent(widgetName)
-            try {
-                val componentToAppWidgetIds =
-                    repository.findAppWidgetIdsForWidgetName(widgetName, widgetIds)
-                if (componentToAppWidgetIds.isEmpty()) return@withContext
-
-                val targetToInstances =
-                    composer.groupInstancesByRenderTarget(componentToAppWidgetIds)
-                telemetry.ensureTelemetryOptions(targetToInstances, currentData)
-
-                for ((target, appWidgetIds) in targetToInstances) {
-                    try {
-                        val remoteViews = composer.compose(currentData, target, widgetName)
-                        appWidgetManager.updateAppWidget(appWidgetIds.toIntArray(), remoteViews)
-                    } catch (e: CancellationException) {
-                        throw e
-                    } catch (e: Exception) {
-                        Log.e(
-                            TAG,
-                            "Error updating widgets for surface ${target.surface}, size " +
-                                "${target.dimensions} and widgetName $widgetName",
-                            e,
-                        )
+            // Validated before any IPC, so that developer errors fail even when no widget is
+            // placed.
+            if (widgetIds != null) {
+                for (widgetId in widgetIds) {
+                    require(widgetId.isNotBlank()) {
+                        "widgetIds must not contain a blank widgetId, which no widget can have"
                     }
                 }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                // TODO(b/550323432): Re-evaluate error propagation vs logging for pushUpdate
-                // failures.
-                Log.e(TAG, "Error pushing widget update for widgetName $widgetName", e)
             }
+
+            val failures = PushUpdateFailures(widgetName)
+            // Listing the placements is a single call made before any widget is touched, so its
+            // failures propagate unchanged.
+            val componentToAppWidgetIds =
+                repository.findAppWidgetIdsForWidgetName(widgetName, widgetIds) { appWidgetId, e ->
+                    // Its widgetId is unknown, so it may or may not have been targeted.
+                    failures.addUnreadableOptions(appWidgetId, widgetId = null, error = e)
+                }
+            val instances =
+                composer.groupInstancesByRenderTarget(componentToAppWidgetIds) { appWidgetId, e ->
+                    failures.addUnreadableOptions(
+                        appWidgetId,
+                        WidgetOptionsCache.getCachedWidgetId(appWidgetId),
+                        error = e,
+                    )
+                }
+            telemetry.ensureTelemetryOptions(instances.targetToInstances, currentData)
+
+            for ((target, targetAppWidgetIds) in instances.targetToInstances) {
+                // Composing and delivering never suspends, so cancellation is checked here.
+                ensureActive()
+                val appWidgetIds = targetAppWidgetIds.toIntArray()
+                try {
+                    val remoteViews = composer.compose(currentData, target, widgetName)
+                    appWidgetManager.updateAppWidget(appWidgetIds, remoteViews)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    // Every placement of the target shares the failed composition or delivery,
+                    // so retrying them one by one would fail the same way.
+                    failures.addFailedRenderedTarget(
+                        target = target,
+                        appWidgetIds = appWidgetIds,
+                        intIdsToStringIds = instances.intIdsToStringIds,
+                        error = e,
+                    )
+                }
+            }
+            // A cancelled call throws CancellationException rather than the collected failures.
+            ensureActive()
+            failures.throwIfAny()
         }
 
     /**

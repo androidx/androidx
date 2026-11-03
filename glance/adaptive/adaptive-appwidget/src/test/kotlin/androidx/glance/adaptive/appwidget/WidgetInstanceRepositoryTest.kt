@@ -32,10 +32,12 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.clearInvocations
+import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.never
 import org.mockito.kotlin.spy
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
@@ -278,6 +280,50 @@ class WidgetInstanceRepositoryTest {
         val componentName = ComponentName(context.packageName, MatchingReceiver::class.java.name)
         assertThat(resultAfterDelete[componentName]?.toList()).containsExactly(403)
         verify(spyManager, times(1)).getAppWidgetOptions(403)
+    }
+
+    @Test
+    fun findAppWidgetIdsForWidgetName_withUnreadableOptions_reportsAndSkipsPlacement() {
+        val failingManager = spy(AppWidgetManager.getInstance(context))
+        val failingRepository = WidgetInstanceRepository(context, failingManager)
+        setupBoundWidget(501, MatchingReceiver::class.java.name, widgetId = "readable")
+        setupBoundWidget(502, MatchingReceiver::class.java.name, widgetId = "unreadable")
+        registerReceiverInManifest(MatchingReceiver::class.java.name)
+        val failure = RuntimeException("Simulated IPC failure")
+        doThrow(failure).whenever(failingManager).getAppWidgetOptions(502)
+        val unreadable = mutableListOf<Pair<Int, Exception>>()
+
+        val result =
+            failingRepository.findAppWidgetIdsForWidgetName(
+                "matching_widget",
+                widgetIds = setOf("readable", "unreadable"),
+            ) { appWidgetId, error ->
+                unreadable += appWidgetId to error
+            }
+
+        assertThat(result[componentOf(MatchingReceiver::class.java.name)]?.toList())
+            .containsExactly(501)
+        assertThat(unreadable).containsExactly(502 to failure)
+    }
+
+    @Test
+    fun findAppWidgetIdsForWidgetName_withUnreadableOptionsAndNoHandler_rethrows() {
+        val failingManager = spy(AppWidgetManager.getInstance(context))
+        val failingRepository = WidgetInstanceRepository(context, failingManager)
+        setupBoundWidget(511, MatchingReceiver::class.java.name, widgetId = "unreadable")
+        registerReceiverInManifest(MatchingReceiver::class.java.name)
+        val failure = RuntimeException("Simulated IPC failure")
+        doThrow(failure).whenever(failingManager).getAppWidgetOptions(511)
+
+        val error =
+            assertThrows(RuntimeException::class.java) {
+                failingRepository.findAppWidgetIdsForWidgetName(
+                    "matching_widget",
+                    widgetIds = setOf("unreadable"),
+                )
+            }
+
+        assertThat(error).isSameInstanceAs(failure)
     }
 
     @Test

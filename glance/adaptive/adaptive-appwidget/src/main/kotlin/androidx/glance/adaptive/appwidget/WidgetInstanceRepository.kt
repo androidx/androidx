@@ -28,6 +28,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.collection.MutableIntList
 import androidx.collection.mutableIntListOf
 import java.lang.reflect.InvocationTargetException
+import kotlinx.coroutines.CancellationException
 
 /**
  * Repository responsible for resolving active platform AppWidget instances matching target widget
@@ -70,6 +71,10 @@ internal class WidgetInstanceRepository(
      * Resolves the receiver declaring [widgetName] with [resolveReceiverComponent], then collects
      * its active appWidgetIds matching [widgetIds], or all of them if [widgetIds] is null.
      *
+     * Matching a placement against [widgetIds] reads its options unless its widgetId is cached. If
+     * they cannot be read, the placement is skipped and reported to [onUnreadableOptions], which
+     * rethrows by default.
+     *
      * @return The matching appWidgetIds keyed by the receiver [ComponentName], or an empty map if
      *   none match.
      * @throws IllegalArgumentException if [widgetName] cannot be resolved, see
@@ -80,6 +85,9 @@ internal class WidgetInstanceRepository(
     fun findAppWidgetIdsForWidgetName(
         widgetName: String,
         widgetIds: Set<String>?,
+        onUnreadableOptions: (appWidgetId: Int, error: Exception) -> Unit = { _, error ->
+            throw error
+        },
     ): Map<ComponentName, IntArray> {
         // Resolved first, so that an unknown widgetName fails even when nothing is targeted.
         val componentName = resolveReceiverComponent(widgetName)
@@ -87,7 +95,7 @@ internal class WidgetInstanceRepository(
             return emptyMap()
         }
 
-        val matchingIds = getMatchingAppWidgetIds(componentName, widgetIds)
+        val matchingIds = getMatchingAppWidgetIds(componentName, widgetIds, onUnreadableOptions)
         if (matchingIds.isEmpty()) return emptyMap()
         return mapOf(componentName to IntArray(matchingIds.size) { index -> matchingIds[index] })
     }
@@ -96,11 +104,12 @@ internal class WidgetInstanceRepository(
     private fun getMatchingAppWidgetIds(
         componentName: ComponentName,
         widgetIds: Set<String>?,
+        onUnreadableOptions: (appWidgetId: Int, error: Exception) -> Unit,
     ): MutableIntList {
         val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
         val matchingIds = mutableIntListOf()
         for (appWidgetId in appWidgetIds) {
-            if (matchesWidgetId(appWidgetId, widgetIds)) {
+            if (matchesWidgetId(appWidgetId, widgetIds, onUnreadableOptions)) {
                 matchingIds.add(appWidgetId)
             }
         }
@@ -205,14 +214,26 @@ internal class WidgetInstanceRepository(
      * Checks whether an individual platform integer [appWidgetId] matches the requested collection
      * of [widgetIds].
      */
-    private fun matchesWidgetId(appWidgetId: Int, widgetIds: Set<String>?): Boolean {
+    private fun matchesWidgetId(
+        appWidgetId: Int,
+        widgetIds: Set<String>?,
+        onUnreadableOptions: (appWidgetId: Int, error: Exception) -> Unit,
+    ): Boolean {
         if (widgetIds == null) return true
         val cachedWidgetId = WidgetOptionsCache.getCachedWidgetId(appWidgetId)
         if (cachedWidgetId != null) {
             return cachedWidgetId in widgetIds
         }
 
-        val options = appWidgetManager.getAppWidgetOptions(appWidgetId)
+        val options =
+            try {
+                appWidgetManager.getAppWidgetOptions(appWidgetId)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                onUnreadableOptions(appWidgetId, e)
+                return false
+            }
         val storedWidgetId =
             options?.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID)?.takeIf {
                 it.isNotBlank()

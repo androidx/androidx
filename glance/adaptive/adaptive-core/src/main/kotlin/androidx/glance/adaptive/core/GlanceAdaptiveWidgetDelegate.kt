@@ -35,10 +35,12 @@ public interface GlanceAdaptiveWidgetDelegate {
      * @param currentData The declarative template data payload to render.
      * @param widgetIds Optional collection of developer target widget instance String identifiers.
      *   If omitted (`null`), updates broadcast to all instances matching [widgetName]. If an empty
-     *   collection is passed, no widgets will be updated.
-     * @throws IllegalArgumentException if [widgetName] does not identify exactly one widget of the
-     *   app.
+     *   collection is passed, no widgets will be updated. Blank identifiers are not allowed.
+     * @throws IllegalArgumentException if [widgetIds] contains a blank identifier, or if
+     *   [widgetName] does not identify exactly one widget of the app.
      * @throws IllegalStateException if a widget of the app cannot be read to resolve [widgetName].
+     * @throws GlanceAdaptiveUpdateException if some placements could not be updated, once every
+     *   placement has been attempted.
      */
     public suspend fun pushUpdate(
         widgetName: String,
