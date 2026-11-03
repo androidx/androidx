@@ -423,6 +423,58 @@ class RemoteCanvasTest {
     }
 
     @Test
+    fun testClipPath_preservesSaveRestoreWhenOptimized() {
+        setupRemoteCanvas(enableOptimizations = true)
+        val path =
+            RemotePath().apply {
+                moveTo(10f, 10f)
+                lineTo(50f, 10f)
+                lineTo(50f, 50f)
+                close()
+            }
+
+        remoteCanvas.save()
+        remoteCanvas.clipPath(path)
+        remoteCanvas.drawRect(0f.rf, 0f.rf, 100f.rf, 100f.rf, null)
+        remoteCanvas.restore()
+        remoteCanvas.drawRect(0f.rf, 0f.rf, 100f.rf, 100f.rf, null)
+
+        remoteCanvas.flush()
+
+        assertThat(fakeBuffer.calls)
+            .containsExactly(
+                "addMatrixSave",
+                "addPathData(42)",
+                "addClipPath(42)",
+                "addDrawRect(0.0, 0.0, 100.0, 100.0)",
+                "addMatrixRestore",
+                "addDrawRect(0.0, 0.0, 100.0, 100.0)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testClipPath_discardsSaveRestoreWithoutDrawsWhenOptimized() {
+        setupRemoteCanvas(enableOptimizations = true)
+        val path =
+            RemotePath().apply {
+                moveTo(10f, 10f)
+                lineTo(50f, 10f)
+                lineTo(50f, 50f)
+                close()
+            }
+
+        remoteCanvas.save()
+        remoteCanvas.clipPath(path)
+        remoteCanvas.restore()
+        remoteCanvas.drawRect(0f.rf, 0f.rf, 100f.rf, 100f.rf, null)
+
+        remoteCanvas.flush()
+
+        assertThat(fakeBuffer.calls).containsExactly("addDrawRect(0.0, 0.0, 100.0, 100.0)")
+    }
+
+    @Test
     fun testDrawToOffscreenBitmap_preservesOuterSaveRestoreWhenOptimized() {
         setupRemoteCanvas(enableOptimizations = true)
 

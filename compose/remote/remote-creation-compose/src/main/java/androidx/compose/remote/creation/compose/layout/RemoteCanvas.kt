@@ -788,10 +788,13 @@ public class RemoteCanvas(
 
     /** Clips the current canvas state to the specified [path]. */
     public fun clipPath(path: RemotePath) {
-        val op = recordRenderingOp {
-            val pathId = document.addPathData(path)
-            document.addClipPath(pathId)
-        }
+        val op =
+            buffer.recordRenderingOp(
+                CanvasOp.Clip {
+                    val pathId = document.addPathData(path)
+                    document.addClipPath(pathId)
+                }
+            )
         buffer.addRoots(op, path)
     }
 
