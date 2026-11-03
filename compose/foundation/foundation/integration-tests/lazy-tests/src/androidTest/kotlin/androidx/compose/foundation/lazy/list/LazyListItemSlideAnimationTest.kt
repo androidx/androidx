@@ -17,9 +17,7 @@
 package androidx.compose.foundation.lazy.list
 
 import android.os.Build
-import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -31,48 +29,36 @@ import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.scrollBy
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.animateItemWithTransitions
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.layout.BaseLazyLayoutItemAnimationTest
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.junit4.v2.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import kotlin.math.roundToInt
 import kotlinx.coroutines.runBlocking
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 
 @LargeTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-class LazyListItemSlideAnimationTest {
-
-    @get:Rule val rule = createComposeRule()
+class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
 
     private lateinit var state: LazyListState
 
@@ -575,44 +561,6 @@ class LazyListItemSlideAnimationTest {
         }
     }
 
-    private class ExpectedItem(
-        val color: Color,
-        val x: Int = 0,
-        val y: Int = 0,
-        val width: Int = ItemWidth,
-        val height: Int = ItemHeight,
-    ) {
-        fun contains(position: IntOffset) =
-            position.x >= x && position.x < x + width && position.y >= y && position.y < y + height
-    }
-
-    private fun assertItems(
-        containerHeight: Int,
-        vararg items: ExpectedItem,
-        containerWidth: Int = ItemWidth,
-    ) {
-        rule.onNodeWithTag(ContainerTag).captureToImage().assertPixels(
-            IntSize(containerWidth, containerHeight)
-        ) { position ->
-            (items.lastOrNull { it.contains(position) }?.color ?: Color.White).compositeOver(
-                Color.White
-            )
-        }
-    }
-
-    private fun onAnimationStep(steps: Int = Steps, onFrame: (step: Int) -> Unit) {
-        rule.waitForIdle()
-        rule.mainClock.advanceTimeByFrame()
-        for (step in 0..steps) {
-            onFrame(step)
-            if (step < steps) rule.mainClock.advanceTimeBy(FrameDuration)
-        }
-    }
-
-    private fun onAnimationFrame(onFrame: (fraction: Float) -> Unit) {
-        onAnimationStep { step -> onFrame(step / Steps.toFloat()) }
-    }
-
     @Composable
     private fun LazyList(
         containerHeight: Int,
@@ -634,37 +582,6 @@ class LazyListItemSlideAnimationTest {
         )
     }
 
-    @Composable
-    private fun LazyItemScope.Item(
-        color: Color,
-        width: Int = ItemWidth,
-        enter: EnterTransition? = null,
-        exit: ExitTransition? = null,
-        placementSpec: FiniteAnimationSpec<IntOffset>? = null,
-    ) {
-        val density = rule.density
-        Box(
-            Modifier.animateItemWithTransitions(
-                    enterTransition = enter,
-                    exitTransition = exit,
-                    placementSpec = placementSpec,
-                )
-                .background(color)
-                .requiredHeight(with(density) { ItemHeight.toDp() })
-                .requiredWidth(with(density) { width.toDp() })
-        )
-    }
+    private val SlideSpec = tween<IntOffset>(DurationMillis, easing = LinearEasing)
+    private val FadeSpec = tween<Float>(DurationMillis, easing = LinearEasing)
 }
-
-private const val FrameDuration = 16L
-private const val Steps = 4
-private const val DurationMillis = (FrameDuration * Steps).toInt()
-private const val ItemHeight = 8
-private const val ItemWidth = 16
-private const val ContainerTag = "container"
-
-private fun interpolate(start: Int, stop: Int, fraction: Float): Int =
-    start + ((stop - start) * fraction).roundToInt()
-
-private val SlideSpec = tween<IntOffset>(DurationMillis, easing = LinearEasing)
-private val FadeSpec = tween<Float>(DurationMillis, easing = LinearEasing)
