@@ -21,7 +21,10 @@ import android.view.Choreographer
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeContent
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Recomposer
@@ -45,6 +48,7 @@ class MotionLayoutActivity : ComponentActivity() {
                 Surface(
                     modifier =
                         Modifier.fillMaxSize()
+                            .windowInsetsPadding(WindowInsets.safeContent)
                             // Required to reference UI elements by Macrobenchmark
                             .semantics { testTagsAsResourceId = true },
                     color = MaterialTheme.colors.background,
