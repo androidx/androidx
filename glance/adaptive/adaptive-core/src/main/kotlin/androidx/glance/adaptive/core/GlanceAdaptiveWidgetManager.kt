@@ -26,7 +26,6 @@ import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
  * operations, such as setting dynamic widget picker previews on phones, are provided as extension
  * functions by the corresponding surface artifact (for example `adaptive-appwidget`).
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class GlanceAdaptiveWidgetManager
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 constructor(
@@ -47,12 +46,12 @@ constructor(
     }
 
     /**
-     * Pushes the current data updates to a specific collection of target widget instances.
+     * Pushes the current data updates to the specified widget instances.
      *
      * @param widgetName Developer widget definition String identifier matching
      *   `GlanceAdaptiveWidgetReceiver.widgetName`.
-     * @param widgetIds Collection of target developer widget instance String identifiers to update.
-     *   Passing an explicit empty collection restricts updates strictly to zero instances.
+     * @param widgetIds Target widget instance String identifiers to update. Passing an explicit
+     *   empty collection restricts updates strictly to zero instances.
      * @param currentData The declarative template data payload implementing
      *   [GlanceAdaptiveTemplate].
      */
@@ -65,27 +64,6 @@ constructor(
             widgetName = widgetName,
             currentData = currentData,
             widgetIds = widgetIds,
-        )
-    }
-
-    /**
-     * Pushes the current data updates to a single target widget instance.
-     *
-     * @param widgetName Developer widget definition String identifier matching
-     *   `GlanceAdaptiveWidgetReceiver.widgetName`.
-     * @param widgetId Single target developer widget instance String identifier to update.
-     * @param currentData The declarative template data payload implementing
-     *   [GlanceAdaptiveTemplate].
-     */
-    public suspend fun pushUpdate(
-        widgetName: String,
-        widgetId: String,
-        currentData: GlanceAdaptiveTemplate,
-    ) {
-        delegate.pushUpdate(
-            widgetName = widgetName,
-            currentData = currentData,
-            widgetIds = setOf(widgetId),
         )
     }
 

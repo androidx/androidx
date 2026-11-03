@@ -21,7 +21,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.RemoteViews
 import androidx.glance.adaptive.appwidget.renderer.RemoteViewsRenderOutput
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
@@ -32,6 +31,7 @@ import androidx.glance.adaptive.core.renderer.TemplateRenderer
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertThrows
@@ -41,7 +41,6 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.shadows.ShadowLog
 
 @Config(sdk = [Config.TARGET_SDK])
 @RunWith(RobolectricTestRunner::class)
@@ -153,28 +152,19 @@ class GlanceAdaptiveAppWidgetManagerTest {
         manager.setPreview(widgetName = "test_widget", previewData = previewData)
 
         assertThat(delegate.setPreviewCalls).containsExactly("test_widget" to previewData)
-        assertThat(fallbackWarnings()).isEmpty()
     }
 
     @Test
-    fun setPreview_withNonAppWidgetDelegate_isNoOpAndLogsWarning() = runTest {
+    fun setPreview_withNonAppWidgetDelegate_throwsIllegalStateException() {
         val delegate = OtherSurfaceDelegate()
         val manager = GlanceAdaptiveWidgetManager(delegate)
 
-        manager.setPreview(widgetName = "test_widget", previewData = TestTemplate())
-
+        assertThrows(IllegalStateException::class.java) {
+            runBlocking {
+                manager.setPreview(widgetName = "test_widget", previewData = TestTemplate())
+            }
+        }
         assertThat(delegate.callCount).isEqualTo(0)
-        assertThat(fallbackWarnings()).hasSize(1)
-    }
-
-    @Test
-    fun setPreview_onManagerFromFactory_doesNotLogFallbackWarning() = runTest {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val manager = GlanceAdaptiveWidgetManager(context)
-
-        manager.setPreview(widgetName = "test_widget", previewData = TestTemplate())
-
-        assertThat(fallbackWarnings()).isEmpty()
     }
 
     @Test
@@ -206,7 +196,6 @@ class GlanceAdaptiveAppWidgetManagerTest {
             .containsExactly(
                 RequestPinCall("test_widget", "instance_1", initialData, options, successCallback)
             )
-        assertThat(fallbackWarnings()).isEmpty()
     }
 
     @Test
@@ -229,15 +218,14 @@ class GlanceAdaptiveAppWidgetManagerTest {
     }
 
     @Test
-    fun requestPin_withNonAppWidgetDelegate_returnsFalseAndLogsWarning() = runTest {
+    fun requestPin_withNonAppWidgetDelegate_throwsIllegalStateException() {
         val delegate = OtherSurfaceDelegate()
         val manager = GlanceAdaptiveWidgetManager(delegate)
 
-        val result = manager.requestPin(widgetName = "test_widget")
-
-        assertThat(result).isFalse()
+        assertThrows(IllegalStateException::class.java) {
+            runBlocking { manager.requestPin(widgetName = "test_widget") }
+        }
         assertThat(delegate.callCount).isEqualTo(0)
-        assertThat(fallbackWarnings()).hasSize(1)
     }
 
     @Test
@@ -255,7 +243,6 @@ class GlanceAdaptiveAppWidgetManagerTest {
 
         assertThat(delegate.setConfigurationResultCalls)
             .containsExactly(SetConfigurationResultCall(activity, "window_lunch", options))
-        assertThat(fallbackWarnings()).isEmpty()
     }
 
     @Test
@@ -376,11 +363,5 @@ class GlanceAdaptiveAppWidgetManagerTest {
                 "setConfigurationResult",
                 "registerRenderer",
             )
-    }
-
-    private fun fallbackWarnings() = ShadowLog.getLogsForTag(LOG_TAG).filter { it.type == Log.WARN }
-
-    private companion object {
-        const val LOG_TAG = "GlanceAdaptiveAppWidget"
     }
 }

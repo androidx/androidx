@@ -2,6 +2,12 @@
 // - surface=public
 package androidx.glance.adaptive.core {
 
+  public final class GlanceAdaptiveWidgetManager {
+    method public suspend Object? getActiveInstances(String widgetName, kotlin.coroutines.Continuation<? super java.util.List<androidx.glance.adaptive.core.WidgetInstanceInfo>>);
+    method public suspend Object? pushUpdate(String widgetName, androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate currentData, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? pushUpdate(String widgetName, java.util.Set<java.lang.String> widgetIds, androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate currentData, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
   public final class WidgetInstanceInfo {
     ctor @BytecodeOnly public WidgetInstanceInfo(String!, String!, android.os.Bundle!, androidx.collection.ObjectIntMap!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public WidgetInstanceInfo(String widgetName, String widgetId, optional android.os.Bundle options, optional androidx.collection.ObjectIntMap<androidx.glance.adaptive.core.selection.GlanceSurface> placementsPerSurface);

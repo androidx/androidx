@@ -79,23 +79,6 @@ class GlanceAdaptiveWidgetManagerTest {
     }
 
     @Test
-    fun pushUpdate_withSingleWidgetId_delegatesToDelegate() = runTest {
-        val fakeDelegate = FakeWidgetDelegate()
-        val manager = GlanceAdaptiveWidgetManager(fakeDelegate)
-        val testTemplate = TestTemplate()
-
-        manager.pushUpdate(
-            widgetName = "test_widget",
-            widgetId = "widget_123",
-            currentData = testTemplate,
-        )
-
-        assertThat(fakeDelegate.lastWidgetName).isEqualTo("test_widget")
-        assertThat(fakeDelegate.lastWidgetIds).containsExactly("widget_123")
-        assertThat(fakeDelegate.lastData).isSameInstanceAs(testTemplate)
-    }
-
-    @Test
     fun getActiveInstances_delegatesToDelegate() = runTest {
         val fakeDelegate = FakeWidgetDelegate()
         val expected =
