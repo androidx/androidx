@@ -27,12 +27,9 @@ import android.hardware.HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE
 import android.media.Image
 import android.media.ImageReader
 import android.os.CancellationSignal
-import android.os.Handler
-import android.os.Looper
 import android.view.ScrollCaptureCallback
 import android.view.ScrollCaptureSession
 import android.view.ScrollCaptureTarget
-import android.view.Surface
 import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
@@ -46,19 +43,9 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import java.util.concurrent.CountDownLatch
 import kotlin.coroutines.resume
 import kotlin.math.roundToInt
-import kotlin.test.fail
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.selects.onTimeout
-import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 
@@ -150,135 +137,79 @@ class ScrollCaptureTester(private val rule: ComposeContentTestRule) {
             }
 
             val result =
-                withSurfaceBitmaps(captureWidth, captureWindowHeight) { surface, bitmapsFromSurface
-                    ->
-                    val session =
-                        ScrollCaptureSession(surface, scrollBounds, target.positionInWindow)
-                    callback.onScrollCaptureStart(session)
-
-                    block(
-                        object : CaptureSessionScope {
-                            private var captureOffset = Point(0, 0)
-
-                            override val windowHeight: Int
-                                get() = captureWindowHeight
-
-                            override fun shiftWindowBy(offset: Int) {
-                                captureOffset = Point(0, captureOffset.y + offset)
-                            }
-
-                            override suspend fun performCapture(): CaptureResult {
-                                val requestedCaptureArea =
-                                    Rect(
-                                        captureOffset.x,
-                                        captureOffset.y,
-                                        captureOffset.x + captureWidth,
-                                        captureOffset.y + captureWindowHeight,
-                                    )
-                                val resultCaptureArea =
-                                    callback.onScrollCaptureImageRequest(
-                                        session,
-                                        requestedCaptureArea,
-                                    )
-
-                                // Empty results shouldn't produce an image.
-                                val bitmap =
-                                    if (!resultCaptureArea.isEmpty) {
-                                        bitmapsFromSurface.receiveWithTimeout(1_000) {
-                                            "No bitmap received after 1 second for capture area " +
-                                                resultCaptureArea
-                                        }
-                                    } else {
-                                        null
-                                    }
-                                return CaptureResult(
-                                    bitmap = bitmap,
-                                    capturedRect = resultCaptureArea,
-                                )
-                            }
-                        }
+                ImageReader.newInstance(
+                        captureWidth,
+                        captureWindowHeight,
+                        PixelFormat.RGBA_8888,
+                        // Each image is read, processed, and closed before the next request to draw
+                        // is made, so we don't need multiple images.
+                        /* maxImages= */ 1,
+                        USAGE_GPU_SAMPLED_IMAGE or USAGE_GPU_COLOR_OUTPUT,
                     )
-                }
+                    .use { imageReader ->
+                        val session =
+                            ScrollCaptureSession(
+                                imageReader.surface,
+                                scrollBounds,
+                                target.positionInWindow,
+                            )
+                        callback.onScrollCaptureStart(session)
+
+                        block(
+                            object : CaptureSessionScope {
+                                private var captureOffset = Point(0, 0)
+
+                                override val windowHeight: Int
+                                    get() = captureWindowHeight
+
+                                override fun shiftWindowBy(offset: Int) {
+                                    captureOffset = Point(0, captureOffset.y + offset)
+                                }
+
+                                override suspend fun performCapture(): CaptureResult {
+                                    val requestedCaptureArea =
+                                        Rect(
+                                            captureOffset.x,
+                                            captureOffset.y,
+                                            captureOffset.x + captureWidth,
+                                            captureOffset.y + captureWindowHeight,
+                                        )
+                                    // Acquire the image inside onComplete before coroutine dispatch
+                                    // yields the main thread, matching Android 12's behavior.
+                                    var capturedImage: Image? = null
+                                    val resultCaptureArea =
+                                        callback.onScrollCaptureImageRequest(
+                                            session,
+                                            requestedCaptureArea,
+                                        ) { area ->
+                                            if (!area.isEmpty) {
+                                                capturedImage = imageReader.acquireLatestImage()
+                                            }
+                                        }
+
+                                    // Empty results shouldn't produce an image.
+                                    val bitmap =
+                                        if (!resultCaptureArea.isEmpty) {
+                                            val image =
+                                                checkPreconditionNotNull(capturedImage) {
+                                                    "No image available for capture area " +
+                                                        resultCaptureArea
+                                                }
+                                            image.use { it.toSoftwareBitmap() }
+                                        } else {
+                                            null
+                                        }
+                                    return CaptureResult(
+                                        bitmap = bitmap,
+                                        capturedRect = resultCaptureArea,
+                                    )
+                                }
+                            }
+                        )
+                    }
             callback.onScrollCaptureEnd()
             return@withContext result
         }
-
-    /**
-     * Creates a [Surface] passes it to [block] along with a channel that will receive all images
-     * written to the [Surface].
-     */
-    private suspend inline fun <T> withSurfaceBitmaps(
-        width: Int,
-        height: Int,
-        crossinline block: suspend (Surface, ReceiveChannel<Bitmap>) -> T,
-    ): T = coroutineScope {
-        // ImageReader gives us the Surface that we'll provide to the session.
-        ImageReader.newInstance(
-                width,
-                height,
-                PixelFormat.RGBA_8888,
-                // Each image is read, processed, and closed before the next request to draw is
-                // made,
-                // so we don't need multiple images.
-                /* maxImages= */ 1,
-                USAGE_GPU_SAMPLED_IMAGE or USAGE_GPU_COLOR_OUTPUT,
-            )
-            .use { imageReader ->
-                val bitmapsChannel = Channel<Bitmap>(capacity = Channel.RENDEZVOUS)
-
-                // Must register the OnImageAvailableListener before any code in block runs to avoid
-                // race conditions.
-                val imageCollectorJob =
-                    launch(start = CoroutineStart.UNDISPATCHED) {
-                        imageReader.collectImages {
-                            val bitmap = it.toSoftwareBitmap()
-                            bitmapsChannel.send(bitmap)
-                        }
-                    }
-
-                try {
-                    block(imageReader.surface, bitmapsChannel)
-                } finally {
-                    // ImageReader has no signal that it's finished, so in the happy path we have to
-                    // stop the collector job explicitly.
-                    imageCollectorJob.cancel()
-                    bitmapsChannel.close()
-                }
-            }
-    }
-
-    /**
-     * Reads all images from this [ImageReader] and passes them to [onImage]. The [Image] will
-     * automatically be closed when [onImage] returns.
-     *
-     * Propagates backpressure to the [ImageReader] – only one image will be acquired from the
-     * [ImageReader] at a time, and the next image won't be acquired until [onImage] returns.
-     */
-    private suspend inline fun ImageReader.collectImages(onImage: (Image) -> Unit): Nothing {
-        val imageAvailableChannel = Channel<Unit>(capacity = Channel.CONFLATED)
-        setOnImageAvailableListener(
-            { imageAvailableChannel.trySend(Unit) },
-            Handler(Looper.getMainLooper()),
-        )
-        val context = currentCoroutineContext()
-
-        try {
-            // Read all images until cancelled.
-            while (true) {
-                context.ensureActive()
-                // Fast path – if an image is immediately available, don't suspend.
-                var image: Image? = acquireNextImage()
-                // If no image was available, suspend until the callback fires.
-                while (image == null) {
-                    imageAvailableChannel.receive()
-                    image = acquireNextImage()
-                }
-                image.use { onImage(image) }
-            }
-        } finally {
-            setOnImageAvailableListener(null, null)
-        }
-    }
 
     /**
      * Helper function for converting an [Image] to a [Bitmap] by copying the hardware buffer into a
@@ -296,15 +227,6 @@ class ScrollCaptureTester(private val rule: ComposeContentTestRule) {
                 hardwareBitmap.recycle()
             }
         }
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend inline fun <E> ReceiveChannel<E>.receiveWithTimeout(
-        timeoutMillis: Long,
-        crossinline timeoutMessage: () -> String,
-    ): E = select {
-        onReceive { it }
-        onTimeout(timeoutMillis) { fail(timeoutMessage()) }
     }
 }
 
@@ -400,8 +322,10 @@ suspend fun ScrollCaptureCallback.onScrollCaptureStart(session: ScrollCaptureSes
 suspend fun ScrollCaptureCallback.onScrollCaptureImageRequest(
     session: ScrollCaptureSession,
     captureArea: Rect,
+    onComplete: (Rect) -> Unit = {},
 ): Rect = suspendCancellableCoroutine { continuation ->
     onScrollCaptureImageRequest(session, continuation.createCancellationSignal(), captureArea) {
+        onComplete(it)
         continuation.resume(it)
     }
 }
