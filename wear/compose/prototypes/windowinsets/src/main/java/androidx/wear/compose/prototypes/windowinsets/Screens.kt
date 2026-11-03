@@ -2871,12 +2871,19 @@ fun SuppressStatusBarAppScaffoldScreen(onBack: () -> Unit) {
  */
 @Composable
 fun SuppressStatusBarScreenScaffoldScreen(onBack: () -> Unit) {
+    var isSuppressed by remember { mutableStateOf(true) }
+
     AppScaffold {
-        ScreenScaffold(modifier = Modifier.suppressStatusBar()) { contentPadding ->
+        ScreenScaffold(modifier = if (isSuppressed) Modifier.suppressStatusBar() else Modifier) {
+            contentPadding ->
             SwipeToDismissBox(onDismissed = onBack) { isBackground ->
                 if (!isBackground) {
                     Box(
-                        modifier = Modifier.fillMaxSize().screenDebugBorder(Color(0xFFFF5252)),
+                        modifier =
+                            Modifier.fillMaxSize()
+                                .screenDebugBorder(
+                                    if (isSuppressed) Color(0xFFFF5252) else Color(0xFF4CAF50)
+                                ),
                         contentAlignment = Alignment.Center,
                     ) {
                         CircularProgressIndicator(
@@ -2898,9 +2905,9 @@ fun SuppressStatusBarScreenScaffoldScreen(onBack: () -> Unit) {
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = "SUPPRESSED",
+                                text = if (isSuppressed) "SUPPRESSED" else "VISIBLE",
                                 style = MaterialTheme.typography.titleMedium,
-                                color = Color(0xFFFF5252),
+                                color = if (isSuppressed) Color(0xFFFF5252) else Color(0xFF4CAF50),
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
@@ -2910,19 +2917,30 @@ fun SuppressStatusBarScreenScaffoldScreen(onBack: () -> Unit) {
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                "Uses ScreenScaffold(modifier = Modifier.suppressStatusBar()).\nTop clearance collapses to 0.dp.",
+                                text =
+                                    if (isSuppressed)
+                                        "Status Bar: Suppressed.\nTop clearance collapses to 0.dp."
+                                    else
+                                        "Status Bar: Visible (GSB).\nTop clearance expands for GSB.",
                                 style = MaterialTheme.typography.bodyExtraSmall,
                                 textAlign = TextAlign.Center,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
-                            Spacer(modifier = Modifier.height(6.dp))
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Button(onClick = { isSuppressed = !isSuppressed }) {
+                                Text(
+                                    if (isSuppressed) "Show Status Bar" else "Suppress Status Bar",
+                                    style = MaterialTheme.typography.labelSmall,
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
                             Button(onClick = onBack) {
                                 Text("Back", style = MaterialTheme.typography.labelSmall)
                             }
                         }
                         StatusBarInsetOverlay(
                             contentPadding,
-                            isStatusBarVisible = false,
+                            isStatusBarVisible = !isSuppressed,
                         )
                     }
                 }
