@@ -24,6 +24,11 @@
 
     <application
         android:name=".TestApplication"
-        android:supportsRtl="true" />
+        android:label="AppFunctionUserControlApp"
+        android:supportsRtl="true">
+        <property
+            android:name="android.app.appfunctions.PROPERTY_SUPPORTS_APP_FUNCTION_USER_CONTROL"
+            android:value="true" />
+    </application>
 
 </manifest>

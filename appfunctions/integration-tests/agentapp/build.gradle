@@ -145,6 +145,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.guavaAndroid)
     androidTestImplementation(libs.testMonitor)
+    androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.kotlinTest)
     apkAssets(project(":appfunctions:integration-tests:multi-modules-testapp:app"))
     apkAssetsV2(project(":appfunctions:integration-tests:multi-modules-testapp:app-v2"))

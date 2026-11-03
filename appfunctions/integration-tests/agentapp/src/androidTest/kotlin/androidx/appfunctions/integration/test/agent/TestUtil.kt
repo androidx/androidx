@@ -16,22 +16,40 @@
 
 package androidx.appfunctions.integration.test.agent
 
+import android.app.AppInteractionException
+import android.app.AppInteractionManager
+import android.app.AppInteractionSession
 import android.app.UiAutomation
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
+import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.OutcomeReceiver
 import android.os.ParcelFileDescriptor.AutoCloseInputStream
+import androidx.annotation.RequiresApi
 import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.AppFunctionName
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.Until
 import com.google.common.truth.Truth.assertThat
 import java.security.MessageDigest
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeout
 import org.junit.Assert.fail
 
 internal object TestUtil {
@@ -194,6 +212,196 @@ internal object TestUtil {
         executeShellCommandSync("cmd app_function flush-allowlist-changes")
     }
 
+    /** Grants [context] the AppInteraction access permission for [targetPackageName]. */
+    fun UiAutomation.grantAppInteractionAccess(context: Context, targetPackageName: String) {
+        getAppInteractionAccessController().grantAccess(this, context, targetPackageName)
+    }
+
+    /** Revokes [context] the AppInteraction access permission for [targetPackageName]. */
+    fun UiAutomation.revokeAppInteractionAccess(context: Context, targetPackageName: String) {
+        getAppInteractionAccessController().revokeAccess(this, context, targetPackageName)
+    }
+
+    private fun getAppInteractionAccessController(): AppInteractionAccessController {
+        return if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN &&
+                Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.CINNAMON_BUN_2
+        ) {
+            Api37Point2AppInteractionAccessController
+        } else {
+            NoOpAppInteractionAccessController
+        }
+    }
+
+    private interface AppInteractionAccessController {
+        fun grantAccess(
+            uiAutomation: UiAutomation,
+            context: Context,
+            targetPackageName: String,
+        )
+
+        fun revokeAccess(
+            uiAutomation: UiAutomation,
+            context: Context,
+            targetPackageName: String,
+        )
+    }
+
+    private object NoOpAppInteractionAccessController : AppInteractionAccessController {
+        override fun grantAccess(
+            uiAutomation: UiAutomation,
+            context: Context,
+            targetPackageName: String,
+        ) {}
+
+        override fun revokeAccess(
+            uiAutomation: UiAutomation,
+            context: Context,
+            targetPackageName: String,
+        ) {}
+    }
+
+    @RequiresApi(Build.VERSION_CODES_FULL.CINNAMON_BUN_2)
+    private object Api37Point2AppInteractionAccessController : AppInteractionAccessController {
+        override fun grantAccess(
+            uiAutomation: UiAutomation,
+            context: Context,
+            targetPackageName: String,
+        ) {
+            updateAccessFlags(
+                uiAutomation,
+                context,
+                targetPackageName,
+                APP_INTERACTION_ACCESS_FLAG_USER_GRANTED,
+            )
+        }
+
+        override fun revokeAccess(
+            uiAutomation: UiAutomation,
+            context: Context,
+            targetPackageName: String,
+        ) {
+            updateAccessFlags(uiAutomation, context, targetPackageName, 0)
+        }
+
+        private fun updateAccessFlags(
+            uiAutomation: UiAutomation,
+            context: Context,
+            targetPackageName: String,
+            flags: Int,
+        ) {
+            // Use reflection to call updateAccessFlags and preserve existing adopted shell
+            // permissions so we don't leak permission details to callers; this can be replaced
+            // with the `cmd app_interaction grant-access/revoke-access` shell commands in 27Q1.
+            @Suppress("UNCHECKED_CAST")
+            val previousPermissions =
+                UiAutomation::class
+                    .java
+                    .getMethod("getAdoptedShellPermissions")
+                    .invoke(uiAutomation) as Set<String>
+            val allPermissions = setOf("ALL_PERMISSIONS")
+            try {
+                if (previousPermissions != allPermissions) {
+                    uiAutomation.adoptShellPermissionIdentity(
+                        *(previousPermissions + MANAGE_APP_INTERACTION_ACCESS_PERMISSION)
+                            .toTypedArray()
+                    )
+                }
+                val appInteractionManager =
+                    checkNotNull(context.getSystemService(AppInteractionManager::class.java))
+                val updateAccessFlagsMethod =
+                    AppInteractionManager::class
+                        .java
+                        .getMethod(
+                            "updateAccessFlags",
+                            String::class.java,
+                            String::class.java,
+                            Int::class.javaPrimitiveType,
+                            Int::class.javaPrimitiveType,
+                        )
+                updateAccessFlagsMethod.invoke(
+                    appInteractionManager,
+                    context.packageName,
+                    targetPackageName,
+                    APP_INTERACTION_ACCESS_FLAG_MASK_ALL,
+                    flags,
+                )
+            } finally {
+                when {
+                    previousPermissions.isEmpty() -> uiAutomation.dropShellPermissionIdentity()
+                    previousPermissions != allPermissions ->
+                        uiAutomation.adoptShellPermissionIdentity(
+                            *previousPermissions.toTypedArray()
+                        )
+                }
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES_FULL.CINNAMON_BUN_2)
+    suspend fun AppInteractionManager.createSessionAndAllowThisTime(
+        targetContext: Context,
+        targetPackages: List<String>,
+    ): AppInteractionSession = coroutineScope {
+        val intentSenderDeferred = CompletableDeferred<IntentSender>()
+        val createParams =
+            AppInteractionSession.CreateParams.Builder()
+                .setOnStartIntentSenderCallback(
+                    { it.run() },
+                    { sender -> intentSenderDeferred.complete(sender) },
+                )
+                .setTargetPackages(targetPackages)
+                .build()
+        val sessionDeferred = async {
+            this@createSessionAndAllowThisTime.createSession(createParams)
+        }
+
+        val intentSender = withTimeout(LONG_TIMEOUT_SECOND * 1000) { intentSenderDeferred.await() }
+        assertThat(intentSender).isNotNull()
+        val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        uiDevice.wakeUp()
+        uiDevice.executeShellCommand("wm dismiss-keyguard")
+        targetContext.startIntentSender(
+            intentSender,
+            Intent().apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK },
+            0,
+            0,
+            0,
+            null,
+        )
+        val allowThisTimeButton =
+            uiDevice.wait(
+                Until.findObject(
+                    By.res("com.android.permissioncontroller:id/only_this_time_button")
+                ),
+                UI_TIMEOUT_MS,
+            )
+        assertThat(allowThisTimeButton).isNotNull()
+        allowThisTimeButton.click()
+        withTimeout(LONG_TIMEOUT_SECOND * 1000) { sessionDeferred.await() }
+    }
+
+    @RequiresApi(Build.VERSION_CODES_FULL.CINNAMON_BUN_2)
+    suspend fun AppInteractionManager.createSession(
+        params: AppInteractionSession.CreateParams
+    ): AppInteractionSession {
+        return suspendCancellableCoroutine { continuation ->
+            createSession(
+                params,
+                Runnable::run,
+                object : OutcomeReceiver<AppInteractionSession, AppInteractionException> {
+                    override fun onResult(result: AppInteractionSession) {
+                        continuation.resume(result)
+                    }
+
+                    override fun onError(error: AppInteractionException) {
+                        continuation.resumeWithException(error)
+                    }
+                },
+            )
+        }
+    }
+
     /** Starts a background service using shell command to bypass background start restrictions. */
     fun UiAutomation.startService(packageName: String, className: String, action: String) {
         executeShellCommandSync("cmd deviceidle tempwhitelist -d 10000 $packageName")
@@ -241,5 +449,11 @@ internal object TestUtil {
 
     private const val RETRY_CHECK_INTERVAL_MILLIS: Long = 500
     private const val RETRY_MAX_INTERVALS: Long = 10
+    private const val LONG_TIMEOUT_SECOND: Long = 10
+    private const val UI_TIMEOUT_MS: Long = 5000
     private const val APP_FUNCTION_ALLOWLIST_ID: Int = 2
+    private const val APP_INTERACTION_ACCESS_FLAG_USER_GRANTED: Int = 1 shl 4
+    private const val APP_INTERACTION_ACCESS_FLAG_MASK_ALL: Int = (1 shl 9) - 1
+    private const val MANAGE_APP_INTERACTION_ACCESS_PERMISSION =
+        "android.permission.MANAGE_APP_INTERACTION_ACCESS"
 }

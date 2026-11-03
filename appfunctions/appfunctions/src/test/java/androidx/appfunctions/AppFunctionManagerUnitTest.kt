@@ -16,7 +16,9 @@
 
 package androidx.appfunctions
 
+import android.app.AppInteractionSession
 import android.content.Context
+import android.os.Build
 import android.os.UserManager
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionMetadata
@@ -33,6 +35,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
 import org.robolectric.annotation.Config
@@ -99,6 +102,58 @@ class AppFunctionManagerUnitTest {
                 request = ExecuteAppFunctionRequest(packageName, functionId, AppFunctionData.EMPTY)
             )
         assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES_FULL.CINNAMON_BUN_2)
+    fun executeAppFunctionWithSession_functionNotExist_shouldThrow() = runTest {
+        val session = mock(AppInteractionSession::class.java)
+        fakeAppFunctionApi.executeAppFunctionResponse =
+            ExecuteAppFunctionResponse.Success(AppFunctionData.EMPTY)
+
+        val response =
+            mAppFunctionManager.executeAppFunction(
+                appInteractionSession = session,
+                request = ExecuteAppFunctionRequest("x", "y", AppFunctionData.EMPTY),
+            )
+
+        val errorResponse = assertIs<ExecuteAppFunctionResponse.Error>(response)
+        assertThat(errorResponse.error)
+            .isInstanceOf(AppFunctionFunctionNotFoundException::class.java)
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES_FULL.CINNAMON_BUN_2)
+    fun executeAppFunctionWithSession_success() = runTest {
+        val session = mock(AppInteractionSession::class.java)
+        val functionId = "functionId"
+        val packageName = "com.pkg"
+        fakeAppFunctionReader.addAppFunctionMetadata(
+            AppFunctionMetadata(
+                name = AppFunctionName(packageName = packageName, functionIdentifier = functionId),
+                packageMetadata =
+                    AppFunctionPackageMetadata(
+                        packageName = packageName,
+                        components = AppFunctionComponentsMetadata(),
+                    ),
+                schema =
+                    AppFunctionSchemaMetadata(category = "notes", name = "createNote", version = 1),
+                parameters = emptyList(),
+                response =
+                    AppFunctionResponseMetadata(AppFunctionUnitTypeMetadata(isNullable = false)),
+                scope = AppFunctionMetadata.SCOPE_GLOBAL,
+            )
+        )
+        fakeAppFunctionApi.executeAppFunctionResponse =
+            ExecuteAppFunctionResponse.Success(AppFunctionData.EMPTY)
+
+        val response =
+            mAppFunctionManager.executeAppFunction(
+                appInteractionSession = session,
+                request = ExecuteAppFunctionRequest(packageName, functionId, AppFunctionData.EMPTY),
+            )
+        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+        assertThat(fakeAppFunctionApi.lastAppInteractionSession).isSameInstanceAs(session)
     }
 
     @Test

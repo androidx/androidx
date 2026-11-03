@@ -40,8 +40,10 @@ import androidx.appfunctions.integration.test.agent.TestUtil.assertAppFunctionEn
 import androidx.appfunctions.integration.test.agent.TestUtil.awaitAppFunctionsIndexed
 import androidx.appfunctions.integration.test.agent.TestUtil.doBlocking
 import androidx.appfunctions.integration.test.agent.TestUtil.grantAppFunctionAccess
+import androidx.appfunctions.integration.test.agent.TestUtil.grantAppInteractionAccess
 import androidx.appfunctions.integration.test.agent.TestUtil.retryAssert
 import androidx.appfunctions.integration.test.agent.TestUtil.revokeAppFunctionAccess
+import androidx.appfunctions.integration.test.agent.TestUtil.revokeAppInteractionAccess
 import androidx.appfunctions.integration.test.agent.TestUtil.setAppFunctionStateRemoteAsync
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -99,6 +101,7 @@ class ObserveAppFunctionsIntegrationTest {
             )
         }
         InstallHelper.install(targetAppApkFile)
+        uiAutomation.grantAppInteractionAccess(targetContext, TARGET_APP_PACKAGE)
         targetContext.awaitAppFunctionsIndexed(TARGET_APP_PACKAGE)
 
         for (functionId in functionsUnderTest) {
@@ -111,6 +114,7 @@ class ObserveAppFunctionsIntegrationTest {
 
     @After
     fun tearDown() {
+        uiAutomation.revokeAppInteractionAccess(targetContext, TARGET_APP_PACKAGE)
         uiAutomation.revokeAppFunctionAccess()
         InstallHelper.uninstall(TARGET_APP_PACKAGE)
         uiAutomation.dropShellPermissionIdentity()

@@ -199,6 +199,17 @@ internal class ExtensionAppFunctionManagerApi(private val context: Context) :
         )
     }
 
+    @RequiresApi(Build.VERSION_CODES_FULL.CINNAMON_BUN_2)
+    override suspend fun executeAppFunction(
+        appInteractionSession: android.app.AppInteractionSession,
+        request: ExecuteAppFunctionRequest,
+        functionMetadata: AppFunctionMetadata,
+    ): ExecuteAppFunctionResponse {
+        throw UnsupportedOperationException(
+            "Only supported on SDK 37.2+ which does not have extensions lib"
+        )
+    }
+
     @ExtensionAppFunctionManager.EnabledState
     private fun convertToPlatformExtensionEnabledState(
         @AppFunctionManager.EnabledState enabledState: Int
