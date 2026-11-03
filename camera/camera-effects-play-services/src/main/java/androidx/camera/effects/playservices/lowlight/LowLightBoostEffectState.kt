@@ -67,8 +67,8 @@ internal constructor(@get:Type public val type: Int, public val error: Exception
         public const val ACTIVE: Int = 1
 
         /**
-         * The required Play Services module is currently being downloaded and installed in the
-         * background.
+         * The required Google Play Services module is currently being downloaded and installed in
+         * the background.
          *
          * The effect is bypassed, and frames are passed through without enhancement until
          * installation completes.
