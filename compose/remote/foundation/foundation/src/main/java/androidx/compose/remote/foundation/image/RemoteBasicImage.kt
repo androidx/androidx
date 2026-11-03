@@ -34,6 +34,13 @@ import androidx.compose.ui.layout.ContentScale
  * image conveys meaning; pass `null` only for purely decorative images so accessibility services
  * ignore them.
  *
+ * Example of a [RemoteBasicImage] cropped to fill its container:
+ *
+ * @sample androidx.compose.remote.foundation.samples.RemoteBasicImageSample
+ *
+ * Example of a [RemoteBasicImage] scaled with [ContentScale.Fit] inside its container:
+ *
+ * @sample androidx.compose.remote.foundation.samples.RemoteBasicImageFitSample
  * @param bitmap the [RemoteImageBitmap] to draw
  * @param contentDescription localized text used by accessibility services to describe what this
  *   image represents, or `null` if the image is purely decorative and should be ignored by
@@ -43,8 +50,6 @@ import androidx.compose.ui.layout.ContentScale
  *   intrinsic size of [bitmap]. Defaults to [ContentScale.Fit]
  * @param alpha opacity applied to [bitmap] when rendered, from `0.0f` (transparent) to `1.0f`
  *   (opaque). Defaults to [DefaultAlpha]
- * @sample androidx.compose.remote.foundation.samples.RemoteBasicImageSample
- * @sample androidx.compose.remote.foundation.samples.RemoteBasicImageFitSample
  */
 @Composable
 @RemoteComposable

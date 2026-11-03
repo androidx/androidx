@@ -26,10 +26,15 @@ import androidx.compose.runtime.Composable
  *
  * This is the remote equivalent of [androidx.compose.foundation.layout.Spacer].
  *
+ * Example of a fixed-height [RemoteSpacer] separating items in a column:
+ *
+ * @sample androidx.compose.remote.foundation.samples.RemoteSpacerSample
+ *
+ * Example of a weighted [RemoteSpacer] pushing items to opposite ends of a row:
+ *
+ * @sample androidx.compose.remote.foundation.samples.RemoteSpacerWeightSample
  * @param modifier the [RemoteModifier] applied to this spacer (for example, to set its width,
  *   height, or weight)
- * @sample androidx.compose.remote.foundation.samples.RemoteSpacerSample
- * @sample androidx.compose.remote.foundation.samples.RemoteSpacerWeightSample
  */
 @RemoteComposable
 @Composable

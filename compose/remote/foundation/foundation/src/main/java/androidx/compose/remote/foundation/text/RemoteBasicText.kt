@@ -45,6 +45,17 @@ import androidx.compose.ui.text.style.TextOverflow
  * - When `null`, the value from [style] is used instead, falling back to a default value if also
  *   unset in [style].
  *
+ * Example of a basic [RemoteBasicText]:
+ *
+ * @sample androidx.compose.remote.foundation.samples.RemoteBasicTextSample
+ *
+ * Example of [RemoteBasicText] with bold and italic styling:
+ *
+ * @sample androidx.compose.remote.foundation.samples.RemoteBasicTextStylingSample
+ *
+ * Example of [RemoteBasicText] with a monospace [RemoteFontFamily]:
+ *
+ * @sample androidx.compose.remote.foundation.samples.RemoteBasicTextFontFamilySample
  * @param text text to display
  * @param modifier the [RemoteModifier] applied to this text layout
  * @param color text color. If `null`, uses [RemoteTextStyle.color] from [style], or
@@ -67,9 +78,6 @@ import androidx.compose.ui.text.style.TextOverflow
  *   if also `null` in [style]
  * @param style base [RemoteTextStyle] configuration for properties such as color, font, letter
  *   spacing, and line height. Defaults to [RemoteTextStyle.Default]
- * @sample androidx.compose.remote.foundation.samples.RemoteBasicTextSample
- * @sample androidx.compose.remote.foundation.samples.RemoteBasicTextStylingSample
- * @sample androidx.compose.remote.foundation.samples.RemoteBasicTextFontFamilySample
  */
 @Composable
 @RemoteComposable
