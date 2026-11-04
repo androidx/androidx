@@ -129,22 +129,25 @@ public suspend fun GlanceAdaptiveWidgetManager.requestPin(
  *
  * Stores [widgetId] and [options] in the options of the widget being configured, then sets the
  * [Activity.RESULT_OK] result expected by the AppWidget host. Call this before [Activity.finish].
+ * This automatically triggers [GlanceAdaptiveWidgetReceiver.onUpdate], where the configured
+ * [widgetId] and [options] are available via [GlanceAdaptiveWidgetManager.getActiveInstances].
+ * Unlike standard [android.appwidget.AppWidgetProvider] configuration activities, callers do not
+ * need to push an initial widget update before finishing the [Activity].
+ *
  * Failures to read or store the options of the widget are propagated, and the result is not set if
  * this throws. Exceptions reach the caller, never the host: if the [Activity] then finishes without
  * [Activity.RESULT_OK], the host removes a newly placed widget, or keeps the previous configuration
  * of a reconfigured one.
  *
- * This is a blocking call that makes synchronous [android.appwidget.AppWidgetManager] Binder calls
- * and returns only once the options are stored and the result is set. It is not a suspend function
- * so that the result is always set before the caller finishes the [Activity].
- *
- * Once the options are stored, [pushUpdate][GlanceAdaptiveWidgetManager.pushUpdate] and
- * [getActiveInstances][GlanceAdaptiveWidgetManager.getActiveInstances] see the new widgetId, and
- * the widget is updated through [GlanceAdaptiveWidgetReceiver.onUpdate], even if the host sends no
- * update after configuration.
- *
- * Configuration activities are only used by AppWidget hosts, so this operation is provided by this
- * artifact as an extension rather than by [GlanceAdaptiveWidgetManager] itself.
+ * Example usage in a configuration [Activity]:
+ * ```kotlin
+ * GlanceAdaptiveWidgetManager(this).setConfigurationResult(
+ *     activity = this,
+ *     widgetId = "bucharest_weather",
+ *     options = bundleOf("location_id" to "bucharest"),
+ * )
+ * finish()
+ * ```
  *
  * @param activity Configuration [Activity] started with
  *   [android.appwidget.AppWidgetManager.ACTION_APPWIDGET_CONFIGURE].
@@ -153,12 +156,12 @@ public suspend fun GlanceAdaptiveWidgetManager.requestPin(
  *   generated if there is none. It must not be blank.
  * @param options Optional configuration options to store in the options of the configured widget.
  * @throws IllegalArgumentException if [activity]'s intent does not carry a valid
- *   [android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID], if that widget is not a widget of one
- *   of this app's [GlanceAdaptiveWidgetReceiver]s, or if [widgetId] is blank.
- * @throws IllegalStateException if this manager is not backed by an AppWidget delegate, for example
- *   if it was created for another surface.
+ *   [android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID], or if [widgetId] is blank.
+ * @throws IllegalStateException if this manager was not created for AppWidget hosts.
+ * @see GlanceAdaptiveWidgetReceiver.onUpdate
+ * @see GlanceAdaptiveWidgetManager.getActiveInstances
+ * @see GlanceAdaptiveWidgetManager.pushUpdate
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun GlanceAdaptiveWidgetManager.setConfigurationResult(
     activity: Activity,
     widgetId: String? = null,
@@ -167,8 +170,7 @@ public fun GlanceAdaptiveWidgetManager.setConfigurationResult(
     // A local copy, as Kotlin can't smart cast a property declared in another module.
     val delegate = delegate
     check(delegate is GlanceAdaptiveAppWidgetDelegate) {
-        "setConfigurationResult requires a GlanceAdaptiveWidgetManager backed by an AppWidget " +
-            "delegate"
+        "setConfigurationResult requires a GlanceAdaptiveWidgetManager created for AppWidget hosts"
     }
     delegate.setConfigurationResult(activity = activity, widgetId = widgetId, options = options)
 }
