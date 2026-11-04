@@ -1,0 +1,64 @@
+{
+  ":benchmark:benchmark-junit4": {
+    "baselineUnusedPackageWideKeepRules": [
+      "-keepclasseswithmembers class androidx.test.** { *; }",
+      "-keepclasseswithmembers class junit.** { *; }",
+      "-keepclasseswithmembers class org.junit.** { *; }"
+    ]
+  },
+  ":car:app:app": {
+    "overrideMaxKeepRatio": 0.46
+  },
+  ":car:app:app-automotive": {
+    "overrideMaxKeepRatio": 0.22
+  },
+  ":car:app:app-projected": {
+    "overrideMaxKeepRatio": 0.42
+  },
+  ":compose:material3:material3": {
+    "overrideMaxD8SizeMegabytes": 5.8
+  },
+  ":graphics:graphics-path": {
+    "baselineUsedPackageWideKeepRules": [
+      "-keepclasseswithmembers class androidx.graphics.path.** {\n    native <methods>;\n}"
+    ]
+  },
+  ":sqlite:sqlite-bundled": {
+    "baselineUsedPackageWideKeepRules": [
+      "-keepclasseswithmembers class androidx.sqlite.driver.bundled.** { native <methods>; }"
+    ]
+  },
+  ":wear:wear": {
+    "baselineUsedPackageWideKeepRules": [
+      "-keep,allowoptimization class androidx.wear.ambient.* { public *; }"
+    ]
+  },
+  ":web:web": {
+    "baselineUsedPackageWideKeepRules": [
+      "-keep public class org.chromium.support_lib_boundary.web.* { public *; }"
+    ],
+    "baselineUnusedPackageWideKeepRules": [
+      "-keep public class org.chromium.support_lib_boundary.* { public *; }"
+    ]
+  },
+  ":webgpu:webgpu": {
+    "overrideMaxKeepRatio": 0.31,
+    "baselineUsedPackageWideKeepRules": [
+      "-if class androidx.webgpu.** {\n    native <methods>;\n}\n-keep class !androidx.webgpu.*$Builder**, !androidx.webgpu.*$Companion, androidx.webgpu.* {\n    <init>(...);\n    long handle;\n    public *** get*();\n    public *** is*();\n    public void run();\n}",
+      "-keepclasseswithmembers,includedescriptorclasses class androidx.webgpu.** {\n    native <methods>;\n}"
+    ]
+  },
+  ":webkit:webkit": {
+    "baselineUsedPackageWideKeepRules": [
+      "-keep public class org.chromium.support_lib_boundary.* { public *; }"
+    ],
+    "baselineUnusedPackageWideKeepRules": [
+      "-keep public class org.chromium.support_lib_boundary.web.* { public *; }"
+    ]
+  },
+  ":window:window": {
+    "baselineUsedPackageWideKeepRules": [
+      "-keep interface androidx.window.area.reflectionguard.* {*;}"
+    ]
+  }
+}
