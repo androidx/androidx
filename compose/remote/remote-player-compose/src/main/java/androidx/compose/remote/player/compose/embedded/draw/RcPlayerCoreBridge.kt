@@ -18,13 +18,45 @@
 
 package androidx.compose.remote.player.compose.embedded.draw
 
+import android.graphics.Canvas
 import androidx.compose.remote.core.PaintContext
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.player.compose.embedded.doc.GraphContext
 import androidx.compose.remote.player.core.platform.AndroidPaintContext
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.util.fastForEach
+
+/**
+ * [AndroidPaintContext] wrapper that tracks [savePaint] / [restorePaint] depth so unbalanced saves
+ * inside bridged operations are unwound on [reset] instead of accumulating in `mPaintList` across
+ * frames, and unmatched restores are ignored safely.
+ */
+internal class EmbeddedAndroidPaintContext(
+    context: RemoteContext,
+    canvas: Canvas,
+) : AndroidPaintContext(context, canvas) {
+    private var savedPaintDepth = 0
+
+    override fun savePaint() {
+        super.savePaint()
+        savedPaintDepth++
+    }
+
+    override fun restorePaint() {
+        if (savedPaintDepth > 0) {
+            savedPaintDepth--
+            super.restorePaint()
+        }
+    }
+
+    override fun reset() {
+        while (savedPaintDepth > 0) {
+            savedPaintDepth--
+            super.restorePaint()
+        }
+        super.reset()
+    }
+}
 
 /**
  * Runs [block] with the View player's [AndroidPaintContext] installed on [remoteContext], bound to
@@ -56,11 +88,13 @@ internal inline fun DrawScope.withCorePaintContext(
             currentPaintContext.setCanvas(canvas)
             currentPaintContext
         } else {
-            AndroidPaintContext(remoteContext, canvas).also { remoteContext.setPaintContext(it) }
+            EmbeddedAndroidPaintContext(remoteContext, canvas).also {
+                remoteContext.setPaintContext(it)
+            }
         }
-    // Seed the core paint from the paint ops the Compose dispatcher already consumed into
-    // ComposeLocalPaint, so paint set *outside* this subtree (color, stroke, …) still applies.
-    paintState.sourceBundles.fastForEach { bundle -> paintContext.applyPaint(bundle) }
+    // Seed the core paint in O(1) directly from the resolved ComposeLocalPaint state rather than
+    // accumulating and replaying historical PaintBundles across draw passes or loops.
+    paintState.seedCorePaint(paintContext, graph ?: remoteContext)
     val previousMode = remoteContext.mode
     remoteContext.mode = RemoteContext.ContextMode.PAINT
     try {

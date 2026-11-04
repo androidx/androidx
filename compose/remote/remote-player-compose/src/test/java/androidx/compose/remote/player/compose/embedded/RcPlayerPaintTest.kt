@@ -19,6 +19,7 @@
 package androidx.compose.remote.player.compose.embedded
 
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -29,8 +30,11 @@ import androidx.compose.remote.core.operations.DrawPath
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.matrix.MatrixConstant
 import androidx.compose.remote.core.operations.paint.PaintBundle
+import androidx.compose.remote.core.operations.paint.PaintPathEffects
+import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RemoteComposeContextAndroid
+import androidx.compose.remote.player.core.platform.AndroidPaintContext
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -534,6 +538,153 @@ class RcPlayerPaintTest {
             drawRedToBlue(tileMode = TILE_MODE_CLAMP, shaderMatrixId = matrixId)
         }
         // Before the translated start, clamp extends the start color.
+        assertRed(bitmap, 25, 50)
+        assertThat(isBlue(bitmap.getPixel(99, 50))).isTrue()
+    }
+
+    /**
+     * Regression test for O(N^2) PaintBundle accumulation/replay across core-bridged operations.
+     *
+     * A crafted document within `Limits.MAX_OP_COUNT` (20,000) can run a loop of `PaintData`
+     * followed by a core-bridged operation (`ParticlesCompare` / `ParticlesLoop` / `DrawMesh2D`).
+     * If `ComposeLocalPaint` accumulates raw `PaintBundle`s and `withCorePaintContext` replays all
+     * of them on every bridged call, 2,000 iterations (~6,000 counted ops) trigger > 2,000,000
+     * uncounted `applyPaint` replays in a single frame.
+     */
+    @Test
+    fun loopedPaintDataBeforeCoreBridgedOps_doesNotReplayAccumulatedPaintBundlesQuadratically() {
+        val iterations = 2_000
+        val vars = FloatArray(2)
+        val document = buildDocument {
+            writer.buffer.addPaint(PaintBundle().apply { setColor(AndroidColor.WHITE) })
+            drawRect(0f, 0f, 100f, 100f)
+
+            val particles =
+                writer.createParticles(vars, arrayOf(floatArrayOf(50f), floatArrayOf(50f)), 1)
+
+            writer.startLoopVar(0f, 1f, iterations.toFloat())
+            writer.buffer.addPaint(
+                PaintBundle().apply {
+                    setColor(AndroidColor.RED)
+                    setStrokeWidth(4f)
+                    setLinearGradient(
+                        intArrayOf(AndroidColor.RED, AndroidColor.BLUE),
+                        0,
+                        null,
+                        0f,
+                        0f,
+                        100f,
+                        0f,
+                        TILE_MODE_CLAMP,
+                    )
+                }
+            )
+            writer.particlesComparison(
+                particles,
+                0.toShort(),
+                -1f,
+                -1f,
+                floatArrayOf(vars[0], 1000f, AnimatedFloatExpression.SUB),
+                arrayOf(floatArrayOf(vars[0]), floatArrayOf(vars[1])),
+                null,
+            )
+            writer.endLoop()
+
+            // Clear the loop's gradient shader and switch to a green stroke before the final
+            // bridged particle draw.
+            writer.buffer.addPaint(
+                PaintBundle().apply {
+                    setShader(0)
+                    setColor(AndroidColor.GREEN)
+                    setStyle(PaintBundle.STYLE_STROKE)
+                    setStrokeWidth(12f)
+                }
+            )
+            writer.particlesLoop(
+                particles,
+                null,
+                arrayOf(floatArrayOf(vars[0]), floatArrayOf(vars[1])),
+            ) {
+                writer.drawCircle(vars[0], vars[1], 25f)
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+        val state = RcPlayerState(document)
+        var applyPaintCalls = 0
+        val remoteContext = state.inspectableRemoteContext
+        remoteContext.setPaintContext(
+            object : AndroidPaintContext(remoteContext, Canvas()) {
+                override fun applyPaint(paintData: PaintBundle) {
+                    applyPaintCalls++
+                    super.applyPaint(paintData)
+                }
+            }
+        )
+
+        val bitmap = renderWithState(state)
+
+        // Must never scale quadratically (2,000 * 2,001 / 2 = 2,001,000+) with prior PaintData ops;
+        // at most 1 O(1) seed applyPaint per bridged operation (iterations + 1).
+        assertThat(applyPaintCalls).isAtMost(iterations + 1)
+
+        // Final bridged particle draw must still reflect the latest enclosing ComposeLocalPaint:
+        // green stroke at (50, 25), hollow white interior at (50, 50).
+        val onStroke = bitmap.getPixel(50, 25)
+        assertThat(AndroidColor.green(onStroke)).isGreaterThan(200)
+        assertThat(AndroidColor.red(onStroke)).isLessThan(60)
+        assertThat(AndroidColor.blue(onStroke)).isLessThan(60)
+
+        val center = bitmap.getPixel(50, 50)
+        assertThat(AndroidColor.red(center)).isGreaterThan(200)
+        assertThat(AndroidColor.green(center)).isGreaterThan(200)
+        assertThat(AndroidColor.blue(center)).isGreaterThan(200)
+    }
+
+    @Test
+    fun coreBridgedParticleDraw_preservesEnclosingGradientShaderMatrixAndAlpha() {
+        val vars = FloatArray(2)
+        rule.mainClock.autoAdvance = false
+        val bitmap = rule.renderDocument {
+            writer.buffer.addPaint(PaintBundle().apply { setColor(AndroidColor.WHITE) })
+            drawRect(0f, 0f, 100f, 100f)
+
+            val matrixId = 1001
+            MatrixConstant.apply(
+                writer.buffer.buffer,
+                matrixId,
+                0,
+                floatArrayOf(1f, 0f, 50f, 0f, 1f, 0f, 0f, 0f, 1f),
+            )
+            writer.buffer.addPaint(
+                PaintBundle().apply {
+                    setLinearGradient(
+                        intArrayOf(AndroidColor.RED, AndroidColor.BLUE),
+                        0,
+                        null,
+                        0f,
+                        0f,
+                        50f,
+                        0f,
+                        TILE_MODE_CLAMP,
+                    )
+                    setShaderMatrix(Utils.asNan(matrixId))
+                    setStyle(PaintBundle.STYLE_FILL)
+                    setPathEffect(PaintPathEffects.dash(0f, 10f, 5f))
+                }
+            )
+            val particles =
+                writer.createParticles(vars, arrayOf(floatArrayOf(50f), floatArrayOf(50f)), 1)
+            writer.particlesLoop(
+                particles,
+                null,
+                arrayOf(floatArrayOf(vars[0]), floatArrayOf(vars[1])),
+            ) {
+                writer.drawRect(0f, 0f, 100f, 100f)
+            }
+        }
+
+        // Translated gradient [0..50] -> [50..100]: x=25 clamps to RED, x=99 reaches BLUE.
         assertRed(bitmap, 25, 50)
         assertThat(isBlue(bitmap.getPixel(99, 50))).isTrue()
     }
