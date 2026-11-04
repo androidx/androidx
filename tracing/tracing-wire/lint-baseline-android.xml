@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.6.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (9.6.0-alpha01)" variant="all" version="9.6.0-alpha01">
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 24"
+        errorLine1="            tools:targetApi=&quot;24&quot; />"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/AndroidManifest.xml"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 24"
+        errorLine1="            tools:targetApi=&quot;24&quot;>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/AndroidManifest.xml"/>
+    </issue>
+
+</issues>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.6.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (9.6.0-alpha01)" variant="all" version="9.6.0-alpha01">
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    val previousEntries = remember { mutableStateOf(sceneState.entries.map { it.contentKey }) }"
+        errorLine2="                                                                       ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            val newBackStack = sceneState.entries.map { it.contentKey }"
+        errorLine2="                                                  ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                    .map { it.value }"
+        errorLine2="                     ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                    .forEach { if (!scenes.contains(it)) scenes.add(it) }"
+        errorLine2="                     ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                    (currentOverlayScenes + scenes).let { if (isPop) it.reversed() else it }"
+        errorLine2="                                                                        ~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
+    </issue>
+
+</issues>

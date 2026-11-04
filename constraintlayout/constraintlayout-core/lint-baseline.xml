@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+<issues format="6" by="lint 9.6.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (9.6.0-alpha01)" variant="all" version="9.6.0-alpha01">
 
     <issue
         id="PrivateConstructorForUtilityClass"
@@ -2647,8 +2647,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            Behaviour widthDefault) {"
-        errorLine2="            ~~~~~~~~~">
+        errorLine1="    public void setWidthDefault(Behaviour widthDefault) {"
+        errorLine2="                                ~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/core/dsl/Constraint.java"/>
     </issue>
@@ -2665,8 +2665,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            Behaviour heightDefault) {"
-        errorLine2="            ~~~~~~~~~">
+        errorLine1="    public void setHeightDefault(Behaviour heightDefault) {"
+        errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/core/dsl/Constraint.java"/>
     </issue>
