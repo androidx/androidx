@@ -100,6 +100,11 @@ internal class AuthenticationHandlerFingerprintManager(
         fingerprintDialogController.dismiss()
     }
 
+    override fun destroy() {
+        authenticationManager.destroy()
+        fingerprintDialogController.dismiss()
+    }
+
     /** Shows the fingerprint dialog UI to the user and begins authentication. */
     private fun showAuthentication() {
         fingerprintDialogController.showAuthentication()

@@ -1148,8 +1148,22 @@ public class BiometricPrompt implements BiometricConstants {
             @NonNull Runnable confirmCredentialActivityLauncher,
             @Nullable Executor executor,
             @NonNull AuthenticationCallback callback) {
+        this(context, lifecycleOwner, viewModelStoreOwner, confirmCredentialActivityLauncher,
+                executor, callback, null /* key */);
+    }
+
+    @SuppressLint("LambdaLast")
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public BiometricPrompt(
+            @NonNull Context context,
+            @NonNull LifecycleOwner lifecycleOwner,
+            @NonNull ViewModelStoreOwner viewModelStoreOwner,
+            @NonNull Runnable confirmCredentialActivityLauncher,
+            @Nullable Executor executor,
+            @NonNull AuthenticationCallback callback,
+            @Nullable Integer key) {
         init(context, lifecycleOwner, viewModelStoreOwner, confirmCredentialActivityLauncher,
-                executor, callback);
+                executor, callback, key);
     }
 
     /**
@@ -1175,6 +1189,8 @@ public class BiometricPrompt implements BiometricConstants {
      *                                          {@link null} if a default executor should be used.
      * @param confirmCredentialActivityLauncher The {@link Runnable} to launch KeyguardManager's
      *                                          ConfirmDeviceCredentialActivity.
+     * @param key                               Optional stable key identifying the launcher across
+     *                                          configuration changes.
      */
     private void init(
             @NonNull Context context,
@@ -1182,12 +1198,13 @@ public class BiometricPrompt implements BiometricConstants {
             @NonNull ViewModelStoreOwner viewModelStoreOwner,
             @NonNull Runnable confirmCredentialActivityLauncher,
             @Nullable Executor executor,
-            @NonNull AuthenticationCallback callback) {
+            @NonNull AuthenticationCallback callback,
+            @Nullable Integer key) {
         final AuthenticationViewModel viewModel = new ViewModelProvider(viewModelStoreOwner,
                 new AuthenticationViewModelFactory()).get(
                 AuthenticationViewModel.class);
         mHelper = AuthenticationHandler.create(context, lifecycleOwner, viewModel,
-                confirmCredentialActivityLauncher, executor, callback);
+                confirmCredentialActivityLauncher, executor, callback, key);
     }
 
     /**
@@ -1326,7 +1343,14 @@ public class BiometricPrompt implements BiometricConstants {
         biometricFragment.cancelAuthentication(BiometricFragment.CANCELED_FROM_CLIENT);
     }
 
-    void destroy() {
+    /**
+     * Cleans up lifecycle observers and references associated with this prompt instance.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void destroy() {
+        if (mHelper != null) {
+            mHelper.destroy();
+        }
         mClientFragmentManager = null;
     }
 

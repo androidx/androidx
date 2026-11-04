@@ -47,6 +47,9 @@ internal interface AuthenticationHandler {
     /** Explicitly cancels any ongoing authentication process. */
     fun cancelAuthentication(canceledFrom: CanceledFrom)
 
+    /** Cleans up observers and resources associated with this handler. */
+    fun destroy() {}
+
     companion object {
         /**
          * Creates and returns a new instance of an [AuthenticationHandler].
@@ -57,6 +60,7 @@ internal interface AuthenticationHandler {
          * configuration.
          */
         @JvmStatic
+        @JvmOverloads
         @JvmName("create")
         fun create(
             context: Context,
@@ -65,6 +69,7 @@ internal interface AuthenticationHandler {
             confirmCredentialActivityLauncher: Runnable,
             clientExecutor: Executor?,
             authenticationCallback: AuthenticationCallback?,
+            key: Int? = null,
         ): AuthenticationHandler {
             return DefaultAuthenticationHandler(
                 context,
@@ -73,6 +78,7 @@ internal interface AuthenticationHandler {
                 confirmCredentialActivityLauncher,
                 clientExecutor ?: PromptExecutor(),
                 authenticationCallback ?: DefaultClientAuthenticationCallback(),
+                key,
             )
         }
     }

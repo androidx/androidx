@@ -51,10 +51,19 @@ private const val TAG = "AuthResultRegistry"
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class AuthenticationResultRegistry {
+    private var onUnregister: (() -> Unit)? = null
+
+    /** Unregisters the launcher and removes its lifecycle observers. */
+    public fun unregister() {
+        onUnregister?.invoke()
+        onUnregister = null
+    }
+
     /**
      * Register a new callback with this registry. This is normally called by a higher level
      * convenience methods like [androidx.biometric.registerForAuthenticationResult].
      */
+    @JvmOverloads
     public fun register(
         context: Context,
         lifecycleOwner: LifecycleOwner,
@@ -62,6 +71,7 @@ public class AuthenticationResultRegistry {
         confirmCredentialActivityLauncher: Runnable,
         resultCallback: AuthenticationResultCallback,
         callbackExecutor: Executor? = null,
+        key: Int? = null,
     ): AuthenticationResultLauncher =
         register(
             contextProvider = { context },
@@ -70,12 +80,14 @@ public class AuthenticationResultRegistry {
             confirmCredentialActivityLauncher = confirmCredentialActivityLauncher,
             resultCallback = resultCallback,
             callbackExecutor = callbackExecutor,
+            key = key,
         )
 
     /**
      * Register a new callback with this registry using a lazy [contextProvider]. This allows
      * registration before a [androidx.fragment.app.Fragment] is attached to its host context.
      */
+    @JvmOverloads
     public fun register(
         contextProvider: () -> Context,
         lifecycleOwner: LifecycleOwner,
@@ -83,10 +95,13 @@ public class AuthenticationResultRegistry {
         confirmCredentialActivityLauncher: Runnable,
         resultCallback: AuthenticationResultCallback,
         callbackExecutor: Executor? = null,
+        key: Int? = null,
     ): AuthenticationResultLauncher {
+        onUnregister?.invoke()
         val callback = createAuthenticationCallback(resultCallback)
         var biometricPrompt: BiometricPrompt? = null
         var pendingRequest: AuthenticationRequest? = null
+        var isUnregistered = false
         val lifecycleContainer = LifecycleContainer(lifecycleOwner.lifecycle)
         val initPrompt = {
             biometricPrompt
@@ -97,6 +112,7 @@ public class AuthenticationResultRegistry {
                         confirmCredentialActivityLauncher,
                         callbackExecutor,
                         callback,
+                        key,
                     )
                     .also { biometricPrompt = it }
         }
@@ -114,12 +130,24 @@ public class AuthenticationResultRegistry {
                 // ensuring the authentication survives configuration changes.
                 pendingRequest = null
                 lifecycleContainer.clearObservers()
+                biometricPrompt = null
             }
         }
         lifecycleContainer.addObserver(lifecycleObserver)
+        onUnregister = {
+            isUnregistered = true
+            pendingRequest = null
+            lifecycleContainer.clearObservers()
+            biometricPrompt?.destroy()
+            biometricPrompt = null
+        }
 
         return object : AuthenticationResultLauncher {
             override fun launch(input: AuthenticationRequest) {
+                if (isUnregistered) {
+                    Log.w(TAG, "Ignoring launch() on an unregistered AuthenticationResultLauncher.")
+                    return
+                }
                 val state = lifecycleOwner.lifecycle.currentState
                 if (state == Lifecycle.State.DESTROYED) {
                     // ON_DESTROY has already cleared any pending request and observers, so a

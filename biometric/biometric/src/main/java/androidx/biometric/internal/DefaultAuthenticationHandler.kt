@@ -24,6 +24,7 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.BiometricPrompt.AuthenticationCallback
 import androidx.biometric.internal.data.CanceledFrom
+import androidx.biometric.internal.ui.isChangingConfigurations
 import androidx.biometric.internal.viewmodel.AuthenticationViewModel
 import androidx.biometric.utils.AuthenticatorUtils
 import androidx.biometric.utils.DeviceUtils
@@ -46,27 +47,30 @@ internal class DefaultAuthenticationHandler(
     private val confirmCredentialActivityLauncher: Runnable,
     private val clientExecutor: Executor,
     private val clientAuthenticationCallback: AuthenticationCallback,
+    key: Int? = null,
 ) : AuthenticationHandler {
-    val key: Int = viewModel.generateNextHandlerKey()
+    val key: Int = key ?: viewModel.generateNextHandlerKey()
     @VisibleForTesting var internalHandler: AuthenticationHandler? = null
     private val lifecycleContainer = BiometricPrompt.LifecycleContainer(lifecycleOwner.lifecycle)
 
     init {
-        // The handler key counter lives in the retained view model, so it must be reset whenever
-        // the host is destroyed - even if authenticate() was never called and no
-        // AuthenticationManager exists - so that recreated handlers receive the same keys and can
-        // reconnect to an in-progress session.
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_DESTROY) {
-                viewModel.resetHandlerKey()
-                lifecycleContainer.clearObservers()
+        if (key == null) {
+            // The handler key counter lives in the retained view model, so it must be reset
+            // whenever the host is destroyed - even if authenticate() was never called and no
+            // AuthenticationManager exists - so that recreated handlers receive the same keys and
+            // can reconnect to an in-progress session.
+            val observer = LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_DESTROY) {
+                    viewModel.resetHandlerKey()
+                    lifecycleContainer.clearObservers()
+                }
             }
+            lifecycleContainer.addObserver(observer)
         }
-        lifecycleContainer.addObserver(observer)
 
         // If the prompt is already showing (e.g., after a configuration change),
         // reconnect to the existing authentication session.
-        if (viewModel.isPromptShowing && key == viewModel.currentAuthenticationKey) {
+        if (viewModel.isPromptShowing && this.key == viewModel.currentAuthenticationKey) {
             internalHandler = createHandler()
         }
     }
@@ -75,12 +79,17 @@ internal class DefaultAuthenticationHandler(
         info: BiometricPrompt.PromptInfo,
         crypto: BiometricPrompt.CryptoObject?,
     ) {
+        internalHandler?.cancelAuthentication(CanceledFrom.INTERNAL)
+        internalHandler?.destroy()
+        internalHandler = null
+
         // currentAuthenticationKey must be set prior to observing for correct validation.
         viewModel.currentAuthenticationKey = key
         // Leave isPromptShowing false until the prompt is actually shown by
         // AuthenticationManager.showPromptForAuthentication(). createHandler() below replays
         // lifecycle events synchronously, and a true value here would be mistaken for a reconnect.
         viewModel.isPromptShowing = false
+        viewModel.isConfirmingDeviceCredential = false
         viewModel.isAwaitingResult = true
 
         // PromptInfo has to be set prior to others.
@@ -96,7 +105,24 @@ internal class DefaultAuthenticationHandler(
 
     override fun cancelAuthentication(canceledFrom: CanceledFrom) {
         internalHandler?.cancelAuthentication(canceledFrom)
+    }
+
+    override fun destroy() {
+        if (
+            internalHandler != null &&
+                !lifecycleOwner.isChangingConfigurations(context) &&
+                !viewModel.isConfirmingDeviceCredential
+        ) {
+            internalHandler?.cancelAuthentication(CanceledFrom.INTERNAL)
+            if (viewModel.currentAuthenticationKey == key) {
+                viewModel.currentAuthenticationKey = 0
+                viewModel.isPromptShowing = false
+                viewModel.isAwaitingResult = false
+            }
+        }
+        internalHandler?.destroy()
         internalHandler = null
+        lifecycleContainer.clearObservers()
     }
 
     private fun createHandler(): AuthenticationHandler {
@@ -112,11 +138,14 @@ internal class DefaultAuthenticationHandler(
         val isFingerprintNeeded =
             !isKeyguardManagerNeeded && context.isUsingFingerprintDialog(viewModel.cryptoObject)
 
+        lateinit var createdHandler: AuthenticationHandler
         val onDismissed = {
-            internalHandler = null
-            viewModel.currentAuthenticationKey = 0
-            viewModel.isPromptShowing = false
-            viewModel.isConfirmingDeviceCredential = false
+            if (internalHandler === createdHandler) {
+                internalHandler = null
+                viewModel.currentAuthenticationKey = 0
+                viewModel.isPromptShowing = false
+                viewModel.isConfirmingDeviceCredential = false
+            }
         }
 
         val manager =
@@ -130,11 +159,13 @@ internal class DefaultAuthenticationHandler(
                 onDismissed,
             )
 
-        return when {
-            isKeyguardManagerNeeded -> AuthenticationHandlerKeyguardManager(manager)
-            isFingerprintNeeded -> AuthenticationHandlerFingerprintManager(manager)
-            else -> AuthenticationHandlerBiometricPrompt(manager)
-        }
+        createdHandler =
+            when {
+                isKeyguardManagerNeeded -> AuthenticationHandlerKeyguardManager(manager)
+                isFingerprintNeeded -> AuthenticationHandlerFingerprintManager(manager)
+                else -> AuthenticationHandlerBiometricPrompt(manager)
+            }
+        return createdHandler
     }
 }
 

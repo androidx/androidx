@@ -91,6 +91,7 @@ internal class AuthenticationManager(
     private var isAuthenticationPrepared: Boolean = false
 
     private var callbackObserverJob: Job? = null
+    private var delayedPromptJob: Job? = null
 
     /**
      * Observes a negative button press, which is typically used for either canceling the
@@ -207,10 +208,13 @@ internal class AuthenticationManager(
 
         // Check if we should delay showing the authentication prompt.
         if (viewModel.isDelayingPrompt) {
-            lifecycleOwner.lifecycleScope.launch {
-                delay(SHOW_PROMPT_DELAY_MS.toLong())
-                showPromptForAuthentication(showAuthentication)
-            }
+            delayedPromptJob?.cancel()
+            delayedPromptJob =
+                lifecycleOwner.lifecycleScope.launch {
+                    delay(SHOW_PROMPT_DELAY_MS.toLong())
+                    delayedPromptJob = null
+                    showPromptForAuthentication(showAuthentication)
+                }
         } else {
             showPromptForAuthentication(showAuthentication)
         }
@@ -224,6 +228,8 @@ internal class AuthenticationManager(
         if (canceledFrom != CanceledFrom.CLIENT && viewModel.isIgnoringCancel) {
             return
         }
+        delayedPromptJob?.cancel()
+        delayedPromptJob = null
         viewModel.canceledFrom = canceledFrom
         viewModel.cancellationSignalProvider.cancel()
     }
@@ -239,7 +245,14 @@ internal class AuthenticationManager(
             viewModel.setDelayedDelayingPrompt(false, SHOW_PROMPT_DELAY_MS.toLong())
         }
         stopObservingAuth()
+        lifecycleContainer.clearObservers()
         onDismissed?.invoke()
+    }
+
+    /** Stops observing authentication state and removes all lifecycle observers. */
+    fun destroy() {
+        stopObservingAuth()
+        lifecycleContainer.clearObservers()
     }
 
     /** Prepares the authentication, setting up view model observers. */
@@ -270,6 +283,8 @@ internal class AuthenticationManager(
      */
     private fun stopObservingAuth() {
         isAuthenticationPrepared = false
+        delayedPromptJob?.cancel()
+        delayedPromptJob = null
         disconnectCallbackObservers()
         uiStateObserver?.disconnectObservers()
     }

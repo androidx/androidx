@@ -130,6 +130,10 @@ internal class AuthenticationHandlerBiometricPrompt(
         authenticationManager.cancelAuthentication(canceledFrom)
     }
 
+    override fun destroy() {
+        authenticationManager.destroy()
+    }
+
     /**
      * Shows the framework [android.hardware.biometrics.BiometricPrompt] UI to the user and begins
      * authentication.

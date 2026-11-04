@@ -141,6 +141,66 @@ class AuthenticationManagerTest {
     }
 
     @Test
+    fun cancelAuthentication_duringDelay_preventsDelayedPromptFromShowing() {
+        val testDispatcher = StandardTestDispatcher()
+        return runTest(testDispatcher) {
+            Dispatchers.setMain(testDispatcher)
+            try {
+                val localLifecycleOwner = TestLifecycleOwner()
+                val localManager =
+                    getAuthenticationManager(
+                        lifecycleOwner = localLifecycleOwner,
+                        authenticationCallback = clientAuthenticationCallback,
+                    )
+                localManager.initialize()
+                localLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
+
+                viewModel.isDelayingPrompt = true
+                localManager.authenticate(getPromptInfo(), null) { isAuthenticationShown = true }
+                localManager.cancelAuthentication(CanceledFrom.CLIENT)
+
+                testDispatcher.scheduler.advanceUntilIdle()
+
+                assertThat(isAuthenticationShown).isFalse()
+                assertThat(viewModel.isPromptShowing).isFalse()
+            } finally {
+                Dispatchers.resetMain()
+            }
+        }
+    }
+
+    @Test
+    fun destroy_whileActive_clearsLifecycleObserver_doesNotReconnectOnSubsequentStart() {
+        manager.authenticate(getPromptInfo(), null) {}
+        manager.destroy()
+
+        testLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+        testLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
+
+        var secondManagerResult: BiometricPrompt.AuthenticationResult? = null
+        val secondManager =
+            getAuthenticationManager(
+                lifecycleOwner = testLifecycleOwner,
+                authenticationCallback =
+                    object : BiometricPrompt.AuthenticationCallback() {
+                        override fun onAuthenticationSucceeded(
+                            result: BiometricPrompt.AuthenticationResult
+                        ) {
+                            secondManagerResult = result
+                        }
+                    },
+            )
+        secondManager.initialize()
+        secondManager.authenticate(getPromptInfo(), null) {}
+
+        val result = BiometricPrompt.AuthenticationResult(null, 0)
+        viewModel.setAuthenticationResult(result)
+
+        assertThat(authResult).isNull()
+        assertThat(secondManagerResult).isEqualTo(result)
+    }
+
+    @Test
     fun cancelAuthentication_cancels() {
         val cancellationSignal = viewModel.cancellationSignalProvider.fingerprintCancellationSignal
         assertThat(cancellationSignal.isCanceled).isFalse()
@@ -185,6 +245,40 @@ class AuthenticationManagerTest {
 
         assertThat(viewModel.isPromptShowing).isFalse()
         assertThat(viewModel.isConfirmingDeviceCredential).isFalse()
+    }
+
+    @Test
+    fun dismiss_clearsLifecycleObserver_doesNotReconnectOnSubsequentStart() {
+        manager.authenticate(getPromptInfo(), null) {}
+        manager.dismiss()
+
+        // Simulate app backgrounding and returning to foreground (ON_STOP -> ON_START)
+        testLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+        testLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
+
+        // A second manager now authenticates on the same ViewModel and LifecycleOwner
+        var secondManagerResult: BiometricPrompt.AuthenticationResult? = null
+        val secondManager =
+            getAuthenticationManager(
+                lifecycleOwner = testLifecycleOwner,
+                authenticationCallback =
+                    object : BiometricPrompt.AuthenticationCallback() {
+                        override fun onAuthenticationSucceeded(
+                            result: BiometricPrompt.AuthenticationResult
+                        ) {
+                            secondManagerResult = result
+                        }
+                    },
+            )
+        secondManager.initialize()
+        secondManager.authenticate(getPromptInfo(), null) {}
+
+        val result = BiometricPrompt.AuthenticationResult(null, 0)
+        viewModel.setAuthenticationResult(result)
+
+        // The dismissed first manager must not steal the result from the active second manager
+        assertThat(authResult).isNull()
+        assertThat(secondManagerResult).isEqualTo(result)
     }
 
     @Test

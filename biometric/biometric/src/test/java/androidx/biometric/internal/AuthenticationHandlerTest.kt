@@ -152,6 +152,159 @@ class AuthenticationHandlerTest {
     }
 
     @Test
+    fun onAuthenticationResult_afterFirstHandlerCompletesAndLifecycleRestarts_dispatchedToSecondHandler() {
+        testLifecycleOwner.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_START)
+
+        var authResult1Count = 0
+        val handler1 =
+            createHandler(
+                mainExecutor = { it.run() },
+                authenticationCallback =
+                    object : BiometricPrompt.AuthenticationCallback() {
+                        override fun onAuthenticationSucceeded(
+                            result: BiometricPrompt.AuthenticationResult
+                        ) {
+                            authResult1Count++
+                        }
+                    },
+            )
+
+        var authResult2: BiometricPrompt.AuthenticationResult? = null
+        val handler2 =
+            createHandler(
+                mainExecutor = { it.run() },
+                authenticationCallback =
+                    object : BiometricPrompt.AuthenticationCallback() {
+                        override fun onAuthenticationSucceeded(
+                            result: BiometricPrompt.AuthenticationResult
+                        ) {
+                            authResult2 = result
+                        }
+                    },
+            )
+
+        // 1. Trigger and complete authentication via handler2 (transient)
+        handler2.authenticate(bioAndCredentialInfo, null)
+        viewModel.setAuthenticationResult(BiometricPrompt.AuthenticationResult(null, 0))
+        assertThat(authResult2).isNotNull()
+        authResult2 = null
+
+        // 2. Unregister/destroy handler2 (simulating transient composable leaving composition)
+        handler2.destroy()
+
+        // 3. Background and foreground the host Activity (ON_STOP -> ON_START)
+        testLifecycleOwner.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_STOP)
+        testLifecycleOwner.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_START)
+
+        // 4. Trigger authentication via handler1 (persistent)
+        handler1.authenticate(bioAndCredentialInfo, null)
+        val expectedResult = BiometricPrompt.AuthenticationResult(null, 0)
+        viewModel.setAuthenticationResult(expectedResult)
+
+        assertThat(authResult1Count).isEqualTo(1)
+        assertThat(authResult2).isNull()
+    }
+
+    @Test
+    fun destroy_whileAuthenticationActive_cancelsAndDoesNotInterceptSubsequentHandler() {
+        testLifecycleOwner.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_START)
+        val cancellationSignal = viewModel.cancellationSignalProvider.biometricCancellationSignal
+
+        var authResult1Count = 0
+        val handler1 =
+            createHandler(
+                mainExecutor = { it.run() },
+                authenticationCallback =
+                    object : BiometricPrompt.AuthenticationCallback() {
+                        override fun onAuthenticationSucceeded(
+                            result: BiometricPrompt.AuthenticationResult
+                        ) {
+                            authResult1Count++
+                        }
+                    },
+            )
+
+        var authResult2Count = 0
+        val handler2 =
+            createHandler(
+                mainExecutor = { it.run() },
+                authenticationCallback =
+                    object : BiometricPrompt.AuthenticationCallback() {
+                        override fun onAuthenticationSucceeded(
+                            result: BiometricPrompt.AuthenticationResult
+                        ) {
+                            authResult2Count++
+                        }
+                    },
+            )
+
+        handler2.authenticate(bioAndCredentialInfo, null)
+        handler2.assertInternalHandlerIsNotNull()
+
+        // Destroy while active (e.g. Composable disposed without configuration change)
+        handler2.destroy()
+        handler2.assertInternalHandlerIsNull()
+        assertThat(cancellationSignal.isCanceled).isTrue()
+        assertThat(viewModel.isPromptShowing).isFalse()
+
+        testLifecycleOwner.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_STOP)
+        testLifecycleOwner.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_START)
+
+        handler1.authenticate(bioAndCredentialInfo, null)
+        viewModel.setAuthenticationResult(BiometricPrompt.AuthenticationResult(null, 0))
+
+        assertThat(authResult1Count).isEqualTo(1)
+        assertThat(authResult2Count).isEqualTo(0)
+    }
+
+    @Test
+    fun cancelAuthentication_thenDestroy_clearsObserversAndDoesNotInterceptSubsequentHandler() {
+        testLifecycleOwner.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_START)
+
+        var authResult1Count = 0
+        val handler1 =
+            createHandler(
+                mainExecutor = { it.run() },
+                authenticationCallback =
+                    object : BiometricPrompt.AuthenticationCallback() {
+                        override fun onAuthenticationSucceeded(
+                            result: BiometricPrompt.AuthenticationResult
+                        ) {
+                            authResult1Count++
+                        }
+                    },
+            )
+
+        var authResult2Count = 0
+        val handler2 =
+            createHandler(
+                mainExecutor = { it.run() },
+                authenticationCallback =
+                    object : BiometricPrompt.AuthenticationCallback() {
+                        override fun onAuthenticationSucceeded(
+                            result: BiometricPrompt.AuthenticationResult
+                        ) {
+                            authResult2Count++
+                        }
+                    },
+            )
+
+        handler2.authenticate(bioAndCredentialInfo, null)
+        // Cancel (async ERROR_CANCELED has not arrived yet) and immediately destroy
+        handler2.cancelAuthentication(androidx.biometric.internal.data.CanceledFrom.CLIENT)
+        handler2.destroy()
+
+        testLifecycleOwner.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_STOP)
+        testLifecycleOwner.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_START)
+
+        handler1.authenticate(bioAndCredentialInfo, null)
+        viewModel.setAuthenticationResult(BiometricPrompt.AuthenticationResult(null, 0))
+
+        assertThat(authResult1Count).isEqualTo(1)
+        assertThat(authResult2Count).isEqualTo(0)
+    }
+
+    @Test
     fun init_reconnectsToHandler_onlyValidForCorrectKey() {
         // create two handlers and authenticate with the second one
         createHandler()
