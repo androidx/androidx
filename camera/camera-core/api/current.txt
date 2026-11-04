@@ -178,6 +178,7 @@ package androidx.camera.core {
     method @SuppressCompatibility @androidx.camera.core.ExperimentalRetryPolicy public androidx.camera.core.RetryPolicy getCameraProviderInitRetryPolicy();
     method public int getMinimumLoggingLevel();
     method public android.os.Handler? getSchedulerHandler(android.os.Handler?);
+    method public boolean isRepeatingStreamForced();
   }
 
   public static final class CameraXConfig.Builder {
@@ -188,6 +189,7 @@ package androidx.camera.core {
     method public androidx.camera.core.CameraXConfig.Builder setCameraOpenRetryMaxTimeoutInMillisWhileResuming(long);
     method @SuppressCompatibility @androidx.camera.core.ExperimentalRetryPolicy public androidx.camera.core.CameraXConfig.Builder setCameraProviderInitRetryPolicy(androidx.camera.core.RetryPolicy);
     method public androidx.camera.core.CameraXConfig.Builder setMinimumLoggingLevel(@IntRange(from=android.util.Log.DEBUG, to=android.util.Log.ERROR) int);
+    method public androidx.camera.core.CameraXConfig.Builder setRepeatingStreamForced(boolean);
     method public androidx.camera.core.CameraXConfig.Builder setSchedulerHandler(android.os.Handler);
   }
 

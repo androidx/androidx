@@ -250,7 +250,6 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
      *
      * @see Builder#setRepeatingStreamForced(boolean)
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public boolean isRepeatingStreamForced() {
         return mConfig.retrieveOption(OPTION_REPEATING_STREAM_FORCED, true);
     }
@@ -516,7 +515,6 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
          * {@code true} if not set.
          * @return this builder.
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         public @NonNull Builder setRepeatingStreamForced(boolean forced) {
             getMutableConfig().insertOption(OPTION_REPEATING_STREAM_FORCED, forced);
             return this;
