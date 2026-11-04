@@ -178,6 +178,10 @@ public class ComponentModifiers extends PaintOperation
                 context.translate(-tx, -ty);
                 ((MultiClickModifierOperation2) op).paint(context);
                 context.translate(tx, ty);
+            } else if (op instanceof RippleModifierOperation2) {
+                context.translate(-tx, -ty);
+                ((RippleModifierOperation2) op).paint(context);
+                context.translate(tx, ty);
             } else if (op instanceof PaintOperation) {
                 ((PaintOperation) op).paint(context);
             }
@@ -211,6 +215,8 @@ public class ComponentModifiers extends PaintOperation
             } else if (op instanceof MultiClickModifier) {
                 ((DecoratorComponent) op).layout(context, component, width, height);
             } else if (op instanceof MultiClickModifierOperation2) {
+                ((DecoratorComponent) op).layout(context, component, width, height);
+            } else if (op instanceof RippleModifierOperation2) {
                 ((DecoratorComponent) op).layout(context, component, width, height);
             } else if (op instanceof DecoratorComponent) {
                 ((DecoratorComponent) op).layout(context, component, w, h);

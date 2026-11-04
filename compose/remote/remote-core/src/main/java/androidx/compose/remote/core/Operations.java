@@ -171,6 +171,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.MarqueeModifierO
 import androidx.compose.remote.core.operations.layout.modifiers.OffsetModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.PaddingModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.RippleModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.RippleModifierOperation2;
 import androidx.compose.remote.core.operations.layout.modifiers.RoundedClipRectModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.RunActionOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation;
@@ -689,6 +690,8 @@ public class Operations {
         customMap.put(Operations.MODIFIER_SCROLL, ScrollModifierOperation2::read);
         customMap.remove(Operations.MODIFIER_MULTI_CLICK);
         customMap.put(Operations.MODIFIER_MULTI_CLICK, MultiClickModifierOperation2::read);
+        customMap.remove(Operations.MODIFIER_RIPPLE);
+        customMap.put(Operations.MODIFIER_RIPPLE, RippleModifierOperation2::read);
         return customMap;
     }
 
