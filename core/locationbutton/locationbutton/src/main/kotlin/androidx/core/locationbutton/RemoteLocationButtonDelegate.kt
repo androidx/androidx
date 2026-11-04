@@ -18,10 +18,17 @@ package androidx.core.locationbutton
 
 import android.app.Activity
 import android.content.res.Configuration
+import android.view.Display
 import android.view.SurfaceView
 
 internal interface RemoteLocationButtonDelegate {
     fun isSessionActive(): Boolean
+
+    /**
+     * The display that the latest session was requested for, which is kept after a session error,
+     * or [Display.INVALID_DISPLAY] once the session is closed.
+     */
+    fun getSessionDisplayId(): Int
 
     fun openSession(activity: Activity, displayId: Int, surfaceView: SurfaceView)
 

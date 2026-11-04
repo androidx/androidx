@@ -22,5 +22,9 @@
     <!-- Apply the test theme to the test application context -->
     <application android:theme="@style/Theme.AndroidXCore.LocationButton.Test">
         <activity android:name="androidx.core.locationbutton.LocationButtonTestActivity" />
+        <activity
+            android:name="androidx.core.locationbutton.LocationButtonConfigChangesTestActivity"
+            android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
+            android:resizeableActivity="true" />
     </application>
 </manifest>

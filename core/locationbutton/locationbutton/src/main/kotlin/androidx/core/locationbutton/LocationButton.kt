@@ -25,14 +25,14 @@ import android.content.ContextWrapper
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.PixelFormat
-import android.hardware.display.DisplayManager
 import android.os.Build
 import android.os.LocaleList
 import android.util.AttributeSet
-import android.util.Log
+import android.view.Display
 import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.ActivityResultRegistryOwner
 import androidx.activity.result.contract.ActivityResultContracts
@@ -210,13 +210,36 @@ constructor(
     private val openSessionRunnable = Runnable {
         val surfaceView = surfaceView ?: return@Runnable
         val delegate = remoteDelegate ?: return@Runnable
+        // The session must be opened for the display the surface is shown on, which isn't
+        // necessarily the default display or the display of the hosting activity.
+        val display =
+            checkNotNull(surfaceView.display) {
+                "LocationButton's surface has no display while attached"
+            }
 
-        delegate.openSession(requireActivity(), getDisplayId(), surfaceView)
+        delegate.openSession(requireActivity(), display.displayId, surfaceView)
+    }
+
+    // A window that moves to another display is laid out again, with or without a configuration
+    // change, so each layout checks the display.
+    private val globalLayoutListener = ViewTreeObserver.OnGlobalLayoutListener {
+        // A layout pass still calls a listener that was removed during the pass, so this can run
+        // right after the button is detached.
+        if (!isAttachedToWindow) {
+            return@OnGlobalLayoutListener
+        }
+        if (isDisplayChanged()) {
+            closeSession()
+            if (findActivityOrNull() != null) {
+                openSession()
+            }
+        }
     }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         if (isRemoteButtonSupported) {
+            viewTreeObserver.addOnGlobalLayoutListener(globalLayoutListener)
             openSession()
         } else {
             registerForPermissionResult()
@@ -225,6 +248,9 @@ constructor(
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
+        if (isRemoteButtonSupported) {
+            viewTreeObserver.removeOnGlobalLayoutListener(globalLayoutListener)
+        }
         removeCallbacks(openSessionRunnable)
         closeSession()
         activityResultLauncher?.unregister()
@@ -490,9 +516,20 @@ constructor(
 
     override fun onConfigurationChanged(newConfig: Configuration?) {
         super.onConfigurationChanged(newConfig)
-        if (newConfig != null) {
+        // After a move to another display, the next layout opens a new session, so the session
+        // for the previous display isn't updated.
+        if (newConfig != null && !isDisplayChanged()) {
             remoteDelegate?.changeConfiguration(newConfig)
         }
+    }
+
+    /** Whether the session was opened for a display other than the one this button is on now. */
+    private fun isDisplayChanged(): Boolean {
+        val sessionDisplayId = remoteDelegate?.getSessionDisplayId() ?: Display.INVALID_DISPLAY
+        val currentDisplayId = surfaceView?.display?.displayId ?: Display.INVALID_DISPLAY
+        return sessionDisplayId != Display.INVALID_DISPLAY &&
+            currentDisplayId != Display.INVALID_DISPLAY &&
+            currentDisplayId != sessionDisplayId
     }
 
     /**
@@ -581,15 +618,6 @@ constructor(
         remoteDelegate?.setTextType(textType)
         syncLocalButton()
         requestLayout()
-    }
-
-    private fun getDisplayId(): Int {
-        val displayManager = context.getSystemService(DisplayManager::class.java)
-        return displayManager?.displays?.firstOrNull()?.displayId
-            ?: run {
-                Log.w(LOG_TAG, "Display is null, defaulting to ID 0")
-                0
-            }
     }
 
     private fun requireActivity(): Activity =
@@ -724,7 +752,6 @@ constructor(
     }
 
     public companion object {
-        private const val LOG_TAG = "LocationButton"
         private const val DEBUG = false
 
         // Equivalent to android.view.WindowManagerPolicyConstants.APPLICATION_PANEL_SUBLAYER
