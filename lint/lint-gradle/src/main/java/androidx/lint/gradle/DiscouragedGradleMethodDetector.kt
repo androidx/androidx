@@ -62,6 +62,12 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
                 // not an unrelated method with the same name).
                 potentialReplacements.forEach { (containingClassName, replacement) ->
                     if (!containingClass.isInstanceOf(containingClassName)) return@forEach
+                    // Task graph checks target the API itself, not same-named Kotlin extensions.
+                    if (
+                        containingClassName == TASK_EXECUTION_GRAPH &&
+                            method.containingClass?.isInstanceOf(TASK_EXECUTION_GRAPH) != true
+                    )
+                        return@forEach
 
                     val fix =
                         replacement.recommendedReplacement?.let {
@@ -260,6 +266,7 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
         private const val TASK = "org.gradle.api.Task"
         private const val TASK_CONTAINER = "org.gradle.api.tasks.TaskContainer"
         private const val TASK_PROVIDER = "org.gradle.api.tasks.TaskProvider"
+        private const val TASK_EXECUTION_GRAPH = "org.gradle.api.execution.TaskExecutionGraph"
         private const val DOMAIN_OBJECT_COLLECTION = "org.gradle.api.DomainObjectCollection"
         private const val TASK_COLLECTION = "org.gradle.api.tasks.TaskCollection"
         private const val BUILD_SERVICE_REGISTRATION =
@@ -396,6 +403,8 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
                     mapOf(
                         PROJECT to Replacement("providers.gradleProperty", PROJECT_ISOLATION_ISSUE)
                     ),
+                "hasTask" to
+                    mapOf(TASK_EXECUTION_GRAPH to Replacement(null, PROJECT_ISOLATION_ISSUE)),
                 "property" to
                     mapOf(
                         PROJECT to Replacement("providers.gradleProperty", PROJECT_ISOLATION_ISSUE)
@@ -449,6 +458,8 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
                 "setShouldRunAfter" to mapOf(TASK to Replacement(null, PERFORMANCE_ISSUE)),
                 "shouldRunAfter" to mapOf(TASK to Replacement(null, PERFORMANCE_ISSUE)),
                 "toString" to mapOf(PROVIDER to Replacement("get", TO_STRING_ON_PROVIDER_ISSUE)),
+                "whenReady" to
+                    mapOf(TASK_EXECUTION_GRAPH to Replacement(null, PROJECT_ISOLATION_ISSUE)),
                 "whenTaskAdded" to
                     mapOf(
                         TASK_CONTAINER to Replacement("configureEach", EAGER_CONFIGURATION_ISSUE)

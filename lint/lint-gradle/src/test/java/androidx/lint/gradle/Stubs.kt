@@ -199,10 +199,29 @@ internal val STUBS =
             """
             package org.gradle.api.invocation
 
+            import org.gradle.api.execution.TaskExecutionGraph
             import org.gradle.api.services.BuildServiceRegistry
 
             interface Gradle {
                 val sharedServices: BuildServiceRegistry
+                val taskGraph: TaskExecutionGraph
+            }
+            """
+                .trimIndent()
+        ),
+        java(
+            """
+            package org.gradle.api.execution;
+
+            import groovy.lang.Closure;
+            import org.gradle.api.Action;
+            import org.gradle.api.Task;
+
+            public interface TaskExecutionGraph {
+                boolean hasTask(String path);
+                boolean hasTask(Task task);
+                void whenReady(Action<TaskExecutionGraph> action);
+                void whenReady(Closure closure);
             }
             """
                 .trimIndent()
