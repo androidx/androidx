@@ -39,6 +39,7 @@ import androidx.compose.ui.semantics.Role
  *   disabled for accessibility services
  * @param role the type of user interface element. Accessibility services might use this to describe
  *   the element or do customizations
+ * @return a [RemoteModifier] that makes the component clickable
  */
 public fun RemoteModifier.clickable(
     onClick: RemoteAction,

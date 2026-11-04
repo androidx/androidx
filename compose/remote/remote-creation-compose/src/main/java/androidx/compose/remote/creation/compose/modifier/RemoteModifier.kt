@@ -47,6 +47,8 @@ public sealed interface RemoteModifier {
      * left of another in a `+` expression or in [operation]'s parameter order affects all of the
      * elements that appear after it. [foldIn] may be used to accumulate a value starting from the
      * parent or head of the modifier chain to the final wrapped child.
+     *
+     * @return the accumulated value after applying [operation] from outside in
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun <R> foldIn(initial: R, operation: (R, Element) -> R): R
@@ -59,17 +61,25 @@ public sealed interface RemoteModifier {
      * left of another in a `+` expression or in [operation]'s parameter order affects all of the
      * elements that appear after it. [foldOut] may be used to accumulate a value starting from the
      * child or tail of the modifier chain up to the parent or head of the chain.
+     *
+     * @return the accumulated value after applying [operation] from inside out
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun <R> foldOut(initial: R, operation: (Element, R) -> R): R
 
-    /** Returns `true` if [predicate] returns true for any [Element] in this [RemoteModifier]. */
+    /**
+     * Returns `true` if [predicate] returns true for any [Element] in this [RemoteModifier].
+     *
+     * @return `true` if any [Element] matches [predicate], or `false` otherwise
+     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun any(predicate: (Element) -> Boolean): Boolean
 
     /**
      * Returns `true` if [predicate] returns true for all [Element]s in this [RemoteModifier] or if
      * this [RemoteModifier] contains no [Element]s.
+     *
+     * @return `true` if all [Element]s match [predicate] or this modifier is empty
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun all(predicate: (Element) -> Boolean): Boolean
@@ -80,6 +90,7 @@ public sealed interface RemoteModifier {
      * Returns a [RemoteModifier] representing this modifier followed by [other] in sequence.
      *
      * @param other The [RemoteModifier] to append after this modifier.
+     * @return a [RemoteModifier] representing this modifier followed by [other]
      */
     public infix fun then(other: RemoteModifier): RemoteModifier =
         if (other === RemoteModifier) this else CombinedRemoteModifier(this, other)
@@ -141,6 +152,8 @@ public sealed interface RemoteModifier {
  * Converts a [RemoteModifier] to a [RecordingModifier] within a [RemoteStateScope].
  *
  * This is the primary entry point for converting remote modifiers during document capture.
+ *
+ * @return a [RecordingModifier] encoding [modifier]
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteStateScope.toRecordingModifier(modifier: RemoteModifier): RecordingModifier {

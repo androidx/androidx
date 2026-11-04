@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.isSpecified
  *
  * @param image the [ImageVector] to create the painter for.
  * @param tintColor the tint color to apply to the image.
+ * @return a [RemotePainter] that draws [image] with [tintColor]
  */
 public fun painterRemoteVector(
     image: ImageVector,

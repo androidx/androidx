@@ -195,6 +195,7 @@ public object RemoteIconToggleButtonDefaults {
      * [ExtraLargeIconSize].
      *
      * @param buttonSize The size of the icon toggle button
+     * @return the recommended icon size in [RemoteDp] for [buttonSize]
      */
     public fun iconSizeFor(buttonSize: RemoteDp): RemoteDp =
         buttonSize
@@ -207,6 +208,8 @@ public object RemoteIconToggleButtonDefaults {
     /**
      * Creates a [RemoteIconToggleButtonShapes] with a static [shape] that doesn't change between
      * the checked and unchecked states.
+     *
+     * @return a [RemoteIconToggleButtonShapes] with the default static [shape]
      */
     @Composable public fun shapes(): RemoteIconToggleButtonShapes = shapes(shape)
 
@@ -215,6 +218,7 @@ public object RemoteIconToggleButtonDefaults {
      * the checked and unchecked states.
      *
      * @param shape The shape of the toggle button.
+     * @return a [RemoteIconToggleButtonShapes] with the given static [shape]
      */
     @Composable
     public fun shapes(shape: RemoteShape): RemoteIconToggleButtonShapes =
@@ -223,6 +227,8 @@ public object RemoteIconToggleButtonDefaults {
     /**
      * Creates a [RemoteIconToggleButtonShapes] where the toggle button changes from [shape] to
      * [checkedShape] when checked.
+     *
+     * @return a [RemoteIconToggleButtonShapes] with the default unchecked and checked shapes
      */
     @Composable
     public fun variantShapes(): RemoteIconToggleButtonShapes =
@@ -237,6 +243,7 @@ public object RemoteIconToggleButtonDefaults {
      *
      * @param uncheckedShape The shape of the toggle button when unchecked.
      * @param checkedShape The shape of the toggle button when checked.
+     * @return a [RemoteIconToggleButtonShapes] with the configured unchecked and checked shapes
      */
     @Composable
     public fun variantShapes(
@@ -251,6 +258,8 @@ public object RemoteIconToggleButtonDefaults {
     /**
      * Creates a [RemoteIconToggleButtonShapes] with a static [shape] that animates to
      * [pressedShape] when pressed.
+     *
+     * @return a [RemoteIconToggleButtonShapes] with the default resting and pressed shapes
      */
     @Composable
     public fun animatedShapes(): RemoteIconToggleButtonShapes = animatedShapes(shape = null)
@@ -264,6 +273,7 @@ public object RemoteIconToggleButtonDefaults {
      *
      * @param shape The shape of the toggle button when not pressed.
      * @param pressedShape The shape of the toggle button when pressed.
+     * @return a [RemoteIconToggleButtonShapes] with the configured resting and pressed shapes
      */
     @Composable
     public fun animatedShapes(
@@ -283,6 +293,8 @@ public object RemoteIconToggleButtonDefaults {
     /**
      * Creates a [RemoteIconToggleButtonShapes] where the toggle button changes from [shape] to
      * [checkedShape] when checked, and animates to a shape with smaller corners when pressed.
+     *
+     * @return a [RemoteIconToggleButtonShapes] with the default checked and pressed animated shapes
      */
     @Composable
     public fun variantAnimatedShapes(): RemoteIconToggleButtonShapes =
@@ -298,6 +310,8 @@ public object RemoteIconToggleButtonDefaults {
      *
      * @param uncheckedShape The shape of the toggle button when unchecked.
      * @param checkedShape The shape of the toggle button when checked.
+     * @return a [RemoteIconToggleButtonShapes] with the configured checked and pressed animated
+     *   shapes
      */
     @Composable
     public fun variantAnimatedShapes(
@@ -317,6 +331,8 @@ public object RemoteIconToggleButtonDefaults {
     /**
      * Creates a [RemoteIconToggleButtonColors] for a [RemoteIconToggleButton] - by default, a
      * primary container when checked and a tonal container when unchecked.
+     *
+     * @return a [RemoteIconToggleButtonColors] with the default colors for [RemoteIconToggleButton]
      */
     @Composable
     public fun colors(): RemoteIconToggleButtonColors =
@@ -341,6 +357,8 @@ public object RemoteIconToggleButtonDefaults {
      *   unchecked and not enabled.
      * @param disabledUncheckedContentColor The content color of this toggle button when unchecked
      *   and not enabled.
+     * @return a [RemoteIconToggleButtonColors] with the configured colors for
+     *   [RemoteIconToggleButton]
      */
     @Composable
     public fun colors(
@@ -421,6 +439,8 @@ public class RemoteIconToggleButtonColors(
     /**
      * Returns a copy of this [RemoteIconToggleButtonColors] optionally overriding some of the
      * values.
+     *
+     * @return a copy of this [RemoteIconToggleButtonColors] with the specified values overridden
      */
     public fun copy(
         checkedContainerColor: RemoteColor = this.checkedContainerColor,
@@ -446,6 +466,8 @@ public class RemoteIconToggleButtonColors(
     /**
      * Resolves the container color. When [checkedProgress] is not `null`, the color is interpolated
      * between the unchecked and checked colors by it, instead of being selected from [checked].
+     *
+     * @return the resolved container [RemoteColor]
      */
     @Stable
     internal fun containerColor(
@@ -473,6 +495,8 @@ public class RemoteIconToggleButtonColors(
     /**
      * Resolves the content color. When [checkedProgress] is not `null`, the color is interpolated
      * between the unchecked and checked colors by it, instead of being selected from [checked].
+     *
+     * @return the resolved content [RemoteColor]
      */
     @Stable
     internal fun contentColor(
@@ -549,6 +573,8 @@ public class RemoteIconToggleButtonShapes(
     /**
      * Returns a copy of this [RemoteIconToggleButtonShapes] optionally overriding some of the
      * values.
+     *
+     * @return a copy of this [RemoteIconToggleButtonShapes] with the specified values overridden
      */
     public fun copy(
         uncheckedShape: RemoteShape = this.uncheckedShape,

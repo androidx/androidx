@@ -175,6 +175,8 @@ public object RemoteTextToggleButtonDefaults {
     /**
      * Creates a [RemoteTextToggleButtonShapes] with a static [shape] that doesn't change between
      * the checked and unchecked states.
+     *
+     * @return a [RemoteTextToggleButtonShapes] with the default static [shape]
      */
     @Composable public fun shapes(): RemoteTextToggleButtonShapes = shapes(shape)
 
@@ -183,6 +185,7 @@ public object RemoteTextToggleButtonDefaults {
      * the checked and unchecked states.
      *
      * @param shape The shape of the toggle button.
+     * @return a [RemoteTextToggleButtonShapes] with the given static [shape]
      */
     @Composable
     public fun shapes(shape: RemoteShape): RemoteTextToggleButtonShapes =
@@ -191,6 +194,8 @@ public object RemoteTextToggleButtonDefaults {
     /**
      * Creates a [RemoteTextToggleButtonShapes] where the toggle button changes from [shape] to
      * [checkedShape] when checked.
+     *
+     * @return a [RemoteTextToggleButtonShapes] with the default unchecked and checked shapes
      */
     @Composable
     public fun variantShapes(): RemoteTextToggleButtonShapes =
@@ -205,6 +210,7 @@ public object RemoteTextToggleButtonDefaults {
      *
      * @param uncheckedShape The shape of the toggle button when unchecked.
      * @param checkedShape The shape of the toggle button when checked.
+     * @return a [RemoteTextToggleButtonShapes] with the configured unchecked and checked shapes
      */
     @Composable
     public fun variantShapes(
@@ -219,6 +225,8 @@ public object RemoteTextToggleButtonDefaults {
     /**
      * Creates a [RemoteTextToggleButtonShapes] with a static [shape] that animates to
      * [pressedShape] when pressed.
+     *
+     * @return a [RemoteTextToggleButtonShapes] with the default resting and pressed shapes
      */
     @Composable
     public fun animatedShapes(): RemoteTextToggleButtonShapes = animatedShapes(shape = null)
@@ -232,6 +240,7 @@ public object RemoteTextToggleButtonDefaults {
      *
      * @param shape The shape of the toggle button when not pressed.
      * @param pressedShape The shape of the toggle button when pressed.
+     * @return a [RemoteTextToggleButtonShapes] with the configured resting and pressed shapes
      */
     @Composable
     public fun animatedShapes(
@@ -251,6 +260,8 @@ public object RemoteTextToggleButtonDefaults {
     /**
      * Creates a [RemoteTextToggleButtonShapes] where the toggle button changes from [shape] to
      * [checkedShape] when checked, and animates to a shape with smaller corners when pressed.
+     *
+     * @return a [RemoteTextToggleButtonShapes] with the default checked and pressed animated shapes
      */
     @Composable
     public fun variantAnimatedShapes(): RemoteTextToggleButtonShapes =
@@ -266,6 +277,8 @@ public object RemoteTextToggleButtonDefaults {
      *
      * @param uncheckedShape The shape of the toggle button when unchecked.
      * @param checkedShape The shape of the toggle button when checked.
+     * @return a [RemoteTextToggleButtonShapes] with the configured checked and pressed animated
+     *   shapes
      */
     @Composable
     public fun variantAnimatedShapes(
@@ -285,6 +298,8 @@ public object RemoteTextToggleButtonDefaults {
     /**
      * Creates a [RemoteTextToggleButtonColors] for a [RemoteTextToggleButton] - by default, a
      * primary container when checked and a tonal container when unchecked.
+     *
+     * @return a [RemoteTextToggleButtonColors] with the default colors for [RemoteTextToggleButton]
      */
     @Composable
     public fun colors(): RemoteTextToggleButtonColors =
@@ -309,6 +324,8 @@ public object RemoteTextToggleButtonDefaults {
      *   unchecked and not enabled.
      * @param disabledUncheckedContentColor The content color of this toggle button when unchecked
      *   and not enabled.
+     * @return a [RemoteTextToggleButtonColors] with the configured colors for
+     *   [RemoteTextToggleButton]
      */
     @Composable
     public fun colors(
@@ -389,6 +406,8 @@ public class RemoteTextToggleButtonColors(
     /**
      * Returns a copy of this [RemoteTextToggleButtonColors] optionally overriding some of the
      * values.
+     *
+     * @return a copy of this [RemoteTextToggleButtonColors] with the specified values overridden
      */
     public fun copy(
         checkedContainerColor: RemoteColor = this.checkedContainerColor,
@@ -414,6 +433,8 @@ public class RemoteTextToggleButtonColors(
     /**
      * Resolves the container color. When [checkedProgress] is not `null`, the color is interpolated
      * between the unchecked and checked colors by it, instead of being selected from [checked].
+     *
+     * @return the resolved container [RemoteColor]
      */
     @Stable
     internal fun containerColor(
@@ -441,6 +462,8 @@ public class RemoteTextToggleButtonColors(
     /**
      * Resolves the content color. When [checkedProgress] is not `null`, the color is interpolated
      * between the unchecked and checked colors by it, instead of being selected from [checked].
+     *
+     * @return the resolved content [RemoteColor]
      */
     @Stable
     internal fun contentColor(
@@ -517,6 +540,8 @@ public class RemoteTextToggleButtonShapes(
     /**
      * Returns a copy of this [RemoteTextToggleButtonShapes] optionally overriding some of the
      * values.
+     *
+     * @return a copy of this [RemoteTextToggleButtonShapes] with the specified values overridden
      */
     public fun copy(
         uncheckedShape: RemoteShape = this.uncheckedShape,

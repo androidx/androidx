@@ -33,6 +33,7 @@ public interface RemoteCornerSize {
      *
      * @param shapeSize The size of the shape.
      * @param density The current [RemoteDensity].
+     * @return the corner size in pixels as a [RemoteFloat]
      */
     public fun toPx(shapeSize: RemoteSize, density: RemoteDensity): RemoteFloat
 }
@@ -41,6 +42,7 @@ public interface RemoteCornerSize {
  * Creates [RemoteCornerSize] with provided size.
  *
  * @param size the corner size defined in [RemoteDp].
+ * @return a [RemoteCornerSize] with the given [size]
  */
 public fun RemoteCornerSize(size: RemoteDp): RemoteCornerSize = RemoteDpCornerSize(size)
 
@@ -56,6 +58,7 @@ internal data class RemoteDpCornerSize(val size: RemoteDp) : RemoteCornerSize {
  * Creates [RemoteCornerSize] with provided size.
  *
  * @param size the corner size defined in pixels.
+ * @return a [RemoteCornerSize] with the given [size] in pixels
  */
 public fun RemoteCornerSize(size: RemoteFloat): RemoteCornerSize = PxCornerSize(size)
 
@@ -72,6 +75,7 @@ internal data class PxCornerSize(val size: RemoteFloat) : RemoteCornerSize {
  *
  * @param percent the corner size defined in percents of the shape's smaller side. Can't be negative
  *   or larger than 100 percent.
+ * @return a [RemoteCornerSize] with the given [percent] of the shape's smaller side
  */
 public fun RemoteCornerSize(@IntRange(from = 0, to = 100) percent: Int): RemoteCornerSize =
     RemotePercentCornerSize(percent)

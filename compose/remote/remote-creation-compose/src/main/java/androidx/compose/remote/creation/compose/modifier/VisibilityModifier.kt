@@ -33,6 +33,7 @@ internal class VisibilityModifier(public val visible: RemoteInt) : RemoteModifie
  *
  * @param visible A [RemoteInt] indicating visibility (`Component.Visibility.VISIBLE`, `INVISIBLE`,
  *   or `GONE`).
+ * @return a [RemoteModifier] that sets visibility to [visible]
  */
 public fun RemoteModifier.visibility(visible: RemoteInt): RemoteModifier =
     then(VisibilityModifier(visible))

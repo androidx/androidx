@@ -611,7 +611,11 @@ public object RemoteAnimatedVectorParser {
     }
 }
 
-/** Convenience extension to parse a [RemoteAnimatedVector] from resources. */
+/**
+ * Convenience extension to parse a [RemoteAnimatedVector] from resources.
+ *
+ * @return the parsed [RemoteAnimatedVector] for resource [id]
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteAnimatedVector.Companion.fromXml(
     res: Resources,

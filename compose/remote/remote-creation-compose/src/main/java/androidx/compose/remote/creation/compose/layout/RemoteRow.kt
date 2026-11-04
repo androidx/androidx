@@ -38,6 +38,7 @@ public class RemoteRowScope {
      *
      * @sample androidx.compose.remote.creation.compose.samples.RemoteRowWeightSample
      * @param weight The proportional width to allocate to this element.
+     * @return a [RemoteModifier] that allocates width proportional to [weight]
      */
     public fun RemoteModifier.weight(weight: RemoteFloat): RemoteModifier =
         then(WidthModifier(Type.WEIGHT, weight))

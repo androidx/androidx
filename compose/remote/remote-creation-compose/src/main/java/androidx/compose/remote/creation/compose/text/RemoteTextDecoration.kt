@@ -26,11 +26,19 @@ import kotlin.jvm.JvmInline
 @Immutable
 @JvmInline
 public value class RemoteTextDecoration private constructor(private val mask: Int) {
-    /** Creates a decoration that includes all the decorations in both this and [decoration]. */
+    /**
+     * Creates a decoration that includes all the decorations in both this and [decoration].
+     *
+     * @return a [RemoteTextDecoration] combining this decoration and [decoration]
+     */
     public operator fun plus(decoration: RemoteTextDecoration): RemoteTextDecoration =
         RemoteTextDecoration(mask or decoration.mask)
 
-    /** Check whether this [RemoteTextDecoration] contains the given [other] decoration. */
+    /**
+     * Check whether this [RemoteTextDecoration] contains the given [other] decoration.
+     *
+     * @return `true` if this decoration includes all decorations in [other], `false` otherwise
+     */
     public operator fun contains(other: RemoteTextDecoration): Boolean =
         (mask or other.mask) == mask
 

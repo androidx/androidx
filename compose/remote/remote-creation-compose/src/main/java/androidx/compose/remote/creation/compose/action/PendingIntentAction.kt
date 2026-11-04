@@ -68,6 +68,7 @@ import androidx.compose.ui.platform.LocalInspectionMode
  * @param extras The [String] extras to fill in, as key to value pairs.
  * @param pendingIntent A lambda that returns the [PendingIntent] to trigger. The [Context] is
  *   provided to the lambda to ensure it's available during serialization.
+ * @return a remembered [RemoteAction] that sends the [PendingIntent]
  */
 @RemoteComposable
 @Composable
@@ -179,6 +180,8 @@ public class PendingIntentAction(
          * that contains [VALUE_SEPARATOR] shifts the values after it to later keys; the last key
          * then receives the remainder. That is accepted: it can only mix up values between declared
          * keys, never add a key.
+         *
+         * @return the encoded [RemoteString] metadata, or `null` if [extras] is empty
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun encodeExtras(extras: List<Pair<String, RemoteString>>): RemoteString? {
@@ -194,6 +197,9 @@ public class PendingIntentAction(
         /**
          * Decodes metadata written by [encodeExtras]. Never throws: malformed metadata decodes to
          * fewer, or no, entries.
+         *
+         * @return a [Map] of decoded extra keys to [String] values, or an empty map if [metadata]
+         *   is `null` or malformed
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun decodeExtras(metadata: String?): Map<String, String> {
@@ -236,6 +242,8 @@ public class PendingIntentAction(
          * action is not a [PendingIntentAction].
          *
          * @param actionId The id of an id action.
+         * @return the index of the [PendingIntent], or `null` if [actionId] is not a
+         *   [PendingIntentAction]
          */
         public fun indexForActionId(actionId: Int): Int? =
             (actionId - FIRST_ACTION_ID).takeIf { actionId >= FIRST_ACTION_ID }
@@ -246,6 +254,8 @@ public class PendingIntentAction(
          *
          * @param name The name of a named action.
          * @param value The value of a named action.
+         * @return the index of the [PendingIntent], or `null` if the action is not a
+         *   [PendingIntentAction]
          */
         public fun indexForNamedAction(name: String, value: Any?): Int? =
             if (name == ACTION_NAME) value as? Int else null

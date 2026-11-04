@@ -38,6 +38,7 @@ public class RemoteColumnScope {
      *
      * @sample androidx.compose.remote.creation.compose.samples.RemoteColumnWeightSample
      * @param weight The proportional height to allocate to this element.
+     * @return a [RemoteModifier] that allocates height proportional to [weight]
      */
     public fun RemoteModifier.weight(weight: RemoteFloat): RemoteModifier =
         then(HeightModifier(Type.WEIGHT, weight))

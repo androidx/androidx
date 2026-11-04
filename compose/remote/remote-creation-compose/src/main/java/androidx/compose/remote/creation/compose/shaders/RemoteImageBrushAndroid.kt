@@ -34,6 +34,7 @@ import androidx.compose.ui.layout.ContentScale
  * @param tileModeY The [ComposeTileMode] to use for the bitmap in the y-axis. Defaults to
  *   [ComposeTileMode.Clamp] to repeat the edge pixels
  * @param contentScale The [ContentScale] to use when scaling the bitmap.
+ * @return a [RemoteShaderBrush] that draws [image] as a texture
  */
 @Stable
 public fun RemoteBrush.Companion.image(

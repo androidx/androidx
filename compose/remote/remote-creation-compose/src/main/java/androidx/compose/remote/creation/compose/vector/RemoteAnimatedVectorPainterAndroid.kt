@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
  * @param context The Android context used to load the resource.
  * @param id The XML drawable resource ID.
  * @param progress The [RemoteFloat] animation progress.
+ * @return a [RemotePainter] that renders the animated vector resource [id] at [progress]
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun painterRemoteAnimatedVector(
@@ -57,6 +58,7 @@ public fun painterRemoteAnimatedVector(
  *
  * @param id The XML drawable resource ID.
  * @param progress The [RemoteFloat] animation progress.
+ * @return a remembered [RemotePainter] for the animated vector resource [id] at [progress]
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
@@ -76,6 +78,8 @@ public fun rememberRemoteAnimatedVectorPainter(
  * Converts a [RemoteVectorSnapshot] to a standard Compose [ImageVector].
  *
  * This allows rendering the evaluated state of an animated vector in standard Compose.
+ *
+ * @return an [ImageVector] representing this snapshot
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteVectorSnapshot.toImageVector(): ImageVector {

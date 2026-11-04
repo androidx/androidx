@@ -75,7 +75,11 @@ public val RemoteDp.asDpOrNull: Dp?
 public val RemoteDp.asDp: Dp
     get() = constantValue.dp
 
-/** Extension function to convert a [Dp] to a [RemoteDp]. */
+/**
+ * Extension function to convert a [Dp] to a [RemoteDp].
+ *
+ * @return a [RemoteDp] representing this [Dp]
+ */
 public fun Dp.asRdp(): RemoteDp {
     check(isSpecified) { "Dp conversion not possible for unspecified Dp" }
     return RemoteDp(this.value.rf)

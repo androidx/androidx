@@ -100,6 +100,8 @@ public object RemoteIconButtonDefaults {
     /**
      * Returns a [RemoteIconButtonColors] with the colors for a filled [RemoteIconButton] - by
      * default, a colored background with a contrasting icon color.
+     *
+     * @return a [RemoteIconButtonColors] with the default colors for a filled [RemoteIconButton]
      */
     @Composable
     @RemoteComposable
@@ -117,6 +119,7 @@ public object RemoteIconButtonDefaults {
      *   `null` to use the theme default.
      * @param disabledContentColor The color of this icon when not enabled, or `null` to use the
      *   theme default.
+     * @return a [RemoteIconButtonColors] with the configured colors for a filled [RemoteIconButton]
      */
     @Composable
     @RemoteComposable
@@ -138,6 +141,9 @@ public object RemoteIconButtonDefaults {
     /**
      * Returns a [RemoteIconButtonColors] for a filled tonal [RemoteIconButton] with a muted
      * background and contrasting content color.
+     *
+     * @return a [RemoteIconButtonColors] with the default colors for a filled tonal
+     *   [RemoteIconButton]
      */
     @Composable
     @RemoteComposable
@@ -155,6 +161,8 @@ public object RemoteIconButtonDefaults {
      *   `null` to use the theme default.
      * @param disabledContentColor The color of this icon when not enabled, or `null` to use the
      *   theme default.
+     * @return a [RemoteIconButtonColors] with the configured colors for a filled tonal
+     *   [RemoteIconButton]
      */
     @Composable
     @RemoteComposable
@@ -176,6 +184,9 @@ public object RemoteIconButtonDefaults {
     /**
      * Returns a [RemoteIconButtonColors] with higher chroma container colors for
      * [RemoteIconButton].
+     *
+     * @return a [RemoteIconButtonColors] with the default colors for a filled variant
+     *   [RemoteIconButton]
      */
     @Composable
     @RemoteComposable
@@ -193,6 +204,8 @@ public object RemoteIconButtonDefaults {
      *   `null` to use the theme default.
      * @param disabledContentColor The color of this icon when not enabled, or `null` to use the
      *   theme default.
+     * @return a [RemoteIconButtonColors] with the configured colors for a filled variant
+     *   [RemoteIconButton]
      */
     @Composable
     @RemoteComposable
@@ -214,6 +227,8 @@ public object RemoteIconButtonDefaults {
     /**
      * Returns a [RemoteIconButtonColors] with a transparent background for outlined
      * [RemoteIconButton].
+     *
+     * @return a [RemoteIconButtonColors] with the default colors for an outlined [RemoteIconButton]
      */
     @Composable
     @RemoteComposable
@@ -228,6 +243,8 @@ public object RemoteIconButtonDefaults {
      *   default.
      * @param disabledContentColor The color of this icon when not enabled, or `null` to use the
      *   theme default.
+     * @return a [RemoteIconButtonColors] with the configured colors for an outlined
+     *   [RemoteIconButton]
      */
     @Composable
     @RemoteComposable
@@ -246,6 +263,8 @@ public object RemoteIconButtonDefaults {
      * Returns a [RemoteIconButtonColors] for an icon button - by default, a transparent background
      * with contrasting content color. If the button is disabled then the colors default to
      * [RemoteColorScheme.onSurface] with suitable alpha values applied.
+     *
+     * @return a [RemoteIconButtonColors] with the default colors for a [RemoteIconButton]
      */
     @Composable
     @RemoteComposable
@@ -265,6 +284,7 @@ public object RemoteIconButtonDefaults {
      *   `null` to use the theme default.
      * @param disabledContentColor The content color of this icon button when not enabled, or `null`
      *   to use the theme default.
+     * @return a [RemoteIconButtonColors] with the configured colors for a [RemoteIconButton]
      */
     @Composable
     @RemoteComposable
@@ -292,6 +312,7 @@ public object RemoteIconButtonDefaults {
      * [ExtraSmallButtonSize] returns [SmallIconSize].
      *
      * @param buttonSize The size of the icon button
+     * @return the recommended icon size in [RemoteDp] for [buttonSize]
      */
     public fun iconSizeFor(buttonSize: RemoteDp): RemoteDp =
         buttonSize
@@ -419,6 +440,7 @@ public class RemoteIconButtonColors(
      * @param contentColor the content color of this icon button when enabled.
      * @param disabledContainerColor the background color of this icon button when not enabled.
      * @param disabledContentColor the content color of this icon button when not enabled.
+     * @return a copy of this [RemoteIconButtonColors] with the specified values overridden
      */
     public fun copy(
         containerColor: RemoteColor = this.containerColor,

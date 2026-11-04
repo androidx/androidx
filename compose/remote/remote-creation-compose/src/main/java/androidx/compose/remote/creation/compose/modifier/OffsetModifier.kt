@@ -65,6 +65,7 @@ internal class OffsetModifier(
  *
  * @param x The horizontal offset in [RemoteDp].
  * @param y The vertical offset in [RemoteDp].
+ * @return a [RemoteModifier] that offsets the content by ([x], [y])
  */
 public fun RemoteModifier.offset(x: RemoteDp = 0.rdp, y: RemoteDp = 0.rdp): RemoteModifier =
     then(OffsetModifier(x, y))

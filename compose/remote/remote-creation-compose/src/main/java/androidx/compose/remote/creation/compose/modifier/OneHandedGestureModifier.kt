@@ -113,6 +113,7 @@ internal class OneHandedGestureModifier(
  * @param onGestureAvailable The `showIndicator` of the hint state. It adds 1 to the hint counter.
  * @param onGesture What the gesture does. It must be a host action with a constant name, for
  *   example `hostAction("startOrPause".rs)`.
+ * @return a [RemoteModifier] that declares the one-handed gesture
  * @throws IllegalArgumentException if [onGestureAvailable] isn't the `showIndicator` of a hint
  *   state, if [onGesture] isn't a host action with a constant name, or if
  *   [showIndicatorDelayMillis] is negative.

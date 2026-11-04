@@ -191,6 +191,7 @@ internal class HeadlessSession(
      *   pump, paced by [HeadlessFrameClock.minFramePeriod], instead of being sent immediately.
      * @param maxFrames how many frames content may request before settling gives up with
      *   [QuiescenceResult.ContinuousFrames].
+     * @return the [QuiescenceResult] describing whether the recomposer settled
      * @throws IllegalStateException if the session is not started, or already closed.
      * @throws CancellationException if the session is closed while settling.
      */

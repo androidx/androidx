@@ -34,6 +34,7 @@ private fun RemoteModifier.Element.isHeightConstrained(): Boolean =
  *
  * @param minWidth The minimum width to be used if width is otherwise unconstrained.
  * @param minHeight The minimum height to be used if height is otherwise unconstrained.
+ * @return a [RemoteModifier] that constrains the default minimum size
  */
 public fun RemoteModifier.defaultMinSize(
     minWidth: RemoteDp? = null,

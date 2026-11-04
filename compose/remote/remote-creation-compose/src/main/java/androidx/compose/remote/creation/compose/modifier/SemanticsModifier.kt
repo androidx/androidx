@@ -215,6 +215,7 @@ internal class AccessibilitySemantics : RemoteSemanticsPropertyReceiver {
  * Clears the semantics of all descendants and sets new semantics.
  *
  * @param properties A lambda to configure the semantics.
+ * @return a [RemoteModifier] that clears descendant semantics and applies [properties]
  */
 public fun RemoteModifier.clearAndSetSemantics(
     properties: RemoteSemanticsPropertyReceiver.() -> Unit
@@ -226,6 +227,7 @@ public fun RemoteModifier.clearAndSetSemantics(
  *
  * @param mergeDescendants Whether to merge the semantics of all descendants into this node.
  * @param properties A lambda to configure the semantics.
+ * @return a [RemoteModifier] that configures semantics using [properties]
  */
 public fun RemoteModifier.semantics(
     mergeDescendants: Boolean = false,

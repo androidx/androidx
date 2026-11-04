@@ -41,6 +41,8 @@ import kotlin.math.PI
 /**
  * Calculates the default progress for an [animatedVector], which animates continuously based on
  * [RemoteTimeVariables.animationTime].
+ *
+ * @return a [RemoteFloat] representing the animation progress in `[0, 1)`
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun defaultProgress(animatedVector: RemoteAnimatedVector): RemoteFloat {
@@ -90,6 +92,7 @@ public class RemoteAnimatedVectorPainter(
  *
  * @param animatedVector The animated vector drawable to render.
  * @param progress The [RemoteFloat] progress to evaluate the animation at.
+ * @return a [RemotePainter] that renders [animatedVector] at [progress]
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun painterRemoteAnimatedVector(
@@ -105,6 +108,7 @@ public fun painterRemoteAnimatedVector(
  *
  * @param animatedVector The animated vector drawable to render.
  * @param progress The [RemoteFloat] animation progress.
+ * @return a remembered [RemotePainter] that renders [animatedVector] at [progress]
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable

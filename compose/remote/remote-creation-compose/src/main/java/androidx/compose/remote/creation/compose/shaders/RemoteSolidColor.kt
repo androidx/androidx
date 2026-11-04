@@ -28,6 +28,7 @@ import androidx.compose.runtime.Stable
  * Creates a solid color brush.
  *
  * @param color color to apply
+ * @return a [RemoteBrush] that fills with [color]
  */
 @Stable
 public fun RemoteBrush.Companion.solidColor(color: RemoteColor): RemoteBrush =

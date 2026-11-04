@@ -83,6 +83,7 @@ internal class BorderModifier(
  * @param shape The shape of the border. When [RemoteRoundedCornerShape] is used, only the
  *   [RemoteRoundedCornerShape.topStart] corner size is currently taken into consideration for all
  *   corners.
+ * @return a [RemoteModifier] that draws a border around the element
  */
 public fun RemoteModifier.border(
     width: RemoteDp,

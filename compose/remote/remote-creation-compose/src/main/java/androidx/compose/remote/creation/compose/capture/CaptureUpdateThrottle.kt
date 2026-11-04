@@ -76,6 +76,8 @@ private constructor(private val burst: Int, private val intervalMillis: Long) {
          * Emits up to [burst] documents immediately, then at most one document per
          * [intervalMillis], earning back one document of burst for every [intervalMillis] without
          * emissions.
+         *
+         * @return a [CaptureUpdateThrottle] configured with [burst] and [intervalMillis]
          */
         @JvmStatic
         public fun rateLimited(burst: Int, intervalMillis: Long): CaptureUpdateThrottle {

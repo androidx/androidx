@@ -27,6 +27,7 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
  *
  * @sample androidx.compose.remote.creation.compose.samples.CombinedActionSample
  * @param actions The actions to combine.
+ * @return a [RemoteAction] that runs all [actions] in order
  */
 public fun combinedAction(vararg actions: RemoteAction): RemoteAction = CombinedAction(*actions)
 

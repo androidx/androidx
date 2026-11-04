@@ -36,6 +36,7 @@ internal class TouchCancelActionModifier(public val action: RemoteAction) : Remo
  * Performs [action] when a touch gesture is cancelled on the element.
  *
  * @param action The [RemoteAction] to perform when the touch is cancelled.
+ * @return a [RemoteModifier] that runs [action] when a touch is cancelled
  */
 public fun RemoteModifier.onTouchCancel(action: RemoteAction): RemoteModifier =
     then(TouchCancelActionModifier(action))

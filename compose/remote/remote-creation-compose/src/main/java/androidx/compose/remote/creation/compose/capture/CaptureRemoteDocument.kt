@@ -56,6 +56,7 @@ import kotlinx.coroutines.flow.flow
  * time, see [toSingleThreadedRecomposerContext]), unlike [captureRemoteDocument], which defaults to
  * [Dispatchers.Default].
  *
+ * @return a [ByteArray] containing the serialized RemoteCompose document
  * @throws IllegalStateException if [content] does not settle, e.g. because of an effect that
  *   mutates state on every frame or a Compose animation. Animate remote documents with remote
  *   expressions instead.
@@ -121,6 +122,8 @@ internal suspend fun captureSingleRemoteDocument(
  * Composition and rendering run on [coroutineContext] (serialized to one task at a time, see
  * [toSingleThreadedRecomposerContext]), which defaults to [Dispatchers.Default]. Pass
  * [EmptyCoroutineContext] to run on the collecting coroutine's dispatcher instead.
+ *
+ * @return a [Flow] of [ByteArray]s containing the serialized RemoteCompose documents
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun captureRemoteDocument(

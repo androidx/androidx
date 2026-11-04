@@ -22,7 +22,11 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.sp
 
-/** Creates a [RemoteTextUnit] from a [RemoteFloat] and a Compose [TextUnitType]. */
+/**
+ * Creates a [RemoteTextUnit] from a [RemoteFloat] and a Compose [TextUnitType].
+ *
+ * @return a [RemoteTextUnit] with the given [value] and [textUnitType]
+ */
 public fun RemoteTextUnit(
     value: RemoteFloat,
     textUnitType: TextUnitType,
@@ -41,6 +45,7 @@ public fun RemoteTextUnit(
 /**
  * Converts this [RemoteTextUnit] to a [TextUnit] if it has a constant value.
  *
+ * @return the constant [TextUnit] value of this [RemoteTextUnit]
  * @throws IllegalStateException if this state does not have a constant value.
  */
 public fun RemoteTextUnit.asConstantTextUnit(): TextUnit =
@@ -48,7 +53,11 @@ public fun RemoteTextUnit.asConstantTextUnit(): TextUnit =
         RemoteTextUnitType.Sp -> constantValue.sp
     }
 
-/** Converts this [RemoteTextUnit] to a [TextUnit] if it has a constant value, or null otherwise. */
+/**
+ * Converts this [RemoteTextUnit] to a [TextUnit] if it has a constant value, or null otherwise.
+ *
+ * @return the constant [TextUnit] value of this [RemoteTextUnit], or `null` if it is dynamic
+ */
 public fun RemoteTextUnit.asConstantTextUnitOrNull(): TextUnit? {
     val constValue = constantValueOrNull ?: return null
     return when (type) {
@@ -56,7 +65,11 @@ public fun RemoteTextUnit.asConstantTextUnitOrNull(): TextUnit? {
     }
 }
 
-/** Extension function to convert a [TextUnit] to a [RemoteTextUnit]. */
+/**
+ * Extension function to convert a [TextUnit] to a [RemoteTextUnit].
+ *
+ * @return a [RemoteTextUnit] representing this [TextUnit]
+ */
 public fun TextUnit.asRemoteTextUnit(): RemoteTextUnit {
     val unitType =
         when (type) {
@@ -66,7 +79,11 @@ public fun TextUnit.asRemoteTextUnit(): RemoteTextUnit {
     return RemoteTextUnit(this.value.rf, unitType)
 }
 
-/** Extension function to convert a [Dp] to a [RemoteTextUnit] in Sp. */
+/**
+ * Extension function to convert a [Dp] to a [RemoteTextUnit] in Sp.
+ *
+ * @return a [RemoteTextUnit] in SP converted from this [Dp]
+ */
 public fun Dp.toRsp(): RemoteTextUnit {
     check(isSpecified) { "Dp conversion not possible for unspecified Dp" }
     return RemoteTextUnit(

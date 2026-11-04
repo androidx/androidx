@@ -261,6 +261,8 @@ public object RemoteStepperDefaults {
 
     /**
      * Creates a [RemoteStepperColors] that represents the default colors used in a [RemoteStepper].
+     *
+     * @return a [RemoteStepperColors] with the default colors for [RemoteStepper]
      */
     @Composable
     public fun stepperColors(): RemoteStepperColors =
@@ -276,6 +278,7 @@ public object RemoteStepperDefaults {
      * @param disabledButtonContainerColor The disabled button container color for this
      *   [RemoteStepper].
      * @param disabledButtonIconColor The disabled button icon color for this [RemoteStepper].
+     * @return a [RemoteStepperColors] with the configured colors for [RemoteStepper]
      */
     @Composable
     public fun stepperColors(
@@ -300,6 +303,8 @@ public object RemoteStepperDefaults {
 
     /**
      * Creates a [RemoteStepperColors] that represents the default colors used in a [RemoteStepper].
+     *
+     * @return a [RemoteStepperColors] with the default colors for [RemoteStepper]
      */
     @Composable public fun colors(): RemoteStepperColors = stepperColors()
 
@@ -313,6 +318,7 @@ public object RemoteStepperDefaults {
      * @param disabledButtonContainerColor The disabled button container color for this
      *   [RemoteStepper].
      * @param disabledButtonIconColor The disabled button icon color for this [RemoteStepper].
+     * @return a [RemoteStepperColors] with the configured colors for [RemoteStepper]
      */
     @Composable
     public fun colors(
@@ -364,7 +370,11 @@ public class RemoteStepperColors(
     public val disabledButtonContainerColor: RemoteColor,
     public val disabledButtonIconColor: RemoteColor,
 ) {
-    /** Returns a copy of this [RemoteStepperColors], optionally overriding some values. */
+    /**
+     * Returns a copy of this [RemoteStepperColors], optionally overriding some values.
+     *
+     * @return a copy of this [RemoteStepperColors] with the specified values overridden
+     */
     public fun copy(
         contentColor: RemoteColor = this.contentColor,
         buttonContainerColor: RemoteColor = this.buttonContainerColor,
@@ -423,6 +433,8 @@ public class RemoteStepperColors(
  * The width is used instead of the height because the Wear OS Global Status Bar reduces the
  * reported screen height, while Wear screens are assumed to be round. This matches Wear Compose
  * Material3 `Stepper`.
+ *
+ * @return the vertical top and bottom [RemoteDp] padding
  */
 internal fun verticalContentPadding(): RemoteDp =
     RemoteConfiguration.windowWidth * VerticalContentPaddingFraction

@@ -74,6 +74,7 @@ import kotlinx.coroutines.withContext
  *   is disposed.
  * @param render produces an output from the settled composition, given how many renders came before
  *   it. Runs on the recomposer dispatcher in a render snapshot; must not suspend.
+ * @return a cold [Flow] emitting the outputs produced by [render]
  */
 internal fun <T : Any> headlessRenderFlow(
     name: String,

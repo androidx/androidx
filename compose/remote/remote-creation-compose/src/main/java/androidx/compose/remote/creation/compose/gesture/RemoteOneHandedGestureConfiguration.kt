@@ -94,6 +94,7 @@ public class RemoteOneHandedGestureConfiguration(
  * @param gestureId The experience ID. If null, one is generated from the position of this call in
  *   the composition and from [action], as in Wear Compose. A generated ID changes when the code
  *   around the call changes, which resets the hint history. Pass an ID to keep the history.
+ * @return the remembered [RemoteOneHandedGestureConfiguration] for [action]
  * @throws IllegalStateException if the document already has a configuration for [action].
  */
 @Composable

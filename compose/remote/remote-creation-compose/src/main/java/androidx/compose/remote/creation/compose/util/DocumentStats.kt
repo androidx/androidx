@@ -255,7 +255,11 @@ public class DocumentStats {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
-        /** Examines the [document] and produces [DocumentStats]. */
+        /**
+         * Examines the [document] and produces [DocumentStats].
+         *
+         * @return the collected [DocumentStats] for [document]
+         */
         public fun examineDocument(document: CoreDocument): DocumentStats =
             DocumentStats().apply { document.operations.fastForEach { process(it) } }
     }

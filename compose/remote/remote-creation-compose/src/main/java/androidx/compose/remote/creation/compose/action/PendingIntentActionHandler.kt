@@ -100,6 +100,7 @@ public class PendingIntentActionHandler(
          * action, with each extra as a [String] extra.
          *
          * @param metadata The metadata delivered with the action.
+         * @return an [Intent] populated with the decoded [String] extras from [metadata]
          */
         public fun fillInIntent(metadata: String?): Intent =
             Intent().apply {

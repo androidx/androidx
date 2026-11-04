@@ -58,7 +58,11 @@ public interface RemoteStateScope : RemoteDocumentScope {
     override val document: RemoteComposeWriter
         get() = parentScope.document
 
-    /** Resolves the active [RemoteComponentToken] for this scope, or `null` if none is bound. */
+    /**
+     * Resolves the active [RemoteComponentToken] for this scope, or `null` if none is bound.
+     *
+     * @return the active [RemoteComponentToken], or `null` if none is bound
+     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun resolveComponentToken(): RemoteComponentToken? =
         parentScope.resolveComponentToken()
@@ -89,7 +93,11 @@ internal interface PlatformRemoteStateScope : RemoteStateScope {
         get() = remoteLayoutDirection.toComposeLayoutDirection()
 }
 
-/** Build the [RemotePath], encoding using this [RemoteStateScope]. */
+/**
+ * Build the [RemotePath], encoding using this [RemoteStateScope].
+ *
+ * @return the constructed [RemotePath]
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteStateScope.remotePath(fn: RemotePathScope.() -> Unit): RemotePath {
     return RemotePathScope().apply(fn).nodes.toRemotePath(creationState = this)
@@ -103,6 +111,8 @@ public val RemoteStateScope.creationState: RemoteComposeCreationState
 /**
  * Allocates the RemoteState in global scope allowing assigning to global state IDs and
  * document-level properties.
+ *
+ * @return this [RemoteState] allocated in global scope
  */
 @Composable
 @RemoteComposable

@@ -36,6 +36,7 @@ internal class TouchDownActionModifier(public val action: RemoteAction) : Remote
  * Performs [action] when a touch down event occurs on the element.
  *
  * @param action The [RemoteAction] to perform on touch down.
+ * @return a [RemoteModifier] that runs [action] on touch down
  */
 public fun RemoteModifier.onTouchDown(action: RemoteAction): RemoteModifier =
     then(TouchDownActionModifier(action))

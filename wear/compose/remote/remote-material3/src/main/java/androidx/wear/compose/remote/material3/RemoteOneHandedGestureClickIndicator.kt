@@ -102,6 +102,7 @@ internal constructor(public val hintProgress: RemoteFloat)
  *
  * Only one state is supported per document.
  *
+ * @return the remembered [RemoteOneHandedGestureClickIndicatorState]
  * @throws IllegalStateException if the document already contains a primary gesture hint state.
  */
 @Composable

@@ -55,6 +55,7 @@ import kotlin.collections.toFloatArray
  *   position at the far right and bottom of the drawing area
  * @param tileMode Determines the behavior for how the shader is to fill a region outside its
  *   bounds. Defaults to [RemoteTileMode.Clamp] to repeat the edge pixels
+ * @return a [RemoteShaderBrush] that draws a linear gradient with the given [colorStops]
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable
@@ -90,6 +91,7 @@ public fun RemoteBrush.Companion.linearGradient(
  *   position at the far right and bottom of the drawing area
  * @param tileMode Determines the behavior for how the shader is to fill a region outside its
  *   bounds. Defaults to [RemoteTileMode.Clamp] to repeat the edge pixels
+ * @return a [RemoteShaderBrush] that draws a linear gradient across the given [colors]
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable
@@ -126,6 +128,7 @@ public fun RemoteBrush.Companion.linearGradient(
  *   which indicates the right of the specified drawing area
  * @param tileMode Determines the behavior for how the shader is to fill a region outside its
  *   bounds. Defaults to [RemoteTileMode.Clamp] to repeat the edge pixels
+ * @return a [RemoteShaderBrush] that draws a horizontal gradient across the given [colors]
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable
@@ -167,6 +170,7 @@ public fun RemoteBrush.Companion.horizontalGradient(
  *   which indicates the right of the specified drawing area
  * @param tileMode Determines the behavior for how the shader is to fill a region outside its
  *   bounds. Defaults to [RemoteTileMode.Clamp] to repeat the edge pixels
+ * @return a [RemoteShaderBrush] that draws a horizontal gradient with the given [colorStops]
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable
@@ -202,6 +206,7 @@ public fun RemoteBrush.Companion.horizontalGradient(
  *   which indicates the bottom of the specified drawing area
  * @param tileMode Determines the behavior for how the shader is to fill a region outside its
  *   bounds. Defaults to [RemoteTileMode.Clamp] to repeat the edge pixels
+ * @return a [RemoteShaderBrush] that draws a vertical gradient across the given [colors]
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable
@@ -244,6 +249,7 @@ public fun RemoteBrush.Companion.verticalGradient(
  *   which indicates the bottom of the specified drawing area
  * @param tileMode Determines the behavior for how the shader is to fill a region outside its
  *   bounds. Defaults to [RemoteTileMode.Clamp] to repeat the edge pixels
+ * @return a [RemoteShaderBrush] that draws a vertical gradient with the given [colorStops]
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable

@@ -45,6 +45,7 @@ internal class HeightInModifier(val min: RemoteDp? = null, val max: RemoteDp? = 
  *
  * @param min The minimum height.
  * @param max The maximum height.
+ * @return a [RemoteModifier] that constrains the height between [min] and [max]
  */
 public fun RemoteModifier.heightIn(min: RemoteDp? = null, max: RemoteDp? = null): RemoteModifier {
     return then(HeightInModifier(min = min, max = max))
