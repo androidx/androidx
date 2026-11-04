@@ -39,7 +39,9 @@ import androidx.compose.foundation.lazy.LazyListLayoutInfo
 import androidx.compose.foundation.lazy.LazyListPrefetchScope
 import androidx.compose.foundation.lazy.LazyListPrefetchStrategy
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.layout.PrefetchScheduler
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.TestPrefetchScheduler
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.selection.gestures.util.longPress
@@ -1085,8 +1087,12 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
         lateinit var selectionRegistrar: SelectionRegistrarImpl
         lateinit var layoutCoordinates: LayoutCoordinates
         val composedItemIndices = mutableSetOf<Int>()
+        val scheduler = TestPrefetchScheduler()
         val prefetchStrategy =
             object : LazyListPrefetchStrategy by LazyListPrefetchStrategy() {
+                @Deprecated("override")
+                override val prefetchScheduler: PrefetchScheduler = scheduler
+
                 override fun LazyListPrefetchScope.onVisibleItemsUpdated(
                     layoutInfo: LazyListLayoutInfo
                 ) {
@@ -1111,6 +1117,8 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
                 }
             }
         }
+
+        rule.runOnIdle { scheduler.executeActiveRequests() }
 
         // Verify prefetching worked
         assertThat(composedItemIndices.size).isAtLeast(6)
