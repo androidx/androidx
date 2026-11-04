@@ -96,4 +96,5 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2018"
     description = "Standalone efficient collections."
+    legacyDisableReferenceEqualityCheck = true
 }

@@ -38,6 +38,7 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Arch-Runtime"
+    legacyDisableReferenceEqualityCheck = true
 }
 
 android {

@@ -126,4 +126,5 @@ androidx {
     description = "Android WorkManager runtime library"
     failOnDeprecationWarnings = false
     enableRobolectric()
+    legacyDisableReferenceEqualityCheck = true
 }
