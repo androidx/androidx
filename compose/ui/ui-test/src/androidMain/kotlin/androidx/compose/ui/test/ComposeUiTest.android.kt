@@ -907,11 +907,13 @@ internal constructor(
                 }
                 block()
             } finally {
-                // Stop the recomposer:
-                recomposer.cancel()
-                // Cancel our scope to ensure there are no active coroutines when
-                // cleanupTestCoroutines is called in the CleanupCoroutinesStatement
-                recomposerCoroutineScope.cancel()
+                runOnUiThread {
+                    // Stop the recomposer:
+                    recomposer.cancel()
+                    // Cancel our scope to ensure there are no active coroutines when
+                    // cleanupTestCoroutines is called in the CleanupCoroutinesStatement
+                    recomposerCoroutineScope.cancel()
+                }
                 // Remove the exception handler installer
                 composeRootRegistry.removeOnRegistrationChangedListener(rootRegistrationListener)
 
@@ -926,8 +928,10 @@ internal constructor(
         } finally {
             // runTest {} as the last step -
             // to replace deprecated TestCoroutineScope.cleanupTestCoroutines
-            frameClockCoroutineScope.runTest {}
-            frameClockCoroutineScope.cancel()
+            runOnUiThread {
+                frameClockCoroutineScope.runTest {}
+                frameClockCoroutineScope.cancel()
+            }
             coroutineExceptionHandler.throwUncaught()
         }
     }
