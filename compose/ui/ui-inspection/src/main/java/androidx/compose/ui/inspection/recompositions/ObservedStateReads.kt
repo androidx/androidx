@@ -16,8 +16,7 @@
 
 package androidx.compose.ui.inspection.recompositions
 
-import androidx.collection.MutableIntSet
-import androidx.collection.mutableIntSetOf
+import androidx.collection.IntSet
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -41,53 +40,44 @@ class StateReadRecord(
  * Observations for a recomposition.
  *
  * @param reads the state reads for this recomposition
- * @param invalidations the valueInstance (hashCode of state variable) that were invalidated.
  * @param parameterChanges the parameter name and value that changed since the last recomposition.
- * @param parameterChangeMask a bit mask of which parameters changed since the last recomposition.
- *   Each bit correspond to a index of a parameter that changed e.g. 0x1010 means that the
- *   parameters at index 2 and 4 were changed. This information is recorded first and later
- *   converted to actual [parameterChanges].
  */
 data class ObservedStateReads(
     private val reads: MutableList<StateReadRecord> = mutableListOf(),
-    private var invalidations: MutableIntSet? = null,
     private var parameterChanges: List<RawParameter> = emptyList(),
-    var parameterChangeMask: Int = 0,
 ) {
     val readSize: Int
         get() = reads.size
 
-    fun registerParameterChanges(parameterChanges: List<RawParameter>) {
-        this.parameterChanges = parameterChanges
-    }
+    val hasParameterChanges: Boolean
+        get() = parameterChanges.isNotEmpty()
 
     fun toObservedReadResult(recomposition: Int) =
         ObservedReadResult(recomposition, reads, parameterChanges)
 
-    fun addStateRead(value: Any?, trace: Exception) {
+    /**
+     * Add a state read.
+     *
+     * @param value the state variable read
+     * @param trace the stack trace of the read
+     * @param invalidations the identityHashCode of the state variables that invalidated this
+     *   recomposition
+     */
+    fun addStateRead(value: Any?, trace: Exception, invalidations: IntSet?) {
         // Use [Snapshot.withoutReadObservation] to avoid another callback when we read
         // the value.
         val currentValue = Snapshot.withoutReadObservation {
             (value as? MutableState<*>)?.value
+                // Note: SnapshotStateList.toList() returns the internal persistent list of the
+                // current snapshot. Copy it to a regular list with the stdlib toList().
                 ?: (value as? SnapshotStateList<*>)?.toList()?.toList()
         }
         val valueInstanceHash = System.identityHashCode(value)
-        val invalidated = wasInvalidated(valueInstanceHash)
+        val invalidated = invalidations?.contains(valueInstanceHash) ?: false
         reads.add(StateReadRecord(currentValue, valueInstanceHash, invalidated, trace))
     }
 
-    fun addInvalidation(value: Any?) {
-        val valueInstanceHash = value?.let { System.identityHashCode(it) } ?: return
-        if (invalidations == null) {
-            invalidations = mutableIntSetOf()
-        }
-        invalidations?.add(valueInstanceHash)
-    }
-
-    private fun wasInvalidated(valueInstance: Int): Boolean =
-        invalidations?.contains(valueInstance) ?: false
-
-    fun clearInvalidations() {
-        invalidations = null
+    fun addParameterChanges(parameterChanges: List<RawParameter>) {
+        this.parameterChanges = parameterChanges
     }
 }

@@ -105,8 +105,17 @@ internal class StateReadHandler(
     @GuardedBy("lock")
     private val compositions = hashMapOf<ObservableComposition, CompositionObserverHandle>()
 
-    // The recompositions registered for the current composition
-    @GuardedBy("lock") private val recompositions = LinkedHashMap<Any, ObservedStateReads>()
+    // The anchor of the scope last entered by the observer on the current thread.
+    // A scope is entered in startRestartGroup right before the hook calls
+    // incrementRecompositionCount on the same thread, unless the observer is not attached to the
+    // composition being composed.
+    private val enteredAnchor = ThreadLocal<Any?>()
+
+    // The recomposing anchors and their parameterChangeMask for the current composition.
+    // The insertion order is used to find the last recomposing anchor, which ObjectIntMap lacks.
+    @Suppress("PrimitiveInCollection")
+    @GuardedBy("lock")
+    private val recompositions = LinkedHashMap<Any, Int>()
 
     // Use the CompositionTracer to keep track of parameter changes.
     @GuardedBy("lock") private var trackingParameterChanges = false
@@ -124,7 +133,9 @@ internal class StateReadHandler(
 
             override fun onBeginComposition(composition: ObservableComposition) {}
 
-            override fun onScopeEnter(scope: RecomposeScope) {}
+            override fun onScopeEnter(scope: RecomposeScope) {
+                (scope as? IdentifiableRecomposeScope)?.identity?.let { enteredAnchor.set(it) }
+            }
 
             override fun onReadInScope(scope: RecomposeScope, value: Any) {
                 synchronized(lock) {
@@ -138,7 +149,9 @@ internal class StateReadHandler(
                 }
             }
 
-            override fun onScopeExit(scope: RecomposeScope) {}
+            override fun onScopeExit(scope: RecomposeScope) {
+                enteredAnchor.remove()
+            }
 
             override fun onEndComposition(composition: ObservableComposition) {
                 // The recomposition is done.
@@ -179,6 +192,11 @@ internal class StateReadHandler(
         settings: StateReadSettings,
     ) {
         synchronized(lock) {
+            if (!keepRecomposeCounts) {
+                // The recomposition numbers are reset, so the recorded state reads and parameter
+                // changes no longer match the recomposition numbers.
+                cache.clear()
+            }
             super.changeCollectionMode(includeRecomposeCounts, keepRecomposeCounts)
             val observingStateReads =
                 includeRecomposeCounts &&
@@ -217,15 +235,28 @@ internal class StateReadHandler(
                     MethodCase.ALL -> settings.all.maxStateReads
                     MethodCase.BY_ID -> settings.byId.maxStateReads
                     else -> 0
-                }.takeIf { it != 0 } ?: DEFAULT_MAX_STATE_READS
+                }.takeIf { it > 0 } ?: DEFAULT_MAX_STATE_READS
+
+            // For now: Use the same max for parameter changes:
+            cache.maxRecompositionsWithParameterChanges = cache.maxStateReads
         }
     }
 
     override fun incrementRecompositionCount(anchor: Any): RecompositionDataWithStateReads? {
+        // The scope is entered by our observer right before this hook is called, unless the
+        // observer is not attached (yet) to the composition being composed.
+        val entered = enteredAnchor.get() === anchor
+        enteredAnchor.remove()
         synchronized(lock) {
             val data = super.incrementRecompositionCount(anchor) ?: return null
             if (isObserving(anchor)) {
-                recompositions[anchor] = data.expectStateReads()
+                if (entered) {
+                    // Let the client tell this recomposition apart from one that did not happen
+                    // yet. Not when this recomposition is not observed, since its state reads are
+                    // then not recorded.
+                    data.markObserved()
+                }
+                recompositions[anchor] = 0
             }
             return data
         }
@@ -238,8 +269,10 @@ internal class StateReadHandler(
     }
 
     /**
-     * Return the stats reads for a range of recompositions for a composable. There may be holes in
-     * the data i.e. recompositions with no state reads.
+     * Return the state reads and parameter changes for a range of recompositions for a composable.
+     * Observed recompositions without state reads or parameter changes are included without any.
+     * There may be holes in the data, e.g. for recompositions before observation started, or for
+     * recompositions discarded from the cache.
      *
      * @param anchorHash the anchorHash of the composable
      * @param recompositionNumberStart the lower recomposition to look for
@@ -277,9 +310,9 @@ internal class StateReadHandler(
         synchronized(lock) {
             val changes = findChanges(dirty1, dirty2)
             if (changes == 0 || recompositions.isEmpty()) return
-            val (anchor, data) = recompositions.entries.last()
+            val anchor = recompositions.keys.last()
             if (anchorMap.getKey(anchor) == key) {
-                data.parameterChangeMask = changes
+                recompositions[anchor] = changes
             }
         }
     }
@@ -287,12 +320,12 @@ internal class StateReadHandler(
     @OptIn(UiToolingDataApi::class)
     private fun registerChangedParameterValues(composition: ObservableComposition) {
         synchronized(lock) {
-            for (entry in recompositions) {
-                val changes = entry.value.parameterChangeMask
-                if (changes == 0) {
+            for ((anchor, changes) in recompositions) {
+                if (changes == 0 || !isObserving(anchor)) {
+                    // Observation may have stopped, or changed, during the composition.
                     continue
                 }
-                val parameters = findGroup(composition, entry.key)?.findParameters()
+                val parameters = findGroup(composition, anchor)?.findParameters()
                 if (parameters.isNullOrEmpty()) {
                     continue
                 }
@@ -304,7 +337,9 @@ internal class StateReadHandler(
                     }
                     bitMask = bitMask shl 1
                 }
-                entry.value.registerParameterChanges(parameterChanges)
+                if (parameterChanges.isNotEmpty()) {
+                    cache.addParameterChanges(anchor, parameterChanges)
+                }
             }
         }
     }
@@ -399,6 +434,7 @@ internal class StateReadHandler(
             compositions.clear()
             recomposers.values.forEach { it.dispose() }
             recomposers.clear()
+            recompositions.clear()
             cache.clear()
         }
     }
