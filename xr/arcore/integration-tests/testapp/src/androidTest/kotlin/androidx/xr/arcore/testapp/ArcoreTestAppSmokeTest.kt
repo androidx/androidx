@@ -66,6 +66,11 @@ class ArCoreTestAppSmokeTest(activityClass: Class<out Activity>) : TestAppSmokeT
             "Known failure (b/552839023): GeospatialActivity native crash on launch",
             activityClass == GeospatialActivity::class.java,
         )
+        assumeFalse(
+            "Known failure (b/562997152, b/581124287): HandTrackingActivity native SplitEngine crash on teardown",
+            activityClass == EyeTrackingActivity::class.java ||
+                activityClass == FaceTrackingActivity::class.java,
+        )
     }
 
     companion object {
