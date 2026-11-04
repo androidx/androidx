@@ -966,7 +966,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                 RemoteRow(modifier = RemoteModifier.background(Color.Blue.rc)) {
                     RemoteIconVector(
                         ImageVector.vectorResource(
-                            androidx.compose.remote.creation.compose.R.drawable.android
+                            androidx.compose.remote.player.compose.test.utils.R.drawable.android
                         ),
                         tint = Color.Red,
                     )

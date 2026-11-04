@@ -18,7 +18,7 @@ package androidx.compose.remote.creation.compose.vector
 
 import android.content.Context
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.remote.creation.compose.test.R
+import androidx.compose.remote.player.compose.test.utils.R
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
