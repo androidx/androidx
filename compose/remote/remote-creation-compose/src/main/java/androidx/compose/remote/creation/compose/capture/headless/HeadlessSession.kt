@@ -16,10 +16,11 @@
 
 package androidx.compose.remote.creation.compose.capture.headless
 
+import androidx.compose.remote.creation.compose.capture.CaptureTracer
+import androidx.compose.remote.creation.compose.capture.NoOpCaptureTracer
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.snapshots.ObserverHandle
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.tracing.traceAsync
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.TimeSource
@@ -50,6 +51,7 @@ internal class HeadlessSession(
     private val name: String,
     nanoTime: (() -> Long)? = null,
     timeSource: TimeSource = TimeSource.Monotonic,
+    private val tracer: CaptureTracer = NoOpCaptureTracer,
 ) : AutoCloseable {
     private enum class State {
         Created,
@@ -200,7 +202,7 @@ internal class HeadlessSession(
         synchronized(lock) {
             check(state == State.Started) { "Cannot await quiescence: session is $state" }
         }
-        return traceAsync(
+        return tracer.traceAsync(
             lazyMethodName = { "$name:settle" },
             lazyCookie = traceCookie::incrementAndGet,
         ) {

@@ -16,10 +16,11 @@
 
 package androidx.compose.remote.creation.compose.capture.headless
 
+import androidx.compose.remote.creation.compose.capture.CaptureTracer
+import androidx.compose.remote.creation.compose.capture.NoOpCaptureTracer
 import androidx.compose.runtime.Applier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
-import androidx.tracing.trace
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
@@ -80,6 +81,7 @@ internal fun <T : Any> headlessRenderFlow(
     changeCount: () -> Long,
     maxOutputs: Int = Int.MAX_VALUE,
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
+    tracer: CaptureTracer = NoOpCaptureTracer,
     timeSource: TimeSource = TimeSource.Monotonic,
     nanoTime: (() -> Long)? = null,
     newRateLimiter: (TimeSource) -> UpdateRateLimiter? = { null },
@@ -100,6 +102,7 @@ internal fun <T : Any> headlessRenderFlow(
             name = name,
             nanoTime = nanoTime,
             timeSource = timeSource,
+            tracer = tracer,
         )
     val recomposerDispatcher = session.recomposerDispatcher
     val composition = Composition(applier, session.recomposer)
@@ -126,7 +129,9 @@ internal fun <T : Any> headlessRenderFlow(
                 // write tracker and after the session's invalidation observer is registered.
                 session.awaitRunning()
                 withContext(recomposerDispatcher) {
-                    trace(lazyLabel = { "$name:setContent" }) { composition.setContent(content) }
+                    tracer.trace(lazyLabel = { "$name:setContent" }) {
+                        composition.setContent(content)
+                    }
                 }
 
                 var previous: T? = null
