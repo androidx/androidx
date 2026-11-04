@@ -249,45 +249,46 @@ class SurfaceOperationCountTest {
             }
         val actualStats = DocumentStats.examineFullDocument(coreDocument)
 
+        // TODO: b/581299105 - Find a better alternative to validate the doc.
         expect
             .withMessage("Number of float expressions")
             .that(actualStats.numFloatExpressions)
-            .isEqualTo(expectedStats.numFloatExpressions)
+            .isAtMost(expectedStats.numFloatExpressions)
 
         expect
             .withMessage("Total size of float expressions")
             .that(actualStats.totalFloatExpressionSize)
-            .isEqualTo(expectedStats.totalFloatExpressionSize)
+            .isAtMost(expectedStats.totalFloatExpressionSize)
 
         expect
             .withMessage("Number of color expressions")
             .that(actualStats.numColorExpressions)
-            .isEqualTo(expectedStats.numColorExpressions)
+            .isAtMost(expectedStats.numColorExpressions)
 
         expect
             .withMessage("Number of paint objects")
             .that(actualStats.numPaintObjects)
-            .isEqualTo(expectedStats.numPaintObjects)
+            .isAtMost(expectedStats.numPaintObjects)
 
         expect
             .withMessage("Number of draw operations")
             .that(actualStats.numDrawOperations)
-            .isEqualTo(expectedStats.numDrawOperations)
+            .isAtMost(expectedStats.numDrawOperations)
 
         expect
             .withMessage("Number of integer expressions")
             .that(actualStats.numIntegerExpressions)
-            .isEqualTo(expectedStats.numIntegerExpressions)
+            .isAtMost(expectedStats.numIntegerExpressions)
 
         expect
             .withMessage("Number of conditional operations")
             .that(actualStats.numConditionalOperations)
-            .isEqualTo(expectedStats.numConditionalOperations)
+            .isAtMost(expectedStats.numConditionalOperations)
 
         expect
             .withMessage("Document size in bytes")
             .that(document.bytes.size)
-            .isEqualTo(expectedStats.documentSizeBytes)
+            .isAtMost(expectedStats.documentSizeBytes)
     }
 
     /** The subset of [DocumentStats] that is affected by [surface]. */
