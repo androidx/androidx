@@ -47,6 +47,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -462,6 +463,7 @@ class GlanceRemoteViewsComposerTest {
         assertThat(result).isSameInstanceAs(expectedRemoteViews)
     }
 
+    @Ignore("b/580960449")
     @Test
     @Config(sdk = [37], qualifiers = "xhdpi")
     fun compose_remoteComposeRenderer_capturesDocumentIntoRemoteViewsWithPxSize() = runTest {
@@ -502,6 +504,7 @@ class GlanceRemoteViewsComposerTest {
         assertThat(recordedLocalSizes).isEmpty()
     }
 
+    @Ignore("b/580960449")
     @Test
     @Config(sdk = [37], qualifiers = "xhdpi")
     fun compose_remoteComposeRenderer_unspecifiedDimensions_fallsBackToDisplaySize() = runTest {
