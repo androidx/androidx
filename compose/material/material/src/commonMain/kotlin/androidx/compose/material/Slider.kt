@@ -69,6 +69,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.Color
@@ -172,6 +174,13 @@ public fun Slider(
     val onValueChangeFinishedState = rememberUpdatedState(onValueChangeFinished)
     val tickFractions = remember(steps) { stepsToTickFractions(steps) }
 
+    val requestFocusOnGesture = sliderRequestsFocusOnGestureEnd
+    val focusRequester =
+        if (requestFocusOnGesture) {
+            remember { FocusRequester() }
+        } else {
+            null
+        }
     BoxWithConstraints(
         modifier
             .minimumInteractiveComponentSize()
@@ -183,6 +192,9 @@ public fun Slider(
                 onValueChangeFinished,
                 valueRange,
                 steps,
+            )
+            .then(
+                if (requestFocusOnGesture) Modifier.focusRequester(focusRequester!!) else Modifier
             )
             .focusable(enabled, interactionSource)
             .slideOnKeyEvents(
@@ -231,6 +243,9 @@ public fun Slider(
             rememberUpdatedState<(Float) -> Unit> { velocity: Float ->
                 val current = rawOffset.floatValue
                 val target = snapValueToTick(current, tickFractions, minPx, maxPx)
+                if (requestFocusOnGesture) {
+                    focusRequester!!.requestFocus()
+                }
                 if (current != target) {
                     scope.launch {
                         animateToTarget(draggableState, current, target, velocity)
@@ -277,6 +292,8 @@ public fun Slider(
         )
     }
 }
+
+internal expect val sliderRequestsFocusOnGestureEnd: Boolean
 
 private fun Modifier.slideOnKeyEvents(
     enabled: Boolean,

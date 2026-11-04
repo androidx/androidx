@@ -35,8 +35,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
@@ -55,8 +57,11 @@ import androidx.compose.ui.test.click
 import androidx.compose.ui.test.isFocusable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -330,6 +335,39 @@ class SliderTest {
         }
 
         rule.runOnIdle { Truth.assertThat(state.value).isWithin(0.001f).of(expected) }
+    }
+
+    @Test
+    fun slider_click_givesFocusToSlider() {
+        var hasFocus = false
+        var onValueChangedCalled = false
+
+        rule.setMaterialContent {
+            Slider(
+                modifier = Modifier.testTag(tag).onFocusChanged { hasFocus = it.hasFocus },
+                value = 0f,
+                onValueChange = { onValueChangedCalled = true },
+                valueRange = 0f..2f,
+                steps = 1,
+            )
+        }
+
+        Truth.assertThat(hasFocus).isFalse()
+
+        rule.onNodeWithTag(tag).performMouseInput {
+            click(centerLeft)
+        }
+        rule.runOnIdle {
+            Truth.assertThat(hasFocus).isEqualTo(sliderRequestsFocusOnGestureEnd)
+            onValueChangedCalled = false // Reset
+        }
+
+        rule.onNodeWithTag(tag).performKeyInput {
+            pressKey(Key.DirectionUp)
+        }
+        rule.runOnIdle {
+            Truth.assertThat(onValueChangedCalled).isEqualTo(sliderRequestsFocusOnGestureEnd)
+        }
     }
 
     @Test
