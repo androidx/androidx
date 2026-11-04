@@ -28,8 +28,8 @@ class GroupQueryResultTest {
 
     private val g1 = Criterion.GroupLookupKey("g1")
     private val g2 = Criterion.GroupLookupKey("g2")
-    private val family = Group(GroupId("g1", CHAT), "Family")
-    private val friends = Group(GroupId("g2", CHAT), "Friends")
+    private val family = Group(GroupId(CHAT, "g1"), "Family")
+    private val friends = Group(GroupId(CHAT, "g2"), "Friends")
 
     @Test
     fun partition_splitsTheQueryIntoMatchedUnmatchedAndUnhandled() {
@@ -80,7 +80,7 @@ class GroupQueryResultTest {
             directory(CHAT) { addLookupKeys("g1", "g2") }
             directory(VOIP) { addLookupKeys("g1") }
         }
-        val voipG1 = Group(GroupId("g1", VOIP), "VoIP g1")
+        val voipG1 = Group(GroupId(VOIP, "g1"), "VoIP g1")
 
         val result =
             groupQueryResultOf(

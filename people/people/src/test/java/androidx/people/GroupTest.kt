@@ -29,7 +29,7 @@ class GroupTest {
     fun properties_whenProvided_exposeGivenValues() {
         val group =
             Group(
-                id = GroupId("eng_team", "com.example.chat"),
+                id = GroupId("com.example.chat", "eng_team"),
                 displayName = "Engineering Team",
             )
 
@@ -40,7 +40,7 @@ class GroupTest {
     fun properties_whenOptionalPropertiesEmpty_exposeNullOrEmpty() {
         val group =
             Group(
-                id = GroupId("eng_team", "com.example.chat"),
+                id = GroupId("com.example.chat", "eng_team"),
                 displayName = null,
             )
 
@@ -49,7 +49,7 @@ class GroupTest {
 
     @Test
     fun groupMatch_exposesGroupAndCriteria_andComparesCriteria() {
-        val group = Group(id = GroupId("eng_team", "com.example.chat"), displayName = null)
+        val group = Group(id = GroupId("com.example.chat", "eng_team"), displayName = null)
         val criteria = setOf<Criterion>(Criterion.GroupLookupKey("eng_team"))
 
         val match = GroupMatch(group, criteria)
@@ -64,7 +64,7 @@ class GroupTest {
 
     @Test
     fun groupMatch_withoutCriteria_throws() {
-        val group = Group(id = GroupId("eng_team", "com.example.chat"), displayName = null)
+        val group = Group(id = GroupId("com.example.chat", "eng_team"), displayName = null)
 
         assertThrows(IllegalArgumentException::class.java) { GroupMatch(group, emptySet()) }
     }

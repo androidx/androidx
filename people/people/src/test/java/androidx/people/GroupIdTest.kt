@@ -26,16 +26,16 @@ class GroupIdTest {
 
     @Test
     fun properties_whenConstructed_exposeGivenValues() {
-        val id = GroupId(lookupKey = "group_101", directoryPackage = "com.example.chat")
+        val id = GroupId(directoryPackage = "com.example.chat", lookupKey = "group_101")
 
-        assertThat(id.lookupKey).isEqualTo("group_101")
         assertThat(id.directoryPackage).isEqualTo("com.example.chat")
+        assertThat(id.lookupKey).isEqualTo("group_101")
     }
 
     @Test
     fun equals_withSameValues_returnsTrue() {
-        val id = GroupId("group_101", "com.example.chat")
-        val same = GroupId("group_101", "com.example.chat")
+        val id = GroupId("com.example.chat", "group_101")
+        val same = GroupId("com.example.chat", "group_101")
 
         assertThat(same).isEqualTo(id)
         assertThat(same.hashCode()).isEqualTo(id.hashCode())
@@ -43,8 +43,8 @@ class GroupIdTest {
 
     @Test
     fun equals_withDifferentValues_returnsFalse() {
-        val id = GroupId("group_101", "com.example.chat")
-        val other = GroupId("group_999", "com.example.chat")
+        val id = GroupId("com.example.chat", "group_101")
+        val other = GroupId("com.example.chat", "group_999")
 
         assertThat(other).isNotEqualTo(id)
     }

@@ -510,7 +510,7 @@ class QueryArgsTest {
 
     @Test
     fun toInteractionQueryArgs_carriesTargetAndDependencyUri() {
-        val interaction = peopleInteraction(PersonId("p1", VOIP), Capability.VOICE)
+        val interaction = peopleInteraction(PersonId(VOIP, "p1"), Capability.VOICE)
 
         val args = interaction.toInteractionQueryArgs()
 

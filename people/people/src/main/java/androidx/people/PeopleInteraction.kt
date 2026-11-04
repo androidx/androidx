@@ -77,7 +77,7 @@ internal constructor(
         get() =
             targetCriteria
                 .firstNotNullOfOrNull { it as? Criterion.PersonLookupKey }
-                ?.let { PersonId(it.key, directoryPackage) }
+                ?.let { PersonId(directoryPackage, it.key) }
 
     /**
      * The target group, from the first [Criterion.GroupLookupKey] in [targetCriteria], or `null` if
@@ -87,7 +87,7 @@ internal constructor(
         get() =
             targetCriteria
                 .firstNotNullOfOrNull { it as? Criterion.GroupLookupKey }
-                ?.let { GroupId(it.key, directoryPackage) }
+                ?.let { GroupId(directoryPackage, it.key) }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

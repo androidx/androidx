@@ -142,7 +142,7 @@ class PeopleDirectoryClientTest {
         val backend = FakePeopleBackend()
         val client = clientFor(backend)
         val interaction =
-            peopleInteraction(PersonId("user_1", "com.example.voip"), Capability.VIDEO)
+            peopleInteraction(PersonId("com.example.voip", "user_1"), Capability.VIDEO)
 
         client.createInteractionRequest(interaction)
 
@@ -196,7 +196,7 @@ class PeopleDirectoryClientTest {
                     setOf(
                         PersonMatch(
                             Person(
-                                id = PersonId("alice", "com.example.chat"),
+                                id = PersonId("com.example.chat", "alice"),
                                 displayName = "Alice",
                                 photoUri = null,
                                 capabilities = setOf(Capability.MESSAGE),
@@ -214,7 +214,7 @@ class PeopleDirectoryClientTest {
                 matches =
                     setOf(
                         GroupMatch(
-                            Group(GroupId("g1", "com.example.chat"), "Family"),
+                            Group(GroupId("com.example.chat", "g1"), "Family"),
                             setOf(Criterion.GroupLookupKey("g1")),
                         )
                     ),

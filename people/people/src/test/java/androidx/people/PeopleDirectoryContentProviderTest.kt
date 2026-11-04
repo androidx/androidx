@@ -202,7 +202,7 @@ class PeopleDirectoryContentProviderTest {
         }
         assertThrows(IllegalArgumentException::class.java) {
             directoryGroupResult {
-                addMatch(Group(GroupId("g1", "com.example.voip"), null), emptyList())
+                addMatch(Group(GroupId("com.example.voip", "g1"), null), emptyList())
             }
         }
     }
@@ -666,7 +666,7 @@ class PeopleDirectoryContentProviderTest {
         val g2 = Criterion.GroupLookupKey("g2")
         val g3 = Criterion.GroupLookupKey("g3")
         val g4 = Criterion.GroupLookupKey("g4")
-        val friends = Group(GroupId("g3", FAMILY.id.directoryPackage), "Friends")
+        val friends = Group(GroupId(FAMILY.id.directoryPackage, "g3"), "Friends")
 
         val result = directoryGroupResult {
             addMatch(FAMILY, g1, g2)
@@ -711,7 +711,7 @@ class PeopleDirectoryContentProviderTest {
 
     private fun person(lookupKey: String, name: String, directoryPackage: String = PKG) =
         Person(
-            id = PersonId(lookupKey, directoryPackage),
+            id = PersonId(directoryPackage, lookupKey),
             displayName = name,
             photoUri = null,
             capabilities = emptySet(),
@@ -763,7 +763,7 @@ class PeopleDirectoryContentProviderTest {
 
         val BOB =
             Person(
-                id = PersonId(lookupKey = "p2", directoryPackage = "com.example.app"),
+                id = PersonId(directoryPackage = "com.example.app", lookupKey = "p2"),
                 displayName = "Bob",
                 photoUri = null,
                 capabilities = emptySet(),
@@ -772,7 +772,7 @@ class PeopleDirectoryContentProviderTest {
 
         val ALICE =
             Person(
-                id = PersonId(lookupKey = "p1", directoryPackage = "com.example.app"),
+                id = PersonId(directoryPackage = "com.example.app", lookupKey = "p1"),
                 displayName = "Alice",
                 photoUri = null,
                 capabilities = setOf(Capability.VOICE, Capability.VIDEO),
@@ -781,7 +781,7 @@ class PeopleDirectoryContentProviderTest {
 
         val FAMILY =
             Group(
-                id = GroupId(lookupKey = "g1", directoryPackage = "com.example.app"),
+                id = GroupId(directoryPackage = "com.example.app", lookupKey = "g1"),
                 displayName = "Family",
             )
     }
