@@ -17,6 +17,7 @@ package androidx.collection
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -265,5 +266,34 @@ internal class LongSparseArrayTest {
         assertEquals(2, dest.size())
         assertEquals(1L, dest[1L])
         assertEquals("two", dest[2L])
+    }
+
+    @Test
+    fun keyAtChecksIndexAfterRemove() {
+        val array = LongSparseArray<String>()
+        array.put(1L, "one")
+        array.put(2L, "two")
+        array.remove(1L)
+        assertFailsWith<IllegalArgumentException> { array.keyAt(1) }
+    }
+
+    @Test
+    fun valueAtChecksIndexAfterRemove() {
+        val array = LongSparseArray<String>()
+        array.put(1L, "one")
+        array.put(2L, "two")
+        array.remove(1L)
+        assertFailsWith<IllegalArgumentException> { array.valueAt(1) }
+    }
+
+    @Test
+    fun setValueAtChecksIndexAfterRemove() {
+        val array = LongSparseArray<String>()
+        array.put(1L, "one")
+        array.put(2L, "two")
+        array.remove(1L)
+        assertFailsWith<IllegalArgumentException> { array.setValueAt(1, "three") }
+        assertEquals(1, array.size())
+        assertEquals("two", array.valueAt(0))
     }
 }
