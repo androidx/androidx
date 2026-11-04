@@ -383,7 +383,14 @@ internal class ResizableNode(
                     component?.isFixedAspectRatioEnabled = maintainAspectRatio
                     SpatialResizeEventType.Start
                 }
-                ResizeEvent.ResizeState.ONGOING -> SpatialResizeEventType.Resizing
+                ResizeEvent.ResizeState.ONGOING -> {
+                    if (policy is SystemResizePolicy && coreEntity is CoreModelEntity) {
+                        val nextSize = resizeEvent.newSize.toIntVolumeSize(pixelDensity)
+                        userSize = nextSize
+                        invalidateMeasurement()
+                    }
+                    SpatialResizeEventType.Resizing
+                }
                 ResizeEvent.ResizeState.END -> {
                     if (policy is SystemResizePolicy) {
                         val nextSize = resizeEvent.newSize.toIntVolumeSize(pixelDensity)
