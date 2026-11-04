@@ -73,6 +73,10 @@ internal class FeaturePreferencesDialog(
         LayoutInflater.from(context).inflate(R.layout.feature_flag_preference, null)
     }
 
+    private val releaseBitmapsSwitch: SwitchCompat by lazy {
+        settingsDialogView.findViewById(R.id.release_bitmaps_in_background_switch)
+    }
+
     private val dialog: AlertDialog by lazy {
         // One-time setup: Find views and set change listeners.
         featureSwitches.forEach { config ->
@@ -86,6 +90,16 @@ internal class FeaturePreferencesDialog(
                 }
         }
 
+        releaseBitmapsSwitch.apply {
+            setOnCheckedChangeListener { _, isChecked ->
+                listener?.onFeatureFlagUpdated(
+                    FeatureFlagNames.RELEASE_BITMAPS_IN_BACKGROUND,
+                    isChecked,
+                )
+            }
+            text = context.getString(R.string.release_bitmaps_in_background)
+        }
+
         MaterialAlertDialogBuilder(context)
             .setView(settingsDialogView)
             .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.dismiss() }
@@ -97,6 +111,8 @@ internal class FeaturePreferencesDialog(
                     featureSwitches.forEach { config ->
                         config.switchView.isChecked = config.property.get()
                     }
+                    releaseBitmapsSwitch.isChecked =
+                        listener?.isReleaseBitmapsInBackgroundEnabled() ?: false
                 }
             }
     }
@@ -118,10 +134,13 @@ private data class FeatureFlagConfig(
 
 interface FeatureFlagListener {
     fun onFeatureFlagUpdated(flagName: String, enabled: Boolean)
+
+    fun isReleaseBitmapsInBackgroundEnabled(): Boolean = false
 }
 
 object FeatureFlagNames {
     const val CUSTOM_LINK_HANDLING: String = "CUSTOM_LINK_HANDLING"
     const val THUMBNAIL_PREVIEW: String = "THUMBNAIL_PREVIEW"
     const val FORM_FILLING: String = "FORM_FILLING"
+    const val RELEASE_BITMAPS_IN_BACKGROUND: String = "RELEASE_BITMAPS_IN_BACKGROUND"
 }

@@ -39,6 +39,7 @@ import androidx.pdf.ocr.playservices.MlKitOcrProvider
 import androidx.pdf.testapp.R
 import androidx.pdf.testapp.ui.FeatureFlagListener
 import androidx.pdf.testapp.ui.FeatureFlagNames.FORM_FILLING
+import androidx.pdf.testapp.ui.FeatureFlagNames.RELEASE_BITMAPS_IN_BACKGROUND
 import androidx.pdf.testapp.ui.FeatureFlagNames.THUMBNAIL_PREVIEW
 import androidx.pdf.testapp.ui.OpCancellationHandler
 import androidx.pdf.testapp.util.arePdfContentFeaturesAvailable
@@ -282,6 +283,7 @@ class PdfViewerFragmentExtended : PdfViewerFragment(), FeatureFlagListener {
 
     override fun onFeatureFlagUpdated(flagName: String, enabled: Boolean) {
         when (flagName) {
+            RELEASE_BITMAPS_IN_BACKGROUND -> setReleaseBitmapsInBackground(enabled)
             THUMBNAIL_PREVIEW -> {
                 pdfThumbnailToggleButton.visibility = if (enabled) View.VISIBLE else View.GONE
                 if (!enabled) {
@@ -301,6 +303,17 @@ class PdfViewerFragmentExtended : PdfViewerFragment(), FeatureFlagListener {
                 pdfView.isFormFillingEnabled = enabled
             }
         }
+    }
+
+    @OptIn(ExperimentalPdfApi::class)
+    override fun isReleaseBitmapsInBackgroundEnabled(): Boolean =
+        pdfView.backgroundBitmapRelease == PdfView.BACKGROUND_BITMAP_RELEASE_ALL
+
+    @OptIn(ExperimentalPdfApi::class)
+    private fun setReleaseBitmapsInBackground(enabled: Boolean) {
+        pdfView.backgroundBitmapRelease =
+            if (enabled) PdfView.BACKGROUND_BITMAP_RELEASE_ALL
+            else PdfView.BACKGROUND_BITMAP_RELEASE_NONE
     }
 
     private fun getDynamicThumbnailSize(): Size {

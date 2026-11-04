@@ -45,5 +45,9 @@
             android:id="@+id/form_filling_switch"
             layout="@layout/preferences_switch_template"/>
 
+        <include
+            android:id="@+id/release_bitmaps_in_background_switch"
+            layout="@layout/preferences_switch_template"/>
+
     </LinearLayout>
 </ScrollView>
