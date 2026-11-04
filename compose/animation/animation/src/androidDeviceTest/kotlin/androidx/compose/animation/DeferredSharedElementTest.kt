@@ -42,9 +42,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
@@ -2339,5 +2342,79 @@ class DeferredSharedElementTest {
         } finally {
             rule.mainClock.autoAdvance = true
         }
+    }
+
+    @Test
+    fun testSharedElementInPlace_deferredScaleUpdate_doesNotDoubleApplyTransform() {
+        val state = DeferredTransitionState("A")
+        val scale = mutableFloatStateOf(1f)
+        val placedPositionsInParent = mutableListOf<Offset>()
+
+        rule.setContent {
+            val px20 = with(LocalDensity.current) { 20.toDp() }
+            val px40 = with(LocalDensity.current) { 40.toDp() }
+            val px60 = with(LocalDensity.current) { 60.toDp() }
+            val px100 = with(LocalDensity.current) { 100.toDp() }
+            val px200 = with(LocalDensity.current) { 200.toDp() }
+
+            val transition = rememberDeferredTransition(state)
+            SharedTransitionLayout(Modifier.size(px200)) {
+                transition.DeferredAnimatedContent(
+                    transitionSpec = { EnterTransition.None togetherWith ExitTransition.None },
+                    mutableTransformSpec = {
+                        MutableContentTransform {
+                            initialContentTransform { this.scale = scale.floatValue }
+                        }
+                    },
+                ) { target ->
+                    Box(Modifier.fillMaxSize()) {
+                        Box(
+                            Modifier.offset(
+                                    x = if (target == "A") px20 else px60,
+                                    y = if (target == "A") px60 else px100,
+                                )
+                                .sharedElement(
+                                    sharedContentState = rememberSharedContentState("shared"),
+                                    animatedVisibilityScope = this@DeferredAnimatedContent,
+                                    boundsTransform = { _, _ -> tween(300) },
+                                )
+                                .onPlaced { coords ->
+                                    if (target == "A") {
+                                        placedPositionsInParent.add(coords.positionInParent())
+                                    }
+                                }
+                                .size(px40)
+                                .testTag("shared-$target")
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        placedPositionsInParent.clear()
+        rule.runOnIdle {
+            state.defer("B")
+            scale.floatValue = 0.5f
+        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // While rendered in place inside the 0.5x scaled container, the shared element's local
+        // position inside the container must stay at (20, 60) on every placement pass so the
+        // container's graphics layer scales it once to (60, 80) in root coordinates (rather than
+        // placing it at local (60, 80) against a stale 1.0x layer and scaling it twice).
+        assertTrue(placedPositionsInParent.isNotEmpty())
+        for (pos in placedPositionsInParent) {
+            assertEquals(20f, pos.x, 1f)
+            assertEquals(60f, pos.y, 1f)
+        }
+
+        val boundsInRoot = rule.onNodeWithTag("shared-A").fetchSemanticsNode().boundsInRoot
+        assertEquals(60f, boundsInRoot.left, 1f)
+        assertEquals(80f, boundsInRoot.top, 1f)
+        assertEquals(20f, boundsInRoot.width, 1f)
     }
 }
