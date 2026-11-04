@@ -337,20 +337,25 @@ internal class ContentInViewNode(
                 ?: return 0f
 
         val size = viewportSize.toSize()
-        return when (orientation) {
-            Vertical ->
-                bringIntoViewSpec.calculateScrollDistance(
-                    rectangleToMakeVisible.top - viewportAdjustmentForReverseScroll.y,
-                    rectangleToMakeVisible.bottom - rectangleToMakeVisible.top,
-                    size.height,
-                )
-            Horizontal ->
-                bringIntoViewSpec.calculateScrollDistance(
-                    rectangleToMakeVisible.left - viewportAdjustmentForReverseScroll.x,
-                    rectangleToMakeVisible.right - rectangleToMakeVisible.left,
-                    size.width,
-                )
-        }
+        val delta =
+            when (orientation) {
+                Vertical ->
+                    bringIntoViewSpec.calculateScrollDistance(
+                        rectangleToMakeVisible.top - viewportAdjustmentForReverseScroll.y,
+                        rectangleToMakeVisible.bottom - rectangleToMakeVisible.top,
+                        size.height,
+                    )
+                Horizontal ->
+                    bringIntoViewSpec.calculateScrollDistance(
+                        rectangleToMakeVisible.left - viewportAdjustmentForReverseScroll.x,
+                        rectangleToMakeVisible.right - rectangleToMakeVisible.left,
+                        size.width,
+                    )
+            }
+        // Scroll positions are whole pixels, so a target between two pixels can only be reached to
+        // within half a pixel. Treat that as reached, as isMaxVisible does, or the animation chases
+        // the target forever whenever another request keeps the queue from draining.
+        return if (delta.absoluteValue <= MinScrollThreshold) 0f else delta
     }
 
     /** Find the largest BIV request that can completely fit inside the viewport. */
