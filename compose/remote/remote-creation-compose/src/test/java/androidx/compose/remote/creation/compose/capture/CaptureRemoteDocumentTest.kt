@@ -20,7 +20,9 @@ package androidx.compose.remote.creation.compose.capture
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.os.Bundle
 import android.os.Looper
+import android.os.Parcel
 import android.view.View
 import androidx.collection.buildIntSet
 import androidx.compose.remote.core.CoreDocument
@@ -1399,10 +1401,9 @@ class CaptureRemoteDocumentTest {
 
     // Host actions (e.g. RemoteWriterEvents.lambdas or Wear widget lambdaActions) registered
     // during a one-shot capture are invoked after the capture has finished and disposed its
-    // composition, and then trigger a new capture. Because ParcelableMapHolder keeps the saved
-    // MutableState reference in memory inside SavedState (matching Compose UI's
-    // DisposableSaveableStateRegistry), mutating a rememberSaveable MutableState inside such an
-    // action updates the value restored by the next capture.
+    // composition, and then trigger a new capture. Because SavedState keeps the saved MutableState
+    // reference in memory inside its Bundle before parceling, mutating a rememberSaveable
+    // MutableState inside such an action updates the value restored by the next capture.
     @Test
     fun captureSingleRemoteDocument_withSavedState_postCaptureMutationPersistsToNextCapture() =
         runTest(UnconfinedTestDispatcher()) {
@@ -1529,6 +1530,88 @@ class CaptureRemoteDocumentTest {
             assertDocumentContainsText(first.toCoreDocument(), "Item 1=11")
             assertDocumentContainsText(second.toCoreDocument(), "Item 0=10")
             assertDocumentContainsText(second.toCoreDocument(), "Item 1=11")
+        }
+
+    private fun roundTripThroughParcel(state: Bundle): Bundle {
+        val writeParcel = Parcel.obtain()
+        val bytes =
+            try {
+                writeParcel.writeBundle(state)
+                writeParcel.marshall()
+            } finally {
+                writeParcel.recycle()
+            }
+        val readParcel = Parcel.obtain()
+        return try {
+            readParcel.unmarshall(bytes, 0, bytes.size)
+            readParcel.setDataPosition(0)
+            checkNotNull(readParcel.readBundle(CaptureRemoteDocumentTest::class.java.classLoader))
+        } finally {
+            readParcel.recycle()
+        }
+    }
+
+    @Test
+    fun captureSingleRemoteDocument_withSavedState_survivesParcelRoundTripAcrossCaptures() =
+        runTest(UnconfinedTestDispatcher()) {
+            var savedState = savedState()
+            var nextDefault = 20
+            var showExtraBranch = true
+            var increment: (() -> Unit)? = null
+            val content: @Composable @RemoteComposable () -> Unit = {
+                var counter by rememberSaveable { mutableIntStateOf(7) }
+                increment = { counter++ }
+                RemoteText("Counter=$counter".rs)
+                for (i in 0 until 2) {
+                    val item = rememberSaveable { nextDefault++ }
+                    RemoteText("Loop $i=$item".rs)
+                }
+                if (showExtraBranch) {
+                    val extra = rememberSaveable { nextDefault++ }
+                    RemoteText("Extra=$extra".rs)
+                }
+            }
+
+            val first =
+                captureSingleRemoteDocument(
+                    context = context,
+                    savedState = savedState,
+                    content = content,
+                )
+            increment!!.invoke()
+            savedState = roundTripThroughParcel(savedState)
+
+            // Skip the conditional branch across a second Parcel round-trip so unconsumed restored
+            // entries are re-saved and re-parceled cleanly.
+            showExtraBranch = false
+            val second =
+                captureSingleRemoteDocument(
+                    context = context,
+                    savedState = savedState,
+                    content = content,
+                )
+            savedState = roundTripThroughParcel(savedState)
+
+            showExtraBranch = true
+            val third =
+                captureSingleRemoteDocument(
+                    context = context,
+                    savedState = savedState,
+                    content = content,
+                )
+
+            assertDocumentContainsText(first.toCoreDocument(), "Counter=7")
+            assertDocumentContainsText(first.toCoreDocument(), "Loop 0=20")
+            assertDocumentContainsText(first.toCoreDocument(), "Loop 1=21")
+            assertDocumentContainsText(first.toCoreDocument(), "Extra=22")
+            assertDocumentContainsText(second.toCoreDocument(), "Counter=8")
+            assertDocumentContainsText(second.toCoreDocument(), "Loop 0=20")
+            assertDocumentContainsText(second.toCoreDocument(), "Loop 1=21")
+            assertFalse(second.toCoreDocument().displayHierarchy().contains("Extra="))
+            assertDocumentContainsText(third.toCoreDocument(), "Counter=8")
+            assertDocumentContainsText(third.toCoreDocument(), "Loop 0=20")
+            assertDocumentContainsText(third.toCoreDocument(), "Loop 1=21")
+            assertDocumentContainsText(third.toCoreDocument(), "Extra=22")
         }
 
     @Test

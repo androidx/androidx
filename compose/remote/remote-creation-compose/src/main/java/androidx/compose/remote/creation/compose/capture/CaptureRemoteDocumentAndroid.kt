@@ -24,14 +24,12 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.Binder
 import android.os.Build
-import android.os.Parcel
 import android.os.Parcelable
 import android.text.format.DateFormat
 import android.util.Size
 import android.util.SizeF
 import android.util.SparseArray
 import androidx.annotation.RestrictTo
-import androidx.collection.MutableScatterMap
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.capture.headless.HeadlessLifecycleOwner
@@ -59,8 +57,10 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.savedstate.SavedState
+import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.compose.LocalSavedStateRegistryOwner
 import androidx.savedstate.read
+import androidx.savedstate.savedState
 import androidx.savedstate.write
 import java.io.Serializable
 import kotlin.coroutines.CoroutineContext
@@ -131,6 +131,11 @@ public suspend fun captureSingleRemoteDocument(
  * [androidx.compose.runtime.retain.LocalRetainedValuesStore] so values held with
  * [androidx.compose.runtime.retain.retain] are preserved across captures.
  *
+ * **Security note:** [savedState] must only come from trusted in-process state or OS-managed
+ * instance state. Do not pass a [SavedState] decoded from untrusted external or IPC input, as
+ * restoring an Android `Bundle` instantiates arbitrary [Parcelable] and [Serializable] classes on
+ * the classpath.
+ *
  * @return a [RemoteCapturedDocument] containing the serialized document bytes and captured
  *   callbacks
  */
@@ -153,9 +158,12 @@ public suspend fun captureSingleRemoteDocument(
     content: @Composable @RemoteComposable () -> Unit,
 ): RemoteCapturedDocument {
     val lifecycleOwner = HeadlessLifecycleOwner(savedState)
-    val saveableStateRegistry = savedState?.let {
-        SaveableStateRegistry(it.toSaveableStateMap(), ::canBeSavedToBundle)
-    }
+    val saveableStateRegistry =
+        if (savedState != null) {
+            createSaveableStateRegistry(lifecycleOwner.savedStateRegistry)
+        } else {
+            null
+        }
     val document =
         captureSingleRemoteDocument(
             creationDisplayInfo = creationDisplayInfo,
@@ -165,14 +173,7 @@ public suspend fun captureSingleRemoteDocument(
             profile = profile,
             writerCallback = writerEvents,
             tracer = AndroidCaptureTracer,
-            onDispose = {
-                savedState?.write { clear() }
-                if (savedState != null && saveableStateRegistry != null) {
-                    savedState.saveSaveableState(saveableStateRegistry.performSave())
-                }
-                lifecycleOwner.performSave()
-                lifecycleOwner.close()
-            },
+            onDispose = { saveAndClose(savedState, lifecycleOwner, saveableStateRegistry) },
             content =
                 withAndroidLocals(
                     context = context,
@@ -260,6 +261,11 @@ public fun captureRemoteDocument(
  * are emitted instead of [CaptureUpdateThrottle.Default], an optional [savedState], and an optional
  * [retainedValuesStore].
  *
+ * **Security note:** [savedState] must only come from trusted in-process state or OS-managed
+ * instance state. Do not pass a [SavedState] decoded from untrusted external or IPC input, as
+ * restoring an Android `Bundle` instantiates arbitrary [Parcelable] and [Serializable] classes on
+ * the classpath.
+ *
  * @return a [Flow] of [ByteArray]s containing the serialized RemoteCompose documents
  *
  * TODO(b/567847315): Make the update strategy public together with [CaptureUpdateThrottle].
@@ -286,9 +292,12 @@ public fun captureRemoteDocument(
     val resolvedLayoutDirection =
         layoutDirection ?: toLayoutDirection(context.resources.configuration.layoutDirection)
     val lifecycleOwner = HeadlessLifecycleOwner(savedState)
-    val saveableStateRegistry = savedState?.let {
-        SaveableStateRegistry(it.toSaveableStateMap(), ::canBeSavedToBundle)
-    }
+    val saveableStateRegistry =
+        if (savedState != null) {
+            createSaveableStateRegistry(lifecycleOwner.savedStateRegistry)
+        } else {
+            null
+        }
     emitAll(
         captureRemoteDocument(
             creationDisplayInfo = creationDisplayInfo,
@@ -300,14 +309,7 @@ public fun captureRemoteDocument(
             writerCallback = writerEvents,
             coroutineContext = coroutineContext,
             tracer = AndroidCaptureTracer,
-            onDispose = {
-                savedState?.write { clear() }
-                if (savedState != null && saveableStateRegistry != null) {
-                    savedState.saveSaveableState(saveableStateRegistry.performSave())
-                }
-                lifecycleOwner.performSave()
-                lifecycleOwner.close()
-            },
+            onDispose = { saveAndClose(savedState, lifecycleOwner, saveableStateRegistry) },
             content =
                 withAndroidLocals(
                     context = context,
@@ -381,19 +383,55 @@ internal fun platformFontWeightAdjustment(configuration: Configuration): Int =
 private const val SAVEABLE_STATE_KEY =
     "androidx.compose.remote.creation.compose.capture.SaveableStateRegistry"
 
-@Suppress("DEPRECATION")
-internal fun SavedState.toSaveableStateMap(): Map<String, List<Any?>>? = read {
-    getParcelableOrNull<ParcelableMapHolder>(SAVEABLE_STATE_KEY)?.map
+// TODO: Move to `runtime-saveable` 1.14.0 and `savedstate` 1.6.0 once stable, and replace this
+// with `SaveableStateRegistry(savedStateRegistry.asContainer(), ::canBeSavedToBundle)`.
+private fun createSaveableStateRegistry(
+    savedStateRegistry: SavedStateRegistry
+): SaveableStateRegistry {
+    val restored =
+        savedStateRegistry.consumeRestoredStateForKey(SAVEABLE_STATE_KEY)?.toSaveableStateMap()
+    return SaveableStateRegistry(restored, ::canBeSavedToBundle)
 }
 
-internal fun SavedState.saveSaveableState(map: Map<String, List<Any?>>) {
-    write {
-        if (map.isEmpty()) {
-            remove(SAVEABLE_STATE_KEY)
-        } else {
-            putParcelable(SAVEABLE_STATE_KEY, ParcelableMapHolder(map))
+private fun saveAndClose(
+    savedState: SavedState?,
+    lifecycleOwner: HeadlessLifecycleOwner,
+    saveableStateRegistry: SaveableStateRegistry?,
+) {
+    if (savedState != null) {
+        savedState.write { clear() }
+        if (saveableStateRegistry != null) {
+            val savedMap = saveableStateRegistry.performSave()
+            lifecycleOwner.savedStateRegistry.unregisterSavedStateProvider(SAVEABLE_STATE_KEY)
+            if (savedMap.isNotEmpty()) {
+                val stateToSave = savedMap.toSavedState()
+                lifecycleOwner.savedStateRegistry.registerSavedStateProvider(SAVEABLE_STATE_KEY) {
+                    stateToSave
+                }
+            }
         }
+        lifecycleOwner.performSave()
     }
+    lifecycleOwner.close()
+}
+
+@Suppress("UNCHECKED_CAST")
+internal fun SavedState.toSaveableStateMap(): Map<String, List<Any?>>? {
+    val map = read { toMap() } as? Map<String, List<Any?>>
+    return map?.takeIf { it.isNotEmpty() }
+}
+
+internal fun Map<String, List<Any?>>.toSavedState(): SavedState {
+    val normalized =
+        HashMap<String, Any?>(size).also { out ->
+            for ((key, value) in this) {
+                // Normalize list implementations (such as SubList from partial consumption) to
+                // ArrayList so Android Bundle storage preserves element references in memory and
+                // parcels elements via Parcel.writeList across process death.
+                out[key] = value as? ArrayList<Any?> ?: ArrayList(value)
+            }
+        }
+    return savedState(normalized)
 }
 
 /**
@@ -425,53 +463,6 @@ internal fun canBeSavedToBundle(value: Any): Boolean {
         return true
     }
     return false
-}
-
-/**
- * Holder wrapping a `SaveableStateRegistry` state [Map], matching Compose UI's
- * `DisposableSaveableStateRegistry.ParcelableMapHolder`.
- *
- * Across captures in the same process, [ParcelableMapHolder] is kept by reference in memory inside
- * the `Bundle`. Across process death, it serializes entries via `Parcel.writeValue`.
- */
-@Suppress("AsCollectionCall", "BanParcelableUsage", "UNCHECKED_CAST")
-private class ParcelableMapHolder(val map: Map<String, List<Any?>>) : Parcelable {
-
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(map.size)
-        map.forEach { (key, value) ->
-            parcel.writeString(key)
-            parcel.writeValue(value)
-        }
-    }
-
-    override fun describeContents(): Int = 0
-
-    companion object {
-        @JvmField
-        val CREATOR: Parcelable.Creator<ParcelableMapHolder> =
-            object : Parcelable.ClassLoaderCreator<ParcelableMapHolder> {
-                override fun createFromParcel(
-                    parcel: Parcel,
-                    loader: ClassLoader?,
-                ): ParcelableMapHolder {
-                    val classLoader = loader ?: ParcelableMapHolder::class.java.classLoader
-                    val size = parcel.readInt()
-                    val map = MutableScatterMap<String, List<Any?>>(initialCapacity = size)
-                    for (i in 0 until size) {
-                        val key = parcel.readString() ?: continue
-                        val value = parcel.readValue(classLoader) as List<Any?>
-                        map[key] = value
-                    }
-                    return ParcelableMapHolder(map.asMap())
-                }
-
-                override fun createFromParcel(parcel: Parcel): ParcelableMapHolder =
-                    createFromParcel(parcel, loader = null)
-
-                override fun newArray(size: Int): Array<ParcelableMapHolder?> = arrayOfNulls(size)
-            }
-    }
 }
 
 /**
