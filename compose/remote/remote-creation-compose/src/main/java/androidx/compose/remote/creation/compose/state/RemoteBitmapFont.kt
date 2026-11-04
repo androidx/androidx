@@ -20,16 +20,14 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.BitmapTextMeasure
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
-import androidx.compose.remote.creation.compose.capture.addBitmap
 import androidx.compose.remote.creation.compose.util.fastFirstOrNull
-import androidx.compose.ui.graphics.ImageBitmap
 import kotlin.math.max
 import kotlin.math.min
 
 /**
  * Represents a **bitmap font** within a Compose Remote hierarchy.
  *
- * A bitmap font defines its glyphs (character representations) using individual [ImageBitmap]
+ * A bitmap font defines its glyphs (character representations) using individual [RemoteImageBitmap]
  * images. This class allows you to define custom fonts using rasterized images for each character
  * or character sequence.
  *
@@ -72,7 +70,7 @@ constructor(
         public val chars: String,
 
         /** The bitmap for this glyph, or null for a space. */
-        public val bitmap: ImageBitmap?,
+        public val bitmap: RemoteImageBitmap?,
 
         /** The margin in pixels to the left of the glyph bitmap. */
         public val marginLeft: Short,
@@ -86,11 +84,11 @@ constructor(
         /** The margin in pixels below the glyph bitmap. */
         public val marginBottom: Short,
 
-        /** The width of the glyph, defaults to the bitmap width. */
-        public val width: Short = bitmap?.width?.toShort() ?: 0,
+        /** The width of the glyph in pixels. */
+        public val width: Short = 0,
 
-        /** The height of the glyph, defaults to the bitmap height. */
-        public val height: Short = bitmap?.height?.toShort() ?: 0,
+        /** The height of the glyph in pixels. */
+        public val height: Short = 0,
     )
 
     public override val constantValueOrNull: Any?
@@ -103,7 +101,7 @@ constructor(
                 val glyph = glyphs[index]
                 BitmapFontData.Glyph(
                     glyph.chars,
-                    glyph.bitmap?.let { creationState.addBitmap(it) } ?: -1,
+                    glyph.bitmap?.getIdForCreationState(creationState) ?: -1,
                     glyph.marginLeft,
                     glyph.marginTop,
                     glyph.marginRight,

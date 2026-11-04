@@ -214,7 +214,7 @@ internal fun createBitmapFont(
             if (a.bitmap == null || b.bitmap == null) {
                 continue
             }
-            val kerningAdjustment = sizeAB - a.bitmap!!.width - b.bitmap!!.width
+            val kerningAdjustment = sizeAB - a.width - b.width
             if (kerningAdjustment != 0) {
                 kerningTable.put(glyphPair, kerningAdjustment.toShort())
             }
@@ -225,7 +225,7 @@ internal fun createBitmapFont(
 
 private fun renderGlyph(paint: Paint, text: String, textSize: Float): RemoteBitmapFont.Glyph {
     if (text == " ") {
-        return RemoteBitmapFont.Glyph(text, null, textSize.toInt().toShort(), 0, 0, 0)
+        return RemoteBitmapFont.Glyph(text, null, textSize.toInt().toShort(), 0, 0, 0, 0, 0)
     }
     val bounds = Rect()
     paint.getTextBounds(text, 0, text.length, bounds)
@@ -236,11 +236,13 @@ private fun renderGlyph(paint: Paint, text: String, textSize: Float): RemoteBitm
     canvas.drawText(text, /* x= */ -bounds.left.toFloat(), /* y= */ -bounds.top.toFloat(), paint)
     return RemoteBitmapFont.Glyph(
         text,
-        resultBitmap.asImageBitmap(),
+        RemoteImageBitmap(resultBitmap.asImageBitmap()),
         bounds.left.toShort(),
         bounds.top.toShort(),
         0,
         0,
+        width.toShort(),
+        height.toShort(),
     )
 }
 

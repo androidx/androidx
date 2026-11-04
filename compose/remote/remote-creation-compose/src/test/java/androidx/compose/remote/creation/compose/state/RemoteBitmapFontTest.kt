@@ -19,13 +19,17 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles.PROFILE_ANDROIDX
+import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.addBitmap
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
+import androidx.compose.remote.testing.LimitsRule
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.asImageBitmap
 import com.google.common.truth.Truth.assertThat
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -36,6 +40,8 @@ private fun bitmap(width: Int, height: Int) =
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class RemoteBitmapFontTest {
+    @get:Rule val limitsRule = LimitsRule()
+
     val context =
         AndroidRemoteContext().apply {
             useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
@@ -52,10 +58,37 @@ class RemoteBitmapFontTest {
     val bitmapFont =
         RemoteBitmapFont(
             listOf(
-                RemoteBitmapFont.Glyph("a", bitmap(10, 20).asImageBitmap(), 1, 2, 3, 4),
-                RemoteBitmapFont.Glyph("b", bitmap(20, 20).asImageBitmap(), 10, 20, 30, 40),
-                RemoteBitmapFont.Glyph("c", bitmap(30, 20).asImageBitmap(), 2, 4, 6, 8),
-                RemoteBitmapFont.Glyph(" ", null, 20, 0, 0, 0),
+                RemoteBitmapFont.Glyph(
+                    "a",
+                    RemoteImageBitmap(bitmap(10, 20).asImageBitmap()),
+                    1,
+                    2,
+                    3,
+                    4,
+                    10,
+                    20,
+                ),
+                RemoteBitmapFont.Glyph(
+                    "b",
+                    RemoteImageBitmap(bitmap(20, 20).asImageBitmap()),
+                    10,
+                    20,
+                    30,
+                    40,
+                    20,
+                    20,
+                ),
+                RemoteBitmapFont.Glyph(
+                    "c",
+                    RemoteImageBitmap(bitmap(30, 20).asImageBitmap()),
+                    2,
+                    4,
+                    6,
+                    8,
+                    30,
+                    20,
+                ),
+                RemoteBitmapFont.Glyph(" ", null, 20, 0, 0, 0, 0, 0),
             )
         )
 
@@ -122,8 +155,26 @@ class RemoteBitmapFontTest {
         val kerningFont =
             RemoteBitmapFont(
                 listOf(
-                    RemoteBitmapFont.Glyph("a", bitmap(10, 20).asImageBitmap(), 1, 0, 1, 0),
-                    RemoteBitmapFont.Glyph("b", bitmap(10, 20).asImageBitmap(), 1, 0, 1, 0),
+                    RemoteBitmapFont.Glyph(
+                        "a",
+                        RemoteImageBitmap(bitmap(10, 20).asImageBitmap()),
+                        1,
+                        0,
+                        1,
+                        0,
+                        10,
+                        20,
+                    ),
+                    RemoteBitmapFont.Glyph(
+                        "b",
+                        RemoteImageBitmap(bitmap(10, 20).asImageBitmap()),
+                        1,
+                        0,
+                        1,
+                        0,
+                        10,
+                        20,
+                    ),
                 ),
                 mapOf("ab" to (-2).toShort()),
             )
@@ -175,9 +226,36 @@ class RemoteBitmapFontTest {
         val greedyFont =
             RemoteBitmapFont(
                 listOf(
-                    RemoteBitmapFont.Glyph("a", bitmap(10, 20).asImageBitmap(), 0, 0, 0, 0),
-                    RemoteBitmapFont.Glyph("ab", bitmap(20, 20).asImageBitmap(), 0, 0, 0, 0),
-                    RemoteBitmapFont.Glyph("abc", bitmap(30, 20).asImageBitmap(), 0, 0, 0, 0),
+                    RemoteBitmapFont.Glyph(
+                        "a",
+                        RemoteImageBitmap(bitmap(10, 20).asImageBitmap()),
+                        0,
+                        0,
+                        0,
+                        0,
+                        10,
+                        20,
+                    ),
+                    RemoteBitmapFont.Glyph(
+                        "ab",
+                        RemoteImageBitmap(bitmap(20, 20).asImageBitmap()),
+                        0,
+                        0,
+                        0,
+                        0,
+                        20,
+                        20,
+                    ),
+                    RemoteBitmapFont.Glyph(
+                        "abc",
+                        RemoteImageBitmap(bitmap(30, 20).asImageBitmap()),
+                        0,
+                        0,
+                        0,
+                        0,
+                        30,
+                        20,
+                    ),
                 )
             )
 
@@ -188,6 +266,136 @@ class RemoteBitmapFontTest {
         // If it's truly greedy, it should match "abc" (width 30)
         // even if "a" comes first in the list.
         assertThat(context.getInteger(resultId)).isEqualTo(30)
+    }
+
+    @Test
+    fun glyphWithRemoteImageBitmap() {
+        val preallocatedId = creationState.document.createBitmap(18, 26)
+        val remoteFont =
+            RemoteBitmapFont(
+                listOf(
+                    RemoteBitmapFont.Glyph(
+                        chars = "a",
+                        bitmap = RemoteImageBitmap.createOffscreenRemoteBitmap(12, 24),
+                        marginLeft = 1,
+                        marginTop = 2,
+                        marginRight = 3,
+                        marginBottom = 4,
+                        width = 12,
+                        height = 24,
+                    ),
+                    RemoteBitmapFont.Glyph(
+                        chars = "b",
+                        bitmap = RemoteImageBitmap.createForId(preallocatedId),
+                        marginLeft = 2,
+                        marginTop = 3,
+                        marginRight = 4,
+                        marginBottom = 5,
+                        width = 18,
+                        height = 26,
+                    ),
+                    RemoteBitmapFont.Glyph(" ", null, 15, 0, 0, 0, 0, 0),
+                )
+            )
+
+        assertThat(remoteFont.measureWidth(RemoteString("a b"), RemoteFloat(0f)).constantValue)
+            .isEqualTo(16f + 15f + 24f)
+        assertThat(remoteFont.measureHeight(RemoteString("a b")).constantValue).isEqualTo(34f)
+
+        val nonConstantText = createNamedRemoteString("remoteGlyphText", "a b")
+        val widthId =
+            remoteFont
+                .measureWidth(nonConstantText, RemoteFloat(0f))
+                .getIdForCreationState(creationState)
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getInteger(widthId)).isEqualTo(16 + 15 + 24)
+
+        limitsRule.setEnableImageUrls(true)
+        val urlState =
+            RemoteComposeCreationState(
+                AndroidxRcPlatformServices(),
+                Size(1f, 1f),
+                CoreDocument.DOCUMENT_API_LEVEL,
+                PROFILE_ANDROIDX,
+            )
+        val urlFontId =
+            RemoteBitmapFont(
+                    listOf(
+                        RemoteBitmapFont.Glyph(
+                            chars = "u",
+                            bitmap = RemoteImageBitmap("https://example.com/u.png"),
+                            marginLeft = 0,
+                            marginTop = 0,
+                            marginRight = 0,
+                            marginBottom = 0,
+                            width = 18,
+                            height = 26,
+                        )
+                    )
+                )
+                .getIdForCreationState(urlState)
+        assertThat(urlFontId).isGreaterThan(0)
+        CoreDocument().apply {
+            val buffer = urlState.document.buffer
+            buffer.buffer.index = 0
+            initFromBuffer(buffer)
+        }
+    }
+
+    @Test
+    fun remoteImageBitmapGlyphWireParity() {
+        val glyphImage = bitmap(10, 20).asImageBitmap()
+        val remoteImage = RemoteImageBitmap(glyphImage)
+        val explicitGlyph = RemoteBitmapFont.Glyph("a", remoteImage, 1, 2, 3, 4, 16, 28)
+        assertThat(explicitGlyph.width).isEqualTo(16.toShort())
+        assertThat(explicitGlyph.height).isEqualTo(28.toShort())
+        assertThat(explicitGlyph.bitmap).isSameInstanceAs(remoteImage)
+
+        val expectedState =
+            RemoteComposeCreationState(
+                AndroidxRcPlatformServices(),
+                Size(1f, 1f),
+                CoreDocument.DOCUMENT_API_LEVEL,
+                PROFILE_ANDROIDX,
+            )
+        val actualState =
+            RemoteComposeCreationState(
+                AndroidxRcPlatformServices(),
+                Size(1f, 1f),
+                CoreDocument.DOCUMENT_API_LEVEL,
+                PROFILE_ANDROIDX,
+            )
+
+        val expectedFontId =
+            expectedState.document.addBitmapFont(
+                arrayOf(
+                    BitmapFontData.Glyph(
+                        "a",
+                        expectedState.addBitmap(glyphImage),
+                        1,
+                        2,
+                        3,
+                        4,
+                        10,
+                        20,
+                    ),
+                    BitmapFontData.Glyph(" ", -1, 20, 0, 0, 0, 0, 0),
+                ),
+                emptyMap(),
+            )
+        val actualFontId =
+            RemoteBitmapFont(
+                    listOf(
+                        RemoteBitmapFont.Glyph("a", remoteImage, 1, 2, 3, 4, 10, 20),
+                        RemoteBitmapFont.Glyph(" ", null, 20, 0, 0, 0, 0, 0),
+                    )
+                )
+                .getIdForCreationState(actualState)
+
+        assertThat(actualFontId).isEqualTo(expectedFontId)
+        assertThat(actualState.document.buffer.buffer.cloneBytes())
+            .isEqualTo(expectedState.document.buffer.buffer.cloneBytes())
     }
 
     private fun makeAndPaintCoreDocument() =
