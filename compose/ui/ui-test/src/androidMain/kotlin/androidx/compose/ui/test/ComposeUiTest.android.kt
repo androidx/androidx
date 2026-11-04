@@ -22,6 +22,7 @@ import android.os.Build
 import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RestrictTo
@@ -1067,6 +1068,29 @@ internal constructor(
             runOnUiThread { currentActivity.setContent(recomposer, composable) }
 
             waitForIdle()
+            // Gaining focus can change the input mode and isWindowFocused, so settle again.
+            if (waitForInitialWindowFocus()) waitForIdle()
+        }
+
+        /**
+         * Before API 33, ViewRootImpl re-applies the system touch mode when a window gains focus.
+         * If that happens after setContent returns, a test already in keyboard mode loses key
+         * focus. Waits (best effort) for a focusable compose root to gain window focus, and returns
+         * whether it had to wait and focus arrived.
+         */
+        private fun waitForInitialWindowFocus(): Boolean =
+            Build.VERSION.SDK_INT < 33 &&
+                !focusableRootHasWindowFocus() &&
+                pollOnUiThread { focusableRootHasWindowFocus() }
+
+        private fun focusableRootHasWindowFocus(): Boolean = runOnUiThread {
+            val roots =
+                composeRootRegistry.getRegisteredComposeRoots().filter {
+                    val flags =
+                        (it.view.rootView.layoutParams as? WindowManager.LayoutParams)?.flags ?: 0
+                    (flags and WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE) == 0
+                }
+            roots.isEmpty() || roots.any { it.view.hasWindowFocus() }
         }
 
         override fun hasPendingWork(): Boolean {
