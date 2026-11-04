@@ -57,6 +57,8 @@ import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureScrollIn
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureScrollIndicatorState
 import androidx.wear.compose.material3.onehandedgesture.oneHandedGesture
 import androidx.wear.compose.material3.onehandedgesture.rememberOneHandedGestureConfiguration
+import androidx.wear.compose.material3.samples.AlertDialogWithConfirmAndDismissGestureDisabledSample
+import androidx.wear.compose.material3.samples.AlertDialogWithEdgeButtonOneHandedGestureSample
 import androidx.wear.compose.material3.samples.AppCardContentWithOneHandedGestureSample
 import androidx.wear.compose.material3.samples.ButtonContentWithOneHandedGestureSample
 import androidx.wear.compose.material3.samples.CompactButtonContentWithOneHandedGestureSample
@@ -109,6 +111,17 @@ val OneHandedGestureDemos =
         ActivityDemo(
             "SwipeDismissableNavHost",
             OneHandedGestureSwipeDismissableNavHostDemoActivity::class,
+        ),
+        Material3DemoCategory(
+            "Alert Dialogs",
+            listOf(
+                ComposableDemo("Edge button with gesture") {
+                    AlertDialogWithEdgeButtonOneHandedGestureSample()
+                },
+                ComposableDemo("Confirm gesture disabled") {
+                    AlertDialogWithConfirmAndDismissGestureDisabledSample()
+                },
+            ),
         ),
         Material3DemoCategory(
             "Multi-slot Cards",
