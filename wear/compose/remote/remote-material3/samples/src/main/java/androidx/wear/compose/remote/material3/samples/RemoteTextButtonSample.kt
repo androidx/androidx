@@ -57,3 +57,20 @@ fun RemoteTextButtonSimpleSample(modifier: RemoteModifier = RemoteModifier) {
         RemoteText(text = text)
     }
 }
+
+@Sampled
+@Composable
+@WearPreviewDevices
+@PreviewWrapper(RemoteComponentPreviewWrapper::class)
+fun RemoteFilledTonalTextButtonSample(modifier: RemoteModifier = RemoteModifier) {
+    val tapCount = remember { MutableRemoteInt(0) }
+    val text = "+".rs + tapCount.toRemoteString()
+
+    RemoteTextButton(
+        onClick = valueChangeAction(tapCount, tapCount + 1),
+        modifier = modifier,
+        colors = RemoteTextButtonDefaults.filledTonalTextButtonColors(),
+    ) {
+        RemoteText(text = text)
+    }
+}

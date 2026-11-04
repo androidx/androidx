@@ -40,15 +40,20 @@ import androidx.compose.ui.graphics.Color
  * no border. It offers a single slot for text.
  *
  * The default [RemoteTextButton] has no border and a transparent background for low emphasis
- * actions. For actions that require higher emphasis, consider overriding the colors by
- * [RemoteTextButtonColors.copy]
+ * actions. For actions that require higher emphasis, consider
+ * [RemoteTextButtonDefaults.filledTonalTextButtonColors] or overriding the colors via
+ * [RemoteTextButtonColors.copy].
  *
  * [RemoteTextButton] can be enabled or disabled. A disabled button will not respond to click
  * events.
  *
- * Example of a [RemoteTextButton]:
+ * Example of a [RemoteTextButton] with customized colors:
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteTextButtonSimpleSample
+ *
+ * Example of a filled tonal [RemoteTextButton]:
+ *
+ * @sample androidx.wear.compose.remote.material3.samples.RemoteFilledTonalTextButtonSample
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.
  * @param enabled Controls the enabled state of the button. When `false`, this button will not be
@@ -134,6 +139,54 @@ public object RemoteTextButtonDefaults {
         )
     }
 
+    /**
+     * Returns a [RemoteTextButtonColors] for a filled tonal [RemoteTextButton] - by default, a
+     * muted colored background with a contrasting content color. If the button is disabled then the
+     * colors default to [RemoteColorScheme.onSurface] with suitable alpha values applied.
+     *
+     * Example of a [RemoteTextButton] with [filledTonalTextButtonColors]:
+     *
+     * @sample androidx.wear.compose.remote.material3.samples.RemoteFilledTonalTextButtonSample
+     */
+    @Composable
+    @RemoteComposable
+    public fun filledTonalTextButtonColors(): RemoteTextButtonColors =
+        RemoteMaterialTheme.colorScheme.defaultFilledTonalTextButtonColors
+
+    /**
+     * Returns a [RemoteTextButtonColors] for a filled tonal [RemoteTextButton] - by default, a
+     * muted colored background with a contrasting content color. If the button is disabled then the
+     * colors default to [RemoteColorScheme.onSurface] with suitable alpha values applied.
+     *
+     * Example of a [RemoteTextButton] with [filledTonalTextButtonColors]:
+     *
+     * @sample androidx.wear.compose.remote.material3.samples.RemoteFilledTonalTextButtonSample
+     * @param containerColor the background color of this text button when enabled, or `null` to use
+     *   the default ([RemoteColorScheme.surfaceContainer]).
+     * @param contentColor the content color of this text button when enabled, or `null` to use the
+     *   default ([RemoteColorScheme.onSurface]).
+     * @param disabledContainerColor the background color of this text button when not enabled, or
+     *   `null` to use the default ([RemoteColorScheme.onSurface] with 12% opacity).
+     * @param disabledContentColor the content color of this text button when not enabled, or `null`
+     *   to use the default ([RemoteColorScheme.onSurface] with 38% opacity).
+     */
+    @Composable
+    @RemoteComposable
+    public fun filledTonalTextButtonColors(
+        containerColor: RemoteColor? = null,
+        contentColor: RemoteColor? = null,
+        disabledContainerColor: RemoteColor? = null,
+        disabledContentColor: RemoteColor? = null,
+    ): RemoteTextButtonColors {
+        val default = RemoteMaterialTheme.colorScheme.defaultFilledTonalTextButtonColors
+        return default.copy(
+            containerColor = containerColor ?: default.containerColor,
+            contentColor = contentColor ?: default.contentColor,
+            disabledContainerColor = disabledContainerColor ?: default.disabledContainerColor,
+            disabledContentColor = disabledContentColor ?: default.disabledContentColor,
+        )
+    }
+
     /** The recommended size for a small button. */
     public val SmallButtonSize: RemoteDp = 48.rdp
 
@@ -165,12 +218,24 @@ public object RemoteTextButtonDefaults {
                 disabledContainerColor = RemoteColor(Color.Transparent),
                 disabledContentColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
             )
+
+    private val RemoteColorScheme.defaultFilledTonalTextButtonColors: RemoteTextButtonColors
+        @Composable
+        @RemoteComposable
+        get() =
+            RemoteTextButtonColors(
+                containerColor = surfaceContainer,
+                contentColor = onSurface,
+                disabledContainerColor = onSurface.toDisabledColor(disabledAlpha = 0.12f.rf),
+                disabledContentColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
+            )
 }
 
 /**
  * Represents the container and content colors used in a text button in different states.
  *
- * See [RemoteTextButtonDefaults.textButtonColors] for the default colors used in a
+ * See [RemoteTextButtonDefaults.textButtonColors] and
+ * [RemoteTextButtonDefaults.filledTonalTextButtonColors] for the default colors used in a
  * [RemoteTextButton].
  *
  * @param containerColor the background color of this text button when enabled.
