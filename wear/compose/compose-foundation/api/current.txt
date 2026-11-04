@@ -578,8 +578,10 @@ package androidx.wear.compose.foundation {
 
   @SuppressCompatibility @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public final class WearComposeFoundationFlags {
     property public boolean isNewEdgeSwipeToDismissNodeEnabled;
+    property public boolean isTransformingLazyColumnSnapSegmentsEnabled;
     field public static final androidx.wear.compose.foundation.WearComposeFoundationFlags INSTANCE;
     field public static boolean isNewEdgeSwipeToDismissNodeEnabled;
+    field public static boolean isTransformingLazyColumnSnapSegmentsEnabled;
   }
 
 }
@@ -808,6 +810,7 @@ package androidx.wear.compose.foundation.lazy {
     method @KotlinOnly public androidx.compose.ui.Modifier minimumVerticalContentPadding(androidx.compose.ui.Modifier, androidx.compose.ui.unit.Dp top, androidx.compose.ui.unit.Dp bottom);
     method @BytecodeOnly public androidx.compose.ui.Modifier minimumVerticalContentPadding-3ABfNKs(androidx.compose.ui.Modifier, float);
     method @BytecodeOnly public androidx.compose.ui.Modifier minimumVerticalContentPadding-VpY3zN4(androidx.compose.ui.Modifier, float, float);
+    method public androidx.compose.ui.Modifier snapSegmentThreshold(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,java.lang.Integer> threshold);
     method public androidx.compose.ui.Modifier transformedHeight(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress,java.lang.Integer> heightProvider);
     property public abstract androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress androidx.compose.ui.graphics.drawscope.DrawScope.scrollProgress;
     property public abstract androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress androidx.compose.ui.graphics.GraphicsLayerScope.scrollProgress;

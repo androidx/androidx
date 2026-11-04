@@ -22,6 +22,8 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
+import androidx.wear.compose.foundation.WearComposeFoundationFlags
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress.Companion.downwardMeasuredItemScrollProgress
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress.Companion.upwardMeasuredItemScrollProgress
 import androidx.wear.compose.foundation.lazy.layout.LazyLayoutItemAnimation
@@ -101,6 +103,23 @@ internal data class TransformingLazyColumnMeasuredItem(
         (placeable?.parentData as? TransformingLazyColumnParentData)?.minimumTopContentPadding
     val minimumBottomContentPadding: Dp? =
         (placeable?.parentData as? TransformingLazyColumnParentData)?.minimumBottomContentPadding
+
+    /**
+     * The snap segment threshold that the item requests for its measured size, or null. Computed
+     * when the item is measured, so that a state read by the lambda measures the list again. Not
+     * computed when segment snapping is disabled, as item based snapping does not use it.
+     */
+    @OptIn(ExperimentalWearFoundationApi::class)
+    val snapSegmentThresholdPx: Int? =
+        if (WearComposeFoundationFlags.isTransformingLazyColumnSnapSegmentsEnabled) {
+            placeable?.let { p ->
+                (p.parentData as? TransformingLazyColumnParentData)
+                    ?.snapSegmentThreshold
+                    ?.invoke(p.width, p.height)
+            }
+        } else {
+            null
+        }
 
     private var lastMeasuredTransformedHeight = placeable?.height ?: 0
 

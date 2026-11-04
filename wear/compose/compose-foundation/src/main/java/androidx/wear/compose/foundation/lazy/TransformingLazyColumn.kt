@@ -56,7 +56,9 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFirstOrNull
+import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.LocalReduceMotion
+import androidx.wear.compose.foundation.WearComposeFoundationFlags
 import androidx.wear.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.wear.compose.foundation.lazy.layout.lazyLayoutItemAnimator
 import androidx.wear.compose.foundation.requestFocusOnHierarchyActive
@@ -460,26 +462,44 @@ public fun TransformingLazyColumn(
 public object TransformingLazyColumnDefaults {
 
     /**
-     * Create and remember a [FlingBehavior] that will represent natural fling curve with snap to
-     * central item as the fling decays.
+     * Create and remember a [FlingBehavior] that will represent a natural fling curve which snaps
+     * to the nearest snap point as the fling decays. Items taller than their snap segment threshold
+     * are split into equal segments, each with its own snap point; see
+     * [TransformingLazyColumnItemScope.snapSegmentThreshold] to customize or disable splitting for
+     * an item.
      *
      * @param state the state of the [TransformingLazyColumn]
-     * @param snapOffset an optional offset to be applied when snapping the item. Defines the
-     *   distance from the center of the scrollable to the center of the snapped item.
+     * @param snapOffset an optional offset to be applied when snapping. Defines the distance from
+     *   the center of the scrollable to the center of the snapped item or segment.
      * @param decay the decay to use
      */
+    @OptIn(ExperimentalWearFoundationApi::class)
     @Composable
     public fun snapFlingBehavior(
         state: TransformingLazyColumnState,
         snapOffset: Dp = 0.dp,
         decay: DecayAnimationSpec<Float> = exponentialDecay(),
     ): FlingBehavior {
-        val snapOffsetPx = with(LocalDensity.current) { snapOffset.roundToPx() }
-        return remember(state, snapOffsetPx, decay) {
+        val density = LocalDensity.current
+        val snapOffsetPx = with(density) { snapOffset.roundToPx() }
+        if (!WearComposeFoundationFlags.isTransformingLazyColumnSnapSegmentsEnabled) {
+            return remember(state, snapOffsetPx, decay) {
+                LegacyTransformingLazyColumnSnapFlingBehavior(
+                    state = state,
+                    snapOffset = snapOffsetPx,
+                    decay = decay,
+                )
+            }
+        }
+        val minFlingVelocityPx =
+            with(density) { TransformingLazyColumnSnapFlingBehavior.MinFlingVelocity.toPx() }
+        val snapPoints = rememberTransformingLazyColumnSnapPoints(state, snapOffsetPx)
+        return remember(state, decay, snapPoints, minFlingVelocityPx) {
             TransformingLazyColumnSnapFlingBehavior(
                 state = state,
-                snapOffset = snapOffsetPx,
+                snapPoints = snapPoints,
                 decay = decay,
+                minFlingVelocity = minFlingVelocityPx,
             )
         }
     }

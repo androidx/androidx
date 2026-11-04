@@ -205,22 +205,24 @@ internal fun NotificationCardTitle(text: String) =
 internal fun TransformingLazyColumnItemScope.NotificationCard(
     notification: NotificationItem,
     transformationSpec: TransformationSpec,
+    modifier: Modifier = Modifier,
 ) =
     TitleCard(
         onClick = {},
         title = { NotificationCardTitle(notification.title) },
         subtitle = { Text(notification.body) },
         transformation = SurfaceTransformation(transformationSpec),
-        modifier = Modifier.transformedHeight(this, transformationSpec).animateItem(),
+        modifier = modifier.transformedHeight(this, transformationSpec).animateItem(),
     )
 
 @Composable
 internal fun TransformingLazyColumnItemScope.NotificationsHeader(
-    transformationSpec: TransformationSpec
+    transformationSpec: TransformationSpec,
+    modifier: Modifier = Modifier,
 ) =
     ListHeader(
         transformation = SurfaceTransformation(transformationSpec),
-        modifier = Modifier.transformedHeight(this, transformationSpec).animateItem(),
+        modifier = modifier.transformedHeight(this, transformationSpec).animateItem(),
     ) {
         Text("Notifications")
     }

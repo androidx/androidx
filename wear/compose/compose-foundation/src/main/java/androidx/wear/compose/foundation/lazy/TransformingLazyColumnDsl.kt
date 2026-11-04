@@ -136,6 +136,38 @@ public sealed interface TransformingLazyColumnItemScope {
      *   the top or bottom edges.
      */
     public fun Modifier.minimumVerticalContentPadding(padding: Dp): Modifier
+
+    /**
+     * Sets the threshold height above which this item is split into snap segments when the
+     * [TransformingLazyColumn] snaps (see [TransformingLazyColumnDefaults.snapFlingBehavior] and
+     * [androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults.snapBehavior]).
+     *
+     * An item taller than its snap segment threshold is split into `ceil(measuredHeight /
+     * threshold)` equal segments, each with a snap point at its center, so that rotary input and
+     * flings step through the item instead of skipping over it.
+     *
+     * By default, the snap segment threshold is estimated as the maximum height at which the
+     * measured width of the item is still fully visible on a round screen, assuming the
+     * [TransformingLazyColumn] fills the screen and the item has rounded corners. Use this modifier
+     * when an item's content is inset from its bounds (so that the threshold depends on where the
+     * content is fully visible rather than the item bounds), when the list does not fill the
+     * screen, or to keep the item whole regardless of height by returning at least
+     * `measuredHeight`. With a snap segment threshold above the height at which the item is fully
+     * visible, including when keeping a tall item whole, parts of the item are never fully visible
+     * when snapped.
+     *
+     * @sample androidx.wear.compose.foundation.samples.TransformingLazyColumnSnapSegmentThresholdSample
+     * @param threshold A callback that returns the threshold height in pixels, given the measured
+     *   (untransformed) width and height of the item in pixels. A positive value less than
+     *   `measuredHeight` is coerced to between 20% and 100% of the viewport height; a value at
+     *   least `measuredHeight` keeps the item whole with a single snap point at its center; a
+     *   non-positive value uses the default threshold, the same as not applying this modifier.
+     *   Called when the item is measured, so reading snapshot state inside this lambda causes the
+     *   list to remeasure when that state changes.
+     */
+    public fun Modifier.snapSegmentThreshold(
+        threshold: (measuredWidth: Int, measuredHeight: Int) -> Int
+    ): Modifier
 }
 
 /** Receiver scope which is used by [TransformingLazyColumn]. */
@@ -306,6 +338,9 @@ internal class TransformingLazyColumnItemScopeImpl(
 
     override fun Modifier.minimumVerticalContentPadding(padding: Dp): Modifier =
         this then Modifier.minimumVerticalContentPadding(top = padding, bottom = padding)
+
+    override fun Modifier.snapSegmentThreshold(threshold: (Int, Int) -> Int): Modifier =
+        this then SnapSegmentThresholdElement(threshold)
 }
 
 internal class TransformingLazyColumnCompositeParentDataModifier(
@@ -327,6 +362,7 @@ internal data class TransformingLazyColumnParentData(
     val animationSpecs: LazyLayoutAnimationSpecsNode? = null,
     val minimumTopContentPadding: Dp? = null,
     val minimumBottomContentPadding: Dp? = null,
+    val snapSegmentThreshold: ((measuredWidth: Int, measuredHeight: Int) -> Int)? = null,
 )
 
 internal class TransformingLazyColumnScopeImpl(
@@ -401,4 +437,32 @@ private class MinimumVerticalContentPaddingNode(var top: Dp, var bottom: Dp) :
             )
         }
     }
+}
+
+private class SnapSegmentThresholdElement(val threshold: (Int, Int) -> Int) :
+    ModifierNodeElement<SnapSegmentThresholdNode>() {
+    override fun create() = SnapSegmentThresholdNode(threshold)
+
+    override fun update(node: SnapSegmentThresholdNode) {
+        node.threshold = threshold
+    }
+
+    override fun equals(other: Any?): Boolean =
+        other is SnapSegmentThresholdElement && other.threshold === threshold
+
+    override fun hashCode(): Int = threshold.hashCode()
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "snapSegmentThreshold"
+        properties["threshold"] = threshold
+    }
+}
+
+private class SnapSegmentThresholdNode(var threshold: (Int, Int) -> Int) :
+    Modifier.Node(), ParentDataModifierNode {
+    // As the other item modifiers, which all store their parent data in
+    // TransformingLazyColumnParentData, other parent data is replaced.
+    override fun Density.modifyParentData(parentData: Any?): Any =
+        (parentData as? TransformingLazyColumnParentData)?.copy(snapSegmentThreshold = threshold)
+            ?: TransformingLazyColumnParentData(snapSegmentThreshold = threshold)
 }

@@ -29,16 +29,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Alignment
@@ -47,12 +52,15 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.LocalPinnableContainer
 import androidx.compose.ui.layout.PinnableContainer
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.SubcomposeLayoutState
 import androidx.compose.ui.layout.SubcomposeSlotReusePolicy
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -69,21 +77,37 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.test.swipeWithVelocity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.TEST_TAG
+import androidx.wear.compose.foundation.WearComposeFoundationFlags
+import androidx.wear.compose.foundation.isRoundDevice
+import androidx.wear.compose.foundation.rotary.HighResSnapRotaryScrollableBehavior
+import androidx.wear.compose.foundation.rotary.LowResSnapRotaryScrollableBehavior
+import androidx.wear.compose.foundation.rotary.RotaryHapticHandler
+import androidx.wear.compose.foundation.rotary.RotaryScrollHandler
 import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
+import androidx.wear.compose.foundation.rotary.RotarySnapSensitivityValues
+import androidx.wear.compose.foundation.rotary.ThresholdHandler
+import androidx.wear.compose.foundation.rotary.TransformingLazyColumnSnapHandler
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.concurrent.thread
+import kotlin.math.abs
+import kotlin.math.sign
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.runner.RunWith
 
@@ -95,6 +119,22 @@ class TransformingLazyColumnTest {
     private val lazyListTag = "LazyListTag"
 
     @get:Rule val rule = createComposeRule()
+
+    private var savedSnapSegmentsEnabled: Boolean = false
+
+    @OptIn(ExperimentalWearFoundationApi::class)
+    @Before
+    fun saveFlags() {
+        savedSnapSegmentsEnabled =
+            WearComposeFoundationFlags.isTransformingLazyColumnSnapSegmentsEnabled
+    }
+
+    @OptIn(ExperimentalWearFoundationApi::class)
+    @After
+    fun restoreFlags() {
+        WearComposeFoundationFlags.isTransformingLazyColumnSnapSegmentsEnabled =
+            savedSnapSegmentsEnabled
+    }
 
     @Test
     fun firstItemIsDisplayed() {
@@ -1112,6 +1152,64 @@ class TransformingLazyColumnTest {
         assertThat(state.anchorItemScrollOffset).isEqualTo(0)
     }
 
+    @OptIn(ExperimentalWearFoundationApi::class)
+    @Test
+    fun snapFlingBehavior_shortFastFlingInTallItem_movesForward() {
+        assumeTrue(WearComposeFoundationFlags.isTransformingLazyColumnSnapSegmentsEnabled)
+        lateinit var state: TransformingLazyColumnState
+        val initialIndex = 10
+        rule.setContent {
+            WithTouchSlop(0f) {
+                state = rememberTransformingLazyColumnState(initialAnchorItemIndex = initialIndex)
+                TransformingLazyColumn(
+                    state = state,
+                    modifier = Modifier.size(200.dp).testTag(TEST_TAG),
+                    flingBehavior = TransformingLazyColumnDefaults.snapFlingBehavior(state),
+                ) {
+                    // Each item covers the whole viewport, so it has several widely spaced snap
+                    // points and is the only visible item.
+                    items(100) { Box(Modifier.fillMaxWidth().height(600.dp)) }
+                }
+            }
+        }
+        val dragDistance = with(rule.density) { 20.dp.toPx() }
+        val velocity = with(rule.density) { 1000.dp.toPx() }
+        // Settle onto a snap point first.
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            swipeWithVelocity(
+                start = center,
+                end = center.copy(y = center.y - 1f),
+                endVelocity = 0f,
+            )
+        }
+        val (settledIndex, settledOffset) =
+            rule.runOnIdle { state.anchorItemIndex to state.anchorItemScrollOffset }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            swipeWithVelocity(
+                start = center,
+                end = center.copy(y = center.y - dragDistance),
+                endVelocity = velocity,
+            )
+        }
+
+        // A short but fast fling moves to the next snap point instead of snapping back. Scrolling
+        // forward increases the scroll offset of the anchor item.
+        rule.runOnIdle {
+            assertWithMessage(
+                    "from $settledIndex/$settledOffset to " +
+                        "${state.anchorItemIndex}/${state.anchorItemScrollOffset}"
+                )
+                .that(
+                    state.anchorItemIndex > settledIndex ||
+                        (state.anchorItemIndex == settledIndex &&
+                            state.anchorItemScrollOffset > settledOffset)
+                )
+                .isTrue()
+        }
+    }
+
+    @OptIn(ExperimentalWearFoundationApi::class)
     @Test
     fun snapFlingBehavior_respectsSnapOffset() {
         lateinit var state: TransformingLazyColumnState
@@ -1148,8 +1246,30 @@ class TransformingLazyColumnTest {
         }
         rule.waitForIdle()
 
-        assertThat(state.anchorItemIndex).isEqualTo(initialIndex + 1)
-        assertThat(state.anchorItemScrollOffset).isEqualTo(snapOffsetPx)
+        if (WearComposeFoundationFlags.isTransformingLazyColumnSnapSegmentsEnabled) {
+            // The item nearest to the snap line (snapOffset above the center) is snapped: the
+            // initial item, which starts at the center and is now 0.6 item heights above it, rather
+            // than the next item, which is nearer to the center.
+            rule.runOnIdle {
+                assertThat(state.anchorItemIndex).isEqualTo(initialIndex)
+                assertThat(state.anchorItemScrollOffset).isEqualTo(snapOffsetPx)
+            }
+
+            // From there, the same slow drag moves the next item nearer to the snap line than the
+            // initial item: it snaps to the next item, at the snap offset.
+            rule.onNodeWithTag(TEST_TAG).performTouchInput {
+                swipeWithVelocity(
+                    start = center,
+                    end = center.copy(y = center.y - dragDistance),
+                    endVelocity = 0f,
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(state.anchorItemIndex).isEqualTo(initialIndex + 1)
+            assertThat(state.anchorItemScrollOffset).isEqualTo(snapOffsetPx)
+        }
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -1215,6 +1335,1814 @@ class TransformingLazyColumnTest {
 
         assertThat(state.anchorItemIndex).isEqualTo(initialIndex + 1)
         assertThat(state.anchorItemScrollOffset).isEqualTo(snapOffsetPx)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun rotarySnapBehavior_tallTransformedItems_settle() {
+        lateinit var state: TransformingLazyColumnState
+        val snapPoints = setContentWithTallTransformedItems { state = it }
+
+        repeat(8) {
+            val start = rule.mainClock.currentTime
+            rule.onNode(hasScrollAction()).performRotaryScrollInput {
+                rotateToScrollVertically(stepRotationPx)
+            }
+            // A single snap takes well under a second; it must not keep re-aiming at an anchor
+            // that the list can't reach exactly.
+            rule.runOnIdle {
+                assertWithMessage("Snap $it at item ${state.anchorItemIndex}")
+                    .that(rule.mainClock.currentTime - start)
+                    .isLessThan(2_000L)
+            }
+            assertRestsOnSnapPoint(snapPoints)
+        }
+    }
+
+    @Test
+    fun snapFlingBehavior_tallTransformedItems_landsOnSnapPoints() {
+        val snapPoints = setContentWithTallTransformedItems()
+
+        // The fling target is computed once, several items ahead of the transformed items.
+        // Including flings below the minimum fling velocity, which snap to the nearest point.
+        for (velocity in listOf(800, 1500, 3000, -1500, -800, 300, -300)) {
+            rule.onNodeWithTag(TEST_TAG).performTouchInput {
+                // In dp, long enough for the fastest fling at any density.
+                val distance = with(rule.density) { 80.dp.toPx() } * velocity.sign
+                swipeWithVelocity(
+                    start = center,
+                    end = center.copy(y = center.y - distance),
+                    endVelocity = with(rule.density) { abs(velocity).dp.toPx() },
+                )
+            }
+            rule.waitForIdle()
+            assertRestsOnSnapPoint(snapPoints)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun snapBehaviors_tallItemsWithSnapOffset_restOnSnapPoints() {
+        val snapOffset = 20.dp
+        val snapPoints = setContentWithTallTransformedItems(snapOffset)
+
+        repeat(6) {
+            rule.onNode(hasScrollAction()).performRotaryScrollInput {
+                rotateToScrollVertically(stepRotationPx)
+            }
+            rule.waitForIdle()
+            assertRestsOnSnapPoint(snapPoints)
+        }
+        for (velocity in listOf(1500, -1500)) {
+            rule.onNodeWithTag(TEST_TAG).performTouchInput {
+                swipeWithVelocity(
+                    start = center,
+                    end =
+                        center.copy(
+                            y = center.y - with(rule.density) { 80.dp.toPx() } * velocity.sign
+                        ),
+                    endVelocity = with(rule.density) { abs(velocity).dp.toPx() },
+                )
+            }
+            rule.waitForIdle()
+            assertRestsOnSnapPoint(snapPoints)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun snapBehaviors_endOfTransformedItemsWithContentPadding_restOnLastItem() {
+        lateinit var state: TransformingLazyColumnState
+        val snapPoints =
+            setContentWithTallTransformedItems(
+                itemCount = 20,
+                // Like an EdgeButton: enough for the last item to reach the center, and more.
+                contentPadding = PaddingValues(bottom = 120.dp),
+            ) {
+                state = it
+            }
+        fun assertLastItemAtCenter() {
+            assertRestsOnSnapPoint(snapPoints)
+            rule.runOnIdle {
+                val layoutInfo = state.layoutInfo
+                val last = layoutInfo.visibleItems.last()
+                assertThat(last.index).isEqualTo(19)
+                val center = last.offset + last.transformedHeight / 2f
+                assertThat(abs(center - layoutInfo.viewportSize.height / 2f)).isAtMost(2f)
+            }
+        }
+
+        repeat(6) {
+            rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeUp() }
+            rule.waitForIdle()
+        }
+        assertLastItemAtCenter()
+
+        repeat(5) {
+            rule.onNode(hasScrollAction()).performRotaryScrollInput {
+                rotateToScrollVertically(-stepRotationPx)
+            }
+            rule.waitForIdle()
+        }
+        repeat(10) {
+            rule.onNode(hasScrollAction()).performRotaryScrollInput {
+                rotateToScrollVertically(stepRotationPx)
+            }
+            rule.waitForIdle()
+        }
+        assertLastItemAtCenter()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun snapBehaviors_endOfTransformedItems_restAtEnd() {
+        lateinit var state: TransformingLazyColumnState
+        val snapPoints = setContentWithTallTransformedItems(itemCount = 20) { state = it }
+
+        repeat(6) {
+            rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeUp() }
+            rule.waitForIdle()
+        }
+        assertRestsOnSnapPoint(snapPoints)
+        rule.runOnIdle { assertThat(state.canScrollForward).isFalse() }
+
+        repeat(5) {
+            rule.onNode(hasScrollAction()).performRotaryScrollInput {
+                rotateToScrollVertically(-stepRotationPx)
+            }
+            rule.waitForIdle()
+        }
+        rule.runOnIdle { assertThat(state.canScrollForward).isTrue() }
+        repeat(10) {
+            rule.onNode(hasScrollAction()).performRotaryScrollInput {
+                rotateToScrollVertically(stepRotationPx)
+            }
+            rule.waitForIdle()
+        }
+        assertRestsOnSnapPoint(snapPoints)
+        rule.runOnIdle { assertThat(state.canScrollForward).isFalse() }
+    }
+
+    @Test
+    fun snapFlingBehavior_collapsedPointsAtEnd_singleFastFlingReachesEnd() {
+        lateinit var state: TransformingLazyColumnState
+        val snapPoints = setContentNearShrunkEnd { state = it }
+        rule.runOnIdle {
+            assertThat(snapPoints.current().collapsedPointsBeyond(1)).isGreaterThan(0)
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            swipeWithVelocity(
+                start = center,
+                end = center.copy(y = center.y - with(rule.density) { 80.dp.toPx() }),
+                endVelocity = with(rule.density) { 2500.dp.toPx() },
+            )
+        }
+        rule.waitForIdle()
+
+        assertRestsOnSnapPoint(snapPoints)
+        rule.runOnIdle { assertThat(state.canScrollForward).isFalse() }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun rotarySnapBehavior_collapsedPointsAtEnd_fastTurnReachesEnd() {
+        lateinit var state: TransformingLazyColumnState
+        val snapPoints = setContentNearShrunkEnd { state = it }
+        val stepPx = rule.runOnIdle {
+            val current = snapPoints.current()
+            assertThat(current.collapsedPointsBeyond(1)).isGreaterThan(0)
+            current.stepSize()
+        }
+
+        rule.onNode(hasScrollAction()).performRotaryScrollInput {
+            repeat(8) {
+                if (it > 0) advanceEventTime(15L)
+                rotateToScrollVertically(stepPx * 1.5f)
+            }
+        }
+        rule.waitForIdle()
+
+        assertRestsOnSnapPoint(snapPoints)
+        rule.runOnIdle { assertThat(state.canScrollForward).isFalse() }
+    }
+
+    /**
+     * A list laid out near its end with its last tall item visible and shrunk, so that several of
+     * its snap points are collapsed into the edge snap point while it can still scroll there.
+     */
+    @OptIn(ExperimentalWearFoundationApi::class)
+    private fun setContentNearShrunkEnd(
+        onState: (TransformingLazyColumnState) -> Unit
+    ): TransformingLazyColumnSnapPointsProvider {
+        assumeTrue(WearComposeFoundationFlags.isTransformingLazyColumnSnapSegmentsEnabled)
+        lateinit var snapPoints: TransformingLazyColumnSnapPointsProvider
+        val segmentThresholdPx = with(rule.density) { 50.dp.roundToPx() }
+        rule.setContent {
+            val state = rememberTransformingLazyColumnState(initialAnchorItemIndex = 4)
+            onState(state)
+            snapPoints = rememberTransformingLazyColumnSnapPoints(state, snapOffsetPx = 0)
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.size(200.dp).testTag(TEST_TAG),
+                rotaryScrollableBehavior = RotaryScrollableDefaults.snapBehavior(state),
+                flingBehavior = TransformingLazyColumnDefaults.snapFlingBehavior(state),
+            ) {
+                items(7) { index ->
+                    val height = if (index == 6) 300.dp else 50.dp
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .height(height)
+                            .snapSegmentThreshold { _, itemHeight ->
+                                if (index == 6) segmentThresholdPx else itemHeight
+                            }
+                            .transformedHeight { itemHeight, progress ->
+                                if (progress.isUnspecified) {
+                                    itemHeight
+                                } else {
+                                    val overflow =
+                                        maxOf(0f, 0.25f - progress.topOffsetFraction) +
+                                            maxOf(0f, progress.bottomOffsetFraction - 0.75f)
+                                    itemHeight -
+                                        (itemHeight * (overflow * 0.3f).coerceAtMost(0.5f)).toInt()
+                                }
+                            }
+                    )
+                }
+            }
+        }
+        return snapPoints
+    }
+
+    @OptIn(ExperimentalTestApi::class, ExperimentalWearFoundationApi::class)
+    @Test
+    fun rotarySnapBehavior_tallItem_restsOnSegmentCenters() {
+        assumeTrue(WearComposeFoundationFlags.isTransformingLazyColumnSnapSegmentsEnabled)
+        lateinit var state: TransformingLazyColumnState
+        // Hand computed rather than from the snap points under test: an item three thresholds
+        // tall has snap points one threshold above its center, at its center and one below.
+        val viewportPx = with(rule.density) { 200.dp.roundToPx() }
+        val thresholdPx = viewportPx / 4
+        rule.setContent {
+            state = rememberTransformingLazyColumnState(initialAnchorItemIndex = 3)
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.size(200.dp).testTag(TEST_TAG),
+                rotaryScrollableBehavior = RotaryScrollableDefaults.snapBehavior(state),
+            ) {
+                items(10) { index ->
+                    // Away from the start of the list, so that every snap point can be reached.
+                    val heightPx = if (index == 3) thresholdPx * 3 else thresholdPx
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .height(with(rule.density) { heightPx.toDp() })
+                            .snapSegmentThreshold { _, _ -> thresholdPx }
+                    )
+                }
+            }
+        }
+        // Offset of the center of the tall item below the center of the viewport.
+        fun tallItemCenterOffset(): Float {
+            rule.mainClock.advanceTimeBy(1_000L)
+            return rule.runOnIdle {
+                val item = state.layoutInfo.visibleItems.first { it.index == 3 }
+                item.offset + item.transformedHeight / 2f - viewportPx / 2f
+            }
+        }
+        fun turn(steps: Int) {
+            rule.onNode(hasScrollAction()).performRotaryScrollInput {
+                rotateToScrollVertically(steps * thresholdPx * 1.2f)
+            }
+            rule.waitForIdle()
+        }
+
+        assertThat(abs(tallItemCenterOffset())).isAtMost(2f)
+        turn(-1)
+        assertThat(abs(tallItemCenterOffset() - thresholdPx)).isAtMost(2f)
+        turn(1)
+        assertThat(abs(tallItemCenterOffset())).isAtMost(2f)
+        turn(1)
+        assertThat(abs(tallItemCenterOffset() + thresholdPx)).isAtMost(2f)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun lowResSnapBehavior_tallItems_stepsOneSnapPointPerTurn() {
+        lateinit var state: TransformingLazyColumnState
+        lateinit var snapPoints: TransformingLazyColumnSnapPointsProvider
+        rule.setContent {
+            state = rememberTransformingLazyColumnState(initialAnchorItemIndex = 10)
+            snapPoints = rememberTransformingLazyColumnSnapPoints(state, snapOffsetPx = 0)
+            // The bezel behavior, without depending on the device having a bezel.
+            val behavior = remember {
+                LowResSnapRotaryScrollableBehavior(
+                    rotaryHaptics = NoRotaryHaptics,
+                    snapHandlerFactory = { TransformingLazyColumnSnapHandler(state, snapPoints) },
+                )
+            }
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.size(200.dp).testTag(TEST_TAG),
+                rotaryScrollableBehavior = behavior,
+            ) {
+                items(100) { index ->
+                    val heightPx =
+                        if (index % 3 == 2) transformedTallItemPx else transformedShortItemPx
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .height(with(rule.density) { heightPx.toDp() })
+                            .snapSegmentThreshold(testSnapSegmentThreshold(heightPx))
+                    )
+                }
+            }
+        }
+        assertTallItemsSplit(snapPoints) { it % 3 == 2 }
+
+        repeat(8) {
+            val (expected, nextKey) =
+                rule.runOnIdle {
+                    val points = snapPoints.current()
+                    val i = points.points.indexOf(points.nearest)
+                    val next = points.points.getOrNull(i + 1)
+                    assertWithMessage("Snap point after ${points.nearest?.key}")
+                        .that(next)
+                        .isNotNull()
+                    points.nearest!!.key to next!!.key
+                }
+            rule.onNode(hasScrollAction()).performRotaryScrollInput {
+                rotateToScrollVertically(10f)
+            }
+            rule.waitForIdle()
+            assertRestsOnSnapPoint(snapPoints)
+            rule.runOnIdle {
+                assertWithMessage("Turn $it from $expected")
+                    .that(snapPoints.current().nearest!!.key)
+                    .isEqualTo(nextKey)
+            }
+        }
+    }
+
+    private object NoRotaryHaptics : RotaryHapticHandler {
+        override fun handleScrollHaptic(
+            timestamp: Long,
+            deltaInPixels: Float,
+            inputDeviceId: Int,
+            axis: Int,
+        ) {}
+
+        override fun handleSnapHaptic(
+            timestamp: Long,
+            deltaInPixels: Float,
+            inputDeviceId: Int,
+            axis: Int,
+        ) {}
+
+        override fun handleLimitHaptic(isStart: Boolean, inputDeviceId: Int, axis: Int) {}
+    }
+
+    private val transformedShortItemPx = 101
+    private val transformedTallItemPx = 641
+
+    /** Snap segment threshold of the tall test items: half of the 200.dp viewport. */
+    private val tallItemThresholdPx: Int
+        get() = with(rule.density) { 200.dp.roundToPx() } / 2
+
+    /** A crown turn past the snap threshold of every step between the test items. */
+    private val stepRotationPx: Float
+        get() = tallItemThresholdPx * 1.2f
+
+    /**
+     * Splits the tall test items in at least 2 snap segments and keeps the short ones whole,
+     * whatever the density and screen of the device, unlike the default threshold.
+     */
+    private fun testSnapSegmentThreshold(heightPx: Int): (Int, Int) -> Int =
+        if (heightPx == transformedTallItemPx) {
+            val thresholdPx = tallItemThresholdPx
+            { _, _ -> thresholdPx }
+        } else {
+            { _, height -> height }
+        }
+
+    /**
+     * Asserts that the laid out tall items, as told by [isTall] from their index, have several snap
+     * points and the others one, so that the test steps through segments.
+     */
+    private fun assertTallItemsSplit(
+        snapPoints: TransformingLazyColumnSnapPointsProvider,
+        isTall: (Int) -> Boolean,
+    ) {
+        rule.runOnIdle {
+            val counts = snapPoints.current().points.groupingBy { it.key.itemIndex }.eachCount()
+            counts.forEach { (index, count) ->
+                if (isTall(index)) {
+                    assertWithMessage("Snap points of tall item $index").that(count).isAtLeast(2)
+                } else {
+                    assertWithMessage("Snap points of item $index").that(count).isEqualTo(1)
+                }
+            }
+        }
+    }
+
+    /**
+     * Short and tall items that shrink at the edges of the screen, like the Material3 items, with
+     * snap behaviors at [snapOffset]. Returns the snap points they snap to.
+     */
+    @OptIn(ExperimentalWearFoundationApi::class)
+    private fun setContentWithTallTransformedItems(
+        snapOffset: Dp = 0.dp,
+        itemCount: Int = 100,
+        contentPadding: PaddingValues = PaddingValues(),
+        onState: (TransformingLazyColumnState) -> Unit = {},
+    ): TransformingLazyColumnSnapPointsProvider {
+        assumeTrue(WearComposeFoundationFlags.isTransformingLazyColumnSnapSegmentsEnabled)
+        lateinit var snapPoints: TransformingLazyColumnSnapPointsProvider
+        rule.setContent {
+            val state = rememberTransformingLazyColumnState(initialAnchorItemIndex = 10)
+            onState(state)
+            val snapOffsetPx = with(rule.density) { snapOffset.roundToPx() }
+            snapPoints = rememberTransformingLazyColumnSnapPoints(state, snapOffsetPx)
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.size(200.dp).testTag(TEST_TAG),
+                contentPadding = contentPadding,
+                rotaryScrollableBehavior =
+                    RotaryScrollableDefaults.snapBehavior(state, snapOffset = snapOffset),
+                flingBehavior =
+                    TransformingLazyColumnDefaults.snapFlingBehavior(
+                        state,
+                        snapOffset = snapOffset,
+                    ),
+            ) {
+                items(itemCount) { index ->
+                    // Odd heights put item and segment centers between two pixels.
+                    val heightPx =
+                        if (index % 3 == 2) transformedTallItemPx else transformedShortItemPx
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .height(with(rule.density) { heightPx.toDp() })
+                            .snapSegmentThreshold(testSnapSegmentThreshold(heightPx))
+                            .transformedHeight { height, progress ->
+                                if (progress.isUnspecified) {
+                                    height
+                                } else {
+                                    val overflow =
+                                        maxOf(0f, 0.25f - progress.topOffsetFraction) +
+                                            maxOf(0f, progress.bottomOffsetFraction - 0.75f)
+                                    height - (overflow * height * 0.3f).toInt()
+                                }
+                            }
+                    )
+                }
+            }
+        }
+        assertTallItemsSplit(snapPoints) { it % 3 == 2 }
+        return snapPoints
+    }
+
+    @OptIn(ExperimentalTestApi::class, ExperimentalWearFoundationApi::class)
+    @Test
+    fun rotarySnapBehavior_turnAgainstRunningSnap_cancelsIt() {
+        assumeTrue(WearComposeFoundationFlags.isTransformingLazyColumnSnapSegmentsEnabled)
+        lateinit var state: TransformingLazyColumnState
+        lateinit var snapPoints: TransformingLazyColumnSnapPointsProvider
+        val itemPx = 101
+        rule.setContent {
+            state = rememberTransformingLazyColumnState(initialAnchorItemIndex = 10)
+            snapPoints = rememberTransformingLazyColumnSnapPoints(state, snapOffsetPx = 0)
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.size(200.dp).testTag(TEST_TAG),
+                rotaryScrollableBehavior = RotaryScrollableDefaults.snapBehavior(state),
+            ) {
+                items(100) {
+                    Box(Modifier.fillMaxWidth().height(with(rule.density) { itemPx.toDp() }))
+                }
+            }
+        }
+        val (initialIndex, initialOffset) =
+            rule.runOnIdle { state.anchorItemIndex to state.anchorItemScrollOffset }
+
+        rule.onNode(hasScrollAction()).performRotaryScrollInput {
+            // Starts a snap to the next item...
+            rotateToScrollVertically(itemPx * 1.2f)
+            // ...and turns back, within the same gesture, early in the snap.
+            advanceEventTime(50L)
+            rotateToScrollVertically(-10f)
+        }
+        rule.waitForIdle()
+        assertRestsOnSnapPoint(snapPoints)
+
+        // The snap was cancelled: the list settles back on the item it started from instead of
+        // completing the snap to the next one, within a pixel of where it started, as the initial
+        // layout can round the center of the item to either pixel.
+        rule.runOnIdle {
+            assertThat(state.anchorItemIndex).isEqualTo(initialIndex)
+            assertThat(abs(state.anchorItemScrollOffset - initialOffset)).isAtMost(1)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun rotarySnapBehavior_itemKeptWholeTallerThanViewport_movesToNextItem() {
+        lateinit var state: TransformingLazyColumnState
+        setContentWithItemsKeptWhole { state = it }
+        val initialIndex = rule.runOnIdle { state.anchorItemIndex }
+
+        rule.onNode(hasScrollAction()).performRotaryScrollInput {
+            // Past the snap threshold, derived from the item size as with item based snapping.
+            rotateToScrollVertically(wholeItemPx * 1.5f)
+        }
+
+        // The item is the only visible one and has a single snap point: the crown still moves on.
+        rule.runOnIdle { assertThat(state.anchorItemIndex).isGreaterThan(initialIndex) }
+    }
+
+    @Test
+    fun snapFlingBehavior_itemKeptWholeTallerThanViewport_flingsToNextItems() {
+        lateinit var state: TransformingLazyColumnState
+        setContentWithItemsKeptWhole { state = it }
+        val initialIndex = rule.runOnIdle { state.anchorItemIndex }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            swipeWithVelocity(
+                start = center,
+                end = center.copy(y = center.y - 150f),
+                endVelocity = with(rule.density) { 2000.dp.toPx() },
+            )
+        }
+
+        // A fast fling decays past the item instead of snapping back to it.
+        rule.runOnIdle { assertThat(state.anchorItemIndex).isGreaterThan(initialIndex) }
+    }
+
+    private val wholeItemPx = 800
+
+    /** Items twice as tall as the viewport, kept whole with snapSegmentThreshold. */
+    @OptIn(ExperimentalWearFoundationApi::class)
+    private fun setContentWithItemsKeptWhole(onState: (TransformingLazyColumnState) -> Unit) {
+        assumeTrue(WearComposeFoundationFlags.isTransformingLazyColumnSnapSegmentsEnabled)
+        rule.setContent {
+            val state = rememberTransformingLazyColumnState(initialAnchorItemIndex = 10)
+            onState(state)
+            TransformingLazyColumn(
+                state = state,
+                modifier =
+                    Modifier.size(with(rule.density) { (wholeItemPx / 2).toDp() })
+                        .testTag(TEST_TAG),
+                rotaryScrollableBehavior = RotaryScrollableDefaults.snapBehavior(state),
+                flingBehavior = TransformingLazyColumnDefaults.snapFlingBehavior(state),
+            ) {
+                items(100) {
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .height(with(rule.density) { wholeItemPx.toDp() })
+                            .snapSegmentThreshold { _, height -> height }
+                    )
+                }
+            }
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class, ExperimentalWearFoundationApi::class)
+    @Test
+    fun snapBehaviors_endOfListWithContentPadding_restOnLastItem() {
+        assumeTrue(WearComposeFoundationFlags.isTransformingLazyColumnSnapSegmentsEnabled)
+        lateinit var state: TransformingLazyColumnState
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.size(200.dp).testTag(TEST_TAG),
+                // Like an EdgeButton: enough for the last item to reach the center, and more.
+                contentPadding = PaddingValues(bottom = 100.dp),
+                rotaryScrollableBehavior = RotaryScrollableDefaults.snapBehavior(state),
+                flingBehavior = TransformingLazyColumnDefaults.snapFlingBehavior(state),
+            ) {
+                items(20) { Box(Modifier.fillMaxWidth().height(50.dp)) }
+            }
+        }
+
+        repeat(4) {
+            rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeUp() }
+            rule.waitForIdle()
+        }
+        // The last item rests at the center rather than the list on its content padding.
+        rule.runOnIdle {
+            assertThat(state.anchorItemIndex).isEqualTo(19)
+            assertThat(state.anchorItemScrollOffset).isEqualTo(0)
+            assertThat(state.canScrollForward).isTrue()
+        }
+
+        repeat(3) {
+            rule.onNode(hasScrollAction()).performRotaryScrollInput {
+                rotateToScrollVertically(500f)
+            }
+            rule.waitForIdle()
+        }
+        rule.runOnIdle {
+            assertThat(state.anchorItemIndex).isEqualTo(19)
+            assertThat(state.anchorItemScrollOffset).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun snapFlingBehavior_fastFlingToPaddedEnd_animatesBackToLastSnapPoint() {
+        lateinit var state: TransformingLazyColumnState
+        val snapPoints =
+            setContentWithTallTransformedItems(
+                itemCount = 12,
+                contentPadding = PaddingValues(bottom = 120.dp),
+            ) {
+                state = it
+            }
+
+        rule.mainClock.autoAdvance = false
+        try {
+            rule.onNodeWithTag(TEST_TAG).performTouchInput {
+                swipeWithVelocity(
+                    start = center,
+                    end = center.copy(y = center.y - with(rule.density) { 80.dp.toPx() }),
+                    endVelocity = with(rule.density) { 4000.dp.toPx() },
+                )
+            }
+            var reachedScrollBound = false
+            for (frame in 0 until 120) {
+                rule.mainClock.advanceTimeByFrame()
+                if (rule.runOnIdle { !state.canScrollForward }) {
+                    reachedScrollBound = true
+                    break
+                }
+            }
+            assertThat(reachedScrollBound).isTrue()
+
+            val distanceAtStop = rule.runOnIdle {
+                val points = snapPoints.current()
+                abs(points.distanceTo(points.nearest!!))
+            }
+            assertThat(distanceAtStop).isGreaterThan(with(rule.density) { 40.dp.toPx() })
+
+            // Settling off content padding animates over multiple frames instead of jumping at
+            // once.
+            rule.mainClock.advanceTimeByFrame()
+            val distanceAfterOneFrame = rule.runOnIdle {
+                val points = snapPoints.current()
+                abs(points.distanceTo(points.nearest!!))
+            }
+            assertThat(distanceAfterOneFrame).isGreaterThan(with(rule.density) { 10.dp.toPx() })
+        } finally {
+            rule.mainClock.autoAdvance = true
+        }
+        rule.waitForIdle()
+        assertRestsOnSnapPoint(snapPoints)
+    }
+
+    @Test
+    fun snapFlingBehavior_fastFlingToUnpaddedEnd_reportsRemainingVelocity() {
+        lateinit var state: TransformingLazyColumnState
+        var postFlingAvailableY = 0f
+        val connection =
+            object : NestedScrollConnection {
+                override suspend fun onPostFling(
+                    consumed: Velocity,
+                    available: Velocity,
+                ): Velocity {
+                    postFlingAvailableY = available.y
+                    return Velocity.Zero
+                }
+            }
+        rule.setContent {
+            state = rememberTransformingLazyColumnState(initialAnchorItemIndex = 10)
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.nestedScroll(connection).size(200.dp).testTag(TEST_TAG),
+                flingBehavior = TransformingLazyColumnDefaults.snapFlingBehavior(state),
+            ) {
+                items(12) { Box(Modifier.fillMaxWidth().height(50.dp)) }
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            swipeWithVelocity(
+                start = center,
+                end = center.copy(y = center.y - with(rule.density) { 80.dp.toPx() }),
+                endVelocity = with(rule.density) { 4000.dp.toPx() },
+            )
+        }
+        rule.waitForIdle()
+
+        rule.runOnIdle {
+            assertThat(state.canScrollForward).isFalse()
+            assertThat(postFlingAvailableY).isLessThan(0f)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun rotarySnapBehavior_stepAddedWhileFinishingSnap_isNotDropped() {
+        lateinit var state: TransformingLazyColumnState
+        lateinit var snapPoints: TransformingLazyColumnSnapPointsProvider
+        val initialIndex = 10
+        var pausedInPostFling = false
+        var pauseOnce = true
+        val connection =
+            object : NestedScrollConnection {
+                override suspend fun onPostFling(
+                    consumed: Velocity,
+                    available: Velocity,
+                ): Velocity {
+                    if (pauseOnce) {
+                        pauseOnce = false
+                        pausedInPostFling = true
+                        withFrameNanos {}
+                    }
+                    return Velocity.Zero
+                }
+            }
+        rule.setContent {
+            state = rememberTransformingLazyColumnState(initialAnchorItemIndex = initialIndex)
+            snapPoints = rememberTransformingLazyColumnSnapPoints(state, snapOffsetPx = 0)
+            val behavior = remember {
+                LowResSnapRotaryScrollableBehavior(
+                    rotaryHaptics = NoRotaryHaptics,
+                    snapHandlerFactory = { TransformingLazyColumnSnapHandler(state, snapPoints) },
+                )
+            }
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.nestedScroll(connection).size(200.dp).testTag(TEST_TAG),
+                rotaryScrollableBehavior = behavior,
+            ) {
+                items(100) { Box(Modifier.fillMaxWidth().height(50.dp)) }
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+        try {
+            rule.onNode(hasScrollAction()).performRotaryScrollInput {
+                rotateToScrollVertically(10f)
+            }
+            var lastEventTime = rule.mainClock.currentTime
+            for (frame in 0 until 200) {
+                rule.mainClock.advanceTimeByFrame()
+                if (rule.runOnIdle { pausedInPostFling }) {
+                    break
+                }
+                if (rule.mainClock.currentTime - lastEventTime >= 100L) {
+                    // Sub-threshold rotary input keeps the gesture active across the spring.
+                    rule.onNode(hasScrollAction()).performRotaryScrollInput {
+                        rotateToScrollVertically(0.01f)
+                    }
+                    lastEventTime = rule.mainClock.currentTime
+                }
+            }
+            rule.runOnIdle { assertThat(pausedInPostFling).isTrue() }
+
+            // springToTarget has already returned while snapJob is still active inside fling(0f):
+            // a sequential step arriving now must still be animated.
+            rule.onNode(hasScrollAction()).performRotaryScrollInput {
+                rotateToScrollVertically(10f)
+            }
+        } finally {
+            rule.mainClock.autoAdvance = true
+        }
+        rule.waitForIdle()
+
+        assertRestsOnSnapPoint(snapPoints)
+        rule.runOnIdle { assertThat(state.anchorItemIndex).isEqualTo(initialIndex + 2) }
+    }
+
+    @OptIn(ExperimentalTestApi::class, ExperimentalWearFoundationApi::class)
+    @Test
+    fun snapBehaviors_reverseLayout_reachBothEndsOnSnapPoints() {
+        assumeTrue(WearComposeFoundationFlags.isTransformingLazyColumnSnapSegmentsEnabled)
+        lateinit var state: TransformingLazyColumnState
+        lateinit var snapPoints: TransformingLazyColumnSnapPointsProvider
+        rule.setContent {
+            state = rememberTransformingLazyColumnState(initialAnchorItemIndex = 10)
+            snapPoints = rememberTransformingLazyColumnSnapPoints(state, snapOffsetPx = 0)
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.size(200.dp).testTag(TEST_TAG),
+                reverseLayout = true,
+                rotaryScrollableBehavior = RotaryScrollableDefaults.snapBehavior(state),
+                flingBehavior = TransformingLazyColumnDefaults.snapFlingBehavior(state),
+            ) {
+                items(20) { Box(Modifier.fillMaxWidth().height(50.dp)) }
+            }
+        }
+        // Which ends were reached: true for the end of the list, false for its start.
+        val reached = mutableSetOf<Boolean>()
+        fun assertAtAnEnd() {
+            assertRestsOnSnapPoint(snapPoints)
+            rule.runOnIdle {
+                val atStart = !state.canScrollBackward
+                val atEnd = !state.canScrollForward
+                assertWithMessage("At item ${state.anchorItemIndex}")
+                    .that(atStart || atEnd)
+                    .isTrue()
+                reached += atEnd
+            }
+        }
+
+        // Flings to one end.
+        repeat(4) {
+            rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeUp() }
+            rule.waitForIdle()
+        }
+        assertAtAnEnd()
+
+        // The crown, both ways, to both ends.
+        for (delta in listOf(150f, -150f)) {
+            repeat(30) {
+                rule.onNode(hasScrollAction()).performRotaryScrollInput {
+                    rotateToScrollVertically(delta)
+                }
+                rule.waitForIdle()
+            }
+            assertAtAnEnd()
+        }
+        assertThat(reached).containsExactly(true, false)
+    }
+
+    @Test
+    fun snapSegmentThreshold_withAnimateItem_appliesInEitherOrder() {
+        lateinit var snapPoints: TransformingLazyColumnSnapPointsProvider
+        val itemHeight = with(rule.density) { 300.toDp() }
+        rule.setContent {
+            val state = rememberTransformingLazyColumnState(initialAnchorItemIndex = 1)
+            snapPoints = rememberTransformingLazyColumnSnapPoints(state, snapOffsetPx = 0)
+            TransformingLazyColumn(state = state, modifier = Modifier.size(200.dp)) {
+                item { Box(Modifier.fillMaxWidth().height(200.dp)) }
+                item {
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .height(itemHeight)
+                            .snapSegmentThreshold { _, _ -> 100 }
+                            .animateItem()
+                    )
+                }
+                item {
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .height(itemHeight)
+                            .animateItem()
+                            .snapSegmentThreshold { _, _ -> 100 }
+                    )
+                }
+                items(10) { Box(Modifier.fillMaxWidth().height(200.dp)) }
+            }
+        }
+        rule.runOnIdle {
+            val points = snapPoints.current().points
+            // 300 px in segments of at most 100 px, whichever modifier comes first.
+            assertThat(points.count { it.key.itemIndex == 1 }).isEqualTo(3)
+            assertThat(points.count { it.key.itemIndex == 2 }).isEqualTo(3)
+        }
+    }
+
+    @Test
+    fun snapSegmentThreshold_withMinimumVerticalContentPadding_appliesInEitherOrder() {
+        lateinit var snapPoints: TransformingLazyColumnSnapPointsProvider
+        val itemHeight = with(rule.density) { 300.toDp() }
+        rule.setContent {
+            val state = rememberTransformingLazyColumnState(initialAnchorItemIndex = 1)
+            snapPoints = rememberTransformingLazyColumnSnapPoints(state, snapOffsetPx = 0)
+            TransformingLazyColumn(state = state, modifier = Modifier.size(200.dp)) {
+                item { Box(Modifier.fillMaxWidth().height(200.dp)) }
+                item {
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .height(itemHeight)
+                            .snapSegmentThreshold { _, _ -> 100 }
+                            .minimumVerticalContentPadding(4.dp)
+                    )
+                }
+                item {
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .height(itemHeight)
+                            .minimumVerticalContentPadding(4.dp)
+                            .snapSegmentThreshold { _, _ -> 100 }
+                    )
+                }
+                items(10) { Box(Modifier.fillMaxWidth().height(200.dp)) }
+            }
+        }
+        rule.runOnIdle {
+            val points = snapPoints.current().points
+            // 300 px in segments of at most 100 px, whichever modifier comes first.
+            assertThat(points.count { it.key.itemIndex == 1 }).isEqualTo(3)
+            assertThat(points.count { it.key.itemIndex == 2 }).isEqualTo(3)
+        }
+    }
+
+    @Test
+    fun snapSegmentThreshold_withTransformedHeight_appliesInEitherOrder() {
+        lateinit var state: TransformingLazyColumnState
+        lateinit var snapPoints: TransformingLazyColumnSnapPointsProvider
+        val itemHeight = with(rule.density) { 300.toDp() }
+        rule.setContent {
+            state = rememberTransformingLazyColumnState(initialAnchorItemIndex = 1)
+            snapPoints = rememberTransformingLazyColumnSnapPoints(state, snapOffsetPx = 0)
+            TransformingLazyColumn(state = state, modifier = Modifier.size(200.dp)) {
+                item { Box(Modifier.fillMaxWidth().height(200.dp)) }
+                item {
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .height(itemHeight)
+                            .snapSegmentThreshold { _, _ -> 100 }
+                            .transformedHeight { height, _ -> height - 10 }
+                    )
+                }
+                item {
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .height(itemHeight)
+                            .transformedHeight { height, _ -> height - 10 }
+                            .snapSegmentThreshold { _, _ -> 100 }
+                    )
+                }
+                items(10) { Box(Modifier.fillMaxWidth().height(200.dp)) }
+            }
+        }
+
+        rule.runOnIdle {
+            val points = snapPoints.current().points
+            // 300 px in segments of at most 100 px, whichever modifier comes first...
+            assertThat(points.count { it.key.itemIndex == 1 }).isEqualTo(3)
+            assertThat(points.count { it.key.itemIndex == 2 }).isEqualTo(3)
+            // ...and the height is still transformed.
+            state.layoutInfo.visibleItems
+                .filter { it.index == 1 || it.index == 2 }
+                .forEach { assertThat(it.transformedHeight).isEqualTo(290) }
+        }
+    }
+
+    @Test
+    fun minimumVerticalContentPadding_withSnapSegmentThreshold_appliesInEitherOrder() {
+        lateinit var state: TransformingLazyColumnState
+        var thresholdFirst by mutableStateOf(true)
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            TransformingLazyColumn(state = state, modifier = Modifier.size(200.dp)) {
+                item {
+                    val threshold = Modifier.snapSegmentThreshold { _, _ -> 100 }
+                    val padding = Modifier.minimumVerticalContentPadding(24.dp)
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .height(50.dp)
+                            .then(
+                                if (thresholdFirst) threshold.then(padding)
+                                else padding.then(threshold)
+                            )
+                    )
+                }
+                items(10) { Box(Modifier.fillMaxWidth().height(50.dp)) }
+            }
+        }
+        val paddingPx = with(rule.density) { 24.dp.roundToPx() }
+
+        rule.runOnIdle { assertThat(state.layoutInfo.beforeContentPadding).isEqualTo(paddingPx) }
+        thresholdFirst = false
+        rule.runOnIdle { assertThat(state.layoutInfo.beforeContentPadding).isEqualTo(paddingPx) }
+    }
+
+    @Test
+    fun snapSegmentThreshold_changed_updatesSegments() {
+        lateinit var snapPoints: TransformingLazyColumnSnapPointsProvider
+        var threshold by mutableStateOf(100)
+        var itemCompositions = 0
+        val itemHeight = with(rule.density) { 300.toDp() }
+        rule.setContent {
+            val state = rememberTransformingLazyColumnState(initialAnchorItemIndex = 1)
+            snapPoints = rememberTransformingLazyColumnSnapPoints(state, snapOffsetPx = 0)
+            TransformingLazyColumn(state = state, modifier = Modifier.size(200.dp)) {
+                item { Box(Modifier.fillMaxWidth().height(200.dp)) }
+                item {
+                    itemCompositions++
+                    Box(
+                        Modifier.fillMaxWidth().height(itemHeight).snapSegmentThreshold { _, _ ->
+                            threshold
+                        }
+                    )
+                }
+                items(10) { Box(Modifier.fillMaxWidth().height(200.dp)) }
+            }
+        }
+        rule.runOnIdle {
+            assertThat(snapPoints.current().points.count { it.key.itemIndex == 1 }).isEqualTo(3)
+            assertThat(itemCompositions).isEqualTo(1)
+        }
+
+        threshold = 1000
+
+        rule.runOnIdle {
+            assertThat(snapPoints.current().points.count { it.key.itemIndex == 1 }).isEqualTo(1)
+            assertThat(itemCompositions).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun snapSegmentThreshold_lambdaInstanceChanged_updatesSegments() {
+        lateinit var snapPoints: TransformingLazyColumnSnapPointsProvider
+        var keepWhole by mutableStateOf(false)
+        val itemHeight = with(rule.density) { 300.toDp() }
+        rule.setContent {
+            val state = rememberTransformingLazyColumnState(initialAnchorItemIndex = 1)
+            snapPoints = rememberTransformingLazyColumnSnapPoints(state, snapOffsetPx = 0)
+            TransformingLazyColumn(state = state, modifier = Modifier.size(200.dp)) {
+                item { Box(Modifier.fillMaxWidth().height(200.dp)) }
+                item {
+                    val thresholdLambda: (Int, Int) -> Int =
+                        if (keepWhole) {
+                            { _, height -> height }
+                        } else {
+                            { _, _ -> 100 }
+                        }
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .height(itemHeight)
+                            .snapSegmentThreshold(thresholdLambda)
+                    )
+                }
+                items(10) { Box(Modifier.fillMaxWidth().height(200.dp)) }
+            }
+        }
+        rule.runOnIdle {
+            assertThat(snapPoints.current().points.count { it.key.itemIndex == 1 }).isEqualTo(3)
+        }
+
+        keepWhole = true
+
+        rule.runOnIdle {
+            assertThat(snapPoints.current().points.count { it.key.itemIndex == 1 }).isEqualTo(1)
+        }
+    }
+
+    @OptIn(ExperimentalWearFoundationApi::class)
+    @Test
+    fun snapSegmentThreshold_segmentsDisabled_lambdaNotInvoked() {
+        WearComposeFoundationFlags.isTransformingLazyColumnSnapSegmentsEnabled = false
+        var thresholdCalls = 0
+        rule.setContent {
+            TransformingLazyColumn(modifier = Modifier.size(200.dp)) {
+                items(5) {
+                    Box(
+                        Modifier.fillMaxWidth().height(300.dp).snapSegmentThreshold { _, _ ->
+                            thresholdCalls++
+                            100
+                        }
+                    )
+                }
+            }
+        }
+        rule.runOnIdle { assertThat(thresholdCalls).isEqualTo(0) }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun snapBehaviors_contentShorterThanViewport_doNotMove() {
+        lateinit var state: TransformingLazyColumnState
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.size(200.dp).testTag(TEST_TAG),
+                rotaryScrollableBehavior = RotaryScrollableDefaults.snapBehavior(state),
+                flingBehavior = TransformingLazyColumnDefaults.snapFlingBehavior(state),
+            ) {
+                items(2) { Box(Modifier.fillMaxWidth().height(40.dp)) }
+            }
+        }
+        val (index, offset) =
+            rule.runOnIdle { state.anchorItemIndex to state.anchorItemScrollOffset }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeUp() }
+        rule.waitForIdle()
+        rule.onNode(hasScrollAction()).performRotaryScrollInput { rotateToScrollVertically(300f) }
+        rule.mainClock.advanceTimeBy(1_000L)
+
+        rule.runOnIdle {
+            assertThat(state.anchorItemIndex).isEqualTo(index)
+            assertThat(state.anchorItemScrollOffset).isEqualTo(offset)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun rotarySnapBehavior_contentShorterThanViewport_noSnapPointsHapticsOrScroll() {
+        lateinit var state: TransformingLazyColumnState
+        lateinit var snapPoints: TransformingLazyColumnSnapPointsProvider
+        var snapHaptics = 0
+        var scrollStarts = 0
+        val haptics =
+            object : RotaryHapticHandler by NoRotaryHaptics {
+                override fun handleSnapHaptic(
+                    timestamp: Long,
+                    deltaInPixels: Float,
+                    inputDeviceId: Int,
+                    axis: Int,
+                ) {
+                    snapHaptics++
+                }
+            }
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            snapPoints = rememberTransformingLazyColumnSnapPoints(state, snapOffsetPx = 0)
+            val behavior = remember { highResSnapBehavior(state, snapPoints, haptics) }
+            LaunchedEffect(state) {
+                snapshotFlow { state.isScrollInProgress }.collect { if (it) scrollStarts++ }
+            }
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.size(200.dp).testTag(TEST_TAG),
+                rotaryScrollableBehavior = behavior,
+            ) {
+                items(2) { Box(Modifier.fillMaxWidth().height(40.dp)) }
+            }
+        }
+        rule.runOnIdle { assertThat(snapPoints.current().points).isEmpty() }
+
+        // Turns well past a snap threshold both ways, and short of it.
+        listOf(300f, -300f, 5f).forEach { delta ->
+            rule.onNode(hasScrollAction()).performRotaryScrollInput {
+                rotateToScrollVertically(delta)
+            }
+            rule.mainClock.advanceTimeBy(1_000L)
+        }
+
+        rule.runOnIdle {
+            assertThat(snapHaptics).isEqualTo(0)
+            assertThat(scrollStarts).isEqualTo(0)
+        }
+    }
+
+    /** Asserts that the list rests with its nearest snap point on the snap line. */
+    private fun assertRestsOnSnapPoint(snapPoints: TransformingLazyColumnSnapPointsProvider) {
+        // Past the delay before a scroll short of the snap threshold settles back.
+        rule.mainClock.advanceTimeBy(1_000L)
+        rule.runOnIdle {
+            val points = snapPoints.current()
+            val nearest = points.nearest
+            assertThat(nearest).isNotNull()
+            assertThat(abs(points.distanceTo(nearest!!))).isAtMost(2f)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class, ExperimentalWearFoundationApi::class)
+    @Test
+    fun rotarySnapBehavior_reverseLayout_stepsThroughTallItems() {
+        assumeTrue(WearComposeFoundationFlags.isTransformingLazyColumnSnapSegmentsEnabled)
+        lateinit var state: TransformingLazyColumnState
+        lateinit var snapPoints: TransformingLazyColumnSnapPointsProvider
+        val tallItemPx = transformedTallItemPx
+        val initialIndex = 10
+
+        rule.setContent {
+            state = rememberTransformingLazyColumnState(initialAnchorItemIndex = initialIndex)
+            snapPoints = rememberTransformingLazyColumnSnapPoints(state, snapOffsetPx = 0)
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.size(200.dp).testTag(TEST_TAG),
+                reverseLayout = true,
+                rotaryScrollableBehavior = RotaryScrollableDefaults.snapBehavior(state),
+                flingBehavior = TransformingLazyColumnDefaults.snapFlingBehavior(state),
+            ) {
+                items(100) {
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .height(with(rule.density) { tallItemPx.toDp() })
+                            .snapSegmentThreshold(testSnapSegmentThreshold(tallItemPx))
+                    )
+                }
+            }
+        }
+        assertTallItemsSplit(snapPoints) { true }
+
+        // Each turn advances by one snap segment: the list moves in a single direction and never
+        // skips a whole tall item, which has several segments.
+        val positions =
+            mutableListOf(rule.runOnIdle { state.anchorItemIndex to state.anchorItemScrollOffset })
+        repeat(6) {
+            val start = rule.mainClock.currentTime
+            rule.onNode(hasScrollAction()).performRotaryScrollInput {
+                rotateToScrollVertically(tallItemPx / 2f)
+            }
+            positions += rule.runOnIdle {
+                assertWithMessage("Snap $it settles")
+                    .that(rule.mainClock.currentTime - start)
+                    .isLessThan(2_000L)
+                state.anchorItemIndex to state.anchorItemScrollOffset
+            }
+        }
+        val steps = positions.zipWithNext { (i1, o1), (i2, o2) ->
+            if (i1 != i2) (i2 - i1).sign else (o2 - o1).sign
+        }
+        assertWithMessage("Positions $positions").that(steps.distinct()).hasSize(1)
+        assertWithMessage("Positions $positions").that(steps.first()).isNotEqualTo(0)
+        positions.zipWithNext { (i1, _), (i2, _) ->
+            assertWithMessage("Positions $positions").that(abs(i2 - i1)).isAtMost(1)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class, ExperimentalWearFoundationApi::class)
+    @Test
+    fun snapBehaviors_snapSegmentsFlag_switchesBetweenItemAndSegmentSnapping() {
+        lateinit var state: TransformingLazyColumnState
+        val itemHeight = 300.dp
+        val snapOffset = 16.dp
+        val itemHeightPx = with(rule.density) { itemHeight.toPx() }
+        val snapOffsetPx = with(rule.density) { snapOffset.roundToPx() }
+        // Divides the 300.dp item into 5 equal 60.dp segments, with segment 2 at the item center.
+        val segmentThresholdPx = with(rule.density) { 60.dp.roundToPx() }
+        val initialIndex = 5
+        var flagEnabled by mutableStateOf(false)
+        WearComposeFoundationFlags.isTransformingLazyColumnSnapSegmentsEnabled = false
+
+        rule.setContent {
+            key(flagEnabled) {
+                WithTouchSlop(0f) {
+                    state =
+                        rememberTransformingLazyColumnState(
+                            initialAnchorItemIndex = initialIndex,
+                            initialAnchorItemScrollOffset = snapOffsetPx,
+                        )
+                    TransformingLazyColumn(
+                        state = state,
+                        modifier = Modifier.size(200.dp).testTag(TEST_TAG),
+                        rotaryScrollableBehavior =
+                            RotaryScrollableDefaults.snapBehavior(state, snapOffset = snapOffset),
+                        flingBehavior =
+                            TransformingLazyColumnDefaults.snapFlingBehavior(
+                                state,
+                                snapOffset = snapOffset,
+                            ),
+                    ) {
+                        items(20) {
+                            Box(
+                                Modifier.fillMaxWidth().height(itemHeight).snapSegmentThreshold {
+                                    _,
+                                    _ ->
+                                    segmentThresholdPx
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // With segment snapping disabled, one rotary step skips the entire tall item onto the next
+        // item's center (plus snapOffset) instead of stopping on an interior segment.
+        rule.onNode(hasScrollAction()).performRotaryScrollInput {
+            rotateToScrollVertically(itemHeightPx * 1.2f)
+        }
+        rule.runOnIdle {
+            assertThat(state.anchorItemIndex).isEqualTo(initialIndex + 1)
+            assertThat(abs(state.anchorItemScrollOffset - snapOffsetPx)).isAtMost(1)
+        }
+
+        // A slow drag past half a segment (45.dp > 30.dp) that keeps the same item nearest to the
+        // center snaps back to the item center rather than to an interior segment.
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            swipeWithVelocity(
+                start = center,
+                end = center.copy(y = center.y - with(rule.density) { 45.dp.toPx() }),
+                endVelocity = 0f,
+            )
+        }
+        rule.runOnIdle {
+            assertThat(state.anchorItemIndex).isEqualTo(initialIndex + 1)
+            assertThat(abs(state.anchorItemScrollOffset - snapOffsetPx)).isAtMost(1)
+        }
+
+        // Flip the flag on for a fresh composition: rotary and touch now step through segments.
+        rule.runOnIdle {
+            WearComposeFoundationFlags.isTransformingLazyColumnSnapSegmentsEnabled = true
+            flagEnabled = true
+        }
+        rule.waitForIdle()
+
+        rule.onNode(hasScrollAction()).performRotaryScrollInput {
+            rotateToScrollVertically(segmentThresholdPx * 1.3f)
+        }
+        rule.runOnIdle {
+            assertThat(state.anchorItemIndex).isEqualTo(initialIndex)
+            assertThat(abs(state.anchorItemScrollOffset - (snapOffsetPx + segmentThresholdPx)))
+                .isAtMost(2)
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            swipeWithVelocity(
+                start = center,
+                end = center.copy(y = center.y - with(rule.density) { 45.dp.toPx() }),
+                endVelocity = 0f,
+            )
+        }
+        rule.runOnIdle {
+            assertThat(state.anchorItemIndex).isEqualTo(initialIndex)
+            assertThat(abs(state.anchorItemScrollOffset - (snapOffsetPx + 2 * segmentThresholdPx)))
+                .isAtMost(2)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun rotarySnapBehavior_subThresholdTurn_scrollsLinearlyAndSettlesBackAndCancelsOnTurn() {
+        lateinit var state: TransformingLazyColumnState
+        lateinit var snapPoints: TransformingLazyColumnSnapPointsProvider
+        val initialIndex = 10
+        rule.setContent {
+            state = rememberTransformingLazyColumnState(initialAnchorItemIndex = initialIndex)
+            snapPoints = rememberTransformingLazyColumnSnapPoints(state, snapOffsetPx = 0)
+            val behavior = remember { highResSnapBehavior(state, snapPoints) }
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.size(200.dp).testTag(TEST_TAG),
+                rotaryScrollableBehavior = behavior,
+            ) {
+                items(30) { Box(Modifier.fillMaxWidth().height(100.dp)) }
+            }
+        }
+        val stepPx = rule.runOnIdle { snapPoints.current().stepSize() }
+        val subThresholdDelta = stepPx * 0.45f
+
+        rule.mainClock.autoAdvance = false
+        try {
+            rule.onNode(hasScrollAction()).performRotaryScrollInput {
+                rotateToScrollVertically(subThresholdDelta)
+            }
+            // Before the 100ms settle-back delay, the list pre-scrolls linearly by delta / 3.
+            rule.mainClock.advanceTimeBy(32L)
+            rule.runOnIdle {
+                assertThat(state.anchorItemIndex).isEqualTo(initialIndex)
+                val expectedOffset =
+                    subThresholdDelta / RotarySnapSensitivityValues.Default.resistanceFactor
+                assertThat(abs(state.anchorItemScrollOffset - expectedOffset)).isAtMost(2f)
+            }
+        } finally {
+            rule.mainClock.autoAdvance = true
+        }
+        rule.mainClock.advanceTimeBy(1_000L)
+        rule.waitForIdle()
+        assertRestsOnSnapPoint(snapPoints)
+        rule.runOnIdle { assertThat(state.anchorItemIndex).isEqualTo(initialIndex) }
+
+        // Start a second sub-threshold turn, wait until settle-back (snapDirection == 0) is active,
+        // then turn past the threshold: the settle-back is cancelled and the list advances.
+        rule.mainClock.autoAdvance = false
+        try {
+            rule.mainClock.advanceTimeBy(300L)
+            rule.onNode(hasScrollAction()).performRotaryScrollInput {
+                rotateToScrollVertically(subThresholdDelta)
+            }
+            rule.mainClock.advanceTimeBy(120L)
+            rule.onNode(hasScrollAction()).performRotaryScrollInput {
+                rotateToScrollVertically(stepPx * 1.2f)
+            }
+        } finally {
+            rule.mainClock.autoAdvance = true
+        }
+        rule.waitForIdle()
+        assertRestsOnSnapPoint(snapPoints)
+        rule.runOnIdle { assertThat(state.anchorItemIndex).isEqualTo(initialIndex + 1) }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun rotarySnapBehavior_fastMultiEventTurnCancelledBySmallReverse_doesNotReverseSnap() {
+        lateinit var state: TransformingLazyColumnState
+        lateinit var snapPoints: TransformingLazyColumnSnapPointsProvider
+        val initialIndex = 10
+        rule.setContent {
+            state = rememberTransformingLazyColumnState(initialAnchorItemIndex = initialIndex)
+            snapPoints = rememberTransformingLazyColumnSnapPoints(state, snapOffsetPx = 0)
+            val behavior = remember { highResSnapBehavior(state, snapPoints) }
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.size(200.dp).testTag(TEST_TAG),
+                rotaryScrollableBehavior = behavior,
+            ) {
+                items(50) { Box(Modifier.fillMaxWidth().height(100.dp)) }
+            }
+        }
+        val stepPx = rule.runOnIdle { snapPoints.current().stepSize() }
+
+        rule.onNode(hasScrollAction()).performRotaryScrollInput {
+            // Multi-event fast forward turn builds high smoothed velocity and starts a forward
+            // snap.
+            rotateToScrollVertically(stepPx * 0.4f)
+            advanceEventTime(10L)
+            rotateToScrollVertically(stepPx * 0.8f)
+            advanceEventTime(10L)
+            rotateToScrollVertically(stepPx * 0.3f)
+            // Reversing resets velocity tracking, so -0.7 * stepPx stays below the unboosted
+            // threshold (1.0 * stepPx) instead of snapping backward to initialIndex - 1.
+            advanceEventTime(20L)
+            rotateToScrollVertically(-stepPx * 0.7f)
+        }
+        rule.waitForIdle()
+        assertRestsOnSnapPoint(snapPoints)
+
+        rule.runOnIdle { assertThat(state.anchorItemIndex).isEqualTo(initialIndex) }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun rotarySnapBehavior_tinyReverseReboundDuringSnap_doesNotCancelSnap() {
+        lateinit var state: TransformingLazyColumnState
+        lateinit var snapPoints: TransformingLazyColumnSnapPointsProvider
+        val initialIndex = 10
+        rule.setContent {
+            state = rememberTransformingLazyColumnState(initialAnchorItemIndex = initialIndex)
+            snapPoints = rememberTransformingLazyColumnSnapPoints(state, snapOffsetPx = 0)
+            val behavior = remember { highResSnapBehavior(state, snapPoints) }
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.size(200.dp).testTag(TEST_TAG),
+                rotaryScrollableBehavior = behavior,
+            ) {
+                items(50) { Box(Modifier.fillMaxWidth().height(100.dp)) }
+            }
+        }
+        val stepPx = rule.runOnIdle { snapPoints.current().stepSize() }
+        val cancelThresholdPx = with(rule.density) { 2.dp.toPx() }
+
+        // A single -1f crown rebound event right after starting a forward snap is ignored.
+        rule.onNode(hasScrollAction()).performRotaryScrollInput {
+            rotateToScrollVertically(stepPx * 1.2f)
+            advanceEventTime(15L)
+            rotateToScrollVertically(-1f)
+        }
+        rule.waitForIdle()
+        assertRestsOnSnapPoint(snapPoints)
+        rule.runOnIdle { assertThat(state.anchorItemIndex).isEqualTo(initialIndex + 1) }
+
+        // Starting from initialIndex + 1 toward initialIndex + 2, sustained small reverse deltas
+        // exceeding the jitter threshold cancel the forward snap so it settles back at
+        // initialIndex + 1.
+        rule.mainClock.advanceTimeBy(300L)
+        val perEventReverse = -(cancelThresholdPx * 0.6f)
+        rule.onNode(hasScrollAction()).performRotaryScrollInput {
+            rotateToScrollVertically(stepPx * 1.2f)
+            advanceEventTime(15L)
+            rotateToScrollVertically(perEventReverse)
+            advanceEventTime(15L)
+            rotateToScrollVertically(perEventReverse)
+        }
+        rule.waitForIdle()
+        assertRestsOnSnapPoint(snapPoints)
+        rule.runOnIdle { assertThat(state.anchorItemIndex).isEqualTo(initialIndex + 1) }
+    }
+
+    @OptIn(ExperimentalTestApi::class, ExperimentalWearFoundationApi::class)
+    @Test
+    fun rotarySnapBehavior_emptyItems_areNotSnapPoints() {
+        assumeTrue(WearComposeFoundationFlags.isTransformingLazyColumnSnapSegmentsEnabled)
+        lateinit var state: TransformingLazyColumnState
+        lateinit var snapPoints: TransformingLazyColumnSnapPointsProvider
+        val initialIndex = 9
+        rule.setContent {
+            state = rememberTransformingLazyColumnState(initialAnchorItemIndex = initialIndex)
+            snapPoints = rememberTransformingLazyColumnSnapPoints(state, snapOffsetPx = 0)
+            val behavior = remember { highResSnapBehavior(state, snapPoints) }
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.size(200.dp).testTag(TEST_TAG),
+                verticalArrangement = Arrangement.spacedBy(0.dp),
+                rotaryScrollableBehavior = behavior,
+            ) {
+                // Two empty items, as collapsed or hidden items, after each item with a size: their
+                // snap points would coincide.
+                items(30) { Box(Modifier.fillMaxWidth().height(if (it % 3 == 0) 60.dp else 0.dp)) }
+            }
+        }
+        rule.runOnIdle {
+            val points = snapPoints.current().points
+            assertThat(points).isNotEmpty()
+            assertThat(points.all { it.key.itemIndex % 3 == 0 }).isTrue()
+        }
+        val stepPx = rule.runOnIdle { snapPoints.current().stepSize() }
+
+        // Each turn moves on to the next item with a size, rather than resting on empty items.
+        repeat(3) { step ->
+            rule.mainClock.advanceTimeBy(300L)
+            rule.onNode(hasScrollAction()).performRotaryScrollInput {
+                rotateToScrollVertically(stepPx * 1.3f)
+            }
+            rule.waitForIdle()
+            assertRestsOnSnapPoint(snapPoints)
+            rule.runOnIdle {
+                assertThat(snapPoints.current().nearest?.key?.itemIndex)
+                    .isEqualTo(initialIndex + 3 * (step + 1))
+            }
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun rotarySnapBehavior_tallItemAndEdges_triggersHapticPerSegmentAndStopsAtEdges() {
+        lateinit var state: TransformingLazyColumnState
+        lateinit var snapPoints: TransformingLazyColumnSnapPointsProvider
+        var snapHaptics = 0
+        val haptics =
+            object : RotaryHapticHandler by NoRotaryHaptics {
+                override fun handleSnapHaptic(
+                    timestamp: Long,
+                    deltaInPixels: Float,
+                    inputDeviceId: Int,
+                    axis: Int,
+                ) {
+                    snapHaptics++
+                }
+            }
+        val viewportPx = with(rule.density) { 200.dp.roundToPx() }
+        val thresholdPx = viewportPx / 4
+
+        rule.setContent {
+            state = rememberTransformingLazyColumnState(initialAnchorItemIndex = 0)
+            snapPoints = rememberTransformingLazyColumnSnapPoints(state, snapOffsetPx = 0)
+            val behavior = remember { highResSnapBehavior(state, snapPoints, haptics) }
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.size(200.dp).testTag(TEST_TAG),
+                contentPadding = PaddingValues(vertical = 100.dp),
+                rotaryScrollableBehavior = behavior,
+            ) {
+                item {
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .height(with(rule.density) { thresholdPx.toDp() })
+                            .snapSegmentThreshold { _, height -> height }
+                    )
+                }
+                item {
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .height(with(rule.density) { (thresholdPx * 3).toDp() })
+                            .snapSegmentThreshold { _, _ -> thresholdPx }
+                    )
+                }
+                item {
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .height(with(rule.density) { thresholdPx.toDp() })
+                            .snapSegmentThreshold { _, height -> height }
+                    )
+                }
+            }
+        }
+        fun turn(direction: Int) {
+            rule.mainClock.advanceTimeBy(300L)
+            rule.onNode(hasScrollAction()).performRotaryScrollInput {
+                rotateToScrollVertically(direction * thresholdPx * 1.3f)
+            }
+            rule.waitForIdle()
+        }
+
+        // At the first snap point (0, 0), turning backward does not fire a snap haptic.
+        turn(-1)
+        assertThat(snapHaptics).isEqualTo(0)
+
+        // Stepping through (1, 0), (1, 1), (1, 2) and onto (2, 0) fires one haptic per segment.
+        repeat(4) { step ->
+            turn(1)
+            assertThat(snapHaptics).isEqualTo(step + 1)
+        }
+        rule.runOnIdle { assertThat(state.anchorItemIndex).isEqualTo(2) }
+
+        // At the last snap point (2, 0), turning forward does not fire another snap haptic.
+        turn(1)
+        assertThat(snapHaptics).isEqualTo(4)
+    }
+
+    @OptIn(ExperimentalTestApi::class, ExperimentalWearFoundationApi::class)
+    @Test
+    fun snapBehaviors_emptyList_doNotCrashOrSnap() {
+        assumeTrue(WearComposeFoundationFlags.isTransformingLazyColumnSnapSegmentsEnabled)
+        lateinit var state: TransformingLazyColumnState
+        lateinit var snapPoints: TransformingLazyColumnSnapPointsProvider
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            snapPoints = rememberTransformingLazyColumnSnapPoints(state, snapOffsetPx = 0)
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.size(200.dp).testTag(TEST_TAG),
+                rotaryScrollableBehavior = RotaryScrollableDefaults.snapBehavior(state),
+                flingBehavior = TransformingLazyColumnDefaults.snapFlingBehavior(state),
+            ) {
+                items(0) {}
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(snapPoints.current().points).isEmpty()
+            assertThat(snapPoints.current().nearest).isNull()
+            assertThat(snapPoints.current().stepSize()).isEqualTo(0f)
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeUp() }
+        rule.waitForIdle()
+        rule.onNode(hasScrollAction()).performRotaryScrollInput { rotateToScrollVertically(300f) }
+        rule.mainClock.advanceTimeBy(1_000L)
+        rule.waitForIdle()
+
+        rule.runOnIdle {
+            assertThat(state.anchorItemIndex).isEqualTo(0)
+            assertThat(state.anchorItemScrollOffset).isEqualTo(0)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class, ExperimentalWearFoundationApi::class)
+    @Test
+    fun snapBehaviors_collapsedPointsAtStart_fastFlingAndTurnReachStart() {
+        assumeTrue(WearComposeFoundationFlags.isTransformingLazyColumnSnapSegmentsEnabled)
+        lateinit var state: TransformingLazyColumnState
+        lateinit var snapPoints: TransformingLazyColumnSnapPointsProvider
+        val segmentThresholdPx = with(rule.density) { 50.dp.roundToPx() }
+        rule.setContent {
+            state = rememberTransformingLazyColumnState(initialAnchorItemIndex = 2)
+            snapPoints = rememberTransformingLazyColumnSnapPoints(state, snapOffsetPx = 0)
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.size(200.dp).testTag(TEST_TAG),
+                rotaryScrollableBehavior = RotaryScrollableDefaults.snapBehavior(state),
+                flingBehavior = TransformingLazyColumnDefaults.snapFlingBehavior(state),
+            ) {
+                items(7) { index ->
+                    val height = if (index == 0) 300.dp else 50.dp
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .height(height)
+                            .snapSegmentThreshold { _, itemHeight ->
+                                if (index == 0) segmentThresholdPx else itemHeight
+                            }
+                            .transformedHeight { itemHeight, progress ->
+                                if (progress.isUnspecified) {
+                                    itemHeight
+                                } else {
+                                    val overflow =
+                                        maxOf(0f, 0.25f - progress.topOffsetFraction) +
+                                            maxOf(0f, progress.bottomOffsetFraction - 0.75f)
+                                    itemHeight -
+                                        (itemHeight * (overflow * 0.3f).coerceAtMost(0.5f)).toInt()
+                                }
+                            }
+                    )
+                }
+            }
+        }
+        rule.runOnIdle {
+            assertThat(snapPoints.current().collapsedPointsBeyond(-1)).isGreaterThan(0)
+        }
+
+        // Single fast downward swipe reaches the start of the list.
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            swipeWithVelocity(
+                start = center,
+                end = center.copy(y = center.y + with(rule.density) { 80.dp.toPx() }),
+                endVelocity = with(rule.density) { 2500.dp.toPx() },
+            )
+        }
+        rule.waitForIdle()
+        assertRestsOnSnapPoint(snapPoints)
+        rule.runOnIdle { assertThat(state.canScrollBackward).isFalse() }
+
+        // Reset to item 2 and verify a fast backward rotary turn also reaches the start.
+        rule.runOnIdle { runBlocking { state.scrollToItem(2) } }
+        val stepPx = rule.runOnIdle {
+            val current = snapPoints.current()
+            assertThat(current.collapsedPointsBeyond(-1)).isGreaterThan(0)
+            current.stepSize()
+        }
+        rule.mainClock.advanceTimeBy(300L)
+        rule.onNode(hasScrollAction()).performRotaryScrollInput {
+            repeat(8) {
+                if (it > 0) advanceEventTime(15L)
+                rotateToScrollVertically(-stepPx * 1.5f)
+            }
+        }
+        rule.waitForIdle()
+        assertRestsOnSnapPoint(snapPoints)
+        rule.runOnIdle { assertThat(state.canScrollBackward).isFalse() }
+    }
+
+    @Test
+    fun snapPoints_defaultThreshold_splitsFullWidthTallItemAndKeepsNarrowItemWhole() {
+        lateinit var snapPoints: TransformingLazyColumnSnapPointsProvider
+        var isRound = false
+        rule.setContent {
+            isRound = isRoundDevice()
+            val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+            val testItemHeight = screenWidth * 0.8f
+            val state = rememberTransformingLazyColumnState(initialAnchorItemIndex = 1)
+            snapPoints = rememberTransformingLazyColumnSnapPoints(state, snapOffsetPx = 0)
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.size(screenWidth),
+                contentPadding = PaddingValues(vertical = screenWidth),
+            ) {
+                item { Box(Modifier.fillMaxWidth().height(screenWidth * 2.5f)) }
+                item { Box(Modifier.fillMaxWidth().height(testItemHeight)) }
+                item { Box(Modifier.width(52.dp).height(testItemHeight)) }
+            }
+        }
+
+        rule.runOnIdle {
+            val points = snapPoints.current().points
+            // An item 2.5x the viewport height is split even without Modifier.snapSegmentThreshold.
+            assertThat(points.count { it.key.itemIndex == 0 }).isAtLeast(3)
+            if (isRound) {
+                // On a round screen, a 0.8D-tall full-width item exceeds the visible chord (~0.62D)
+                // and is split into 2 segments, while a narrow 52.dp item of the same height fits
+                // the vertical diameter and stays whole.
+                assertThat(points.count { it.key.itemIndex == 1 }).isEqualTo(2)
+                assertThat(points.count { it.key.itemIndex == 2 }).isEqualTo(1)
+            }
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class, ExperimentalWearFoundationApi::class)
+    @Test
+    fun snapBehaviors_itemCountShrinksMidSnap_settlesAtNewEnd() {
+        assumeTrue(WearComposeFoundationFlags.isTransformingLazyColumnSnapSegmentsEnabled)
+        lateinit var state: TransformingLazyColumnState
+        lateinit var snapPoints: TransformingLazyColumnSnapPointsProvider
+        var count by mutableStateOf(25)
+        rule.setContent {
+            state = rememberTransformingLazyColumnState(initialAnchorItemIndex = 10)
+            snapPoints = rememberTransformingLazyColumnSnapPoints(state, snapOffsetPx = 0)
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.size(200.dp).testTag(TEST_TAG),
+                rotaryScrollableBehavior = RotaryScrollableDefaults.snapBehavior(state),
+                flingBehavior = TransformingLazyColumnDefaults.snapFlingBehavior(state),
+            ) {
+                items(count) { Box(Modifier.fillMaxWidth().height(50.dp)) }
+            }
+        }
+
+        // Shrink the list mid-fling so the targeted items no longer exist.
+        rule.mainClock.autoAdvance = false
+        try {
+            rule.onNodeWithTag(TEST_TAG).performTouchInput {
+                swipeWithVelocity(
+                    start = center,
+                    end = center.copy(y = center.y - with(rule.density) { 80.dp.toPx() }),
+                    endVelocity = with(rule.density) { 3000.dp.toPx() },
+                )
+            }
+            rule.mainClock.advanceTimeBy(32L)
+            count = 12
+        } finally {
+            rule.mainClock.autoAdvance = true
+        }
+        rule.waitForIdle()
+        assertRestsOnSnapPoint(snapPoints)
+        rule.runOnIdle { assertThat(state.canScrollForward).isFalse() }
+
+        // Reset and shrink the list mid-rotary-snap so the targeted item no longer exists.
+        count = 25
+        rule.runOnIdle { runBlocking { state.scrollToItem(10) } }
+        val stepPx = rule.runOnIdle { snapPoints.current().stepSize() }
+        rule.mainClock.autoAdvance = false
+        try {
+            rule.mainClock.advanceTimeBy(300L)
+            rule.onNode(hasScrollAction()).performRotaryScrollInput {
+                rotateToScrollVertically(stepPx * 2.5f)
+            }
+            rule.mainClock.advanceTimeBy(32L)
+            count = 12
+        } finally {
+            rule.mainClock.autoAdvance = true
+        }
+        rule.waitForIdle()
+        assertRestsOnSnapPoint(snapPoints)
+        rule.runOnIdle { assertThat(state.canScrollForward).isFalse() }
+    }
+
+    private fun highResSnapBehavior(
+        state: TransformingLazyColumnState,
+        snapPoints: TransformingLazyColumnSnapPointsProvider,
+        rotaryHaptics: RotaryHapticHandler = NoRotaryHaptics,
+    ): HighResSnapRotaryScrollableBehavior {
+        val sensitivity = RotarySnapSensitivityValues.Default
+        val reverseSnapCancelThresholdPx = with(rule.density) { 2.dp.toPx() }
+        return HighResSnapRotaryScrollableBehavior(
+            rotaryHaptics = rotaryHaptics,
+            scrollDistanceDivider = sensitivity.resistanceFactor,
+            thresholdHandlerFactory = {
+                ThresholdHandler(
+                    minThresholdDivider = sensitivity.minThresholdDivider,
+                    maxThresholdDivider = sensitivity.maxThresholdDivider,
+                    averageItemSize = { snapPoints.current().stepSize() },
+                )
+            },
+            snapHandlerFactory = { TransformingLazyColumnSnapHandler(state, snapPoints) },
+            scrollHandlerFactory = { RotaryScrollHandler(state) },
+            followRotaryInput = true,
+            reverseSnapCancelThresholdPx = reverseSnapCancelThresholdPx,
+        )
     }
 
     @Test

@@ -58,4 +58,25 @@ public object WearComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isNewEdgeSwipeToDismissNodeEnabled: Boolean = true
+
+    /**
+     * Whether segment-based snapping is enabled for
+     * [androidx.wear.compose.foundation.lazy.TransformingLazyColumn].
+     *
+     * When true,
+     * [androidx.wear.compose.foundation.lazy.TransformingLazyColumnDefaults.snapFlingBehavior] and
+     * [androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults.snapBehavior] split items
+     * taller than their snap segment threshold (see
+     * [androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope.snapSegmentThreshold])
+     * into equal snap segments and track snap targets across item transformations.
+     *
+     * When false, snapping reverts to item-based snapping (one snap point per item at its center),
+     * and
+     * [androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope.snapSegmentThreshold]
+     * has no effect.
+     */
+    // TODO: b/480192070 - Remove this flag once segment snapping has soaked.
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isTransformingLazyColumnSnapSegmentsEnabled: Boolean = true
 }
