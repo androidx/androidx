@@ -28,6 +28,7 @@ import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
@@ -111,14 +112,19 @@ class TrivialPowerBenchmark {
                 startActivityAndWait(intent)
             },
         ) {
-            var done = false
-            val threads = emptyList<Thread>()
+            val done = AtomicBoolean(false)
+            val threads = mutableListOf<Thread>()
             try {
-                repeat(8) { threads.toMutableList().add(thread(start = true) { while (!done) {} }) }
+                repeat(8) { threads.add(thread(start = true) { while (!done.get()) {} }) }
                 Thread.sleep(DURATION_MS.toLong())
             } finally {
-                done = true
-                threads.forEach { it.join() }
+                done.set(true)
+                threads.forEach {
+                    // Threads stop right after done is set; this only limits how long we wait if
+                    // one gets stuck.
+                    it.join(SPIN_THREAD_STOP_TIMEOUT_MS)
+                    check(!it.isAlive) { "Spin thread ${it.name} did not stop" }
+                }
             }
         }
     }
@@ -185,14 +191,19 @@ class TrivialPowerBenchmark {
                 startActivityAndWait(intent)
             },
         ) {
-            var done = false
-            val threads = emptyList<Thread>()
+            val done = AtomicBoolean(false)
+            val threads = mutableListOf<Thread>()
             try {
-                repeat(8) { threads.toMutableList().add(thread(start = true) { while (!done) {} }) }
+                repeat(8) { threads.add(thread(start = true) { while (!done.get()) {} }) }
                 Thread.sleep(DURATION_MS.toLong())
             } finally {
-                done = true
-                threads.forEach { it.join() }
+                done.set(true)
+                threads.forEach {
+                    // Threads stop right after done is set; this only limits how long we wait if
+                    // one gets stuck.
+                    it.join(SPIN_THREAD_STOP_TIMEOUT_MS)
+                    check(!it.isAlive) { "Spin thread ${it.name} did not stop" }
+                }
             }
         }
     }
@@ -201,5 +212,6 @@ class TrivialPowerBenchmark {
         private const val PACKAGE_NAME = "androidx.benchmark.integration.macrobenchmark.target"
         private const val ACTION = "$PACKAGE_NAME.BACKGROUND_WORK_ACTIVITY"
         private const val DURATION_MS = 5000
+        private const val SPIN_THREAD_STOP_TIMEOUT_MS = 1_000L
     }
 }
