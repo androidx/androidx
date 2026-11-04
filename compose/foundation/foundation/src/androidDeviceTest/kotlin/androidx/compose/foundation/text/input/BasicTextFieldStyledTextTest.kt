@@ -48,6 +48,8 @@ internal class BasicTextFieldStyledTextTest {
 
     @get:Rule val rule = createComposeRule()
 
+    private val inputMethodInterceptor = InputMethodInterceptor(rule)
+
     private val tag = "BasicTextField"
 
     private val style = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 20.sp)
@@ -80,7 +82,7 @@ internal class BasicTextFieldStyledTextTest {
             addStyle(boldStyle, 4, 5)
         }
 
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField(state = state, modifier = Modifier.testTag(tag), textStyle = style)
         }
 
@@ -106,7 +108,7 @@ internal class BasicTextFieldStyledTextTest {
             addStyle(alignStyle, 4, 5)
         }
 
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField(state = state, modifier = Modifier.testTag(tag), textStyle = style)
         }
 
@@ -125,7 +127,7 @@ internal class BasicTextFieldStyledTextTest {
         val boldStyle = SpanStyle(fontWeight = FontWeight.Bold)
         val state = TextFieldState("Hello")
 
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField(state = state, modifier = Modifier.testTag(tag), textStyle = style)
         }
 
@@ -148,7 +150,7 @@ internal class BasicTextFieldStyledTextTest {
         val state = TextFieldState("Hello")
         state.edit { addStyle(boldStyle, 0, 5) }
 
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField(state = state, modifier = Modifier.testTag(tag), textStyle = style)
         }
 
@@ -169,7 +171,7 @@ internal class BasicTextFieldStyledTextTest {
         val boldStyle = SpanStyle(fontWeight = FontWeight.Bold)
         val state = TextFieldState("Hello")
 
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(tag),
@@ -193,7 +195,7 @@ internal class BasicTextFieldStyledTextTest {
         val boldStyle = SpanStyle(fontWeight = FontWeight.Bold)
         val state = TextFieldState("Hello")
 
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(tag),
@@ -220,7 +222,7 @@ internal class BasicTextFieldStyledTextTest {
         val state = TextFieldState("Hello")
         state.edit { addStyle(redStyle, 0, 5) }
 
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(tag),
@@ -241,7 +243,7 @@ internal class BasicTextFieldStyledTextTest {
         val boldStyle = SpanStyle(fontWeight = FontWeight.Bold)
         val state = TextFieldState("Hello")
 
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(tag),
@@ -266,7 +268,7 @@ internal class BasicTextFieldStyledTextTest {
         val boldStyle = SpanStyle(fontWeight = FontWeight.Bold)
         val state = TextFieldState("Hello")
 
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(tag),
@@ -291,7 +293,7 @@ internal class BasicTextFieldStyledTextTest {
         val italicStyle = SpanStyle(fontStyle = FontStyle.Italic)
         val state = TextFieldState("Hello World!")
 
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField(state = state, modifier = Modifier.testTag(tag), textStyle = style)
         }
 
@@ -320,7 +322,7 @@ internal class BasicTextFieldStyledTextTest {
 
         state.edit { addStyle(boldStyle, TextRange(0, 5), ExpandPolicy.AtEnd) }
 
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField(state = state, modifier = Modifier.testTag(tag), textStyle = style)
         }
 
