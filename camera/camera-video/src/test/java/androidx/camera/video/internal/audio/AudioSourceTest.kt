@@ -55,6 +55,15 @@ class AudioSourceTest {
         private const val CHANNEL_COUNT = 1
         private const val AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT
         private const val BYTE_BUFFER_CAPACITY = 16
+        private const val TIMING_SAMPLE_RATE = 48000
+        // Timing tests use 1 ms input packets whose capture timestamps start at a non-zero base and
+        // advance slightly faster than the audio duration, so a timestamp only matches when each
+        // output frame is anchored to the input packet it came from.
+        private const val TIMING_FRAMES_PER_PACKET = TIMING_SAMPLE_RATE / 1000
+        private const val TIMING_PACKET_DURATION_US = 1000L
+        private const val TIMING_BASE_TIMESTAMP_US = 10_000L
+        private const val TIMING_PACKET_INTERVAL_US = TIMING_PACKET_DURATION_US + 13L
+        private const val TIMING_VERIFY_COUNT = 24
     }
 
     private val audioSourcesToRelease = mutableListOf<AudioSource>()
@@ -942,6 +951,143 @@ class AudioSourceTest {
 
             assertThat(audioSource.mReadBufferSize % bytesPerFrame).isEqualTo(0)
             assertThat(audioSource.mReadBufferSize).isAtLeast(1024 * bytesPerFrame)
+        }
+    }
+
+    @Test
+    fun audioProcessor_withLookahead_presentationTimeMatchesCaptureTimeOfOutputFrames() {
+        // Holds back the latest 72 frames (1.5 ms) as lookahead context, so the output produced
+        // after each input packet belongs to earlier input packets.
+        val bufferProvider = createBufferProvider()
+        val audioSource = createTimingAudioSource(createLookaheadAudioProcessor(), bufferProvider)
+
+        audioSource.start()
+
+        verifyPresentationTimesMatchCaptureTimes(bufferProvider)
+    }
+
+    @Test
+    fun audioProcessor_restartAfterStop_presentationTimeMatchesCaptureTime() {
+        val flushLatch = CountDownLatch(1)
+        val bufferProvider = createBufferProvider()
+        val audioSource =
+            createTimingAudioSource(
+                createLookaheadAudioProcessor(onFlush = { flushLatch.countDown() }),
+                bufferProvider,
+            )
+        audioSource.start()
+        verifyPresentationTimesMatchCaptureTimes(bufferProvider)
+
+        // Act: stop, which flushes the processor and drops its buffered lookahead, then restart.
+        audioSource.stop()
+        assertThat(flushLatch.await(COMMON_TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
+        var firstSessionBufferCount = 0
+        bufferProvider.verifySubmittedBufferCall(CallTimesAtLeast(1)) { submittedBuffers ->
+            firstSessionBufferCount = submittedBuffers.size
+        }
+        audioSource.start()
+
+        // Assert: buffers of the second session are still anchored to their capture time.
+        verifyPresentationTimesMatchCaptureTimes(
+            bufferProvider,
+            fromIndex = firstSessionBufferCount,
+        )
+    }
+
+    private fun createTimingAudioSource(
+        audioProcessor: AudioProcessor,
+        bufferProvider: FakeBufferProvider,
+    ): AudioSource =
+        createAudioSource(
+            audioSettings =
+                AudioSettings.builder()
+                    .setAudioSource(AUDIO_SOURCE)
+                    .setCaptureSampleRate(TIMING_SAMPLE_RATE)
+                    .setEncodeSampleRate(TIMING_SAMPLE_RATE)
+                    .setChannelCount(1)
+                    .setAudioFormat(AUDIO_FORMAT)
+                    .build(),
+            audioProcessors = listOf(audioProcessor),
+            audioStreamFactory = { _, _ ->
+                createAudioStream(audioDataProvider = createFrameIndexAudioDataProvider())
+            },
+            bufferProvider = bufferProvider,
+        )
+
+    /**
+     * Verifies that submitted buffers starting at [fromIndex] are stamped with the capture time of
+     * their first frame, derived from its sample value, and are strictly increasing.
+     */
+    private fun verifyPresentationTimesMatchCaptureTimes(
+        bufferProvider: FakeBufferProvider,
+        fromIndex: Int = 0,
+    ) {
+        bufferProvider.verifySubmittedBufferCall(
+            CallTimesAtLeast(fromIndex + TIMING_VERIFY_COUNT),
+            COMMON_TIMEOUT_MS,
+        ) { submittedBuffers ->
+            var previousPresentationTimeUs = Long.MIN_VALUE
+            for (i in fromIndex until fromIndex + TIMING_VERIFY_COUNT) {
+                val buffer = submittedBuffers[i]
+                // Samples are 16-bit; read them unsigned to decode more frame indices.
+                val byteBuffer = buffer.byteBuffer.duplicate().order(ByteOrder.nativeOrder())
+                val frameIndex = byteBuffer.getShort(byteBuffer.position()).toInt() and 0xFFFF
+                assertThat(buffer.getPresentationTimeUs()).isEqualTo(captureTimeUs(frameIndex))
+                assertThat(buffer.getPresentationTimeUs()).isGreaterThan(previousPresentationTimeUs)
+                previousPresentationTimeUs = buffer.getPresentationTimeUs()
+            }
+        }
+    }
+
+    /** Returns the capture time of the frame at [frameIndex] in the timing audio stream. */
+    private fun captureTimeUs(frameIndex: Int): Long =
+        packetTimestampUs(frameIndex / TIMING_FRAMES_PER_PACKET) +
+            frameIndex % TIMING_FRAMES_PER_PACKET * 1_000_000L / TIMING_SAMPLE_RATE
+
+    private fun packetTimestampUs(packetIndex: Int): Long =
+        TIMING_BASE_TIMESTAMP_US + packetIndex * TIMING_PACKET_INTERVAL_US
+
+    /**
+     * Creates 1 ms packets of mono 16-bit audio whose sample values are the frame index in the
+     * stream, with capture timestamps from [packetTimestampUs].
+     */
+    private fun createFrameIndexAudioDataProvider(): (Int) -> FakeAudioStream.AudioData = { index ->
+        val byteBuffer =
+            ByteBuffer.allocate(TIMING_FRAMES_PER_PACKET * 2).order(ByteOrder.nativeOrder())
+        for (frame in 0 until TIMING_FRAMES_PER_PACKET) {
+            byteBuffer.putShort((index * TIMING_FRAMES_PER_PACKET + frame).toShort())
+        }
+        byteBuffer.flip()
+        val timestampNs = TimeUnit.MICROSECONDS.toNanos(packetTimestampUs(index))
+        FakeAudioStream.AudioData(byteBuffer, timestampNs)
+    }
+
+    /**
+     * Creates a processor that buffers all input and holds back the latest 72 frames (1.5 ms) as
+     * lookahead context, emitting the rest.
+     */
+    private fun createLookaheadAudioProcessor(onFlush: () -> Unit = {}): AudioProcessor {
+        val lookaheadBytes = 72 * 2
+        var pendingBytes = ByteArray(0)
+        return createAudioProcessor(
+            onFlush = {
+                pendingBytes = ByteArray(0)
+                onFlush()
+            },
+            onReset = { pendingBytes = ByteArray(0) },
+        ) { inputBuffer ->
+            if (!inputBuffer.hasRemaining()) {
+                return@createAudioProcessor AudioProcessor.EMPTY_BUFFER
+            }
+            val incomingBytes = ByteArray(inputBuffer.remaining())
+            inputBuffer.get(incomingBytes)
+            pendingBytes += incomingBytes
+            val emitSize = (pendingBytes.size - lookaheadBytes).coerceAtLeast(0)
+            val outputBuffer = ByteBuffer.allocateDirect(emitSize).order(ByteOrder.nativeOrder())
+            outputBuffer.put(pendingBytes, 0, emitSize)
+            outputBuffer.flip()
+            pendingBytes = pendingBytes.copyOfRange(emitSize, pendingBytes.size)
+            outputBuffer
         }
     }
 
