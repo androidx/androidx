@@ -36,7 +36,9 @@ import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.xr.runtime.RequiresSpatialApi
 import androidx.xr.runtime.Session
+import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
@@ -96,6 +98,7 @@ class InteractableComponentTest {
 
     @Test
     @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
     fun interactableComponent_mainPanelEntity_receivesInputEvents() =
         runTestWithSession { activity, session ->
             val inputListener = RecordingInputEventListener()
@@ -114,23 +117,27 @@ class InteractableComponentTest {
                     inputEventListener = inputListener,
                 )
             assertThat(mainPanelEntity.addComponent(interactableComponent)).isTrue()
+            try {
+                // Wait for the main panel node to be ready to receive input in the spatial scene.
+                val mainPanelNode =
+                    awaitInteractableNode(activity, "main panel") { task ->
+                        task.findNodeByName(MAIN_PANEL_NODE_NAME) ?: task.taskWindowLeash
+                    }
 
-            // Wait for the main panel node to be ready to receive input in the spatial scene.
-            val mainPanelNode =
-                awaitInteractableNode(activity, "main panel") { task ->
-                    task.findNodeByName(MAIN_PANEL_NODE_NAME) ?: task.taskWindowLeash
-                }
+                // 4. Aim at the main panel, press, drag across its center, and release.
+                performDragInteraction(mainPanelNode)
 
-            // 4. Aim at the main panel, press, drag across its center, and release.
-            performDragInteraction(mainPanelNode)
-
-            // 5. Wait for the input sequence to complete and verify the received InputEvents.
-            awaitInputEnd(inputListener)
-            assertInputEvents(inputListener.events, expectedEntity = mainPanelEntity)
+                // 5. Wait for the input sequence to complete and verify the received InputEvents.
+                awaitInputEnd(inputListener)
+                assertInputEvents(inputListener.events, expectedEntity = mainPanelEntity)
+            } finally {
+                mainPanelEntity.removeComponent(interactableComponent)
+            }
         }
 
     @Test
     @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
     fun interactableComponent_panelEntity_receivesInputEvents() =
         runTestWithSession { activity, session ->
             val panelName = "interactablePanel"
@@ -142,8 +149,9 @@ class InteractableComponentTest {
             // 2. Hide the main panel so it does not interfere with the spatial panel test, then
             // create the PanelEntity under test.
             session.scene.mainPanelEntity.setEnabled(false)
+            var panelEntity: PanelEntity? = null
             try {
-                val panelEntity =
+                panelEntity =
                     createSpatialPanel(
                         activity,
                         session,
@@ -173,6 +181,10 @@ class InteractableComponentTest {
                 awaitInputEnd(inputListener)
                 assertInputEvents(inputListener.events, expectedEntity = panelEntity)
             } finally {
+                // Detach the component and the panel created by this test before restoring the
+                // main panel.
+                panelEntity?.removeAllComponents()
+                panelEntity?.parent = null
                 // Restore main panel visibility before closing the session, since it is backed by
                 // the task-scoped window leash node.
                 session.scene.mainPanelEntity.setEnabled(true)
@@ -181,6 +193,7 @@ class InteractableComponentTest {
 
     @Test
     @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
     fun interactableComponent_activityPanelEntity_receivesInputEvents() =
         runTestWithSession { activity, session ->
             val panelName = "interactableActivityPanel"
@@ -196,8 +209,9 @@ class InteractableComponentTest {
             // 2. Hide the main panel so it does not interfere with the activity panel test, then
             // create the ActivityPanelEntity under test and launch an activity into it.
             session.scene.mainPanelEntity.setEnabled(false)
+            var activityPanelEntity: ActivityPanelEntity? = null
             try {
-                val activityPanelEntity =
+                activityPanelEntity =
                     ActivityPanelEntity.create(
                         session = session,
                         pixelDimensions = PANEL_PIXEL_DIMENSIONS,
@@ -232,6 +246,10 @@ class InteractableComponentTest {
                 awaitInputEnd(inputListener)
                 assertInputEvents(inputListener.events, expectedEntity = activityPanelEntity)
             } finally {
+                // Detach the component and the activity panel created by this test before
+                // restoring the main panel.
+                activityPanelEntity?.removeAllComponents()
+                activityPanelEntity?.parent = null
                 // Restore main panel visibility before closing the session, since it is backed by
                 // the task-scoped window leash node.
                 session.scene.mainPanelEntity.setEnabled(true)
@@ -328,7 +346,7 @@ class InteractableComponentTest {
 
     /**
      * Verifies that [events] contain the expected hover/press/drag/release action sequence and that
-     * the press event reports [expectedEntity] as the hit entity.
+     * the press, drag and release events report [expectedEntity] as the hit entity.
      */
     private fun assertInputEvents(events: List<InputEvent>, expectedEntity: Entity) {
         val actions = events.map { it.action }
@@ -346,6 +364,15 @@ class InteractableComponentTest {
         val hitInfo = downEvent.hitInfoList.first()
         assertThat(hitInfo.inputEntity).isEqualTo(expectedEntity)
         assertThat(hitInfo.hitPosition).isNotNull()
+
+        // The first hit entity is guaranteed to stay the same during DOWN -> MOVE -> UP.
+        val pressedEvents = events.filter {
+            it.action == InputEvent.Action.MOVE || it.action == InputEvent.Action.UP
+        }
+        for (event in pressedEvents) {
+            assertThat(event.hitInfoList).isNotEmpty()
+            assertThat(event.hitInfoList.first().inputEntity).isEqualTo(expectedEntity)
+        }
     }
 
     /** Captures the spatial scene off the main thread, since the capture blocks while polling. */
