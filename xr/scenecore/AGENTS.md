@@ -83,6 +83,7 @@ SceneCore is structured into three distinct architectural tiers to enforce separ
 - **`scenecore-openxr` (`OpenXrSceneRuntime`)**: Experimental cross-vendor OpenXR implementation using native JNI calls (`SceneCoreOpenXrNative`). Snapshot-only (not published to Maven) while OpenXR runtime pathways are finalized on commercial devices. `OpenXrSceneRuntimeFactory` only requires `Feature.FULLSTACK`, so when it is on the classpath it is selected wherever `SpatialSceneRuntimeFactory`'s requirements are not met.
 - **`scenecore-testing` (`FakeSceneRuntime`)**: Fakes and test doubles (`FakeSceneRuntime`, `FakeRenderingRuntime`, `FakeEntity`, `FakeImpressApiImpl`, `EntityTester`) for Robolectric/JVM testing without physical XR displays or native graphics hardware.
 - **`integration-tests:testapp`**: Integration test applications (`testapp`, `videoplayerdrmtest`, `TestAppActivityLeakTest`).
+- **`integration-tests:release-tests`**: Self-instrumenting UiAutomator tests that drive the scenario activities (`e2e/`) in the R8-optimized release build of `xr-integration-tests` out-of-process, verifying library keep rules.
 
 ---
 
