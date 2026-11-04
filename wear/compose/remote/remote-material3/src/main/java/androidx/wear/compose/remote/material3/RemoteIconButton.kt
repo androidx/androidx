@@ -19,7 +19,7 @@ package androidx.wear.compose.remote.material3
 import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.modifier.defaultMinSize
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
@@ -75,7 +75,11 @@ public fun RemoteIconButton(
 ) {
     RemoteRoundButton(
         onClick = onClick,
-        modifier = modifier.size(RemoteIconButtonDefaults.DefaultButtonSize),
+        modifier =
+            modifier.defaultMinSize(
+                minWidth = RemoteIconButtonDefaults.DefaultButtonSize,
+                minHeight = RemoteIconButtonDefaults.DefaultButtonSize,
+            ),
         backgroundColor = colors.containerColor(enabled = enabled),
         enabled = enabled,
         border = border,
