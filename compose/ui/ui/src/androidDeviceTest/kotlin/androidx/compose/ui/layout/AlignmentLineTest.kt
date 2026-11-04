@@ -19,10 +19,12 @@ package androidx.compose.ui.layout
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -1267,4 +1269,89 @@ class AlignmentLineTest {
             val placeable = measurable.measure(constraints)
             layout(placeable.width, placeable.height, alignmentLines()) { placeable.place(0, 0) }
         }
+
+    @Test
+    fun readingAlignmentAndThenPlacingWithNonZeroOffsetShouldntCauseExtraRemeasure() {
+        var measureCount = 0
+        rule.setContent {
+            Layout(
+                content = {
+                    Layout { _, _ -> layout(50, 50, mapOf(FirstBaseline to 0)) {} }
+                }
+            ) { measurables, constraints ->
+                measureCount++
+                val placeable = measurables.first().measure(constraints)
+                placeable[FirstBaseline]
+                layout(placeable.width, placeable.height) { placeable.place(10, 10) }
+            }
+        }
+
+        rule.runOnIdle { assertEquals(1, measureCount) }
+    }
+
+    @Test
+    fun readingAlignmentAndThenPlacingWithNonZeroOffsetInLookaheadShouldntCauseExtraRemeasure() {
+        var lookaheadMeasureCount = 0
+        var approachMeasureCount = 0
+        rule.setContent {
+            LookaheadScope {
+                Layout(
+                    content = {
+                        Layout { _, _ -> layout(50, 50, mapOf(FirstBaseline to 0)) {} }
+                    }
+                ) { measurables, constraints ->
+                    if (isLookingAhead) {
+                        lookaheadMeasureCount++
+                    } else {
+                        approachMeasureCount++
+                    }
+                    val placeable = measurables.first().measure(constraints)
+                    placeable[FirstBaseline]
+                    layout(placeable.width, placeable.height) { placeable.place(10, 10) }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, lookaheadMeasureCount)
+            assertEquals(1, approachMeasureCount)
+        }
+    }
+
+    @Test
+    fun readingAlignmentWithMultipleModifiersAndDynamicOffset() {
+        var measureCount = 0
+        var lastBaseline = -1
+        var dynamicOffset by mutableIntStateOf(10)
+        val fixedPaddingDp = with(rule.density) { 5.toDp() }
+        rule.setContent {
+            Layout(
+                content = {
+                    Layout(
+                        modifier =
+                            Modifier.offset { IntOffset(0, dynamicOffset) }
+                                .padding(top = fixedPaddingDp)
+                    ) { _, _ ->
+                        layout(50, 50, mapOf(FirstBaseline to 0)) {}
+                    }
+                }
+            ) { measurables, constraints ->
+                measureCount++
+                val placeable = measurables.first().measure(constraints)
+                lastBaseline = placeable[FirstBaseline]
+                layout(100, 100) { placeable.place(10, 10) }
+            }
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, measureCount)
+            assertEquals(15, lastBaseline)
+            dynamicOffset = 25
+        }
+
+        rule.runOnIdle {
+            assertEquals(2, measureCount)
+            assertEquals(30, lastBaseline)
+        }
+    }
 }
