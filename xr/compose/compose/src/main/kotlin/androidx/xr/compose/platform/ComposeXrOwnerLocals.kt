@@ -125,7 +125,8 @@ internal class ComposeXrOwnerLocals : DefaultLifecycleObserver {
                 subspaceRootNode = subspaceRootNode,
             )
         spatialCapabilities = SessionSpatialCapabilities(createdSession)
-        coreMainPanelEntity = CoreMainPanelEntity(createdSession)
+        coreMainPanelEntity =
+            CoreMainPanelEntity(session = createdSession, originalParent = subspaceRootNode)
 
         activity.lifecycle.addObserver(this)
         isInitialized = true

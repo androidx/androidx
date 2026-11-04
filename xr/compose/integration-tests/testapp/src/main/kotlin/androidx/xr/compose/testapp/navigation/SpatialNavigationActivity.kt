@@ -16,6 +16,7 @@
 
 package androidx.xr.compose.testapp.navigation
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -176,6 +177,7 @@ class SpatialNavigationActivity : ComponentActivity() {
         val scope = rememberCoroutineScope()
         val isSpatialUiEnabled = LocalSpatialCapabilities.current.isSpatialUiEnabled
         var showNestedSubspace by remember { mutableStateOf(false) }
+        var isMainPanelVisible by remember { mutableStateOf(showMainPanel) }
 
         // 2D MainPanel Content (displayed within SpatialMainPanel when showMainPanel is true)
         CommonTestScaffold(
@@ -231,7 +233,7 @@ class SpatialNavigationActivity : ComponentActivity() {
         Subspace {
             SpatialRow(
                 modifier =
-                    SubspaceModifier.width(if (showMainPanel) 1300.dp else 800.dp)
+                    SubspaceModifier.width(if (isMainPanelVisible) 1300.dp else 800.dp)
                         .height(700.dp)
                         .movable()
                         .resizable(),
@@ -251,8 +253,8 @@ class SpatialNavigationActivity : ComponentActivity() {
                     }
                 }
 
-                // Center SpatialMainPanel (only rendered when showMainPanel is true)
-                if (showMainPanel) {
+                // Center SpatialMainPanel (only rendered when isMainPanelVisible is true)
+                if (isMainPanelVisible) {
                     SpatialMainPanel(modifier = SubspaceModifier.weight(2f).fillMaxHeight())
                 }
 
@@ -271,7 +273,25 @@ class SpatialNavigationActivity : ComponentActivity() {
                                 else "Create Nested Subspace"
                             )
                         }
-                        if (!showMainPanel) {
+                        if (showMainPanel) {
+                            Button(onClick = { isMainPanelVisible = !isMainPanelVisible }) {
+                                Text(
+                                    if (isMainPanelVisible) "Hide Main Panel" else "Show Main Panel"
+                                )
+                            }
+                            Button(
+                                onClick = {
+                                    startActivity(
+                                        Intent(
+                                            this@SpatialNavigationActivity,
+                                            ActivityB::class.java,
+                                        )
+                                    )
+                                }
+                            ) {
+                                Text("Launch 2nd Activity")
+                            }
+                        } else {
                             Button(onClick = { navController.popBackStack() }) {
                                 Text("← Back to 2D")
                             }
