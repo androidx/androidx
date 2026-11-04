@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 The Android Open Source Project
+ * Copyright (C) 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,11 @@ package androidx.compose.remote.core.operations.layout;
 // This class duplicates parts of TouchDownModifierOperation until that class is removed.
 // CPD-OFF
 
+import static androidx.compose.remote.core.input.PointerInputRouter.EVENT_TYPE_POINTER;
+import static androidx.compose.remote.core.input.PointerInputRouter.POINTER_PASS_MAIN;
+import static androidx.compose.remote.core.input.PointerInputRouter.POINTER_STATUS_NOT_CONSUMED;
+import static androidx.compose.remote.core.input.PointerInputRouter.POINTER_SUBTYPE_DOWN;
+
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
@@ -25,17 +30,32 @@ import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
+import androidx.compose.remote.core.events.Event;
+import androidx.compose.remote.core.events.EventHandler;
+import androidx.compose.remote.core.input.MetadataUtil;
 import androidx.compose.remote.core.serialize.MapSerializer;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-/** Represents a touch down modifier + actions */
+/**
+ * Touch down modifier + actions dispatched through the unified pointer input router.
+ *
+ * <p>Same opcode and (empty) wire format as {@link TouchDownModifierOperation}. Runs its actions
+ * on every {@code DOWN} that reaches the hosting component, in the <em>main</em> pass. Like the
+ * ripple modifier it is an observer: it does not consume the down and does not care whether a
+ * click modifier on the same component or a clickable child already claimed it, so {@code
+ * onTouchDown} keeps working next to {@code onClick} and on a parent of a clickable child, as it
+ * did with the legacy touch path.
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class TouchDownModifierOperation2 extends ListActionsOperation implements TouchHandler {
+public class TouchDownModifierOperation2 extends ListActionsOperation implements EventHandler {
 
     private static final int OP_CODE = Operations.MODIFIER_TOUCH_DOWN;
+
+    private @Nullable Component mComponent;
 
     public TouchDownModifierOperation2() {
         super("TOUCH_DOWN_MODIFIER");
@@ -51,50 +71,51 @@ public class TouchDownModifierOperation2 extends ListActionsOperation implements
         return "TouchDownModifier";
     }
 
+    /**
+     * Returns whether this handler matches the given event type.
+     *
+     * @param eventType event type identifier
+     * @return true if event is a pointer event
+     */
     @Override
-    public boolean onTouchDown(
-            @NonNull RemoteContext context,
-            @NonNull CoreDocument document,
-            @NonNull Component component,
-            float x,
-            float y) {
-        if (applyActions(context, document, component, x, y, false)) {
-            document.appliedTouchOperation(component);
-            return true;
+    public boolean matchesEvent(int eventType) {
+        return eventType == EVENT_TYPE_POINTER;
+    }
+
+    /**
+     * Runs the actions on pointer down. Never consumes.
+     *
+     * @param context current remote context
+     * @param document document containing this component
+     * @param event pointer event being dispatched
+     * @return always {@link
+     *     androidx.compose.remote.core.input.PointerInputRouter#POINTER_STATUS_NOT_CONSUMED}
+     */
+    @Override
+    public int onEvent(
+            @NonNull RemoteContext context, @NonNull CoreDocument document, @NonNull Event event) {
+        int metadata = event.getMetadata();
+        if (MetadataUtil.unpackPass(metadata) != POINTER_PASS_MAIN
+                || MetadataUtil.unpackSubtype(metadata) != POINTER_SUBTYPE_DOWN) {
+            return POINTER_STATUS_NOT_CONSUMED;
         }
-        return false;
+        float[] data = event.getData();
+        Component component = mComponent;
+        if (data == null || data.length < 3 || component == null || !component.isVisible()) {
+            return POINTER_STATUS_NOT_CONSUMED;
+        }
+        runActions(context, document);
+        return POINTER_STATUS_NOT_CONSUMED;
     }
 
     @Override
-    public boolean onTouchUp(
+    public void layout(
             @NonNull RemoteContext context,
-            @NonNull CoreDocument document,
             @NonNull Component component,
-            float x,
-            float y,
-            float dx,
-            float dy) {
-        return false;
-    }
-
-    @Override
-    public boolean onTouchCancel(
-            @NonNull RemoteContext context,
-            @NonNull CoreDocument document,
-            @NonNull Component component,
-            float x,
-            float y) {
-        return false;
-    }
-
-    @Override
-    public boolean onTouchDrag(
-            @NonNull RemoteContext context,
-            @NonNull CoreDocument document,
-            @NonNull Component component,
-            float x,
-            float y) {
-        return false;
+            float width,
+            float height) {
+        super.layout(context, component, width, height);
+        mComponent = component;
     }
 
     /**
@@ -108,7 +129,8 @@ public class TouchDownModifierOperation2 extends ListActionsOperation implements
     }
 
     /**
-     * Write the operation to the buffer
+     * Write the operation to the buffer. The wire format is identical to {@link
+     * TouchDownModifierOperation}.
      *
      * @param buffer a WireBuffer
      */

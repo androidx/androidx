@@ -134,6 +134,7 @@ import androidx.compose.remote.core.operations.layout.MultiClickModifierOperatio
 import androidx.compose.remote.core.operations.layout.RootLayoutComponent;
 import androidx.compose.remote.core.operations.layout.TouchCancelModifierOperation;
 import androidx.compose.remote.core.operations.layout.TouchDownModifierOperation;
+import androidx.compose.remote.core.operations.layout.TouchDownModifierOperation2;
 import androidx.compose.remote.core.operations.layout.TouchUpModifierOperation;
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec;
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout;
@@ -692,6 +693,8 @@ public class Operations {
         customMap.put(Operations.MODIFIER_MULTI_CLICK, MultiClickModifierOperation2::read);
         customMap.remove(Operations.MODIFIER_RIPPLE);
         customMap.put(Operations.MODIFIER_RIPPLE, RippleModifierOperation2::read);
+        customMap.remove(Operations.MODIFIER_TOUCH_DOWN);
+        customMap.put(Operations.MODIFIER_TOUCH_DOWN, TouchDownModifierOperation2::read);
         return customMap;
     }
 

@@ -23,22 +23,37 @@ import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
+import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.actions.HostAction
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.view.RemoteComposePlayer
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.Robolectric
 import org.robolectric.annotation.Config
 
-@RunWith(AndroidJUnit4::class)
+/**
+ * Touch down modifier tests, run against both implementations of the modifier:
+ * - `unifiedPointerInput = false`: [TouchDownModifierOperation], driven by the legacy touch path.
+ * - `unifiedPointerInput = true`: [TouchDownModifierOperation2], driven by the
+ *   [androidx.compose.remote.core.input.PointerInputRouter].
+ *
+ * The documents are identical; only [Header.FEATURE_UNIFIED_POINTER_INPUT] differs.
+ */
+@RunWith(ParameterizedRobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
-class TouchDownModifierOperationTest {
+class TouchDownModifierOperationTest(private val unifiedPointerInput: Boolean) {
+
+    companion object {
+        @JvmStatic
+        @ParameterizedRobolectricTestRunner.Parameters(name = "unifiedPointerInput = {0}")
+        fun data() = listOf(arrayOf<Any>(false), arrayOf<Any>(true))
+    }
 
     @Test
     fun actionDownInsideBox_runsActionsImmediately() {
@@ -114,6 +129,32 @@ class TouchDownModifierOperationTest {
     }
 
     @Test
+    fun actionDownInsideBoxInStateLayout_runsActions() {
+        // Arrange.
+        val player = createPlayer {
+            val stateIndex = addInteger(0).toInt()
+            root {
+                stateLayout(RecordingModifier().size(200, 200), stateIndex) {
+                    box(
+                        RecordingModifier().size(100, 100).onTouchDown(HostAction(10)),
+                        BoxLayout.START,
+                        BoxLayout.TOP,
+                    ) {}
+                }
+            }
+        }
+        val triggeredActions = mutableListOf<Pair<Int, String?>>()
+        player.addIdActionListener { id, metadata -> triggeredActions.add(id to metadata) }
+        val downTime = SystemClock.uptimeMillis()
+
+        // Act.
+        dispatchMotionEvent(player, downTime, downTime, MotionEvent.ACTION_DOWN, 50f, 50f)
+
+        // Assert.
+        assertThat(triggeredActions).containsExactly(10 to "")
+    }
+
+    @Test
     fun actionMoveAndActionUpAfterDown_doNotReRunTouchDownActions() {
         // Arrange.
         val player = createPlayer {
@@ -139,12 +180,107 @@ class TouchDownModifierOperationTest {
         assertThat(triggeredActions).isEmpty()
     }
 
+    @Test
+    fun touchDownAndClickOnSameBox_bothRun() {
+        // Arrange.
+        val player = createPlayer {
+            root {
+                box(
+                    RecordingModifier()
+                        .size(100, 100)
+                        .onTouchDown(HostAction(10))
+                        .onClick(HostAction(42)),
+                    BoxLayout.START,
+                    BoxLayout.TOP,
+                ) {}
+            }
+        }
+        val triggeredActions = mutableListOf<Pair<Int, String?>>()
+        player.addIdActionListener { id, metadata -> triggeredActions.add(id to metadata) }
+        val downTime = SystemClock.uptimeMillis()
+
+        // Act.
+        dispatchMotionEvent(player, downTime, downTime, MotionEvent.ACTION_DOWN, 50f, 50f)
+        dispatchMotionEvent(player, downTime, downTime + 20L, MotionEvent.ACTION_UP, 50f, 50f)
+
+        // Assert.
+        assertThat(triggeredActions).containsExactly(10 to "", 42 to "")
+    }
+
+    @Test
+    fun actionDownInsideClickableChild_runsParentTouchDownActions() {
+        // Arrange.
+        val player = createPlayer {
+            root {
+                box(
+                    RecordingModifier().size(200, 200).onTouchDown(HostAction(10)),
+                    BoxLayout.START,
+                    BoxLayout.TOP,
+                ) {
+                    box(
+                        RecordingModifier().size(100, 100).onClick(HostAction(42)),
+                        BoxLayout.START,
+                        BoxLayout.TOP,
+                    ) {}
+                }
+            }
+        }
+        val triggeredActions = mutableListOf<Pair<Int, String?>>()
+        player.addIdActionListener { id, metadata -> triggeredActions.add(id to metadata) }
+        val downTime = SystemClock.uptimeMillis()
+
+        // Act.
+        dispatchMotionEvent(player, downTime, downTime, MotionEvent.ACTION_DOWN, 50f, 50f)
+
+        // Assert.
+        assertThat(triggeredActions).containsExactly(10 to "")
+    }
+
+    @Test
+    fun touchDownOnChild_doesNotPreventParentClick() {
+        // Arrange.
+        val player = createPlayer {
+            root {
+                box(
+                    RecordingModifier().size(200, 200).onClick(HostAction(42)),
+                    BoxLayout.START,
+                    BoxLayout.TOP,
+                ) {
+                    box(
+                        RecordingModifier().size(100, 100).onTouchDown(HostAction(10)),
+                        BoxLayout.START,
+                        BoxLayout.TOP,
+                    ) {}
+                }
+            }
+        }
+        val triggeredActions = mutableListOf<Pair<Int, String?>>()
+        player.addIdActionListener { id, metadata -> triggeredActions.add(id to metadata) }
+        val downTime = SystemClock.uptimeMillis()
+
+        // Act.
+        dispatchMotionEvent(player, downTime, downTime, MotionEvent.ACTION_DOWN, 50f, 50f)
+        dispatchMotionEvent(player, downTime, downTime + 20L, MotionEvent.ACTION_UP, 50f, 50f)
+
+        // Assert.
+        assertThat(triggeredActions).containsExactly(10 to "", 42 to "")
+    }
+
     private fun createPlayer(
         width: Int = 200,
         height: Int = 200,
         buildDocument: RemoteComposeWriter.() -> Unit,
     ): RemoteComposePlayer {
-        val writer = RemoteComposeWriter.obtain(width, height, RcPlatformProfiles.ANDROIDX)
+        val writer =
+            RemoteComposeWriter(
+                RcPlatformProfiles.ANDROIDX,
+                RemoteComposeWriter.hTag(Header.DOC_WIDTH, width),
+                RemoteComposeWriter.hTag(Header.DOC_HEIGHT, height),
+                RemoteComposeWriter.hTag(
+                    Header.FEATURE_UNIFIED_POINTER_INPUT,
+                    if (unifiedPointerInput) 1 else 0,
+                ),
+            )
         writer.buildDocument()
         val activity = Robolectric.buildActivity(Activity::class.java).setup().get()
         val parent = FrameLayout(activity)

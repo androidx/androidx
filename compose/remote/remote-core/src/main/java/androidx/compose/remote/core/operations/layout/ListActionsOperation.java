@@ -131,12 +131,22 @@ public abstract class ListActionsOperation extends PaintOperation
                 return false;
             }
         }
+        runActions(context, document);
+        return true;
+    }
+
+    /**
+     * Runs the actions of this operation, in order.
+     *
+     * @param context the RemoteContext
+     * @param document the current document
+     */
+    protected void runActions(@NonNull RemoteContext context, @NonNull CoreDocument document) {
         for (Operation o : mList) {
             if (o instanceof ActionOperation) {
                 ((ActionOperation) o).runAction(context, document);
             }
         }
-        return true;
     }
 
     @Override
