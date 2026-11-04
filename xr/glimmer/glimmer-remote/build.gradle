@@ -58,6 +58,8 @@ android {
 androidx {
     name = "Remote Compose Glimmer"
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    // TODO: b/579963548 - Remove quarantine when it's ready to release.
+    mavenVersion = LibraryVersions.XR_GLIMMER_REMOTE_QUARANTINE
     inceptionYear = "2026"
     description = "Remote Compose Glimmer, the UI library for augmented Android XR experiences"
     enableRobolectric()
