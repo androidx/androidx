@@ -71,5 +71,4 @@ androidx {
     description = "Android MediaRouter Support Library"
     failOnDeprecationWarnings = false
     enableRobolectric()
-    legacyDisableReferenceEqualityCheck = true
 }

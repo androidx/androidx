@@ -28,7 +28,3 @@ android {
     compileSdk { version = release(35) }
     namespace = "com.example.android.leanback"
 }
-
-androidx {
-    legacyDisableReferenceEqualityCheck = true
-}

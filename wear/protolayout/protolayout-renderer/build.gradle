@@ -71,5 +71,4 @@ androidx {
     inceptionYear = "2022"
     description = "Render ProtoLayouts to an Android surface"
     enableRobolectric()
-    legacyDisableReferenceEqualityCheck = true
 }

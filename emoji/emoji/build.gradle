@@ -84,7 +84,6 @@ androidx {
         name = "Unicode, Inc. License"
         url = "https://www.unicode.org/license.html"
     }
-    legacyDisableReferenceEqualityCheck = true
 }
 
 @DisableCachingByDefault(because = "Primarily filesystem operations")
