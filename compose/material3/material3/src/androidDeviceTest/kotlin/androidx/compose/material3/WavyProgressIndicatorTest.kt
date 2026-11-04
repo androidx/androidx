@@ -16,25 +16,31 @@
 package androidx.compose.material3
 
 import android.os.Build
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.internal.VerticalSemanticsBoundsPadding
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.testutils.assertPixelColor
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertRangeInfoEquals
@@ -51,6 +57,8 @@ import androidx.test.filters.SdkSuppress
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -58,7 +66,12 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class WavyProgressIndicatorTest {
-    @get:Rule val rule = createComposeRule()
+    private val motionDurationScale =
+        object : MotionDurationScale {
+            override var scaleFactor: Float = 1f
+        }
+
+    @get:Rule val rule = createComposeRule(ComposeUiTestConfig(motionDurationScale))
 
     @Test
     fun nonMaterialSetContent() {
@@ -103,15 +116,25 @@ class WavyProgressIndicatorTest {
     @Test
     fun determinateLinearWavyProgressIndicator_NaNProgress() {
         val tag = "linear"
+        val progress = mutableStateOf(Float.NaN)
         rule.setMaterialContent(lightColorScheme()) {
-            LinearWavyProgressIndicator(modifier = Modifier.testTag(tag), progress = { Float.NaN })
+            LinearWavyProgressIndicator(
+                modifier = Modifier.testTag(tag),
+                progress = { progress.value },
+            )
         }
 
-        // The ProgressBarRangeInfo should indicate a current value of zero.
         rule
             .onNodeWithTag(tag)
             .assertIsDisplayed()
-            .assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f))
+            .assertRangeInfoEquals(ProgressBarRangeInfo.Indeterminate)
+
+        rule.runOnUiThread { progress.value = Float.POSITIVE_INFINITY }
+
+        rule
+            .onNodeWithTag(tag)
+            .assertIsDisplayed()
+            .assertRangeInfoEquals(ProgressBarRangeInfo.Indeterminate)
     }
 
     @Test
@@ -461,18 +484,25 @@ class WavyProgressIndicatorTest {
     @Test
     fun determinateCircularWavyProgressIndicator_NaNProgress() {
         val tag = "circular"
+        val progress = mutableStateOf(Float.NaN)
         rule.setMaterialContent(lightColorScheme()) {
             CircularWavyProgressIndicator(
                 modifier = Modifier.testTag(tag),
-                progress = { Float.NaN },
+                progress = { progress.value },
             )
         }
 
-        // The ProgressBarRangeInfo should indicate a current value of zero.
         rule
             .onNodeWithTag(tag)
             .assertIsDisplayed()
-            .assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f))
+            .assertRangeInfoEquals(ProgressBarRangeInfo.Indeterminate)
+
+        rule.runOnUiThread { progress.value = Float.POSITIVE_INFINITY }
+
+        rule
+            .onNodeWithTag(tag)
+            .assertIsDisplayed()
+            .assertRangeInfoEquals(ProgressBarRangeInfo.Indeterminate)
     }
 
     @Test
@@ -579,4 +609,199 @@ class WavyProgressIndicatorTest {
         // Test that we allow zero sizing without any exception.
         rule.onNodeWithTag(tag).assertIsSquareWithSize(0.dp)
     }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun linearWavyProgressIndicator_nanToProgress_handsOffWhenLinesLeave() {
+        rule.mainClock.autoAdvance = false
+        val tag = "linear"
+        val progress = mutableStateOf(0.5f)
+        rule.setMaterialContent(lightColorScheme()) {
+            LinearWavyProgressIndicator(
+                progress = { progress.value },
+                modifier = Modifier.testTag(tag),
+                waveSpeed = 0.dp,
+            )
+        }
+
+        val reference = rule.onNodeWithTag(tag).captureToImage()
+        rule.runOnIdle { progress.value = Float.NaN }
+        rule.onNodeWithTag(tag).captureToImage()
+        rule.mainClock.advanceTimeBy(1000)
+        rule.runOnIdle { progress.value = 0.5f }
+
+        rule.mainClock.advanceTimeBy(100)
+        assertFalse(rule.onNodeWithTag(tag).captureToImage().contentEquals(reference))
+        rule.mainClock.advanceTimeBy(1300)
+        assertTrue(rule.onNodeWithTag(tag).captureToImage().contentEquals(reference))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun circularWavyProgressIndicator_nanToProgress_settlesAtTrackStart() {
+        rule.mainClock.autoAdvance = false
+        val tag = "circular"
+        val progress = mutableStateOf(0.5f)
+        rule.setMaterialContent(lightColorScheme()) {
+            CircularWavyProgressIndicator(
+                progress = { progress.value },
+                modifier = Modifier.testTag(tag),
+                waveSpeed = 0.dp,
+            )
+        }
+
+        val reference = rule.onNodeWithTag(tag).captureToImage()
+        rule.runOnIdle { progress.value = Float.NaN }
+        rule.onNodeWithTag(tag).captureToImage()
+        rule.mainClock.advanceTimeBy(500)
+        rule.runOnIdle { progress.value = 0.5f }
+
+        rule.mainClock.advanceTimeBy(100)
+        assertFalse(rule.onNodeWithTag(tag).captureToImage().contentEquals(reference))
+        rule.mainClock.advanceTimeBy(1300)
+        assertTrue(rule.onNodeWithTag(tag).captureToImage().contentEquals(reference))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun wavyProgressIndicators_progressToNaN_restartIndeterminateCycle() {
+        rule.mainClock.autoAdvance = false
+        val progress = mutableStateOf(Float.NaN)
+        setIndicators { progress.value }
+        rule.onNodeWithTag(LinearTag).captureToImage()
+        rule.mainClock.advanceTimeBy(300)
+        val linear = rule.onNodeWithTag(LinearTag).captureToImage()
+        val circular = rule.onNodeWithTag(CircularTag).captureToImage()
+
+        rule.runOnIdle { progress.value = 0.5f }
+        rule.mainClock.advanceTimeBy(3000)
+        rule.runOnIdle { progress.value = Float.NaN }
+        rule.onNodeWithTag(LinearTag).captureToImage()
+        rule.mainClock.advanceTimeBy(300)
+
+        assertTrue(rule.onNodeWithTag(LinearTag).captureToImage().contentEquals(linear))
+        assertTrue(rule.onNodeWithTag(CircularTag).captureToImage().contentEquals(circular))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun wavyProgressIndicators_nanDuringHandoff_returnToIndeterminate() {
+        rule.mainClock.autoAdvance = false
+        val progress = mutableStateOf(0.5f)
+        setIndicators { progress.value }
+
+        val linearReference = rule.onNodeWithTag(LinearTag).captureToImage()
+        val circularReference = rule.onNodeWithTag(CircularTag).captureToImage()
+        rule.runOnIdle { progress.value = Float.NaN }
+        rule.onNodeWithTag(LinearTag).captureToImage()
+        rule.mainClock.advanceTimeBy(1000)
+        rule.runOnIdle { progress.value = 0.5f }
+        rule.mainClock.advanceTimeBy(100)
+        rule.runOnIdle { progress.value = Float.NaN }
+        rule.mainClock.advanceTimeBy(1500)
+        assertFalse(rule.onNodeWithTag(LinearTag).captureToImage().contentEquals(linearReference))
+        assertFalse(
+            rule.onNodeWithTag(CircularTag).captureToImage().contentEquals(circularReference)
+        )
+
+        rule.runOnIdle { progress.value = 0.5f }
+        rule.mainClock.advanceTimeBy(2000)
+        assertTrue(rule.onNodeWithTag(LinearTag).captureToImage().contentEquals(linearReference))
+        assertTrue(
+            rule.onNodeWithTag(CircularTag).captureToImage().contentEquals(circularReference)
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun wavyProgressIndicators_nanAfterMove_keepAnimating() {
+        rule.mainClock.autoAdvance = false
+        val moved = mutableStateOf(false)
+        rule.setMaterialContent(lightColorScheme()) {
+            val indicators = remember {
+                movableContentOf {
+                    LinearWavyProgressIndicator(
+                        progress = { Float.NaN },
+                        modifier = Modifier.testTag(LinearTag),
+                        waveSpeed = 0.dp,
+                    )
+                    CircularWavyProgressIndicator(
+                        progress = { Float.NaN },
+                        modifier = Modifier.testTag(CircularTag),
+                        waveSpeed = 0.dp,
+                    )
+                }
+            }
+            Column(Modifier.padding(48.dp), verticalArrangement = Arrangement.spacedBy(48.dp)) {
+                Column { if (!moved.value) indicators() }
+                Column { if (moved.value) indicators() }
+            }
+        }
+
+        rule.mainClock.advanceTimeBy(300)
+        rule.runOnIdle { moved.value = true }
+        rule.mainClock.advanceTimeBy(300)
+        val linear = rule.onNodeWithTag(LinearTag).captureToImage()
+        val circular = rule.onNodeWithTag(CircularTag).captureToImage()
+        rule.mainClock.advanceTimeBy(300)
+
+        assertFalse(rule.onNodeWithTag(LinearTag).captureToImage().contentEquals(linear))
+        assertFalse(rule.onNodeWithTag(CircularTag).captureToImage().contentEquals(circular))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun wavyProgressIndicators_animationsDisabled_holdStillAndShowProgress() {
+        motionDurationScale.scaleFactor = 0f
+        rule.mainClock.autoAdvance = false
+        val progress = mutableStateOf(0.5f)
+        setIndicators { progress.value }
+
+        val linearReference = rule.onNodeWithTag(LinearTag).captureToImage()
+        val circularReference = rule.onNodeWithTag(CircularTag).captureToImage()
+        rule.runOnIdle { progress.value = Float.NaN }
+        rule.onNodeWithTag(LinearTag).captureToImage()
+        rule.mainClock.advanceTimeBy(100)
+        val linear = rule.onNodeWithTag(LinearTag).captureToImage()
+        val circular = rule.onNodeWithTag(CircularTag).captureToImage()
+        rule.mainClock.advanceTimeBy(500)
+        assertTrue(rule.onNodeWithTag(LinearTag).captureToImage().contentEquals(linear))
+        assertTrue(rule.onNodeWithTag(CircularTag).captureToImage().contentEquals(circular))
+
+        rule.runOnIdle { progress.value = 0.5f }
+        // With animations disabled nothing is scheduled on the test clock, so the state change
+        // made above is only delivered to the held-still indicators at the next idle sync point.
+        // Wait for idle before advancing the clock, so the indicators can pick up the progress.
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(100)
+        assertTrue(rule.onNodeWithTag(LinearTag).captureToImage().contentEquals(linearReference))
+        assertTrue(
+            rule.onNodeWithTag(CircularTag).captureToImage().contentEquals(circularReference)
+        )
+    }
+
+    private fun setIndicators(progress: () -> Float) {
+        rule.setMaterialContent(lightColorScheme()) {
+            Column(Modifier.padding(48.dp), verticalArrangement = Arrangement.spacedBy(48.dp)) {
+                LinearWavyProgressIndicator(
+                    progress = progress,
+                    modifier = Modifier.testTag(LinearTag),
+                    waveSpeed = 0.dp,
+                )
+                CircularWavyProgressIndicator(
+                    progress = progress,
+                    modifier = Modifier.testTag(CircularTag),
+                    waveSpeed = 0.dp,
+                )
+            }
+        }
+    }
+
+    private fun ImageBitmap.contentEquals(other: ImageBitmap): Boolean {
+        if (width != other.width || height != other.height) return false
+        return toPixelMap().buffer.contentEquals(other.toPixelMap().buffer)
+    }
 }
+
+private const val LinearTag = "linear"
+private const val CircularTag = "circular"
