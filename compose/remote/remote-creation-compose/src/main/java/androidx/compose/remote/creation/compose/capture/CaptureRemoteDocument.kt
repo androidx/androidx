@@ -37,8 +37,6 @@ import androidx.compose.remote.creation.compose.layout.RemoteRootNode
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.tracing.trace
-import androidx.tracing.traceAsync
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -70,10 +68,32 @@ public suspend fun captureSingleRemoteDocument(
     clock: RemoteClock = RemoteClock.SYSTEM,
     profile: Profile,
     writerCallback: Any? = null,
+    content: @Composable @RemoteComposable () -> Unit,
+): ByteArray =
+    captureSingleRemoteDocument(
+        creationDisplayInfo = creationDisplayInfo,
+        remoteDensity = remoteDensity,
+        layoutDirection = layoutDirection,
+        clock = clock,
+        profile = profile,
+        writerCallback = writerCallback,
+        tracer = NoOpCaptureTracer,
+        onDispose = {},
+        content = content,
+    )
+
+internal suspend fun captureSingleRemoteDocument(
+    creationDisplayInfo: RemoteCreationDisplayInfo,
+    remoteDensity: RemoteDensity = RemoteDensity.from(creationDisplayInfo),
+    layoutDirection: RemoteLayoutDirection = RemoteLayoutDirection.Ltr,
+    clock: RemoteClock = RemoteClock.SYSTEM,
+    profile: Profile,
+    writerCallback: Any? = null,
+    tracer: CaptureTracer,
     onDispose: () -> Unit = {},
     content: @Composable @RemoteComposable () -> Unit,
 ): ByteArray =
-    traceAsync(
+    tracer.traceAsync(
         lazyMethodName = { "CaptureRemoteDocument:captureSingleRemoteDocument" },
         lazyCookie = traceCookie::incrementAndGet,
     ) {
@@ -87,6 +107,7 @@ public suspend fun captureSingleRemoteDocument(
                 profile = profile,
                 writerCallback = writerCallback,
                 coroutineContext = EmptyCoroutineContext,
+                tracer = tracer,
                 onDispose = onDispose,
                 content = content,
             )
@@ -111,6 +132,32 @@ public fun captureRemoteDocument(
     profile: Profile,
     writerCallback: Any? = null,
     coroutineContext: CoroutineContext = Dispatchers.Default,
+    content: @Composable @RemoteComposable () -> Unit,
+): Flow<ByteArray> =
+    captureRemoteDocument(
+        creationDisplayInfo = creationDisplayInfo,
+        updateThrottle = updateThrottle,
+        remoteDensity = remoteDensity,
+        layoutDirection = layoutDirection,
+        clock = clock,
+        profile = profile,
+        writerCallback = writerCallback,
+        coroutineContext = coroutineContext,
+        tracer = NoOpCaptureTracer,
+        onDispose = {},
+        content = content,
+    )
+
+internal fun captureRemoteDocument(
+    creationDisplayInfo: RemoteCreationDisplayInfo,
+    updateThrottle: CaptureUpdateThrottle = CaptureUpdateThrottle.Default,
+    remoteDensity: RemoteDensity = RemoteDensity.from(creationDisplayInfo),
+    layoutDirection: RemoteLayoutDirection = RemoteLayoutDirection.Ltr,
+    clock: RemoteClock = RemoteClock.SYSTEM,
+    profile: Profile,
+    writerCallback: Any? = null,
+    coroutineContext: CoroutineContext = Dispatchers.Default,
+    tracer: CaptureTracer,
     onDispose: () -> Unit = {},
     content: @Composable @RemoteComposable () -> Unit,
 ): Flow<ByteArray> =
@@ -124,6 +171,7 @@ public fun captureRemoteDocument(
         profile = profile,
         writerCallback = writerCallback,
         coroutineContext = coroutineContext,
+        tracer = tracer,
         onDispose = onDispose,
         content = content,
     )
@@ -152,6 +200,7 @@ private fun captureRemoteDocumentImpl(
     profile: Profile,
     writerCallback: Any?,
     coroutineContext: CoroutineContext,
+    tracer: CaptureTracer = NoOpCaptureTracer,
     onDispose: () -> Unit,
     content: @Composable @RemoteComposable () -> Unit,
 ): Flow<ByteArray> = flow {
@@ -188,6 +237,7 @@ private fun captureRemoteDocumentImpl(
             changeCount = { applier.changeCount },
             maxOutputs = maxDocuments,
             coroutineContext = coroutineContext,
+            tracer = tracer,
             // One time source for pacing frames and throttling documents, so a test clock drives
             // both.
             timeSource = RemoteClockTimeSource(clock),
@@ -226,12 +276,12 @@ private fun captureRemoteDocumentImpl(
                 }
             }
 
-            trace(lazyLabel = { "$traceName:rootNodeRender" }) {
+            tracer.trace(lazyLabel = { "$traceName:rootNodeRender" }) {
                 rootNode.render(creationState, remoteCanvas)
                 remoteCanvas.flush()
             }
 
-            trace(lazyLabel = { "$traceName:encodeToByteArray" }) {
+            tracer.trace(lazyLabel = { "$traceName:encodeToByteArray" }) {
                 creationState.document.encodeToByteArray()
             }
         }

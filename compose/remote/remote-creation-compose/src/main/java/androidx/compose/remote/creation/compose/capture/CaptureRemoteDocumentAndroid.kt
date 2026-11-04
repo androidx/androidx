@@ -161,6 +161,7 @@ public suspend fun captureSingleRemoteDocument(
             clock = clock,
             profile = profile,
             writerCallback = writerEvents,
+            tracer = AndroidCaptureTracer,
             onDispose = {
                 savedState?.write { clear() }
                 if (savedState != null && saveableStateRegistry != null) {
@@ -293,6 +294,7 @@ public fun captureRemoteDocument(
             profile = profile,
             writerCallback = writerEvents,
             coroutineContext = coroutineContext,
+            tracer = AndroidCaptureTracer,
             onDispose = {
                 savedState?.write { clear() }
                 if (savedState != null && saveableStateRegistry != null) {
@@ -499,4 +501,18 @@ public suspend fun captureSingleRemoteDocument(
             content = content,
         )
     return CapturedDocument(result.bytes, result.pendingIntents)
+}
+
+internal object AndroidCaptureTracer : CaptureTracer {
+    override fun <T> trace(lazyLabel: () -> String, block: () -> T): T =
+        androidx.tracing.trace(lazyLabel = lazyLabel, block = block)
+
+    override suspend fun <T> traceAsync(
+        lazyMethodName: () -> String,
+        lazyCookie: () -> Int,
+        block: suspend () -> T,
+    ): T =
+        androidx.tracing.traceAsync(lazyMethodName = lazyMethodName, lazyCookie = lazyCookie) {
+            block()
+        }
 }
