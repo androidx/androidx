@@ -16,7 +16,7 @@
 
 package androidx.compose.remote.integration.view.demos.blog
 
-import androidx.compose.remote.creation.compose.action.RemoteAction.Companion.Empty
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
@@ -62,7 +62,9 @@ import kotlin.math.sqrt
 public fun DiscoBall() {
     RemoteBox(
         modifier =
-            RemoteModifier.fillMaxSize().background(RemoteColor(Color.White)).onTouchDown(Empty),
+            RemoteModifier.fillMaxSize()
+                .background(RemoteColor(Color.White))
+                .onTouchDown(RemoteAction.None),
         contentAlignment = RemoteAlignment.Center,
     ) {
         val sphereBaseColor = 0xFF34A853.toInt()

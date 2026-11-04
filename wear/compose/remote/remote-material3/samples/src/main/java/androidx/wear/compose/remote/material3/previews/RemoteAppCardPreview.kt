@@ -18,7 +18,7 @@ package androidx.wear.compose.remote.material3.previews
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.remote.creation.compose.action.combinedAction
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.capture.toRemoteImageVector
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -70,7 +70,7 @@ fun RemoteAppCardWithBorderPreview(
 @RemoteComposable
 fun RemoteAppCardDefault() {
     RemoteAppCard(
-        onClick = combinedAction(),
+        onClick = RemoteAction.None,
         appName = { RemoteText("App Name".rs) },
         time = { RemoteText("now".rs) },
         appImage = {
@@ -89,7 +89,7 @@ fun RemoteAppCardDefault() {
 @RemoteComposable
 fun RemoteAppCardWithAppNameTimeTitle() {
     RemoteAppCard(
-        onClick = combinedAction(),
+        onClick = RemoteAction.None,
         appName = { RemoteText("App Name".rs) },
         time = { RemoteText("now".rs) },
         title = { RemoteText("Card Title".rs) },
@@ -102,7 +102,7 @@ fun RemoteAppCardWithAppNameTimeTitle() {
 @RemoteComposable
 fun RemoteAppCardWithAppNameTitleSubtitle() {
     RemoteAppCard(
-        onClick = combinedAction(),
+        onClick = RemoteAction.None,
         appName = { RemoteText("App Name".rs) },
         title = { RemoteText("Card Title".rs) },
     ) {
@@ -120,7 +120,7 @@ fun RemoteAppCardWithTwoLineContentPreview(
 @RemoteComposable
 fun RemoteAppCardWithTwoLineContent() {
     RemoteAppCard(
-        onClick = combinedAction(),
+        onClick = RemoteAction.None,
         appName = { RemoteText("App Name".rs) },
         time = { RemoteText("now".rs) },
         title = { RemoteText("Card Title".rs) },
@@ -133,7 +133,7 @@ fun RemoteAppCardWithTwoLineContent() {
 @RemoteComposable
 fun RemoteAppCardWithBorder() {
     RemoteAppCard(
-        onClick = combinedAction(),
+        onClick = RemoteAction.None,
         appName = { RemoteText("App Name".rs) },
         time = { RemoteText("now".rs) },
         appImage = {

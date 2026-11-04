@@ -494,7 +494,7 @@ class RemoteButtonGroupAnimationTest {
                     contentPadding = zeroPadding,
                 ) {
                     RemoteIconButton(
-                        onClick = RemoteAction.Empty,
+                        onClick = RemoteAction.None,
                         modifier =
                             RemoteModifier.weight(1f.rf).animateWidth().semantics {
                                 contentDescription = "b0".rs
@@ -503,7 +503,7 @@ class RemoteButtonGroupAnimationTest {
                         RemoteText("A".rs)
                     }
                     RemoteButton(
-                        onClick = RemoteAction.Empty,
+                        onClick = RemoteAction.None,
                         contentPadding = zeroPadding,
                         modifier =
                             RemoteModifier.weight(1.5f.rf).animateWidth().semantics {
@@ -513,7 +513,7 @@ class RemoteButtonGroupAnimationTest {
                         RemoteText("B".rs)
                     }
                     RemoteIconButton(
-                        onClick = RemoteAction.Empty,
+                        onClick = RemoteAction.None,
                         modifier =
                             RemoteModifier.weight(1f.rf).animateWidth().semantics {
                                 contentDescription = "b2".rs
@@ -708,7 +708,7 @@ class RemoteButtonGroupAnimationTest {
     @RemoteComposable
     private fun TestButton(label: String, modifier: RemoteModifier) {
         RemoteIconButton(
-            onClick = RemoteAction.Empty,
+            onClick = RemoteAction.None,
             enabled = true.rb,
             modifier = modifier.semantics { contentDescription = label.rs },
         ) {

@@ -62,7 +62,7 @@ class RemoteContainerPainterTest {
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteButton(
-                    onClick = RemoteAction.Empty,
+                    onClick = RemoteAction.None,
                     enabled = true.rb,
                     modifier = RemoteModifier.size(100.rdp, 60.rdp),
                     shape = RemoteRectangleShape,
@@ -84,7 +84,7 @@ class RemoteContainerPainterTest {
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteButton(
-                    onClick = RemoteAction.Empty,
+                    onClick = RemoteAction.None,
                     enabled = false.rb,
                     modifier = RemoteModifier.size(100.rdp, 60.rdp),
                     shape = RemoteRectangleShape,
@@ -111,7 +111,7 @@ class RemoteContainerPainterTest {
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteButton(
-                    onClick = RemoteAction.Empty,
+                    onClick = RemoteAction.None,
                     enabled = false.rb,
                     modifier = RemoteModifier.size(100.rdp, 60.rdp),
                     shape = RemoteRectangleShape,
@@ -140,7 +140,7 @@ class RemoteContainerPainterTest {
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteCard(
-                    onClick = RemoteAction.Empty,
+                    onClick = RemoteAction.None,
                     modifier = RemoteModifier.size(100.rdp, 80.rdp),
                     shape = RemoteRectangleShape,
                     containerPainter =

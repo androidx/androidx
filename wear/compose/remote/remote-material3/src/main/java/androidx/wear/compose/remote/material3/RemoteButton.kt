@@ -388,13 +388,13 @@ public fun RemoteCompactButton(
                 .clip(shape = shape)
                 .clickable(
                     onClick,
-                    enabled = enabled.constantValueOrNull ?: false && onClick != RemoteAction.Empty,
+                    enabled = enabled.constantValueOrNull ?: false && onClick != RemoteAction.None,
                 ),
         contentAlignment = RemoteAlignment.Center,
     ) {
         if (label != null) {
             RemoteButtonImpl(
-                onClick = RemoteAction.Empty,
+                onClick = RemoteAction.None,
                 modifier =
                     RemoteModifier.height(RemoteButtonDefaults.CompactButtonVisibleHeight)
                         .widthIn(min = RemoteButtonDefaults.CompactButtonVisibleHeight),
@@ -436,7 +436,7 @@ public fun RemoteCompactButton(
             }
         } else {
             RemoteButtonImpl(
-                onClick = RemoteAction.Empty,
+                onClick = RemoteAction.None,
                 modifier =
                     RemoteModifier.height(RemoteButtonDefaults.CompactButtonVisibleHeight)
                         .width(RemoteButtonDefaults.IconOnlyCompactButtonWidth),
@@ -489,7 +489,7 @@ private fun RemoteButtonImpl(
         RemoteModifier.clip(shape = shape)
             .clickable(
                 onClick = onClick,
-                enabled = enabled.constantValueOrNull ?: false && onClick != RemoteAction.Empty,
+                enabled = enabled.constantValueOrNull ?: false && onClick != RemoteAction.None,
             )
             .padding(contentPadding)
             .let {

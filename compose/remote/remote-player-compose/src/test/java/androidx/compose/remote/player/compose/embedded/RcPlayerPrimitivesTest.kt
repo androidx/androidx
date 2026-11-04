@@ -2049,7 +2049,7 @@ class RcPlayerPrimitivesTest {
     @Test
     fun testRemoteButtonFromMaterial3() {
         rule.setRemoteContent(modifier = Modifier.size(200.dp).testTag("buttonMaterial3Parent")) {
-            RemoteButton(onClick = RemoteAction.Empty) {
+            RemoteButton(onClick = RemoteAction.None) {
                 RemoteText("Click".rs)
             }
         }

@@ -16,7 +16,7 @@
 
 package androidx.compose.remote.integration.view.demos.blog
 
-import androidx.compose.remote.creation.compose.action.RemoteAction.Companion.Empty
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
@@ -92,10 +92,12 @@ private data class ParticleRegisters(
 public fun ParticleBreakup() {
     RemoteBox(
         modifier =
-            RemoteModifier.fillMaxSize().background(RemoteColor(Color.White)).onTouchDown(Empty),
+            RemoteModifier.fillMaxSize()
+                .background(RemoteColor(Color.White))
+                .onTouchDown(RemoteAction.None),
         contentAlignment = RemoteAlignment.Center,
     ) {
-        RemoteCanvas(modifier = RemoteModifier.fillMaxSize().onTouchDown(Empty)) {
+        RemoteCanvas(modifier = RemoteModifier.fillMaxSize().onTouchDown(RemoteAction.None)) {
             RcCanvas(remoteComposeCreationState.document) {
                 val w = componentWidth()
                 val h = componentHeight()

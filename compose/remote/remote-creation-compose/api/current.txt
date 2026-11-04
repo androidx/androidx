@@ -41,6 +41,8 @@ package androidx.compose.remote.creation.compose.action {
   }
 
   public static final class RemoteAction.Companion {
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.action.RemoteAction getNone();
+    property public androidx.compose.remote.creation.compose.action.RemoteAction None;
   }
 
   public final class ValueChangeActionKt {

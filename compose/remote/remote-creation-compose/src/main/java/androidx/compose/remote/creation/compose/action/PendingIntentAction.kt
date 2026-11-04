@@ -77,7 +77,7 @@ public fun rememberPendingIntentAction(
 ): RemoteAction {
     if (LocalInspectionMode.current) {
         // Use the dedicated empty action for IDE previews as a safe no-op.
-        return RemoteAction.Empty
+        return RemoteAction.None
     }
 
     // Using a lambda defers PendingIntent access until serialization, preventing potential
