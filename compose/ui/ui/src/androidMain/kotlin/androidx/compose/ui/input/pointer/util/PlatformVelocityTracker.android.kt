@@ -51,9 +51,9 @@ internal class FrameworkVelocityTracker : PlatformVelocityTracker {
             )
         } else if (!event.changedToUpIgnoreConsumed()) {
             // TODO(b/359962905): Ignore resampled events.
-            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
-                // On Android P, send each historical event separately (see the corresponding block
-                // in consumeMotionEvent).
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU) {
+                // On older versions of Android, send each historical event separately (see the
+                // corresponding blocks in consumeMotionEvent).
                 event.historical.fastForEach {
                     addMovement(
                         it.uptimeMillis,
