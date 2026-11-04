@@ -16,14 +16,12 @@
 
 package androidx.glance.adaptive.samples
 
-import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProviderInfo
-import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,17 +33,24 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.glance.adaptive.appwidget.GlanceAdaptiveWidgetManager
+import androidx.glance.adaptive.appwidget.requestPin
+import androidx.glance.adaptive.appwidget.setPreview
+import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
+import kotlinx.coroutines.launch
 
 /**
  * Demo app for Glance Adaptive widgets.
  *
- * Discovers all widget receivers declared in this application's manifest and pins the one that is
- * tapped.
+ * Lists the widgets in [DemoWidgets], publishes their picker previews through
+ * [GlanceAdaptiveWidgetManager.setPreview], and pins the one that is tapped through
+ * [GlanceAdaptiveWidgetManager.requestPin].
  */
 class AdaptiveDemoActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,15 +59,54 @@ class AdaptiveDemoActivity : ComponentActivity() {
     }
 }
 
+/**
+ * A widget listed by the demo.
+ *
+ * @property label String resource shown for the widget in the list.
+ * @property widgetName Developer widget definition String identifier passed to
+ *   [GlanceAdaptiveWidgetManager.requestPin] and [GlanceAdaptiveWidgetManager.setPreview].
+ * @property previewData Template payload rendered as the widget's pin and picker preview.
+ */
+private data class DemoWidget(
+    @StringRes val label: Int,
+    val widgetName: String,
+    val previewData: GlanceAdaptiveTemplate,
+)
+
+/**
+ * Widgets listed by the demo.
+ *
+ * An app knows the widgetName of each of its receivers, so it passes it to
+ * [GlanceAdaptiveWidgetManager.requestPin] directly.
+ */
+private val DemoWidgets =
+    listOf(
+        DemoWidget(
+            label = R.string.track_widget_name,
+            widgetName = TrackWidgetReceiver.WIDGET_NAME,
+            previewData = TrackWidgetReceiver.SampleData,
+        )
+    )
+
+/**
+ * Ensures picker previews are published at most once per process so configuration changes (such as
+ * folding or rotating) and activity restarts do not hit the platform `setWidgetPreview` rate limit.
+ */
+private var previewsPublished = false
+
 @Composable
 private fun DemoScreen() {
     val context = LocalContext.current
-    val providers =
-        remember(context) {
-            AppWidgetManager.getInstance(context).installedProviders.filter {
-                it.provider.packageName == context.packageName
-            }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        if (previewsPublished) return@LaunchedEffect
+        val manager = GlanceAdaptiveWidgetManager(context.applicationContext)
+        for (widget in DemoWidgets) {
+            manager.setPreview(widgetName = widget.widgetName, previewData = widget.previewData)
         }
+        previewsPublished = true
+    }
 
     LazyColumn(modifier = Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 16.dp)) {
         item {
@@ -79,39 +123,27 @@ private fun DemoScreen() {
             )
         }
 
-        items(providers, key = { it.provider.flattenToString() }) { providerInfo ->
+        items(DemoWidgets, key = { it.widgetName }) { widget ->
             HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
-            WidgetRow(providerInfo) { pin(context, it.provider) }
+            WidgetRow(stringResource(widget.label)) { scope.launch { pin(context, widget) } }
         }
     }
 }
 
 @Composable
-private fun WidgetRow(
-    providerInfo: AppWidgetProviderInfo,
-    onClick: (AppWidgetProviderInfo) -> Unit,
-) {
-    val context = LocalContext.current
-    // AppWidgetProviderInfo.loadLabel(PackageManager) returns a String (unlike
-    // PackageItemInfo.loadLabel, which returns a CharSequence).
-    val label: String =
-        remember(providerInfo) {
-            providerInfo.loadLabel(context.packageManager) ?: providerInfo.provider.shortClassName
-        }
+private fun WidgetRow(label: String, onClick: () -> Unit) {
     Text(
         text = label,
         style = MaterialTheme.typography.titleMedium,
-        modifier =
-            Modifier.fillMaxWidth().clickable { onClick(providerInfo) }.padding(vertical = 16.dp),
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 16.dp),
     )
 }
 
-private fun pin(context: Context, provider: ComponentName) {
-    val appWidgetManager = AppWidgetManager.getInstance(context)
-    if (!appWidgetManager.isRequestPinAppWidgetSupported) {
-        Toast.makeText(context, R.string.pin_widget_unsupported, Toast.LENGTH_SHORT).show()
-        return
+private suspend fun pin(context: Context, widget: DemoWidget) {
+    val pinned =
+        GlanceAdaptiveWidgetManager(context)
+            .requestPin(widgetName = widget.widgetName, initialData = widget.previewData)
+    if (!pinned) {
+        Toast.makeText(context, R.string.pin_widget_failed, Toast.LENGTH_SHORT).show()
     }
-
-    appWidgetManager.requestPinAppWidget(provider, null, null)
 }

@@ -28,19 +28,22 @@ import androidx.glance.adaptive.core.templates.TrackTemplate
  * [GlanceAdaptiveWidgetManager].
  */
 class TrackWidgetReceiver : GlanceAdaptiveWidgetReceiver() {
-    override val widgetName: String = "track_widget"
+    override val widgetName: String = WIDGET_NAME
 
     override suspend fun onUpdate(context: Context) {
         GlanceAdaptiveWidgetManager(context)
-            .pushUpdate(
-                widgetName = widgetName,
-                currentData =
-                    TrackTemplate(
-                        title = "11,056",
-                        subtitle = "Steps",
-                        progress = 0.55f,
-                        statusText = "55%",
-                    ),
+            .pushUpdate(widgetName = widgetName, currentData = SampleData)
+    }
+
+    internal companion object {
+        const val WIDGET_NAME = "track_widget"
+
+        val SampleData =
+            TrackTemplate(
+                title = "11,056",
+                subtitle = "Steps",
+                progress = 0.55f,
+                statusText = "55%",
             )
     }
 }
