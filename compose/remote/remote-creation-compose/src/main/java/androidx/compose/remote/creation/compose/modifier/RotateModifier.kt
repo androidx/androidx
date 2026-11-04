@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.creation.compose.modifier
 
+import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 
 /**
@@ -30,4 +31,4 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
  * @see graphicsLayer
  */
 public fun RemoteModifier.rotate(degrees: RemoteFloat): RemoteModifier =
-    graphicsLayer(rotationZ = degrees)
+    graphicsLayer(rotationZ = degrees, shape = RemoteRectangleShape)

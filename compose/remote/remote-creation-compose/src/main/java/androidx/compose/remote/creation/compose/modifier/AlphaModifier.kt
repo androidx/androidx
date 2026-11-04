@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.creation.compose.modifier
 
+import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 
 /**
@@ -27,4 +28,5 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
  * @param alpha the fraction of children's alpha value and must be between `0` and `1`, inclusive.
  * @see graphicsLayer
  */
-public fun RemoteModifier.alpha(alpha: RemoteFloat): RemoteModifier = graphicsLayer(alpha = alpha)
+public fun RemoteModifier.alpha(alpha: RemoteFloat): RemoteModifier =
+    graphicsLayer(alpha = alpha, shape = RemoteRectangleShape)
