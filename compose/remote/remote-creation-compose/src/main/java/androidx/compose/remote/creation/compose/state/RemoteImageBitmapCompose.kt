@@ -17,13 +17,12 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.creation.compose.capture.addBitmap
-import androidx.compose.remote.creation.compose.capture.addNamedBitmap
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.unit.IntSize
 
 /**
@@ -37,7 +36,7 @@ public operator fun RemoteImageBitmap.Companion.invoke(value: ImageBitmap): Remo
         constantValueOrNull = value,
         cacheKey = RemoteConstantCacheKey(value),
         idProvider = { creationState ->
-            creationState.addBitmap(value)
+            creationState.document.addBitmap(value.asAndroidBitmap())
         },
     )
 }
@@ -70,9 +69,9 @@ public fun RemoteImageBitmap.Companion.createNamedRemoteImageBitmap(
         constantValueOrNull = null,
         cacheKey = RemoteNamedCacheKey(domain, name),
     ) { creationState ->
-        creationState.addNamedBitmap(
+        creationState.document.addNamedBitmap(
             domain.prefixed(name),
-            defaultValue,
+            defaultValue.asAndroidBitmap(),
         )
     }
 
@@ -86,9 +85,9 @@ public fun RemoteImageBitmap.Companion.createNamedRemoteImageBitmap(
         constantValueOrNull = null,
         cacheKey = RemoteNamedCacheKey(domain, name),
     ) { creationState ->
-        creationState.addNamedBitmap(
+        creationState.document.addNamedBitmap(
             domain.prefixed(name),
-            bitmap,
+            bitmap.asAndroidBitmap(),
         )
     }
 }
@@ -164,7 +163,7 @@ public fun MutableRemoteImageBitmap(initialValue: ImageBitmap): MutableRemoteIma
         constantValueOrNull = initialValue,
         cacheKey = RemoteStateInstanceKey(),
         idProvider = { creationState ->
-            creationState.addBitmap(initialValue)
+            creationState.document.addBitmap(initialValue.asAndroidBitmap())
         },
     )
 

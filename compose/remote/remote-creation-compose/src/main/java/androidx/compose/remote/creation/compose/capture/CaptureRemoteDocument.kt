@@ -70,7 +70,6 @@ public suspend fun captureSingleRemoteDocument(
     clock: RemoteClock = RemoteClock.SYSTEM,
     profile: Profile,
     writerCallback: Any? = null,
-    platformImageProvider: PlatformImageProvider = NoOpPlatformImageProvider,
     onDispose: () -> Unit = {},
     content: @Composable @RemoteComposable () -> Unit,
 ): ByteArray =
@@ -87,7 +86,6 @@ public suspend fun captureSingleRemoteDocument(
                 clock = clock,
                 profile = profile,
                 writerCallback = writerCallback,
-                platformImageProvider = platformImageProvider,
                 coroutineContext = EmptyCoroutineContext,
                 onDispose = onDispose,
                 content = content,
@@ -112,7 +110,6 @@ public fun captureRemoteDocument(
     clock: RemoteClock = RemoteClock.SYSTEM,
     profile: Profile,
     writerCallback: Any? = null,
-    platformImageProvider: PlatformImageProvider = NoOpPlatformImageProvider,
     coroutineContext: CoroutineContext = Dispatchers.Default,
     onDispose: () -> Unit = {},
     content: @Composable @RemoteComposable () -> Unit,
@@ -126,7 +123,6 @@ public fun captureRemoteDocument(
         clock = clock,
         profile = profile,
         writerCallback = writerCallback,
-        platformImageProvider = platformImageProvider,
         coroutineContext = coroutineContext,
         onDispose = onDispose,
         content = content,
@@ -155,7 +151,6 @@ private fun captureRemoteDocumentImpl(
     clock: RemoteClock,
     profile: Profile,
     writerCallback: Any?,
-    platformImageProvider: PlatformImageProvider,
     coroutineContext: CoroutineContext,
     onDispose: () -> Unit,
     content: @Composable @RemoteComposable () -> Unit,
@@ -183,7 +178,6 @@ private fun captureRemoteDocumentImpl(
             writerCallback = writerCallback,
             remoteDensity = remoteDensity,
             layoutDirection = layoutDirection,
-            platformImageProvider = platformImageProvider,
         )
     val initialSize = creationState.document.buffer.buffer.size()
 
