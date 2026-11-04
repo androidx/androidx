@@ -41,6 +41,7 @@ import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
@@ -810,6 +811,155 @@ class OneHandedGestureTest {
             assertEquals(buttonGestured[0], 1)
             assertEquals(buttonGestured[1], 1)
         }
+    }
+
+    /**
+     * Verifies that recomposing the caller with unchanged gesture arguments doesn't show the
+     * indicator again.
+     */
+    @Test
+    fun recomposition_does_not_replay_indicator() {
+        var recompositionTrigger by mutableStateOf(0)
+        var compositionCount = 0
+        var indicatorShownCount = 0
+        var gesturedCount = 0
+        var pressCount = 0
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithTheme {
+            val interactionSource = remember { MutableInteractionSource() }
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                val gestureConfig =
+                    rememberOneHandedGestureConfiguration(action = OneHandedGestureAction.Primary)
+                SideEffect { compositionCount++ }
+                Column {
+                    Text("Live count: $recompositionTrigger")
+                    Box(
+                        Modifier.size(50.dp).oneHandedGesture(
+                            gestureConfiguration = gestureConfig,
+                            interactionSource = interactionSource,
+                            onGestureLabel = "click",
+                            onGestureAvailable = { indicatorShownCount++ },
+                        ) {
+                            gesturedCount++
+                        }
+                    )
+                }
+            }
+            interactionSource.ListenForInteractions(onPressInteraction = { pressCount++ })
+        }
+        rule.waitForIdle()
+
+        rule.mainClock.advanceTimeBy(OneHandedGestureDefaults.ShowIndicatorDelayMillis + 100)
+        rule.runOnIdle { assertEquals(1, indicatorShownCount) }
+
+        repeat(3) { index ->
+            recompositionTrigger++
+            rule.mainClock.advanceTimeBy(OneHandedGestureDefaults.ShowIndicatorDelayMillis + 100)
+            rule.runOnIdle {
+                assertEquals(index + 2, compositionCount)
+                assertEquals(1, indicatorShownCount)
+            }
+        }
+
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.runOnIdle {
+            assertEquals(1, gesturedCount)
+            assertEquals(1, pressCount)
+        }
+    }
+
+    /**
+     * Verifies that passing new onGesture/onGestureAvailable lambdas or a new interactionSource
+     * doesn't call onGestureAvailable again, and that the latest values are used.
+     */
+    @Test
+    fun updating_callbacks_does_not_replay_indicator() {
+        var step by mutableStateOf(0)
+        var gestureAvailableCount = 0
+        var gestureCount = 0
+        var firstSourcePressCount = 0
+        var secondSourcePressCount = 0
+        val firstSource = MutableInteractionSource()
+        val secondSource = MutableInteractionSource()
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                val gestureConfig =
+                    rememberOneHandedGestureConfiguration(action = OneHandedGestureAction.Primary)
+                val currentStep = step
+                Box(
+                    Modifier.size(50.dp).oneHandedGesture(
+                        gestureConfiguration = gestureConfig,
+                        interactionSource = if (currentStep < 2) firstSource else secondSource,
+                        onGestureLabel = "click",
+                        onGestureAvailable = {
+                            gestureAvailableCount++
+                        },
+                    ) {
+                        gestureCount++
+                    }
+                )
+            }
+            firstSource.ListenForInteractions(onPressInteraction = { firstSourcePressCount++ })
+            secondSource.ListenForInteractions(onPressInteraction = { secondSourcePressCount++ })
+        }
+        rule.waitForIdle()
+
+        rule.mainClock.advanceTimeBy(OneHandedGestureDefaults.ShowIndicatorDelayMillis + 100)
+        rule.runOnIdle {
+            assertEquals(1, gestureAvailableCount)
+        }
+
+        repeat(3) {
+            step++
+            rule.mainClock.advanceTimeBy(OneHandedGestureDefaults.ShowIndicatorDelayMillis + 100)
+            rule.runOnIdle { assertEquals(1, gestureAvailableCount) }
+        }
+
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.runOnIdle {
+            assertEquals(1, gestureCount)
+            assertEquals(0, firstSourcePressCount)
+            assertEquals(1, secondSourcePressCount)
+        }
+    }
+
+    /** Verifies that changing the gesture configuration calls onGestureAvailable again. */
+    @Test
+    fun config_change_replays_indicator() {
+        var priority by mutableStateOf(OneHandedGesturePriority.Clickable)
+        var indicatorShownCount = 0
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                val gestureConfig =
+                    rememberOneHandedGestureConfiguration(
+                        action = OneHandedGestureAction.Primary,
+                        priority = priority,
+                    )
+                Box(
+                    Modifier.size(50.dp).oneHandedGesture(
+                        gestureConfiguration = gestureConfig,
+                        onGestureLabel = "click",
+                        onGestureAvailable = { indicatorShownCount++ },
+                    ) {}
+                )
+            }
+        }
+        rule.waitForIdle()
+
+        rule.mainClock.advanceTimeBy(OneHandedGestureDefaults.ShowIndicatorDelayMillis + 100)
+        rule.runOnIdle { assertEquals(1, indicatorShownCount) }
+
+        priority = OneHandedGesturePriority.Scrollable
+        rule.mainClock.advanceTimeBy(OneHandedGestureDefaults.ShowIndicatorDelayMillis + 100)
+        rule.runOnIdle { assertEquals(2, indicatorShownCount) }
     }
 
     @SuppressLint("UnusedBoxWithConstraintsScope")

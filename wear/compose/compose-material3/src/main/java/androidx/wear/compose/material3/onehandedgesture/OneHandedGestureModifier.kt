@@ -35,6 +35,9 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntSize
 import androidx.wear.compose.foundation.LocalScreenIsActive
+import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 
 /**
  * Registers a gesture handler.
@@ -150,16 +153,10 @@ public fun Modifier.oneHandedGesture(
         GestureElement(
             gestureConfiguration = gestureConfiguration,
             enabledInAmbient = enabledInAmbient,
+            interactionSource = interactionSource,
             onGestureLabel = onGestureLabel,
             onGestureAvailable = onGestureAvailable,
-            onGesture = { centerOffset ->
-                interactionSource?.let { source ->
-                    val press = PressInteraction.Press(centerOffset)
-                    source.emit(press)
-                    source.emit(PressInteraction.Release(press))
-                }
-                onGesture()
-            },
+            onGesture = onGesture,
             showIndicatorDelayMillis = showIndicatorDelayMillis,
         )
     )
@@ -286,9 +283,10 @@ public fun Modifier.oneHandedGesture(
 private class GestureElement(
     val gestureConfiguration: OneHandedGestureConfiguration,
     val enabledInAmbient: Boolean,
+    val interactionSource: MutableInteractionSource?,
     val onGestureLabel: String?,
     val onGestureAvailable: () -> Unit,
-    val onGesture: suspend (centerOffset: Offset) -> Unit,
+    val onGesture: suspend () -> Unit,
     val showIndicatorDelayMillis: Long,
 ) : ModifierNodeElement<GestureNode>() {
 
@@ -296,6 +294,7 @@ private class GestureElement(
         GestureNode(
             gestureConfiguration,
             enabledInAmbient,
+            interactionSource,
             onGestureLabel,
             onGestureAvailable,
             onGesture,
@@ -306,6 +305,7 @@ private class GestureElement(
         node.updateGesture(
             gestureConfiguration,
             enabledInAmbient,
+            interactionSource,
             onGestureLabel,
             onGestureAvailable,
             onGesture,
@@ -319,6 +319,7 @@ private class GestureElement(
         properties["priority"] = gestureConfiguration.priority
         properties["gestureId"] = gestureConfiguration.gestureId
         properties["enabledInAmbient"] = enabledInAmbient
+        properties["interactionSource"] = interactionSource
         properties["onGestureLabel"] = onGestureLabel
         properties["showIndicatorDelayMillis"] = showIndicatorDelayMillis
     }
@@ -328,6 +329,7 @@ private class GestureElement(
         if (other !is GestureElement) return false
         return gestureConfiguration == other.gestureConfiguration &&
             enabledInAmbient == other.enabledInAmbient &&
+            interactionSource == other.interactionSource &&
             onGestureLabel == other.onGestureLabel &&
             onGesture === other.onGesture &&
             onGestureAvailable === other.onGestureAvailable &&
@@ -337,6 +339,7 @@ private class GestureElement(
     override fun hashCode(): Int {
         var result = gestureConfiguration.hashCode()
         result = 31 * result + enabledInAmbient.hashCode()
+        result = 31 * result + (interactionSource?.hashCode() ?: 0)
         result = 31 * result + (onGestureLabel?.hashCode() ?: 0)
         result = 31 * result + onGesture.hashCode()
         result = 31 * result + onGestureAvailable.hashCode()
@@ -348,9 +351,10 @@ private class GestureElement(
 private class GestureNode(
     private var gestureConfiguration: OneHandedGestureConfiguration,
     private var enabledInAmbient: Boolean,
+    private var interactionSource: MutableInteractionSource?,
     private var onGestureLabel: String?,
     private var onGestureAvailable: () -> Unit,
-    private var onGesture: suspend (centerOffset: Offset) -> Unit,
+    private var onGesture: suspend () -> Unit,
     private var showIndicatorDelayMillis: Long,
 ) :
     Modifier.Node(),
@@ -364,6 +368,28 @@ private class GestureNode(
     private var hapticFeedback: HapticFeedback? = null
     private var size: IntSize = IntSize.Zero
     private var isEnabled = true
+
+    /*
+     * The callbacks (onGesture, onGestureAvailable) are registered with the gesture manager.
+     * The callbacks are hoisted above the Modifier.oneHandedGesture, and the node's current values
+     * are read when invoking them. Updating the callbacks or interaction source does not trigger
+     * recomposition or re-register the gesture, so the gesture indicator is not re-shown.
+     */
+    private val handleGestureAvailable: () -> Unit = { onGestureAvailable() }
+
+    private val handleGesture: suspend (centerOffset: Offset) -> Unit = { centerOffset ->
+        interactionSource?.let { source ->
+            val press = PressInteraction.Press(centerOffset)
+            source.emit(press)
+            try {
+                source.emit(PressInteraction.Release(press))
+            } catch (e: CancellationException) {
+                withContext(NonCancellable) { source.emit(PressInteraction.Cancel(press)) }
+                throw e
+            }
+        }
+        onGesture()
+    }
 
     override fun onAttach() {
         updateCompositionLocals(true)
@@ -386,38 +412,48 @@ private class GestureNode(
     fun updateGesture(
         newConfig: OneHandedGestureConfiguration,
         newEnabledInAmbient: Boolean,
+        newInteractionSource: MutableInteractionSource?,
         newOnGestureLabel: String?,
         newOnGestureAvailable: () -> Unit,
-        newOnGesture: suspend (centerOffset: Offset) -> Unit,
+        newOnGesture: suspend () -> Unit,
         newShowIndicatorDelayMillis: Long,
     ) {
         val oldConfig = gestureConfiguration
         val oldGestureManager = gestureManager
-        val wasEnabled = isEnabled
+        val oldView = currentView
+        val oldIsEnabled = isEnabled
+        // Check if the registration changed before overwriting with the new values
+        val registrationChanged =
+            newConfig != oldConfig ||
+                newEnabledInAmbient != enabledInAmbient ||
+                newOnGestureLabel != onGestureLabel ||
+                newShowIndicatorDelayMillis != showIndicatorDelayMillis
+
+        // Store the new values first so that the callbacks and re-registration use the new values.
+        gestureConfiguration = newConfig
+        enabledInAmbient = newEnabledInAmbient
+        interactionSource = newInteractionSource
+        onGestureLabel = newOnGestureLabel
+        onGestureAvailable = newOnGestureAvailable
+        onGesture = newOnGesture
+        showIndicatorDelayMillis = newShowIndicatorDelayMillis
+
         /* Update local compositions here to handle node reparenting. onAttach is not sufficient as
          * it may trigger before the node is fully settled in its new composition context. Manually
          * syncing ensures we capture the correct providers after the tree has stabilized. */
         updateCompositionLocals(false)
 
         val managerChanged = oldGestureManager != gestureManager
-        if (!isEnabled || managerChanged) {
-            unregisterGesture(oldGestureManager, currentView, oldConfig)
+        val viewChanged = oldView != currentView
+        if (!isEnabled || managerChanged || viewChanged) {
+            unregisterGesture(oldGestureManager, oldView, oldConfig)
         }
 
         if (isEnabled && isAttached) {
-            if (managerChanged || !wasEnabled) {
-                registerGesture(
-                    gestureManager,
-                    currentView,
-                    hapticFeedback,
-                    gestureConfiguration,
-                    newEnabledInAmbient,
-                    onGestureLabel,
-                    onGestureAvailable,
-                    onGesture,
-                    newShowIndicatorDelayMillis,
-                )
-            } else {
+            if (managerChanged || viewChanged || !oldIsEnabled) {
+                registerGesture(gestureManager, currentView, hapticFeedback)
+            } else if (registrationChanged) {
+                // The registration details changed, so the registered gesture must be updated.
                 currentView?.let { view ->
                     gestureManager?.updateGesture(
                         view,
@@ -425,42 +461,30 @@ private class GestureNode(
                         newConfig,
                         newEnabledInAmbient,
                         newOnGestureLabel,
-                        newOnGestureAvailable,
-                        newOnGesture,
+                        handleGestureAvailable,
+                        handleGesture,
                         newShowIndicatorDelayMillis,
                     )
                 }
             }
+            // Otherwise only the callbacks or the interaction source changed, which
+            // handleGestureAvailable and handleGesture already pick up.
         }
-
-        gestureConfiguration = newConfig
-        onGestureLabel = newOnGestureLabel
-        onGesture = newOnGesture
-        showIndicatorDelayMillis = newShowIndicatorDelayMillis
     }
 
     private fun updateCompositionLocals(reregister: Boolean) {
         if (!isAttached) return
 
         observeReads {
+            val oldView = currentView
             localScreenIsActive = currentValueOf(LocalScreenIsActive)
             currentView = currentValueOf(LocalView)
             hapticFeedback = currentValueOf(LocalHapticFeedback)
             isEnabled = currentValueOf(LocalOneHandedGestureEnabled)
             val newGestureManager = currentValueOf(LocalOneHandedGestureManager)
             if (reregister) {
-                unregisterGesture(gestureManager, currentView, gestureConfiguration)
-                registerGesture(
-                    newGestureManager,
-                    currentView,
-                    hapticFeedback,
-                    gestureConfiguration,
-                    enabledInAmbient,
-                    onGestureLabel,
-                    onGestureAvailable,
-                    onGesture,
-                    showIndicatorDelayMillis,
-                )
+                unregisterGesture(gestureManager, oldView, gestureConfiguration)
+                registerGesture(newGestureManager, currentView, hapticFeedback)
             }
             gestureManager = newGestureManager
         }
@@ -470,12 +494,6 @@ private class GestureNode(
         manager: OneHandedGestureManager?,
         view: View?,
         haptic: HapticFeedback?,
-        gestureConfiguration: OneHandedGestureConfiguration,
-        enabledInAmbient: Boolean,
-        onGestureLabel: String?,
-        onGestureAvailable: () -> Unit,
-        onGesture: suspend (centerOffset: Offset) -> Unit,
-        showIndicatorDelayMillis: Long,
     ) {
         if (!isEnabled || view == null || haptic == null) return
 
@@ -485,8 +503,8 @@ private class GestureNode(
             gestureConfiguration = gestureConfiguration,
             enabledInAmbient = enabledInAmbient,
             onGestureLabel = onGestureLabel,
-            onGestureAvailable = onGestureAvailable,
-            onGesture = onGesture,
+            onGestureAvailable = handleGestureAvailable,
+            onGesture = handleGesture,
             isActive = { localScreenIsActive },
             size = { size },
             showIndicatorDelayMillis = showIndicatorDelayMillis,
