@@ -37,10 +37,12 @@ import androidx.compose.runtime.Stable
  * A Jetpack Compose implementation of an A2UI component catalog, which defines which
  * [A2uiComponent]s and [A2uiFunction]s are available to the agent for a particular A2UI surface.
  *
- * To instantiate a new catalog, use the `A2uiCatalog` factory function.
+ * To instantiate a new catalog, use the `A2uiCatalog` factory function. To process agent messages
+ * for surfaces that use the catalog, pass it to
+ * [androidx.a2ui.compose.runtime.A2uiMessageProcessor].
  */
 @Stable
-public sealed interface A2uiCatalog {
+public sealed interface A2uiCatalog : A2uiRuntimeCatalog {
 
     /**
      * The unique identifier for this catalog.
@@ -183,7 +185,7 @@ internal class A2uiCatalogImpl(
     override val components: A2uiComponentCollection,
     override val functions: A2uiFunctionCollection,
     override val isInline: Boolean = false,
-) : A2uiCatalog, A2uiRuntimeCatalog, A2uiCoreCatalog, A2uiInlineCatalog {
+) : A2uiCatalog, A2uiCoreCatalog, A2uiInlineCatalog {
     val serializer: A2uiCoreCatalogSerializer by
         lazy(LazyThreadSafetyMode.PUBLICATION) { obtainSerializer() }
 

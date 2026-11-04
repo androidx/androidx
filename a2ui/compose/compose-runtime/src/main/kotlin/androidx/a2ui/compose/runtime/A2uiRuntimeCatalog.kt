@@ -17,16 +17,15 @@
 package androidx.a2ui.compose.runtime
 
 /**
- * A marker interface representing a registry of A2UI components and functions that can be utilized
- * by the Jetpack Compose A2UI runtime layer.
+ * Catalog of components and functions that a UI layer provides to the A2UI Compose runtime.
  *
- * This interface serves as an opaque token to provide catalogs to the runtime's
- * [a2uiRuntimeMessageProcessor] without tightly coupling the A2UI renderer runtime layer to
- * specific visual UI framework implementations. This marker interface also allows hiding the A2UI
- * core catalog type ([androidx.a2ui.engine.catalog.A2uiCoreCatalog]) from the public API.
+ * A UI layer is a library that renders A2UI components on top of this runtime with a specific UI
+ * toolkit. App developers get catalogs from a UI layer and pass them to [A2uiMessageProcessor];
+ * they do not implement this interface.
  *
- * **Note for implementors:** Any concrete implementation of this interface provided to the runtime
- * must also implement the underlying [androidx.a2ui.engine.catalog.A2uiCoreCatalog] interface so
- * that it can be successfully processed by the core data layer.
+ * **Note for UI layer implementors:** Implementations must also implement
+ * [androidx.a2ui.engine.catalog.A2uiCoreCatalog] from `androidx.a2ui:a2ui-engine`, which defines
+ * the catalog's components, functions, and theme schema. The runtime keeps the engine types out of
+ * its public API, so [A2uiMessageProcessor] checks this requirement at runtime.
  */
 public interface A2uiRuntimeCatalog

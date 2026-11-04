@@ -64,7 +64,7 @@ import androidx.compose.ui.unit.dp
  * 1. Create an [A2uiCatalog] using the [androidx.a2ui.compose.ui.A2uiCatalog] or
  *    [androidx.compose.material3.a2ui.catalog.materialA2uiBasicCatalogV1] factory functions.
  * 2. Create an [androidx.a2ui.model.processor.A2uiMessageProcessor] using the
- *    [androidx.a2ui.compose.ui.A2uiMessageProcessor] factory function with the catalog(s),
+ *    [androidx.a2ui.compose.runtime.A2uiMessageProcessor] factory function with the catalog(s),
  *    typically hosted in a `ViewModel`.
  * 3. Run [androidx.a2ui.model.processor.A2uiMessageProcessor.collectMessages] on a background
  *    coroutine dispatcher to process agent messages.
@@ -94,8 +94,8 @@ import androidx.compose.ui.unit.dp
  *   to `null` to disable animations
  * @throws IllegalArgumentException if [surfaceModel] does not implement `A2uiCoreSurfaceModel`
  *   (e.g., if the message processor was not created using the
- *   [androidx.a2ui.compose.ui.A2uiMessageProcessor] factory function), or if its catalog does not
- *   implement [A2uiCatalog] (e.g., if the catalog was not created using the
+ *   [androidx.a2ui.compose.runtime.A2uiMessageProcessor] factory function), or if its catalog does
+ *   not implement [A2uiCatalog] (e.g., if the catalog was not created using the
  *   [androidx.a2ui.compose.ui.A2uiCatalog] factory function)
  */
 @Composable

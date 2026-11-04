@@ -2,7 +2,7 @@
 // - surface=public
 package androidx.a2ui.compose.ui {
 
-  @androidx.compose.runtime.Stable public sealed nonexhaustive interface A2uiCatalog {
+  @androidx.compose.runtime.Stable public sealed nonexhaustive interface A2uiCatalog extends androidx.a2ui.compose.runtime.A2uiRuntimeCatalog {
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.A2uiComponentCollection getComponents();
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionCollection getFunctions();
     method @InaccessibleFromKotlin public String getId();
@@ -49,11 +49,6 @@ package androidx.a2ui.compose.ui {
   public final class A2uiComponentKt {
     method @KotlinOnly @androidx.compose.runtime.Composable public static void A2uiComponent(androidx.a2ui.compose.runtime.A2uiComponentModel component, optional androidx.compose.ui.Modifier modifier);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void A2uiComponent(androidx.a2ui.compose.runtime.A2uiComponentModel, androidx.compose.ui.Modifier?, androidx.compose.runtime.Composer?, int, int);
-  }
-
-  public final class A2uiMessageProcessorKt {
-    method public static androidx.a2ui.model.processor.A2uiMessageProcessor A2uiMessageProcessor(java.util.List<? extends androidx.a2ui.compose.ui.A2uiCatalog> catalogs, optional java.util.List<? extends androidx.a2ui.model.processor.A2uiActionInterceptor> interceptors);
-    method @BytecodeOnly public static androidx.a2ui.model.processor.A2uiMessageProcessor! A2uiMessageProcessor$default(java.util.List!, java.util.List!, int, Object!);
   }
 
 }

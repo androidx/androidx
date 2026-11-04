@@ -20,10 +20,10 @@ package androidx.a2ui.compose.ui.testing
 
 import androidx.a2ui.compose.runtime.A2uiComponentProperties
 import androidx.a2ui.compose.runtime.A2uiComponentScope
+import androidx.a2ui.compose.runtime.A2uiMessageProcessor
 import androidx.a2ui.compose.runtime.A2uiProperty
 import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.A2uiComponent
-import androidx.a2ui.compose.ui.A2uiMessageProcessor
 import androidx.a2ui.engine.catalog.A2uiCoreCatalog
 import androidx.a2ui.engine.model.A2uiCoreSurfaceModel
 import androidx.a2ui.engine.schema.A2uiCoreSchemaValidator

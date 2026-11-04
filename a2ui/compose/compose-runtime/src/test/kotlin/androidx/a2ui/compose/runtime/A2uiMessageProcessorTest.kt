@@ -37,13 +37,13 @@ import org.junit.runners.JUnit4
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
-class A2uiRuntimeMessageProcessorTest {
+class A2uiMessageProcessorTest {
 
     @Test
     fun factory_validCatalog_createsProcessor() {
         val catalog = ValidTestCatalog("test-catalog")
 
-        val processor = a2uiRuntimeMessageProcessor(catalogs = listOf(catalog))
+        val processor = A2uiMessageProcessor(catalogs = listOf(catalog))
 
         assertThat(processor).isNotNull()
         assertThat(processor).isInstanceOf(A2uiCoreMessageProcessor::class.java)
@@ -51,7 +51,7 @@ class A2uiRuntimeMessageProcessorTest {
 
     @Test
     fun factory_emptyCatalogs_createsProcessor() {
-        val processor = a2uiRuntimeMessageProcessor(catalogs = emptyList())
+        val processor = A2uiMessageProcessor(catalogs = emptyList())
 
         assertThat(processor).isNotNull()
     }
@@ -62,18 +62,18 @@ class A2uiRuntimeMessageProcessorTest {
 
         val exception =
             assertThrows(IllegalArgumentException::class.java) {
-                a2uiRuntimeMessageProcessor(catalogs = listOf(invalidCatalog))
+                A2uiMessageProcessor(catalogs = listOf(invalidCatalog))
             }
 
         assertThat(exception)
             .hasMessageThat()
-            .contains("A2uiRuntimeCatalog must be a valid core A2uiCoreCatalog")
+            .contains("Each A2uiRuntimeCatalog must also implement A2uiCoreCatalog")
     }
 
     @Test
     fun factory_initializesDataModelAndComponentRegistry() = runTest {
         val catalog = ValidTestCatalog("test-catalog")
-        val processor = a2uiRuntimeMessageProcessor(catalogs = listOf(catalog))
+        val processor = A2uiMessageProcessor(catalogs = listOf(catalog))
         val surfaceId = "test_surface"
 
         val job = launch { processor.collectMessages() }
@@ -102,7 +102,7 @@ class A2uiRuntimeMessageProcessorTest {
         }
         val catalog = ValidTestCatalog("test-catalog")
         val processor =
-            a2uiRuntimeMessageProcessor(
+            A2uiMessageProcessor(
                 catalogs = listOf(catalog),
                 interceptors = listOf(interceptor),
             )
