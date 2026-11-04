@@ -136,6 +136,7 @@ import androidx.compose.remote.core.operations.layout.TouchCancelModifierOperati
 import androidx.compose.remote.core.operations.layout.TouchDownModifierOperation;
 import androidx.compose.remote.core.operations.layout.TouchDownModifierOperation2;
 import androidx.compose.remote.core.operations.layout.TouchUpModifierOperation;
+import androidx.compose.remote.core.operations.layout.TouchUpModifierOperation2;
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec;
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout;
 import androidx.compose.remote.core.operations.layout.managers.CanvasLayout;
@@ -695,6 +696,8 @@ public class Operations {
         customMap.put(Operations.MODIFIER_RIPPLE, RippleModifierOperation2::read);
         customMap.remove(Operations.MODIFIER_TOUCH_DOWN);
         customMap.put(Operations.MODIFIER_TOUCH_DOWN, TouchDownModifierOperation2::read);
+        customMap.remove(Operations.MODIFIER_TOUCH_UP);
+        customMap.put(Operations.MODIFIER_TOUCH_UP, TouchUpModifierOperation2::read);
         return customMap;
     }
 
