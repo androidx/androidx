@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastFlatMap
 import kotlin.jvm.JvmName
 import kotlin.math.abs
@@ -1018,9 +1019,21 @@ private fun SemanticsNodeInteraction.requireSemantics(
 
 /** Checks all available roots for the one that has both focus and window focus. */
 private fun SemanticsNodeInteractionsProvider.findFocusedRoot(): SemanticsNode {
-    val roots = onAllNodes(isRoot()).fetchSemanticsNodes()
+    val rootNodes = onAllNodes(isRoot())
+    val testContext = rootNodes.testContext
+    val testOwner = testContext.testOwner
+    var roots = rootNodes.fetchSemanticsNodes()
 
-    val rootWithActivityFocus = roots.firstOrNull { it.hasFocusAndWindowFocus }
+    var rootWithActivityFocus = testOwner.runOnUiThread {
+        roots.fastFirstOrNull { it.hasFocusAndWindowFocus }
+    }
+
+    if (rootWithActivityFocus == null && testContext.waitForWindowFocus(roots)) {
+        roots = rootNodes.fetchSemanticsNodes()
+        rootWithActivityFocus = testOwner.runOnUiThread {
+            roots.fastFirstOrNull { it.hasFocusAndWindowFocus }
+        }
+    }
 
     if (rootWithActivityFocus == null) {
         throw AssertionError("No focused nodes within a focused window!")

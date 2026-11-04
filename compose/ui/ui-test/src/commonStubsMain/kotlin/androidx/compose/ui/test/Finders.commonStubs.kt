@@ -20,3 +20,6 @@ import androidx.compose.ui.semantics.SemanticsNode
 
 internal actual val SemanticsNode.hasFocusAndWindowFocus: Boolean
     get() = implementedInJetBrainsFork()
+
+internal actual fun TestContext.waitForWindowFocus(roots: List<SemanticsNode>): Boolean =
+    implementedInJetBrainsFork()

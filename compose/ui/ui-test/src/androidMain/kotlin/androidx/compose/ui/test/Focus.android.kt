@@ -16,6 +16,7 @@
 package androidx.compose.ui.test
 
 import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.util.fastAny
 
 /** Checks that a view has both focus (at the topmost layer) and window focus. */
 internal actual val SemanticsNode.hasFocusAndWindowFocus: Boolean
@@ -24,3 +25,8 @@ internal actual val SemanticsNode.hasFocusAndWindowFocus: Boolean
         val topLevelOfComposeHasFocus = view.hasFocus()
         return windowFocused && topLevelOfComposeHasFocus
     }
+
+internal actual fun TestContext.waitForWindowFocus(roots: List<SemanticsNode>): Boolean =
+    testOwner.runOnUiThread {
+        roots.fastAny { it.view.isAttachedToWindow && it.view.hasFocus() }
+    } && pollOnUiThread { roots.fastAny { it.hasFocusAndWindowFocus } }
