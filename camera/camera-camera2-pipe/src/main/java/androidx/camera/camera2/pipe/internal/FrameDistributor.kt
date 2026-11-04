@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.internal
 
 import android.hardware.HardwareBuffer
 import android.os.Build
-import androidx.annotation.GuardedBy
 import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.CameraTimestamp
@@ -105,9 +104,7 @@ internal class FrameDistributor(
     private val concurrentImageStreams: Set<StreamId>?
     private val useReadoutTimestamp: Boolean
 
-    private val lock = Any()
-
-    @GuardedBy("lock") private val startedFrameStates = mutableListOf<FrameState>()
+    private val readoutFrameTracker = ReadoutFrameTracker()
 
     var frameStartedListener: FrameStartedListener = FrameStartedListener {}
 
@@ -220,8 +217,8 @@ internal class FrameDistributor(
 
         startImageOutputs(frameState, frameState.exposureImageOutputs, timestamp, requestMetadata)
 
-        if (useReadoutTimestamp && frameState.expectsReadoutTimestamp) {
-            synchronized(lock) { startedFrameStates.add(frameState) }
+        if (useReadoutTimestamp) {
+            readoutFrameTracker.onStarted(frameState)
         }
 
         // Create a Frame, and offer it
@@ -263,7 +260,7 @@ internal class FrameDistributor(
             return
         }
 
-        val frameState = synchronized(lock) { removeStartedFrameState(frameNumber) }
+        val frameState = readoutFrameTracker.onReadoutStarted(frameNumber)
 
         if (frameState == null) {
             Log.warn {
@@ -286,7 +283,7 @@ internal class FrameDistributor(
         result: FrameInfo,
     ) {
         if (useReadoutTimestamp) {
-            val frameState = synchronized(lock) { removeStartedFrameState(frameNumber) }
+            val frameState = readoutFrameTracker.remove(frameNumber)
             if (frameState != null) {
                 // The frame completed without ever receiving onReadoutStarted, so the readout
                 // outputs will never be started and can never arrive.
@@ -350,7 +347,7 @@ internal class FrameDistributor(
         //    outputs as failed.
         if (!requestFailure.wasImageCaptured) {
             if (useReadoutTimestamp) {
-                val frameState = synchronized(lock) { removeStartedFrameState(frameNumber) }
+                val frameState = readoutFrameTracker.remove(frameNumber)
                 if (frameState != null) {
                     failPendingReadoutOutputs(frameState, OutputStatus.ERROR_OUTPUT_FAILED)
                 }
@@ -393,14 +390,8 @@ internal class FrameDistributor(
         }
 
         // Fail any readout outputs that were started but never received onReadoutStarted. This is
-        // a no-op when readout timestamps are not in use, since startedFrameStates is then empty.
-        val pendingFrameStates =
-            synchronized(lock) {
-                val states = startedFrameStates.toList()
-                startedFrameStates.clear()
-                states
-            }
-        for (frameState in pendingFrameStates) {
+        // a no-op when readout timestamps are not in use, since nothing is tracked then.
+        for (frameState in readoutFrameTracker.clear()) {
             failPendingReadoutOutputs(frameState, OutputStatus.ERROR_OUTPUT_ABORTED)
         }
     }
@@ -436,25 +427,17 @@ internal class FrameDistributor(
         }
     }
 
-    /** Returns the [FrameState] that is still waiting for onReadoutStarted, if there is one. */
-    @GuardedBy("lock")
-    private fun findStartedFrameState(frameNumber: CameraFrameNumber): FrameState? {
-        for (i in startedFrameStates.indices) {
-            val frameState = startedFrameStates[i]
-            if (frameState.frameNumber == frameNumber) {
-                return frameState
-            }
-        }
-        return null
+    private fun failPendingReadoutOutputs(frameState: FrameState, status: OutputStatus) {
+        failReadoutOutputs(frameState, frameState.readoutImageOutputs, status)
     }
 
-    @GuardedBy("lock")
-    private fun removeStartedFrameState(frameNumber: CameraFrameNumber): FrameState? =
-        findStartedFrameState(frameNumber)?.also { startedFrameStates.remove(it) }
-
-    private fun failPendingReadoutOutputs(frameState: FrameState, status: OutputStatus) {
-        for (i in frameState.readoutImageOutputs.indices) {
-            val imageOutput = frameState.readoutImageOutputs[i]
+    private fun failReadoutOutputs(
+        frameState: FrameState,
+        imageOutputs: List<FrameState.ImageOutput>,
+        status: OutputStatus,
+    ) {
+        for (i in imageOutputs.indices) {
+            val imageOutput = imageOutputs[i]
             if (imageOutput.status == OutputStatus.PENDING) {
                 imageOutput.onOutputComplete(
                     frameState.frameNumber,
@@ -472,49 +455,14 @@ internal class FrameDistributor(
         streamId: StreamId,
         outputId: OutputId,
     ) {
-        val imageOutputsToFail = mutableListOf<FrameState.ImageOutput>()
-        val frameState =
-            synchronized(lock) {
-                val startedFrameState = findStartedFrameState(frameNumber)
-                if (startedFrameState != null) {
-                    var hasRemainingReadoutOutputs = false
-                    val readoutImageOutputs = startedFrameState.readoutImageOutputs
-                    for (i in readoutImageOutputs.indices) {
-                        val imageOutput = readoutImageOutputs[i]
-                        val isLostStream = imageOutput.streamId == streamId
-                        val isLostOutput =
-                            concurrentImageStreams?.contains(streamId) != true ||
-                                imageOutput.outputId == outputId
-                        if (isLostStream && isLostOutput) {
-                            imageOutputsToFail.add(imageOutput)
-                        } else if (imageOutput.status == OutputStatus.PENDING) {
-                            // Only outputs that are still pending can keep this frame alive.
-                            // Outputs that previously failed (for example, from an earlier
-                            // onBufferLost on another output of the same concurrent stream)
-                            // must not, otherwise the FrameState would never be removed.
-                            hasRemainingReadoutOutputs = true
-                        }
-                    }
-                    if (!hasRemainingReadoutOutputs) {
-                        startedFrameStates.remove(startedFrameState)
-                    }
-                }
-                startedFrameState
-            }
-        if (frameState != null) {
-            for (i in imageOutputsToFail.indices) {
-                val imageOutput = imageOutputsToFail[i]
-                if (imageOutput.status == OutputStatus.PENDING) {
-                    imageOutput.onOutputComplete(
-                        frameNumber,
-                        frameState.frameTimestamp,
-                        1L,
-                        1L,
-                        OutputResult.failure(OutputStatus.ERROR_OUTPUT_FAILED),
-                    )
-                }
-            }
-        }
+        val result =
+            readoutFrameTracker.onBufferLost(
+                frameNumber,
+                streamId,
+                outputId,
+                isConcurrentStream = concurrentImageStreams?.contains(streamId) == true,
+            ) ?: return
+        failReadoutOutputs(result.frameState, result.lostOutputs, OutputStatus.ERROR_OUTPUT_FAILED)
     }
 
     private fun supportsReadoutStarted(streamId: StreamId, outputId: OutputId): Boolean {
