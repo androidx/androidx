@@ -70,6 +70,7 @@ class SpatialEnvironmentTest {
 
     @Test
     @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
     fun appEnvironment_setAndClear_attachesGeometryAndUpdatesActiveState() =
         runTestWithSession { session ->
             session.scene.requestFullSpaceAndAwait()
@@ -111,6 +112,7 @@ class SpatialEnvironmentTest {
 
     @Test
     @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
     fun appEnvironment_swapIblOrGeometry_keepsEnvironmentActive() = runTestWithSession { session ->
         session.scene.requestFullSpaceAndAwait()
         val env = session.scene.spatialEnvironment
@@ -138,16 +140,16 @@ class SpatialEnvironmentTest {
                     it != null && it.id != systemGeometryNode?.id
                 }
 
-            // Swapping or unsetting the IBL keeps the attached geometry.
+            // Swapping or unsetting the IBL keeps the attached geometry. This is a no-op for the
+            // scene graph, so the geometry node must stay the same over a settle window that
+            // starts after the main thread has processed the new preference.
             env.setPreferredEnvironmentAndSettle(SpatialEnvironmentPreference(blueIbl, blueBox))
+            assertEnvironmentGeometryNodeUnchanged("geometry kept after swapping IBL", blueBoxNode)
             assertThat(env.isPreferredSpatialEnvironmentActive).isTrue()
-            assertThat(environmentGeometryNode(captureSpatialScene())?.id)
-                .isEqualTo(blueBoxNode?.id)
 
             env.setPreferredEnvironmentAndSettle(SpatialEnvironmentPreference(null, blueBox))
+            assertEnvironmentGeometryNodeUnchanged("geometry kept after unsetting IBL", blueBoxNode)
             assertThat(env.isPreferredSpatialEnvironmentActive).isTrue()
-            assertThat(environmentGeometryNode(captureSpatialScene())?.id)
-                .isEqualTo(blueBoxNode?.id)
 
             // Swapping the geometry attaches a new geometry node.
             env.setPreferredEnvironmentAndSettle(SpatialEnvironmentPreference(blueIbl, greenBox))
@@ -199,6 +201,7 @@ class SpatialEnvironmentTest {
 
     @Test
     @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
     fun appEnvironment_setBlueSkybox_turnsScreenBlue() = runTestWithSession { session ->
         session.scene.requestFullSpaceAndAwait()
         val env = session.scene.spatialEnvironment
@@ -233,7 +236,7 @@ class SpatialEnvironmentTest {
 
     @Test
     @XrDeviceTest
-    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
     @SuppressLint("RestrictedApiAndroidX")
     fun geometryEntity_setAndClear_movesEntitySubspaceUnderEnvironmentRoot() =
         runTestWithSession { activity, session ->
@@ -290,6 +293,7 @@ class SpatialEnvironmentTest {
 
     @Test
     @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
     fun passthroughOpacity_inFullSpaceMode_updatesCurrentOpacityAndNotifiesListeners() =
         runTestWithSession { session ->
             session.scene.requestFullSpaceAndAwait()
@@ -345,6 +349,7 @@ class SpatialEnvironmentTest {
 
     @Test
     @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
     fun spaceModeToggle_betweenFullSpaceAndHomeSpace_updatesCapabilitiesAndEnvironmentActiveState() =
         runTestWithSession { session ->
             session.scene.requestFullSpaceAndAwait()
@@ -467,6 +472,57 @@ class SpatialEnvironmentTest {
         )
 
     /**
+     * Asserts that the environment geometry node keeps the id of [expected] throughout a settle
+     * window. There is no scene graph change to anchor on, so the window starts after the main
+     * Looper has drained, which submits any work queued by the preceding preference update.
+     */
+    private suspend fun assertEnvironmentGeometryNodeUnchanged(
+        description: String,
+        expected: SpatialNode?,
+    ) {
+        withContext(Dispatchers.IO) {
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        }
+        assertSpatialSceneInvariant(
+            description,
+            select = ::environmentGeometryNode,
+            anchor = { true },
+            invariant = { it?.id == expected?.id },
+        )
+    }
+
+    /**
+     * Polls until [anchor] holds, then asserts that [invariant] holds on every snapshot for at
+     * least [SETTLE_POLLS] captures spanning [SETTLE_WINDOW].
+     *
+     * @throws AssertionError if [anchor] does not hold within [SCENE_TIMEOUT] or [invariant] is
+     *   violated during the settle window.
+     */
+    private suspend fun <T> assertSpatialSceneInvariant(
+        description: String,
+        select: (SpatialScene) -> T,
+        anchor: (T) -> Boolean,
+        invariant: (T) -> Boolean,
+    ) {
+        var value =
+            SpatialSceneHelper.awaitSpatialScene(
+                description = "anchor for $description",
+                timeout = SCENE_TIMEOUT,
+                pollInterval = SCENE_POLL_INTERVAL,
+                select = select,
+                until = anchor,
+            )
+        val settleStart = TimeSource.Monotonic.markNow()
+        var polls = 0
+        while (true) {
+            if (!invariant(value)) throw AssertionError("Violated $description, value: $value")
+            if (++polls >= SETTLE_POLLS && settleStart.elapsedNow() >= SETTLE_WINDOW) return
+            delay(SCENE_POLL_INTERVAL)
+            value = select(captureSpatialScene())
+        }
+    }
+
+    /**
      * Repeatedly takes screenshots until [until] holds for the value returned by [select]. Taking a
      * screenshot blocks, so the loop runs on [Dispatchers.IO], and [select] and [until] are also
      * evaluated off the main thread. The [Bitmap] passed to [select] is recycled after each call.
@@ -559,6 +615,8 @@ class SpatialEnvironmentTest {
 
         val SCENE_TIMEOUT = 5.seconds
         val SCENE_POLL_INTERVAL = 100.milliseconds
+        val SETTLE_WINDOW = 300.milliseconds
+        const val SETTLE_POLLS = 3
 
         val SCREENSHOT_TIMEOUT = 8.seconds
         val SCREENSHOT_POLL_INTERVAL = 200.milliseconds
