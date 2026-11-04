@@ -53,6 +53,7 @@ public class RemoteImageBitmapPainter(
  * Creates a [RemoteImageBitmapPainter] from a [RemoteImageBitmap].
  *
  * @param image The [RemoteImageBitmap] to create the painter for.
+ * @return a [RemotePainter] that draws [image]
  */
 public fun painterRemoteImageBitmap(image: RemoteImageBitmap): RemotePainter {
     return RemoteImageBitmapPainter(image)

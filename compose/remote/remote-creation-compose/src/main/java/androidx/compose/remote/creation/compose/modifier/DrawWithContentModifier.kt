@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.modifiers.RecordingModifier
  * Creates a [RemoteModifier] that allows drawing with the component's content.
  *
  * @param onDraw The drawing block that provides access to [RemoteContentDrawScope].
+ * @return a [RemoteModifier] that draws using [onDraw]
  */
 public fun RemoteModifier.drawWithContent(
     onDraw: RemoteContentDrawScope.() -> Unit

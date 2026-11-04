@@ -62,7 +62,11 @@ public class RemoteShapes(
     public val large: RemoteCornerBasedShape = RemoteShapeDefaults.Large,
     public val extraLarge: RemoteCornerBasedShape = RemoteShapeDefaults.ExtraLarge,
 ) {
-    /** Returns a copy of this [RemoteShapes], optionally overriding some of the values. */
+    /**
+     * Returns a copy of this [RemoteShapes], optionally overriding some of the values.
+     *
+     * @return a copy of this [RemoteShapes] with the specified values overridden
+     */
     public fun copy(
         extraSmall: RemoteCornerBasedShape = this.extraSmall,
         small: RemoteCornerBasedShape = this.small,

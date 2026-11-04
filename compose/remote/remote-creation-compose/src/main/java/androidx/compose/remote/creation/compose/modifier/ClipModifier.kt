@@ -87,6 +87,7 @@ internal class ClipModifier(val shape: RemoteShape = RemoteRectangleShape) :
  *
  * @sample androidx.compose.remote.creation.compose.samples.ModifierBackgroundAndClipSample
  * @param shape The [RemoteShape] to clip the content to.
+ * @return a [RemoteModifier] that clips the content to [shape]
  */
 public fun RemoteModifier.clip(shape: RemoteShape = RemoteRectangleShape): RemoteModifier =
     then(ClipModifier(shape))

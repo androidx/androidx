@@ -37,6 +37,7 @@ public class RemoteCollapsibleColumnScope {
      * Sets the vertical weight of the child.
      *
      * @param weight The weight of the child.
+     * @return a [RemoteModifier] that assigns vertical [weight] to the child
      */
     public fun RemoteModifier.weight(weight: RemoteFloat): RemoteModifier =
         then(HeightModifier(Type.WEIGHT, weight))
@@ -45,6 +46,7 @@ public class RemoteCollapsibleColumnScope {
      * Sets the vertical weight of the child.
      *
      * @param weight The weight of the child.
+     * @return a [RemoteModifier] that assigns vertical [weight] to the child
      */
     public fun RemoteModifier.weight(
         @FloatRange(from = 0.0, fromInclusive = false) weight: Float
@@ -62,6 +64,7 @@ public class RemoteCollapsibleColumnScope {
      * @sample androidx.compose.remote.creation.compose.samples.RemoteCollapsibleColumnSample
      * @param priority The priority of the child. Can be any float value; higher values are
      *   prioritized to remain visible longer.
+     * @return a [RemoteModifier] that assigns vertical collapsible [priority] to the child
      */
     public fun RemoteModifier.collapsiblePriority(priority: Float): RemoteModifier =
         then(CollapsiblePriorityModifier(CollapsiblePriority.VERTICAL, RemoteFloat(priority)))

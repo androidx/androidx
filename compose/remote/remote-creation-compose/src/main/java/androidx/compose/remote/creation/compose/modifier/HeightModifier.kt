@@ -44,6 +44,7 @@ internal class HeightModifier(val type: Type, val value: RemoteFloat) : RemoteMo
  * Sets the height of the content using [RemoteDp].
  *
  * @param height The height to apply in [RemoteDp].
+ * @return a [RemoteModifier] that sets the height to [height]
  */
 public fun RemoteModifier.height(height: RemoteDp): RemoteModifier =
     then(HeightModifier(Type.EXACT_DP, height.value))
@@ -52,6 +53,7 @@ public fun RemoteModifier.height(height: RemoteDp): RemoteModifier =
  * Sets the height of the content using [RemoteFloat].
  *
  * @param height The height to apply in pixels.
+ * @return a [RemoteModifier] that sets the height to [height]
  */
 public fun RemoteModifier.height(height: RemoteFloat): RemoteModifier =
     then(HeightModifier(Type.EXACT, height))
@@ -60,6 +62,7 @@ public fun RemoteModifier.height(height: RemoteFloat): RemoteModifier =
  * Fills the maximum available height.
  *
  * @param fraction The fraction of the maximum height to use.
+ * @return a [RemoteModifier] that fills [fraction] of the maximum available height
  */
 public fun RemoteModifier.fillMaxHeight(fraction: RemoteFloat = 1f.rf): RemoteModifier =
     then(HeightModifier(Type.FILL, fraction))
@@ -76,6 +79,7 @@ public fun RemoteModifier.fillParentMaxHeight(fraction: Float): RemoteModifier =
  * Fills the parent's maximum available height.
  *
  * @param fraction The fraction of the parent's maximum height to use.
+ * @return a [RemoteModifier] that fills [fraction] of the parent's maximum height
  */
 public fun RemoteModifier.fillParentMaxHeight(fraction: RemoteFloat = 1f.rf): RemoteModifier =
     then(HeightModifier(Type.FILL_PARENT_MAX_HEIGHT, fraction))
@@ -88,6 +92,7 @@ public fun RemoteModifier.height(height: Int): RemoteModifier =
  * Sets the height of the content to be its intrinsic size.
  *
  * @param intrinsicSize The intrinsic size to apply.
+ * @return a [RemoteModifier] that sets the height to [intrinsicSize]
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.height(intrinsicSize: RemoteIntrinsicSize): RemoteModifier =

@@ -25,9 +25,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.currentCompositeKeyHashCode
 
 /**
- * Creates an [RemoteAction] that triggers a lambda on the host.
+ * Creates a [RemoteAction] that triggers a lambda in the local (recording) app.
  *
  * @param content The lambda to execute.
+ * @return a [RemoteAction] that runs [content] in the local (recording) app
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
@@ -38,7 +39,7 @@ public fun lambdaAction(content: () -> Unit): RemoteAction {
 }
 
 /**
- * An [RemoteAction] that triggers a lambda on the host.
+ * A [RemoteAction] that triggers a lambda in the local (recording) app.
  *
  * @property actionId The unique ID of the action, derived from Compose composition key.
  * @property content The lambda to execute.

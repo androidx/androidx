@@ -40,6 +40,8 @@ public interface RemoteMotionScheme {
      * This motion spec is designed to be applied to animations that can overshoot their targets,
      * such as shape or bounds animations. For color, alpha or other animations which have strict
      * limits use the `effects` equivalent.
+     *
+     * @return a [RemoteAnimationSpec] for default spatial motion
      */
     public fun defaultSpatialSpec(): RemoteAnimationSpec
 
@@ -49,6 +51,8 @@ public interface RemoteMotionScheme {
      * This motion spec is designed to be applied to animations that can overshoot their targets,
      * such as shape or bounds animations. For color, alpha or other animations which have strict
      * limits use the `effects` equivalent.
+     *
+     * @return a [RemoteAnimationSpec] for fast spatial motion
      */
     public fun fastSpatialSpec(): RemoteAnimationSpec
 
@@ -58,6 +62,8 @@ public interface RemoteMotionScheme {
      * This motion spec is designed to be applied to animations that can overshoot their targets,
      * such as shape or bounds animations. For color, alpha or other animations which have strict
      * limits use the `effects` equivalent.
+     *
+     * @return a [RemoteAnimationSpec] for slow spatial motion
      */
     public fun slowSpatialSpec(): RemoteAnimationSpec
 
@@ -67,6 +73,8 @@ public interface RemoteMotionScheme {
      * This motion spec is designed to be applied to animations that have strict limits and which
      * shouldn't overshoot their targets, such as color or alpha animations. For shape, bounds or
      * other animations which don't have strict limits use the `spatial` equivalent.
+     *
+     * @return a [RemoteAnimationSpec] for default effects motion
      */
     public fun defaultEffectsSpec(): RemoteAnimationSpec
 
@@ -76,6 +84,8 @@ public interface RemoteMotionScheme {
      * This motion spec is designed to be applied to animations that have strict limits and which
      * shouldn't overshoot their targets, such as color or alpha animations. For shape, bounds or
      * other animations which don't have strict limits use the `spatial` equivalent.
+     *
+     * @return a [RemoteAnimationSpec] for fast effects motion
      */
     public fun fastEffectsSpec(): RemoteAnimationSpec
 
@@ -85,6 +95,8 @@ public interface RemoteMotionScheme {
      * This motion spec is designed to be applied to animations that have strict limits and which
      * shouldn't overshoot their targets, such as color or alpha animations. For shape, bounds or
      * other animations which don't have strict limits use the `spatial` equivalent.
+     *
+     * @return a [RemoteAnimationSpec] for slow effects motion
      */
     public fun slowEffectsSpec(): RemoteAnimationSpec
 
@@ -95,6 +107,8 @@ public interface RemoteMotionScheme {
          * The standard scheme is Material's basic motion scheme for utilitarian UI elements and
          * recurring interactions. It provides a linear motion feel. This is the default motion
          * scheme of [RemoteMaterialTheme], as in Wear Compose Material 3.
+         *
+         * @return the standard [RemoteMotionScheme]
          */
         public fun standard(): RemoteMotionScheme = StandardRemoteMotionScheme
 
@@ -103,6 +117,8 @@ public interface RemoteMotionScheme {
          *
          * The expressive scheme is Material's recommended motion scheme for prominent UI elements
          * and hero interactions. It provides a visually engaging motion feel.
+         *
+         * @return the expressive [RemoteMotionScheme]
          */
         public fun expressive(): RemoteMotionScheme = ExpressiveRemoteMotionScheme
     }

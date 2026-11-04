@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.Density
  * @param density The [Density] used to resolve settings that need it, such as
  *   [FontVariation.opticalSizing]. Without a [density], such a setting is resolved only when its
  *   axis value is written to the document, and then throws an [IllegalArgumentException].
+ * @return the converted [RemoteFontVariation.Settings]
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun FontVariation.Settings.toRemoteFontVariationSettings(

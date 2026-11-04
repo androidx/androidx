@@ -93,6 +93,8 @@ internal object SnapshotWriteMonitor {
      * default sessions share one monitor, and otherwise runs on [sessionContext]'s interceptor so
      * caller-supplied dispatchers (such as a `TestDispatcher` or main dispatcher) receive apply
      * notifications on that same dispatcher.
+     *
+     * @return an [AutoCloseable] handle that releases this session's reference when closed
      */
     fun acquireForSession(sessionContext: CoroutineContext): AutoCloseable {
         val interceptor = sessionContext[ContinuationInterceptor]
@@ -110,6 +112,7 @@ internal object SnapshotWriteMonitor {
      *
      * @param context where [Snapshot.sendApplyNotifications] is called from. Defaults to a
      *   single-threaded slice of [Dispatchers.Default].
+     * @return an [AutoCloseable] handle that releases the reference for [context] when closed
      */
     fun acquire(context: CoroutineContext = DefaultContext): AutoCloseable {
         val monitorContext = context.minusKey(Job)

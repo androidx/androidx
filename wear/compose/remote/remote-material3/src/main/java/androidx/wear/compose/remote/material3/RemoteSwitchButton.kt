@@ -170,7 +170,11 @@ public object RemoteSwitchButtonDefaults {
     /** The radius of the thumb when checked. */
     public val ThumbRadiusChecked: RemoteDp = 9.rdp
 
-    /** Creates a [RemoteSwitchButtonColors] with default values for [RemoteSwitchButton]. */
+    /**
+     * Creates a [RemoteSwitchButtonColors] with default values for [RemoteSwitchButton].
+     *
+     * @return a [RemoteSwitchButtonColors] with the default colors for [RemoteSwitchButton]
+     */
     @Composable
     @RemoteComposable
     public fun switchButtonColors(): RemoteSwitchButtonColors =
@@ -237,6 +241,7 @@ public object RemoteSwitchButtonDefaults {
      *   the theme default.
      * @param disabledUncheckedTrackBorderColor Track border color when unchecked and disabled, or
      *   `null` to use the theme default.
+     * @return a [RemoteSwitchButtonColors] with the configured colors for [RemoteSwitchButton]
      */
     @Composable
     @RemoteComposable
@@ -548,7 +553,11 @@ public class RemoteSwitchButtonColors(
                 checked.select(disabledCheckedTrackBorderColor, disabledUncheckedTrackBorderColor),
         )
 
-    /** Returns a copy of this [RemoteSwitchButtonColors] optionally overriding some values. */
+    /**
+     * Returns a copy of this [RemoteSwitchButtonColors] optionally overriding some values.
+     *
+     * @return a copy of this [RemoteSwitchButtonColors] with the specified values overridden
+     */
     public fun copy(
         checkedContainerColor: RemoteColor = this.checkedContainerColor,
         checkedContentColor: RemoteColor = this.checkedContentColor,

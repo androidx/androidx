@@ -47,7 +47,11 @@ public class RemoteBorderStroke(
 
     override fun toString(): String = "RemoteBorderStroke(width=$width, brush=$brush)"
 
-    /** Creates a copy of this [RemoteBorderStroke] with the specified [width] and [brush]. */
+    /**
+     * Creates a copy of this [RemoteBorderStroke] with the specified [width] and [brush].
+     *
+     * @return a copy of this [RemoteBorderStroke] with the specified [width] and [brush]
+     */
     public fun copy(
         width: RemoteDp = this.width,
         brush: RemoteBrush = this.brush,
@@ -59,6 +63,7 @@ public class RemoteBorderStroke(
  *
  * @param width The stroke width of the border.
  * @param color The [RemoteColor] of the border.
+ * @return a [RemoteBorderStroke] with the specified [width] and solid [color]
  */
 public fun RemoteBorderStroke(width: RemoteDp, color: RemoteColor): RemoteBorderStroke =
     RemoteBorderStroke(width, RemoteBrush.solidColor(color))

@@ -250,6 +250,9 @@ public object RemoteSplitCheckboxButtonDefaults {
     /**
      * Creates a [RemoteSplitCheckboxButtonColors] that represents the default container and content
      * colors used in a [RemoteSplitCheckboxButton].
+     *
+     * @return a [RemoteSplitCheckboxButtonColors] with the default colors for
+     *   [RemoteSplitCheckboxButton]
      */
     @Composable
     @RemoteComposable
@@ -309,6 +312,8 @@ public object RemoteSplitCheckboxButtonDefaults {
      *   default.
      * @param disabledUncheckedBoxColor The box color of the [RemoteSplitCheckboxButton] when
      *   disabled and unchecked, or `null` to use the theme default.
+     * @return a [RemoteSplitCheckboxButtonColors] with the configured colors for
+     *   [RemoteSplitCheckboxButton]
      */
     @Composable
     @RemoteComposable
@@ -491,6 +496,8 @@ public class RemoteSplitCheckboxButtonColors(
 ) {
     /**
      * Returns a copy of this [RemoteSplitCheckboxButtonColors] optionally overriding some values.
+     *
+     * @return a copy of this [RemoteSplitCheckboxButtonColors] with the specified values overridden
      */
     public fun copy(
         checkedContainerColor: RemoteColor = this.checkedContainerColor,
@@ -710,6 +717,8 @@ internal fun RemoteDrawScope.drawSolidColorShape(shape: RemoteShape, color: Remo
  * the corners of the container [shape] on its outer side. The sections then draw the container
  * outline themselves rather than relying only on `clip(shape)`, which is not applied by every
  * renderer. If [shape] is not corner based, both sections use [sectionShape].
+ *
+ * @return a [Pair] of the start and end section [RemoteShape]s
  */
 internal fun splitSectionShapes(
     shape: RemoteShape,

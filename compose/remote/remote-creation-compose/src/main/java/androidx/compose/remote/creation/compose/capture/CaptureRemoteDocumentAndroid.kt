@@ -130,6 +130,9 @@ public suspend fun captureSingleRemoteDocument(
  * and an optional [retainedValuesStore] provided as
  * [androidx.compose.runtime.retain.LocalRetainedValuesStore] so values held with
  * [androidx.compose.runtime.retain.retain] are preserved across captures.
+ *
+ * @return a [RemoteCapturedDocument] containing the serialized document bytes and captured
+ *   callbacks
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public suspend fun captureSingleRemoteDocument(
@@ -256,6 +259,8 @@ public fun captureRemoteDocument(
  * Like the public [captureRemoteDocument], but with [updateThrottle] deciding how often documents
  * are emitted instead of [CaptureUpdateThrottle.Default], an optional [savedState], and an optional
  * [retainedValuesStore].
+ *
+ * @return a [Flow] of [ByteArray]s containing the serialized RemoteCompose documents
  *
  * TODO(b/567847315): Make the update strategy public together with [CaptureUpdateThrottle].
  */

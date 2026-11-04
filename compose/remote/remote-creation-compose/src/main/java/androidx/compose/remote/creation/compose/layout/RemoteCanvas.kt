@@ -186,7 +186,11 @@ public class RemoteCanvas(
     public val saveCount: Int
         get() = buffer.saveCount
 
-    /** Saves the current canvas state. */
+    /**
+     * Saves the current canvas state.
+     *
+     * @return the value to pass to [restoreToCount] to balance this [save]
+     */
     public fun save(): Int = buffer.save()
 
     /** Restores the previous canvas state. */

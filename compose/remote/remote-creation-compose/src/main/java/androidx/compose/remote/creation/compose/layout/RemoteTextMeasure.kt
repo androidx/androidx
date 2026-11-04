@@ -42,6 +42,8 @@ private val DefaultFontSize: RemoteTextUnit = 12.rsp
  * Creates and remembers a [RemoteTextMeasurer] using [LocalRemoteDensity].
  *
  * Mirrors [androidx.compose.ui.text.rememberTextMeasurer] from Compose UI.
+ *
+ * @return a remembered [RemoteTextMeasurer] for the current [LocalRemoteDensity]
  */
 @RemoteComposable
 @Composable

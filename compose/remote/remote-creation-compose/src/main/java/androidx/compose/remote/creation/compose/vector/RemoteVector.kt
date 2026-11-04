@@ -50,7 +50,11 @@ import androidx.compose.remote.creation.compose.state.creationState
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.util.fastForEach
 
-/** DSL for building a vector with [RemotePathScope]. */
+/**
+ * DSL for building a vector with [RemotePathScope].
+ *
+ * @return the [List] of [RemotePathNode]s built by [block]
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemotePathData(block: RemotePathScope.() -> Unit): List<RemotePathNode> =
     with(RemotePathScope()) {

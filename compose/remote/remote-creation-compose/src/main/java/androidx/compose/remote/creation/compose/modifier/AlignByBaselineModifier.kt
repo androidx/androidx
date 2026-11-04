@@ -62,5 +62,7 @@ internal class AlignByBaselineModifier() : RemoteModifier.Element {
  *     )
  * }
  * ```
+ *
+ * @return a [RemoteModifier] that aligns the layout by its first baseline
  */
 public fun RemoteModifier.alignByBaseline(): RemoteModifier = then(AlignByBaselineModifier())

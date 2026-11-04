@@ -138,6 +138,7 @@ public sealed interface RemotePaint {
          * Creates a new [RemotePaint] instance using [StandardRemotePaint].
          *
          * @param init An optional initialization block to configure the paint.
+         * @return a new [RemotePaint] configured by [init]
          */
         public operator fun invoke(init: RemotePaint.() -> Unit = {}): RemotePaint =
             StandardRemotePaint().apply(init)

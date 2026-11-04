@@ -99,6 +99,7 @@ public class RemoteVectorPainter : RemotePainter() {
  *
  * @param vector The [RemoteImageVector] to create the painter for.
  * @param tintColor the tint color to apply to the image.
+ * @return a [RemotePainter] that draws [vector] with [tintColor]
  */
 public fun painterRemoteVector(
     vector: RemoteImageVector,

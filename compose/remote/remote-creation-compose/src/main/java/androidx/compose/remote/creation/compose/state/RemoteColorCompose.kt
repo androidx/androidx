@@ -129,11 +129,23 @@ public fun rememberNamedRemoteColor(
 public val Color.rc: RemoteColor
     get() = asRemoteColor()
 
-/** Extension function to convert a [Color] to a [RemoteColor]. */
+/**
+ * Extension function to convert a [Color] to a [RemoteColor].
+ *
+ * @return a [RemoteColor] representing this [Color]
+ */
 public fun Color.asRemoteColor(): RemoteColor = RemoteColor(this.toArgb())
 
-/** Converts this [RemoteColor] to a [Color] if it has a constant value. */
+/**
+ * Converts this [RemoteColor] to a [Color] if it has a constant value.
+ *
+ * @return the constant [Color] value of this [RemoteColor]
+ */
 public fun RemoteColor.asConstantColor(): Color = Color(constantValue)
 
-/** Converts this [RemoteColor] to a [Color] if it has a constant value, or null otherwise. */
+/**
+ * Converts this [RemoteColor] to a [Color] if it has a constant value, or null otherwise.
+ *
+ * @return the constant [Color] value of this [RemoteColor], or `null` if it is dynamic
+ */
 public fun RemoteColor.asConstantColorOrNull(): Color? = constantValueOrNull?.let { Color(it) }

@@ -181,6 +181,7 @@ constructor(
      * @param fontFeatureSettings The advanced typography settings provided by font in CSS format
      *   (e.g. "smcp" or "tnum").
      * @param fontVariationSettings The font variation settings to be applied to the text.
+     * @return a new [RemoteTextStyle] with the specified attributes merged into this style
      */
     public fun merge(
         color: RemoteColor? = null,
@@ -236,6 +237,7 @@ constructor(
      * @param fontFeatureSettings The advanced typography settings provided by font in CSS format
      *   (e.g. "smcp" or "tnum").
      * @param fontVariationSettings The font variation settings to be applied to the text.
+     * @return a new [RemoteTextStyle] with the specified attributes overridden
      */
     public fun copy(
         color: RemoteColor? = this.color,
@@ -282,6 +284,7 @@ constructor(
          * the fonts that declare variation settings.
          *
          * @param style The Compose [TextStyle] to convert.
+         * @return a [RemoteTextStyle] converted from [style]
          */
         public fun fromTextStyle(style: TextStyle): RemoteTextStyle {
             // Maps unspecified color into null as it's not supported in remote compose.

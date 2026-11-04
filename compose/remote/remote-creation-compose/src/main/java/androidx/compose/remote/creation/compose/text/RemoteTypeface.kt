@@ -98,6 +98,7 @@ public sealed interface RemoteTypeface {
          *
          * @param fontName The font family name, or `null` for the default font.
          * @param style The [Style] of the typeface.
+         * @return a [RemoteTypeface] matching [fontName] and [style]
          */
         public fun create(fontName: String?, style: Style = Style.Normal): RemoteTypeface {
             val weight = if (style == Style.Bold || style == Style.BoldItalic) 700 else 400

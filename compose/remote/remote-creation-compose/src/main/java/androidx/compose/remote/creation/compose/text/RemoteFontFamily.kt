@@ -67,6 +67,8 @@ public sealed class RemoteFontFamily(public val name: String, private val fontFa
          * Maps a Compose [FontFamily] to a [RemoteFontFamily].
          *
          * @param fontFamily The Compose [FontFamily] to convert, or `null`.
+         * @return the corresponding [RemoteFontFamily], or `null` if [fontFamily] is `null` or
+         *   unsupported
          */
         public fun fromComposeFontFamily(fontFamily: FontFamily?): RemoteFontFamily? {
             if (fontFamily == null) return null
@@ -83,7 +85,11 @@ public sealed class RemoteFontFamily(public val name: String, private val fontFa
     }
 }
 
-/** Converts this [RemoteFontFamily] into a [RemoteTypeface]. */
+/**
+ * Converts this [RemoteFontFamily] into a [RemoteTypeface].
+ *
+ * @return the corresponding [RemoteTypeface] for this [RemoteFontFamily]
+ */
 public fun RemoteFontFamily.toRemoteTypeface(): RemoteTypeface {
     return when (this) {
         RemoteFontFamily.Default -> RemoteTypeface.Default

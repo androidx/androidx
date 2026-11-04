@@ -571,6 +571,7 @@ internal constructor(
  * @param translationY the translation in virtual pixels to apply along the y-axis
  * @param clipPathData the path information used to clip the content within the group
  * @param block builder lambda to add children to this group
+ * @return this [RemoteImageVector.Builder] instance for chaining calls
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteImageVector.Builder.group(
@@ -605,6 +606,7 @@ public fun RemoteImageVector.Builder.group(
  * @param pathFillType specifies the [RemotePathFillType] winding rule that decides how the interior
  *   of a [RemotePath] is calculated
  * @param pathBuilder [RemotePathScope] lambda for adding [RemotePathNode]s to this path
+ * @return this [RemoteImageVector.Builder] instance for chaining calls
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteImageVector.Builder.path(

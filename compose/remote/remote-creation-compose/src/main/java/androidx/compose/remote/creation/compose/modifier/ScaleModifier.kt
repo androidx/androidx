@@ -29,6 +29,7 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
  * @sample androidx.compose.remote.creation.compose.samples.ScaleNonUniformSample
  * @param scaleX Multiplier to scale content along the horizontal axis
  * @param scaleY Multiplier to scale content along the vertical axis
+ * @return a [RemoteModifier] that scales content by [scaleX] and [scaleY]
  * @see graphicsLayer
  */
 public fun RemoteModifier.scale(scaleX: RemoteFloat, scaleY: RemoteFloat): RemoteModifier =
@@ -41,6 +42,7 @@ public fun RemoteModifier.scale(scaleX: RemoteFloat, scaleY: RemoteFloat): Remot
  *
  * @sample androidx.compose.remote.creation.compose.samples.ScaleUniformSample
  * @param scale Multiplier to scale content along the horizontal and vertical axis
+ * @return a [RemoteModifier] that uniformly scales content by [scale]
  * @see graphicsLayer
  */
 public fun RemoteModifier.scale(scale: RemoteFloat): RemoteModifier =

@@ -208,6 +208,8 @@ public object RemoteCardDefaults {
     /**
      * Creates a [RemoteCardColors] that represents the default container and content colors used in
      * a [RemoteCard], [RemoteAppCard] or [RemoteTitleCard].
+     *
+     * @return a [RemoteCardColors] with the default colors for a [RemoteCard]
      */
     @Composable
     @RemoteComposable
@@ -229,6 +231,7 @@ public object RemoteCardDefaults {
      *   or `null` to use the theme default.
      * @param subtitleColor The color used for subtitle, applies to [RemoteTitleCard], or `null` to
      *   use the theme default.
+     * @return a [RemoteCardColors] with the configured colors for a [RemoteCard]
      */
     @Composable
     @RemoteComposable
@@ -254,6 +257,8 @@ public object RemoteCardDefaults {
     /**
      * Creates a [RemoteCardColors] that represents the default container and content colors used in
      * a [RemoteOutlinedCard], outlined [RemoteAppCard] or [RemoteTitleCard].
+     *
+     * @return a [RemoteCardColors] with the default colors for a [RemoteOutlinedCard]
      */
     @Composable
     @RemoteComposable
@@ -274,6 +279,7 @@ public object RemoteCardDefaults {
      *   or `null` to use the theme default.
      * @param subtitleColor The color used for subtitle, applies to [RemoteTitleCard], or `null` to
      *   use the theme default.
+     * @return a [RemoteCardColors] with the configured colors for a [RemoteOutlinedCard]
      */
     @Composable
     @RemoteComposable
@@ -307,6 +313,7 @@ public object RemoteCardDefaults {
      *
      * @param outlineColor The color to be used for drawing an outline.
      * @param borderWidth width of the border in [RemoteDp].
+     * @return a [RemoteBorderStroke] for a [RemoteOutlinedCard]
      */
     @Composable
     @RemoteComposable
@@ -352,6 +359,7 @@ public object RemoteCardDefaults {
      * @param shape Define the container shape.
      * @param contentScale Strategy for scaling the painter if its size does not match the
      *   container.
+     * @return a [RemotePainter] that draws [image] with the optional [scrim] for a [RemoteCard]
      */
     @Composable
     @RemoteComposable
@@ -368,6 +376,8 @@ public object RemoteCardDefaults {
     /**
      * Creates a [RemoteBrush] for the recommended scrim drawn on top of image container
      * backgrounds.
+     *
+     * @return a [RemoteBrush] for drawing a scrim over an image container background
      */
     @Composable
     @RemoteComposable
@@ -388,6 +398,9 @@ public object RemoteCardDefaults {
     /**
      * Creates a [RemoteCardColors] that represents the default container and content colors used in
      * a [RemoteCard] with image container painter.
+     *
+     * @return a [RemoteCardColors] with the default colors for a [RemoteCard] with a container
+     *   painter
      */
     @Composable
     @RemoteComposable
@@ -408,6 +421,8 @@ public object RemoteCardDefaults {
      *   or `null` to use the theme default.
      * @param subtitleColor The color used for subtitle, applies to [RemoteTitleCard], or `null` to
      *   use the theme default.
+     * @return a [RemoteCardColors] with the configured colors for a [RemoteCard] with a container
+     *   painter
      */
     @Composable
     @RemoteComposable
@@ -517,6 +532,7 @@ public class RemoteCardColors(
      * @param timeColor the color used for time, applies to [RemoteAppCard] and [RemoteTitleCard]
      * @param titleColor the color used for title, applies to [RemoteAppCard] and [RemoteTitleCard]
      * @param subtitleColor the color used for subtitle, applies to [RemoteTitleCard]
+     * @return a copy of this [RemoteCardColors] with the specified values overridden
      */
     public fun copy(
         containerColor: RemoteColor = this.containerColor,

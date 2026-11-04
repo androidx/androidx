@@ -36,10 +36,18 @@ public class RemoteAccess(private val scope: RemoteDrawScope) {
     /** Access to remote component information. */
     public val component: RemoteComponent = RemoteComponent(scope)
 
-    /** Wraps a constant value as a [RemoteFloat]. */
+    /**
+     * Wraps a constant value as a [RemoteFloat].
+     *
+     * @return a [RemoteFloat] wrapping [v]
+     */
     public fun value(v: Float): RemoteFloat = RemoteFloat(v)
 
-    /** Animates a [RemoteFloat]. */
+    /**
+     * Animates a [RemoteFloat].
+     *
+     * @return an animated [RemoteFloat] tracking [rf]
+     */
     public fun animateFloat(
         rf: RemoteFloat,
         duration: Float = 1f,
@@ -52,7 +60,11 @@ public class RemoteAccess(private val scope: RemoteDrawScope) {
         return AnimatedRemoteFloat(rf, anim)
     }
 
-    /** Animates a [RemoteFloat] created in [content]. */
+    /**
+     * Animates a [RemoteFloat] created in [content].
+     *
+     * @return an animated [RemoteFloat] tracking the value produced by [content]
+     */
     public fun animateFloat(
         duration: Float = 1f,
         type: Int = 1,
@@ -72,6 +84,7 @@ public class RemoteAccess(private val scope: RemoteDrawScope) {
      * @param dampingRatio The damping ratio (1.0 = critically damped, < 1.0 = bouncy).
      * @param stopThreshold The threshold at which the spring is considered at rest.
      * @param boundaryMode Engine boundary mode (0 = standard/no bounds).
+     * @return a spring-animated [RemoteFloat] tracking [rf]
      */
     public fun animateSpring(
         rf: RemoteFloat,
@@ -88,7 +101,11 @@ public class RemoteAccess(private val scope: RemoteDrawScope) {
             )
             .animate(rf)
 
-    /** Animates a [RemoteFloat] created in [content] using a physics-based Spring engine. */
+    /**
+     * Animates a [RemoteFloat] created in [content] using a physics-based Spring engine.
+     *
+     * @return a spring-animated [RemoteFloat] tracking the value produced by [content]
+     */
     public fun animateSpring(
         stiffness: Float = 50f,
         dampingRatio: Float = 1f,

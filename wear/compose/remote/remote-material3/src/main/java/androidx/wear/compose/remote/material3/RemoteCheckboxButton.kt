@@ -148,7 +148,11 @@ public object RemoteCheckboxButtonDefaults {
     /** The outer size of the checkbox touch/draw target. */
     public val BoxOuterSize: RemoteDp = 24.rdp
 
-    /** Creates a [RemoteCheckboxButtonColors] with default values for [RemoteCheckboxButton]. */
+    /**
+     * Creates a [RemoteCheckboxButtonColors] with default values for [RemoteCheckboxButton].
+     *
+     * @return a [RemoteCheckboxButtonColors] with the default colors for [RemoteCheckboxButton]
+     */
     @Composable
     @RemoteComposable
     public fun checkboxButtonColors(): RemoteCheckboxButtonColors =
@@ -201,6 +205,7 @@ public object RemoteCheckboxButtonDefaults {
      *   the theme default.
      * @param disabledUncheckedBoxColor Box color when unchecked and disabled, or `null` to use the
      *   theme default.
+     * @return a [RemoteCheckboxButtonColors] with the configured colors for [RemoteCheckboxButton]
      */
     @Composable
     @RemoteComposable
@@ -431,7 +436,11 @@ public class RemoteCheckboxButtonColors(
     internal fun checkmarkColor(enabled: RemoteBoolean): RemoteColor =
         enabled.select(checkedCheckmarkColor, disabledCheckedCheckmarkColor)
 
-    /** Returns a copy of this [RemoteCheckboxButtonColors] optionally overriding some values. */
+    /**
+     * Returns a copy of this [RemoteCheckboxButtonColors] optionally overriding some values.
+     *
+     * @return a copy of this [RemoteCheckboxButtonColors] with the specified values overridden
+     */
     public fun copy(
         checkedContainerColor: RemoteColor = this.checkedContainerColor,
         checkedContentColor: RemoteColor = this.checkedContentColor,

@@ -53,7 +53,11 @@ internal constructor(internal val animation: ANIMATION, internal val functionId:
         /** Applies a particle effect during entry. */
         public val Particle: RemoteEnterTransition = RemoteEnterTransition(ANIMATION.PARTICLE)
 
-        /** Applies a custom float function animation during entry. */
+        /**
+         * Applies a custom float function animation during entry.
+         *
+         * @return a [RemoteEnterTransition] for [functionId]
+         */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun Custom(functionId: Int): RemoteEnterTransition =
             RemoteEnterTransition(ANIMATION.CUSTOM, functionId)
@@ -97,7 +101,11 @@ internal constructor(internal val animation: ANIMATION, internal val functionId:
         /** Applies a particle effect during exit. */
         public val Particle: RemoteExitTransition = RemoteExitTransition(ANIMATION.PARTICLE)
 
-        /** Applies a custom float function animation during exit. */
+        /**
+         * Applies a custom float function animation during exit.
+         *
+         * @return a [RemoteExitTransition] for [functionId]
+         */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun Custom(functionId: Int): RemoteExitTransition =
             RemoteExitTransition(ANIMATION.CUSTOM, functionId)
@@ -115,10 +123,18 @@ internal constructor(internal val animation: ANIMATION, internal val functionId:
         else "RemoteExitTransition.${animation.name}"
 }
 
-/** Creates a fade-in enter transition for Remote Compose state layouts. */
+/**
+ * Creates a fade-in enter transition for Remote Compose state layouts.
+ *
+ * @return a fade-in [RemoteEnterTransition]
+ */
 public fun remoteFadeIn(): RemoteEnterTransition = RemoteEnterTransition.FadeIn
 
-/** Creates a fade-out exit transition for Remote Compose state layouts. */
+/**
+ * Creates a fade-out exit transition for Remote Compose state layouts.
+ *
+ * @return a fade-out [RemoteExitTransition]
+ */
 public fun remoteFadeOut(): RemoteExitTransition = RemoteExitTransition.FadeOut
 
 internal class AnimateSpecModifier(
@@ -163,6 +179,7 @@ private fun extractDurationAndEasing(spec: RemoteTweenSpec): Pair<Float, Int> =
  * @param spec animation specification for bounds and transforms (e.g. [remoteTween])
  * @param enter transition effect when component enters the layout
  * @param exit transition effect when component exits the layout
+ * @return a [RemoteModifier] that marks this component as a shared element
  */
 public fun RemoteModifier.sharedElement(
     key: Int,
@@ -195,6 +212,7 @@ public fun RemoteModifier.sharedElement(
  * @param spec animation specification for bounds and transforms (e.g. [remoteTween])
  * @param enter transition effect when component enters the layout
  * @param exit transition effect when component exits the layout
+ * @return a [RemoteModifier] that marks this component as a shared bounds container
  */
 public fun RemoteModifier.sharedBounds(
     key: Int,
@@ -210,6 +228,7 @@ public fun RemoteModifier.sharedBounds(
  * @param exit transition effect when component exits the layout
  * @param spec animation specification for visibility transitions (e.g. [remoteTween])
  * @param animationId non-zero identifier for the animation (-1 for default non-shared transition)
+ * @return a [RemoteModifier] that applies [enter] and [exit] transitions
  */
 public fun RemoteModifier.animateEnterExit(
     enter: RemoteEnterTransition = RemoteEnterTransition.FadeIn,
@@ -242,6 +261,7 @@ public fun RemoteModifier.animateEnterExit(
  * @param visibilitySpec animation specification for enter/exit visibility transitions
  * @param enter transition effect when component enters the layout
  * @param exit transition effect when component exits the layout
+ * @return a [RemoteModifier] that applies the animation specification
  */
 public fun RemoteModifier.animationSpec(
     animationId: Int = -1,
@@ -272,6 +292,7 @@ public fun RemoteModifier.animationSpec(
  *
  * @param animationId identifier used to match elements for shared transitions
  * @param enabled whether animation transitions are enabled for this component
+ * @return a [RemoteModifier] that applies the animation specification
  */
 public fun RemoteModifier.animationSpec(
     animationId: Int,
@@ -282,11 +303,16 @@ public fun RemoteModifier.animationSpec(
  * Enables or disables animation transitions for this component.
  *
  * @param enabled whether animation transitions are enabled for this component
+ * @return a [RemoteModifier] that enables or disables animation transitions
  */
 public fun RemoteModifier.animationSpec(enabled: Boolean): RemoteModifier =
     animationSpec(animationId = -1, enabled = enabled)
 
-/** Applies an animation specification to match elements for shared transitions across states. */
+/**
+ * Applies an animation specification to match elements for shared transitions across states.
+ *
+ * @return a [RemoteModifier] that applies the animation specification
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.animationSpec(
     animationId: Int = -1,

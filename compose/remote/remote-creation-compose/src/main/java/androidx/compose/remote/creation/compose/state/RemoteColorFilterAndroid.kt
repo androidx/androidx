@@ -20,7 +20,11 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.toRemoteBlendMode
 import androidx.compose.ui.graphics.BlendMode
 
-/** Creates a [RemoteBlendModeColorFilter] using Compose UI [BlendMode]. */
+/**
+ * Creates a [RemoteBlendModeColorFilter] using Compose UI [BlendMode].
+ *
+ * @return a [RemoteBlendModeColorFilter] with the given [color] and [blendMode]
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteBlendModeColorFilter(
     color: RemoteColor,

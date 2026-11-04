@@ -38,6 +38,7 @@ import androidx.compose.remote.creation.compose.state.rf
  * evaluated by the player, so the result follows changes to them.
  *
  * @param newLuminance 0 <= newLuminance <= 100; invalid values are corrected.
+ * @return a [RemoteColor] with its luminance set to [newLuminance]
  */
 internal fun RemoteColor.setLuminance(
     @FloatRange(from = 0.0, to = 100.0) newLuminance: Float

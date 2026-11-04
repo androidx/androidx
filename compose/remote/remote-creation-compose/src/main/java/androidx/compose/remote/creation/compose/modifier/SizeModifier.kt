@@ -27,6 +27,7 @@ import androidx.compose.remote.creation.compose.state.rf
  *
  * @param width The width to apply.
  * @param height The height to apply.
+ * @return a [RemoteModifier] that sets the size to [width] by [height]
  */
 public fun RemoteModifier.size(width: RemoteDp, height: RemoteDp): RemoteModifier =
     width(width).height(height)
@@ -35,6 +36,7 @@ public fun RemoteModifier.size(width: RemoteDp, height: RemoteDp): RemoteModifie
  * Sets both the width and height of the content to [size].
  *
  * @param size The width and height to apply in [RemoteDp].
+ * @return a [RemoteModifier] that sets both width and height to [size]
  */
 public fun RemoteModifier.size(size: RemoteDp): RemoteModifier = width(size).height(size)
 
@@ -46,6 +48,7 @@ public fun RemoteModifier.fillMaxSize(fraction: Float): RemoteModifier =
  * Fills the parent's maximum available width and height.
  *
  * @param fraction The fraction of the parent's maximum size to use.
+ * @return a [RemoteModifier] that fills [fraction] of the parent's maximum size
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.fillParentMaxSize(fraction: Float): RemoteModifier =
@@ -55,17 +58,30 @@ public fun RemoteModifier.fillParentMaxSize(fraction: Float): RemoteModifier =
  * Fills the parent's maximum available width and height.
  *
  * @param fraction The fraction of the parent's maximum size to use.
+ * @return a [RemoteModifier] that fills [fraction] of the maximum available size
  */
 public fun RemoteModifier.fillMaxSize(fraction: RemoteFloat = 1f.rf): RemoteModifier =
     fillMaxWidth(fraction).fillMaxHeight(fraction)
 
-/** Wraps the content width to its intrinsic dimensions. */
+/**
+ * Wraps the content width to its intrinsic dimensions.
+ *
+ * @return a [RemoteModifier] that wraps the content width
+ */
 public fun RemoteModifier.wrapContentWidth(): RemoteModifier =
     then(WidthModifier(Type.WRAP, RemoteFloat(1f)))
 
-/** Wraps the content height to its intrinsic dimensions. */
+/**
+ * Wraps the content height to its intrinsic dimensions.
+ *
+ * @return a [RemoteModifier] that wraps the content height
+ */
 public fun RemoteModifier.wrapContentHeight(): RemoteModifier =
     then(HeightModifier(Type.WRAP, RemoteFloat(1f)))
 
-/** Wraps the content size to its intrinsic dimensions. */
+/**
+ * Wraps the content size to its intrinsic dimensions.
+ *
+ * @return a [RemoteModifier] that wraps the content size
+ */
 public fun RemoteModifier.wrapContentSize(): RemoteModifier = wrapContentWidth().wrapContentHeight()

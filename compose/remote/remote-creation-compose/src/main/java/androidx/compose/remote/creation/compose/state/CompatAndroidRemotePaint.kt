@@ -121,7 +121,11 @@ public open class CompatAndroidRemotePaint : AndroidPaint {
         }
 }
 
-/** Converts an [android.graphics.Paint] to a [RemotePaint]. */
+/**
+ * Converts an [android.graphics.Paint] to a [RemotePaint].
+ *
+ * @return a [RemotePaint] configured with this paint's properties
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun android.graphics.Paint.asRemotePaint(): RemotePaint {
     val compat = this as? CompatAndroidRemotePaint

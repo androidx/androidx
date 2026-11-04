@@ -305,12 +305,20 @@ public object RemoteSliderDefaults {
             modifier = modifier.size(IconSize),
         )
 
-    /** Creates a [RemoteSliderColors] with default colors. */
+    /**
+     * Creates a [RemoteSliderColors] with default colors.
+     *
+     * @return a [RemoteSliderColors] with the default colors for [RemoteSlider]
+     */
     @Composable
     public fun sliderColors(): RemoteSliderColors =
         RemoteMaterialTheme.colorScheme.defaultSliderColors
 
-    /** Creates a [RemoteSliderColors] with customizable colors. */
+    /**
+     * Creates a [RemoteSliderColors] with customizable colors.
+     *
+     * @return a [RemoteSliderColors] with the configured colors for [RemoteSlider]
+     */
     @Composable
     public fun sliderColors(
         containerColor: RemoteColor? = null,
@@ -348,12 +356,20 @@ public object RemoteSliderDefaults {
         )
     }
 
-    /** Creates a [RemoteSliderColors] with variant colors. */
+    /**
+     * Creates a [RemoteSliderColors] with variant colors.
+     *
+     * @return a [RemoteSliderColors] with the default variant colors for [RemoteSlider]
+     */
     @Composable
     public fun variantSliderColors(): RemoteSliderColors =
         RemoteMaterialTheme.colorScheme.variantSliderColors
 
-    /** Creates a [RemoteSliderColors] with variant customizable colors. */
+    /**
+     * Creates a [RemoteSliderColors] with variant customizable colors.
+     *
+     * @return a [RemoteSliderColors] with the configured variant colors for [RemoteSlider]
+     */
     @Composable
     public fun variantSliderColors(
         containerColor: RemoteColor? = null,
@@ -391,10 +407,18 @@ public object RemoteSliderDefaults {
         )
     }
 
-    /** Creates a [RemoteSliderColors] with default colors. */
+    /**
+     * Creates a [RemoteSliderColors] with default colors.
+     *
+     * @return a [RemoteSliderColors] with the default colors for [RemoteSlider]
+     */
     @Composable public fun colors(): RemoteSliderColors = sliderColors()
 
-    /** Creates a [RemoteSliderColors] with customizable colors. */
+    /**
+     * Creates a [RemoteSliderColors] with customizable colors.
+     *
+     * @return a [RemoteSliderColors] with the configured colors for [RemoteSlider]
+     */
     @Composable
     public fun colors(
         containerColor: RemoteColor? = null,
@@ -477,7 +501,11 @@ public class RemoteSliderColors(
     public val disabledSelectedBarSeparatorColor: RemoteColor,
     public val disabledUnselectedBarSeparatorColor: RemoteColor,
 ) {
-    /** Returns a copy of this [RemoteSliderColors], optionally overriding some values. */
+    /**
+     * Returns a copy of this [RemoteSliderColors], optionally overriding some values.
+     *
+     * @return a copy of this [RemoteSliderColors] with the specified values overridden
+     */
     public fun copy(
         containerColor: RemoteColor = this.containerColor,
         buttonIconColor: RemoteColor = this.buttonIconColor,

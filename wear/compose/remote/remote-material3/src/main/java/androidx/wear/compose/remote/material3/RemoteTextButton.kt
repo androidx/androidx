@@ -102,6 +102,8 @@ public object RemoteTextButtonDefaults {
      * Returns a [RemoteTextButtonColors] for a text button - by default, a transparent background
      * with contrasting content color. If the button is disabled then the colors default to
      * [RemoteColorScheme.onSurface] with suitable alpha values applied.
+     *
+     * @return a [RemoteTextButtonColors] with the default colors for a [RemoteTextButton]
      */
     @Composable
     @RemoteComposable
@@ -121,6 +123,7 @@ public object RemoteTextButtonDefaults {
      *   `null` to use the theme default.
      * @param disabledContentColor The content color of this text button when not enabled, or `null`
      *   to use the theme default.
+     * @return a [RemoteTextButtonColors] with the configured colors for a [RemoteTextButton]
      */
     @Composable
     @RemoteComposable
@@ -267,6 +270,7 @@ public class RemoteTextButtonColors(
      * @param contentColor the content color of this text button when enabled.
      * @param disabledContainerColor the background color of this text button when not enabled.
      * @param disabledContentColor the content color of this text button when not enabled.
+     * @return a copy of this [RemoteTextButtonColors] with the specified values overridden
      */
     public fun copy(
         containerColor: RemoteColor = this.containerColor,

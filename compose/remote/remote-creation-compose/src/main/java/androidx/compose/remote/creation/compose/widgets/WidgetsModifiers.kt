@@ -21,7 +21,11 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.runtime.Composable
 
-/** App widget lambda action support */
+/**
+ * App widget lambda action support
+ *
+ * @return a [RemoteModifier] that runs [function] when clicked
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 public fun RemoteModifier.onClick(function: () -> Unit): RemoteModifier {

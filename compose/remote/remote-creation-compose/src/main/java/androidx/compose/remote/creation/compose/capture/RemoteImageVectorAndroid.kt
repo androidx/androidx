@@ -66,6 +66,7 @@ import androidx.compose.ui.unit.isSpecified
  * @param pathFillType specifies the winding rule that decides how the interior of a [RemotePath] is
  *   calculated.
  * @param pathBuilder [RemotePathScope] lambda for adding [RemotePathNode]s to this path.
+ * @return this [RemoteImageVector.Builder] instance for chaining calls
  */
 public fun RemoteImageVector.Builder.path(
     name: String = DefaultPathName,
@@ -109,6 +110,7 @@ public fun RemoteImageVector.Builder.path(
  * @param pathFillType specifies the winding rule that decides how the interior of a [RemotePath] is
  *   calculated.
  * @param pathBuilder [RemotePathScope] lambda for adding [RemotePathNode]s to this path.
+ * @return this [RemoteImageVector.Builder] instance for chaining calls
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteImageVector.Builder.path(
@@ -151,7 +153,11 @@ public fun RemoteImageVector.Companion.vectorResource(@DrawableRes id: Int): Rem
     return remember(imageVector) { imageVector.toRemoteImageVector() }
 }
 
-/** Converts a Compose UI [ImageVector] to a [RemoteImageVector]. */
+/**
+ * Converts a Compose UI [ImageVector] to a [RemoteImageVector].
+ *
+ * @return a [RemoteImageVector] with the paths and groups of this [ImageVector]
+ */
 public fun ImageVector.toRemoteImageVector(): RemoteImageVector {
     val defWidth = if (defaultWidth.isSpecified) defaultWidth.asRdp() else DefaultIconSize.rdp
     val defHeight = if (defaultHeight.isSpecified) defaultHeight.asRdp() else DefaultIconSize.rdp

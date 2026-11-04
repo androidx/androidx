@@ -29,24 +29,52 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
 /** A class that provides access to remote time information. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteTime {
-    /** Returns the current hour as a [RemoteFloat]. */
+    /**
+     * Returns the current hour as a [RemoteFloat].
+     *
+     * @return the current hour of the day as a [RemoteFloat]
+     */
     public fun Hour(): RemoteFloat = RemoteFloat(FLOAT_TIME_IN_HR)
 
-    /** Returns the current minute as a [RemoteFloat]. */
+    /**
+     * Returns the current minute as a [RemoteFloat].
+     *
+     * @return the current minute of the hour as a [RemoteFloat]
+     */
     public fun Minutes(): RemoteFloat = RemoteFloat(FLOAT_TIME_IN_MIN)
 
-    /** Returns the current second as a [RemoteFloat]. */
+    /**
+     * Returns the current second as a [RemoteFloat].
+     *
+     * @return the current second of the minute as a [RemoteFloat]
+     */
     public fun Seconds(): RemoteFloat = RemoteFloat(FLOAT_TIME_IN_SEC)
 
-    /** Returns the continuous elapsed time in seconds as a [RemoteFloat]. */
+    /**
+     * Returns the continuous elapsed time in seconds as a [RemoteFloat].
+     *
+     * @return the continuous elapsed time in seconds as a [RemoteFloat]
+     */
     public fun ContinuousSec(): RemoteFloat = RemoteFloat(FLOAT_CONTINUOUS_SEC)
 
-    /** Returns the offset to UTC time in seconds as a [RemoteFloat]. */
+    /**
+     * Returns the offset to UTC time in seconds as a [RemoteFloat].
+     *
+     * @return the offset to UTC time in seconds as a [RemoteFloat]
+     */
     public fun UtcOffset(): RemoteFloat = RemoteFloat(FLOAT_OFFSET_TO_UTC)
 
-    /** Returns the current day of the week as a [RemoteFloat]. */
+    /**
+     * Returns the current day of the week as a [RemoteFloat].
+     *
+     * @return the current day of the week as a [RemoteFloat]
+     */
     public fun DayOfWeek(): RemoteFloat = RemoteFloat(FLOAT_WEEK_DAY)
 
-    /** Returns the current day of the month as a [RemoteFloat]. */
+    /**
+     * Returns the current day of the month as a [RemoteFloat].
+     *
+     * @return the current day of the month as a [RemoteFloat]
+     */
     public fun DayOfMonth(): RemoteFloat = RemoteFloat(FLOAT_DAY_OF_MONTH)
 }

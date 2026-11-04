@@ -249,6 +249,9 @@ public object RemoteSplitSwitchButtonDefaults {
     /**
      * Creates a [RemoteSplitSwitchButtonColors] that represents the default container and content
      * colors used in a [RemoteSplitSwitchButton].
+     *
+     * @return a [RemoteSplitSwitchButtonColors] with the default colors for
+     *   [RemoteSplitSwitchButton]
      */
     @Composable
     @RemoteComposable
@@ -321,6 +324,8 @@ public object RemoteSplitSwitchButtonDefaults {
      *   disabled and unchecked, or `null` to use the theme default.
      * @param disabledUncheckedTrackBorderColor The track border color of the
      *   [RemoteSplitSwitchButton] when disabled and unchecked, or `null` to use the theme default.
+     * @return a [RemoteSplitSwitchButtonColors] with the configured colors for
+     *   [RemoteSplitSwitchButton]
      */
     @Composable
     @RemoteComposable
@@ -551,7 +556,11 @@ public class RemoteSplitSwitchButtonColors(
     public val disabledUncheckedThumbColor: RemoteColor,
     public val disabledUncheckedTrackBorderColor: RemoteColor,
 ) {
-    /** Returns a copy of this [RemoteSplitSwitchButtonColors] optionally overriding some values. */
+    /**
+     * Returns a copy of this [RemoteSplitSwitchButtonColors] optionally overriding some values.
+     *
+     * @return a copy of this [RemoteSplitSwitchButtonColors] with the specified values overridden
+     */
     public fun copy(
         checkedContainerColor: RemoteColor = this.checkedContainerColor,
         checkedContentColor: RemoteColor = this.checkedContentColor,

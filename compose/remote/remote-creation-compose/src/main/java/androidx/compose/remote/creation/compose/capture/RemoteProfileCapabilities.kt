@@ -34,6 +34,8 @@ import androidx.compose.runtime.Composable
  * Some profiles, such as `androidx.glance.wear.GlanceWearProfiles.wearWidgets`, do not include the
  * color theme operation. Design systems and components can check this before emitting themed colors
  * and fall back to named or literal colors when it is `false`.
+ *
+ * @return `true` if the current profile supports themed colors, `false` otherwise
  */
 @Composable
 @RemoteComposable
@@ -47,6 +49,9 @@ public fun currentProfileSupportsThemedColors(): Boolean =
  *
  * Some profiles, such as `androidx.glance.wear.GlanceWearProfiles.wearWidgets`, do not include
  * those touch operations.
+ *
+ * @return `true` if the current profile supports [onTouchDown], [onTouchUp], and [onTouchCancel],
+ *   `false` otherwise
  */
 @Composable
 @RemoteComposable
@@ -65,6 +70,8 @@ public fun currentProfileSupportsTouchModifiers(): Boolean =
  * Without it, clipping is limited to the rectangle and rounded rectangle shapes supported by the
  * [clip] modifier, so components can check this before clipping drawn content, such as a background
  * image, to a custom shape.
+ *
+ * @return `true` if the current profile supports clipping to an arbitrary path, `false` otherwise
  */
 @Composable
 @RemoteComposable
@@ -77,6 +84,8 @@ public fun currentProfileSupportsPathClip(): Boolean = currentProfileSupports(Op
  * Prefer specific capability helpers such as [currentProfileSupportsThemedColors] or
  * [currentProfileSupportsTouchModifiers] when available. Operation IDs are not public API so must
  * be known ahead of time. Use with care.
+ *
+ * @return `true` if the current profile supports all [operations], `false` otherwise
  */
 @Composable
 @RemoteComposable

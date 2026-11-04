@@ -65,6 +65,7 @@ public abstract class RemoteCornerBasedShape(
      *   inset by `strokeWidth / 2` to keep the centered stroke within component bounds.
      * @param offset the top-left offset of the outline (defaults to `(strokeWidth/2,
      *   strokeWidth/2)` for stroked borders)
+     * @return the [RemoteOutline] for this shape
      */
     public fun createOutline(
         size: RemoteSize,
@@ -158,6 +159,7 @@ public abstract class RemoteCornerBasedShape(
      * @param bottomStart the resolved size for the bottom start corner
      * @param size the resolved size of the shape outline
      * @param offset the top-left offset of the shape outline
+     * @return the [RemoteOutline] for this shape with the resolved corner sizes
      */
     public abstract fun createOutline(
         topStart: RemoteFloat,
@@ -175,6 +177,7 @@ public abstract class RemoteCornerBasedShape(
      * @param topEnd a size of the top end corner
      * @param bottomEnd a size of the bottom end corner
      * @param bottomStart a size of the bottom start corner
+     * @return a copy of this [RemoteCornerBasedShape] with the updated corner sizes
      */
     public abstract fun copy(
         topStart: RemoteCornerSize = this.topStart,

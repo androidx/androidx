@@ -182,7 +182,11 @@ public class RemoteColorScheme(
             source.resolve(WearColorRoles.OnErrorContainer, colorScheme.onErrorContainer),
     )
 
-    /** Returns a copy of this [RemoteColorScheme], optionally overriding some of the values. */
+    /**
+     * Returns a copy of this [RemoteColorScheme], optionally overriding some of the values.
+     *
+     * @return a copy of this [RemoteColorScheme] with the specified values overridden
+     */
     public fun copy(
         primary: RemoteColor = this.primary,
         primaryDim: RemoteColor = this.primaryDim,
@@ -319,6 +323,7 @@ private object WearColorRoles {
  *
  * @param fallbackColorScheme The [ColorScheme] used for fallback values when a system color cannot
  *   be resolved, and for the named colors on profiles without themed color support.
+ * @return a [RemoteColorScheme] backed by Android system dynamic colors
  */
 @Composable
 @RemoteComposable

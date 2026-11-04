@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.TileMode as ComposeTileMode
  *   position at the far right and bottom of the drawing area
  * @param tileMode Determines the behavior for how the shader is to fill a region outside its
  *   bounds. Defaults to [ComposeTileMode.Clamp] to repeat the edge pixels
+ * @return a [RemoteShaderBrush] that draws a linear gradient across the given [colors]
  */
 @Stable
 public fun RemoteBrush.Companion.linearGradient(
@@ -78,6 +79,7 @@ public fun RemoteBrush.Companion.linearGradient(
  *   which indicates the right of the specified drawing area
  * @param tileMode Determines the behavior for how the shader is to fill a region outside its
  *   bounds. Defaults to [ComposeTileMode.Clamp] to repeat the edge pixels
+ * @return a [RemoteShaderBrush] that draws a horizontal gradient across the given [colors]
  */
 @Stable
 public fun RemoteBrush.Companion.horizontalGradient(
@@ -110,6 +112,7 @@ public fun RemoteBrush.Companion.horizontalGradient(
  *   which indicates the bottom of the specified drawing area
  * @param tileMode Determines the behavior for how the shader is to fill a region outside its
  *   bounds. Defaults to [ComposeTileMode.Clamp] to repeat the edge pixels
+ * @return a [RemoteShaderBrush] that draws a vertical gradient across the given [colors]
  */
 @Stable
 @Suppress("PrimitiveInCollection")

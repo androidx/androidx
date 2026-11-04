@@ -36,6 +36,8 @@ public object RemoteTimeDefaults {
     /**
      * Returns a [RemoteBoolean] indicating whether the time should be displayed in 24-hour format.
      * Currently captured at recording time.
+     *
+     * @return a [RemoteBoolean] that is `true` when 24-hour format is enabled
      */
     @RemoteComposable
     @Composable

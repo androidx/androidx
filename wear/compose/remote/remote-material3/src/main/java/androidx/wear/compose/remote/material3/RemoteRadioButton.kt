@@ -152,7 +152,11 @@ public object RemoteRadioButtonDefaults {
     /** The outer size of the radio button control. */
     public val ControlSize: RemoteDp = 24.rdp
 
-    /** Creates a [RemoteRadioButtonColors] with default values for [RemoteRadioButton]. */
+    /**
+     * Creates a [RemoteRadioButtonColors] with default values for [RemoteRadioButton].
+     *
+     * @return a [RemoteRadioButtonColors] with the default colors for [RemoteRadioButton]
+     */
     @Composable
     @RemoteComposable
     public fun radioButtonColors(): RemoteRadioButtonColors =
@@ -201,6 +205,7 @@ public object RemoteRadioButtonDefaults {
      *   the theme default.
      * @param disabledUnselectedControlColor Control color when unselected and disabled, or `null`
      *   to use the theme default.
+     * @return a [RemoteRadioButtonColors] with the configured colors for [RemoteRadioButton]
      */
     @Composable
     @RemoteComposable
@@ -424,7 +429,11 @@ public class RemoteRadioButtonColors(
             ifFalse = selected.select(disabledSelectedControlColor, disabledUnselectedControlColor),
         )
 
-    /** Returns a copy of this [RemoteRadioButtonColors] optionally overriding some values. */
+    /**
+     * Returns a copy of this [RemoteRadioButtonColors] optionally overriding some values.
+     *
+     * @return a copy of this [RemoteRadioButtonColors] with the specified values overridden
+     */
     public fun copy(
         selectedContainerColor: RemoteColor = this.selectedContainerColor,
         selectedContentColor: RemoteColor = this.selectedContentColor,

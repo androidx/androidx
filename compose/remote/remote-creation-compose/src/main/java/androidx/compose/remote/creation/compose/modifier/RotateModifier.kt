@@ -28,6 +28,7 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
  *
  * @sample androidx.compose.remote.creation.compose.samples.RotateSample
  * @param degrees Degrees to rotate the content.
+ * @return a [RemoteModifier] that rotates the content by [degrees]
  * @see graphicsLayer
  */
 public fun RemoteModifier.rotate(degrees: RemoteFloat): RemoteModifier =

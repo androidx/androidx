@@ -75,6 +75,14 @@ public fun RemoteImageBitmap.Companion.createNamedRemoteImageBitmap(
         )
     }
 
+/**
+ * Creates a named [RemoteImageBitmap] with a deferred initial value.
+ *
+ * @param name unique name to identify this state within its [domain]
+ * @param domain domain for the named state, defaults to [RemoteState.Domain.User]
+ * @param value provider of the initial [ImageBitmap] value
+ * @return a [RemoteImageBitmap] representing the named bitmap
+ */
 public fun RemoteImageBitmap.Companion.createNamedRemoteImageBitmap(
     name: String,
     domain: RemoteState.Domain = RemoteState.Domain.User,
@@ -156,6 +164,7 @@ public fun createNamedRemoteImageBitmap(
  * Creates a [MutableRemoteImageBitmap] with an [initialValue].
  *
  * @param initialValue The initial [ImageBitmap] value.
+ * @return a [MutableRemoteImageBitmap] initialized with [initialValue]
  */
 @RememberInComposition
 public fun MutableRemoteImageBitmap(initialValue: ImageBitmap): MutableRemoteImageBitmap =
@@ -224,7 +233,11 @@ public fun rememberNamedRemoteImageBitmap(
     }
 }
 
-/** A Composable function to remember and provide a **named** remote bitmap from a URL. */
+/**
+ * A Composable function to remember and provide a **named** remote bitmap from a URL.
+ *
+ * @return a [RemoteImageBitmap] representing the named bitmap loaded from [url]
+ */
 @RemoteComposable
 @Composable
 public fun rememberNamedRemoteImageBitmap(
@@ -239,7 +252,11 @@ public fun rememberNamedRemoteImageBitmap(
 public val ImageBitmap.rb: RemoteImageBitmap
     get() = asRemoteImageBitmap()
 
-/** Extension function to convert a [ImageBitmap] to a [RemoteImageBitmap]. */
+/**
+ * Extension function to convert a [ImageBitmap] to a [RemoteImageBitmap].
+ *
+ * @return a [RemoteImageBitmap] representing this [ImageBitmap]
+ */
 public fun ImageBitmap.asRemoteImageBitmap(): RemoteImageBitmap = RemoteImageBitmap(this)
 
 /**

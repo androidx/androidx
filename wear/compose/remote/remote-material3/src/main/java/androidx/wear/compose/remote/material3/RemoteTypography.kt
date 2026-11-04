@@ -215,7 +215,11 @@ public class RemoteTypography(
         numeralExtraSmall = RemoteTextStyle.fromTextStyle(typography.numeralExtraSmall),
     )
 
-    /** Returns a copy of this [RemoteTypography], optionally overriding some of the values. */
+    /**
+     * Returns a copy of this [RemoteTypography], optionally overriding some of the values.
+     *
+     * @return a copy of this [RemoteTypography] with the specified values overridden
+     */
     public fun copy(
         displayLarge: RemoteTextStyle = this.displayLarge,
         displayMedium: RemoteTextStyle = this.displayMedium,

@@ -58,6 +58,7 @@ import androidx.compose.ui.graphics.layer.CompositingStrategy.Companion.Offscree
  * @param compositingStrategy The compositing strategy to use for the layer.
  * @param cameraDistance The camera distance for 3D transforms.
  * @param renderEffect The [RemoteRenderEffect] to apply, or null.
+ * @return a [RemoteModifier] that applies the graphics layer effects
  */
 public fun RemoteModifier.graphicsLayer(
     scaleX: RemoteFloat = 1f.rf,
@@ -175,6 +176,7 @@ internal class GraphicsLayerScopeImpl : RemoteGraphicsLayerScope {
  * ```
  *
  * @param block The lambda block to configure the [RemoteGraphicsLayerScope].
+ * @return a [RemoteModifier] that applies the graphics layer configured by [block]
  */
 public fun RemoteModifier.graphicsLayer(
     block: RemoteGraphicsLayerScope.() -> Unit

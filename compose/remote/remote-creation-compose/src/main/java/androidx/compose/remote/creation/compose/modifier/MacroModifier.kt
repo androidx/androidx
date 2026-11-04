@@ -36,6 +36,7 @@ internal class IncludeMacroModifier(val id: Int, val args: Array<out RemoteInt>?
  * Includes a macro as a modifier.
  *
  * @param id The id of the macro to include.
+ * @return a [RemoteModifier] that includes macro [id]
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.includeMacro(id: Int): RemoteModifier = then(IncludeMacroModifier(id))
@@ -45,6 +46,7 @@ public fun RemoteModifier.includeMacro(id: Int): RemoteModifier = then(IncludeMa
  *
  * @param id The id of the macro to include.
  * @param args The arguments for the macro.
+ * @return a [RemoteModifier] that includes macro [id] with [args]
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.includeMacro(id: Int, vararg args: RemoteInt): RemoteModifier =

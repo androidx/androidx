@@ -54,6 +54,7 @@ internal class ClickableModifier(
  *   disabled for accessibility services
  * @param role the type of user interface element. Accessibility services might use this to describe
  *   the element or do customizations
+ * @return a [RemoteModifier] that makes the component clickable
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.clickable(

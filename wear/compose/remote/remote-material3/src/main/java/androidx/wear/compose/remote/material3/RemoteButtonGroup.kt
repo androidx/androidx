@@ -174,6 +174,7 @@ public sealed interface RemoteButtonGroupScope {
      *
      * @param weight The proportional width to give to this element, as a multiplier of the total
      *   available width. Must be a positive constant.
+     * @return a [RemoteModifier] that sizes the element's width proportional to [weight]
      */
     public fun RemoteModifier.weight(weight: RemoteFloat): RemoteModifier
 
@@ -181,6 +182,7 @@ public sealed interface RemoteButtonGroupScope {
      * Sets the minimum width of this item, defaults to [RemoteButtonGroupDefaults.MinWidth].
      *
      * @param minWidth The minimum width to use for this item. Must be a positive constant.
+     * @return a [RemoteModifier] that sets the minimum width of the item to [minWidth]
      */
     public fun RemoteModifier.minWidth(
         minWidth: RemoteDp = RemoteButtonGroupDefaults.MinWidth
@@ -192,6 +194,8 @@ public sealed interface RemoteButtonGroupScope {
      *
      * The animation needs touch actions, so it's skipped when the creation profile doesn't support
      * them.
+     *
+     * @return a [RemoteModifier] that animates the item's width when pressed
      */
     public fun RemoteModifier.animateWidth(): RemoteModifier
 }
@@ -427,6 +431,8 @@ public object RemoteButtonGroupDefaults {
     /**
      * Return the recommended padding to use as the contentPadding of a [RemoteButtonGroup], when it
      * takes the full width of the screen.
+     *
+     * @return the recommended [RemotePaddingValues] for a full-width [RemoteButtonGroup]
      */
     public fun fullWidthPaddings(): RemotePaddingValues {
         // TODO(b/466078229): Use expression of the percentage of screen width as padding,

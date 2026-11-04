@@ -604,6 +604,8 @@ public object RemoteButtonDefaults {
     /**
      * Creates a [RemoteButtonColors] that represents the default background and content colors used
      * in a [RemoteButton].
+     *
+     * @return a [RemoteButtonColors] with the default colors for a filled [RemoteButton]
      */
     @Composable
     @RemoteComposable
@@ -630,6 +632,7 @@ public object RemoteButtonDefaults {
      *   not enabled, or `null` to use the theme default.
      * @param disabledIconColor The icon color of this [RemoteButton] when not enabled, or `null` to
      *   use the theme default.
+     * @return a [RemoteButtonColors] with the configured colors for a filled [RemoteButton]
      */
     @Composable
     @RemoteComposable
@@ -666,6 +669,8 @@ public object RemoteButtonDefaults {
     /**
      * Creates a [RemoteButtonColors] with a muted background and contrasting content color, the
      * defaults for medium emphasis buttons.
+     *
+     * @return a [RemoteButtonColors] with the default colors for a filled tonal [RemoteButton]
      */
     @Composable
     @RemoteComposable
@@ -692,6 +697,7 @@ public object RemoteButtonDefaults {
      *   not enabled, or `null` to use the theme default.
      * @param disabledIconColor The icon color of this [RemoteButton] when not enabled, or `null` to
      *   use the theme default.
+     * @return a [RemoteButtonColors] with the configured colors for a filled tonal [RemoteButton]
      */
     @Composable
     @RemoteComposable
@@ -719,7 +725,11 @@ public object RemoteButtonDefaults {
         )
     }
 
-    /** Creates a [RemoteButtonColors] with higher chroma container colors. */
+    /**
+     * Creates a [RemoteButtonColors] with higher chroma container colors.
+     *
+     * @return a [RemoteButtonColors] with the default colors for a filled variant [RemoteButton]
+     */
     @Composable
     @RemoteComposable
     public fun filledVariantButtonColors(): RemoteButtonColors =
@@ -744,6 +754,7 @@ public object RemoteButtonDefaults {
      *   not enabled, or `null` to use the theme default.
      * @param disabledIconColor The icon color of this [RemoteButton] when not enabled, or `null` to
      *   use the theme default.
+     * @return a [RemoteButtonColors] with the configured colors for a filled variant [RemoteButton]
      */
     @Composable
     @RemoteComposable
@@ -771,7 +782,11 @@ public object RemoteButtonDefaults {
         )
     }
 
-    /** Creates a [RemoteButtonColors] with a transparent background for outlined buttons. */
+    /**
+     * Creates a [RemoteButtonColors] with a transparent background for outlined buttons.
+     *
+     * @return a [RemoteButtonColors] with the default colors for an outlined [RemoteButton]
+     */
     @Composable
     @RemoteComposable
     public fun outlinedButtonColors(): RemoteButtonColors =
@@ -792,6 +807,7 @@ public object RemoteButtonDefaults {
      *   not enabled, or `null` to use the theme default.
      * @param disabledIconColor The icon color of this [RemoteButton] when not enabled, or `null` to
      *   use the theme default.
+     * @return a [RemoteButtonColors] with the configured colors for an outlined [RemoteButton]
      */
     @Composable
     @RemoteComposable
@@ -819,6 +835,8 @@ public object RemoteButtonDefaults {
      * Creates a [RemoteButtonColors] with transparent background, the defaults for low emphasis
      * buttons. Use [childButtonColors] for optional or supplementary actions with the least amount
      * of prominence.
+     *
+     * @return a [RemoteButtonColors] with the default colors for a child [RemoteButton]
      */
     @Composable
     @RemoteComposable
@@ -842,6 +860,7 @@ public object RemoteButtonDefaults {
      *   not enabled, or `null` to use the theme default.
      * @param disabledIconColor The icon color of this [RemoteButton] when not enabled, or `null` to
      *   use the theme default.
+     * @return a [RemoteButtonColors] with the configured colors for a child [RemoteButton]
      */
     @Composable
     @RemoteComposable
@@ -868,6 +887,9 @@ public object RemoteButtonDefaults {
     /**
      * Creates a [RemoteButtonColors] for the content in a [RemoteButton] with an image container
      * painter.
+     *
+     * @return a [RemoteButtonColors] with the default colors for a [RemoteButton] with a container
+     *   painter
      */
     @Composable
     @RemoteComposable
@@ -890,6 +912,8 @@ public object RemoteButtonDefaults {
      *   not enabled, or `null` to use the theme default.
      * @param disabledIconColor The icon color of this [RemoteButton] when not enabled, or `null` to
      *   use the theme default.
+     * @return a [RemoteButtonColors] with the configured colors for a [RemoteButton] with a
+     *   container painter
      */
     @Composable
     @RemoteComposable
@@ -916,6 +940,8 @@ public object RemoteButtonDefaults {
     /**
      * Creates a [RemoteButtonColors] for the content in a [RemoteButton], returns default
      * [buttonColors] if painter is null, else return [defaultButtonWithContainerPainterColors]
+     *
+     * @return a [RemoteButtonColors] for a [RemoteButton] with an optional [containerPainter]
      */
     @Composable
     @RemoteComposable
@@ -1121,6 +1147,7 @@ public object RemoteButtonDefaults {
      * @param shape Define the container shape.
      * @param contentScale the rule to apply to scale the image when its size does not match the
      *   layout
+     * @return a [RemotePainter] that draws [image] with the optional [scrim] for a [RemoteButton]
      */
     @Composable
     @RemoteComposable
@@ -1143,6 +1170,7 @@ public object RemoteButtonDefaults {
      *
      * @param containerPainter The [RemotePainter] to use to draw the container background of the
      *   [RemoteButton].
+     * @return a [RemotePainter] that draws [containerPainter] with disabled alpha applied
      */
     @Composable
     @RemoteComposable
@@ -1156,6 +1184,8 @@ public object RemoteButtonDefaults {
     /**
      * Creates a [RemoteBrush] for the recommended scrim drawn on top of image container
      * backgrounds.
+     *
+     * @return a [RemoteBrush] for drawing a scrim over an image container background
      */
     @Composable
     @RemoteComposable
@@ -1170,6 +1200,8 @@ public object RemoteButtonDefaults {
      * backgrounds.
      *
      * @param size The size of the scrim brush gradient.
+     * @return a [RemoteBrush] for drawing a scrim of the given [size] over an image container
+     *   background
      */
     @Composable
     @RemoteComposable
@@ -1245,6 +1277,7 @@ public class RemoteButtonColors(
      * @param disabledSecondaryContentColor The secondary content color of this [RemoteButton] when
      *   not enabled
      * @param disabledIconColor The icon color of this [RemoteButton] when not enabled
+     * @return a copy of this [RemoteButtonColors] with the specified values overridden
      */
     public fun copy(
         containerColor: RemoteColor = this.containerColor,
@@ -1360,6 +1393,8 @@ private fun RemoteDrawScope.drawSolidColorShape(shape: RemoteShape, color: Remot
 /**
  * Modifier to be applied to a [RemoteButton] to ensure that its size meets the recommended
  * minimums.
+ *
+ * @return a [RemoteModifier] that enforces the minimum recommended button size
  */
 internal fun RemoteModifier.buttonSizeModifier(): RemoteModifier =
     this.defaultMinSize(

@@ -45,6 +45,7 @@ internal class WidthInModifier(val min: RemoteDp? = null, val max: RemoteDp? = n
  *
  * @param min The minimum width.
  * @param max The maximum width.
+ * @return a [RemoteModifier] that constrains the width between [min] and [max]
  */
 public fun RemoteModifier.widthIn(min: RemoteDp? = null, max: RemoteDp? = null): RemoteModifier {
     return then(WidthInModifier(min = min, max = max))

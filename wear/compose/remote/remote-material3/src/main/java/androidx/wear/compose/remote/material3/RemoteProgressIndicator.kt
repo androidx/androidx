@@ -33,6 +33,8 @@ import androidx.compose.runtime.Immutable
  * Returns [progress] animated by [animationSpec] (by default the slow effects spec of
  * [RemoteMaterialTheme.motionScheme]) whenever it changes, like Wear Material3 progress indicators.
  * A constant [progress] can't change, so it is returned as is and adds nothing to the document.
+ *
+ * @return the animated [RemoteFloat] progress, or [progress] unchanged if constant
  */
 @Composable
 @RemoteComposable
@@ -102,7 +104,11 @@ public object RemoteProgressIndicatorDefaults {
      */
     public val CurvedIndicatorDotFadeOutFraction: RemoteFloat = 0.5f.rf
 
-    /** Creates a [RemoteProgressIndicatorColors] with the default colors. */
+    /**
+     * Creates a [RemoteProgressIndicatorColors] with the default colors.
+     *
+     * @return a [RemoteProgressIndicatorColors] with the default colors
+     */
     @Composable
     @RemoteComposable
     public fun colors(): RemoteProgressIndicatorColors = defaultProgressIndicatorColors()
@@ -111,6 +117,7 @@ public object RemoteProgressIndicatorDefaults {
      * Returns recommended size of the gap based on [strokeWidth].
      *
      * @param strokeWidth The stroke width of the progress indicator.
+     * @return the recommended gap size in [RemoteDp] for [strokeWidth]
      */
     public fun calculateRecommendedGapSize(strokeWidth: RemoteDp): RemoteDp = strokeWidth / 3f.rf
 
@@ -126,6 +133,7 @@ public object RemoteProgressIndicatorDefaults {
      * @param disabledTrackColor The track color when disabled, or `null` to use the theme default.
      * @param disabledOverflowTrackColor The overflow track color when disabled, or `null` to use
      *   the theme default.
+     * @return a [RemoteProgressIndicatorColors] with the configured colors
      */
     @Composable
     @RemoteComposable
@@ -172,6 +180,7 @@ public object RemoteProgressIndicatorDefaults {
      *   to use the theme default.
      * @param disabledOverflowTrackBrush The [RemoteBrush] used to draw the overflow track when
      *   disabled, or `null` to use the theme default.
+     * @return a [RemoteProgressIndicatorColors] with the configured brushes
      */
     @Composable
     @RemoteComposable
@@ -239,6 +248,7 @@ public class RemoteProgressIndicatorColors(
      * Represents the indicator color, depending on [enabled].
      *
      * @param enabled whether the component is enabled.
+     * @return the [RemoteBrush] used to draw the indicator
      */
     internal fun indicatorBrush(enabled: RemoteBoolean): RemoteBrush =
         resolveRemoteBrush(enabled, indicatorBrush, disabledIndicatorBrush)
@@ -247,6 +257,7 @@ public class RemoteProgressIndicatorColors(
      * Represents the track color, depending on [enabled].
      *
      * @param enabled whether the component is enabled.
+     * @return the [RemoteBrush] used to draw the track
      */
     internal fun trackBrush(enabled: RemoteBoolean): RemoteBrush =
         resolveRemoteBrush(enabled, trackBrush, disabledTrackBrush)
@@ -255,6 +266,7 @@ public class RemoteProgressIndicatorColors(
      * Represents the animated overflow track color.
      *
      * @param enabled whether the component is enabled.
+     * @return the [RemoteBrush] used to draw the overflow track
      */
     internal fun overflowTrackBrush(enabled: RemoteBoolean): RemoteBrush =
         resolveRemoteBrush(enabled, overflowTrackBrush, disabledOverflowTrackBrush)
@@ -269,6 +281,7 @@ public class RemoteProgressIndicatorColors(
      * @param disabledIndicatorBrush The brush used to draw the indicator when disabled.
      * @param disabledTrackBrush The brush used to draw the track when disabled.
      * @param disabledOverflowTrackBrush The brush used to draw the overflow track when disabled.
+     * @return a copy of this [RemoteProgressIndicatorColors] with the specified values overridden
      */
     public fun copy(
         indicatorBrush: RemoteBrush = this.indicatorBrush,

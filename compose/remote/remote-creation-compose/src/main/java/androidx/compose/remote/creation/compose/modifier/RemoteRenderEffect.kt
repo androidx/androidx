@@ -17,6 +17,12 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.compose.ui.graphics.RenderEffect
 
+/** Visual effect applied to a [graphicsLayer], such as blur. */
 public abstract class RemoteRenderEffect {
+    /**
+     * Converts this effect to a Compose [RenderEffect].
+     *
+     * @return the equivalent Compose [RenderEffect]
+     */
     public abstract fun toComposeRenderEffect(): RenderEffect
 }

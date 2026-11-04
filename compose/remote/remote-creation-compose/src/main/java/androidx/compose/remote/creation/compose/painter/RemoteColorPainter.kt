@@ -43,5 +43,6 @@ public class RemoteColorPainter(private val color: RemoteColor) : RemotePainter(
  * Creates a [RemoteColorPainter] from a [RemoteColor].
  *
  * @param color The [RemoteColor] to create the painter for.
+ * @return a [RemotePainter] that draws [color]
  */
 public fun painterRemoteColor(color: RemoteColor): RemotePainter = RemoteColorPainter(color = color)

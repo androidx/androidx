@@ -193,6 +193,7 @@ internal class GraphicsLayerModifier(
  * @param compositingStrategy The compositing strategy to use for the layer.
  * @param cameraDistance The camera distance for 3D transforms.
  * @param renderEffect The [RemoteRenderEffect] to apply, or null.
+ * @return a [RemoteModifier] that applies the graphics layer effects
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.graphicsLayer(

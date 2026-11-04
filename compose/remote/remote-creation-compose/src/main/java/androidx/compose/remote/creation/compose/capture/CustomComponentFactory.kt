@@ -25,6 +25,8 @@ public interface CustomComponentFactory {
     /**
      * Given a component that contains a Custom operation as the first in its list create an
      * appropriate CustomComponent for the player to use to draw the component.
+     *
+     * @return the specialized [Component] for the player to draw
      */
     public fun customComponentFor(component: Component): Component
 }

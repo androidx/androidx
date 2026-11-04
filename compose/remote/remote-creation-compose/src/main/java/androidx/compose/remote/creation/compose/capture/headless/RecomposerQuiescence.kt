@@ -191,6 +191,7 @@ internal enum class QuiescenceResult {
  * @param maxApplyNotificationTimeouts how many timed-out waits for other threads' apply observer
  *   notifications this call tolerates before giving up with
  *   [QuiescenceResult.ApplyNotificationsTimedOut], see [MAX_APPLY_NOTIFICATION_TIMEOUTS].
+ * @return the [QuiescenceResult] describing whether [recomposer] settled
  */
 internal suspend fun awaitRecomposerQuiescence(
     recomposer: Recomposer,
