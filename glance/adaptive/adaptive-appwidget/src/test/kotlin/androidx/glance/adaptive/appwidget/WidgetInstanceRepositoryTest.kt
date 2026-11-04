@@ -18,12 +18,16 @@ package androidx.glance.adaptive.appwidget
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
+import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,12 +56,48 @@ class WidgetInstanceRepositoryTest {
         override suspend fun onUpdate(context: Context) {}
     }
 
+    /** A second receiver for the widget definition of [MatchingReceiver], which is not allowed. */
+    private class DuplicateMatchingReceiver : GlanceAdaptiveWidgetReceiver() {
+        override val widgetName: String = "matching_widget"
+
+        override suspend fun onUpdate(context: Context) {}
+    }
+
+    private class ThrowingConstructorReceiver : GlanceAdaptiveWidgetReceiver() {
+        init {
+            throw IllegalStateException("Simulated constructor failure")
+        }
+
+        override val widgetName: String
+            get() = "throwing_widget"
+
+        override suspend fun onUpdate(context: Context) {}
+    }
+
+    private class ThrowingWidgetNameReceiver : GlanceAdaptiveWidgetReceiver() {
+        override val widgetName: String
+            get() = throw IllegalStateException("Simulated widgetName failure")
+
+        override suspend fun onUpdate(context: Context) {}
+    }
+
+    private class NoDefaultConstructorReceiver(override val widgetName: String) :
+        GlanceAdaptiveWidgetReceiver() {
+        override suspend fun onUpdate(context: Context) {}
+    }
+
+    /** A receiver of the same broadcast that is not a GlanceAdaptiveWidgetReceiver. */
+    private class PlainReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {}
+    }
+
     private lateinit var context: Context
     private lateinit var repository: WidgetInstanceRepository
 
     @Before
     fun setUp() {
         WidgetOptionsCache.clear()
+        WidgetInstanceRepository.resetForTesting()
         context = ApplicationProvider.getApplicationContext()
         repository = WidgetInstanceRepository(context)
     }
@@ -74,10 +114,18 @@ class WidgetInstanceRepositoryTest {
     }
 
     @Test
-    fun findAppWidgetIdsForWidgetName_withNoReceivers_returnsEmptyMap() {
-        val result = repository.findAppWidgetIdsForWidgetName("matching_widget", widgetIds = null)
+    fun findAppWidgetIdsForWidgetName_withNoReceivers_throws() {
+        assertThrows(IllegalArgumentException::class.java) {
+            repository.findAppWidgetIdsForWidgetName("matching_widget", widgetIds = null)
+        }
+    }
 
-        assertThat(result).isEmpty()
+    @Test
+    fun findAppWidgetIdsForWidgetName_withEmptyWidgetIdsAndUnknownWidgetName_throws() {
+        // The widgetName is validated even when nothing is targeted.
+        assertThrows(IllegalArgumentException::class.java) {
+            repository.findAppWidgetIdsForWidgetName("matching_widget", widgetIds = emptySet())
+        }
     }
 
     @Test
@@ -233,36 +281,130 @@ class WidgetInstanceRepositoryTest {
     }
 
     @Test
-    fun findReceiverComponentsForWidgetName_withZeroBoundWidgets_returnsMatchingComponent() {
+    fun resolveReceiverComponent_withZeroBoundWidgets_returnsMatchingComponent() {
         registerReceiverInManifest(MatchingReceiver::class.java.name)
 
-        val components = repository.findReceiverComponentsForWidgetName("matching_widget")
-
-        val expectedComponent =
-            ComponentName(context.packageName, MatchingReceiver::class.java.name)
-        assertThat(components).containsExactly(expectedComponent)
+        assertThat(repository.resolveReceiverComponent("matching_widget"))
+            .isEqualTo(componentOf(MatchingReceiver::class.java.name))
     }
 
     @Test
     @Config(sdk = [32])
-    fun findReceiverComponentsForWidgetName_preSdk33_returnsMatchingComponent() {
+    fun resolveReceiverComponent_preSdk33_returnsMatchingComponent() {
         registerReceiverInManifest(MatchingReceiver::class.java.name)
 
-        val components = repository.findReceiverComponentsForWidgetName("matching_widget")
-
-        val expectedComponent =
-            ComponentName(context.packageName, MatchingReceiver::class.java.name)
-        assertThat(components).containsExactly(expectedComponent)
+        assertThat(repository.resolveReceiverComponent("matching_widget"))
+            .isEqualTo(componentOf(MatchingReceiver::class.java.name))
     }
 
     @Test
-    fun findReceiverComponentsForWidgetName_withUnmatchedWidgetName_returnsEmpty() {
+    fun resolveReceiverComponent_withUnmatchedWidgetName_throwsNamingIt() {
         registerReceiverInManifest(MatchingReceiver::class.java.name)
 
-        val components = repository.findReceiverComponentsForWidgetName("unmatched_widget")
+        val error =
+            assertThrows(IllegalArgumentException::class.java) {
+                repository.resolveReceiverComponent("unmatched_widget")
+            }
 
-        assertThat(components).isEmpty()
+        assertThat(error).hasMessageThat().contains("unmatched_widget")
     }
+
+    @Test
+    fun resolveReceiverComponent_withDuplicateWidgetName_throwsListingReceivers() {
+        registerReceiverInManifest(MatchingReceiver::class.java.name)
+        registerReceiverInManifest(DuplicateMatchingReceiver::class.java.name)
+
+        val error =
+            assertThrows(IllegalArgumentException::class.java) {
+                repository.resolveReceiverComponent("matching_widget")
+            }
+
+        assertThat(error).hasMessageThat().contains(MatchingReceiver::class.java.name)
+        assertThat(error).hasMessageThat().contains(DuplicateMatchingReceiver::class.java.name)
+    }
+
+    @Test
+    fun resolveReceiverComponent_withDuplicateOfAnotherWidgetName_resolvesRequestedOne() {
+        registerReceiverInManifest(OtherReceiver::class.java.name)
+        registerReceiverInManifest(MatchingReceiver::class.java.name)
+        registerReceiverInManifest(DuplicateMatchingReceiver::class.java.name)
+
+        assertThat(repository.resolveReceiverComponent("other_widget"))
+            .isEqualTo(componentOf(OtherReceiver::class.java.name))
+    }
+
+    @Test
+    fun resolveReceiverComponent_withDisabledReceiver_resolvesIt() {
+        registerReceiverInManifest(MatchingReceiver::class.java.name)
+        context.packageManager.setComponentEnabledSetting(
+            componentOf(MatchingReceiver::class.java.name),
+            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+            PackageManager.DONT_KILL_APP,
+        )
+
+        assertThat(repository.resolveReceiverComponent("matching_widget"))
+            .isEqualTo(componentOf(MatchingReceiver::class.java.name))
+    }
+
+    @Test
+    fun resolveReceiverComponent_withThrowingConstructor_throwsIllegalStateWithCause() {
+        registerReceiverInManifest(MatchingReceiver::class.java.name)
+        registerReceiverInManifest(ThrowingConstructorReceiver::class.java.name)
+
+        val error =
+            assertThrows(IllegalStateException::class.java) {
+                repository.resolveReceiverComponent("matching_widget")
+            }
+
+        assertThat(error).hasMessageThat().contains(ThrowingConstructorReceiver::class.java.name)
+        assertThat(error).hasCauseThat().hasMessageThat().isEqualTo("Simulated constructor failure")
+    }
+
+    @Test
+    fun resolveReceiverComponent_withThrowingWidgetName_throwsIllegalStateWithCause() {
+        registerReceiverInManifest(ThrowingWidgetNameReceiver::class.java.name)
+
+        val error =
+            assertThrows(IllegalStateException::class.java) {
+                repository.resolveReceiverComponent("matching_widget")
+            }
+
+        assertThat(error).hasCauseThat().hasMessageThat().isEqualTo("Simulated widgetName failure")
+    }
+
+    @Test
+    fun resolveReceiverComponent_withoutNoArgConstructor_throwsIllegalState() {
+        registerReceiverInManifest(NoDefaultConstructorReceiver::class.java.name)
+
+        assertThrows(IllegalStateException::class.java) {
+            repository.resolveReceiverComponent("matching_widget")
+        }
+    }
+
+    @Test
+    fun resolveReceiverComponent_skipsReceiversThatAreNotGlanceAdaptiveWidgetReceivers() {
+        registerReceiverInManifest(PlainReceiver::class.java.name)
+        registerReceiverInManifest(MatchingReceiver::class.java.name)
+
+        assertThat(repository.resolveReceiverComponent("matching_widget"))
+            .isEqualTo(componentOf(MatchingReceiver::class.java.name))
+    }
+
+    @Test
+    fun resolveReceiverComponent_readsManifestOncePerProcess() {
+        registerReceiverInManifest(MatchingReceiver::class.java.name)
+        repository.resolveReceiverComponent("matching_widget")
+
+        // Receivers declared later are not seen, even by another repository (every manager
+        // creates its own), as the manifest is fixed for the process.
+        registerReceiverInManifest(OtherReceiver::class.java.name)
+
+        assertThrows(IllegalArgumentException::class.java) {
+            WidgetInstanceRepository(context).resolveReceiverComponent("other_widget")
+        }
+    }
+
+    private fun componentOf(receiverName: String) = ComponentName(context.packageName, receiverName)
 
     private fun setupBoundWidget(appWidgetId: Int, receiverName: String, widgetId: String? = null) {
         val appWidgetManager = AppWidgetManager.getInstance(context)

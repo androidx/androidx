@@ -64,6 +64,9 @@ internal class BaseWidgetDelegate(
      * @param currentData Declarative template data payload implementing [GlanceAdaptiveTemplate].
      * @param widgetIds Optional collection of developer target widget instance String identifiers.
      *   If an explicit empty collection is passed, no widgets will be updated.
+     * @throws IllegalArgumentException if [widgetName] cannot be resolved, see
+     *   [GlanceAdaptiveWidgetReceiver.widgetName].
+     * @throws IllegalStateException if [widgetName] cannot be resolved.
      */
     override suspend fun pushUpdate(
         widgetName: String,
@@ -71,6 +74,9 @@ internal class BaseWidgetDelegate(
         widgetIds: Set<String>?,
     ): Unit =
         withContext(Dispatchers.IO) {
+            // Resolved before any IPC, so that developer errors are never logged away and fail
+            // even when no widget is placed.
+            repository.resolveReceiverComponent(widgetName)
             try {
                 val componentToAppWidgetIds =
                     repository.findAppWidgetIdsForWidgetName(widgetName, widgetIds)
@@ -116,6 +122,9 @@ internal class BaseWidgetDelegate(
      * @param widgetName Developer widget definition String identifier matching
      *   [GlanceAdaptiveWidgetReceiver.widgetName].
      * @return Active instances for [widgetName], or an empty list if none are placed.
+     * @throws IllegalArgumentException if [widgetName] cannot be resolved, see
+     *   [GlanceAdaptiveWidgetReceiver.widgetName].
+     * @throws IllegalStateException if [widgetName] cannot be resolved.
      * @throws RuntimeException if the options of any placement cannot be read, rather than
      *   returning a partial result.
      */
@@ -169,20 +178,25 @@ internal class BaseWidgetDelegate(
      * @param widgetName Developer widget definition String identifier matching
      *   [GlanceAdaptiveWidgetReceiver.widgetName].
      * @param previewData Declarative template data payload implementing [GlanceAdaptiveTemplate].
+     * @throws IllegalArgumentException if [widgetName] cannot be resolved, see
+     *   [GlanceAdaptiveWidgetReceiver.widgetName].
+     * @throws IllegalStateException if [widgetName] cannot be resolved.
      */
     override suspend fun setPreview(widgetName: String, previewData: GlanceAdaptiveTemplate): Unit =
         withContext(Dispatchers.IO) {
+            // Resolved before the API level check, so that developer errors fail on every API
+            // level, including in tests on older devices.
+            val componentName = repository.resolveReceiverComponent(widgetName)
             // Early return on API < 35: AppWidgetManager.setWidgetPreview is not supported.
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                 return@withContext
             }
 
             try {
-                // Match and filter against active installed providers before expensive composition
-                val validProviders = findInstalledProviders(widgetName)
-                if (validProviders.isEmpty()) return@withContext
+                // Match against the installed provider before expensive composition.
+                val providerInfo = findInstalledProvider(componentName) ?: return@withContext
 
-                val targetToPreviews = composer.groupPreviewsByRenderTarget(validProviders)
+                val targetToPreviews = composer.groupPreviewsByRenderTarget(listOf(providerInfo))
                 for ((target, previews) in targetToPreviews) {
                     val remoteViews =
                         try {
@@ -236,8 +250,8 @@ internal class BaseWidgetDelegate(
         }
 
     /**
-     * Requests that the launcher pin the first receiver for [widgetName] that can be placed on the
-     * home screen, logging a warning if several receivers match [widgetName].
+     * Requests that the launcher pin the receiver declaring [widgetName], if it can be placed on
+     * the home screen.
      *
      * Mirrors [androidx.glance.appwidget.GlanceAppWidgetManager.requestPinGlanceAppWidget], apart
      * from [widgetId] and [options]. [AppWidgetManager.requestPinAppWidget] only hands its extras
@@ -254,6 +268,9 @@ internal class BaseWidgetDelegate(
      * @param options Configuration options to store in the options of the pinned widget.
      * @param successCallback [PendingIntent] to send once the widget is pinned, if any.
      * @return true if the request was sent to the launcher, false otherwise.
+     * @throws IllegalArgumentException if [widgetName] cannot be resolved, see
+     *   [GlanceAdaptiveWidgetReceiver.widgetName].
+     * @throws IllegalStateException if [widgetName] cannot be resolved.
      */
     override suspend fun requestPin(
         widgetName: String,
@@ -263,23 +280,18 @@ internal class BaseWidgetDelegate(
         successCallback: PendingIntent?,
     ): Boolean =
         withContext(Dispatchers.IO) {
+            // Resolved before the API level and launcher checks, so that developer errors fail on
+            // every device.
+            val componentName = repository.resolveReceiverComponent(widgetName)
             // Early return on API < 26: AppWidgetManager.requestPinAppWidget is not supported.
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
                 return@withContext false
             }
             if (!appWidgetManager.isRequestPinAppWidgetSupported) return@withContext false
 
-            val providers = findInstalledProviders(widgetName)
-            if (providers.size > 1) {
-                Log.w(
-                    TAG,
-                    "Several receivers match widgetName $widgetName, which should be unique per " +
-                        "app. Pinning the first one that can be placed on the home screen.",
-                )
-            }
-            @Suppress("ListIterator")
             val providerInfo =
-                providers.firstOrNull { it.isHomeScreenProvider } ?: return@withContext false
+                findInstalledProvider(componentName)?.takeIf { it.isHomeScreenProvider }
+                    ?: return@withContext false
             val extras =
                 Bundle().apply {
                     if (initialData != null) {
@@ -404,32 +416,22 @@ internal class BaseWidgetDelegate(
         }
 
     /**
-     * Resolves the installed [AppWidgetProviderInfo] of each receiver matching [widgetName],
-     * skipping receivers that are not installed AppWidget providers.
+     * Returns the installed [AppWidgetProviderInfo] of the receiver [componentName], or null if it
+     * is not an installed AppWidget provider, for example because it is disabled.
      */
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun findInstalledProviders(widgetName: String): List<AppWidgetProviderInfo> {
-        val matchingComponents = repository.findReceiverComponentsForWidgetName(widgetName)
-        if (matchingComponents.isEmpty()) return emptyList()
-
+    private fun findInstalledProvider(componentName: ComponentName): AppWidgetProviderInfo? {
         val installedProviders =
             appWidgetManager.getInstalledProvidersForPackage(
                 /* packageName= */ context.packageName,
                 /* profile= */ null,
             )
-        val providerMap = HashMap<ComponentName, AppWidgetProviderInfo>(installedProviders.size)
         for (idx in installedProviders.indices) {
             val info = installedProviders[idx]
-            providerMap[info.provider] = info
+            if (info.provider == componentName) return info
         }
-
-        return matchingComponents.mapNotNull { component ->
-            providerMap[component]
-                ?: run {
-                    Log.w(TAG, "Component $component is not an installed AppWidgetProvider")
-                    null
-                }
-        }
+        Log.w(TAG, "Component $componentName is not an installed AppWidgetProvider")
+        return null
     }
 
     companion object {

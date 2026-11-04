@@ -45,7 +45,10 @@ public fun GlanceAdaptiveWidgetManager(context: Context): GlanceAdaptiveWidgetMa
  *   [GlanceAdaptiveWidgetReceiver.widgetName].
  * @param previewData Declarative template data payload implementing [GlanceAdaptiveTemplate] to
  *   render as a preview.
- * @throws IllegalStateException if this manager was not created for AppWidget hosts.
+ * @throws IllegalArgumentException if [widgetName] cannot be resolved, see
+ *   [GlanceAdaptiveWidgetReceiver.widgetName].
+ * @throws IllegalStateException if this manager was not created for AppWidget hosts, or if
+ *   [widgetName] cannot be resolved, see [GlanceAdaptiveWidgetReceiver.widgetName].
  * @see android.appwidget.AppWidgetManager.setWidgetPreview
  * @see GlanceAdaptiveWidgetManager.pushUpdate
  */
@@ -81,8 +84,11 @@ public suspend fun GlanceAdaptiveWidgetManager.setPreview(
  * @param successCallback Optional [PendingIntent] sent once the widget is pinned and [widgetId] and
  *   [options] are stored.
  * @return `true` if the request was sent to the launcher, `false` otherwise.
- * @throws IllegalStateException if the app has no foreground activity or foreground service, or if
- *   this manager was not created for AppWidget hosts.
+ * @throws IllegalArgumentException if [widgetName] cannot be resolved, see
+ *   [GlanceAdaptiveWidgetReceiver.widgetName].
+ * @throws IllegalStateException if the app has no foreground activity or foreground service, if
+ *   this manager was not created for AppWidget hosts, or if [widgetName] cannot be resolved, see
+ *   [GlanceAdaptiveWidgetReceiver.widgetName].
  * @see android.appwidget.AppWidgetManager.requestPinAppWidget
  */
 public suspend fun GlanceAdaptiveWidgetManager.requestPin(

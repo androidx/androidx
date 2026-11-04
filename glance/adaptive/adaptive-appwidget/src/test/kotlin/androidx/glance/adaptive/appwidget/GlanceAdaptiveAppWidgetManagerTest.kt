@@ -128,11 +128,13 @@ class GlanceAdaptiveAppWidgetManagerTest {
     @Before
     fun setUp() {
         AppWidgetTemplateRegistry.resetForTesting()
+        WidgetInstanceRepository.resetForTesting()
     }
 
     @After
     fun tearDown() {
         AppWidgetTemplateRegistry.resetForTesting()
+        WidgetInstanceRepository.resetForTesting()
     }
 
     @Test
