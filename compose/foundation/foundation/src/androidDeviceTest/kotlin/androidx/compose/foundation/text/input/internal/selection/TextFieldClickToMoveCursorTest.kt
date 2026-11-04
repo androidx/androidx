@@ -34,6 +34,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -264,11 +265,14 @@ class TextFieldClickToMoveCursorTest : FocusedWindowTest {
         state = TextFieldState("abc abc abc abc")
         val show = mutableStateOf(true)
         val focusRequester = FocusRequester()
+        var dialogWindowInfo: WindowInfo? = null
         rule.setContent {
             Dialog(
                 onDismissRequest = { show.value = false },
                 content = {
-                    val isWindowFocused = LocalWindowInfo.current.isWindowFocused
+                    val windowInfo = LocalWindowInfo.current
+                    dialogWindowInfo = windowInfo
+                    val isWindowFocused = windowInfo.isWindowFocused
                     BasicTextField(
                         state = state,
                         textStyle = defaultTextStyle,
@@ -283,6 +287,9 @@ class TextFieldClickToMoveCursorTest : FocusedWindowTest {
                 },
             )
         }
+
+        rule.waitUntil(5_000) { dialogWindowInfo?.isWindowFocused == true }
+        rule.waitForIdle()
 
         with(rule.onNodeWithTag(TAG)) {
             performTouchInput { click(Offset(2 * fontSize.toPx(), centerY)) }
