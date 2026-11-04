@@ -49,7 +49,6 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Core library to enable emoji compatibility in Kitkat and newer devices to avoid the empty emoji characters."
-    legacyDisableReferenceEqualityCheck = true
 }
 
 android {

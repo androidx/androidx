@@ -242,9 +242,7 @@ private fun JavaCompile.configureWithErrorProne() {
                     "-Xep:JavaLangClash:ERROR",
                     "-Xep:TypeParameterUnusedInFormals:ERROR",
                     // "-Xep:StringSplitter:ERROR", // disabled with upgrade to 2.14.0
-                    "-Xep:ReferenceEquality:${if (this.project.androidXExtension.legacyDisableReferenceEqualityCheck.get()) { "OFF" } else {
-                        "ERROR"
-                    }}",
+                    "-Xep:ReferenceEquality:OFF",
                     "-Xep:AssertionFailureIgnored:ERROR",
                     "-Xep:UnnecessaryParentheses:ERROR",
                     "-Xep:EqualsGetClass:ERROR",

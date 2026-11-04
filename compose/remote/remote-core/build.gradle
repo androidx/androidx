@@ -41,7 +41,6 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Java core for RemoteCompose document player"
-    legacyDisableReferenceEqualityCheck = true
 }
 
 // b/434969628: Force Gradle to resolve to JAR and not classes directory when created Kzip

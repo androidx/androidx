@@ -39,7 +39,3 @@ dependencies {
     implementation("androidx.core:core:1.9.0")
     implementation(project(":annotation:annotation-experimental"))
 }
-
-androidx {
-    legacyDisableReferenceEqualityCheck = true
-}
