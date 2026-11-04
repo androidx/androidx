@@ -192,6 +192,6 @@ private class ResizeMeshGradientPainterTestCase(private val rows: Int, val colum
 
     override fun toggleState() {
         toggleState = !toggleState
-        boxSizeState.value = if (toggleState) 200.dp else 100.dp
+        boxSizeState.value = if (toggleState) 110.dp else 100.dp
     }
 }
