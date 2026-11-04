@@ -51,8 +51,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowDisplayManager
 import org.robolectric.shadows.ShadowVirtualDeviceManager
-import org.robolectric.util.ReflectionHelpers
-import org.robolectric.util.ReflectionHelpers.ClassParameter
+import org.robolectric.shadows.VirtualDeviceParamsBuilder
 
 @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 @RunWith(AndroidJUnit4::class)
@@ -81,6 +80,17 @@ class ProjectedContextTest {
         assertThrows(IllegalStateException::class.java) {
             assertThat(ProjectedContext.createProjectedDeviceContext(context)).isNull()
         }
+    }
+
+    @Test
+    fun createProjectedDeviceContext_reconnectedVirtualDevice_returnsContext() {
+        projectedTestRule.isDeviceConnected = false
+        assertThat(projectedTestRule.isDeviceConnected).isFalse()
+
+        projectedTestRule.isDeviceConnected = true
+        assertThat(projectedTestRule.isDeviceConnected).isTrue()
+
+        assertThat(ProjectedContext.createProjectedDeviceContext(context)).isNotNull()
     }
 
     @Test
@@ -398,40 +408,16 @@ class ProjectedContextTest {
         }
     }
 
-    // TODO: b/476403759 - Replace reflection with the shadow APIs when they are available.
     private fun clearVirtualDevices() {
-        ReflectionHelpers.getStaticField<MutableList<*>>(
-                ShadowVirtualDeviceManager::class.java,
-                "mVirtualDevices",
-            )
-            .clear()
+        projectedTestRule.isDeviceConnected = false
     }
 
-    private fun createVirtualDevice(): Any? {
-        val virtualDeviceParamsBuilderClass =
-            Class.forName("android.companion.virtual.VirtualDeviceParams\$Builder")
-        val virtualDeviceParamsClass =
-            Class.forName("android.companion.virtual.VirtualDeviceParams")
-        var virtualDeviceParamsBuilder =
-            ReflectionHelpers.callConstructor(virtualDeviceParamsBuilderClass)
-        virtualDeviceParamsBuilder =
-            ReflectionHelpers.callInstanceMethod(
-                virtualDeviceParamsBuilder,
-                "setName",
-                ClassParameter(String::class.java, PROJECTED_DEVICE_NAME),
+    private fun createVirtualDevice(): Any =
+        Shadow.extract<ShadowVirtualDeviceManager>(virtualDeviceManager)
+            .createVirtualDevice(
+                /* associationId= */ 1,
+                VirtualDeviceParamsBuilder.newBuilder().setName(PROJECTED_DEVICE_NAME).build(),
             )
-        virtualDeviceParamsBuilder =
-            ReflectionHelpers.callInstanceMethod(virtualDeviceParamsBuilder, "build")
-        val virtualDevice =
-            ReflectionHelpers.callInstanceMethod<Any?>(
-                virtualDeviceManager,
-                "createVirtualDevice",
-                ClassParameter(Int::class.javaPrimitiveType, 1),
-                ClassParameter(virtualDeviceParamsClass, virtualDeviceParamsBuilder),
-            )
-
-        return virtualDevice
-    }
 
     class LocalContextWrapper(context: Context, private val deviceId: Int) :
         ContextWrapper(context) {
@@ -454,7 +440,7 @@ class ProjectedContextTest {
             }
     }
 
-    private fun createVirtualDisplayForDevice(virtualDevice: Any?): VirtualDisplay =
+    private fun createVirtualDisplayForDevice(virtualDevice: Any): VirtualDisplay =
         Shadow.extract<ShadowVirtualDeviceManager.ShadowVirtualDevice>(virtualDevice)
             .createVirtualDisplay(
                 VirtualDisplayConfig.Builder(

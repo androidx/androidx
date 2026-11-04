@@ -16,7 +16,6 @@
 
 package androidx.xr.projected.testing
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.app.PendingIntent
@@ -29,6 +28,7 @@ import android.content.pm.ActivityInfo
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.ServiceInfo
+import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
 import android.hardware.display.VirtualDisplayConfig
 import android.media.AudioDeviceInfo
@@ -36,6 +36,7 @@ import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
 import android.util.SparseIntArray
+import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
@@ -57,8 +58,6 @@ import androidx.xr.projected.platform.IProjectedService
 import androidx.xr.projected.platform.ProjectedDeviceState
 import androidx.xr.projected.platform.ProjectedInputEvent
 import androidx.xr.projected.platform.ProjectedPermissionRequestState
-import java.lang.reflect.Constructor
-import java.lang.reflect.Method
 import java.util.Collections
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -74,6 +73,7 @@ import org.mockito.kotlin.whenever
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowVirtualDeviceManager
+import org.robolectric.shadows.VirtualDeviceParamsBuilder
 import org.robolectric.util.ReflectionHelpers
 
 /**
@@ -121,14 +121,14 @@ public class ProjectedTestRule : TestRule {
      * This property can be used to control whether the device is connected or not. By default, the
      * device is disconnected.
      */
-    public var isDeviceConnected: Boolean = true
+    public var isDeviceConnected: Boolean
+        get() = virtualDeviceController.isCreated()
         set(value) {
             if (value) {
-                createVirtualDevice()
+                virtualDeviceController.create()
             } else {
-                ShadowVirtualDeviceManager.ShadowVirtualDevice.reset()
+                virtualDeviceController.close()
             }
-            field = value
         }
 
     /**
@@ -249,8 +249,7 @@ public class ProjectedTestRule : TestRule {
         private set
 
     private val context: Application = ApplicationProvider.getApplicationContext()
-    private val virtualDeviceManager =
-        context.getSystemService(Context.VIRTUAL_DEVICE_SERVICE) as VirtualDeviceManager
+    private val virtualDeviceController = VirtualDeviceController(context)
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private val batteryStateListeners =
         Collections.synchronizedList(mutableListOf<IBatteryStateListener>())
@@ -331,7 +330,11 @@ public class ProjectedTestRule : TestRule {
                 }
                 batteryStateListeners.clear()
                 registeredInputReceiver = null
-                base?.evaluate()
+                try {
+                    base?.evaluate()
+                } finally {
+                    isDeviceConnected = false
+                }
             }
         }
 
@@ -370,6 +373,7 @@ public class ProjectedTestRule : TestRule {
      * @param block The block to execute on the test activity.
      */
     public fun launchTestProjectedDeviceActivity(block: (Activity) -> Unit) {
+        isDeviceConnected = true
         shadowOf(context.packageManager)
             .addOrUpdateActivity(
                 ActivityInfo().apply {
@@ -384,77 +388,6 @@ public class ProjectedTestRule : TestRule {
                 activityScenario.onActivity { activity -> block(activity) }
             }
     }
-
-    // TODO: b/476403759 - Replace reflection with the shadow APIs when they are available.
-    @SuppressLint("BanUncheckedReflection")
-    private fun createVirtualDevice() {
-        try {
-            // 1. Get Class objects
-            val virtualDeviceParamsBuilderClass =
-                Class.forName("android.companion.virtual.VirtualDeviceParams\$Builder")
-            val virtualDeviceParamsClass =
-                Class.forName("android.companion.virtual.VirtualDeviceParams")
-
-            // 2. Call constructor for the Builder
-            val builderConstructor: Constructor<*> =
-                virtualDeviceParamsBuilderClass.getDeclaredConstructor()
-            var virtualDeviceParamsBuilderInstance: Any? = builderConstructor.newInstance()
-
-            // 3. Call setName method
-            val setNameMethod: Method =
-                virtualDeviceParamsBuilderClass.getMethod("setName", String::class.java)
-            virtualDeviceParamsBuilderInstance =
-                setNameMethod.invoke(virtualDeviceParamsBuilderInstance, PROJECTED_DEVICE_NAME)
-
-            // 4. Call build method
-            val buildMethod: Method = virtualDeviceParamsBuilderClass.getMethod("build")
-            val virtualDeviceParamsInstance: Any? =
-                buildMethod.invoke(virtualDeviceParamsBuilderInstance)
-
-            // 5. Call virtualDeviceManager.createVirtualDevice
-            val createVirtualDeviceMethod: Method =
-                virtualDeviceManager::class
-                    .java
-                    .getMethod(
-                        "createVirtualDevice",
-                        Int::class
-                            .javaPrimitiveType, // or Int::class.java for boxed, but primitiveType
-                        // is more exact
-                        virtualDeviceParamsClass,
-                    )
-
-            val virtualDevice: Any? =
-                createVirtualDeviceMethod.invoke(
-                    virtualDeviceManager,
-                    ASSOCIATION_ID,
-                    virtualDeviceParamsInstance,
-                )
-
-            createVirtualDisplayForDevice(virtualDevice!!)
-        } catch (e: ClassNotFoundException) {
-            throw RuntimeException("Reflection failed: Class not found", e)
-        } catch (e: NoSuchMethodException) {
-            throw RuntimeException("Reflection failed: Method not found", e)
-        } catch (e: Exception) {
-            // Catch other reflection-related exceptions like IllegalAccessException,
-            // InvocationTargetException, InstantiationException
-            throw RuntimeException("Reflection failed", e)
-        }
-    }
-
-    private fun createVirtualDisplayForDevice(virtualDevice: Any): VirtualDisplay =
-        Shadow.extract<ShadowVirtualDeviceManager.ShadowVirtualDevice>(virtualDevice)
-            .createVirtualDisplay(
-                VirtualDisplayConfig.Builder(
-                        PROJECTED_DISPLAY_NAME,
-                        DISPLAY_WIDTH,
-                        DISPLAY_HEIGHT,
-                        DISPLAY_DENSITY,
-                    )
-                    .build(),
-                /* executor= */ null,
-                /* callback= */ null,
-            )
 
     private fun enableProjectedService() {
         shadowOf(context.packageManager).apply {
@@ -513,6 +446,61 @@ public class ProjectedTestRule : TestRule {
         }
     }
 
+    private class VirtualDeviceController(private val context: Context) {
+        private val lock = Any()
+        private val virtualDeviceManager =
+            context.getSystemService(Context.VIRTUAL_DEVICE_SERVICE) as VirtualDeviceManager
+        private val displayManager =
+            context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+
+        @GuardedBy("lock") private var createdDevice: CreatedDevice? = null
+
+        fun isCreated(): Boolean = synchronized(lock) { createdDevice != null }
+
+        fun create() {
+            synchronized(lock) {
+                if (createdDevice != null) {
+                    return
+                }
+                val virtualDeviceParams =
+                    VirtualDeviceParamsBuilder.newBuilder().setName(PROJECTED_DEVICE_NAME).build()
+                val device =
+                    Shadow.extract<ShadowVirtualDeviceManager>(virtualDeviceManager)
+                        .createVirtualDevice(ASSOCIATION_ID, virtualDeviceParams)
+                val display =
+                    Shadow.extract<ShadowVirtualDeviceManager.ShadowVirtualDevice>(device)
+                        .createVirtualDisplay(
+                            VirtualDisplayConfig.Builder(
+                                    PROJECTED_DISPLAY_NAME,
+                                    DISPLAY_WIDTH,
+                                    DISPLAY_HEIGHT,
+                                    DISPLAY_DENSITY,
+                                )
+                                .build(),
+                            /* executor= */ null,
+                            /* callback= */ null,
+                        )
+                createdDevice = CreatedDevice(device, display)
+            }
+        }
+
+        fun close() {
+            synchronized(lock) {
+                val currentDevice = createdDevice ?: return
+                createdDevice = null
+                // ShadowDisplayManager.removeDisplay() removes the display from DisplayManager
+                // without updating VirtualDisplay, which would cause release() to throw.
+                if (displayManager.getDisplay(currentDevice.display.display.displayId) != null) {
+                    currentDevice.display.release()
+                }
+                Shadow.extract<ShadowVirtualDeviceManager.ShadowVirtualDevice>(currentDevice.device)
+                    .close()
+            }
+        }
+
+        private class CreatedDevice(val device: Any, val display: VirtualDisplay)
+    }
+
     private class TestProjectedDeviceActivity : Activity() {
 
         private lateinit var virtualDeviceManager: VirtualDeviceManager
@@ -520,7 +508,6 @@ public class ProjectedTestRule : TestRule {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             virtualDeviceManager = getSystemService(VIRTUAL_DEVICE_SERVICE) as VirtualDeviceManager
-            ProjectedTestRule().createVirtualDevice()
         }
 
         override fun getDeviceId(): Int {
