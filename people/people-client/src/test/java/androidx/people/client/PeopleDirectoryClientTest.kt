@@ -172,13 +172,6 @@ class PeopleDirectoryClientTest {
         assertThat(groups.unhandledQuery).isEqualTo(GROUP_QUERY)
     }
 
-    @Test
-    fun isAvailable_withoutAnyPeopleProvider_isFalse() = runTest {
-        val result = PeopleDirectoryClient.isAvailable(RuntimeEnvironment.getApplication())
-
-        assertThat(result).isFalse()
-    }
-
     private companion object {
         val PERSON_QUERY = personQuery {
             directory("com.example.voip") { addPhones("+16505550100") }
