@@ -18,6 +18,9 @@ package androidx.compose.ui.layout
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
+import android.os.ParcelFileDescriptor
+import android.view.View
+import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -49,12 +52,27 @@ import org.junit.Test
 class ShowLayoutBoundsTest {
     @get:Rule val rule = createAndroidComposeRule<TestActivity>()
 
-    private fun setIsShowingLayoutBounds(value: Boolean) {
+    private fun executeShellCommandSynchronously(command: String) {
         val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
-        uiAutomation.executeShellCommand("setprop debug.layout $value")
+        ParcelFileDescriptor.AutoCloseInputStream(uiAutomation.executeShellCommand(command)).use {
+            it.readBytes()
+        }
+    }
+
+    private fun setIsShowingLayoutBounds(value: Boolean) {
+        executeShellCommandSynchronously("setprop debug.layout $value")
         // 1599295570 is SYSPROPS_TRANSACTION -- used to poke the system properties
         // to notify that a change happened
-        uiAutomation.executeShellCommand("service call activity 1599295570")
+        executeShellCommandSynchronously("service call activity 1599295570")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            rule.waitUntil(5000) {
+                rule.runOnUiThread {
+                    val decorView = rule.activity.window.decorView
+                    !decorView.isAttachedToWindow ||
+                        Api30Impl.isShowingLayoutBounds(decorView) == value
+                }
+            }
+        }
         rule.waitForIdle()
     }
 
@@ -80,12 +98,14 @@ class ShowLayoutBoundsTest {
         rule.runOnIdle {
             assertThat(view.showLayoutBounds).isTrue()
             view.viewTreeObserver.addOnPreDrawListener {
-                latch.countDown()
+                if (!view.showLayoutBounds) {
+                    latch.countDown()
+                }
                 true
             }
         }
         setIsShowingLayoutBounds(false)
-        assertThat(latch.await(1, TimeUnit.SECONDS)).isTrue()
+        assertThat(latch.await(5, TimeUnit.SECONDS)).isTrue()
         rule.runOnIdle { assertThat(view.showLayoutBounds).isFalse() }
     }
 
@@ -152,5 +172,10 @@ class ShowLayoutBoundsTest {
         assertThat(bitmap.width).isEqualTo(width)
         assertThat(bitmap.height).isEqualTo(height)
         return bitmap
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    private object Api30Impl {
+        @JvmStatic @DoNotInline fun isShowingLayoutBounds(view: View) = view.isShowingLayoutBounds
     }
 }
