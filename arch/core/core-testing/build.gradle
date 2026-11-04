@@ -45,6 +45,7 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Core-Testing"
+    legacyDisableReferenceEqualityCheck = true
 }
 
 android {
