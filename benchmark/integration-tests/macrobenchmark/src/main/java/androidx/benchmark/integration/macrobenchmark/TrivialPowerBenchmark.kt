@@ -24,7 +24,6 @@ import androidx.benchmark.macro.PowerCategory
 import androidx.benchmark.macro.PowerCategoryDisplayLevel
 import androidx.benchmark.macro.PowerMetric
 import androidx.benchmark.macro.PowerRail
-import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -67,9 +66,9 @@ class TrivialPowerBenchmark {
                     ),
                 ),
             compilationMode = CompilationMode.None(),
-            startupMode = StartupMode.COLD,
             iterations = 3,
             setupBlock = {
+                killProcess()
                 val intent = Intent()
                 intent.action = ACTION
                 startActivityAndWait(intent)
@@ -104,9 +103,9 @@ class TrivialPowerBenchmark {
                     ),
                 ),
             compilationMode = CompilationMode.None(),
-            startupMode = StartupMode.COLD,
             iterations = 3,
             setupBlock = {
+                killProcess()
                 val intent = Intent()
                 intent.action = ACTION
                 startActivityAndWait(intent)
@@ -145,9 +144,9 @@ class TrivialPowerBenchmark {
                     ),
                 ),
             compilationMode = CompilationMode.None(),
-            startupMode = StartupMode.COLD,
             iterations = 3,
             setupBlock = {
+                killProcess()
                 val intent = Intent()
                 intent.action = ACTION
                 startActivityAndWait(intent)
@@ -178,9 +177,9 @@ class TrivialPowerBenchmark {
                     ),
                 ),
             compilationMode = CompilationMode.None(),
-            startupMode = StartupMode.COLD,
             iterations = 3,
             setupBlock = {
+                killProcess()
                 val intent = Intent()
                 intent.action = ACTION
                 startActivityAndWait(intent)
