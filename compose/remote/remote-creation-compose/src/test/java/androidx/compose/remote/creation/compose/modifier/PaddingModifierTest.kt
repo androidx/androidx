@@ -214,7 +214,6 @@ class PaddingModifierTest {
                 profile = creationState.profile,
                 writerCallback = null,
                 layoutDirection = RemoteLayoutDirection.Ltr,
-                platformImageProvider = creationState.platformImageProvider,
             )
         val rtlState =
             RemoteComposeCreationState(
@@ -222,7 +221,6 @@ class PaddingModifierTest {
                 profile = creationState.profile,
                 writerCallback = null,
                 layoutDirection = RemoteLayoutDirection.Rtl,
-                platformImageProvider = creationState.platformImageProvider,
             )
         val modifier =
             RemoteModifier.padding(start = 10f.rf, top = 20f.rf, end = 30f.rf, bottom = 40f.rf)

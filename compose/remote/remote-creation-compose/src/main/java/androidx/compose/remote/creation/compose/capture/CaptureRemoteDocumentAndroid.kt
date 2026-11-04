@@ -161,7 +161,6 @@ public suspend fun captureSingleRemoteDocument(
             clock = clock,
             profile = profile,
             writerCallback = writerEvents,
-            platformImageProvider = AndroidPlatformImageProvider,
             onDispose = {
                 savedState?.write { clear() }
                 if (savedState != null && saveableStateRegistry != null) {
@@ -293,7 +292,6 @@ public fun captureRemoteDocument(
             clock = clock,
             profile = profile,
             writerCallback = writerEvents,
-            platformImageProvider = AndroidPlatformImageProvider,
             coroutineContext = coroutineContext,
             onDispose = {
                 savedState?.write { clear() }

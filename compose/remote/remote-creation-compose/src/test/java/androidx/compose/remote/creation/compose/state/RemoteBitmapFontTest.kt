@@ -21,12 +21,12 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles.PROFILE_ANDROIDX
 import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
-import androidx.compose.remote.creation.compose.capture.addBitmap
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.remote.testing.LimitsRule
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -372,7 +372,7 @@ class RemoteBitmapFontTest {
                 arrayOf(
                     BitmapFontData.Glyph(
                         "a",
-                        expectedState.addBitmap(glyphImage),
+                        expectedState.document.addBitmap(glyphImage.asAndroidBitmap()),
                         1,
                         2,
                         3,

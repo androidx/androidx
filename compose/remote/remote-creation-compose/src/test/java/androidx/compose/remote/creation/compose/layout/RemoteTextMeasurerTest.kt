@@ -20,7 +20,6 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.creation.RemoteComposeWriter
-import androidx.compose.remote.creation.compose.capture.NoOpPlatformImageProvider
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
@@ -201,7 +200,6 @@ class RemoteTextMeasurerTest {
                 creationDisplayInfo = displayInfo,
                 contentDescription = null,
                 profile = headlessProfile,
-                platformImageProvider = NoOpPlatformImageProvider,
             )
         val measurer = RemoteTextMeasurer(density = density)
         val result =
