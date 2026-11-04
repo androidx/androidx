@@ -14,9 +14,19 @@
  * limitations under the License.
  */
 
+@file:JvmName("Groups")
+
 package androidx.people
 
 import androidx.annotation.RestrictTo
+
+/** Creates a [Group] initialized with [id] and configured by [block]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+@JvmOverloads
+public fun group(
+    id: GroupId,
+    block: GroupScope.() -> Unit = {},
+): Group = GroupScope(id).apply(block).build()
 
 /**
  * An aggregated group record returned by a People Directory application.
@@ -25,12 +35,16 @@ import androidx.annotation.RestrictTo
  * matched it.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class Group(
+public class Group
+internal constructor(
     /** Unique compound identifier for this group record. */
     public val id: GroupId,
     /** The group's display name, or `null` if the directory did not supply one. */
-    public val displayName: String?,
+    public val displayName: String? = null,
 ) {
+    /** Returns a copy of this [Group] with properties modified by [block]. */
+    public fun copy(block: GroupScope.() -> Unit): Group = GroupScope(this).apply(block).build()
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Group) return false
@@ -40,4 +54,26 @@ public class Group(
     override fun hashCode(): Int = 31 * id.hashCode() + (displayName?.hashCode() ?: 0)
 
     override fun toString(): String = "Group(id=$id, displayName=$displayName)"
+}
+
+/**
+ * Receiver scope for configuring a [Group].
+ *
+ * @param id Unique compound identifier for this group record.
+ */
+@PeopleQueryDsl
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public class GroupScope
+internal constructor(
+    /** Unique compound identifier for this group record. */
+    public val id: GroupId
+) {
+    /** The group's display name, or `null` if the directory did not supply one. */
+    public var displayName: String? = null
+
+    internal constructor(group: Group) : this(group.id) {
+        this.displayName = group.displayName
+    }
+
+    internal fun build(): Group = Group(id = id, displayName = displayName)
 }

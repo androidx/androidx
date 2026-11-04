@@ -48,6 +48,35 @@ class GroupTest {
     }
 
     @Test
+    fun group_buildsGroupWithDefaultValues() {
+        val id = GroupId("com.example.chat", "eng_team")
+        val group = group(id)
+
+        assertThat(group.id).isEqualTo(id)
+        assertThat(group.displayName).isNull()
+    }
+
+    @Test
+    fun group_buildsGroupWithCustomValues() {
+        val id = GroupId("com.example.chat", "eng_team")
+        val group = group(id) { displayName = "Engineering Team" }
+
+        assertThat(group.id).isEqualTo(id)
+        assertThat(group.displayName).isEqualTo("Engineering Team")
+    }
+
+    @Test
+    fun copy_modifiesPropertiesWithoutAffectingOriginal() {
+        val original =
+            group(GroupId("com.example.chat", "eng_team")) { displayName = "Engineering Team" }
+
+        val modified = original.copy { displayName = "Product Team" }
+
+        assertThat(original.displayName).isEqualTo("Engineering Team")
+        assertThat(modified.displayName).isEqualTo("Product Team")
+    }
+
+    @Test
     fun groupMatch_exposesGroupAndCriteria_andComparesCriteria() {
         val group = Group(id = GroupId("com.example.chat", "eng_team"), displayName = null)
         val criteria = setOf<Criterion>(Criterion.GroupLookupKey("eng_team"))

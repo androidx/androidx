@@ -65,6 +65,57 @@ class PersonTest {
     }
 
     @Test
+    fun person_buildsPersonWithDefaultValues() {
+        val id = PersonId("com.example.voip", "key_123")
+        val person = person(id)
+
+        assertThat(person.id).isEqualTo(id)
+        assertThat(person.displayName).isNull()
+        assertThat(person.photoUri).isNull()
+        assertThat(person.capabilities).isEmpty()
+        assertThat(person.isKnown).isFalse()
+    }
+
+    @Test
+    fun person_buildsPersonWithCustomValues() {
+        val id = PersonId("com.example.voip", "key_123")
+        val photoUri = Uri.parse("https://example.com/avatar.jpg")
+        val person =
+            person(id) {
+                displayName = "Alice Smith"
+                this.photoUri = photoUri
+                capabilities = setOf(Capability.VOICE)
+                addCapability(Capability.VIDEO)
+                isKnown = true
+            }
+
+        assertThat(person.id).isEqualTo(id)
+        assertThat(person.displayName).isEqualTo("Alice Smith")
+        assertThat(person.photoUri).isEqualTo(photoUri)
+        assertThat(person.capabilities).containsExactly(Capability.VOICE, Capability.VIDEO)
+        assertThat(person.isKnown).isTrue()
+    }
+
+    @Test
+    fun copy_modifiesPropertiesWithoutAffectingOriginal() {
+        val original =
+            person(PersonId("com.example.voip", "key_123")) {
+                displayName = "Alice Smith"
+                capabilities = setOf(Capability.VOICE)
+            }
+
+        val modified = original.copy {
+            displayName = "Bob"
+            addCapability(Capability.MESSAGE)
+        }
+
+        assertThat(original.displayName).isEqualTo("Alice Smith")
+        assertThat(original.capabilities).containsExactly(Capability.VOICE)
+        assertThat(modified.displayName).isEqualTo("Bob")
+        assertThat(modified.capabilities).containsExactly(Capability.VOICE, Capability.MESSAGE)
+    }
+
+    @Test
     fun capabilityConvenienceProperties_reflectUnderlyingCapabilities() {
         val person =
             Person(

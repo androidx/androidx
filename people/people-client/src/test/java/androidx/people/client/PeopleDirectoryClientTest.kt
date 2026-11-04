@@ -19,20 +19,20 @@ package androidx.people.client
 import androidx.people.Capability
 import androidx.people.Criterion
 import androidx.people.DirectoryInfo
-import androidx.people.Group
 import androidx.people.GroupId
 import androidx.people.GroupMatch
 import androidx.people.GroupQueryResult
-import androidx.people.Person
 import androidx.people.PersonId
 import androidx.people.PersonMatch
 import androidx.people.PersonQueryResult
 import androidx.people.client.internal.FakePeopleBackend
 import androidx.people.client.internal.PeopleDirectoryClientImpl
+import androidx.people.group
 import androidx.people.groupQuery
 import androidx.people.internal.groupQueryResultOf
 import androidx.people.internal.personQueryResultOf
 import androidx.people.peopleInteraction
+import androidx.people.person
 import androidx.people.personQuery
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
@@ -195,13 +195,11 @@ class PeopleDirectoryClientTest {
                 matches =
                     setOf(
                         PersonMatch(
-                            Person(
-                                id = PersonId("com.example.chat", "alice"),
-                                displayName = "Alice",
-                                photoUri = null,
-                                capabilities = setOf(Capability.MESSAGE),
-                                isKnown = true,
-                            ),
+                            person(PersonId("com.example.chat", "alice")) {
+                                displayName = "Alice"
+                                capabilities = setOf(Capability.MESSAGE)
+                                isKnown = true
+                            },
                             setOf(Criterion.Email("alice@example.com")),
                         )
                     ),
@@ -214,7 +212,9 @@ class PeopleDirectoryClientTest {
                 matches =
                     setOf(
                         GroupMatch(
-                            Group(GroupId("com.example.chat", "g1"), "Family"),
+                            group(GroupId("com.example.chat", "g1")) {
+                                displayName = "Family"
+                            },
                             setOf(Criterion.GroupLookupKey("g1")),
                         )
                     ),
