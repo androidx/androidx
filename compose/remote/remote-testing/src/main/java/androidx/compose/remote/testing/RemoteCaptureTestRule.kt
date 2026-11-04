@@ -76,16 +76,20 @@ public class RemoteCaptureTestRule : TestRule {
         clock: RemoteClock = RemoteClock.SYSTEM,
         content: @Composable @RemoteComposable () -> Unit,
     ): RecordedDocument {
-        val bytes =
+        val captured =
             captureSingleRemoteDocument(
-                    context = context,
-                    creationDisplayInfo = creationDisplayInfo,
-                    clock = clock,
-                    profile = profile,
-                    content = content,
-                )
-                .bytes
-        return RecordedDocument(bytes = bytes, profile = profile, clock = clock)
+                context = context,
+                creationDisplayInfo = creationDisplayInfo,
+                clock = clock,
+                profile = profile,
+                content = content,
+            )
+        return RecordedDocument(
+            bytes = captured.bytes,
+            profile = profile,
+            clock = clock,
+            pendingIntents = captured.pendingIntents,
+        )
     }
 }
 
