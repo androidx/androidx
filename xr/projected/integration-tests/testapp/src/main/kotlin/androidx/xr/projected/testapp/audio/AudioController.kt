@@ -128,13 +128,10 @@ class AudioController(
                 .coerceAtLeast(1024)
         audioBuffer = ByteArray(bufferSize)
 
-        val sources =
-            intArrayOf(
-                MediaRecorder.AudioSource.UNPROCESSED,
-                MediaRecorder.AudioSource.MIC,
-                MediaRecorder.AudioSource.VOICE_RECOGNITION,
-                MediaRecorder.AudioSource.DEFAULT,
-            )
+        // Projected devices currently only deliver microphone audio to apps that record with
+        // VOICE_COMMUNICATION at 16 kHz mono. Other sources can initialize successfully but only
+        // record silence.
+        val sources = intArrayOf(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
         val contexts = listOf(targetContext, context).distinct()
 
         var record: AudioRecord? = null
