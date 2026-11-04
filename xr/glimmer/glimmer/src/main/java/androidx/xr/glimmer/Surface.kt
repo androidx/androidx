@@ -22,6 +22,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.foundation.BorderRenderer
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.InteractionSource
@@ -327,7 +328,7 @@ private class SurfaceNode(
     // make sure that the highlight area fully matches the underlying border, to
     // avoid inconsistent areas of coverage due to the transparency of the
     // highlight.
-    private var borderLogic: BorderLogic? = null
+    private var borderRenderer: BorderRenderer? = null
 
     // Border shader / brush
     var borderShader: RuntimeShader? = null
@@ -337,7 +338,6 @@ private class SurfaceNode(
     private var blurGraphicsLayer: GraphicsLayer? = null
 
     private var borderLayer: GraphicsLayer? = null
-    private var borderLayerProvider: (() -> GraphicsLayer)? = null
 
     private var interactionCollectionJob: Job? = null
     private var ambientMotionJob: Job? = null
@@ -557,27 +557,27 @@ private class SurfaceNode(
 
         drawOutline(outline, color = compositeBackground)
 
-        val borderLogic = borderLogic ?: BorderLogic().also { borderLogic = it }
-        val borderLayerProvider =
-            borderLayerProvider
-                ?: {
-                    borderLayer
-                        ?: requireGraphicsContext().createGraphicsLayer().also {
-                            borderLayer = it
-                        }
-                }
-                    .also { borderLayerProvider = it }
         val borderColor =
             lerp(BorderShader.DefaultSolidBorderIdleColor, focusedBorderColor1, focusProgress)
 
-        borderLogic.drawBorder(
-            this,
-            calculateSolidBorderWidth(),
-            SolidColor(borderColor),
-            borderLayerProvider,
-            outline,
-        )
+        obtainBorderRenderer()
+            .drawBorder(
+                drawScope = this,
+                width = calculateSolidBorderWidth(),
+                brush = SolidColor(borderColor),
+                outline = outline,
+            )
     }
+
+    private fun obtainBorderRenderer(): BorderRenderer =
+        borderRenderer
+            ?: BorderRenderer {
+                borderLayer
+                    ?: requireGraphicsContext().createGraphicsLayer().also {
+                        borderLayer = it
+                    }
+            }
+                .also { borderRenderer = it }
 
     /** Calculates solid border width for devices below API 33 ([Build.VERSION_CODES.TIRAMISU]). */
     private fun DrawScope.calculateSolidBorderWidth(): Dp =
@@ -718,23 +718,13 @@ private class SurfaceNode(
             )
         val borderShaderBrush =
             borderShaderBrush ?: ShaderBrush(borderShader!!).also { borderShaderBrush = it }
-        val borderLogic = borderLogic ?: BorderLogic().also { borderLogic = it }
-        val borderLayerProvider =
-            borderLayerProvider
-                ?: {
-                    borderLayer
-                        ?: requireGraphicsContext().createGraphicsLayer().also {
-                            borderLayer = it
-                        }
-                }
-                    .also { borderLayerProvider = it }
-        borderLogic.drawBorder(
-            this,
-            calculateBorderWidth(),
-            borderShaderBrush,
-            borderLayerProvider,
-            outline,
-        )
+        obtainBorderRenderer()
+            .drawBorder(
+                drawScope = this,
+                width = calculateBorderWidth(),
+                brush = borderShaderBrush,
+                outline = outline,
+            )
     }
 
     override fun onDetach() {
@@ -746,7 +736,6 @@ private class SurfaceNode(
 
         val gContext = requireGraphicsContext()
 
-        borderLayerProvider = null
         borderLayer?.let {
             gContext.releaseGraphicsLayer(it)
             borderLayer = null

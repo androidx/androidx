@@ -50,7 +50,7 @@ dependencies {
 
 android {
     namespace = "androidx.xr.glimmer.remote"
-    compileSdk { version = release(37) }
+    compileSdk { version = release(37) { minorApiLevel = 1 } }
     // Matches :remote-creation-compose minSdk 29.
     defaultConfig { minSdk { version = release(29) } }
 }

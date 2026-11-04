@@ -29,9 +29,9 @@ plugins {
 }
 
 dependencies {
-    api("androidx.compose.foundation:foundation:1.13.0-alpha02")
-    api("androidx.compose.ui:ui:1.13.0-alpha02")
-    api("androidx.compose.runtime:runtime:1.13.0-alpha02")
+    api(project(":compose:foundation:foundation"))
+    api("androidx.compose.ui:ui:1.13.0-rc01")
+    api("androidx.compose.runtime:runtime:1.13.0-rc01")
     api("androidx.annotation:annotation:1.9.1")
     // Older versions of lifecycle-runtime lint checks use a deleted lint API
     implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
@@ -60,7 +60,7 @@ dependencies {
 
 android {
     namespace = "androidx.xr.glimmer"
-    compileSdk { version = release(37) }
+    compileSdk { version = release(37) { minorApiLevel = 2 } }
     defaultConfig {
         testInstrumentationRunner "androidx.xr.glimmer.GlimmerTestRunner"
     }
