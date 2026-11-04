@@ -568,9 +568,15 @@ class RcPlayerAttributesTest {
         val state = RcPlayerState(document)
         assertThat(state.floatState("largeWidth").value).isGreaterThan(150f)
         assertThat(state.floatState("defaultWidth").value).isLessThan(80f)
+        assertThat(state.preprocessed.textMeasurePaintSpecs.size).isEqualTo(2)
+        var sawCustomSize = false
+        var sawDefaultSize = false
         state.preprocessed.textMeasurePaintSpecs.forEach { _, spec ->
-            assertThat(spec.toComposeLocalPaint(state.remoteContext).sourceBundles).isEmpty()
+            val paint = spec.toComposeLocalPaint(state.remoteContext)
+            if (paint.isTextSizeSet) sawCustomSize = true else sawDefaultSize = true
         }
+        assertThat(sawCustomSize).isTrue()
+        assertThat(sawDefaultSize).isTrue()
     }
 
     @Test

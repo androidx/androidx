@@ -33,13 +33,13 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
  * in exactly one place.
  *
  * The bridge is [withCorePaintContext]: it wraps the Compose [DrawScope]'s native canvas in the
- * View player's `AndroidPaintContext` (inheriting the current canvas transform), replays the paint
- * state the Compose dispatcher has accumulated (see [ComposeLocalPaint.sourceBundles]), installs
- * the paint context + PAINT mode on the [RemoteContext] so the ops' `apply` routes to `paint`, and
- * restores everything after. Compose-driven reactivity is preserved by reading the frame-clock time
- * through the [GraphContext]: that registers this draw as an observer of the frame tick, so it
- * re-runs (and the core code re-steps the simulation) every frame while the player's frame loop is
- * alive (kept alive for documents containing particles — see `containsParticles` in RcPlayer).
+ * View player's `AndroidPaintContext` (inheriting the current canvas transform), seeds the core
+ * paint in O(1) from the resolved [ComposeLocalPaint] state, installs the paint context + PAINT
+ * mode on the [RemoteContext] so the ops' `apply` routes to `paint`, and restores everything after.
+ * Compose-driven reactivity is preserved by reading the frame-clock time through the
+ * [GraphContext]: that registers this draw as an observer of the frame tick, so it re-runs (and the
+ * core code re-steps the simulation) every frame while the player's frame loop is alive (kept alive
+ * for documents containing particles — see `containsParticles` in RcPlayer).
  *
  * Particle state (the `float[count][dims]` array) lives on the core `ParticlesCreate` op and is
  * advanced in place by core. Seeding follows the View player, where `CoreDocument.paint` paints

@@ -21,6 +21,7 @@ package androidx.compose.remote.player.compose.embedded.doc
 import android.util.Log
 import androidx.collection.IntObjectMap
 import androidx.collection.IntSet
+import androidx.collection.MutableScatterSet
 import androidx.collection.emptyIntSet
 import androidx.collection.mutableIntObjectMapOf
 import androidx.collection.mutableIntSetOf
@@ -475,20 +476,26 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
             if (op is Container) {
                 val canvasOps = (op as? LayoutComponent)?.getCanvasOperations()
                 val contentList = (op as? LayoutComponent)?.getLayoutContent()?.list
-                if (contentList != null) {
-                    val preContentPaintSpec = currentTextPaintSpec
-                    for (i in 0 until contentList.size) {
-                        val contentOp = contentList[i]
-                        if (contentOp === canvasOps) continue
-                        visitOp(contentOp)
+                val contentOps =
+                    if (contentList != null) {
+                        val contentSet = MutableScatterSet<Operation>(contentList.size)
+                        val preContentPaintSpec = currentTextPaintSpec
+                        for (i in 0 until contentList.size) {
+                            val contentOp = contentList[i]
+                            contentSet.add(contentOp)
+                            if (contentOp === canvasOps) continue
+                            visitOp(contentOp)
+                        }
+                        currentTextPaintSpec = preContentPaintSpec
+                        contentSet
+                    } else {
+                        null
                     }
-                    currentTextPaintSpec = preContentPaintSpec
-                }
                 val list = op.getList()
                 for (i in 0 until list.size) {
                     val child = list[i]
                     if (op is LayoutComponent && child is ComponentModifiers) continue
-                    if (contentList != null && contentList.contains(child)) continue
+                    if (contentOps != null && contentOps.contains(child)) continue
                     visitOp(child)
                 }
             }
