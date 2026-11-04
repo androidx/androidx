@@ -160,19 +160,20 @@ internal class GlanceRemoteViewsComposer(
     }
 
     /**
-     * Reads the guaranteed minimum size [providerInfo] declares in the manifest, in dp.
+     * Reads the default placement size declared inside the [providerInfo] in the XML, in dp.
      *
-     * A picker preview has no placed instance and therefore no host-reported size, so the declared
-     * size stands in for it. Using the smallest placement the provider allows matches the
-     * guaranteed-minimum semantics of [hostReportedDimensions], so the archetype shown in the
-     * picker is the one the widget is guaranteed to be able to render once placed.
+     * A picker or pin preview has no placed instance and therefore no host-reported size, so the
+     * declared default size (`minWidth` by `minHeight`) stands in for it. `minResizeWidth` and
+     * `minResizeHeight` are ignored here: hosts size preview slots to the widget's initial
+     * placement dimensions, while resize bounds only apply after placement (where
+     * [hostReportedDimensions] takes over).
      */
     private fun declaredDimensions(providerInfo: AppWidgetProviderInfo): Dimensions {
         val density = context.resources.displayMetrics.density
         if (density <= 0f) return UNSPECIFIED_DIMENSIONS
         return dimensionsOf(
-            widthDp = (providerInfo.smallestWidthPx / density).roundToInt(),
-            heightDp = (providerInfo.smallestHeightPx / density).roundToInt(),
+            widthDp = (providerInfo.minWidth / density).roundToInt(),
+            heightDp = (providerInfo.minHeight / density).roundToInt(),
         )
     }
 
@@ -237,26 +238,3 @@ internal class GlanceRemoteViewsComposer(
             }
     }
 }
-
-/**
- * Smallest width, in pixels, at which a host may place this provider.
- *
- * `minResizeWidth` only narrows the guarantee when the provider actually opts into horizontal
- * resizing, and is ignored when left unset in the manifest.
- */
-private val AppWidgetProviderInfo.smallestWidthPx: Int
-    get() =
-        if (resizeMode and AppWidgetProviderInfo.RESIZE_HORIZONTAL != 0 && minResizeWidth > 0) {
-            minOf(minWidth, minResizeWidth)
-        } else {
-            minWidth
-        }
-
-/** Smallest height, in pixels, at which a host may place this provider. */
-private val AppWidgetProviderInfo.smallestHeightPx: Int
-    get() =
-        if (resizeMode and AppWidgetProviderInfo.RESIZE_VERTICAL != 0 && minResizeHeight > 0) {
-            minOf(minHeight, minResizeHeight)
-        } else {
-            minHeight
-        }

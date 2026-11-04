@@ -266,23 +266,26 @@ class GlanceRemoteViewsComposerTest {
     }
 
     @Test
-    fun groupPreviews_resizableProvider_usesResizeMinimum() {
+    fun groupPreviews_resizableProvider_ignoresResizeMinimum() {
         val provider =
             providerInfo(
                 "Provider",
                 declaredWidthDp = 348,
                 declaredHeightDp = 88,
-                resizeMode = AppWidgetProviderInfo.RESIZE_HORIZONTAL,
-                minResizeWidthDp = 176,
+                resizeMode =
+                    AppWidgetProviderInfo.RESIZE_HORIZONTAL or
+                        AppWidgetProviderInfo.RESIZE_VERTICAL,
+                minResizeWidthDp = 40,
+                minResizeHeightDp = 40,
             )
 
         val groups = composer.groupPreviewsByRenderTarget(listOf(provider))
 
-        // A horizontally resizable widget can be placed at its resize minimum, so that is the
-        // size every archetype has to survive.
+        // Picker previews render in a slot sized to the widget's initial placement, not the
+        // post-placement resize floor.
         assertThat(groups)
             .containsExactly(
-                RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(176, 88)),
+                RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(348, 88)),
                 listOf(homePreview(provider)),
             )
     }
@@ -335,7 +338,7 @@ class GlanceRemoteViewsComposerTest {
     // region pinPreviewRenderTarget
 
     @Test
-    fun pinPreviewRenderTarget_targetsHomeScreenAtSmallestSize() {
+    fun pinPreviewRenderTarget_targetsHomeScreenAtDeclaredSize() {
         val provider =
             providerInfo(
                 "Provider",
@@ -345,15 +348,19 @@ class GlanceRemoteViewsComposerTest {
                         AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD,
                 declaredWidthDp = 348,
                 declaredHeightDp = 88,
-                resizeMode = AppWidgetProviderInfo.RESIZE_HORIZONTAL,
-                minResizeWidthDp = 176,
+                resizeMode =
+                    AppWidgetProviderInfo.RESIZE_HORIZONTAL or
+                        AppWidgetProviderInfo.RESIZE_VERTICAL,
+                minResizeWidthDp = 40,
+                minResizeHeightDp = 40,
             )
 
         val target = composer.pinPreviewRenderTarget(provider)
 
-        // Sized like a picker preview, at the smallest size the widget can be placed at.
+        // Sized like a picker preview, at the widget's initial placement size rather than its
+        // post-placement resize floor.
         assertThat(target)
-            .isEqualTo(RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(176, 88)))
+            .isEqualTo(RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(348, 88)))
     }
 
     // endregion
