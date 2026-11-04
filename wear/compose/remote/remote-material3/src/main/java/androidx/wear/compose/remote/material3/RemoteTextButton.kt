@@ -58,7 +58,7 @@ import androidx.compose.ui.graphics.Color
  * @param colors [RemoteTextButtonColors] that will be used to resolve the background and content
  *   color for this button in different states.
  * @param border Optional [RemoteBorderStroke] that will be used to resolve the border for this
- *   button in different states.
+ *   button in different states, or `null` for no border.
  * @param content The content displayed on the text button, expected to be text or image.
  */
 @Composable
@@ -108,10 +108,14 @@ public object RemoteTextButtonDefaults {
      * with contrasting content color. If the button is disabled then the colors default to
      * [RemoteColorScheme.onSurface] with suitable alpha values applied.
      *
-     * @param containerColor the background color of this text button when enabled
-     * @param contentColor the content color of this text button when enabled
-     * @param disabledContainerColor the background color of this text button when not enabled
-     * @param disabledContentColor the content color of this text button when not enabled
+     * @param containerColor The background color of this text button when enabled, or `null` to use
+     *   the theme default.
+     * @param contentColor The content color of this text button when enabled, or `null` to use the
+     *   theme default.
+     * @param disabledContainerColor The background color of this text button when not enabled, or
+     *   `null` to use the theme default.
+     * @param disabledContentColor The content color of this text button when not enabled, or `null`
+     *   to use the theme default.
      */
     @Composable
     @RemoteComposable

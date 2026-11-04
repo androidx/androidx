@@ -113,7 +113,7 @@ import androidx.wear.compose.material3.TextConfiguration
  * @param colors [RemoteButtonColors] that will be used to resolve the colors used for this button.
  *   See [RemoteEdgeButtonDefaults.buttonColors].
  * @param border Optional [RemoteBorderStroke] that will be used to resolve the border for this
- *   button.
+ *   button, or `null` for no border.
  * @param shape Defines the button's shape. Defaults to [RemoteEdgeButtonDefaults.shape].
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content.
@@ -267,17 +267,22 @@ public object RemoteEdgeButtonDefaults {
      * Creates a [RemoteButtonColors] that represents the default background and content colors used
      * in a [RemoteEdgeButton].
      *
-     * @param containerColor The background color of this [RemoteEdgeButton] when enabled.
-     * @param contentColor The content color of this [RemoteEdgeButton] when enabled.
+     * @param containerColor The background color of this [RemoteEdgeButton] when enabled, or `null`
+     *   to use the theme default.
+     * @param contentColor The content color of this [RemoteEdgeButton] when enabled, or `null` to
+     *   use the theme default.
      * @param secondaryContentColor The secondary content color of this [RemoteEdgeButton] when
-     *   enabled.
-     * @param iconColor The icon color of this [RemoteEdgeButton] when enabled.
+     *   enabled, or `null` to use the theme default.
+     * @param iconColor The icon color of this [RemoteEdgeButton] when enabled, or `null` to use the
+     *   theme default.
      * @param disabledContainerColor The background color of this [RemoteEdgeButton] when not
-     *   enabled.
-     * @param disabledContentColor The content color of this [RemoteEdgeButton] when not enabled.
+     *   enabled, or `null` to use the theme default.
+     * @param disabledContentColor The content color of this [RemoteEdgeButton] when not enabled, or
+     *   `null` to use the theme default.
      * @param disabledSecondaryContentColor The secondary content color of this [RemoteEdgeButton]
-     *   when not enabled.
-     * @param disabledIconColor The icon color of this [RemoteEdgeButton] when not enabled.
+     *   when not enabled, or `null` to use the theme default.
+     * @param disabledIconColor The icon color of this [RemoteEdgeButton] when not enabled, or
+     *   `null` to use the theme default.
      */
     @Composable
     @RemoteComposable
@@ -311,17 +316,22 @@ public object RemoteEdgeButtonDefaults {
     /**
      * Creates a [RemoteButtonColors] with filled tonal colors for [RemoteEdgeButton].
      *
-     * @param containerColor The background color of this [RemoteEdgeButton] when enabled.
-     * @param contentColor The content color of this [RemoteEdgeButton] when enabled.
+     * @param containerColor The background color of this [RemoteEdgeButton] when enabled, or `null`
+     *   to use the theme default.
+     * @param contentColor The content color of this [RemoteEdgeButton] when enabled, or `null` to
+     *   use the theme default.
      * @param secondaryContentColor The secondary content color of this [RemoteEdgeButton] when
-     *   enabled.
-     * @param iconColor The icon color of this [RemoteEdgeButton] when enabled.
+     *   enabled, or `null` to use the theme default.
+     * @param iconColor The icon color of this [RemoteEdgeButton] when enabled, or `null` to use the
+     *   theme default.
      * @param disabledContainerColor The background color of this [RemoteEdgeButton] when not
-     *   enabled.
-     * @param disabledContentColor The content color of this [RemoteEdgeButton] when not enabled.
+     *   enabled, or `null` to use the theme default.
+     * @param disabledContentColor The content color of this [RemoteEdgeButton] when not enabled, or
+     *   `null` to use the theme default.
      * @param disabledSecondaryContentColor The secondary content color of this [RemoteEdgeButton]
-     *   when not enabled.
-     * @param disabledIconColor The icon color of this [RemoteEdgeButton] when not enabled.
+     *   when not enabled, or `null` to use the theme default.
+     * @param disabledIconColor The icon color of this [RemoteEdgeButton] when not enabled, or
+     *   `null` to use the theme default.
      */
     @Composable
     @RemoteComposable
@@ -357,17 +367,22 @@ public object RemoteEdgeButtonDefaults {
     /**
      * Creates a [RemoteButtonColors] with higher chroma container colors for [RemoteEdgeButton].
      *
-     * @param containerColor The background color of this [RemoteEdgeButton] when enabled.
-     * @param contentColor The content color of this [RemoteEdgeButton] when enabled.
+     * @param containerColor The background color of this [RemoteEdgeButton] when enabled, or `null`
+     *   to use the theme default.
+     * @param contentColor The content color of this [RemoteEdgeButton] when enabled, or `null` to
+     *   use the theme default.
      * @param secondaryContentColor The secondary content color of this [RemoteEdgeButton] when
-     *   enabled.
-     * @param iconColor The icon color of this [RemoteEdgeButton] when enabled.
+     *   enabled, or `null` to use the theme default.
+     * @param iconColor The icon color of this [RemoteEdgeButton] when enabled, or `null` to use the
+     *   theme default.
      * @param disabledContainerColor The background color of this [RemoteEdgeButton] when not
-     *   enabled.
-     * @param disabledContentColor The content color of this [RemoteEdgeButton] when not enabled.
+     *   enabled, or `null` to use the theme default.
+     * @param disabledContentColor The content color of this [RemoteEdgeButton] when not enabled, or
+     *   `null` to use the theme default.
      * @param disabledSecondaryContentColor The secondary content color of this [RemoteEdgeButton]
-     *   when not enabled.
-     * @param disabledIconColor The icon color of this [RemoteEdgeButton] when not enabled.
+     *   when not enabled, or `null` to use the theme default.
+     * @param disabledIconColor The icon color of this [RemoteEdgeButton] when not enabled, or
+     *   `null` to use the theme default.
      */
     @Composable
     @RemoteComposable
@@ -401,14 +416,18 @@ public object RemoteEdgeButtonDefaults {
     /**
      * Creates a [RemoteButtonColors] with outlined colors for [RemoteEdgeButton].
      *
-     * @param contentColor The content color of this [RemoteEdgeButton] when enabled.
+     * @param contentColor The content color of this [RemoteEdgeButton] when enabled, or `null` to
+     *   use the theme default.
      * @param secondaryContentColor The secondary content color of this [RemoteEdgeButton] when
-     *   enabled.
-     * @param iconColor The icon color of this [RemoteEdgeButton] when enabled.
-     * @param disabledContentColor The content color of this [RemoteEdgeButton] when not enabled.
+     *   enabled, or `null` to use the theme default.
+     * @param iconColor The icon color of this [RemoteEdgeButton] when enabled, or `null` to use the
+     *   theme default.
+     * @param disabledContentColor The content color of this [RemoteEdgeButton] when not enabled, or
+     *   `null` to use the theme default.
      * @param disabledSecondaryContentColor The secondary content color of this [RemoteEdgeButton]
-     *   when not enabled.
-     * @param disabledIconColor The icon color of this [RemoteEdgeButton] when not enabled.
+     *   when not enabled, or `null` to use the theme default.
+     * @param disabledIconColor The icon color of this [RemoteEdgeButton] when not enabled, or
+     *   `null` to use the theme default.
      */
     @Composable
     @RemoteComposable

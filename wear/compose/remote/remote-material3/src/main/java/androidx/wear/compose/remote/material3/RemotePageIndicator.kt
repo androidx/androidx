@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.remote.material3
 
+import androidx.annotation.IntRange
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
@@ -49,7 +50,7 @@ import androidx.compose.ui.graphics.StrokeCap
 @Stable
 public interface RemotePageIndicatorState {
     /** Total number of pages. */
-    public val pageCount: Int
+    @get:IntRange(from = 0) public val pageCount: Int
 
     /** The currently selected page index. */
     public val selectedPage: RemoteInt
@@ -78,7 +79,7 @@ internal class DefaultRemotePageIndicatorState(
  * Example of remembering state for a [RemoteHorizontalPageIndicator]:
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteHorizontalPageIndicatorSample
- * @param pageCount Total number of pages.
+ * @param pageCount Total number of pages (must be non-negative).
  * @param selectedPage The currently selected page index.
  * @param pageOffset The current offset from the start of the selected page, as a ratio of the page
  *   width.
@@ -86,7 +87,7 @@ internal class DefaultRemotePageIndicatorState(
 @Composable
 @RemoteComposable
 public fun rememberRemotePageIndicatorState(
-    pageCount: Int,
+    @IntRange(from = 0) pageCount: Int,
     selectedPage: RemoteInt = 0.ri,
     pageOffset: RemoteFloat = 0f.rf,
 ): RemotePageIndicatorState {

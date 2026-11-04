@@ -102,7 +102,7 @@ import androidx.wear.compose.remote.material3.RemoteButtonDefaults.defaultButton
  * @param colors [RemoteButtonColors] that will be used to resolve the background and content color
  *   for this button in different states. See [RemoteButtonDefaults.buttonColors].
  * @param border Optional [RemoteBorderStroke] that will be used to resolve the border for this
- *   button in different states.
+ *   button in different states, or `null` for no border.
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
  * @param content Slot for composable body content displayed on the [RemoteButton]
@@ -157,7 +157,7 @@ public fun RemoteButton(
  * @param colors [RemoteButtonColors] that will be used to resolve the background and content color
  *   for this button in different states. See [RemoteButtonDefaults.buttonColors].
  * @param border Optional [RemoteBorderStroke] that will be used to resolve the border for this
- *   button in different states.
+ *   button in different states, or `null` for no border.
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
  * @param content Slot for composable body content displayed on the [RemoteButton]
@@ -193,6 +193,7 @@ public fun RemoteButton(
     )
 }
 
+// TODO(b/261838497) Add Material3 UX guidance links
 /**
  * Wear Material3 [RemoteButton] that offers parameters for optional container image backgrounds,
  * with three slots and a specific layout for an icon, label and secondaryLabel. The icon and
@@ -222,19 +223,22 @@ public fun RemoteButton(
  * @sample androidx.wear.compose.remote.material3.samples.RemoteButtonWithIconAndSecondaryLabelSample
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
- * @param secondaryLabel A slot for providing the button's secondary label. The contents are
- *   expected to be text which is "start" aligned if there is an icon present and "start" or
- *   "center" aligned if not. label and secondaryLabel contents should be consistently aligned.
- * @param icon A slot for providing the button's icon. The contents are expected to be a
- *   horizontally and vertically aligned icon of size [RemoteButtonDefaults.IconSize] or
- *   [RemoteButtonDefaults.LargeIconSize].
+ * @param secondaryLabel A slot for providing the button's secondary label, or `null` if there is no
+ *   secondary label. The contents are expected to be text which is "start" aligned if there is an
+ *   icon present and "start" or "center" aligned if not. label and secondaryLabel contents should
+ *   be consistently aligned.
+ * @param icon A slot for providing the button's icon, or `null` if there is no icon. The contents
+ *   are expected to be a horizontally and vertically aligned icon of size
+ *   [RemoteButtonDefaults.IconSize] or [RemoteButtonDefaults.LargeIconSize].
  * @param enabled Controls the enabled state of the button. When `false`, this button will not be
  *   clickable
  * @param containerPainter The [RemotePainter] to use to draw the container image of the
- *   [RemoteButton], such as returned by [RemoteButtonDefaults.containerPainter].
+ *   [RemoteButton], such as returned by [RemoteButtonDefaults.containerPainter], or `null` to use a
+ *   solid container color from [colors].
  * @param disabledContainerPainter [RemotePainter] to use to draw the container of the
  *   [RemoteButton] when not enabled, such as returned by
- *   [RemoteButtonDefaults.disabledContainerPainter].
+ *   [RemoteButtonDefaults.disabledContainerPainter], or `null` to use a solid disabled container
+ *   color from [colors].
  * @param shape Defines the button's shape. It is strongly recommended to use the default as this
  *   shape is a key characteristic of the Wear Material3 Theme
  * @param colors [RemoteButtonColors] that will be used to resolve the background and content color
@@ -242,13 +246,12 @@ public fun RemoteButton(
  *   overridden by containerPainter and disabledContainerPainter respectively). See
  *   [RemoteButtonDefaults.buttonWithContainerPainterColors].
  * @param border Optional [RemoteBorderStroke] that will be used to resolve the border for this
- *   button in different states.
+ *   button in different states, or `null` for no border.
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
  * @param label A slot for providing the button's main label. The contents are expected to be text
  *   which is "start" aligned if there is an icon present and "start" or "center" aligned if not.
  */
-// TODO(b/261838497) Add Material3 UX guidance links
 @Composable
 @RemoteComposable
 public fun RemoteButton(
@@ -344,10 +347,10 @@ public fun RemoteButton(
  * @sample androidx.wear.compose.remote.material3.samples.RemoteCompactButtonSimpleSample
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
- * @param icon A slot for providing the button's icon. The contents are expected to be a
- *   horizontally and vertically aligned icon of size [RemoteButtonDefaults.ExtraSmallIconSize] when
- *   used with a label or [RemoteButtonDefaults.SmallIconSize] when used as the only content in the
- *   button.
+ * @param icon A slot for providing the button's icon, or `null` if there is no icon. The contents
+ *   are expected to be a horizontally and vertically aligned icon of size
+ *   [RemoteButtonDefaults.ExtraSmallIconSize] when used with a label or
+ *   [RemoteButtonDefaults.SmallIconSize] when used as the only content in the button.
  * @param enabled Controls the enabled state of the button. When `false`, this button will not be
  *   clickable. It must be a constant value.
  * @param shape Defines the button's shape. It is strongly recommended to use the default as this
@@ -355,10 +358,11 @@ public fun RemoteButton(
  * @param colors [RemoteButtonColors] that will be used to resolve the background and content color
  *   for this button in different states. See [RemoteButtonDefaults.buttonColors].
  * @param border Optional [RemoteBorderStroke] that will be used to resolve the border for this
- *   button in different states.
+ *   button in different states, or `null` for no border.
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
- * @param label Slot for composable body content displayed on the [RemoteCompactButton]
+ * @param label Slot for composable body content displayed on the [RemoteCompactButton], or `null`
+ *   for an icon-only compact button.
  */
 @Composable
 @RemoteComposable
@@ -610,16 +614,22 @@ public object RemoteButtonDefaults {
      * Creates a [RemoteButtonColors] that represents the default background and content colors used
      * in a [RemoteButton].
      *
-     * @param containerColor The background color of this [RemoteButton] when enabled
-     * @param contentColor The content color of this [RemoteButton] when enabled
+     * @param containerColor The background color of this [RemoteButton] when enabled, or `null` to
+     *   use the theme default.
+     * @param contentColor The content color of this [RemoteButton] when enabled, or `null` to use
+     *   the theme default.
      * @param secondaryContentColor The secondary content color of this [RemoteButton] when enabled,
-     *   used for secondaryLabel content
-     * @param iconColor The icon color of this [RemoteButton] when enabled, used for icon content
-     * @param disabledContainerColor The background color of this [RemoteButton] when not enabled
-     * @param disabledContentColor The content color of this [RemoteButton] when not enabled
+     *   used for secondaryLabel content, or `null` to use the theme default.
+     * @param iconColor The icon color of this [RemoteButton] when enabled, used for icon content,
+     *   or `null` to use the theme default.
+     * @param disabledContainerColor The background color of this [RemoteButton] when not enabled,
+     *   or `null` to use the theme default.
+     * @param disabledContentColor The content color of this [RemoteButton] when not enabled, or
+     *   `null` to use the theme default.
      * @param disabledSecondaryContentColor The secondary content color of this [RemoteButton] when
-     *   not enabled
-     * @param disabledIconColor The icon color of this [RemoteButton] when not enabled
+     *   not enabled, or `null` to use the theme default.
+     * @param disabledIconColor The icon color of this [RemoteButton] when not enabled, or `null` to
+     *   use the theme default.
      */
     @Composable
     @RemoteComposable
@@ -666,16 +676,22 @@ public object RemoteButtonDefaults {
      * Creates a [RemoteButtonColors] with a muted background and contrasting content color, the
      * defaults for medium emphasis buttons.
      *
-     * @param containerColor The background color of this [RemoteButton] when enabled
-     * @param contentColor The content color of this [RemoteButton] when enabled
+     * @param containerColor The background color of this [RemoteButton] when enabled, or `null` to
+     *   use the theme default.
+     * @param contentColor The content color of this [RemoteButton] when enabled, or `null` to use
+     *   the theme default.
      * @param secondaryContentColor The secondary content color of this [RemoteButton] when enabled,
-     *   used for secondaryLabel content
-     * @param iconColor The icon color of this [RemoteButton] when enabled, used for icon content
-     * @param disabledContainerColor The background color of this [RemoteButton] when not enabled
-     * @param disabledContentColor The content color of this [RemoteButton] when not enabled
+     *   used for secondaryLabel content, or `null` to use the theme default.
+     * @param iconColor The icon color of this [RemoteButton] when enabled, used for icon content,
+     *   or `null` to use the theme default.
+     * @param disabledContainerColor The background color of this [RemoteButton] when not enabled,
+     *   or `null` to use the theme default.
+     * @param disabledContentColor The content color of this [RemoteButton] when not enabled, or
+     *   `null` to use the theme default.
      * @param disabledSecondaryContentColor The secondary content color of this [RemoteButton] when
-     *   not enabled
-     * @param disabledIconColor The icon color of this [RemoteButton] when not enabled
+     *   not enabled, or `null` to use the theme default.
+     * @param disabledIconColor The icon color of this [RemoteButton] when not enabled, or `null` to
+     *   use the theme default.
      */
     @Composable
     @RemoteComposable
@@ -712,16 +728,22 @@ public object RemoteButtonDefaults {
     /**
      * Creates a [RemoteButtonColors] with higher chroma container colors.
      *
-     * @param containerColor The background color of this [RemoteButton] when enabled
-     * @param contentColor The content color of this [RemoteButton] when enabled
+     * @param containerColor The background color of this [RemoteButton] when enabled, or `null` to
+     *   use the theme default.
+     * @param contentColor The content color of this [RemoteButton] when enabled, or `null` to use
+     *   the theme default.
      * @param secondaryContentColor The secondary content color of this [RemoteButton] when enabled,
-     *   used for secondaryLabel content
-     * @param iconColor The icon color of this [RemoteButton] when enabled, used for icon content
-     * @param disabledContainerColor The background color of this [RemoteButton] when not enabled
-     * @param disabledContentColor The content color of this [RemoteButton] when not enabled
+     *   used for secondaryLabel content, or `null` to use the theme default.
+     * @param iconColor The icon color of this [RemoteButton] when enabled, used for icon content,
+     *   or `null` to use the theme default.
+     * @param disabledContainerColor The background color of this [RemoteButton] when not enabled,
+     *   or `null` to use the theme default.
+     * @param disabledContentColor The content color of this [RemoteButton] when not enabled, or
+     *   `null` to use the theme default.
      * @param disabledSecondaryContentColor The secondary content color of this [RemoteButton] when
-     *   not enabled
-     * @param disabledIconColor The icon color of this [RemoteButton] when not enabled
+     *   not enabled, or `null` to use the theme default.
+     * @param disabledIconColor The icon color of this [RemoteButton] when not enabled, or `null` to
+     *   use the theme default.
      */
     @Composable
     @RemoteComposable
@@ -758,14 +780,18 @@ public object RemoteButtonDefaults {
     /**
      * Creates a [RemoteButtonColors] with a transparent background for outlined buttons.
      *
-     * @param contentColor The content color of this [RemoteButton] when enabled
+     * @param contentColor The content color of this [RemoteButton] when enabled, or `null` to use
+     *   the theme default.
      * @param secondaryContentColor The secondary content color of this [RemoteButton] when enabled,
-     *   used for secondaryLabel content
-     * @param iconColor The icon color of this [RemoteButton] when enabled, used for icon content
-     * @param disabledContentColor The content color of this [RemoteButton] when not enabled
+     *   used for secondaryLabel content, or `null` to use the theme default.
+     * @param iconColor The icon color of this [RemoteButton] when enabled, used for icon content,
+     *   or `null` to use the theme default.
+     * @param disabledContentColor The content color of this [RemoteButton] when not enabled, or
+     *   `null` to use the theme default.
      * @param disabledSecondaryContentColor The secondary content color of this [RemoteButton] when
-     *   not enabled
-     * @param disabledIconColor The icon color of this [RemoteButton] when not enabled
+     *   not enabled, or `null` to use the theme default.
+     * @param disabledIconColor The icon color of this [RemoteButton] when not enabled, or `null` to
+     *   use the theme default.
      */
     @Composable
     @RemoteComposable
@@ -804,14 +830,18 @@ public object RemoteButtonDefaults {
      * buttons. Use [childButtonColors] for optional or supplementary actions with the least amount
      * of prominence.
      *
-     * @param contentColor The content color of this [RemoteButton] when enabled
+     * @param contentColor The content color of this [RemoteButton] when enabled, or `null` to use
+     *   the theme default.
      * @param secondaryContentColor The secondary content color of this [RemoteButton] when enabled,
-     *   used for secondaryLabel content
-     * @param iconColor The icon color of this [RemoteButton] when enabled, used for icon content
-     * @param disabledContentColor The content color of this [RemoteButton] when not enabled
+     *   used for secondaryLabel content, or `null` to use the theme default.
+     * @param iconColor The icon color of this [RemoteButton] when enabled, used for icon content,
+     *   or `null` to use the theme default.
+     * @param disabledContentColor The content color of this [RemoteButton] when not enabled, or
+     *   `null` to use the theme default.
      * @param disabledSecondaryContentColor The secondary content color of this [RemoteButton] when
-     *   not enabled
-     * @param disabledIconColor The icon color of this [RemoteButton] when not enabled
+     *   not enabled, or `null` to use the theme default.
+     * @param disabledIconColor The icon color of this [RemoteButton] when not enabled, or `null` to
+     *   use the theme default.
      */
     @Composable
     @RemoteComposable
@@ -848,14 +878,18 @@ public object RemoteButtonDefaults {
      * Creates a [RemoteButtonColors] for the content in a [RemoteButton] with an image container
      * painter.
      *
-     * @param contentColor The content color of this [RemoteButton] when enabled
+     * @param contentColor The content color of this [RemoteButton] when enabled, or `null` to use
+     *   the theme default.
      * @param secondaryContentColor The secondary content color of this [RemoteButton] when enabled,
-     *   used for secondaryLabel content
-     * @param iconColor The icon color of this [RemoteButton] when enabled, used for icon content
-     * @param disabledContentColor The content color of this [RemoteButton] when not enabled
+     *   used for secondaryLabel content, or `null` to use the theme default.
+     * @param iconColor The icon color of this [RemoteButton] when enabled, used for icon content,
+     *   or `null` to use the theme default.
+     * @param disabledContentColor The content color of this [RemoteButton] when not enabled, or
+     *   `null` to use the theme default.
      * @param disabledSecondaryContentColor The secondary content color of this [RemoteButton] when
-     *   not enabled
-     * @param disabledIconColor The icon color of this [RemoteButton] when not enabled
+     *   not enabled, or `null` to use the theme default.
+     * @param disabledIconColor The icon color of this [RemoteButton] when not enabled, or `null` to
+     *   use the theme default.
      */
     @Composable
     @RemoteComposable
@@ -1080,8 +1114,10 @@ public object RemoteButtonDefaults {
      * @param image The [RemoteImageBitmap] to use to draw the container background of the
      *   [RemoteButton].
      * @param scrim The [RemoteBrush] to use to paint a scrim over the container image to ensure
-     *   that any text drawn over the image is legible.
-     * @param alpha Opacity of the container image painter and scrim.
+     *   that any text drawn over the image is legible, or `null` if no scrim should be drawn over
+     *   the image.
+     * @param alpha Opacity of the container image painter and scrim, from 0.0 (completely
+     *   transparent) to 1.0 (completely opaque).
      * @param shape Define the container shape.
      * @param contentScale the rule to apply to scale the image when its size does not match the
      *   layout

@@ -56,9 +56,11 @@ import androidx.compose.ui.semantics.Role
  *   button in different states.
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content.
- * @param border Optional [RemoteBorderStroke] for the button.
- * @param icon An optional slot for providing an icon to indicate the purpose of the button.
- * @param secondaryLabel A slot for providing the button's secondary label.
+ * @param border Optional [RemoteBorderStroke] for the button, or `null` for no border.
+ * @param icon An optional slot for providing an icon to indicate the purpose of the button, or
+ *   `null` if there is no icon.
+ * @param secondaryLabel A slot for providing the button's secondary label, or `null` if there is no
+ *   secondary label.
  * @param label A slot for providing the button's main label.
  */
 @Composable
@@ -159,28 +161,46 @@ public object RemoteRadioButtonDefaults {
     /**
      * Creates a [RemoteRadioButtonColors] with customized colors for [RemoteRadioButton].
      *
-     * @param selectedContainerColor Container color when selected and enabled.
-     * @param selectedContentColor Content color when selected and enabled.
-     * @param selectedSecondaryContentColor Secondary content color when selected and enabled.
-     * @param selectedIconColor Icon color when selected and enabled.
-     * @param selectedControlColor Control color when selected and enabled.
-     * @param unselectedContainerColor Container color when unselected and enabled.
-     * @param unselectedContentColor Content color when unselected and enabled.
-     * @param unselectedSecondaryContentColor Secondary content color when unselected and enabled.
-     * @param unselectedIconColor Icon color when unselected and enabled.
-     * @param unselectedControlColor Control color when unselected and enabled.
-     * @param disabledSelectedContainerColor Container color when selected and disabled.
-     * @param disabledSelectedContentColor Content color when selected and disabled.
+     * @param selectedContainerColor Container color when selected and enabled, or `null` to use the
+     *   theme default.
+     * @param selectedContentColor Content color when selected and enabled, or `null` to use the
+     *   theme default.
+     * @param selectedSecondaryContentColor Secondary content color when selected and enabled, or
+     *   `null` to use the theme default.
+     * @param selectedIconColor Icon color when selected and enabled, or `null` to use the theme
+     *   default.
+     * @param selectedControlColor Control color when selected and enabled, or `null` to use the
+     *   theme default.
+     * @param unselectedContainerColor Container color when unselected and enabled, or `null` to use
+     *   the theme default.
+     * @param unselectedContentColor Content color when unselected and enabled, or `null` to use the
+     *   theme default.
+     * @param unselectedSecondaryContentColor Secondary content color when unselected and enabled,
+     *   or `null` to use the theme default.
+     * @param unselectedIconColor Icon color when unselected and enabled, or `null` to use the theme
+     *   default.
+     * @param unselectedControlColor Control color when unselected and enabled, or `null` to use the
+     *   theme default.
+     * @param disabledSelectedContainerColor Container color when selected and disabled, or `null`
+     *   to use the theme default.
+     * @param disabledSelectedContentColor Content color when selected and disabled, or `null` to
+     *   use the theme default.
      * @param disabledSelectedSecondaryContentColor Secondary content color when selected and
-     *   disabled.
-     * @param disabledSelectedIconColor Icon color when selected and disabled.
-     * @param disabledSelectedControlColor Control color when selected and disabled.
-     * @param disabledUnselectedContainerColor Container color when unselected and disabled.
-     * @param disabledUnselectedContentColor Content color when unselected and disabled.
+     *   disabled, or `null` to use the theme default.
+     * @param disabledSelectedIconColor Icon color when selected and disabled, or `null` to use the
+     *   theme default.
+     * @param disabledSelectedControlColor Control color when selected and disabled, or `null` to
+     *   use the theme default.
+     * @param disabledUnselectedContainerColor Container color when unselected and disabled, or
+     *   `null` to use the theme default.
+     * @param disabledUnselectedContentColor Content color when unselected and disabled, or `null`
+     *   to use the theme default.
      * @param disabledUnselectedSecondaryContentColor Secondary content color when unselected and
-     *   disabled.
-     * @param disabledUnselectedIconColor Icon color when unselected and disabled.
-     * @param disabledUnselectedControlColor Control color when unselected and disabled.
+     *   disabled, or `null` to use the theme default.
+     * @param disabledUnselectedIconColor Icon color when unselected and disabled, or `null` to use
+     *   the theme default.
+     * @param disabledUnselectedControlColor Control color when unselected and disabled, or `null`
+     *   to use the theme default.
      */
     @Composable
     @RemoteComposable

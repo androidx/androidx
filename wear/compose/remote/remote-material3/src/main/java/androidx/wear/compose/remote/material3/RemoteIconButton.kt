@@ -59,7 +59,7 @@ import androidx.compose.ui.graphics.Color
  * @param colors [RemoteIconButtonColors] that will be used to resolve the background and content
  *   color for this button in different states.
  * @param border Optional [RemoteBorderStroke] that will be used to resolve the border for this
- *   button in different states.
+ *   button in different states, or `null` for no border.
  * @param content The content displayed on the icon button, expected to be icon or image.
  */
 @Composable
@@ -110,10 +110,13 @@ public object RemoteIconButtonDefaults {
      * Returns a [RemoteIconButtonColors] with the colors for a filled [RemoteIconButton] - by
      * default, a colored background with a contrasting icon color.
      *
-     * @param containerColor The background color of this icon button when enabled.
-     * @param contentColor The color of this icon when enabled.
-     * @param disabledContainerColor The background color of this icon button when not enabled.
-     * @param disabledContentColor The color of this icon when not enabled.
+     * @param containerColor The background color of this icon button when enabled, or `null` to use
+     *   the theme default.
+     * @param contentColor The color of this icon when enabled, or `null` to use the theme default.
+     * @param disabledContainerColor The background color of this icon button when not enabled, or
+     *   `null` to use the theme default.
+     * @param disabledContentColor The color of this icon when not enabled, or `null` to use the
+     *   theme default.
      */
     @Composable
     @RemoteComposable
@@ -145,10 +148,13 @@ public object RemoteIconButtonDefaults {
      * Returns a [RemoteIconButtonColors] for a filled tonal [RemoteIconButton] with a muted
      * background and contrasting content color.
      *
-     * @param containerColor The background color of this icon button when enabled.
-     * @param contentColor The color of this icon when enabled.
-     * @param disabledContainerColor The background color of this icon button when not enabled.
-     * @param disabledContentColor The color of this icon when not enabled.
+     * @param containerColor The background color of this icon button when enabled, or `null` to use
+     *   the theme default.
+     * @param contentColor The color of this icon when enabled, or `null` to use the theme default.
+     * @param disabledContainerColor The background color of this icon button when not enabled, or
+     *   `null` to use the theme default.
+     * @param disabledContentColor The color of this icon when not enabled, or `null` to use the
+     *   theme default.
      */
     @Composable
     @RemoteComposable
@@ -180,10 +186,13 @@ public object RemoteIconButtonDefaults {
      * Returns a [RemoteIconButtonColors] with higher chroma container colors for
      * [RemoteIconButton].
      *
-     * @param containerColor The background color of this icon button when enabled.
-     * @param contentColor The color of this icon when enabled.
-     * @param disabledContainerColor The background color of this icon button when not enabled.
-     * @param disabledContentColor The color of this icon when not enabled.
+     * @param containerColor The background color of this icon button when enabled, or `null` to use
+     *   the theme default.
+     * @param contentColor The color of this icon when enabled, or `null` to use the theme default.
+     * @param disabledContainerColor The background color of this icon button when not enabled, or
+     *   `null` to use the theme default.
+     * @param disabledContentColor The color of this icon when not enabled, or `null` to use the
+     *   theme default.
      */
     @Composable
     @RemoteComposable
@@ -215,8 +224,10 @@ public object RemoteIconButtonDefaults {
      * Returns a [RemoteIconButtonColors] with a transparent background for outlined
      * [RemoteIconButton].
      *
-     * @param contentColor The color of this icon button when enabled.
-     * @param disabledContentColor The color of this icon when not enabled.
+     * @param contentColor The color of this icon button when enabled, or `null` to use the theme
+     *   default.
+     * @param disabledContentColor The color of this icon when not enabled, or `null` to use the
+     *   theme default.
      */
     @Composable
     @RemoteComposable
@@ -246,10 +257,14 @@ public object RemoteIconButtonDefaults {
      * with contrasting content color. If the button is disabled then the colors default to
      * [RemoteColorScheme.onSurface] with suitable alpha values applied.
      *
-     * @param containerColor the background color of this icon button when enabled
-     * @param contentColor the content color of this icon button when enabled
-     * @param disabledContainerColor the background color of this icon button when not enabled
-     * @param disabledContentColor the content color of this icon button when not enabled
+     * @param containerColor The background color of this icon button when enabled, or `null` to use
+     *   the theme default.
+     * @param contentColor The content color of this icon button when enabled, or `null` to use the
+     *   theme default.
+     * @param disabledContainerColor The background color of this icon button when not enabled, or
+     *   `null` to use the theme default.
+     * @param disabledContentColor The content color of this icon button when not enabled, or `null`
+     *   to use the theme default.
      */
     @Composable
     @RemoteComposable

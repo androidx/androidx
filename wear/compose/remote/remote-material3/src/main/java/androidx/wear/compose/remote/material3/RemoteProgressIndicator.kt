@@ -160,13 +160,18 @@ public object RemoteProgressIndicatorDefaults {
     /**
      * Creates a [RemoteProgressIndicatorColors] with modified brushes.
      *
-     * @param indicatorBrush The [RemoteBrush] used to draw the indicator when enabled.
-     * @param trackBrush The [RemoteBrush] used to draw the track when enabled.
-     * @param overflowTrackBrush The [RemoteBrush] used to draw the overflow track when enabled.
-     * @param disabledIndicatorBrush The [RemoteBrush] used to draw the indicator when disabled.
-     * @param disabledTrackBrush The [RemoteBrush] used to draw the track when disabled.
+     * @param indicatorBrush The [RemoteBrush] used to draw the indicator when enabled, or `null` to
+     *   use the theme default.
+     * @param trackBrush The [RemoteBrush] used to draw the track when enabled, or `null` to use the
+     *   theme default.
+     * @param overflowTrackBrush The [RemoteBrush] used to draw the overflow track when enabled, or
+     *   `null` to use the theme default.
+     * @param disabledIndicatorBrush The [RemoteBrush] used to draw the indicator when disabled, or
+     *   `null` to use the theme default.
+     * @param disabledTrackBrush The [RemoteBrush] used to draw the track when disabled, or `null`
+     *   to use the theme default.
      * @param disabledOverflowTrackBrush The [RemoteBrush] used to draw the overflow track when
-     *   disabled.
+     *   disabled, or `null` to use the theme default.
      */
     @Composable
     @RemoteComposable
