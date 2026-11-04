@@ -156,12 +156,13 @@ public class PerfettoCaptureWrapper {
                 // the flush() operation here, given we end up validating the result of the
                 // call to enable().
                 connectedProfiler.flush()
-                Shell.killTerm(
-                    processes =
-                        Shell.getRunningPidsAndProcessesForPackage(
-                            packageName = config.targetPackage
-                        )
-                )
+                val processes =
+                    Shell.getRunningPidsAndProcessesForPackage(packageName = config.targetPackage)
+                if (processes.isNotEmpty()) {
+                    Shell.killProcessesAndWait(processes = processes) {
+                        Shell.executeScriptSilent("am force-stop ${config.targetPackage}")
+                    }
+                }
             }
             result
         }
