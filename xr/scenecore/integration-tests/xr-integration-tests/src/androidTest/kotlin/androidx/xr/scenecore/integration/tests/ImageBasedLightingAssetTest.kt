@@ -22,41 +22,47 @@ import androidx.xr.runtime.RequiresSpatialApi
 import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.scenecore.ImageBasedLightingAsset
 import androidx.xr.testutils.XrDeviceTest
-import com.google.common.truth.Truth.assertThat
 import java.nio.file.Paths
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Device integration tests for loading SceneCore [ImageBasedLightingAsset]s. */
+/**
+ * Device integration tests for loading SceneCore [ImageBasedLightingAsset]s.
+ *
+ * [ImageBasedLightingAsset.createFromZip] returns a non-null asset or throws, so these tests verify
+ * that loading and closing the asset on a real runtime completes without throwing. They
+ * intentionally do not request Full Space Mode because asset loading does not depend on the space
+ * mode; the visual effect of an applied IBL is covered by `SpatialEnvironmentTest`.
+ */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class ImageBasedLightingAssetTest {
 
     @Test
     @XrDeviceTest
-    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
-    fun imageBasedLightingAsset_createFromPathAndBytes_createsAssets() =
-        runTestWithSession { activity, session ->
-            val iblFromPath =
-                ImageBasedLightingAsset.createFromZip(
-                    session,
-                    Paths.get("skyboxes", "BlueSkybox.zip"),
-                )
-            try {
-                assertThat(iblFromPath).isNotNull()
-            } finally {
-                iblFromPath.close()
-            }
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
+    fun createFromZip_withAssetPath_loadsWithoutThrowing() = runTestWithSession { session ->
+        ImageBasedLightingAsset.createFromZip(
+                session,
+                Paths.get("skyboxes", "BlueSkybox.zip"),
+            )
+            .close()
+    }
 
-            val bytes = activity.assets.open("skyboxes/BlueSkybox.zip").use { it.readBytes() }
+    @Test
+    @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
+    fun createFromZip_withByteArray_loadsWithoutThrowing() =
+        runTestWithSession { activity, session ->
+            // Read the ~1.7 MB asset off the main thread to avoid stalling the main Looper.
+            val bytes =
+                withContext(Dispatchers.IO) {
+                    activity.assets.open("skyboxes/BlueSkybox.zip").use { it.readBytes() }
+                }
 
             @Suppress("RestrictedApiAndroidX")
-            val iblFromBytes =
-                ImageBasedLightingAsset.createFromZip(session, bytes, "BlueSkybox.zip")
-            try {
-                assertThat(iblFromBytes).isNotNull()
-            } finally {
-                iblFromBytes.close()
-            }
+            ImageBasedLightingAsset.createFromZip(session, bytes, "BlueSkybox.zip").close()
         }
 }
