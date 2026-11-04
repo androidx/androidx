@@ -107,11 +107,15 @@ class ToggleButtonScreenshotTest(private val parameters: ToggleButtonStates) {
                     colors =
                         ToggleButtonDefaults.colors(
                             focusedBackgroundColor =
-                                ToggleButtonDefaults.focusedBackgroundColor(customFocusedColor),
+                                ToggleButtonDefaults.calculateFocusedBackgroundColor(
+                                    customFocusedColor
+                                ),
                             checkedBackgroundColor =
-                                ToggleButtonDefaults.checkedBackgroundColor(customCheckedColor),
+                                ToggleButtonDefaults.calculateCheckedBackgroundColor(
+                                    customCheckedColor
+                                ),
                             focusedCheckedBackgroundColor =
-                                ToggleButtonDefaults.focusedCheckedBackgroundColor(
+                                ToggleButtonDefaults.calculateFocusedCheckedBackgroundColor(
                                     customCheckedColor
                                 ),
                         ),
@@ -140,11 +144,15 @@ class ToggleButtonScreenshotTest(private val parameters: ToggleButtonStates) {
                     colors =
                         ToggleButtonDefaults.colors(
                             focusedBackgroundColor =
-                                ToggleButtonDefaults.focusedBackgroundColor(customFocusedColor),
+                                ToggleButtonDefaults.calculateFocusedBackgroundColor(
+                                    customFocusedColor
+                                ),
                             checkedBackgroundColor =
-                                ToggleButtonDefaults.checkedBackgroundColor(customCheckedColor),
+                                ToggleButtonDefaults.calculateCheckedBackgroundColor(
+                                    customCheckedColor
+                                ),
                             focusedCheckedBackgroundColor =
-                                ToggleButtonDefaults.focusedCheckedBackgroundColor(
+                                ToggleButtonDefaults.calculateFocusedCheckedBackgroundColor(
                                     customCheckedColor
                                 ),
                         ),

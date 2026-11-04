@@ -618,16 +618,10 @@ class ButtonTest {
     }
 
     @Test
-    fun buttonDefaults_focusedColor() {
-        rule.setGlimmerThemeContent {
-            assertThat(ButtonDefaults.focusedColor())
-                .isEqualTo(ButtonDefaults.focusedColor(GlimmerTheme.colors.surface))
-            assertThat(ButtonDefaults.focusedColor())
-                .isEqualTo(GlimmerTheme.colors.surface.withTone(newTone = 34f))
-
-            val customColor = Color.Blue
-            assertThat(ButtonDefaults.focusedColor(customColor))
-                .isEqualTo(customColor.withTone(newTone = 34f))
-        }
+    fun buttonDefaults_calculateFocusedColor() {
+        assertThat(ButtonDefaults.calculateFocusedColor(Color.White))
+            .isEqualTo(Color.White.withTone(newTone = 34f))
+        assertThat(ButtonDefaults.calculateFocusedColor(Color.Blue))
+            .isEqualTo(Color.Blue.withTone(newTone = 34f))
     }
 }

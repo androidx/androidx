@@ -91,9 +91,9 @@ fun CustomColorsToggleButtonSample() {
     var checked by remember { mutableStateOf(false) }
     val text = if (checked) "Toggle on" else "Toggle off"
     val focusedBackgroundColor =
-        ToggleButtonDefaults.focusedBackgroundColor(baseColor = Color(0xFFE3FF6F))
+        ToggleButtonDefaults.calculateFocusedBackgroundColor(Color(0xFFE3FF6F))
     val checkedBackgroundColor =
-        ToggleButtonDefaults.checkedBackgroundColor(baseColor = Color(0xFF34E0A1))
+        ToggleButtonDefaults.calculateCheckedBackgroundColor(Color(0xFF34E0A1))
     ToggleButton(
         checked = checked,
         onCheckedChange = { checked = it },

@@ -124,7 +124,7 @@ class ButtonScreenshotTest() {
             ) {
                 Button(
                     onClick = {},
-                    focusedColor = ButtonDefaults.focusedColor(Color(0xFF34E0A1)),
+                    focusedColor = ButtonDefaults.calculateFocusedColor(Color(0xFF34E0A1)),
                     interactionSource = AlwaysFocusedInteractionSource,
                 ) {
                     Text("Button with custom colors")
@@ -147,7 +147,7 @@ class ButtonScreenshotTest() {
             ) {
                 Button(
                     onClick = {},
-                    focusedColor = ButtonDefaults.focusedColor(Color(0xFF34E0A1)),
+                    focusedColor = ButtonDefaults.calculateFocusedColor(Color(0xFF34E0A1)),
                     interactionSource = AlwaysFocusedAndPressedInteractionSource,
                 ) {
                     Text("Button with custom colors")
@@ -168,7 +168,7 @@ class ButtonScreenshotTest() {
         rule.setGlimmerThemeContent {
             Button(
                 onClick = {},
-                focusedColor = ButtonDefaults.focusedColor(Color(0xFF34E0A1)),
+                focusedColor = ButtonDefaults.calculateFocusedColor(Color(0xFF34E0A1)),
                 interactionSource = AlwaysPressedInteractionSource,
             ) {
                 Text("Button with custom colors")

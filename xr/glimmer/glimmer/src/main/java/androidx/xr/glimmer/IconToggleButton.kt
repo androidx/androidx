@@ -48,9 +48,9 @@ import androidx.xr.glimmer.internal.color.withTone
  * @sample androidx.xr.glimmer.samples.IconToggleButtonSample
  *
  * Focused and checked background colors can be customized via [IconToggleButtonDefaults.colors]
- * using [IconToggleButtonDefaults.focusedBackgroundColor],
- * [IconToggleButtonDefaults.checkedBackgroundColor], and
- * [IconToggleButtonDefaults.focusedCheckedBackgroundColor]:
+ * using [IconToggleButtonDefaults.calculateFocusedBackgroundColor],
+ * [IconToggleButtonDefaults.calculateCheckedBackgroundColor], and
+ * [IconToggleButtonDefaults.calculateFocusedCheckedBackgroundColor]:
  *
  * @sample androidx.xr.glimmer.samples.CustomColorsIconToggleButtonSample
  * @param checked a boolean flag indicating whether this icon toggle button is currently checked.
@@ -169,7 +169,8 @@ public object IconToggleButtonDefaults {
      * Creates [IconToggleButtonColors] with default values for an [IconToggleButton].
      *
      * @param backgroundColor the background color when the button is unchecked and unfocused
-     * @param focusedBackgroundColor the background color when the button is unchecked and focused
+     * @param focusedBackgroundColor the background color when the button is unchecked and focused.
+     *   Defaults to a color derived from [backgroundColor]
      * @param checkedBackgroundColor the background color when the button is checked and unfocused
      * @param focusedCheckedBackgroundColor the background color when the button is checked and
      *   focused. Defaults to a color derived from [checkedBackgroundColor]
@@ -181,10 +182,11 @@ public object IconToggleButtonDefaults {
     @Composable
     public fun colors(
         backgroundColor: Color = GlimmerTheme.colors.surface,
-        focusedBackgroundColor: Color = focusedBackgroundColor(backgroundColor),
-        checkedBackgroundColor: Color = checkedBackgroundColor(),
+        focusedBackgroundColor: Color = calculateFocusedBackgroundColor(backgroundColor),
+        checkedBackgroundColor: Color =
+            calculateCheckedBackgroundColor(GlimmerTheme.colors.primary),
         focusedCheckedBackgroundColor: Color =
-            focusedCheckedBackgroundColor(checkedBackgroundColor),
+            calculateFocusedCheckedBackgroundColor(checkedBackgroundColor),
         contentColor: Color = calculateContentColor(backgroundColor),
         focusedContentColor: Color = calculateContentColor(focusedBackgroundColor),
         checkedContentColor: Color = calculateContentColor(checkedBackgroundColor),
@@ -202,49 +204,39 @@ public object IconToggleButtonDefaults {
         )
 
     /**
-     * Returns the unchecked, focused background [Color] for an [IconToggleButton] derived from the
-     * provided [baseColor].
+     * Derives a color suitable for use as the unchecked, focused background color of an
+     * [IconToggleButton] from the provided [seedColor].
      *
-     * [baseColor] is not the final color. It is the unchecked, unfocused background color of the
-     * button, which is adjusted so that it is suitable for use as a focused background.
-     *
-     * @param baseColor the unchecked, unfocused background [Color] of the button, such as
-     *   [Colors.surface] or a custom background color
-     * @return the background [Color] for the button when unchecked and focused
+     * @param seedColor the base [Color] from which the focused background color will be derived,
+     *   typically the unchecked, unfocused background color of the button
+     * @return a color to be used as the background [Color] for the button when unchecked and
+     *   focused
      */
-    @Composable
-    public fun focusedBackgroundColor(baseColor: Color = GlimmerTheme.colors.surface): Color =
-        SurfaceDefaults.calculateFocusedColor(baseColor)
+    public fun calculateFocusedBackgroundColor(seedColor: Color): Color =
+        SurfaceDefaults.calculateFocusedColor(seedColor)
 
     /**
-     * Returns the checked, unfocused background [Color] for an [IconToggleButton] derived from the
-     * provided [baseColor].
+     * Derives a color suitable for use as the checked, unfocused background color of an
+     * [IconToggleButton] from the provided [seedColor].
      *
-     * [baseColor] is not the final color. It is a brand or accent color, which is adjusted to a
-     * tone that is suitable for use as a checked background.
-     *
-     * @param baseColor the brand or accent [Color] to derive from, such as [Colors.primary]
-     * @return the background [Color] for the button when checked and unfocused
+     * @param seedColor the base [Color] from which the checked background color will be derived,
+     *   typically a contrasting color such as a brand or accent color
+     * @return a color to be used as the background [Color] for the button when checked and
+     *   unfocused
      */
-    @Composable
-    public fun checkedBackgroundColor(baseColor: Color = GlimmerTheme.colors.primary): Color =
-        baseColor.withTone(newTone = CheckedBackgroundColorTone)
+    public fun calculateCheckedBackgroundColor(seedColor: Color): Color =
+        seedColor.withTone(newTone = CheckedBackgroundColorTone)
 
     /**
-     * Returns the checked, focused background [Color] for an [IconToggleButton] derived from the
-     * provided [baseColor].
+     * Derives a color suitable for use as the focused, checked background color of an
+     * [IconToggleButton] from the provided [seedColor].
      *
-     * [baseColor] is not the final color. It is the same brand or accent color passed to
-     * [checkedBackgroundColor], which is adjusted to a tone that is suitable for use as a checked,
-     * focused background.
-     *
-     * @param baseColor the brand or accent [Color] to derive from, such as [Colors.primary]
-     * @return the background [Color] for the button when checked and focused
+     * @param seedColor the base [Color] from which the focused, checked background color will be
+     *   derived, typically a contrasting color such as a brand or accent color
+     * @return a color to be used as the background [Color] for the button when focused and checked
      */
-    @Composable
-    public fun focusedCheckedBackgroundColor(
-        baseColor: Color = GlimmerTheme.colors.primary
-    ): Color = baseColor.withTone(newTone = FocusedCheckedBackgroundColorTone)
+    public fun calculateFocusedCheckedBackgroundColor(seedColor: Color): Color =
+        seedColor.withTone(newTone = FocusedCheckedBackgroundColorTone)
 
     /** Default shape for [IconToggleButton] in the checked state. */
     public val CheckedShape: Shape = ToggleButtonDefaults.CheckedShape
