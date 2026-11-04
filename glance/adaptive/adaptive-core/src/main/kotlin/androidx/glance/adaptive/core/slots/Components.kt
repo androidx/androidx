@@ -23,7 +23,7 @@ import androidx.annotation.RestrictTo
 import androidx.collection.FloatList
 import androidx.collection.IntList
 import androidx.collection.emptyIntList
-import androidx.glance.adaptive.core.action.GlanceWidgetAction
+import androidx.glance.adaptive.core.action.GlanceAdaptiveAction
 
 /*
  * The slot component library: backend-agnostic data models, one per component, each implementing
@@ -344,7 +344,7 @@ public class Icon(
 public class IconButton(
     @DrawableRes public val icon: Int,
     public val contentDescription: String,
-    public val action: GlanceWidgetAction? = null,
+    public val action: GlanceAdaptiveAction? = null,
     public val sensitiveReplacement: String? = null,
 ) : ActionComponent, TrailingComponent, BulbComponent {
     init {
@@ -453,7 +453,7 @@ public class IconGrid(
 public class IconTile(
     @DrawableRes public val icon: Int,
     public val label: String,
-    public val action: GlanceWidgetAction? = null,
+    public val action: GlanceAdaptiveAction? = null,
     public val sensitiveReplacement: String? = null,
     public val subtitle: TemplateText? = null,
 ) {

@@ -39,7 +39,7 @@ class GlanceWidgetActionPendingIntentsTest {
     @Test
     fun callback_createsImmutableBroadcastToReceiver() {
         val pendingIntent =
-            GlanceWidgetAction.Callback(NoOpCallback::class.java)
+            GlanceAdaptiveAction.CallbackAction(NoOpCallback::class.java)
                 .toPendingIntent(context, widgetName = "widget", widgetId = "instance_1")
 
         val shadow = shadowOf(pendingIntent)
@@ -77,7 +77,7 @@ class GlanceWidgetActionPendingIntentsTest {
         val params = Bundle().apply { putString("screen", "details") }
 
         val pendingIntent =
-            GlanceWidgetAction.LaunchActivity(TargetActivity::class.java, params)
+            GlanceAdaptiveAction.LaunchAction(TargetActivity::class.java, params)
                 .toPendingIntent(context, widgetName = "widget", widgetId = "instance_1")
 
         val shadow = shadowOf(pendingIntent)
@@ -95,13 +95,13 @@ class GlanceWidgetActionPendingIntentsTest {
     @Test
     fun launchActivity_keepsDifferentParametersApart() {
         val details =
-            GlanceWidgetAction.LaunchActivity(
+            GlanceAdaptiveAction.LaunchAction(
                     TargetActivity::class.java,
                     Bundle().apply { putString("screen", "details") },
                 )
                 .toPendingIntent(context, widgetName = "widget", widgetId = null)
         val home =
-            GlanceWidgetAction.LaunchActivity(
+            GlanceAdaptiveAction.LaunchAction(
                     TargetActivity::class.java,
                     Bundle().apply { putString("screen", "home") },
                 )
@@ -114,7 +114,7 @@ class GlanceWidgetActionPendingIntentsTest {
     @Test
     fun launchDeeplink_createsImmutableViewActivityIntent() {
         val pendingIntent =
-            GlanceWidgetAction.LaunchDeeplink("companion://doses/42/skip")
+            GlanceAdaptiveAction.DeeplinkAction(Uri.parse("companion://doses/42/skip"))
                 .toPendingIntent(context, widgetName = "widget", widgetId = "instance_1")
 
         val shadow = shadowOf(pendingIntent)
@@ -127,7 +127,7 @@ class GlanceWidgetActionPendingIntentsTest {
     }
 
     private fun callback(item: String) =
-        GlanceWidgetAction.Callback(
+        GlanceAdaptiveAction.CallbackAction(
             NoOpCallback::class.java,
             Bundle().apply { putString("item", item) },
         )

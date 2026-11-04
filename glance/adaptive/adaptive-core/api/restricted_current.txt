@@ -23,6 +23,51 @@ package androidx.glance.adaptive.core {
 
 }
 
+package androidx.glance.adaptive.core.action {
+
+  public abstract class GlanceAdaptiveAction {
+  }
+
+  public static final class GlanceAdaptiveAction.CallbackAction extends androidx.glance.adaptive.core.action.GlanceAdaptiveAction {
+    ctor @BytecodeOnly public GlanceAdaptiveAction.CallbackAction(Class!, android.os.Bundle!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public GlanceAdaptiveAction.CallbackAction(Class<? extends androidx.glance.adaptive.core.action.GlanceAdaptiveActionCallback> actionCallbackClass, optional android.os.Bundle parameters);
+    method @InaccessibleFromKotlin public Class<? extends androidx.glance.adaptive.core.action.GlanceAdaptiveActionCallback> getActionCallbackClass();
+    method @InaccessibleFromKotlin public android.os.Bundle getParameters();
+    property public Class<? extends androidx.glance.adaptive.core.action.GlanceAdaptiveActionCallback> actionCallbackClass;
+    property public android.os.Bundle parameters;
+    field public static final androidx.glance.adaptive.core.action.GlanceAdaptiveAction.CallbackAction.Companion Companion;
+  }
+
+  public static final class GlanceAdaptiveAction.CallbackAction.Companion {
+    method @KotlinOnly public inline operator <reified T extends androidx.glance.adaptive.core.action.GlanceAdaptiveActionCallback> androidx.glance.adaptive.core.action.GlanceAdaptiveAction.CallbackAction invoke(optional android.os.Bundle parameters);
+  }
+
+  public static final class GlanceAdaptiveAction.DeeplinkAction extends androidx.glance.adaptive.core.action.GlanceAdaptiveAction {
+    ctor public GlanceAdaptiveAction.DeeplinkAction(android.net.Uri uri);
+    method @InaccessibleFromKotlin public android.net.Uri getUri();
+    property public android.net.Uri uri;
+  }
+
+  public static final class GlanceAdaptiveAction.LaunchAction extends androidx.glance.adaptive.core.action.GlanceAdaptiveAction {
+    ctor @BytecodeOnly public GlanceAdaptiveAction.LaunchAction(Class!, android.os.Bundle!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public GlanceAdaptiveAction.LaunchAction(Class<? extends android.app.Activity> targetActivityClass, optional android.os.Bundle parameters);
+    method @InaccessibleFromKotlin public android.os.Bundle getParameters();
+    method @InaccessibleFromKotlin public Class<? extends android.app.Activity> getTargetActivityClass();
+    property public android.os.Bundle parameters;
+    property public Class<? extends android.app.Activity> targetActivityClass;
+    field public static final androidx.glance.adaptive.core.action.GlanceAdaptiveAction.LaunchAction.Companion Companion;
+  }
+
+  public static final class GlanceAdaptiveAction.LaunchAction.Companion {
+    method @KotlinOnly public inline operator <reified T extends android.app.Activity> androidx.glance.adaptive.core.action.GlanceAdaptiveAction.LaunchAction invoke(optional android.os.Bundle parameters);
+  }
+
+  public interface GlanceAdaptiveActionCallback {
+    method public suspend Object? onAction(android.content.Context context, String widgetName, String? widgetId, android.os.Bundle parameters, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
+}
+
 package androidx.glance.adaptive.core.selection {
 
   public abstract class GlanceSurface {

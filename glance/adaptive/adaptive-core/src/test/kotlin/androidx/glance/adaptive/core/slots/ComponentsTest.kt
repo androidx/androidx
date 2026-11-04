@@ -16,8 +16,9 @@
 
 package androidx.glance.adaptive.core.slots
 
+import android.app.Activity
 import androidx.collection.floatListOf
-import androidx.glance.adaptive.core.action.GlanceWidgetAction
+import androidx.glance.adaptive.core.action.GlanceAdaptiveAction
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -330,6 +331,6 @@ class ComponentsTest {
 
     private companion object {
         const val GLYPH = 1
-        val ACTION = GlanceWidgetAction.LaunchDeeplink("app://run")
+        val ACTION = GlanceAdaptiveAction.LaunchAction<Activity>()
     }
 }
