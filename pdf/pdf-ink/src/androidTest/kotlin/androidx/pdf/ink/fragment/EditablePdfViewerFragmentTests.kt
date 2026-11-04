@@ -33,6 +33,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfPoint
 import androidx.pdf.R as PdfR
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_BOTTOM
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_END
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_START
 import androidx.pdf.ink.util.ToolbarViewActions
 import androidx.pdf.ink.util.ToolbarViewActions.performDragAndDrop
 import androidx.pdf.util.FragmentTestUtils.scenarioLoadDocument
@@ -40,9 +43,6 @@ import androidx.pdf.util.ToolbarMatchers.matchesToolbarMask
 import androidx.pdf.util.ToolbarMatchers.withDockState
 import androidx.pdf.view.PdfView
 import androidx.pdf.view.annotation.AnnotationToolbarView
-import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_BOTTOM
-import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_END
-import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_START
 import androidx.pdf.viewer.fragment.R as PdfFragmentR
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.espresso.Espresso.onView

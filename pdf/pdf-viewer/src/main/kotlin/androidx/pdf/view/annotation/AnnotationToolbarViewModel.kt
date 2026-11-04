@@ -17,14 +17,14 @@
 package androidx.pdf.view.annotation
 
 import androidx.pdf.ExperimentalPdfApi
+import androidx.pdf.annotation.tool.Eraser
+import androidx.pdf.annotation.tool.Highlighter
+import androidx.pdf.annotation.tool.Pen
 import androidx.pdf.view.annotation.brush.model.BrushSizes
 import androidx.pdf.view.annotation.colorpalette.model.Color
 import androidx.pdf.view.annotation.state.AnnotationToolbarState
 import androidx.pdf.view.annotation.state.ToolbarEffect
 import androidx.pdf.view.annotation.state.ToolbarIntent
-import androidx.pdf.view.annotation.tool.Eraser
-import androidx.pdf.view.annotation.tool.Highlighter
-import androidx.pdf.view.annotation.tool.Pen
 import androidx.pdf.view.annotation.tool.model.AnnotationToolsKey
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -340,6 +340,45 @@ package androidx.pdf.annotation.content {
 
 }
 
+package @SuppressCompatibility androidx.pdf.annotation.tool {
+
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public sealed exhaustive interface AnnotationToolInfo {
+  }
+
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public final class Eraser implements androidx.pdf.annotation.tool.AnnotationToolInfo {
+    field public static final androidx.pdf.annotation.tool.Eraser INSTANCE;
+  }
+
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public final class Highlighter implements androidx.pdf.annotation.tool.AnnotationToolInfo {
+    method @InaccessibleFromKotlin public float getBrushSize();
+    method @InaccessibleFromKotlin @ColorInt public int getColor();
+    property public float brushSize;
+    property @ColorInt public int color;
+  }
+
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public final class Pen implements androidx.pdf.annotation.tool.AnnotationToolInfo {
+    method @InaccessibleFromKotlin public float getBrushSize();
+    method @InaccessibleFromKotlin @ColorInt public int getColor();
+    property public float brushSize;
+    property @ColorInt public int color;
+  }
+
+}
+
+package @SuppressCompatibility androidx.pdf.annotation.toolbar {
+
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public final class AnnotationToolbarDockState {
+    property public static int DOCK_STATE_BOTTOM;
+    property public static int DOCK_STATE_END;
+    property public static int DOCK_STATE_START;
+    field public static final int DOCK_STATE_BOTTOM = 1; // 0x1
+    field public static final int DOCK_STATE_END = 2; // 0x2
+    field public static final int DOCK_STATE_START = 0; // 0x0
+    field public static final androidx.pdf.annotation.toolbar.AnnotationToolbarDockState INSTANCE;
+  }
+
+}
+
 package androidx.pdf.content {
 
   public final class ExternalLink {

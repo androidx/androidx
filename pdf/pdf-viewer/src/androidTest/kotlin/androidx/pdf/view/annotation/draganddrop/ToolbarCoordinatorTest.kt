@@ -21,12 +21,12 @@ import android.widget.FrameLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfTestActivity
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_BOTTOM
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_END
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_START
 import androidx.pdf.util.ToolbarViewActions
 import androidx.pdf.util.ToolbarViewActions.performDragAndDrop
 import androidx.pdf.view.annotation.AnnotationToolbarView
-import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_BOTTOM
-import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_END
-import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_START
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4

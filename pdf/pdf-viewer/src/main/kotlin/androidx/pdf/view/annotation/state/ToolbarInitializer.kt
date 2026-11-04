@@ -18,8 +18,8 @@ package androidx.pdf.view.annotation.state
 
 import android.content.Context
 import androidx.pdf.ExperimentalPdfApi
-import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_BOTTOM
-import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_END
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_BOTTOM
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_END
 import androidx.pdf.view.annotation.colorpalette.model.getHighlightPaletteItems
 import androidx.pdf.view.annotation.colorpalette.model.getPenPaletteItems
 import androidx.pdf.view.annotation.tool.model.AnnotationToolsKey.PEN

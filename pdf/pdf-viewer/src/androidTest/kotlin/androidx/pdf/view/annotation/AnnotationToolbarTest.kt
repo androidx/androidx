@@ -22,11 +22,12 @@ import android.widget.LinearLayout
 import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfTestActivity
 import androidx.pdf.R
+import androidx.pdf.annotation.tool.AnnotationToolInfo
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_BOTTOM
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_END
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_START
 import androidx.pdf.util.setSliderValue
 import androidx.pdf.util.withSliderValue
-import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_BOTTOM
-import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_END
-import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_START
 import androidx.pdf.view.annotation.tool.AnnotationToolView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onIdle
@@ -181,9 +182,7 @@ class AnnotationToolbarTest {
         setupAnnotationToolbar {
             it.setAnnotationToolbarListener(
                 object : AnnotationToolbarView.AnnotationToolbarListener {
-                    override fun onToolChanged(
-                        toolInfo: androidx.pdf.view.annotation.tool.AnnotationToolInfo
-                    ) {}
+                    override fun onToolChanged(toolInfo: AnnotationToolInfo) {}
 
                     override fun onUndo() {
                         undoClicked = true

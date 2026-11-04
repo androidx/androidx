@@ -27,9 +27,9 @@ import androidx.core.view.isVisible
 import androidx.pdf.ActivityUtils
 import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.R
-import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_BOTTOM
-import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_END
-import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_START
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_BOTTOM
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_END
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_START
 import androidx.pdf.view.annotation.draganddrop.AnnotationToolbarCoordinatorView
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -292,7 +292,7 @@ class AnnotationToolbarViewTest {
         coordinator.removeView(toolbar)
         assertThat(toolbar.parent).isNull()
 
-        toolbar.dockState = AnnotationToolbarView.DOCK_STATE_START
+        toolbar.dockState = DOCK_STATE_START
         ShadowLooper.idleMainLooper()
         assertThat((toolbar.layoutParams as ConstraintLayout.LayoutParams).horizontalBias)
             .isEqualTo(0.5f)

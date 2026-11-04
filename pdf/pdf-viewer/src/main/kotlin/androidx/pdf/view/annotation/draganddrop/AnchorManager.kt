@@ -20,10 +20,10 @@ import android.view.View
 import androidx.core.content.res.ResourcesCompat
 import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.R
-import androidx.pdf.view.annotation.AnnotationToolbarView
-import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_BOTTOM
-import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_END
-import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_START
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_BOTTOM
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_END
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_START
 import kotlin.math.hypot
 
 /**
@@ -88,7 +88,7 @@ internal class AnchorManager(
         return DOCK_STATE_BOTTOM
     }
 
-    fun getAnchorView(@AnnotationToolbarView.DockState state: Int): View? = anchors[state]
+    fun getAnchorView(@AnnotationToolbarDockState.DockState state: Int): View? = anchors[state]
 
     private fun getDistance(x1: Float, y1: Float, target: View): Float {
         val x2 = target.x + target.width / 2

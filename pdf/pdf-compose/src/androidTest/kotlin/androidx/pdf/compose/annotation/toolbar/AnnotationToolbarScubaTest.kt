@@ -36,6 +36,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.R
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_END
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_START
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.UiController
@@ -158,7 +160,7 @@ class AnnotationToolbarScubaTest {
 
     @Test
     fun test_annotationToolbar_dockedStart_withBrushSlider() {
-        setupAnnotationToolbar { it.dockState = AnnotationToolbarDockState.Start }
+        setupAnnotationToolbar { it.dockState = DOCK_STATE_START }
 
         onView(withId(R.id.pen_button)).perform(click())
         composeTestRule.waitForIdle()
@@ -168,7 +170,7 @@ class AnnotationToolbarScubaTest {
 
     @Test
     fun test_annotationToolbar_dockedStart_withColorPalette() {
-        setupAnnotationToolbar { it.dockState = AnnotationToolbarDockState.Start }
+        setupAnnotationToolbar { it.dockState = DOCK_STATE_START }
 
         onView(withId(R.id.color_palette_button)).perform(click())
         composeTestRule.waitForIdle()
@@ -178,7 +180,7 @@ class AnnotationToolbarScubaTest {
 
     @Test
     fun test_annotationToolbar_dockedEnd_withBrushSlider() {
-        setupAnnotationToolbar { it.dockState = AnnotationToolbarDockState.End }
+        setupAnnotationToolbar { it.dockState = DOCK_STATE_END }
 
         onView(withId(R.id.pen_button)).perform(click())
         composeTestRule.waitForIdle()
@@ -188,7 +190,7 @@ class AnnotationToolbarScubaTest {
 
     @Test
     fun test_annotationToolbar_dockedEnd_withColorPalette() {
-        setupAnnotationToolbar { it.dockState = AnnotationToolbarDockState.End }
+        setupAnnotationToolbar { it.dockState = DOCK_STATE_END }
 
         onView(withId(R.id.color_palette_button)).perform(click())
         composeTestRule.waitForIdle()

@@ -30,7 +30,6 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.LinearLayout
 import android.widget.LinearLayout.HORIZONTAL
 import android.widget.LinearLayout.VERTICAL
-import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
@@ -40,6 +39,11 @@ import androidx.core.os.HandlerCompat
 import androidx.core.view.isVisible
 import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.R
+import androidx.pdf.annotation.tool.AnnotationToolInfo
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_BOTTOM
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_END
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_START
 import androidx.pdf.view.annotation.brush.BrushSizeSelectorView
 import androidx.pdf.view.annotation.brush.model.BrushSizes.highlightBrushSizes
 import androidx.pdf.view.annotation.brush.model.BrushSizes.penBrushSizes
@@ -57,7 +61,6 @@ import androidx.pdf.view.annotation.state.ToolbarEffect
 import androidx.pdf.view.annotation.state.ToolbarInitializer
 import androidx.pdf.view.annotation.state.ToolbarIntent
 import androidx.pdf.view.annotation.state.ToolbarIntent.ClearToolSelection
-import androidx.pdf.view.annotation.tool.AnnotationToolInfo
 import androidx.pdf.view.annotation.tool.AnnotationToolView
 import androidx.pdf.view.annotation.tool.model.AnnotationToolsKey.ERASER
 import androidx.pdf.view.annotation.tool.model.AnnotationToolsKey.HIGHLIGHTER
@@ -98,22 +101,7 @@ public class AnnotationToolbarView : ViewGroup {
         defStyle: Int = 0,
     ) : super(context.withMaterial3ThemeFallback(), attrs, defStyle)
 
-    /** Denotes the docking edge of the toolbar within its parent container. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Retention(AnnotationRetention.SOURCE)
-    @IntDef(DOCK_STATE_START, DOCK_STATE_BOTTOM, DOCK_STATE_END)
-    public annotation class DockState
-
-    public companion object {
-        /** Represents a state where the toolbar is docked to the start (left in LTR) edge. */
-        public const val DOCK_STATE_START: Int = 0
-
-        /** Represents a state where the toolbar is docked to the bottom edge. */
-        public const val DOCK_STATE_BOTTOM: Int = 1
-
-        /** Represents a state where the toolbar is docked to the end (right in LTR) edge. */
-        public const val DOCK_STATE_END: Int = 2
-
+    private companion object {
         private const val FADE_IN_TRANSITION_DELAY = 150L
     }
 
@@ -154,7 +142,6 @@ public class AnnotationToolbarView : ViewGroup {
      * Returns `true` if the toolbar is currently expanded to show its interactive tools, or `false`
      * if it is collapsed.
      */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val isExpanded: Boolean
         get() = viewModel.state.value.isExpanded
 
@@ -197,7 +184,6 @@ public class AnnotationToolbarView : ViewGroup {
      *
      * @param listener The callback listener invoked when a configuration popup is shown or hidden.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun addOnConfigPopupVisibilityChangedListener(
         listener: OnConfigPopupVisibilityChangedListener
     ) {
@@ -209,7 +195,6 @@ public class AnnotationToolbarView : ViewGroup {
      *
      * @param listener The callback listener invoked when a configuration popup is shown or hidden.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun removeOnConfigPopupVisibilityChangedListener(
         listener: OnConfigPopupVisibilityChangedListener
     ) {
@@ -221,7 +206,6 @@ public class AnnotationToolbarView : ViewGroup {
      *
      * @param listener The callback listener invoked when the toolbar expands or collapses.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun addOnExpandedStateChangedListener(listener: OnExpandedStateChangedListener) {
         expandedStateChangedListeners.add(listener)
     }
@@ -231,7 +215,6 @@ public class AnnotationToolbarView : ViewGroup {
      *
      * @param listener The callback listener invoked when the toolbar expands or collapses.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun removeOnExpandedStateChangedListener(listener: OnExpandedStateChangedListener) {
         expandedStateChangedListeners.remove(listener)
     }
@@ -256,10 +239,10 @@ public class AnnotationToolbarView : ViewGroup {
      * The current docking state of the toolbar ([DOCK_STATE_START], [DOCK_STATE_BOTTOM], or
      * [DOCK_STATE_END]).
      */
-    @get:DockState
+    @get:AnnotationToolbarDockState.DockState
     public var dockState: Int
         get() = viewModel.state.value.dockedState
-        set(@DockState value) {
+        set(@AnnotationToolbarDockState.DockState value) {
             if (viewModel.state.value.dockedState == value) return
 
             viewModel.onAction(ToolbarIntent.DockStateChanged(value))
@@ -895,16 +878,15 @@ public class AnnotationToolbarView : ViewGroup {
         /**
          * Called when the [AnnotationToolbarView] docks to a new position.
          *
-         * @param dockState The new [AnnotationToolbarView.DockState] position.
+         * @param dockState The new [AnnotationToolbarDockState.DockState] position.
          */
-        public fun onDockStateChanged(@DockState dockState: Int)
+        public fun onDockStateChanged(@AnnotationToolbarDockState.DockState dockState: Int)
     }
 
     /**
      * Interface definition for callbacks invoked when the visibility of a configuration popup on
      * [AnnotationToolbarView] changes.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun interface OnConfigPopupVisibilityChangedListener {
         /**
          * Called when a configuration popup (such as the color palette or brush size slider) is
@@ -919,7 +901,6 @@ public class AnnotationToolbarView : ViewGroup {
      * Interface definition for callbacks invoked when the expanded state of [AnnotationToolbarView]
      * changes.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun interface OnExpandedStateChangedListener {
         /**
          * Called when the toolbar expansion state changes.

@@ -30,6 +30,9 @@ import androidx.pdf.annotation.content.PathPdfObject
 import androidx.pdf.annotation.content.PdfAnnotation
 import androidx.pdf.annotation.content.StampAnnotation
 import androidx.pdf.annotation.models.AnnotationsDisplayState
+import androidx.pdf.annotation.tool.Eraser
+import androidx.pdf.annotation.tool.Highlighter
+import androidx.pdf.annotation.tool.Pen
 import androidx.pdf.coroutines.collectTill
 import androidx.pdf.ink.EditableDocumentViewModel
 import androidx.pdf.ink.model.ApplyEditsState
@@ -38,9 +41,6 @@ import androidx.pdf.ink.state.PdfEditMode
 import androidx.pdf.ink.state.PdfEditMode.Companion.EDITING_JOURNEY_ANNOTATIONS
 import androidx.pdf.ink.state.PdfEditMode.Companion.EDITING_JOURNEY_FORM_FILLING
 import androidx.pdf.ink.util.InkDefaults
-import androidx.pdf.view.annotation.tool.Eraser
-import androidx.pdf.view.annotation.tool.Highlighter
-import androidx.pdf.view.annotation.tool.Pen
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -625,7 +625,7 @@ class EditableDocumentViewModelTest {
     @OptIn(ExperimentalPdfApi::class)
     @Test
     fun setCurrentToolInfo_updatesDrawingMode_whenPenSelected() = runTest {
-        val penTool = Pen.createForTest(brushSize = 2.0f, color = Color.RED)
+        val penTool = Pen(brushSize = 2.0f, color = Color.RED)
         annotationsViewModel.setCurrentToolInfo(penTool)
 
         val drawingMode = annotationsViewModel.drawingMode.first()
@@ -637,7 +637,7 @@ class EditableDocumentViewModelTest {
     @OptIn(ExperimentalPdfApi::class)
     @Test
     fun setCurrentToolInfo_updatesDrawingMode_whenHighlighterSelected() = runTest {
-        val highlighterTool = Highlighter.createForTest(brushSize = 10.0f, color = Color.YELLOW)
+        val highlighterTool = Highlighter(brushSize = 10.0f, color = Color.YELLOW)
         annotationsViewModel.setCurrentToolInfo(highlighterTool)
 
         val drawingMode = annotationsViewModel.drawingMode.first()

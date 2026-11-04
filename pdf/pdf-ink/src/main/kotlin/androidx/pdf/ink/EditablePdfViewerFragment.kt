@@ -55,6 +55,7 @@ import androidx.pdf.annotation.TextBoundsProvider
 import androidx.pdf.annotation.content.KeyedPdfAnnotation
 import androidx.pdf.annotation.content.PdfAnnotation
 import androidx.pdf.annotation.models.AnnotationsDisplayState
+import androidx.pdf.annotation.tool.AnnotationToolInfo
 import androidx.pdf.featureflag.PdfFeatureFlags
 import androidx.pdf.ink.model.ApplyEditsState
 import androidx.pdf.ink.model.ApplyInProgressException
@@ -68,7 +69,6 @@ import androidx.pdf.view.PdfContentLayout
 import androidx.pdf.view.PdfView
 import androidx.pdf.view.annotation.AnnotationToolbarView
 import androidx.pdf.view.annotation.draganddrop.AnnotationToolbarCoordinatorView
-import androidx.pdf.view.annotation.tool.AnnotationToolInfo
 import androidx.pdf.viewer.fragment.PdfStylingOptions
 import androidx.pdf.viewer.fragment.PdfViewerFragment
 import androidx.pdf.viewer.fragment.model.PdfFragmentUiState
