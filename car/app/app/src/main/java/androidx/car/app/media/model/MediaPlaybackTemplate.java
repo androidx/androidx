@@ -57,6 +57,12 @@ public class MediaPlaybackTemplate implements Template {
     @ExperimentalCarApi
     @RequiresCarApi(9)
     private final @Nullable MediaPlaybackStyle mStyle;
+    @ExperimentalCarApi
+    @RequiresCarApi(10)
+    private final boolean mIsVideoEnabled;
+    @ExperimentalCarApi
+    @RequiresCarApi(10)
+    private final boolean mIsAutoHideControlsEnabled;
 
     /**
      * Returns the {@link Header} to display in this template or not to display one if it is {@code
@@ -85,6 +91,31 @@ public class MediaPlaybackTemplate implements Template {
         return mStyle;
     }
 
+    /**
+     * Returns whether video playback is enabled for this template.
+     *
+     * @see Builder#setVideoEnabled(boolean)
+     */
+    @ExperimentalCarApi
+    @RequiresCarApi(10)
+    public boolean isVideoEnabled() {
+        return mIsVideoEnabled;
+    }
+
+    /**
+     * Returns whether the playback controls should auto-hide after inactivity when video is
+     * playing.
+     *
+     * <p>This setting only applies while video is playing and has no effect when video is disabled.
+     *
+     * @see Builder#setAutoHideControlsEnabled(boolean)
+     */
+    @ExperimentalCarApi
+    @RequiresCarApi(10)
+    public boolean isAutoHideControlsEnabled() {
+        return mIsAutoHideControlsEnabled;
+    }
+
     @Override
     public @NonNull String toString() {
         return "MediaPlaybackTemplate";
@@ -93,7 +124,12 @@ public class MediaPlaybackTemplate implements Template {
     @OptIn(markerClass = ExperimentalCarApi.class)
     @Override
     public int hashCode() {
-        return Objects.hash(mHeader, mBanner, mStyle);
+        return Objects.hash(
+                mHeader,
+                mBanner,
+                mStyle,
+                mIsVideoEnabled,
+                mIsAutoHideControlsEnabled);
     }
 
     @OptIn(markerClass = ExperimentalCarApi.class)
@@ -109,7 +145,9 @@ public class MediaPlaybackTemplate implements Template {
 
         return Objects.equals(mHeader, otherTemplate.mHeader)
                 && Objects.equals(mBanner, otherTemplate.mBanner)
-                && Objects.equals(mStyle, otherTemplate.mStyle);
+                && Objects.equals(mStyle, otherTemplate.mStyle)
+                && mIsVideoEnabled == otherTemplate.mIsVideoEnabled
+                && mIsAutoHideControlsEnabled == otherTemplate.mIsAutoHideControlsEnabled;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -118,6 +156,8 @@ public class MediaPlaybackTemplate implements Template {
         mHeader = null;
         mBanner = null;
         mStyle = null;
+        mIsVideoEnabled = false;
+        mIsAutoHideControlsEnabled = false;
     }
 
     @OptIn(markerClass = ExperimentalCarApi.class)
@@ -125,6 +165,8 @@ public class MediaPlaybackTemplate implements Template {
         mHeader = builder.mHeader;
         mBanner = builder.mBanner;
         mStyle = builder.mStyle;
+        mIsVideoEnabled = builder.mIsVideoEnabled;
+        mIsAutoHideControlsEnabled = builder.mIsAutoHideControlsEnabled;
     }
 
     /** Builder for the {@link MediaPlaybackTemplate} */
@@ -135,6 +177,10 @@ public class MediaPlaybackTemplate implements Template {
         @Nullable Banner mBanner;
         @ExperimentalCarApi
         @Nullable MediaPlaybackStyle mStyle;
+        @ExperimentalCarApi
+        private boolean mIsVideoEnabled = false;
+        @ExperimentalCarApi
+        private boolean mIsAutoHideControlsEnabled = false;
 
         /**
          * Sets the {@link Header} for this template or {code null} to not display a {@link
@@ -174,6 +220,49 @@ public class MediaPlaybackTemplate implements Template {
             return this;
         }
 
+        /**
+         * Sets whether video playback is enabled for this template.
+         *
+         * <p>When video playback is enabled, the video is rendered on the non-interactive
+         * surface provided by the host via
+         * {@link androidx.car.app.AppManager#setSurfaceCallback(androidx.car.app.SurfaceCallback)},
+         * which requires the {@code androidx.car.app.ACCESS_SURFACE} permission to be declared.
+         *
+         * <p>The host will create and show the {@link android.view.Surface} when it's safe to show
+         * videos based on UX restrictions, and will destroy the {@link android.view.Surface}
+         * when it's not, showing the regular media screen instead.
+         *
+         * <p>On hosts that do not support video playback, this setting is ignored and standard
+         * media artwork is displayed instead.
+         *
+         * <p>Defaults to {@code false}.
+         *
+         * @see androidx.car.app.AppManager#setSurfaceCallback(androidx.car.app.SurfaceCallback)
+         */
+        @ExperimentalCarApi
+        @RequiresCarApi(10)
+        public MediaPlaybackTemplate.@NonNull Builder setVideoEnabled(boolean isVideoEnabled) {
+            mIsVideoEnabled = isVideoEnabled;
+            return this;
+        }
+
+        /**
+         * Sets whether the playback controls should auto-hide after inactivity when video is
+         * playing.
+         *
+         * <p>Defaults to {@code false}.
+         *
+         * <p>This setting only applies while video is playing and has no effect when video is
+         * disabled.
+         */
+        @ExperimentalCarApi
+        @RequiresCarApi(10)
+        public MediaPlaybackTemplate.@NonNull Builder setAutoHideControlsEnabled(
+                boolean isAutoHideControlsEnabled) {
+            mIsAutoHideControlsEnabled = isAutoHideControlsEnabled;
+            return this;
+        }
+
         /** Constructs the template defined by this builder. */
         public @NonNull MediaPlaybackTemplate build() {
             return new MediaPlaybackTemplate(this);
@@ -188,6 +277,8 @@ public class MediaPlaybackTemplate implements Template {
             mHeader = template.getHeader();
             mBanner = template.getBanner();
             mStyle = template.getStyle();
+            mIsVideoEnabled = template.isVideoEnabled();
+            mIsAutoHideControlsEnabled = template.isAutoHideControlsEnabled();
         }
     }
 }
