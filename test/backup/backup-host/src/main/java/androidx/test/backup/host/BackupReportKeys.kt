@@ -19,9 +19,9 @@ package androidx.test.backup.host
 /**
  * Defines JUnit Platform report entry keys for backup and restore test executions.
  *
- * [BackupRestoreExtension] and [BackupRestoreControllerImpl] publish these entries:
- * `BackupRestore.*` keys carry execution telemetry, while [DETAIL_PATH] links each test to its
- * structured [TestDetailRecord] JSON file.
+ * [BackupRestoreExtension], [BackupRestoreControllerImpl], and [TestExecutionCapture] publish these
+ * entries: `BackupRestore.*` keys carry execution telemetry, while [DETAIL_PATH] links each test to
+ * its structured [TestDetailRecord] JSON file.
  */
 internal object BackupReportKeys {
     /** Backup transport the execution ran against, as a [BackupTransportMode] name. */
