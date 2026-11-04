@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material3.onehandedgesture
 
+import androidx.annotation.FloatRange
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -36,6 +37,9 @@ public object OneHandedGestureDefaults {
      * `onGestureAvailable` callback is invoked.
      */
     public const val ShowIndicatorDelayMillis: Long = 1000L
+
+    /** The default fraction of the viewport height that [scrollDown] scrolls by on each gesture. */
+    public const val ScrollFraction: Float = 0.5f
 
     /** The tint color used for the gesture animation. */
     public val indicatorTint: Color
@@ -60,8 +64,40 @@ public object OneHandedGestureDefaults {
     /**
      * A scroll implementation tailored for use with [TransformingLazyColumnState].
      *
-     * This logic handles one-handed gesture by first attempting to scroll the list by half the
-     * viewport. If the list cannot scroll further forward, it scrolls back to the start.
+     * This logic handles one-handed gesture by first attempting to scroll the list by
+     * [scrollFraction] of the viewport height. If the list cannot scroll further forward and
+     * [wrapAround] is enabled, it scrolls back to the start.
+     *
+     * Sample demonstrating gesture handling with [TransformingLazyColumnState] and a custom
+     * [scrollFraction]:
+     *
+     * @sample androidx.wear.compose.material3.samples.OneHandedGestureTransformingLazyColumnScrollFractionSample
+     * @param scrollState The scroll state associated with a transforming lazy column.
+     * @param scrollFraction The fraction of the viewport height to scroll by on each gesture. Must
+     *   be greater than 0 and at most 1.
+     * @param wrapAround Whether to automatically scroll back to the first item when reaching the
+     *   end of the content.
+     */
+    public suspend fun scrollDown(
+        scrollState: TransformingLazyColumnState,
+        @FloatRange(from = 0.0, to = 1.0, fromInclusive = false) scrollFraction: Float,
+        wrapAround: Boolean = true,
+    ) {
+        if (!scrollState.canScrollForward) {
+            if (wrapAround) scrollState.animateScrollToItem(0)
+            return
+        }
+
+        scrollState.animateScrollBy(scrollState.layoutInfo.viewportSize.height * scrollFraction)
+    }
+
+    /**
+     * A scroll implementation tailored for use with [TransformingLazyColumnState].
+     *
+     * This logic handles one-handed gesture by first attempting to scroll the list by
+     * [ScrollFraction] of the viewport height, i.e. half of it. Use the overload with the
+     * `scrollFraction` parameter to customize this. If the list cannot scroll further forward and
+     * [wrapAround] is enabled, it scrolls back to the start.
      *
      * Sample demonstrating gesture handling with [TransformingLazyColumnState]:
      *
@@ -78,20 +114,54 @@ public object OneHandedGestureDefaults {
     public suspend fun scrollDown(
         scrollState: TransformingLazyColumnState,
         wrapAround: Boolean = true,
+    ): Unit =
+        scrollDown(
+            scrollState = scrollState,
+            scrollFraction = ScrollFraction,
+            wrapAround = wrapAround,
+        )
+
+    /**
+     * A scroll implementation tailored for use with [ScalingLazyListState].
+     *
+     * This logic handles one-handed gesture by first attempting to scroll the list by
+     * [scrollFraction] of the viewport height. If the list cannot scroll further forward and
+     * [wrapAround] is enabled, it scrolls back to the start.
+     *
+     * Sample demonstrating gesture handling with [ScalingLazyListState]:
+     *
+     * @sample androidx.wear.compose.material3.samples.OneHandedGestureScalingLazyColumnSample
+     *
+     * <video
+     * src=https://developer.android.com/wear/images/design/WearComposeM3_OneHandedGestureScalingLazyColumnSample_CompositeImage.mp4
+     * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+     *
+     * @param scrollState The scroll state associated with a scaling lazy column.
+     * @param scrollFraction The fraction of the viewport height to scroll by on each gesture. Must
+     *   be greater than 0 and at most 1.
+     * @param wrapAround Whether to automatically scroll back to the first item when reaching the
+     *   end of the content.
+     */
+    public suspend fun scrollDown(
+        scrollState: ScalingLazyListState,
+        @FloatRange(from = 0.0, to = 1.0, fromInclusive = false) scrollFraction: Float,
+        wrapAround: Boolean = true,
     ) {
         if (!scrollState.canScrollForward) {
             if (wrapAround) scrollState.animateScrollToItem(0)
             return
         }
 
-        scrollState.animateScrollBy(scrollState.layoutInfo.viewportSize.height * 0.5f)
+        scrollState.animateScrollBy(scrollState.layoutInfo.viewportSize.height * scrollFraction)
     }
 
     /**
      * A scroll implementation tailored for use with [ScalingLazyListState].
      *
-     * This logic handles one-handed gesture by first attempting to scroll the list by half the
-     * viewport. If the list cannot scroll further forward, it scrolls back to the start.
+     * This logic handles one-handed gesture by first attempting to scroll the list by
+     * [ScrollFraction] of the viewport height, i.e. half of it. Use the overload with the
+     * `scrollFraction` parameter to customize this. If the list cannot scroll further forward and
+     * [wrapAround] is enabled, it scrolls back to the start.
      *
      * Sample demonstrating gesture handling with [ScalingLazyListState]:
      *
@@ -105,14 +175,15 @@ public object OneHandedGestureDefaults {
      * @param wrapAround Whether to automatically scroll back to the first item when reaching the
      *   end of the content.
      */
-    public suspend fun scrollDown(scrollState: ScalingLazyListState, wrapAround: Boolean = true) {
-        if (!scrollState.canScrollForward) {
-            if (wrapAround) scrollState.animateScrollToItem(0)
-            return
-        }
-
-        scrollState.animateScrollBy(scrollState.layoutInfo.viewportSize.height * 0.5f)
-    }
+    public suspend fun scrollDown(
+        scrollState: ScalingLazyListState,
+        wrapAround: Boolean = true,
+    ): Unit =
+        scrollDown(
+            scrollState = scrollState,
+            scrollFraction = ScrollFraction,
+            wrapAround = wrapAround,
+        )
 
     /**
      * A scroll implementation tailored for use with [TransformingLazyColumnState].

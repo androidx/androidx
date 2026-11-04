@@ -2633,15 +2633,20 @@ package androidx.wear.compose.material3.onehandedgesture {
     method @BytecodeOnly @androidx.compose.runtime.Composable public long getScrollIndicatorBackgroundColor(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public long getScrollIndicatorTint(androidx.compose.runtime.Composer?, int);
     method public suspend Object? scrollDown(androidx.wear.compose.foundation.lazy.ScalingLazyListState scrollState, optional boolean wrapAround, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scrollDown(androidx.wear.compose.foundation.lazy.ScalingLazyListState scrollState, @FloatRange(from=0.0, to=1.0, fromInclusive=false) float scrollFraction, optional boolean wrapAround, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollDown(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState scrollState, optional boolean wrapAround, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scrollDown(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState scrollState, @FloatRange(from=0.0, to=1.0, fromInclusive=false) float scrollFraction, optional boolean wrapAround, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @BytecodeOnly public static Object! scrollDown$default(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults!, androidx.wear.compose.foundation.lazy.ScalingLazyListState!, boolean, kotlin.coroutines.Continuation!, int, Object!);
+    method @BytecodeOnly public static Object! scrollDown$default(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults!, androidx.wear.compose.foundation.lazy.ScalingLazyListState!, float, boolean, kotlin.coroutines.Continuation!, int, Object!);
     method @BytecodeOnly public static Object! scrollDown$default(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults!, androidx.wear.compose.foundation.lazy.TransformingLazyColumnState!, boolean, kotlin.coroutines.Continuation!, int, Object!);
+    method @BytecodeOnly public static Object! scrollDown$default(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults!, androidx.wear.compose.foundation.lazy.TransformingLazyColumnState!, float, boolean, kotlin.coroutines.Continuation!, int, Object!);
     method public suspend Object? scrollDownToNextItem(androidx.wear.compose.foundation.lazy.ScalingLazyListState scrollState, optional boolean wrapAround, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollDownToNextItem(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState scrollState, optional boolean wrapAround, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @BytecodeOnly public static Object! scrollDownToNextItem$default(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults!, androidx.wear.compose.foundation.lazy.ScalingLazyListState!, boolean, kotlin.coroutines.Continuation!, int, Object!);
     method @BytecodeOnly public static Object! scrollDownToNextItem$default(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults!, androidx.wear.compose.foundation.lazy.TransformingLazyColumnState!, boolean, kotlin.coroutines.Continuation!, int, Object!);
     method public suspend Object? scrollToNextPage(androidx.wear.compose.foundation.pager.PagerState pagerState, optional boolean wrapAround, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @BytecodeOnly public static Object! scrollToNextPage$default(androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults!, androidx.wear.compose.foundation.pager.PagerState!, boolean, kotlin.coroutines.Continuation!, int, Object!);
+    property public static float ScrollFraction;
     property public static long ShowIndicatorDelayMillis;
     property public androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicatorSize indicatorSize;
     property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color indicatorTint;
@@ -2650,6 +2655,7 @@ package androidx.wear.compose.material3.onehandedgesture {
     property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color scrollIndicatorBackgroundColor;
     property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color scrollIndicatorTint;
     field public static final androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults INSTANCE;
+    field public static final float ScrollFraction = 0.5f;
     field public static final long ShowIndicatorDelayMillis = 1000L; // 0x3e8L
   }
 
