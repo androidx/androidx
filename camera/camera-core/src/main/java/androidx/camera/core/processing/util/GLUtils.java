@@ -268,6 +268,7 @@ public final class GLUtils {
         private int mSamplerLoc = -1;
         private int mTexMatrixLoc = -1;
         private int mTexCoordLoc = -1;
+        private int mInputFullRangeLoc = -1;
 
         public SamplerShaderProgram(
                 @NonNull DynamicRange dynamicRange,
@@ -285,6 +286,15 @@ public final class GLUtils {
                     ShaderProviders.resolveDefaultShaderProvider(
                             dynamicRange, inputFormat, hasAdvancedStyling),
                     hasAdvancedStyling);
+            if (ShaderProviders.isYuvHdr(dynamicRange, inputFormat)) {
+                // Only the default HDR YUV shader declares this uniform. It's intentionally not
+                // looked up for custom ShaderProviders, which may declare a uniform with the same
+                // name but a different type.
+                mInputFullRangeLoc = GLES20.glGetUniformLocation(mProgramHandle,
+                        ShaderProviders.UNIFORM_IS_INPUT_FULL_RANGE);
+                checkLocationOrThrow(mInputFullRangeLoc,
+                        ShaderProviders.UNIFORM_IS_INPUT_FULL_RANGE);
+            }
         }
 
         public SamplerShaderProgram(
@@ -328,6 +338,21 @@ public final class GLUtils {
             GLES20.glUniformMatrix4fv(mTexMatrixLoc, /*count=*/1, /*transpose=*/false,
                     textureMat, /*offset=*/0);
             checkGlErrorOrThrow("glUniformMatrix4fv");
+        }
+
+        /**
+         * Updates whether the input texture is full range or limited range.
+         *
+         * <p>This only takes effect for the default HDR YUV shader. It's a no-op for other
+         * shaders, including the ones from custom {@link ShaderProvider}s. The program must be in
+         * use.
+         */
+        public void updateInputFullRange(boolean isFullRange) {
+            if (mInputFullRangeLoc == -1) {
+                return;
+            }
+            GLES20.glUniform1i(mInputFullRangeLoc, isFullRange ? 1 : 0);
+            checkGlErrorOrThrow("glUniform1i");
         }
 
         private void loadLocations() {

@@ -16,6 +16,7 @@
 
 package androidx.camera.core.processing
 
+import android.graphics.Color
 import android.graphics.SurfaceTexture
 import android.hardware.DataSpace
 import android.hardware.camera2.CameraCharacteristics
@@ -32,6 +33,14 @@ import android.view.Surface
 import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.core.processing.HdrYuvInputTestUtil.Y_LIMITED_BLACK
+import androidx.camera.core.processing.HdrYuvInputTestUtil.Y_LIMITED_WHITE
+import androidx.camera.core.processing.HdrYuvInputTestUtil.assertNeutralGray
+import androidx.camera.core.processing.HdrYuvInputTestUtil.assertWithinTolerance
+import androidx.camera.core.processing.HdrYuvInputTestUtil.createP010ImageWriter
+import androidx.camera.core.processing.HdrYuvInputTestUtil.fullRange8BitLevel
+import androidx.camera.core.processing.HdrYuvInputTestUtil.isHdrYuvSamplingSupported
+import androidx.camera.core.processing.HdrYuvInputTestUtil.queueP010Frame
 import androidx.camera.core.processing.util.GLUtils.InputFormat
 import androidx.camera.core.processing.util.GraphicDeviceInfo
 import androidx.camera.testing.impl.CameraUtil
@@ -85,6 +94,10 @@ class OpenGlRendererTest {
         """
 
         private val IDENTITY_MATRIX = createGlIdentityMatrix()
+
+        // For the input color range tests.
+        private const val COLOR_RANGE_TEST_SIZE = 64
+        private const val COLOR_RANGE_TEST_FRAME_TIMEOUT_MS = 5_000L
 
         private fun createGlIdentityMatrix() = FloatArray(16).apply { Matrix.setIdentityM(this, 0) }
 
@@ -356,6 +369,35 @@ class OpenGlRendererTest {
             )
         }
 
+    @SdkSuppress(minSdkVersion = 33) // HDR and ImageWriter data spaces are supported from API 33.
+    @Test
+    fun renderHlgYuv_limitedRangeInput_limitedBlackAndWhiteMapToFullScale(): Unit = runBlocking {
+        initHdrYuvRendererWithoutCamera()
+        val limitedRange = HdrYuvInputTestUtil.bt2020HlgDataSpace(DataSpace.RANGE_LIMITED)
+
+        // Limited range black (64) and white (940) are stretched to 0 and 255.
+        assertWithinTolerance(renderP010Gray(limitedRange, Y_LIMITED_BLACK), expected = 0)
+        assertWithinTolerance(renderP010Gray(limitedRange, Y_LIMITED_WHITE), expected = 255)
+    }
+
+    @SdkSuppress(minSdkVersion = 33) // HDR and ImageWriter data spaces are supported from API 33.
+    @Test
+    fun renderHlgYuv_fullRangeInput_codeValuesAreNotStretched(): Unit = runBlocking {
+        initHdrYuvRendererWithoutCamera()
+        val fullRange = HdrYuvInputTestUtil.bt2020HlgDataSpace(DataSpace.RANGE_FULL)
+
+        // In full range, 64 and 940 are not black and white, but 64/1023 and 940/1023. Without
+        // considering the input range they would be wrongly mapped to 0 and 255.
+        assertWithinTolerance(
+            renderP010Gray(fullRange, Y_LIMITED_BLACK),
+            expected = fullRange8BitLevel(Y_LIMITED_BLACK),
+        )
+        assertWithinTolerance(
+            renderP010Gray(fullRange, Y_LIMITED_WHITE),
+            expected = fullRange8BitLevel(Y_LIMITED_WHITE),
+        )
+    }
+
     @Test
     fun renderByCustomShader(): Unit =
         runBlocking(glDispatcher) {
@@ -571,6 +613,80 @@ class OpenGlRendererTest {
                 ?.supportedProfiles ?: setOf(DynamicRangeProfiles.STANDARD)
         } else {
             setOf(DynamicRangeProfiles.STANDARD)
+        }
+    }
+
+    /**
+     * Initializes [glRenderer] for HDR with YUV input, like the HDR camera path, but without
+     * opening a camera. The input frames are produced by [renderP010Gray] instead.
+     */
+    @Suppress("NewApi") // Only called by tests suppressed below API 33.
+    private suspend fun initHdrYuvRendererWithoutCamera() {
+        assumeTrue("HDR YUV sampling is not supported.", isHdrYuvSamplingSupported())
+        createOpenGlRendererAndInit(DynamicRange.HLG_10_BIT)
+        withContext(glDispatcher) { glRenderer.setInputFormat(InputFormat.YUV) }
+    }
+
+    /**
+     * Renders a P010 frame filled with [yValue] and neutral chroma in [dataSpace] with
+     * [glRenderer], and returns the gray level (0-255) of the output.
+     */
+    @Suppress("NewApi") // Only called by tests suppressed below API 33.
+    private suspend fun renderP010Gray(dataSpace: Int, yValue: Int): Int {
+        val size = COLOR_RANGE_TEST_SIZE
+        val surfaceTexture =
+            withContext(glDispatcher) {
+                SurfaceTexture(glRenderer.textureName).apply { setDefaultBufferSize(size, size) }
+            }
+        val surface = Surface(surfaceTexture)
+        val imageWriter = createP010ImageWriter(surface, size, size, dataSpace)
+        try {
+            assumeTrue("P010 ImageWriter is not supported.", imageWriter != null)
+            val frameAvailable = CompletableDeferred<Unit>()
+            surfaceTexture.setOnFrameAvailableListener({ frameAvailable.complete(Unit) }, glHandler)
+            assumeTrue(
+                "Failed to write a P010 frame by CPU.",
+                queueP010Frame(checkNotNull(imageWriter), size, size, yValue),
+            )
+
+            assertThat(
+                    withTimeoutOrNull(COLOR_RANGE_TEST_FRAME_TIMEOUT_MS) { frameAvailable.await() }
+                )
+                .isNotNull()
+
+            val pixel =
+                withContext(glDispatcher) {
+                    val isUpdated =
+                        try {
+                            surfaceTexture.updateTexImage()
+                            true
+                        } catch (e: RuntimeException) {
+                            false
+                        }
+                    // Some GPUs can't sample P010 buffers written by CPU.
+                    assumeTrue("Failed to sample the P010 buffer by GPU.", isUpdated)
+                    assumeTrue(
+                        "The data space is not propagated to SurfaceTexture.",
+                        surfaceTexture.dataSpace == dataSpace,
+                    )
+                    val textureMatrix = FloatArray(16)
+                    surfaceTexture.getTransformMatrix(textureMatrix)
+                    // Same as what DefaultSurfaceProcessor does for each frame.
+                    glRenderer.setInputFullRange(
+                        DefaultSurfaceProcessor.isFullRangeDataSpace(surfaceTexture.dataSpace)
+                    )
+                    glRenderer
+                        .snapshot(Size(size, size), textureMatrix)
+                        .getPixel(size / 2, size / 2)
+                }
+            assertNeutralGray(pixel)
+            // R, G and B are equal (within tolerance), so any channel can be returned as the gray
+            // level. This is the return value, not a check.
+            return Color.green(pixel)
+        } finally {
+            imageWriter?.close()
+            surface.release()
+            withContext(glDispatcher) { surfaceTexture.release() }
         }
     }
 }

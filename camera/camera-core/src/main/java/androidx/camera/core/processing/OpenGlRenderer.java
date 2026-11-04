@@ -102,6 +102,12 @@ public class OpenGlRenderer {
     protected @NonNull Map<InputFormat, Program2D> mProgramHandles = Collections.emptyMap();
     protected @Nullable Program2D mCurrentProgram = null;
     protected @NonNull InputFormat mCurrentInputformat = InputFormat.UNKNOWN;
+    // Whether the input texture is full range. Only used by the default HDR YUV shader. Defaults
+    // to limited range because it's the common range of 10-bit HDR video (BT.2100), and it's the
+    // range the HDR YUV shader always assumed before the range was read from the input data
+    // space. It's also kept when the data space is unavailable (below API 33) or doesn't specify
+    // the range.
+    protected boolean mIsInputFullRange = false;
 
     private int mExternalTextureId = -1;
 
@@ -260,6 +266,34 @@ public class OpenGlRenderer {
         if (mCurrentInputformat != inputFormat) {
             mCurrentInputformat = inputFormat;
             useAndConfigureProgramWithTexture(mExternalTextureId);
+        }
+    }
+
+    /**
+     * Sets whether the input texture is full range or limited range.
+     *
+     * <p>This is used by the default HDR YUV shader to select the YUV to RGB conversion. It has
+     * no effect on other shaders. The default is limited range.
+     *
+     * @param isFullRange {@code true} if the input is full range, {@code false} if it is limited
+     *                    range or unknown.
+     * @throws IllegalStateException if the renderer is not initialized or the caller doesn't run
+     *                               on the GL thread.
+     */
+    public void setInputFullRange(boolean isFullRange) {
+        checkInitializedOrThrow(mInitialized, true);
+        checkGlThreadOrThrow(mGlThread);
+
+        if (mIsInputFullRange != isFullRange) {
+            Logger.d(TAG, "Input color range changed to " + (isFullRange ? "full" : "limited"));
+            mIsInputFullRange = isFullRange;
+            updateInputFullRangeOfCurrentProgram();
+        }
+    }
+
+    private void updateInputFullRangeOfCurrentProgram() {
+        if (mCurrentProgram instanceof SamplerShaderProgram) {
+            ((SamplerShaderProgram) mCurrentProgram).updateInputFullRange(mIsInputFullRange);
         }
     }
 
@@ -526,6 +560,8 @@ public class OpenGlRenderer {
         if (mCurrentProgram != program) {
             mCurrentProgram = program;
             mCurrentProgram.use();
+            // Uniforms are per program, so re-apply the input range to the new program.
+            updateInputFullRangeOfCurrentProgram();
             Log.d(TAG, "Using program for input format " + mCurrentInputformat + ": "
                     + mCurrentProgram);
         }
@@ -576,6 +612,7 @@ public class OpenGlRenderer {
         mEglConfig = null;
         mExternalTextureId = -1;
         mCurrentInputformat = InputFormat.UNKNOWN;
+        mIsInputFullRange = false;
         mCurrentSurface = null;
         mGlThread = null;
     }

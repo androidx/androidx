@@ -16,6 +16,7 @@
 
 package androidx.camera.core.processing
 
+import android.hardware.DataSpace
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.SurfaceOutput
 import androidx.camera.core.SurfaceRequest
@@ -47,5 +48,52 @@ class DefaultSurfaceProcessorTest {
         // Assert: new instance returns the no-op processor.
         assertThat(DefaultSurfaceProcessor.Factory.newInstance(DynamicRange.SDR))
             .isSameInstanceAs(noOpProcessor)
+    }
+
+    @Config(minSdk = 33)
+    @Test
+    fun isFullRangeDataSpace_fullRangeDataSpace_returnsTrue() {
+        assertThat(DefaultSurfaceProcessor.isFullRangeDataSpace(DataSpace.DATASPACE_BT2020_HLG))
+            .isTrue()
+        assertThat(DefaultSurfaceProcessor.isFullRangeDataSpace(DataSpace.DATASPACE_BT2020_PQ))
+            .isTrue()
+    }
+
+    @Config(minSdk = 33)
+    @Test
+    fun isFullRangeDataSpace_limitedRangeDataSpace_returnsFalse() {
+        val bt2020ItuHlg =
+            DataSpace.pack(
+                DataSpace.STANDARD_BT2020,
+                DataSpace.TRANSFER_HLG,
+                DataSpace.RANGE_LIMITED,
+            )
+        val bt2020ItuPq =
+            DataSpace.pack(
+                DataSpace.STANDARD_BT2020,
+                DataSpace.TRANSFER_ST2084,
+                DataSpace.RANGE_LIMITED,
+            )
+        assertThat(DefaultSurfaceProcessor.isFullRangeDataSpace(bt2020ItuHlg)).isFalse()
+        assertThat(DefaultSurfaceProcessor.isFullRangeDataSpace(bt2020ItuPq)).isFalse()
+    }
+
+    @Config(minSdk = 33)
+    @Test
+    fun isFullRangeDataSpace_unknownDataSpace_returnsFalse() {
+        assertThat(DefaultSurfaceProcessor.isFullRangeDataSpace(DataSpace.DATASPACE_UNKNOWN))
+            .isFalse()
+    }
+
+    @Config(minSdk = 33)
+    @Test
+    fun isFullRangeDataSpace_unspecifiedRange_returnsFalse() {
+        val bt2020HlgWithoutRange =
+            DataSpace.pack(
+                DataSpace.STANDARD_BT2020,
+                DataSpace.TRANSFER_HLG,
+                DataSpace.RANGE_UNSPECIFIED,
+            )
+        assertThat(DefaultSurfaceProcessor.isFullRangeDataSpace(bt2020HlgWithoutRange)).isFalse()
     }
 }
