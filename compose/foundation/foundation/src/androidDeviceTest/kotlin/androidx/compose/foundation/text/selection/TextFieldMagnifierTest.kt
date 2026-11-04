@@ -23,6 +23,7 @@ import androidx.compose.foundation.text.LegacyTextFieldState
 import androidx.compose.foundation.text.TextDelegate
 import androidx.compose.foundation.text.TextFieldDelegate
 import androidx.compose.foundation.text.TextLayoutResultProxy
+import androidx.compose.foundation.text.input.InputMethodInterceptor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.currentRecomposeScope
@@ -50,6 +51,8 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
 
+    private val inputMethodInterceptor = InputMethodInterceptor(rule)
+
     @Composable
     override fun TestContent(
         text: String,
@@ -58,15 +61,17 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
         onTextLayout: (TextLayoutResult) -> Unit,
         maxLines: Int,
     ) {
-        @Suppress("DEPRECATION") // b/552879150
-        BasicTextField(
-            text,
-            onValueChange = {},
-            modifier = modifier,
-            textStyle = style,
-            onTextLayout = onTextLayout,
-            maxLines = Int.MAX_VALUE,
-        )
+        inputMethodInterceptor.Content {
+            @Suppress("DEPRECATION") // b/552879150
+            BasicTextField(
+                text,
+                onValueChange = {},
+                modifier = modifier,
+                textStyle = style,
+                onTextLayout = onTextLayout,
+                maxLines = Int.MAX_VALUE,
+            )
+        }
     }
 
     @Test
