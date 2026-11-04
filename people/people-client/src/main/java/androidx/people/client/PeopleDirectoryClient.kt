@@ -153,16 +153,5 @@ public interface PeopleDirectoryClient {
             val applicationContext = context.applicationContext
             return PeopleDirectoryClientImpl { PeopleBackendResolver.resolve(applicationContext) }
         }
-
-        /**
-         * Returns whether the People Directory can be read on this device.
-         *
-         * Equivalent to `create(context).isAvailable()`.
-         *
-         * @param context any [Context]; only the application context is retained.
-         */
-        @JvmStatic
-        public suspend fun isAvailable(context: Context): Boolean =
-            PeopleBackendResolver.resolve(context).isAvailable
     }
 }
