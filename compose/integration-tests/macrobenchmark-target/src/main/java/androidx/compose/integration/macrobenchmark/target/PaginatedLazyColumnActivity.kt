@@ -77,11 +77,11 @@ private fun BenchmarkScreen(initialEntries: List<Entry> = List(100) { Entry("Ite
     var showIndicator by remember { mutableStateOf(false) }
 
     LaunchedEffect(state) {
-        snapshotFlow { state.layoutInfo.visibleItemsInfo.lastOrNull() }
+        snapshotFlow { state.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
             .drop(1)
-            .collect { lastVisible ->
-                val lastVisible = lastVisible ?: return@collect
-                if (lastVisible.index == state.layoutInfo.totalItemsCount - 1) {
+            .collect { lastVisibleIndex ->
+                val lastVisibleIndex = lastVisibleIndex ?: return@collect
+                if (lastVisibleIndex == state.layoutInfo.totalItemsCount - 1) {
                     showIndicator = true
                     delay(3_000L) // simulate network request
                     data = data + initialEntries
