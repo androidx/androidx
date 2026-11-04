@@ -17,17 +17,21 @@
 package androidx.appstate.transform
 
 import androidx.appstate.transform.testing.transformTest
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.kruth.assertThat
+import androidx.savedstate.SavedStateRegistry
 import kotlin.test.Test
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
+@IgnoreAndroidHostTest
 @OptIn(ExperimentalCoroutinesApi::class)
 class TransformScopeTest {
 
@@ -132,5 +136,82 @@ class TransformScopeTest {
         sourceState2 = 40
         advance()
         assertThat(state2.value).isEqualTo(130)
+    }
+
+    // As long as we give the Transform the proper container, everything works.
+    @Test
+    fun testLaunchTransformWithSavedStateContainer() = transformTest {
+        val registry1 = SavedStateRegistry().asContainer()
+        var triggerUpdate by mutableStateOf(false)
+
+        val contentA: @Composable (Int) -> Int = {
+            var savedCount by rememberSaveable { mutableStateOf(10) }
+            if (triggerUpdate) {
+                savedCount = 25
+            }
+            savedCount
+        }
+        val contentB: @Composable (String) -> String = {
+            var savedText by rememberSaveable { mutableStateOf("initial") }
+            if (triggerUpdate) {
+                savedText = "updated"
+            }
+            savedText
+        }
+
+        val scope1 = TransformScope()
+        val state1a =
+            scope1.launchTransform(
+                initialState = 0,
+                container = registry1.getOrCreateContainer("first"),
+                onUpdate = contentA,
+            )
+        val state1b =
+            scope1.launchTransform(
+                initialState = "",
+                container = registry1.getOrCreateContainer("second"),
+                onUpdate = contentB,
+            )
+
+        val job1 =
+            backgroundScope.launch(testDispatcher, start = CoroutineStart.UNDISPATCHED) {
+                scope1.run()
+            }
+
+        assertThat(state1a.value).isEqualTo(10)
+        assertThat(state1b.value).isEqualTo("initial")
+
+        triggerUpdate = true
+        advance()
+        assertThat(state1a.value).isEqualTo(25)
+        assertThat(state1b.value).isEqualTo("updated")
+
+        val savedMap = registry1.saveState()
+        job1.cancel()
+        triggerUpdate = false
+
+        val registry2 = SavedStateRegistry(savedMap)
+        val scope2 = TransformScope()
+        val state2a =
+            scope2.launchTransform(
+                initialState = 0,
+                container = registry2.getOrCreateContainer("first"),
+                onUpdate = contentA,
+            )
+        val state2b =
+            scope2.launchTransform(
+                initialState = "",
+                container = registry2.getOrCreateContainer("second"),
+                onUpdate = contentB,
+            )
+
+        val job2 =
+            backgroundScope.launch(testDispatcher, start = CoroutineStart.UNDISPATCHED) {
+                scope2.run()
+            }
+
+        assertThat(state2a.value).isEqualTo(25)
+        assertThat(state2b.value).isEqualTo("updated")
+        job2.cancel()
     }
 }

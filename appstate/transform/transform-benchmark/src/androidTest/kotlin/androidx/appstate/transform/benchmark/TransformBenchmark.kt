@@ -75,7 +75,9 @@ class TransformBenchmark {
             runTest {
                 val inputs = runWithMeasurementDisabled { List(numInputs) { mutableIntStateOf(0) } }
                 val state =
-                    transform(0, backgroundScope, testDispatcher) { inputs.sumOf { it.intValue } }
+                    transform(0, backgroundScope, dispatcher = testDispatcher) {
+                        inputs.sumOf { it.intValue }
+                    }
                 BlackHole.consume(state.value)
             }
         }
@@ -105,7 +107,9 @@ class TransformBenchmark {
         val numInputs = 10
         val inputs = List(numInputs) { mutableIntStateOf(0) }
         val outputState =
-            transform(0, backgroundScope, testDispatcher) { inputs.sumOf { it.intValue } }
+            transform(0, backgroundScope, dispatcher = testDispatcher) {
+                inputs.sumOf { it.intValue }
+            }
 
         // Correctness verification
         inputs[0].intValue = 10
@@ -154,7 +158,7 @@ class TransformBenchmark {
         val condition = mutableStateOf(true)
 
         val outputState =
-            transform(0, backgroundScope, testDispatcher) {
+            transform(0, backgroundScope, dispatcher = testDispatcher) {
                 if (condition.value) {
                     inputsA.sumOf { it.intValue }
                 } else {
@@ -222,7 +226,7 @@ class TransformBenchmark {
             transform(
                 DashboardState(Permissions(false, 0L), Badge("Basic", 0L), false),
                 backgroundScope,
-                testDispatcher,
+                dispatcher = testDispatcher,
             ) {
                 val session = sessionState.value
                 val perms = remember(session) { Permissions(session.role == "ADMIN", session.seq) }
@@ -278,7 +282,7 @@ class TransformBenchmark {
 
         var heavyComputationCount = 0
         val inboxState: State<InboxUi> =
-            transform(InboxUi(emptyList(), 0, 0L), backgroundScope, testDispatcher) {
+            transform(InboxUi(emptyList(), 0, 0L), backgroundScope, dispatcher = testDispatcher) {
                 val items = itemsState.value
                 val isPremium = isPremiumState.value
                 val tick = clockTickState.value
@@ -326,7 +330,8 @@ class TransformBenchmark {
     @Test
     fun benchmarkBurstWriteThroughput() = runTest {
         val state = mutableIntStateOf(0)
-        val output = transform(0, backgroundScope, testDispatcher) { state.intValue * 2 }
+        val output =
+            transform(0, backgroundScope, dispatcher = testDispatcher) { state.intValue * 2 }
 
         var counter = 0
         benchmarkRule.measureRepeated {
