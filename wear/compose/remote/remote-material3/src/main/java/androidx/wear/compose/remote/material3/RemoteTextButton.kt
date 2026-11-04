@@ -21,6 +21,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
+import androidx.compose.remote.creation.compose.shapes.RemoteCornerBasedShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
@@ -54,12 +55,18 @@ import androidx.compose.ui.graphics.Color
  * Example of a filled tonal [RemoteTextButton]:
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteFilledTonalTextButtonSample
+ *
+ * Example of a [RemoteTextButton] with corner animation on press:
+ *
+ * @sample androidx.wear.compose.remote.material3.samples.RemoteTextButtonWithCornerAnimationSample
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.
  * @param enabled Controls the enabled state of the button. When `false`, this button will not be
  *   clickable. It must be a constant value.
- * @param shape Defines the shape for this button. Defaults to a static shape based on
- *   [RemoteTextButtonDefaults.shape]
+ * @param shapes Defines the shape for this text button, including a pressed shape when animated.
+ *   Defaults to a static shape based on [RemoteTextButtonDefaults.shape], or use
+ *   [RemoteTextButtonDefaults.animatedShapes] to animate the corners on press. The press animation
+ *   is driven by touch events on the player, and is not shown by players that don't dispatch them.
  * @param colors [RemoteTextButtonColors] that will be used to resolve the background and content
  *   color for this button in different states.
  * @param border Optional [RemoteBorderStroke] that will be used to resolve the border for this
@@ -72,7 +79,7 @@ public fun RemoteTextButton(
     onClick: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
     enabled: RemoteBoolean = true.rb,
-    shape: RemoteShape = RemoteTextButtonDefaults.shape,
+    shapes: RemoteTextButtonShapes = RemoteTextButtonDefaults.shapes(),
     colors: RemoteTextButtonColors = RemoteTextButtonDefaults.textButtonColors(),
     border: RemoteBorderStroke? = null,
     content: @Composable @RemoteComposable () -> Unit,
@@ -83,7 +90,8 @@ public fun RemoteTextButton(
         backgroundColor = colors.containerColor(enabled = enabled),
         enabled = enabled,
         border = border,
-        shape = shape,
+        shape = shapes.shape,
+        pressedShape = shapes.pressedShape,
         content =
             provideScopeContent(
                 colors.contentColor(enabled = enabled),
@@ -97,6 +105,49 @@ public fun RemoteTextButton(
 public object RemoteTextButtonDefaults {
     /** Recommended [RemoteShape] for [RemoteTextButton]. */
     public val shape: RemoteRoundedCornerShape = RemoteCircleShape
+
+    /** Recommended pressed [RemoteShape] for [RemoteTextButton]. */
+    public val pressedShape: RemoteCornerBasedShape
+        @Composable @RemoteComposable get() = RemoteMaterialTheme.shapes.small
+
+    /**
+     * Returns the default [RemoteTextButtonShapes] for a static [RemoteTextButton].
+     *
+     * @return a [RemoteTextButtonShapes] with the default static [shape]
+     */
+    @Composable @RemoteComposable public fun shapes(): RemoteTextButtonShapes = shapes(shape)
+
+    /**
+     * Returns a [RemoteTextButtonShapes] for a static [RemoteTextButton].
+     *
+     * @param shape The normal shape of the [RemoteTextButton].
+     * @return a [RemoteTextButtonShapes] with the given static [shape]
+     */
+    @Composable
+    @RemoteComposable
+    public fun shapes(shape: RemoteShape): RemoteTextButtonShapes =
+        RemoteTextButtonShapes(shape = shape)
+
+    /**
+     * Returns a [RemoteTextButtonShapes] with an animation between two [RemoteCornerBasedShape]s
+     * when pressed.
+     *
+     * The press animation requires both shapes to be [RemoteRoundedCornerShape]s. It is driven by
+     * touch events on the player, and is not shown by players that don't dispatch them.
+     *
+     * Example of a text button animated when pressed:
+     *
+     * @sample androidx.wear.compose.remote.material3.samples.RemoteTextButtonWithCornerAnimationSample
+     * @param shape The normal shape of the [RemoteTextButton].
+     * @param pressedShape The pressed shape of the [RemoteTextButton].
+     * @return a [RemoteTextButtonShapes] with the configured resting and pressed shapes
+     */
+    @Composable
+    @RemoteComposable
+    public fun animatedShapes(
+        shape: RemoteCornerBasedShape = this.shape,
+        pressedShape: RemoteCornerBasedShape = this.pressedShape,
+    ): RemoteTextButtonShapes = RemoteTextButtonShapes(shape = shape, pressedShape = pressedShape)
 
     /**
      * Returns a [RemoteTextButtonColors] for a text button - by default, a transparent background
@@ -284,4 +335,48 @@ public class RemoteTextButtonColors(
             disabledContainerColor = disabledContainerColor,
             disabledContentColor = disabledContentColor,
         )
+}
+
+/**
+ * Represents the shapes used for [RemoteTextButton] in various states.
+ *
+ * When [pressedShape] differs from [shape], [RemoteTextButton] animates to [pressedShape] while it
+ * is pressed. The press animation requires both shapes to be [RemoteRoundedCornerShape]s and the
+ * text button to be enabled with a constant value.
+ *
+ * @param shape the shape of the text button when not pressed.
+ * @param pressedShape the shape of the text button when pressed.
+ */
+@Immutable
+public class RemoteTextButtonShapes(
+    public val shape: RemoteShape,
+    public val pressedShape: RemoteShape = shape,
+) {
+    /**
+     * Returns a copy of this [RemoteTextButtonShapes], optionally overriding some of the values.
+     *
+     * @param shape the shape of the text button when not pressed.
+     * @param pressedShape the shape of the text button when pressed.
+     * @return a copy of this [RemoteTextButtonShapes] with the specified values overridden
+     */
+    public fun copy(
+        shape: RemoteShape = this.shape,
+        pressedShape: RemoteShape = this.pressedShape,
+    ): RemoteTextButtonShapes = RemoteTextButtonShapes(shape = shape, pressedShape = pressedShape)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RemoteTextButtonShapes) return false
+
+        if (shape != other.shape) return false
+        if (pressedShape != other.pressedShape) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = shape.hashCode()
+        result = 31 * result + pressedShape.hashCode()
+        return result
+    }
 }

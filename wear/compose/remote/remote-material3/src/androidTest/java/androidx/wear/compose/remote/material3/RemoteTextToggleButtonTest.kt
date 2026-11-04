@@ -17,12 +17,19 @@
 package androidx.wear.compose.remote.material3
 
 import android.content.Context
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.state.rb
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
+import androidx.compose.remote.player.view.RemoteComposePlayer
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performTouchInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -94,6 +101,28 @@ class RemoteTextToggleButtonTest {
     @Test
     fun text_toggle_button_extra_large() = screenshotTest { RemoteTextToggleButtonExtraLarge() }
 
+    @Test
+    fun text_toggle_button_animated_shapes_pressed() = pressedScreenshotTest {
+        RemoteTextToggleButton(
+            checked = false.rb,
+            onCheckedChange = RemoteAction.None,
+            shapes = RemoteTextToggleButtonDefaults.animatedShapes(),
+        ) {
+            RemoteText("ABC".rs)
+        }
+    }
+
+    @Test
+    fun text_toggle_button_variant_animated_checked_pressed() = pressedScreenshotTest {
+        RemoteTextToggleButton(
+            checked = true.rb,
+            onCheckedChange = RemoteAction.None,
+            shapes = RemoteTextToggleButtonDefaults.variantAnimatedShapes(),
+        ) {
+            RemoteText("ABC".rs)
+        }
+    }
+
     private fun screenshotTest(
         profile: Profile = RcPlatformProfiles.ANDROIDX,
         content: @Composable () -> Unit,
@@ -104,5 +133,29 @@ class RemoteTextToggleButtonTest {
         ) {
             ComponentContainer { content() }
         }
+    }
+
+    private fun pressedScreenshotTest(content: @Composable @RemoteComposable () -> Unit) {
+        lateinit var player: RemoteComposePlayer
+        remoteComposeTestRule.setContent(
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            update = { player = it },
+        ) {
+            ComponentContainer { content() }
+        }
+        val root =
+            remoteComposeTestRule.composeTestRule.onNodeWithTag(
+                RemoteScreenshotTestRule.ROOT_TEST_TAG
+            )
+        root.performTouchInput { down(center) }
+        remoteComposeTestRule.composeTestRule.waitUntil(PressAnimationTimeoutMillis) {
+            player.document.document.needsRepaint() < 0
+        }
+        remoteComposeTestRule.verifyScreenshot()
+        root.performTouchInput { up() }
+    }
+
+    private companion object {
+        const val PressAnimationTimeoutMillis = 5_000L
     }
 }

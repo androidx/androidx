@@ -95,10 +95,9 @@ public fun RemoteIconToggleButton(
     border: RemoteBorderStroke? = null,
     content: @Composable @RemoteComposable () -> Unit,
 ) {
-    val animatedShape =
-        animatedToggleButtonShape(
+    val (shape, pressedShape) =
+        resolveToggleButtonShapes(
             checked = checked,
-            enabled = enabled,
             uncheckedShape = shapes.uncheckedShape,
             checkedShape = shapes.checkedShape,
             uncheckedPressedShape = shapes.uncheckedPressedShape,
@@ -107,7 +106,7 @@ public fun RemoteIconToggleButton(
     val checkedProgress = animatedCheckedProgress(checked)
     RemoteRoundButton(
         onClick = onCheckedChange,
-        modifier = modifier.size(RemoteIconToggleButtonDefaults.Size).then(animatedShape.modifier),
+        modifier = modifier.size(RemoteIconToggleButtonDefaults.Size),
         backgroundColor =
             colors.containerColor(
                 enabled = enabled,
@@ -116,7 +115,10 @@ public fun RemoteIconToggleButton(
             ),
         enabled = enabled,
         border = border,
-        shape = animatedShape.shape,
+        shape = shape,
+        pressedShape = pressedShape,
+        pressAnimationSpec = RemoteMaterialTheme.motionScheme.fastEffectsSpec(),
+        releaseAnimationSpec = RemoteMaterialTheme.motionScheme.defaultSpatialSpec(),
         role = RemoteRole.Checkbox,
         content =
             provideScopeContent(
@@ -239,7 +241,7 @@ public object RemoteIconToggleButtonDefaults {
      * [uncheckedShape] to [checkedShape] when checked.
      *
      * The shape is selected at playback time when [RemoteIconToggleButton]'s `checked` is not a
-     * constant, which requires both shapes to be [RemoteCornerBasedShape]s.
+     * constant, which requires both shapes to be [RemoteRoundedCornerShape]s.
      *
      * @param uncheckedShape The shape of the toggle button when unchecked.
      * @param checkedShape The shape of the toggle button when checked.
@@ -268,7 +270,7 @@ public object RemoteIconToggleButtonDefaults {
      * Creates a [RemoteIconToggleButtonShapes] with a static [shape] that animates to
      * [pressedShape] when pressed.
      *
-     * The press animation requires both shapes to be [RemoteCornerBasedShape]s. It is driven by
+     * The press animation requires both shapes to be [RemoteRoundedCornerShape]s. It is driven by
      * touch events on the player, and is not shown by players that don't dispatch them.
      *
      * @param shape The shape of the toggle button when not pressed.
@@ -305,8 +307,9 @@ public object RemoteIconToggleButtonDefaults {
      * [uncheckedShape] to [checkedShape] when checked, and animates to a shape with smaller corners
      * when pressed.
      *
-     * The press animation is driven by touch events on the player, and is not shown by players that
-     * don't dispatch them.
+     * Dynamic shape selection and the press animation require both shapes to be
+     * [RemoteRoundedCornerShape]s. The press animation is driven by touch events on the player, and
+     * is not shown by players that don't dispatch them.
      *
      * @param uncheckedShape The shape of the toggle button when unchecked.
      * @param checkedShape The shape of the toggle button when checked.
@@ -550,13 +553,13 @@ public class RemoteIconToggleButtonColors(
  * while pressed.
  *
  * When the `checked` state of [RemoteIconToggleButton] is not a constant, a change of shape between
- * [uncheckedShape] and [checkedShape] is only supported when both are [RemoteCornerBasedShape]s;
+ * [uncheckedShape] and [checkedShape] is only supported when both are [RemoteRoundedCornerShape]s;
  * otherwise [uncheckedShape] is used.
  *
  * When the pressed shapes differ from the resting shapes, [RemoteIconToggleButton] animates to
  * [uncheckedPressedShape] or [checkedPressedShape] while it is pressed. The press animation
- * requires all the shapes to be [RemoteCornerBasedShape]s and the toggle button to be enabled with
- * a constant value.
+ * requires all the shapes to be [RemoteRoundedCornerShape]s and the toggle button to be enabled
+ * with a constant value.
  *
  * @param uncheckedShape The shape of the toggle button when unchecked.
  * @param checkedShape The shape of the toggle button when checked.

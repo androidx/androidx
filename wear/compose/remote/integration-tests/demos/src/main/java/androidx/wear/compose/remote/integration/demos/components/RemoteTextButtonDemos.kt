@@ -31,6 +31,7 @@ import androidx.wear.compose.material3.lazy.transformedHeight
 import androidx.wear.compose.remote.material3.previews.RemoteTextButtonEnabled
 import androidx.wear.compose.remote.material3.previews.RemoteTextButtonOutline
 import androidx.wear.compose.remote.material3.previews.RemoteTextButtonTonal
+import androidx.wear.compose.remote.material3.samples.RemoteTextButtonWithCornerAnimationSample
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 
 @Composable
@@ -60,6 +61,7 @@ fun RemoteTextButtonDemos(modifier: Modifier = Modifier) {
             remoteDemoItem("Default") { RemoteTextButtonEnabled() }
             remoteDemoItem("Tonal") { RemoteTextButtonTonal() }
             remoteDemoItem("Outline") { RemoteTextButtonOutline() }
+            remoteDemoItem("Corner Animation") { RemoteTextButtonWithCornerAnimationSample() }
         }
     }
 }

@@ -118,7 +118,7 @@ class RemoteIconButtonUnitTest {
                     RemoteModifier.width(48.rdp).height(32.rdp).semantics {
                         contentDescription = "pillButton".rs
                     },
-                shape = RemoteRoundedCornerShape(16.rdp),
+                shapes = RemoteIconButtonDefaults.shapes(RemoteRoundedCornerShape(16.rdp)),
             ) {
                 RemoteText("+".rs)
             }

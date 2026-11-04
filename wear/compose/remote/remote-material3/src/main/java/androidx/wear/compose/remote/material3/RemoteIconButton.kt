@@ -21,6 +21,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.defaultMinSize
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
+import androidx.compose.remote.creation.compose.shapes.RemoteCornerBasedShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
@@ -50,12 +51,18 @@ import androidx.compose.ui.graphics.Color
  * Example of a [RemoteIconButton]:
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteIconButtonSimpleSample
+ *
+ * Example of a [RemoteIconButton] with corner animation on press:
+ *
+ * @sample androidx.wear.compose.remote.material3.samples.RemoteIconButtonWithCornerAnimationSample
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.
  * @param enabled Controls the enabled state of the button. When `false`, this button will not be
  *   clickable. It must be a constant value.
- * @param shape Defines the shape for this button. Defaults to a static shape based on
- *   [RemoteIconButtonDefaults.shape]
+ * @param shapes Defines the shape for this icon button, including a pressed shape when animated.
+ *   Defaults to a static shape based on [RemoteIconButtonDefaults.shape], or use
+ *   [RemoteIconButtonDefaults.animatedShapes] to animate the corners on press. The press animation
+ *   is driven by touch events on the player, and is not shown by players that don't dispatch them.
  * @param colors [RemoteIconButtonColors] that will be used to resolve the background and content
  *   color for this button in different states.
  * @param border Optional [RemoteBorderStroke] that will be used to resolve the border for this
@@ -68,7 +75,7 @@ public fun RemoteIconButton(
     onClick: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
     enabled: RemoteBoolean = true.rb,
-    shape: RemoteShape = RemoteIconButtonDefaults.shape,
+    shapes: RemoteIconButtonShapes = RemoteIconButtonDefaults.shapes(),
     colors: RemoteIconButtonColors = RemoteIconButtonDefaults.iconButtonColors(),
     border: RemoteBorderStroke? = null,
     content: @Composable @RemoteComposable () -> Unit,
@@ -83,7 +90,8 @@ public fun RemoteIconButton(
         backgroundColor = colors.containerColor(enabled = enabled),
         enabled = enabled,
         border = border,
-        shape = shape,
+        shape = shapes.shape,
+        pressedShape = shapes.pressedShape,
         content =
             provideScopeContent(
                 colors.contentColor(enabled = enabled),
@@ -98,8 +106,51 @@ public object RemoteIconButtonDefaults {
     /** Recommended [RemoteShape] for [RemoteIconButton]. */
     public val shape: RemoteRoundedCornerShape = RemoteCircleShape
 
+    /** Recommended pressed [RemoteShape] for [RemoteIconButton]. */
+    public val pressedShape: RemoteCornerBasedShape
+        @Composable @RemoteComposable get() = RemoteMaterialTheme.shapes.small
+
     /** Recommended alpha to apply to a [RemoteIconButton] with Image content when disabled */
     public val DisabledImageOpacity: RemoteFloat = DisabledContentAlpha.rf
+
+    /**
+     * Returns the default [RemoteIconButtonShapes] for a static [RemoteIconButton].
+     *
+     * @return a [RemoteIconButtonShapes] with the default static [shape]
+     */
+    @Composable @RemoteComposable public fun shapes(): RemoteIconButtonShapes = shapes(shape)
+
+    /**
+     * Returns a [RemoteIconButtonShapes] for a static [RemoteIconButton].
+     *
+     * @param shape The normal shape of the [RemoteIconButton].
+     * @return a [RemoteIconButtonShapes] with the given static [shape]
+     */
+    @Composable
+    @RemoteComposable
+    public fun shapes(shape: RemoteShape): RemoteIconButtonShapes =
+        RemoteIconButtonShapes(shape = shape)
+
+    /**
+     * Returns a [RemoteIconButtonShapes] with an animation between two [RemoteCornerBasedShape]s
+     * when pressed.
+     *
+     * The press animation requires both shapes to be [RemoteRoundedCornerShape]s. It is driven by
+     * touch events on the player, and is not shown by players that don't dispatch them.
+     *
+     * Example of an icon button animated when pressed:
+     *
+     * @sample androidx.wear.compose.remote.material3.samples.RemoteIconButtonWithCornerAnimationSample
+     * @param shape The normal shape of the [RemoteIconButton].
+     * @param pressedShape The pressed shape of the [RemoteIconButton].
+     * @return a [RemoteIconButtonShapes] with the configured resting and pressed shapes
+     */
+    @Composable
+    @RemoteComposable
+    public fun animatedShapes(
+        shape: RemoteCornerBasedShape = this.shape,
+        pressedShape: RemoteCornerBasedShape = this.pressedShape,
+    ): RemoteIconButtonShapes = RemoteIconButtonShapes(shape = shape, pressedShape = pressedShape)
 
     /**
      * Returns a [RemoteIconButtonColors] with the colors for a filled [RemoteIconButton] - by
@@ -458,4 +509,48 @@ public class RemoteIconButtonColors(
             disabledContainerColor = disabledContainerColor,
             disabledContentColor = disabledContentColor,
         )
+}
+
+/**
+ * Represents the shapes used for [RemoteIconButton] in various states.
+ *
+ * When [pressedShape] differs from [shape], [RemoteIconButton] animates to [pressedShape] while it
+ * is pressed. The press animation requires both shapes to be [RemoteRoundedCornerShape]s and the
+ * icon button to be enabled with a constant value.
+ *
+ * @param shape the shape of the icon button when not pressed.
+ * @param pressedShape the shape of the icon button when pressed.
+ */
+@Immutable
+public class RemoteIconButtonShapes(
+    public val shape: RemoteShape,
+    public val pressedShape: RemoteShape = shape,
+) {
+    /**
+     * Returns a copy of this [RemoteIconButtonShapes], optionally overriding some of the values.
+     *
+     * @param shape the shape of the icon button when not pressed.
+     * @param pressedShape the shape of the icon button when pressed.
+     * @return a copy of this [RemoteIconButtonShapes] with the specified values overridden
+     */
+    public fun copy(
+        shape: RemoteShape = this.shape,
+        pressedShape: RemoteShape = this.pressedShape,
+    ): RemoteIconButtonShapes = RemoteIconButtonShapes(shape = shape, pressedShape = pressedShape)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RemoteIconButtonShapes) return false
+
+        if (shape != other.shape) return false
+        if (pressedShape != other.pressedShape) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = shape.hashCode()
+        result = 31 * result + pressedShape.hashCode()
+        return result
+    }
 }

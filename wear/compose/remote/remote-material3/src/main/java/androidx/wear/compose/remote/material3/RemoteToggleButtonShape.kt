@@ -16,36 +16,54 @@
 
 package androidx.wear.compose.remote.material3
 
-import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
-import androidx.compose.remote.creation.compose.capture.currentProfileSupportsTouchModifiers
 import androidx.compose.remote.creation.compose.layout.RemoteSize
-import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.modifier.onTouchCancel
-import androidx.compose.remote.creation.compose.modifier.onTouchDown
-import androidx.compose.remote.creation.compose.modifier.onTouchUp
 import androidx.compose.remote.creation.compose.shapes.RemoteCornerBasedShape
 import androidx.compose.remote.creation.compose.shapes.RemoteCornerSize
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
-import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteAnimationSpec
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.lerp
-import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 
 /**
+ * Resolves the resting and pressed [RemoteShape]s of a toggle button for the given [checked] state,
+ * to be passed as `shape` and `pressedShape` to [RemoteRoundButton].
+ *
+ * When the pressed shapes are equal to the resting shapes, the same instance is returned for both,
+ * so that [RemoteRoundButton] doesn't add a press animation.
+ */
+internal fun resolveToggleButtonShapes(
+    checked: RemoteBoolean,
+    uncheckedShape: RemoteShape,
+    checkedShape: RemoteShape,
+    uncheckedPressedShape: RemoteShape,
+    checkedPressedShape: RemoteShape,
+): Pair<RemoteShape, RemoteShape> {
+    val shape = resolveToggleButtonShape(checked, uncheckedShape, checkedShape)
+    // When checked isn't constant, each resolved shape is a new instance, so compare the input
+    // shapes instead, and reuse the resting shape to skip the press animation.
+    val pressedShape =
+        if (uncheckedPressedShape == uncheckedShape && checkedPressedShape == checkedShape) {
+            shape
+        } else {
+            resolveToggleButtonShape(checked, uncheckedPressedShape, checkedPressedShape)
+        }
+    return shape to pressedShape
+}
+
+/**
  * Resolves the [RemoteShape] of a toggle button for the given [checked] state.
  *
  * If [checked] is a constant, the matching shape is returned directly. Otherwise, if both shapes
- * are [RemoteCornerBasedShape]s, a [RemoteRoundedCornerShape] whose corner sizes are selected at
+ * are [RemoteRoundedCornerShape]s, a [RemoteRoundedCornerShape] whose corner sizes are selected at
  * playback time from [checked] is returned, so that the shape follows state changes on the player.
  * For any other combination, [uncheckedShape] is used.
  */
@@ -60,7 +78,7 @@ internal fun resolveToggleButtonShape(
     checked.constantValueOrNull?.let { isChecked ->
         return if (isChecked) checkedShape else uncheckedShape
     }
-    if (uncheckedShape is RemoteCornerBasedShape && checkedShape is RemoteCornerBasedShape) {
+    if (uncheckedShape is RemoteRoundedCornerShape && checkedShape is RemoteRoundedCornerShape) {
         return RemoteRoundedCornerShape(
             topStart = CheckedCornerSize(checked, checkedShape.topStart, uncheckedShape.topStart),
             topEnd = CheckedCornerSize(checked, checkedShape.topEnd, uncheckedShape.topEnd),
@@ -87,78 +105,6 @@ private data class CheckedCornerSize(
 }
 
 /**
- * The [shape] of a toggle button together with the [modifier] that drives its press animation.
- *
- * [modifier] must be applied to the toggle button so that touch events on the player update the
- * pressed state used by [shape].
- */
-internal class AnimatedToggleButtonShape(val shape: RemoteShape, val modifier: RemoteModifier)
-
-/**
- * Resolves the [RemoteShape] of a toggle button, animating between the resting shapes and the
- * pressed shapes when the toggle button is pressed on the player.
- *
- * The press animation is only applied when [enabled] is the constant `true`, when the pressed
- * shapes differ from the resting shapes, and when all the shapes are [RemoteCornerBasedShape]s. In
- * any other case the shape is resolved as in [resolveToggleButtonShape] and no touch handling is
- * added.
- *
- * The pressed state is driven by touch down, up and cancel actions, so the animation only runs on
- * players that dispatch those events. It is also skipped when the creation profile doesn't support
- * those actions, for example `androidx.glance.wear.GlanceWearProfiles.wearWidgets`.
- */
-// TODO(b/571080867): Move press shape animation helper to androidx.compose.remote.foundation.
-@Composable
-internal fun animatedToggleButtonShape(
-    checked: RemoteBoolean,
-    enabled: RemoteBoolean,
-    uncheckedShape: RemoteShape,
-    checkedShape: RemoteShape,
-    uncheckedPressedShape: RemoteShape,
-    checkedPressedShape: RemoteShape,
-    pressAnimationSpec: RemoteAnimationSpec = PressAnimationSpec,
-    releaseAnimationSpec: RemoteAnimationSpec = ReleaseAnimationSpec,
-): AnimatedToggleButtonShape {
-    val shape = resolveToggleButtonShape(checked, uncheckedShape, checkedShape)
-    val touchSupported = currentProfileSupportsTouchModifiers()
-    if (
-        enabled.constantValueOrNull != true ||
-            (uncheckedPressedShape == uncheckedShape && checkedPressedShape == checkedShape) ||
-            !touchSupported
-    ) {
-        return AnimatedToggleButtonShape(shape, RemoteModifier)
-    }
-    val pressedShape = resolveToggleButtonShape(checked, uncheckedPressedShape, checkedPressedShape)
-    if (shape !is RemoteCornerBasedShape || pressedShape !is RemoteCornerBasedShape) {
-        return AnimatedToggleButtonShape(shape, RemoteModifier)
-    }
-
-    val pressed = remember { MutableRemoteFloat(0f) }
-    val progress =
-        remember(pressed, pressAnimationSpec, releaseAnimationSpec) {
-            // Taking the max of a fast and a slow animation of the same target makes the shape
-            // morph quickly when pressed, and settle back slowly when released or cancelled.
-            max(
-                animateRemoteFloatAsState(pressed, pressAnimationSpec),
-                animateRemoteFloatAsState(pressed, releaseAnimationSpec),
-            )
-        }
-    return AnimatedToggleButtonShape(
-        shape =
-            RemoteRoundedCornerShape(
-                topStart = LerpCornerSize(shape.topStart, pressedShape.topStart, progress),
-                topEnd = LerpCornerSize(shape.topEnd, pressedShape.topEnd, progress),
-                bottomEnd = LerpCornerSize(shape.bottomEnd, pressedShape.bottomEnd, progress),
-                bottomStart = LerpCornerSize(shape.bottomStart, pressedShape.bottomStart, progress),
-            ),
-        modifier =
-            RemoteModifier.onTouchDown(valueChangeAction(pressed, 1f.rf))
-                .onTouchUp(valueChangeAction(pressed, 0f.rf))
-                .onTouchCancel(valueChangeAction(pressed, 0f.rf)),
-    )
-}
-
-/**
  * Returns a copy of this shape with each corner size scaled by [fraction], used to derive the
  * pressed shapes of the variant animated toggle button shapes.
  */
@@ -169,18 +115,6 @@ internal fun RemoteCornerBasedShape.scaleCorners(fraction: Float): RemoteCornerB
         bottomEnd = FractionalCornerSize(bottomEnd, fraction),
         bottomStart = FractionalCornerSize(bottomStart, fraction),
     )
-
-/** A [RemoteCornerSize] that interpolates from [start] to [stop] by [fraction]. */
-private data class LerpCornerSize(
-    val start: RemoteCornerSize,
-    val stop: RemoteCornerSize,
-    val fraction: RemoteFloat,
-) : RemoteCornerSize {
-    override fun toPx(shapeSize: RemoteSize, density: RemoteDensity): RemoteFloat {
-        val startPx = start.toPx(shapeSize, density)
-        return startPx + (stop.toPx(shapeSize, density) - startPx) * fraction
-    }
-}
 
 /** A [RemoteCornerSize] that is [fraction] of [size]. */
 private data class FractionalCornerSize(val size: RemoteCornerSize, val fraction: Float) :
@@ -227,14 +161,6 @@ internal fun checkedColor(
  */
 internal val CheckedAnimationSpec: RemoteAnimationSpec =
     remoteTween(RemoteMotionTokens.DurationMedium1, RemoteMotionTokens.EasingStandardDecelerate)
-
-/** Default [RemoteAnimationSpec] for the animation to the pressed shape. */
-internal val PressAnimationSpec: RemoteAnimationSpec =
-    remoteTween(RemoteMotionTokens.DurationShort2)
-
-/** Default [RemoteAnimationSpec] for the animation back to the resting shape. */
-internal val ReleaseAnimationSpec: RemoteAnimationSpec =
-    remoteTween(RemoteMotionTokens.DurationMedium2)
 
 /**
  * Fraction of the corner sizes of a variant toggle button shape used for its pressed shape. See

@@ -127,7 +127,7 @@ private fun Button(imageVector: RemoteImageVector, modifier: RemoteModifier) {
         modifier = modifier,
         enabled = true.rb,
         colors = tonalColors,
-        shape = RemoteButtonDefaults.shape,
+        shapes = RemoteIconButtonDefaults.shapes(RemoteButtonDefaults.shape),
     ) {
         RemoteIcon(imageVector = imageVector, contentDescription = null)
     }

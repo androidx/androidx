@@ -17,7 +17,9 @@
 package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.action.valueChangeAction
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rf
@@ -70,5 +72,28 @@ fun RemoteFilledTonalTextButtonSample(modifier: RemoteModifier = RemoteModifier)
         colors = RemoteTextButtonDefaults.filledTonalTextButtonColors(),
     ) {
         RemoteText(text = text)
+    }
+}
+
+@Sampled
+@RemoteComposable
+@Composable
+@WearPreviewDevices
+@PreviewWrapper(RemoteComponentPreviewWrapper::class)
+fun RemoteTextButtonWithCornerAnimationSample(modifier: RemoteModifier = RemoteModifier) {
+    RemoteTextButton(
+        onClick = hostAction("button_click".rs),
+        modifier = modifier,
+        shapes = RemoteTextButtonDefaults.animatedShapes(),
+        colors =
+            RemoteTextButtonDefaults.textButtonColors(
+                containerColor = RemoteMaterialTheme.colorScheme.primary,
+                contentColor = RemoteMaterialTheme.colorScheme.onPrimary,
+                disabledContainerColor =
+                    RemoteMaterialTheme.colorScheme.primary.copy(alpha = 0.12f.rf),
+                disabledContentColor = RemoteMaterialTheme.colorScheme.primary.copy(0.38f.rf),
+            ),
+    ) {
+        RemoteText(text = "ABC".rs)
     }
 }

@@ -36,9 +36,12 @@ import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.remote.player.view.RemoteComposePlayer
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performTouchInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -103,6 +106,108 @@ class RemoteButtonGroupTest {
     @Test
     fun buttonGroup_twoButton_firstButtonPressed() {
         runPressedScreenshotTest { TwoButtonGroup(pressedItem = 0) }
+    }
+
+    @Test
+    fun buttonGroup_buttons_firstButtonPressed() {
+        runPressedScreenshotTest {
+            RemoteButtonGroupImpl(
+                modifier = RemoteModifier.fillMaxWidth(),
+                initialPressedItem = 0,
+            ) {
+                RemoteButton(
+                    onClick = testAction,
+                    modifier = RemoteModifier.weight(1f.rf).animateWidth(),
+                    colors = RemoteButtonDefaults.filledTonalButtonColors(),
+                ) {
+                    RemoteText("Cancel".rs)
+                }
+                RemoteButton(
+                    onClick = testAction,
+                    modifier = RemoteModifier.weight(1f.rf).animateWidth(),
+                ) {
+                    RemoteText("OK".rs)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun buttonGroup_textButtons_firstButtonPressed() {
+        lateinit var player: RemoteComposePlayer
+        remoteComposeTestRule.setContent(
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            update = { player = it },
+        ) {
+            ComponentContainer {
+                RemoteButtonGroup(modifier = RemoteModifier.fillMaxWidth()) {
+                    for (label in listOf("A", "B", "C")) {
+                        RemoteTextButton(
+                            onClick = testAction,
+                            modifier = RemoteModifier.weight(1f.rf).animateWidth(),
+                            shapes = RemoteTextButtonDefaults.animatedShapes(),
+                            colors = RemoteTextButtonDefaults.filledTonalTextButtonColors(),
+                        ) {
+                            RemoteText(label.rs)
+                        }
+                    }
+                }
+            }
+        }
+        val root =
+            remoteComposeTestRule.composeTestRule.onNodeWithTag(
+                RemoteScreenshotTestRule.ROOT_TEST_TAG
+            )
+        root.performTouchInput { down(Offset(width * 0.2f, centerY)) }
+        remoteComposeTestRule.composeTestRule.waitUntil(AnimationTimeoutMillis) {
+            player.document.document.needsRepaint() < 0
+        }
+        remoteComposeTestRule.verifyScreenshot()
+        root.performTouchInput { up() }
+    }
+
+    @Test
+    fun buttonGroup_toggleButtons_firstButtonPressed() {
+        runPressedScreenshotTest {
+            RemoteButtonGroupImpl(
+                modifier = RemoteModifier.fillMaxWidth(),
+                initialPressedItem = 0,
+            ) {
+                RemoteIconToggleButton(
+                    checked = true.rb,
+                    onCheckedChange = testAction,
+                    modifier = RemoteModifier.weight(1f.rf).animateWidth(),
+                    shapes = RemoteIconToggleButtonDefaults.variantShapes(),
+                ) {
+                    RemoteIcon(
+                        imageVector = Icons.Filled.MailOutline.toRemoteImageVector(),
+                        contentDescription = null,
+                    )
+                }
+                RemoteIconToggleButton(
+                    checked = false.rb,
+                    onCheckedChange = testAction,
+                    modifier = RemoteModifier.weight(1f.rf).animateWidth(),
+                    shapes = RemoteIconToggleButtonDefaults.variantShapes(),
+                ) {
+                    RemoteIcon(
+                        imageVector = Icons.Filled.Favorite.toRemoteImageVector(),
+                        contentDescription = null,
+                    )
+                }
+                RemoteIconToggleButton(
+                    checked = false.rb,
+                    onCheckedChange = testAction,
+                    modifier = RemoteModifier.weight(1f.rf).animateWidth(),
+                    shapes = RemoteIconToggleButtonDefaults.variantShapes(),
+                ) {
+                    RemoteIcon(
+                        imageVector = Icons.Filled.Call.toRemoteImageVector(),
+                        contentDescription = null,
+                    )
+                }
+            }
+        }
     }
 
     @Test
@@ -204,7 +309,7 @@ class RemoteButtonGroupTest {
                         disabledContentColor =
                             RemoteMaterialTheme.colorScheme.primary.copy(0.38f.rf),
                     ),
-            shape = RemoteButtonDefaults.shape,
+            shapes = RemoteIconButtonDefaults.shapes(RemoteButtonDefaults.shape),
         ) {
             RemoteIcon(imageVector = imageVector, contentDescription = null)
         }
