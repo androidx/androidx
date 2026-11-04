@@ -26,9 +26,6 @@ import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.filters.LargeTest
 import androidx.test.rule.GrantPermissionRule
 import androidx.testutils.withActivity
@@ -99,7 +96,7 @@ class TakePictureTest(private val implName: String) {
         with(ActivityScenario.launch<CameraXActivity>(launchIntent)) {
             use { // Ensure ActivityScenario is cleaned up properly.
                 waitForViewfinderIdle()
-                onView(withId(R.id.Picture)).perform(click())
+                clickView(R.id.Picture)
                 // Immediately .recreate() this allows the test to reach the onError callback path.
                 // Note, moveToState(DESTROYED) doesn't trigger the same code path.
                 it!!.recreate()
@@ -123,7 +120,7 @@ class TakePictureTest(private val implName: String) {
                 }
                     .apply {
                         for (i in 5 downTo 1) {
-                            onView(withId(R.id.Picture)).perform(click())
+                            clickView(R.id.Picture)
                         }
                         await(20, TimeUnit.SECONDS)
                     }
