@@ -221,7 +221,7 @@ invariants:
   - Annotate chart-dependent device tests with
     `@LabTestRule.LabTestFrontCamera` / `@LabTestRule.LabTestRearCamera`; save
     debug frames to `/sdcard/Pictures/test_output/<name>.png` via
-    `LabTestUtil.saveTestBitmap`.
+    `LabTestUtil.saveTestBitmap` (or study/modify test code for video export).
   - Never use `Thread.sleep()` for async sync; use `CountDownLatch`,
     `CompletableDeferred`, or `Semaphore`. Always call
     `DeferrableSurface.close()` in `@After` to prevent Robolectric

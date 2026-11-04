@@ -3,13 +3,14 @@ name: camerax-testing
 description: >-
   Guides pre-coding CameraX codebase/call-path/internal-API research, existing
   test and fake case studies, authoring and running Robolectric unit tests and
-  instrumentation device tests, Truth/fakes conventions, leak debugging, and
-  Test Pyramid migration. Use when researching CameraX call paths, internal
-  functions, or existing test cases before modifying code, answering CameraX
-  testing questions, writing/running/migrating unit or androidTest tests, or
-  debugging test resource leaks. Don't use for OEM hardware quirk scoping (use
-  camerax-triage-and-quirks) or multi-model code review (use
-  camerax-code-review).
+  instrumentation device tests, exporting test bitmaps/videos/frames for visual
+  analysis, Truth/fakes conventions, leak debugging, and Test Pyramid migration.
+  Use when researching CameraX call paths, internal functions, or existing test
+  cases before modifying code, answering CameraX testing questions,
+  writing/running/migrating unit or androidTest tests, dumping captured images
+  or recorded videos from device tests, or debugging test resource leaks. Don't
+  use for OEM hardware quirk scoping (use camerax-triage-and-quirks) or
+  multi-model code review (use camerax-code-review).
 ---
 
 # CameraX Testing, Troubleshooting & Test Pyramid Guide
@@ -43,16 +44,39 @@ CameraX involves complex hardware interactions, making robust testing essential.
   the camera lens physically facing the test chart inside lab test boxes. Local
   execution on DUT requires setting debug tags (`adb shell setprop
   log.tag.frontCameraE2E DEBUG` or `rearCameraE2E DEBUG`).
-- **Storing & Actively Analyzing Test Output Images**: To inspect output frames,
-  debug 3A convergence (AF/AE/AWB), verify image analysis, or triage failures
-  across CameraX use cases (`Preview`, `ImageAnalysis`, `ImageCapture`,
-  `VideoCapture`), save bitmaps or output frames to
-  `/sdcard/Pictures/test_output/<name>.png` (e.g. via
-  `LabTestUtil.saveTestBitmap`). In automated testing, test runners pull files
-  from this directory and attach them to the test result artifacts for visual
-  inspection. When investigating test failures, developers and AI agents must
-  examine the test code to understand its physical/visual preconditions and
+- **Storing & Actively Analyzing Test Output Images & Videos**: To inspect
+  output frames, recorded video clips, debug 3A convergence (AF/AE/AWB), verify
+  image analysis, or triage failures across CameraX use cases (`Preview`,
+  `ImageAnalysis`, `ImageCapture`, `VideoCapture`), save bitmaps, videos, or
+  output frames to the scoped `/sdcard/Pictures/test_output/` directory (e.g.
+  via `LabTestUtil.saveTestBitmap`; avoid scanning broad device folders like
+  `/sdcard/` or `/sdcard/Movies/`). In automated testing, test runners pull
+  files from this directory and attach them to the test result artifacts for
+  visual inspection. When investigating test failures, developers and AI agents
+  must examine the test code to understand its physical/visual preconditions and
   inspect captured images:
+  - **Still Images (`LabTestUtil.saveTestBitmap`)**: Saves a `Bitmap` to
+    `/sdcard/Pictures/test_output/<name>.png` (or `.jpg`/`.webp` via
+    `FileUtil.saveBitmap` / `FileUtil.saveBitmapToMediaStore`).
+  - **Custom Artifacts, Videos & Sampled Frames (Study & Temporarily Modify
+    Test/Helper Code)**: Never reply "unable to do so" when asked to dump or
+    pull a video recording (`.mp4`), extracted frames, or custom output from a
+    device test. Instead, study `LabTestUtil.kt`
+    (`LAB_TEST_OUTPUT_RELATIVE_PATH = "Pictures/test_output"` /
+    `DEFAULT_OUTPUT_DIR`), `FileUtil.kt`, and the target test class, and
+    **temporarily modify the test or helper code** to copy the file (or extract
+    frames via `MediaMetadataRetriever.getFrameAtTime` and pass them to
+    `LabTestUtil.saveTestBitmap`) into `/sdcard/Pictures/test_output/` (or
+    `MediaStore` `RELATIVE_PATH = "Pictures/test_output"` on API 29+) before
+    `@Rule val temporaryFolder = TemporaryFolder(...)` (e.g. in
+    `VideoRecordingTestBase`) deletes `result.file` (or temporarily adjust the
+    test runner's pulled folder config per `AGENTS_INTERNAL.md`). Prefer real
+    file-recording suites (e.g., `VideoRecordingTest` / `VideoRecordingTestBase`
+    in `camera-video` or `VideoRecordingEffectTest` /
+    `VideoRecordingFrameDropTest` in `camera/integration-tests/coretestapp`)
+    over fake-surface tests (`VideoCaptureDeviceTest`), guard exports to a
+    single camera iteration (e.g., `CameraSelector.DEFAULT_BACK_CAMERA`), and
+    revert temporary debug modifications before final CL upload.
   - **Physical Fixture / Lab Environment Issue**: Missing or misaligned test
     chart, pitch black frame (box LED lights unpowered or failed), camera lens
     pointed at enclosure wall/ceiling (device improperly mounted or wrong lens
@@ -100,10 +124,21 @@ CameraX involves complex hardware interactions, making robust testing essential.
 - **Internal Guidelines & Testing**: When operating in an environment where
   internal tools are configured, refer to `AGENTS_INTERNAL.md` (located in the
   directory specified by the `CAMERAX_INTERNAL_TOOLS_DIR` environment variable,
-  if available). It serves as an extension of this guide, providing
-  supplementary coding guidelines, extended documentation links, and
-  instructions to use physical lab device testing infrastructure to verify
-  changes when accessible.
+  if available) and its sibling `skills/` directory. It serves as an extension
+  of this guide, providing supplementary coding guidelines, extended
+  documentation links, and instructions to use physical lab device testing
+  infrastructure to verify changes when accessible:
+  1. Check `$CAMERAX_INTERNAL_TOOLS_DIR/AGENTS_INTERNAL.md` when the environment
+     variable is set.
+  2. When starting from a repository checkout where
+     `$CAMERAX_INTERNAL_TOOLS_DIR` is unset, use `skill_search` (e.g., querying
+     for CameraX physical lab device tests or vision triage skills) or
+     `code_search` (`f:camerax.*AGENTS_INTERNAL\.md$`) if those discovery tools
+     are available in the agent host.
+  3. If neither `$CAMERAX_INTERNAL_TOOLS_DIR` nor internal discovery tools are
+     available, report that internal lab runner tools are not configured in the
+     current environment and use local connected devices (`connectedCheck`) or
+     FTL tasks instead.
 
 ## Skill: CameraX Troubleshooting & Code Verification
 
