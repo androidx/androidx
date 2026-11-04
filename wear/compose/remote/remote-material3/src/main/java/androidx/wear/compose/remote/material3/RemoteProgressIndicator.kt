@@ -16,6 +16,9 @@
 package androidx.wear.compose.remote.material3
 
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
+import androidx.compose.remote.creation.compose.layout.RemoteOffset
+import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.shaders.solidColor
 import androidx.compose.remote.creation.compose.state.RemoteAnimationSpec
@@ -24,11 +27,15 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
+import androidx.compose.remote.creation.compose.state.asin
+import androidx.compose.remote.creation.compose.state.clamp
 import androidx.compose.remote.creation.compose.state.max
+import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import kotlin.math.PI
 
 /**
  * Returns [progress] animated by [animationSpec] (by default the slow effects spec of
@@ -48,6 +55,70 @@ internal fun animateProgress(
     } else {
         animateRemoteFloatAsState(targetValue = progress, animationSpec = animationSpec)
     }
+
+/**
+ * Returns the sweep angle in degrees, in (0, 360], of an arc drawn clockwise from [startAngle] to
+ * [endAngle]. Angles that are equal modulo 360 degrees give a full 360 degree circle.
+ */
+internal fun circularFullSweep(startAngle: RemoteFloat, endAngle: RemoteFloat): RemoteFloat =
+    360f.rf - ((startAngle - endAngle) % 360f.rf + 360f.rf) % 360f.rf
+
+/** The geometry of the ring of a circular progress indicator, centered in its canvas. */
+internal class CircularArcGeometry(
+    /** The stroke width in px, with a negative stroke width coerced to 0. */
+    val strokePx: RemoteFloat,
+    /** Whether the stroke width is 0 or negative, in which case nothing is drawn. */
+    val isZeroStroke: RemoteBoolean,
+    /** The top left of the bounds of the arc, inset by half the stroke to fit the canvas. */
+    val topLeft: RemoteOffset,
+    /** The size of the bounds of the arc. */
+    val arcSize: RemoteSize,
+    /** The center of the arc. */
+    val arcCenter: RemoteOffset,
+    /** The radius of the arc, to the middle of the stroke. */
+    val arcRadius: RemoteFloat,
+    /**
+     * The sweep angle in degrees between the ends of two arcs, so that their round caps are gap
+     * size apart.
+     */
+    val gapSweep: RemoteFloat,
+)
+
+/**
+ * Returns the [CircularArcGeometry] of a circular progress indicator with the given [strokeWidth]
+ * and [gapSize], drawn in the largest square centered in this canvas.
+ */
+internal fun RemoteDrawScope.circularArcGeometry(
+    strokeWidth: RemoteDp,
+    gapSize: RemoteDp,
+): CircularArcGeometry {
+    val coercedStrokeWidth = max(0.rdp, strokeWidth)
+    val strokePx = coercedStrokeWidth.toPx()
+    val gapSizePx = gapSize.toPx()
+    val diameter = min(width, height)
+    val diameterOffset = strokePx / 2f.rf
+    val arcDimen = diameter - (diameterOffset * 2f.rf)
+    val topLeft =
+        RemoteOffset(
+            diameterOffset + (width - diameter) / 2f.rf,
+            diameterOffset + (height - diameter) / 2f.rf,
+        )
+    val arcRadius = arcDimen / 2f.rf
+    val chordRatio =
+        clamp((strokePx + gapSizePx) / max(0.001f.rf, diameter - strokePx), 0f.rf, 1f.rf)
+    return CircularArcGeometry(
+        strokePx = strokePx,
+        isZeroStroke = coercedStrokeWidth.isLessThanOrEqualTo(0.rdp),
+        topLeft = topLeft,
+        arcSize = RemoteSize(arcDimen, arcDimen),
+        arcCenter = RemoteOffset(topLeft.x + arcRadius, topLeft.y + arcRadius),
+        arcRadius = arcRadius,
+        gapSweep = asin(chordRatio) * (360f / PI.toFloat()).rf,
+    )
+}
+
+/** Sweep angle used to draw a dot with a round stroke cap. */
+internal val MinDotSweep: RemoteFloat = 0.05f.rf
 
 /** Contains defaults for Remote Progress Indicators. */
 public object RemoteProgressIndicatorDefaults {
