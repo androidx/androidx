@@ -16,19 +16,18 @@
 
 package androidx.compose.remote.creation.compose.text
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import kotlin.jvm.JvmInline
 
 /** Configuration for breaking lines in Remote Compose text layout. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
 @JvmInline
 public value class RemoteLineBreak internal constructor(internal val value: Int) {
     override fun toString(): String =
         when (this) {
+            Unspecified -> "RemoteLineBreak.Unspecified"
             Simple -> "RemoteLineBreak.Simple"
             Paragraph -> "RemoteLineBreak.Paragraph"
             Heading -> "RemoteLineBreak.Heading"
@@ -36,6 +35,9 @@ public value class RemoteLineBreak internal constructor(internal val value: Int)
         }
 
     public companion object {
+        /** Constant for when no line breaking strategy is specified. */
+        @Stable public val Unspecified: RemoteLineBreak = RemoteLineBreak(Int.MIN_VALUE)
+
         /** Basic, fast line breaking suitable for input fields. */
         @Stable public val Simple: RemoteLineBreak = RemoteLineBreak(CoreText.BREAK_STRATEGY_SIMPLE)
 

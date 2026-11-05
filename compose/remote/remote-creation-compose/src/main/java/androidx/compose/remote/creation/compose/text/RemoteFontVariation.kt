@@ -16,12 +16,10 @@
 
 package androidx.compose.remote.creation.compose.text
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.runtime.Immutable
 
 /** Font variation settings for variable fonts, with axis values as [RemoteFloat]s. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object RemoteFontVariation {
     /**
      * A single variable font axis setting, such as `Setting("wght", weight)`.

@@ -16,25 +16,27 @@
 
 package androidx.compose.remote.creation.compose.text
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import kotlin.jvm.JvmInline
 
 /** Configuration for automatic hyphenation in Remote Compose text layout. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
 @JvmInline
 public value class RemoteHyphens internal constructor(internal val value: Int) {
     override fun toString(): String =
         when (this) {
+            Unspecified -> "RemoteHyphens.Unspecified"
             None -> "RemoteHyphens.None"
             Auto -> "RemoteHyphens.Auto"
             else -> "Invalid($value)"
         }
 
     public companion object {
+        /** Constant for when no hyphens frequency is specified. */
+        @Stable public val Unspecified: RemoteHyphens = RemoteHyphens(Int.MIN_VALUE)
+
         /** Do not automatically break words with hyphens. */
         @Stable public val None: RemoteHyphens = RemoteHyphens(CoreText.HYPHENATION_FREQUENCY_NONE)
 
