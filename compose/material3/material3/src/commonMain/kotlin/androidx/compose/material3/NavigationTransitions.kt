@@ -56,7 +56,7 @@ import kotlin.math.min
  *
  * @sample androidx.compose.material3.samples.HorizontalSharedAxisTransitionSample
  */
-public object HorizontalSharedAxisNavigationTransition {
+public object HorizontalSharedAxisNavigationTransitions {
 
     /**
      * The recommended scrim color for horizontal shared axis predictive back transitions.
@@ -109,7 +109,7 @@ public object HorizontalSharedAxisNavigationTransition {
      * @param backEvent provider of the ongoing [NavigationEvent].
      * @param density the [Density] used to convert display bounds margins to pixels.
      * @param scrimColor color of the scrim overlay applied to the entering content. Use
-     *   [HorizontalSharedAxisNavigationTransition.scrimColor] for the recommended scrim color that
+     *   [HorizontalSharedAxisNavigationTransitions.scrimColor] for the recommended scrim color that
      *   adapts to the theme.
      */
     public fun predictiveBackTransform(
@@ -191,7 +191,7 @@ public object HorizontalSharedAxisNavigationTransition {
  *
  * @sample androidx.compose.material3.samples.FadeThroughTransitionSample
  */
-public object FadeThroughNavigationTransition {
+public object FadeThroughNavigationTransitions {
 
     /**
      * Creates a [ContentTransform] for a fade through transition.

@@ -136,7 +136,7 @@ class NavigationTransitionsTest {
 
     @Test
     fun horizontalSharedAxisForwardTransform_configuresSlideAndFade() {
-        val spec = HorizontalSharedAxisNavigationTransition.forwardTransform()
+        val spec = HorizontalSharedAxisNavigationTransitions.forwardTransform()
         val fullSize = IntSize(width = 1000, height = 2000)
 
         assertThat(spec.targetContentEnter.config.slide?.slideOffset?.invoke(fullSize))
@@ -150,7 +150,7 @@ class NavigationTransitionsTest {
 
     @Test
     fun horizontalSharedAxisBackwardTransform_configuresSlideFadeScaleAndZIndex() {
-        val spec = HorizontalSharedAxisNavigationTransition.backwardTransform()
+        val spec = HorizontalSharedAxisNavigationTransitions.backwardTransform()
         val fullSize = IntSize(width = 1000, height = 2000)
 
         assertThat(spec.targetContentEnter.config.slide?.slideOffset?.invoke(fullSize))
@@ -178,7 +178,7 @@ class NavigationTransitionsTest {
             )
 
         val mutableTransform =
-            HorizontalSharedAxisNavigationTransition.predictiveBackTransform(
+            HorizontalSharedAxisNavigationTransitions.predictiveBackTransform(
                 backEvent = { backEventState.value },
                 density = Density(1f),
                 scrimColor = Color.Black.copy(alpha = 0.8f),
@@ -188,7 +188,7 @@ class NavigationTransitionsTest {
 
     @Test
     fun fadeThroughTransform_configuresFadeAndScale() {
-        val spec = FadeThroughNavigationTransition.transform()
+        val spec = FadeThroughNavigationTransitions.transform()
         assertThat(spec.targetContentEnter.config.fade?.alpha).isEqualTo(0f)
         assertThat(spec.initialContentExit.config.fade?.alpha).isEqualTo(0f)
         assertThat(spec.targetContentEnter.config.scale?.scale).isEqualTo(0.8f)
@@ -208,7 +208,7 @@ class NavigationTransitionsTest {
             )
 
         val mutableTransform =
-            FadeThroughNavigationTransition.predictiveBackTransform(
+            FadeThroughNavigationTransitions.predictiveBackTransform(
                 backEvent = { backEventState.value },
                 density = Density(1f),
             )
