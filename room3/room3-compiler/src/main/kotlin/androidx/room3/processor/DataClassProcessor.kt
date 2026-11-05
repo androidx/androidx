@@ -118,8 +118,7 @@ private constructor(
     }
 
     private fun doProcess(): DataClass {
-        if (!element.validate()) {
-            context.reportMissingTypeReference(element.qualifiedName)
+        if (!context.validateTypeElement(element)) {
             return delegate.createDataClass(
                 element = element,
                 declaredType = element.type,

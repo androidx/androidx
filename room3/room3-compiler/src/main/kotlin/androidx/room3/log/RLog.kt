@@ -112,6 +112,7 @@ class RLog(
             messages.forEach { (kind, diagnosticMessages) ->
                 diagnosticMessages
                     .filter { filterPredicate(kind, it.msg) }
+                    .distinct()
                     .forEach { diagnosticMessage ->
                         printToMessager(
                             context.logger.messager,

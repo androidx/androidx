@@ -20,6 +20,7 @@ import androidx.room3.RewriteQueriesToDropUnusedColumns
 import androidx.room3.compiler.codegen.CodeLanguage
 import androidx.room3.compiler.processing.XElement
 import androidx.room3.compiler.processing.XProcessingEnv
+import androidx.room3.compiler.processing.XTypeElement
 import androidx.room3.ext.RoomTypeNames
 import androidx.room3.log.RLog
 import androidx.room3.parser.optimization.RemoveUnusedColumnQueryRewriter
@@ -237,6 +238,28 @@ private constructor(
             "${RLog.MISSING_TYPE_PREFIX}: Element '$containerName' references a type that is " +
                 "not present"
         )
+    }
+
+    fun validateTypeElement(element: XTypeElement): Boolean {
+        val hasInvalidProps =
+            element
+                .getAllPropertiesIncludingPrivateSupers()
+                .filterNot { it.validate() }
+                .onEach { prop ->
+                    logger.e(
+                        prop,
+                        "${RLog.MISSING_TYPE_PREFIX}: Element '${prop.name}' references a type that is not present",
+                    )
+                }
+                .count() > 0
+        return when {
+            hasInvalidProps -> false
+            !element.validate() -> {
+                reportMissingTypeReference(element.qualifiedName)
+                false
+            }
+            else -> true
+        }
     }
 
     enum class ProcessorOptions(val argName: String) {

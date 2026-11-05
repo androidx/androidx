@@ -57,8 +57,7 @@ internal constructor(
     }
 
     private fun doProcess(): Entity {
-        if (!element.validate()) {
-            context.reportMissingTypeReference(element.qualifiedName)
+        if (!context.validateTypeElement(element)) {
             return Entity(
                 element = element,
                 tableName = element.name,
