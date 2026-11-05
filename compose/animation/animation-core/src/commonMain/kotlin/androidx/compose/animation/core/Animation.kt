@@ -90,6 +90,8 @@ internal const val MillisToNanos: Long = 1_000_000L
 
 internal const val SecondsToMillis: Long = 1_000L
 
+internal const val SecondsToNanos: Long = 1_000_000_000L
+
 /**
  * Returns the velocity of the animation at the given play time.
  *

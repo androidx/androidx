@@ -55,6 +55,29 @@ public fun estimateAnimationDurationMillis(
     )
 }
 
+/** Returns the estimated time in nanoseconds that the spring will last be at [delta] */
+internal fun estimateAnimationDurationNanos(
+    stiffness: Float,
+    dampingRatio: Float,
+    initialVelocity: Float,
+    initialDisplacement: Float,
+    delta: Float,
+): Long {
+    if (dampingRatio == 0f) {
+        // No damping, duration is infinite (max value).
+        return MAX_LONG_MILLIS * MillisToNanos
+    }
+
+    return (estimateAnimationDurationSeconds(
+            stiffness = stiffness.toDouble(),
+            dampingRatio = dampingRatio.toDouble(),
+            initialVelocity = initialVelocity.toDouble(),
+            initialDisplacement = initialDisplacement.toDouble(),
+            delta = delta.toDouble(),
+        ) * SecondsToNanos)
+        .toLong()
+}
+
 /** Returns the estimated time that the spring will last be at [delta] */
 @Suppress("BanRestrictTo")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -65,6 +88,24 @@ public fun estimateAnimationDurationMillis(
     initialDisplacement: Double,
     delta: Double,
 ): Long {
+    return (estimateAnimationDurationSeconds(
+            stiffness = stiffness,
+            dampingRatio = dampingRatio,
+            initialVelocity = initialVelocity,
+            initialDisplacement = initialDisplacement,
+            delta = delta,
+        ) * SecondsToMillis)
+        .toLong()
+}
+
+/** Returns the estimated time in seconds that the spring will last be at [delta] */
+private fun estimateAnimationDurationSeconds(
+    stiffness: Double,
+    dampingRatio: Double,
+    initialVelocity: Double,
+    initialDisplacement: Double,
+    delta: Double,
+): Double {
     val dampingCoefficient = 2.0 * dampingRatio * sqrt(stiffness)
 
     // Compute the roots of the polynomial [a]x^2+[b]x+[c]=0 which may be complex.
@@ -77,7 +118,7 @@ public fun estimateAnimationDurationMillis(
     val firstRootImaginary = partialRootImaginary * 0.5
     val secondRootReal = (-dampingCoefficient - partialRootReal) * 0.5
 
-    return estimateDurationInternal(
+    return estimateDurationSeconds(
         firstRootReal,
         firstRootImaginary,
         secondRootReal,
@@ -314,27 +355,47 @@ private fun estimateDurationInternal(
     initialPosition: Double,
     delta: Double,
 ): Long {
+    return (estimateDurationSeconds(
+            firstRootReal,
+            firstRootImaginary,
+            secondRootReal,
+            dampingRatio,
+            initialVelocity,
+            initialPosition,
+            delta,
+        ) * 1000.0)
+        .toLong()
+}
+
+private fun estimateDurationSeconds(
+    firstRootReal: Double,
+    firstRootImaginary: Double,
+    secondRootReal: Double,
+    dampingRatio: Double,
+    initialVelocity: Double,
+    initialPosition: Double,
+    delta: Double,
+): Double {
     if (initialPosition == 0.0 && initialVelocity == 0.0) {
-        return 0L
+        return 0.0
     }
 
     val v0 = if (initialPosition < 0) -initialVelocity else initialVelocity
     val p0 = abs(initialPosition)
 
-    return (when {
-            dampingRatio > 1.0 ->
-                estimateOverDamped(firstRootReal, secondRootReal, p0 = p0, v0 = v0, delta = delta)
-            dampingRatio < 1.0 ->
-                estimateUnderDamped(
-                    firstRootReal,
-                    firstRootImaginary,
-                    v0 = v0,
-                    p0 = p0,
-                    delta = delta,
-                )
-            else -> estimateCriticallyDamped(firstRootReal, p0 = p0, v0 = v0, delta = delta)
-        } * 1000.0)
-        .toLong()
+    return when {
+        dampingRatio > 1.0 ->
+            estimateOverDamped(firstRootReal, secondRootReal, p0 = p0, v0 = v0, delta = delta)
+        dampingRatio < 1.0 ->
+            estimateUnderDamped(
+                firstRootReal,
+                firstRootImaginary,
+                v0 = v0,
+                p0 = p0,
+                delta = delta,
+            )
+        else -> estimateCriticallyDamped(firstRootReal, p0 = p0, v0 = v0, delta = delta)
+    }
 }
 
 private inline fun iterateNewtonsMethod(
