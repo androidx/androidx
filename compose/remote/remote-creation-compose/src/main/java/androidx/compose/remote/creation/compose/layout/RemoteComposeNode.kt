@@ -29,7 +29,6 @@ import androidx.compose.remote.creation.compose.modifier.resolveBottom
 import androidx.compose.remote.creation.compose.modifier.resolveLeft
 import androidx.compose.remote.creation.compose.modifier.resolveRight
 import androidx.compose.remote.creation.compose.modifier.resolveTop
-import androidx.compose.remote.creation.compose.state.PlatformRemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.rf
@@ -78,7 +77,7 @@ internal abstract class RemoteComposeNode : RemoteComponentTokenProvider {
         return OverriddenScope(
             parentScope = scope,
             remoteDensity = remoteDensity,
-            remoteLayoutDirection = scope.remoteLayoutDirection,
+            layoutDirection = scope.layoutDirection,
             node = this,
         )
     }
@@ -363,8 +362,8 @@ internal fun shouldReverse(
 internal class OverriddenScope(
     override val parentScope: RemoteStateScope,
     override val remoteDensity: RemoteDensity,
-    override val remoteLayoutDirection: RemoteLayoutDirection,
+    override val layoutDirection: RemoteLayoutDirection,
     val node: RemoteComposeNode,
-) : PlatformRemoteStateScope {
+) : RemoteStateScope {
     override fun resolveComponentToken(): RemoteComponentToken? = node.getOrCreateComponentToken()
 }

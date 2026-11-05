@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.modifier
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior
+import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteOutline
@@ -29,7 +30,6 @@ import androidx.compose.remote.creation.compose.state.RemoteCompositingStrategy
 import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -129,7 +129,7 @@ class GraphicsLayerModifierTest {
             object : RemoteShape {
                 override fun createOutline(
                     size: RemoteSize,
-                    layoutDirection: LayoutDirection,
+                    layoutDirection: RemoteLayoutDirection,
                     density: RemoteDensity,
                 ): RemoteOutline {
                     throw UnsupportedOperationException()

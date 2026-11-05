@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("ProfileKt")
+
 package androidx.compose.remote.creation.compose.capture
 
 import androidx.annotation.RestrictTo

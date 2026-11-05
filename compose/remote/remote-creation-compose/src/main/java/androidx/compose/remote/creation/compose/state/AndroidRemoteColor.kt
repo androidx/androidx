@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("AndroidRemoteColorKt")
+
 package androidx.compose.remote.creation.compose.state
 
 import android.R

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("PendingIntentActionKt")
+
 package androidx.compose.remote.creation.compose.action
 
 import android.app.PendingIntent

@@ -16,10 +16,7 @@
 
 package androidx.compose.remote.creation.compose.layout
 
-import androidx.annotation.RestrictTo
-
-/** A type representing the layout direction in Remote Compose. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** Direction in which layout proceeds horizontally. */
 public enum class RemoteLayoutDirection {
     /** Horizontal layout direction is from Left to Right. */
     Ltr,

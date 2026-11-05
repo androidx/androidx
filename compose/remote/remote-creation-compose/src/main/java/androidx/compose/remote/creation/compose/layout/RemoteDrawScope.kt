@@ -39,7 +39,7 @@ import androidx.compose.remote.creation.compose.state.rf
 public open class RemoteDrawScope
 internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val remoteCanvas: RemoteCanvas
-) : RemoteStateScope by remoteCanvas {
+) : RemoteStateScope by remoteCanvas.creationState {
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val remoteComposeCreationState: RemoteComposeCreationState
         get() = remoteCanvas.creationState

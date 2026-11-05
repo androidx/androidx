@@ -245,13 +245,13 @@ internal class RemoteTextNode : RemoteComposeNode() {
         val resolvedTextAlign =
             when (textAlign) {
                 RemoteTextAlign.Start ->
-                    if (scope.remoteLayoutDirection == RemoteLayoutDirection.Rtl) {
+                    if (scope.layoutDirection == RemoteLayoutDirection.Rtl) {
                         RemoteTextAlign.End
                     } else {
                         RemoteTextAlign.Start
                     }
                 RemoteTextAlign.End ->
-                    if (scope.remoteLayoutDirection == RemoteLayoutDirection.Rtl) {
+                    if (scope.layoutDirection == RemoteLayoutDirection.Rtl) {
                         RemoteTextAlign.Start
                     } else {
                         RemoteTextAlign.End

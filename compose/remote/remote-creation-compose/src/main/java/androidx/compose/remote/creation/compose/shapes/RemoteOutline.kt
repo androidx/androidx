@@ -197,7 +197,7 @@ private fun RemoteDrawScope.resolveRoundedCorners(outline: RemoteOutline.Rounded
     val bottom = top + (outline.size?.height ?: height)
 
     // Remap corner radii based on layout direction
-    return when (remoteCanvas.remoteLayoutDirection) {
+    return when (layoutDirection) {
         RemoteLayoutDirection.Ltr ->
             RoundedCorners(
                 left = left,

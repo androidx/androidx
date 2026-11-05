@@ -2004,8 +2004,7 @@ class CaptureRemoteDocumentTest {
                 profile = RcPlatformProfiles.ANDROIDX,
             ) {
                 capturedLocal = LocalRemoteLayoutDirection.current
-                capturedCreationState =
-                    LocalRemoteComposeCreationState.current.remoteLayoutDirection
+                capturedCreationState = LocalRemoteComposeCreationState.current.layoutDirection
                 RemoteBox(modifier = RemoteModifier.fillMaxSize())
             }
             assertEquals(RemoteLayoutDirection.Rtl, capturedLocal)
