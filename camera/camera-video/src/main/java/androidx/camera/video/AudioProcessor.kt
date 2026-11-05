@@ -16,6 +16,7 @@
 
 package androidx.camera.video
 
+import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import java.nio.ByteBuffer
@@ -81,46 +82,54 @@ import java.nio.ByteOrder
  * @see PassthroughAudioProcessor
  * @see Recorder.Builder.setAudioProcessors
  */
-// TODO: b/305067133 - Make this public in next alpha
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalAudioApi
 public interface AudioProcessor {
-
-    public companion object {
-        /**
-         * Provides an empty direct [ByteBuffer] with capacity 0 and [ByteOrder.nativeOrder].
-         *
-         * Returned by [getOutput] when no processed output is currently available.
-         */
-        @JvmField
-        public val EMPTY_BUFFER: ByteBuffer =
-            ByteBuffer.allocateDirect(0).order(ByteOrder.nativeOrder())
-    }
 
     /**
      * Defines the format of an audio stream processed by an [AudioProcessor].
-     * * **Supported encodings**: Linear PCM encodings defined in [android.media.AudioFormat] (such
-     *   as [android.media.AudioFormat.ENCODING_PCM_16BIT] or
-     *   [android.media.AudioFormat.ENCODING_PCM_FLOAT]).
+     * * **Supported encodings**: The linear PCM encodings listed for [encoding].
      * * **Frame alignment**: One audio frame consists of one sample across all channels.
      *
      * @property sampleRate audio sample rate in Hertz (e.g. `44100` or `48000`)
      * @property channelCount number of audio channels (e.g. `1` for mono, `2` for stereo)
-     * @property encoding audio PCM encoding format such as
-     *   [android.media.AudioFormat.ENCODING_PCM_16BIT]
-     * @throws IllegalArgumentException if [sampleRate] or [channelCount] is not positive, or if
-     *   [encoding] is not one of [android.media.AudioFormat.ENCODING_PCM_8BIT],
+     * @property encoding linear PCM encoding, one of [android.media.AudioFormat.ENCODING_PCM_8BIT],
      *   [android.media.AudioFormat.ENCODING_PCM_16BIT],
      *   [android.media.AudioFormat.ENCODING_PCM_24BIT_PACKED],
      *   [android.media.AudioFormat.ENCODING_PCM_32BIT], or
      *   [android.media.AudioFormat.ENCODING_PCM_FLOAT]
+     * @throws IllegalArgumentException if [sampleRate] or [channelCount] is not positive, or if
+     *   [encoding] is not one of the supported encodings
      */
-    public class AudioFormat
-    @JvmOverloads
-    constructor(
+    @ExperimentalAudioApi
+    public class AudioFormat(
         @param:IntRange(from = 1) @get:IntRange(from = 1) public val sampleRate: Int,
         @param:IntRange(from = 1) @get:IntRange(from = 1) public val channelCount: Int,
-        public val encoding: Int = android.media.AudioFormat.ENCODING_PCM_16BIT,
+        @param:Encoding @get:Encoding public val encoding: Int,
     ) {
+        /**
+         * Creates an audio format with [android.media.AudioFormat.ENCODING_PCM_16BIT] encoding.
+         *
+         * @param sampleRate audio sample rate in Hertz (e.g. `44100` or `48000`)
+         * @param channelCount number of audio channels (e.g. `1` for mono, `2` for stereo)
+         * @throws IllegalArgumentException if [sampleRate] or [channelCount] is not positive
+         */
+        public constructor(
+            @IntRange(from = 1) sampleRate: Int,
+            @IntRange(from = 1) channelCount: Int,
+        ) : this(sampleRate, channelCount, android.media.AudioFormat.ENCODING_PCM_16BIT)
+
+        /** The linear PCM encodings supported by [AudioFormat]. */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @Retention(AnnotationRetention.SOURCE)
+        @IntDef(
+            android.media.AudioFormat.ENCODING_PCM_8BIT,
+            android.media.AudioFormat.ENCODING_PCM_16BIT,
+            android.media.AudioFormat.ENCODING_PCM_24BIT_PACKED,
+            android.media.AudioFormat.ENCODING_PCM_32BIT,
+            android.media.AudioFormat.ENCODING_PCM_FLOAT,
+        )
+        public annotation class Encoding
+
         init {
             require(sampleRate > 0) { "sampleRate must be greater than 0: $sampleRate" }
             require(channelCount > 0) { "channelCount must be greater than 0: $channelCount" }
@@ -170,6 +179,7 @@ public interface AudioProcessor {
      * [AudioStats.AUDIO_STATE_SOURCE_ERROR] and recording will proceed without audio. The exception
      * can be inspected via [AudioStats.getErrorCause].
      */
+    @ExperimentalAudioApi
     public class UnsupportedAudioFormatException : Exception {
         /**
          * Holds the unsupported [AudioFormat] that caused this exception, or `null` if unspecified.
@@ -177,18 +187,37 @@ public interface AudioProcessor {
         public val audioFormat: AudioFormat?
 
         /**
-         * Creates an exception with an optional detail [message], [audioFormat], and [cause].
+         * Creates an exception with a detail [message].
+         *
+         * @param message detail message
+         */
+        public constructor(message: String?) : this(message, null, null)
+
+        /**
+         * Creates an exception with a detail [message] and the unsupported [audioFormat].
+         *
+         * @param message detail message, or `null` to use a default message describing
+         *   [audioFormat]
+         * @param audioFormat unsupported audio format that caused this exception
+         */
+        public constructor(
+            message: String?,
+            audioFormat: AudioFormat?,
+        ) : this(message, audioFormat, null)
+
+        /**
+         * Creates an exception with a detail [message], the unsupported [audioFormat], and the
+         * underlying [cause].
          *
          * @param message detail message, or `null` to use a default message describing
          *   [audioFormat]
          * @param audioFormat unsupported audio format that caused this exception
          * @param cause underlying cause, such as an error from an adapted audio pipeline
          */
-        @JvmOverloads
         public constructor(
             message: String?,
-            audioFormat: AudioFormat? = null,
-            cause: Throwable? = null,
+            audioFormat: AudioFormat?,
+            cause: Throwable?,
         ) : super(message ?: audioFormat?.let { "Unsupported audio format: $it" }, cause) {
             this.audioFormat = audioFormat
         }
@@ -234,12 +263,12 @@ public interface AudioProcessor {
      * Returns a direct buffer containing processed audio data.
      *
      * Called synchronously on the audio thread after [queueInput]. May be called repeatedly until
-     * [EMPTY_BUFFER] is returned to drain all output frames produced for the queued input. The
+     * an empty buffer is returned to drain all output frames produced for the queued input. The
      * returned buffer must remain valid and unmodified until the next call to [queueInput],
      * [getOutput], [flush], or [reset].
      *
-     * @return direct buffer containing processed audio data, or [EMPTY_BUFFER] if no output is
-     *   ready
+     * @return direct buffer containing processed audio data, or a buffer with no remaining data if
+     *   no output is ready
      */
     public fun getOutput(): ByteBuffer
 

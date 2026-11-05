@@ -1118,7 +1118,7 @@ class AudioSourceTest {
             onReset = { pendingBytes = ByteArray(0) },
         ) { inputBuffer ->
             if (!inputBuffer.hasRemaining()) {
-                return@createAudioProcessor AudioProcessor.EMPTY_BUFFER
+                return@createAudioProcessor EMPTY_AUDIO_BUFFER
             }
             val incomingBytes = ByteArray(inputBuffer.remaining())
             inputBuffer.get(incomingBytes)
@@ -1188,10 +1188,10 @@ class AudioSourceTest {
         onConfigure: (AudioProcessor.AudioFormat) -> AudioProcessor.AudioFormat = { it },
         onFlush: () -> Unit = {},
         onReset: () -> Unit = {},
-        processBlock: (inputBuffer: ByteBuffer) -> ByteBuffer = { AudioProcessor.EMPTY_BUFFER },
+        processBlock: (inputBuffer: ByteBuffer) -> ByteBuffer = { EMPTY_AUDIO_BUFFER },
     ): AudioProcessor =
         object : AudioProcessor {
-            private var outputBuffer: ByteBuffer = AudioProcessor.EMPTY_BUFFER
+            private var outputBuffer: ByteBuffer = EMPTY_AUDIO_BUFFER
 
             override fun configure(
                 inputAudioFormat: AudioProcessor.AudioFormat
@@ -1203,17 +1203,17 @@ class AudioSourceTest {
 
             override fun getOutput(): ByteBuffer {
                 val out = outputBuffer
-                outputBuffer = AudioProcessor.EMPTY_BUFFER
+                outputBuffer = EMPTY_AUDIO_BUFFER
                 return out
             }
 
             override fun flush() {
-                outputBuffer = AudioProcessor.EMPTY_BUFFER
+                outputBuffer = EMPTY_AUDIO_BUFFER
                 onFlush()
             }
 
             override fun reset() {
-                outputBuffer = AudioProcessor.EMPTY_BUFFER
+                outputBuffer = EMPTY_AUDIO_BUFFER
                 onReset()
             }
         }

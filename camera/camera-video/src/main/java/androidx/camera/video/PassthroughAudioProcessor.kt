@@ -15,7 +15,7 @@
  */
 package androidx.camera.video
 
-import androidx.annotation.RestrictTo
+import androidx.camera.video.internal.audio.EMPTY_AUDIO_BUFFER
 import java.nio.ByteBuffer
 
 /**
@@ -38,11 +38,10 @@ import java.nio.ByteBuffer
  * @see AudioProcessor
  * @see Recorder.Builder.setAudioProcessors
  */
-// TODO: b/305067133 - Make this public in next alpha
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalAudioApi
 public abstract class PassthroughAudioProcessor : AudioProcessor {
 
-    private var outputBuffer: ByteBuffer = AudioProcessor.EMPTY_BUFFER
+    private var outputBuffer: ByteBuffer = EMPTY_AUDIO_BUFFER
 
     @Throws(AudioProcessor.UnsupportedAudioFormatException::class)
     final override fun configure(
@@ -58,23 +57,23 @@ public abstract class PassthroughAudioProcessor : AudioProcessor {
             onAudioBuffer(readOnlyBuffer)
             outputBuffer = inputBuffer
         } else {
-            outputBuffer = AudioProcessor.EMPTY_BUFFER
+            outputBuffer = EMPTY_AUDIO_BUFFER
         }
     }
 
     final override fun getOutput(): ByteBuffer {
         val output = outputBuffer
-        outputBuffer = AudioProcessor.EMPTY_BUFFER
+        outputBuffer = EMPTY_AUDIO_BUFFER
         return output
     }
 
     final override fun flush() {
-        outputBuffer = AudioProcessor.EMPTY_BUFFER
+        outputBuffer = EMPTY_AUDIO_BUFFER
         onFlush()
     }
 
     final override fun reset() {
-        outputBuffer = AudioProcessor.EMPTY_BUFFER
+        outputBuffer = EMPTY_AUDIO_BUFFER
         onReset()
     }
 

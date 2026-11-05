@@ -607,9 +607,11 @@ public final class Recorder implements VideoOutput {
     private @Nullable OutputStorage mOutputStorage = null;
     private long mAvailableBytesAboveRequired = Long.MAX_VALUE;
     private boolean mHasGlProcessing = false;
+    @OptIn(markerClass = ExperimentalAudioApi.class)
     final List<AudioProcessor> mAudioProcessors;
     //--------------------------------------------------------------------------------------------//
 
+    @OptIn(markerClass = ExperimentalAudioApi.class)
     Recorder(@Nullable Executor executor, @NonNull MediaSpec mediaSpec,
             @VideoCapabilitiesSource int videoCapabilitiesSource,
             @NonNull EncoderFactory videoEncoderFactory,
@@ -959,8 +961,7 @@ public final class Recorder implements VideoOutput {
      * @return unmodifiable list of audio processors in processing order
      * @see Builder#setAudioProcessors(List)
      */
-    // TODO: b/305067133 - Make this public in next alpha
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ExperimentalAudioApi
     public @NonNull List<@NonNull AudioProcessor> getAudioProcessors() {
         return mAudioProcessors;
     }
@@ -1862,6 +1863,7 @@ public final class Recorder implements VideoOutput {
     }
 
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+    @OptIn(markerClass = ExperimentalAudioApi.class)
     private @NonNull AudioSource setupAudioSource(@NonNull RecordingRecord recordingToStart,
             @NonNull AudioSettings audioSettings)
             throws AudioSourceAccessException {
@@ -3691,6 +3693,7 @@ public final class Recorder implements VideoOutput {
     }
 
     @AutoValue
+    @OptIn(markerClass = ExperimentalAudioApi.class)
     abstract static class RecordingRecord implements AutoCloseable {
 
         private final CloseGuardHelper mCloseGuard = CloseGuardHelper.create();
@@ -4188,6 +4191,7 @@ public final class Recorder implements VideoOutput {
         private OutputStorage.Factory mOutputStorageFactory = OUTPUT_STORAGE_FACTORY_DEFAULT;
         private AudioStreamFactory mAudioStreamFactory = DEFAULT_AUDIO_STREAM_FACTORY;
         private long mRequiredFreeStorageBytes = REQUIRED_FREE_STORAGE_UNSET;
+        @OptIn(markerClass = ExperimentalAudioApi.class)
         private List<AudioProcessor> mAudioProcessors = Collections.emptyList();
 
         /**
@@ -4562,8 +4566,7 @@ public final class Recorder implements VideoOutput {
          * @see PassthroughAudioProcessor
          * @see Recorder#getAudioProcessors()
          */
-        // TODO: b/305067133 - Make this public in next alpha
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @ExperimentalAudioApi
         public @NonNull Builder setAudioProcessors(
                 @NonNull List<@NonNull AudioProcessor> audioProcessors) {
             Preconditions.checkNotNull(audioProcessors, "The audioProcessors cannot be null.");
@@ -4606,6 +4609,7 @@ public final class Recorder implements VideoOutput {
          * {@link Recorder} instance each time. The returned instance is configured with the
          * options set on this builder.
          */
+        @OptIn(markerClass = ExperimentalAudioApi.class)
         public @NonNull Recorder build() {
             return new Recorder(mExecutor, mMediaSpecBuilder.build(), mVideoCapabilitiesSource,
                     mVideoEncoderFactory, mAudioEncoderFactory, mMuxerFactory,

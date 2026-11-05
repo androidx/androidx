@@ -2,6 +2,35 @@
 // - surface=public
 package androidx.camera.video {
 
+  @SuppressCompatibility @androidx.camera.video.ExperimentalAudioApi public interface AudioProcessor {
+    method @kotlin.jvm.Throws(exceptionClasses=UnsupportedAudioFormatException::class) public androidx.camera.video.AudioProcessor.AudioFormat configure(androidx.camera.video.AudioProcessor.AudioFormat inputAudioFormat) throws androidx.camera.video.AudioProcessor.UnsupportedAudioFormatException;
+    method public void flush();
+    method public java.nio.ByteBuffer getOutput();
+    method public void queueInput(java.nio.ByteBuffer inputBuffer);
+    method public void reset();
+  }
+
+  @SuppressCompatibility @androidx.camera.video.ExperimentalAudioApi public static final class AudioProcessor.AudioFormat {
+    ctor public AudioProcessor.AudioFormat(@IntRange(from=1L) int sampleRate, @IntRange(from=1L) int channelCount);
+    ctor public AudioProcessor.AudioFormat(@IntRange(from=1L) int sampleRate, @IntRange(from=1L) int channelCount, int encoding);
+    method @InaccessibleFromKotlin public int getBytesPerFrame();
+    method @InaccessibleFromKotlin @IntRange(from=1L) public int getChannelCount();
+    method @InaccessibleFromKotlin public int getEncoding();
+    method @InaccessibleFromKotlin @IntRange(from=1L) public int getSampleRate();
+    property public int bytesPerFrame;
+    property @IntRange(from=1L) public int channelCount;
+    property public int encoding;
+    property @IntRange(from=1L) public int sampleRate;
+  }
+
+  @SuppressCompatibility @androidx.camera.video.ExperimentalAudioApi public static final class AudioProcessor.UnsupportedAudioFormatException extends java.lang.Exception {
+    ctor public AudioProcessor.UnsupportedAudioFormatException(String? message);
+    ctor public AudioProcessor.UnsupportedAudioFormatException(String? message, androidx.camera.video.AudioProcessor.AudioFormat? audioFormat);
+    ctor public AudioProcessor.UnsupportedAudioFormatException(String? message, androidx.camera.video.AudioProcessor.AudioFormat? audioFormat, Throwable? cause);
+    method @InaccessibleFromKotlin public androidx.camera.video.AudioProcessor.AudioFormat? getAudioFormat();
+    property public androidx.camera.video.AudioProcessor.AudioFormat? audioFormat;
+  }
+
   @com.google.auto.value.AutoValue public abstract class AudioStats {
     method public double getAudioAmplitude();
     method public abstract int getAudioState();
@@ -144,6 +173,19 @@ package androidx.camera.video {
     method public abstract android.net.Uri getOutputUri();
   }
 
+  @SuppressCompatibility @androidx.camera.video.ExperimentalAudioApi public abstract class PassthroughAudioProcessor implements androidx.camera.video.AudioProcessor {
+    ctor public PassthroughAudioProcessor();
+    method @kotlin.jvm.Throws(exceptionClasses=AudioProcessor.UnsupportedAudioFormatException::class) public final androidx.camera.video.AudioProcessor.AudioFormat configure(androidx.camera.video.AudioProcessor.AudioFormat inputAudioFormat) throws androidx.camera.video.AudioProcessor.UnsupportedAudioFormatException;
+    method public final void flush();
+    method public final java.nio.ByteBuffer getOutput();
+    method protected abstract void onAudioBuffer(java.nio.ByteBuffer audioBuffer);
+    method @kotlin.jvm.Throws(exceptionClasses=AudioProcessor.UnsupportedAudioFormatException::class) protected void onConfigure(androidx.camera.video.AudioProcessor.AudioFormat inputAudioFormat) throws androidx.camera.video.AudioProcessor.UnsupportedAudioFormatException;
+    method protected void onFlush();
+    method protected void onReset();
+    method public final void queueInput(java.nio.ByteBuffer inputBuffer);
+    method public final void reset();
+  }
+
   public final class PendingRecording {
     method @SuppressCompatibility @androidx.camera.video.ExperimentalPersistentRecording public androidx.camera.video.PendingRecording asPersistentRecording();
     method @CheckResult public androidx.camera.video.Recording start(java.util.concurrent.Executor listenerExecutor, androidx.core.util.Consumer<androidx.camera.video.VideoRecordEvent> listener);
@@ -175,6 +217,7 @@ package androidx.camera.video {
   public final class Recorder implements androidx.camera.video.VideoOutput {
     method public int getAspectRatio();
     method public String getAudioMimeType();
+    method @SuppressCompatibility @androidx.camera.video.ExperimentalAudioApi public java.util.List<androidx.camera.video.AudioProcessor> getAudioProcessors();
     method public java.util.concurrent.Executor? getExecutor();
     method public static androidx.camera.video.VideoCapabilities? getHighSpeedVideoCapabilities(androidx.camera.core.CameraInfo);
     method public androidx.camera.video.QualitySelector getQualitySelector();
@@ -202,6 +245,7 @@ package androidx.camera.video {
     method public androidx.camera.video.Recorder build();
     method public androidx.camera.video.Recorder.Builder setAspectRatio(int);
     method public androidx.camera.video.Recorder.Builder setAudioMimeType(String);
+    method @SuppressCompatibility @androidx.camera.video.ExperimentalAudioApi public androidx.camera.video.Recorder.Builder setAudioProcessors(java.util.List<androidx.camera.video.AudioProcessor>);
     method public androidx.camera.video.Recorder.Builder setExecutor(java.util.concurrent.Executor);
     method public androidx.camera.video.Recorder.Builder setQualitySelector(androidx.camera.video.QualitySelector);
     method public androidx.camera.video.Recorder.Builder setTargetAudioChannelCount(@IntRange(from=1) int);
