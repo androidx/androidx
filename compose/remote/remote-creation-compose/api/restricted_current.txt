@@ -1133,11 +1133,6 @@ package androidx.compose.remote.creation.compose.text {
   public abstract sealed exhaustive class RemoteFontFamily {
     method @InaccessibleFromKotlin public final String getName();
     property public final String name;
-    field public static final androidx.compose.remote.creation.compose.text.RemoteFontFamily.Companion Companion;
-  }
-
-  public static final class RemoteFontFamily.Companion {
-    method public androidx.compose.remote.creation.compose.text.RemoteFontFamily? fromComposeFontFamily(androidx.compose.ui.text.font.FontFamily? fontFamily);
   }
 
   public static final class RemoteFontFamily.Cursive extends androidx.compose.remote.creation.compose.text.RemoteFontFamily {

@@ -16,9 +16,6 @@
 
 package androidx.compose.remote.creation.compose.text
 
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.GenericFontFamily
-
 /**
  * A sealed class that represents the concept of a FontFamily in Remote Compose.
  *
@@ -61,28 +58,6 @@ public sealed class RemoteFontFamily(public val name: String, private val fontFa
     }
 
     override fun toString(): String = fontFamilyName
-
-    public companion object {
-        /**
-         * Maps a Compose [FontFamily] to a [RemoteFontFamily].
-         *
-         * @param fontFamily The Compose [FontFamily] to convert, or `null`.
-         * @return the corresponding [RemoteFontFamily], or `null` if [fontFamily] is `null` or
-         *   unsupported
-         */
-        public fun fromComposeFontFamily(fontFamily: FontFamily?): RemoteFontFamily? {
-            if (fontFamily == null) return null
-            return when (fontFamily) {
-                FontFamily.Default -> Default
-                FontFamily.SansSerif -> SansSerif
-                FontFamily.Serif -> Serif
-                FontFamily.Monospace -> Monospace
-                FontFamily.Cursive -> Cursive
-                is GenericFontFamily -> Named(fontFamily.name)
-                else -> null
-            }
-        }
-    }
 }
 
 /**

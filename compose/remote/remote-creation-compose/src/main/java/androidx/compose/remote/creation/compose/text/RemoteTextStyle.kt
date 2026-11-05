@@ -17,6 +17,7 @@
 package androidx.compose.remote.creation.compose.text
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.layout.toRemoteFontFamily
 import androidx.compose.remote.creation.compose.layout.toRemoteFontStyle
 import androidx.compose.remote.creation.compose.layout.toRemoteFontWeight
 import androidx.compose.remote.creation.compose.layout.toRemoteHyphens
@@ -310,7 +311,7 @@ constructor(
                 fontSize = fontSize,
                 fontWeight = style.fontWeight,
                 fontStyle = style.fontStyle,
-                fontFamily = RemoteFontFamily.fromComposeFontFamily(style.fontFamily),
+                fontFamily = style.fontFamily?.toRemoteFontFamily(),
                 letterSpacing = letterSpacing,
                 background = background,
                 textAlign = style.textAlign,
