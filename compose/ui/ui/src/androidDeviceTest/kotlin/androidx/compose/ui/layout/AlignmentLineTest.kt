@@ -29,6 +29,9 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.invalidatePlacement
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
@@ -519,6 +522,67 @@ class AlignmentLineTest {
             assertEquals(2, layouts)
             assertEquals(2, childMeasures)
         }
+    }
+
+    @Test
+    fun readingAlignmentAfterModifierPlacementInvalidatedWhileLayoutPending() {
+        val offsetNode = PlainOffsetNode(offsetY = 10)
+        var remeasureTrigger by mutableIntStateOf(0)
+        var firstBaseline = -1
+        var secondBaseline = -1
+        rule.setContent {
+            Layout(
+                content = {
+                    Layout(modifier = PlainOffsetElement(offsetNode)) { _, _ ->
+                        // Remeasure the child together with the parent, which leaves the child
+                        // with layout pending while the parent queries alignment lines.
+                        remeasureTrigger
+                        layout(50, 50, mapOf(FirstBaseline to 0)) {}
+                    }
+                }
+            ) { measurables, constraints ->
+                val placeable = measurables.first().measure(constraints)
+                firstBaseline = placeable[FirstBaseline]
+                if (remeasureTrigger > 0) {
+                    offsetNode.offsetY = 20
+                    offsetNode.invalidatePlacement()
+                }
+                secondBaseline = placeable[FirstBaseline]
+                layout(100, 100) { placeable.place(0, 0) }
+            }
+        }
+
+        rule.runOnIdle {
+            assertEquals(10, firstBaseline)
+            assertEquals(10, secondBaseline)
+            remeasureTrigger = 1
+        }
+
+        rule.runOnIdle {
+            assertEquals(10, firstBaseline)
+            assertEquals(20, secondBaseline)
+        }
+    }
+
+    private class PlainOffsetNode(var offsetY: Int) : Modifier.Node(), LayoutModifierNode {
+        override fun MeasureScope.measure(
+            measurable: Measurable,
+            constraints: Constraints,
+        ): MeasureResult {
+            val placeable = measurable.measure(constraints)
+            return layout(placeable.width, placeable.height) { placeable.place(0, offsetY) }
+        }
+    }
+
+    private class PlainOffsetElement(val node: PlainOffsetNode) :
+        ModifierNodeElement<PlainOffsetNode>() {
+        override fun create() = node
+
+        override fun update(node: PlainOffsetNode) {}
+
+        override fun hashCode() = node.hashCode()
+
+        override fun equals(other: Any?) = other is PlainOffsetElement && other.node === node
     }
 
     @Test

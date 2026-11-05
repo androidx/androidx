@@ -88,8 +88,7 @@ internal class LookaheadPassDelegate(
         get() = layoutNodeLayoutDelegate.layoutNode
 
     internal fun markLayoutPending() {
-        layoutPending = true
-        layoutPendingForAlignment = true
+        layoutNodeLayoutDelegate.markLookaheadLayoutPending()
     }
 
     /** Marks the layoutNode dirty for another lookahead measure pass. */
