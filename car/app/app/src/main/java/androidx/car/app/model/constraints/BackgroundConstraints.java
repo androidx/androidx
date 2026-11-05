@@ -21,7 +21,6 @@ import static androidx.annotation.RestrictTo.Scope;
 import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.RestrictTo;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Background;
 
@@ -32,7 +31,6 @@ import org.jspecify.annotations.NonNull;
  */
 @RestrictTo(Scope.LIBRARY)
 @RequiresCarApi(9)
-@ExperimentalCarApi
 public final class BackgroundConstraints {
 
     /**

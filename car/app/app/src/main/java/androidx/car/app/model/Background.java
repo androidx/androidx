@@ -21,7 +21,6 @@ import static java.util.Objects.requireNonNull;
 import android.graphics.Color;
 
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarColorConstraints;
@@ -34,14 +33,13 @@ import java.util.Objects;
 /**
  * A background for a user interface component.
  *
- * <p>The image or color will be modified to ensure safe a color contrast ratio with the content.
+ * <p>The image or color will be modified to ensure a safe color contrast ratio with the content.
  *
  * <p>The background can be set as either a solid color using {@link CarColor} or an image
  * using {@link CarIcon}. Only one of these can be set at a time.
  */
 @CarProtocol
 @KeepFields
-@ExperimentalCarApi
 @RequiresCarApi(9)
 public final class Background {
     /**
@@ -81,7 +79,7 @@ public final class Background {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(mImage);
+        return Objects.hash(mImage, mColor);
     }
 
     @Override
@@ -162,7 +160,9 @@ public final class Background {
          * instance.
          */
         public Builder(@NonNull Background background) {
-            mImage = requireNonNull(background).getImage();
+            requireNonNull(background);
+            mImage = background.getImage();
+            mColor = background.getColor();
         }
     }
 }

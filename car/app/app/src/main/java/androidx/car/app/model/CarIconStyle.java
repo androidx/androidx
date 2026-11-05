@@ -18,9 +18,7 @@ package androidx.car.app.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.OptIn;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarColorConstraints;
@@ -50,7 +48,6 @@ import java.util.Objects;
  */
 @CarProtocol
 @KeepFields
-@OptIn(markerClass = ExperimentalCarApi.class)
 public class CarIconStyle {
 
     /**
@@ -103,7 +100,6 @@ public class CarIconStyle {
 
     /** Returns the {@link Shape} defined in this style, or {@code null} if none is set. */
     @RequiresCarApi(9)
-    @ExperimentalCarApi
     public @Nullable Shape getShape() {
         return mShape;
     }
@@ -136,10 +132,12 @@ public class CarIconStyle {
         @Nullable private Shape mShape;
 
         /**
-         * Creates a builder for a custom CarIconStyle based on an existing base style contract.
+         * Creates a builder for a custom {@link CarIconStyle} based on an existing base style
+         * contract.
          *
          * @param baseStyle The base style contract to inherit from, typically {@link
          *     CarIconStyle#TINTED} or {@link CarIconStyle#ORIGINAL}.
+         * @throws NullPointerException if {@code baseStyle} is {@code null}
          */
         public Builder(@NonNull CarIconStyle baseStyle) {
             requireNonNull(baseStyle);
@@ -147,9 +145,12 @@ public class CarIconStyle {
             this.mShape = baseStyle.mShape;
         }
 
-        /** Sets the geometric {@link Shape} boundary to crop or frame the icon graphic. */
+        /**
+         * Sets the geometric {@link Shape} boundary to crop or frame the icon graphic.
+         *
+         * @throws NullPointerException if {@code shape} is {@code null}
+         */
         @RequiresCarApi(9)
-        @ExperimentalCarApi
         @NonNull
         public Builder setShape(@NonNull Shape shape) {
             this.mShape = requireNonNull(shape);

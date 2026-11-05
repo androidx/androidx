@@ -93,10 +93,36 @@ class BackgroundTest {
     }
 
     @Test
+    fun builder_fromExistingBackground_copiesFields() {
+        val colorBackground = Background.Builder().setColor(CarColor.BLUE).build()
+        val copiedColor = Background.Builder(colorBackground).build()
+        assertThat(copiedColor).isEqualTo(colorBackground)
+
+        val image =
+            CarIcon.Builder(IconCompat.createWithContentUri(Uri.parse("content://test"))).build()
+        val imageBackground = Background.Builder().setImage(image).build()
+        val copiedImage = Background.Builder(imageBackground).build()
+        assertThat(copiedImage).isEqualTo(imageBackground)
+    }
+
+    @Test
     fun hashCode_match() {
         val background1 = Background.Builder().setColor(CarColor.BLUE).build()
         val background2 = Background.Builder().setColor(CarColor.BLUE).build()
-
         assertThat(background1.hashCode()).isEqualTo(background2.hashCode())
+
+        val background3 = Background.Builder().setColor(CarColor.RED).build()
+        assertThat(background1.hashCode()).isNotEqualTo(background3.hashCode())
+
+        val image1 =
+            CarIcon.Builder(IconCompat.createWithContentUri(Uri.parse("content://test1"))).build()
+        val imageBackground1 = Background.Builder().setImage(image1).build()
+        val imageBackground2 = Background.Builder().setImage(image1).build()
+        assertThat(imageBackground1.hashCode()).isEqualTo(imageBackground2.hashCode())
+
+        val image2 =
+            CarIcon.Builder(IconCompat.createWithContentUri(Uri.parse("content://test2"))).build()
+        val imageBackground3 = Background.Builder().setImage(image2).build()
+        assertThat(imageBackground1.hashCode()).isNotEqualTo(imageBackground3.hashCode())
     }
 }
