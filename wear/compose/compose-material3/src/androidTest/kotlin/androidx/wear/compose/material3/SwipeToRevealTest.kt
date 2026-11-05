@@ -23,6 +23,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.TargetedFlingBehavior
@@ -125,12 +126,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.hamcrest.CoreMatchers.equalTo
+import org.junit.After
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertSame
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -142,6 +147,11 @@ class SwipeToRevealTest {
 
     @Before
     fun setUp() {
+        SingleSwipeCoordinator.lastUpdatedState.set(null)
+    }
+
+    @After
+    fun tearDown() {
         SingleSwipeCoordinator.lastUpdatedState.set(null)
     }
 
@@ -2263,7 +2273,7 @@ class SwipeToRevealTest {
             assertEquals(PrimaryAction, revealStateOne.lastActionType)
             assertTrue(onSwipePrimaryActionCalled)
             assertEquals(RightRevealing, revealStateTwo.currentValue)
-            assertEquals(revealStateTwo, SingleSwipeCoordinator.lastUpdatedState.get())
+            assertSame(revealStateTwo, SingleSwipeCoordinator.lastUpdatedState.get()?.get())
         }
     }
 
@@ -2319,7 +2329,7 @@ class SwipeToRevealTest {
         rule.runOnIdle {
             assertEquals(Covered, revealStateOne.currentValue)
             assertEquals(RightRevealing, revealStateTwo.currentValue)
-            assertEquals(revealStateTwo, SingleSwipeCoordinator.lastUpdatedState.get())
+            assertSame(revealStateTwo, SingleSwipeCoordinator.lastUpdatedState.get()?.get())
         }
     }
 
@@ -2843,6 +2853,78 @@ class SwipeToRevealTest {
             assertEquals(2, rootLookaheadMeasureCount)
         }
     }
+
+    @Test
+    fun singleSwipeCoordinator_resetsPreviousRevealingState() = runBlocking {
+        val firstState =
+            RevealState(initialValue = Covered).apply { coroutineScope = this@runBlocking }
+        val secondState =
+            RevealState(initialValue = Covered).apply { coroutineScope = this@runBlocking }
+
+        firstState.snapTo(RightRevealing)
+        assertEquals(RightRevealing, firstState.currentValue)
+        assertSame(firstState, SingleSwipeCoordinator.lastUpdatedState.get()?.get())
+
+        secondState.snapTo(RightRevealing)
+
+        assertEquals(Covered, firstState.currentValue)
+        assertEquals(RightRevealing, secondState.currentValue)
+        assertSame(secondState, SingleSwipeCoordinator.lastUpdatedState.get()?.get())
+    }
+
+    @Test
+    fun singleSwipeCoordinator_resetsPreviousStateWhenScopeCancelled() = runBlocking {
+        val firstScope = CoroutineScope(Job())
+        val firstState =
+            RevealState(initialValue = Covered).apply {
+                coroutineScope = firstScope
+                anchoredDraggableState.updateAnchors(
+                    DraggableAnchors {
+                        Covered at 0f
+                        RightRevealing at -100f
+                    }
+                )
+            }
+        val secondState = RevealState(initialValue = Covered)
+
+        firstState.snapTo(RightRevealing)
+        firstScope.cancel()
+
+        secondState.snapTo(RightRevealing)
+
+        assertEquals(Covered, firstState.currentValue)
+        assertEquals(RightRevealing, secondState.currentValue)
+        assertSame(secondState, SingleSwipeCoordinator.lastUpdatedState.get()?.get())
+    }
+
+    @Test
+    fun singleSwipeCoordinator_handlesClearedWeakReference() = runBlocking {
+        val firstState = RevealState(initialValue = Covered)
+        val secondState = RevealState(initialValue = Covered)
+
+        firstState.snapTo(RightRevealing)
+        SingleSwipeCoordinator.lastUpdatedState.get()?.clear()
+        assertNull(SingleSwipeCoordinator.lastUpdatedState.get()?.get())
+
+        secondState.snapTo(RightRevealing)
+        assertEquals(RightRevealing, firstState.currentValue)
+        assertEquals(RightRevealing, secondState.currentValue)
+        assertSame(secondState, SingleSwipeCoordinator.lastUpdatedState.get()?.get())
+    }
+
+    @Test
+    fun singleSwipeCoordinator_sameStateUpdatedTwice_reusesWeakReferenceAndDoesNotReset() =
+        runBlocking {
+            val state = RevealState(initialValue = Covered)
+
+            state.snapTo(RightRevealing)
+            val initialRef = SingleSwipeCoordinator.lastUpdatedState.get()
+            assertSame(state, initialRef?.get())
+
+            state.snapTo(RightRevealed)
+            assertEquals(RightRevealed, state.currentValue)
+            assertSame(initialRef, SingleSwipeCoordinator.lastUpdatedState.get())
+        }
 
     companion object {
         private val ActionContentSpacing = 12.dp

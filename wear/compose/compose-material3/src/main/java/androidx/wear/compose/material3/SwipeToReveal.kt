@@ -18,6 +18,7 @@ package androidx.wear.compose.material3
 
 import android.annotation.SuppressLint
 import androidx.annotation.FloatRange
+import androidx.annotation.VisibleForTesting
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ContentTransform
@@ -134,6 +135,7 @@ import androidx.wear.compose.material3.SwipeToRevealDefaults.gestureInclusion
 import androidx.wear.compose.material3.tokens.SwipeToRevealTokens
 import androidx.wear.compose.materialcore.CustomTouchSlopProvider
 import androidx.wear.compose.materialcore.screenWidthDp
+import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -1704,24 +1706,29 @@ public class RevealState @RememberInComposition constructor(initialValue: Reveal
      * [RightRevealed], the action has been performed and it will not be reset.
      */
     internal suspend fun resetLastState(currentState: RevealState) {
-        val oldState = SingleSwipeCoordinator.lastUpdatedState.getAndSet(currentState)
-        if (currentState != oldState) {
-            oldState?.let {
-                if (it.currentValue == RightRevealing || it.currentValue == LeftRevealing) {
-                    val scope = it.coroutineScope
-                    if (scope != null && scope.isActive) {
-                        scope.launch(start = CoroutineStart.UNDISPATCHED) { it.animateTo(Covered) }
-                    } else {
-                        it.animateTo(Covered)
+        if (SingleSwipeCoordinator.lastUpdatedState.get()?.get() === currentState) return
+        val oldState =
+            SingleSwipeCoordinator.lastUpdatedState.getAndSet(WeakReference(currentState))?.get()
+        if (oldState != null && oldState !== currentState) {
+            if (oldState.currentValue == RightRevealing || oldState.currentValue == LeftRevealing) {
+                val scope = oldState.coroutineScope
+                if (scope != null && scope.isActive) {
+                    scope.launch(start = CoroutineStart.UNDISPATCHED) {
+                        oldState.animateTo(Covered)
                     }
+                } else {
+                    oldState.snapTo(Covered)
                 }
             }
         }
     }
 
     /** A singleton instance to keep track of the [RevealState] which was modified the last time. */
+    @VisibleForTesting
     internal object SingleSwipeCoordinator {
-        var lastUpdatedState: AtomicReference<RevealState?> = AtomicReference(null)
+        // Weak, so that the last revealed item (and the composition it belongs to) can be
+        // garbage collected once it leaves the composition.
+        val lastUpdatedState: AtomicReference<WeakReference<RevealState>?> = AtomicReference(null)
     }
 }
 
