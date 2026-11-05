@@ -33,6 +33,7 @@ import com.squareup.wire.ProtoReader
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.Collections
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.concurrent.thread
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.BeforeTest
@@ -61,7 +62,7 @@ import okio.sink
 import okio.source
 
 class TestSink : AbstractTraceSink() {
-    internal val packets = mutableListOf<MutableTracePacket>()
+    internal val packets = CopyOnWriteArrayList<MutableTracePacket>()
 
     override fun enqueue(pooledPacketArray: PooledTracePacketArray) {
         pooledPacketArray.forEach {
