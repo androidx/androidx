@@ -1103,7 +1103,6 @@ public class WebViewFeature {
      * {@link Profile#configureIsolatedSites(Set)} and
      * {@link Profile#canConfigureIsolatedSites()}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Profile.ExperimentalSelectedSiteIsolation
     public static final String PROFILE_SELECTED_SITE_ISOLATION_EXPERIMENTAL_V1 =
             "PROFILE_SELECTED_SITE_ISOLATION_EXPERIMENTAL_V1";
