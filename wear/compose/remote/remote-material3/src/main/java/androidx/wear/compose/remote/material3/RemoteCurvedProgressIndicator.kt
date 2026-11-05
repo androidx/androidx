@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+
 package androidx.wear.compose.remote.material3
 
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
@@ -49,45 +52,8 @@ private val EPSILON = 0.001f.rf
 private val RADIANS_TO_DEGREES = (180f / PI.toFloat()).rf
 
 /**
- * A generalized progress arc component for display on Wear OS.
- *
- * Angles are measured in degrees with 0 degrees at the 3 o'clock position. By default
- * ([reverseDirection] is `false`), the arc sweeps clockwise from [startAngle] by [sweepAngle]
- * degrees; when [reverseDirection] is `true`, the arc is mirrored horizontally (starting at `180 -
- * startAngle`) and sweeps counter-clockwise.
- *
- * To also animate the start and end of the progress, for example for a timer or a goal, use
- * [RemoteIntroOutroCurvedProgressIndicator].
- *
- * Example of a [RemoteCurvedProgressIndicator] displaying a progress arc:
- *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteCurvedProgressIndicatorSample
- *
- * Example that animates [progress] changes on click:
- *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteCurvedProgressIndicatorAnimatedSample
- * @param progress A float value representing progress (typically 0f to 1f).
- * @param modifier Modifier to be applied to the canvas.
- * @param enabled controls the enabled state. When enabled is `false`, this component will appear
- *   visually disabled.
- * @param startAngle The starting position of the progress arc in degrees, with 0 degrees at the 3
- *   o'clock position. For example, 135 is bottom left.
- * @param sweepAngle The total sweep angle (magnitude) of the progress arc in degrees, for example,
- *   90 degrees. Negative values are coerced to 0 (nothing is drawn when [sweepAngle] is 0 or
- *   negative); use [reverseDirection] to sweep counter-clockwise.
- * @param colors [RemoteProgressIndicatorColors] that will be used to resolve the indicator and
- *   track color.
- * @param strokeWidth Width of the arc in dp. Negative values are coerced to 0; nothing is drawn
- *   when [strokeWidth] is 0 or negative.
- * @param padding Padding from the canvas/screen edge in dp.
- * @param gapAngleDegrees Size of the visual separation gap between segments in degrees. Set to 0f
- *   for continuous bars.
- * @param dotFadeOutFraction The fraction of the dot's size (from 0.0 to 1.0) below which the dot
- *   fades its opacity to transparent as it collapses/expands. Set to 0.0 to disable opacity fading
- *   and shrink purely through size.
- * @param dotCollapsible Whether the indicator's dot should collapse as it approaches the end of the
- *   track.
- * @param reverseDirection Whether to reverse the direction of the progress indicator (RTL).
  */
 @RemoteComposable
 @Composable
@@ -125,45 +91,7 @@ public fun RemoteCurvedProgressIndicator(
 }
 
 /**
- * A [RemoteCurvedProgressIndicator] that plays spring animations at the start and end of the
- * progress, for example for a timer, or for a goal such as a distance, calories or steps.
- *
- * Angles are measured in degrees with 0 degrees at the 3 o'clock position. By default
- * ([reverseDirection] is `false`), the arc sweeps clockwise from [startAngle] by [sweepAngle]
- * degrees; when [reverseDirection] is `true`, the arc is mirrored horizontally (starting at `180 -
- * startAngle`) and sweeps counter-clockwise.
- *
- * The intro animation plays as soon as [progress] leaves its start, and the outro animation plays
- * once [progress] reaches its end, so it finishes shortly after the end. In between, the arc
- * follows [progress] exactly. Pass a progress that is clamped to its range, so that reaching the
- * end gives exactly its end value.
- *
- * Example of a [RemoteIntroOutroCurvedProgressIndicator] stepping from start to completion:
- *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteIntroOutroCurvedProgressIndicatorSample
- * @param progress A float value representing progress, from 0f to 1f.
- * @param modifier Modifier to be applied to the canvas.
- * @param enabled controls the enabled state. When enabled is `false`, this component will appear
- *   visually disabled.
- * @param startAngle The starting position of the progress arc in degrees, with 0 degrees at the 3
- *   o'clock position. For example, 135 is bottom left.
- * @param sweepAngle The total sweep angle (magnitude) of the progress arc in degrees, for example,
- *   90 degrees. Negative values are coerced to 0 (nothing is drawn when [sweepAngle] is 0 or
- *   negative); use [reverseDirection] to sweep counter-clockwise.
- * @param colors [RemoteProgressIndicatorColors] that will be used to resolve the indicator and
- *   track color.
- * @param strokeWidth Width of the arc in dp. Negative values are coerced to 0; nothing is drawn
- *   when [strokeWidth] is 0 or negative.
- * @param padding Padding from the canvas/screen edge in dp.
- * @param gapAngleDegrees Size of the visual separation gap between segments in degrees. Set to 0f
- *   for continuous bars.
- * @param dotFadeOutFraction The fraction of the dot's size (from 0.0 to 1.0) below which the dot
- *   fades its opacity to transparent as it collapses/expands. Set to 0.0 to disable opacity fading
- *   and shrink purely through size.
- * @param reverseDirection Whether to reverse the direction of the progress indicator (RTL).
- * @param countDown Whether the progress goes from 1f down to 0f, for example the time or distance
- *   left. If true, the intro animation plays when progress leaves 1f, and the outro animation plays
- *   when progress reaches 0f.
  */
 @RemoteComposable
 @Composable

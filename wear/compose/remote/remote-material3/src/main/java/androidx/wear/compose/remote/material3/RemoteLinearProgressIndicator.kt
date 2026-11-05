@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+
 package androidx.wear.compose.remote.material3
 
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
@@ -42,41 +45,8 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 
 /**
- * Material Design linear progress indicator.
- *
- * The [RemoteLinearProgressIndicator] displays progress as a horizontal bar, consisting of two
- * visual components:
- * - Track: The background line representing the total range of progress.
- * - Indicator: A colored line that fills the track, indicating the current progress value.
- *
- * The indicator also includes a small dot at the end of the progress line. This dot serves as an
- * accessibility feature to show the range of the indicator.
- *
- * Animates changes to [progress] with the [RemoteMotionScheme.defaultEffectsSpec] of
- * [RemoteMaterialTheme.motionScheme].
- *
- * Example of a [RemoteLinearProgressIndicator] showing static progress:
- *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteLinearProgressIndicatorSample
- *
- * Example that changes [progress] on click:
- *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteLinearProgressIndicatorAnimatedSample
- * @param progress The progress of this progress indicator where 0.0 represents no progress and 1.0
- *   represents completion. Values outside of this range are coerced into the range 0..1. Progress
- *   changes are animated.
- * @param modifier Modifier to be applied to the [RemoteLinearProgressIndicator].
- * @param colors [RemoteProgressIndicatorColors] that will be used to resolve the indicator and
- *   track colors for this progress indicator in different states.
- * @param strokeWidth The stroke width for the progress indicator. Defaults to
- *   [RemoteLinearProgressIndicatorDefaults.StrokeWidthLarge]; the minimum recommended value is
- *   [RemoteLinearProgressIndicatorDefaults.StrokeWidthSmall] to ensure that the dot shown at the
- *   end of the range can be distinguished. Negative values are coerced to 0; nothing is drawn when
- *   [strokeWidth] is 0 or negative.
- * @param enabled Controls the enabled state. Although this component is not clickable, it can be
- *   contained within a clickable component. When enabled is `false`, this component will appear
- *   visually disabled. Note that only constant values are currently supported for [enabled];
- *   expressions will evaluate to true.
  */
 @RemoteComposable
 @Composable
@@ -108,22 +78,11 @@ public fun RemoteLinearProgressIndicator(
     }
 }
 
-/** Contains defaults for Linear Progress Indicator. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object RemoteLinearProgressIndicatorDefaults {
 
-    /**
-     * Large stroke width for [RemoteLinearProgressIndicator].
-     *
-     * This is also the default stroke width for [RemoteLinearProgressIndicator].
-     */
     public val StrokeWidthLarge: RemoteDp = 12.rdp
 
-    /**
-     * Small stroke width for [RemoteLinearProgressIndicator].
-     *
-     * This is the minimum recommended stroke value for [RemoteLinearProgressIndicator] to ensure
-     * that the dot shown at the end of the range can be distinguished.
-     */
     public val StrokeWidthSmall: RemoteDp = 8.rdp
 
     /** Radius for the dot shown at the end of the [RemoteLinearProgressIndicator]. */

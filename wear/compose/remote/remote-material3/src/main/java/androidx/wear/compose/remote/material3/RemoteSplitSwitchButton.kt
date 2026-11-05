@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+
 package androidx.wear.compose.remote.material3
 
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
@@ -57,39 +60,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.material3.TextConfiguration
 
-/**
- * The Wear Material [RemoteSplitSwitchButton] offers two slots and shows the current toggle state
- * via a switch.
- *
- * The [RemoteSplitSwitchButton] is essentially a [RemoteRow] with two split areas. The first area
- * containing [label] and optional [secondaryLabel] is clickable and triggers [onContainerClick].
- * The second area contains a switch toggle control and triggers [onCheckedChange].
- *
- * For accessibility, provide a localized [toggleContentDescription] describing what the switch
- * toggle control represents when its meaning is not already clear from surrounding context, or pass
- * `null` if no extra description is needed beyond its role and checked state.
- *
- * Example of a [RemoteSplitSwitchButton] with separate container and switch toggle actions:
- *
- * @sample androidx.wear.compose.remote.material3.samples.RemoteSplitSwitchButtonSample
- * @param checked [RemoteBoolean] flag indicating whether this button is currently checked.
- * @param onCheckedChange [RemoteAction] to be invoked when the toggle control is clicked.
- * @param toggleContentDescription Text used by accessibility services to describe what this toggle
- *   control represents, or `null` if no separate accessibility description is needed.
- * @param onContainerClick [RemoteAction] to be invoked when the container area is clicked.
- * @param modifier [RemoteModifier] to be applied to the button.
- * @param enabled Controls the enabled state of the button. When `false`, this button will appear
- *   visually disabled and will not be clickable. Note that only constant values are currently
- *   supported for [enabled] for click handling.
- * @param shape Defines the button's shape. It is recommended to use the default shape.
- * @param colors [RemoteSplitSwitchButtonColors] that will be used to resolve the container and
- *   content colors for this button in different states.
- * @param contentPadding The spacing values to apply internally between the container and the
- *   content.
- * @param secondaryLabel A slot for a secondary label displayed below the [label], or `null` if
- *   there is no secondary label.
- * @param label A slot for the main label content.
- */
+/** @sample androidx.wear.compose.remote.material3.samples.RemoteSplitSwitchButtonSample */
 @RemoteComposable
 @Composable
 public fun RemoteSplitSwitchButton(
@@ -229,104 +200,22 @@ public fun RemoteSplitSwitchButton(
     }
 }
 
-/** Contains the default values used by [RemoteSplitSwitchButton]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object RemoteSplitSwitchButtonDefaults {
-    /**
-     * Recommended [RemoteRoundedCornerShape] for the outer container of [RemoteSplitSwitchButton].
-     */
     public val shape: RemoteRoundedCornerShape = RemoteRoundedCornerShape(26.rdp)
 
-    /** Recommended [RemoteRoundedCornerShape] for the split sections. */
     public val splitSectionsShape: RemoteRoundedCornerShape = RemoteRoundedCornerShape(4.rdp)
 
-    /** The default minimum height applied for the [RemoteSplitSwitchButton]. */
     public val Height: RemoteDp = 52.rdp
 
-    /** The default content padding used by [RemoteSplitSwitchButton]. */
     public val ContentPadding: RemotePaddingValues =
         RemotePaddingValues(horizontal = 14.rdp, vertical = 8.rdp)
 
-    /**
-     * Creates a [RemoteSplitSwitchButtonColors] that represents the default container and content
-     * colors used in a [RemoteSplitSwitchButton].
-     *
-     * @return a [RemoteSplitSwitchButtonColors] with the default colors for
-     *   [RemoteSplitSwitchButton]
-     */
     @Composable
     @RemoteComposable
     public fun splitSwitchButtonColors(): RemoteSplitSwitchButtonColors =
         RemoteMaterialTheme.colorScheme.defaultSplitSwitchButtonColors
 
-    /**
-     * Creates a [RemoteSplitSwitchButtonColors] that represents the default container and content
-     * colors used in a [RemoteSplitSwitchButton].
-     *
-     * @param checkedContainerColor The container color of the [RemoteSplitSwitchButton] when
-     *   enabled and checked, or `null` to use the theme default.
-     * @param checkedContentColor The content color of the [RemoteSplitSwitchButton] when enabled
-     *   and checked, or `null` to use the theme default.
-     * @param checkedSecondaryContentColor The secondary content color of the
-     *   [RemoteSplitSwitchButton] when enabled and checked, used for secondaryLabel content, or
-     *   `null` to use the theme default.
-     * @param checkedSplitContainerColor The split container color of the [RemoteSplitSwitchButton]
-     *   when enabled and checked, or `null` to use the theme default.
-     * @param checkedThumbColor The thumb color of the [RemoteSplitSwitchButton] when enabled and
-     *   checked, or `null` to use the theme default.
-     * @param checkedThumbIconColor The thumb icon color of the [RemoteSplitSwitchButton] when
-     *   enabled and checked, or `null` to use the theme default.
-     * @param checkedTrackColor The track color of the [RemoteSplitSwitchButton] when enabled and
-     *   checked, or `null` to use the theme default.
-     * @param checkedTrackBorderColor The track border color of the [RemoteSplitSwitchButton] when
-     *   enabled and checked, or `null` to use the theme default.
-     * @param uncheckedContainerColor The container color of the [RemoteSplitSwitchButton] when
-     *   enabled and unchecked, or `null` to use the theme default.
-     * @param uncheckedContentColor The content color of the [RemoteSplitSwitchButton] when enabled
-     *   and unchecked, or `null` to use the theme default.
-     * @param uncheckedSecondaryContentColor The secondary content color of the
-     *   [RemoteSplitSwitchButton] when enabled and unchecked, used for secondaryLabel content, or
-     *   `null` to use the theme default.
-     * @param uncheckedSplitContainerColor The split container color of the
-     *   [RemoteSplitSwitchButton] when enabled and unchecked, or `null` to use the theme default.
-     * @param uncheckedThumbColor The thumb color of the [RemoteSplitSwitchButton] when enabled and
-     *   unchecked, or `null` to use the theme default.
-     * @param uncheckedTrackColor The track color of the [RemoteSplitSwitchButton] when enabled and
-     *   unchecked, or `null` to use the theme default.
-     * @param uncheckedTrackBorderColor The track border color of the [RemoteSplitSwitchButton] when
-     *   enabled and unchecked, or `null` to use the theme default.
-     * @param disabledCheckedContainerColor The container color of the [RemoteSplitSwitchButton]
-     *   when disabled and checked, or `null` to use the theme default.
-     * @param disabledCheckedContentColor The content color of the [RemoteSplitSwitchButton] when
-     *   disabled and checked, or `null` to use the theme default.
-     * @param disabledCheckedSecondaryContentColor The secondary content color of the
-     *   [RemoteSplitSwitchButton] when disabled and checked, used for secondaryLabel content, or
-     *   `null` to use the theme default.
-     * @param disabledCheckedSplitContainerColor The split container color of the
-     *   [RemoteSplitSwitchButton] when disabled and checked, or `null` to use the theme default.
-     * @param disabledCheckedThumbColor The thumb color of the [RemoteSplitSwitchButton] when
-     *   disabled and checked, or `null` to use the theme default.
-     * @param disabledCheckedThumbIconColor The thumb icon color of the [RemoteSplitSwitchButton]
-     *   when disabled and checked, or `null` to use the theme default.
-     * @param disabledCheckedTrackColor The track color of the [RemoteSplitSwitchButton] when
-     *   disabled and checked, or `null` to use the theme default.
-     * @param disabledCheckedTrackBorderColor The track border color of the
-     *   [RemoteSplitSwitchButton] when disabled and checked, or `null` to use the theme default.
-     * @param disabledUncheckedContainerColor The container color of the [RemoteSplitSwitchButton]
-     *   when disabled and unchecked, or `null` to use the theme default.
-     * @param disabledUncheckedContentColor The content color of the [RemoteSplitSwitchButton] when
-     *   disabled and unchecked, or `null` to use the theme default.
-     * @param disabledUncheckedSecondaryContentColor The secondary content color of the
-     *   [RemoteSplitSwitchButton] when disabled and unchecked, used for secondaryLabel content, or
-     *   `null` to use the theme default.
-     * @param disabledUncheckedSplitContainerColor The split container color of the
-     *   [RemoteSplitSwitchButton] when disabled and unchecked, or `null` to use the theme default.
-     * @param disabledUncheckedThumbColor The thumb color of the [RemoteSplitSwitchButton] when
-     *   disabled and unchecked, or `null` to use the theme default.
-     * @param disabledUncheckedTrackBorderColor The track border color of the
-     *   [RemoteSplitSwitchButton] when disabled and unchecked, or `null` to use the theme default.
-     * @return a [RemoteSplitSwitchButtonColors] with the configured colors for
-     *   [RemoteSplitSwitchButton]
-     */
     @Composable
     @RemoteComposable
     public fun splitSwitchButtonColors(
@@ -461,69 +350,7 @@ public object RemoteSplitSwitchButtonDefaults {
         }
 }
 
-/**
- * Represents the container, content, and switch control colors used in [RemoteSplitSwitchButton] in
- * different states.
- *
- * @param checkedContainerColor The container color of the [RemoteSplitSwitchButton] when enabled
- *   and checked.
- * @param checkedContentColor The content color of the [RemoteSplitSwitchButton] when enabled and
- *   checked.
- * @param checkedSecondaryContentColor The secondary content color of the [RemoteSplitSwitchButton]
- *   when enabled and checked, used for secondaryLabel content.
- * @param checkedSplitContainerColor The split container color of the [RemoteSplitSwitchButton] when
- *   enabled and checked.
- * @param checkedThumbColor The thumb color of the [RemoteSplitSwitchButton] when enabled and
- *   checked.
- * @param checkedThumbIconColor The thumb icon color of the [RemoteSplitSwitchButton] when enabled
- *   and checked.
- * @param checkedTrackColor The track color of the [RemoteSplitSwitchButton] when enabled and
- *   checked.
- * @param checkedTrackBorderColor The track border color of the [RemoteSplitSwitchButton] when
- *   enabled and checked.
- * @param uncheckedContainerColor The container color of the [RemoteSplitSwitchButton] when enabled
- *   and unchecked.
- * @param uncheckedContentColor The content color of the [RemoteSplitSwitchButton] when enabled and
- *   unchecked.
- * @param uncheckedSecondaryContentColor The secondary content color of the
- *   [RemoteSplitSwitchButton] when enabled and unchecked, used for secondaryLabel content.
- * @param uncheckedSplitContainerColor The split container color of the [RemoteSplitSwitchButton]
- *   when enabled and unchecked.
- * @param uncheckedThumbColor The thumb color of the [RemoteSplitSwitchButton] when enabled and
- *   unchecked.
- * @param uncheckedTrackColor The track color of the [RemoteSplitSwitchButton] when enabled and
- *   unchecked.
- * @param uncheckedTrackBorderColor The track border color of the [RemoteSplitSwitchButton] when
- *   enabled and unchecked.
- * @param disabledCheckedContainerColor The container color of the [RemoteSplitSwitchButton] when
- *   disabled and checked.
- * @param disabledCheckedContentColor The content color of the [RemoteSplitSwitchButton] when
- *   disabled and checked.
- * @param disabledCheckedSecondaryContentColor The secondary content color of the
- *   [RemoteSplitSwitchButton] when disabled and checked, used for secondaryLabel content.
- * @param disabledCheckedSplitContainerColor The split container color of the
- *   [RemoteSplitSwitchButton] when disabled and checked.
- * @param disabledCheckedThumbColor The thumb color of the [RemoteSplitSwitchButton] when disabled
- *   and checked.
- * @param disabledCheckedThumbIconColor The thumb icon color of the [RemoteSplitSwitchButton] when
- *   disabled and checked.
- * @param disabledCheckedTrackColor The track color of the [RemoteSplitSwitchButton] when disabled
- *   and checked.
- * @param disabledCheckedTrackBorderColor The track border color of the [RemoteSplitSwitchButton]
- *   when disabled and checked.
- * @param disabledUncheckedContainerColor The container color of the [RemoteSplitSwitchButton] when
- *   disabled and unchecked.
- * @param disabledUncheckedContentColor The content color of the [RemoteSplitSwitchButton] when
- *   disabled and unchecked.
- * @param disabledUncheckedSecondaryContentColor The secondary content color of the
- *   [RemoteSplitSwitchButton] when disabled and unchecked, used for secondaryLabel content.
- * @param disabledUncheckedSplitContainerColor The split container color of the
- *   [RemoteSplitSwitchButton] when disabled and unchecked.
- * @param disabledUncheckedThumbColor The thumb color of the [RemoteSplitSwitchButton] when disabled
- *   and unchecked.
- * @param disabledUncheckedTrackBorderColor The track border color of the [RemoteSplitSwitchButton]
- *   when disabled and unchecked.
- */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
 public class RemoteSplitSwitchButtonColors(
     public val checkedContainerColor: RemoteColor,
@@ -556,11 +383,6 @@ public class RemoteSplitSwitchButtonColors(
     public val disabledUncheckedThumbColor: RemoteColor,
     public val disabledUncheckedTrackBorderColor: RemoteColor,
 ) {
-    /**
-     * Returns a copy of this [RemoteSplitSwitchButtonColors] optionally overriding some values.
-     *
-     * @return a copy of this [RemoteSplitSwitchButtonColors] with the specified values overridden
-     */
     public fun copy(
         checkedContainerColor: RemoteColor = this.checkedContainerColor,
         checkedContentColor: RemoteColor = this.checkedContentColor,

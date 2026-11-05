@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+
 package androidx.wear.compose.remote.material3
 
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
@@ -42,42 +45,8 @@ import androidx.compose.runtime.Composable
 import kotlin.math.PI
 
 /**
- * Material Design circular progress indicator.
- *
- * The progress arc is always drawn clockwise from [startAngle] to [endAngle]. When [endAngle]
- * equals [startAngle] (the default), a full 360-degree circle is drawn; when [endAngle] is less
- * than [startAngle], the arc wraps clockwise past 0 degrees (3 o'clock).
- *
- * Animates changes to [progress] with the [RemoteMotionScheme.slowEffectsSpec] of
- * [RemoteMaterialTheme.motionScheme].
- *
- * Example of a [RemoteCircularProgressIndicator] showing static progress:
- *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteCircularProgressIndicatorSample
- *
- * Example that changes [progress] on click:
- *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteCircularProgressIndicatorAnimatedSample
- * @param progress The progress of this progress indicator where 0.0 represents no progress and 1.0
- *   represents completion. Values outside of this range are coerced into the range 0..1. Progress
- *   changes are animated.
- * @param modifier Modifier to be applied to the [RemoteCircularProgressIndicator].
- * @param enabled controls the enabled state. When enabled is `false`, this component will appear
- *   visually disabled. Note that only solid colors are supported when [enabled] is an expression,
- *   otherwise it must be a constant.
- * @param startAngle The starting position of the progress arc, measured clockwise in degrees from
- *   the 3 o'clock position. Defaults to [RemoteProgressIndicatorDefaults.StartAngle] (12 o'clock).
- * @param endAngle The ending position of the progress arc, measured clockwise in degrees from the 3
- *   o'clock position. Defaults to [startAngle] (a full 360-degree circle). The arc is always drawn
- *   clockwise from [startAngle] to [endAngle], wrapping past 0 degrees if [endAngle] is less than
- *   [startAngle].
- * @param colors [RemoteProgressIndicatorColors] that will be used to resolve the indicator and
- *   track color.
- * @param strokeWidth The stroke width for the progress indicator. Defaults to
- *   [RemoteProgressIndicatorDefaults.DefaultStrokeWidth]. Negative values are coerced to 0; nothing
- *   is drawn when [strokeWidth] is 0 or negative.
- * @param gapSize The size (in [RemoteDp]) of the gap between the ends of the progress indicator and
- *   the track. The stroke endcaps are not included in this distance.
  */
 @RemoteComposable
 @Composable
@@ -102,21 +71,7 @@ public fun RemoteCircularProgressIndicator(
 }
 
 /**
- * Indeterminate Material Design circular progress indicator.
- *
- * Indeterminate progress indicator expresses an unspecified wait time and spins indefinitely.
- *
- * Example of indeterminate circular progress indicator:
- *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteIndeterminateCircularProgressIndicatorSample
- * @param modifier Modifier to be applied to the [RemoteCircularProgressIndicator].
- * @param colors [RemoteProgressIndicatorColors] that will be used to resolve the indicator and
- *   track color.
- * @param strokeWidth The stroke width for the progress indicator. Defaults to
- *   [RemoteProgressIndicatorDefaults.IndeterminateStrokeWidth]. Negative values are coerced to 0;
- *   nothing is drawn when [strokeWidth] is 0 or negative.
- * @param gapSize The size (in [RemoteDp]) of the gap between the ends of the progress indicator and
- *   the track.
  */
 @RemoteComposable
 @Composable

@@ -14,85 +14,18 @@
  * limitations under the License.
  */
 
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+
 package androidx.wear.compose.remote.material3
 
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.compose.text.fromTextStyle
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.text.font.FontFamily
 import androidx.wear.compose.material3.Typography
 
-/**
- * Class holding typography definitions for [RemoteMaterialTheme].
- *
- * The text styles in this typography are scaled according to the user's preferred font size in the
- * system settings. Larger font sizes scale slower in order to avoid pressure on screen space,
- * because they are already sufficiently accessible.
- *
- * Display styles are utilized for large, short strings of text used to display highly glanceable
- * hero information, significant metrics, confidence or expressive brand moments.
- *
- * Title styles are hierarchical text used as a mechanism for way-finding, like a page, section
- * title, or sub-section title (in the case of Title Small).
- *
- * Label styles are used for component level text that describes an action that would happen if
- * interacted with. The most common and widely used application for label is for text nested within
- * a button.
- *
- * Body styles are reserved for content text like paragraphs of body copy, text used in complex data
- * visualisation, time stamps and metadata.
- *
- * Numeral text styles are used for numerical digits, usually limited to a few characters. These can
- * take on more expressive properties at the larger display sizes. They give flexibility to expand
- * width axis with minimal localization and font scaling concerns.
- *
- * @property displayLarge DisplayLarge is the largest headline. Displays are the largest text on the
- *   screen, reserved for short, important text or numerals.
- * @property displayMedium DisplayMedium is the second largest headline. Displays are the largest
- *   text on the screen, reserved for short, important text or numerals.
- * @property displaySmall DisplaySmall is the smallest headline. Displays are the largest text on
- *   the screen, reserved for short, important text or numerals.
- * @property titleLarge TitleLarge is the largest title. Titles are smaller than Displays. They are
- *   typically reserved for medium-emphasis text that is shorter in length.
- * @property titleMedium TitleMedium is the medium title. Titles are smaller than Displays. They are
- *   typically reserved for medium-emphasis text that is shorter in length.
- * @property titleSmall TitleSmall is the smallest title. Titles are smaller than Displays. They are
- *   typically reserved for medium-emphasis text that is shorter in length.
- * @property labelLarge LabelLarge is the largest label. They are used for displaying prominent
- *   texts like label on title buttons.
- * @property labelMedium LabelMedium is the medium label. They are used for displaying texts like
- *   primary label on buttons.
- * @property labelSmall LabelSmall is the small label. They are used for displaying texts like
- *   secondary label on buttons, labels on compact buttons.
- * @property bodyLarge BodyLarge is the largest body. Body texts are typically used for long-form
- *   writing as it works well for small text sizes. For longer sections of text, a serif or sans
- *   serif typeface is recommended.
- * @property bodyMedium BodyMedium is the second largest body. Body texts are typically used for
- *   long-form writing as it works well for small text sizes. For longer sections of text, a serif
- *   or sans serif typeface is recommended.
- * @property bodySmall BodySmall is the third largest body. Body texts are typically used for
- *   long-form writing as it works well for small text sizes. For longer sections of text, a serif
- *   or sans serif typeface is recommended.
- * @property bodyExtraSmall BodyExtraSmall is the smallest body. Body texts are typically used for
- *   long-form writing as it works well for small text sizes. For longer sections of text, a serif
- *   or sans serif typeface is recommended.
- * @property numeralExtraLarge NumeralExtraLarge is the largest role for digits. Numerals use
- *   tabular spacing by default. They highlight and express glanceable numbers that are limited to
- *   two or three characters only, where no localization is required like the charging screen.
- * @property numeralLarge NumeralLarge is the second largest role for digits. Numerals use tabular
- *   spacing by default. They are large sized number strings that are limited to big displays of
- *   time, where no localization is required like a timer countdown.
- * @property numeralMedium NumeralMedium is the third largest role for digits. Numerals use tabular
- *   spacing by default. They are medium sized numbers that are limited to short strings of digits,
- *   where no localization is required like a steps count.
- * @property numeralSmall NumeralSmall is the fourth largest role for digits. Numerals use tabular
- *   spacing by default. They are for numbers that need emphasis at a smaller scale, where no
- *   localization is required like date and time pickers.
- * @property numeralExtraSmall NumeralExtraSmall is the smallest role for digits. Numerals use
- *   tabular spacing by default. They are for numbers that need to accommodate longer strings of
- *   digits, where no localization is required like in-workout metrics.
- */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
 public class RemoteTypography(
     public val displayLarge: RemoteTextStyle,
@@ -114,30 +47,6 @@ public class RemoteTypography(
     public val numeralSmall: RemoteTextStyle,
     public val numeralExtraSmall: RemoteTextStyle,
 ) {
-    /**
-     * Creates a [RemoteTypography] with default token styles and an optional [defaultFontFamily].
-     *
-     * @param defaultFontFamily The default [RemoteFontFamily] applied to styles without an explicit
-     *   font family.
-     * @param displayLarge The largest display headline style.
-     * @param displayMedium The medium display headline style.
-     * @param displaySmall The smallest display headline style.
-     * @param titleLarge The largest title style.
-     * @param titleMedium The medium title style.
-     * @param titleSmall The smallest title style.
-     * @param labelLarge The largest label style.
-     * @param labelMedium The medium label style.
-     * @param labelSmall The smallest label style.
-     * @param bodyLarge The largest body text style.
-     * @param bodyMedium The medium body text style.
-     * @param bodySmall The small body text style.
-     * @param bodyExtraSmall The smallest body text style.
-     * @param numeralExtraLarge The extra-large numeral style.
-     * @param numeralLarge The large numeral style.
-     * @param numeralMedium The medium numeral style.
-     * @param numeralSmall The small numeral style.
-     * @param numeralExtraSmall The extra-small numeral style.
-     */
     public constructor(
         defaultFontFamily: RemoteFontFamily = RemoteFontFamily.Default,
         displayLarge: RemoteTextStyle = RemoteTypographyTokens.DisplayLarge,
@@ -179,18 +88,6 @@ public class RemoteTypography(
         numeralExtraSmall = numeralExtraSmall.withDefaultFontFamily(defaultFontFamily),
     )
 
-    /**
-     * Creates a copy of Wear Remote Compose [RemoteTypography] from Wear Compose [Typography].
-     *
-     * Font families that can't be represented remotely, such as app-bundled resource fonts, are
-     * dropped by the conversion. Use [defaultFontFamily] to map every style to a font available to
-     * the player instead, for example `RemoteFontFamily.Named("device:google-sans-flex")`.
-     *
-     * @param typography the Wear Compose [Typography] to convert.
-     * @param defaultFontFamily the [RemoteFontFamily] applied to every style. When
-     *   [RemoteFontFamily.Default], styles keep any font family that could be converted from
-     *   [typography].
-     */
     public constructor(
         typography: Typography,
         defaultFontFamily: RemoteFontFamily,
@@ -216,11 +113,6 @@ public class RemoteTypography(
         numeralExtraSmall = RemoteTextStyle.fromTextStyle(typography.numeralExtraSmall),
     )
 
-    /**
-     * Returns a copy of this [RemoteTypography], optionally overriding some of the values.
-     *
-     * @return a copy of this [RemoteTypography] with the specified values overridden
-     */
     public fun copy(
         displayLarge: RemoteTextStyle = this.displayLarge,
         displayMedium: RemoteTextStyle = this.displayMedium,

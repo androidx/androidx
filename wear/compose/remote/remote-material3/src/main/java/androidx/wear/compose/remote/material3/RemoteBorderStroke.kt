@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+
 package androidx.wear.compose.remote.material3
 
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.shaders.solidColor
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.runtime.Immutable
 
-/**
- * Represents a border stroke style to be drawn around a Remote Compose component.
- *
- * @param width The stroke width of the border.
- * @param brush The [RemoteBrush] to be used to draw the border stroke.
- */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
 public class RemoteBorderStroke(
     public val width: RemoteDp,
@@ -47,23 +45,11 @@ public class RemoteBorderStroke(
 
     override fun toString(): String = "RemoteBorderStroke(width=$width, brush=$brush)"
 
-    /**
-     * Creates a copy of this [RemoteBorderStroke] with the specified [width] and [brush].
-     *
-     * @return a copy of this [RemoteBorderStroke] with the specified [width] and [brush]
-     */
     public fun copy(
         width: RemoteDp = this.width,
         brush: RemoteBrush = this.brush,
     ): RemoteBorderStroke = RemoteBorderStroke(width, brush)
 }
 
-/**
- * Creates a [RemoteBorderStroke] with a solid [color].
- *
- * @param width The stroke width of the border.
- * @param color The [RemoteColor] of the border.
- * @return a [RemoteBorderStroke] with the specified [width] and solid [color]
- */
 public fun RemoteBorderStroke(width: RemoteDp, color: RemoteColor): RemoteBorderStroke =
     RemoteBorderStroke(width, RemoteBrush.solidColor(color))
