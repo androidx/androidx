@@ -416,11 +416,12 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
 
     @TaskAction
     fun generate() {
-        runDackkaWithArgs(
-            classpath = dackkaClasspath,
-            argsFile = computeArguments(),
-            workerExecutor = workerExecutor,
-        )
+        val workQueue = workerExecutor.noIsolation()
+        val argsFile = computeArguments()
+        workQueue.submit(DackkaWorkAction::class.java) { parameters ->
+            parameters.args.set(listOf(argsFile.path, "-loggingLevel", "WARN"))
+            parameters.classpath.set(dackkaClasspath)
+        }
     }
 
     companion object {
@@ -465,14 +466,6 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
 interface DackkaParams : WorkParameters {
     val args: ListProperty<String>
     val classpath: SetProperty<File>
-}
-
-fun runDackkaWithArgs(classpath: FileCollection, argsFile: File, workerExecutor: WorkerExecutor) {
-    val workQueue = workerExecutor.noIsolation()
-    workQueue.submit(DackkaWorkAction::class.java) { parameters ->
-        parameters.args.set(listOf(argsFile.path, "-loggingLevel", "WARN"))
-        parameters.classpath.set(classpath)
-    }
 }
 
 abstract class DackkaWorkAction @Inject constructor(private val execOperations: ExecOperations) :
