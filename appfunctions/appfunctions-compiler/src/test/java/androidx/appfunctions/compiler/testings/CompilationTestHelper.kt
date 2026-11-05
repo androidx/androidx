@@ -16,12 +16,12 @@
 
 package androidx.appfunctions.compiler.testings
 
-import androidx.room.compiler.processing.util.DiagnosticMessage
-import androidx.room.compiler.processing.util.Resource
-import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
-import androidx.room.compiler.processing.util.compiler.TestCompilationResult
-import androidx.room.compiler.processing.util.compiler.compile
+import androidx.room3.compiler.processing.util.DiagnosticMessage
+import androidx.room3.compiler.processing.util.Resource
+import androidx.room3.compiler.processing.util.Source
+import androidx.room3.compiler.processing.util.compiler.TestCompilationArguments
+import androidx.room3.compiler.processing.util.compiler.TestCompilationResult
+import androidx.room3.compiler.processing.util.compiler.compile
 import com.google.common.truth.Truth.assertWithMessage
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import java.io.File
