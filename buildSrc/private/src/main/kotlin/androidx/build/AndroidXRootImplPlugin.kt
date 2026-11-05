@@ -320,7 +320,7 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         }
 }
 
-private val COMMON_YARN_ARGS = listOf("--ignore-engines", "--verbose")
+private val COMMON_YARN_ARGS = listOf("--ignore-engines")
 
 private fun getToolingOfflineErrorMsg(path: String) =
     """
