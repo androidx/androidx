@@ -20,6 +20,7 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.os.Build
@@ -62,6 +63,17 @@ class GlanceAdaptiveWidgetReceiverTest {
 
         override suspend fun onUpdate(context: Context) {
             onUpdateCalled.complete(true)
+        }
+    }
+
+    /** Records the [Context] passed to the suspending [onUpdate] hook. */
+    private class ContextCapturingReceiver : GlanceAdaptiveWidgetReceiver() {
+        override val widgetName: String = "test_widget"
+
+        val updateContext = CompletableDeferred<Context>()
+
+        override suspend fun onUpdate(context: Context) {
+            updateContext.complete(context)
         }
     }
 
@@ -114,6 +126,18 @@ class GlanceAdaptiveWidgetReceiverTest {
 
         val called = receiver.onUpdateCalled.await()
         assertThat(called).isTrue()
+    }
+
+    @Test
+    fun onUpdate_withReceiverContext_passesApplicationContextToSuspendOnUpdate() = runTest {
+        val application = ApplicationProvider.getApplicationContext<Context>()
+        val receiver = ContextCapturingReceiver()
+        // Stands in for the ReceiverRestrictedContext that the system passes to receivers.
+        val receiverContext = ContextWrapper(application)
+
+        receiver.onUpdate(receiverContext, AppWidgetManager.getInstance(application), intArrayOf(1))
+
+        assertThat(receiver.updateContext.await()).isSameInstanceAs(application)
     }
 
     @Test
