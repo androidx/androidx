@@ -15,7 +15,6 @@
  */
 @file:JvmName("RemoteImageKt")
 @file:JvmMultifileClass
-@file:Suppress("RestrictedApiAndroidX")
 
 package androidx.compose.remote.creation.compose.layout
 

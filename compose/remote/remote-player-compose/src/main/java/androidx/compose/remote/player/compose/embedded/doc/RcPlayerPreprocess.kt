@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX", "PrimitiveInCollection", "VisibleForTests")
+@file:Suppress("PrimitiveInCollection", "VisibleForTests")
 
 package androidx.compose.remote.player.compose.embedded.doc
 

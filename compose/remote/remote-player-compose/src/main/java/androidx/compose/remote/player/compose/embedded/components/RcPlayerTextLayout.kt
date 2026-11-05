@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX")
 @file:OptIn(ExperimentalRemotePlayerApi::class)
 
 package androidx.compose.remote.player.compose.embedded.components
