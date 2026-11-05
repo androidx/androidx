@@ -153,7 +153,7 @@ public suspend fun captureSingleRemoteDocument(
     clock: RemoteClock = RemoteClock.SYSTEM,
     profile: Profile = RcPlatformProfiles.ANDROIDX,
     writerEvents: RemoteWriterEvents = RemoteWriterEvents(),
-    savedState: SavedState? = null,
+    savedState: SavedState?,
     retainedValuesStore: RetainedValuesStore? = null,
     content: @Composable @RemoteComposable () -> Unit,
 ): RemoteCapturedDocument {

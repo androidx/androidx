@@ -1781,12 +1781,14 @@ class CaptureRemoteDocumentTest {
             val first =
                 captureSingleRemoteDocument(
                     context = context,
+                    savedState = null,
                     retainedValuesStore = store,
                     content = content,
                 )
             val second =
                 captureSingleRemoteDocument(
                     context = context,
+                    savedState = null,
                     retainedValuesStore = store,
                     content = content,
                 )
@@ -1807,7 +1809,11 @@ class CaptureRemoteDocumentTest {
             val store = ManagedRetainedValuesStore()
             var retiredCount = 0
 
-            captureSingleRemoteDocument(context, retainedValuesStore = store) {
+            captureSingleRemoteDocument(
+                context = context,
+                savedState = null,
+                retainedValuesStore = store,
+            ) {
                 var showChild by remember { mutableStateOf(true) }
                 LaunchedEffect(Unit) { showChild = false }
                 if (showChild) {
@@ -1836,6 +1842,7 @@ class CaptureRemoteDocumentTest {
 
             captureSingleRemoteDocument(
                 context = context,
+                savedState = null,
                 retainedValuesStore = store,
                 content = content,
             )
@@ -1844,6 +1851,7 @@ class CaptureRemoteDocumentTest {
             showBranch = false
             captureSingleRemoteDocument(
                 context = context,
+                savedState = null,
                 retainedValuesStore = store,
                 content = content,
             )
