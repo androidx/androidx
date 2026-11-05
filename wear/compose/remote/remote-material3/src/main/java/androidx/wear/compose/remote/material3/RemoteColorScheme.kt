@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
 package androidx.wear.compose.remote.material3
 
 import android.R
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.runtime.Composable
@@ -29,7 +26,64 @@ import androidx.wear.compose.remote.material3.internal.RemoteColorRole
 import androidx.wear.compose.remote.material3.internal.RemoteColorSource
 import androidx.wear.compose.remote.material3.internal.dynamicRemoteColorSource
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Represents the color scheme for the Wear Material 3 theme in a remote context.
+ *
+ * A [RemoteColorScheme] holds [RemoteColor] parameters for a [RemoteMaterialTheme], mapping to the
+ * standard Material Design 3 color roles for Wearables.
+ *
+ * Color schemes are designed to be harmonious, ensure accessible text, and distinguish UI elements
+ * and surfaces from one another.
+ *
+ * To learn more about color schemes, see
+ * [Material Design Color System](https://m3.material.io/styles/color/the-color-system/color-roles).
+ *
+ * @property primary The primary color is the color displayed most frequently across your app’s
+ *   screens and components.
+ * @property primaryDim is less prominent than [primary] for component backgrounds
+ * @property primaryContainer is a standout container color for key components.
+ * @property onPrimary Color used for text and icons displayed on top of the primary color.
+ * @property onPrimaryContainer The color (and state variants) that should be used for content on
+ *   top of [primaryContainer].
+ * @property secondary The secondary color provides more ways to accent and distinguish your
+ *   product.
+ * @property secondaryDim is less prominent than [secondary] for component backgrounds.
+ * @property secondaryContainer A tonal color to be used in containers.
+ * @property onSecondary Color used for text and icons displayed on top of the secondary color.
+ * @property onSecondaryContainer The color (and state variants) that should be used for content on
+ *   top of [secondaryContainer].
+ * @property tertiary The tertiary color that can be used to balance primary and secondary colors,
+ *   or bring heightened attention to an element.
+ * @property tertiaryDim A less prominent tertiary color that can be used to balance primary and
+ *   secondary colors, or bring heightened attention to an element.
+ * @property tertiaryContainer A tonal color to be used in containers.
+ * @property onTertiary Color used for text and icons displayed on top of the tertiary color.
+ * @property onTertiaryContainer The color (and state variants) that should be used for content on
+ *   top of [tertiaryContainer].
+ * @property surfaceContainerLow A surface color used for large containment components such as Card
+ *   and Button with low prominence.
+ * @property surfaceContainer The main surface color that affects surfaces of components with large
+ *   containment areas, such as Card and Button.
+ * @property surfaceContainerHigh A surface color used for large containment components such as Card
+ *   and Button with high prominence.
+ * @property onSurface Color used for text and icons displayed on top of the surface color.
+ * @property onSurfaceVariant The color for secondary text and icons on top of [surfaceContainer].
+ * @property outline The main color for primary outline components. The outline color role adds
+ *   contrast for accessibility purposes.
+ * @property outlineVariant The secondary color for secondary outline components.
+ * @property background The background color that appears behind other content.
+ * @property onBackground Color used for text and icons displayed on top of the background color.
+ * @property error Color that indicates remove, delete, close or dismiss actions, such as Swipe to
+ *   Reveal. Added as a slightly less alarming and urgent alternative to errorContainer than the
+ *   error dim color.
+ * @property errorDim Indicates high priority errors or emergency actions, such as safety alerts,
+ *   failed dialog overlays or stop buttons.
+ * @property errorContainer A less prominent container color than [error], for components using the
+ *   error state. Can also indicate an active error state which feels less interactive than a filled
+ *   state, such as an active emergency sharing button, or on a failed overlay dialog.
+ * @property onError Color used for text and icons displayed on top of the error color.
+ * @property onErrorContainer Color used for text and icons on the errorContainer color.
+ */
 @Immutable
 public class RemoteColorScheme(
     public val primary: RemoteColor,
@@ -63,6 +117,14 @@ public class RemoteColorScheme(
     public val onErrorContainer: RemoteColor,
 ) {
 
+    /**
+     * Creates a [RemoteColorScheme] from a standard [ColorScheme].
+     *
+     * Colors are resolved using [RemoteColor.createNamedRemoteColor] with predefined canonical
+     * names (e.g., `"WearM3.primary"`).
+     *
+     * @param colorScheme The local [ColorScheme] to retrieve colors from.
+     */
     public constructor(
         colorScheme: ColorScheme = ColorScheme()
     ) : this(colorScheme = colorScheme, source = RemoteColorSource.Named)
@@ -120,6 +182,11 @@ public class RemoteColorScheme(
             source.resolve(WearColorRoles.OnErrorContainer, colorScheme.onErrorContainer),
     )
 
+    /**
+     * Returns a copy of this [RemoteColorScheme], optionally overriding some of the values.
+     *
+     * @return a copy of this [RemoteColorScheme] with the specified values overridden
+     */
     public fun copy(
         primary: RemoteColor = this.primary,
         primaryDim: RemoteColor = this.primaryDim,
@@ -241,6 +308,23 @@ private object WearColorRoles {
         RemoteColorRole("WearM3.onErrorContainer", R.color.system_on_error_container_dark)
 }
 
+/**
+ * Creates a [RemoteColorScheme] whose colors follow the player's Android system (dynamic) colors.
+ *
+ * Each color role is mapped to the corresponding Android system color token (e.g.
+ * `android.R.color.system_primary_dark`), so the player resolves it against the device's dynamic
+ * colors. Wear is always dark, so only the dark system tokens are used.
+ *
+ * If the current document profile does not support themed colors (e.g. Wear widgets), the named
+ * `"WearM3.*"` color scheme is returned instead.
+ *
+ * Use with [RemoteMaterialTheme] to opt in, e.g. `RemoteMaterialTheme(colorScheme =
+ * dynamicRemoteColorScheme()) { ... }`.
+ *
+ * @param fallbackColorScheme The [ColorScheme] used for fallback values when a system color cannot
+ *   be resolved, and for the named colors on profiles without themed color support.
+ * @return a [RemoteColorScheme] backed by Android system dynamic colors
+ */
 @Composable
 @RemoteComposable
 public fun dynamicRemoteColorScheme(

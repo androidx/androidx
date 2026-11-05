@@ -14,33 +14,112 @@
  * limitations under the License.
  */
 
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
 package androidx.wear.compose.remote.material3
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteAnimationSpec
 import androidx.compose.remote.creation.compose.state.remoteSpring
 import androidx.compose.runtime.Immutable
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * A motion scheme provides all the [RemoteAnimationSpec]s for a [RemoteMaterialTheme].
+ *
+ * Motion schemes are designed to create a harmonious motion for components in the app. This is the
+ * Remote Compose counterpart of [androidx.wear.compose.material3.MotionScheme].
+ *
+ * There are two built-in schemes, a [standard] and an [expressive], that can be used as-is or
+ * customized.
+ *
+ * The animation specs are written into the remote document when it is created, so the motion scheme
+ * is chosen at creation time and doesn't change on the player.
+ */
 @Immutable
 public interface RemoteMotionScheme {
+    /**
+     * A default spatial motion [RemoteAnimationSpec].
+     *
+     * This motion spec is designed to be applied to animations that can overshoot their targets,
+     * such as shape or bounds animations. For color, alpha or other animations which have strict
+     * limits use the `effects` equivalent.
+     *
+     * @return a [RemoteAnimationSpec] for default spatial motion
+     */
     public fun defaultSpatialSpec(): RemoteAnimationSpec
 
+    /**
+     * A fast spatial motion [RemoteAnimationSpec].
+     *
+     * This motion spec is designed to be applied to animations that can overshoot their targets,
+     * such as shape or bounds animations. For color, alpha or other animations which have strict
+     * limits use the `effects` equivalent.
+     *
+     * @return a [RemoteAnimationSpec] for fast spatial motion
+     */
     public fun fastSpatialSpec(): RemoteAnimationSpec
 
+    /**
+     * A slow spatial motion [RemoteAnimationSpec].
+     *
+     * This motion spec is designed to be applied to animations that can overshoot their targets,
+     * such as shape or bounds animations. For color, alpha or other animations which have strict
+     * limits use the `effects` equivalent.
+     *
+     * @return a [RemoteAnimationSpec] for slow spatial motion
+     */
     public fun slowSpatialSpec(): RemoteAnimationSpec
 
+    /**
+     * A default effects motion [RemoteAnimationSpec].
+     *
+     * This motion spec is designed to be applied to animations that have strict limits and which
+     * shouldn't overshoot their targets, such as color or alpha animations. For shape, bounds or
+     * other animations which don't have strict limits use the `spatial` equivalent.
+     *
+     * @return a [RemoteAnimationSpec] for default effects motion
+     */
     public fun defaultEffectsSpec(): RemoteAnimationSpec
 
+    /**
+     * A fast effects motion [RemoteAnimationSpec].
+     *
+     * This motion spec is designed to be applied to animations that have strict limits and which
+     * shouldn't overshoot their targets, such as color or alpha animations. For shape, bounds or
+     * other animations which don't have strict limits use the `spatial` equivalent.
+     *
+     * @return a [RemoteAnimationSpec] for fast effects motion
+     */
     public fun fastEffectsSpec(): RemoteAnimationSpec
 
+    /**
+     * A slow effects motion [RemoteAnimationSpec].
+     *
+     * This motion spec is designed to be applied to animations that have strict limits and which
+     * shouldn't overshoot their targets, such as color or alpha animations. For shape, bounds or
+     * other animations which don't have strict limits use the `spatial` equivalent.
+     *
+     * @return a [RemoteAnimationSpec] for slow effects motion
+     */
     public fun slowEffectsSpec(): RemoteAnimationSpec
 
     public companion object {
+        /**
+         * Returns a standard Material motion scheme.
+         *
+         * The standard scheme is Material's basic motion scheme for utilitarian UI elements and
+         * recurring interactions. It provides a linear motion feel. This is the default motion
+         * scheme of [RemoteMaterialTheme], as in Wear Compose Material 3.
+         *
+         * @return the standard [RemoteMotionScheme]
+         */
         public fun standard(): RemoteMotionScheme = StandardRemoteMotionScheme
 
+        /**
+         * Returns an expressive Material motion scheme.
+         *
+         * The expressive scheme is Material's recommended motion scheme for prominent UI elements
+         * and hero interactions. It provides a visually engaging motion feel.
+         *
+         * @return the expressive [RemoteMotionScheme]
+         */
         public fun expressive(): RemoteMotionScheme = ExpressiveRemoteMotionScheme
     }
 }
