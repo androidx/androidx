@@ -28,6 +28,7 @@ import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.clamp
 import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.rb
@@ -37,7 +38,6 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 
@@ -164,7 +164,7 @@ private fun RemoteDrawScope.drawLinearIndicator(
     val trackPaint = RemotePaint {
         style = PaintingStyle.Stroke
         this.strokeWidth = strokePx
-        strokeCap = StrokeCap.Round
+        strokeCap = RemoteStrokeCap.Round
         with(colors.trackBrush(enabled)) { applyTo(this@RemotePaint, size) }
         this.color = isZeroStroke.select(Color.Transparent.rc, this.color)
     }
@@ -179,7 +179,7 @@ private fun RemoteDrawScope.drawLinearIndicator(
     val indicatorPaint = RemotePaint {
         style = PaintingStyle.Stroke
         this.strokeWidth = strokePx
-        strokeCap = StrokeCap.Round
+        strokeCap = RemoteStrokeCap.Round
         with(colors.indicatorBrush(enabled)) { applyTo(this@RemotePaint, size) }
         this.color = isZero.select(Color.Transparent.rc, this.color)
     }

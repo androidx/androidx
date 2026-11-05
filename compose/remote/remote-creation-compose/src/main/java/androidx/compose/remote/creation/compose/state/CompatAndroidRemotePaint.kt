@@ -134,8 +134,8 @@ public fun android.graphics.Paint.asRemotePaint(): RemotePaint {
     remotePaint.blendMode = blendMode?.toRemoteBlendMode() ?: RemoteBlendMode.SrcOver
     remotePaint.remoteStyle = style.toRemotePaintingStyle()
     remotePaint.strokeWidth = strokeWidth.rf
-    remotePaint.remoteStrokeCap = strokeCap.toRemoteStrokeCap()
-    remotePaint.remoteStrokeJoin = strokeJoin.toRemoteStrokeJoin()
+    remotePaint.strokeCap = strokeCap.toRemoteStrokeCap()
+    remotePaint.strokeJoin = strokeJoin.toRemoteStrokeJoin()
     remotePaint.filterQuality =
         if (isFilterBitmap) RemoteFilterQuality.Low else RemoteFilterQuality.None
     remotePaint.shader = compat?.remoteShader ?: shader.toRemoteShader()

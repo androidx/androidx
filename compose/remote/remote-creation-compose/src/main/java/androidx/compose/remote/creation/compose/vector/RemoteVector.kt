@@ -184,8 +184,8 @@ internal class RemotePathComponent : RemoteVNode() {
                 this.colorFilter = colorFilter
                 this.remoteStyle = RemotePaintingStyle.Stroke
                 this.strokeWidth = strokeLineWidth
-                this.remoteStrokeCap = strokeLineCap
-                this.remoteStrokeJoin = strokeLineJoin
+                this.strokeCap = strokeLineCap
+                this.strokeJoin = strokeLineJoin
             }
             applyBrushToPaint(strokePaint, effectiveStrokeBrush, strokeAlpha, viewportSize)
             if (hasTween) {

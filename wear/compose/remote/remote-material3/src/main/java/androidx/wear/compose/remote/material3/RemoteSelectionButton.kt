@@ -46,6 +46,7 @@ import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.clamp
 import androidx.compose.remote.creation.compose.state.cos
@@ -58,7 +59,6 @@ import androidx.compose.remote.creation.compose.state.toRad
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -244,7 +244,7 @@ internal fun RemoteCheckboxControl(
         val tickPaint = RemotePaint {
             style = PaintingStyle.Stroke
             strokeWidth = strokeWidthPx
-            strokeCap = StrokeCap.Round
+            strokeCap = RemoteStrokeCap.Round
             color = lerp(Color.Transparent.rc, checkmarkColor, progress)
         }
         val tickCenter =
@@ -382,7 +382,7 @@ internal fun RemoteSwitchControl(
         val tickPaint = RemotePaint {
             style = PaintingStyle.Stroke
             strokeWidth = strokeWidthPx * progress
-            strokeCap = StrokeCap.Round
+            strokeCap = RemoteStrokeCap.Round
             color = thumbIconColor
         }
         val baseStart =

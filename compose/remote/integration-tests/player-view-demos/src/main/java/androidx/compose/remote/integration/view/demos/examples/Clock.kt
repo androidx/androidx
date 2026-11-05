@@ -40,6 +40,7 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.remotePath
@@ -50,7 +51,6 @@ import androidx.compose.remote.tooling.preview.RemotePreviewWrapper
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewWrapper
 
@@ -85,7 +85,7 @@ fun Color.paint(
     style: PaintingStyle? = null,
     strokeWidth: Float? = null,
     textSize: Float? = null,
-    cap: StrokeCap? = null,
+    cap: RemoteStrokeCap? = null,
 ): RemotePaint = RemotePaint {
     color = this@paint.rc
     if (style != null) {
@@ -302,7 +302,7 @@ fun RcSimpleClock1(
             // ===================== hour hand =========================
             rotate(hrAngle, RemoteOffset(centerX, centerY)) {
                 drawLine(
-                    hourHandColor.paint(strokeWidth = handWidth, cap = StrokeCap.Round),
+                    hourHandColor.paint(strokeWidth = handWidth, cap = RemoteStrokeCap.Round),
                     RemoteOffset(centerX, centerY - hourHandLength),
                     RemoteOffset(centerX, centerY),
                 )
@@ -310,7 +310,7 @@ fun RcSimpleClock1(
 
             rotate(minAngle, RemoteOffset(centerX, centerY)) {
                 drawLine(
-                    minHandColor.paint(strokeWidth = handWidth, cap = StrokeCap.Round),
+                    minHandColor.paint(strokeWidth = handWidth, cap = RemoteStrokeCap.Round),
                     RemoteOffset(centerX, centerY - minHandLength),
                     RemoteOffset(centerX, centerY),
                 )
@@ -344,7 +344,7 @@ fun RcSimpleClock1(
 
             rotate(secondAngle, RemoteOffset(centerX, centerY)) {
                 drawLine(
-                    minHandColor.paint(strokeWidth = 4f, cap = StrokeCap.Round),
+                    minHandColor.paint(strokeWidth = 4f, cap = RemoteStrokeCap.Round),
                     RemoteOffset(centerX, centerY - minHandLength),
                     RemoteOffset(centerX, centerY),
                 )

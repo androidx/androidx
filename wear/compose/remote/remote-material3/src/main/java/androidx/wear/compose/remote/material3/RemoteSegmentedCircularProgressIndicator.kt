@@ -30,6 +30,7 @@ import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.asin
 import androidx.compose.remote.creation.compose.state.clamp
 import androidx.compose.remote.creation.compose.state.cos
@@ -44,7 +45,6 @@ import androidx.compose.remote.creation.compose.state.toRad
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.graphics.StrokeCap
 import kotlin.math.PI
 
 /**
@@ -262,14 +262,14 @@ private fun RemoteDrawScope.drawSegments(
     val trackPaint = RemotePaint {
         style = PaintingStyle.Stroke
         this.strokeWidth = strokePx
-        strokeCap = StrokeCap.Round
+        strokeCap = RemoteStrokeCap.Round
         with(colors.trackBrush(enabled)) { applyTo(this@RemotePaint, size) }
     }
     val indicatorStrokePx = strokePx + AntiAliasingStrokePadding.rf
     val indicatorPaint = RemotePaint {
         style = PaintingStyle.Stroke
         this.strokeWidth = indicatorStrokePx
-        strokeCap = StrokeCap.Round
+        strokeCap = RemoteStrokeCap.Round
         with(colors.indicatorBrush(enabled)) { applyTo(this@RemotePaint, size) }
     }
     val indicatorColor = indicatorPaint.color

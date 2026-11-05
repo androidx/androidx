@@ -18,18 +18,12 @@ package androidx.compose.remote.creation.compose.state
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.BlackArgb
 import androidx.compose.remote.creation.compose.layout.toComposePaintingStyle
-import androidx.compose.remote.creation.compose.layout.toComposeStrokeCap
-import androidx.compose.remote.creation.compose.layout.toComposeStrokeJoin
 import androidx.compose.remote.creation.compose.layout.toRemotePaintingStyle
-import androidx.compose.remote.creation.compose.layout.toRemoteStrokeCap
-import androidx.compose.remote.creation.compose.layout.toRemoteStrokeJoin
 import androidx.compose.remote.creation.compose.shaders.RemoteShader
 import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.compose.text.toRemoteFontVariationSettings
 import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.text.font.FontVariation
 
 /**
@@ -61,27 +55,11 @@ public sealed interface RemotePaint {
     /** The width of the stroke when [style] is set to Stroke. */
     public var strokeWidth: RemoteFloat
 
-    /** The [StrokeCap] to use for the ends of lines and paths. */
-    public var strokeCap: StrokeCap
+    /** The [RemoteStrokeCap] to use for the ends of lines and paths. */
+    public var strokeCap: RemoteStrokeCap
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public var remoteStrokeCap: RemoteStrokeCap
-        get() = strokeCap.toRemoteStrokeCap()
-        set(value) {
-            strokeCap = value.toComposeStrokeCap()
-        }
-
-    /** The [StrokeJoin] to use for the joints of lines and paths. */
-    public var strokeJoin: StrokeJoin
-
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public var remoteStrokeJoin: RemoteStrokeJoin
-        get() = strokeJoin.toRemoteStrokeJoin()
-        set(value) {
-            strokeJoin = value.toComposeStrokeJoin()
-        }
+    /** The [RemoteStrokeJoin] to use for the joints of lines and paths. */
+    public var strokeJoin: RemoteStrokeJoin
 
     /** The color to use for drawing. */
     public var color: RemoteColor
@@ -142,8 +120,9 @@ internal class StandardRemotePaint() : RemotePaint {
 
     public override var style: PaintingStyle = PaintingStyle.Fill
     public override var strokeWidth: RemoteFloat = 0.0f.rf
-    public override var strokeCap: StrokeCap = StrokeCap.Butt
-    public override var strokeJoin: StrokeJoin = StrokeJoin.Miter
+    public override var strokeCap: RemoteStrokeCap = RemoteStrokeCap.Butt
+    public override var strokeJoin: RemoteStrokeJoin = RemoteStrokeJoin.Miter
+
     public override var filterQuality: RemoteFilterQuality = RemoteFilterQuality.Low
     public override var shader: RemoteShader? = null
     public override var textSize: RemoteFloat = 12f.rf

@@ -16,16 +16,14 @@
 
 package androidx.compose.remote.creation.compose.state
 
-import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import kotlin.jvm.JvmInline
 
 /** Styles to use for line endings. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
 @JvmInline
-public value class RemoteStrokeCap internal constructor(public val value: Int) {
+public value class RemoteStrokeCap internal constructor(internal val value: Int) {
     override fun toString(): String =
         when (this) {
             Butt -> "Butt"
