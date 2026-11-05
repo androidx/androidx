@@ -16,16 +16,14 @@
 
 package androidx.compose.remote.creation.compose.text
 
-import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import kotlin.jvm.JvmInline
 
 /** Defines whether a font should be styled as normal or italic in Remote Compose. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
 @JvmInline
-public value class RemoteFontStyle internal constructor(public val value: Int) {
+public value class RemoteFontStyle internal constructor(internal val value: Int) {
     override fun toString(): String =
         when (this) {
             Normal -> "RemoteFontStyle.Normal"

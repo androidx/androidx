@@ -27,7 +27,7 @@ public fun RemoteModifier.combinedClickable(
     onLongClick: RemoteAction = RemoteAction.None,
     onDoubleClick: RemoteAction = RemoteAction.None,
     enabled: Boolean = true,
-    role: RemoteRole? = RemoteRole.Button,
+    role: RemoteRole? = null,
 ): RemoteModifier =
     then(
             if (enabled) {
@@ -80,7 +80,7 @@ public fun RemoteModifier.combinedClickable(
         .then(
             if (role != null)
                 RemoteModifier.semantics {
-                    this.remoteRole = role
+                    this.role = role
                     this.enabled = enabled
                 }
             else RemoteModifier

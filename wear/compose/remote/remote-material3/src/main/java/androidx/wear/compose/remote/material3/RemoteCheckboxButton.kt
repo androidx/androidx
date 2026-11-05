@@ -20,6 +20,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
 import androidx.compose.remote.creation.compose.layout.RemoteRowScope
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteRole
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
@@ -33,7 +34,6 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.semantics.Role
 
 /**
  * The Wear Material [RemoteCheckboxButton] offers four slots and a specific layout for an icon, a
@@ -99,7 +99,7 @@ public fun RemoteCheckboxButton(
             colors.iconColor(enabled = enabled, checked = checked, progress = colorProgress),
         contentPadding = contentPadding,
         border = border,
-        role = Role.Checkbox,
+        role = RemoteRole.Checkbox,
         icon = icon,
         secondaryLabel = secondaryLabel,
         label = label,

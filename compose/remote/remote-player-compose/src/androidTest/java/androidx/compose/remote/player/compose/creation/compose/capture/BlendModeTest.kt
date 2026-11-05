@@ -123,7 +123,7 @@ class BlendModeTest {
 
                 // Draw src
                 paint.color = Color.Blue.rc
-                paint.remoteBlendMode = testCase.blendMode
+                paint.blendMode = testCase.blendMode
                 drawRect(
                     paint = paint,
                     topLeft = RemoteOffset(0f.rf, h * 1f / 3f),

@@ -514,9 +514,9 @@ package androidx.compose.remote.creation.compose.modifier {
   }
 
   public final class ClickableModifierKt {
-    method @KotlinOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clickable(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.RemoteAction onClick, optional boolean enabled, optional androidx.compose.ui.semantics.Role? role);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clickable-NVUIbCQ(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.RemoteAction, boolean, androidx.compose.ui.semantics.Role?);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! clickable-NVUIbCQ$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.action.RemoteAction!, boolean, androidx.compose.ui.semantics.Role!, int, Object!);
+    method @KotlinOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clickable(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.RemoteAction onClick, optional boolean enabled, optional androidx.compose.remote.creation.compose.modifier.RemoteRole? role);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clickable-UyQ4Jmk(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.RemoteAction, boolean, androidx.compose.remote.creation.compose.modifier.RemoteRole?);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! clickable-UyQ4Jmk$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.action.RemoteAction!, boolean, androidx.compose.remote.creation.compose.modifier.RemoteRole!, int, Object!);
   }
 
   public final class ClipModifierKt {
@@ -674,6 +674,33 @@ package androidx.compose.remote.creation.compose.modifier {
   public abstract sealed nonexhaustive class RemoteRenderEffect {
   }
 
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class RemoteRole {
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteRole! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.compose.remote.creation.compose.modifier.RemoteRole.Companion Companion;
+  }
+
+  public static final class RemoteRole.Companion {
+    method @BytecodeOnly public int getButton-S3nNluk();
+    method @BytecodeOnly public int getCarousel-S3nNluk();
+    method @BytecodeOnly public int getCheckbox-S3nNluk();
+    method @BytecodeOnly public int getDropdownList-S3nNluk();
+    method @BytecodeOnly public int getImage-S3nNluk();
+    method @BytecodeOnly public int getRadioButton-S3nNluk();
+    method @BytecodeOnly public int getSwitch-S3nNluk();
+    method @BytecodeOnly public int getTab-S3nNluk();
+    method @BytecodeOnly public int getValuePicker-S3nNluk();
+    property public androidx.compose.remote.creation.compose.modifier.RemoteRole Button;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteRole Carousel;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteRole Checkbox;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteRole DropdownList;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteRole Image;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteRole RadioButton;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteRole Switch;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteRole Tab;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteRole ValuePicker;
+  }
+
   @androidx.compose.runtime.Stable public final class RemoteScrollState {
     ctor @androidx.compose.runtime.annotation.RememberInComposition public RemoteScrollState(androidx.compose.remote.creation.compose.state.MutableRemoteFloat positionState, @IntRange(from=0L) int notches);
     ctor @androidx.compose.runtime.annotation.RememberInComposition public RemoteScrollState(float position, @IntRange(from=0L) int notches);
@@ -688,12 +715,12 @@ package androidx.compose.remote.creation.compose.modifier {
   public final class RemoteSemanticsProperties {
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyKey<androidx.compose.remote.creation.compose.state.RemoteString> getContentDescription();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyKey<java.lang.Boolean> getEnabled();
-    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyKey<androidx.compose.ui.semantics.Role> getRole();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyKey<androidx.compose.remote.creation.compose.modifier.RemoteRole> getRole();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyKey<androidx.compose.remote.creation.compose.state.RemoteString> getStateDescription();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyKey<androidx.compose.remote.creation.compose.state.RemoteString> getText();
     property public androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyKey<androidx.compose.remote.creation.compose.state.RemoteString> ContentDescription;
     property public androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyKey<java.lang.Boolean> Enabled;
-    property public androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyKey<androidx.compose.ui.semantics.Role> Role;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyKey<androidx.compose.remote.creation.compose.modifier.RemoteRole> Role;
     property public androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyKey<androidx.compose.remote.creation.compose.state.RemoteString> StateDescription;
     property public androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyKey<androidx.compose.remote.creation.compose.state.RemoteString> Text;
     field public static final androidx.compose.remote.creation.compose.modifier.RemoteSemanticsProperties INSTANCE;
@@ -728,19 +755,19 @@ package androidx.compose.remote.creation.compose.modifier {
     method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clearAndSetSemantics(androidx.compose.remote.creation.compose.modifier.RemoteModifier, kotlin.jvm.functions.Function1<? super androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver,kotlin.Unit> properties);
     method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteString? getContentDescription(androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver);
     method @InaccessibleFromKotlin public static boolean getEnabled(androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver);
-    method @BytecodeOnly public static androidx.compose.ui.semantics.Role? getRole(androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteRole? getRole(androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver);
     method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteString? getStateDescription(androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver);
     method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteString? getText(androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver);
     method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier semantics(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional boolean mergeDescendants, kotlin.jvm.functions.Function1<? super androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver,kotlin.Unit> properties);
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! semantics$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, boolean, kotlin.jvm.functions.Function1!, int, Object!);
     method @InaccessibleFromKotlin public static void setContentDescription(androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver, androidx.compose.remote.creation.compose.state.RemoteString?);
     method @InaccessibleFromKotlin public static void setEnabled(androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver, boolean);
-    method @BytecodeOnly public static void setRole-0qwdnHY(androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver, androidx.compose.ui.semantics.Role?);
+    method @BytecodeOnly public static void setRole-nl-zDNQ(androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver, androidx.compose.remote.creation.compose.modifier.RemoteRole?);
     method @InaccessibleFromKotlin public static void setStateDescription(androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver, androidx.compose.remote.creation.compose.state.RemoteString?);
     method @InaccessibleFromKotlin public static void setText(androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver, androidx.compose.remote.creation.compose.state.RemoteString?);
     property public static androidx.compose.remote.creation.compose.state.RemoteString? androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver.contentDescription;
     property public static boolean androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver.enabled;
-    property public static androidx.compose.ui.semantics.Role? androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver.role;
+    property public static androidx.compose.remote.creation.compose.modifier.RemoteRole? androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver.role;
     property public static androidx.compose.remote.creation.compose.state.RemoteString? androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver.stateDescription;
     property public static androidx.compose.remote.creation.compose.state.RemoteString? androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver.text;
   }
@@ -1125,7 +1152,7 @@ package androidx.compose.remote.creation.compose.state {
   }
 
   public sealed nonexhaustive interface RemotePaint {
-    method @BytecodeOnly public int getBlendMode-0nO6VwU();
+    method @BytecodeOnly public int getBlendMode-0vVSDDA();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteColor getColor();
     method @InaccessibleFromKotlin public String? getFontFeatureSettings();
     method @InaccessibleFromKotlin public androidx.compose.ui.text.font.FontVariation.Settings? getFontVariationSettings();
@@ -1135,7 +1162,7 @@ package androidx.compose.remote.creation.compose.state {
     method @BytecodeOnly public int getStyle-TiuSbCo();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getTextSize();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteTypeface? getTypeface();
-    method @BytecodeOnly public void setBlendMode-s9anfk8(int);
+    method @BytecodeOnly public void setBlendMode-1B-nx3I(int);
     method @InaccessibleFromKotlin public void setColor(androidx.compose.remote.creation.compose.state.RemoteColor);
     method @InaccessibleFromKotlin public void setFontFeatureSettings(String?);
     method @InaccessibleFromKotlin public void setFontVariationSettings(androidx.compose.ui.text.font.FontVariation.Settings?);
@@ -1145,7 +1172,7 @@ package androidx.compose.remote.creation.compose.state {
     method @BytecodeOnly public void setStyle-k9PVt8s(int);
     method @InaccessibleFromKotlin public void setTextSize(androidx.compose.remote.creation.compose.state.RemoteFloat);
     method @InaccessibleFromKotlin public void setTypeface(androidx.compose.remote.creation.compose.text.RemoteTypeface?);
-    property public abstract androidx.compose.ui.graphics.BlendMode blendMode;
+    property public abstract androidx.compose.remote.creation.compose.state.RemoteBlendMode blendMode;
     property public abstract androidx.compose.remote.creation.compose.state.RemoteColor color;
     property public abstract String? fontFeatureSettings;
     property public abstract androidx.compose.ui.text.font.FontVariation.Settings? fontVariationSettings;
@@ -1233,6 +1260,159 @@ package androidx.compose.remote.creation.compose.text {
 
   public final class RemoteFontFamilyKt {
     method public static androidx.compose.remote.creation.compose.text.RemoteTypeface toRemoteTypeface(androidx.compose.remote.creation.compose.text.RemoteFontFamily);
+  }
+
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class RemoteFontStyle {
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.text.RemoteFontStyle! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.compose.remote.creation.compose.text.RemoteFontStyle.Companion Companion;
+  }
+
+  public static final class RemoteFontStyle.Companion {
+    method @BytecodeOnly public int getItalic-C-uzmvI();
+    method @BytecodeOnly public int getNormal-C-uzmvI();
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteFontStyle Italic;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteFontStyle Normal;
+  }
+
+  public final class RemoteFontVariation {
+    field public static final androidx.compose.remote.creation.compose.text.RemoteFontVariation INSTANCE;
+  }
+
+  @androidx.compose.runtime.Immutable public static final class RemoteFontVariation.Setting {
+    ctor public RemoteFontVariation.Setting(String axisName, androidx.compose.remote.creation.compose.state.RemoteFloat value);
+    method @InaccessibleFromKotlin public String getAxisName();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getValue();
+    property public String axisName;
+    property public androidx.compose.remote.creation.compose.state.RemoteFloat value;
+  }
+
+  @androidx.compose.runtime.Immutable public static final class RemoteFontVariation.Settings {
+    ctor public RemoteFontVariation.Settings(androidx.compose.remote.creation.compose.text.RemoteFontVariation.Setting... settings);
+    ctor public RemoteFontVariation.Settings(java.util.List<androidx.compose.remote.creation.compose.text.RemoteFontVariation.Setting> settings);
+    method @InaccessibleFromKotlin public java.util.List<androidx.compose.remote.creation.compose.text.RemoteFontVariation.Setting> getSettings();
+    property public java.util.List<androidx.compose.remote.creation.compose.text.RemoteFontVariation.Setting> settings;
+  }
+
+  @androidx.compose.runtime.Immutable public final class RemoteFontWeight {
+    ctor public RemoteFontWeight(androidx.compose.remote.creation.compose.state.RemoteFloat weight);
+    ctor public RemoteFontWeight(@IntRange(from=1L, to=1000L) int weight);
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getWeight();
+    property public androidx.compose.remote.creation.compose.state.RemoteFloat weight;
+    field public static final androidx.compose.remote.creation.compose.text.RemoteFontWeight.Companion Companion;
+  }
+
+  public static final class RemoteFontWeight.Companion {
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteFontWeight getBlack();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteFontWeight getBold();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteFontWeight getExtraBold();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteFontWeight getExtraLight();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteFontWeight getLight();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteFontWeight getMedium();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteFontWeight getNormal();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteFontWeight getSemiBold();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteFontWeight getThin();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteFontWeight getW100();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteFontWeight getW200();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteFontWeight getW300();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteFontWeight getW400();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteFontWeight getW500();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteFontWeight getW600();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteFontWeight getW700();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteFontWeight getW800();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteFontWeight getW900();
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteFontWeight Black;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteFontWeight Bold;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteFontWeight ExtraBold;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteFontWeight ExtraLight;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteFontWeight Light;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteFontWeight Medium;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteFontWeight Normal;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteFontWeight SemiBold;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteFontWeight Thin;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteFontWeight W100;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteFontWeight W200;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteFontWeight W300;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteFontWeight W400;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteFontWeight W500;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteFontWeight W600;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteFontWeight W700;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteFontWeight W800;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteFontWeight W900;
+  }
+
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class RemoteHyphens {
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.text.RemoteHyphens! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.compose.remote.creation.compose.text.RemoteHyphens.Companion Companion;
+  }
+
+  public static final class RemoteHyphens.Companion {
+    method @BytecodeOnly public int getAuto-CC6Bl3o();
+    method @BytecodeOnly public int getNone-CC6Bl3o();
+    method @BytecodeOnly public int getUnspecified-CC6Bl3o();
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteHyphens Auto;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteHyphens None;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteHyphens Unspecified;
+  }
+
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class RemoteLineBreak {
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.text.RemoteLineBreak! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.compose.remote.creation.compose.text.RemoteLineBreak.Companion Companion;
+  }
+
+  public static final class RemoteLineBreak.Companion {
+    method @BytecodeOnly public int getHeading-31ovqj0();
+    method @BytecodeOnly public int getParagraph-31ovqj0();
+    method @BytecodeOnly public int getSimple-31ovqj0();
+    method @BytecodeOnly public int getUnspecified-31ovqj0();
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteLineBreak Heading;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteLineBreak Paragraph;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteLineBreak Simple;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteLineBreak Unspecified;
+  }
+
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class RemoteTextAlign {
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.text.RemoteTextAlign! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.compose.remote.creation.compose.text.RemoteTextAlign.Companion Companion;
+  }
+
+  public static final class RemoteTextAlign.Companion {
+    method @BytecodeOnly public int getCenter-OeM8DuM();
+    method @BytecodeOnly public int getEnd-OeM8DuM();
+    method @BytecodeOnly public int getJustify-OeM8DuM();
+    method @BytecodeOnly public int getLeft-OeM8DuM();
+    method @BytecodeOnly public int getRight-OeM8DuM();
+    method @BytecodeOnly public int getStart-OeM8DuM();
+    method @BytecodeOnly public int getUnspecified-OeM8DuM();
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteTextAlign Center;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteTextAlign End;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteTextAlign Justify;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteTextAlign Left;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteTextAlign Right;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteTextAlign Start;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteTextAlign Unspecified;
+  }
+
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class RemoteTextDecoration {
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.text.RemoteTextDecoration! box-impl(int);
+    method @KotlinOnly public operator boolean contains(androidx.compose.remote.creation.compose.text.RemoteTextDecoration other);
+    method @BytecodeOnly public static boolean contains-nslsm8g(int, int);
+    method @KotlinOnly public operator androidx.compose.remote.creation.compose.text.RemoteTextDecoration plus(androidx.compose.remote.creation.compose.text.RemoteTextDecoration decoration);
+    method @BytecodeOnly public static int plus--6as2og(int, int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.compose.remote.creation.compose.text.RemoteTextDecoration.Companion Companion;
+  }
+
+  public static final class RemoteTextDecoration.Companion {
+    method @BytecodeOnly public int getLineThrough-FifJeIA();
+    method @BytecodeOnly public int getNone-FifJeIA();
+    method @BytecodeOnly public int getUnderline-FifJeIA();
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteTextDecoration LineThrough;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteTextDecoration None;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteTextDecoration Underline;
   }
 
   @androidx.compose.runtime.Immutable public final class RemoteTextStyle {

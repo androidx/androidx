@@ -21,6 +21,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
 import androidx.compose.remote.creation.compose.layout.RemoteRowScope
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteRole
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
@@ -36,7 +37,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.Role
 
 /**
  * The Wear Material [RemoteSwitchButton] offers four slots and a specific layout for an icon, a
@@ -102,7 +102,7 @@ public fun RemoteSwitchButton(
             colors.iconColor(enabled = enabled, checked = checked, progress = colorProgress),
         contentPadding = contentPadding,
         border = border,
-        role = Role.Switch,
+        role = RemoteRole.Switch,
         icon = icon,
         secondaryLabel = secondaryLabel,
         label = label,

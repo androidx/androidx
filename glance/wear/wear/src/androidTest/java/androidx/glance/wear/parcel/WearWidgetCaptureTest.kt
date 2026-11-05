@@ -31,6 +31,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteImage
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteRole
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.size
@@ -106,7 +107,8 @@ class WearWidgetCaptureTest {
                         RemoteModifier.clickable(
                             rememberPendingIntentAction { localContext ->
                                 createTestPendingIntent(localContext, requestCode0)
-                            }
+                            },
+                            role = RemoteRole.Button,
                         ),
                 )
                 RemoteText(
@@ -115,7 +117,8 @@ class WearWidgetCaptureTest {
                         RemoteModifier.clickable(
                             rememberPendingIntentAction { localContext ->
                                 createTestPendingIntent(localContext, requestCode1)
-                            }
+                            },
+                            role = RemoteRole.Button,
                         ),
                 )
             }

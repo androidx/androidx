@@ -825,16 +825,13 @@ class PaintTrackerTest {
     fun testAndroidPaintBlendModeSync() {
         assertThat(AndroidBlendModes.map { it.first })
             .containsExactlyElementsIn(AndroidBlendMode.entries)
-        for ((androidBlendMode, composeBlendMode, remoteBlendMode) in AndroidBlendModes) {
+        for ((androidBlendMode, _, remoteBlendMode) in AndroidBlendModes) {
             val androidPaint = AndroidPaint().apply { blendMode = androidBlendMode }
             assertThat(androidPaint.blendMode).isEqualTo(androidBlendMode)
 
             val paint = androidPaint.asRemotePaint()
 
-            assertWithMessage("$androidBlendMode").that(paint.blendMode).isEqualTo(composeBlendMode)
-            assertWithMessage("$androidBlendMode")
-                .that(paint.remoteBlendMode)
-                .isEqualTo(remoteBlendMode)
+            assertWithMessage("$androidBlendMode").that(paint.blendMode).isEqualTo(remoteBlendMode)
             assertWithMessage("$androidBlendMode")
                 .that(initialSync(paint).mBlendMode)
                 .isEqualTo(remoteBlendMode.value)
@@ -954,8 +951,7 @@ class PaintTrackerTest {
         val paint = androidPaint.asRemotePaint()
         val changes = initialSync(paint)
 
-        assertThat(paint.blendMode).isEqualTo(BlendMode.SrcOver)
-        assertThat(paint.remoteBlendMode).isEqualTo(RemoteBlendMode.SrcOver)
+        assertThat(paint.blendMode).isEqualTo(RemoteBlendMode.SrcOver)
         assertThat(changes.mBlendMode).isEqualTo(RemoteBlendMode.SrcOver.value)
         assertThat(paint.style).isEqualTo(PaintingStyle.Fill)
         assertThat(paint.remoteStyle).isEqualTo(RemotePaintingStyle.Fill)

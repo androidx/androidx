@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-@file:JvmName("ClickableModifierKt")
-@file:JvmMultifileClass
-
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
@@ -49,24 +46,20 @@ internal class ClickableModifier(
  * If you need to support double click or long click alongside the single click, consider using
  * [combinedClickable].
  *
+ * Example of toggling remote state when an element is clicked:
+ *
+ * @sample androidx.compose.remote.creation.compose.samples.ClickableValueChangeSample
  * @param onClick will be called when user clicks on the element
  * @param enabled Controls the enabled state. When `false`, [onClick], and this modifier will appear
  *   disabled for accessibility services
  * @param role the type of user interface element. Accessibility services might use this to describe
- *   the element or do customizations
+ *   the element or do customizations. By default, no role is set (`null`).
  * @return a [RemoteModifier] that makes the component clickable
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.clickable(
     onClick: RemoteAction,
     enabled: Boolean = true,
-    role: RemoteRole,
-): RemoteModifier = clickableImpl(onClick = onClick, enabled = enabled, role = role)
-
-internal fun RemoteModifier.clickableImpl(
-    onClick: RemoteAction,
-    enabled: Boolean = true,
-    role: RemoteRole? = RemoteRole.Button,
+    role: RemoteRole? = null,
 ): RemoteModifier =
     then(
             if (enabled) {
@@ -83,7 +76,7 @@ internal fun RemoteModifier.clickableImpl(
         .then(
             if (role != null)
                 RemoteModifier.semantics {
-                    this.remoteRole = role
+                    this.role = role
                     this.enabled = enabled
                 }
             else RemoteModifier

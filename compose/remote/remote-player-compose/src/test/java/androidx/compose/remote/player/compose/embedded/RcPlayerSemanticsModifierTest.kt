@@ -22,6 +22,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteRole
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.clearAndSetSemantics
 import androidx.compose.remote.creation.compose.modifier.contentDescription
@@ -63,7 +64,7 @@ class RcPlayerSemanticsModifierTest {
                 modifier =
                     RemoteModifier.semantics {
                             contentDescription = "switchy".rs
-                            role = Role.Switch
+                            role = RemoteRole.Switch
                         }
                         .size(40.rdp)
                         .background(Color(0xFF3F51B5).rc)

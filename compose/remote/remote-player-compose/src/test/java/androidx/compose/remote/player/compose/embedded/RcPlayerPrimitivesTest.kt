@@ -86,6 +86,7 @@ import androidx.compose.remote.creation.compose.shaders.RemoteLinearShader
 import androidx.compose.remote.creation.compose.shaders.image
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.MutableRemoteInt
+import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemoteBlendModeColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
@@ -1694,7 +1695,7 @@ class RcPlayerPrimitivesTest {
             RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                 val paint =
                     RemotePaint().apply {
-                        blendMode = BlendMode.SrcOver
+                        blendMode = RemoteBlendMode.SrcOver
                     }
                 drawRect(
                     paint,
@@ -1977,7 +1978,7 @@ class RcPlayerPrimitivesTest {
                     paint =
                         RemotePaint {
                             color = RemoteColor(Color.Red)
-                            blendMode = BlendMode.SrcOver
+                            blendMode = RemoteBlendMode.SrcOver
                         },
                     topLeft = RemoteOffset(10f.rf, 10f.rf),
                     size = RemoteSize(80f.rf, 80f.rf),

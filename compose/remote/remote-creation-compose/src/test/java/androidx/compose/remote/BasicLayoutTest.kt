@@ -45,6 +45,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteRole
 import androidx.compose.remote.creation.compose.modifier.RemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.clickable
@@ -576,7 +577,8 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
             ) {
                 RemoteBox(
                     modifier =
-                        RemoteModifier.size(100.rdp).clickable(hostAction("my_host_action".rs))
+                        RemoteModifier.size(100.rdp)
+                            .clickable(hostAction("my_host_action".rs), role = RemoteRole.Button)
                 )
             }
         }
@@ -608,7 +610,10 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                 RemoteBox(
                     modifier =
                         RemoteModifier.size(100.rdp)
-                            .clickable(hostAction("my_host_action".rs, param))
+                            .clickable(
+                                hostAction("my_host_action".rs, param),
+                                role = RemoteRole.Button,
+                            )
                 )
             }
         }

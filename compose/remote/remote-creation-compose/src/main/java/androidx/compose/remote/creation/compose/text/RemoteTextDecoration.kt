@@ -16,16 +16,14 @@
 
 package androidx.compose.remote.creation.compose.text
 
-import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import kotlin.jvm.JvmInline
 
 /** Defines a horizontal line to be drawn on Remote Compose text. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
 @JvmInline
-public value class RemoteTextDecoration private constructor(private val mask: Int) {
+public value class RemoteTextDecoration internal constructor(internal val mask: Int) {
     /**
      * Creates a decoration that includes all the decorations in both this and [decoration].
      *

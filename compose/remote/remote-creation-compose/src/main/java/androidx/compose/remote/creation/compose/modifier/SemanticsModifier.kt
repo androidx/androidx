@@ -17,7 +17,6 @@
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.semantics.AccessibleComponent
 import androidx.compose.remote.core.semantics.AccessibleComponent.Mode
 import androidx.compose.remote.core.semantics.AccessibleComponent.Mode.CLEAR_AND_SET
 import androidx.compose.remote.core.semantics.AccessibleComponent.Mode.MERGE
@@ -27,7 +26,6 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.SemanticsModifier as CreationSemanticsModifier
-import androidx.compose.ui.semantics.Role
 
 /**
  * [RemoteSemanticsPropertyKey] is the infrastructure for setting key/value pairs inside semantics
@@ -78,12 +76,7 @@ public object RemoteSemanticsProperties {
         RemoteSemanticsPropertyKey("ContentDescription")
 
     /** Semantics property key for [RemoteSemanticsPropertyReceiver.role]. */
-    public val Role: RemoteSemanticsPropertyKey<Role> = RemoteSemanticsPropertyKey("Role")
-
-    /** Semantics property key for [RemoteSemanticsPropertyReceiver.remoteRole]. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val RemoteRole: RemoteSemanticsPropertyKey<RemoteRole> =
-        RemoteSemanticsPropertyKey("RemoteRole")
+    public val Role: RemoteSemanticsPropertyKey<RemoteRole> = RemoteSemanticsPropertyKey("Role")
 
     /** Semantics property key for [RemoteSemanticsPropertyReceiver.text]. */
     public val Text: RemoteSemanticsPropertyKey<RemoteString> = RemoteSemanticsPropertyKey("Text")
@@ -107,21 +100,11 @@ public var RemoteSemanticsPropertyReceiver.contentDescription: RemoteString?
     }
 
 /** The type of user interface element. Accessibility services can use this to describe the node. */
-public var RemoteSemanticsPropertyReceiver.role: Role?
+public var RemoteSemanticsPropertyReceiver.role: RemoteRole?
     get() = get(RemoteSemanticsProperties.Role)
     set(value) {
         set(RemoteSemanticsProperties.Role, value)
     }
-
-/** The type of user interface element. Accessibility services can use this to describe the node. */
-@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public var RemoteSemanticsPropertyReceiver.remoteRole: RemoteRole?
-    get() = get(RemoteSemanticsProperties.RemoteRole)
-    set(value) {
-        set(RemoteSemanticsProperties.RemoteRole, value)
-    }
-
 /** Text content for the semantics node. */
 public var RemoteSemanticsPropertyReceiver.text: RemoteString?
     get() = get(RemoteSemanticsProperties.Text)
@@ -160,27 +143,9 @@ internal data class SemanticsModifier(
                         ?: 0
                 mEnabled = properties[RemoteSemanticsProperties.Enabled] as? Boolean ?: true
                 mRole =
-                    (properties[RemoteSemanticsProperties.RemoteRole] as? RemoteRole)
-                        ?.toAccessibleRole()
-                        ?: fromRole(properties[RemoteSemanticsProperties.Role] as? Role)
+                    (properties[RemoteSemanticsProperties.Role] as? RemoteRole)?.toAccessibleRole()
             }
         )
-    }
-}
-
-private fun fromRole(role: Role?): AccessibleComponent.Role? {
-    return when (role) {
-        Role.RadioButton -> AccessibleComponent.Role.RADIO_BUTTON
-        Role.DropdownList -> AccessibleComponent.Role.DROPDOWN_LIST
-        Role.Button -> AccessibleComponent.Role.BUTTON
-        Role.Checkbox -> AccessibleComponent.Role.CHECKBOX
-        Role.Image -> AccessibleComponent.Role.IMAGE
-        Role.Switch -> AccessibleComponent.Role.SWITCH
-        Role.Tab -> AccessibleComponent.Role.TAB
-        Role.ValuePicker -> AccessibleComponent.Role.PICKER
-        Role.Carousel -> AccessibleComponent.Role.CAROUSEL
-        null -> null
-        else -> AccessibleComponent.Role.UNKNOWN
     }
 }
 

@@ -131,7 +131,7 @@ public fun android.graphics.Paint.asRemotePaint(): RemotePaint {
     val compat = this as? CompatAndroidRemotePaint
     val remotePaint = StandardRemotePaint()
     remotePaint.isAntiAlias = isAntiAlias
-    remotePaint.remoteBlendMode = blendMode?.toRemoteBlendMode() ?: RemoteBlendMode.SrcOver
+    remotePaint.blendMode = blendMode?.toRemoteBlendMode() ?: RemoteBlendMode.SrcOver
     remotePaint.remoteStyle = style.toRemotePaintingStyle()
     remotePaint.strokeWidth = strokeWidth.rf
     remotePaint.remoteStrokeCap = strokeCap.toRemoteStrokeCap()

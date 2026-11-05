@@ -30,6 +30,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteRowScope
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteRole
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.defaultMinSize
@@ -70,7 +71,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.material3.ButtonDefaults.scrimGradientEndColor
@@ -382,7 +382,7 @@ public fun RemoteCompactButton(
     RemoteBox(
         modifier =
             modifier
-                .semantics(mergeDescendants = true) { role = Role.Button }
+                .semantics(mergeDescendants = true) { role = RemoteRole.Button }
                 .compactButtonModifier()
                 .padding(tapPadding)
                 .clip(shape = shape)
@@ -482,7 +482,7 @@ private fun RemoteButtonImpl(
     contentPadding: RemotePaddingValues,
     labelFont: RemoteTextStyle,
     horizontalArrangement: RemoteArrangement.Horizontal = RemoteArrangement.Center,
-    role: Role? = Role.Button,
+    role: RemoteRole? = RemoteRole.Button,
     content: @Composable @RemoteComposable RemoteRowScope.() -> Unit,
 ) {
     val containerModifier =

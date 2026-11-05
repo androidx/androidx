@@ -18,7 +18,6 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.compose.remote.core.semantics.AccessibleComponent
 import androidx.compose.remote.creation.compose.action.RemoteAction
-import androidx.compose.ui.semantics.Role
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,8 +41,6 @@ class RemoteRoleTest {
             .isEqualTo(AccessibleComponent.Role.PICKER)
         assertThat(RemoteRole.Carousel.toAccessibleRole())
             .isEqualTo(AccessibleComponent.Role.CAROUSEL)
-        assertThat(RemoteRole.Unknown.toAccessibleRole())
-            .isEqualTo(AccessibleComponent.Role.UNKNOWN)
     }
 
     @Test
@@ -57,17 +54,20 @@ class RemoteRoleTest {
         assertThat(RemoteRole.DropdownList.toString()).isEqualTo("DropdownList")
         assertThat(RemoteRole.ValuePicker.toString()).isEqualTo("ValuePicker")
         assertThat(RemoteRole.Carousel.toString()).isEqualTo("Carousel")
-        assertThat(RemoteRole.Unknown.toString()).isEqualTo("Unknown")
     }
 
     @Test
     fun clickableAndCombinedClickable_acceptRemoteRole() {
+        val clickableDefault = RemoteModifier.clickable(onClick = RemoteAction.None)
+        val clickableButton =
+            RemoteModifier.clickable(onClick = RemoteAction.None, role = RemoteRole.Button)
         val clickableModifier =
             RemoteModifier.clickable(onClick = RemoteAction.None, role = RemoteRole.Checkbox)
-        val clickableComposeRole =
-            RemoteModifier.clickable(onClick = RemoteAction.None, role = Role.Checkbox)
-        val clickableNullRole =
-            RemoteModifier.clickable(onClick = RemoteAction.None, role = null as Role?)
+        val clickableNullRole = RemoteModifier.clickable(onClick = RemoteAction.None, role = null)
+
+        val combinedDefault = RemoteModifier.combinedClickable(onClick = RemoteAction.None)
+        val combinedButton =
+            RemoteModifier.combinedClickable(onClick = RemoteAction.None, role = RemoteRole.Button)
         val combinedModifier =
             RemoteModifier.combinedClickable(
                 onClick = RemoteAction.None,
@@ -75,43 +75,17 @@ class RemoteRoleTest {
             )
         val combinedNullRole =
             RemoteModifier.combinedClickable(onClick = RemoteAction.None, role = null)
+
+        // Default role is null, so empty action produces RemoteModifier (no SemanticsModifier
+        // added)
+        assertThat(clickableDefault).isEqualTo(RemoteModifier)
+        assertThat(clickableButton).isNotEqualTo(RemoteModifier)
         assertThat(clickableModifier).isNotEqualTo(RemoteModifier)
-        assertThat(clickableComposeRole).isEqualTo(clickableModifier)
         assertThat(clickableNullRole).isEqualTo(RemoteModifier)
+
+        assertThat(combinedDefault).isEqualTo(RemoteModifier)
+        assertThat(combinedButton).isNotEqualTo(RemoteModifier)
         assertThat(combinedModifier).isNotEqualTo(RemoteModifier)
         assertThat(combinedNullRole).isEqualTo(RemoteModifier)
-    }
-
-    @Test
-    fun roleConversions_allRolesMapCorrectly() {
-        val mappings =
-            listOf(
-                Triple(Role.Button, RemoteRole.Button, AccessibleComponent.Role.BUTTON),
-                Triple(Role.Checkbox, RemoteRole.Checkbox, AccessibleComponent.Role.CHECKBOX),
-                Triple(Role.Switch, RemoteRole.Switch, AccessibleComponent.Role.SWITCH),
-                Triple(
-                    Role.RadioButton,
-                    RemoteRole.RadioButton,
-                    AccessibleComponent.Role.RADIO_BUTTON,
-                ),
-                Triple(Role.Tab, RemoteRole.Tab, AccessibleComponent.Role.TAB),
-                Triple(Role.Image, RemoteRole.Image, AccessibleComponent.Role.IMAGE),
-                Triple(
-                    Role.DropdownList,
-                    RemoteRole.DropdownList,
-                    AccessibleComponent.Role.DROPDOWN_LIST,
-                ),
-                Triple(Role.ValuePicker, RemoteRole.ValuePicker, AccessibleComponent.Role.PICKER),
-                Triple(Role.Carousel, RemoteRole.Carousel, AccessibleComponent.Role.CAROUSEL),
-            )
-
-        for ((composeRole, remoteRole, accessibleRole) in mappings) {
-            val modWithRemoteRole =
-                RemoteModifier.clickable(onClick = RemoteAction.None, role = remoteRole)
-            val modWithComposeRole =
-                RemoteModifier.clickable(onClick = RemoteAction.None, role = composeRole)
-            assertThat(modWithComposeRole).isEqualTo(modWithRemoteRole)
-            assertThat(remoteRole.toAccessibleRole()).isEqualTo(accessibleRole)
-        }
     }
 }

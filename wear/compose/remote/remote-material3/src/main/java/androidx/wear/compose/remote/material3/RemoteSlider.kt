@@ -30,6 +30,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteRole
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.contentDescription
@@ -42,6 +43,7 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
 import androidx.compose.remote.creation.compose.state.RemoteAnimationSpec
+import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
@@ -59,10 +61,8 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.round
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.wear.compose.remote.material3.internal.RemoteIcons
 
@@ -147,7 +147,7 @@ public fun RemoteSlider(
                 RemoteModifier.size(RemoteSliderDefaults.ControlSize)
                     // TODO(b/557131896): Use repeatableClickable once supported
                     .clickable(decreaseAction, enabled = isEnabled)
-                    .semantics(mergeDescendants = true) { role = Role.Button },
+                    .semantics(mergeDescendants = true) { role = RemoteRole.Button },
             contentAlignment = RemoteAlignment.Center,
             content =
                 provideScopeContent(
@@ -177,7 +177,7 @@ public fun RemoteSlider(
                 RemoteModifier.size(RemoteSliderDefaults.ControlSize)
                     // TODO(b/557131896): Use repeatableClickable once supported
                     .clickable(increaseAction, enabled = isEnabled)
-                    .semantics(mergeDescendants = true) { role = Role.Button },
+                    .semantics(mergeDescendants = true) { role = RemoteRole.Button },
             contentAlignment = RemoteAlignment.Center,
             content =
                 provideScopeContent(
@@ -676,7 +676,7 @@ private fun RemoteDrawScope.drawProgressBar(
         val separatorPaint = RemotePaint {
             style = PaintingStyle.Fill
             color = sepColor
-            blendMode = BlendMode.Src
+            blendMode = RemoteBlendMode.Src
         }
         drawCircle(
             paint = separatorPaint,

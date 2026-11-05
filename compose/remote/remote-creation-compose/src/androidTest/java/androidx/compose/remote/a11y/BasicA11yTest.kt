@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteRole
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
@@ -125,7 +126,7 @@ class BasicA11yTest {
             RemoteBox(
                 modifier =
                     RemoteModifier.fillMaxSize()
-                        .clickable(valueChangeAction(text, "Updated".rs))
+                        .clickable(valueChangeAction(text, "Updated".rs), role = RemoteRole.Button)
                         .background(Color.White.rc),
                 contentAlignment = RemoteAlignment.Center,
             ) {
@@ -150,7 +151,10 @@ class BasicA11yTest {
             RemoteBox(
                 modifier =
                     RemoteModifier.fillMaxSize()
-                        .clickable(valueChangeAction(remoteInt, remoteInt + 1))
+                        .clickable(
+                            valueChangeAction(remoteInt, remoteInt + 1),
+                            role = RemoteRole.Button,
+                        )
                         .background(Color.White.rc),
                 contentAlignment = RemoteAlignment.Center,
             ) {

@@ -56,7 +56,7 @@ public abstract class RemotePainter {
         if (blendMode == null) {
             return
         }
-        obtainPaint().remoteBlendMode = blendMode
+        obtainPaint().blendMode = blendMode
     }
 
     /** Update the alpha component of RemoteColor. */

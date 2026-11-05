@@ -16,19 +16,18 @@
 
 package androidx.compose.remote.creation.compose.text
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import kotlin.jvm.JvmInline
 
 /** Defines how text is aligned horizontally in Remote Compose. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
 @JvmInline
-public value class RemoteTextAlign internal constructor(public val value: Int) {
+public value class RemoteTextAlign internal constructor(internal val value: Int) {
     override fun toString(): String =
         when (this) {
+            Unspecified -> "RemoteTextAlign.Unspecified"
             Left -> "RemoteTextAlign.Left"
             Right -> "RemoteTextAlign.Right"
             Center -> "RemoteTextAlign.Center"
@@ -39,6 +38,9 @@ public value class RemoteTextAlign internal constructor(public val value: Int) {
         }
 
     public companion object {
+        /** Constant for when no text alignment is specified. */
+        @Stable public val Unspecified: RemoteTextAlign = RemoteTextAlign(Int.MIN_VALUE)
+
         /** Align the text on the left edge of the container. */
         @Stable public val Left: RemoteTextAlign = RemoteTextAlign(TextLayout.TEXT_ALIGN_LEFT)
 
