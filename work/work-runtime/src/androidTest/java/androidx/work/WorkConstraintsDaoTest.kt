@@ -29,6 +29,13 @@ import java.nio.ByteBuffer
 import org.junit.Test
 import org.junit.runner.RunWith
 
+// A capability value that is out of the framework's valid range (0..MAX_NET_CAPABILITY)
+// on every supported SDK. Older SDKs throw IAE for it and newer ones ignore it, both of
+// which the decoder tolerates. 63 is the top bit of the 64-bit capability bitmask, far
+// above any defined capability. The previously used value (37) later became
+// NET_CAPABILITY_NOT_BANDWIDTH_CONSTRAINED.
+private const val INVALID_CAPABILITY = 63
+
 // TODO(b/209145335): Combine with WorkSpecDaoTest when it is converted to Kotlin
 @RunWith(AndroidJUnit4::class)
 class WorkConstraintsDaoTest : DatabaseTest() {
@@ -61,7 +68,7 @@ class WorkConstraintsDaoTest : DatabaseTest() {
                     currentBlob.forEach { put(it) } // Copy current blob content
                     put(5, (currentBlob[5] + 4).toByte()) // Update blob size
                     put(17, (currentBlob[17] + 1).toByte()) // Update capabilities size
-                    putInt(37) // Add a new invalid capability.
+                    putInt(INVALID_CAPABILITY) // Append the extra capability.
                 }
                 .array()
 
