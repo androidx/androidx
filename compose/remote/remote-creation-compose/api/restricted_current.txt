@@ -817,7 +817,6 @@ package androidx.compose.remote.creation.compose.shaders {
 
   @androidx.compose.runtime.Immutable public abstract class RemoteBrush {
     method public abstract void applyTo(androidx.compose.remote.creation.compose.state.RemoteStateScope, androidx.compose.remote.creation.compose.state.RemotePaint paint, androidx.compose.remote.creation.compose.layout.RemoteSize size);
-    method @BytecodeOnly public final long getIntrinsicSize-NH-jbRc();
     field public static final androidx.compose.remote.creation.compose.shaders.RemoteBrush.Companion Companion;
   }
 
@@ -1134,11 +1133,6 @@ package androidx.compose.remote.creation.compose.text {
   public abstract sealed exhaustive class RemoteFontFamily {
     method @InaccessibleFromKotlin public final String getName();
     property public final String name;
-    field public static final androidx.compose.remote.creation.compose.text.RemoteFontFamily.Companion Companion;
-  }
-
-  public static final class RemoteFontFamily.Companion {
-    method public androidx.compose.remote.creation.compose.text.RemoteFontFamily? fromComposeFontFamily(androidx.compose.ui.text.font.FontFamily? fontFamily);
   }
 
   public static final class RemoteFontFamily.Cursive extends androidx.compose.remote.creation.compose.text.RemoteFontFamily {

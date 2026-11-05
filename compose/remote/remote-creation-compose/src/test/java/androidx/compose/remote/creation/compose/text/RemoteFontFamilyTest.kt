@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.creation.compose.text
 
+import androidx.compose.remote.creation.compose.layout.toRemoteFontFamily
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.toFontFamily
@@ -24,44 +25,44 @@ import org.junit.Test
 class RemoteFontFamilyTest {
 
     @Test
-    fun testFromComposeFontFamily_Default() {
-        val remote = RemoteFontFamily.fromComposeFontFamily(FontFamily.Default)
+    fun testToRemoteFontFamily_Default() {
+        val remote = FontFamily.Default.toRemoteFontFamily()
         assertThat(remote).isEqualTo(RemoteFontFamily.Default)
         assertThat(remote?.name).isEqualTo("default")
     }
 
     @Test
-    fun testFromComposeFontFamily_SansSerif() {
-        val remote = RemoteFontFamily.fromComposeFontFamily(FontFamily.SansSerif)
+    fun testToRemoteFontFamily_SansSerif() {
+        val remote = FontFamily.SansSerif.toRemoteFontFamily()
         assertThat(remote).isEqualTo(RemoteFontFamily.SansSerif)
         assertThat(remote?.name).isEqualTo("sans-serif")
     }
 
     @Test
-    fun testFromComposeFontFamily_Serif() {
-        val remote = RemoteFontFamily.fromComposeFontFamily(FontFamily.Serif)
+    fun testToRemoteFontFamily_Serif() {
+        val remote = FontFamily.Serif.toRemoteFontFamily()
         assertThat(remote).isEqualTo(RemoteFontFamily.Serif)
         assertThat(remote?.name).isEqualTo("serif")
     }
 
     @Test
-    fun testFromComposeFontFamily_Monospace() {
-        val remote = RemoteFontFamily.fromComposeFontFamily(FontFamily.Monospace)
+    fun testToRemoteFontFamily_Monospace() {
+        val remote = FontFamily.Monospace.toRemoteFontFamily()
         assertThat(remote).isEqualTo(RemoteFontFamily.Monospace)
         assertThat(remote?.name).isEqualTo("monospace")
     }
 
     @Test
-    fun testFromComposeFontFamily_Cursive() {
-        val remote = RemoteFontFamily.fromComposeFontFamily(FontFamily.Cursive)
+    fun testToRemoteFontFamily_Cursive() {
+        val remote = FontFamily.Cursive.toRemoteFontFamily()
         assertThat(remote).isEqualTo(RemoteFontFamily.Cursive)
         assertThat(remote?.name).isEqualTo("cursive")
     }
 
     @Test
-    fun testFromComposeFontFamily_UnknownFallback() {
+    fun testToRemoteFontFamily_UnknownFallback() {
         val customFamily = Font(123).toFontFamily()
-        val remote = RemoteFontFamily.fromComposeFontFamily(customFamily)
+        val remote = customFamily.toRemoteFontFamily()
         assertThat(remote).isNull()
     }
 
