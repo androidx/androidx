@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.creation.compose.widgets
 
-import android.annotation.SuppressLint
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
@@ -30,7 +29,6 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
 
 /** provider for an app widget */
-@SuppressLint("RestrictedApiAndroidX")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class RemoteComposeWidget
 @JvmOverloads

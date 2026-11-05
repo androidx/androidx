@@ -56,8 +56,10 @@ fun RemoteSliderIntegerSample(modifier: RemoteModifier = RemoteModifier) {
     RemoteSlider(
         value = value,
         steps = 4,
-        decreaseAction = valueChangeAction(value, max(value - 1.ri, 0.ri)),
-        increaseAction = valueChangeAction(value, min(value + 1.ri, 5.ri)),
+        decreaseAction =
+            valueChangeAction(value, value.isGreaterThan(0.ri).select(value - 1.ri, 0.ri)),
+        increaseAction =
+            valueChangeAction(value, value.isLessThan(5.ri).select(value + 1.ri, 5.ri)),
         modifier = modifier,
     )
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX", "PrimitiveInCollection", "BanConcurrentHashMap")
+@file:Suppress("PrimitiveInCollection", "BanConcurrentHashMap")
 @file:OptIn(ExperimentalRemotePlayerApi::class)
 
 package androidx.compose.remote.player.compose.embedded.doc

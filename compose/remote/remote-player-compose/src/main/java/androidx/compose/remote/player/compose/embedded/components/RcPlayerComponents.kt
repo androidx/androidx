@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX", "PrimitiveInCollection", "ModifierParameter")
+@file:Suppress("PrimitiveInCollection", "ModifierParameter")
 
 package androidx.compose.remote.player.compose.embedded.components
 

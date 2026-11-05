@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX")
-
 package androidx.compose.remote.player.compose.embedded.draw
 
 import androidx.compose.remote.core.PaintContext

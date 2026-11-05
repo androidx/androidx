@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX", "PrimitiveInCollection")
+@file:Suppress("PrimitiveInCollection")
 
 package androidx.compose.remote.player.compose.embedded.draw
 

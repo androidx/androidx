@@ -109,7 +109,6 @@ public fun RemoteCircularProgressIndicator(
  */
 @RemoteComposable
 @Composable
-@Suppress("RestrictedApiAndroidX") // rotate
 public fun RemoteCircularProgressIndicator(
     modifier: RemoteModifier = RemoteModifier,
     colors: RemoteProgressIndicatorColors = RemoteProgressIndicatorDefaults.colors(),
@@ -157,9 +156,7 @@ public fun RemoteCircularProgressIndicator(
 
         val sweepAngle = sweepAnimation * 360f.rf
 
-        rotate(degrees = totalRotation, pivot = center) {
-            drawIndicatorArcs(0f.rf, sweepAngle, 360f.rf, strokeWidth, gapSize, colors, true.rb)
-        }
+        drawIndicatorArcs(totalRotation, sweepAngle, 360f.rf, strokeWidth, gapSize, colors, true.rb)
     }
 }
 
