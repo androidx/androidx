@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
 package androidx.wear.compose.remote.material3
 
 import androidx.annotation.RestrictTo
@@ -64,10 +62,62 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.material3.TextConfiguration
 
 /**
+ * Wear Material 3 [RemoteEdgeButton] that offers a single slot to take any content.
+ *
+ * The [RemoteEdgeButton] has a special shape designed for the bottom of the screen, as it almost
+ * follows the screen's curvature, so it should be allowed to take the full width and touch the
+ * bottom of the screen.
+ *
+ * This button represents the most important action on the screen, and must take the whole width of
+ * the screen as well as being anchored to the screen bottom. This assumes that the Remote Compose
+ * Player is taking the full width of the screen.
+ *
+ * [RemoteEdgeButton] has 4 standard sizes, taking 1 line of text for extra small, 2 for small and
+ * medium, and 3 for large. Specify it using the [buttonSize] parameter. Optionally, a single icon
+ * can be used instead of text.
+ *
+ * [RemoteEdgeButton] takes the [RemoteEdgeButtonDefaults.buttonColors] color scheme by default,
+ * with colored background, contrasting content color and no border. This is a high-emphasis button
+ * for the primary, most important or most common action on a screen. Other possible colors for
+ * different levels of emphasis are: filled tonal button which defaults to
+ * [RemoteEdgeButtonDefaults.filledTonalButtonColors] and outlined button which defaults to
+ * [RemoteEdgeButtonDefaults.outlinedButtonColors].
+ *
+ * [RemoteEdgeButton] can be enabled or disabled. A disabled button will not respond to click
+ * events.
+ *
+ * Example of a [RemoteEdgeButton]:
+ *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteEdgeButtonSample
+ *
+ * Example of a [RemoteEdgeButton] with an icon:
+ *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteEdgeButtonIconSample
+ *
+ * Example of a [RemoteEdgeButton] with filled tonal colors:
+ *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteEdgeButtonFilledTonalSample
+ *
+ * Example of a [RemoteEdgeButton] with multi-line text:
+ *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteEdgeButtonMultiLineSample
+ * @param onClick Will be called when the user clicks the button.
+ * @param modifier Modifier to be applied to the button. Size-related modifiers should not be used
+ *   directly on [RemoteEdgeButton] to alter content sizing; the button is designed to take the full
+ *   width of the screen and its height is determined by [buttonSize]. When animating the button to
+ *   appear/disappear, a height modifier can change the height of the component, but won't change
+ *   the space available for the content.
+ * @param buttonSize The size of the button, defaults to [RemoteEdgeButtonSize.Small].
+ * @param enabled Controls the enabled state of the button. When false, this component will not
+ *   respond to user input.
+ * @param colors [RemoteButtonColors] that will be used to resolve the colors used for this button.
+ *   See [RemoteEdgeButtonDefaults.buttonColors].
+ * @param border Optional [RemoteBorderStroke] that will be used to resolve the border for this
+ *   button, or `null` for no border.
+ * @param shape Defines the button's shape. Defaults to [RemoteEdgeButtonDefaults.shape].
+ * @param contentPadding The spacing values to apply internally between the container and the
+ *   content.
+ * @param content The content displayed inside the button.
  */
 @Composable
 @RemoteComposable
@@ -130,7 +180,11 @@ public fun RemoteEdgeButton(
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Size of the [RemoteEdgeButton].
+ *
+ * @param maximumHeight The maximum height of the button.
+ */
 @Immutable
 public class RemoteEdgeButtonSize internal constructor(public val maximumHeight: RemoteDp) {
     internal fun maxLines(): Int =
@@ -150,26 +204,40 @@ public class RemoteEdgeButtonSize internal constructor(public val maximumHeight:
     override fun hashCode(): Int = maximumHeight.hashCode()
 
     public companion object {
+        /** The Size to be applied for an extra small [RemoteEdgeButton]. */
         public val ExtraSmall: RemoteEdgeButtonSize = RemoteEdgeButtonSize(46.rdp)
 
+        /** The Size to be applied for a small [RemoteEdgeButton]. */
         public val Small: RemoteEdgeButtonSize = RemoteEdgeButtonSize(56.rdp)
 
+        /** The Size to be applied for a medium [RemoteEdgeButton]. */
         public val Medium: RemoteEdgeButtonSize = RemoteEdgeButtonSize(70.rdp)
 
+        /** The Size to be applied for a large [RemoteEdgeButton]. */
         public val Large: RemoteEdgeButtonSize = RemoteEdgeButtonSize(96.rdp)
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** Contains the default values used by [RemoteEdgeButton]. */
 public object RemoteEdgeButtonDefaults {
+    /** The recommended icon size when used with [RemoteEdgeButtonSize.ExtraSmall]. */
     public val ExtraSmallIconSize: RemoteDp = 24.rdp
 
+    /** The recommended icon size when used with [RemoteEdgeButtonSize.Small]. */
     public val SmallIconSize: RemoteDp = 32.rdp
 
+    /** The recommended icon size when used with [RemoteEdgeButtonSize.Medium]. */
     public val MediumIconSize: RemoteDp = 32.rdp
 
+    /** The recommended icon size when used with [RemoteEdgeButtonSize.Large]. */
     public val LargeIconSize: RemoteDp = 36.rdp
 
+    /**
+     * Recommended icon size for a given edge button size.
+     *
+     * @param edgeButtonSize The size of the edge button
+     * @return the recommended icon size in [RemoteDp] for [edgeButtonSize]
+     */
     public fun iconSizeFor(edgeButtonSize: RemoteEdgeButtonSize): RemoteDp =
         when (edgeButtonSize) {
             RemoteEdgeButtonSize.ExtraSmall -> ExtraSmallIconSize
@@ -179,13 +247,47 @@ public object RemoteEdgeButtonDefaults {
             else -> MediumIconSize
         }
 
+    /**
+     * The recommended shape for [RemoteEdgeButton] of a given [buttonSize].
+     *
+     * @param buttonSize The [RemoteEdgeButtonSize] of the edge button.
+     * @return the recommended [RemoteShape] for [buttonSize]
+     */
     public fun shape(buttonSize: RemoteEdgeButtonSize = RemoteEdgeButtonSize.Small): RemoteShape =
         RemoteEdgeButtonShape(buttonSize)
 
+    /**
+     * Creates a [RemoteButtonColors] that represents the default background and content colors used
+     * in a [RemoteEdgeButton].
+     *
+     * @return a [RemoteButtonColors] with the default colors for a filled [RemoteEdgeButton]
+     */
     @Composable
     @RemoteComposable
     public fun buttonColors(): RemoteButtonColors = RemoteButtonDefaults.buttonColors()
 
+    /**
+     * Creates a [RemoteButtonColors] that represents the default background and content colors used
+     * in a [RemoteEdgeButton].
+     *
+     * @param containerColor The background color of this [RemoteEdgeButton] when enabled, or `null`
+     *   to use the theme default.
+     * @param contentColor The content color of this [RemoteEdgeButton] when enabled, or `null` to
+     *   use the theme default.
+     * @param secondaryContentColor The secondary content color of this [RemoteEdgeButton] when
+     *   enabled, or `null` to use the theme default.
+     * @param iconColor The icon color of this [RemoteEdgeButton] when enabled, or `null` to use the
+     *   theme default.
+     * @param disabledContainerColor The background color of this [RemoteEdgeButton] when not
+     *   enabled, or `null` to use the theme default.
+     * @param disabledContentColor The content color of this [RemoteEdgeButton] when not enabled, or
+     *   `null` to use the theme default.
+     * @param disabledSecondaryContentColor The secondary content color of this [RemoteEdgeButton]
+     *   when not enabled, or `null` to use the theme default.
+     * @param disabledIconColor The icon color of this [RemoteEdgeButton] when not enabled, or
+     *   `null` to use the theme default.
+     * @return a [RemoteButtonColors] with the configured colors for a filled [RemoteEdgeButton]
+     */
     @Composable
     @RemoteComposable
     public fun buttonColors(
@@ -209,11 +311,38 @@ public object RemoteEdgeButtonDefaults {
             disabledIconColor = disabledIconColor,
         )
 
+    /**
+     * Creates a [RemoteButtonColors] with filled tonal colors for [RemoteEdgeButton].
+     *
+     * @return a [RemoteButtonColors] with the default colors for a filled tonal [RemoteEdgeButton]
+     */
     @Composable
     @RemoteComposable
     public fun filledTonalButtonColors(): RemoteButtonColors =
         RemoteButtonDefaults.filledTonalButtonColors()
 
+    /**
+     * Creates a [RemoteButtonColors] with filled tonal colors for [RemoteEdgeButton].
+     *
+     * @param containerColor The background color of this [RemoteEdgeButton] when enabled, or `null`
+     *   to use the theme default.
+     * @param contentColor The content color of this [RemoteEdgeButton] when enabled, or `null` to
+     *   use the theme default.
+     * @param secondaryContentColor The secondary content color of this [RemoteEdgeButton] when
+     *   enabled, or `null` to use the theme default.
+     * @param iconColor The icon color of this [RemoteEdgeButton] when enabled, or `null` to use the
+     *   theme default.
+     * @param disabledContainerColor The background color of this [RemoteEdgeButton] when not
+     *   enabled, or `null` to use the theme default.
+     * @param disabledContentColor The content color of this [RemoteEdgeButton] when not enabled, or
+     *   `null` to use the theme default.
+     * @param disabledSecondaryContentColor The secondary content color of this [RemoteEdgeButton]
+     *   when not enabled, or `null` to use the theme default.
+     * @param disabledIconColor The icon color of this [RemoteEdgeButton] when not enabled, or
+     *   `null` to use the theme default.
+     * @return a [RemoteButtonColors] with the configured colors for a filled tonal
+     *   [RemoteEdgeButton]
+     */
     @Composable
     @RemoteComposable
     public fun filledTonalButtonColors(
@@ -237,11 +366,39 @@ public object RemoteEdgeButtonDefaults {
             disabledIconColor = disabledIconColor,
         )
 
+    /**
+     * Creates a [RemoteButtonColors] with higher chroma container colors for [RemoteEdgeButton].
+     *
+     * @return a [RemoteButtonColors] with the default colors for a filled variant
+     *   [RemoteEdgeButton]
+     */
     @Composable
     @RemoteComposable
     public fun filledVariantButtonColors(): RemoteButtonColors =
         RemoteButtonDefaults.filledVariantButtonColors()
 
+    /**
+     * Creates a [RemoteButtonColors] with higher chroma container colors for [RemoteEdgeButton].
+     *
+     * @param containerColor The background color of this [RemoteEdgeButton] when enabled, or `null`
+     *   to use the theme default.
+     * @param contentColor The content color of this [RemoteEdgeButton] when enabled, or `null` to
+     *   use the theme default.
+     * @param secondaryContentColor The secondary content color of this [RemoteEdgeButton] when
+     *   enabled, or `null` to use the theme default.
+     * @param iconColor The icon color of this [RemoteEdgeButton] when enabled, or `null` to use the
+     *   theme default.
+     * @param disabledContainerColor The background color of this [RemoteEdgeButton] when not
+     *   enabled, or `null` to use the theme default.
+     * @param disabledContentColor The content color of this [RemoteEdgeButton] when not enabled, or
+     *   `null` to use the theme default.
+     * @param disabledSecondaryContentColor The secondary content color of this [RemoteEdgeButton]
+     *   when not enabled, or `null` to use the theme default.
+     * @param disabledIconColor The icon color of this [RemoteEdgeButton] when not enabled, or
+     *   `null` to use the theme default.
+     * @return a [RemoteButtonColors] with the configured colors for a filled variant
+     *   [RemoteEdgeButton]
+     */
     @Composable
     @RemoteComposable
     public fun filledVariantButtonColors(
@@ -265,11 +422,33 @@ public object RemoteEdgeButtonDefaults {
             disabledIconColor = disabledIconColor,
         )
 
+    /**
+     * Creates a [RemoteButtonColors] with outlined colors for [RemoteEdgeButton].
+     *
+     * @return a [RemoteButtonColors] with the default colors for an outlined [RemoteEdgeButton]
+     */
     @Composable
     @RemoteComposable
     public fun outlinedButtonColors(): RemoteButtonColors =
         RemoteButtonDefaults.outlinedButtonColors()
 
+    /**
+     * Creates a [RemoteButtonColors] with outlined colors for [RemoteEdgeButton].
+     *
+     * @param contentColor The content color of this [RemoteEdgeButton] when enabled, or `null` to
+     *   use the theme default.
+     * @param secondaryContentColor The secondary content color of this [RemoteEdgeButton] when
+     *   enabled, or `null` to use the theme default.
+     * @param iconColor The icon color of this [RemoteEdgeButton] when enabled, or `null` to use the
+     *   theme default.
+     * @param disabledContentColor The content color of this [RemoteEdgeButton] when not enabled, or
+     *   `null` to use the theme default.
+     * @param disabledSecondaryContentColor The secondary content color of this [RemoteEdgeButton]
+     *   when not enabled, or `null` to use the theme default.
+     * @param disabledIconColor The icon color of this [RemoteEdgeButton] when not enabled, or
+     *   `null` to use the theme default.
+     * @return a [RemoteButtonColors] with the configured colors for an outlined [RemoteEdgeButton]
+     */
     @Composable
     @RemoteComposable
     public fun outlinedButtonColors(
@@ -289,14 +468,19 @@ public object RemoteEdgeButtonDefaults {
             disabledIconColor = disabledIconColor,
         )
 
+    /** Padding around the Edge Button on its top and bottom. */
     public val VerticalPadding: RemoteDp = 3.rdp
 
+    /** The recommended top content padding for [RemoteEdgeButton]. */
     public val TopContentPadding: RemoteDp = 6.rdp
 
+    /** The recommended bottom content padding for [RemoteEdgeButton]. */
     public val BottomContentPadding: RemoteDp = 8.rdp
 
+    /** The recommended horizontal content padding for [RemoteEdgeButton]. */
     public val HorizontalContentPadding: RemoteDp = 0.rdp
 
+    /** The default content padding used by [RemoteEdgeButton]. */
     public val ContentPadding: RemotePaddingValues =
         RemotePaddingValues(
             leftPadding = HorizontalContentPadding,
@@ -315,7 +499,11 @@ private val ButtonToEllipseRatio: RemoteFloat = 1.42f.rf
 // Distance from the leftmost/rightmost point in the button to the edge of the screen.
 private val TargetSidePadding: RemoteDp = 20.rdp
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Shape for [RemoteEdgeButton] that fits the bottom edge of a round screen.
+ *
+ * @param buttonSize The size of the button to determine its shape contour.
+ */
 @Immutable
 public class RemoteEdgeButtonShape(
     public val buttonSize: RemoteEdgeButtonSize = RemoteEdgeButtonSize.Small
