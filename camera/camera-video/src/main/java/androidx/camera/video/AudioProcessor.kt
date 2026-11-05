@@ -239,8 +239,10 @@ public interface AudioProcessor {
     /**
      * Discards all pending or buffered audio data and resets filter state.
      *
-     * Called when recording stops or when recovering from an internal processing error. The
-     * processor remains configured; [configure] will not be called again unless [reset] is called.
+     * Called whenever the audio stream is interrupted, such as when the recording is paused or
+     * stopped, or after an internal processing error. Audio queued after a flush is not continuous
+     * with audio queued before it. The processor remains configured; [configure] will not be called
+     * again unless [reset] is called.
      */
     public fun flush()
 

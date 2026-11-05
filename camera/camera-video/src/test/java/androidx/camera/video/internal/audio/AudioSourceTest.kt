@@ -994,6 +994,42 @@ class AudioSourceTest {
         )
     }
 
+    @Test
+    fun audioProcessor_bufferProviderInactiveThenActive_discardsAudioBufferedBeforePause() {
+        val flushLatch = CountDownLatch(1)
+        val bufferProvider = createBufferProvider()
+        val audioSource =
+            createTimingAudioSource(
+                createLookaheadAudioProcessor(onFlush = { flushLatch.countDown() }),
+                bufferProvider,
+            )
+        audioSource.start()
+        verifyPresentationTimesMatchCaptureTimes(bufferProvider)
+
+        // Act: pause by making the buffer provider inactive, which should flush the processor.
+        bufferProvider.setState(BufferProvider.State.INACTIVE)
+        assertThat(flushLatch.await(COMMON_TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
+        var prePauseBufferCount = 0
+        var lastPrePauseFrameIndex = 0
+        bufferProvider.verifySubmittedBufferCall(CallTimesAtLeast(1)) { submittedBuffers ->
+            prePauseBufferCount = submittedBuffers.size
+            val lastBuffer = submittedBuffers.last()
+            lastPrePauseFrameIndex =
+                firstFrameIndex(lastBuffer) + lastBuffer.byteBuffer.remaining() / 2 - 1
+        }
+        // Resume.
+        bufferProvider.setState(BufferProvider.State.ACTIVE)
+
+        // Assert: audio held by the processor before pausing is not sent after resuming, and
+        // resumed audio is still anchored to its capture time.
+        verifyPresentationTimesMatchCaptureTimes(bufferProvider, fromIndex = prePauseBufferCount)
+        bufferProvider.verifySubmittedBufferCall(CallTimesAtLeast(prePauseBufferCount + 1)) {
+            submittedBuffers ->
+            assertThat(firstFrameIndex(submittedBuffers[prePauseBufferCount]))
+                .isGreaterThan(lastPrePauseFrameIndex + 1)
+        }
+    }
+
     private fun createTimingAudioSource(
         audioProcessor: AudioProcessor,
         bufferProvider: FakeBufferProvider,
@@ -1029,14 +1065,19 @@ class AudioSourceTest {
             var previousPresentationTimeUs = Long.MIN_VALUE
             for (i in fromIndex until fromIndex + TIMING_VERIFY_COUNT) {
                 val buffer = submittedBuffers[i]
-                // Samples are 16-bit; read them unsigned to decode more frame indices.
-                val byteBuffer = buffer.byteBuffer.duplicate().order(ByteOrder.nativeOrder())
-                val frameIndex = byteBuffer.getShort(byteBuffer.position()).toInt() and 0xFFFF
+                val frameIndex = firstFrameIndex(buffer)
                 assertThat(buffer.getPresentationTimeUs()).isEqualTo(captureTimeUs(frameIndex))
                 assertThat(buffer.getPresentationTimeUs()).isGreaterThan(previousPresentationTimeUs)
                 previousPresentationTimeUs = buffer.getPresentationTimeUs()
             }
         }
+    }
+
+    /** Returns the frame index of the first frame in [buffer] from the timing audio stream. */
+    private fun firstFrameIndex(buffer: FakeInputBuffer): Int {
+        // Samples are 16-bit; read them unsigned to decode more frame indices.
+        val byteBuffer = buffer.byteBuffer.duplicate().order(ByteOrder.nativeOrder())
+        return byteBuffer.getShort(byteBuffer.position()).toInt() and 0xFFFF
     }
 
     /** Returns the capture time of the frame at [frameIndex] in the timing audio stream. */

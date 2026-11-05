@@ -342,7 +342,6 @@ public final class AudioSource {
                 case STARTED:
                     setState(CONFIGURED);
                     updateSendingAudio();
-                    flushAudioProcessors();
                     break;
                 case CONFIGURED:
                     // Do nothing
@@ -645,6 +644,10 @@ public final class AudioSource {
         Logger.d(TAG, "stopSendingAudio");
         mAudioStream.stop();
         mSilentAudioStream.stop();
+        // Stopping the stream ends the continuous audio being sent, whether the recording is
+        // stopped or paused, or the BufferProvider is replaced or removed. Discard audio buffered
+        // in the processors as well, so it isn't mixed with audio sent after sending restarts.
+        flushAudioProcessors();
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
