@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("RemoteImageBitmapComposeKt")
+
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("RemoteDpComposeKt")
+
 package androidx.compose.remote.creation.compose.state
 
 import androidx.compose.remote.creation.compose.layout.RemoteComposable

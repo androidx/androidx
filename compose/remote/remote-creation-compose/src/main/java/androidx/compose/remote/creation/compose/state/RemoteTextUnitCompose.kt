@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("RemoteTextUnitComposeKt")
+
 package androidx.compose.remote.creation.compose.state
 
 import androidx.compose.ui.unit.Dp
