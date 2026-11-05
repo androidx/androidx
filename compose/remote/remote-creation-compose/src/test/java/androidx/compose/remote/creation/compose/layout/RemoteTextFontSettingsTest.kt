@@ -17,6 +17,7 @@
 package androidx.compose.remote.creation.compose.layout
 
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
@@ -24,8 +25,12 @@ import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.creation.compose.text.RemoteTextAlign
+import androidx.compose.remote.creation.compose.text.RemoteTextOverflow
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
+import androidx.compose.remote.creation.compose.text.fromTextStyle
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
+import androidx.compose.remote.serialization.yaml.YAMLSerializer
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.ExperimentalTextApi
@@ -38,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import java.util.Locale
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
@@ -213,6 +219,46 @@ class RemoteTextFontSettingsTest {
         }
 
         assertThat(axes).containsExactly("opsz", 12f)
+    }
+
+    @Test
+    fun unspecifiedTextAlignUnderRtl_preservesUnspecifiedAlignment() = runTest {
+        val rtlContext =
+            context.createConfigurationContext(
+                Configuration(context.resources.configuration).apply {
+                    setLayoutDirection(Locale.forLanguageTag("ar"))
+                }
+            )
+
+        val unspecifiedText =
+            captureRule
+                .captureDocument(context = rtlContext) {
+                    RemoteText("Text".rs, overflow = RemoteTextOverflow.Clip)
+                }
+                .findCoreText()
+        val startText =
+            captureRule
+                .captureDocument(context = rtlContext) {
+                    RemoteText(
+                        "Text".rs,
+                        textAlign = RemoteTextAlign.Start,
+                        overflow = RemoteTextOverflow.Clip,
+                    )
+                }
+                .findCoreText()
+
+        assertThat(unspecifiedText.serializedTextAlign())
+            .isEqualTo(RemoteTextAlign.Unspecified.value)
+        assertThat(unspecifiedText.textAlignValue).isNotEqualTo(RemoteTextAlign.End.value)
+        assertThat(startText.serializedTextAlign()).isEqualTo(RemoteTextAlign.End.value)
+        assertThat(startText.textAlignValue).isEqualTo(RemoteTextAlign.End.value)
+    }
+
+    private fun CoreText.serializedTextAlign(): Int {
+        val serializer = YAMLSerializer()
+        serialize(serializer.serializeMap())
+        val map = serializer.toObject() as Map<*, *>
+        return (map["textAlign"] as Number).toInt()
     }
 
     private suspend fun captureTextAxes(style: RemoteTextStyle): Map<String, Float> =

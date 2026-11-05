@@ -59,6 +59,9 @@ class RemoteTextStyleTest {
     private fun FontVariation.Settings?.toAxisMap(): Map<String, Float> =
         this?.settings?.associate { it.axisName to it.toVariationValue(null) } ?: emptyMap()
 
+    private fun RemoteFontVariation.Settings?.toAxisMap(): Map<String, Float> =
+        this?.settings?.associate { it.axisName to it.value.constantValue } ?: emptyMap()
+
     @Test
     fun fromTextStyle_createsCorrectly() {
         // Unspecified values map to null
@@ -72,10 +75,10 @@ class RemoteTextStyleTest {
         assertThat(defaultRemoteStyle.fontWeight).isNull()
         assertThat(defaultRemoteStyle.fontStyle).isNull()
         assertThat(defaultRemoteStyle.fontFamily).isNull()
-        assertThat(defaultRemoteStyle.textAlign).isEqualTo(TextAlign.Unspecified)
+        assertThat(defaultRemoteStyle.textAlign).isEqualTo(RemoteTextAlign.Unspecified)
         assertThat(defaultRemoteStyle.textDecoration).isNull()
-        assertThat(defaultRemoteStyle.lineBreak).isEqualTo(LineBreak.Unspecified)
-        assertThat(defaultRemoteStyle.hyphens).isEqualTo(Hyphens.Unspecified)
+        assertThat(defaultRemoteStyle.lineBreak).isEqualTo(RemoteLineBreak.Unspecified)
+        assertThat(defaultRemoteStyle.hyphens).isEqualTo(RemoteHyphens.Unspecified)
         assertThat(defaultRemoteStyle.fontFeatureSettings).isNull()
         assertThat(defaultRemoteStyle.fontVariationSettings).isNull()
 
@@ -105,13 +108,13 @@ class RemoteTextStyleTest {
         assertThat(remoteStyle.letterSpacing?.asConstantTextUnitOrNull()).isEqualTo(1.2f.sp)
         assertThat(remoteStyle.lineHeight?.asConstantTextUnitOrNull()).isEqualTo(20.sp)
         assertThat(remoteStyle.background?.asConstantColorOrNull()).isEqualTo(Color.Blue)
-        assertThat(remoteStyle.fontWeight).isEqualTo(FontWeight.Bold)
-        assertThat(remoteStyle.fontStyle).isEqualTo(FontStyle.Italic)
+        assertThat(remoteStyle.fontWeight).isEqualTo(RemoteFontWeight.Bold)
+        assertThat(remoteStyle.fontStyle).isEqualTo(RemoteFontStyle.Italic)
         assertThat(remoteStyle.fontFamily).isEqualTo(RemoteFontFamily.Serif)
-        assertThat(remoteStyle.textAlign).isEqualTo(TextAlign.Center)
-        assertThat(remoteStyle.textDecoration).isEqualTo(TextDecoration.Underline)
-        assertThat(remoteStyle.lineBreak).isEqualTo(LineBreak.Heading)
-        assertThat(remoteStyle.hyphens).isEqualTo(Hyphens.Auto)
+        assertThat(remoteStyle.textAlign).isEqualTo(RemoteTextAlign.Center)
+        assertThat(remoteStyle.textDecoration).isEqualTo(RemoteTextDecoration.Underline)
+        assertThat(remoteStyle.lineBreak).isEqualTo(RemoteLineBreak.Heading)
+        assertThat(remoteStyle.hyphens).isEqualTo(RemoteHyphens.Auto)
         assertThat(remoteStyle.fontFeatureSettings).isEqualTo("tnum")
         assertThat(remoteStyle.fontVariationSettings).isNull()
     }
@@ -141,7 +144,7 @@ class RemoteTextStyleTest {
         assertThat(remoteStyle.fontVariationSettings).isNotNull()
         assertThat(remoteStyle.fontVariationSettings!!.settings).hasSize(1)
         assertThat(remoteStyle.fontVariationSettings!!.settings[0].axisName).isEqualTo("wdth")
-        assertThat(remoteStyle.fontVariationSettings!!.settings[0].toVariationValue(null))
+        assertThat(remoteStyle.fontVariationSettings!!.settings[0].value.constantValue)
             .isEqualTo(110f)
     }
 
@@ -165,8 +168,8 @@ class RemoteTextStyleTest {
         assertThat(remoteStyle.fontFeatureSettings).isEqualTo("pnum")
         assertThat(remoteStyle.fontVariationSettings).isNotNull()
         assertThat(remoteStyle.fontVariationSettings!!.settings).hasSize(1)
-        assertThat(remoteStyle.fontVariationSettings.settings[0].axisName).isEqualTo("ROND")
-        assertThat(remoteStyle.fontVariationSettings.settings[0].toVariationValue(null))
+        assertThat(remoteStyle.fontVariationSettings!!.settings[0].axisName).isEqualTo("ROND")
+        assertThat(remoteStyle.fontVariationSettings!!.settings[0].value.constantValue)
             .isEqualTo(100f)
     }
 
@@ -262,11 +265,11 @@ class RemoteTextStyleTest {
         assertThat(remoteStyle.fontFamily).isNull()
         assertThat(remoteStyle.fontVariationSettings).isNotNull()
         assertThat(remoteStyle.fontVariationSettings!!.settings).hasSize(2)
-        assertThat(remoteStyle.fontVariationSettings.settings[0].axisName).isEqualTo("wdth")
-        assertThat(remoteStyle.fontVariationSettings.settings[0].toVariationValue(null))
+        assertThat(remoteStyle.fontVariationSettings!!.settings[0].axisName).isEqualTo("wdth")
+        assertThat(remoteStyle.fontVariationSettings!!.settings[0].value.constantValue)
             .isEqualTo(110f)
-        assertThat(remoteStyle.fontVariationSettings.settings[1].axisName).isEqualTo("wght")
-        assertThat(remoteStyle.fontVariationSettings.settings[1].toVariationValue(null))
+        assertThat(remoteStyle.fontVariationSettings!!.settings[1].axisName).isEqualTo("wght")
+        assertThat(remoteStyle.fontVariationSettings!!.settings[1].value.constantValue)
             .isEqualTo(450f)
     }
 
@@ -301,11 +304,11 @@ class RemoteTextStyleTest {
             RemoteTextStyle(
                 color = Color.Red.rc,
                 fontSize = 12.rsp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = RemoteFontWeight.Bold,
                 lineHeight = 10.rsp,
-                textDecoration = TextDecoration.Underline,
-                lineBreak = LineBreak.Heading,
-                hyphens = Hyphens.None,
+                textDecoration = RemoteTextDecoration.Underline,
+                lineBreak = RemoteLineBreak.Heading,
+                hyphens = RemoteHyphens.None,
             )
 
         val newStyle =
@@ -313,18 +316,18 @@ class RemoteTextStyleTest {
                 color = Color.Blue.rc,
                 fontSize = 24.rsp,
                 lineHeight = 20.rsp,
-                textDecoration = TextDecoration.LineThrough,
-                lineBreak = LineBreak.Paragraph,
-                hyphens = Hyphens.Auto,
+                textDecoration = RemoteTextDecoration.LineThrough,
+                lineBreak = RemoteLineBreak.Paragraph,
+                hyphens = RemoteHyphens.Auto,
             )
 
         assertThat(newStyle.color?.constantValueOrNull).isEqualTo(Color.Blue.rc.constantValueOrNull)
         assertThat(newStyle.fontSize?.constantValueOrNull).isEqualTo(24.rsp.constantValueOrNull)
-        assertThat(newStyle.fontWeight).isEqualTo(FontWeight.Bold)
+        assertThat(newStyle.fontWeight).isEqualTo(RemoteFontWeight.Bold)
         assertThat(newStyle.lineHeight?.constantValueOrNull).isEqualTo(20.rsp.constantValueOrNull)
-        assertThat(newStyle.textDecoration).isEqualTo(TextDecoration.LineThrough)
-        assertThat(newStyle.lineBreak).isEqualTo(LineBreak.Paragraph)
-        assertThat(newStyle.hyphens).isEqualTo(Hyphens.Auto)
+        assertThat(newStyle.textDecoration).isEqualTo(RemoteTextDecoration.LineThrough)
+        assertThat(newStyle.lineBreak).isEqualTo(RemoteLineBreak.Paragraph)
+        assertThat(newStyle.hyphens).isEqualTo(RemoteHyphens.Auto)
     }
 
     @Test
@@ -333,8 +336,8 @@ class RemoteTextStyleTest {
             RemoteTextStyle(
                 color = Color.Red.rc,
                 fontSize = 12.rsp,
-                lineBreak = LineBreak.Heading,
-                hyphens = Hyphens.Auto,
+                lineBreak = RemoteLineBreak.Heading,
+                hyphens = RemoteHyphens.Auto,
             )
 
         val newStyle = style.copy()
@@ -351,24 +354,119 @@ class RemoteTextStyleTest {
             RemoteTextStyle(
                 color = Color.Red.rc,
                 fontSize = 12.rsp,
-                fontWeight = FontWeight.Normal,
-                lineBreak = LineBreak.Heading,
-                hyphens = Hyphens.None,
+                fontWeight = RemoteFontWeight.Normal,
+                lineBreak = RemoteLineBreak.Heading,
+                hyphens = RemoteHyphens.None,
             )
 
         val newStyle =
             style.merge(
                 color = Color.Blue.rc,
-                fontWeight = FontWeight.Bold,
-                lineBreak = LineBreak.Paragraph,
-                hyphens = Hyphens.Auto,
+                fontWeight = RemoteFontWeight.Bold,
+                lineBreak = RemoteLineBreak.Paragraph,
+                hyphens = RemoteHyphens.Auto,
             )
 
         assertThat(newStyle.color?.constantValueOrNull).isEqualTo(Color.Blue.rc.constantValueOrNull)
         assertThat(newStyle.fontSize?.constantValueOrNull).isEqualTo(12.rsp.constantValueOrNull)
-        assertThat(newStyle.fontWeight).isEqualTo(FontWeight.Bold)
-        assertThat(newStyle.lineBreak).isEqualTo(LineBreak.Paragraph)
-        assertThat(newStyle.hyphens).isEqualTo(Hyphens.Auto)
+        assertThat(newStyle.fontWeight).isEqualTo(RemoteFontWeight.Bold)
+        assertThat(newStyle.lineBreak).isEqualTo(RemoteLineBreak.Paragraph)
+        assertThat(newStyle.hyphens).isEqualTo(RemoteHyphens.Auto)
+    }
+
+    @Test
+    fun copy_clears_nullable_properties_and_handles_fontVariationSettings() {
+        val initialSettings = FontVariation.Settings(FontVariation.weight(400))
+        val overrideSettings = FontVariation.Settings(FontVariation.weight(700))
+        val style =
+            RemoteTextStyle(
+                color = Color.Red.rc,
+                fontSize = 12.rsp,
+                fontWeight = RemoteFontWeight.Bold,
+                fontStyle = RemoteFontStyle.Italic,
+                fontFamily = RemoteFontFamily.Serif,
+                letterSpacing = 1.rsp,
+                background = Color.Blue.rc,
+                textAlign = RemoteTextAlign.Center,
+                lineHeight = 16.rsp,
+                textDecoration = RemoteTextDecoration.Underline,
+                lineBreak = RemoteLineBreak.Heading,
+                hyphens = RemoteHyphens.Auto,
+                fontFeatureSettings = "tnum",
+                fontVariationSettings = initialSettings,
+            )
+
+        // Preserves fontVariationSettings when not specified, and clears nullable properties when
+        // explicitly passed null.
+        val cleared =
+            style.copy(
+                fontWeight = null,
+                fontStyle = null,
+                textAlign = RemoteTextAlign.Unspecified,
+                textDecoration = null,
+                lineBreak = RemoteLineBreak.Unspecified,
+                hyphens = RemoteHyphens.Unspecified,
+            )
+        assertThat(cleared.fontWeight).isNull()
+        assertThat(cleared.fontStyle).isNull()
+        assertThat(cleared.textAlign).isEqualTo(RemoteTextAlign.Unspecified)
+        assertThat(cleared.textDecoration).isNull()
+        assertThat(cleared.lineBreak).isEqualTo(RemoteLineBreak.Unspecified)
+        assertThat(cleared.hyphens).isEqualTo(RemoteHyphens.Unspecified)
+        assertThat(cleared.fontVariationSettings)
+            .isEqualTo(initialSettings.toRemoteFontVariationSettings())
+
+        // Overrides fontVariationSettings while clearing
+        // nullable properties.
+        val overridden =
+            style.copy(
+                fontWeight = null,
+                fontStyle = null,
+                textAlign = RemoteTextAlign.Unspecified,
+                textDecoration = null,
+                lineBreak = RemoteLineBreak.Unspecified,
+                hyphens = RemoteHyphens.Unspecified,
+                fontVariationSettings = overrideSettings.toRemoteFontVariationSettings(),
+            )
+        assertThat(overridden.fontWeight).isNull()
+        assertThat(overridden.fontStyle).isNull()
+        assertThat(overridden.textAlign).isEqualTo(RemoteTextAlign.Unspecified)
+        assertThat(overridden.textDecoration).isNull()
+        assertThat(overridden.lineBreak).isEqualTo(RemoteLineBreak.Unspecified)
+        assertThat(overridden.hyphens).isEqualTo(RemoteHyphens.Unspecified)
+        assertThat(overridden.fontVariationSettings)
+            .isEqualTo(overrideSettings.toRemoteFontVariationSettings())
+
+        // Clears fontVariationSettings when explicitly passed null.
+        val clearedVariation = style.copy(fontVariationSettings = null)
+        assertThat(clearedVariation.fontVariationSettings).isNull()
+        assertThat(clearedVariation.fontWeight).isEqualTo(RemoteFontWeight.Bold)
+    }
+
+    @Test
+    fun merge_preserves_and_overrides_fontVariationSettings() {
+        val initialSettings = FontVariation.Settings(FontVariation.weight(400))
+        val overrideSettings = FontVariation.Settings(FontVariation.weight(700))
+        val style =
+            RemoteTextStyle(
+                fontWeight = RemoteFontWeight.Normal,
+                fontVariationSettings = initialSettings,
+            )
+
+        val preserved =
+            style.merge(fontWeight = RemoteFontWeight.Bold, fontVariationSettings = null)
+        assertThat(preserved.fontWeight).isEqualTo(RemoteFontWeight.Bold)
+        assertThat(preserved.fontVariationSettings)
+            .isEqualTo(initialSettings.toRemoteFontVariationSettings())
+
+        val overridden =
+            style.merge(
+                fontWeight = RemoteFontWeight.Bold,
+                fontVariationSettings = overrideSettings.toRemoteFontVariationSettings(),
+            )
+        assertThat(overridden.fontWeight).isEqualTo(RemoteFontWeight.Bold)
+        assertThat(overridden.fontVariationSettings)
+            .isEqualTo(overrideSettings.toRemoteFontVariationSettings())
     }
 
     @Test
@@ -382,7 +480,7 @@ class RemoteTextStyleTest {
         assertThat(style.fontFeatureSettings).isEqualTo("tnum")
         assertThat(style.fontVariationSettings).isNotNull()
         assertThat(style.fontVariationSettings!!.settings).hasSize(1)
-        assertThat(style.fontVariationSettings.settings[0].axisName).isEqualTo("wght")
+        assertThat(style.fontVariationSettings!!.settings[0].axisName).isEqualTo("wght")
     }
 
     @Test
@@ -425,62 +523,66 @@ class RemoteTextStyleTest {
     }
 
     @Test
-    fun remoteFontVariationSettings_convertsFontVariationSettings() {
+    fun fontVariationSettings_convertsFontVariationSettings() {
         val style =
             RemoteTextStyle(
                 fontVariationSettings =
                     FontVariation.Settings(FontVariation.weight(700), FontVariation.width(80f))
             )
 
-        assertThat(style.remoteFontVariationSettings)
+        assertThat(style.fontVariationSettings)
             .isEqualTo(
                 RemoteFontVariation.Settings(
                     RemoteFontVariation.Setting("wght", 700.rf),
                     RemoteFontVariation.Setting("wdth", 80f.rf),
                 )
             )
-        assertThat(RemoteTextStyle().remoteFontVariationSettings).isNull()
+        assertThat(RemoteTextStyle().fontVariationSettings).isNull()
     }
 
     @Test
     fun remoteTextStyle_exposesRemoteFontWeightAndFontStyle() {
         val style =
             RemoteTextStyle(
-                fontWeight = FontWeight.SemiBold,
-                fontStyle = FontStyle.Italic,
-                textAlign = TextAlign.Center,
-                textDecoration = TextDecoration.Underline + TextDecoration.LineThrough,
-                lineBreak = LineBreak.Heading,
-                hyphens = Hyphens.Auto,
+                fontWeight = RemoteFontWeight.SemiBold,
+                fontStyle = RemoteFontStyle.Italic,
+                textAlign = RemoteTextAlign.Center,
+                textDecoration = RemoteTextDecoration.Underline + RemoteTextDecoration.LineThrough,
+                lineBreak = RemoteLineBreak.Heading,
+                hyphens = RemoteHyphens.Auto,
             )
 
-        assertThat(style.remoteFontWeight).isEqualTo(RemoteFontWeight.SemiBold)
-        assertThat(style.remoteFontStyle).isEqualTo(RemoteFontStyle.Italic)
-        assertThat(style.remoteTextAlign).isEqualTo(RemoteTextAlign.Center)
-        assertThat(style.remoteTextDecoration)
+        assertThat(style.fontWeight).isEqualTo(RemoteFontWeight.SemiBold)
+        assertThat(style.fontStyle).isEqualTo(RemoteFontStyle.Italic)
+        assertThat(style.textAlign).isEqualTo(RemoteTextAlign.Center)
+        assertThat(style.textDecoration)
             .isEqualTo(RemoteTextDecoration.Underline + RemoteTextDecoration.LineThrough)
-        assertThat(style.remoteTextDecoration!!.toString())
+        assertThat(style.textDecoration!!.toString())
             .isEqualTo("RemoteTextDecoration[Underline, LineThrough]")
         assertThat(RemoteTextDecoration.None.toString()).isEqualTo("RemoteTextDecoration.None")
         assertThat(RemoteTextDecoration.Underline.toString())
             .isEqualTo("RemoteTextDecoration.Underline")
         assertThat(RemoteTextDecoration.LineThrough.toString())
             .isEqualTo("RemoteTextDecoration.LineThrough")
-        assertThat(RemoteTextDecoration.Underline in style.remoteTextDecoration!!).isTrue()
-        assertThat(RemoteTextDecoration.LineThrough in style.remoteTextDecoration!!).isTrue()
-        assertThat(style.remoteLineBreak).isEqualTo(RemoteLineBreak.Heading)
-        assertThat(style.remoteLineBreak!!.value).isEqualTo(CoreText.BREAK_STRATEGY_BALANCED)
-        assertThat(style.remoteHyphens).isEqualTo(RemoteHyphens.Auto)
-        assertThat(style.remoteHyphens!!.value).isEqualTo(CoreText.HYPHENATION_FREQUENCY_FULL)
+        assertThat(RemoteTextDecoration.Underline in style.textDecoration!!).isTrue()
+        assertThat(RemoteTextDecoration.LineThrough in style.textDecoration!!).isTrue()
+        assertThat(style.lineBreak).isEqualTo(RemoteLineBreak.Heading)
+        assertThat(style.lineBreak.value).isEqualTo(CoreText.BREAK_STRATEGY_BALANCED)
+        assertThat(style.hyphens).isEqualTo(RemoteHyphens.Auto)
+        assertThat(style.hyphens.value).isEqualTo(CoreText.HYPHENATION_FREQUENCY_FULL)
 
         val defaultStyle = RemoteTextStyle()
-        assertThat(defaultStyle.remoteFontWeight).isNull()
-        assertThat(defaultStyle.remoteFontStyle).isNull()
-        assertThat(defaultStyle.remoteTextAlign).isNull()
-        assertThat(RemoteTextStyle(textAlign = TextAlign.Unspecified).remoteTextAlign).isNull()
-        assertThat(defaultStyle.remoteTextDecoration).isNull()
-        assertThat(defaultStyle.remoteLineBreak).isNull()
-        assertThat(defaultStyle.remoteHyphens).isNull()
+        assertThat(defaultStyle.fontWeight).isNull()
+        assertThat(defaultStyle.fontStyle).isNull()
+        assertThat(defaultStyle.textAlign).isEqualTo(RemoteTextAlign.Unspecified)
+        assertThat(
+                RemoteTextStyle.fromTextStyle(TextStyle(textAlign = TextAlign.Unspecified))
+                    .textAlign
+            )
+            .isEqualTo(RemoteTextAlign.Unspecified)
+        assertThat(defaultStyle.textDecoration).isNull()
+        assertThat(defaultStyle.lineBreak).isEqualTo(RemoteLineBreak.Unspecified)
+        assertThat(defaultStyle.hyphens).isEqualTo(RemoteHyphens.Unspecified)
 
         assertThat(RemoteTextAlign.Start.toString()).isEqualTo("RemoteTextAlign.Start")
         assertThat(RemoteTextOverflow.Ellipsis.value).isEqualTo(3)

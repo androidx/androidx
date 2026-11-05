@@ -24,12 +24,12 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
+import androidx.compose.remote.creation.compose.text.RemoteFontStyle
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.wear.compose.remote.material3.RemoteText
@@ -47,7 +47,7 @@ private fun RemoteTextStylePreview(
 
             RemoteText(
                 text,
-                style = RemoteTextStyle(fontStyle = FontStyle.Italic, fontSize = 32.rsp),
+                style = RemoteTextStyle(fontStyle = RemoteFontStyle.Italic, fontSize = 32.rsp),
             )
         }
     }

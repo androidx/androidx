@@ -31,6 +31,7 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
+import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.compose.text.RemoteTimeDefaults
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
@@ -105,13 +106,14 @@ public fun RemoteTimeText(
             trailingText = trailingText ?: "".rs,
             separator = separator,
         )
+    @Suppress("RestrictedApiAndroidX")
     val mergedStyle =
         style.merge(
             color = color,
             fontSize = fontSize,
             fontFamily = fontFamily,
             fontFeatureSettings = fontFeatureSettings,
-            fontVariationSettings = fontVariationSettings,
+            fontVariationSettings = fontVariationSettings?.toRemoteFontVariationSettings(),
         )
     val resolvedFontSize = mergedStyle.fontSize ?: 14.rsp
     val resolvedColor =
@@ -150,7 +152,7 @@ private fun RemoteDrawScope.drawTimeText(
     textColor: RemoteColor,
     fontSize: RemoteFloat,
     fontFamily: RemoteFontFamily?,
-    fontVariationSettings: FontVariation.Settings?,
+    fontVariationSettings: RemoteFontVariation.Settings?,
     fontFeatureSettings: String?,
 ) {
     val width = width
@@ -160,7 +162,7 @@ private fun RemoteDrawScope.drawTimeText(
         textSize = fontSize
         typeface = fontFamily?.toRemoteTypeface() ?: RemoteTypeface.Default
         color = textColor
-        this.fontVariationSettings = fontVariationSettings?.toRemoteFontVariationSettings()
+        this.fontVariationSettings = fontVariationSettings
         this.fontFeatureSettings = fontFeatureSettings
     }
 
@@ -190,11 +192,12 @@ public object RemoteTimeTextDefaults {
     public val FontVariationSettings: FontVariation.Settings? = null
 
     /** Default text style used by [RemoteTimeText]. */
+    @Suppress("RestrictedApiAndroidX")
     public val TimeTextStyle: RemoteTextStyle =
         RemoteTextStyle(
             fontSize = 14.rsp,
             fontFamily = FontFamily,
             fontFeatureSettings = FontFeatureSettings,
-            fontVariationSettings = FontVariationSettings,
+            fontVariationSettings = FontVariationSettings?.toRemoteFontVariationSettings(),
         )
 }
