@@ -817,7 +817,6 @@ package androidx.compose.remote.creation.compose.shaders {
 
   @androidx.compose.runtime.Immutable public abstract class RemoteBrush {
     method public abstract void applyTo(androidx.compose.remote.creation.compose.state.RemoteStateScope, androidx.compose.remote.creation.compose.state.RemotePaint paint, androidx.compose.remote.creation.compose.layout.RemoteSize size);
-    method @BytecodeOnly public final long getIntrinsicSize-NH-jbRc();
     field public static final androidx.compose.remote.creation.compose.shaders.RemoteBrush.Companion Companion;
   }
 

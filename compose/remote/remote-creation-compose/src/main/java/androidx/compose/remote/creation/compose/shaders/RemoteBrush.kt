@@ -24,7 +24,6 @@ import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.geometry.Size
 
 /**
  * A remote representation of a [androidx.compose.ui.graphics.Brush] that can be serialized and
@@ -36,13 +35,6 @@ import androidx.compose.ui.geometry.Size
  */
 @Immutable
 public abstract class RemoteBrush internal constructor() {
-
-    /**
-     * Return the intrinsic size of the [RemoteBrush]. If the there is no intrinsic size (i.e.
-     * filling bounds with an arbitrary color) return [Size.Unspecified]. If there is no intrinsic
-     * size in a single dimension, return [Size] with [Float.NaN] in the desired dimension.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val intrinsicSize: Size = Size.Unspecified
 
     /**
      * Applies this [RemoteBrush] to a paint.
