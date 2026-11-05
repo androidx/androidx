@@ -24,6 +24,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
+import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
@@ -116,10 +117,12 @@ public object RemoteProgressIndicatorDefaults {
     /**
      * Returns recommended size of the gap based on [strokeWidth].
      *
-     * @param strokeWidth The stroke width of the progress indicator.
+     * @param strokeWidth The stroke width of the progress indicator. Negative values are coerced
+     *   to 0.
      * @return the recommended gap size in [RemoteDp] for [strokeWidth]
      */
-    public fun calculateRecommendedGapSize(strokeWidth: RemoteDp): RemoteDp = strokeWidth / 3f.rf
+    public fun calculateRecommendedGapSize(strokeWidth: RemoteDp): RemoteDp =
+        max(0.rdp, strokeWidth) / 3f.rf
 
     /**
      * Creates a [RemoteProgressIndicatorColors] with modified colors.

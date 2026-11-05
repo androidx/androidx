@@ -33,6 +33,7 @@ import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.remoteSpring
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
@@ -50,6 +51,11 @@ private val RADIANS_TO_DEGREES = (180f / PI.toFloat()).rf
 /**
  * A generalized progress arc component for display on Wear OS.
  *
+ * Angles are measured in degrees with 0 degrees at the 3 o'clock position. By default
+ * ([reverseDirection] is `false`), the arc sweeps clockwise from [startAngle] by [sweepAngle]
+ * degrees; when [reverseDirection] is `true`, the arc is mirrored horizontally (starting at `180 -
+ * startAngle`) and sweeps counter-clockwise.
+ *
  * To also animate the start and end of the progress, for example for a timer or a goal, use
  * [RemoteIntroOutroCurvedProgressIndicator].
  *
@@ -64,12 +70,15 @@ private val RADIANS_TO_DEGREES = (180f / PI.toFloat()).rf
  * @param modifier Modifier to be applied to the canvas.
  * @param enabled controls the enabled state. When enabled is `false`, this component will appear
  *   visually disabled.
- * @param startAngle The starting position of the progress arc in degrees. For example, 135 is
- *   bottom left.
- * @param sweepAngle The total sweep angle of the progress arc in degrees. For example, 90 degrees.
+ * @param startAngle The starting position of the progress arc in degrees, with 0 degrees at the 3
+ *   o'clock position. For example, 135 is bottom left.
+ * @param sweepAngle The total sweep angle (magnitude) of the progress arc in degrees, for example,
+ *   90 degrees. Negative values are coerced to 0 (nothing is drawn when [sweepAngle] is 0 or
+ *   negative); use [reverseDirection] to sweep counter-clockwise.
  * @param colors [RemoteProgressIndicatorColors] that will be used to resolve the indicator and
  *   track color.
- * @param strokeWidth Width of the arc in dp.
+ * @param strokeWidth Width of the arc in dp. Negative values are coerced to 0; nothing is drawn
+ *   when [strokeWidth] is 0 or negative.
  * @param padding Padding from the canvas/screen edge in dp.
  * @param gapAngleDegrees Size of the visual separation gap between segments in degrees. Set to 0f
  *   for continuous bars.
@@ -119,6 +128,11 @@ public fun RemoteCurvedProgressIndicator(
  * A [RemoteCurvedProgressIndicator] that plays spring animations at the start and end of the
  * progress, for example for a timer, or for a goal such as a distance, calories or steps.
  *
+ * Angles are measured in degrees with 0 degrees at the 3 o'clock position. By default
+ * ([reverseDirection] is `false`), the arc sweeps clockwise from [startAngle] by [sweepAngle]
+ * degrees; when [reverseDirection] is `true`, the arc is mirrored horizontally (starting at `180 -
+ * startAngle`) and sweeps counter-clockwise.
+ *
  * The intro animation plays as soon as [progress] leaves its start, and the outro animation plays
  * once [progress] reaches its end, so it finishes shortly after the end. In between, the arc
  * follows [progress] exactly. Pass a progress that is clamped to its range, so that reaching the
@@ -131,12 +145,15 @@ public fun RemoteCurvedProgressIndicator(
  * @param modifier Modifier to be applied to the canvas.
  * @param enabled controls the enabled state. When enabled is `false`, this component will appear
  *   visually disabled.
- * @param startAngle The starting position of the progress arc in degrees. For example, 135 is
- *   bottom left.
- * @param sweepAngle The total sweep angle of the progress arc in degrees. For example, 90 degrees.
+ * @param startAngle The starting position of the progress arc in degrees, with 0 degrees at the 3
+ *   o'clock position. For example, 135 is bottom left.
+ * @param sweepAngle The total sweep angle (magnitude) of the progress arc in degrees, for example,
+ *   90 degrees. Negative values are coerced to 0 (nothing is drawn when [sweepAngle] is 0 or
+ *   negative); use [reverseDirection] to sweep counter-clockwise.
  * @param colors [RemoteProgressIndicatorColors] that will be used to resolve the indicator and
  *   track color.
- * @param strokeWidth Width of the arc in dp.
+ * @param strokeWidth Width of the arc in dp. Negative values are coerced to 0; nothing is drawn
+ *   when [strokeWidth] is 0 or negative.
  * @param padding Padding from the canvas/screen edge in dp.
  * @param gapAngleDegrees Size of the visual separation gap between segments in degrees. Set to 0f
  *   for continuous bars.
@@ -203,9 +220,15 @@ private fun RemoteCurvedProgressIndicatorImpl(
     countDown: RemoteBoolean,
 ) {
     RemoteCanvas(modifier = modifier.fillMaxSize()) {
+        val coercedSweepAngle = max(0f.rf, sweepAngle)
+        val coercedStrokeWidth = max(0.rdp, strokeWidth)
+        val isNothingDrawn =
+            coercedSweepAngle
+                .isLessThanOrEqualTo(0f.rf)
+                .select(ifTrue = true.rb, ifFalse = coercedStrokeWidth.isLessThanOrEqualTo(0.rdp))
         val dotCollapseFreezeFraction = dotCollapsible.select(ifTrue = 0f.rf, ifFalse = 1f.rf)
 
-        val strokePx = strokeWidth.toPx()
+        val strokePx = coercedStrokeWidth.toPx()
         val paddingPx = padding.toPx()
         val diameter = min(width, height)
         val outerRadius = (diameter / 2f.rf) - paddingPx
@@ -217,8 +240,8 @@ private fun RemoteCurvedProgressIndicatorImpl(
         val thicknessDegrees = (strokePx / max(EPSILON, arcRadius)) * RADIANS_TO_DEGREES
         val halfThicknessDegrees = thicknessDegrees / 2f.rf
         val totalTravel = gapAngleDegrees + thicknessDegrees
-        val minProgress = max(EPSILON, totalTravel / max(EPSILON, sweepAngle))
-        val maxProgress = 1.0f.rf - totalTravel / max(EPSILON, sweepAngle)
+        val minProgress = max(EPSILON, totalTravel / max(EPSILON, coercedSweepAngle))
+        val maxProgress = 1.0f.rf - totalTravel / max(EPSILON, coercedSweepAngle)
         val drawActiveStartBase = startAngle + halfThicknessDegrees
 
         // With the intro and outro animations, the same geometry is driven by a progress that
@@ -237,7 +260,7 @@ private fun RemoteCurvedProgressIndicatorImpl(
         val arcParams =
             calculateCollapsibleArcParams(
                 animatedProgress = animatedProgress,
-                sweepAngle = sweepAngle,
+                sweepAngle = coercedSweepAngle,
                 gapAngleDegrees = gapAngleDegrees,
                 dotCollapsible = dotCollapsible,
                 dotCollapseFreezeFraction = dotCollapseFreezeFraction,
@@ -247,6 +270,7 @@ private fun RemoteCurvedProgressIndicatorImpl(
                 maxProgress = maxProgress,
                 drawActiveStartBase = drawActiveStartBase,
                 totalTravel = totalTravel,
+                isNothingDrawn = isNothingDrawn,
             )
 
         drawCurvedProgressArcs(
@@ -291,6 +315,7 @@ private fun calculateCollapsibleArcParams(
     maxProgress: RemoteFloat,
     drawActiveStartBase: RemoteFloat,
     totalTravel: RemoteFloat,
+    isNothingDrawn: RemoteBoolean,
 ): CurvedArcParams {
     val isZero = animatedProgress.isLessThanOrEqualTo(0f.rf)
     val isOne = animatedProgress.isGreaterThanOrEqualTo(1f.rf)
@@ -354,10 +379,9 @@ private fun calculateCollapsibleArcParams(
                 ),
         )
 
-    val activeSweep =
-        isZero.select(ifTrue = 0f.rf, ifFalse = clamp(activeSweepVal, MIN_SWEEP_ANGLE, sweepAngle))
-
-    val clampedActiveSweep = clamp(activeSweepVal, MIN_SWEEP_ANGLE, sweepAngle)
+    val clampedActiveSweep =
+        clamp(activeSweepVal, MIN_SWEEP_ANGLE, max(MIN_SWEEP_ANGLE, sweepAngle))
+    val activeSweep = isZero.select(ifTrue = 0f.rf, ifFalse = clampedActiveSweep)
     val outroAnchorShift = halfThicknessDegrees * (1f.rf - remainingScale)
 
     val activeSweepOffset =
@@ -387,7 +411,10 @@ private fun calculateCollapsibleArcParams(
 
     val isJumpToEndEnabled = !dotCollapsible
     val isRemainingHidden =
-        remainingScale.isLessThanOrEqualTo(0f.rf) or (isOne and isJumpToEndEnabled)
+        isNothingDrawn.select(
+            ifTrue = true.rb,
+            ifFalse = remainingScale.isLessThanOrEqualTo(0f.rf) or (isOne and isJumpToEndEnabled),
+        )
     val remainingSweep =
         isRemainingHidden.select(
             ifTrue = 0f.rf,
@@ -398,7 +425,11 @@ private fun calculateCollapsibleArcParams(
                 ),
         )
 
-    val isActiveHidden = activeScale.isLessThanOrEqualTo(0f.rf) or isZero
+    val isActiveHidden =
+        isNothingDrawn.select(
+            ifTrue = true.rb,
+            ifFalse = activeScale.isLessThanOrEqualTo(0f.rf) or isZero,
+        )
 
     return CurvedArcParams(
         activeScale = activeScale,
@@ -509,7 +540,7 @@ private fun RemoteDrawScope.drawCurvedProgressArcs(
     drawArc(
         paint = trackPaint,
         startAngle = finalRemainingStart,
-        sweepAngle = finalRemainingSweep,
+        sweepAngle = params.isRemainingHidden.select(0f.rf, finalRemainingSweep),
         useCenter = false,
         topLeft = RemoteOffset(left, top),
         size = RemoteSize(arcDimen, arcDimen),
@@ -527,7 +558,7 @@ private fun RemoteDrawScope.drawCurvedProgressArcs(
     drawArc(
         paint = indicatorPaint,
         startAngle = finalActiveStart,
-        sweepAngle = finalActiveSweep,
+        sweepAngle = params.isActiveHidden.select(0f.rf, finalActiveSweep),
         useCenter = false,
         topLeft = RemoteOffset(left, top),
         size = RemoteSize(arcDimen, arcDimen),

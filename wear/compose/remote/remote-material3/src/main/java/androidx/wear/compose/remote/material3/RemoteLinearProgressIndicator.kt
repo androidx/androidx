@@ -69,7 +69,10 @@ import androidx.compose.ui.unit.LayoutDirection
  * @param colors [RemoteProgressIndicatorColors] that will be used to resolve the indicator and
  *   track colors for this progress indicator in different states.
  * @param strokeWidth The stroke width for the progress indicator. Defaults to
- *   [RemoteLinearProgressIndicatorDefaults.StrokeWidthLarge].
+ *   [RemoteLinearProgressIndicatorDefaults.StrokeWidthLarge]; the minimum recommended value is
+ *   [RemoteLinearProgressIndicatorDefaults.StrokeWidthSmall] to ensure that the dot shown at the
+ *   end of the range can be distinguished. Negative values are coerced to 0; nothing is drawn when
+ *   [strokeWidth] is 0 or negative.
  * @param enabled Controls the enabled state. Although this component is not clickable, it can be
  *   contained within a clickable component. When enabled is `false`, this component will appear
  *   visually disabled. Note that only constant values are currently supported for [enabled];
@@ -85,6 +88,7 @@ public fun RemoteLinearProgressIndicator(
     enabled: RemoteBoolean = true.rb,
 ) {
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    val coercedStrokeWidth = max(0.rdp, strokeWidth)
     // Coerce before animating, as Wear Material3 does, so an out of range value animates from the
     // end of the track instead of pausing there.
     val animatedProgress =
@@ -97,10 +101,10 @@ public fun RemoteLinearProgressIndicator(
         modifier =
             modifier
                 .fillMaxWidth()
-                .height(strokeWidth)
+                .height(coercedStrokeWidth)
                 .scale(scaleX = if (isRtl) (-1f).rf else 1f.rf, scaleY = 1f.rf)
     ) {
-        drawLinearIndicator(animatedProgress, strokeWidth, colors, enabled)
+        drawLinearIndicator(animatedProgress, coercedStrokeWidth, colors, enabled)
     }
 }
 
@@ -145,6 +149,7 @@ private fun RemoteDrawScope.drawLinearIndicator(
     // TODO: b/553472139 - RemoteCanvas with padding modifier causes RemoteDrawScope drawing to be
     // clipped.
     val horizontalMargin = RemoteLinearProgressIndicatorDefaults.OuterHorizontalMargin.toPx()
+    val isZeroStroke = strokeWidth.isLessThanOrEqualTo(0.rdp)
     val strokePx = strokeWidth.toPx()
     val strokeCapOffset = strokePx / 2f.rf
     val yOffset = height / 2f.rf
@@ -161,6 +166,7 @@ private fun RemoteDrawScope.drawLinearIndicator(
         this.strokeWidth = strokePx
         strokeCap = StrokeCap.Round
         with(colors.trackBrush(enabled)) { applyTo(this@RemotePaint, size) }
+        this.color = isZeroStroke.select(Color.Transparent.rc, this.color)
     }
     drawLine(
         paint = trackPaint,
@@ -169,7 +175,7 @@ private fun RemoteDrawScope.drawLinearIndicator(
     )
 
     // Indicator Foreground
-    val isZero = clampedProgress.isLessThan(0.001f.rf)
+    val isZero = isZeroStroke.select(true.rb, clampedProgress.isLessThan(0.001f.rf))
     val indicatorPaint = RemotePaint {
         style = PaintingStyle.Stroke
         this.strokeWidth = strokePx
@@ -193,7 +199,7 @@ private fun RemoteDrawScope.drawLinearIndicator(
 
     val scaleFraction = clamp(distanceFromProgressToDot / dotMargin, 0f.rf, 1f.rf)
     val scaledDotRadius = dotRadius * scaleFraction
-    val isDotHidden = scaleFraction.isLessThan(0.01f.rf)
+    val isDotHidden = isZeroStroke.select(true.rb, scaleFraction.isLessThan(0.01f.rf))
 
     val dotPaint = RemotePaint {
         style = PaintingStyle.Fill
