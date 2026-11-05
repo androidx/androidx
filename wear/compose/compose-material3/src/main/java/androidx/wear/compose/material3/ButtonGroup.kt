@@ -381,8 +381,10 @@ internal class ButtonGroupElement(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        val otherModifier = other as? ButtonGroupNode ?: return false
-        return weight == otherModifier.weight && minWidth == otherModifier.minWidth
+        val otherModifier = other as? ButtonGroupElement ?: return false
+        // Use equals() rather than == so that unset (Float.NaN) weights compare equal,
+        // consistent with Float.hashCode().
+        return weight.equals(otherModifier.weight) && minWidth == otherModifier.minWidth
     }
 }
 
@@ -429,7 +431,7 @@ internal class EnlargeOnPressElement(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        val otherModifier = other as? EnlargeOnPressNode ?: return false
+        val otherModifier = other as? EnlargeOnPressElement ?: return false
         return interactionSource == otherModifier.interactionSource &&
             downAnimSpec == otherModifier.downAnimSpec &&
             upAnimSpec == otherModifier.upAnimSpec
