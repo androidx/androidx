@@ -25,6 +25,10 @@ import androidx.savedstate.serialization.SavedStateConfiguration
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import kotlin.test.Test
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.modules.SerializersModule
@@ -241,6 +245,64 @@ class RememberNavBackStackTest {
         assertThat(expected).isNotNull()
         assertThat(expected!!.arg.age).isEqualTo(12)
         assertThat(expected.arg.height).isEqualTo(2.1)
+    }
+
+    @Test
+    fun concurrentToListInBackgroundThread() = runBlocking {
+        lateinit var backStack: NavBackStack<NavKey>
+        val initialKeys = Array<NavKey>(30) { TestDataClass(it) }
+        rule.setContent { backStack = rememberNavBackStack(*initialKeys) }
+
+        val readerStarted = CompletableDeferred<Unit>()
+        val mutatorDone = CompletableDeferred<Unit>()
+
+        val readerJob =
+            launch(Dispatchers.Default) {
+                readerStarted.complete(Unit)
+                while (!mutatorDone.isCompleted) {
+                    val copy = backStack.toList()
+                    assertThat(copy.size).isIn(30..31)
+                    for (key in copy) {
+                        assertThat(key).isNotNull()
+                    }
+                }
+            }
+
+        readerStarted.await()
+        try {
+            repeat(30) {
+                if (!readerJob.isActive) return@repeat
+                rule.runOnUiThread {
+                    repeat(20) {
+                        backStack.add(TestObject)
+                        backStack.removeAt(backStack.lastIndex)
+                    }
+                }
+            }
+        } finally {
+            mutatorDone.complete(Unit)
+        }
+        readerJob.join()
+    }
+
+    @Test
+    fun toList_delegatesToBase() {
+        lateinit var backStack: NavBackStack<NavKey>
+        rule.setContent { backStack = rememberNavBackStack(TestObject, TestDataClass(1)) }
+
+        backStack.toList()
+
+        val listBeforeMutation = backStack.toList()
+        assertThat(listBeforeMutation).isSameInstanceAs(backStack.base.toList())
+
+        rule.runOnUiThread { backStack.add(TestDataClass(2)) }
+
+        val listAfterMutation = backStack.toList()
+        assertThat(listAfterMutation).isSameInstanceAs(backStack.base.toList())
+        assertThat(listBeforeMutation).containsExactly(TestObject, TestDataClass(1)).inOrder()
+        assertThat(listAfterMutation)
+            .containsExactly(TestObject, TestDataClass(1), TestDataClass(2))
+            .inOrder()
     }
 }
 

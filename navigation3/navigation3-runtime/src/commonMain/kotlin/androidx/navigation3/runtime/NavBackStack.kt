@@ -53,4 +53,18 @@ public class NavBackStack<T : NavKey> public constructor(internal val base: Snap
     public constructor() : this(base = mutableStateListOf())
 
     public constructor(vararg elements: T) : this(base = mutableStateListOf(*elements))
+
+    /**
+     * Return a list containing all the elements of this list.
+     *
+     * The list returned is immutable and will not change even if the content of the list is changed
+     * in the same snapshot. It also will be the same instance until the content is changed.
+     *
+     * It is not, however, guaranteed to be the same instance for the same list as adding and
+     * removing the same item from this list might produce a different instance with the same
+     * content. This operation is O(1) and does not involve a physically copying the list. It
+     * instead returns the underlying immutable list used internally to store the content of the
+     * list.
+     */
+    public fun toList(): List<T> = base.toList()
 }
