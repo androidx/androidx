@@ -47,6 +47,10 @@ import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.wear.compose.foundation.LocalScreenIsActive
 import androidx.wear.utils.WearApiVersionHelper
 import com.google.wear.settings.WearSettings
@@ -502,18 +506,29 @@ internal fun isStatusBarEnabled(context: Context): Boolean =
  * (e.g. scroll-away or hiding) and restores that initial state when the scaffold is disposed.
  */
 internal interface StatusBarOrchestrator {
+    /**
+     * Updates this caller's desired status bar [visible] state, whether its screen is currently
+     * active ([isScreenActive]), and an optional [lifecycle] (e.g. from Compose's
+     * `LocalLifecycleOwner.current`) used in preference to the view tree lifecycle.
+     */
+    fun update(visible: Boolean, isScreenActive: Boolean = true, lifecycle: Lifecycle? = null)
+
     /** Requests the status bar overlay to be displayed. */
-    fun show()
+    fun show() = update(visible = true, isScreenActive = true)
 
     /** Requests the status bar overlay to be hidden. */
-    fun hide()
+    fun hide() = update(visible = false, isScreenActive = true)
 
     /**
      * Restores the status bar visibility back to the initial state prior to scaffold modifications.
      */
     fun restoreInitialStatusBarState()
 
-    /** Cleans up all active view listeners without mutating window insets. */
+    /**
+     * Cleans up all active view listeners and unregisters this handle without restoring the
+     * window's initial baseline when no handles remain. If sibling handles remain on the shared
+     * window, hands off status bar visibility to the next effective handle.
+     */
     fun dispose()
 
     /** Determines whether this orchestrator manages the window of [view]. */
@@ -522,15 +537,13 @@ internal interface StatusBarOrchestrator {
 
 internal fun StatusBarOrchestrator(view: View): StatusBarOrchestrator =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        StatusBarOrchestratorImpl(view)
+        StatusBarOrchestratorHandle(view)
     } else {
         NoOpStatusBarOrchestrator
     }
 
 internal object NoOpStatusBarOrchestrator : StatusBarOrchestrator {
-    override fun show() {}
-
-    override fun hide() {}
+    override fun update(visible: Boolean, isScreenActive: Boolean, lifecycle: Lifecycle?) {}
 
     override fun restoreInitialStatusBarState() {}
 
@@ -539,120 +552,182 @@ internal object NoOpStatusBarOrchestrator : StatusBarOrchestrator {
     override fun isForWindow(view: View): Boolean = false
 }
 
+/**
+ * Lightweight caller handle implementing [StatusBarOrchestrator] for a single scaffold or
+ * standalone coordinator.
+ *
+ * Tracks the caller's [desiredStatusBarVisibility], active/lifecycle state, and view attach/layout
+ * listeners, and delegates window baseline capture, precedence resolution, and
+ * [android.view.WindowInsetsController] mutations to the shared [WindowStatusBarOrchestrator] for
+ * the host window (`DecorView`).
+ */
 @androidx.annotation.RequiresApi(Build.VERSION_CODES.R)
-private class StatusBarOrchestratorImpl(view: View) : StatusBarOrchestrator {
-    private val viewRef: WeakReference<View> = WeakReference(view)
-    private val view: View?
+private class StatusBarOrchestratorHandle(initialView: View) : StatusBarOrchestrator {
+    private val viewRef: WeakReference<View> = WeakReference(initialView)
+    internal val view: View?
         get() = viewRef.get()
 
     /**
-     * The original system status bar visibility state prior to any scaffold-driven modifications.
+     * Cached reference to the host window's [WindowStatusBarOrchestrator] once resolved, so that
+     * [restoreInitialStatusBarState] and [dispose] can still unregister this handle even if Android
+     * detaches the [View] before Compose `DisposableEffect.onDispose` runs.
+     */
+    private var windowOrchestrator: WindowStatusBarOrchestrator? = null
+
+    /**
+     * The target status bar visibility requested by this caller (`true` = show, `false` = hide).
+     */
+    internal var desiredStatusBarVisibility: Boolean? = null
+
+    /** Whether this handle's screen is currently active (via [LocalScreenIsActive]). */
+    internal var isScreenActive: Boolean = true
+
+    /**
+     * Whether this caller's observed lifecycle (from Compose's `LocalLifecycleOwner.current` when
+     * supplied, or the host [View]'s `ViewTreeLifecycleOwner` otherwise) is currently at least
+     * [Lifecycle.State.RESUMED] (defaults to `true` if no [androidx.lifecycle.LifecycleOwner] is
+     * available).
      *
-     * Captured once from [View.getRootWindowInsets] as soon as root insets become available on the
-     * host [view]. This value remains fixed once captured and serves as the baseline target
-     * restored during [restoreInitialStatusBarState] when the scaffold leaves composition.
+     * Evaluated dynamically from [observedLifecycle] so that sibling handles sharing a [Lifecycle]
+     * never observe stale resumed states while [Lifecycle] is dispatching `ON_PAUSE` or `ON_RESUME`
+     * across multiple observers.
      */
-    private var initialStatusBarVisibility: Boolean? = null
+    internal val isResumed: Boolean
+        get() =
+            if (isObservedLifecycleDestroyed) {
+                false
+            } else {
+                observedLifecycle?.currentState?.isAtLeast(Lifecycle.State.RESUMED) ?: true
+            }
 
     /**
-     * The target status bar visibility requested by Compose (true for show, false for hide).
-     * Applied once the host view is attached and baseline initial status bar visibility is secured.
+     * Whether this handle is actively in the foreground ([isScreenActive] and at least
+     * [Lifecycle.State.RESUMED]). Active handles take precedence over inactive or offscreen
+     * `STARTED` handles (such as offscreen Fragments in a `ViewPager2`, Fragments capped at
+     * `STARTED` via `FragmentTransaction.setMaxLifecycle`, or background Compose Navigation
+     * destinations).
      */
-    private var desiredStatusBarVisibility: Boolean? = null
+    internal val isActive: Boolean
+        get() = isScreenActive && isResumed
 
     /**
-     * Tracks whether this orchestrator has actually dispatched a status bar visibility mutation.
+     * Whether this handle has ever been [isActive] while registered on the window. Used to place
+     * never-active handles (such as pre-composed offscreen `STARTED` pages in a `ViewPager2`)
+     * behind handles that were previously active, while preserving natural registration order among
+     * inactive handles.
      */
-    private var hasMutatedStatusBar: Boolean = false
+    internal var hasBeenActive: Boolean = false
 
     /**
-     * Tracks the last visibility successfully applied by this orchestrator to prevent redundant
-     * mutations to [View.getWindowInsetsController].
+     * Optional [Lifecycle] supplied directly from Compose's `LocalLifecycleOwner.current` (e.g.
+     * per-destination `NavBackStackEntry` lifecycles in Compose Navigation), held via
+     * [WeakReference] to avoid creating a value-to-key reference cycle in
+     * [WindowStatusBarOrchestrator]'s `WeakHashMap`. When `null`, [updateLifecycleObserver] falls
+     * back to [View.findViewTreeLifecycleOwner], unless [hasExplicitLifecycle] is `true` (so a
+     * cleared/destroyed explicit lifecycle never falls back to a host `ViewTreeLifecycleOwner`).
      */
-    private var appliedStatusBarVisibility: Boolean? = null
+    private var explicitLifecycleRef: WeakReference<Lifecycle>? = null
+    private var hasExplicitLifecycle: Boolean = false
+    private val explicitLifecycle: Lifecycle?
+        get() = explicitLifecycleRef?.get()
+
+    private var observedLifecycleRef: WeakReference<Lifecycle>? = null
+    internal val observedLifecycle: Lifecycle?
+        get() = observedLifecycleRef?.get()
 
     /**
-     * Listener attached to [view] when initialized before window attachment.
-     *
-     * Lifecycle & Management:
-     * - Registered via [View.addOnAttachStateChangeListener] in `init` if [View.isAttachedToWindow]
-     *   is `false`.
-     * - When [View.OnAttachStateChangeListener.onViewAttachedToWindow] is invoked, it calls
-     *   [attemptCaptureAndApply].
-     * - Automatically unregistered and set to `null` via [clearListeners] once
-     *   [isStatusBarBaselineCapturedAndControllerReady] becomes `true` (meaning both initial
-     *   baseline status bar visibility is captured and [View.getWindowInsetsController] is bound).
-     * - Also explicitly unregistered during [restoreInitialStatusBarState] if disposal occurs prior
-     *   to window attachment.
+     * Set when the observed [Lifecycle] emits [Lifecycle.Event.ON_DESTROY] (or is already
+     * [Lifecycle.State.DESTROYED]), so [isResumed] remains `false` after clearing
+     * [observedLifecycleRef] rather than reverting to `true`.
+     */
+    private var isObservedLifecycleDestroyed: Boolean = false
+
+    /** Defaults to `true` to match [isResumed] when [observedLifecycle] is `null`. */
+    private var lastKnownResumed: Boolean = true
+    private var isRegisteringLifecycleObserver: Boolean = false
+    private val lifecycleObserver =
+        object : LifecycleEventObserver {
+            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                if (isRegisteringLifecycleObserver) return
+                if (event == Lifecycle.Event.ON_DESTROY) {
+                    val destroyedLifecycle = source.lifecycle
+                    destroyedLifecycle.removeObserver(this)
+                    observedLifecycleRef = null
+                    if (explicitLifecycle === destroyedLifecycle) {
+                        explicitLifecycleRef = null
+                    }
+                    isObservedLifecycleDestroyed = true
+                    val wasResumed = lastKnownResumed
+                    lastKnownResumed = false
+                    if (wasResumed) {
+                        val v = this@StatusBarOrchestratorHandle.view
+                        val orchestrator =
+                            windowOrchestrator
+                                ?: v?.let { WindowStatusBarOrchestrator.getIfAttached(it) }
+                        orchestrator?.onHandleUpdated(this@StatusBarOrchestratorHandle, v)
+                    }
+                    return
+                }
+                val nowResumed = source.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
+                if (nowResumed != lastKnownResumed) {
+                    val wasActive = isScreenActive && lastKnownResumed
+                    lastKnownResumed = nowResumed
+                    val becameActive = !wasActive && isActive
+                    val v = this@StatusBarOrchestratorHandle.view
+                    val orchestrator =
+                        windowOrchestrator
+                            ?: v?.let { WindowStatusBarOrchestrator.getIfAttached(it) }
+                    if (becameActive) {
+                        orchestrator?.onHandleLifecycleResumed(this@StatusBarOrchestratorHandle, v)
+                    } else {
+                        orchestrator?.onHandleUpdated(this@StatusBarOrchestratorHandle, v)
+                    }
+                }
+            }
+        }
+
+    /**
+     * Attached to an initially unattached [View] so this handle retries binding to its host
+     * window's [WindowStatusBarOrchestrator] as soon as the view attaches to a window
+     * (`DecorView`).
      */
     private var onAttachStateChangeListener: View.OnAttachStateChangeListener? = null
 
     /**
-     * Listener attached to [view] to observe layout passes for asynchronous insets and controller
-     * availability.
-     *
-     * Lifecycle & Management:
-     * - Registered via [View.addOnLayoutChangeListener] in `init` if
-     *   [isStatusBarBaselineCapturedAndControllerReady] is `false`.
-     * - Window insets and [View.getWindowInsetsController] handles are often dispatched
-     *   asynchronously during initial layout passes right after window attachment.
-     * - On every [View.OnLayoutChangeListener.onLayoutChange] callback, it calls
-     *   [attemptCaptureAndApply] to re-evaluate baseline capture and apply any pending
-     *   [desiredStatusBarVisibility].
-     * - Retained across layout passes until [isStatusBarBaselineCapturedAndControllerReady]
-     *   evaluates to `true`, ensuring that visibility requests are never lost if
-     *   [View.getWindowInsetsController] is `null` on early layout passes.
-     * - Automatically unregistered and set to `null` via [clearListeners] once
-     *   [isStatusBarBaselineCapturedAndControllerReady] becomes `true`, or explicitly unregistered
-     *   during [restoreInitialStatusBarState].
+     * Attached until the host window provides non-null [View.getRootWindowInsets] and
+     * [View.getWindowInsetsController], so baseline capture and visibility updates retry on layout
+     * and stop listening once [WindowStatusBarOrchestrator.isReady] is `true`.
      */
     private var onLayoutChangeListener: View.OnLayoutChangeListener? = null
 
-    /**
-     * Determines whether the orchestrator has both captured the initial system baseline status bar
-     * visibility and verified that the [View.getWindowInsetsController] is available to apply
-     * mutations.
-     *
-     * View listeners ([onAttachStateChangeListener] and [onLayoutChangeListener]) remain active
-     * until this evaluates to `true`, guaranteeing that late controller binding or delayed insets
-     * dispatch will not drop visibility updates.
-     */
-    private val isStatusBarBaselineCapturedAndControllerReady: Boolean
-        get() = initialStatusBarVisibility != null && view?.windowInsetsController != null
-
     init {
-        // Attempt initial capture and application immediately in case the view is already attached
-        // with insets available.
-        attemptCaptureAndApply()
+        syncWithWindowOrchestrator()
+    }
 
-        // If initial status bar baseline is not captured OR WindowInsetsController is not ready,
-        // attach listeners to observe window attachment and layout passes until both requirements
-        // are satisfied.
-        if (!isStatusBarBaselineCapturedAndControllerReady) {
-            // 1. Observe window attachment if the view is unattached during initial composition.
-            if (!view.isAttachedToWindow) {
-                val windowAttachListener =
-                    object : View.OnAttachStateChangeListener {
-                        override fun onViewAttachedToWindow(v: View) {
-                            // On window attachment, retry capturing status bar baseline and
-                            // applying requested visibility.
-                            attemptCaptureAndApply()
-                        }
-
-                        override fun onViewDetachedFromWindow(v: View) {}
+    /**
+     * Registers [onAttachStateChangeListener] (when [v] is not yet attached) and
+     * [onLayoutChangeListener] so this handle retries syncing with [WindowStatusBarOrchestrator]
+     * once window attachment, root insets, and [android.view.WindowInsetsController] are ready.
+     */
+    private fun ensureListeners(v: View) {
+        if (!v.isAttachedToWindow && onAttachStateChangeListener == null) {
+            val windowAttachListener =
+                object : View.OnAttachStateChangeListener {
+                    override fun onViewAttachedToWindow(attachedView: View) {
+                        syncWithWindowOrchestrator()
                     }
-                onAttachStateChangeListener = windowAttachListener
-                view.addOnAttachStateChangeListener(windowAttachListener)
-            }
 
-            // 2. Window insets and WindowInsetsController handles can be dispatched asynchronously
-            // during layout passes.
-            // Observe layout passes to capture unmodified system status bar insets as soon as they
-            // arrive.
+                    override fun onViewDetachedFromWindow(detachedView: View) {}
+                }
+            onAttachStateChangeListener = windowAttachListener
+            v.addOnAttachStateChangeListener(windowAttachListener)
+        }
+
+        if (onLayoutChangeListener == null) {
             val windowLayoutListener =
                 object : View.OnLayoutChangeListener {
                     override fun onLayoutChange(
-                        v: View,
+                        changedView: View,
                         left: Int,
                         top: Int,
                         right: Int,
@@ -662,16 +737,15 @@ private class StatusBarOrchestratorImpl(view: View) : StatusBarOrchestrator {
                         oldRight: Int,
                         oldBottom: Int,
                     ) {
-                        // On layout pass, retry capturing status bar baseline and applying
-                        // requested visibility.
-                        attemptCaptureAndApply()
+                        syncWithWindowOrchestrator()
                     }
                 }
             onLayoutChangeListener = windowLayoutListener
-            view.addOnLayoutChangeListener(windowLayoutListener)
+            v.addOnLayoutChangeListener(windowLayoutListener)
         }
     }
 
+    /** Unregisters any active attach or layout retry listeners from [view]. */
     private fun clearListeners() {
         val v = view
         onAttachStateChangeListener?.let {
@@ -685,70 +759,368 @@ private class StatusBarOrchestratorImpl(view: View) : StatusBarOrchestrator {
     }
 
     /**
-     * Disposes this orchestrator by unregistering all active view listeners
-     * ([onAttachStateChangeListener] and [onLayoutChangeListener]) to prevent memory leaks, without
-     * mutating window insets.
+     * Binds [lifecycleObserver] to the resolved [Lifecycle], using [explicitLifecycle] when
+     * [hasExplicitLifecycle] is `true` (e.g. per-destination `NavBackStackEntry` lifecycles from
+     * Compose's `LocalLifecycleOwner.current`), and falling back to [v]'s `ViewTreeLifecycleOwner`
+     * only when [hasExplicitLifecycle] is `false` (non-Compose/standalone callers).
+     *
+     * Returns `true` if [observedLifecycle] changed to a different [Lifecycle] instance.
      */
-    override fun dispose() {
-        clearListeners()
-        viewRef.clear()
+    private fun updateLifecycleObserver(v: View): Boolean {
+        val lifecycle =
+            if (hasExplicitLifecycle) {
+                explicitLifecycle
+            } else {
+                v.findViewTreeLifecycleOwner()?.lifecycle
+            }
+        val currentObserved = observedLifecycle
+        if (lifecycle != null && lifecycle.currentState == Lifecycle.State.DESTROYED) {
+            currentObserved?.removeObserver(lifecycleObserver)
+            observedLifecycleRef = null
+            if (explicitLifecycle === lifecycle) {
+                explicitLifecycleRef = null
+            }
+            if (!isObservedLifecycleDestroyed) {
+                isObservedLifecycleDestroyed = true
+                lastKnownResumed = false
+                return true
+            }
+            return false
+        }
+        if (lifecycle !== currentObserved) {
+            currentObserved?.removeObserver(lifecycleObserver)
+            observedLifecycleRef = lifecycle?.let { WeakReference(it) }
+            if (lifecycle != null) {
+                isObservedLifecycleDestroyed = false
+            }
+            lastKnownResumed =
+                if (isObservedLifecycleDestroyed) {
+                    false
+                } else {
+                    lifecycle?.currentState?.isAtLeast(Lifecycle.State.RESUMED) ?: true
+                }
+            if (lifecycle != null) {
+                isRegisteringLifecycleObserver = true
+                try {
+                    lifecycle.addObserver(lifecycleObserver)
+                } finally {
+                    isRegisteringLifecycleObserver = false
+                }
+            }
+            return true
+        }
+        return false
     }
 
-    override fun show() {
-        // Store requested visibility (show) and attempt to apply it to the status bar.
-        desiredStatusBarVisibility = true
-        attemptCaptureAndApply()
-    }
-
-    override fun hide() {
-        // Store requested visibility (hide) and attempt to apply it to the status bar.
-        desiredStatusBarVisibility = false
-        attemptCaptureAndApply()
+    /** Unregisters [lifecycleObserver] and resets [lastKnownResumed] to match [isResumed]. */
+    private fun clearLifecycleObserver() {
+        observedLifecycle?.removeObserver(lifecycleObserver)
+        observedLifecycleRef = null
+        isObservedLifecycleDestroyed = false
+        lastKnownResumed = true
     }
 
     /**
-     * Restores the status bar visibility back to the initial system state captured prior to any
-     * scaffold modifications.
+     * Updates [observedLifecycle] via [updateLifecycleObserver] once a desired visibility is set,
+     * binds to the host window's [WindowStatusBarOrchestrator] if attached, and dispatches the
+     * appropriate update event.
      *
-     * Lifecycle & Cleanup Operations:
-     * 1. **Listener Cleanup**: Immediately unregisters any active [onAttachStateChangeListener] and
-     *    [onLayoutChangeListener] from [view] to prevent memory leaks and prevent asynchronous view
-     *    callbacks from executing after disposal.
-     * 2. **Baseline State Restoration**: Reads [initialStatusBarVisibility], which holds the
-     *    unmodified system status bar state captured when the view first received window insets. If
-     *    [initialStatusBarVisibility] was never captured (e.g. if the view was never attached to a
-     *    window before disposal), no status bar mutation is attempted.
-     * 3. **Window Mutation & Exception Handling**: Calls [android.view.WindowInsetsController.show]
-     *    or [android.view.WindowInsetsController.hide] on [View.getWindowInsetsController] to
-     *    revert window state. Runtime exceptions thrown by framework or OEM controller
-     *    implementations are safely caught and logged to prevent app crashes during disposal.
+     * Evaluates `becameActive` (`!wasActiveBeforeSync && isActive`) *after*
+     * [updateLifecycleObserver] has switched [observedLifecycle], so callers like [update] that
+     * change [explicitLifecycle] and [isScreenActive] together compute active transitions against
+     * the newly observed [Lifecycle] before choosing between
+     * [WindowStatusBarOrchestrator.onHandleBecameActive],
+     * [WindowStatusBarOrchestrator.onHandleLifecycleResumed], and
+     * [WindowStatusBarOrchestrator.onHandleUpdated].
      */
-    override fun restoreInitialStatusBarState() {
-        // Step 1: Immediately unregister and clear active view listeners to prevent memory leaks or
-        // late execution after disposal.
-        clearListeners()
-
-        // Clear requested visibility so late layout callbacks or view re-attachments do not
-        // re-hide or re-show the status bar unexpectedly.
-        desiredStatusBarVisibility = null
-
-        // Step 2: Exit early if no window status bar mutation was actually performed by this
-        // orchestrator.
-        if (!hasMutatedStatusBar) return
-
-        // Step 3: Read initial system status bar visibility baseline. If baseline was never
-        // captured, exit safely without mutation.
-        val visible = initialStatusBarVisibility ?: return
+    private fun syncWithWindowOrchestrator(
+        screenBecameActive: Boolean = false,
+        wasActiveBeforeSync: Boolean = isActive,
+    ) {
         val v = view ?: return
+        // Defer lifecycle observer registration until this handle actually requests a status bar
+        // visibility. Avoids premature registration on the host ViewTreeLifecycleOwner during init
+        // before AppScaffold calls update() with LocalLifecycleOwner, and prevents leaked observers
+        // on untouched handles.
+        val lifecycleChanged =
+            if (desiredStatusBarVisibility != null) updateLifecycleObserver(v) else false
+        val orchestrator =
+            WindowStatusBarOrchestrator.getOrCreateIfAttached(v) ?: windowOrchestrator
+        if (orchestrator == null) {
+            ensureListeners(v)
+            return
+        }
+        val previousOrchestrator = windowOrchestrator
+        if (previousOrchestrator != null && previousOrchestrator !== orchestrator) {
+            previousOrchestrator.onHandleUnregistered(this, null)
+        }
+        windowOrchestrator = orchestrator
+        // Evaluate against the post-updateLifecycleObserver() state so explicitLifecycle switches
+        // in update() are reflected before deciding whether to promote this handle.
+        val becameActive = !wasActiveBeforeSync && isActive
+        when {
+            becameActive && screenBecameActive -> orchestrator.onHandleBecameActive(this, v)
+            becameActive && lifecycleChanged -> orchestrator.onHandleLifecycleResumed(this, v)
+            else -> orchestrator.onHandleUpdated(this, v)
+        }
+        if (orchestrator.isReady(v)) {
+            clearListeners()
+        } else {
+            ensureListeners(v)
+        }
+    }
 
-        // Step 4: Revert system status bar visibility back to its original baseline state.
+    override fun update(visible: Boolean, isScreenActive: Boolean, lifecycle: Lifecycle?) {
+        // Capture pre-update active state before mutating isScreenActive / explicitLifecycle so
+        // syncWithWindowOrchestrator() can detect transitions after switching observedLifecycle.
+        val wasScreenActive = this.isScreenActive
+        val wasActive = isActive
+        this.isScreenActive = isScreenActive
+        hasExplicitLifecycle = lifecycle != null
+        explicitLifecycleRef = lifecycle?.let { WeakReference(it) }
+        desiredStatusBarVisibility = visible
+        syncWithWindowOrchestrator(
+            screenBecameActive = !wasScreenActive && isScreenActive,
+            wasActiveBeforeSync = wasActive,
+        )
+    }
+
+    /** Clears listeners, lifecycle observers, and per-handle tracking state. */
+    private fun reset() {
+        clearListeners()
+        clearLifecycleObserver()
+        hasExplicitLifecycle = false
+        explicitLifecycleRef = null
+        isScreenActive = true
+        desiredStatusBarVisibility = null
+        hasBeenActive = false
+    }
+
+    override fun restoreInitialStatusBarState() {
+        reset()
+        val v = view
+        val orchestrator =
+            windowOrchestrator ?: v?.let { WindowStatusBarOrchestrator.getIfAttached(it) }
+        orchestrator?.onHandleUnregistered(this, v)
+        windowOrchestrator = null
+    }
+
+    override fun dispose() {
+        reset()
+        val v = view
+        val orchestrator =
+            windowOrchestrator ?: v?.let { WindowStatusBarOrchestrator.getIfAttached(it) }
+        orchestrator?.onHandleDisposed(this)
+        windowOrchestrator = null
+        viewRef.clear()
+    }
+
+    override fun isForWindow(view: View): Boolean =
+        this.view?.isSameWindow(view) == true ||
+            windowOrchestrator?.rootView?.isSameWindow(view) == true
+}
+
+/**
+ * Single window-scoped orchestrator per root [View] (`DecorView`) that owns the window's status bar
+ * baseline and [android.view.WindowInsetsController] mutations across all
+ * [StatusBarOrchestratorHandle] callers sharing the window.
+ */
+@androidx.annotation.RequiresApi(Build.VERSION_CODES.R)
+private class WindowStatusBarOrchestrator(initialRootView: View) {
+    private val rootViewRef: WeakReference<View> = WeakReference(initialRootView)
+    internal val rootView: View?
+        get() = rootViewRef.get()
+
+    /**
+     * The original system status bar visibility state prior to any scaffold-driven modifications on
+     * this window. Captured once from [View.getRootWindowInsets] and retained for the lifetime of
+     * the window.
+     */
+    private var initialStatusBarVisibility: Boolean? = null
+
+    /**
+     * Tracks the last visibility successfully applied to this window's
+     * [android.view.WindowInsetsController] to prevent redundant platform calls.
+     */
+    private var lastAppliedStatusBarVisibility: Boolean? = null
+
+    /**
+     * Tracks whether any handle has dispatched a status bar visibility mutation on this window
+     * since baseline capture or last full restoration.
+     */
+    private var hasMutatedStatusBar: Boolean = false
+
+    /**
+     * Registered caller handles currently requesting status bar visibility on this window, ordered
+     * from oldest/lowest precedence at index `0` to most recently registered or promoted (highest
+     * precedence) at the end of the list.
+     */
+    private val activeHandles = mutableListOf<StatusBarOrchestratorHandle>()
+
+    /** Removes handles whose host [View] has been garbage-collected. */
+    private fun pruneStaleHandles() {
+        for (i in activeHandles.indices.reversed()) {
+            if (activeHandles[i].view == null) {
+                activeHandles.removeAt(i)
+            }
+        }
+    }
+
+    /**
+     * Returns `true` when this window's initial status bar baseline has been captured and a
+     * [android.view.WindowInsetsController] is available from [callerView] or [rootView].
+     */
+    fun isReady(callerView: View?): Boolean {
+        val v = callerView ?: rootView ?: return false
+        val controller = v.windowInsetsController ?: rootView?.windowInsetsController
+        return initialStatusBarVisibility != null && controller != null
+    }
+
+    /**
+     * Selects the highest-precedence handle from [activeHandles] that has a non-null
+     * [StatusBarOrchestratorHandle.desiredStatusBarVisibility].
+     *
+     * Scans from the end of [activeHandles] toward index `0` across fallback tiers:
+     * 1. Active handles (`isActive`: both `isScreenActive` and `isResumed`)
+     * 2. `isScreenActive && hasBeenActive` (e.g., active screen while host lifecycle is paused)
+     * 3. `isScreenActive`
+     * 4. `hasBeenActive`
+     * 5. Any remaining eligible handle
+     */
+    private fun resolveEffectiveHandle(): StatusBarOrchestratorHandle? {
+        pruneStaleHandles()
+        var tierScreenActiveAndHasBeenActive: StatusBarOrchestratorHandle? = null
+        var tierScreenActive: StatusBarOrchestratorHandle? = null
+        var tierHasBeenActive: StatusBarOrchestratorHandle? = null
+        var fallback: StatusBarOrchestratorHandle? = null
+        for (i in activeHandles.indices.reversed()) {
+            val candidate = activeHandles[i]
+            if (candidate.desiredStatusBarVisibility != null) {
+                if (candidate.isActive) return candidate
+                if (candidate.isScreenActive && candidate.hasBeenActive) {
+                    if (tierScreenActiveAndHasBeenActive == null) {
+                        tierScreenActiveAndHasBeenActive = candidate
+                    }
+                } else if (candidate.isScreenActive) {
+                    if (tierScreenActive == null) tierScreenActive = candidate
+                } else if (candidate.hasBeenActive) {
+                    if (tierHasBeenActive == null) tierHasBeenActive = candidate
+                }
+                if (fallback == null) fallback = candidate
+            }
+        }
+        return tierScreenActiveAndHasBeenActive ?: tierScreenActive ?: tierHasBeenActive ?: fallback
+    }
+
+    /**
+     * Ensures [handle] is registered in [activeHandles] when it has a desired visibility, and
+     * records [StatusBarOrchestratorHandle.hasBeenActive] if it is currently active.
+     *
+     * Returns `true` if [handle] was already present in [activeHandles] (so callers may promote it
+     * if appropriate), or `false` if it was newly appended at the end or has no desired visibility.
+     */
+    private fun ensureHandleRegistered(handle: StatusBarOrchestratorHandle): Boolean {
+        pruneStaleHandles()
+        if (handle.desiredStatusBarVisibility == null) return false
+        if (handle.isActive) {
+            handle.hasBeenActive = true
+        }
+        if (!activeHandles.contains(handle)) {
+            activeHandles.add(handle)
+            return false
+        }
+        return true
+    }
+
+    /**
+     * Registers or updates [handle] in [activeHandles] without changing existing handle precedence,
+     * and applies the effective window status bar visibility once baseline insets and a controller
+     * are available.
+     */
+    fun onHandleUpdated(handle: StatusBarOrchestratorHandle, callerView: View?) {
+        ensureHandleRegistered(handle)
+        attemptCaptureAndApply(callerView)
+    }
+
+    /**
+     * Registers [handle] (if needed), promotes it to the end of [activeHandles] when active (e.g.,
+     * when [LocalScreenIsActive] becomes `true`), and applies the effective window status bar
+     * visibility.
+     */
+    fun onHandleBecameActive(handle: StatusBarOrchestratorHandle, callerView: View?) {
+        if (ensureHandleRegistered(handle) && handle.isActive) {
+            activeHandles.remove(handle)
+            activeHandles.add(handle)
+        }
+        attemptCaptureAndApply(callerView)
+    }
+
+    /**
+     * Registers [handle] (if needed), promotes active handles sharing its [Lifecycle] together in
+     * their existing relative order to the end of [activeHandles], and applies the effective window
+     * status bar visibility.
+     */
+    fun onHandleLifecycleResumed(handle: StatusBarOrchestratorHandle, callerView: View?) {
+        if (ensureHandleRegistered(handle) && handle.isActive && activeHandles.size > 1) {
+            val lifecycle = handle.observedLifecycle
+            if (lifecycle != null) {
+                // Promote active handles sharing this Lifecycle together in their existing
+                // relative order so a background handle does not momentarily jump ahead of a
+                // foreground handle on the same Lifecycle, without moving inactive siblings.
+                val sameLifecycleHandles = mutableListOf<StatusBarOrchestratorHandle>()
+                for (i in activeHandles.indices) {
+                    val candidate = activeHandles[i]
+                    if (candidate.observedLifecycle === lifecycle && candidate.isActive) {
+                        candidate.hasBeenActive = true
+                        sameLifecycleHandles.add(candidate)
+                    }
+                }
+                activeHandles.removeAll(sameLifecycleHandles)
+                activeHandles.addAll(sameLifecycleHandles)
+            } else {
+                activeHandles.remove(handle)
+                activeHandles.add(handle)
+            }
+        }
+        attemptCaptureAndApply(callerView)
+    }
+
+    /**
+     * Unregisters [handle] when its caller leaves composition or releases suppression.
+     *
+     * If other handles remain on this window, hands off status bar visibility to the next effective
+     * handle; otherwise restores the window's original [initialStatusBarVisibility] baseline if any
+     * mutation occurred.
+     */
+    fun onHandleUnregistered(handle: StatusBarOrchestratorHandle, callerView: View?) {
+        val wasRemoved = activeHandles.remove(handle)
+        pruneStaleHandles()
+        if (!wasRemoved || !hasMutatedStatusBar) return
+        val remainingHandle = resolveEffectiveHandle()
+        val controller =
+            callerView?.windowInsetsController
+                ?: remainingHandle?.view?.windowInsetsController
+                ?: rootView?.windowInsetsController
+                ?: return
+
+        // If another active handle is still registered on this window, hand off to its desired
+        // visibility instead of clobbering the shared window back to the system baseline.
+        val remainingTargetVisibility = remainingHandle?.desiredStatusBarVisibility
+        if (remainingTargetVisibility != null) {
+            applyVisibility(controller, remainingTargetVisibility)
+            return
+        }
+
+        // No active handles remain on this window. Revert system status bar visibility back to the
+        // window's original baseline state.
+        val visible = initialStatusBarVisibility ?: return
         try {
             if (visible) {
-                v.windowInsetsController?.show(WindowInsets.Type.statusBars())
+                controller.show(WindowInsets.Type.statusBars())
             } else {
-                v.windowInsetsController?.hide(WindowInsets.Type.statusBars())
+                controller.hide(WindowInsets.Type.statusBars())
             }
-            appliedStatusBarVisibility = visible
+            lastAppliedStatusBarVisibility = null
             hasMutatedStatusBar = false
         } catch (e: Exception) {
             // Swallowing exceptions here as WindowInsetsController is a newer API whose
@@ -759,15 +1131,30 @@ private class StatusBarOrchestratorImpl(view: View) : StatusBarOrchestrator {
     }
 
     /**
-     * Safely attempts to secure the initial system status bar visibility baseline state, and only
-     * if successful, applies the current desired visibility state requested by Compose.
+     * Unregisters [handle] without restoring the window's initial baseline (matching
+     * [StatusBarOrchestrator.dispose]).
+     *
+     * If other handles remain, hands off to the next effective handle. If no handles remain, clears
+     * [lastAppliedStatusBarVisibility] so a future handle re-applies its desired state, while
+     * keeping [hasMutatedStatusBar] intact since the physical window baseline was not restored.
      */
-    private fun attemptCaptureAndApply() {
-        val v = view ?: return
+    fun onHandleDisposed(handle: StatusBarOrchestratorHandle) {
+        val wasRemoved = activeHandles.remove(handle)
+        pruneStaleHandles()
+        if (activeHandles.isEmpty()) {
+            lastAppliedStatusBarVisibility = null
+        } else if (wasRemoved) {
+            attemptCaptureAndApply(null)
+        }
+    }
+
+    private fun attemptCaptureAndApply(callerView: View?) {
+        val v = callerView ?: rootView ?: return
+
         // Step 1: Secure initial system status bar visibility baseline state before performing any
         // window modifications.
         if (initialStatusBarVisibility == null) {
-            val insets = v.rootWindowInsets
+            val insets = v.rootWindowInsets ?: rootView?.rootWindowInsets
             if (insets != null) {
                 initialStatusBarVisibility = insets.isVisible(WindowInsets.Type.statusBars())
             }
@@ -776,33 +1163,70 @@ private class StatusBarOrchestratorImpl(view: View) : StatusBarOrchestrator {
         // Step 2: Only mutate status bar visibility if baseline is captured and
         // WindowInsetsController is available.
         if (initialStatusBarVisibility != null) {
-            if (isStatusBarBaselineCapturedAndControllerReady) {
-                clearListeners()
-            }
+            val effectiveHandle = resolveEffectiveHandle() ?: return
+            val targetVisibility = effectiveHandle.desiredStatusBarVisibility ?: return
+            val controller =
+                v.windowInsetsController
+                    ?: effectiveHandle.view?.windowInsetsController
+                    ?: rootView?.windowInsetsController
+                    ?: return
 
-            val targetVisibility = desiredStatusBarVisibility ?: return
-            val controller = v.windowInsetsController ?: return
-
-            if (targetVisibility == appliedStatusBarVisibility) return
-
-            try {
-                if (targetVisibility) {
-                    controller.show(WindowInsets.Type.statusBars())
-                } else {
-                    controller.hide(WindowInsets.Type.statusBars())
-                }
-                appliedStatusBarVisibility = targetVisibility
-                hasMutatedStatusBar = true
-            } catch (e: Exception) {
-                // Swallowing exceptions here as WindowInsetsController is a newer API whose
-                // platform implementations across OEM hardware may throw unexpected runtime
-                // exceptions. We avoid crashing the app due to framework controller issues.
-                Log.w(TAG, "Failed to change status bar visibility", e)
-            }
+            applyVisibility(controller, targetVisibility)
         }
     }
 
-    override fun isForWindow(view: View): Boolean = this.view?.isSameWindow(view) ?: false
+    private fun applyVisibility(
+        controller: android.view.WindowInsetsController,
+        targetVisibility: Boolean,
+    ) {
+        if (targetVisibility == lastAppliedStatusBarVisibility) return
+
+        try {
+            if (targetVisibility) {
+                controller.show(WindowInsets.Type.statusBars())
+            } else {
+                controller.hide(WindowInsets.Type.statusBars())
+            }
+            lastAppliedStatusBarVisibility = targetVisibility
+            hasMutatedStatusBar = true
+        } catch (e: Exception) {
+            // Swallowing exceptions here as WindowInsetsController is a newer API whose
+            // platform implementations across OEM hardware may throw unexpected runtime
+            // exceptions. We avoid crashing the app due to framework controller issues.
+            Log.w(TAG, "Failed to change status bar visibility", e)
+        }
+    }
+
+    companion object {
+        private val orchestrators = WeakHashMap<View, WindowStatusBarOrchestrator>()
+
+        /**
+         * Resolves the root window [View] (`DecorView`) only when [view] is attached to a window.
+         * When [view] is unattached, `view.rootView` returns [view] itself rather than the
+         * `DecorView`, so we return `null` until attachment.
+         */
+        private fun resolveAttachedRootView(view: View): View? {
+            val root = view.rootView ?: view
+            val isAttached =
+                view.isAttachedToWindow ||
+                    root.isAttachedToWindow ||
+                    view.rootWindowInsets != null ||
+                    root.rootWindowInsets != null
+            return if (isAttached) root else null
+        }
+
+        fun getIfAttached(view: View): WindowStatusBarOrchestrator? =
+            synchronized(orchestrators) {
+                val root = resolveAttachedRootView(view) ?: return null
+                orchestrators[root]
+            }
+
+        fun getOrCreateIfAttached(view: View): WindowStatusBarOrchestrator? =
+            synchronized(orchestrators) {
+                val root = resolveAttachedRootView(view) ?: return null
+                orchestrators.getOrPut(root) { WindowStatusBarOrchestrator(root) }
+            }
+    }
 }
 
 internal fun View.isSameWindow(other: View): Boolean {

@@ -31,6 +31,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalView
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.wear.compose.foundation.LocalScreenIsActive
 
 /**
  * [AppScaffold] is one of the Wear Material3 scaffold components.
@@ -173,6 +175,8 @@ public fun AppScaffold(
 
 @Composable
 private fun StatusBarVisibilitySynchronization(scaffoldState: AppScaffoldState) {
+    val screenIsActive = LocalScreenIsActive.current
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
     val showStatusBarOverlay by
         remember(scaffoldState) {
             derivedStateOf {
@@ -192,12 +196,12 @@ private fun StatusBarVisibilitySynchronization(scaffoldState: AppScaffoldState) 
         }
 
     val orchestrator = scaffoldState.screenContent.currentActiveOrchestrator.value
-    DisposableEffect(orchestrator, showStatusBarOverlay) {
-        if (showStatusBarOverlay) {
-            orchestrator.show()
-        } else {
-            orchestrator.hide()
-        }
+    DisposableEffect(screenIsActive, lifecycle, orchestrator, showStatusBarOverlay) {
+        orchestrator.update(
+            visible = showStatusBarOverlay,
+            isScreenActive = screenIsActive,
+            lifecycle = lifecycle,
+        )
         // Intentionally empty: restoring here would cause a flicker on every key change.
         // Teardown is already handled by cleanupAllOrchestrators() when AppScaffold
         // leaves composition.
