@@ -41,6 +41,8 @@ internal fun ContentTransform.toMutableTransform(
         initialVeilMatchParentSize = exitConfig.veil?.matchParentSize ?: false,
         targetVeilMatchParentSize = enterConfig.veil?.matchParentSize ?: false,
     ) {
+        sharedElementProgress { progressState.value }
+
         targetContentTransform { fullSize ->
             val fadeConfig = enterConfig.fade
             if (fadeConfig != null) {
