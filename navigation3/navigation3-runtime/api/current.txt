@@ -86,6 +86,7 @@ package androidx.navigation3.runtime {
     method public java.util.List<T> subList(int fromIndex, int toIndex);
     method @InaccessibleFromKotlin public Object![]! toArray();
     method @InaccessibleFromKotlin public <T> T[]! toArray(T[]! p);
+    method public java.util.List<T> toList();
     property public androidx.compose.runtime.snapshots.StateRecord firstStateRecord;
     property public int size;
   }
