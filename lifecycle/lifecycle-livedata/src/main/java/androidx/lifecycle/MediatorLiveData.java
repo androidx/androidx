@@ -105,7 +105,7 @@ public class MediatorLiveData<T> extends MutableLiveData<T> {
         }
         Source<S> e = new Source<>(source, onChanged);
         Source<?> existing = mSources.putIfAbsent(source, e);
-        if (existing != null && existing.mObserver != onChanged) {
+        if (existing != null && !existing.mObserver.equals(onChanged)) {
             throw new IllegalArgumentException(
                     "This source was already added with the different observer");
         }
