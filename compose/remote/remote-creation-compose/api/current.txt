@@ -1155,31 +1155,31 @@ package androidx.compose.remote.creation.compose.state {
     method @BytecodeOnly public int getBlendMode-0vVSDDA();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteColor getColor();
     method @InaccessibleFromKotlin public String? getFontFeatureSettings();
-    method @InaccessibleFromKotlin public androidx.compose.ui.text.font.FontVariation.Settings? getFontVariationSettings();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteFontVariation.Settings? getFontVariationSettings();
     method @BytecodeOnly public int getStrokeCap-7-imn-Y();
     method @BytecodeOnly public int getStrokeJoin-frcHR-o();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getStrokeWidth();
-    method @BytecodeOnly public int getStyle-TiuSbCo();
+    method @BytecodeOnly public int getStyle-_ZYGA9Q();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getTextSize();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteTypeface? getTypeface();
     method @BytecodeOnly public void setBlendMode-1B-nx3I(int);
     method @InaccessibleFromKotlin public void setColor(androidx.compose.remote.creation.compose.state.RemoteColor);
     method @InaccessibleFromKotlin public void setFontFeatureSettings(String?);
-    method @InaccessibleFromKotlin public void setFontVariationSettings(androidx.compose.ui.text.font.FontVariation.Settings?);
+    method @InaccessibleFromKotlin public void setFontVariationSettings(androidx.compose.remote.creation.compose.text.RemoteFontVariation.Settings?);
     method @BytecodeOnly public void setStrokeCap-pGIva5w(int);
     method @BytecodeOnly public void setStrokeJoin-wBp-flg(int);
     method @InaccessibleFromKotlin public void setStrokeWidth(androidx.compose.remote.creation.compose.state.RemoteFloat);
-    method @BytecodeOnly public void setStyle-k9PVt8s(int);
+    method @BytecodeOnly public void setStyle-oRXru0U(int);
     method @InaccessibleFromKotlin public void setTextSize(androidx.compose.remote.creation.compose.state.RemoteFloat);
     method @InaccessibleFromKotlin public void setTypeface(androidx.compose.remote.creation.compose.text.RemoteTypeface?);
     property public abstract androidx.compose.remote.creation.compose.state.RemoteBlendMode blendMode;
     property public abstract androidx.compose.remote.creation.compose.state.RemoteColor color;
     property public abstract String? fontFeatureSettings;
-    property public abstract androidx.compose.ui.text.font.FontVariation.Settings? fontVariationSettings;
+    property public abstract androidx.compose.remote.creation.compose.text.RemoteFontVariation.Settings? fontVariationSettings;
     property public abstract androidx.compose.remote.creation.compose.state.RemoteStrokeCap strokeCap;
     property public abstract androidx.compose.remote.creation.compose.state.RemoteStrokeJoin strokeJoin;
     property public abstract androidx.compose.remote.creation.compose.state.RemoteFloat strokeWidth;
-    property public abstract androidx.compose.ui.graphics.PaintingStyle style;
+    property public abstract androidx.compose.remote.creation.compose.state.RemotePaintingStyle style;
     property public abstract androidx.compose.remote.creation.compose.state.RemoteFloat textSize;
     property public abstract androidx.compose.remote.creation.compose.text.RemoteTypeface? typeface;
     field public static final androidx.compose.remote.creation.compose.state.RemotePaint.Companion Companion;
@@ -1188,6 +1188,19 @@ package androidx.compose.remote.creation.compose.state {
   public static final class RemotePaint.Companion {
     method public operator androidx.compose.remote.creation.compose.state.RemotePaint invoke(optional kotlin.jvm.functions.Function1<? super androidx.compose.remote.creation.compose.state.RemotePaint,kotlin.Unit> init);
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemotePaint! invoke$default(androidx.compose.remote.creation.compose.state.RemotePaint.Companion!, kotlin.jvm.functions.Function1!, int, Object!);
+  }
+
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class RemotePaintingStyle {
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemotePaintingStyle! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.compose.remote.creation.compose.state.RemotePaintingStyle.Companion Companion;
+  }
+
+  public static final class RemotePaintingStyle.Companion {
+    method @BytecodeOnly public int getFill-_ZYGA9Q();
+    method @BytecodeOnly public int getStroke-_ZYGA9Q();
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.state.RemotePaintingStyle Fill;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.state.RemotePaintingStyle Stroke;
   }
 
   public final class RemoteStateKt {

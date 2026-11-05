@@ -110,7 +110,7 @@ class BlendModeTest {
                 val h = height
 
                 val paint = RemotePaint {
-                    remoteStyle = RemotePaintingStyle.Fill
+                    style = RemotePaintingStyle.Fill
                     color = Color.Magenta.rc
                 }
 

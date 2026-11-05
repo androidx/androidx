@@ -50,6 +50,7 @@ import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.asRemoteDp
 import androidx.compose.remote.creation.compose.state.rb
@@ -65,7 +66,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.text.font.FontWeight
@@ -620,13 +620,13 @@ private fun RemoteDrawScope.drawCategoryGlyph(category: DogeEntryCategory) {
     val strokePaint =
         RemotePaint().apply {
             color = category.accent.rc
-            style = PaintingStyle.Stroke
+            style = RemotePaintingStyle.Stroke
             strokeWidth = 2.4f.rf
         }
     val fillPaint =
         RemotePaint().apply {
             color = category.accent.rc
-            style = PaintingStyle.Fill
+            style = RemotePaintingStyle.Fill
         }
 
     when (category) {

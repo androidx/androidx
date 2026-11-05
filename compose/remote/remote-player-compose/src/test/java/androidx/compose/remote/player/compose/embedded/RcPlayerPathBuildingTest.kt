@@ -32,6 +32,7 @@ import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.remotePath
@@ -40,7 +41,6 @@ import androidx.compose.remote.creation.compose.vector.RemotePathScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
@@ -126,7 +126,7 @@ class RcPlayerPathBuildingTest {
                         paint =
                             RemotePaint().apply {
                                 color = Color.Red.rc
-                                style = PaintingStyle.Fill
+                                style = RemotePaintingStyle.Fill
                             },
                     )
                 }
@@ -166,7 +166,7 @@ class RcPlayerPathBuildingTest {
                         paint =
                             RemotePaint().apply {
                                 color = Color.Red.rc
-                                style = PaintingStyle.Fill
+                                style = RemotePaintingStyle.Fill
                             },
                     )
                 }
@@ -207,7 +207,7 @@ class RcPlayerPathBuildingTest {
                         paint =
                             RemotePaint().apply {
                                 color = Color.Red.rc
-                                style = PaintingStyle.Fill
+                                style = RemotePaintingStyle.Fill
                             },
                     )
                 }
@@ -246,7 +246,7 @@ class RcPlayerPathBuildingTest {
                         paint =
                             RemotePaint().apply {
                                 color = Color.Red.rc
-                                style = PaintingStyle.Fill
+                                style = RemotePaintingStyle.Fill
                             },
                     )
                 }
@@ -285,7 +285,7 @@ class RcPlayerPathBuildingTest {
                         paint =
                             RemotePaint().apply {
                                 color = Color.Red.rc
-                                style = PaintingStyle.Fill
+                                style = RemotePaintingStyle.Fill
                             },
                     )
                 }
@@ -330,7 +330,7 @@ class RcPlayerPathBuildingTest {
                         paint =
                             RemotePaint().apply {
                                 color = Color.Red.rc
-                                style = PaintingStyle.Fill
+                                style = RemotePaintingStyle.Fill
                             },
                     )
                 }
@@ -375,7 +375,7 @@ class RcPlayerPathBuildingTest {
                         paint =
                             RemotePaint().apply {
                                 color = Color.Red.rc
-                                style = PaintingStyle.Fill
+                                style = RemotePaintingStyle.Fill
                             },
                     )
                 }
@@ -413,7 +413,7 @@ class RcPlayerPathBuildingTest {
                         paint =
                             RemotePaint().apply {
                                 color = Color.Red.rc
-                                style = PaintingStyle.Fill
+                                style = RemotePaintingStyle.Fill
                             },
                     )
                 }
@@ -451,7 +451,7 @@ class RcPlayerPathBuildingTest {
                         paint =
                             RemotePaint().apply {
                                 color = Color.Red.rc
-                                style = PaintingStyle.Fill
+                                style = RemotePaintingStyle.Fill
                             },
                     )
                 }
@@ -503,7 +503,7 @@ class RcPlayerPathBuildingTest {
                         paint =
                             RemotePaint().apply {
                                 color = Color.Red.rc
-                                style = PaintingStyle.Fill
+                                style = RemotePaintingStyle.Fill
                             },
                     )
                 }
@@ -558,7 +558,7 @@ class RcPlayerPathBuildingTest {
                         paint =
                             RemotePaint().apply {
                                 color = Color.Red.rc
-                                style = PaintingStyle.Fill
+                                style = RemotePaintingStyle.Fill
                             },
                     )
                 }
@@ -608,7 +608,7 @@ class RcPlayerPathBuildingTest {
                         paint =
                             RemotePaint().apply {
                                 color = Color.Red.rc
-                                style = PaintingStyle.Stroke
+                                style = RemotePaintingStyle.Stroke
                                 strokeWidth = 6f.rf
                             },
                     )
@@ -639,7 +639,7 @@ class RcPlayerPathBuildingTest {
                             paint =
                                 RemotePaint().apply {
                                     color = Color.Red.rc
-                                    style = PaintingStyle.Fill
+                                    style = RemotePaintingStyle.Fill
                                 },
                             topLeft = RemoteOffset(0f.rf, 0f.rf),
                             size = RemoteSize(100f.rf, 100f.rf),
@@ -684,7 +684,7 @@ class RcPlayerPathBuildingTest {
                         paint =
                             RemotePaint().apply {
                                 color = Color.Red.rc
-                                style = PaintingStyle.Stroke
+                                style = RemotePaintingStyle.Stroke
                                 strokeWidth = 6f.rf
                             },
                     )

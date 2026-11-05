@@ -34,6 +34,7 @@ import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.compose.text.RemoteTimeDefaults
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
+import androidx.compose.remote.creation.compose.text.toRemoteFontVariationSettings
 import androidx.compose.remote.creation.compose.text.toRemoteTypeface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontVariation
@@ -143,6 +144,7 @@ private fun buildTimeTextString(
     return leadingWithSeparator + time + trailingWithSeparator
 }
 
+@Suppress("RestrictedApiAndroidX")
 private fun RemoteDrawScope.drawTimeText(
     text: RemoteString,
     textColor: RemoteColor,
@@ -158,7 +160,7 @@ private fun RemoteDrawScope.drawTimeText(
         textSize = fontSize
         typeface = fontFamily?.toRemoteTypeface() ?: RemoteTypeface.Default
         color = textColor
-        this.fontVariationSettings = fontVariationSettings
+        this.fontVariationSettings = fontVariationSettings?.toRemoteFontVariationSettings()
         this.fontFeatureSettings = fontFeatureSettings
     }
 

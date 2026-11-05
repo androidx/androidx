@@ -133,7 +133,7 @@ internal class PaintTracker {
             paintBundle.setStrokeJoin(targetJoin)
         }
 
-        val targetStyle = newPaint.remoteStyle.value
+        val targetStyle = newPaint.style.value
         updateIfChanged(targetStyle, style) {
             style = targetStyle
             paintBundle.setStyle(targetStyle)
@@ -171,7 +171,7 @@ internal class PaintTracker {
         }
 
         val targetFontVariationSettings =
-            combineFontSettings(newPaint.fontFeatureSettings, newPaint.remoteFontVariationSettings)
+            combineFontSettings(newPaint.fontFeatureSettings, newPaint.fontVariationSettings)
         val settingsToUse =
             if (RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis) {
                 targetFontVariationSettings

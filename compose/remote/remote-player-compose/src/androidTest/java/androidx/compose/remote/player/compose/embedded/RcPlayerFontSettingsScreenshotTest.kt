@@ -37,6 +37,7 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
+import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
@@ -193,9 +194,9 @@ class RcPlayerFontSettingsScreenshotTest {
                     color = Color.White.rc
                     textSize = textSizePx
                     fontVariationSettings =
-                        FontVariation.Settings(
-                            FontVariation.weight(100),
-                            FontVariation.width(25f),
+                        RemoteFontVariation.Settings(
+                            RemoteFontVariation.Setting("wght", 100f.rf),
+                            RemoteFontVariation.Setting("wdth", 25f.rf),
                         )
                 }
                 val paintRegular = RemotePaint {
@@ -203,9 +204,9 @@ class RcPlayerFontSettingsScreenshotTest {
                     color = Color.White.rc
                     textSize = textSizePx
                     fontVariationSettings =
-                        FontVariation.Settings(
-                            FontVariation.weight(400),
-                            FontVariation.width(100f),
+                        RemoteFontVariation.Settings(
+                            RemoteFontVariation.Setting("wght", 400f.rf),
+                            RemoteFontVariation.Setting("wdth", 100f.rf),
                         )
                 }
                 val paintBlackExpandedSlanted = RemotePaint {
@@ -213,10 +214,10 @@ class RcPlayerFontSettingsScreenshotTest {
                     color = Color.White.rc
                     textSize = textSizePx
                     fontVariationSettings =
-                        FontVariation.Settings(
-                            FontVariation.weight(900),
-                            FontVariation.width(151f),
-                            FontVariation.slant(-10f),
+                        RemoteFontVariation.Settings(
+                            RemoteFontVariation.Setting("wght", 900f.rf),
+                            RemoteFontVariation.Setting("wdth", 151f.rf),
+                            RemoteFontVariation.Setting("slnt", (-10f).rf),
                         )
                 }
 

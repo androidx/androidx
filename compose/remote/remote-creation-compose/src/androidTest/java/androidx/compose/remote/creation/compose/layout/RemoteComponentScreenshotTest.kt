@@ -31,6 +31,7 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.asRemoteDp
 import androidx.compose.remote.creation.compose.state.max
@@ -45,7 +46,6 @@ import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
 import androidx.compose.remote.player.compose.test.utils.RemoteEmbeddedScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -206,7 +206,7 @@ private fun LazyCanvasReadCell() {
                 val canvasDiagPaint = RemotePaint {
                     color = Color(0xFFD81B60).rc
                     strokeWidth = 3f.rf
-                    style = PaintingStyle.Stroke
+                    style = RemotePaintingStyle.Stroke
                 }
                 // Half of outer 100dp = 50dp wide bar inside 72dp canvas.
                 drawRect(

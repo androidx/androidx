@@ -34,6 +34,7 @@ import androidx.compose.remote.creation.compose.state.RemoteEasing
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.compositeOver
 import androidx.compose.remote.creation.compose.state.lerp
@@ -46,7 +47,6 @@ import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.util.fastForEachReversed
 
 /**
@@ -143,7 +143,7 @@ private fun RemoteContentDrawScope.drawBackground(
     @SuppressLint("RestrictedApiAndroidX")
     val backgroundColor = focusedOverlay.compositeOver(BackgroundColor)
     val paint = RemotePaint {
-        style = PaintingStyle.Fill
+        style = RemotePaintingStyle.Fill
         color = backgroundColor
     }
     drawOutline(outline, paint)
@@ -195,7 +195,7 @@ private fun RemoteDrawScope.getBorderPaints(
         val brush = RemoteSweepGradient(colors = colors, stops = SweepGradientStops)
 
         RemotePaint {
-            style = PaintingStyle.Stroke
+            style = RemotePaintingStyle.Stroke
             // The stroke is centered on the outline and its outer half is clipped away.
             strokeWidth = width * 2f
             with(brush) { applyTo(this@RemotePaint, size, transformation) }
@@ -283,7 +283,7 @@ private val FocusedOverlayColor: RemoteColor = Color(0x29FFFFFF).rc
 private val DisabledOverlayColor: RemoteColor = Color(0x8F191919).rc
 
 private val DisabledOverlayPaint = RemotePaint {
-    style = PaintingStyle.Fill
+    style = RemotePaintingStyle.Fill
     color = DisabledOverlayColor
 }
 

@@ -22,11 +22,13 @@ import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInf
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.remotePath
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.compose.text.RemoteTypeface.Companion.create
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
@@ -36,8 +38,6 @@ import androidx.compose.remote.player.compose.test.utils.R
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.remote.player.compose.test.utils.createMockContextWithFont
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.text.font.FontVariation
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -82,13 +82,15 @@ class RemoteCanvasScreenshotTest {
                 typeface = RemoteTypeface.Named("RobotoFlex")
                 color = Color.White.rc
                 textSize = 30f.rf
-                fontVariationSettings = FontVariation.Settings(FontVariation.weight(100))
+                fontVariationSettings =
+                    RemoteFontVariation.Settings(RemoteFontVariation.Setting("wght", 100f.rf))
             }
             val paintW900 = RemotePaint {
                 typeface = RemoteTypeface.Named("RobotoFlex")
                 color = Color.White.rc
                 textSize = 30f.rf
-                fontVariationSettings = FontVariation.Settings(FontVariation.weight(900))
+                fontVariationSettings =
+                    RemoteFontVariation.Settings(RemoteFontVariation.Setting("wght", 900f.rf))
             }
 
             val text = "Hello Font!".rs
@@ -171,7 +173,7 @@ class RemoteCanvasScreenshotTest {
 
                 val paint = RemotePaint {
                     color = Color.Red.rc
-                    style = PaintingStyle.Fill
+                    style = RemotePaintingStyle.Fill
                 }
                 drawPath(path, paint)
             }
@@ -255,7 +257,7 @@ class RemoteCanvasScreenshotTest {
 
                 val paint = RemotePaint {
                     color = Color.Cyan.rc
-                    style = PaintingStyle.Stroke
+                    style = RemotePaintingStyle.Stroke
                     strokeWidth = 3f.rf
                 }
                 drawPath(path, paint)

@@ -28,6 +28,7 @@ import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.clamp
 import androidx.compose.remote.creation.compose.state.max
@@ -37,7 +38,6 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 
@@ -162,7 +162,7 @@ private fun RemoteDrawScope.drawLinearIndicator(
 
     // Track Background
     val trackPaint = RemotePaint {
-        style = PaintingStyle.Stroke
+        style = RemotePaintingStyle.Stroke
         this.strokeWidth = strokePx
         strokeCap = RemoteStrokeCap.Round
         with(colors.trackBrush(enabled)) { applyTo(this@RemotePaint, size) }
@@ -177,7 +177,7 @@ private fun RemoteDrawScope.drawLinearIndicator(
     // Indicator Foreground
     val isZero = isZeroStroke.select(true.rb, clampedProgress.isLessThan(0.001f.rf))
     val indicatorPaint = RemotePaint {
-        style = PaintingStyle.Stroke
+        style = RemotePaintingStyle.Stroke
         this.strokeWidth = strokePx
         strokeCap = RemoteStrokeCap.Round
         with(colors.indicatorBrush(enabled)) { applyTo(this@RemotePaint, size) }
@@ -202,7 +202,7 @@ private fun RemoteDrawScope.drawLinearIndicator(
     val isDotHidden = isZeroStroke.select(true.rb, scaleFraction.isLessThan(0.01f.rf))
 
     val dotPaint = RemotePaint {
-        style = PaintingStyle.Fill
+        style = RemotePaintingStyle.Fill
         with(colors.indicatorBrush(enabled)) { applyTo(this@RemotePaint, size) }
         this.color = isDotHidden.select(Color.Transparent.rc, this.color)
     }

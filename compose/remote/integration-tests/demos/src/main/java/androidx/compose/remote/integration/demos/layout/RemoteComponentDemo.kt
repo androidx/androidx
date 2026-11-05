@@ -38,6 +38,7 @@ import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
@@ -48,7 +49,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.tooling.preview.Preview
 
 @Suppress("RestrictedApiAndroidX")
@@ -152,12 +152,12 @@ private fun RemoteComponentInspectorBox(
 
                 val guidePaint = RemotePaint {
                     color = accentColor.copy(alpha = 0.35f.rf)
-                    style = PaintingStyle.Stroke
+                    style = RemotePaintingStyle.Stroke
                     strokeWidth = 2f.rf
                 }
                 val centerPaint = RemotePaint {
                     color = accentColor.copy(alpha = 0.6f.rf)
-                    style = PaintingStyle.Fill
+                    style = RemotePaintingStyle.Fill
                 }
                 val textPaint = RemotePaint {
                     color = accentColor

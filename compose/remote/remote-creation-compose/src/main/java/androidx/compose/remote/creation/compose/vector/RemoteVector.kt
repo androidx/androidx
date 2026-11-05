@@ -165,7 +165,7 @@ internal class RemotePathComponent : RemoteVNode() {
         if (effectiveFillBrush != null) {
             val fillPaint = RemotePaint {
                 this.colorFilter = colorFilter
-                this.remoteStyle = RemotePaintingStyle.Fill
+                this.style = RemotePaintingStyle.Fill
             }
             applyBrushToPaint(fillPaint, effectiveFillBrush, fillAlpha, viewportSize)
             if (hasTween) {
@@ -182,7 +182,7 @@ internal class RemotePathComponent : RemoteVNode() {
         if (effectiveStrokeBrush != null) {
             val strokePaint = RemotePaint {
                 this.colorFilter = colorFilter
-                this.remoteStyle = RemotePaintingStyle.Stroke
+                this.style = RemotePaintingStyle.Stroke
                 this.strokeWidth = strokeLineWidth
                 this.strokeCap = strokeLineCap
                 this.strokeJoin = strokeLineJoin

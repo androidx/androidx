@@ -17,14 +17,9 @@ package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.BlackArgb
-import androidx.compose.remote.creation.compose.layout.toComposePaintingStyle
-import androidx.compose.remote.creation.compose.layout.toRemotePaintingStyle
 import androidx.compose.remote.creation.compose.shaders.RemoteShader
 import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
-import androidx.compose.remote.creation.compose.text.toRemoteFontVariationSettings
-import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.text.font.FontVariation
 
 /**
  * A paint object used for remote drawing operations.
@@ -41,16 +36,8 @@ public sealed interface RemotePaint {
     /** The [RemoteBlendMode] to use when drawing with this paint. */
     public var blendMode: RemoteBlendMode
 
-    /** The [PaintingStyle] to use (e.g., Fill, Stroke). */
-    public var style: PaintingStyle
-
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public var remoteStyle: RemotePaintingStyle
-        get() = style.toRemotePaintingStyle()
-        set(value) {
-            style = value.toComposePaintingStyle()
-        }
+    /** The [RemotePaintingStyle] to use (e.g., Fill, Stroke). */
+    public var style: RemotePaintingStyle
 
     /** The width of the stroke when [style] is set to Stroke. */
     public var strokeWidth: RemoteFloat
@@ -93,12 +80,8 @@ public sealed interface RemotePaint {
     /** The CSS-style font feature settings string (e.g., "tnum", "zero"). */
     public var fontFeatureSettings: String?
 
-    /** The [FontVariation.Settings] to use for drawing text. */
-    public var fontVariationSettings: FontVariation.Settings?
-
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val remoteFontVariationSettings: RemoteFontVariation.Settings?
-        get() = fontVariationSettings?.toRemoteFontVariationSettings()
+    /** The [RemoteFontVariation.Settings] to use for drawing text. */
+    public var fontVariationSettings: RemoteFontVariation.Settings?
 
     public companion object {
         /**
@@ -118,7 +101,7 @@ internal class StandardRemotePaint() : RemotePaint {
     public override var isAntiAlias: Boolean = true
     public override var blendMode: RemoteBlendMode = RemoteBlendMode.SrcOver
 
-    public override var style: PaintingStyle = PaintingStyle.Fill
+    public override var style: RemotePaintingStyle = RemotePaintingStyle.Fill
     public override var strokeWidth: RemoteFloat = 0.0f.rf
     public override var strokeCap: RemoteStrokeCap = RemoteStrokeCap.Butt
     public override var strokeJoin: RemoteStrokeJoin = RemoteStrokeJoin.Miter
@@ -130,7 +113,7 @@ internal class StandardRemotePaint() : RemotePaint {
     public override var color: RemoteColor = RemoteColor(BlackArgb)
     public override var colorFilter: RemoteColorFilter? = null
     public override var fontFeatureSettings: String? = null
-    public override var fontVariationSettings: FontVariation.Settings? = null
+    public override var fontVariationSettings: RemoteFontVariation.Settings? = null
 
     /**
      * Creates a [StandardRemotePaint] by copying properties from another [RemotePaint].

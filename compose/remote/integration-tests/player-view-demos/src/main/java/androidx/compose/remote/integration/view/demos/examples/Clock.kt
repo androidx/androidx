@@ -40,6 +40,7 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.rc
@@ -50,7 +51,6 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.tooling.preview.RemotePreviewWrapper
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewWrapper
 
@@ -82,7 +82,7 @@ const val androidShapeString =
 val androidPath = RemotePath(androidShapeString)
 
 fun Color.paint(
-    style: PaintingStyle? = null,
+    style: RemotePaintingStyle? = null,
     strokeWidth: Float? = null,
     textSize: Float? = null,
     cap: RemoteStrokeCap? = null,
@@ -337,7 +337,7 @@ fun RcSimpleClock1(
                     gmtPath,
                     RemotePaint {
                         color = gmtColor.rc
-                        style = PaintingStyle.Fill
+                        style = RemotePaintingStyle.Fill
                     },
                 )
             }

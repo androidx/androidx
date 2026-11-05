@@ -28,6 +28,7 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
@@ -37,7 +38,6 @@ import androidx.compose.remote.player.compose.embedded.integration.previews.util
 import androidx.compose.remote.player.compose.embedded.integration.previews.utils.PlayerImplPreviewParameterProvider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 
@@ -107,7 +107,7 @@ private fun RcCanvasLinePreview(
             RemoteCanvas(modifier = RemoteModifier.size(180.rdp)) {
                 val stroke = RemotePaint {
                     color = Color(0xFFFF5722).rc
-                    style = PaintingStyle.Stroke
+                    style = RemotePaintingStyle.Stroke
                     strokeWidth = 14f.rf
                     strokeCap = RemoteStrokeCap.Round
                 }
