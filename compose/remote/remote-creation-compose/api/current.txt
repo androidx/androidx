@@ -124,10 +124,10 @@ package androidx.compose.remote.creation.compose.capture {
   }
 
   public static final class RemoteImageVector.Builder {
-    ctor @KotlinOnly public RemoteImageVector.Builder(androidx.compose.remote.creation.compose.state.RemoteDp defaultWidth, androidx.compose.remote.creation.compose.state.RemoteDp defaultHeight, androidx.compose.remote.creation.compose.state.RemoteFloat viewportWidth, androidx.compose.remote.creation.compose.state.RemoteFloat viewportHeight, androidx.compose.remote.creation.compose.state.RemoteColor tintColor, optional String name, optional androidx.compose.ui.graphics.BlendMode tintBlendMode, optional boolean autoMirror);
+    ctor @KotlinOnly public RemoteImageVector.Builder(androidx.compose.remote.creation.compose.state.RemoteDp defaultWidth, androidx.compose.remote.creation.compose.state.RemoteDp defaultHeight, androidx.compose.remote.creation.compose.state.RemoteFloat viewportWidth, androidx.compose.remote.creation.compose.state.RemoteFloat viewportHeight, androidx.compose.remote.creation.compose.state.RemoteColor tintColor, optional String name, optional androidx.compose.remote.creation.compose.state.RemoteBlendMode tintBlendMode, optional boolean autoMirror);
     ctor @BytecodeOnly public RemoteImageVector.Builder(androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteColor!, String!, int, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public RemoteImageVector.Builder(androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteColor!, String!, int, boolean, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor @KotlinOnly public RemoteImageVector.Builder(androidx.compose.remote.creation.compose.state.RemoteFloat viewportWidth, androidx.compose.remote.creation.compose.state.RemoteFloat viewportHeight, androidx.compose.remote.creation.compose.state.RemoteColor tintColor, optional String name, optional androidx.compose.ui.graphics.BlendMode tintBlendMode, optional boolean autoMirror);
+    ctor @KotlinOnly public RemoteImageVector.Builder(androidx.compose.remote.creation.compose.state.RemoteFloat viewportWidth, androidx.compose.remote.creation.compose.state.RemoteFloat viewportHeight, androidx.compose.remote.creation.compose.state.RemoteColor tintColor, optional String name, optional androidx.compose.remote.creation.compose.state.RemoteBlendMode tintBlendMode, optional boolean autoMirror);
     ctor @BytecodeOnly public RemoteImageVector.Builder(androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteColor!, String!, int, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public RemoteImageVector.Builder(androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteColor!, String!, int, boolean, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public androidx.compose.remote.creation.compose.capture.RemoteImageVector build();
@@ -803,12 +803,17 @@ package androidx.compose.remote.creation.compose.painter {
 
   public abstract class RemotePainter {
     ctor public RemotePainter();
-    method @KotlinOnly public final void draw(androidx.compose.remote.creation.compose.layout.RemoteDrawScope, optional androidx.compose.ui.graphics.BlendMode? blendMode, optional androidx.compose.remote.creation.compose.state.RemoteFloat alpha);
-    method @BytecodeOnly public final void draw-K5GOwko(androidx.compose.remote.creation.compose.layout.RemoteDrawScope, androidx.compose.ui.graphics.BlendMode?, androidx.compose.remote.creation.compose.state.RemoteFloat);
-    method @BytecodeOnly public static void draw-K5GOwko$default(androidx.compose.remote.creation.compose.painter.RemotePainter!, androidx.compose.remote.creation.compose.layout.RemoteDrawScope!, androidx.compose.ui.graphics.BlendMode!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
+    method @KotlinOnly public final void draw(androidx.compose.remote.creation.compose.layout.RemoteDrawScope, optional androidx.compose.remote.creation.compose.state.RemoteBlendMode? blendMode, optional androidx.compose.remote.creation.compose.state.RemoteFloat alpha);
+    method @BytecodeOnly public final void draw-bfkoc2g(androidx.compose.remote.creation.compose.layout.RemoteDrawScope, androidx.compose.remote.creation.compose.state.RemoteBlendMode?, androidx.compose.remote.creation.compose.state.RemoteFloat);
+    method @BytecodeOnly public static void draw-bfkoc2g$default(androidx.compose.remote.creation.compose.painter.RemotePainter!, androidx.compose.remote.creation.compose.layout.RemoteDrawScope!, androidx.compose.remote.creation.compose.state.RemoteBlendMode!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
     method @InaccessibleFromKotlin public abstract androidx.compose.remote.creation.compose.layout.RemoteSize? getIntrinsicSize();
     method public abstract void onDraw(androidx.compose.remote.creation.compose.layout.RemoteDrawScope);
     property public abstract androidx.compose.remote.creation.compose.layout.RemoteSize? intrinsicSize;
+  }
+
+  public final class RemotePainterKt {
+    method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteFloat getRemoteDefaultAlpha();
+    property public static androidx.compose.remote.creation.compose.state.RemoteFloat RemoteDefaultAlpha;
   }
 
 }
@@ -968,6 +973,73 @@ package androidx.compose.remote.creation.compose.state {
 
   public final class AndroidRemoteColorKt {
     method public static androidx.compose.remote.creation.compose.state.RemoteColor createThemedRemoteColor(androidx.compose.remote.creation.compose.state.RemoteColor.Companion, @ColorRes int lightColorRes, @ColorRes int darkColorRes, @ColorInt int lightFallback, @ColorInt int darkFallback);
+  }
+
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class RemoteBlendMode {
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteBlendMode! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.compose.remote.creation.compose.state.RemoteBlendMode.Companion Companion;
+  }
+
+  public static final class RemoteBlendMode.Companion {
+    method @BytecodeOnly public int getClear-0vVSDDA();
+    method @BytecodeOnly public int getColor-0vVSDDA();
+    method @BytecodeOnly public int getColorBurn-0vVSDDA();
+    method @BytecodeOnly public int getColorDodge-0vVSDDA();
+    method @BytecodeOnly public int getDarken-0vVSDDA();
+    method @BytecodeOnly public int getDifference-0vVSDDA();
+    method @BytecodeOnly public int getDst-0vVSDDA();
+    method @BytecodeOnly public int getDstAtop-0vVSDDA();
+    method @BytecodeOnly public int getDstIn-0vVSDDA();
+    method @BytecodeOnly public int getDstOut-0vVSDDA();
+    method @BytecodeOnly public int getDstOver-0vVSDDA();
+    method @BytecodeOnly public int getExclusion-0vVSDDA();
+    method @BytecodeOnly public int getHardlight-0vVSDDA();
+    method @BytecodeOnly public int getHue-0vVSDDA();
+    method @BytecodeOnly public int getLighten-0vVSDDA();
+    method @BytecodeOnly public int getLuminosity-0vVSDDA();
+    method @BytecodeOnly public int getModulate-0vVSDDA();
+    method @BytecodeOnly public int getMultiply-0vVSDDA();
+    method @BytecodeOnly public int getOverlay-0vVSDDA();
+    method @BytecodeOnly public int getPlus-0vVSDDA();
+    method @BytecodeOnly public int getSaturation-0vVSDDA();
+    method @BytecodeOnly public int getScreen-0vVSDDA();
+    method @BytecodeOnly public int getSoftlight-0vVSDDA();
+    method @BytecodeOnly public int getSrc-0vVSDDA();
+    method @BytecodeOnly public int getSrcAtop-0vVSDDA();
+    method @BytecodeOnly public int getSrcIn-0vVSDDA();
+    method @BytecodeOnly public int getSrcOut-0vVSDDA();
+    method @BytecodeOnly public int getSrcOver-0vVSDDA();
+    method @BytecodeOnly public int getXor-0vVSDDA();
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode Clear;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode Color;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode ColorBurn;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode ColorDodge;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode Darken;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode Difference;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode Dst;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode DstAtop;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode DstIn;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode DstOut;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode DstOver;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode Exclusion;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode Hardlight;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode Hue;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode Lighten;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode Luminosity;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode Modulate;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode Multiply;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode Overlay;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode Plus;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode Saturation;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode Screen;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode Softlight;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode Src;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode SrcAtop;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode SrcIn;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode SrcOut;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode SrcOver;
+    property public androidx.compose.remote.creation.compose.state.RemoteBlendMode Xor;
   }
 
   public final class RemoteColorComposeKt {

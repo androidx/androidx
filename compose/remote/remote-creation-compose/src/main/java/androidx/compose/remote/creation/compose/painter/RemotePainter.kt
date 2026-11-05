@@ -17,11 +17,13 @@ package androidx.compose.remote.creation.compose.painter
 
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteSize
+import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.DefaultAlpha
+
+/** Default alpha value for remote painting operations (1.0f = opaque). */
+public val RemoteDefaultAlpha: RemoteFloat = 1.0f.rf
 
 /**
  * A class that holds drawing operations for a remote component. This is analogous to the
@@ -50,11 +52,11 @@ public abstract class RemotePainter {
         return paint ?: RemotePaint().also { paint = it }
     }
 
-    private fun configureBlendMode(blendMode: BlendMode?) {
+    private fun configureBlendMode(blendMode: RemoteBlendMode?) {
         if (blendMode == null) {
             return
         }
-        obtainPaint().blendMode = blendMode
+        obtainPaint().remoteBlendMode = blendMode
     }
 
     /** Update the alpha component of RemoteColor. */
@@ -67,8 +69,8 @@ public abstract class RemotePainter {
      * draw the painter.
      */
     public fun RemoteDrawScope.draw(
-        blendMode: BlendMode? = null,
-        alpha: RemoteFloat = DefaultAlpha.rf,
+        blendMode: RemoteBlendMode? = null,
+        alpha: RemoteFloat = RemoteDefaultAlpha,
     ) {
         configureBlendMode(blendMode)
         configureAlpha(alpha)
