@@ -16,6 +16,8 @@
 
 package androidx.compose.animation
 
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.runBlocking
@@ -179,5 +181,53 @@ class SharedMutableTransformStateTest {
         state.updateMutationState(isMutating = false, isSettled = true)
 
         assertEquals(0f, state.sharedElementProgressHandoffVelocity, 0f)
+    }
+
+    @Test
+    fun combinedProperties_whenMutatingWithoutExplicitMutations_overrideToDefaultRestingValues() {
+        val state = SharedMutableTransformState()
+        state.updateMutationState(isMutating = true, isSettled = true)
+
+        assertEquals(1f, state.combinedAlpha(transitionValue = 0f), 0f)
+        assertEquals(1f, state.combinedScale(transitionValue = 0.5f), 0f)
+        assertEquals(
+            IntOffset.Zero,
+            state.combinedSlide(
+                transitionValue = IntOffset(200, 100),
+                fullSize = IntSize(300, 300),
+            ),
+        )
+        assertEquals(
+            TransformOrigin.Center,
+            state.combinedTransformOrigin(transitionValue = TransformOrigin(0f, 0f)),
+        )
+        assertEquals(Color.Red.copy(alpha = 0f), state.combinedVeil(transitionValue = Color.Red))
+
+        state.updateMutationState(isMutating = false, isSettled = false)
+        assertEquals(1f, state.alphaHandoffValue)
+        assertEquals(1f, state.scaleHandoffValue)
+        assertEquals(IntOffset.Zero, state.slideHandoffValue)
+        assertEquals(TransformOrigin.Center, state.transformOriginHandoffValue)
+        assertEquals(Color.Red.copy(alpha = 0f), state.veilHandoffValue)
+    }
+
+    @Test
+    fun combinedProperties_whenNotMutating_preserveTransitionValues() {
+        val state = SharedMutableTransformState()
+
+        assertEquals(0f, state.combinedAlpha(transitionValue = 0f), 0f)
+        assertEquals(0.5f, state.combinedScale(transitionValue = 0.5f), 0f)
+        assertEquals(
+            IntOffset(200, 100),
+            state.combinedSlide(
+                transitionValue = IntOffset(200, 100),
+                fullSize = IntSize(300, 300),
+            ),
+        )
+        assertEquals(
+            TransformOrigin(0f, 0f),
+            state.combinedTransformOrigin(transitionValue = TransformOrigin(0f, 0f)),
+        )
+        assertEquals(Color.Red, state.combinedVeil(transitionValue = Color.Red))
     }
 }

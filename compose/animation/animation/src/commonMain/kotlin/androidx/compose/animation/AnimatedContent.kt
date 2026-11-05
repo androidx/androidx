@@ -1032,14 +1032,15 @@ public fun <S> Transition<S>.AnimatedContent(
  *   the deferred phase (e.g., for predictive back gestures) before the main transition begins. This
  *   is only active if the [Transition] was created using [rememberDeferredTransition] with
  *   [DeferredTransitionState]. By default, this returns `null`, meaning no manual transformations
- *   are applied.
+ *   are applied and properties remain at the transition's initial values during the deferred phase.
  *
  *   **Lifecycle:** The deferred phase starts when [DeferredTransitionState.defer] is called. It
  *   ends and the automatic transition begins when [DeferredTransitionState.animateTo] is called.
  *
  *   **Transformations:** During this phase, you can manually manipulate the entering and exiting
- *   content's transformations (via [MutableContentTransform]). Properties that are not manually set
- *   default to the transition's initial values during the deferred phase.
+ *   content's transformations (via [MutableContentTransform]). When a [MutableContentTransform] is
+ *   provided, properties that are not manually set default to their resting values during the
+ *   deferred phase.
  *
  * **Handoff:** Once the transition starts, the manually applied transformations are seamlessly
  * handed off to the configured [transitionSpec]. For exiting content, a "sustain unless specified"
