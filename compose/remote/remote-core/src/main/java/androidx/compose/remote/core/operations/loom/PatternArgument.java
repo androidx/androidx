@@ -73,13 +73,6 @@ public class PatternArgument extends Operation {
      * @param buffer
      * @param operations
      */
-
-    /**
-     * Read the operation from the buffer
-     *
-     * @param buffer
-     * @param operations
-     */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int paramIndex = buffer.readInt();
         operations.add(new PatternArgument(paramIndex));

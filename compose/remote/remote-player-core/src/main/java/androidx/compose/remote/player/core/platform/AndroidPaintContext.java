@@ -1046,7 +1046,7 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
                     s.setLocalMatrix(mTmpMatrix);
                 }
 
-                /**
+                /*
                  * @param fontType String to be looked up in system
                  * @param weight the weight of the font
                  * @param italic if the font is italic
@@ -1070,7 +1070,7 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
                     mFontInstance.setOnLoadedListener(() -> mContext.needsRepaint());
                 }
 
-                /**
+                /*
                  * Set the font variation axes
                  *
                  * @param tags tags
@@ -1086,7 +1086,7 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
                     }
                 }
 
-                /**
+                /*
                  * Set the texture shader
                  *
                  * @param bitmapId the id of the bitmap to use

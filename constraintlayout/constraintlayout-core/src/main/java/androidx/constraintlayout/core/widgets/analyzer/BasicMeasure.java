@@ -313,9 +313,9 @@ public class BasicMeasure {
                 int minHeight = Math.max(layout.getHeight(),
                         mConstraintWidgetContainer.getMinHeight());
 
-                ////////////////////////////////////////////////////////////////////////////////////
+                // -------------------------------------- //
                 // Let's first apply sizes for VirtualLayouts if any
-                ////////////////////////////////////////////////////////////////////////////////////
+                // -------------------------------------- //
                 for (int i = 0; i < sizeDependentWidgetsCount; i++) {
                     ConstraintWidget widget = mVariableDimensionsWidgets.get(i);
                     if (!(widget instanceof VirtualLayout)) {
@@ -350,7 +350,7 @@ public class BasicMeasure {
                     VirtualLayout virtualLayout = (VirtualLayout) widget;
                     needSolverPass |= virtualLayout.needSolverPass();
                 }
-                ////////////////////////////////////////////////////////////////////////////////////
+                // -------------------------------------- //
 
                 int maxIterations = 2;
                 for (int j = 0; j < maxIterations; j++) {

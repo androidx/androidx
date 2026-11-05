@@ -548,7 +548,6 @@ public class MotionScene {
         return mViewTransitionController.applyViewTransition(viewTransitionId, motionController);
     }
 
-///////////////////////////////////////////////////////////////////////////////
 // ====================== Transition ==========================================
 
     /**
@@ -1647,9 +1646,7 @@ public class MotionScene {
         return 0;
     }
 
-    //////////////////////////////////////////////////////////
     // touch handling
-    ///////////////////////////////////////////////////////////
     boolean supportTouch() {
         for (Transition transition : mTransitionList) {
             if (transition.mTouchResponse != null) {

@@ -202,9 +202,9 @@ public class Operations {
 
     private Operations() {}
 
-    ////////////////////////////////////////
+    // -------------------------------------- //
     // Protocol
-    /// /////////////////////////////////////
+    // -------------------------------------- //
     public static final int HEADER = 0;
     // Opcode 120 (0x78) is reserved: it is the first byte of a compressed document's operations
     // (see Header#COMPRESS), so players that can't decompress stop on an unknown operation instead
@@ -224,9 +224,9 @@ public class Operations {
     public static final int EXTENSION_RANGE_RESERVED_3 = 252;
     public static final int EXTENSION_RANGE_RESERVED_4 = 251;
 
-    ////////////////////////////////////////
+    // -------------------------------------- //
     // Draw commands
-    /// /////////////////////////////////////
+    // -------------------------------------- //
     public static final int DRAW_BITMAP = 44;
     public static final int DRAW_BITMAP_INT = 66;
     public static final int DATA_BITMAP = 101;
@@ -234,7 +234,7 @@ public class Operations {
     public static final int DATA_TEXT = 102;
     public static final int DATA_BITMAP_FONT = 167;
 
-    /// ////////////////////////// =====================
+    // -------------------------------------- //
     public static final int CLIP_PATH = 38;
     public static final int CLIP_RECT = 39;
     public static final int PAINT_VALUES = 40;
@@ -338,20 +338,20 @@ public class Operations {
     public static final int MACRO_ARGUMENT = 248;
     public static final int MACRO_BLOCK = 249;
     public static final int MACRO_FOR_EACH = 244;
-    ///////////////////////////////////////// ======================
+    // -------------------------------------- //
 
-    ////////////////////////////////////////
+    // -------------------------------------- //
     // Communication
-    ////////////////////////////////////////
+    // -------------------------------------- //
     public static final int EVENT_ACTION = 100;
 
-    ////////////////////////////////////////
+    // -------------------------------------- //
     // Layout commands
-    /// /////////////////////////////////////
+    // -------------------------------------- //
 
-    ////////////////////////////////////////
+    // -------------------------------------- //
     // 3D commands (see remote-core/doc/PROTOCOL_3D.md)
-    /// /////////////////////////////////////
+    // -------------------------------------- //
     public static final int DEFINE_MESH_3D = 110;
     public static final int SET_CAMERA_3D = 111;
     public static final int MATRIX_3D_OP = 112;
@@ -436,9 +436,9 @@ public class Operations {
     public static final int COMPONENT_VALUE = 150;
     public static final int SKIP = 241;
 
-    ////////////////////////////////////////
+    // -------------------------------------- //
     // Profiles management
-    /// /////////////////////////////////////
+    // -------------------------------------- //
 
     static UniqueIntMap<CompanionOperation> sMapV6;
     static HashMap<Integer, UniqueIntMap<CompanionOperation>> sMapV7;

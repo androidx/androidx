@@ -130,13 +130,6 @@ public class PatternForEach extends Operation implements Container {
      * @param buffer
      * @param operations
      */
-
-    /**
-     * Read the operation from the buffer
-     *
-     * @param buffer
-     * @param operations
-     */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int collectionId = buffer.readId();
         int localItemId = buffer.readId();

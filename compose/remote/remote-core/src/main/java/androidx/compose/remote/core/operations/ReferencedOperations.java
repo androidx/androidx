@@ -137,13 +137,6 @@ public class ReferencedOperations extends Operation
      * @param buffer
      * @param operations
      */
-
-    /**
-     * read the operation from the buffer
-     *
-     * @param buffer
-     * @param operations
-     */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int id = buffer.declareId();
         operations.add(new ReferencedOperations(id));

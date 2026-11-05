@@ -125,9 +125,9 @@ public class CLContainer extends CLElement {
         mElements.clear();
     }
 
-    /////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
     // By name
-    /////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
 
     // @TODO: add description
     public CLElement get(String name) throws CLParsingException {
@@ -204,9 +204,9 @@ public class CLContainer extends CLElement {
                 + " found [" + element.getStrClass() + "] : " + element, this);
     }
 
-    /////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
     // Optional
-    /////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
 
     // @TODO: add description
     public CLElement getOrNull(String name) {
@@ -265,9 +265,9 @@ public class CLContainer extends CLElement {
         return Float.NaN;
     }
 
-    /////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
     // By index
-    /////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
 
     // @TODO: add description
     public CLElement get(int index) throws CLParsingException {
@@ -331,9 +331,9 @@ public class CLContainer extends CLElement {
         throw new CLParsingException("no boolean at index " + index, this);
     }
 
-    /////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
     // Optional
-    /////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
 
     // @TODO: add description
     public CLElement getOrNull(int index) {

@@ -64,7 +64,7 @@ import java.util.List;
 public final class AnimatorSet extends Animator implements AnimationHandler.AnimationFrameCallback {
 
     private static final String TAG = "AnimatorSet";
-    /**
+    /*
      * Internal variables
      * NOTE: This object implements the clone() method, making a deep copy of any referenced
      * objects. As other non-trivial fields are added to this class, make sure to add logic

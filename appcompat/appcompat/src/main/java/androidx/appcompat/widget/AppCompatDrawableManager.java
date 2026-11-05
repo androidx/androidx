@@ -41,7 +41,6 @@ import androidx.annotation.DimenRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
-import androidx.core.graphics.drawable.DrawableCompat;
 
 import org.jspecify.annotations.NonNull;
 
@@ -60,7 +59,7 @@ public final class AppCompatDrawableManager {
             INSTANCE = new AppCompatDrawableManager();
             INSTANCE.mResourceManager = ResourceManagerInternal.get();
             INSTANCE.mResourceManager.setHooks(new ResourceManagerInternal.ResourceManagerHooks() {
-                /**
+                /*
                  * Drawables which should be tinted with the value of
                  * {@code R.attr.colorControlNormal}, using the default mode using a raw color
                  * filter.
@@ -71,7 +70,7 @@ public final class AppCompatDrawableManager {
                         R.drawable.abc_ab_share_pack_mtrl_alpha
                 };
 
-                /**
+                /*
                  * Drawables which should be tinted with the value of
                  * {@code R.attr.colorControlNormal}, using {@link DrawableCompat}'s tinting
                  * functionality.
@@ -86,7 +85,7 @@ public final class AppCompatDrawableManager {
                         R.drawable.abc_ic_menu_paste_mtrl_am_alpha
                 };
 
-                /**
+                /*
                  * Drawables which should be tinted with the value of
                  * {@code R.attr.colorControlActivated}, using a color filter.
                  */
@@ -100,7 +99,7 @@ public final class AppCompatDrawableManager {
                         R.drawable.abc_text_select_handle_right_mtrl
                 };
 
-                /**
+                /*
                  * Drawables which should be tinted with the value of
                  * {@code android.R.attr.colorBackground}, using the
                  * {@link android.graphics.PorterDuff.Mode#MULTIPLY} mode and a color filter.
@@ -111,7 +110,7 @@ public final class AppCompatDrawableManager {
                         R.drawable.abc_menu_hardkey_panel_mtrl_mult
                 };
 
-                /**
+                /*
                  * Drawables which should be tinted using a state list containing values of
                  * {@code R.attr.colorControlNormal} and {@code R.attr.colorControlActivated}
                  */
@@ -120,7 +119,7 @@ public final class AppCompatDrawableManager {
                         R.drawable.abc_textfield_search_material
                 };
 
-                /**
+                /*
                  * Drawables which should be tinted using a state list containing values of
                  * {@code R.attr.colorControlNormal} and {@code R.attr.colorControlActivated}
                  * for the checked state.

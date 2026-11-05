@@ -119,10 +119,8 @@ import java.util.concurrent.Executor;
  */
 public final class ImageAnalysis extends UseCase {
 
-    ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase lifetime constant] - Stays constant for the lifetime of the UseCase. Which means
     // they could be created in the constructor.
-    ////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Only deliver the latest image to the analyzer, dropping images as they arrive.
@@ -312,10 +310,8 @@ public final class ImageAnalysis extends UseCase {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     ImageAnalysisAbstractAnalyzer mImageAnalysisAbstractAnalyzer;
 
-    ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase lifetime dynamic] - Dynamic variables which could change during anytime during
     // the UseCase lifetime.
-    ////////////////////////////////////////////////////////////////////////////////////////////
 
     @GuardedBy("mAnalysisLock")
     private Executor mSubscribedAnalyzerExecutor;
@@ -326,9 +322,7 @@ public final class ImageAnalysis extends UseCase {
     @GuardedBy("mAnalysisLock")
     private Matrix mSensorToBufferTransformMatrix;
 
-    ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
-    ////////////////////////////////////////////////////////////////////////////////////////////
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     SessionConfig.Builder mSessionConfigBuilder;

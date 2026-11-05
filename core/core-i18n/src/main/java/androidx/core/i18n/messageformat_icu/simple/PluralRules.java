@@ -218,7 +218,7 @@ public class PluralRules implements Serializable {
             return forLocale(locale, PluralType.CARDINAL);
         }
 
-        /**
+        /*
          * Returns the locales for which there is plurals data.
          *
          * icu_annot::internal CLDR
@@ -227,7 +227,7 @@ public class PluralRules implements Serializable {
         public abstract ULocale[] getAvailableULocales();
          */
 
-        /**
+        /*
          * Returns the 'functionally equivalent' locale with respect to plural rules. Calling PluralRules.forLocale with
          * the functionally equivalent locale, and with the provided locale, returns rules that behave the same. <br/>
          * All locales with the same functionally equivalent locale have plural rules that behave the same. This is not
@@ -2145,7 +2145,7 @@ public class PluralRules implements Serializable {
         return rules.getDecimalSamples(keyword, sampleType);
     }
 
-    /**
+    /*
      * Returns the set of locales for which PluralRules are known.
      * @return the set of locales for which PluralRules are known, as a list
      * icu_annot::draft ICU 4.2 (retain)
@@ -2154,7 +2154,7 @@ public class PluralRules implements Serializable {
     }
      */
 
-    /**
+    /*
      * Returns the 'functionally equivalent' locale with respect to
      * plural rules.  Calling PluralRules.forLocale with the functionally equivalent
      * locale, and with the provided locale, returns rules that behave the same.
@@ -2193,7 +2193,7 @@ public class PluralRules implements Serializable {
         return rhs instanceof PluralRules && toString().equals(rhs.toString());
     }
 
-    /**
+    /*
      * Returns true if rhs is equal to this.
      * @param rhs the PluralRules to compare to.
      * @return true if this and rhs are equal.

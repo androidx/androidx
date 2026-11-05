@@ -3255,9 +3255,9 @@ public class MotionLayout extends ConstraintLayout implements
         return false;
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////
-    // Used to draw debugging lines
-    ////////////////////////////////////////////////////////////////////////////////////////
+    /**
+     * Used to draw debugging lines
+     */
     private class DevModeDraw {
         private static final int DEBUG_PATH_TICKS_PER_MS = 16;
         float[] mPoints;

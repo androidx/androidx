@@ -108,8 +108,6 @@ public class IncludeReferencedOperations extends Operation implements ModifierOp
         buffer.writeInt(id);
     }
 
-    /** Read the operation from the buffer */
-
     /**
      * Read the operation from the buffer
      *

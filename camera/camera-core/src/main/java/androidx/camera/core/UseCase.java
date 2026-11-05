@@ -100,10 +100,8 @@ public abstract class UseCase {
 
     private boolean mInSession = false;
 
-    ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase lifetime constant] - Stays constant for the lifetime of the UseCase. Which means
     // they could be created in the constructor.
-    ////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * The set of {@link StateChangeCallback} that are currently listening state transitions of this
@@ -114,10 +112,8 @@ public abstract class UseCase {
     private final Object mCameraLock = new Object();
     private final Object mRotationProviderLock = new Object();
 
-    ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase lifetime dynamic] - Dynamic variables which could change during anytime during
     // the UseCase lifetime.
-    ////////////////////////////////////////////////////////////////////////////////////////////
 
     private State mState = State.INACTIVE;
 
@@ -139,9 +135,7 @@ public abstract class UseCase {
      */
     private @NonNull UseCaseConfig<?> mCurrentConfig;
 
-    ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase attached constant] - Is only valid when the UseCase is attached to a camera.
-    ////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * The {@link StreamSpec} assigned to the {@link UseCase} based on the attached camera.
@@ -186,9 +180,7 @@ public abstract class UseCase {
     @GuardedBy("mRotationProviderLock")
     private final RotationProvider.Listener mRotationListener = this::onProviderRotationChanged;
 
-    ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
-    ////////////////////////////////////////////////////////////////////////////////////////////
 
     // The currently attached session config
     private @NonNull SessionConfig mAttachedSessionConfig =

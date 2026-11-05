@@ -1175,7 +1175,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
 
     private final OnEditorActionListener mOnEditorActionListener = new OnEditorActionListener() {
 
-        /**
+        /*
          * Called when the input method default action key is pressed.
          */
         @Override
@@ -1421,7 +1421,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
 
     private final OnItemClickListener mOnItemClickListener = new OnItemClickListener() {
 
-        /**
+        /*
          * Implements OnItemClickListener
          */
         @Override
@@ -1433,7 +1433,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
 
     private final OnItemSelectedListener mOnItemSelectedListener = new OnItemSelectedListener() {
 
-        /**
+        /*
          * Implements OnItemSelectedListener
          */
         @Override
@@ -1442,7 +1442,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
             SearchView.this.onItemSelected(position);
         }
 
-        /**
+        /*
          * Implements OnItemSelectedListener
          */
         @Override

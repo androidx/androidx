@@ -420,7 +420,7 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     BaseGridView mBaseGridView;
 
-    /**
+    /*
      * Note on conventions in the presence of RTL layout directions:
      * Many properties and method names reference entities related to the
      * beginnings and ends of things.  In the presence of RTL flows,

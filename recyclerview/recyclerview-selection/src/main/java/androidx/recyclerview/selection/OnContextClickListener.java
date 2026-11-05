@@ -20,7 +20,7 @@ import android.view.MotionEvent;
 
 import org.jspecify.annotations.NonNull;
 
-/**
+/*
  * Override methods in this class to provide application specific behaviors
  * related to mouse input.
  */
