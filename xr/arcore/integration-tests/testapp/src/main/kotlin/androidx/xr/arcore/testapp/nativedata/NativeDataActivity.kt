@@ -62,6 +62,7 @@ import androidx.xr.compose.unit.DpVolumeSize
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.XrDevice
 import androidx.xr.runtime.getNativeInstanceData
+import androidx.xr.runtime.getNativeSessionData
 import kotlin.coroutines.coroutineContext
 
 class NativeDataActivity : ComponentActivity() {
@@ -264,7 +265,12 @@ class NativeDataActivity : ComponentActivity() {
         customLifecycleOwner.registry.currentState = Lifecycle.State.RESUMED
 
         try {
-            XrDevice.getCurrentDevice(this, extensionsToInject)
+            val device = XrDevice.getCurrentDevice(this, extensionsToInject)
+
+            // Read the native data for Test 4 before a Session exists: with the non-legacy
+            // natives, the runtime library provides the XrSession without one. Test 4 reports
+            // any failure.
+            val instanceDataResult = runCatching { device.getNativeInstanceData(this) }
 
             val result =
                 Session.create(
@@ -295,13 +301,21 @@ class NativeDataActivity : ComponentActivity() {
 
                 // Test 4: Get Native Data
                 try {
-                    val device = XrDevice.getCurrentDevice(this)
-                    val instanceData = device.getNativeInstanceData(this)
+                    val instanceData = instanceDataResult.getOrThrow()
+                    val sessionPointer =
+                        if (isUsingLegacyNatives()) {
+                            // The legacy natives create the XrSession in arcore-openxr during
+                            // Session.create, so it is only exposed through the Session.
+                            @Suppress("DEPRECATION")
+                            result.session.getNativeSessionData().sessionPointer
+                        } else {
+                            instanceData.sessionPointer
+                        }
 
                     if (
                         instanceData.instancePointer != 0L &&
                             instanceData.functionTablePointer != 0L &&
-                            instanceData.sessionPointer != 0L
+                            sessionPointer != 0L
                     ) {
                         getNativeDataResult = "Success: Valid native handles retrieved."
                         getNativeDataPassed = true
@@ -334,3 +348,20 @@ class NativeDataActivity : ComponentActivity() {
         }
     }
 }
+
+/**
+ * Returns whether the legacy Jetpack XR natives are in use, mirroring how the natives read the
+ * `debug.jetpack_xr_natives.use_legacy` system property: legacy unless it is "0" or "false".
+ */
+// TODO(b/543942634): Remove once the legacy natives are removed.
+@Suppress("BanUncheckedReflection")
+private fun isUsingLegacyNatives(): Boolean =
+    try {
+        val value =
+            Class.forName("android.os.SystemProperties")
+                .getMethod("get", String::class.java)
+                .invoke(/* obj= */ null, "debug.jetpack_xr_natives.use_legacy") as String
+        value != "0" && value != "false"
+    } catch (_: Exception) {
+        true
+    }
