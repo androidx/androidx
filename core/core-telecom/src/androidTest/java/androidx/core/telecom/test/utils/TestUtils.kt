@@ -84,6 +84,7 @@ object TestUtils {
     val CUSTOM_TEST_APP_SCHEME = "CoreTelecomUnitTestScheme:"
     val TEST_PHONE_NUMBER = "6506959001"
     val TEST_ADDRESS: Uri = Uri.parse(CUSTOM_TEST_APP_SCHEME + TEST_PHONE_NUMBER)
+    val TEST_CONTACT_URI: Uri = Uri.parse("content://com.android.contacts/contacts/lookup/2")
 
     // Define the minimal set of properties to start an outgoing call
     val OUTGOING_CALL_ATTRIBUTES =
@@ -93,6 +94,26 @@ object TestUtils {
             CallAttributesCompat.DIRECTION_OUTGOING,
             CallAttributesCompat.CALL_TYPE_AUDIO_CALL,
             ALL_CALL_CAPABILITIES,
+        )
+
+    val OUTGOING_WITH_CONTACT_URI_CALL_ATTRIBUTES =
+        CallAttributesCompat(
+            OUTGOING_NAME,
+            TEST_ADDRESS,
+            CallAttributesCompat.DIRECTION_OUTGOING,
+            CallAttributesCompat.CALL_TYPE_AUDIO_CALL,
+            ALL_CALL_CAPABILITIES,
+            contactUri = TEST_CONTACT_URI,
+        )
+
+    val OUTGOING_GROUP_CALL_ATTRIBUTES =
+        CallAttributesCompat(
+            OUTGOING_NAME,
+            TEST_ADDRESS,
+            CallAttributesCompat.DIRECTION_OUTGOING,
+            CallAttributesCompat.CALL_TYPE_AUDIO_CALL,
+            ALL_CALL_CAPABILITIES,
+            isGroupCall = true,
         )
 
     val OUTGOING_NO_HOLD_CAP_CALL_ATTRIBUTES =

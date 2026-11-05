@@ -38,6 +38,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -45,6 +46,7 @@ import org.junit.Test
 class CallAttributesCompatTest {
     private val fakePhoneAccountHandle =
         PhoneAccountHandle(ComponentName("androidx.core.telecom.test", "TestClass"), "testId")
+    private val testContactUri: Uri = Uri.parse("content://com.android.contacts/contacts/lookup/2")
 
     @Test
     fun testCallAttributesCompatRequired() {
@@ -64,6 +66,8 @@ class CallAttributesCompatTest {
         assertFalse(Utils.hasCapability(SUPPORTS_STREAM, callAttributesCompat.callCapabilities))
         assertFalse(Utils.hasCapability(SUPPORTS_TRANSFER, callAttributesCompat.callCapabilities))
         assertNull(callAttributesCompat.isLogExcluded)
+        assertNull(callAttributesCompat.contactUri)
+        assertFalse(callAttributesCompat.isGroupCall)
     }
 
     @Test
@@ -76,6 +80,8 @@ class CallAttributesCompatTest {
                 CallAttributesCompat.CALL_TYPE_VIDEO_CALL,
                 ALL_CALL_CAPABILITIES,
                 isLogExcluded = true,
+                contactUri = testContactUri,
+                isGroupCall = true,
             )
         assertEquals(TEST_CALL_ATTRIB_NAME, callAttributesCompat.displayName)
         assertEquals(TEST_ADDRESS, callAttributesCompat.address)
@@ -87,6 +93,52 @@ class CallAttributesCompatTest {
         assertTrue(Utils.hasCapability(SUPPORTS_STREAM, callAttributesCompat.callCapabilities))
         assertTrue(Utils.hasCapability(SUPPORTS_TRANSFER, callAttributesCompat.callCapabilities))
         assertTrue(callAttributesCompat.isLogExcluded!!)
+        assertEquals(testContactUri, callAttributesCompat.contactUri)
+        assertTrue(callAttributesCompat.isGroupCall)
+    }
+
+    @Test
+    fun testCallAttributesCompatSecondaryConstructors() {
+        val attributes7Param =
+            CallAttributesCompat(
+                TEST_CALL_ATTRIB_NAME,
+                TEST_ADDRESS,
+                CallAttributesCompat.DIRECTION_INCOMING,
+                CallAttributesCompat.CALL_TYPE_VIDEO_CALL,
+                ALL_CALL_CAPABILITIES,
+                null,
+                true,
+            )
+        assertEquals(TEST_CALL_ATTRIB_NAME, attributes7Param.displayName)
+        assertEquals(TEST_ADDRESS, attributes7Param.address)
+        assertEquals(CallAttributesCompat.DIRECTION_INCOMING, attributes7Param.direction)
+        assertEquals(CallAttributesCompat.CALL_TYPE_VIDEO_CALL, attributes7Param.callType)
+        assertEquals(ALL_CALL_CAPABILITIES, attributes7Param.callCapabilities)
+        assertNull(attributes7Param.preferredStartingCallEndpoint)
+        assertTrue(attributes7Param.isLogExcluded!!)
+        assertNull(attributes7Param.contactUri)
+        assertFalse(attributes7Param.isGroupCall)
+
+        val attributes8Param =
+            CallAttributesCompat(
+                TEST_CALL_ATTRIB_NAME,
+                TEST_ADDRESS,
+                CallAttributesCompat.DIRECTION_INCOMING,
+                CallAttributesCompat.CALL_TYPE_VIDEO_CALL,
+                ALL_CALL_CAPABILITIES,
+                null,
+                true,
+                testContactUri,
+            )
+        assertEquals(TEST_CALL_ATTRIB_NAME, attributes8Param.displayName)
+        assertEquals(TEST_ADDRESS, attributes8Param.address)
+        assertEquals(CallAttributesCompat.DIRECTION_INCOMING, attributes8Param.direction)
+        assertEquals(CallAttributesCompat.CALL_TYPE_VIDEO_CALL, attributes8Param.callType)
+        assertEquals(ALL_CALL_CAPABILITIES, attributes8Param.callCapabilities)
+        assertNull(attributes8Param.preferredStartingCallEndpoint)
+        assertTrue(attributes8Param.isLogExcluded!!)
+        assertEquals(testContactUri, attributes8Param.contactUri)
+        assertFalse(attributes8Param.isGroupCall)
     }
 
     @Test
@@ -113,12 +165,34 @@ class CallAttributesCompatTest {
                 isLogExcluded = true,
             )
 
+        val outgoingWithContactUri =
+            CallAttributesCompat(
+                OUTGOING_NAME,
+                TEST_ADDRESS,
+                CallAttributesCompat.DIRECTION_OUTGOING,
+                contactUri = testContactUri,
+            )
+
+        val outgoingGroupCall =
+            CallAttributesCompat(
+                OUTGOING_NAME,
+                TEST_ADDRESS,
+                CallAttributesCompat.DIRECTION_OUTGOING,
+                isGroupCall = true,
+            )
+
         assertFalse(outgoing.toString() == incoming.toString())
         assertFalse(outgoing == incoming)
         assertFalse(outgoing.hashCode() == incoming.hashCode())
 
         assertFalse(outgoing == outgoingLogExcluded)
         assertFalse(outgoing.hashCode() == outgoingLogExcluded.hashCode())
+
+        assertFalse(outgoing == outgoingWithContactUri)
+        assertFalse(outgoing.hashCode() == outgoingWithContactUri.hashCode())
+
+        assertFalse(outgoing == outgoingGroupCall)
+        assertFalse(outgoing.hashCode() == outgoingGroupCall.hashCode())
     }
 
     @Test
@@ -129,6 +203,8 @@ class CallAttributesCompatTest {
                 TEST_ADDRESS,
                 CallAttributesCompat.DIRECTION_OUTGOING,
                 isLogExcluded = true,
+                contactUri = testContactUri,
+                isGroupCall = true,
             )
 
         val outgoing2 =
@@ -137,6 +213,8 @@ class CallAttributesCompatTest {
                 TEST_ADDRESS,
                 CallAttributesCompat.DIRECTION_OUTGOING,
                 isLogExcluded = true,
+                contactUri = testContactUri,
+                isGroupCall = true,
             )
 
         assertEquals(outgoing1, outgoing2)
@@ -167,6 +245,48 @@ class CallAttributesCompatTest {
     }
 
     @Test
+    fun testContactUri_explicitValues() {
+        val attributesWithUri =
+            CallAttributesCompat(
+                OUTGOING_NAME,
+                TEST_ADDRESS,
+                CallAttributesCompat.DIRECTION_OUTGOING,
+                contactUri = testContactUri,
+            )
+        assertEquals(testContactUri, attributesWithUri.contactUri)
+
+        val attributesNullUri =
+            CallAttributesCompat(
+                OUTGOING_NAME,
+                TEST_ADDRESS,
+                CallAttributesCompat.DIRECTION_OUTGOING,
+                contactUri = null,
+            )
+        assertNull(attributesNullUri.contactUri)
+    }
+
+    @Test
+    fun testIsGroupCall_explicitValues() {
+        val attributesGroupCall =
+            CallAttributesCompat(
+                OUTGOING_NAME,
+                TEST_ADDRESS,
+                CallAttributesCompat.DIRECTION_OUTGOING,
+                isGroupCall = true,
+            )
+        assertTrue(attributesGroupCall.isGroupCall)
+
+        val attributesNotGroupCall =
+            CallAttributesCompat(
+                OUTGOING_NAME,
+                TEST_ADDRESS,
+                CallAttributesCompat.DIRECTION_OUTGOING,
+                isGroupCall = false,
+            )
+        assertFalse(attributesNotGroupCall.isGroupCall)
+    }
+
+    @Test
     fun testToString_includesIsLogExcluded() {
         val attributesTrue =
             CallAttributesCompat(
@@ -193,6 +313,49 @@ class CallAttributesCompatTest {
                 CallAttributesCompat.DIRECTION_OUTGOING,
             )
         assertTrue(attributesNull.toString().contains("isLogExcluded=[null]"))
+    }
+
+    @Test
+    fun testToString_includesContactUri() {
+        val attributesWithUri =
+            CallAttributesCompat(
+                OUTGOING_NAME,
+                TEST_ADDRESS,
+                CallAttributesCompat.DIRECTION_OUTGOING,
+                contactUri = testContactUri,
+            )
+        assertTrue(attributesWithUri.toString().contains("contactUri=[$testContactUri]"))
+
+        val attributesNull =
+            CallAttributesCompat(
+                OUTGOING_NAME,
+                TEST_ADDRESS,
+                CallAttributesCompat.DIRECTION_OUTGOING,
+            )
+        assertTrue(attributesNull.toString().contains("contactUri=[null]"))
+    }
+
+    @Test
+    fun testToString_includesIsGroupCallAndBalancedCapabilities() {
+        val attributesGroupCall =
+            CallAttributesCompat(
+                OUTGOING_NAME,
+                TEST_ADDRESS,
+                CallAttributesCompat.DIRECTION_OUTGOING,
+                callCapabilities = SUPPORTS_STREAM or SUPPORTS_TRANSFER,
+                isGroupCall = true,
+            )
+        assertTrue(attributesGroupCall.toString().contains("capabilities=[Stream, Transfer], "))
+        assertTrue(attributesGroupCall.toString().contains("isGroupCall=[true])"))
+
+        val attributesDefault =
+            CallAttributesCompat(
+                OUTGOING_NAME,
+                TEST_ADDRESS,
+                CallAttributesCompat.DIRECTION_OUTGOING,
+            )
+        assertTrue(attributesDefault.toString().contains("capabilities=[SetInactive], "))
+        assertTrue(attributesDefault.toString().contains("isGroupCall=[false])"))
     }
 
     // --- Tests for toCallAttributes ---
@@ -226,8 +389,39 @@ class CallAttributesCompatTest {
         assertNotNull(platformAttributesNull)
     }
 
-    // Helper to reflectively check isLogExcluded on the platform CallAttributes
+    @Test
+    @SdkSuppress(
+        minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE,
+        maxSdkVersion = VERSION_CODES.BAKLAVA,
+    )
+    fun testToCallAttributes_Api34_36_contactUriAndIsGroupCallAlwaysIgnored() {
+        // On SDKs before CINNAMON_BUN, contactUri and isGroupCall should not be used on the
+        // platform object.
+        val attributesWithUriAndGroup =
+            CallAttributesCompat(
+                OUTGOING_NAME,
+                TEST_ADDRESS,
+                CallAttributesCompat.DIRECTION_OUTGOING,
+                contactUri = testContactUri,
+                isGroupCall = true,
+            )
+        val platformAttributesWithUri =
+            attributesWithUriAndGroup.toCallAttributes(fakePhoneAccountHandle)
+        assertNotNull(platformAttributesWithUri)
 
+        val attributesDefault =
+            CallAttributesCompat(
+                OUTGOING_NAME,
+                TEST_ADDRESS,
+                CallAttributesCompat.DIRECTION_OUTGOING,
+                contactUri = null,
+                isGroupCall = false,
+            )
+        val platformAttributesDefault = attributesDefault.toCallAttributes(fakePhoneAccountHandle)
+        assertNotNull(platformAttributesDefault)
+    }
+
+    // Helper to reflectively check platform CallAttributes methods
     private object Api34Helper {
         @RequiresApi(VERSION_CODES.UPSIDE_DOWN_CAKE)
         fun platformIsLogExcluded(attributes: android.telecom.CallAttributes): Boolean {
@@ -236,6 +430,30 @@ class CallAttributesCompatTest {
                 method.invoke(attributes) as Boolean
             } catch (e: NoSuchMethodException) {
                 throw AssertionError("Platform CallAttributes.isLogExcluded() method not found", e)
+            } catch (e: Exception) {
+                throw RuntimeException(e)
+            }
+        }
+
+        @RequiresApi(VERSION_CODES.UPSIDE_DOWN_CAKE)
+        fun platformGetContactUri(attributes: android.telecom.CallAttributes): Uri? {
+            return try {
+                val method = attributes.javaClass.getDeclaredMethod("getContactUri")
+                method.invoke(attributes) as Uri?
+            } catch (e: NoSuchMethodException) {
+                throw AssertionError("Platform CallAttributes.getContactUri() method not found", e)
+            } catch (e: Exception) {
+                throw RuntimeException(e)
+            }
+        }
+
+        @RequiresApi(VERSION_CODES.UPSIDE_DOWN_CAKE)
+        fun platformIsGroupCall(attributes: android.telecom.CallAttributes): Boolean {
+            return try {
+                val method = attributes.javaClass.getDeclaredMethod("isGroupCall")
+                method.invoke(attributes) as Boolean
+            } catch (e: NoSuchMethodException) {
+                throw AssertionError("Platform CallAttributes.isGroupCall() method not found", e)
             } catch (e: Exception) {
                 throw RuntimeException(e)
             }
@@ -298,9 +516,107 @@ class CallAttributesCompatTest {
             )
         val platformAttributesNull = attributesNull.toCallAttributes(fakePhoneAccountHandle)
         assertNotNull(platformAttributesNull)
-        // When isLogExcluded is null, the code uses Api34PlusImpl, which doesn't call
-        // setLogExcluded.
-        // The isLogExcluded property on the platform object will return its default value (false).
+        // When isLogExcluded is null, the platform object returns its default value (false).
         assertFalse(Api34Helper.platformIsLogExcluded(platformAttributesNull))
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = VERSION_CODES.CINNAMON_BUN)
+    fun testToCallAttributes_AtLeastCinnamonBun_contactUriApplied() {
+        val attributesWithUri =
+            CallAttributesCompat(
+                OUTGOING_NAME,
+                TEST_ADDRESS,
+                CallAttributesCompat.DIRECTION_OUTGOING,
+                contactUri = testContactUri,
+            )
+        val platformAttributesWithUri = attributesWithUri.toCallAttributes(fakePhoneAccountHandle)
+        assertEquals(testContactUri, Api34Helper.platformGetContactUri(platformAttributesWithUri))
+        assertFalse(Api34Helper.platformIsGroupCall(platformAttributesWithUri))
+
+        // Verify setting isLogExcluded, contactUri, and isGroupCall applies all three on platform
+        // CallAttributes
+        val attributesWithAll =
+            CallAttributesCompat(
+                OUTGOING_NAME,
+                TEST_ADDRESS,
+                CallAttributesCompat.DIRECTION_OUTGOING,
+                isLogExcluded = true,
+                contactUri = testContactUri,
+                isGroupCall = true,
+            )
+        val platformAttributesWithAll = attributesWithAll.toCallAttributes(fakePhoneAccountHandle)
+        assertTrue(Api34Helper.platformIsLogExcluded(platformAttributesWithAll))
+        assertEquals(testContactUri, Api34Helper.platformGetContactUri(platformAttributesWithAll))
+        assertTrue(Api34Helper.platformIsGroupCall(platformAttributesWithAll))
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = VERSION_CODES.CINNAMON_BUN)
+    fun testToCallAttributes_AtLeastCinnamonBun_contactUriNull() {
+        val attributesNull =
+            CallAttributesCompat(
+                OUTGOING_NAME,
+                TEST_ADDRESS,
+                CallAttributesCompat.DIRECTION_OUTGOING,
+                contactUri = null,
+            )
+        val platformAttributesNull = attributesNull.toCallAttributes(fakePhoneAccountHandle)
+        assertNotNull(platformAttributesNull)
+        assertNull(Api34Helper.platformGetContactUri(platformAttributesNull))
+        assertFalse(Api34Helper.platformIsGroupCall(platformAttributesNull))
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = VERSION_CODES.CINNAMON_BUN)
+    fun testToCallAttributes_AtLeastCinnamonBun_isGroupCallApplied() {
+        val attributesGroupCall =
+            CallAttributesCompat(
+                OUTGOING_NAME,
+                TEST_ADDRESS,
+                CallAttributesCompat.DIRECTION_OUTGOING,
+                isGroupCall = true,
+            )
+        val platformAttributesGroupCall =
+            attributesGroupCall.toCallAttributes(fakePhoneAccountHandle)
+        assertTrue(Api34Helper.platformIsGroupCall(platformAttributesGroupCall))
+        assertNull(Api34Helper.platformGetContactUri(platformAttributesGroupCall))
+
+        val attributesNotGroupCall =
+            CallAttributesCompat(
+                OUTGOING_NAME,
+                TEST_ADDRESS,
+                CallAttributesCompat.DIRECTION_OUTGOING,
+                isGroupCall = false,
+            )
+        val platformAttributesNotGroupCall =
+            attributesNotGroupCall.toCallAttributes(fakePhoneAccountHandle)
+        assertFalse(Api34Helper.platformIsGroupCall(platformAttributesNotGroupCall))
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = VERSION_CODES.CINNAMON_BUN)
+    fun testToCallAttributes_AtLeastCinnamonBun_invalidContactUriThrows() {
+        val attributesInvalidScheme =
+            CallAttributesCompat(
+                OUTGOING_NAME,
+                TEST_ADDRESS,
+                CallAttributesCompat.DIRECTION_OUTGOING,
+                contactUri = Uri.parse("tel:6506959001"),
+            )
+        assertThrows(IllegalArgumentException::class.java) {
+            attributesInvalidScheme.toCallAttributes(fakePhoneAccountHandle)
+        }
+
+        val attributesInvalidAuthority =
+            CallAttributesCompat(
+                OUTGOING_NAME,
+                TEST_ADDRESS,
+                CallAttributesCompat.DIRECTION_OUTGOING,
+                contactUri = Uri.parse("content://com.example.invalid/contacts/1"),
+            )
+        assertThrows(IllegalArgumentException::class.java) {
+            attributesInvalidAuthority.toCallAttributes(fakePhoneAccountHandle)
+        }
     }
 }

@@ -99,6 +99,30 @@ class BasicCallControlsTest : BaseTelecomTest() {
     }
 
     /**
+     * assert [CallsManager.addCall] can successfully add an *OUTGOING* call configured with a
+     * [CallAttributesCompat.contactUri] and set it active. The call should use the *V2 platform
+     * APIs* under the hood.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @LargeTest
+    @Test(timeout = 10000)
+    fun testBasicOutgoingCall_WithContactUri() {
+        runBlocking_addCallAndSetActive(TestUtils.OUTGOING_WITH_CONTACT_URI_CALL_ATTRIBUTES)
+    }
+
+    /**
+     * assert [CallsManager.addCall] can successfully add an *OUTGOING* group call configured with
+     * [CallAttributesCompat.isGroupCall] and set it active. The call should use the *V2 platform
+     * APIs* under the hood.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @LargeTest
+    @Test(timeout = 10000)
+    fun testBasicOutgoingCall_GroupCall() {
+        runBlocking_addCallAndSetActive(TestUtils.OUTGOING_GROUP_CALL_ATTRIBUTES)
+    }
+
+    /**
      * assert [CallsManager.addCall] can successfully add an *INCOMING* call and answer it. The call
      * should use the *V2 platform APIs* under the hood.
      */
@@ -176,6 +200,34 @@ class BasicCallControlsTest : BaseTelecomTest() {
     fun testBasicOutgoingCall_BackwardsCompat() {
         setUpBackwardsCompatTest()
         runBlocking_addCallAndSetActive(TestUtils.OUTGOING_CALL_ATTRIBUTES)
+    }
+
+    /**
+     * assert [CallsManager.addCall] can successfully add an *OUTGOING* call configured with a
+     * [CallAttributesCompat.contactUri] and set it active using the backwards compat layer. The
+     * call should use the *[android.telecom.ConnectionService] and [android.telecom.Connection]
+     * APIs* under the hood.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
+    @LargeTest
+    @Test(timeout = 10000)
+    fun testBasicOutgoingCall_WithContactUri_BackwardsCompat() {
+        setUpBackwardsCompatTest()
+        runBlocking_addCallAndSetActive(TestUtils.OUTGOING_WITH_CONTACT_URI_CALL_ATTRIBUTES)
+    }
+
+    /**
+     * assert [CallsManager.addCall] can successfully add an *OUTGOING* group call configured with
+     * [CallAttributesCompat.isGroupCall] and set it active using the backwards compat layer. The
+     * call should use the *[android.telecom.ConnectionService] and [android.telecom.Connection]
+     * APIs* under the hood.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
+    @LargeTest
+    @Test(timeout = 10000)
+    fun testBasicOutgoingCall_GroupCall_BackwardsCompat() {
+        setUpBackwardsCompatTest()
+        runBlocking_addCallAndSetActive(TestUtils.OUTGOING_GROUP_CALL_ATTRIBUTES)
     }
 
     /**

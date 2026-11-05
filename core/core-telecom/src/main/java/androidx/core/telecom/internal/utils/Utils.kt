@@ -130,6 +130,7 @@ internal class Utils {
             }
         }
 
+        @Suppress("DEPRECATION")
         @RequiresApi(VERSION_CODES.O)
         fun remapJetpackCapsToPlatformCaps(
             @CallsManager.Companion.Capability clientBitmapSelection: Int,

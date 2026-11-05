@@ -71,6 +71,7 @@ class ExtrasExtensionsLayerEndToEndTests : BaseTelecomTest() {
     }
 
     private val mAutoConnectionService = VoipConnectionService()
+    @Suppress("DEPRECATION")
     private val mPhoneAccount =
         PhoneAccount.builder(SINGLETON_PHONE_ACCOUNT_HANDLE, "AutoTestJetpackAcct")
             .setAddress(DEFAULT_ADDRESS)
