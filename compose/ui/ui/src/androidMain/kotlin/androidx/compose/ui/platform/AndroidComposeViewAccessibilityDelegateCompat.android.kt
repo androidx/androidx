@@ -56,7 +56,6 @@ import androidx.collection.intObjectMapOf
 import androidx.collection.mutableIntIntMapOf
 import androidx.collection.mutableIntListOf
 import androidx.collection.mutableIntObjectMapOf
-import androidx.collection.mutableIntSetOf
 import androidx.collection.mutableObjectIntMapOf
 import androidx.collection.mutableScatterSetOf
 import androidx.compose.ui.AndroidComposeUiFlags
@@ -3317,28 +3316,27 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         newNode: SemanticsNode,
         oldNode: SemanticsNodeCopy,
     ) {
-        val newChildren: MutableIntSet = mutableIntSetOf()
+        val replacedChildren = newNode.replacedChildren
+        var newChildrenCount = 0
 
         // If any child is added, clear the subtree rooted at this node and return.
-        newNode.replacedChildren.fastForEach { child ->
+        replacedChildren.fastForEach { child ->
             if (currentSemanticsNodes.contains(child.id)) {
                 if (!oldNode.children.contains(child.id)) {
                     notifySubtreeAccessibilityStateChangedIfNeeded(newNode.layoutNode)
                     return
                 }
-                newChildren.add(child.id)
+                newChildrenCount++
             }
         }
 
         // If any child is deleted, clear the subtree rooted at this node and return.
-        oldNode.children.forEach { child ->
-            if (!newChildren.contains(child)) {
-                notifySubtreeAccessibilityStateChangedIfNeeded(newNode.layoutNode)
-                return
-            }
+        if (newChildrenCount != oldNode.children.size) {
+            notifySubtreeAccessibilityStateChangedIfNeeded(newNode.layoutNode)
+            return
         }
 
-        newNode.replacedChildren.fastForEach { child ->
+        replacedChildren.fastForEach { child ->
             previousSemanticsNodes[child.id]?.let { previousNode ->
                 if (currentSemanticsNodes.contains(child.id)) {
                     sendAccessibilitySemanticsStructureChangeEvents(child, previousNode)

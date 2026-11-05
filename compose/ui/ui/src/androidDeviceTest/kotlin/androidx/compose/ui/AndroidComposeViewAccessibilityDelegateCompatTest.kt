@@ -64,6 +64,7 @@ import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -3758,6 +3759,103 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             assertThat(eventTypes)
                 .doesNotContain(AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED)
         }
+    }
+
+    @Test
+    fun structureChange_addRemoveSwapAndNestedGrandchild_dispatchesSubtreeEvents() {
+        var childKeys by mutableStateOf(listOf("A"))
+        var showGrandchildInB by mutableStateOf(true)
+        rule.mainClock.autoAdvance = false
+
+        rule.setContentWithAccessibilityEnabled {
+            Column(Modifier.size(100.dp).testTag("parent").semantics { contentDescription = "P" }) {
+                for (itemKey in childKeys) {
+                    key(itemKey) {
+                        if (itemKey == "B") {
+                            Column(
+                                Modifier.size(20.dp).testTag("child_B").semantics {
+                                    contentDescription = "Child B"
+                                }
+                            ) {
+                                if (showGrandchildInB) {
+                                    Box(
+                                        Modifier.size(10.dp).semantics {
+                                            contentDescription = "Grandchild D"
+                                        }
+                                    )
+                                }
+                            }
+                        } else {
+                            Box(
+                                Modifier.size(10.dp).semantics {
+                                    contentDescription = "Child $itemKey"
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        val parentId = rule.onNodeWithTag("parent").semanticsId()
+        val getSourceNodeIdMethod =
+            Class.forName("android.view.accessibility.AccessibilityRecord")
+                .getDeclaredMethod("getSourceNodeId")
+                .apply { isAccessible = true }
+        fun subtreeSourceIds(): List<Int> =
+            dispatchedAccessibilityEvents
+                .filter {
+                    it.eventType == TYPE_WINDOW_CONTENT_CHANGED &&
+                        (it.contentChangeTypes and
+                            AccessibilityEvent.CONTENT_CHANGE_TYPE_SUBTREE) != 0
+                }
+                .map { ((getSourceNodeIdMethod.invoke(it) as Long) shr 32).toInt() }
+
+        // Structure changes require two boundsUpdatesEventLoop passes under manual clock
+        // (b/272068594): pass 1 runs the frame and drains Handler's semanticsChangeChecker (which
+        // enqueues the structural parent into boundsUpdateChannel), and pass 2 advances past
+        // delay(100ms) so updateBounds() dispatches the parent's CONTENT_CHANGE_TYPE_SUBTREE event.
+        fun flushStructureChangeEvents() {
+            repeat(2) {
+                rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+                rule.waitForIdle()
+            }
+        }
+
+        // Seed initial previousSemanticsNodes ({A}) before testing structural deltas.
+        flushStructureChangeEvents()
+        rule.runOnIdle { dispatchedAccessibilityEvents.clear() }
+
+        // 1. Child addition: {A} -> {A, B}
+        rule.runOnIdle { childKeys = listOf("A", "B") }
+        flushStructureChangeEvents()
+        rule.runOnIdle {
+            assertThat(subtreeSourceIds()).contains(parentId)
+            dispatchedAccessibilityEvents.clear()
+        }
+
+        // 2. Same-count child replacement: {A, B} -> {C, B}
+        rule.runOnIdle { childKeys = listOf("C", "B") }
+        flushStructureChangeEvents()
+        rule.runOnIdle {
+            assertThat(subtreeSourceIds()).contains(parentId)
+            dispatchedAccessibilityEvents.clear()
+        }
+
+        // 3. Unchanged parent children {C, B}, nested grandchild removed inside B
+        val childBId = rule.onNodeWithTag("child_B").semanticsId()
+        rule.runOnIdle { showGrandchildInB = false }
+        flushStructureChangeEvents()
+        rule.runOnIdle {
+            assertThat(subtreeSourceIds()).contains(childBId)
+            assertThat(subtreeSourceIds()).doesNotContain(parentId)
+            dispatchedAccessibilityEvents.clear()
+        }
+
+        // 4. Child deletion: {C, B} -> {C}
+        rule.runOnIdle { childKeys = listOf("C") }
+        flushStructureChangeEvents()
+        rule.runOnIdle { assertThat(subtreeSourceIds()).contains(parentId) }
     }
 
     @Test
