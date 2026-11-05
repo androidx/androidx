@@ -62,7 +62,7 @@ class NavigationTransitionsTest {
             MaterialTheme(
                 colorScheme = lightColorScheme(onSurface = Color.Black, scrim = Color.Black)
             ) {
-                resolvedScrimColor = HorizontalSharedAxisNavigationTransition.scrimColor
+                resolvedScrimColor = HorizontalSharedAxisNavigationTransitions.scrimColor
             }
         }
 
@@ -77,7 +77,7 @@ class NavigationTransitionsTest {
             MaterialTheme(
                 colorScheme = darkColorScheme(onSurface = Color.White, scrim = Color.Black)
             ) {
-                resolvedScrimColor = HorizontalSharedAxisNavigationTransition.scrimColor
+                resolvedScrimColor = HorizontalSharedAxisNavigationTransitions.scrimColor
             }
         }
 
@@ -103,9 +103,9 @@ class NavigationTransitionsTest {
             val density = LocalDensity.current
             val scrimColor = Color.Black.copy(alpha = 0.2f)
             transition.DeferredAnimatedContent(
-                transitionSpec = { HorizontalSharedAxisNavigationTransition.backwardTransform() },
+                transitionSpec = { HorizontalSharedAxisNavigationTransitions.backwardTransform() },
                 mutableTransformSpec = {
-                    HorizontalSharedAxisNavigationTransition.predictiveBackTransform(
+                    HorizontalSharedAxisNavigationTransitions.predictiveBackTransform(
                         backEvent = { backEvent },
                         density = density,
                         scrimColor = scrimColor,
@@ -155,9 +155,9 @@ class NavigationTransitionsTest {
             val transition = rememberDeferredTransition(state)
             val density = LocalDensity.current
             transition.DeferredAnimatedContent(
-                transitionSpec = { HorizontalSharedAxisNavigationTransition.backwardTransform() },
+                transitionSpec = { HorizontalSharedAxisNavigationTransitions.backwardTransform() },
                 mutableTransformSpec = {
-                    HorizontalSharedAxisNavigationTransition.predictiveBackTransform(
+                    HorizontalSharedAxisNavigationTransitions.predictiveBackTransform(
                         backEvent = { backEvent },
                         density = density,
                         scrimColor = Color.Transparent,
@@ -219,9 +219,9 @@ class NavigationTransitionsTest {
             val transition = rememberDeferredTransition(state)
             val density = LocalDensity.current
             transition.DeferredAnimatedContent(
-                transitionSpec = { HorizontalSharedAxisNavigationTransition.backwardTransform() },
+                transitionSpec = { HorizontalSharedAxisNavigationTransitions.backwardTransform() },
                 mutableTransformSpec = {
-                    HorizontalSharedAxisNavigationTransition.predictiveBackTransform(
+                    HorizontalSharedAxisNavigationTransitions.predictiveBackTransform(
                         backEvent = { backEvent },
                         density = density,
                         scrimColor = Color.Transparent,
@@ -307,13 +307,13 @@ class NavigationTransitionsTest {
             transition.DeferredAnimatedContent(
                 transitionSpec = {
                     if (targetState > initialState) {
-                        HorizontalSharedAxisNavigationTransition.forwardTransform()
+                        HorizontalSharedAxisNavigationTransitions.forwardTransform()
                     } else {
-                        HorizontalSharedAxisNavigationTransition.backwardTransform()
+                        HorizontalSharedAxisNavigationTransitions.backwardTransform()
                     }
                 },
                 mutableTransformSpec = {
-                    HorizontalSharedAxisNavigationTransition.predictiveBackTransform(
+                    HorizontalSharedAxisNavigationTransitions.predictiveBackTransform(
                         backEvent = { backEvent },
                         density = density,
                         scrimColor = Color.Transparent,
@@ -388,9 +388,9 @@ class NavigationTransitionsTest {
             val density = LocalDensity.current
             transition.DeferredAnimatedContent(
                 modifier = Modifier.testTag("container"),
-                transitionSpec = { FadeThroughNavigationTransition.transform() },
+                transitionSpec = { FadeThroughNavigationTransitions.transform() },
                 mutableTransformSpec = {
-                    FadeThroughNavigationTransition.predictiveBackTransform(
+                    FadeThroughNavigationTransitions.predictiveBackTransform(
                         backEvent = { backEvent },
                         density = density,
                     )

@@ -41,8 +41,8 @@ import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FadeThroughNavigationTransition
-import androidx.compose.material3.HorizontalSharedAxisNavigationTransition
+import androidx.compose.material3.FadeThroughNavigationTransitions
+import androidx.compose.material3.HorizontalSharedAxisNavigationTransitions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -106,7 +106,7 @@ fun HorizontalSharedAxisTransitionDemo() {
         }
     }
 
-    val scrimColor = HorizontalSharedAxisNavigationTransition.scrimColor
+    val scrimColor = HorizontalSharedAxisNavigationTransitions.scrimColor
     val density = LocalDensity.current
 
     // Outer canvas frame surrounding the padded area
@@ -127,14 +127,14 @@ fun HorizontalSharedAxisTransitionDemo() {
                 modifier = Modifier.fillMaxSize(),
                 transitionSpec = {
                     if (targetState > initialState) {
-                        HorizontalSharedAxisNavigationTransition.forwardTransform()
+                        HorizontalSharedAxisNavigationTransitions.forwardTransform()
                     } else {
-                        HorizontalSharedAxisNavigationTransition.backwardTransform()
+                        HorizontalSharedAxisNavigationTransitions.backwardTransform()
                     }
                 },
                 mutableTransformSpec = {
                     if (initialState > targetState) {
-                        HorizontalSharedAxisNavigationTransition.predictiveBackTransform(
+                        HorizontalSharedAxisNavigationTransitions.predictiveBackTransform(
                             backEvent = { backEvent },
                             density = density,
                             scrimColor = scrimColor,
@@ -221,10 +221,10 @@ fun FadeThroughTransitionDemo() {
         ) { innerPadding ->
             transition.DeferredAnimatedContent(
                 modifier = Modifier.fillMaxSize().padding(innerPadding),
-                transitionSpec = { FadeThroughNavigationTransition.transform() },
+                transitionSpec = { FadeThroughNavigationTransitions.transform() },
                 mutableTransformSpec = {
                     if (targetState == DemoTab.Home && initialState != DemoTab.Home) {
-                        FadeThroughNavigationTransition.predictiveBackTransform(
+                        FadeThroughNavigationTransitions.predictiveBackTransform(
                             backEvent = { backEvent },
                             density = density,
                         )

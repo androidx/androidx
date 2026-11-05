@@ -1342,10 +1342,10 @@ package androidx.compose.material3 {
     property public androidx.compose.material3.FabPosition Start;
   }
 
-  public final class FadeThroughNavigationTransition {
+  public final class FadeThroughNavigationTransitions {
     method public androidx.compose.animation.MutableContentTransform predictiveBackTransform(kotlin.jvm.functions.Function0<androidx.navigationevent.NavigationEvent> backEvent, androidx.compose.ui.unit.Density density);
     method public androidx.compose.animation.ContentTransform transform();
-    field public static final androidx.compose.material3.FadeThroughNavigationTransition INSTANCE;
+    field public static final androidx.compose.material3.FadeThroughNavigationTransitions INSTANCE;
   }
 
   public final class FilledTonalToggleButtonDefaults {
@@ -1655,14 +1655,14 @@ package androidx.compose.material3 {
     property public androidx.compose.material3.FloatingToolbarVerticalFabPosition Top;
   }
 
-  public final class HorizontalSharedAxisNavigationTransition {
+  public final class HorizontalSharedAxisNavigationTransitions {
     method public androidx.compose.animation.ContentTransform backwardTransform();
     method public androidx.compose.animation.ContentTransform forwardTransform();
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public long getScrimColor(androidx.compose.runtime.Composer?, int);
     method @KotlinOnly public androidx.compose.animation.MutableContentTransform predictiveBackTransform(kotlin.jvm.functions.Function0<androidx.navigationevent.NavigationEvent> backEvent, androidx.compose.ui.unit.Density density, androidx.compose.ui.graphics.Color scrimColor);
     method @BytecodeOnly public androidx.compose.animation.MutableContentTransform predictiveBackTransform-mxwnekA(kotlin.jvm.functions.Function0<androidx.navigationevent.NavigationEvent!>, androidx.compose.ui.unit.Density, long);
     property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.graphics.Color scrimColor;
-    field public static final androidx.compose.material3.HorizontalSharedAxisNavigationTransition INSTANCE;
+    field public static final androidx.compose.material3.HorizontalSharedAxisNavigationTransitions INSTANCE;
   }
 
   @androidx.compose.runtime.Immutable public final class IconButtonColors {

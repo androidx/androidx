@@ -23,8 +23,8 @@ import androidx.compose.animation.core.rememberDeferredTransition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.FadeThroughNavigationTransition
-import androidx.compose.material3.HorizontalSharedAxisNavigationTransition
+import androidx.compose.material3.FadeThroughNavigationTransitions
+import androidx.compose.material3.HorizontalSharedAxisNavigationTransitions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -63,20 +63,20 @@ fun HorizontalSharedAxisTransitionSample() {
         }
     }
 
-    val scrimColor = HorizontalSharedAxisNavigationTransition.scrimColor
+    val scrimColor = HorizontalSharedAxisNavigationTransitions.scrimColor
     val density = LocalDensity.current
 
     transition.DeferredAnimatedContent(
         transitionSpec = {
             if (targetState > initialState) {
-                HorizontalSharedAxisNavigationTransition.forwardTransform()
+                HorizontalSharedAxisNavigationTransitions.forwardTransform()
             } else {
-                HorizontalSharedAxisNavigationTransition.backwardTransform()
+                HorizontalSharedAxisNavigationTransitions.backwardTransform()
             }
         },
         mutableTransformSpec = {
             if (initialState > targetState) {
-                HorizontalSharedAxisNavigationTransition.predictiveBackTransform(
+                HorizontalSharedAxisNavigationTransitions.predictiveBackTransform(
                     backEvent = { backEvent },
                     density = density,
                     scrimColor = scrimColor,
@@ -126,9 +126,9 @@ fun FadeThroughTransitionSample() {
     val density = LocalDensity.current
 
     transition.DeferredAnimatedContent(
-        transitionSpec = { FadeThroughNavigationTransition.transform() },
+        transitionSpec = { FadeThroughNavigationTransitions.transform() },
         mutableTransformSpec = {
-            FadeThroughNavigationTransition.predictiveBackTransform(
+            FadeThroughNavigationTransitions.predictiveBackTransform(
                 backEvent = { backEvent },
                 density = density,
             )
