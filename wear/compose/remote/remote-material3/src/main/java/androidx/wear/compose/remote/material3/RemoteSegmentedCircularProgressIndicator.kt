@@ -37,6 +37,7 @@ import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.sin
 import androidx.compose.remote.creation.compose.state.toRad
@@ -44,6 +45,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.StrokeCap
+import kotlin.math.PI
 
 /**
  * Material Design segmented circular progress indicator.
@@ -51,6 +53,10 @@ import androidx.compose.ui.graphics.StrokeCap
  * A segmented variant of [RemoteCircularProgressIndicator] that is divided into equally sized
  * segments. This overload of [RemoteSegmentedCircularProgressIndicator] fills the segments in order
  * based on [progress].
+ *
+ * The progress arc is always drawn clockwise from [startAngle] to [endAngle]. When [endAngle]
+ * equals [startAngle] (the default), a full 360-degree circle is drawn; when [endAngle] is less
+ * than [startAngle], the arc wraps clockwise past 0 degrees (3 o'clock).
  *
  * Animates changes to [progress] with the [RemoteMotionScheme.slowEffectsSpec] of
  * [RemoteMaterialTheme.motionScheme], as a single animation across the segments. Only the length of
@@ -75,11 +81,14 @@ import androidx.compose.ui.graphics.StrokeCap
  *   the 3 o'clock position. Defaults to [RemoteProgressIndicatorDefaults.StartAngle] (top of the
  *   screen).
  * @param endAngle The ending position of the progress arc, measured clockwise in degrees from the 3
- *   o'clock position. By default equal to [startAngle].
+ *   o'clock position. By default equal to [startAngle] (a full 360-degree circle). The arc is
+ *   always drawn clockwise from [startAngle] to [endAngle], wrapping past 0 degrees if [endAngle]
+ *   is less than [startAngle].
  * @param colors [RemoteProgressIndicatorColors] that will be used to resolve the indicator and
  *   track color for this progress indicator.
  * @param strokeWidth The stroke width for the progress indicator. Defaults to
- *   [RemoteProgressIndicatorDefaults.DefaultStrokeWidth].
+ *   [RemoteProgressIndicatorDefaults.DefaultStrokeWidth]. Negative values are coerced to 0; nothing
+ *   is drawn when [strokeWidth] is 0 or negative.
  * @param gapSize The size of the gap between segments. The stroke endcaps are not included in this
  *   distance.
  */
@@ -140,6 +149,10 @@ private fun segmentFraction(progress: RemoteFloat, segmentCount: Int, segmentInd
  * be individually indicated as completed, such as for showing activity for intervals within a
  * longer period.
  *
+ * The progress arc is always drawn clockwise from [startAngle] to [endAngle]. When [endAngle]
+ * equals [startAngle] (the default), a full 360-degree circle is drawn; when [endAngle] is less
+ * than [startAngle], the arc wraps clockwise past 0 degrees (3 o'clock).
+ *
  * When a segment turns on or off, its length grows from its start or shrinks back to it, with the
  * [RemoteMotionScheme.fastEffectsSpec] of [RemoteMaterialTheme.motionScheme]. The stroke width
  * doesn't animate.
@@ -159,11 +172,14 @@ private fun segmentFraction(progress: RemoteFloat, segmentCount: Int, segmentInd
  *   the 3 o'clock position. Defaults to [RemoteProgressIndicatorDefaults.StartAngle] (top of the
  *   screen).
  * @param endAngle The ending position of the progress arc, measured clockwise in degrees from the 3
- *   o'clock position. By default equal to [startAngle].
+ *   o'clock position. By default equal to [startAngle] (a full 360-degree circle). The arc is
+ *   always drawn clockwise from [startAngle] to [endAngle], wrapping past 0 degrees if [endAngle]
+ *   is less than [startAngle].
  * @param colors [RemoteProgressIndicatorColors] that will be used to resolve the indicator and
  *   track color for this progress indicator.
  * @param strokeWidth The stroke width for the progress indicator. Defaults to
- *   [RemoteProgressIndicatorDefaults.DefaultStrokeWidth].
+ *   [RemoteProgressIndicatorDefaults.DefaultStrokeWidth]. Negative values are coerced to 0; nothing
+ *   is drawn when [strokeWidth] is 0 or negative.
  * @param gapSize The size of the gap between segments. The stroke endcaps are not included in this
  *   distance.
  */
@@ -221,7 +237,9 @@ private fun RemoteDrawScope.drawSegments(
     targetSegmentFractions: List<RemoteFloat>,
 ) {
     val fullSweep = 360f.rf - ((startAngle - endAngle) % 360f.rf + 360f.rf) % 360f.rf
-    val strokePx = strokeWidth.toPx()
+    val coercedStrokeWidth = max(0.rdp, strokeWidth)
+    val isZeroStroke = coercedStrokeWidth.isLessThanOrEqualTo(0.rdp)
+    val strokePx = coercedStrokeWidth.toPx()
     val gapSizePx = gapSize.toPx()
     val diameter = min(width, height)
     val diameterOffset = strokePx / 2f.rf
@@ -238,7 +256,7 @@ private fun RemoteDrawScope.drawSegments(
     // Sweep angle of the gap between two segments.
     val chordRatio =
         clamp((strokePx + gapSizePx) / max(0.001f.rf, diameter - strokePx), 0f.rf, 1f.rf)
-    val gapSweep = asin(chordRatio) * (360f / Math.PI.toFloat()).rf
+    val gapSweep = asin(chordRatio) * (360f / PI.toFloat()).rf
     val segmentSweep = fullSweep / segmentCount.toFloat().rf
 
     val trackPaint = RemotePaint {
@@ -268,7 +286,7 @@ private fun RemoteDrawScope.drawSegments(
         drawArc(
             paint = trackPaint,
             startAngle = segmentStartAngle + gapSweep / 2f.rf,
-            sweepAngle = max(0f.rf, segmentSweep - gapSweep),
+            sweepAngle = isZeroStroke.select(0f.rf, max(0f.rf, segmentSweep - gapSweep)),
             useCenter = false,
             topLeft = topLeft,
             size = arcSize,
@@ -288,7 +306,7 @@ private fun RemoteDrawScope.drawSegments(
         val progressSweep = holdsDot.select(max(animatedSweep, gapSweep), animatedSweep)
 
         // An arc, which is a full dot at the start of the segment when it fills just the gap.
-        val isArc = progressSweep.isGreaterThanOrEqualTo(gapSweep)
+        val isArc = isZeroStroke.select(false.rb, progressSweep.isGreaterThanOrEqualTo(gapSweep))
         indicatorPaint.color = isArc.select(indicatorColor, Color.Transparent.rc)
         drawArc(
             paint = indicatorPaint,
@@ -307,14 +325,17 @@ private fun RemoteDrawScope.drawSegments(
         // the gap as a full dot, so its dot is left out of the document. This is decided from the
         // target fraction, as the sweeps depend on the canvas size and are never constant.
         if (targetFraction.hasConstantValue) continue
-        val isPartialDot = progressSweep.isGreaterThan(0f.rf) and !isArc
+        val isPartialDot =
+            isZeroStroke.select(false.rb, progressSweep.isGreaterThan(0f.rf) and !isArc)
         val dotFraction = progressSweep / max(0.001f.rf, gapSweep)
         val dotRadius = indicatorStrokePx / 2f.rf * dotFraction
         val dotAngle = toRad(segmentStartAngle + progressSweep / 2f.rf)
         dotPaint.color =
             isPartialDot.select(
                 indicatorColor.copy(
-                    alpha = indicatorColor.alpha * min(1f.rf, dotRadius * 2f.rf / strokePx)
+                    alpha =
+                        indicatorColor.alpha *
+                            min(1f.rf, dotRadius * 2f.rf / max(0.001f.rf, strokePx))
                 ),
                 Color.Transparent.rc,
             )

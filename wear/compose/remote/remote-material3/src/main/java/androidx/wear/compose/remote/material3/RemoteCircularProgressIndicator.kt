@@ -34,6 +34,7 @@ import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.creation.compose.state.rb
+import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.PaintingStyle
@@ -42,6 +43,10 @@ import kotlin.math.PI
 
 /**
  * Material Design circular progress indicator.
+ *
+ * The progress arc is always drawn clockwise from [startAngle] to [endAngle]. When [endAngle]
+ * equals [startAngle] (the default), a full 360-degree circle is drawn; when [endAngle] is less
+ * than [startAngle], the arc wraps clockwise past 0 degrees (3 o'clock).
  *
  * Animates changes to [progress] with the [RemoteMotionScheme.slowEffectsSpec] of
  * [RemoteMaterialTheme.motionScheme].
@@ -60,13 +65,17 @@ import kotlin.math.PI
  * @param enabled controls the enabled state. When enabled is `false`, this component will appear
  *   visually disabled. Note that only solid colors are supported when [enabled] is an expression,
  *   otherwise it must be a constant.
- * @param startAngle The starting position of the progress arc, measured clockwise in degrees. For
- *   example, 0 is 3 o'clock.
- * @param endAngle The ending position of the progress arc.
+ * @param startAngle The starting position of the progress arc, measured clockwise in degrees from
+ *   the 3 o'clock position. Defaults to [RemoteProgressIndicatorDefaults.StartAngle] (12 o'clock).
+ * @param endAngle The ending position of the progress arc, measured clockwise in degrees from the 3
+ *   o'clock position. Defaults to [startAngle] (a full 360-degree circle). The arc is always drawn
+ *   clockwise from [startAngle] to [endAngle], wrapping past 0 degrees if [endAngle] is less than
+ *   [startAngle].
  * @param colors [RemoteProgressIndicatorColors] that will be used to resolve the indicator and
  *   track color.
  * @param strokeWidth The stroke width for the progress indicator. Defaults to
- *   [RemoteProgressIndicatorDefaults.DefaultStrokeWidth].
+ *   [RemoteProgressIndicatorDefaults.DefaultStrokeWidth]. Negative values are coerced to 0; nothing
+ *   is drawn when [strokeWidth] is 0 or negative.
  * @param gapSize The size (in [RemoteDp]) of the gap between the ends of the progress indicator and
  *   the track. The stroke endcaps are not included in this distance.
  */
@@ -103,7 +112,9 @@ public fun RemoteCircularProgressIndicator(
  * @param modifier Modifier to be applied to the [RemoteCircularProgressIndicator].
  * @param colors [RemoteProgressIndicatorColors] that will be used to resolve the indicator and
  *   track color.
- * @param strokeWidth The stroke width for the progress indicator.
+ * @param strokeWidth The stroke width for the progress indicator. Defaults to
+ *   [RemoteProgressIndicatorDefaults.IndeterminateStrokeWidth]. Negative values are coerced to 0;
+ *   nothing is drawn when [strokeWidth] is 0 or negative.
  * @param gapSize The size (in [RemoteDp]) of the gap between the ends of the progress indicator and
  *   the track.
  */
@@ -172,7 +183,9 @@ private fun RemoteDrawScope.drawIndicatorArcs(
     colors: RemoteProgressIndicatorColors,
     enabled: RemoteBoolean,
 ) {
-    val strokePx = strokeWidth.toPx()
+    val coercedStrokeWidth = max(0.rdp, strokeWidth)
+    val isZeroStroke = coercedStrokeWidth.isLessThanOrEqualTo(0.rdp)
+    val strokePx = coercedStrokeWidth.toPx()
     val gapSizePx = gapSize.toPx()
     val diameter = min(width, height)
     val diameterOffset = strokePx / 2f.rf
@@ -199,7 +212,7 @@ private fun RemoteDrawScope.drawIndicatorArcs(
     drawArc(
         paint = trackPaint,
         startAngle = startAngle + sweepAngle + trackGapSweep / 2f.rf,
-        sweepAngle = max(0f.rf, fullSweep - sweepAngle - trackGapSweep),
+        sweepAngle = isZeroStroke.select(0f.rf, max(0f.rf, fullSweep - sweepAngle - trackGapSweep)),
         useCenter = false,
         topLeft = RemoteOffset(left, top),
         size = RemoteSize(right - left, bottom - top),
@@ -215,7 +228,7 @@ private fun RemoteDrawScope.drawIndicatorArcs(
     drawArc(
         paint = indicatorPaint,
         startAngle = startAngle + gapSweep / 2f.rf,
-        sweepAngle = max(0f.rf, sweepAngle - gapSweep),
+        sweepAngle = isZeroStroke.select(0f.rf, max(0f.rf, sweepAngle - gapSweep)),
         useCenter = false,
         topLeft = RemoteOffset(left, top),
         size = RemoteSize(right - left, bottom - top),
