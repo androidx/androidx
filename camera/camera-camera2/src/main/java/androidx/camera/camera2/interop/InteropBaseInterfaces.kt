@@ -256,6 +256,10 @@ public interface SessionConfigurationInterop {
     /**
      * Sets a session parameter used during session creation.
      *
+     * Note: Session parameters are passed to configure the CameraDevice during capture session
+     * creation. To apply the same parameter value to repeating requests or still captures, also
+     * configure it using `captureRequest`.
+     *
      * @param key session parameter key
      * @param value parameter value
      */

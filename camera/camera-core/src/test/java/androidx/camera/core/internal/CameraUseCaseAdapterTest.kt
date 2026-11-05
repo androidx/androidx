@@ -1829,7 +1829,7 @@ class CameraUseCaseAdapterTest {
     }
 
     @Test
-    fun sessionInteropConfig_callbacksNotDuplicatedAcrossMultipleUseCases() {
+    fun sessionInteropConfig_forwardedToCameraInternalAndNotMergedIntoUseCaseConfigs() {
         // Arrange
         val captureCallback =
             object : android.hardware.camera2.CameraCaptureSession.CaptureCallback() {}
@@ -1857,51 +1857,57 @@ class CameraUseCaseAdapterTest {
                 insertOption(Camera2ImplConfig.DEVICE_STATE_CALLBACK_OPTION, deviceStateCallback)
             }
 
-        // Act: call getConfigs for preview and analysis
-        val configs =
-            CameraUseCaseAdapter.getConfigs(
-                setOf(preview, analysis),
-                useCaseConfigFactory,
-                useCaseConfigFactory,
-                androidx.camera.core.impl.SessionConfig.SESSION_TYPE_REGULAR,
-                Range(30, 30),
-                interopConfig,
-                emptyMap(),
-            )
+        // Act: attach SessionConfig with interopConfig to adapter
+        val sessionConfig =
+            androidx.camera.core.SessionConfig.Builder(preview, analysis, image)
+                .setInterop { builder ->
+                    for (option in interopConfig.listOptions()) {
+                        @Suppress("UNCHECKED_CAST") val opt = option as Config.Option<Any>
+                        builder.interopMutableConfig.insertOption(
+                            opt,
+                            interopConfig.getOptionPriority(opt),
+                            interopConfig.retrieveOption(opt),
+                        )
+                    }
+                }
+                .build()
+        adapter.setSessionInteropConfig(sessionConfig.interopConfig)
+        adapter.addUseCases(sessionConfig.useCases)
 
-        // Assert: Only preview's cameraConfig contains the interop callback options
-        val previewCameraConfig = configs[preview]!!.mCameraConfig
-        val analysisCameraConfig = configs[analysis]!!.mCameraConfig
-
-        assertThat(
-                previewCameraConfig.containsOption(
-                    Camera2ImplConfig.SESSION_CAPTURE_CALLBACK_OPTION
+        // Assert: sessionInteropConfig is forwarded to CameraInternal and not merged into any
+        // UseCase's currentConfig.
+        assertThat(fakeCamera.sessionInteropConfig).isEqualTo(sessionConfig.interopConfig)
+        for (useCase in listOf(preview, analysis, image)) {
+            assertThat(
+                    useCase.currentConfig.containsOption(
+                        Camera2ImplConfig.SESSION_CAPTURE_CALLBACK_OPTION
+                    )
                 )
-            )
-            .isEqualTo(true)
-        assertThat(
-                previewCameraConfig.containsOption(Camera2ImplConfig.SESSION_STATE_CALLBACK_OPTION)
-            )
-            .isEqualTo(true)
-        assertThat(
-                previewCameraConfig.containsOption(Camera2ImplConfig.DEVICE_STATE_CALLBACK_OPTION)
-            )
-            .isEqualTo(true)
-
-        assertThat(
-                analysisCameraConfig.containsOption(
-                    Camera2ImplConfig.SESSION_CAPTURE_CALLBACK_OPTION
+                .isFalse()
+            assertThat(
+                    useCase.currentConfig.containsOption(
+                        Camera2ImplConfig.SESSION_STATE_CALLBACK_OPTION
+                    )
                 )
-            )
-            .isEqualTo(false)
-        assertThat(
-                analysisCameraConfig.containsOption(Camera2ImplConfig.SESSION_STATE_CALLBACK_OPTION)
-            )
-            .isEqualTo(false)
-        assertThat(
-                analysisCameraConfig.containsOption(Camera2ImplConfig.DEVICE_STATE_CALLBACK_OPTION)
-            )
-            .isEqualTo(false)
+                .isFalse()
+            assertThat(
+                    useCase.currentConfig.containsOption(
+                        Camera2ImplConfig.DEVICE_STATE_CALLBACK_OPTION
+                    )
+                )
+                .isFalse()
+        }
+
+        // Detaching (ON_STOP) clears CameraInternal's sessionInteropConfig, and re-attaching
+        // (ON_START) restores it.
+        adapter.detachUseCases()
+        assertThat(fakeCamera.sessionInteropConfig).isNull()
+        adapter.attachUseCases()
+        assertThat(fakeCamera.sessionInteropConfig).isEqualTo(sessionConfig.interopConfig)
+
+        // Removing all UseCases clears sessionInteropConfig on CameraInternal.
+        adapter.removeUseCases(sessionConfig.useCases)
+        assertThat(fakeCamera.sessionInteropConfig).isNull()
     }
 
     @Test

@@ -28,6 +28,7 @@ import androidx.camera.core.impl.CameraConfigs
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraInternal
+import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.impl.SessionProcessor
 import com.google.common.util.concurrent.ListenableFuture
@@ -113,6 +114,10 @@ constructor(
 
     override fun detachUseCases(useCasesToRemove: MutableCollection<UseCase>) {
         useCaseManager.detach(useCasesToRemove.toList())
+    }
+
+    override fun setSessionInteropConfig(sessionInteropConfig: Config?) {
+        useCaseManager.setSessionInteropConfig(sessionInteropConfig)
     }
 
     // UseCase state callbacks

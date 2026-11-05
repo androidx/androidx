@@ -322,6 +322,14 @@ public class CameraUseCaseAdapter(
     private constructor(val captureCallback: CaptureCallback) : CameraCaptureCallback() {
         // TODO(b/192980959): Find a way to receive the CameraCaptureSession signal
         //  from the camera-pipe library and redirect to the [captureCallback].
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is CaptureCallbackContainer) return false
+            return captureCallback == other.captureCallback
+        }
+
+        override fun hashCode(): Int = captureCallback.hashCode()
+
         companion object {
             fun create(captureCallback: CaptureCallback): CaptureCallbackContainer {
                 return CaptureCallbackContainer(captureCallback)

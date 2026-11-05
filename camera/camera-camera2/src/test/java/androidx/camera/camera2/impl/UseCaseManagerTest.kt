@@ -19,25 +19,33 @@ package androidx.camera.camera2.impl
 
 import android.content.Context
 import android.graphics.SurfaceTexture
+import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES
+import android.hardware.camera2.CameraDevice.TEMPLATE_MANUAL
 import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
 import android.hardware.camera2.CameraDevice.TEMPLATE_RECORD
+import android.hardware.camera2.CameraDevice.TEMPLATE_STILL_CAPTURE
 import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY
 import android.hardware.camera2.CameraMetadata.CONTROL_CAPTURE_INTENT_PREVIEW
 import android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT
+import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE
 import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT
 import android.hardware.camera2.params.DynamicRangeProfiles
 import android.hardware.camera2.params.SessionConfiguration.SESSION_HIGH_SPEED
 import android.media.MediaCodec
+import android.os.Build
 import android.util.Range
 import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.adapter.CameraCoordinatorAdapter
+import androidx.camera.camera2.adapter.CameraInternalAdapter
 import androidx.camera.camera2.adapter.CameraSessionLifecycleAdapter
 import androidx.camera.camera2.adapter.CameraStateAdapter
 import androidx.camera.camera2.adapter.CameraUseCaseAdapter
+import androidx.camera.camera2.adapter.CaptureConfigAdapter
+import androidx.camera.camera2.adapter.GraphStateToCameraStateAdapter
 import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.adapter.SessionConfigAdapter
 import androidx.camera.camera2.adapter.SupportedSurfaceCombination
@@ -54,25 +62,43 @@ import androidx.camera.camera2.compat.workaround.TemplateParamsOverride
 import androidx.camera.camera2.compat.workaround.TemplateParamsQuirkOverride
 import androidx.camera.camera2.config.CameraConfig
 import androidx.camera.camera2.config.UseCaseCameraComponent
+import androidx.camera.camera2.config.UseCaseCameraConfig
+import androidx.camera.camera2.config.UseCaseCameraContext
 import androidx.camera.camera2.interop.Camera2CameraControl
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
+import androidx.camera.camera2.interop.camera2Interop
 import androidx.camera.camera2.interop.setCamera2CaptureRequestConfigurator
 import androidx.camera.camera2.pipe.CameraGraph.OperatingMode.Companion.HIGH_SPEED
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.OutputStream.DynamicRangeProfile
+import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestTemplate
+import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCamera2CameraControlCompat
+import androidx.camera.camera2.testing.FakeCameraGraph
+import androidx.camera.camera2.testing.FakeCameraProperties
+import androidx.camera.camera2.testing.FakeCapturePipeline
 import androidx.camera.camera2.testing.FakeUseCaseCameraComponentBuilder
+import androidx.camera.camera2.testing.FakeUseCaseSurfaceManager
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.common.CameraId
+import androidx.camera.core.CameraEffect
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.CompositionSettings
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.core.featuregroup.impl.FeatureCombinationQuery
+import androidx.camera.core.impl.AdapterCameraInfo
+import androidx.camera.core.impl.CameraConfigs
+import androidx.camera.core.impl.CaptureConfig
+import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.ImmediateSurface
 import androidx.camera.core.impl.Quirks
@@ -82,10 +108,18 @@ import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.stabilization.StabilizationMode
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.core.internal.StreamSpecsCalculatorImpl
+import androidx.camera.core.processing.DefaultSurfaceProcessor
+import androidx.camera.core.streamsharing.StreamSharing
 import androidx.camera.testing.fakes.FakeCamera
+import androidx.camera.testing.fakes.FakeCameraControl
+import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.impl.GarbageCollectionUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
+import androidx.camera.testing.impl.fakes.FakeCameraCoordinator
+import androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager
 import androidx.camera.testing.impl.fakes.FakeEncoderProfilesProvider
+import androidx.camera.testing.impl.fakes.FakeSurfaceProcessorInternal
 import androidx.camera.testing.impl.fakes.FakeUseCase
 import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
 import androidx.test.core.app.ApplicationProvider
@@ -93,6 +127,8 @@ import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import java.lang.ref.WeakReference
 import javax.inject.Provider
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
@@ -102,6 +138,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.mock
 import org.robolectric.annotation.Config
 import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowCameraCharacteristics
@@ -118,6 +155,10 @@ class UseCaseManagerTest {
         StreamConfigurationMapBuilder.newBuilder()
             .apply { supportedSizes.forEach(::addOutputSize) }
             .build()
+    private val adaptersToDetach =
+        mutableListOf<androidx.camera.core.internal.CameraUseCaseAdapter>()
+    private val surfaceProcessorsToCleanUp = mutableListOf<FakeSurfaceProcessorInternal>()
+    private val testSurfacesToClose = mutableListOf<DeferrableSurface>()
     private val useCaseManagerList = mutableListOf<UseCaseManager>()
     private val useCaseList = mutableListOf<UseCase>()
     private lateinit var useCaseThreads: UseCaseThreads
@@ -125,6 +166,9 @@ class UseCaseManagerTest {
 
     @After
     fun tearDown() = runBlocking {
+        adaptersToDetach.forEach { it.removeAllUseCases() }
+        surfaceProcessorsToCleanUp.forEach { it.cleanUp() }
+        testSurfacesToClose.forEach { it.close() }
         useCaseManagerList.forEach { it.close() }
         useCaseList.forEach { it.onUnbind() }
         DisplayInfoManager.releaseInstance()
@@ -1316,5 +1360,605 @@ class UseCaseManagerTest {
         } finally {
             nonRepeatingSurface.close()
         }
+    }
+
+    @Test
+    fun sessionConfigCamera2Interop_previewAndVideoCapture_overridesRecordTemplate() = runTest {
+        initializeUseCaseThreads(this)
+        val harness = createSessionInteropEndToEndHarness()
+
+        // Baseline: Preview + VideoCapture without interop defaults to TEMPLATE_RECORD.
+        val baselinePreview = createBoundPreview()
+        val baselineVideo = createTestVideoUseCase()
+        harness.bindSessionConfig(
+            androidx.camera.core.SessionConfig.Builder(baselinePreview, baselineVideo).build()
+        )
+        assertThat(harness.builtConfig.cameraGraphConfig.sessionTemplate)
+            .isEqualTo(RequestTemplate(TEMPLATE_RECORD))
+        val baselineRepeating = harness.submitRepeatingRequest(this)
+        assertThat(baselineRepeating.template).isEqualTo(RequestTemplate(TEMPLATE_RECORD))
+        assertThat(harness.state3AControl.template).isEqualTo(TEMPLATE_RECORD)
+        assertThat(baselineRepeating.parameters[CaptureRequest.CONTROL_AF_MODE])
+            .isEqualTo(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO)
+        harness.unbindAll()
+
+        // Act 1: SessionConfigCamera2Interop sets TEMPLATE_PREVIEW (lower priority than
+        // TEMPLATE_RECORD in UseCase template merging, so session-level interop must override).
+        val preview = createBoundPreview()
+        val videoCapture = createTestVideoUseCase()
+        val sessionConfig =
+            androidx.camera.core.SessionConfig.Builder(preview, videoCapture)
+                .camera2Interop {
+                    repeatingCaptureRequestTemplate = TEMPLATE_PREVIEW
+                    captureRequest[CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION] = 4
+                }
+                .build()
+        harness.bindSessionConfig(sessionConfig)
+
+        // Assert 1: Both CameraGraph.Config, UseCaseCameraRequestControlImpl, and State3AControl
+        // use TEMPLATE_PREVIEW and continuous picture AF mode, without polluting UseCaseConfig.
+        assertThat(harness.builtConfig.cameraGraphConfig.sessionTemplate)
+            .isEqualTo(RequestTemplate(TEMPLATE_PREVIEW))
+        assertThat(
+                harness.builtConfig.cameraGraphConfig.sessionParameters[
+                        CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION]
+            )
+            .isEqualTo(4)
+        val repeatingRequest = harness.submitRepeatingRequest(this)
+        assertThat(repeatingRequest.template).isEqualTo(RequestTemplate(TEMPLATE_PREVIEW))
+        assertThat(repeatingRequest.parameters[CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION])
+            .isEqualTo(4)
+        assertThat(harness.state3AControl.template).isEqualTo(TEMPLATE_PREVIEW)
+        assertThat(repeatingRequest.parameters[CaptureRequest.CONTROL_AF_MODE])
+            .isEqualTo(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
+        assertThat(preview.currentConfig.containsOption(Camera2ImplConfig.TEMPLATE_TYPE_OPTION))
+            .isFalse()
+        assertThat(
+                videoCapture.currentConfig.containsOption(Camera2ImplConfig.TEMPLATE_TYPE_OPTION)
+            )
+            .isFalse()
+        harness.unbindAll()
+
+        // Act 2: SessionConfigCamera2Interop sets TEMPLATE_MANUAL.
+        val manualPreview = createBoundPreview()
+        val manualVideo = createTestVideoUseCase()
+        harness.bindSessionConfig(
+            androidx.camera.core.SessionConfig.Builder(manualPreview, manualVideo)
+                .camera2Interop { repeatingCaptureRequestTemplate = TEMPLATE_MANUAL }
+                .build()
+        )
+        assertThat(harness.builtConfig.cameraGraphConfig.sessionTemplate)
+            .isEqualTo(RequestTemplate(TEMPLATE_MANUAL))
+        val manualRepeating = harness.submitRepeatingRequest(this)
+        assertThat(manualRepeating.template).isEqualTo(RequestTemplate(TEMPLATE_MANUAL))
+        assertThat(harness.state3AControl.template).isEqualTo(TEMPLATE_MANUAL)
+    }
+
+    @Test
+    fun sessionConfigCamera2Interop_previewAndImageCapture_recordTemplate_configuresContinuousVideoAfMode() =
+        runTest {
+            initializeUseCaseThreads(this)
+            val harness = createSessionInteropEndToEndHarness()
+            val preview = createBoundPreview()
+            val imageCapture = ImageCapture.Builder().build()
+            val sessionConfig =
+                androidx.camera.core.SessionConfig.Builder(preview, imageCapture)
+                    .camera2Interop { repeatingCaptureRequestTemplate = TEMPLATE_RECORD }
+                    .build()
+            harness.bindSessionConfig(sessionConfig)
+
+            assertThat(harness.builtConfig.cameraGraphConfig.sessionTemplate)
+                .isEqualTo(RequestTemplate(TEMPLATE_RECORD))
+            val repeatingRequest = harness.submitRepeatingRequest(this)
+            assertThat(repeatingRequest.template).isEqualTo(RequestTemplate(TEMPLATE_RECORD))
+            assertThat(harness.state3AControl.template).isEqualTo(TEMPLATE_RECORD)
+            assertThat(repeatingRequest.parameters[CaptureRequest.CONTROL_AF_MODE])
+                .isEqualTo(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO)
+        }
+
+    @Test
+    fun sessionConfigCamera2Interop_withStreamSharing_propagatesTemplateCallbacksAndOptions() =
+        runTest {
+            initializeUseCaseThreads(this)
+            val harness = createSessionInteropEndToEndHarness()
+            val preview = createBoundPreview()
+            val videoCapture = createTestVideoUseCase()
+            val imageCapture = ImageCapture.Builder().build()
+
+            var repeatingCallbackCount = 0
+            val repeatingCallback =
+                object : CameraCaptureSession.CaptureCallback() {
+                    override fun onCaptureSequenceCompleted(
+                        session: CameraCaptureSession,
+                        sequenceId: Int,
+                        frameNumber: Long,
+                    ) {
+                        repeatingCallbackCount++
+                    }
+                }
+
+            val sessionConfig =
+                androidx.camera.core.SessionConfig.Builder(preview, videoCapture, imageCapture)
+                    .camera2Interop {
+                        repeatingCaptureRequestTemplate = TEMPLATE_PREVIEW
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                            sessionParameter[CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION] = 3
+                        }
+                        captureRequest[CaptureRequest.CONTROL_AWB_LOCK] = true
+                        setRepeatingCaptureCallback(
+                            CameraXExecutors.directExecutor(),
+                            repeatingCallback,
+                        )
+                    }
+                    .build()
+
+            // Act: FakeCameraDeviceSurfaceManager wraps Preview + VideoCapture in StreamSharing.
+            harness.bindSessionConfig(sessionConfig)
+
+            // Assert: StreamSharing is active and SessionConfigCamera2Interop overrides
+            // StreamSharing's TEMPLATE_RECORD without merging into any UseCase's currentConfig.
+            val streamSharing =
+                harness.cameraUseCaseAdapter.cameraUseCases
+                    .filterIsInstance<StreamSharing>()
+                    .single()
+            val graphConfig = harness.builtConfig.cameraGraphConfig
+            assertThat(graphConfig.sessionTemplate).isEqualTo(RequestTemplate(TEMPLATE_PREVIEW))
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                assertThat(
+                        graphConfig.sessionParameters[
+                                CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION]
+                    )
+                    .isEqualTo(3)
+            }
+            assertThat(graphConfig.sessionParameters[CaptureRequest.CONTROL_AWB_LOCK])
+                .isEqualTo(true)
+
+            for (useCase in listOf(preview, videoCapture, imageCapture, streamSharing)) {
+                assertThat(
+                        useCase.currentConfig.containsOption(Camera2ImplConfig.TEMPLATE_TYPE_OPTION)
+                    )
+                    .isFalse()
+                assertThat(
+                        useCase.currentConfig.containsOption(
+                            Camera2ImplConfig.SESSION_CAPTURE_CALLBACK_OPTION
+                        )
+                    )
+                    .isFalse()
+            }
+
+            val repeatingRequest = harness.submitRepeatingRequest(this)
+            assertThat(repeatingRequest.template).isEqualTo(RequestTemplate(TEMPLATE_PREVIEW))
+            assertThat(repeatingRequest.parameters[CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION])
+                .isNull()
+            assertThat(repeatingRequest.parameters[CaptureRequest.CONTROL_AWB_LOCK]).isEqualTo(true)
+
+            dispatchSequenceCompleted(repeatingRequest, this)
+            assertThat(repeatingCallbackCount).isEqualTo(1)
+        }
+
+    @Test
+    fun sessionConfigCamera2Interop_sessionParameterIsolatedFromCaptureRequest() = runTest {
+        initializeUseCaseThreads(this)
+        val harness = createSessionInteropEndToEndHarness()
+        val preview = createBoundPreview()
+        val sessionConfig =
+            androidx.camera.core.SessionConfig.Builder(preview)
+                .camera2Interop {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        sessionParameter[CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION] = 1
+                    }
+                    captureRequest[CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION] = 2
+                }
+                .build()
+
+        harness.bindSessionConfig(sessionConfig)
+
+        val graphConfig = harness.builtConfig.cameraGraphConfig
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            assertThat(
+                    graphConfig.sessionParameters[CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION]
+                )
+                .isEqualTo(1)
+        }
+
+        val repeatingRequest = harness.submitRepeatingRequest(this)
+        assertThat(repeatingRequest.parameters[CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION])
+            .isEqualTo(2)
+    }
+
+    @Test
+    fun sessionConfigCamera2Interop_withImageCapture_preservesStillCaptureTemplateAndIsolatesCallback() =
+        runTest {
+            initializeUseCaseThreads(this)
+            val harness = createSessionInteropEndToEndHarness()
+
+            // Subcase A: ImageCapture is index 0 in SessionConfig(imageCapture, preview).
+            val imageCaptureFirst =
+                ImageCapture.Builder()
+                    .camera2Interop {
+                        stillCaptureRequest[CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION] = -2
+                    }
+                    .build()
+            val preview = createBoundPreview()
+            var indexZeroRepeatingCallbackCount = 0
+            val indexZeroRepeatingCallback =
+                object : CameraCaptureSession.CaptureCallback() {
+                    override fun onCaptureSequenceCompleted(
+                        session: CameraCaptureSession,
+                        sequenceId: Int,
+                        frameNumber: Long,
+                    ) {
+                        indexZeroRepeatingCallbackCount++
+                    }
+                }
+
+            harness.bindSessionConfig(
+                androidx.camera.core.SessionConfig.Builder(imageCaptureFirst, preview)
+                    .camera2Interop {
+                        repeatingCaptureRequestTemplate = TEMPLATE_MANUAL
+                        captureRequest[CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION] = 2
+                        captureRequest[CaptureRequest.CONTROL_AWB_LOCK] = true
+                        setRepeatingCaptureCallback(
+                            CameraXExecutors.directExecutor(),
+                            indexZeroRepeatingCallback,
+                        )
+                    }
+                    .build()
+            )
+
+            // Repeating request uses TEMPLATE_MANUAL and invokes repeatingCallback even though
+            // ImageCapture (at index 0) is inactive during normal preview.
+            assertThat(harness.builtConfig.cameraGraphConfig.sessionTemplate)
+                .isEqualTo(RequestTemplate(TEMPLATE_MANUAL))
+            val repeatingRequestA = harness.submitRepeatingRequest(this)
+            assertThat(repeatingRequestA.template).isEqualTo(RequestTemplate(TEMPLATE_MANUAL))
+            assertThat(
+                    repeatingRequestA.parameters[CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION]
+                )
+                .isEqualTo(2)
+            assertThat(repeatingRequestA.parameters[CaptureRequest.CONTROL_AWB_LOCK])
+                .isEqualTo(true)
+            dispatchSequenceCompleted(repeatingRequestA, this)
+            assertThat(indexZeroRepeatingCallbackCount).isEqualTo(1)
+
+            // One-shot still capture preserves TEMPLATE_STILL_CAPTURE, inherits session repeating
+            // captureRequest keys with still-capture override precedence, and does not invoke
+            // repeatingCallback.
+            val (stillConfigA, stillRequestA) = harness.submitStillCapture(imageCaptureFirst, this)
+            assertThat(stillConfigA.templateType).isEqualTo(TEMPLATE_STILL_CAPTURE)
+            assertThat(stillRequestA.template).isEqualTo(RequestTemplate(TEMPLATE_STILL_CAPTURE))
+            assertThat(stillRequestA.parameters[CaptureRequest.CONTROL_AWB_LOCK]).isEqualTo(true)
+            assertThat(stillRequestA.parameters[CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION])
+                .isEqualTo(-2)
+            dispatchSequenceCompleted(stillRequestA, this)
+            assertThat(indexZeroRepeatingCallbackCount).isEqualTo(1)
+            harness.unbindAll()
+
+            // Subcase B: ImageCapture alongside StreamSharing(Preview, VideoCapture).
+            val sharedPreview = createBoundPreview()
+            val sharedVideo = createTestVideoUseCase()
+            val sharedImageCapture = ImageCapture.Builder().build()
+            var sharedRepeatingCallbackCount = 0
+            val sharedRepeatingCallback =
+                object : CameraCaptureSession.CaptureCallback() {
+                    override fun onCaptureSequenceCompleted(
+                        session: CameraCaptureSession,
+                        sequenceId: Int,
+                        frameNumber: Long,
+                    ) {
+                        sharedRepeatingCallbackCount++
+                    }
+                }
+
+            harness.bindSessionConfig(
+                androidx.camera.core.SessionConfig.Builder(
+                        sharedPreview,
+                        sharedVideo,
+                        sharedImageCapture,
+                    )
+                    .camera2Interop {
+                        repeatingCaptureRequestTemplate = TEMPLATE_MANUAL
+                        captureRequest[CaptureRequest.CONTROL_AWB_LOCK] = true
+                        setRepeatingCaptureCallback(
+                            CameraXExecutors.directExecutor(),
+                            sharedRepeatingCallback,
+                        )
+                    }
+                    .build()
+            )
+            assertThat(
+                    harness.cameraUseCaseAdapter.cameraUseCases.filterIsInstance<StreamSharing>()
+                )
+                .hasSize(1)
+
+            val repeatingRequestB = harness.submitRepeatingRequest(this)
+            assertThat(repeatingRequestB.template).isEqualTo(RequestTemplate(TEMPLATE_MANUAL))
+            dispatchSequenceCompleted(repeatingRequestB, this)
+            assertThat(sharedRepeatingCallbackCount).isEqualTo(1)
+
+            val (stillConfigB, stillRequestB) = harness.submitStillCapture(sharedImageCapture, this)
+            assertThat(stillConfigB.templateType).isEqualTo(TEMPLATE_STILL_CAPTURE)
+            assertThat(stillRequestB.template).isEqualTo(RequestTemplate(TEMPLATE_STILL_CAPTURE))
+            assertThat(stillRequestB.parameters[CaptureRequest.CONTROL_AWB_LOCK]).isEqualTo(true)
+            dispatchSequenceCompleted(stillRequestB, this)
+            assertThat(sharedRepeatingCallbackCount).isEqualTo(1)
+        }
+
+    private inner class SessionInteropEndToEndHarness(
+        val useCaseManager: UseCaseManager,
+        val cameraUseCaseAdapter: androidx.camera.core.internal.CameraUseCaseAdapter,
+        private val createdBuilders: List<FakeUseCaseCameraComponentBuilder>,
+    ) {
+        val builtConfig: UseCaseCameraConfig
+            get() = checkNotNull(createdBuilders.last().lastBuiltConfig)
+
+        private var fakeCameraGraph: FakeCameraGraph? = null
+        private var requestControl: UseCaseCameraRequestControlImpl? = null
+        private val submittedStillRequests = mutableListOf<Request>()
+        val state3AControl =
+            State3AControl(FakeCameraProperties(), NoOpAutoFlashAEModeDisabler, useCaseThreads)
+
+        fun bindSessionConfig(sessionConfig: androidx.camera.core.SessionConfig) {
+            cameraUseCaseAdapter.setSessionInteropConfig(sessionConfig.interopConfig)
+            cameraUseCaseAdapter.addUseCases(sessionConfig.useCases)
+            ShadowLooper.idleMainLooper()
+        }
+
+        fun unbindAll() {
+            state3AControl.reset()
+            requestControl?.close()
+            requestControl = null
+            fakeCameraGraph = null
+            cameraUseCaseAdapter.removeAllUseCases()
+            ShadowLooper.idleMainLooper()
+        }
+
+        private fun ensureRequestControl(): Pair<FakeCameraGraph, UseCaseCameraRequestControlImpl> {
+            val existingGraph = fakeCameraGraph
+            val existingControl = requestControl
+            if (existingGraph != null && existingControl != null) {
+                return existingGraph to existingControl
+            }
+            val graph = FakeCameraGraph()
+            val stateAdapter = CameraStateAdapter(CameraSessionLifecycleAdapter())
+            val sessionConfigAdapter = builtConfig.provideSessionConfigAdapter()
+            val surfaceToStreamMap =
+                buildMap<DeferrableSurface, StreamId> {
+                    var index = 0
+                    for (useCase in cameraUseCaseAdapter.cameraUseCases) {
+                        for (surface in useCase.sessionConfig.surfaces) {
+                            put(surface, StreamId(index++))
+                        }
+                    }
+                }
+            val context =
+                UseCaseCameraContext(
+                    cameraGraphProvider = { graph },
+                    cameraStateAdapter = stateAdapter,
+                    graphStateToCameraStateAdapter = GraphStateToCameraStateAdapter(stateAdapter),
+                    streamConfigMapProvider = { emptyMap() },
+                    defaultSurfaceToStreamMap = surfaceToStreamMap,
+                )
+            val captureConfigAdapter =
+                CaptureConfigAdapter(
+                    cameraProperties = FakeCameraProperties(),
+                    useCaseCameraContext = context,
+                    zslControl = ZslControlNoOpImpl(),
+                    threads = useCaseThreads,
+                    templateParamsOverride = NoOpTemplateParamsOverride,
+                )
+            val capturePipeline =
+                object : CapturePipeline by FakeCapturePipeline() {
+                    override suspend fun submitStillCaptures(
+                        configs: List<CaptureConfig>,
+                        requestTemplate: RequestTemplate,
+                        sessionConfigOptions: androidx.camera.core.impl.Config,
+                        captureMode: Int,
+                        flashType: Int,
+                        flashMode: Int,
+                    ): List<Deferred<Void?>> {
+                        configs.forEach { config ->
+                            submittedStillRequests.add(
+                                captureConfigAdapter.mapToRequest(
+                                    captureConfig = config,
+                                    requestTemplate = requestTemplate,
+                                    sessionConfigOptions = sessionConfigOptions,
+                                )
+                            )
+                        }
+                        return configs.map {
+                            CompletableDeferred<Void?>().apply { complete(null) }
+                        }
+                    }
+                }
+            val control =
+                UseCaseCameraRequestControlImpl(
+                    capturePipelineProvider = { capturePipeline },
+                    state3AControlProvider = { state3AControl },
+                    useCaseCameraStateProvider = {
+                        UseCaseCameraState(
+                            useCaseCameraContext = context,
+                            templateParamsOverride = NoOpTemplateParamsOverride,
+                        )
+                    },
+                    useCaseCameraContext = context,
+                    useCaseSurfaceManagerProvider = {
+                        FakeUseCaseSurfaceManager(threads = useCaseThreads)
+                    },
+                    threads = useCaseThreads,
+                    sessionConfigAdapterProvider = { sessionConfigAdapter },
+                )
+            state3AControl.requestControl = control
+            fakeCameraGraph = graph
+            requestControl = control
+            return graph to control
+        }
+
+        suspend fun submitRepeatingRequest(testScope: TestScope): Request {
+            val (graph, control) = ensureRequestControl()
+            val deferred =
+                control.updateRepeatingRequestAsync(
+                    isPrimary = true,
+                    runningUseCases = useCaseManager.getRunningUseCasesForTest(),
+                )
+            testScope.testScheduler.advanceUntilIdle()
+            deferred.await()
+            return graph.fakeCameraGraphSession.repeatingRequests.last()
+        }
+
+        suspend fun submitStillCapture(
+            imageCapture: ImageCapture,
+            testScope: TestScope,
+        ): Pair<CaptureConfig, Request> {
+            val (_, control) = ensureRequestControl()
+            val stillConfig =
+                CaptureConfig.Builder.createFrom(imageCapture.currentConfig)
+                    .apply { addSurface(imageCapture.sessionConfig.surfaces.single()) }
+                    .build()
+            val deferreds =
+                control.issueSingleCaptureAsync(
+                    captureSequence = listOf(stillConfig),
+                    captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+                    flashType = ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
+                    flashMode = ImageCapture.FLASH_MODE_OFF,
+                )
+            testScope.testScheduler.advanceUntilIdle()
+            deferreds.forEach { it.await() }
+            return stillConfig to submittedStillRequests.last()
+        }
+    }
+
+    private fun createSessionInteropEndToEndHarness(): SessionInteropEndToEndHarness {
+        val surfaceProcessor = FakeSurfaceProcessorInternal(CameraXExecutors.mainThreadExecutor())
+        surfaceProcessorsToCleanUp.add(surfaceProcessor)
+        DefaultSurfaceProcessor.Factory.setSupplier { surfaceProcessor }
+
+        val createdBuilders = mutableListOf<FakeUseCaseCameraComponentBuilder>()
+        val useCaseManager =
+            createUseCaseManager(
+                useCaseCameraComponentBuilderProvider =
+                    Provider {
+                        FakeUseCaseCameraComponentBuilder().also { createdBuilders.add(it) }
+                    }
+            )
+        val useCaseConfigFactory = CameraUseCaseAdapter(ApplicationProvider.getApplicationContext())
+        val streamSpecsCalculator =
+            StreamSpecsCalculatorImpl(useCaseConfigFactory, FakeCameraDeviceSurfaceManager())
+        val fakeCameraInfo = FakeCameraInfoInternal("0", streamSpecsCalculator)
+        val cameraInternalAdapter =
+            CameraInternalAdapter(
+                config = CameraConfig(CameraId("0")),
+                useCaseManager = useCaseManager,
+                cameraInfo = fakeCameraInfo,
+                cameraController = FakeCameraControl(),
+                threads = useCaseThreads,
+                cameraStateAdapter = CameraStateAdapter(CameraSessionLifecycleAdapter()),
+            )
+        val cameraUseCaseAdapter =
+            androidx.camera.core.internal.CameraUseCaseAdapter(
+                cameraInternalAdapter,
+                null,
+                AdapterCameraInfo(
+                    cameraInternalAdapter.cameraInfoInternal,
+                    CameraConfigs.defaultConfig(),
+                ),
+                null,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                FakeCameraCoordinator(),
+                streamSpecsCalculator,
+                useCaseConfigFactory,
+            )
+        adaptersToDetach.add(cameraUseCaseAdapter)
+        return SessionInteropEndToEndHarness(
+            useCaseManager = useCaseManager,
+            cameraUseCaseAdapter = cameraUseCaseAdapter,
+            createdBuilders = createdBuilders,
+        )
+    }
+
+    private fun createBoundPreview(): Preview =
+        Preview.Builder().build().apply {
+            setSurfaceProvider(
+                CameraXExecutors.directExecutor(),
+                SurfaceTextureProvider.createSurfaceTextureProvider(),
+            )
+        }
+
+    private fun createTestVideoUseCase(): FakeUseCase {
+        val config =
+            FakeUseCaseConfig.Builder()
+                .setCaptureType(UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE)
+                .setSurfaceOccupancyPriority(0)
+                .useCaseConfig
+        return object : FakeUseCase(config, UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE) {
+                override fun getUseCaseConfigBuilder(
+                    config: androidx.camera.core.impl.Config
+                ): UseCaseConfig.Builder<*, *, *> =
+                    FakeUseCaseConfig.Builder(config)
+                        .setCaptureType(UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE)
+                        .setSessionOptionUnpacker(
+                            CameraUseCaseAdapter.DefaultSessionOptionsUnpacker
+                        )
+                        .setCaptureOptionUnpacker(
+                            CameraUseCaseAdapter.DefaultCaptureOptionsUnpacker.INSTANCE
+                        )
+
+                override fun onSuggestedStreamSpecUpdated(
+                    primaryStreamSpec: StreamSpec,
+                    secondaryStreamSpec: StreamSpec?,
+                ): StreamSpec {
+                    val surfaceTexture = SurfaceTexture(0)
+                    val rawSurface = Surface(surfaceTexture)
+                    val surface =
+                        ImmediateSurface(
+                                rawSurface,
+                                primaryStreamSpec.resolution,
+                                ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                            )
+                            .apply {
+                                setContainerClass(MediaCodec::class.java)
+                                terminationFuture.addListener(
+                                    {
+                                        rawSurface.release()
+                                        surfaceTexture.release()
+                                    },
+                                    CameraXExecutors.directExecutor(),
+                                )
+                            }
+                            .also { testSurfacesToClose.add(it) }
+                    val sessionConfig =
+                        SessionConfig.Builder.createFrom(
+                                currentConfig,
+                                primaryStreamSpec.resolution,
+                            )
+                            .addSurface(surface, primaryStreamSpec.dynamicRange)
+                            .build()
+                    updateSessionConfigForTesting(sessionConfig)
+                    notifyActiveForTesting()
+                    return primaryStreamSpec
+                }
+            }
+            .apply { supportedEffectTargets = setOf(CameraEffect.VIDEO_CAPTURE) }
+    }
+
+    private fun dispatchSequenceCompleted(request: Request, testScope: TestScope) {
+        val mockSession = mock(CameraCaptureSession::class.java)
+        val mockCaptureRequest = mock(CaptureRequest::class.java)
+        val delegate = FakeRequestMetadata(request = request)
+        val metadata =
+            object : RequestMetadata by delegate {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : Any> unwrapAs(type: Class<T>): T? =
+                    when (type) {
+                        CameraCaptureSession::class.java -> mockSession as T
+                        CaptureRequest::class.java -> mockCaptureRequest as T
+                        else -> delegate.unwrapAs(type)
+                    }
+            }
+        request.listeners.forEach { listener ->
+            listener.onRequestSequenceCompleted(metadata, CameraFrameNumber(1L))
+        }
+        testScope.testScheduler.advanceUntilIdle()
     }
 }

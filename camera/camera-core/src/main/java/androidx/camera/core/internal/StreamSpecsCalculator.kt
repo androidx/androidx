@@ -227,7 +227,6 @@ public class StreamSpecsCalculatorImpl(
                     useCaseConfigFactory,
                     sessionType,
                     targetFrameRate,
-                    null,
                     effectResolutionValidators,
                 ),
                 isFeatureComboInvocation,

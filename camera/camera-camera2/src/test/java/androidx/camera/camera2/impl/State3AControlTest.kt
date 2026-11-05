@@ -125,6 +125,42 @@ class State3AControlTest {
     }
 
     @Test
+    fun setTemplateAsync_recordTemplate_configuresContinuousVideoAfMode() = testScope.runTest {
+        // Arrange
+        fakeRequestControl.addParameterCalls.clear()
+
+        // Act
+        val signal = state3AControl.setTemplateAsync(CameraDevice.TEMPLATE_RECORD)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Assert
+        assertThat(signal.isCompleted).isTrue()
+        assertThat(fakeRequestControl.addParameterCalls).isNotEmpty()
+        val lastParams = fakeRequestControl.addParameterCalls.last()
+        assertThat(lastParams[CaptureRequest.CONTROL_AF_MODE])
+            .isEqualTo(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO)
+    }
+
+    @Test
+    fun setTemplateAsync_previewTemplate_configuresContinuousPictureAfMode() = testScope.runTest {
+        // Arrange: transition from RECORD to ensure an actual template change occurs
+        state3AControl.setTemplateAsync(CameraDevice.TEMPLATE_RECORD)
+        testDispatcher.scheduler.advanceUntilIdle()
+        fakeRequestControl.addParameterCalls.clear()
+
+        // Act
+        val signal = state3AControl.setTemplateAsync(CameraDevice.TEMPLATE_PREVIEW)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Assert
+        assertThat(signal.isCompleted).isTrue()
+        assertThat(fakeRequestControl.addParameterCalls).isNotEmpty()
+        val lastParams = fakeRequestControl.addParameterCalls.last()
+        assertThat(lastParams[CaptureRequest.CONTROL_AF_MODE])
+            .isEqualTo(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
+    }
+
+    @Test
     fun reset_completesPendingSignals() = testScope.runTest {
         // Arrange
         val signal1 = state3AControl.setFlashModeAsync(ImageCapture.FLASH_MODE_ON)

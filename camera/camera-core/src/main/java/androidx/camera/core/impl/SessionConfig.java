@@ -865,6 +865,16 @@ public final class SessionConfig {
         }
 
         /**
+         * Overrides the template type of the combined {@link SessionConfig}.
+         */
+        public void setTemplateType(int templateType) {
+            if (templateType != CaptureConfig.TEMPLATE_TYPE_NONE) {
+                mTemplateSet = true;
+                mCaptureConfigBuilder.setTemplateType(templateType);
+            }
+        }
+
+        /**
          * Add the SessionConfig to the set of SessionConfig that have been aggregated by the
          * ValidatingBuilder
          */

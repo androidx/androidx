@@ -24,6 +24,7 @@ import androidx.camera.camera2.adapter.CameraSessionLifecycleAdapter
 import androidx.camera.camera2.adapter.CameraStateAdapter
 import androidx.camera.camera2.adapter.GraphStateToCameraStateAdapter
 import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.compat.workaround.NoOpAutoFlashAEModeDisabler
 import androidx.camera.camera2.compat.workaround.NoOpTemplateParamsOverride
 import androidx.camera.camera2.config.UseCaseCameraContext
 import androidx.camera.camera2.interop.setCamera2CaptureRequestConfigurator
@@ -42,6 +43,7 @@ import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.testing.FakeCameraGraph
 import androidx.camera.camera2.testing.FakeCameraGraphSession
+import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.camera2.testing.FakeCapturePipeline
 import androidx.camera.camera2.testing.FakeSurface
 import androidx.camera.camera2.testing.FakeUseCaseSurfaceManager
@@ -320,6 +322,37 @@ class UseCaseCameraRequestControlTest {
         // Assert.
         val lastRequest = fakeCameraGraph.fakeCameraGraphSession.repeatingRequests.last()
         assertThat(lastRequest.template!!.value).isEqualTo(template)
+    }
+
+    @Test
+    fun sessionConfigTemplate_propagatesToState3AControl(): Unit = runBlocking {
+        // Arrange
+        val state3AControl =
+            State3AControl(FakeCameraProperties(), NoOpAutoFlashAEModeDisabler, useCaseThreads)
+        val controlWith3A =
+            UseCaseCameraRequestControlImpl(
+                capturePipelineProvider = { FakeCapturePipeline() },
+                state3AControlProvider = { state3AControl },
+                useCaseCameraStateProvider = { fakeUseCaseCameraState },
+                useCaseCameraContext = fakeUseCaseCameraContext,
+                useCaseSurfaceManagerProvider = {
+                    FakeUseCaseSurfaceManager(threads = useCaseThreads)
+                },
+                threads = useCaseThreads,
+            )
+        state3AControl.requestControl = controlWith3A
+
+        val sessionConfigBuilder =
+            SessionConfig.Builder().also {
+                it.setTemplateType(CameraDevice.TEMPLATE_RECORD)
+                it.addSurface(surface)
+            }
+
+        // Act
+        controlWith3A.setSessionConfigAsync(sessionConfigBuilder.build()).await()
+
+        // Assert
+        assertThat(state3AControl.template).isEqualTo(CameraDevice.TEMPLATE_RECORD)
     }
 
     @Test

@@ -175,6 +175,13 @@ public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
     void detachUseCases(@NonNull Collection<UseCase> useCases);
 
     /**
+     * Sets the session-level interop configuration for the bound
+     * {@link androidx.camera.core.SessionConfig}, or {@code null} to clear it.
+     */
+    default void setSessionInteropConfig(@Nullable Config sessionInteropConfig) {
+    }
+
+    /**
      * Signals that the camera has been physically removed and is no longer available.
      *
      * <p>This method is invoked by core CameraX components, such as the {@link CameraRepository},

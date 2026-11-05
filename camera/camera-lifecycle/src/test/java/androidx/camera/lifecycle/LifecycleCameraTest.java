@@ -925,4 +925,131 @@ public class LifecycleCameraTest {
         shadowOf(Looper.getMainLooper()).idle();
         assertThat(mFakeUseCase.getLastRotation()).isEqualTo(INVALID_ROTATION);
     }
+
+    @Test
+    public void onDestroy_clearsBoundSessionConfig() throws CameraUseCaseAdapter.CameraException {
+        mLifecycleCamera = new LifecycleCamera(mLifecycleOwner, mCameraUseCaseAdapter,
+                mRotationProvider);
+        mLifecycleOwner.start();
+        SessionConfig sessionConfig = createSessionConfig(mFakeUseCase);
+        mLifecycleCamera.bind(sessionConfig);
+        assertThat(mLifecycleCamera.isBound(sessionConfig)).isTrue();
+
+        mLifecycleOwner.stop();
+        mLifecycleOwner.destroy();
+
+        assertThat(mLifecycleCamera.isBound(sessionConfig)).isFalse();
+        assertThat(mLifecycleCamera.getBoundSessionConfig()).isNull();
+    }
+
+    @Test
+    public void bindSessionConfigFailure_clearsBoundSessionConfigAndSessionInteropConfig() {
+        FakeCameraDeviceSurfaceManager restrictiveSurfaceManager =
+                new FakeCameraDeviceSurfaceManager();
+        restrictiveSurfaceManager.setValidSurfaceCombos(Collections.emptySet());
+        CameraUseCaseAdapter failingAdapter = new CameraUseCaseAdapter(
+                mFakeCamera,
+                mCameraCoordinator,
+                new StreamSpecsCalculatorImpl(new FakeUseCaseConfigFactory(),
+                        restrictiveSurfaceManager),
+                new FakeUseCaseConfigFactory());
+        mLifecycleCamera = new LifecycleCamera(mLifecycleOwner, failingAdapter, mRotationProvider);
+        mLifecycleOwner.start();
+
+        Config.Option<Integer> testOption = Config.Option.create("camera.test.interop",
+                Integer.class);
+        SessionConfig sessionConfig = new SessionConfig.Builder(mFakeUseCase)
+                .setInterop(builder -> builder.getInteropMutableConfig().insertOption(testOption,
+                        42))
+                .build();
+
+        assertThrows(CameraUseCaseAdapter.CameraException.class,
+                () -> mLifecycleCamera.bind(sessionConfig));
+
+        assertThat(mLifecycleCamera.isBound(sessionConfig)).isFalse();
+        assertThat(mLifecycleCamera.getBoundSessionConfig()).isNull();
+        assertThat(mFakeCamera.getSessionInteropConfig()).isNull();
+    }
+
+    @Test
+    public void twoLifecycleCamerasSharingCamera_isolateAndRestoreSessionInteropConfig()
+            throws CameraUseCaseAdapter.CameraException {
+        mLifecycleCamera = new LifecycleCamera(mLifecycleOwner, mCameraUseCaseAdapter,
+                mRotationProvider);
+        mLifecycleOwner.start();
+
+        Config.Option<Integer> testOption = Config.Option.create("camera.test.interop",
+                Integer.class);
+        SessionConfig sessionConfig1 = new SessionConfig.Builder(mFakeUseCase)
+                .setInterop(builder -> builder.getInteropMutableConfig().insertOption(testOption,
+                        1))
+                .build();
+        mLifecycleCamera.bind(sessionConfig1);
+        assertThat(mFakeCamera.getSessionInteropConfig())
+                .isEqualTo(sessionConfig1.getInteropConfig());
+
+        // Second LifecycleOwner is already STARTED when its LifecycleCamera is created and bound,
+        // matching LifecycleCameraRepository.bindToLifecycleCamera where bind() runs before the
+        // previous active LifecycleCamera is suspended.
+        FakeLifecycleOwner lifecycleOwner2 = new FakeLifecycleOwner();
+        lifecycleOwner2.start();
+        CameraUseCaseAdapter adapter2 = new CameraUseCaseAdapter(
+                mFakeCamera,
+                mCameraCoordinator,
+                new StreamSpecsCalculatorImpl(new FakeUseCaseConfigFactory(),
+                        new FakeCameraDeviceSurfaceManager()),
+                new FakeUseCaseConfigFactory());
+        LifecycleCamera lifecycleCamera2 = new LifecycleCamera(
+                lifecycleOwner2, adapter2, mRotationProvider);
+        assertThat(mFakeCamera.getSessionInteropConfig())
+                .isEqualTo(sessionConfig1.getInteropConfig());
+
+        SessionConfig sessionConfig2 = new SessionConfig.Builder(mFakeUseCase2)
+                .setInterop(builder -> builder.getInteropMutableConfig().insertOption(testOption,
+                        2))
+                .build();
+        lifecycleCamera2.bind(sessionConfig2);
+        mLifecycleCamera.suspend();
+        assertThat(mFakeCamera.getSessionInteropConfig())
+                .isEqualTo(sessionConfig2.getInteropConfig());
+
+        // Stopping the second LifecycleOwner and unsuspending the first restores sessionConfig1's
+        // interop config.
+        lifecycleOwner2.stop();
+        assertThat(mFakeCamera.getSessionInteropConfig()).isNull();
+        mLifecycleCamera.unsuspend();
+        assertThat(mFakeCamera.getSessionInteropConfig())
+                .isEqualTo(sessionConfig1.getInteropConfig());
+    }
+
+    @Test
+    public void bindSessionConfig_whenFeatureGroupResolutionFails_doesNotMutateBoundOrInteropState()
+            throws CameraUseCaseAdapter.CameraException {
+        mLifecycleCamera = new LifecycleCamera(mLifecycleOwner, mCameraUseCaseAdapter,
+                mRotationProvider);
+        mLifecycleOwner.start();
+
+        Config.Option<Integer> testOption = Config.Option.create("camera.test.interop",
+                Integer.class);
+        Preview preview = new Preview.Builder().build();
+        // IMAGE_ULTRA_HDR requires ImageCapture, so resolveFeatureGroup throws
+        // IllegalArgumentException before UseCases are attached.
+        SessionConfig failingConfig = new SessionConfig.Builder(Collections.singletonList(preview))
+                .setRequiredFeatureGroup(IMAGE_ULTRA_HDR)
+                .setInterop(builder -> builder.getInteropMutableConfig().insertOption(testOption,
+                        99))
+                .build();
+
+        Threads.runOnMainSync(() -> assertThrows(IllegalArgumentException.class,
+                () -> mLifecycleCamera.bind(failingConfig)));
+        assertThat(mLifecycleCamera.isBound(failingConfig)).isFalse();
+        assertThat(mLifecycleCamera.getBoundSessionConfig()).isNull();
+        assertThat(mFakeCamera.getSessionInteropConfig()).isNull();
+
+        // Fallback legacy bind succeeds without requiring unbind first, and does not inherit the
+        // failed SessionConfig's interop options.
+        mLifecycleCamera.bind(createLegacySessonConfig(mFakeUseCase));
+        assertThat(mFakeCamera.getAttachedUseCases()).containsExactly(mFakeUseCase);
+        assertThat(mFakeCamera.getSessionInteropConfig().listOptions()).isEmpty();
+    }
 }

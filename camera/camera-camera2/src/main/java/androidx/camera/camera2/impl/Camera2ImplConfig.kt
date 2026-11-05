@@ -467,6 +467,9 @@ internal fun CaptureRequest.Key<*>.createSessionParameterOption(): Config.Option
 public fun Config.toParameters(): Map<CaptureRequest.Key<*>, Any> {
     val parameters = mutableMapOf<CaptureRequest.Key<*>, Any>()
     for (configOption in listOptions()) {
+        if (configOption.id.startsWith(Camera2ImplConfig.SESSION_PARAMETER_ID_STEM)) {
+            continue
+        }
         val requestKey = configOption.token as? CaptureRequest.Key<*> ?: continue
         val value = retrieveOption(configOption) ?: continue
         parameters[requestKey] = value

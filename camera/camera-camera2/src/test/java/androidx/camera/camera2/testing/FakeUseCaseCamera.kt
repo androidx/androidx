@@ -87,6 +87,7 @@ class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
             cameraMetadata = cameraMetadata,
         )
 
+    var lastBuiltConfig: UseCaseCameraConfig? = null
     private var config: UseCaseCameraConfig =
         UseCaseCameraConfig.create(
             cameraGraphConfigProvider = configProvider,
@@ -104,6 +105,7 @@ class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
 
     override fun build(): UseCaseCameraComponent {
         buildInvocationCount++
+        lastBuiltConfig = config
         return FakeUseCaseCameraComponent()
     }
 }

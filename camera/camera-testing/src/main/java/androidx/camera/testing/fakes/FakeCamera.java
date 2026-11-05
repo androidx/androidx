@@ -30,6 +30,7 @@ import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.DeferrableSurfaces;
 import androidx.camera.core.impl.LiveDataObservable;
@@ -73,6 +74,7 @@ public class FakeCamera implements CameraInternal {
     private final String mCameraId;
     private final UseCaseAttachState mUseCaseAttachState;
     private final Set<UseCase> mAttachedUseCases = new HashSet<>();
+    private @Nullable Config mSessionInteropConfig = null;
     private State mState = State.CLOSED;
     private int mAvailableCameraCount = 1;
     private final List<UseCase> mUseCaseActiveHistory = new ArrayList<>();
@@ -305,6 +307,7 @@ public class FakeCamera implements CameraInternal {
         }
 
         if (mUseCaseAttachState.getAttachedSessionConfigs().isEmpty()) {
+            mSessionInteropConfig = null;
             close();
             return;
         }
@@ -321,6 +324,21 @@ public class FakeCamera implements CameraInternal {
      */
     public @NonNull Set<UseCase> getAttachedUseCases() {
         return mAttachedUseCases;
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Override
+    public void setSessionInteropConfig(@Nullable Config sessionInteropConfig) {
+        mSessionInteropConfig = sessionInteropConfig;
+    }
+
+    /**
+     * Gets the session interop config set via {@link #setSessionInteropConfig}, or {@code null} if
+     * none is set.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @Nullable Config getSessionInteropConfig() {
+        return mSessionInteropConfig;
     }
 
     // Returns fixed CameraControlInternal instance in order to verify the instance is correctly

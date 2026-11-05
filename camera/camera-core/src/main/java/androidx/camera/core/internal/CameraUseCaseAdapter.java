@@ -306,7 +306,7 @@ public final class CameraUseCaseAdapter implements Camera {
     }
 
     /**
-     * Sets the session interop config that will be merged into the {@link UseCase} configs.
+     * Sets the session interop config that will be applied to the camera session.
      */
     public void setSessionInteropConfig(@Nullable Config config) {
         synchronized (mLock) {
@@ -555,7 +555,7 @@ public final class CameraUseCaseAdapter implements Camera {
                 resolveEffectResolutionValidators(mEffects, cameraUseCases, appUseCases);
         Map<UseCase, ConfigPair> configs = getConfigs(cameraUseCasesToAttach,
                 mCameraConfig.getUseCaseConfigFactory(), mUseCaseConfigFactory,
-                mSessionType, mFrameRate, mSessionInteropConfig, effectResolutionValidators);
+                mSessionType, mFrameRate, effectResolutionValidators);
         StreamSpecQueryResult primaryStreamSpecResult;
         StreamSpecQueryResult secondaryStreamSpecResult = null;
 
@@ -648,6 +648,14 @@ public final class CameraUseCaseAdapter implements Camera {
                     .detachUseCases(info.getCameraUseCasesToDetach());
         }
 
+        boolean hadAppUseCases = !mAppUseCases.isEmpty();
+        if (info.getAppUseCases().isEmpty()) {
+            mSessionInteropConfig = null;
+            if (mAttached && hadAppUseCases) {
+                syncSessionInteropConfigToCamera();
+            }
+        }
+
         // Update StreamSpec for UseCases to keep.
         if (info.getCameraUseCasesToDetach().isEmpty()) {
             // Only do this if we are not removing UseCase, because updating SessionConfig
@@ -697,6 +705,9 @@ public final class CameraUseCaseAdapter implements Camera {
             }
         }
         if (mAttached) {
+            if (!info.getCameraUseCases().isEmpty()) {
+                syncSessionInteropConfigToCamera();
+            }
             mCameraInternal.attachUseCases(info.getCameraUseCasesToAttach());
             if (mSecondaryCameraInternal != null) {
                 requireNonNull(mSecondaryCameraInternal)
@@ -1040,6 +1051,7 @@ public final class CameraUseCaseAdapter implements Camera {
                     if (mSecondaryCameraInternal != null) {
                         mSecondaryCameraInternal.setExtendedConfig(mCameraConfig);
                     }
+                    syncSessionInteropConfigToCamera();
                 }
                 mCameraInternal.attachUseCases(mCameraUseCases);
                 if (mSecondaryCameraInternal != null) {
@@ -1281,10 +1293,8 @@ public final class CameraUseCaseAdapter implements Camera {
             @NonNull UseCaseConfigFactory cameraFactory,
             int sessionType,
             @NonNull Range<Integer> targetFrameRate,
-            @Nullable Config sessionInteropConfig,
             @NonNull Map<UseCase, Predicate<Size>> effectResolutionValidators) {
         Map<UseCase, ConfigPair> configs = new HashMap<>();
-        boolean isFirst = true;
 
         for (UseCase useCase : useCases) {
             UseCaseConfig<?> extendedConfig;
@@ -1295,15 +1305,8 @@ public final class CameraUseCaseAdapter implements Camera {
                 extendedConfig = useCase.getDefaultConfig(false, extendedFactory);
             }
             UseCaseConfig<?> cameraConfig = useCase.getDefaultConfig(true, cameraFactory);
-
-            // Ensure the public SessionConfig interop config is added only
-            // in the first of the UseCase's config to avoid duplicated settings.
-            Config interopConfigToAttach = isFirst ? sessionInteropConfig : null;
-            isFirst = false;
-
             cameraConfig = attachUseCaseSharedConfigs(useCase, cameraConfig, sessionType,
-                    targetFrameRate, interopConfigToAttach,
-                    effectResolutionValidators.get(useCase));
+                    targetFrameRate, effectResolutionValidators.get(useCase));
             configs.put(useCase, new ConfigPair(extendedConfig, cameraConfig));
         }
         return configs;
@@ -1315,7 +1318,6 @@ public final class CameraUseCaseAdapter implements Camera {
             @Nullable UseCaseConfig<?> useCaseConfig,
             int sessionType,
             @NonNull Range<Integer> targetFrameRate,
-            @Nullable Config sessionInteropConfig,
             @Nullable Predicate<Size> effectResolutionValidator) {
         MutableOptionsBundle mutableConfig = useCaseConfig != null
                 ? MutableOptionsBundle.from(useCaseConfig) : MutableOptionsBundle.create();
@@ -1331,15 +1333,6 @@ public final class CameraUseCaseAdapter implements Camera {
 
             // If the frame rate is from SessionConfig, enable strict frame rate.
             mutableConfig.insertOption(OPTION_IS_STRICT_FRAME_RATE_REQUIRED, true);
-        }
-
-        if (sessionInteropConfig != null) {
-            for (Config.Option<?> option : sessionInteropConfig.listOptions()) {
-                @SuppressWarnings("unchecked")
-                Config.Option<Object> opt = (Config.Option<Object>) option;
-                mutableConfig.insertOption(opt, sessionInteropConfig.getOptionPriority(opt),
-                        sessionInteropConfig.retrieveOption(opt));
-            }
         }
 
         if (effectResolutionValidator != null) {
@@ -1640,5 +1633,13 @@ public final class CameraUseCaseAdapter implements Camera {
 
     private ImageCapture createExtraImageCapture() {
         return new ImageCapture.Builder().setTargetName("ImageCapture-Extra").build();
+    }
+
+    @GuardedBy("mLock")
+    private void syncSessionInteropConfigToCamera() {
+        mCameraInternal.setSessionInteropConfig(mSessionInteropConfig);
+        if (mSecondaryCameraInternal != null) {
+            mSecondaryCameraInternal.setSessionInteropConfig(mSessionInteropConfig);
+        }
     }
 }

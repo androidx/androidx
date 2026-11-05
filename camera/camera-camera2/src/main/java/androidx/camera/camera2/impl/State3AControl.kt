@@ -19,14 +19,11 @@ package androidx.camera.camera2.impl
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import androidx.annotation.GuardedBy
-import androidx.camera.camera2.adapter.SessionConfigAdapter
 import androidx.camera.camera2.compat.workaround.AutoFlashAEModeDisabler
 import androidx.camera.camera2.config.CameraScope
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.core.CameraControl
 import androidx.camera.core.ImageCapture
-import androidx.camera.core.UseCase
-import androidx.camera.core.impl.CaptureConfig
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoSet
@@ -43,7 +40,7 @@ constructor(
     public val cameraProperties: CameraProperties,
     private val aeModeDisabler: AutoFlashAEModeDisabler,
     private val threads: UseCaseThreads,
-) : UseCaseCameraControl, UseCaseManager.RunningUseCasesChangeListener {
+) : UseCaseCameraControl {
     private val lock = Any()
 
     private var _requestControl: UseCaseCameraRequestControl? = null
@@ -97,9 +94,12 @@ constructor(
         return update()
     }
 
-    public fun setTemplateAsync(value: Int): Deferred<Unit> {
+    public fun setTemplateAsync(
+        value: Int,
+        session: CameraGraph.Session? = null,
+    ): Deferred<Unit> {
         synchronized(lock) { _template = value }
-        return update()
+        return update(session)
     }
 
     public fun setTryExternalFlashAeModeAsync(
@@ -147,42 +147,6 @@ constructor(
             _template = DEFAULT_REQUEST_TEMPLATE
         }
         update()
-    }
-
-    override fun onRunningUseCasesChanged(runningUseCases: Set<UseCase>) {
-        val useCasesSnapshot = runningUseCases.toSet()
-
-        threads.confineLaunch {
-            if (useCasesSnapshot.isEmpty()) return@confineLaunch
-
-            val newTemplate = calculateTemplateFromUseCases(useCasesSnapshot)
-
-            val changed =
-                synchronized(lock) {
-                    if (_template != newTemplate) {
-                        _template = newTemplate
-                        true
-                    } else {
-                        false
-                    }
-                }
-
-            if (changed) {
-                update()
-            }
-        }
-    }
-
-    /**
-     * Extracts the template type from a set of use cases. This method creates a
-     * SessionConfigAdapter which is expensive (~2-10ms).
-     */
-    private fun calculateTemplateFromUseCases(useCases: Set<UseCase>): Int {
-        return SessionConfigAdapter(useCases)
-            .getValidSessionConfigOrNull()
-            ?.repeatingCaptureConfig
-            ?.templateType
-            ?.takeIf { it != CaptureConfig.TEMPLATE_TYPE_NONE } ?: DEFAULT_REQUEST_TEMPLATE
     }
 
     /**

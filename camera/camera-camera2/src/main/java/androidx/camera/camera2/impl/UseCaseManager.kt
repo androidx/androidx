@@ -45,6 +45,7 @@ import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraMode
+import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.SessionConfig.ValidatingBuilder
@@ -135,6 +136,8 @@ constructor(
 
     @GuardedBy("lock")
     private val pendingUseCasesToNotifyCameraControlReady = mutableSetOf<UseCase>()
+
+    @GuardedBy("lock") private var sessionInteropConfig: Config? = null
 
     private val meteringRepeating =
         MeteringRepeating.Builder(cameraProperties, displayInfoManager).build()
@@ -235,6 +238,9 @@ constructor(
             // TODO: We might only want to tear down when the number of attached use cases goes to
             //  zero. If a single UseCase is removed, we could deactivate it?
             if (attachedUseCases.removeAll(useCases)) {
+                if (attachedUseCases.isEmpty()) {
+                    sessionInteropConfig = null
+                }
                 if (addOrRemoveRepeatingUseCase(getRunningUseCases())) {
                     return
                 }
@@ -300,6 +306,9 @@ constructor(
             activeResumeEnabled = enabled
             camera?.setActiveResumeMode(enabled)
         }
+
+    public fun setSessionInteropConfig(config: Config?): Unit =
+        synchronized(lock) { sessionInteropConfig = config }
 
     public suspend fun close() {
         val closingJobs =
@@ -397,7 +406,12 @@ constructor(
         }
         tryResumeUseCaseManager(
             createUseCaseCameraConfig(
-                sessionConfigAdapter = SessionConfigAdapter(useCases, isPrimary = isPrimary),
+                sessionConfigAdapter =
+                    SessionConfigAdapter(
+                        useCases,
+                        isPrimary = isPrimary,
+                        sessionInteropConfig = sessionInteropConfig,
+                    ),
                 extensionMode = extensionMode,
             )
         )
