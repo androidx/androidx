@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
 package androidx.wear.compose.remote.material3
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -56,7 +53,28 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.layout.ContentScale
 
-/** @sample androidx.wear.compose.remote.material3.samples.RemoteCardSample */
+/**
+ * Base level Wear Material 3 [RemoteCard] that offers a single slot to take any content.
+ *
+ * Is used as the container for more opinionated [RemoteCard] components that take specific content
+ * such as icons, images, titles, subtitles and labels.
+ *
+ * Example of a basic [RemoteCard]:
+ *
+ * @sample androidx.wear.compose.remote.material3.samples.RemoteCardSample
+ * @param onClick Will be called when the user clicks the card
+ * @param modifier Modifier to be applied to the card
+ * @param enabled Controls the enabled state of the card. When false, this component will not
+ *   respond to user input
+ * @param shape Defines the card's shape.
+ * @param colors [RemoteCardColors] that will be used to resolve the colors used for this card. See
+ *   [RemoteCardDefaults.cardColors].
+ * @param border A [RemoteBorderStroke] used for drawing the card's outline border, or `null` for no
+ *   border.
+ * @param contentPadding The spacing values to apply internally between the container and the
+ *   content
+ * @param content The main slot for the content of this card
+ */
 @RemoteComposable
 @Composable
 public fun RemoteCard(
@@ -82,7 +100,35 @@ public fun RemoteCard(
     }
 }
 
-/** @sample androidx.wear.compose.remote.material3.samples.RemoteCardWithImageSample */
+/**
+ * Wear Material 3 [RemoteCard] that offers a single slot to take any content, with a background
+ * image.
+ *
+ * An Image background is a means to reinforce the meaning of information in a Card, e.g. to help to
+ * contextualize the information. Cards should have a content color that contrasts with the
+ * background image and scrim. This [RemoteCard] takes [containerPainter] for the container image
+ * background to be drawn (the [RemoteCardColors] containerColor property is ignored). It is
+ * recommended to use [RemoteCardDefaults.containerPainter] to create the painter so that a scrim is
+ * drawn on top of the container image, ensuring that any content above the background is legible.
+ *
+ * Example of a [RemoteCard] with a background image painter:
+ *
+ * @sample androidx.wear.compose.remote.material3.samples.RemoteCardWithImageSample
+ * @param onClick Will be called when the user clicks the card
+ * @param containerPainter The [RemotePainter] to use to draw the container image of the
+ *   [RemoteCard], such as returned by [RemoteCardDefaults.containerPainter].
+ * @param modifier Modifier to be applied to the card
+ * @param enabled Controls the enabled state of the card. When false, this component will not
+ *   respond to user input
+ * @param shape Defines the card's shape.
+ * @param colors [RemoteCardColors] that will be used to resolve the colors used for this card. See
+ *   [RemoteCardDefaults.cardWithContainerPainterColors].
+ * @param border A [RemoteBorderStroke] used for drawing the card's outline border, or `null` for no
+ *   border.
+ * @param contentPadding The spacing values to apply internally between the container and the
+ *   content
+ * @param content The main slot for the content of this card
+ */
 @RemoteComposable
 @Composable
 public fun RemoteCard(
@@ -110,7 +156,24 @@ public fun RemoteCard(
     }
 }
 
-/** @sample androidx.wear.compose.remote.material3.samples.RemoteOutlinedCardSample */
+/**
+ * Outlined Wear Material 3 [RemoteCard] that offers a single slot to take any content.
+ *
+ * Example of a [RemoteOutlinedCard]:
+ *
+ * @sample androidx.wear.compose.remote.material3.samples.RemoteOutlinedCardSample
+ * @param onClick Will be called when the user clicks the card
+ * @param modifier Modifier to be applied to the card
+ * @param enabled Controls the enabled state of the card. When false, this component will not
+ *   respond to user input
+ * @param shape Defines the card's shape.
+ * @param colors [RemoteCardColors] that will be used to resolve the colors used for this card. See
+ *   [RemoteCardDefaults.outlinedCardColors].
+ * @param border A [RemoteBorderStroke] used for drawing the card's outline border
+ * @param contentPadding The spacing values to apply internally between the container and the
+ *   content
+ * @param content The main slot for the content of this card
+ */
 @RemoteComposable
 @Composable
 public fun RemoteOutlinedCard(
@@ -139,13 +202,37 @@ public fun RemoteOutlinedCard(
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** Contains the default values used by [RemoteCard] */
 public object RemoteCardDefaults {
 
+    /**
+     * Creates a [RemoteCardColors] that represents the default container and content colors used in
+     * a [RemoteCard], [RemoteAppCard] or [RemoteTitleCard].
+     *
+     * @return a [RemoteCardColors] with the default colors for a [RemoteCard]
+     */
     @Composable
     @RemoteComposable
     public fun cardColors(): RemoteCardColors = RemoteMaterialTheme.colorScheme.defaultCardColors
 
+    /**
+     * Creates a [RemoteCardColors] that represents the default container and content colors used in
+     * a [RemoteCard], [RemoteAppCard] or [RemoteTitleCard].
+     *
+     * @param containerColor The container color of this [RemoteCard], or `null` to use the theme
+     *   default.
+     * @param contentColor The content color of this [RemoteCard], or `null` to use the theme
+     *   default.
+     * @param appNameColor The color used for appName, only applies to [RemoteAppCard], or `null` to
+     *   use the theme default.
+     * @param timeColor The color used for time, applies to [RemoteAppCard] and [RemoteTitleCard],
+     *   or `null` to use the theme default.
+     * @param titleColor The color used for title, applies to [RemoteAppCard] and [RemoteTitleCard],
+     *   or `null` to use the theme default.
+     * @param subtitleColor The color used for subtitle, applies to [RemoteTitleCard], or `null` to
+     *   use the theme default.
+     * @return a [RemoteCardColors] with the configured colors for a [RemoteCard]
+     */
     @Composable
     @RemoteComposable
     public fun cardColors(
@@ -167,11 +254,33 @@ public object RemoteCardDefaults {
         )
     }
 
+    /**
+     * Creates a [RemoteCardColors] that represents the default container and content colors used in
+     * a [RemoteOutlinedCard], outlined [RemoteAppCard] or [RemoteTitleCard].
+     *
+     * @return a [RemoteCardColors] with the default colors for a [RemoteOutlinedCard]
+     */
     @Composable
     @RemoteComposable
     public fun outlinedCardColors(): RemoteCardColors =
         RemoteMaterialTheme.colorScheme.defaultOutlinedCardColors
 
+    /**
+     * Creates a [RemoteCardColors] that represents the default container and content colors used in
+     * a [RemoteOutlinedCard], outlined [RemoteAppCard] or [RemoteTitleCard].
+     *
+     * @param contentColor The content color of this [RemoteOutlinedCard], or `null` to use the
+     *   theme default.
+     * @param appNameColor The color used for appName, only applies to [RemoteAppCard], or `null` to
+     *   use the theme default.
+     * @param timeColor The color used for time, applies to [RemoteAppCard] and [RemoteTitleCard],
+     *   or `null` to use the theme default.
+     * @param titleColor The color used for title, applies to [RemoteAppCard] and [RemoteTitleCard],
+     *   or `null` to use the theme default.
+     * @param subtitleColor The color used for subtitle, applies to [RemoteTitleCard], or `null` to
+     *   use the theme default.
+     * @return a [RemoteCardColors] with the configured colors for a [RemoteOutlinedCard]
+     */
     @Composable
     @RemoteComposable
     public fun outlinedCardColors(
@@ -192,11 +301,20 @@ public object RemoteCardDefaults {
         )
     }
 
+    /** The default border color used for outlined cards. */
     public val outlinedCardBorderColor: RemoteColor
         @Composable @RemoteComposable get() = RemoteMaterialTheme.colorScheme.outline
 
+    /** The default size of the border for [RemoteOutlinedCard] */
     public val OutlinedBorderSize: RemoteDp = 1.rdp
 
+    /**
+     * Creates a [RemoteBorderStroke] that represents the default border used in Outlined Cards.
+     *
+     * @param outlineColor The color to be used for drawing an outline.
+     * @param borderWidth width of the border in [RemoteDp].
+     * @return a [RemoteBorderStroke] for a [RemoteOutlinedCard]
+     */
     @Composable
     @RemoteComposable
     public fun outlinedCardBorder(
@@ -204,10 +322,16 @@ public object RemoteCardDefaults {
         borderWidth: RemoteDp = OutlinedBorderSize,
     ): RemoteBorderStroke = RemoteBorderStroke(width = borderWidth, color = outlineColor)
 
+    /** The default content padding used by [RemoteCard] */
     public val ContentPadding: RemotePaddingValues = RemotePaddingValues(12.rdp)
 
+    /** Additional bottom padding added for [RemoteTitleCard] with an image background */
     public val ImageBottomPadding: RemoteDp = 12.rdp
 
+    /**
+     * ContentPadding for use in cards that have an image background in order to show more of the
+     * image.
+     */
     public val CardWithContainerPainterContentPadding: RemotePaddingValues =
         RemotePaddingValues(
             leftPadding = 12.rdp,
@@ -216,6 +340,27 @@ public object RemoteCardDefaults {
             bottomPadding = 12.rdp + ImageBottomPadding,
         )
 
+    /**
+     * Creates a [RemotePainter] for the background of a [RemoteCard] or [RemoteTitleCard] that
+     * displays an image with a scrim on top to make sure that any content above the background will
+     * be legible.
+     *
+     * An Image background is a means to reinforce the meaning of information in a Card, e.g. to
+     * help to contextualize the information. Cards should have a content color that contrasts with
+     * the background image and scrim.
+     *
+     * @param image The [RemoteImageBitmap] to use to draw the container background of the
+     *   [RemoteCard] or [RemoteTitleCard]
+     * @param scrim The [RemoteBrush] to use to paint a scrim over the container image to ensure
+     *   that any text drawn over the image is legible, or `null` if no scrim should be drawn over
+     *   the image.
+     * @param alpha Opacity of the container image painter and scrim, from 0.0 (completely
+     *   transparent) to 1.0 (completely opaque).
+     * @param shape Define the container shape.
+     * @param contentScale Strategy for scaling the painter if its size does not match the
+     *   container.
+     * @return a [RemotePainter] that draws [image] with the optional [scrim] for a [RemoteCard]
+     */
     @Composable
     @RemoteComposable
     public fun containerPainter(
@@ -228,6 +373,12 @@ public object RemoteCardDefaults {
         return remoteContainerPainter(image, alpha, shape, contentScale, scrim)
     }
 
+    /**
+     * Creates a [RemoteBrush] for the recommended scrim drawn on top of image container
+     * backgrounds.
+     *
+     * @return a [RemoteBrush] for drawing a scrim over an image container background
+     */
     @Composable
     @RemoteComposable
     public fun scrimBrush(): RemoteBrush {
@@ -235,16 +386,44 @@ public object RemoteCardDefaults {
         return RemoteBrush.solidColor(color)
     }
 
+    /**
+     * Returns a scrim color that can be used to draw a scrim on top of an image to ensure that any
+     * text drawn over the image is legible.
+     */
     public val scrimColor: RemoteColor
         @Composable
         @RemoteComposable
         get() = RemoteMaterialTheme.colorScheme.background.copy(alpha = 0.5f.rf)
 
+    /**
+     * Creates a [RemoteCardColors] that represents the default container and content colors used in
+     * a [RemoteCard] with image container painter.
+     *
+     * @return a [RemoteCardColors] with the default colors for a [RemoteCard] with a container
+     *   painter
+     */
     @Composable
     @RemoteComposable
     public fun cardWithContainerPainterColors(): RemoteCardColors =
         RemoteMaterialTheme.colorScheme.defaultCardWithContainerPainterColors
 
+    /**
+     * Creates a [RemoteCardColors] that represents the default container and content colors used in
+     * a [RemoteCard] or [RemoteTitleCard] with Image set as a background.
+     *
+     * @param contentColor The content color of this [RemoteCard], or `null` to use the theme
+     *   default.
+     * @param appNameColor The color used for appName, only applies to [RemoteAppCard], or `null` to
+     *   use the theme default.
+     * @param timeColor The color used for time, applies to [RemoteAppCard] and [RemoteTitleCard],
+     *   or `null` to use the theme default.
+     * @param titleColor The color used for title, applies to [RemoteAppCard] and [RemoteTitleCard],
+     *   or `null` to use the theme default.
+     * @param subtitleColor The color used for subtitle, applies to [RemoteTitleCard], or `null` to
+     *   use the theme default.
+     * @return a [RemoteCardColors] with the configured colors for a [RemoteCard] with a container
+     *   painter
+     */
     @Composable
     @RemoteComposable
     public fun cardWithContainerPainterColors(
@@ -265,13 +444,20 @@ public object RemoteCardDefaults {
         )
     }
 
+    /** The default size of the app icon/image when used inside a [RemoteAppCard]. */
     public val AppImageSize: RemoteDp = 18.rdp
 
+    /** The default shape of [RemoteCard], which determines its corner radius. */
     public val shape: RemoteShape
         @Composable @RemoteComposable get() = RemoteMaterialTheme.shapes.large
 
+    /**
+     * The default height of [RemoteCard], [RemoteAppCard] and [RemoteTitleCard]. The card will
+     * increase its height to accommodate the contents, if necessary.
+     */
     public val Height: RemoteDp = 64.rdp
 
+    /** The default width of [RemoteCard], [RemoteAppCard] and [RemoteTitleCard]. */
     public val Width: RemoteDp = 80.rdp
 
     private val RemoteColorScheme.defaultCardColors: RemoteCardColors
@@ -317,7 +503,17 @@ public object RemoteCardDefaults {
         }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Represents Colors used in [RemoteCard]. Unlike other Material 3 components, Cards do not change
+ * their color appearance when they are disabled.
+ *
+ * @param containerColor the background color of this [RemoteCard]
+ * @param contentColor the content color of this [RemoteCard].
+ * @param appNameColor the color used for appName, only applies to [RemoteAppCard].
+ * @param timeColor the color used for time, applies to [RemoteAppCard] and [RemoteTitleCard].
+ * @param titleColor the color used for title, applies to [RemoteAppCard] and [RemoteTitleCard].
+ * @param subtitleColor the color used for subtitle, applies to [RemoteTitleCard].
+ */
 @Immutable
 public class RemoteCardColors(
     public val containerColor: RemoteColor,
@@ -327,6 +523,17 @@ public class RemoteCardColors(
     public val titleColor: RemoteColor,
     public val subtitleColor: RemoteColor,
 ) {
+    /**
+     * Returns a copy of this [RemoteCardColors], optionally overriding some of the values.
+     *
+     * @param containerColor the background color of this [RemoteCard]
+     * @param contentColor the content color of this [RemoteCard]
+     * @param appNameColor the color used for appName, only applies to [RemoteAppCard]
+     * @param timeColor the color used for time, applies to [RemoteAppCard] and [RemoteTitleCard]
+     * @param titleColor the color used for title, applies to [RemoteAppCard] and [RemoteTitleCard]
+     * @param subtitleColor the color used for subtitle, applies to [RemoteTitleCard]
+     * @return a copy of this [RemoteCardColors] with the specified values overridden
+     */
     public fun copy(
         containerColor: RemoteColor = this.containerColor,
         contentColor: RemoteColor = this.contentColor,

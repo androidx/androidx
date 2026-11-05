@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
 package androidx.wear.compose.remote.material3
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
@@ -38,7 +35,31 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 
-/** @sample androidx.wear.compose.remote.material3.samples.RemoteAppCardSample */
+/**
+ * Opinionated Wear Material 3 [RemoteCard] that offers a specific 5 slot layout to show information
+ * about an application, e.g. a notification.
+ *
+ * Example of a [RemoteAppCard] displaying an application name, timestamp, title, and body:
+ *
+ * @sample androidx.wear.compose.remote.material3.samples.RemoteAppCardSample
+ * @param onClick Will be called when the user clicks the card.
+ * @param appName A slot for displaying the application name.
+ * @param title A slot for displaying the title of the card.
+ * @param modifier Modifier to be applied to the card
+ * @param enabled Controls the enabled state of the card. When false, this component will not
+ *   respond to user input.
+ * @param shape Defines the card's shape.
+ * @param colors [RemoteCardColors] that will be used to resolve the colors used for this card.
+ * @param border A [RemoteBorderStroke] used for drawing the card's outline border, or `null` for no
+ *   border.
+ * @param contentPadding The spacing values to apply internally between the container and the
+ *   content
+ * @param appImage A slot for a small ([RemoteCardDefaults.AppImageSize]) image associated with the
+ *   app, or `null` to omit the app image.
+ * @param time A slot for displaying the time relevant to the contents of the card, or `null` to
+ *   omit the time.
+ * @param content The main slot for the content of this card
+ */
 @RemoteComposable
 @Composable
 public fun RemoteAppCard(
