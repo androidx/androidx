@@ -99,6 +99,9 @@ class HelloArSpatialAnnotationActivity : ComponentActivity() {
     private lateinit var cameraFrameAnalyzer: CameraFrameAnalyzer
 
     private var cameraProvider: ProcessCameraProvider? = null
+    // False when the camera fails to bind, e.g. on the emulator, which has no camera. No camera
+    // frame ever arrives in that case, so tracking can't start.
+    private var isCameraAvailable = true
     private val resolutionSelector =
         ResolutionSelector.Builder()
             .setAspectRatioStrategy(AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY)
@@ -272,10 +275,13 @@ class HelloArSpatialAnnotationActivity : ComponentActivity() {
                 cameraPreviewUseCase,
                 imageAnalysis,
             )
+            isCameraAvailable = true
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
+            // CameraX fails to initialize or bind when the device has no camera.
             Log.e("HelloAr", "Failed to bind camera", e)
+            isCameraAvailable = false
         }
     }
 
@@ -304,9 +310,15 @@ class HelloArSpatialAnnotationActivity : ComponentActivity() {
 
                 val snapshot = cameraFrameAnalyzer.copyLatestFrame()
                 if (snapshot == null) {
+                    val message =
+                        if (isCameraAvailable) {
+                            "Waiting for camera frame..."
+                        } else {
+                            "Tracking not supported: no camera is available."
+                        }
                     Toast.makeText(
                             this@HelloArSpatialAnnotationActivity,
-                            "Waiting for camera frame...",
+                            message,
                             Toast.LENGTH_SHORT,
                         )
                         .show()
