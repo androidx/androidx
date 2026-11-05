@@ -17,7 +17,12 @@
 package androidx.build.dackka
 
 import androidx.build.docs.ProjectStructureMetadata
+import java.io.BufferedReader
+import java.io.BufferedWriter
 import java.io.File
+import java.io.FileOutputStream
+import java.io.FileReader
+import java.io.FileWriter
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
@@ -174,6 +179,17 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
         description = "Include added-in/deprecated-in API version metadata",
     )
     var includeVersionMetadata: Boolean = true
+
+    /**
+     * File to write logged lines from Dackka.
+     *
+     * All instances of [buildDirectoryPath] in the logs are replaced with `$DOCS_DIR` for
+     * consistency between machines.
+     */
+    @get:OutputFile abstract val loggingFile: RegularFileProperty
+
+    /** Project build directory. Used to rewrite logs to make them consistent between machines. */
+    @get:Internal abstract val buildDirectoryPath: Property<String>
 
     private fun sourceSets(): List<DokkaInputModels.SourceSet> {
         fun getSampleSourceFileCollection(): FileCollection {
@@ -418,9 +434,23 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
     fun generate() {
         val workQueue = workerExecutor.noIsolation()
         val argsFile = computeArguments()
+        val tmpLoggingFile = File(temporaryDir, "tmp.log")
         workQueue.submit(DackkaWorkAction::class.java) { parameters ->
             parameters.args.set(listOf(argsFile.path, "-loggingLevel", "WARN"))
             parameters.classpath.set(dackkaClasspath)
+            parameters.loggingFile.set(tmpLoggingFile)
+        }
+
+        // After Dackka has finished, rewrite the logging file to replace machine-specific paths
+        workerExecutor.await()
+        val buildDirectoryPath = buildDirectoryPath.get()
+        BufferedWriter(FileWriter(loggingFile.get().asFile)).use { writer ->
+            BufferedReader(FileReader(tmpLoggingFile)).use { reader ->
+                for (line in reader.lines()) {
+                    writer.write(line.replace(buildDirectoryPath, $$"$DOCS_DIR"))
+                    writer.newLine()
+                }
+            }
         }
     }
 
@@ -466,6 +496,7 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
 interface DackkaParams : WorkParameters {
     val args: ListProperty<String>
     val classpath: SetProperty<File>
+    val loggingFile: RegularFileProperty
 }
 
 abstract class DackkaWorkAction @Inject constructor(private val execOperations: ExecOperations) :
@@ -477,6 +508,7 @@ abstract class DackkaWorkAction @Inject constructor(private val execOperations: 
             // b/553124184
             it.jvmArgs = listOf("--sun-misc-unsafe-memory-access=allow")
             it.classpath(parameters.classpath.get())
+            it.standardOutput = FileOutputStream(parameters.loggingFile.get().asFile)
         }
     }
 }

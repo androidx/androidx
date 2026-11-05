@@ -739,6 +739,10 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                     hidingAnnotations.set(annotationsToHideApis)
                     nullabilityAnnotations.set(validNullabilityAnnotations)
                     versionMetadataFiles.from(versionMetadataConfiguration.incoming.files)
+                    loggingFile.set(project.getDistributionDirectory().file(project.name + ".log"))
+                    buildDirectoryPath.set(
+                        project.layout.buildDirectory.map { it.asFile.absolutePath }
+                    )
                     task.doFirst { taskStartTime = LocalDateTime.now() }
                     task.doLast {
                         val cpus =
