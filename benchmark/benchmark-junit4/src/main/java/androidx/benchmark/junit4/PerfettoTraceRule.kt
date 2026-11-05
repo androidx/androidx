@@ -93,7 +93,12 @@ constructor(
 
     /** Callback for each captured trace. */
     public val traceCallback: ((PerfettoTrace) -> Unit)? = null,
+
+    /** The configuration for capturing in process traces. Disabled by default. */
+    public val inProcessTracingConfig: PerfettoCapture.InProcessTracingConfig =
+        PerfettoCapture.InProcessTracingConfig(inProcessTracingMode = InProcessTracingMode.Disable),
 ) : TestRule {
+
     @JvmOverloads
     public constructor(
         /**
@@ -110,8 +115,11 @@ constructor(
          */
         enableUserspaceTracing: Boolean = false,
 
-        /** The configuration for capturing in process traces. */
-        inProcessTracingMode: InProcessTracingMode = InProcessTracingMode.Disable,
+        /** The configuration for capturing in process traces. Disabled by default. */
+        inProcessTracingConfig: PerfettoCapture.InProcessTracingConfig =
+            PerfettoCapture.InProcessTracingConfig(
+                inProcessTracingMode = InProcessTracingMode.Disable
+            ),
 
         /**
          * Provides the label for each test, used both as the filename prefix for the trace, and
@@ -137,6 +145,7 @@ constructor(
         enableUserspaceTracing = enableUserspaceTracing,
         labelProvider = labelProvider,
         traceCallback = traceCallback,
+        inProcessTracingConfig = inProcessTracingConfig,
     )
 
     override fun apply(
@@ -157,13 +166,13 @@ constructor(
                                 PerfettoCapture.TracingLibraryConfig(
                                     targetPackage = thisPackage,
                                     processState = InitialProcessState.Alive,
-                                    inProcessTracingMode = InProcessTracingMode.UseIfAvailable,
+                                    inProcessTracingConfig = inProcessTracingConfig,
                                     enablePerfettoSdk = true,
                                 )
                             } else {
                                 PerfettoCapture.TracingLibraryConfig(
                                     targetPackage = thisPackage,
-                                    inProcessTracingMode = InProcessTracingMode.UseIfAvailable,
+                                    inProcessTracingConfig = inProcessTracingConfig,
                                 )
                             },
                         traceCallback = { path ->

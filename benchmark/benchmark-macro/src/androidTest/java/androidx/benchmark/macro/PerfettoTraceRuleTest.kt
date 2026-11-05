@@ -17,10 +17,10 @@
 package androidx.benchmark.macro
 
 import androidx.benchmark.DeviceInfo
-import androidx.benchmark.InProcessTracingMode
 import androidx.benchmark.inMemoryTrace
 import androidx.benchmark.junit4.PerfettoTraceRule
 import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
+import androidx.benchmark.perfetto.PerfettoCapture
 import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.benchmark.runSingleSessionServer
 import androidx.benchmark.traceprocessor.PerfettoTrace
@@ -93,7 +93,7 @@ class PerfettoTraceRuleTest {
             }
             .around(
                 PerfettoTraceRule(
-                    inProcessTracingMode = InProcessTracingMode.UseIfAvailable,
+                    inProcessTracingConfig = PerfettoCapture.InProcessTracingConfig(),
                     labelProvider = { _ -> "CUSTOM_LABEL" },
                 ) {
                     trace = it

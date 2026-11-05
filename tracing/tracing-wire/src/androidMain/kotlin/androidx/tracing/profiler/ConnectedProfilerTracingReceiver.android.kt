@@ -39,6 +39,9 @@ internal const val ACTION_FLUSH_TRACES_GET_PATH =
     "androidx.tracing.profiler.action.FLUSH_TRACES_GET_PATH"
 internal const val ACTION_STOP = "androidx.tracing.profiler.action.STOP"
 
+// Extras
+internal const val EXTRA_ENABLED_CATEGORIES = "EXTRA_ENABLED_CATEGORIES"
+
 // Result codes
 internal const val RESULT_CODE_DELAYED_TRACE_DRIVER = -2
 internal const val RESULT_CODE_FAILED = -1
@@ -62,7 +65,7 @@ public class ConnectedProfilerTracingReceiver : BroadcastReceiver() {
         val action = intent?.action ?: return
 
         when (action) {
-            ACTION_START -> start(context)
+            ACTION_START -> start(context, intent)
             ACTION_STOP -> stop(context)
             ACTION_FLUSH_TRACES_GET_PATH -> flushTraces(context)
             else -> {
@@ -71,13 +74,14 @@ public class ConnectedProfilerTracingReceiver : BroadcastReceiver() {
         }
     }
 
-    internal fun start(context: Context) {
+    internal fun start(context: Context, intent: Intent) {
         Log.w(TAG, "Starting an in-process tracing session.")
         val result = goAsync()
         scope.launch {
             try {
                 clearInProcessTraces(context)
-                enableTracing(context)
+                val categories = intent.getStringArrayExtra(EXTRA_ENABLED_CATEGORIES)
+                enableTracing(context, categories)
                 result.resultCode = RESULT_CODE_SUCCESS
             } finally {
                 result.finish()
