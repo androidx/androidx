@@ -17,13 +17,10 @@ package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.BlackArgb
-import androidx.compose.remote.creation.compose.layout.toComposePaintingStyle
-import androidx.compose.remote.creation.compose.layout.toRemotePaintingStyle
 import androidx.compose.remote.creation.compose.shaders.RemoteShader
 import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.compose.text.toRemoteFontVariationSettings
-import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.text.font.FontVariation
 
 /**
@@ -41,16 +38,8 @@ public sealed interface RemotePaint {
     /** The [RemoteBlendMode] to use when drawing with this paint. */
     public var blendMode: RemoteBlendMode
 
-    /** The [PaintingStyle] to use (e.g., Fill, Stroke). */
-    public var style: PaintingStyle
-
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public var remoteStyle: RemotePaintingStyle
-        get() = style.toRemotePaintingStyle()
-        set(value) {
-            style = value.toComposePaintingStyle()
-        }
+    /** The [RemotePaintingStyle] to use (e.g., Fill, Stroke). */
+    public var style: RemotePaintingStyle
 
     /** The width of the stroke when [style] is set to Stroke. */
     public var strokeWidth: RemoteFloat
@@ -118,7 +107,7 @@ internal class StandardRemotePaint() : RemotePaint {
     public override var isAntiAlias: Boolean = true
     public override var blendMode: RemoteBlendMode = RemoteBlendMode.SrcOver
 
-    public override var style: PaintingStyle = PaintingStyle.Fill
+    public override var style: RemotePaintingStyle = RemotePaintingStyle.Fill
     public override var strokeWidth: RemoteFloat = 0.0f.rf
     public override var strokeCap: RemoteStrokeCap = RemoteStrokeCap.Butt
     public override var strokeJoin: RemoteStrokeJoin = RemoteStrokeJoin.Miter

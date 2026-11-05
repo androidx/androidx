@@ -46,6 +46,7 @@ import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.clamp
@@ -58,7 +59,6 @@ import androidx.compose.remote.creation.compose.state.sin
 import androidx.compose.remote.creation.compose.state.toRad
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -214,7 +214,7 @@ internal fun RemoteCheckboxControl(
 
         val halfStrokeWidthPx = strokeWidthPx / 2f.rf
         val strokePaint = RemotePaint {
-            style = PaintingStyle.Stroke
+            style = RemotePaintingStyle.Stroke
             strokeWidth = strokeWidthPx
             color = lerp(boxColor, Color.Transparent.rc, progress)
         }
@@ -231,7 +231,7 @@ internal fun RemoteCheckboxControl(
         )
 
         val fillPaint = RemotePaint {
-            style = PaintingStyle.Fill
+            style = RemotePaintingStyle.Fill
             color = lerp(Color.Transparent.rc, boxColor, progress)
         }
         drawRoundRect(
@@ -242,7 +242,7 @@ internal fun RemoteCheckboxControl(
         )
 
         val tickPaint = RemotePaint {
-            style = PaintingStyle.Stroke
+            style = RemotePaintingStyle.Stroke
             strokeWidth = strokeWidthPx
             strokeCap = RemoteStrokeCap.Round
             color = lerp(Color.Transparent.rc, checkmarkColor, progress)
@@ -302,14 +302,14 @@ internal fun RemoteRadioControl(
         val innerRadiusPx = lerp(0f.rf, 5.rdp.toPx(), progress)
 
         val ringPaint = RemotePaint {
-            style = PaintingStyle.Stroke
+            style = RemotePaintingStyle.Stroke
             strokeWidth = strokeWidthPx
             color = controlColor
         }
         drawCircle(paint = ringPaint, radius = outerRadiusPx, center = centerOffset)
 
         val dotPaint = RemotePaint {
-            style = PaintingStyle.Fill
+            style = RemotePaintingStyle.Fill
             color = lerp(Color.Transparent.rc, controlColor, progress)
         }
         drawCircle(paint = dotPaint, radius = innerRadiusPx, center = centerOffset)
@@ -338,7 +338,7 @@ internal fun RemoteSwitchControl(
 
         // Track fill
         val trackPaint = RemotePaint {
-            style = PaintingStyle.Fill
+            style = RemotePaintingStyle.Fill
             color = trackColor
         }
         drawRoundRect(
@@ -350,7 +350,7 @@ internal fun RemoteSwitchControl(
 
         // Track border
         val borderPaint = RemotePaint {
-            style = PaintingStyle.Stroke
+            style = RemotePaintingStyle.Stroke
             strokeWidth = strokeWidthPx
             color = trackBorderColor
         }
@@ -371,7 +371,7 @@ internal fun RemoteSwitchControl(
         val thumbCenter = RemoteOffset(thumbCenterXPx, thumbCenterYPx)
 
         val thumbPaint = RemotePaint {
-            style = PaintingStyle.Fill
+            style = RemotePaintingStyle.Fill
             color = thumbColor
         }
         drawCircle(paint = thumbPaint, radius = thumbRadiusPx, center = thumbCenter)
@@ -380,7 +380,7 @@ internal fun RemoteSwitchControl(
         // which is how Wear Material 3 positions the same shape, and scaled around the thumb centre
         // by progress.
         val tickPaint = RemotePaint {
-            style = PaintingStyle.Stroke
+            style = RemotePaintingStyle.Stroke
             strokeWidth = strokeWidthPx * progress
             strokeCap = RemoteStrokeCap.Round
             color = thumbIconColor

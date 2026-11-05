@@ -26,6 +26,7 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxHeight
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.remotePath
 import androidx.compose.remote.creation.compose.state.rf
@@ -34,7 +35,6 @@ import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.tooling.preview.Preview
 
 @Suppress("RestrictedApiAndroidX") // Referring to drawPath, drawTextOnPath
@@ -66,7 +66,7 @@ fun SimplePath() {
 
             val textPaint = RemotePaint {
                 color = Color.Red.rc
-                style = PaintingStyle.Fill
+                style = RemotePaintingStyle.Fill
                 textSize = 32f.rf
                 typeface = RemoteTypeface.Default
                 color = Color.White.rc
@@ -74,7 +74,7 @@ fun SimplePath() {
 
             drawPath(
                 path,
-                paint = Color.Green.paint(style = PaintingStyle.Stroke, strokeWidth = 4f),
+                paint = Color.Green.paint(style = RemotePaintingStyle.Stroke, strokeWidth = 4f),
             )
             drawTextOnPath("10:10".rs, path, 20f.rf, 0f.rf, textPaint)
         }

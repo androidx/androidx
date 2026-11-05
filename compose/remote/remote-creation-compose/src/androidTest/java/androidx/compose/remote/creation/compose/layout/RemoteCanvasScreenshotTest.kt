@@ -22,6 +22,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInf
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.remotePath
@@ -36,7 +37,6 @@ import androidx.compose.remote.player.compose.test.utils.R
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.remote.player.compose.test.utils.createMockContextWithFont
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
@@ -171,7 +171,7 @@ class RemoteCanvasScreenshotTest {
 
                 val paint = RemotePaint {
                     color = Color.Red.rc
-                    style = PaintingStyle.Fill
+                    style = RemotePaintingStyle.Fill
                 }
                 drawPath(path, paint)
             }
@@ -255,7 +255,7 @@ class RemoteCanvasScreenshotTest {
 
                 val paint = RemotePaint {
                     color = Color.Cyan.rc
-                    style = PaintingStyle.Stroke
+                    style = RemotePaintingStyle.Stroke
                     strokeWidth = 3f.rf
                 }
                 drawPath(path, paint)

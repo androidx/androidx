@@ -29,6 +29,7 @@ import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.abs
 import androidx.compose.remote.creation.compose.state.cos
@@ -44,7 +45,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle
 
 /** An interface for connection between Pager and remote page indicators. */
 @Stable
@@ -284,12 +284,12 @@ private fun RemoteDrawScope.drawPageIndicators(
         val y = height / 2f.rf + bigRadius * sin(centerAngleRad.rf)
         val bgPaint = RemotePaint {
             this.color = backgroundColor
-            style = PaintingStyle.Fill
+            style = RemotePaintingStyle.Fill
         }
         drawCircleIndicator(bgPaint, RemoteOffset(x, y), backgroundStrokeWidthPx / 2f.rf)
         val paint = RemotePaint {
             this.color = selectedColor
-            style = PaintingStyle.Fill
+            style = RemotePaintingStyle.Fill
         }
         drawCircleIndicator(paint, RemoteOffset(x, y), radius)
         return
@@ -311,7 +311,7 @@ private fun RemoteDrawScope.drawPageIndicators(
         if (isHorizontal) 90f.rf - bgSpanDegrees / 2f.rf else 0f.rf - bgSpanDegrees / 2f.rf
     val bgPaint = RemotePaint {
         this.color = backgroundColor
-        style = PaintingStyle.Stroke
+        style = RemotePaintingStyle.Stroke
         strokeWidth = backgroundStrokeWidthPx
         strokeCap = RemoteStrokeCap.Round
     }
@@ -336,7 +336,7 @@ private fun RemoteDrawScope.drawPageIndicators(
 
         val floorPage = floor(currentPage)
         val progression = currentPage - floorPage
-        val inactivePaint = RemotePaint { style = PaintingStyle.Fill }
+        val inactivePaint = RemotePaint { style = RemotePaintingStyle.Fill }
         for (i in 0 until pageCount) {
             val shrinkRatio =
                 calculateAdjacentShrinkRatio(
@@ -381,7 +381,7 @@ private fun RemoteDrawScope.drawPageIndicators(
 
         val floorPage = floor(windowActivePage)
         val progression = windowActivePage - floorPage
-        val inactivePaint = RemotePaint { style = PaintingStyle.Fill }
+        val inactivePaint = RemotePaint { style = RemotePaintingStyle.Fill }
         for (i in 0..MAX_PAGES_ON_SCREEN) {
             val pageIndex = floorHidden + i.toFloat().rf
             val isValidPage = pageIndex.isLessThan(totalPages.toFloat().rf)
@@ -455,7 +455,7 @@ private fun RemoteDrawScope.drawPageIndicators(
 
             val slotPaint = RemotePaint {
                 this.color = isValidPage.select(inactivePaint.color, Color.Transparent.rc)
-                style = PaintingStyle.Fill
+                style = RemotePaintingStyle.Fill
             }
 
             drawCircleIndicator(paint = slotPaint, center = RemoteOffset(x, y), radius = dotRadius)
@@ -484,7 +484,7 @@ private fun RemoteDrawScope.drawPageIndicators(
 
     val activeFillPaint = RemotePaint {
         this.color = selectedColor
-        style = PaintingStyle.Fill
+        style = RemotePaintingStyle.Fill
     }
 
     val xStart = width / 2f.rf + bigRadius * cos(startRad)
@@ -497,7 +497,7 @@ private fun RemoteDrawScope.drawPageIndicators(
 
     val activePaint = RemotePaint {
         this.color = selectedColor
-        style = PaintingStyle.Stroke
+        style = RemotePaintingStyle.Stroke
         strokeWidth = radius * 2f.rf
         strokeCap = RemoteStrokeCap.Round
     }

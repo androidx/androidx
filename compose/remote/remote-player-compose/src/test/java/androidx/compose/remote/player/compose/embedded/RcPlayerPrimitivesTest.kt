@@ -96,6 +96,7 @@ import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteLong.Companion.createNamedRemoteLong
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createRotate
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
@@ -122,7 +123,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.testTag
@@ -265,7 +265,7 @@ class RcPlayerPrimitivesTest {
                     paint =
                         RemotePaint {
                             color = RemoteColor(Color.Red)
-                            style = PaintingStyle.Fill
+                            style = RemotePaintingStyle.Fill
                         },
                     topLeft = RemoteOffset(10f.rf, 10f.rf),
                     size = RemoteSize(80f.rf, 80f.rf),
@@ -359,7 +359,7 @@ class RcPlayerPrimitivesTest {
                     paint =
                         RemotePaint {
                             color = RemoteColor(Color.Red)
-                            style = PaintingStyle.Stroke
+                            style = RemotePaintingStyle.Stroke
                             strokeWidth = 5f.rf
                         },
                     start = RemoteOffset(0f.rf, 0f.rf),
@@ -404,7 +404,7 @@ class RcPlayerPrimitivesTest {
                     paint =
                         RemotePaint {
                             color = RemoteColor(Color.Red)
-                            style = PaintingStyle.Stroke
+                            style = RemotePaintingStyle.Stroke
                             strokeWidth = 5f.rf
                         },
                 )
@@ -684,7 +684,7 @@ class RcPlayerPrimitivesTest {
                     paint =
                         RemotePaint {
                             color = RemoteColor(Color.Red)
-                            style = PaintingStyle.Stroke
+                            style = RemotePaintingStyle.Stroke
                             strokeWidth = 5f.rf
                         },
                 )
@@ -1390,7 +1390,7 @@ class RcPlayerPrimitivesTest {
             RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                 val paint =
                     RemotePaint().apply {
-                        style = PaintingStyle.Stroke
+                        style = RemotePaintingStyle.Stroke
                         strokeWidth = 5f.rf
                     }
                 drawRect(
@@ -1448,7 +1448,7 @@ class RcPlayerPrimitivesTest {
             RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                 val paint =
                     RemotePaint().apply {
-                        style = PaintingStyle.Stroke
+                        style = RemotePaintingStyle.Stroke
                         strokeWidth = 5f.rf
                         strokeCap = RemoteStrokeCap.Round
                     }
@@ -1475,7 +1475,7 @@ class RcPlayerPrimitivesTest {
     fun testPaintStyle() {
         rule.setRemoteContent(modifier = Modifier.size(100.dp).testTag("paintStyleParent")) {
             RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
-                val paint = RemotePaint().apply { style = PaintingStyle.Stroke }
+                val paint = RemotePaint().apply { style = RemotePaintingStyle.Stroke }
                 drawRect(
                     paint,
                     RemoteOffset(
@@ -1649,7 +1649,7 @@ class RcPlayerPrimitivesTest {
             RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                 val paint =
                     RemotePaint().apply {
-                        style = PaintingStyle.Stroke
+                        style = RemotePaintingStyle.Stroke
                         strokeWidth = 5f.rf
                         strokeJoin = RemoteStrokeJoin.Round
                     }

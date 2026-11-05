@@ -16,17 +16,15 @@
 
 package androidx.compose.remote.creation.compose.state
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import kotlin.jvm.JvmInline
 
 /** Strategies for painting shapes and paths on a remote canvas. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
 @JvmInline
-public value class RemotePaintingStyle internal constructor(public val value: Int) {
+public value class RemotePaintingStyle internal constructor(internal val value: Int) {
     override fun toString(): String =
         when (this) {
             Fill -> "Fill"

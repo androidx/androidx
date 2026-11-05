@@ -50,6 +50,7 @@ import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.CUBIC_DECELERATE
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.asRemoteDp
 import androidx.compose.remote.creation.compose.state.clamp
 import androidx.compose.remote.creation.compose.state.interpolateRemoteFloat
@@ -60,7 +61,6 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import java.util.Calendar
@@ -276,7 +276,7 @@ private fun AiPillGlow(isAi: Boolean, isRim: Boolean, alpha: RemoteFloat, animat
 
         val paint = RemotePaint {
             this.shader = shader
-            this.style = PaintingStyle.Fill
+            this.style = RemotePaintingStyle.Fill
         }
 
         drawRect(paint, size = this.size)

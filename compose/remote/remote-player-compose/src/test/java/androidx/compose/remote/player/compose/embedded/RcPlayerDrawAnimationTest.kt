@@ -27,6 +27,7 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteEasing
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
@@ -36,7 +37,6 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
@@ -76,7 +76,7 @@ class RcPlayerDrawAnimationTest {
                     animationSpec =
                         remoteTween(durationMillis = 1000, easing = RemoteEasing.Linear),
                 )
-            val paint = RemotePaint { style = PaintingStyle.Fill }
+            val paint = RemotePaint { style = RemotePaintingStyle.Fill }
             RemoteBox(
                 RemoteModifier.size(100.rdp)
                     .clickable(valueChangeAction(toggled, toggled.select(false.rb, true.rb)))

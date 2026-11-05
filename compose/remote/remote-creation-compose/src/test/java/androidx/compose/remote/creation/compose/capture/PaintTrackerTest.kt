@@ -50,7 +50,6 @@ import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.unit.sp
@@ -180,7 +179,7 @@ class PaintTrackerTest {
     @Test
     fun testStyleSync() {
         val paint = RemotePaint {
-            style = PaintingStyle.Stroke
+            style = RemotePaintingStyle.Stroke
             strokeCap = RemoteStrokeCap.Round
             strokeJoin = RemoteStrokeJoin.Bevel
         }
@@ -868,23 +867,21 @@ class PaintTrackerTest {
     fun testAndroidPaintStyleSync() {
         val styles =
             listOf(
-                Triple(AndroidPaint.Style.FILL, PaintingStyle.Fill, RemotePaintingStyle.Fill),
-                Triple(AndroidPaint.Style.STROKE, PaintingStyle.Stroke, RemotePaintingStyle.Stroke),
-                Triple(
+                Pair(AndroidPaint.Style.FILL, RemotePaintingStyle.Fill),
+                Pair(AndroidPaint.Style.STROKE, RemotePaintingStyle.Stroke),
+                Pair(
                     AndroidPaint.Style.FILL_AND_STROKE,
-                    PaintingStyle.Fill,
                     RemotePaintingStyle.Fill,
                 ),
             )
         assertThat(styles.map { it.first }).containsExactlyElementsIn(AndroidPaint.Style.entries)
-        for ((androidStyle, composeStyle, remoteStyle) in styles) {
+        for ((androidStyle, remoteStyle) in styles) {
             val androidPaint = AndroidPaint().apply { style = androidStyle }
             assertThat(androidPaint.style).isEqualTo(androidStyle)
 
             val paint = androidPaint.asRemotePaint()
 
-            assertWithMessage("$androidStyle").that(paint.style).isEqualTo(composeStyle)
-            assertWithMessage("$androidStyle").that(paint.remoteStyle).isEqualTo(remoteStyle)
+            assertWithMessage("$androidStyle").that(paint.style).isEqualTo(remoteStyle)
             assertWithMessage("$androidStyle")
                 .that(initialSync(paint).mStyle)
                 .isEqualTo(remoteStyle.value)
@@ -949,8 +946,7 @@ class PaintTrackerTest {
 
         assertThat(paint.blendMode).isEqualTo(RemoteBlendMode.SrcOver)
         assertThat(changes.mBlendMode).isEqualTo(RemoteBlendMode.SrcOver.value)
-        assertThat(paint.style).isEqualTo(PaintingStyle.Fill)
-        assertThat(paint.remoteStyle).isEqualTo(RemotePaintingStyle.Fill)
+        assertThat(paint.style).isEqualTo(RemotePaintingStyle.Fill)
         assertThat(changes.mStyle).isEqualTo(RemotePaintingStyle.Fill.value)
         assertThat(paint.strokeCap).isEqualTo(RemoteStrokeCap.Butt)
         assertThat(changes.mStrokeCap).isEqualTo(RemoteStrokeCap.Butt.value)

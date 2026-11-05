@@ -132,7 +132,7 @@ public fun android.graphics.Paint.asRemotePaint(): RemotePaint {
     val remotePaint = StandardRemotePaint()
     remotePaint.isAntiAlias = isAntiAlias
     remotePaint.blendMode = blendMode?.toRemoteBlendMode() ?: RemoteBlendMode.SrcOver
-    remotePaint.remoteStyle = style.toRemotePaintingStyle()
+    remotePaint.style = style.toRemotePaintingStyle()
     remotePaint.strokeWidth = strokeWidth.rf
     remotePaint.strokeCap = strokeCap.toRemoteStrokeCap()
     remotePaint.strokeJoin = strokeJoin.toRemoteStrokeJoin()

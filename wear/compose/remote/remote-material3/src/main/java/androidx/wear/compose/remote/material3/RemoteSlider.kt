@@ -50,6 +50,7 @@ import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.max
@@ -61,7 +62,6 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.round
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.wear.compose.remote.material3.internal.RemoteIcons
@@ -637,7 +637,7 @@ private fun RemoteDrawScope.drawProgressBar(
 
     // Unselected bar
     val unselectedPaint = RemotePaint {
-        style = PaintingStyle.Fill
+        style = RemotePaintingStyle.Fill
         color = unselectedBarColor
     }
     drawRoundRect(
@@ -650,7 +650,7 @@ private fun RemoteDrawScope.drawProgressBar(
 
     // Selected bar
     val selectedPaint = RemotePaint {
-        style = PaintingStyle.Fill
+        style = RemotePaintingStyle.Fill
         color = selectedBarColor
     }
     drawRoundRect(
@@ -674,7 +674,7 @@ private fun RemoteDrawScope.drawProgressBar(
                 separatorRadiusInPx
 
         val separatorPaint = RemotePaint {
-            style = PaintingStyle.Fill
+            style = RemotePaintingStyle.Fill
             color = sepColor
             blendMode = RemoteBlendMode.Src
         }

@@ -58,6 +58,7 @@ import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.asConstantColorOrNull
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
@@ -69,7 +70,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.DefaultAlpha
-import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -1358,7 +1358,7 @@ private fun RemoteDrawScope.drawBorder(
         }
     val paint = RemotePaint {
         strokeWidth = strokeWidthPx
-        style = PaintingStyle.Stroke
+        style = RemotePaintingStyle.Stroke
     }
     with(border.brush) {
         applyTo(paint, RemoteSize(width, height))
@@ -1385,7 +1385,7 @@ private fun RemoteDrawScope.drawSolidColorShape(shape: RemoteShape, color: Remot
             density = remoteDensity,
         ),
         RemotePaint {
-            style = PaintingStyle.Fill
+            style = RemotePaintingStyle.Fill
             color?.let { this.color = it }
         },
     )

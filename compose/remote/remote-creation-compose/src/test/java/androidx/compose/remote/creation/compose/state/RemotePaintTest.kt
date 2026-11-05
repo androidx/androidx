@@ -19,7 +19,6 @@ import androidx.compose.remote.creation.compose.shaders.RemoteLinearShader
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.toArgb
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -40,6 +39,16 @@ class RemotePaintTest {
         assertThat(remotePaint.blendMode).isEqualTo(RemoteBlendMode.Clear)
         remotePaint.blendMode = RemoteBlendMode.SrcIn
         assertThat(remotePaint.blendMode).isEqualTo(RemoteBlendMode.SrcIn)
+    }
+
+    @Test
+    fun styleTest() {
+        val remotePaint = RemotePaint()
+        assertThat(remotePaint.style).isEqualTo(RemotePaintingStyle.Fill)
+        remotePaint.style = RemotePaintingStyle.Stroke
+        assertThat(remotePaint.style).isEqualTo(RemotePaintingStyle.Stroke)
+        remotePaint.style = RemotePaintingStyle.Fill
+        assertThat(remotePaint.style).isEqualTo(RemotePaintingStyle.Fill)
     }
 
     @Test
@@ -164,7 +173,7 @@ class RemotePaintTest {
         assertThat(defaultPaint.color.asConstantColor()).isEqualTo(Color.Blue)
         assertThat(defaultPaint.strokeWidth.constantValue).isEqualTo(10f)
         assertThat(defaultPaint.isAntiAlias).isTrue()
-        assertThat(defaultPaint.style).isEqualTo(PaintingStyle.Stroke)
+        assertThat(defaultPaint.style).isEqualTo(RemotePaintingStyle.Stroke)
     }
 
     @Test
@@ -221,7 +230,7 @@ class RemotePaintTest {
         val remotePaint = compatPaint.asRemotePaint()
 
         assertThat(remotePaint.isAntiAlias).isFalse()
-        assertThat(remotePaint.style).isEqualTo(PaintingStyle.Stroke)
+        assertThat(remotePaint.style).isEqualTo(RemotePaintingStyle.Stroke)
         assertThat(remotePaint.blendMode).isEqualTo(RemoteBlendMode.Clear)
         assertThat(remotePaint.filterQuality).isEqualTo(RemoteFilterQuality.None)
     }

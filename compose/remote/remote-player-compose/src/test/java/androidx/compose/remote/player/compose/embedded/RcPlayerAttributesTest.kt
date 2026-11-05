@@ -48,6 +48,7 @@ import androidx.compose.remote.creation.compose.modifier.graphicsLayer
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
@@ -57,7 +58,6 @@ import androidx.compose.remote.creation.compose.state.toRemoteDp
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -270,7 +270,7 @@ class RcPlayerAttributesTest {
                                 paint =
                                     RemotePaint {
                                         color = Color.Gray.rc
-                                        this.style = PaintingStyle.Stroke
+                                        this.style = RemotePaintingStyle.Stroke
                                         strokeWidth = 2f.rf
                                     },
                                 topLeft = RemoteOffset(layout.glyphLeft, topY),
