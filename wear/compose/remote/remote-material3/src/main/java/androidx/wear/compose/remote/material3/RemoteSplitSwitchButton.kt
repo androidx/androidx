@@ -26,6 +26,7 @@ import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteRowScope
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteRole
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.contentDescription
@@ -52,7 +53,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.material3.TextConfiguration
@@ -148,7 +148,7 @@ public fun RemoteSplitSwitchButton(
                         drawContent()
                     }
                     .padding(contentPadding)
-                    .semantics(mergeDescendants = true) { role = Role.Button },
+                    .semantics(mergeDescendants = true) { role = RemoteRole.Button },
             content = {
                 RemoteColumn {
                     RemoteRow(
@@ -211,7 +211,7 @@ public fun RemoteSplitSwitchButton(
                     }
                     .padding(contentPadding)
                     .semantics(mergeDescendants = true) {
-                        role = Role.Switch
+                        role = RemoteRole.Switch
                         if (toggleContentDescription != null) {
                             contentDescription = toggleContentDescription
                         }

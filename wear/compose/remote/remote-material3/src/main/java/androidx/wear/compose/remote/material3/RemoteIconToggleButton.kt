@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteRole
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteCornerBasedShape
@@ -38,7 +39,6 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.semantics.Role
 
 /**
  * Wear Material [RemoteIconToggleButton] is a filled icon toggle button which switches between
@@ -117,7 +117,7 @@ public fun RemoteIconToggleButton(
         enabled = enabled,
         border = border,
         shape = animatedShape.shape,
-        role = Role.Checkbox,
+        role = RemoteRole.Checkbox,
         content =
             provideScopeContent(
                 colors.contentColor(

@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteRole
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.drawWithContent
@@ -32,7 +33,6 @@ import androidx.compose.remote.creation.compose.shapes.RemoteShape
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.semantics.Role
 
 /**
  * Single-slot base button for [RemoteTextButton], [RemoteIconButton], [RemoteIconToggleButton] and
@@ -47,7 +47,7 @@ internal fun RemoteRoundButton(
     enabled: RemoteBoolean,
     border: RemoteBorderStroke?,
     shape: RemoteShape,
-    role: Role = Role.Button,
+    role: RemoteRole = RemoteRole.Button,
     content: @Composable @RemoteComposable () -> Unit,
 ) {
     val clipBackgroundToShape = currentProfileSupportsPathClip()

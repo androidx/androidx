@@ -28,6 +28,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteRowScope
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteRole
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.contentDescription
@@ -58,7 +59,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.material3.TextConfiguration
@@ -150,7 +150,7 @@ public fun RemoteSplitCheckboxButton(
                         drawContent()
                     }
                     .padding(contentPadding)
-                    .semantics(mergeDescendants = true) { role = Role.Button },
+                    .semantics(mergeDescendants = true) { role = RemoteRole.Button },
             content = {
                 RemoteColumn {
                     RemoteRow(
@@ -213,7 +213,7 @@ public fun RemoteSplitCheckboxButton(
                     }
                     .padding(contentPadding)
                     .semantics(mergeDescendants = true) {
-                        role = Role.Checkbox
+                        role = RemoteRole.Checkbox
                         if (toggleContentDescription != null) {
                             contentDescription = toggleContentDescription
                         }

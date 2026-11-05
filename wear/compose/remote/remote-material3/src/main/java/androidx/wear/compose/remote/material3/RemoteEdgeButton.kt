@@ -29,6 +29,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteRowScope
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.layout.remoteComponent
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteRole
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.drawWithContent
@@ -55,7 +56,6 @@ import androidx.compose.remote.creation.compose.state.sqrt
 import androidx.compose.remote.creation.compose.state.toRemoteDp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
@@ -137,7 +137,7 @@ public fun RemoteEdgeButton(
             modifier
                 .fillMaxWidth()
                 .height(buttonSize.maximumHeight)
-                .semantics(mergeDescendants = true) { role = Role.Button }
+                .semantics(mergeDescendants = true) { role = RemoteRole.Button }
                 .clip(shape = shape)
                 .clickable(onClick, enabled = enabled.constantValueOrNull ?: false)
                 .drawWithContent {

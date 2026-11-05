@@ -30,6 +30,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteRole
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.contentDescription
@@ -62,7 +63,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.wear.compose.remote.material3.internal.RemoteIcons
 
@@ -147,7 +147,7 @@ public fun RemoteSlider(
                 RemoteModifier.size(RemoteSliderDefaults.ControlSize)
                     // TODO(b/557131896): Use repeatableClickable once supported
                     .clickable(decreaseAction, enabled = isEnabled)
-                    .semantics(mergeDescendants = true) { role = Role.Button },
+                    .semantics(mergeDescendants = true) { role = RemoteRole.Button },
             contentAlignment = RemoteAlignment.Center,
             content =
                 provideScopeContent(
@@ -177,7 +177,7 @@ public fun RemoteSlider(
                 RemoteModifier.size(RemoteSliderDefaults.ControlSize)
                     // TODO(b/557131896): Use repeatableClickable once supported
                     .clickable(increaseAction, enabled = isEnabled)
-                    .semantics(mergeDescendants = true) { role = Role.Button },
+                    .semantics(mergeDescendants = true) { role = RemoteRole.Button },
             contentAlignment = RemoteAlignment.Center,
             content =
                 provideScopeContent(

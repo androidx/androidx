@@ -514,9 +514,9 @@ package androidx.compose.remote.creation.compose.modifier {
   }
 
   public final class ClickableModifierKt {
-    method @KotlinOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clickable(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.RemoteAction onClick, optional boolean enabled, optional androidx.compose.ui.semantics.Role? role);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clickable-NVUIbCQ(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.RemoteAction, boolean, androidx.compose.ui.semantics.Role?);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! clickable-NVUIbCQ$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.action.RemoteAction!, boolean, androidx.compose.ui.semantics.Role!, int, Object!);
+    method @KotlinOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clickable(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.RemoteAction onClick, optional boolean enabled, optional androidx.compose.remote.creation.compose.modifier.RemoteRole? role);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clickable-UyQ4Jmk(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.RemoteAction, boolean, androidx.compose.remote.creation.compose.modifier.RemoteRole?);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! clickable-UyQ4Jmk$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.action.RemoteAction!, boolean, androidx.compose.remote.creation.compose.modifier.RemoteRole!, int, Object!);
   }
 
   public final class ClipModifierKt {
@@ -674,6 +674,33 @@ package androidx.compose.remote.creation.compose.modifier {
   public abstract sealed nonexhaustive class RemoteRenderEffect {
   }
 
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class RemoteRole {
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteRole! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.compose.remote.creation.compose.modifier.RemoteRole.Companion Companion;
+  }
+
+  public static final class RemoteRole.Companion {
+    method @BytecodeOnly public int getButton-S3nNluk();
+    method @BytecodeOnly public int getCarousel-S3nNluk();
+    method @BytecodeOnly public int getCheckbox-S3nNluk();
+    method @BytecodeOnly public int getDropdownList-S3nNluk();
+    method @BytecodeOnly public int getImage-S3nNluk();
+    method @BytecodeOnly public int getRadioButton-S3nNluk();
+    method @BytecodeOnly public int getSwitch-S3nNluk();
+    method @BytecodeOnly public int getTab-S3nNluk();
+    method @BytecodeOnly public int getValuePicker-S3nNluk();
+    property public androidx.compose.remote.creation.compose.modifier.RemoteRole Button;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteRole Carousel;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteRole Checkbox;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteRole DropdownList;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteRole Image;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteRole RadioButton;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteRole Switch;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteRole Tab;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteRole ValuePicker;
+  }
+
   @androidx.compose.runtime.Stable public final class RemoteScrollState {
     ctor @androidx.compose.runtime.annotation.RememberInComposition public RemoteScrollState(androidx.compose.remote.creation.compose.state.MutableRemoteFloat positionState, @IntRange(from=0L) int notches);
     ctor @androidx.compose.runtime.annotation.RememberInComposition public RemoteScrollState(float position, @IntRange(from=0L) int notches);
@@ -688,12 +715,12 @@ package androidx.compose.remote.creation.compose.modifier {
   public final class RemoteSemanticsProperties {
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyKey<androidx.compose.remote.creation.compose.state.RemoteString> getContentDescription();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyKey<java.lang.Boolean> getEnabled();
-    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyKey<androidx.compose.ui.semantics.Role> getRole();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyKey<androidx.compose.remote.creation.compose.modifier.RemoteRole> getRole();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyKey<androidx.compose.remote.creation.compose.state.RemoteString> getStateDescription();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyKey<androidx.compose.remote.creation.compose.state.RemoteString> getText();
     property public androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyKey<androidx.compose.remote.creation.compose.state.RemoteString> ContentDescription;
     property public androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyKey<java.lang.Boolean> Enabled;
-    property public androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyKey<androidx.compose.ui.semantics.Role> Role;
+    property public androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyKey<androidx.compose.remote.creation.compose.modifier.RemoteRole> Role;
     property public androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyKey<androidx.compose.remote.creation.compose.state.RemoteString> StateDescription;
     property public androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyKey<androidx.compose.remote.creation.compose.state.RemoteString> Text;
     field public static final androidx.compose.remote.creation.compose.modifier.RemoteSemanticsProperties INSTANCE;
@@ -728,19 +755,19 @@ package androidx.compose.remote.creation.compose.modifier {
     method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clearAndSetSemantics(androidx.compose.remote.creation.compose.modifier.RemoteModifier, kotlin.jvm.functions.Function1<? super androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver,kotlin.Unit> properties);
     method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteString? getContentDescription(androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver);
     method @InaccessibleFromKotlin public static boolean getEnabled(androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver);
-    method @BytecodeOnly public static androidx.compose.ui.semantics.Role? getRole(androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteRole? getRole(androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver);
     method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteString? getStateDescription(androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver);
     method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteString? getText(androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver);
     method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier semantics(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional boolean mergeDescendants, kotlin.jvm.functions.Function1<? super androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver,kotlin.Unit> properties);
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! semantics$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, boolean, kotlin.jvm.functions.Function1!, int, Object!);
     method @InaccessibleFromKotlin public static void setContentDescription(androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver, androidx.compose.remote.creation.compose.state.RemoteString?);
     method @InaccessibleFromKotlin public static void setEnabled(androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver, boolean);
-    method @BytecodeOnly public static void setRole-0qwdnHY(androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver, androidx.compose.ui.semantics.Role?);
+    method @BytecodeOnly public static void setRole-nl-zDNQ(androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver, androidx.compose.remote.creation.compose.modifier.RemoteRole?);
     method @InaccessibleFromKotlin public static void setStateDescription(androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver, androidx.compose.remote.creation.compose.state.RemoteString?);
     method @InaccessibleFromKotlin public static void setText(androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver, androidx.compose.remote.creation.compose.state.RemoteString?);
     property public static androidx.compose.remote.creation.compose.state.RemoteString? androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver.contentDescription;
     property public static boolean androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver.enabled;
-    property public static androidx.compose.ui.semantics.Role? androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver.role;
+    property public static androidx.compose.remote.creation.compose.modifier.RemoteRole? androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver.role;
     property public static androidx.compose.remote.creation.compose.state.RemoteString? androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver.stateDescription;
     property public static androidx.compose.remote.creation.compose.state.RemoteString? androidx.compose.remote.creation.compose.modifier.RemoteSemanticsPropertyReceiver.text;
   }

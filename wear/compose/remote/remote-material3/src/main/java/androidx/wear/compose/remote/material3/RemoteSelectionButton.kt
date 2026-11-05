@@ -31,6 +31,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteRowScope
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteRole
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.drawWithContent
@@ -59,7 +60,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
@@ -111,7 +111,7 @@ internal fun RemoteSelectionButtonImpl(
     iconColor: RemoteColor,
     contentPadding: RemotePaddingValues,
     border: RemoteBorderStroke?,
-    role: Role,
+    role: RemoteRole,
     icon: (@Composable @RemoteComposable () -> Unit)?,
     secondaryLabel: (@Composable @RemoteComposable RemoteRowScope.() -> Unit)?,
     label: @Composable @RemoteComposable RemoteRowScope.() -> Unit,
