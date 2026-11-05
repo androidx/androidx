@@ -16,10 +16,10 @@
 
 package androidx.compose.animation
 
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -153,10 +153,10 @@ class SharedMutableTransformStateTest {
         state.transformScope.offset = IntOffset(100, -50)
 
         now = 0L
-        state.combinedSlide(IntOffset.Zero, IntSize(200, 200))
-        state.combinedSlide(IntOffset.Zero, IntSize(200, 200))
+        state.combinedSlide(IntOffset.Zero)
+        state.combinedSlide(IntOffset.Zero)
         now = 7L
-        state.combinedSlide(IntOffset.Zero, IntSize(200, 200))
+        state.combinedSlide(IntOffset.Zero)
 
         state.updateMutationState(isMutating = false, isSettled = true)
 
@@ -192,10 +192,7 @@ class SharedMutableTransformStateTest {
         assertEquals(1f, state.combinedScale(transitionValue = 0.5f), 0f)
         assertEquals(
             IntOffset.Zero,
-            state.combinedSlide(
-                transitionValue = IntOffset(200, 100),
-                fullSize = IntSize(300, 300),
-            ),
+            state.combinedSlide(transitionValue = IntOffset(200, 100)),
         )
         assertEquals(
             TransformOrigin.Center,
@@ -219,15 +216,55 @@ class SharedMutableTransformStateTest {
         assertEquals(0.5f, state.combinedScale(transitionValue = 0.5f), 0f)
         assertEquals(
             IntOffset(200, 100),
-            state.combinedSlide(
-                transitionValue = IntOffset(200, 100),
-                fullSize = IntSize(300, 300),
-            ),
+            state.combinedSlide(transitionValue = IntOffset(200, 100)),
         )
         assertEquals(
             TransformOrigin(0f, 0f),
             state.combinedTransformOrigin(transitionValue = TransformOrigin(0f, 0f)),
         )
         assertEquals(Color.Red, state.combinedVeil(transitionValue = Color.Red))
+    }
+
+    @Test
+    fun combinedLayerProperties_doNotObserveTransformScopeMutations() {
+        val state = SharedMutableTransformState()
+        state.updateMutationState(isMutating = true, isSettled = true)
+        state.transformScope.alpha = 0.5f
+        state.transformScope.scale = 0.8f
+        state.transformScope.transformOrigin = TransformOrigin(0f, 0f)
+        Snapshot.sendApplyNotifications()
+
+        val readObjects = mutableSetOf<Any>()
+        Snapshot.observe(readObserver = { readObjects.add(it) }) {
+            assertEquals(0.5f, state.combinedAlpha(transitionValue = 1f), 0f)
+            assertEquals(0.8f, state.combinedScale(transitionValue = 1f), 0f)
+            assertEquals(
+                TransformOrigin(0f, 0f),
+                state.combinedTransformOrigin(transitionValue = TransformOrigin.Center),
+            )
+        }
+
+        val modifiedObjects = mutableSetOf<Any>()
+        val handle = Snapshot.registerApplyObserver { changed, _ ->
+            modifiedObjects.addAll(changed)
+        }
+        try {
+            // reset() first, so the is*Mutated flags flip false -> true below and are part of the
+            // modified set as well.
+            state.transformScope.reset()
+            Snapshot.sendApplyNotifications()
+            state.transformScope.alpha = 0.3f
+            state.transformScope.scale = 0.6f
+            state.transformScope.transformOrigin = TransformOrigin(1f, 1f)
+            Snapshot.sendApplyNotifications()
+        } finally {
+            handle.dispose()
+        }
+
+        // transformScope is evaluated during placement right before updateLayerBlock(layerBlock),
+        // so layerBlock must not observe it; otherwise every gesture frame would schedule a
+        // redundant second layer update on snapshot apply.
+        assertTrue(modifiedObjects.isNotEmpty())
+        assertEquals(emptySet<Any>(), readObjects intersect modifiedObjects)
     }
 }

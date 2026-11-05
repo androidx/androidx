@@ -28,11 +28,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -1866,5 +1868,139 @@ class DeferredAnimatedContentTest {
         rule.waitForIdle()
 
         assertEquals(0f, targetWidth, 1f)
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun deferredTransition_alphaOnlyGesture_updatesRenderedAlphaEveryFrame() {
+        val state = DeferredTransitionState("A")
+        var progress by mutableFloatStateOf(0.5f)
+
+        rule.setContent {
+            Box(Modifier.size(100.dp).background(Color.White).testTag("root")) {
+                val transition = rememberDeferredTransition(state)
+                val mutableTransform = remember {
+                    MutableContentTransform { initialContentTransform { alpha = progress } }
+                }
+                transition.DeferredAnimatedContent(
+                    mutableTransformSpec = { mutableTransform },
+                    transitionSpec = { fadeIn(tween(100)) togetherWith fadeOut(tween(100)) },
+                ) { target ->
+                    if (target == "A") Box(Modifier.size(100.dp).background(Color.Red))
+                    else Box(Modifier.size(100.dp))
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        rule.runOnIdle { state.defer("B") }
+        rule.waitForIdle()
+        // Red content with alpha 0.5 over white.
+        val firstPixel =
+            rule.onNodeWithTag("root").captureToImage().toPixelMap().let {
+                it[it.width / 2, it.height / 2]
+            }
+        assertEquals(0.5f, firstPixel.green, 0.05f)
+
+        rule.runOnIdle { progress = 0.2f }
+        rule.waitForIdle()
+        val secondPixel =
+            rule.onNodeWithTag("root").captureToImage().toPixelMap().let {
+                it[it.width / 2, it.height / 2]
+            }
+        assertEquals(0.8f, secondPixel.green, 0.05f)
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun deferredTransition_veilOnlyGesture_updatesRenderedVeilEveryFrame() {
+        val state = DeferredTransitionState("A")
+        var progress by mutableFloatStateOf(0.5f)
+
+        rule.setContent {
+            Box(Modifier.size(100.dp).background(Color.White).testTag("root")) {
+                val transition = rememberDeferredTransition(state)
+                val mutableTransform = remember {
+                    MutableContentTransform {
+                        initialContentTransform { veil = Color.Black.copy(alpha = progress) }
+                    }
+                }
+                transition.DeferredAnimatedContent(
+                    mutableTransformSpec = { mutableTransform },
+                    transitionSpec = { fadeIn(tween(100)) togetherWith fadeOut(tween(100)) },
+                ) { target ->
+                    if (target == "A") Box(Modifier.size(100.dp).background(Color.Red))
+                    else Box(Modifier.size(100.dp))
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        rule.runOnIdle { state.defer("B") }
+        rule.waitForIdle()
+        // Red content under a black veil with alpha 0.5.
+        val firstPixel =
+            rule.onNodeWithTag("root").captureToImage().toPixelMap().let {
+                it[it.width / 2, it.height / 2]
+            }
+        assertEquals(0.5f, firstPixel.red, 0.05f)
+
+        rule.runOnIdle { progress = 0.2f }
+        rule.waitForIdle()
+        val secondPixel =
+            rule.onNodeWithTag("root").captureToImage().toPixelMap().let {
+                it[it.width / 2, it.height / 2]
+            }
+        assertEquals(0.8f, secondPixel.red, 0.05f)
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun deferredTransition_scaleGesture_updatesRenderedScaleAndTransformOriginEveryFrame() {
+        val state = DeferredTransitionState("A")
+        var scale by mutableFloatStateOf(1f)
+        var transformOrigin by mutableStateOf(TransformOrigin.Center)
+
+        rule.setContent {
+            Box(Modifier.size(100.dp).background(Color.White).testTag("root")) {
+                val transition = rememberDeferredTransition(state)
+                val mutableTransform = remember {
+                    MutableContentTransform {
+                        initialContentTransform {
+                            this.scale = scale
+                            this.transformOrigin = transformOrigin
+                        }
+                    }
+                }
+                transition.DeferredAnimatedContent(
+                    mutableTransformSpec = { mutableTransform },
+                    transitionSpec = { fadeIn(tween(100)) togetherWith fadeOut(tween(100)) },
+                ) { target ->
+                    if (target == "A") Box(Modifier.size(100.dp).background(Color.Red))
+                    else Box(Modifier.size(100.dp))
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        fun topLeftPixel() =
+            rule.onNodeWithTag("root").captureToImage().toPixelMap().let {
+                it[it.width / 10, it.height / 10]
+            }
+
+        rule.runOnIdle { state.defer("B") }
+        rule.waitForIdle()
+        // Unscaled red content covers the whole root.
+        assertEquals(Color.Red, topLeftPixel())
+
+        rule.runOnIdle { scale = 0.5f }
+        rule.waitForIdle()
+        // Scaled around the center, the content covers only the middle half of the root.
+        assertEquals(Color.White, topLeftPixel())
+
+        rule.runOnIdle { transformOrigin = TransformOrigin(0f, 0f) }
+        rule.waitForIdle()
+        // Scaled around the top left corner, the content covers the top left quarter.
+        assertEquals(Color.Red, topLeftPixel())
     }
 }
