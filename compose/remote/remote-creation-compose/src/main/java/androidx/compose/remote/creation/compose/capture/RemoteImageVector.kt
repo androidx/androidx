@@ -21,6 +21,7 @@ package androidx.compose.remote.creation.compose.capture
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.RemotePath
+import androidx.compose.remote.creation.compose.layout.BlackArgb
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemoteColor
@@ -35,7 +36,8 @@ import androidx.compose.remote.creation.compose.vector.RemotePathData
 import androidx.compose.remote.creation.compose.vector.RemotePathNode
 import androidx.compose.remote.creation.compose.vector.RemotePathScope
 import androidx.compose.remote.creation.compose.vector.painterRemoteVector
-import androidx.compose.ui.graphics.Color
+
+internal const val TransparentArgb: Int = 0x00000000
 
 /**
  * A base class for defining vector graphics that can be drawn in a remote compose. It could be
@@ -63,7 +65,7 @@ internal constructor(
     internal val defaultHeight: RemoteFloat,
     internal val viewportWidth: RemoteFloat,
     internal val viewportHeight: RemoteFloat,
-    internal val tintColor: RemoteColor = RemoteColor(Color.Unspecified),
+    internal val tintColor: RemoteColor = RemoteColor(TransparentArgb),
     internal val tintBlendMode: RemoteBlendMode = RemoteBlendMode.SrcIn,
     internal val autoMirror: Boolean = false,
 ) {
@@ -71,7 +73,7 @@ internal constructor(
         name: String,
         viewportWidth: RemoteFloat,
         viewportHeight: RemoteFloat,
-        tintColor: RemoteColor = RemoteColor(Color.Black),
+        tintColor: RemoteColor = RemoteColor(BlackArgb),
         tintBlendMode: RemoteBlendMode = RemoteBlendMode.SrcIn,
         autoMirror: Boolean = false,
     ) : this(

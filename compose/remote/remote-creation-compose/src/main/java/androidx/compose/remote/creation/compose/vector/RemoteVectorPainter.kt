@@ -24,6 +24,7 @@ import androidx.compose.remote.creation.compose.capture.DefaultIconSize
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.capture.RemoteVectorGroup
 import androidx.compose.remote.creation.compose.capture.RemoteVectorPath
+import androidx.compose.remote.creation.compose.capture.TransparentArgb
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
@@ -34,10 +35,7 @@ import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemoteBlendModeColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteColorFilter
-import androidx.compose.remote.creation.compose.state.asConstantColorOrNull
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.isSpecified
 
 /** A [RemotePainter] that draws a [RemoteImageVector] into the provided [RemoteCanvas]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -128,18 +126,12 @@ internal fun RemoteVectorPainter.configureRemoteVectorPainter(
 internal fun createColorFilter(
     tintColor: RemoteColor,
     tintBlendMode: RemoteBlendMode,
-): RemoteColorFilter? {
-    val constantColor = tintColor.asConstantColorOrNull()
-    return if (constantColor != null) {
-        if (constantColor.isSpecified && constantColor != Color.Transparent) {
-            RemoteBlendModeColorFilter(tintColor, tintBlendMode)
-        } else {
-            null
-        }
+): RemoteColorFilter? =
+    if (tintColor.constantValueOrNull == TransparentArgb) {
+        null
     } else {
         RemoteBlendModeColorFilter(tintColor, tintBlendMode)
     }
-}
 
 /** Helper method to create a VectorPainter instance from a RemoteImageVector */
 internal fun createVectorPainterFromRemoteImageVector(

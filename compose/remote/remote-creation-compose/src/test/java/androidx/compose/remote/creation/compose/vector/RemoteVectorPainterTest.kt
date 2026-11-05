@@ -18,8 +18,10 @@ package androidx.compose.remote.creation.compose.vector
 
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
+import androidx.compose.remote.creation.compose.capture.TransparentArgb
 import androidx.compose.remote.creation.compose.capture.path
 import androidx.compose.remote.creation.compose.capture.toRemoteImageVector
+import androidx.compose.remote.creation.compose.layout.BlackArgb
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.shaders.horizontalGradient
@@ -236,5 +238,34 @@ class RemoteVectorPainterTest {
         val painter = painterRemoteVector(remoteImageVector) as RemoteVectorPainter
         val colorFilter = painter.intrinsicColorFilter as RemoteBlendModeColorFilter
         assertThat(colorFilter.blendMode).isEqualTo(RemoteBlendMode.Modulate)
+    }
+
+    @Test
+    fun createColorFilter_pinnedBehavior() {
+        // TransparentArgb -> null
+        assertThat(createColorFilter(RemoteColor(TransparentArgb), RemoteBlendMode.SrcIn)).isNull()
+
+        // Alpha-0 color with non-zero RGB -> filter
+        val alphaZeroNonZeroRgb = RemoteColor(0x00FF0000)
+        assertThat(createColorFilter(alphaZeroNonZeroRgb, RemoteBlendMode.SrcIn)).isNotNull()
+
+        // Opaque constant -> filter
+        val opaqueColor = RemoteColor(BlackArgb)
+        assertThat(createColorFilter(opaqueColor, RemoteBlendMode.SrcIn)).isNotNull()
+
+        // Named color (dynamic) -> filter
+        val namedColor = RemoteColor.createNamedRemoteColor("testColor", BlackArgb)
+        assertThat(createColorFilter(namedColor, RemoteBlendMode.SrcIn)).isNotNull()
+
+        // Default tint of internal primary RemoteImageVector constructor -> null
+        val defaultVector =
+            RemoteImageVector(
+                name = "DefaultTintVector",
+                defaultWidth = 24f.rf,
+                defaultHeight = 24f.rf,
+                viewportWidth = 24f.rf,
+                viewportHeight = 24f.rf,
+            )
+        assertThat(createColorFilter(defaultVector.tintColor, defaultVector.tintBlendMode)).isNull()
     }
 }
