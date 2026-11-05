@@ -29,6 +29,7 @@ import kotlin.test.assertFailsWith
 import org.junit.After
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Ignore
@@ -219,6 +220,35 @@ class BaselineProfileRuleTest {
             )
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = 31)
+    fun captureLoadOrder() {
+        // Don't run tests on Cuttlefish.
+        // Hardware perf_events in simpleperf fail in Cuttlefish because Cuttlefish runs as a
+        // virtual machine where the hypervisor (KVM / crosvm) does not virtualize or pass through
+        // the host CPU's hardware Performance Monitoring Unit (PMU).
+        assumeFalse(Build.MODEL.contains("Cuttlefish"))
+        val config =
+            BaselineProfileConfig.Builder(
+                    packageName = Arguments.getTargetPackageNameOrThrow(),
+                    profileBlock = {
+                        startActivityAndWait(Intent(ACTION))
+                        device.waitForIdle()
+                    },
+                )
+                .setMaxIterations(1)
+                .setIncludeInStartupProfile(true)
+                .setMaxLoadOrderIterations(1)
+                .setRestrictLoadOrderToDataDirectory(false)
+                .build()
+
+        val result = baselineRule.collectWithResults(config = config)
+        assertTrue(
+            /* message = */ "Load order files should exist",
+            /* condition = */ result.loadOrderFiles.isNotEmpty(),
+        )
+    }
+
     companion object {
         private const val ACTION =
             "androidx.benchmark.integration.macrobenchmark.target.EMPTY_ACTIVITY"
@@ -239,7 +269,7 @@ class BaselineProfileRuleTest {
             if (predicate(line, next)) remaining.removeAt(0)
         }
 
-        if (remaining.size > 0) {
+        if (remaining.isNotEmpty()) {
             fail(
                 """
                 The following lines were not found in order:
