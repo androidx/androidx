@@ -49,3 +49,7 @@ android {
     }
     namespace = "com.example.androidx"
 }
+
+androidx {
+    legacyDisableReferenceEqualityCheck = true
+}

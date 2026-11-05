@@ -69,4 +69,5 @@ androidx {
     inceptionYear = "2021"
     description = "androidx.car.app:app-testing"
     enableRobolectric()
+    legacyDisableReferenceEqualityCheck = true
 }

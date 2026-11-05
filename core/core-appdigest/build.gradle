@@ -50,6 +50,7 @@ androidx {
     mavenVersion = LibraryVersions.CORE_APPDIGEST
     inceptionYear = "2020"
     description = "AndroidX AppDigest Library"
+    legacyDisableReferenceEqualityCheck = true
 }
 
 android {

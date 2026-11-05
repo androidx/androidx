@@ -74,4 +74,5 @@ androidx {
     inceptionYear = "2020"
     description = "Android Wear Tiles"
     enableRobolectric()
+    legacyDisableReferenceEqualityCheck = true
 }

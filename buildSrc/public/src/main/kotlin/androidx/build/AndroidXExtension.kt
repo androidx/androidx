@@ -379,6 +379,9 @@ abstract class AndroidXExtension(
             playgroundProjectOrArtifact(project.rootProject, name)
         }
     }
+
+    val legacyDisableReferenceEqualityCheck =
+        project.objects.property(Boolean::class.java).convention(false)
 }
 
 abstract class License {

@@ -60,4 +60,5 @@ androidx {
     failOnDeprecationWarnings = false
     addGoldenImageAssets()
     enableRobolectric()
+    legacyDisableReferenceEqualityCheck = true
 }

@@ -147,6 +147,7 @@ dependencies {
 
 androidx {
     enableRobolectric()
+    legacyDisableReferenceEqualityCheck = true
 }
 
 // Publish the APK to dist/apk for testing.

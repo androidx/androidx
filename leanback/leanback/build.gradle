@@ -59,4 +59,5 @@ androidx {
     inceptionYear = "2014"
     description = "Android Support Leanback v17"
     failOnDeprecationWarnings = false
+    legacyDisableReferenceEqualityCheck = true
 }
