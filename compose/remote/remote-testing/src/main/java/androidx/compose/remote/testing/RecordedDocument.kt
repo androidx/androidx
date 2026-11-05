@@ -16,7 +16,10 @@
 
 package androidx.compose.remote.testing
 
+import android.app.PendingIntent
 import androidx.annotation.RestrictTo
+import androidx.collection.IntObjectMap
+import androidx.collection.emptyIntObjectMap
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
@@ -43,6 +46,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
  *
  * @property bytes The serialized document, exactly as produced by creation.
  * @property profile The [Profile] the document was created with.
+ * @property pendingIntents [PendingIntent]s captured with the document, keyed by index.
  * @param clock The [RemoteClock] of [coreDocument].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -50,6 +54,7 @@ public class RecordedDocument(
     public val bytes: ByteArray,
     public val profile: Profile,
     private val clock: RemoteClock = RemoteClock.SYSTEM,
+    public val pendingIntents: IntObjectMap<PendingIntent> = emptyIntObjectMap(),
 ) {
     /** The [CoreDocument] decoded from [bytes]. It is decoded on first access. */
     public val coreDocument: CoreDocument by
@@ -77,18 +82,23 @@ public fun rememberRecordedDocument(
     val context = LocalContext.current
     val document: MutableState<RecordedDocument?> = remember { mutableStateOf(null) }
     LaunchedEffect(Unit) {
-        val bytes =
+        val captured =
             captureSingleRemoteDocument(
-                    context = context,
-                    creationDisplayInfo = creationDisplayInfo,
-                    layoutDirection = layoutDirection,
-                    clock = clock,
-                    profile = profile,
-                    writerEvents = writerEvents,
-                    content = content,
-                )
-                .bytes
-        val recordedDocument = RecordedDocument(bytes = bytes, profile = profile, clock = clock)
+                context = context,
+                creationDisplayInfo = creationDisplayInfo,
+                layoutDirection = layoutDirection,
+                clock = clock,
+                profile = profile,
+                writerEvents = writerEvents,
+                content = content,
+            )
+        val recordedDocument =
+            RecordedDocument(
+                bytes = captured.bytes,
+                profile = profile,
+                clock = clock,
+                pendingIntents = captured.pendingIntents,
+            )
         onCreate?.invoke(recordedDocument)
         document.value = recordedDocument
     }

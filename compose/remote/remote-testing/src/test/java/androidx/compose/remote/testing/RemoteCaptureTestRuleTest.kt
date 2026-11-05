@@ -16,11 +16,15 @@
 
 package androidx.compose.remote.testing
 
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import androidx.compose.remote.core.RemoteClock
+import androidx.compose.remote.creation.compose.action.rememberPendingIntentAction
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
+import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
@@ -98,6 +102,26 @@ class RemoteCaptureTestRuleTest {
 
         assertThat(clock.nanoTimeCalls).isGreaterThan(0)
         assertThat(document.clock).isSameInstanceAs(clock)
+    }
+
+    @Test
+    fun captureRecordedDocument_preservesPendingIntents(): Unit = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val pendingIntent =
+            PendingIntent.getBroadcast(
+                context,
+                0,
+                Intent("androidx.compose.remote.testing.TEST").setPackage(context.packageName),
+                PendingIntent.FLAG_IMMUTABLE,
+            )
+
+        val document =
+            captureRule.captureRecordedDocument(context) {
+                val action = rememberPendingIntentAction { pendingIntent }
+                RemoteBox(modifier = RemoteModifier.size(100.rdp).clickable(action))
+            }
+
+        assertThat(document.pendingIntents[0]).isSameInstanceAs(pendingIntent)
     }
 
     /**

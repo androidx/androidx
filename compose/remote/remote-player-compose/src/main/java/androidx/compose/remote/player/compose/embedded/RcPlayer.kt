@@ -42,10 +42,10 @@ import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.RootContentBehavior
 import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.creation.compose.action.LambdaAction
-import androidx.compose.remote.creation.compose.action.PendingIntentActionHandler
 import androidx.compose.remote.creation.compose.capture.RemoteCapturedDocument
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
+import androidx.compose.remote.player.compose.action.PendingIntentActionHandler
 import androidx.compose.remote.player.compose.embedded.components.RcPlayerClickAreas
 import androidx.compose.remote.player.compose.embedded.components.RcPlayerHapticEffect
 import androidx.compose.remote.player.compose.embedded.components.RcPlayerRawDocument

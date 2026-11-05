@@ -47,7 +47,7 @@ import androidx.compose.ui.platform.LocalInspectionMode
  * The [PendingIntent] is not serialized into the document. It is stored in
  * [androidx.compose.remote.creation.compose.capture.RemoteCapturedDocument.pendingIntents], keyed
  * by its index, and the host sends it when the action runs: the embedded player through
- * [PendingIntentActionHandler], and `RemoteViews` hosts once it is registered with
+ * `PendingIntentActionHandler`, and `RemoteViews` hosts once it is registered with
  * `setOnClickPendingIntent(PendingIntentAction.FIRST_ACTION_ID + index, it)`.
  *
  * [extras] are for values that are only known during playback, such as remote state. Each one is
@@ -55,7 +55,7 @@ import androidx.compose.ui.platform.LocalInspectionMode
  * [android.content.Intent] of the [PendingIntent] instead, where every host delivers them; constant
  * entries in [extras] are ignored. Extras are only delivered when:
  * - the [PendingIntent] is created with [PendingIntent.FLAG_MUTABLE],
- * - the host fills them in, as [PendingIntentActionHandler] does, and
+ * - the host fills them in, as `PendingIntentActionHandler` does, and
  * - the document is not captured for Wear widgets, whose hosts don't support them.
  *
  * Otherwise the [PendingIntent] is sent without them, so receivers should handle a missing key.
@@ -99,7 +99,7 @@ public fun rememberPendingIntentAction(
  *   action with id [FIRST_ACTION_ID] + index. This is the only host action `RemoteViews`
  *   dispatches, to the `PendingIntent` registered with `setOnClickPendingIntent` for that id.
  * - With dynamic [extras], outside Wear widgets: the same id action, carrying the extras as its
- *   metadata, for players that use [PendingIntentActionHandler].
+ *   metadata, for players that use `PendingIntentActionHandler`.
  * - Otherwise, including Wear widgets: a named action [ACTION_NAME] with the index as an int value,
  *   the encoding existing hosts dispatch. It cannot carry extras.
  */
