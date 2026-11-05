@@ -233,6 +233,13 @@ internal class MeasurePassDelegate(private val layoutNodeLayoutDelegate: LayoutN
                 owner.snapshotObserver.observeLayoutSnapshotReads(this, block = layoutChildrenBlock)
             }
             layoutState = oldLayoutState
+            if (
+                innerCoordinator.isPlacingForAlignment &&
+                    (layoutNodeLayoutDelegate.coordinatesAccessedDuringPlacement ||
+                        layoutNodeLayoutDelegate.coordinatesAccessedDuringModifierPlacement)
+            ) {
+                requestLayout()
+            }
             layoutPendingForAlignment = false
         }
 

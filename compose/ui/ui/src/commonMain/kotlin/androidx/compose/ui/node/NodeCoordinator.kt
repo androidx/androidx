@@ -183,6 +183,16 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
         }
     }
 
+    override fun onCoordinatesUsedWhilePlacingForAlignment() {
+        val layoutDelegate = layoutNode.layoutDelegate
+        if (child == null) {
+            layoutDelegate.coordinatesAccessedDuringPlacement = true
+        } else {
+            layoutDelegate.coordinatesAccessedDuringModifierPlacement = true
+            alignmentLinesOwner.requestLayout()
+        }
+    }
+
     override val hasMeasureResult: Boolean
         get() = _measureResult != null
 

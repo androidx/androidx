@@ -174,8 +174,16 @@ internal abstract class LookaheadCapablePlaceable :
         MutableScatterMap<Ruler, MutableScatterSet<WeakReference<LayoutNode>>>? =
         null
 
+    /**
+     * Called when [Placeable.PlacementScope.coordinates] or a [Ruler] value is read while
+     * [isPlacingForAlignment] is `true`. Neither is available during alignment placement, so this
+     * records the access and ensures that the real placement runs afterward.
+     */
+    internal abstract fun onCoordinatesUsedWhilePlacingForAlignment()
+
     fun findRulerValue(ruler: Ruler, defaultValue: Float): Float {
         if (isPlacingForAlignment) {
+            onCoordinatesUsedWhilePlacingForAlignment()
             return defaultValue
         }
         var p: LookaheadCapablePlaceable = this
@@ -667,6 +675,16 @@ internal abstract class LookaheadDelegate(val coordinator: NodeCoordinator) :
     override val alignmentLinesOwner: AlignmentLinesOwner
         get() = coordinator.layoutNode.layoutDelegate.lookaheadAlignmentLinesOwner!!
 
+    override fun onCoordinatesUsedWhilePlacingForAlignment() {
+        val layoutDelegate = layoutNode.layoutDelegate
+        if (child == null) {
+            layoutDelegate.lookaheadCoordinatesAccessedDuringPlacement = true
+        } else {
+            layoutDelegate.lookaheadCoordinatesAccessedDuringModifierPlacement = true
+            alignmentLinesOwner.requestLayout()
+        }
+    }
+
     private var _measureResult: MeasureResult? = null
         set(result) {
             result?.let { measuredSize = IntSize(it.width, it.height) }
@@ -710,7 +728,15 @@ internal abstract class LookaheadDelegate(val coordinator: NodeCoordinator) :
         if (!isPlacingForAlignment) {
             layoutPendingForAlignment = false
         }
-        placeChildren()
+        val child = child
+        if (child != null) {
+            val wasPlacingForAlignment = child.isPlacingForAlignment
+            child.isPlacingForAlignment = isPlacingForAlignment
+            placeChildren()
+            child.isPlacingForAlignment = wasPlacingForAlignment
+        } else {
+            placeChildren()
+        }
     }
 
     private fun placeSelf(position: IntOffset) {
