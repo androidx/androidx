@@ -287,7 +287,6 @@ public final class JavaScriptSandbox implements AutoCloseable {
      * @return a Future that evaluates to a connected {@link JavaScriptSandbox} instance or an
      * exception if binding to the service fails.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull
     @RequiresApi(Build.VERSION_CODES.Q)
     public static ListenableFuture<JavaScriptSandbox> createSharedSandboxAsync(
@@ -315,7 +314,6 @@ public final class JavaScriptSandbox implements AutoCloseable {
      * @return a Future that evaluates to a connected {@link JavaScriptSandbox} instance or an
      * exception if binding to the service fails.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull
     @RequiresApi(Build.VERSION_CODES.Q)
     public static ListenableFuture<JavaScriptSandbox> createDedicatedSandboxAsync(
@@ -378,7 +376,6 @@ public final class JavaScriptSandbox implements AutoCloseable {
      * <p>
      * This may be called even after the sandbox has been closed.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public boolean isShared() {
         return mConnection.getSandboxServiceInstance().getServiceType()
                 == SandboxServiceInstance.SERVICE_TYPE_SHARED;
