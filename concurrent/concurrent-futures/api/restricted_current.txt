@@ -1,5 +1,5 @@
 // Signature format: 5.0
-// - surface=restricted-non-atomic-group
+// - surface=restricted-atomic-group
 package androidx.concurrent.futures {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class AbstractResolvableFuture<V> implements com.google.common.util.concurrent.ListenableFuture<V> {

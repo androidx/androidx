@@ -1,5 +1,5 @@
 // Signature format: 5.0
-// - surface=restricted-atomic-group
+// - surface=restricted-non-atomic-group
 package androidx.graphics.path {
 
   public final class PathIterator implements java.util.Iterator<androidx.graphics.path.PathSegment> kotlin.jvm.internal.markers.KMappedMarker {

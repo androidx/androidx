@@ -1,5 +1,5 @@
 // Signature format: 5.0
-// - surface=restricted-non-atomic-group
+// - surface=restricted-atomic-group
 package androidx.lifecycle {
 
   @Deprecated public abstract class AbstractSavedStateViewModelFactory implements androidx.lifecycle.ViewModelProvider.Factory {

@@ -1,5 +1,5 @@
 // Signature format: 5.0
-// - surface=restricted-non-atomic-group
+// - surface=restricted-atomic-group
 package androidx.collection {
 
   public class ArrayMap<K, V> extends androidx.collection.SimpleArrayMap<K,V> implements java.util.Map<K,V> {

@@ -1,5 +1,5 @@
 // Signature format: 5.0
-// - surface=restricted-non-atomic-group
+// - surface=restricted-atomic-group
 package androidx.appsearch.annotation {
 
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface Document {

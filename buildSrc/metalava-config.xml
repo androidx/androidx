@@ -18,7 +18,7 @@
     </api-surface>
 
     <!--
-     ! The "restricted-non-atomic-group" API surface.
+     ! The "restricted-atomic-group" API surface.
      !
      ! It extends the "public" surface. Setting `contents="standalone"` ensures that the generated
      ! API signature file is complete and contains the entire API surface (both the inherited public
@@ -28,7 +28,7 @@
      ! they are hidden by the parent "public" surface's general hide rule for `@RestrictTo`, and this surface
      ! does not explicitly override or show them.
      !-->
-    <api-surface name="restricted-non-atomic-group" extends="public" contents="standalone">
+    <api-surface name="restricted-atomic-group" extends="public" contents="standalone">
       <selection-criteria>
         <!--
          ! Include inter-library APIs that are restricted to different groups of libraries (LIBRARY_GROUP_PREFIX).
@@ -42,14 +42,14 @@
     </api-surface>
 
     <!--
-     ! The "restricted-atomic-group" API surface.
+     ! The "restricted-non-atomic-group" API surface.
      !
-     ! It extends the "restricted-non-atomic-group" surface. Setting `contents="standalone"` ensures that the generated
+     ! It extends the "restricted-atomic-group" surface. Setting `contents="standalone"` ensures that the generated
      ! API signature file is complete and contains the entire API surface (both the inherited APIs from
-     ! "restricted-non-atomic-group" and the newly exposed ones), rather than just the delta (differences) compared to
-     ! "restricted-non-atomic-group".
+     ! "restricted-atomic-group" and the newly exposed ones), rather than just the delta (differences) compared to
+     ! "restricted-atomic-group".
      !-->
-    <api-surface name="restricted-atomic-group" extends="restricted-non-atomic-group" contents="standalone">
+    <api-surface name="restricted-non-atomic-group" extends="restricted-atomic-group" contents="standalone">
       <selection-criteria>
         <!--
          ! Include inter-library APIs that are restricted to libraries within the same group (LIBRARY_GROUP).

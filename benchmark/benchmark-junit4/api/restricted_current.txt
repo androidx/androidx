@@ -1,5 +1,5 @@
 // Signature format: 5.0
-// - surface=restricted-non-atomic-group
+// - surface=restricted-atomic-group
 package androidx.benchmark.junit4 {
 
   public class AndroidBenchmarkRunner extends androidx.test.runner.AndroidJUnitRunner {

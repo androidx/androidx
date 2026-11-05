@@ -1,5 +1,5 @@
 // Signature format: 5.0
-// - surface=restricted-non-atomic-group
+// - surface=restricted-atomic-group
 package androidx.photopicker.embedded.testing {
 
   @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) @RequiresExtension(extension=android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version=15) public final class TestEmbeddedPhotoPickerProvider implements android.widget.photopicker.EmbeddedPhotoPickerProvider {

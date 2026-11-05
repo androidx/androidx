@@ -1,5 +1,5 @@
 // Signature format: 5.0
-// - surface=restricted-non-atomic-group
+// - surface=restricted-atomic-group
 package androidx.arch.core.internal {
 
   @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FastSafeIterableMap<K, V> extends androidx.arch.core.internal.SafeIterableMap<K,V> {
