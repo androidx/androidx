@@ -75,6 +75,7 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.selectIfGt
 import androidx.compose.remote.creation.compose.state.selectIfLt
 import androidx.compose.remote.creation.compose.state.toRemoteString
+import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.util.MyRemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.util.TestRemoteComposeBuffer
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
@@ -84,7 +85,6 @@ import androidx.compose.remote.player.compose.test.utils.TestPlayer
 import androidx.compose.remote.player.core.platform.AndroidCustomContext
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontVariation
 import com.google.common.truth.Truth.assertThat
 import java.text.DecimalFormat
 import org.junit.Assert.assertEquals
@@ -138,7 +138,11 @@ class RemoteCanvasTest {
     fun testFontVariationSettingsSync() {
         setupRemoteCanvas()
 
-        val settings = FontVariation.Settings(FontVariation.weight(500), FontVariation.width(100f))
+        val settings =
+            RemoteFontVariation.Settings(
+                RemoteFontVariation.Setting("wght", 500f.rf),
+                RemoteFontVariation.Setting("wdth", 100f.rf),
+            )
         val paint = RemotePaint { fontVariationSettings = settings }
 
         val wghtId = creationState.document.addText("wght")

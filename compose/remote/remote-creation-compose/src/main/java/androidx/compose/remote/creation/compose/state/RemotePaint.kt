@@ -20,8 +20,6 @@ import androidx.compose.remote.creation.compose.layout.BlackArgb
 import androidx.compose.remote.creation.compose.shaders.RemoteShader
 import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
-import androidx.compose.remote.creation.compose.text.toRemoteFontVariationSettings
-import androidx.compose.ui.text.font.FontVariation
 
 /**
  * A paint object used for remote drawing operations.
@@ -82,12 +80,8 @@ public sealed interface RemotePaint {
     /** The CSS-style font feature settings string (e.g., "tnum", "zero"). */
     public var fontFeatureSettings: String?
 
-    /** The [FontVariation.Settings] to use for drawing text. */
-    public var fontVariationSettings: FontVariation.Settings?
-
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val remoteFontVariationSettings: RemoteFontVariation.Settings?
-        get() = fontVariationSettings?.toRemoteFontVariationSettings()
+    /** The [RemoteFontVariation.Settings] to use for drawing text. */
+    public var fontVariationSettings: RemoteFontVariation.Settings?
 
     public companion object {
         /**
@@ -119,7 +113,7 @@ internal class StandardRemotePaint() : RemotePaint {
     public override var color: RemoteColor = RemoteColor(BlackArgb)
     public override var colorFilter: RemoteColorFilter? = null
     public override var fontFeatureSettings: String? = null
-    public override var fontVariationSettings: FontVariation.Settings? = null
+    public override var fontVariationSettings: RemoteFontVariation.Settings? = null
 
     /**
      * Creates a [StandardRemotePaint] by copying properties from another [RemotePaint].

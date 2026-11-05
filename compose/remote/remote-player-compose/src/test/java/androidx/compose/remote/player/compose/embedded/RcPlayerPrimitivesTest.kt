@@ -113,6 +113,7 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
+import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
@@ -1919,7 +1920,9 @@ class RcPlayerPrimitivesTest {
                 val paint =
                     RemotePaint().apply {
                         fontVariationSettings =
-                            FontVariation.Settings(FontVariation.Setting("wdth", 100f))
+                            RemoteFontVariation.Settings(
+                                RemoteFontVariation.Setting("wdth", 100f.rf)
+                            )
                     }
                 drawText("Var Text".rs, 0f.rf, 0f.rf, paint)
             }

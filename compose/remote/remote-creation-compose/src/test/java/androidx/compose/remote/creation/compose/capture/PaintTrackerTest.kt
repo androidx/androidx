@@ -44,8 +44,10 @@ import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
 import androidx.compose.remote.creation.compose.state.asRemotePaint
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.compose.text.RemoteTypeface.Companion.create
+import androidx.compose.remote.creation.compose.text.toRemoteFontVariationSettings
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
@@ -328,7 +330,11 @@ class PaintTrackerTest {
 
     @Test
     fun testFontVariationSettingsSync() {
-        val settings = FontVariation.Settings(FontVariation.weight(500), FontVariation.width(100f))
+        val settings =
+            RemoteFontVariation.Settings(
+                RemoteFontVariation.Setting("wght", 500f.rf),
+                RemoteFontVariation.Setting("wdth", 100f.rf),
+            )
         val paint = RemotePaint { fontVariationSettings = settings }
         val bundle = PaintBundle()
 
@@ -393,7 +399,7 @@ class PaintTrackerTest {
 
     @Test
     fun testFontFeatureAndVariationSettingsCombinedSync() {
-        val settings = FontVariation.Settings(FontVariation.weight(600))
+        val settings = RemoteFontVariation.Settings(RemoteFontVariation.Setting("wght", 600f.rf))
         val paint = RemotePaint {
             fontFeatureSettings = "tnum"
             fontVariationSettings = settings
@@ -458,7 +464,8 @@ class PaintTrackerTest {
             tracker.reset(force = false)
 
             val paint = RemotePaint {
-                fontVariationSettings = FontVariation.Settings(FontVariation.weight(400))
+                fontVariationSettings =
+                    RemoteFontVariation.Settings(RemoteFontVariation.Setting("wght", 400f.rf))
             }
             tracker.updateWithPaint(paint, PaintBundle(), creationState)
 
@@ -473,7 +480,8 @@ class PaintTrackerTest {
         val wghtId = creationState.document.addText("wght")
         remoteContext.loadText(wghtId, "wght")
         val negativeZeroPaint = RemotePaint {
-            fontVariationSettings = FontVariation.Settings(FontVariation.Setting("wght", -0f))
+            fontVariationSettings =
+                RemoteFontVariation.Settings(RemoteFontVariation.Setting("wght", (-0f).rf))
         }
         val bundle = PaintBundle()
         tracker.updateWithPaint(negativeZeroPaint, bundle, creationState)
@@ -484,7 +492,8 @@ class PaintTrackerTest {
 
         tracker.reset(force = false)
         val zeroPaint = RemotePaint {
-            fontVariationSettings = FontVariation.Settings(FontVariation.Setting("wght", 0f))
+            fontVariationSettings =
+                RemoteFontVariation.Settings(RemoteFontVariation.Setting("wght", 0f.rf))
         }
         tracker.updateWithPaint(zeroPaint, PaintBundle(), creationState)
 
@@ -496,7 +505,10 @@ class PaintTrackerTest {
     fun testFontFeatureSettingsOverrideVariationAxesInPlace() {
         val paint = RemotePaint {
             fontVariationSettings =
-                FontVariation.Settings(FontVariation.width(100f), FontVariation.weight(700))
+                RemoteFontVariation.Settings(
+                    RemoteFontVariation.Setting("wdth", 100f.rf),
+                    RemoteFontVariation.Setting("wght", 700f.rf),
+                )
             fontFeatureSettings = "'wght' 300, tnum"
         }
         val bundle = PaintBundle()
@@ -527,7 +539,8 @@ class PaintTrackerTest {
         remoteContext.loadText(wghtId, "wght")
         remoteContext.loadText(tnumId, "tnum")
         val withVariations = RemotePaint {
-            fontVariationSettings = FontVariation.Settings(FontVariation.weight(400))
+            fontVariationSettings =
+                RemoteFontVariation.Settings(RemoteFontVariation.Setting("wght", 400f.rf))
             fontFeatureSettings = "'tnum' 0, 'tnum' 1"
         }
         val bundle = PaintBundle()
@@ -543,7 +556,9 @@ class PaintTrackerTest {
     @Test
     fun testFontVariationSettingsSync_DensityDependentSettingThrows() {
         val paint = RemotePaint {
-            fontVariationSettings = FontVariation.Settings(FontVariation.opticalSizing(16.sp))
+            fontVariationSettings =
+                FontVariation.Settings(FontVariation.opticalSizing(16.sp))
+                    .toRemoteFontVariationSettings()
         }
 
         val exception =
@@ -556,7 +571,9 @@ class PaintTrackerTest {
     @Test
     fun testFontVariationSettingsSync_UnchangedDensityDependentSettingIsNotResolvedAgain() {
         val paint = RemotePaint {
-            fontVariationSettings = FontVariation.Settings(FontVariation.opticalSizing(16.sp))
+            fontVariationSettings =
+                FontVariation.Settings(FontVariation.opticalSizing(16.sp))
+                    .toRemoteFontVariationSettings()
         }
         assertFailsWith<IllegalArgumentException> {
             tracker.updateWithPaint(paint, PaintBundle(), creationState)
@@ -575,7 +592,9 @@ class PaintTrackerTest {
     @Test
     fun testFontFeatureSettingsOverrideDensityDependentVariationAxis() {
         val paint = RemotePaint {
-            fontVariationSettings = FontVariation.Settings(FontVariation.opticalSizing(16.sp))
+            fontVariationSettings =
+                FontVariation.Settings(FontVariation.opticalSizing(16.sp))
+                    .toRemoteFontVariationSettings()
             fontFeatureSettings = "'opsz' 12"
         }
         val bundle = PaintBundle()
@@ -601,7 +620,11 @@ class PaintTrackerTest {
     fun testFontVariationSettingsSync_RemotePaint() {
         assumeTrue(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
 
-        val settings = FontVariation.Settings(FontVariation.weight(500), FontVariation.width(100f))
+        val settings =
+            RemoteFontVariation.Settings(
+                RemoteFontVariation.Setting("wght", 500f.rf),
+                RemoteFontVariation.Setting("wdth", 100f.rf),
+            )
         val paint = RemotePaint { fontVariationSettings = settings }
         val bundle = PaintBundle()
 

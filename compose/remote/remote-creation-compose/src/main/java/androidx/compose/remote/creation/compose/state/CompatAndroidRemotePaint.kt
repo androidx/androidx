@@ -30,8 +30,8 @@ import androidx.compose.remote.creation.compose.layout.toRemotePaintingStyle
 import androidx.compose.remote.creation.compose.layout.toRemoteStrokeCap
 import androidx.compose.remote.creation.compose.layout.toRemoteStrokeJoin
 import androidx.compose.remote.creation.compose.shaders.RemoteShader
+import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
-import androidx.compose.ui.text.font.FontVariation
 
 /**
  * An implementation of [android.graphics.Paint] that supports [RemoteColor] and [RemoteShader].
@@ -196,13 +196,15 @@ private fun android.graphics.Shader?.toRemoteShader(): RemoteShader? =
 private fun RemoteShader?.toAndroidShader(): android.graphics.Shader? =
     this?.let { AndroidRemoteShaderWrapper(it) }
 
-private fun parseFontVariationSettings(settingsString: String?): FontVariation.Settings? {
+private fun parseFontVariationSettings(settingsString: String?): RemoteFontVariation.Settings? {
     if (settingsString == null) return null
     try {
         val axes = FontVariationAxis.fromFontVariationSettings(settingsString)
         if (axes != null) {
-            val settingsList = axes.map { axis -> FontVariation.Setting(axis.tag, axis.styleValue) }
-            return FontVariation.Settings(*settingsList.toTypedArray())
+            val settingsList = axes.map { axis ->
+                RemoteFontVariation.Setting(axis.tag, axis.styleValue.rf)
+            }
+            return RemoteFontVariation.Settings(settingsList)
         }
     } catch (e: IllegalArgumentException) {
         Log.w("RemoteCompose", "invalid font variation string", e)
