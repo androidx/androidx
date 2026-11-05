@@ -1184,6 +1184,17 @@ public class WebViewFeatureInternal {
             new ApiFeature.NoFramework(WebViewFeature.WEB_MESSAGE_SHARED_ARRAY_BUFFER,
                     Features.WEB_MESSAGE_SHARED_ARRAY_BUFFER);
 
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers
+     * {@link Profile#configureIsolatedSites(Set)} and
+     * {@link Profile#canConfigureIsolatedSites()}.
+     */
+    public static final ApiFeature.NoFramework PROFILE_SELECTED_SITE_ISOLATION_V1 =
+            new ApiFeature.NoFramework(
+                    WebViewFeature.PROFILE_SELECTED_SITE_ISOLATION_EXPERIMENTAL_V1,
+                    Features.PROFILE_SELECTED_SITE_ISOLATION_V1);
+
     // --- Add new feature constants above this line ---
 
     private WebViewFeatureInternal() {

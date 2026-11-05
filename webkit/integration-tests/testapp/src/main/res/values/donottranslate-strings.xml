@@ -198,4 +198,10 @@
     <string name="google_accounts_callback_activity_title">Google Accounts Callback Demo</string>
     <string name="google_accounts_callback_waiting">Press the sign-in button in the top-right corner…</string>
     <string name="google_accounts_callback_event_text">Action type: %1$s\nContinue URL: %2$s\nOutermost main frame: %3$b\nNavigation request: %4$b</string>
+
+    <!-- Selected Site Isolation -->
+    <string name="selected_site_isolation_activity_title">Selected Site Isolation Demo</string>
+    <string name="selected_site_isolation_webview">Renderer %1$s on %2$s</string>
+    <string name="selected_site_isolation_renderer_unknown">unknown</string>
+    <string name="selected_site_isolation_back">&lt;</string>
 </resources>

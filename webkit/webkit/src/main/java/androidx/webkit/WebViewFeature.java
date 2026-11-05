@@ -153,6 +153,7 @@ public class WebViewFeature {
             NAVIGATION_LISTENER_NAVIGATION_VISIBLE,
             GOOGLE_ACCOUNTS_CALLBACK_EXPERIMENTAL_V1,
             WEB_MESSAGE_SHARED_ARRAY_BUFFER,
+            PROFILE_SELECTED_SITE_ISOLATION_EXPERIMENTAL_V1,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -1095,6 +1096,17 @@ public class WebViewFeature {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String WEB_MESSAGE_SHARED_ARRAY_BUFFER =
             "WEB_MESSAGE_SHARED_ARRAY_BUFFER";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link Profile#configureIsolatedSites(Set)} and
+     * {@link Profile#canConfigureIsolatedSites()}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Profile.ExperimentalSelectedSiteIsolation
+    public static final String PROFILE_SELECTED_SITE_ISOLATION_EXPERIMENTAL_V1 =
+            "PROFILE_SELECTED_SITE_ISOLATION_EXPERIMENTAL_V1";
 
     /**
      * Return whether a feature is supported at run-time. This will check whether a feature is
