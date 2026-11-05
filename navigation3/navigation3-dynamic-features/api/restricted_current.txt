@@ -1,0 +1,30 @@
+// Signature format: 5.0
+// - surface=restricted-non-atomic-group
+package androidx.navigation3.dynamicfeatures {
+
+  public final class DynamicFeatureEntryProviderScope<T> extends androidx.navigation3.runtime.EntryProviderScope<T> {
+    method public <K extends T> void dynamicFeatureModule(K initialKey, String moduleName, String entryProviderClassName, optional kotlin.jvm.functions.Function1<? super com.google.android.play.core.splitinstall.SplitInstallSessionState,kotlin.Unit>? loadingContent);
+    method @BytecodeOnly public <K extends T> void dynamicFeatureModule(K, String, String, kotlin.jvm.functions.Function3<? super com.google.android.play.core.splitinstall.SplitInstallSessionState!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?);
+    method @BytecodeOnly public static void dynamicFeatureModule$default(androidx.navigation3.dynamicfeatures.DynamicFeatureEntryProviderScope!, Object!, String!, String!, kotlin.jvm.functions.Function3!, int, Object!);
+  }
+
+  public interface DynamicFeatureModuleEntryProvider<K> {
+    method public void buildEntries(androidx.navigation3.runtime.EntryProviderScope<K>);
+  }
+
+  public final class DynamicFeatureNavEntryDecorator<T> extends androidx.navigation3.runtime.NavEntryDecorator<T> {
+    ctor public DynamicFeatureNavEntryDecorator(com.google.android.play.core.splitinstall.SplitInstallManager splitInstallManager, kotlin.jvm.functions.Function1<? super com.google.android.play.core.splitinstall.SplitInstallSessionState,kotlin.Unit> defaultLoadingContent);
+    ctor @BytecodeOnly public DynamicFeatureNavEntryDecorator(com.google.android.play.core.splitinstall.SplitInstallManager, kotlin.jvm.functions.Function3<? super com.google.android.play.core.splitinstall.SplitInstallSessionState!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method public kotlin.jvm.functions.Function1<T,androidx.navigation3.runtime.NavEntry<T>> entryProvider(optional kotlin.jvm.functions.Function1<? super T,androidx.navigation3.runtime.NavEntry<T>> fallback, kotlin.jvm.functions.Function1<? super androidx.navigation3.dynamicfeatures.DynamicFeatureEntryProviderScope<T>,kotlin.Unit> builder);
+    method @BytecodeOnly public static kotlin.jvm.functions.Function1! entryProvider$default(androidx.navigation3.dynamicfeatures.DynamicFeatureNavEntryDecorator!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, int, Object!);
+  }
+
+  public final class DynamicFeatureNavEntryDecoratorKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.navigation3.dynamicfeatures.DynamicFeatureNavEntryDecorator<T> rememberDynamicFeatureNavEntryDecorator(optional com.google.android.play.core.splitinstall.SplitInstallManager splitInstallManager, kotlin.jvm.functions.Function1<com.google.android.play.core.splitinstall.SplitInstallSessionState,kotlin.Unit> defaultLoadingContent);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.navigation3.dynamicfeatures.DynamicFeatureNavEntryDecorator<T> rememberDynamicFeatureNavEntryDecorator(com.google.android.play.core.splitinstall.SplitInstallManager?, kotlin.jvm.functions.Function3<? super com.google.android.play.core.splitinstall.SplitInstallSessionState!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static com.google.android.play.core.splitinstall.SplitInstallManager rememberSplitInstallManager();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static com.google.android.play.core.splitinstall.SplitInstallManager rememberSplitInstallManager(androidx.compose.runtime.Composer?, int);
+  }
+
+}
+
