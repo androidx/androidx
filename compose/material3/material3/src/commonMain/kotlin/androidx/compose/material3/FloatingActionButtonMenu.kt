@@ -41,13 +41,17 @@ import androidx.compose.material3.tokens.FabPrimaryContainerTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.MutableFloatState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -60,6 +64,7 @@ import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.lerp
@@ -71,11 +76,17 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.HorizontalRuler
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ParentDataModifierNode
 import androidx.compose.ui.node.SemanticsModifierNode
+import androidx.compose.ui.node.invalidatePlacement
+import androidx.compose.ui.node.invalidateSemantics
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
@@ -94,6 +105,7 @@ import androidx.compose.ui.util.fastMaxBy
 import androidx.compose.ui.util.fastSumBy
 import kotlin.math.hypot
 import kotlin.math.roundToInt
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 // TODO: link to spec and image
@@ -122,13 +134,20 @@ public fun FloatingActionButtonMenu(
 ) {
     var buttonHeight by remember { mutableIntStateOf(0) }
     val focusRequester = remember { FocusRequester() }
+    val currentExpanded by rememberUpdatedState(expanded)
+    // Compose the items on first expand (then keep them) so a collapsed menu only composes its
+    // button. Kept apart from currentExpanded, which is only read during layout so that toggling
+    // the menu doesn't invalidate composition.
+    val composeItems = remember { mutableStateOf(false) }
+    if (expanded) composeItems.value = true
 
     Layout(
         modifier = modifier.padding(horizontal = FabMenuPaddingHorizontal),
         content = {
             FloatingActionButtonMenuItemColumn(
                 Modifier.focusRequester(focusRequester),
-                expanded,
+                { currentExpanded },
+                { composeItems.value },
                 horizontalAlignment,
                 { buttonHeight },
                 content,
@@ -139,7 +158,7 @@ public fun FloatingActionButtonMenu(
                     // For keyboard a11y, the focus order should go from the fab menu button to the
                     // first item at the top.
                     if (
-                        expanded &&
+                        currentExpanded &&
                             it.type == KeyEventType.KeyDown &&
                             ((it.key == Key.Tab && !it.isShiftPressed) ||
                                 it.key == Key.DirectionDown ||
@@ -154,38 +173,31 @@ public fun FloatingActionButtonMenu(
                 button()
             }
         },
-    ) { measureables, constraints ->
-        val menuItemsPlaceable = measureables[0].measure(constraints)
-
+    ) { measurables, constraints ->
         val buttonPaddingBottom = FabMenuButtonPaddingBottom.roundToPx()
-        var buttonPlaceable: Placeable? = null
-        val suggestedWidth: Int
-        val suggestedHeight: Int
-        if (measureables.size > 1) {
-            buttonPlaceable = measureables[1].measure(constraints)
-            buttonHeight = buttonPlaceable.height
+        val buttonPlaceable =
+            measurables.getOrNull(1)?.measure(constraints)?.also { buttonHeight = it.height }
+        val menuItemsPlaceable = measurables[0].measure(constraints)
 
-            suggestedWidth = maxOf(buttonPlaceable.width, menuItemsPlaceable.width)
-            suggestedHeight =
-                maxOf(buttonPlaceable.height + buttonPaddingBottom, menuItemsPlaceable.height)
-        } else {
-            suggestedWidth = menuItemsPlaceable.width
-            suggestedHeight = menuItemsPlaceable.height
-        }
-
+        val suggestedWidth = maxOf(buttonPlaceable?.width ?: 0, menuItemsPlaceable.width)
+        val suggestedHeight =
+            maxOf(
+                buttonPlaceable?.let { it.height + buttonPaddingBottom } ?: 0,
+                menuItemsPlaceable.height,
+            )
         val width = minOf(suggestedWidth, constraints.maxWidth)
         val height = minOf(suggestedHeight, constraints.maxHeight)
 
         layout(width, height) {
-            val menuItemsX =
-                horizontalAlignment.align(menuItemsPlaceable.width, width, layoutDirection)
-            menuItemsPlaceable.place(menuItemsX, 0)
-
-            if (buttonPlaceable != null) {
-                val buttonX =
-                    horizontalAlignment.align(buttonPlaceable.width, width, layoutDirection)
-                val buttonY = height - buttonPlaceable.height - buttonPaddingBottom
-                buttonPlaceable.place(buttonX, buttonY)
+            menuItemsPlaceable.place(
+                horizontalAlignment.align(menuItemsPlaceable.width, width, layoutDirection),
+                0,
+            )
+            buttonPlaceable?.let {
+                it.place(
+                    horizontalAlignment.align(it.width, width, layoutDirection),
+                    height - it.height - buttonPaddingBottom,
+                )
             }
         }
     }
@@ -194,28 +206,31 @@ public fun FloatingActionButtonMenu(
 @Composable
 private fun FloatingActionButtonMenuItemColumn(
     modifier: Modifier,
-    expanded: Boolean,
+    expanded: () -> Boolean,
+    composeItems: () -> Boolean,
     horizontalAlignment: Alignment.Horizontal,
     buttonHeight: () -> Int,
     content: @Composable FloatingActionButtonMenuScope.() -> Unit,
 ) {
-    var itemCount by remember { mutableIntStateOf(0) }
-    var itemsNeedVerticalScroll by remember { mutableStateOf(false) }
-    var originalConstraints: Constraints? = null
-    var staggerAnim by remember { mutableStateOf<Animatable<Int, AnimationVector1D>?>(null) }
+    val scope = remember { FloatingActionButtonMenuScopeImpl(horizontalAlignment) }
+    scope.horizontalAlignment = horizontalAlignment
     val coroutineScope = rememberCoroutineScope()
     // TODO Load the motionScheme tokens from the component tokens file
-    var staggerAnimSpec: FiniteAnimationSpec<Int> = MotionSchemeKeyTokens.SlowEffects.value()
-    if (staggerAnimSpec is SpringSpec<Int>) {
-        // Apply a small visibilityThreshold to the provided SpringSpec to avoid a delay in the
-        // appearance of the last item when the list is populated.
-        staggerAnimSpec =
-            spring(
-                stiffness = staggerAnimSpec.stiffness,
-                dampingRatio = staggerAnimSpec.dampingRatio,
-                visibilityThreshold = 1,
-            )
-    }
+    val slowEffects: FiniteAnimationSpec<Int> = MotionSchemeKeyTokens.SlowEffects.value()
+    val staggerAnimSpec =
+        remember(slowEffects) {
+            if (slowEffects is SpringSpec<Int>) {
+                // Apply a small visibilityThreshold to the provided SpringSpec to avoid a delay in
+                // the appearance of the last item when the list is populated.
+                spring(
+                    stiffness = slowEffects.stiffness,
+                    dampingRatio = slowEffects.dampingRatio,
+                    visibilityThreshold = 1,
+                )
+            } else {
+                slowEffects
+            }
+        }
     Layout(
         modifier =
             modifier
@@ -224,74 +239,60 @@ private fun FloatingActionButtonMenuItemColumn(
                     isTraversalGroup = true
                     traversalIndex = -0.9f
                 }
-                .layout { measurable, constraints ->
-                    // Use a layout modifier before the verticalScroll to get the original
-                    // constraints from the parent, since verticalScroll will cause the constraints
-                    // max height to be infinity.
-                    originalConstraints = constraints
-                    val placeable = measurable.measure(constraints)
-                    layout(placeable.width, placeable.height) { placeable.place(0, 0) }
-                }
                 .then(
-                    if (itemsNeedVerticalScroll)
-                        Modifier.verticalScroll(state = rememberScrollState(), enabled = expanded)
-                    else Modifier
+                    if (scope.itemsNeedVerticalScroll) {
+                        Modifier.layout { measurable, constraints ->
+                                // Capture parent maxHeight before verticalScroll relaxes it to
+                                // Infinity.
+                                scope.originalConstraintsMaxHeight = constraints.maxHeight
+                                val placeable = measurable.measure(constraints)
+                                scope.originalConstraintsMaxHeight = Constraints.Infinity
+                                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                            }
+                            .verticalScroll(state = rememberScrollState(), enabled = expanded())
+                    } else {
+                        Modifier
+                    }
                 ),
-        content = {
-            val scope =
-                remember(horizontalAlignment) {
-                    object : FloatingActionButtonMenuScope {
-                        override val horizontalAlignment: Alignment.Horizontal
-                            get() = horizontalAlignment
-                    }
-                }
-            content(scope)
-        },
+        content = { if (composeItems()) content(scope) },
     ) { measurables, constraints ->
-        itemCount = measurables.size
+        val itemCount = measurables.size
+        val visibleCount =
+            scope.updateTarget(
+                target = if (expanded()) itemCount else 0,
+                coroutineScope = coroutineScope,
+                animationSpec = staggerAnimSpec,
+            )
 
-        val targetItemCount = if (expanded) itemCount else 0
-        staggerAnim =
-            staggerAnim?.also {
-                if (it.targetValue != targetItemCount) {
-                    coroutineScope.launch {
-                        it.animateTo(targetValue = targetItemCount, animationSpec = staggerAnimSpec)
-                    }
-                }
-            } ?: Animatable(targetItemCount, Int.VectorConverter)
-
-        val placeables = measurables.fastMap { measurable -> measurable.measure(constraints) }
+        val placeables = measurables.fastMap { it.measure(constraints) }
         val width = placeables.fastMaxBy { it.width }?.width ?: 0
 
         val verticalSpacing = FabMenuItemSpacingVertical.roundToPx()
         val verticalSpacingHeight =
-            if (placeables.isNotEmpty()) {
-                verticalSpacing * (placeables.size - 1)
-            } else {
-                0
-            }
+            if (placeables.isNotEmpty()) verticalSpacing * (placeables.size - 1) else 0
         val currentButtonHeight = buttonHeight()
         val bottomPadding =
-            if (currentButtonHeight > 0)
+            if (currentButtonHeight > 0) {
                 currentButtonHeight +
                     FabMenuButtonPaddingBottom.roundToPx() +
                     FabMenuPaddingBottom.roundToPx()
-            else 0
+            } else {
+                0
+            }
         val height = placeables.fastSumBy { it.height } + verticalSpacingHeight + bottomPadding
         var visibleHeight = bottomPadding.toFloat()
-        placeables.fastForEachIndexed { index, placeable ->
-            val itemVisible = index >= itemCount - (staggerAnim?.value ?: 0)
-            if (itemVisible) {
-                visibleHeight += placeable.height
-                if (index < placeables.size - 1) {
-                    visibleHeight += verticalSpacing
+        if (visibleCount > 0) {
+            placeables.fastForEachIndexed { index, placeable ->
+                if (index >= itemCount - visibleCount) {
+                    visibleHeight += placeable.height
+                    if (index < placeables.size - 1) visibleHeight += verticalSpacing
                 }
             }
         }
 
-        val finalHeight = if (placeables.fastAny { item -> item.isVisible }) height else 0
-
-        itemsNeedVerticalScroll = finalHeight > originalConstraints!!.maxHeight
+        val finalHeight = if (placeables.fastAny { it.isVisible }) height else 0
+        scope.itemsNeedVerticalScroll =
+            finalHeight > minOf(scope.originalConstraintsMaxHeight, constraints.maxHeight)
 
         layout(width, finalHeight, rulers = { MenuItemRuler provides height - visibleHeight }) {
             var y = 0
@@ -299,9 +300,7 @@ private fun FloatingActionButtonMenuItemColumn(
                 val x = horizontalAlignment.align(placeable.width, width, layoutDirection)
                 placeable.place(x, y)
                 y += placeable.height
-                if (index < placeables.size - 1) {
-                    y += verticalSpacing
-                }
+                if (index < placeables.size - 1) y += verticalSpacing
             }
         }
     }
@@ -310,6 +309,42 @@ private fun FloatingActionButtonMenuItemColumn(
 /** Scope for the children of [FloatingActionButtonMenu] */
 public interface FloatingActionButtonMenuScope {
     public val horizontalAlignment: Alignment.Horizontal
+}
+
+@Stable
+private class FloatingActionButtonMenuScopeImpl(horizontalAlignment: Alignment.Horizontal) :
+    FloatingActionButtonMenuScope {
+    override var horizontalAlignment by mutableStateOf(horizontalAlignment)
+    var itemsNeedVerticalScroll by mutableStateOf(false)
+    var originalConstraintsMaxHeight: Int = Constraints.Infinity
+
+    // Items are only composed before the first measure when the menu starts expanded.
+    val isInitiallyVisible: Boolean
+        get() = targetItemCount < 0
+
+    private var visibleCount by mutableIntStateOf(0)
+    private var targetItemCount = -1
+    private var staggerAnim: Animatable<Int, AnimationVector1D>? = null
+
+    fun updateTarget(
+        target: Int,
+        coroutineScope: CoroutineScope,
+        animationSpec: FiniteAnimationSpec<Int>,
+    ): Int {
+        if (targetItemCount < 0) {
+            targetItemCount = target
+            visibleCount = target
+        } else if (targetItemCount != target) {
+            targetItemCount = target
+            val anim =
+                staggerAnim
+                    ?: Animatable(visibleCount, Int.VectorConverter).also { staggerAnim = it }
+            coroutineScope.launch {
+                anim.animateTo(target, animationSpec) { visibleCount = value }
+            }
+        }
+        return visibleCount
+    }
 }
 
 // TODO: link to spec and image
@@ -338,45 +373,21 @@ public fun FloatingActionButtonMenuScope.FloatingActionButtonMenuItem(
     containerColor: Color = MaterialTheme.colorScheme.primaryContainer,
     contentColor: Color = contentColorFor(containerColor),
 ) {
-    var widthAnim by remember { mutableStateOf<Animatable<Float, AnimationVector1D>?>(null) }
-    var alphaAnim by remember { mutableStateOf<Animatable<Float, AnimationVector1D>?>(null) }
     // TODO Load the motionScheme tokens from the component tokens file
     val widthSpring: FiniteAnimationSpec<Float> = MotionSchemeKeyTokens.FastSpatial.value()
     val alphaSpring: FiniteAnimationSpec<Float> = MotionSchemeKeyTokens.FastEffects.value()
-    val coroutineScope = rememberCoroutineScope()
+    val widthProgress = remember {
+        mutableFloatStateOf(
+            if ((this as? FloatingActionButtonMenuScopeImpl)?.isInitiallyVisible == true) 1f else 0f
+        )
+    }
 
-    var isVisible by remember { mutableStateOf(false) }
     // Disable min interactive component size because it interferes with the item expand
     // animation and we know we are meeting the size requirements below.
     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
         Surface(
             modifier =
-                modifier.itemVisible({ isVisible }).layout { measurable, constraints ->
-                    val placeable = measurable.measure(constraints)
-                    layout(placeable.width, placeable.height) {
-                        val target =
-                            if (MenuItemRuler.current(Float.POSITIVE_INFINITY) <= 0) 1f else 0f
-
-                        widthAnim =
-                            widthAnim?.also {
-                                if (it.targetValue != target) {
-                                    coroutineScope.launch { it.animateTo(target, widthSpring) }
-                                }
-                            } ?: Animatable(target, Float.VectorConverter)
-
-                        val tempAlphaAnim =
-                            alphaAnim?.also {
-                                if (it.targetValue != target) {
-                                    coroutineScope.launch { it.animateTo(target, alphaSpring) }
-                                }
-                            } ?: Animatable(target, Float.VectorConverter)
-                        alphaAnim = tempAlphaAnim
-                        isVisible = tempAlphaAnim.value != 0f
-                        if (isVisible) {
-                            placeable.placeWithLayer(0, 0) { alpha = tempAlphaAnim.value }
-                        }
-                    }
-                },
+                modifier.then(MenuItemAnimationElement(widthProgress, widthSpring, alphaSpring)),
             shape = FabMenuBaselineTokens.ListItemContainerShape.value,
             color = containerColor,
             contentColor = contentColor,
@@ -386,7 +397,7 @@ public fun FloatingActionButtonMenuScope.FloatingActionButtonMenuItem(
                 Modifier.layout { measurable, constraints ->
                         val placeable = measurable.measure(constraints)
                         val width =
-                            (placeable.width * maxOf((widthAnim?.value ?: 0f), 0f)).roundToInt()
+                            (placeable.width * maxOf(widthProgress.floatValue, 0f)).roundToInt()
                         layout(width, placeable.height) {
                             val x =
                                 horizontalAlignment.align(placeable.width, width, layoutDirection)
@@ -520,7 +531,7 @@ private fun ToggleFloatingActionButton(
     Box(Modifier.size(initialSize), contentAlignment = contentAlignment) {
         val density = LocalDensity.current
         val fabRippleRadius =
-            remember(initialSize) {
+            remember(initialSize, density) {
                 with(density) {
                     val fabSizeHalf = initialSize.toPx() / 2
                     hypot(fabSizeHalf, fabSizeHalf).toDp()
@@ -541,7 +552,7 @@ private fun ToggleFloatingActionButton(
                     this.clip = true
                 }
                 .drawBehind {
-                    val radius = with(density) { containerCornerRadius(checkedProgress()).toPx() }
+                    val radius = containerCornerRadius(checkedProgress()).toPx()
                     drawRoundRect(
                         color = containerColor(checkedProgress()),
                         cornerRadius = CornerRadius(radius),
@@ -590,25 +601,22 @@ public object ToggleFloatingActionButtonDefaults {
             lerp(initialSize, finalSize, progress)
         }
 
-    public fun containerSize(): (Float) -> Dp = containerSize(FabInitialSize)
+    public fun containerSize(): (Float) -> Dp = DefaultContainerSize
 
-    public fun containerSizeMedium(): (Float) -> Dp = containerSize(FabMediumInitialSize)
+    public fun containerSizeMedium(): (Float) -> Dp = DefaultContainerSizeMedium
 
-    public fun containerSizeLarge(): (Float) -> Dp = containerSize(FabLargeInitialSize)
+    public fun containerSizeLarge(): (Float) -> Dp = DefaultContainerSizeLarge
 
     public fun containerCornerRadius(
         initialSize: Dp,
         finalSize: Dp = FabFinalCornerRadius,
     ): (Float) -> Dp = { progress -> lerp(initialSize, finalSize, progress) }
 
-    public fun containerCornerRadius(): (Float) -> Dp =
-        containerCornerRadius(FabInitialCornerRadius)
+    public fun containerCornerRadius(): (Float) -> Dp = DefaultContainerCornerRadius
 
-    public fun containerCornerRadiusMedium(): (Float) -> Dp =
-        containerCornerRadius(FabMediumInitialCornerRadius)
+    public fun containerCornerRadiusMedium(): (Float) -> Dp = DefaultContainerCornerRadiusMedium
 
-    public fun containerCornerRadiusLarge(): (Float) -> Dp =
-        containerCornerRadius(FabLargeInitialCornerRadius)
+    public fun containerCornerRadiusLarge(): (Float) -> Dp = DefaultContainerCornerRadiusLarge
 
     @Composable
     public fun iconColor(
@@ -621,11 +629,24 @@ public object ToggleFloatingActionButtonDefaults {
             lerp(initialSize, finalSize, progress)
         }
 
-    public fun iconSize(): (Float) -> Dp = iconSize(FabInitialIconSize)
+    public fun iconSize(): (Float) -> Dp = DefaultIconSize
 
-    public fun iconSizeMedium(): (Float) -> Dp = iconSize(FabMediumInitialIconSize)
+    public fun iconSizeMedium(): (Float) -> Dp = DefaultIconSizeMedium
 
-    public fun iconSizeLarge(): (Float) -> Dp = iconSize(FabLargeInitialIconSize)
+    public fun iconSizeLarge(): (Float) -> Dp = DefaultIconSizeLarge
+
+    private val DefaultContainerSize: (Float) -> Dp = containerSize(FabInitialSize)
+    private val DefaultContainerSizeMedium: (Float) -> Dp = containerSize(FabMediumInitialSize)
+    private val DefaultContainerSizeLarge: (Float) -> Dp = containerSize(FabLargeInitialSize)
+    private val DefaultContainerCornerRadius: (Float) -> Dp =
+        containerCornerRadius(FabInitialCornerRadius)
+    private val DefaultContainerCornerRadiusMedium: (Float) -> Dp =
+        containerCornerRadius(FabMediumInitialCornerRadius)
+    private val DefaultContainerCornerRadiusLarge: (Float) -> Dp =
+        containerCornerRadius(FabLargeInitialCornerRadius)
+    private val DefaultIconSize: (Float) -> Dp = iconSize(FabInitialIconSize)
+    private val DefaultIconSizeMedium: (Float) -> Dp = iconSize(FabMediumInitialIconSize)
+    private val DefaultIconSizeLarge: (Float) -> Dp = iconSize(FabLargeInitialIconSize)
 
     /**
      * Modifier for animating the color and size of an icon within [ToggleFloatingActionButton]
@@ -663,54 +684,111 @@ public interface ToggleFloatingActionButtonScope {
     public val checkedProgress: Float
 }
 
-@Stable
-private fun Modifier.itemVisible(isVisible: () -> Boolean) =
-    this then MenuItemVisibleElement(isVisible = isVisible)
+private data class MenuItemAnimationElement(
+    private val widthProgress: MutableFloatState,
+    private val widthSpring: FiniteAnimationSpec<Float>,
+    private val alphaSpring: FiniteAnimationSpec<Float>,
+) : ModifierNodeElement<MenuItemAnimationNode>() {
+    override fun create() = MenuItemAnimationNode(widthProgress, widthSpring, alphaSpring)
 
-private class MenuItemVisibleElement(private val isVisible: () -> Boolean) :
-    ModifierNodeElement<MenuItemVisibilityModifier>() {
-    override fun create() = MenuItemVisibilityModifier(isVisible)
-
-    override fun update(node: MenuItemVisibilityModifier) {
-        node.visible = isVisible
+    override fun update(node: MenuItemAnimationNode) {
+        if (node.widthProgress !== widthProgress) {
+            node.widthProgress = widthProgress
+            node.onReset()
+            node.invalidatePlacement()
+        }
+        node.widthSpring = widthSpring
+        node.alphaSpring = alphaSpring
     }
 
     override fun InspectorInfo.inspectableProperties() {
-        name = "itemVisible"
-        value = isVisible()
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || this::class != other::class) return false
-
-        other as MenuItemVisibleElement
-
-        return isVisible === other.isVisible
-    }
-
-    override fun hashCode(): Int {
-        return isVisible.hashCode()
+        name = "menuItemAnimation"
+        properties["widthProgress"] = widthProgress
+        properties["widthSpring"] = widthSpring
+        properties["alphaSpring"] = alphaSpring
     }
 }
 
-private class MenuItemVisibilityModifier(isVisible: () -> Boolean) :
-    ParentDataModifierNode, SemanticsModifierNode, Modifier.Node() {
+private class MenuItemAnimationNode(
+    var widthProgress: MutableFloatState,
+    var widthSpring: FiniteAnimationSpec<Float>,
+    var alphaSpring: FiniteAnimationSpec<Float>,
+) : LayoutModifierNode, ParentDataModifierNode, SemanticsModifierNode, Modifier.Node() {
 
-    var visible: () -> Boolean = isVisible
+    private var itemAlpha by
+        mutableFloatStateOf(Snapshot.withoutReadObservation { widthProgress.floatValue })
+    var isVisible by mutableStateOf(itemAlpha != 0f)
+        private set
 
-    override fun Density.modifyParentData(parentData: Any?): Any? {
-        return this@MenuItemVisibilityModifier
+    private var target = Float.NaN
+    private var widthAnim: Animatable<Float, AnimationVector1D>? = null
+    private var alphaAnim: Animatable<Float, AnimationVector1D>? = null
+    private val layerBlock: GraphicsLayerScope.() -> Unit = { alpha = itemAlpha }
+
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints,
+    ): MeasureResult {
+        val placeable = measurable.measure(constraints)
+        return layout(placeable.width, placeable.height) {
+            val newTarget = if (MenuItemRuler.current(Float.POSITIVE_INFINITY) <= 0) 1f else 0f
+            if (target.isNaN()) {
+                target = newTarget
+                widthProgress.floatValue = newTarget
+                updateAlpha(newTarget)
+            } else if (target != newTarget) {
+                target = newTarget
+                val wAnim =
+                    widthAnim
+                        ?: Animatable(widthProgress.floatValue, Float.VectorConverter).also {
+                            widthAnim = it
+                        }
+                coroutineScope.launch {
+                    wAnim.animateTo(newTarget, widthSpring) {
+                        if (this === widthAnim) widthProgress.floatValue = value
+                    }
+                }
+                val aAnim =
+                    alphaAnim
+                        ?: Animatable(itemAlpha, Float.VectorConverter).also { alphaAnim = it }
+                coroutineScope.launch {
+                    aAnim.animateTo(newTarget, alphaSpring) {
+                        if (this === alphaAnim) updateAlpha(value)
+                    }
+                }
+            }
+            if (isVisible) {
+                placeable.placeWithLayer(0, 0, layerBlock = layerBlock)
+            }
+        }
     }
 
+    private fun updateAlpha(value: Float) {
+        itemAlpha = value
+        val visible = value != 0f
+        if (isVisible != visible) {
+            isVisible = visible
+            if (isAttached) invalidateSemantics()
+        }
+    }
+
+    override fun onReset() {
+        widthAnim = null
+        alphaAnim = null
+        target = Float.NaN
+        updateAlpha(Snapshot.withoutReadObservation { widthProgress.floatValue })
+    }
+
+    override fun Density.modifyParentData(parentData: Any?) = this
+
     override val shouldClearDescendantSemantics: Boolean
-        get() = !visible()
+        get() = !isVisible
 
     override fun SemanticsPropertyReceiver.applySemantics() {}
 }
 
 private val Placeable.isVisible: Boolean
-    get() = (this.parentData as? MenuItemVisibilityModifier)?.visible?.invoke() != false
+    get() = (this.parentData as? MenuItemAnimationNode)?.isVisible != false
 
 private val FabInitialSize
     get() = FabBaselineTokens.ContainerHeight
