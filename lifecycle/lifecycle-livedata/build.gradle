@@ -61,7 +61,6 @@ androidx {
     deviceTests {
         maxShardCount = 1
     }
-    legacyDisableReferenceEqualityCheck = true
 }
 
 android {
