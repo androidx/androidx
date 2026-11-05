@@ -40,6 +40,7 @@ import androidx.camera.core.SurfaceRequest
 import androidx.camera.integration.view.MainActivity.CAMERA_DIRECTION_BACK
 import androidx.camera.integration.view.MainActivity.CAMERA_DIRECTION_FRONT
 import androidx.camera.integration.view.MainActivity.IMPLEMENTATION_MODE_EMBEDDED
+import androidx.camera.integration.view.MainActivity.IMPLEMENTATION_MODE_EXTERNAL
 import androidx.camera.integration.view.MainActivity.INTENT_EXTRA_CAMERA_DIRECTION
 import androidx.camera.integration.view.MainActivity.INTENT_EXTRA_IMPLEMENTATION_MODE
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -156,13 +157,16 @@ class ComposeUiFragment : Fragment() {
                 LENS_FACING_BACK
             }
 
-        val initialImplementationMode =
+        // A null value (AUTO) lets CameraXViewfinder choose a compatible mode, e.g.
+        // EMBEDDED on API 24 and below where EXTERNAL (SurfaceView) can't be transformed.
+        val initialImplementationMode: ImplementationMode? =
             bundle?.getString(INTENT_EXTRA_IMPLEMENTATION_MODE)?.let {
                 when (it.lowercase(Locale.ROOT)) {
                     IMPLEMENTATION_MODE_EMBEDDED -> ImplementationMode.EMBEDDED
-                    else -> ImplementationMode.EXTERNAL
+                    IMPLEMENTATION_MODE_EXTERNAL -> ImplementationMode.EXTERNAL
+                    else -> null
                 }
-            } ?: ImplementationMode.EXTERNAL
+            }
 
         val initialStreamSharingEnabled = MainActivity.parseEnableStreamSharing(bundle)
 
@@ -200,7 +204,7 @@ private fun CameraScreen(
     initialContentScale: ContentScale,
     initialAlignment: Alignment,
     window: Window?,
-    initialImplementationMode: ImplementationMode = ImplementationMode.EXTERNAL,
+    initialImplementationMode: ImplementationMode? = null,
     initialStreamSharingEnabled: Boolean = false,
 ) {
     val context = LocalContext.current
@@ -208,12 +212,13 @@ private fun CameraScreen(
     val coroutineScope = rememberCoroutineScope()
 
     var lensFacing by rememberSaveable { mutableIntStateOf(initialLensFacing) }
+    // null (AUTO) means the mode is chosen automatically by CameraXViewfinder.
     var implementationMode by
         rememberSaveable(
             saver =
-                Saver<MutableState<ImplementationMode>, Int>(
-                    save = { it.value.ordinal },
-                    restore = { mutableStateOf(ImplementationMode.entries[it]) },
+                Saver<MutableState<ImplementationMode?>, Int>(
+                    save = { it.value?.ordinal ?: -1 },
+                    restore = { mutableStateOf(ImplementationMode.entries.getOrNull(it)) },
                 )
         ) {
             mutableStateOf(initialImplementationMode)
@@ -334,26 +339,51 @@ private fun CameraScreen(
             }
     ) {
         surfaceRequest?.let { request ->
-            CameraXViewfinder(
-                surfaceRequest = request,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = contentScale,
-                alignment = alignment,
-                implementationMode = implementationMode,
-                isTapToFocusEnabled = true,
-                isPinchToZoomEnabled = true,
-                onTapToFocus = { offset, status ->
-                    focusPoint = offset
-                    focusState = status
-                    Log.d("ComposeUiFragment", "Tap to focus at: $offset, status: $status")
-                },
-                onZoomRatioChanged = { ratio ->
-                    zoomRatio = ratio
-                    Log.d("ComposeUiFragment", "Zoom ratio changed: $ratio")
-                },
-                onScreenFlashReady = { screenFlash -> currentScreenFlash = screenFlash },
-                onRelease = { currentScreenFlash = null },
-            )
+            val onTapToFocus: (Offset, Int) -> Unit = { offset, status ->
+                focusPoint = offset
+                focusState = status
+                Log.d("ComposeUiFragment", "Tap to focus at: $offset, status: $status")
+            }
+            val onZoomRatioChanged: (Float) -> Unit = { ratio ->
+                zoomRatio = ratio
+                Log.d("ComposeUiFragment", "Zoom ratio changed: $ratio")
+            }
+            val onScreenFlashReady: (ImageCapture.ScreenFlash) -> Unit = { screenFlash ->
+                currentScreenFlash = screenFlash
+            }
+            val onRelease: () -> Unit = { currentScreenFlash = null }
+
+            // CameraXViewfinder's implementationMode is non-nullable, so AUTO (null) must omit the
+            // argument to let CameraXViewfinder choose a compatible mode with its own logic.
+            val mode = implementationMode
+            if (mode == null) {
+                CameraXViewfinder(
+                    surfaceRequest = request,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = contentScale,
+                    alignment = alignment,
+                    isTapToFocusEnabled = true,
+                    isPinchToZoomEnabled = true,
+                    onTapToFocus = onTapToFocus,
+                    onZoomRatioChanged = onZoomRatioChanged,
+                    onScreenFlashReady = onScreenFlashReady,
+                    onRelease = onRelease,
+                )
+            } else {
+                CameraXViewfinder(
+                    surfaceRequest = request,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = contentScale,
+                    alignment = alignment,
+                    implementationMode = mode,
+                    isTapToFocusEnabled = true,
+                    isPinchToZoomEnabled = true,
+                    onTapToFocus = onTapToFocus,
+                    onZoomRatioChanged = onZoomRatioChanged,
+                    onScreenFlashReady = onScreenFlashReady,
+                    onRelease = onRelease,
+                )
+            }
         }
 
         focusPoint?.let { point ->
@@ -499,6 +529,7 @@ private fun CameraScreen(
                     Text(
                         text =
                             when (implementationMode) {
+                                null -> "AUT"
                                 ImplementationMode.EXTERNAL -> "EXT"
                                 ImplementationMode.EMBEDDED -> "EMB"
                             },
@@ -509,16 +540,23 @@ private fun CameraScreen(
                     expanded = showImplementationMode,
                     onDismissRequest = { showImplementationMode = false },
                 ) {
-                    ImplementationMode.values().forEach { mode ->
+                    (listOf(null) + ImplementationMode.entries).forEach { mode ->
                         DropdownMenuItem(
                             onClick = {
+                                // Switching between AUTO and an explicit mode swaps the
+                                // CameraXViewfinder call site, so the new instance would get an
+                                // already-fulfilled SurfaceRequest. Invalidate it to get a new one.
+                                // Explicit <-> explicit is handled inside CameraXViewfinder.
+                                if ((implementationMode == null) != (mode == null)) {
+                                    surfaceRequest?.invalidate()
+                                }
                                 implementationMode = mode
                                 showImplementationMode = false
                             }
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 RadioButton(selected = implementationMode == mode, onClick = null)
-                                Text(text = mode.name)
+                                Text(text = mode?.name ?: "AUTO")
                             }
                         }
                     }
