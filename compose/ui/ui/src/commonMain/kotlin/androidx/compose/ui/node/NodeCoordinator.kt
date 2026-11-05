@@ -1477,7 +1477,7 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
         if (layer != null) {
             layer.invalidate()
         } else {
-            wrappedBy?.invalidateLayer()
+            wrappedBy?.invalidateLayer() ?: layoutNode.owner?.invalidateRootLayer()
         }
     }
 
