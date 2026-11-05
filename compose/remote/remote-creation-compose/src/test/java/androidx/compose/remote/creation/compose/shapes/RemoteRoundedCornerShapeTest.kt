@@ -32,6 +32,7 @@ import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocum
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
+import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -48,7 +49,6 @@ import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -133,7 +133,7 @@ class RemoteRoundedCornerShapeTest {
         val outline =
             shape.createOutline(
                 size = RemoteSize(100f.rf, 50f.rf),
-                layoutDirection = LayoutDirection.Ltr,
+                layoutDirection = RemoteLayoutDirection.Ltr,
                 density = density,
             )
 
@@ -152,7 +152,7 @@ class RemoteRoundedCornerShapeTest {
         val outline =
             shape.createOutline(
                 size = RemoteSize(100f.rf, 50f.rf),
-                layoutDirection = LayoutDirection.Ltr,
+                layoutDirection = RemoteLayoutDirection.Ltr,
                 density = density,
                 strokeWidth = 10f.rf,
             )
@@ -253,7 +253,7 @@ class RemoteRoundedCornerShapeTest {
             RemoteCircleShape.createOutline(
                 size = RemoteSize(drawScope.width, drawScope.height),
                 density = RemoteDensity(2f.rf, 1f.rf),
-                layoutDirection = LayoutDirection.Ltr,
+                layoutDirection = RemoteLayoutDirection.Ltr,
             )
 
         drawScope.drawOutline(outline, RemotePaint())

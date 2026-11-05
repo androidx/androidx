@@ -60,6 +60,9 @@ public class RemoteCanvas(
     enableOptimizations: Boolean = false,
 ) : RemoteStateScope by creationState {
 
+    override val layoutDirection: RemoteLayoutDirection
+        get() = creationState.layoutDirection
+
     public val creationDisplayInfo: RemoteCreationDisplayInfo = creationState.creationDisplayInfo
 
     internal val tracker: PaintTracker = PaintTracker()

@@ -17,13 +17,13 @@
 package androidx.compose.remote.creation.compose.shapes
 
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
+import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.ui.unit.LayoutDirection
 import kotlin.math.min as kotlinMin
 
 /**
@@ -44,7 +44,7 @@ public abstract class RemoteCornerBasedShape(
 
     final override fun createOutline(
         size: RemoteSize,
-        layoutDirection: LayoutDirection,
+        layoutDirection: RemoteLayoutDirection,
         density: RemoteDensity,
     ): RemoteOutline =
         createOutline(
@@ -69,7 +69,7 @@ public abstract class RemoteCornerBasedShape(
      */
     public fun createOutline(
         size: RemoteSize,
-        layoutDirection: LayoutDirection,
+        layoutDirection: RemoteLayoutDirection,
         density: RemoteDensity,
         strokeWidth: RemoteFloat = 0f.rf,
         offset: RemoteOffset = RemoteOffset(strokeWidth / 2f, strokeWidth / 2f),

@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteRowScope
@@ -58,7 +59,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.wear.compose.material3.TextConfiguration
 
 /**
@@ -510,7 +510,7 @@ public class RemoteEdgeButtonShape(
 ) : RemoteShape {
     override fun createOutline(
         size: RemoteSize,
-        layoutDirection: LayoutDirection,
+        layoutDirection: RemoteLayoutDirection,
         density: RemoteDensity,
     ): RemoteOutline {
         return createOutline(
@@ -535,7 +535,7 @@ public class RemoteEdgeButtonShape(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun createOutline(
         size: RemoteSize,
-        layoutDirection: LayoutDirection,
+        layoutDirection: RemoteLayoutDirection,
         density: RemoteDensity,
         strokeWidth: RemoteFloat,
     ): RemoteOutline {

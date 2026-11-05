@@ -61,8 +61,7 @@ class RemoteComposeCaptureStateTest {
         assertThat(state1.creationDisplayInfo).isSameInstanceAs(displayInfo)
         assertThat(state1.profile).isSameInstanceAs(profile)
         assertThat(state1.remoteDensity).isEqualTo(customDensity)
-        assertThat(state1.remoteLayoutDirection).isEqualTo(RemoteLayoutDirection.Rtl)
-        assertThat(state1.layoutDirection).isEqualTo(LayoutDirection.Rtl)
+        assertThat(state1.layoutDirection).isEqualTo(RemoteLayoutDirection.Rtl)
         assertThat(state1.densityBehavior).isEqualTo(displayInfo.densityBehavior)
         assertThat(state1.platform).isSameInstanceAs(platform)
 
@@ -73,8 +72,7 @@ class RemoteComposeCaptureStateTest {
                 profile = profile,
             )
         assertThat(state2.creationDisplayInfo).isSameInstanceAs(displayInfo)
-        assertThat(state2.remoteLayoutDirection).isEqualTo(RemoteLayoutDirection.Ltr)
-        assertThat(state2.layoutDirection).isEqualTo(LayoutDirection.Ltr)
+        assertThat(state2.layoutDirection).isEqualTo(RemoteLayoutDirection.Ltr)
 
         val writer = createWriter()
         val state3 =
@@ -113,8 +111,7 @@ class RemoteComposeCaptureStateTest {
                 writerCallback = null,
                 layoutDirection = LayoutDirection.Rtl,
             )
-        assertThat(stateLayoutDirection.remoteLayoutDirection).isEqualTo(RemoteLayoutDirection.Rtl)
-        assertThat(stateLayoutDirection.layoutDirection).isEqualTo(LayoutDirection.Rtl)
+        assertThat(stateLayoutDirection.layoutDirection).isEqualTo(RemoteLayoutDirection.Rtl)
 
         val stateCreationFactories =
             RemoteComposeCreationState(
@@ -123,8 +120,7 @@ class RemoteComposeCaptureStateTest {
                 writerEvents = null,
                 layoutDirection = LayoutDirection.Ltr,
             )
-        assertThat(stateCreationFactories.remoteLayoutDirection)
-            .isEqualTo(RemoteLayoutDirection.Ltr)
+        assertThat(stateCreationFactories.layoutDirection).isEqualTo(RemoteLayoutDirection.Ltr)
     }
 
     @Test
@@ -145,6 +141,6 @@ class RemoteComposeCaptureStateTest {
         val noRemote = NoRemoteCompose()
         assertThat(noRemote.creationDisplayInfo.size.width.toInt()).isEqualTo(1)
         assertThat(noRemote.creationDisplayInfo.size.height.toInt()).isEqualTo(1)
-        assertThat(noRemote.remoteLayoutDirection).isEqualTo(RemoteLayoutDirection.Ltr)
+        assertThat(noRemote.layoutDirection).isEqualTo(RemoteLayoutDirection.Ltr)
     }
 }

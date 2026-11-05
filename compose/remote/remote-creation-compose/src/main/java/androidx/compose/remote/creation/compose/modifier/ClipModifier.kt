@@ -57,7 +57,7 @@ internal class ClipModifier(val shape: RemoteShape = RemoteRectangleShape) :
                 is RemoteRoundedCornerShape -> {
                     val component = remoteComponent()
                     val remoteSize = RemoteSize(component.width, component.height)
-                    val isRtl = remoteLayoutDirection == RemoteLayoutDirection.Rtl
+                    val isRtl = layoutDirection == RemoteLayoutDirection.Rtl
                     CoreRoundedRectShape(
                         (if (isRtl) shape.topEnd else shape.topStart)
                             .toDimension(remoteSize, remoteDensity, densityBehavior)

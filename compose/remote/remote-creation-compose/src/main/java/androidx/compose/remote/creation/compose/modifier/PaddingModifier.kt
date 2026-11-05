@@ -110,11 +110,11 @@ internal fun PaddingModifier.resolveBottom(scope: RemoteStateScope): RemoteFloat
     }
 
 internal fun PaddingModifier.resolveLeft(scope: RemoteStateScope): RemoteFloat =
-    if (scope.remoteLayoutDirection == RemoteLayoutDirection.Ltr) resolveStart(scope)
+    if (scope.layoutDirection == RemoteLayoutDirection.Ltr) resolveStart(scope)
     else resolveEnd(scope)
 
 internal fun PaddingModifier.resolveRight(scope: RemoteStateScope): RemoteFloat =
-    if (scope.remoteLayoutDirection == RemoteLayoutDirection.Ltr) resolveEnd(scope)
+    if (scope.layoutDirection == RemoteLayoutDirection.Ltr) resolveEnd(scope)
     else resolveStart(scope)
 
 /**

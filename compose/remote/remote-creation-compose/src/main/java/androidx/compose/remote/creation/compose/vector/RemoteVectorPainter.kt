@@ -74,7 +74,7 @@ public class RemoteVectorPainter : RemotePainter() {
 
     override fun RemoteDrawScope.onDraw() {
         with(vector) {
-            val shouldMirror = autoMirror && remoteLayoutDirection == RemoteLayoutDirection.Rtl
+            val shouldMirror = autoMirror && layoutDirection == RemoteLayoutDirection.Rtl
             if (shouldMirror) {
                 withTransform({
                     translate(width, 0f.rf)
