@@ -35,6 +35,16 @@ import org.robolectric.annotation.Config
 @Config(sdk = [Config.TARGET_SDK])
 class RemotePaintTest {
     @Test
+    fun blendModeTest() {
+        val remotePaint = RemotePaint()
+        assertThat(remotePaint.blendMode).isEqualTo(RemoteBlendMode.SrcOver)
+        remotePaint.blendMode = RemoteBlendMode.Clear
+        assertThat(remotePaint.blendMode).isEqualTo(RemoteBlendMode.Clear)
+        remotePaint.blendMode = RemoteBlendMode.SrcIn
+        assertThat(remotePaint.blendMode).isEqualTo(RemoteBlendMode.SrcIn)
+    }
+
+    @Test
     fun isAntiAliasTest() {
         val remotePaint = RemotePaint()
         remotePaint.isAntiAlias = true
@@ -214,7 +224,7 @@ class RemotePaintTest {
 
         assertThat(remotePaint.isAntiAlias).isFalse()
         assertThat(remotePaint.style).isEqualTo(PaintingStyle.Stroke)
-        assertThat(remotePaint.blendMode).isEqualTo(BlendMode.Clear)
+        assertThat(remotePaint.blendMode).isEqualTo(RemoteBlendMode.Clear)
         assertThat(remotePaint.filterQuality).isEqualTo(RemoteFilterQuality.None)
     }
 
@@ -222,16 +232,16 @@ class RemotePaintTest {
     fun compatAndroidRemotePaintBlendModeTest() {
         val compatPaint = CompatAndroidRemotePaint()
 
-        assertThat(compatPaint.asRemotePaint().blendMode).isEqualTo(BlendMode.SrcOver)
+        assertThat(compatPaint.asRemotePaint().blendMode).isEqualTo(RemoteBlendMode.SrcOver)
 
         compatPaint.blendMode = android.graphics.BlendMode.CLEAR
-        assertThat(compatPaint.asRemotePaint().blendMode).isEqualTo(BlendMode.Clear)
+        assertThat(compatPaint.asRemotePaint().blendMode).isEqualTo(RemoteBlendMode.Clear)
 
         compatPaint.blendMode = android.graphics.BlendMode.SRC_IN
-        assertThat(compatPaint.asRemotePaint().blendMode).isEqualTo(BlendMode.SrcIn)
+        assertThat(compatPaint.asRemotePaint().blendMode).isEqualTo(RemoteBlendMode.SrcIn)
 
         compatPaint.blendMode = android.graphics.BlendMode.SRC_OUT
-        assertThat(compatPaint.asRemotePaint().blendMode).isEqualTo(BlendMode.SrcOut)
+        assertThat(compatPaint.asRemotePaint().blendMode).isEqualTo(RemoteBlendMode.SrcOut)
     }
 
     @Test

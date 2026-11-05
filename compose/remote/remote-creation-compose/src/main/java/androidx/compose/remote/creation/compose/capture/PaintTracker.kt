@@ -211,7 +211,7 @@ internal class PaintTracker {
             }
         }
 
-        val targetBlendMode = newPaint.remoteBlendMode
+        val targetBlendMode = newPaint.blendMode
         updateIfChanged(targetBlendMode, blendMode) {
             blendMode = targetBlendMode
             paintBundle.setBlendMode(targetBlendMode.value)

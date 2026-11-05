@@ -1152,7 +1152,7 @@ package androidx.compose.remote.creation.compose.state {
   }
 
   public sealed nonexhaustive interface RemotePaint {
-    method @BytecodeOnly public int getBlendMode-0nO6VwU();
+    method @BytecodeOnly public int getBlendMode-0vVSDDA();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteColor getColor();
     method @InaccessibleFromKotlin public String? getFontFeatureSettings();
     method @InaccessibleFromKotlin public androidx.compose.ui.text.font.FontVariation.Settings? getFontVariationSettings();
@@ -1162,7 +1162,7 @@ package androidx.compose.remote.creation.compose.state {
     method @BytecodeOnly public int getStyle-TiuSbCo();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getTextSize();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteTypeface? getTypeface();
-    method @BytecodeOnly public void setBlendMode-s9anfk8(int);
+    method @BytecodeOnly public void setBlendMode-1B-nx3I(int);
     method @InaccessibleFromKotlin public void setColor(androidx.compose.remote.creation.compose.state.RemoteColor);
     method @InaccessibleFromKotlin public void setFontFeatureSettings(String?);
     method @InaccessibleFromKotlin public void setFontVariationSettings(androidx.compose.ui.text.font.FontVariation.Settings?);
@@ -1172,7 +1172,7 @@ package androidx.compose.remote.creation.compose.state {
     method @BytecodeOnly public void setStyle-k9PVt8s(int);
     method @InaccessibleFromKotlin public void setTextSize(androidx.compose.remote.creation.compose.state.RemoteFloat);
     method @InaccessibleFromKotlin public void setTypeface(androidx.compose.remote.creation.compose.text.RemoteTypeface?);
-    property public abstract androidx.compose.ui.graphics.BlendMode blendMode;
+    property public abstract androidx.compose.remote.creation.compose.state.RemoteBlendMode blendMode;
     property public abstract androidx.compose.remote.creation.compose.state.RemoteColor color;
     property public abstract String? fontFeatureSettings;
     property public abstract androidx.compose.ui.text.font.FontVariation.Settings? fontVariationSettings;

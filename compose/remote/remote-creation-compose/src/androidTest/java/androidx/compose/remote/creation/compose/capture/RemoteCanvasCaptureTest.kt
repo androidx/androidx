@@ -501,7 +501,7 @@ class RemoteCanvasCaptureTest {
                 RemotePaint {
                     textSize = 380f.rf
                     typeface = RemoteTypeface.DefaultBold
-                    remoteBlendMode = RemoteBlendMode.Clear
+                    blendMode = RemoteBlendMode.Clear
                 },
             )
         }
@@ -511,7 +511,7 @@ class RemoteCanvasCaptureTest {
             0f.rf,
             WIDTH.rf,
             HEIGHT.rf,
-            RemotePaint { remoteBlendMode = RemoteBlendMode.SrcOver },
+            RemotePaint { blendMode = RemoteBlendMode.SrcOver },
         )
 
         val document = constructDocument()
@@ -552,7 +552,7 @@ class RemoteCanvasCaptureTest {
                 RemotePaint {
                     textSize = 380f.rf
                     typeface = RemoteTypeface.DefaultBold
-                    remoteBlendMode = RemoteBlendMode.Clear
+                    blendMode = RemoteBlendMode.Clear
                 },
             )
         }
@@ -562,7 +562,7 @@ class RemoteCanvasCaptureTest {
             0f.rf,
             WIDTH.rf,
             HEIGHT.rf,
-            RemotePaint { remoteBlendMode = RemoteBlendMode.SrcOver },
+            RemotePaint { blendMode = RemoteBlendMode.SrcOver },
         )
 
         val document = constructDocument()

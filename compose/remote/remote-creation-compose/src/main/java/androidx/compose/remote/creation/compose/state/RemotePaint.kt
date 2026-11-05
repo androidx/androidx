@@ -17,11 +17,9 @@ package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.BlackArgb
-import androidx.compose.remote.creation.compose.layout.toComposeBlendMode
 import androidx.compose.remote.creation.compose.layout.toComposePaintingStyle
 import androidx.compose.remote.creation.compose.layout.toComposeStrokeCap
 import androidx.compose.remote.creation.compose.layout.toComposeStrokeJoin
-import androidx.compose.remote.creation.compose.layout.toRemoteBlendMode
 import androidx.compose.remote.creation.compose.layout.toRemotePaintingStyle
 import androidx.compose.remote.creation.compose.layout.toRemoteStrokeCap
 import androidx.compose.remote.creation.compose.layout.toRemoteStrokeJoin
@@ -29,7 +27,6 @@ import androidx.compose.remote.creation.compose.shaders.RemoteShader
 import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.compose.text.toRemoteFontVariationSettings
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -47,16 +44,8 @@ import androidx.compose.ui.text.font.FontVariation
  */
 public sealed interface RemotePaint {
 
-    /** The [BlendMode] to use when drawing with this paint. */
-    public var blendMode: BlendMode
-
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public var remoteBlendMode: RemoteBlendMode
-        get() = blendMode.toRemoteBlendMode()
-        set(value) {
-            blendMode = value.toComposeBlendMode()
-        }
+    /** The [RemoteBlendMode] to use when drawing with this paint. */
+    public var blendMode: RemoteBlendMode
 
     /** The [PaintingStyle] to use (e.g., Fill, Stroke). */
     public var style: PaintingStyle
@@ -149,7 +138,8 @@ public sealed interface RemotePaint {
 internal class StandardRemotePaint() : RemotePaint {
 
     public override var isAntiAlias: Boolean = true
-    public override var blendMode: BlendMode = BlendMode.SrcOver
+    public override var blendMode: RemoteBlendMode = RemoteBlendMode.SrcOver
+
     public override var style: PaintingStyle = PaintingStyle.Fill
     public override var strokeWidth: RemoteFloat = 0.0f.rf
     public override var strokeCap: StrokeCap = StrokeCap.Butt

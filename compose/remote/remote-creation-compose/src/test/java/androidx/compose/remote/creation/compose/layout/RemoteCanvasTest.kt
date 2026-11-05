@@ -1790,7 +1790,7 @@ class RemoteCanvasTest {
                     canvas.restore()
                 }
 
-                val maskPaint = RemotePaint { remoteBlendMode = RemoteBlendMode.DstIn }
+                val maskPaint = RemotePaint { blendMode = RemoteBlendMode.DstIn }
                 canvas.drawBitmap(remoteBitmap43, 0f.rf, 0f.rf, 450f.rf, 450f.rf, maskPaint)
             }
 
