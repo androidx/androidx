@@ -72,6 +72,7 @@ public class DefaultTaskExecutor extends TaskExecutor {
         mMainHandler.post(runnable);
     }
 
+    @SuppressWarnings("ReferenceEquality")
     @Override
     public boolean isMainThread() {
         return Looper.getMainLooper().getThread() == Thread.currentThread();

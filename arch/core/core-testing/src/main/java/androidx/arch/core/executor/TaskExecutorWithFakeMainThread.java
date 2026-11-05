@@ -69,6 +69,7 @@ public class TaskExecutorWithFakeMainThread extends TaskExecutor {
         mMainThreadService.execute(runnable);
     }
 
+    @SuppressWarnings("ReferenceEquality")
     @Override
     public boolean isMainThread() {
         return Thread.currentThread() == mMainThread.get();
