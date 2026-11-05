@@ -27,6 +27,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.jspecify.annotations.NonNull;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Future;
 
@@ -415,6 +418,83 @@ public interface CameraControl {
     default @NonNull MutableConfig getInteropMutableConfig() {
         return MutableOptionsBundle.create();
     }
+
+    /**
+     * Dynamically updates the active subset of {@link UseCase}s receiving camera frames.
+     *
+     * <p>The capture session is not reconfigured when the bound {@link SessionConfig} was
+     * configured for dynamic switching via
+     * {@link SessionConfig.Builder#setInitialEnabledUseCases}. Otherwise, the first call may
+     * reconfigure the capture session once to pre-attach an internal repeating stream when any
+     * bound {@link UseCase} (e.g. {@link ImageCapture} or {@code VideoCapture}) has no repeating
+     * stream of its own; subsequent calls do not reconfigure the session. Instead, the
+     * repeating request is updated so that only the specified {@link UseCase}s receive frames. The
+     * active set of enabled {@link UseCase}s is remembered and applied again if the capture session
+     * is re-created later.
+     *
+     * <p>Notes on disabled {@link UseCase}s (bound in the {@link SessionConfig} but excluded from
+     * {@code useCases}):
+     * <ul>
+     * <li>Disabling {@code VideoCapture} while a recording is in progress stops frame delivery to
+     * the recorder without automatically stopping or pausing the recording; the application should
+     * stop or pause the active recording before disabling {@code VideoCapture}.
+     * <li>Invoking {@link ImageCapture#takePicture} while {@link ImageCapture} is not in the
+     * enabled set fails with {@link ImageCapture#ERROR_INVALID_CAMERA}.
+     * <li>When CameraX groups multiple {@link UseCase}s into a single shared stream (stream
+     * sharing), enabling any grouped child {@link UseCase} keeps the shared stream and its active
+     * child outputs (such as {@link Preview} or an in-progress {@code VideoCapture} recording)
+     * running.
+     * <li>Because the underlying capture session remains configured for the union of all bound
+     * {@link UseCase}s, session-wide stream specifications (such as dynamic range, stream use case,
+     * and session parameters) stay fixed for the lifetime of the session while the repeating
+     * request template and per-request options update to reflect the currently enabled subset.
+     * </ul>
+     *
+     * <p>The returned {@link ListenableFuture} fails in the following cases:
+     * <ul>
+     * <li>{@link IllegalStateException} if no {@link SessionConfig} is bound, or if dynamic
+     * {@link UseCase} switching is not supported by the current session configuration (for
+     * example, when a CameraX extension or feature group is enabled, in concurrent or dual camera
+     * mode, or for a non-regular session).
+     * <li>{@link IllegalArgumentException} if {@code useCases} is empty, contains a
+     * {@link UseCase} not in the bound {@link SessionConfig#getUseCases()}, or requires an
+     * internal repeating stream that is not supported alongside the bound {@link SessionConfig}
+     * streams.
+     * <li>{@link OperationCanceledException} if the camera is not active (in which case the
+     * request is not retained) or the update is superseded by another call.
+     * </ul>
+     *
+     * <p>Cancellation of the returned future is a no-op.
+     *
+     * @param useCases The subset of {@link UseCase}s to enable. Must not be empty and must be a
+     *                 subset of the bound {@link SessionConfig#getUseCases()}.
+     * @return a {@link ListenableFuture} that completes when the first capture result of the
+     * repeating request for the updated {@link UseCase}s is received.
+     */
+    // TODO: b/532362193 - Make this public in next alpha
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    default @NonNull ListenableFuture<Void> setEnabledUseCasesAsync(
+            @NonNull List<@NonNull UseCase> useCases) {
+        return Futures.immediateFailedFuture(
+                new IllegalStateException("Dynamic UseCase switching is not supported"));
+    }
+
+    /**
+     * Dynamically updates the active subset of {@link UseCase}s receiving camera frames.
+     *
+     * @param useCases The subset of {@link UseCase}s to enable. Must not be empty and must be a
+     *                 subset of the bound {@link SessionConfig#getUseCases()}.
+     * @return a {@link ListenableFuture} that completes when the first capture result of the
+     * repeating request for the updated {@link UseCase}s is received.
+     * @see #setEnabledUseCasesAsync(List)
+     */
+    // TODO: b/532362193 - Make this public in next alpha
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    default @NonNull ListenableFuture<Void> setEnabledUseCasesAsync(
+            @NonNull UseCase @NonNull ... useCases) {
+        return setEnabledUseCasesAsync(Arrays.asList(Objects.requireNonNull(useCases)));
+    }
+
     /**
      * An exception indicating that a {@link CameraControl} operation was canceled, for example
      * because a newer value was set or the camera was closed.

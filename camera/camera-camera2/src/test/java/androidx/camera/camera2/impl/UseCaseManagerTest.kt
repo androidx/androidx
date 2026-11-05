@@ -1961,4 +1961,599 @@ class UseCaseManagerTest {
         }
         testScope.testScheduler.advanceUntilIdle()
     }
+
+    @Test
+    fun setEnabledUseCases_filtersRunningUseCasesAndNotifiesControls() = runTest {
+        initializeUseCaseThreads(this)
+        val notifiedRunningUseCases = mutableListOf<Set<UseCase>>()
+        val fakeControl =
+            object : UseCaseCameraControl, UseCaseManager.RunningUseCasesChangeListener {
+                override var requestControl: UseCaseCameraRequestControl? = null
+
+                override fun reset() {}
+
+                override fun onRunningUseCasesChanged(runningUseCases: Set<UseCase>) {
+                    notifiedRunningUseCases.add(runningUseCases)
+                }
+            }
+        val useCaseManager = createUseCaseManager(controls = setOf(fakeControl))
+        val preview = createPreview()
+        val imageCapture = createImageCapture()
+
+        useCaseManager.setEnabledUseCases(listOf(preview))
+        useCaseManager.attach(listOf(preview, imageCapture))
+        useCaseManager.activate(preview)
+        useCaseManager.activate(imageCapture)
+
+        assertThat(useCaseManager.getRunningUseCasesForTest()).containsExactly(preview)
+        assertThat(notifiedRunningUseCases.last()).containsExactly(preview)
+
+        val switchDeferred = useCaseManager.setEnabledUseCases(listOf(preview, imageCapture))
+        assertThat(switchDeferred).isNotNull()
+        switchDeferred!!.await()
+
+        assertThat(useCaseManager.getRunningUseCasesForTest())
+            .containsExactly(preview, imageCapture)
+        assertThat(notifiedRunningUseCases.last()).containsExactly(preview, imageCapture)
+    }
+
+    @Test
+    fun setEnabledUseCases_supersedesPendingSwitchWithOperationCanceledException() = runTest {
+        initializeUseCaseThreads(this)
+        val useCaseCameraBuilder = FakeUseCaseCameraComponentBuilder()
+        val useCaseManager =
+            createUseCaseManager(
+                useCaseCameraComponentBuilderProvider =
+                    Provider<UseCaseCameraComponent.Builder> { useCaseCameraBuilder }
+            )
+        val preview = createPreview()
+        val imageCapture = createImageCapture()
+
+        useCaseManager.setEnabledUseCases(listOf(preview))
+        useCaseManager.attach(listOf(preview, imageCapture))
+        useCaseManager.activate(preview)
+        useCaseManager.activate(imageCapture)
+
+        val firstJob = kotlinx.coroutines.CompletableDeferred<Unit>()
+        useCaseCameraBuilder.fakeUseCaseCamera.updateRepeatingRequestResult = firstJob
+        val firstSwitch = useCaseManager.setEnabledUseCases(listOf(preview, imageCapture))!!
+        assertThat(firstSwitch.isCompleted).isFalse()
+
+        val secondJob = kotlinx.coroutines.CompletableDeferred(Unit)
+        useCaseCameraBuilder.fakeUseCaseCamera.updateRepeatingRequestResult = secondJob
+        val secondSwitch = useCaseManager.setEnabledUseCases(listOf(preview))!!
+        secondSwitch.await()
+
+        assertThat(firstSwitch.isCancelled).isTrue()
+        assertThat(firstSwitch.getCompletionExceptionOrNull())
+            .isInstanceOf(androidx.camera.core.CameraControl.OperationCanceledException::class.java)
+    }
+
+    @Test
+    fun setEnabledUseCases_withInitialImageCaptureOnly_doesNotRecreateGraphOnSwitch() = runTest {
+        initializeUseCaseThreads(this)
+        val useCaseCameraBuilder = FakeUseCaseCameraComponentBuilder()
+        val useCaseManager =
+            createUseCaseManager(
+                useCaseCameraComponentBuilderProvider =
+                    Provider<UseCaseCameraComponent.Builder> { useCaseCameraBuilder }
+            )
+        val preview = createPreview()
+        val imageCapture = createImageCapture()
+
+        useCaseManager.setEnabledUseCases(listOf(imageCapture))
+        useCaseManager.attach(listOf(preview, imageCapture))
+        useCaseManager.activate(preview)
+        useCaseManager.activate(imageCapture)
+
+        assertThat(useCaseManager.getRunningUseCasesForTest().map { it::class.java })
+            .containsExactly(ImageCapture::class.java, MeteringRepeating::class.java)
+
+        useCaseCameraBuilder.buildInvocationCount = 0
+
+        // Switching to preview + imageCapture excludes MeteringRepeating from runningUseCases
+        // without detaching it or recreating the CameraGraph.
+        useCaseManager.setEnabledUseCases(listOf(preview, imageCapture))!!.await()
+
+        assertThat(useCaseCameraBuilder.buildInvocationCount).isEqualTo(0)
+        assertThat(useCaseManager.getRunningUseCasesForTest())
+            .containsExactly(preview, imageCapture)
+
+        // Switching back to imageCapture alone re-includes MeteringRepeating without recreating the
+        // CameraGraph.
+        useCaseManager.setEnabledUseCases(listOf(imageCapture))!!.await()
+
+        assertThat(useCaseCameraBuilder.buildInvocationCount).isEqualTo(0)
+        assertThat(useCaseManager.getRunningUseCasesForTest().map { it::class.java })
+            .containsExactly(ImageCapture::class.java, MeteringRepeating::class.java)
+    }
+
+    @Test
+    fun setEnabledUseCases_fromPreviewToImageCaptureAndBack_doesNotRecreateGraph() = runTest {
+        initializeUseCaseThreads(this)
+        val useCaseCameraBuilder = FakeUseCaseCameraComponentBuilder()
+        val useCaseManager =
+            createUseCaseManager(
+                useCaseCameraComponentBuilderProvider =
+                    Provider<UseCaseCameraComponent.Builder> { useCaseCameraBuilder }
+            )
+        val preview = createPreview()
+        val imageCapture = createImageCapture()
+
+        useCaseManager.setEnabledUseCases(listOf(preview))
+        useCaseManager.attach(listOf(preview, imageCapture))
+        useCaseManager.activate(preview)
+        useCaseManager.activate(imageCapture)
+
+        assertThat(useCaseManager.getRunningUseCasesForTest()).containsExactly(preview)
+        useCaseCameraBuilder.buildInvocationCount = 0
+
+        // Switch from [preview] -> [imageCapture]: MeteringRepeating is already attached up-front.
+        useCaseManager.setEnabledUseCases(listOf(imageCapture))!!.await()
+        assertThat(useCaseCameraBuilder.buildInvocationCount).isEqualTo(0)
+        assertThat(useCaseManager.getRunningUseCasesForTest().map { it::class.java })
+            .containsExactly(ImageCapture::class.java, MeteringRepeating::class.java)
+
+        // Switch from [imageCapture] -> [preview, imageCapture]: MeteringRepeating is excluded from
+        // runningUseCases without tearing down the CameraGraph.
+        useCaseManager.setEnabledUseCases(listOf(preview, imageCapture))!!.await()
+        assertThat(useCaseCameraBuilder.buildInvocationCount).isEqualTo(0)
+        assertThat(useCaseManager.getRunningUseCasesForTest())
+            .containsExactly(preview, imageCapture)
+
+        // Switch back to [preview]: still zero CameraGraph recreations.
+        useCaseManager.setEnabledUseCases(listOf(preview))!!.await()
+        assertThat(useCaseCameraBuilder.buildInvocationCount).isEqualTo(0)
+        assertThat(useCaseManager.getRunningUseCasesForTest()).containsExactly(preview)
+    }
+
+    @Test
+    fun detachAllUseCases_withDynamicSwitchMeteringRepeating_removesMeteringRepeatingAndClosesCamera() =
+        runTest {
+            initializeUseCaseThreads(this)
+            val useCaseManager = createUseCaseManager()
+            val preview = createPreview()
+            val imageCapture = createImageCapture()
+
+            useCaseManager.setEnabledUseCases(listOf(imageCapture))
+            useCaseManager.attach(listOf(preview, imageCapture))
+            useCaseManager.activate(preview)
+            useCaseManager.activate(imageCapture)
+            assertThat(useCaseManager.camera).isNotNull()
+            assertThat(useCaseManager.getRunningUseCasesForTest().map { it::class.java })
+                .containsExactly(ImageCapture::class.java, MeteringRepeating::class.java)
+
+            // Detaching all app UseCases (e.g. Lifecycle ON_STOP) must also remove
+            // MeteringRepeating and close the UseCaseCamera.
+            useCaseManager.detach(listOf(preview, imageCapture))
+
+            assertThat(useCaseManager.camera).isNull()
+            assertThat(useCaseManager.getRunningUseCasesForTest()).isEmpty()
+        }
+
+    @Test
+    fun setEnabledUseCases_whenMeteringRepeatingCombinationUnsupported_throwsIllegalArgumentException() =
+        runTest {
+            initializeUseCaseThreads(this)
+            val useCaseManager =
+                createUseCaseManager(
+                    characteristicsMap =
+                        mapOf(
+                            CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to
+                                streamConfigurationMap,
+                            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
+                                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
+                        )
+                )
+            val preview = createPreview()
+            val imageCapture = createImageCapture()
+            val imageAnalysis =
+                ImageAnalysis.Builder()
+                    .setCaptureOptionUnpacker(
+                        CameraUseCaseAdapter.DefaultCaptureOptionsUnpacker.INSTANCE
+                    )
+                    .setSessionOptionUnpacker(CameraUseCaseAdapter.DefaultSessionOptionsUnpacker)
+                    .build()
+                    .apply {
+                        setAnalyzer(useCaseThreads.backgroundExecutor) { image -> image.close() }
+                        simulateActivation()
+                        useCaseList.add(this)
+                    }
+            // On a LEGACY device, PRIV (Preview) + YUV (ImageAnalysis) + JPEG (ImageCapture) is
+            // supported, but adding a 2nd PRIV stream (MeteringRepeating) is not supported.
+            useCaseManager.attach(listOf(preview, imageCapture, imageAnalysis))
+            useCaseManager.activate(preview)
+            useCaseManager.activate(imageCapture)
+            useCaseManager.activate(imageAnalysis)
+
+            assertThrows<IllegalArgumentException> {
+                useCaseManager.setEnabledUseCases(listOf(imageCapture))
+            }
+        }
+
+    @Test
+    fun attach_whenInitialEnabledUseCasesRequiresMeteringRepeatingButUnsupported_keepsRepeatingUseCase() =
+        runTest {
+            initializeUseCaseThreads(this)
+            val useCaseManager =
+                createUseCaseManager(
+                    characteristicsMap =
+                        mapOf(
+                            CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to
+                                streamConfigurationMap,
+                            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
+                                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
+                        )
+                )
+            val preview = createPreview()
+            val imageCapture = createImageCapture()
+            val imageAnalysis =
+                ImageAnalysis.Builder()
+                    .setCaptureOptionUnpacker(
+                        CameraUseCaseAdapter.DefaultCaptureOptionsUnpacker.INSTANCE
+                    )
+                    .setSessionOptionUnpacker(CameraUseCaseAdapter.DefaultSessionOptionsUnpacker)
+                    .build()
+                    .apply {
+                        setAnalyzer(useCaseThreads.backgroundExecutor) { image -> image.close() }
+                        simulateActivation()
+                        useCaseList.add(this)
+                    }
+
+            useCaseManager.setEnabledUseCases(listOf(imageCapture))
+            useCaseManager.attach(listOf(preview, imageCapture, imageAnalysis))
+            useCaseManager.activate(preview)
+            useCaseManager.activate(imageCapture)
+            useCaseManager.activate(imageAnalysis)
+
+            // Since MeteringRepeating cannot be added on LEGACY alongside PRIV + YUV + JPEG, one
+            // configured repeating UseCase (preview) is kept running so the capture session retains
+            // a repeating stream.
+            assertThat(useCaseManager.getRunningUseCasesForTest())
+                .containsExactly(preview, imageCapture)
+        }
+
+    @Test
+    fun setInitialEnabledUseCases_withAllUseCases_preAttachesMeteringRepeatingAndAvoidsGraphRecreation() =
+        runTest {
+            initializeUseCaseThreads(this)
+            val useCaseCameraBuilder = FakeUseCaseCameraComponentBuilder()
+            val useCaseManager =
+                createUseCaseManager(
+                    useCaseCameraComponentBuilderProvider =
+                        Provider<UseCaseCameraComponent.Builder> { useCaseCameraBuilder }
+                )
+            val preview = createPreview()
+            val imageCapture = createImageCapture()
+
+            useCaseManager.setEnabledUseCases(listOf(preview, imageCapture))
+            useCaseManager.attach(listOf(preview, imageCapture))
+            useCaseManager.activate(preview)
+            useCaseManager.activate(imageCapture)
+
+            assertThat(useCaseManager.getRunningUseCasesForTest())
+                .containsExactly(preview, imageCapture)
+            useCaseCameraBuilder.buildInvocationCount = 0
+
+            // Switching to imageCapture alone does not recreate the CameraGraph because
+            // setEnabledUseCases(preview, imageCapture) before attach pre-configured
+            // MeteringRepeating.
+            useCaseManager.setEnabledUseCases(listOf(imageCapture))!!.await()
+
+            assertThat(useCaseCameraBuilder.buildInvocationCount).isEqualTo(0)
+            assertThat(useCaseManager.getRunningUseCasesForTest().map { it::class.java })
+                .containsExactly(ImageCapture::class.java, MeteringRepeating::class.java)
+        }
+
+    @Test
+    fun setEnabledUseCases_whenCameraNotActive_returnsNullWithoutMutatingEnabledSet() = runTest {
+        initializeUseCaseThreads(this)
+        val useCaseManager = createUseCaseManager()
+        val preview = createPreview()
+        val imageCapture = createImageCapture()
+
+        useCaseManager.setCameraGraphCreationMode(createImmediately = false)
+        useCaseManager.setEnabledUseCases(listOf(preview))
+        useCaseManager.attach(listOf(preview, imageCapture))
+        useCaseManager.activate(preview)
+        useCaseManager.activate(imageCapture)
+        assertThat(useCaseManager.camera).isNull()
+
+        val result = useCaseManager.setEnabledUseCases(listOf(preview, imageCapture))
+        assertThat(result).isNull()
+
+        // Starting deferred creation now uses the original [preview] enabled subset because the
+        // failed switch while `camera == null` was not retained.
+        useCaseManager.setCameraGraphCreationMode(createImmediately = true)
+        assertThat(useCaseManager.getRunningUseCasesForTest()).containsExactly(preview)
+    }
+
+    @Test
+    fun rapidSetEnabledUseCasesAndBindUnbindStress_cancelsInFlightAndSettlesCleanly() = runTest {
+        initializeUseCaseThreads(this)
+        val useCaseCameraBuilder = FakeUseCaseCameraComponentBuilder()
+        val useCaseManager =
+            createUseCaseManager(
+                useCaseCameraComponentBuilderProvider =
+                    Provider<UseCaseCameraComponent.Builder> { useCaseCameraBuilder }
+            )
+        val preview = createPreview()
+        val imageCapture = createImageCapture()
+
+        useCaseManager.setEnabledUseCases(listOf(preview))
+        useCaseManager.attach(listOf(preview, imageCapture))
+        useCaseManager.activate(preview)
+        useCaseManager.activate(imageCapture)
+        useCaseCameraBuilder.buildInvocationCount = 0
+
+        // Issue 20 rapid back-to-back switches while repeating updates are in-flight.
+        val deferreds = mutableListOf<kotlinx.coroutines.Deferred<Unit>>()
+        val jobs = mutableListOf<kotlinx.coroutines.CompletableDeferred<Unit>>()
+        for (i in 0 until 20) {
+            val job = kotlinx.coroutines.CompletableDeferred<Unit>()
+            jobs.add(job)
+            useCaseCameraBuilder.fakeUseCaseCamera.updateRepeatingRequestResult = job
+            val target = if (i % 2 == 0) listOf(preview, imageCapture) else listOf(preview)
+            deferreds.add(useCaseManager.setEnabledUseCases(target)!!)
+        }
+
+        // First 19 switches must immediately be cancelled with OperationCanceledException.
+        for (i in 0 until 19) {
+            assertThat(deferreds[i].isCancelled).isTrue()
+            assertThat(deferreds[i].getCompletionExceptionOrNull())
+                .isInstanceOf(
+                    androidx.camera.core.CameraControl.OperationCanceledException::class.java
+                )
+        }
+        assertThat(deferreds[19].isCompleted).isFalse()
+
+        // Complete the final repeating request update; the 20th switch completes normally and zero
+        // CameraGraph recreations occurred.
+        jobs[19].complete(Unit)
+        deferreds[19].await()
+        assertThat(useCaseCameraBuilder.buildInvocationCount).isEqualTo(0)
+        assertThat(useCaseManager.getRunningUseCasesForTest()).containsExactly(preview)
+
+        // Start another switch and immediately detach before it completes; the in-flight switch
+        // must fail with OperationCanceledException.
+        val inFlightJob = kotlinx.coroutines.CompletableDeferred<Unit>()
+        useCaseCameraBuilder.fakeUseCaseCamera.updateRepeatingRequestResult = inFlightJob
+        val switchBeforeUnbind = useCaseManager.setEnabledUseCases(listOf(preview, imageCapture))!!
+        assertThat(switchBeforeUnbind.isCompleted).isFalse()
+
+        useCaseManager.detach(listOf(preview, imageCapture))
+
+        assertThat(switchBeforeUnbind.isCancelled).isTrue()
+        assertThat(switchBeforeUnbind.getCompletionExceptionOrNull())
+            .isInstanceOf(androidx.camera.core.CameraControl.OperationCanceledException::class.java)
+    }
+
+    @Test
+    fun setEnabledUseCases_withVideoUseCase_managesMeteringRepeatingWithoutRecreatingCameraGraph() =
+        runTest {
+            initializeUseCaseThreads(this)
+            val useCaseCameraBuilder = FakeUseCaseCameraComponentBuilder()
+            val useCaseManager =
+                createUseCaseManager(
+                    useCaseCameraComponentBuilderProvider =
+                        Provider<UseCaseCameraComponent.Builder> { useCaseCameraBuilder }
+                )
+            val preview = createPreview()
+            val imageCapture = createImageCapture()
+            val videoSurface = createTestDeferrableSurface(MediaCodec::class.java)
+            val videoUseCase =
+                FakeUseCase().apply {
+                    simulateActivation()
+                    updateSessionConfigForTesting(
+                        SessionConfig.Builder()
+                            .setTemplateType(TEMPLATE_RECORD)
+                            .addSurface(videoSurface)
+                            .build()
+                    )
+                    useCaseList.add(this)
+                }
+
+            // 1. Preview (PRIV) + Video (PRIV): disabling Video keeps Preview running without
+            // recreating the CameraGraph, while disabling Preview is rejected because a 3rd PRIV
+            // stream (MeteringRepeating: PRIV + PRIV + PRIV) is not supported by Camera2 tables.
+            useCaseManager.setEnabledUseCases(listOf(preview, videoUseCase))
+            useCaseManager.attach(listOf(preview, videoUseCase))
+            useCaseManager.activate(preview)
+            useCaseManager.activate(videoUseCase)
+            useCaseCameraBuilder.buildInvocationCount = 0
+
+            assertThat(useCaseManager.getRunningUseCasesForTest())
+                .containsExactly(preview, videoUseCase)
+
+            useCaseManager.setEnabledUseCases(listOf(preview))!!.await()
+            assertThat(useCaseCameraBuilder.buildInvocationCount).isEqualTo(0)
+            assertThat(useCaseManager.getRunningUseCasesForTest()).containsExactly(preview)
+
+            assertThrows<IllegalArgumentException> {
+                useCaseManager.setEnabledUseCases(listOf(videoUseCase))
+            }
+
+            useCaseManager.setEnabledUseCases(listOf(preview, videoUseCase))!!.await()
+            assertThat(useCaseCameraBuilder.buildInvocationCount).isEqualTo(0)
+            assertThat(useCaseManager.getRunningUseCasesForTest())
+                .containsExactly(preview, videoUseCase)
+
+            useCaseManager.detach(listOf(preview, videoUseCase))
+
+            // 2. ImageCapture (JPEG) + Video (PRIV): MeteringRepeating (PRIV) is pre-attached
+            // (JPEG + PRIV + PRIV) and automatically included when switching to [imageCapture]
+            // (Video disabled) or [videoUseCase] (ImageCapture disabled) with zero CameraGraph
+            // recreations.
+            useCaseManager.setEnabledUseCases(listOf(imageCapture, videoUseCase))
+            useCaseManager.attach(listOf(imageCapture, videoUseCase))
+            useCaseManager.activate(imageCapture)
+            useCaseManager.activate(videoUseCase)
+            useCaseCameraBuilder.buildInvocationCount = 0
+
+            assertThat(useCaseManager.getRunningUseCasesForTest())
+                .containsExactly(imageCapture, videoUseCase)
+
+            // Disabling videoUseCase includes MeteringRepeating alongside imageCapture.
+            useCaseManager.setEnabledUseCases(listOf(imageCapture))!!.await()
+            assertThat(useCaseCameraBuilder.buildInvocationCount).isEqualTo(0)
+            assertThat(useCaseManager.getRunningUseCasesForTest().map { it::class.java })
+                .containsExactly(ImageCapture::class.java, MeteringRepeating::class.java)
+
+            // Disabling imageCapture includes MeteringRepeating alongside videoUseCase.
+            useCaseManager.setEnabledUseCases(listOf(videoUseCase))!!.await()
+            assertThat(useCaseCameraBuilder.buildInvocationCount).isEqualTo(0)
+            assertThat(useCaseManager.getRunningUseCasesForTest().map { it::class.java })
+                .containsExactly(FakeUseCase::class.java, MeteringRepeating::class.java)
+
+            videoSurface.close()
+        }
+
+    @Test
+    fun setEnabledUseCases_whenBoundWithoutInitialEnabledUseCases_addsMeteringRepeatingAndUpdatesOnce() =
+        runTest {
+            initializeUseCaseThreads(this)
+            val useCaseCameraBuilder = FakeUseCaseCameraComponentBuilder()
+            val notifiedRunningUseCases = mutableListOf<Set<UseCase>>()
+            val listenerControl =
+                object : UseCaseCameraControl, UseCaseManager.RunningUseCasesChangeListener {
+                    override var requestControl: UseCaseCameraRequestControl? = null
+
+                    override fun reset() {}
+
+                    override fun onRunningUseCasesChanged(runningUseCases: Set<UseCase>) {
+                        notifiedRunningUseCases.add(runningUseCases)
+                    }
+                }
+            val useCaseManager =
+                createUseCaseManager(
+                    controls = setOf(listenerControl),
+                    useCaseCameraComponentBuilderProvider =
+                        Provider<UseCaseCameraComponent.Builder> { useCaseCameraBuilder },
+                )
+            val preview = createPreview()
+            val imageCapture = createImageCapture()
+
+            // Attach and activate without setInitialEnabledUseCases; MeteringRepeating is NOT
+            // pre-attached because Preview provides a repeating stream.
+            useCaseManager.attach(listOf(preview, imageCapture))
+            useCaseManager.activate(preview)
+            useCaseManager.activate(imageCapture)
+            assertThat(useCaseManager.getRunningUseCasesForTest())
+                .containsExactly(preview, imageCapture)
+
+            useCaseCameraBuilder.buildInvocationCount = 0
+            notifiedRunningUseCases.clear()
+
+            // Dynamically switch to [imageCapture] alone: addRepeatingUseCase() recreates the
+            // session once with MeteringRepeating already in activeUseCases, and
+            // updateRunningUseCases is invoked only once with [imageCapture, meteringRepeating]
+            // (never including preview as a fallback).
+            useCaseManager.setEnabledUseCases(listOf(imageCapture))!!.await()
+
+            assertThat(useCaseCameraBuilder.buildInvocationCount).isEqualTo(1)
+            assertThat(notifiedRunningUseCases).hasSize(1)
+            assertThat(notifiedRunningUseCases.single().map { it::class.java })
+                .containsExactly(ImageCapture::class.java, MeteringRepeating::class.java)
+        }
+
+    @Test
+    fun setSessionInteropConfig_preservesTemplateCallbacksAndParametersAcrossEnabledUseCaseSwitches() =
+        runTest {
+            initializeUseCaseThreads(this)
+            val useCaseCameraBuilder = FakeUseCaseCameraComponentBuilder()
+            val useCaseManager =
+                createUseCaseManager(
+                    useCaseCameraComponentBuilderProvider =
+                        Provider<UseCaseCameraComponent.Builder> { useCaseCameraBuilder }
+                )
+            val preview = createPreview()
+            val imageCapture = createImageCapture()
+            val repeatingCallback =
+                object : android.hardware.camera2.CameraCaptureSession.CaptureCallback() {}
+
+            val interopConfig =
+                androidx.camera.core.impl.MutableOptionsBundle.create().apply {
+                    insertOption(
+                        Camera2ImplConfig.TEMPLATE_TYPE_OPTION,
+                        android.hardware.camera2.CameraDevice.TEMPLATE_MANUAL,
+                    )
+                    insertOption(
+                        Camera2ImplConfig.SESSION_REPEATING_CAPTURE_CALLBACK_OPTION,
+                        repeatingCallback,
+                    )
+                    insertOption(
+                        android.hardware.camera2.CaptureRequest.CONTROL_EFFECT_MODE
+                            .createSessionParameterOption(),
+                        androidx.camera.core.impl.Config.OptionPriority.ALWAYS_OVERRIDE,
+                        android.hardware.camera2.CaptureRequest.CONTROL_EFFECT_MODE_MONO,
+                    )
+                    insertOption(
+                        android.hardware.camera2.CaptureRequest.CONTROL_AE_MODE
+                            .createCaptureRequestOption(),
+                        androidx.camera.core.impl.Config.OptionPriority.ALWAYS_OVERRIDE,
+                        android.hardware.camera2.CaptureRequest.CONTROL_AE_MODE_OFF,
+                    )
+                }
+
+            useCaseManager.setSessionInteropConfig(interopConfig)
+            useCaseManager.setEnabledUseCases(listOf(preview))
+            useCaseManager.attach(listOf(preview, imageCapture))
+            useCaseManager.activate(preview)
+            useCaseManager.activate(imageCapture)
+
+            // 1. Neither preview nor imageCapture has sessionInteropConfig merged into its
+            // UseCaseConfig, so ImageCapture's one-shot still capture config never inherits the
+            // session repeating callback or template.
+            assertThat(
+                    imageCapture.currentConfig.containsOption(
+                        Camera2ImplConfig.SESSION_REPEATING_CAPTURE_CALLBACK_OPTION
+                    )
+                )
+                .isFalse()
+            assertThat(
+                    imageCapture.currentConfig.containsOption(
+                        Camera2ImplConfig.TEMPLATE_TYPE_OPTION
+                    )
+                )
+                .isFalse()
+
+            // 2. When switching to [imageCapture] alone (runningUseCases = [imageCapture,
+            // meteringRepeating]), SessionConfigAdapter with sessionInteropConfig preserves
+            // TEMPLATE_MANUAL (not clobbered by MeteringRepeating's TEMPLATE_PREVIEW),
+            // repeatingCaptureCallback, sessionParameters, and captureRequest options.
+            useCaseManager.setEnabledUseCases(listOf(imageCapture))!!.await()
+            val runningUseCases = useCaseManager.getRunningUseCasesForTest()
+            assertThat(runningUseCases.map { it::class.java })
+                .containsExactly(ImageCapture::class.java, MeteringRepeating::class.java)
+
+            val runningAdapter =
+                SessionConfigAdapter(
+                    runningUseCases,
+                    isPrimary = true,
+                    sessionInteropConfig = interopConfig,
+                )
+            val resolvedSessionConfig = runningAdapter.getValidSessionConfigOrNull()!!
+            assertThat(resolvedSessionConfig.templateType)
+                .isEqualTo(android.hardware.camera2.CameraDevice.TEMPLATE_MANUAL)
+            assertThat(resolvedSessionConfig.repeatingCameraCaptureCallbacks).isNotEmpty()
+
+            val graphConfig =
+                useCaseManager.createUseCaseCameraConfig(runningAdapter, null).cameraGraphConfig
+            assertThat(graphConfig.sessionTemplate)
+                .isEqualTo(
+                    androidx.camera.camera2.pipe.RequestTemplate(
+                        android.hardware.camera2.CameraDevice.TEMPLATE_MANUAL
+                    )
+                )
+            assertThat(
+                    graphConfig.sessionParameters[
+                            android.hardware.camera2.CaptureRequest.CONTROL_EFFECT_MODE]
+                )
+                .isEqualTo(android.hardware.camera2.CaptureRequest.CONTROL_EFFECT_MODE_MONO)
+            assertThat(
+                    graphConfig.sessionParameters[
+                            android.hardware.camera2.CaptureRequest.CONTROL_AE_MODE]
+                )
+                .isEqualTo(android.hardware.camera2.CaptureRequest.CONTROL_AE_MODE_OFF)
+        }
 }

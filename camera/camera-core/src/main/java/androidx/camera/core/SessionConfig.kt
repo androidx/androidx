@@ -130,6 +130,8 @@ constructor(
     /** The implementation options to be applied on the session. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val interopConfig: Config = OptionsBundle.emptyBundle(),
+    /** The initial subset of [useCases] enabled for streaming when the session starts. */
+    initialEnabledUseCases: List<UseCase>? = null,
 ) {
     /**
      * Creates a [SessionConfig] from the given parameters.
@@ -181,6 +183,20 @@ constructor(
     public val useCases: List<UseCase> = useCases.distinct()
 
     /**
+     * The initial subset of [useCases] enabled for streaming when the session starts.
+     *
+     * Defaults to all [useCases] if not explicitly set via [Builder.setInitialEnabledUseCases].
+     */
+    // TODO: b/532362193 - Make this public in next alpha
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val initialEnabledUseCases: List<UseCase> =
+        initialEnabledUseCases?.distinct() ?: this.useCases
+
+    /** Whether [initialEnabledUseCases] was explicitly configured for dynamic UseCase switching. */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val isInitialEnabledUseCasesSet: Boolean = initialEnabledUseCases != null
+
+    /**
      * Gets the feature selection listener set to this session config.
      *
      * @see setFeatureSelectionListener
@@ -199,7 +215,15 @@ constructor(
 
     init {
         if (requireNonEmptyUseCases) {
-            require(useCases.isNotEmpty()) { "SessionConfig must contain at least one UseCase." }
+            require(this.useCases.isNotEmpty()) {
+                "SessionConfig must contain at least one UseCase."
+            }
+            require(this.initialEnabledUseCases.isNotEmpty()) {
+                "initialEnabledUseCases cannot be empty."
+            }
+        }
+        require(this.useCases.containsAll(this.initialEnabledUseCases)) {
+            "initialEnabledUseCases must be a subset of SessionConfig.useCases."
         }
         validateFrameRate()
         validateFeatureGroups()
@@ -354,6 +378,7 @@ constructor(
     override fun toString(): String {
         return "SessionConfig@${Integer.toHexString(System.identityHashCode(this))} {" +
             "useCases=$useCases, " +
+            "initialEnabledUseCases=$initialEnabledUseCases, " +
             "frameRateRange=$frameRateRange, " +
             "requiredFeatureGroup=$requiredFeatureGroup, " +
             "preferredFeatureGroup=$preferredFeatureGroup, " +
@@ -405,6 +430,7 @@ constructor(
         private var cameraFilter: CameraFilter? = null
         private var sessionType: Int = SESSION_TYPE_REGULAR
         private var requireNonEmptyUseCases: Boolean = true
+        private var initialEnabledUseCases: List<UseCase>? = null
 
         public constructor(vararg useCases: UseCase) : this(useCases.toList())
 
@@ -419,6 +445,55 @@ constructor(
             cameraFilter = sessionConfig.cameraFilter
             sessionType = sessionConfig.sessionType
             requireNonEmptyUseCases = sessionConfig.requireNonEmptyUseCases
+            if (sessionConfig.isInitialEnabledUseCasesSet) {
+                initialEnabledUseCases = sessionConfig.initialEnabledUseCases
+            }
+        }
+
+        /**
+         * Sets the initial subset of [UseCase]s enabled for streaming when the session starts.
+         *
+         * All [UseCase]s passed to the [Builder] constructor are configured in the underlying
+         * camera capture session, while only the [UseCase]s specified here initially receive camera
+         * frames. The active set of enabled [UseCase]s can later be updated at runtime via
+         * [CameraControl.setEnabledUseCasesAsync] without reconfiguring the capture session.
+         *
+         * Specifying an initial subset via this method pre-configures the session for dynamic
+         * [UseCase] switching (including any internal repeating stream needed when switching to a
+         * non-repeating subset such as [ImageCapture] alone). Dynamic [UseCase] switching is only
+         * supported for regular sessions without camera extensions, camera filters, feature groups,
+         * or zero-shutter lag ([ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG]).
+         * [CameraInfo.isSessionConfigSupported] verifies whether the bound [useCases] and the
+         * configured [initialEnabledUseCases] subset are supported by the device; switching later
+         * via [CameraControl.setEnabledUseCasesAsync] to a subset without a repeating stream
+         * requires the device to support an additional internal repeating stream alongside all
+         * bound [useCases] (to verify a non-repeating target subset in advance, pass that subset to
+         * [setInitialEnabledUseCases] when querying [CameraInfo.isSessionConfigSupported]). If the
+         * initial subset has no repeating stream and the camera device cannot support an additional
+         * internal repeating stream alongside all bound [useCases], a bound repeating [UseCase]
+         * (such as [Preview]) may remain active in the capture session to maintain 3A convergence.
+         *
+         * @param useCases The initial subset of [UseCase]s to enable. Must not be empty and must be
+         *   a subset of the [SessionConfig]'s [useCases].
+         * @return The [Builder] instance, allowing for method chaining.
+         */
+        // TODO: b/532362193 - Make this public in next alpha
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun setInitialEnabledUseCases(vararg useCases: UseCase): Builder =
+            setInitialEnabledUseCases(useCases.toList())
+
+        /**
+         * Sets the initial subset of [UseCase]s enabled for streaming when the session starts.
+         *
+         * @param useCases The initial subset of [UseCase]s to enable. Must not be empty and must be
+         *   a subset of the [SessionConfig]'s [useCases].
+         * @return The [Builder] instance, allowing for method chaining.
+         */
+        // TODO: b/532362193 - Make this public in next alpha
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun setInitialEnabledUseCases(useCases: List<UseCase>): Builder {
+            this.initialEnabledUseCases = useCases.toList()
+            return this
         }
 
         /** Sets the [ViewPort] to be applied on the camera session. */
@@ -541,6 +616,7 @@ constructor(
                     ) ?: sessionType,
                 requireNonEmptyUseCases = requireNonEmptyUseCases,
                 interopConfig = OptionsBundle.from(interopMutableConfig),
+                initialEnabledUseCases = initialEnabledUseCases,
             )
         }
     }
@@ -567,6 +643,21 @@ internal constructor(
 ) {
 
     internal constructor(vararg useCases: UseCase) : this(useCases.toList())
+
+    private var _initialEnabledUseCases: List<UseCase> = useCases.distinct()
+
+    /** The initial subset of [UseCase]s enabled for streaming when the session starts. */
+    // TODO: b/532362193 - Make this public in next alpha
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:NonNull
+    @set:NonNull
+    public var initialEnabledUseCases: List<UseCase>
+        get() = _initialEnabledUseCases
+        set(value) {
+            _initialEnabledUseCases = value.distinct()
+            builder.setInitialEnabledUseCases(value)
+        }
 
     private var _viewPort: ViewPort? = null
 

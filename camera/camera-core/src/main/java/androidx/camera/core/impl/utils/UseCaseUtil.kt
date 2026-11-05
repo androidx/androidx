@@ -62,8 +62,16 @@ public object UseCaseUtil {
             videoStabilizationMode = getVideoStabilizationMode(configProvider),
         )
 
-    private fun Collection<UseCase>.getPreviewStabilizationMode(
-        configProvider: (UseCase) -> UseCaseConfig<*>
+    @JvmStatic
+    @JvmName("getVideoStabilizationFromConfigs")
+    public fun Collection<UseCaseConfig<*>>.getVideoStabilization(): VideoStabilization =
+        VideoStabilization.from(
+            previewStabilizationMode = getPreviewStabilizationMode { it },
+            videoStabilizationMode = getVideoStabilizationMode { it },
+        )
+
+    private fun <T> Collection<T>.getPreviewStabilizationMode(
+        configProvider: (T) -> UseCaseConfig<*>
     ): Int {
         var previewStabilizationMode = StabilizationMode.UNSPECIFIED
 
@@ -90,8 +98,8 @@ public object UseCaseUtil {
         return previewStabilizationMode
     }
 
-    private fun Collection<UseCase>.getVideoStabilizationMode(
-        configProvider: (UseCase) -> UseCaseConfig<*>
+    private fun <T> Collection<T>.getVideoStabilizationMode(
+        configProvider: (T) -> UseCaseConfig<*>
     ): Int {
         var videoStabilizationMode = StabilizationMode.UNSPECIFIED
 

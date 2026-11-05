@@ -75,6 +75,10 @@ public class DeviceQuirksLoader {
                 SimultaneousRawJpegNotSupportedQuirk.load())) {
             quirks.add(new SimultaneousRawJpegNotSupportedQuirk());
         }
+        if (quirkSettings.shouldEnableQuirk(FastSessionSwitchDisablerQuirk.class,
+                FastSessionSwitchDisablerQuirk.load())) {
+            quirks.add(new FastSessionSwitchDisablerQuirk());
+        }
 
         return quirks;
     }

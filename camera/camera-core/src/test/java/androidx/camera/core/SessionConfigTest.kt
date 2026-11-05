@@ -725,6 +725,58 @@ class SessionConfigTest {
             .containsExactly(FakeDynamicRangeFeature(DynamicRange.HDR_UNSPECIFIED_10_BIT))
     }
 
+    @Test
+    fun sessionConfig_initialEnabledUseCasesDefaultsToAllUseCases() {
+        val sessionConfig = SessionConfig(useCases)
+
+        assertThat(sessionConfig.initialEnabledUseCases).containsExactlyElementsIn(useCases)
+    }
+
+    @Test
+    fun sessionConfig_builderSetsInitialEnabledUseCases() {
+        val preview = useCases[0]
+        val sessionConfig =
+            SessionConfig.Builder(useCases).setInitialEnabledUseCases(preview, preview).build()
+
+        assertThat(sessionConfig.initialEnabledUseCases).containsExactly(preview)
+    }
+
+    @Test
+    fun sessionConfig_copyConstructorCopiesInitialEnabledUseCases() {
+        val preview = useCases[0]
+        val original = SessionConfig.Builder(useCases).setInitialEnabledUseCases(preview).build()
+        val copied = SessionConfig.Builder(original).build()
+
+        assertThat(copied.initialEnabledUseCases).containsExactly(preview)
+    }
+
+    @Test
+    fun sessionConfig_dslSetsInitialEnabledUseCases() {
+        val preview = useCases[0]
+        val sessionConfig =
+            sessionConfig(useCases) {
+                initialEnabledUseCases = listOf(preview, preview)
+                assertThat(initialEnabledUseCases).containsExactly(preview)
+            }
+
+        assertThat(sessionConfig.initialEnabledUseCases).containsExactly(preview)
+    }
+
+    @Test
+    fun sessionConfig_emptyInitialEnabledUseCases_throwsIllegalArgumentException() {
+        assertThrows<IllegalArgumentException> {
+            SessionConfig.Builder(useCases).setInitialEnabledUseCases(emptyList()).build()
+        }
+    }
+
+    @Test
+    fun sessionConfig_initialEnabledUseCasesNotInUseCases_throwsIllegalArgumentException() {
+        val extraAnalysis = ImageAnalysis.Builder().build()
+        assertThrows<IllegalArgumentException> {
+            SessionConfig.Builder(useCases).setInitialEnabledUseCases(extraAnalysis).build()
+        }
+    }
+
     private fun createVideoCapture(quality: Quality? = null): VideoCapture<Recorder> {
         return VideoCapture.withOutput(
             Recorder.Builder()

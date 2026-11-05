@@ -52,12 +52,20 @@ import androidx.camera.core.DynamicRange.HDR10_10_BIT
 import androidx.camera.core.DynamicRange.HDR10_PLUS_10_BIT
 import androidx.camera.core.DynamicRange.HLG_10_BIT
 import androidx.camera.core.FocusMeteringAction
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory
 import androidx.camera.core.ZoomState
 import androidx.camera.core.impl.AdapterCameraInfo
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.ImageFormatConstants
+import androidx.camera.core.impl.ResolvedStreamInfo
+import androidx.camera.core.impl.StreamSpec
+import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
+import androidx.camera.core.internal.CalculatedUseCaseInfo
+import androidx.camera.core.internal.StreamSpecQueryResult
 import androidx.camera.testing.impl.fakes.FakeCameraConfig
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfigFactory
 import androidx.testutils.MainDispatcherRule
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
@@ -771,6 +779,88 @@ class CameraInfoAdapterTest {
             )
 
         assertThat(cameraInfo.isLowLightBoostSupported).isFalse()
+    }
+
+    @Test
+    fun resolveRepeatingStream_validatesAgainstAlreadyResolvedStreamSpecs() {
+        val factory = FakeUseCaseConfigFactory()
+        val previewConfig =
+            FakeUseCaseConfig.Builder(
+                    factory.getConfig(
+                        CaptureType.PREVIEW,
+                        ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+                    ),
+                    CaptureType.PREVIEW,
+                    ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                )
+                .useCaseConfig
+        val imageCaptureConfig =
+            FakeUseCaseConfig.Builder(
+                    factory.getConfig(
+                        CaptureType.IMAGE_CAPTURE,
+                        ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+                    ),
+                    CaptureType.IMAGE_CAPTURE,
+                    android.graphics.ImageFormat.JPEG,
+                )
+                .useCaseConfig
+        val videoConfig =
+            FakeUseCaseConfig.Builder(
+                    factory.getConfig(
+                        CaptureType.VIDEO_CAPTURE,
+                        ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+                    ),
+                    CaptureType.VIDEO_CAPTURE,
+                    ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                )
+                .useCaseConfig
+        val unionInfo =
+            CalculatedUseCaseInfo(
+                emptyList(),
+                emptyList(),
+                emptyList(),
+                emptyList(),
+                emptyList(),
+                null,
+                null,
+                emptyMap(),
+                StreamSpecQueryResult(),
+                null,
+            )
+
+        // 1. Preview (PRIV) + ImageCapture (JPEG): adding MeteringRepeating (PRIV <= 640x480) is
+        // supported (PRIV + PRIV + JPEG).
+        val supportedRepeating =
+            cameraInfoAdapter.resolveRepeatingStream(
+                unionInfo,
+                listOf(
+                    ResolvedStreamInfo(previewConfig, StreamSpec.builder(Size(1920, 1080)).build()),
+                    ResolvedStreamInfo(
+                        imageCaptureConfig,
+                        StreamSpec.builder(Size(1920, 1080)).build(),
+                    ),
+                ),
+            )
+        assertThat(supportedRepeating).isNotNull()
+        assertThat(supportedRepeating!!.useCaseConfig.captureType)
+            .isEqualTo(CaptureType.METERING_REPEATING)
+        assertThat(supportedRepeating.streamSpec.resolution).isEqualTo(Size(640, 480))
+
+        // 2. Preview (PRIV) + VideoCapture (PRIV) + ImageCapture (JPEG): adding a 3rd PRIV stream
+        // for MeteringRepeating is NOT supported in the surface combination table.
+        val unsupportedRepeating =
+            cameraInfoAdapter.resolveRepeatingStream(
+                unionInfo,
+                listOf(
+                    ResolvedStreamInfo(previewConfig, StreamSpec.builder(Size(1920, 1080)).build()),
+                    ResolvedStreamInfo(videoConfig, StreamSpec.builder(Size(1920, 1080)).build()),
+                    ResolvedStreamInfo(
+                        imageCaptureConfig,
+                        StreamSpec.builder(Size(1920, 1080)).build(),
+                    ),
+                ),
+            )
+        assertThat(unsupportedRepeating).isNull()
     }
 
     private fun createCameraProperties(

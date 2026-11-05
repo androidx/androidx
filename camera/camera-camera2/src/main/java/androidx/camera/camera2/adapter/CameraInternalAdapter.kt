@@ -23,6 +23,7 @@ import androidx.camera.camera2.impl.UseCaseManager
 import androidx.camera.camera2.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.core.CameraControl
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CameraConfigs
 import androidx.camera.core.impl.CameraControlInternal
@@ -31,6 +32,7 @@ import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.impl.SessionProcessor
+import androidx.camera.core.impl.utils.futures.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import javax.inject.Inject
 import kotlinx.atomicfu.atomic
@@ -114,6 +116,15 @@ constructor(
 
     override fun detachUseCases(useCasesToRemove: MutableCollection<UseCase>) {
         useCaseManager.detach(useCasesToRemove.toList())
+    }
+
+    override fun setEnabledUseCases(useCases: MutableCollection<UseCase>?): ListenableFuture<Void> {
+        val switchResult =
+            useCaseManager.setEnabledUseCases(useCases?.toSet())
+                ?: return Futures.immediateFailedFuture(
+                    CameraControl.OperationCanceledException("Camera is not active.")
+                )
+        return Futures.nonCancellationPropagating(switchResult.asVoidListenableFuture())
     }
 
     override fun setSessionInteropConfig(sessionInteropConfig: Config?) {

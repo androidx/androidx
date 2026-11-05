@@ -47,6 +47,7 @@ public class SessionConfigAdapter(
     private val useCases: Collection<UseCase>,
     private val isPrimary: Boolean = true,
     public val sessionInteropConfig: Config? = null,
+    private val allowEmptySurfaceStreamUseCase: Boolean = false,
 ) {
     public val surfaceConfigOptionsMap: Map<DeferrableSurface, SurfaceConfigOptions> by lazy {
         val sessionConfigs = mutableListOf<SessionConfig>()
@@ -59,7 +60,12 @@ public class SessionConfigAdapter(
             sessionInteropConfig?.let {
                 Camera2ImplConfig(it).getCaptureRequestTemplate(CaptureConfig.TEMPLATE_TYPE_NONE)
             } ?: CaptureConfig.TEMPLATE_TYPE_NONE
-        buildSurfaceConfigOptionsMap(sessionConfigs, useCaseConfigs, sessionInteropTemplate)
+        buildSurfaceConfigOptionsMap(
+            sessionConfigs,
+            useCaseConfigs,
+            sessionInteropTemplate,
+            allowEmptySurfaceStreamUseCase,
+        )
     }
 
     private val validatingBuilder: SessionConfig.ValidatingBuilder by lazy {
@@ -235,12 +241,14 @@ public class SessionConfigAdapter(
             sessionConfigs: List<SessionConfig>,
             useCaseConfigs: List<UseCaseConfig<*>>,
             sessionTemplateType: Int = CaptureConfig.TEMPLATE_TYPE_NONE,
+            allowEmptySurfaceStreamUseCase: Boolean = false,
         ): Map<DeferrableSurface, SurfaceConfigOptions> {
             val streamUseCaseMap =
                 getSurfaceToStreamUseCaseMapping(
                     sessionConfigs,
                     useCaseConfigs,
                     sessionTemplateType,
+                    allowEmptySurfaceStreamUseCase,
                 )
             val streamUseHintMap = getSurfaceToStreamUseHintMapping(sessionConfigs)
 
@@ -296,6 +304,7 @@ public class SessionConfigAdapter(
             sessionConfigs: Collection<SessionConfig>,
             useCaseConfigs: Collection<UseCaseConfig<*>>,
             sessionTemplateType: Int = CaptureConfig.TEMPLATE_TYPE_NONE,
+            allowEmptySurfaceStreamUseCase: Boolean = false,
         ): Map<DeferrableSurface, Long> {
             if (
                 sessionTemplateType == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG ||
@@ -311,6 +320,7 @@ public class SessionConfigAdapter(
                 sessionConfigs,
                 useCaseConfigs,
                 mapping,
+                allowEmptySurfaceStreamUseCase,
             )
 
             return mapping

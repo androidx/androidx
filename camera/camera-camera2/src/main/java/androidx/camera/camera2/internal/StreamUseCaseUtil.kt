@@ -108,11 +108,14 @@ public object StreamUseCaseUtil {
      *
      * @param sessionConfigs collection of all session configs for this capture session
      * @param streamUseCaseMap the mapping between surfaces and Stream Use Case flag
+     * @param allowEmptySurfaceStreamUseCase whether zero-surface session configs carrying a stream
+     *   use case option are allowed without aborting (enabled only for dynamic UseCase switching)
      */
     public fun populateSurfaceToStreamUseCaseMapping(
         sessionConfigs: Collection<SessionConfig>,
         useCaseConfigs: Collection<UseCaseConfig<*>>,
         streamUseCaseMap: MutableMap<DeferrableSurface, Long>,
+        allowEmptySurfaceStreamUseCase: Boolean = false,
     ) {
         var position = 0
         var hasStreamUseCase = false
@@ -121,25 +124,71 @@ public object StreamUseCaseUtil {
             if (
                 sessionConfig.implementationOptions.containsOption(
                     STREAM_USE_CASE_STREAM_SPEC_OPTION
-                ) && sessionConfig.surfaces.size != 1
-            ) {
-                Camera2Logger.error {
-                    "StreamUseCaseUtil: SessionConfig has stream use case but also contains " +
-                        "${sessionConfig.surfaces.size} surfaces, " +
-                        "abort populateSurfaceToStreamUseCaseMapping()."
-                }
-                return
-            }
-            if (
-                sessionConfig.implementationOptions.containsOption(
-                    STREAM_USE_CASE_STREAM_SPEC_OPTION
                 )
             ) {
+                val invalidSurfaceCount =
+                    if (allowEmptySurfaceStreamUseCase) {
+                        sessionConfig.surfaces.size > 1
+                    } else {
+                        sessionConfig.surfaces.size != 1
+                    }
+                if (invalidSurfaceCount) {
+                    Camera2Logger.error {
+                        "StreamUseCaseUtil: SessionConfig has stream use case but also contains " +
+                            "${sessionConfig.surfaces.size} surfaces, " +
+                            "abort populateSurfaceToStreamUseCaseMapping()."
+                    }
+                    return
+                }
                 hasStreamUseCase = true
-                break
+                if (!allowEmptySurfaceStreamUseCase) {
+                    break
+                }
             }
         }
         if (hasStreamUseCase) {
+            if (
+                allowEmptySurfaceStreamUseCase &&
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+            ) {
+                var hasMeteringRepeatingSurface = false
+                var hasNonMeteringPreviewStreamUseCase = false
+                for ((index, sessionConfig) in sessionConfigs.withIndex()) {
+                    if (sessionConfig.surfaces.isEmpty()) continue
+                    if (
+                        useCaseConfigArrayList[index].captureType == CaptureType.METERING_REPEATING
+                    ) {
+                        hasMeteringRepeatingSurface = true
+                    } else {
+                        val streamUseCase =
+                            sessionConfig.implementationOptions.retrieveOption(
+                                STREAM_USE_CASE_STREAM_SPEC_OPTION,
+                                SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT.toLong(),
+                            )
+                        if (
+                            streamUseCase == SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW.toLong() ||
+                                streamUseCase ==
+                                    SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL.toLong()
+                        ) {
+                            hasNonMeteringPreviewStreamUseCase = true
+                        }
+                    }
+                }
+                if (hasMeteringRepeatingSurface && hasNonMeteringPreviewStreamUseCase) {
+                    // When MeteringRepeating is co-attached alongside a stream already stamped
+                    // PREVIEW or PREVIEW_VIDEO_STILL (for dynamic UseCase switching), the
+                    // combination with MeteringRepeating was validated against the standard surface
+                    // combinations table rather than the StreamUseCase table, and stamping
+                    // SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW on MeteringRepeating would create
+                    // duplicate PREVIEW stream use cases. Fall back to DEFAULT for all streams.
+                    Camera2Logger.debug {
+                        "StreamUseCaseUtil: MeteringRepeating is co-attached alongside an " +
+                            "existing PREVIEW stream use case; falling back to DEFAULT stream " +
+                            "use cases."
+                    }
+                    return
+                }
+            }
             for (sessionConfig: SessionConfig in sessionConfigs) {
                 if (
                     (useCaseConfigArrayList[position].captureType == CaptureType.METERING_REPEATING)

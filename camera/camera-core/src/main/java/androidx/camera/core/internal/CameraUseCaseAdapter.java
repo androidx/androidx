@@ -67,6 +67,7 @@ import androidx.camera.core.ViewPort;
 import androidx.camera.core.concurrent.CameraCoordinator;
 import androidx.camera.core.featuregroup.GroupableFeature;
 import androidx.camera.core.featuregroup.impl.ResolvedFeatureGroup;
+import androidx.camera.core.impl.AdapterCameraControl;
 import androidx.camera.core.impl.AdapterCameraInfo;
 import androidx.camera.core.impl.AdapterCameraInternal;
 import androidx.camera.core.impl.CameraConfig;
@@ -74,7 +75,9 @@ import androidx.camera.core.impl.CameraConfigs;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CameraMode;
+import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.SessionProcessor;
@@ -83,10 +86,15 @@ import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.UseCaseUtil;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.core.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.core.internal.compat.quirk.FastSessionSwitchDisablerQuirk;
 import androidx.camera.core.internal.compat.workaround.StreamSharingForceEnabler;
 import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.core.util.Preconditions;
 import androidx.core.util.Predicate;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -101,6 +109,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A {@link CameraInternal} adapter which checks that the UseCases to make sure that the resolutions
@@ -155,6 +165,15 @@ public final class CameraUseCaseAdapter implements Camera {
     // This holds the session Interop config from public SessionConfig.
     @GuardedBy("mLock")
     private Config mSessionInteropConfig = null;
+
+    // This holds the bound non-legacy SessionConfig for dynamic UseCase switching.
+    @GuardedBy("mLock")
+    private androidx.camera.core.@Nullable SessionConfig mBoundSessionConfig = null;
+
+    // The currently enabled app UseCases for dynamic UseCase switching, or null if dynamic
+    // switching has not been activated for the current session.
+    @GuardedBy("mLock")
+    private @Nullable List<UseCase> mEnabledUseCases = null;
 
     // The placeholder UseCase created to meet combination criteria for Extensions. e.g. When
     // Extensions require both Preview and ImageCapture and app only provides one of them,
@@ -227,6 +246,20 @@ public final class CameraUseCaseAdapter implements Camera {
             @NonNull UseCaseConfigFactory useCaseConfigFactory) {
         mCameraConfig = adapterCameraInfo.getCameraConfig();
         mCameraInternal = new AdapterCameraInternal(camera, adapterCameraInfo);
+        ((AdapterCameraControl) mCameraInternal.getCameraControlInternal())
+                .setEnabledUseCasesHandler(new AdapterCameraControl.EnabledUseCasesHandler() {
+                    @Override
+                    public @NonNull ListenableFuture<Void> setEnabledUseCasesAsync(
+                            @NonNull List<UseCase> useCases) {
+                        return CameraUseCaseAdapter.this.setEnabledUseCasesAsync(useCases);
+                    }
+
+                    @Override
+                    public boolean areCaptureRequestsEnabled(
+                            @NonNull List<CaptureConfig> captureConfigs) {
+                        return CameraUseCaseAdapter.this.areCaptureRequestsEnabled(captureConfigs);
+                    }
+                });
         if (secondaryCamera != null && secondaryAdapterCameraInfo != null) {
             mSecondaryCameraInternal = new AdapterCameraInternal(secondaryCamera,
                     secondaryAdapterCameraInfo);
@@ -650,9 +683,12 @@ public final class CameraUseCaseAdapter implements Camera {
 
         boolean hadAppUseCases = !mAppUseCases.isEmpty();
         if (info.getAppUseCases().isEmpty()) {
+            mBoundSessionConfig = null;
+            mEnabledUseCases = null;
             mSessionInteropConfig = null;
             if (mAttached && hadAppUseCases) {
                 syncSessionInteropConfigToCamera();
+                syncEnabledUseCasesToCamera(null);
             }
         }
 
@@ -706,7 +742,7 @@ public final class CameraUseCaseAdapter implements Camera {
         }
         if (mAttached) {
             if (!info.getCameraUseCases().isEmpty()) {
-                syncSessionInteropConfigToCamera();
+                syncEnabledUseCasesToCamera(info.getStreamSharing());
             }
             mCameraInternal.attachUseCases(info.getCameraUseCasesToAttach());
             if (mSecondaryCameraInternal != null) {
@@ -1051,7 +1087,7 @@ public final class CameraUseCaseAdapter implements Camera {
                     if (mSecondaryCameraInternal != null) {
                         mSecondaryCameraInternal.setExtendedConfig(mCameraConfig);
                     }
-                    syncSessionInteropConfigToCamera();
+                    syncEnabledUseCasesToCamera(mStreamSharing);
                 }
                 mCameraInternal.attachUseCases(mCameraUseCases);
                 if (mSecondaryCameraInternal != null) {
@@ -1635,11 +1671,191 @@ public final class CameraUseCaseAdapter implements Camera {
         return new ImageCapture.Builder().setTargetName("ImageCapture-Extra").build();
     }
 
+    /**
+     * Checks that the given {@link androidx.camera.core.SessionConfig} and current camera state
+     * support dynamic {@link UseCase} switching.
+     *
+     * @throws IllegalArgumentException if dynamic {@link UseCase} switching is not supported
+     *                                  because the camera is in dual or concurrent mode, an
+     *                                  extension, camera filter, or feature group is enabled, or
+     *                                  the session is not a regular session.
+     */
+    public void checkDynamicUseCaseSwitchingSupported(
+            androidx.camera.core.@NonNull SessionConfig sessionConfig) {
+        synchronized (mLock) {
+            checkArgument(DeviceQuirks.get(FastSessionSwitchDisablerQuirk.class) == null,
+                    "Dynamic UseCase switching is disabled on this device due to hardware"
+                            + " limitations.");
+            checkArgument(mSecondaryCameraInternal == null,
+                    "Dynamic UseCase switching is not supported for dual cameras.");
+            checkArgument(mCameraCoordinator.getCameraOperatingMode()
+                            != CameraCoordinator.CAMERA_OPERATING_MODE_CONCURRENT,
+                    "Dynamic UseCase switching is not supported for concurrent cameras.");
+            checkArgument(!hasExtension(),
+                    "Dynamic UseCase switching is not supported with extensions.");
+            checkArgument(sessionConfig.getCameraFilter() == null,
+                    "Dynamic UseCase switching is not supported with a camera filter.");
+            checkArgument(FastSwitchSupportChecker.isRegularSession(sessionConfig),
+                    "Dynamic UseCase switching is only supported for regular sessions.");
+            checkArgument(
+                    sessionConfig.getRequiredFeatureGroup().isEmpty()
+                            && sessionConfig.getPreferredFeatureGroup().isEmpty(),
+                    "Dynamic UseCase switching is not supported with feature groups.");
+            for (UseCase useCase : sessionConfig.getUseCases()) {
+                checkArgument(!FastSwitchSupportChecker.isZeroShutterLagEnabled(useCase),
+                        "Dynamic UseCase switching is not supported with zero-shutter lag.");
+            }
+        }
+    }
+
+    /**
+     * Sets the bound {@link androidx.camera.core.SessionConfig} for dynamic UseCase switching, or
+     * {@code null} to clear it.
+     *
+     * <p>This must be called before the use cases of the config are added, so the capture session
+     * is configured with {@link androidx.camera.core.SessionConfig#getInitialEnabledUseCases()}
+     * from the start.
+     *
+     * @throws IllegalArgumentException if a config with a subset of initial enabled use cases is
+     *                                  set for a concurrent or dual camera, while an extension,
+     *                                  camera filter, or feature group is enabled, or for a
+     *                                  non-regular session.
+     */
+    public void setBoundSessionConfig(
+            androidx.camera.core.@Nullable SessionConfig sessionConfig) {
+        synchronized (mLock) {
+            if (sessionConfig == null || sessionConfig.isLegacy()) {
+                mBoundSessionConfig = null;
+                mEnabledUseCases = null;
+                if (mAttached && !mCameraUseCases.isEmpty()) {
+                    syncEnabledUseCasesToCamera(mStreamSharing);
+                }
+                return;
+            }
+            if (sessionConfig.isInitialEnabledUseCasesSet()) {
+                checkDynamicUseCaseSwitchingSupported(sessionConfig);
+                mEnabledUseCases = new ArrayList<>(sessionConfig.getInitialEnabledUseCases());
+            } else {
+                mEnabledUseCases = null;
+            }
+            mBoundSessionConfig = sessionConfig;
+        }
+    }
+
     @GuardedBy("mLock")
     private void syncSessionInteropConfigToCamera() {
         mCameraInternal.setSessionInteropConfig(mSessionInteropConfig);
         if (mSecondaryCameraInternal != null) {
             mSecondaryCameraInternal.setSessionInteropConfig(mSessionInteropConfig);
         }
+    }
+
+    @SuppressWarnings("FutureReturnValueIgnored")
+    private void syncEnabledUseCasesToCamera(@Nullable StreamSharing streamSharing) {
+        synchronized (mLock) {
+            syncSessionInteropConfigToCamera();
+            mCameraInternal.setEnabledUseCases(toCameraUseCases(mEnabledUseCases, streamSharing));
+        }
+    }
+
+    /**
+     * Returns the bound non-legacy {@link androidx.camera.core.SessionConfig}, or {@code null} if
+     * none is bound.
+     */
+    @VisibleForTesting
+    public androidx.camera.core.@Nullable SessionConfig getBoundSessionConfig() {
+        synchronized (mLock) {
+            return mBoundSessionConfig;
+        }
+    }
+
+    @NonNull ListenableFuture<Void> setEnabledUseCasesAsync(@NonNull List<UseCase> useCases) {
+        synchronized (mLock) {
+            if (mBoundSessionConfig == null) {
+                return Futures.immediateFailedFuture(
+                        new IllegalStateException("No SessionConfig bound"));
+            }
+            // Re-validate in case the SessionConfig was bound without initialEnabledUseCases or
+            // the camera operating mode changed after binding.
+            try {
+                checkDynamicUseCaseSwitchingSupported(mBoundSessionConfig);
+            } catch (IllegalArgumentException e) {
+                return Futures.immediateFailedFuture(
+                        new IllegalStateException(e.getMessage(), e));
+            }
+            if (useCases.isEmpty()) {
+                return Futures.immediateFailedFuture(
+                        new IllegalArgumentException("useCases cannot be empty"));
+            }
+            if (!mBoundSessionConfig.getUseCases().containsAll(useCases)) {
+                return Futures.immediateFailedFuture(new IllegalArgumentException(
+                        "All useCases (" + useCases + ") must be part of the bound SessionConfig ("
+                                + mBoundSessionConfig.getUseCases() + ")"));
+            }
+            if (!mAttached) {
+                return Futures.immediateFailedFuture(
+                        new CameraControl.OperationCanceledException("Camera is not active."));
+            }
+            Set<UseCase> cameraUseCases = toCameraUseCases(useCases, mStreamSharing);
+            ListenableFuture<Void> future;
+            try {
+                future = mCameraInternal.setEnabledUseCases(cameraUseCases);
+            } catch (IllegalStateException | IllegalArgumentException e) {
+                return Futures.immediateFailedFuture(e);
+            }
+            if (future.isDone()) {
+                try {
+                    future.get();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return future;
+                } catch (ExecutionException | CancellationException e) {
+                    return future;
+                }
+            }
+            mEnabledUseCases = new ArrayList<>(useCases);
+            return future;
+        }
+    }
+
+    boolean areCaptureRequestsEnabled(@NonNull List<CaptureConfig> captureConfigs) {
+        synchronized (mLock) {
+            if (mBoundSessionConfig == null || mEnabledUseCases == null) {
+                return true;
+            }
+            Set<UseCase> disabledUseCases = new HashSet<>(mBoundSessionConfig.getUseCases());
+            disabledUseCases.removeAll(mEnabledUseCases);
+            if (disabledUseCases.isEmpty()) {
+                return true;
+            }
+            Set<DeferrableSurface> disabledSurfaces = new HashSet<>();
+            for (UseCase useCase : disabledUseCases) {
+                disabledSurfaces.addAll(useCase.getSessionConfig().getSurfaces());
+            }
+            for (CaptureConfig config : captureConfigs) {
+                for (DeferrableSurface surface : config.getSurfaces()) {
+                    if (disabledSurfaces.contains(surface)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+    }
+
+    private static @Nullable Set<UseCase> toCameraUseCases(
+            @Nullable Collection<UseCase> appUseCases, @Nullable StreamSharing streamSharing) {
+        if (appUseCases == null) {
+            return null;
+        }
+        Set<UseCase> result = new LinkedHashSet<>();
+        for (UseCase useCase : appUseCases) {
+            if (streamSharing != null && streamSharing.getChildren().contains(useCase)) {
+                result.add(streamSharing);
+            } else {
+                result.add(useCase);
+            }
+        }
+        return result;
     }
 }

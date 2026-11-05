@@ -248,6 +248,9 @@ public final class LifecycleCamera implements LifecycleObserver, Camera {
      * @throws IllegalStateException if the {@link SessionConfig} can't be bound because either the
      * given {@link SessionConfig} or the previously bound {@link SessionConfig} disallows multiple
      * binding.
+     * @throws IllegalArgumentException if the {@link SessionConfig} specifies a subset of
+     * {@link SessionConfig#getInitialEnabledUseCases()} that is not supported for dynamic
+     * {@link UseCase} switching.
      */
     void bind(@NonNull SessionConfig sessionConfig)
             throws CameraUseCaseAdapter.CameraException {
@@ -263,6 +266,9 @@ public final class LifecycleCamera implements LifecycleObserver, Camera {
                             "Cannot bind the SessionConfig when use cases are bound to this"
                                     + " LifecycleOwner already. Please unbind first");
                 }
+            }
+            if (!sessionConfig.isLegacy() && sessionConfig.isInitialEnabledUseCasesSet()) {
+                mCameraUseCaseAdapter.checkDynamicUseCaseSwitchingSupported(sessionConfig);
             }
 
             ResolvedFeatureGroup resolvedFeatureGroup = resolveFeatureGroup(
@@ -310,6 +316,10 @@ public final class LifecycleCamera implements LifecycleObserver, Camera {
                     });
 
             try {
+                // Must be set before the use cases are added so that the capture session is
+                // configured with the initialEnabledUseCases of the config from the start.
+                mCameraUseCaseAdapter.setBoundSessionConfig(
+                        sessionConfig.isLegacy() ? null : sessionConfig);
                 mCameraUseCaseAdapter.addUseCases(sessionConfig.getUseCases(),
                         resolvedFeatureGroup);
             } catch (CameraUseCaseAdapter.CameraException | RuntimeException e) {
@@ -321,6 +331,7 @@ public final class LifecycleCamera implements LifecycleObserver, Camera {
                     updateUseCasesRotationProvider(failedUseCases, null);
                 }
                 mBoundSessionConfig = sessionConfig.isLegacy() ? previousBoundSessionConfig : null;
+                mCameraUseCaseAdapter.setBoundSessionConfig(null);
                 mCameraUseCaseAdapter.setSessionInteropConfig(
                         mBoundSessionConfig != null ? mBoundSessionConfig.getInteropConfig() : null);
                 if (mBoundSessionConfig != null) {
