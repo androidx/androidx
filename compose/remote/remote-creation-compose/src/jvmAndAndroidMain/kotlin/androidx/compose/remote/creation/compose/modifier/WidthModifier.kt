@@ -33,7 +33,6 @@ internal class WidthModifier(public val type: Type, public val value: RemoteFloa
     RemoteModifier.Element {
     internal constructor(typeInt: Int, value: RemoteFloat) : this(Type.fromInt(typeInt), value)
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return RecordingWidthModifier(type, value.floatId)
     }

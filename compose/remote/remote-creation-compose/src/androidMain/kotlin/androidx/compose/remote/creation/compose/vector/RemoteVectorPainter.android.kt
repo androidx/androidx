@@ -35,7 +35,7 @@ import androidx.compose.ui.graphics.vector.VectorPath
 import androidx.compose.ui.unit.isSpecified
 
 /**
- * Creates a [RemoteVectorPainter] from an [ImageVector].
+ * Creates a [RemotePainter] from an [ImageVector].
  *
  * @param image the [ImageVector] to create the painter for.
  * @param tintColor the tint color to apply to the image.

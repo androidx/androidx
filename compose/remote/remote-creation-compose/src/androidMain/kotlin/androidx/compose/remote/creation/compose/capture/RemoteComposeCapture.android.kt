@@ -86,7 +86,7 @@ public fun rememberRemoteDocument(
 }
 
 @Composable
-public fun displaySize(): Size {
+internal fun displaySize(): Size {
     // Note: Usage of LocalConfiguration.current.screenWidthDp was replaced due to
     // `ConfigurationScreenWidthHeight` lint rule
     // TODO: Consider to remove this function at all

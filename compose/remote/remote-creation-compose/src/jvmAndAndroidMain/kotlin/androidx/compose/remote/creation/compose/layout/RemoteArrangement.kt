@@ -38,26 +38,13 @@ private const val RIGHT = 103
 public object RemoteArrangement {
 
     /** A contract for laying out children horizontally. */
-    @Stable
-    public sealed interface Horizontal {
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun toRemote(layoutDirection: RemoteLayoutDirection): Int
-    }
+    @Stable public sealed interface Horizontal
 
     /** A contract for laying out children vertically. */
-    @Stable
-    public sealed interface Vertical {
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun toRemote(): Int
-    }
+    @Stable public sealed interface Vertical
 
     /** A contract for laying out children horizontally or vertically. */
-    @Stable
-    public sealed interface HorizontalOrVertical : Horizontal, Vertical {
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        override fun toRemote(layoutDirection: RemoteLayoutDirection): Int
-
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override fun toRemote(): Int
-    }
+    @Stable public sealed interface HorizontalOrVertical : Horizontal, Vertical
 
     /**
      * Place children horizontally such that they are as close as possible to the start of the main
@@ -318,10 +305,31 @@ public object RemoteArrangement {
     }
 }
 
+internal fun RemoteArrangement.Horizontal.toRemote(layoutDirection: RemoteLayoutDirection): Int =
+    when (this) {
+        is HorizontalArrangement -> toRemote(layoutDirection)
+        is HorizontalOrVerticalArrangement -> toRemote(layoutDirection)
+        is RemoteSpacedArrangement -> toRemoteHorizontal()
+        is RemoteFloatSpacedArrangement -> toRemoteHorizontal()
+        is RemoteSpacedHorizontalArrangement -> toRemote(layoutDirection)
+        is RemoteFloatSpacedHorizontalArrangement -> toRemote(layoutDirection)
+        is RemoteSpacedAbsoluteHorizontalArrangement -> toRemote(layoutDirection)
+        is RemoteFloatSpacedAbsoluteHorizontalArrangement -> toRemote(layoutDirection)
+    }
+
+internal fun RemoteArrangement.Vertical.toRemote(): Int =
+    when (this) {
+        is VerticalArrangement -> toRemote()
+        is HorizontalOrVerticalArrangement -> toRemote()
+        is RemoteSpacedArrangement -> toRemoteVertical()
+        is RemoteFloatSpacedArrangement -> toRemoteVertical()
+        is RemoteSpacedVerticalArrangement -> toRemote()
+        is RemoteFloatSpacedVerticalArrangement -> toRemote()
+    }
+
 internal data class HorizontalArrangement(val type: Int) : RemoteArrangement.Horizontal {
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun toRemote(layoutDirection: RemoteLayoutDirection): Int =
+    fun toRemote(layoutDirection: RemoteLayoutDirection): Int =
         when (type) {
             ColumnLayout.START ->
                 if (layoutDirection == RemoteLayoutDirection.Ltr) ColumnLayout.START
@@ -346,14 +354,13 @@ internal data class HorizontalArrangement(val type: Int) : RemoteArrangement.Hor
 
 internal data class VerticalArrangement(val type: Int) : RemoteArrangement.Vertical {
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override fun toRemote(): Int = type
+    fun toRemote(): Int = type
 }
 
 internal data class HorizontalOrVerticalArrangement(val type: Int) :
     RemoteArrangement.HorizontalOrVertical {
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun toRemote(layoutDirection: RemoteLayoutDirection): Int =
+    fun toRemote(layoutDirection: RemoteLayoutDirection): Int =
         when (type) {
             ColumnLayout.CENTER,
             ColumnLayout.SPACE_BETWEEN,
@@ -364,8 +371,7 @@ internal data class HorizontalOrVerticalArrangement(val type: Int) :
                 else ColumnLayout.END
         }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun toRemote(): Int =
+    fun toRemote(): Int =
         when (type) {
             ColumnLayout.CENTER,
             ColumnLayout.SPACE_BETWEEN,
@@ -382,9 +388,9 @@ internal interface RemoteSpaced {
 internal data class RemoteSpacedArrangement(val space: RemoteDp) :
     RemoteArrangement.HorizontalOrVertical, RemoteSpaced {
 
-    override fun toRemote(layoutDirection: RemoteLayoutDirection): Int = ColumnLayout.START
+    fun toRemoteHorizontal(): Int = ColumnLayout.START
 
-    override fun toRemote(): Int = ColumnLayout.TOP
+    fun toRemoteVertical(): Int = ColumnLayout.TOP
 
     override fun getSpacingFloatId(scope: RemoteStateScope): Float =
         with(scope) {
@@ -399,9 +405,9 @@ internal data class RemoteSpacedArrangement(val space: RemoteDp) :
 internal data class RemoteFloatSpacedArrangement(val space: RemoteFloat) :
     RemoteArrangement.HorizontalOrVertical, RemoteSpaced {
 
-    override fun toRemote(layoutDirection: RemoteLayoutDirection): Int = ColumnLayout.START
+    fun toRemoteHorizontal(): Int = ColumnLayout.START
 
-    override fun toRemote(): Int = ColumnLayout.TOP
+    fun toRemoteVertical(): Int = ColumnLayout.TOP
 
     override fun getSpacingFloatId(scope: RemoteStateScope): Float =
         with(scope) {
@@ -418,8 +424,7 @@ internal data class RemoteSpacedHorizontalArrangement(
     val alignment: RemoteAlignment.Horizontal,
 ) : RemoteArrangement.Horizontal, RemoteSpaced {
 
-    override fun toRemote(layoutDirection: RemoteLayoutDirection): Int =
-        alignment.toRemote(layoutDirection)
+    fun toRemote(layoutDirection: RemoteLayoutDirection): Int = alignment.toRemote(layoutDirection)
 
     override fun getSpacingFloatId(scope: RemoteStateScope): Float =
         with(scope) {
@@ -436,8 +441,7 @@ internal data class RemoteFloatSpacedHorizontalArrangement(
     val alignment: RemoteAlignment.Horizontal,
 ) : RemoteArrangement.Horizontal, RemoteSpaced {
 
-    override fun toRemote(layoutDirection: RemoteLayoutDirection): Int =
-        alignment.toRemote(layoutDirection)
+    fun toRemote(layoutDirection: RemoteLayoutDirection): Int = alignment.toRemote(layoutDirection)
 
     override fun getSpacingFloatId(scope: RemoteStateScope): Float =
         with(scope) {
@@ -454,8 +458,7 @@ internal data class RemoteSpacedAbsoluteHorizontalArrangement(
     val alignment: RemoteAlignment.Horizontal,
 ) : RemoteArrangement.Horizontal, RemoteSpaced {
 
-    override fun toRemote(layoutDirection: RemoteLayoutDirection): Int =
-        alignment.toRemote(layoutDirection)
+    fun toRemote(layoutDirection: RemoteLayoutDirection): Int = alignment.toRemote(layoutDirection)
 
     override fun getSpacingFloatId(scope: RemoteStateScope): Float =
         with(scope) {
@@ -472,8 +475,7 @@ internal data class RemoteFloatSpacedAbsoluteHorizontalArrangement(
     val alignment: RemoteAlignment.Horizontal,
 ) : RemoteArrangement.Horizontal, RemoteSpaced {
 
-    override fun toRemote(layoutDirection: RemoteLayoutDirection): Int =
-        alignment.toRemote(layoutDirection)
+    fun toRemote(layoutDirection: RemoteLayoutDirection): Int = alignment.toRemote(layoutDirection)
 
     override fun getSpacingFloatId(scope: RemoteStateScope): Float =
         with(scope) {
@@ -490,7 +492,7 @@ internal data class RemoteSpacedVerticalArrangement(
     val alignment: RemoteAlignment.Vertical,
 ) : RemoteArrangement.Vertical, RemoteSpaced {
 
-    override fun toRemote(): Int = alignment.toRemote()
+    fun toRemote(): Int = alignment.toRemote()
 
     override fun getSpacingFloatId(scope: RemoteStateScope): Float =
         with(scope) {
@@ -507,7 +509,7 @@ internal data class RemoteFloatSpacedVerticalArrangement(
     val alignment: RemoteAlignment.Vertical,
 ) : RemoteArrangement.Vertical, RemoteSpaced {
 
-    override fun toRemote(): Int = alignment.toRemote()
+    fun toRemote(): Int = alignment.toRemote()
 
     override fun getSpacingFloatId(scope: RemoteStateScope): Float =
         with(scope) {

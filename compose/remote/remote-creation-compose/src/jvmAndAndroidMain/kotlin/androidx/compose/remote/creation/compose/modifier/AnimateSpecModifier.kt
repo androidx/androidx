@@ -150,7 +150,6 @@ internal class AnimateSpecModifier(
     val enterSequence: SEQUENCE = SEQUENCE.CONCURRENT,
     val exitSequence: SEQUENCE = SEQUENCE.CONCURRENT,
 ) : RemoteModifier.Element {
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return CreationAnimateSpecModifier(
             animationId,

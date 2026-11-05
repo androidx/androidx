@@ -61,10 +61,9 @@ public fun defaultProgress(animatedVector: RemoteAnimatedVector): RemoteFloat {
  * @param progress The animation progress. Defaults to a continuous animation based on animation
  *   time.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteAnimatedVectorPainter(
-    public val animatedVector: RemoteAnimatedVector,
-    public val progress: RemoteFloat = defaultProgress(animatedVector),
+internal class RemoteAnimatedVectorPainter(
+    val animatedVector: RemoteAnimatedVector,
+    val progress: RemoteFloat = defaultProgress(animatedVector),
 ) : RemotePainter() {
 
     internal val root: RemoteGroupComponent = animatedVector.toDynamicGroupComponent(progress)

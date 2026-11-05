@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.creation.compose.layout
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.LocalRemoteDensity
 import androidx.compose.remote.creation.compose.capture.LocalRemoteLayoutDirection
 import androidx.compose.remote.creation.compose.capture.RemoteComponentTokenProvider
@@ -288,7 +287,6 @@ internal abstract class RemoteLayoutNode : RemoteComposeNode() {
     var layoutDirection: RemoteLayoutDirection = RemoteLayoutDirection.Ltr
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 internal inline fun <T : RemoteComposeNode> RemoteComposeNode(
     noinline factory: () -> T,
@@ -301,7 +299,6 @@ internal inline fun <T : RemoteComposeNode> RemoteComposeNode(
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 internal inline fun <T : RemoteComposeNode> RemoteComposeNode(
     noinline factory: () -> T,

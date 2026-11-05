@@ -29,7 +29,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class RemotePathParserTest {
 
-    val testRemoteStateScope = NoRemoteCompose()
+    private val testRemoteStateScope = NoRemoteCompose()
 
     @Test
     fun testRelativeReflectiveQuadTo() {

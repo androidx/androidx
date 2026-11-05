@@ -83,13 +83,12 @@ public fun RemoteCustomComponent(
 }
 
 /** An entry representing a single custom property or return binding. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public sealed class CustomPropertyEntry {
-    public abstract val id: Short
-    public open val state: BaseRemoteState<*>?
+internal sealed class CustomPropertyEntry {
+    abstract val id: Short
+    open val state: BaseRemoteState<*>?
         get() = null
 
-    public abstract fun toCustomProperty(creationState: RemoteComposeCreationState): CustomProperty
+    abstract fun toCustomProperty(creationState: RemoteComposeCreationState): CustomProperty
 }
 
 internal class IntPropertyEntry(

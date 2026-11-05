@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.creation.compose.modifier
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior
 import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
@@ -66,7 +65,6 @@ internal class PaddingModifier(
         }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         val resolvedLeft = resolveLeft(this)
         val resolvedTop = resolveTop(this)

@@ -1993,8 +1993,7 @@ internal constructor(
             EASE_OUT_ELASTIC,
         ]
 )
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public annotation class AnimationType
+internal annotation class AnimationType
 
 /**
  * Converts a [Number] to a [FloatArray]. If the number is a [RemoteFloat], its
@@ -2027,8 +2026,7 @@ public fun toArray(a: RemoteFloat, creationState: RemoteComposeCreationState): F
  * @param fl The float to check.
  * @return `true` if the float is a time variable, `false` otherwise.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun isTimeVar(fl: Float): Boolean {
+internal fun isTimeVar(fl: Float): Boolean {
     return RemoteContext.isTime(fl)
 }
 
@@ -2111,9 +2109,7 @@ internal fun combineToFloatArray(
 private const val MAX_SAFE_FLOAT_ARRAY = 30
 
 /** An inline value class representing a reference to a remote float. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@JvmInline
-public value class RemoteFloatReference(private val v: Float)
+@JvmInline internal value class RemoteFloatReference(private val v: Float)
 
 /** Extension property to convert an [Int] to a [RemoteFloat]. */
 public val Int.rf: RemoteFloat

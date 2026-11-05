@@ -104,12 +104,11 @@ public data class RemoteSweepGradient(
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteSweepShader(
-    public val centerX: RemoteFloat,
-    public val centerY: RemoteFloat,
-    public val colors: List<RemoteColor>,
-    public val positions: List<RemoteFloat>?,
+internal class RemoteSweepShader(
+    val centerX: RemoteFloat,
+    val centerY: RemoteFloat,
+    val colors: List<RemoteColor>,
+    val positions: List<RemoteFloat>?,
 ) : RemoteShader() {
 
     override fun apply(creationState: RemoteComposeCreationState, paintBundle: PaintBundle) {

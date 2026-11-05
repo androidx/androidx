@@ -19,7 +19,6 @@
 
 package androidx.compose.remote.creation.compose.vector
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.DefaultIconSize
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.capture.RemoteVectorGroup
@@ -38,8 +37,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColorFilter
 import androidx.compose.remote.creation.compose.state.rf
 
 /** A [RemotePainter] that draws a [RemoteImageVector] into the provided [RemoteCanvas]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteVectorPainter : RemotePainter() {
+internal class RemoteVectorPainter : RemotePainter() {
 
     internal var root: RemoteGroupComponent
         get() = RemoteGroupComponent()
@@ -93,7 +91,7 @@ public class RemoteVectorPainter : RemotePainter() {
 }
 
 /**
- * Creates a [RemoteVectorPainter] from a [RemoteImageVector].
+ * Creates a [RemotePainter] from a [RemoteImageVector].
  *
  * @param vector The [RemoteImageVector] to create the painter for.
  * @param tintColor the tint color to apply to the image.
@@ -202,8 +200,7 @@ internal fun RemoteGroupComponent.createGroupComponent(
  *
  * @param canvas The [RemoteCanvas] to draw onto.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteVectorPainter.draw(canvas: RemoteCanvas) {
+internal fun RemoteVectorPainter.draw(canvas: RemoteCanvas) {
     with(canvas.drawScope) {
         onDraw()
     }
@@ -215,8 +212,7 @@ public fun RemoteVectorPainter.draw(canvas: RemoteCanvas) {
  * @param canvas The [RemoteCanvas] to draw onto.
  * @param tintColor The tint color to apply to the vector.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteImageVector.draw(
+internal fun RemoteImageVector.draw(
     canvas: RemoteCanvas,
     tintColor: RemoteColor = this.tintColor,
 ) {

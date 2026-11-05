@@ -99,9 +99,7 @@ internal constructor(
      * specifies non-empty clip path data. This can be used to verify compatibility with player
      * profiles that may not support clipping operations.
      */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @get:JvmName("hasClipPath")
-    public val hasClipPath: Boolean by lazy(LazyThreadSafetyMode.NONE) { root.hasClipPath }
+    internal val hasClipPath: Boolean by lazy(LazyThreadSafetyMode.NONE) { root.hasClipPath }
 
     public companion object
 

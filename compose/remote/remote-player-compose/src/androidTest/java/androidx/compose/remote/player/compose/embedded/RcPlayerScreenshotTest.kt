@@ -54,7 +54,6 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.creation.compose.vector.draw
 import androidx.compose.remote.creation.compose.vector.painterRemoteVector
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
@@ -302,8 +301,9 @@ class RcPlayerScreenshotTest {
         rule.setContent {
             val document =
                 rememberRemoteDocument(profile = TEST_PROFILE) {
+                    val painter = painterRemoteVector(vector)
                     RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
-                        vector.draw(remoteCanvas)
+                        with(painter) { onDraw() }
                     }
                 }
 

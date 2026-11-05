@@ -27,21 +27,20 @@ import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 
 /** Android XML resource parser for [RemoteAnimatedVector]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public object RemoteAnimatedVectorParser {
+internal object RemoteAnimatedVectorParser {
 
     private const val ANDROID_NS = "http://schemas.android.com/apk/res/android"
     private const val AAPT_NS = "http://schemas.android.com/aapt"
 
     @Throws(XmlPullParserException::class)
-    public fun parse(res: Resources, @DrawableRes id: Int): RemoteAnimatedVector {
+    fun parse(res: Resources, @DrawableRes id: Int): RemoteAnimatedVector {
         @Suppress("ResourceType") val parser = res.getXml(id)
         seekToStartTag(parser)
         return parse(parser, res)
     }
 
     @Throws(XmlPullParserException::class)
-    public fun parse(parser: XmlPullParser, res: Resources? = null): RemoteAnimatedVector {
+    fun parse(parser: XmlPullParser, res: Resources? = null): RemoteAnimatedVector {
         seekToStartTag(parser)
         if (parser.name != "animated-vector") {
             throw XmlPullParserException("Expected <animated-vector>, found <${parser.name}>")

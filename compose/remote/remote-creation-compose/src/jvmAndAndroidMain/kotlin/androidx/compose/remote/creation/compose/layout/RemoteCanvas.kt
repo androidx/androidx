@@ -74,7 +74,7 @@ public class RemoteCanvas(
     private var currentDrawToBitmapId: Int = 0
 
     public val drawScope: RemoteDrawScope = RemoteDrawScope(this)
-    public val remote: RemoteAccess = RemoteAccess(drawScope)
+    internal val remote: RemoteAccess = RemoteAccess(drawScope)
 
     /** Flushes recorded operations to the underlying creation state. */
     public fun flush() {

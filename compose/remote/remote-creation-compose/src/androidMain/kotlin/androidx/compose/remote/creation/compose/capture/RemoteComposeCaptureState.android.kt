@@ -29,8 +29,7 @@ import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.LayoutDirection
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteComposeCaptureState(
+internal fun RemoteComposeCaptureState(
     creationDisplayInfo: RemoteCreationDisplayInfo,
     profile: Profile,
     writerCallback: Any?,
@@ -45,8 +44,7 @@ public fun RemoteComposeCaptureState(
         layoutDirection = layoutDirection.toRemoteLayoutDirection(),
     )
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteComposeCaptureState(
+internal fun RemoteComposeCaptureState(
     platform: RcPlatformServices,
     size: Size,
 ): RemoteComposeCaptureState {
@@ -69,8 +67,7 @@ public fun RemoteComposeCaptureState(
     )
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteComposeCaptureState(
+internal fun RemoteComposeCaptureState(
     platform: RcPlatformServices,
     size: Size,
     apiLevel: Int,
@@ -107,8 +104,7 @@ public fun RemoteComposeCaptureState(
     )
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteComposeCaptureState(size: Size, profile: Profile): RemoteComposeCaptureState {
+internal fun RemoteComposeCaptureState(size: Size, profile: Profile): RemoteComposeCaptureState {
     val creationDisplayInfo =
         RemoteCreationDisplayInfo(size.width.toInt(), size.height.toInt(), 160, 1.0f)
     val document = profile.create(creationDisplayInfo.toCreationDisplayInfo(), null)

@@ -49,7 +49,7 @@ public class RemoteAnimatedVector(
         maxDuration
     }
 
-    public fun evaluate(progress: Float): RemoteVectorSnapshot {
+    internal fun evaluate(progress: Float): RemoteVectorSnapshot {
         val clampedProgress = progress.coerceIn(0f, 1f)
         val timeMs = (clampedProgress * totalDuration).toInt()
 
@@ -358,15 +358,14 @@ public fun interface RemoteInterpolator {
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteVectorSnapshot(
-    public val width: Float,
-    public val height: Float,
-    public val viewportWidth: Float,
-    public val viewportHeight: Float,
-    public val rootGroup: RemoteEvaluatedGroup,
+internal class RemoteVectorSnapshot(
+    val width: Float,
+    val height: Float,
+    val viewportWidth: Float,
+    val viewportHeight: Float,
+    val rootGroup: RemoteEvaluatedGroup,
 ) {
-    public fun draw(writer: RemoteComposeWriter) {
+    fun draw(writer: RemoteComposeWriter) {
         val scaleX = if (viewportWidth > 0f) width / viewportWidth else 1f
         val scaleY = if (viewportHeight > 0f) height / viewportHeight else 1f
         writer.save()
@@ -455,48 +454,44 @@ public class RemoteVectorSnapshot(
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public sealed interface RemoteEvaluatedNode {
-    public val name: String
+internal sealed interface RemoteEvaluatedNode {
+    val name: String
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteEvaluatedGroup(
+internal class RemoteEvaluatedGroup(
     override val name: String = "",
-    public val rotation: Float = 0f,
-    public val pivotX: Float = 0f,
-    public val pivotY: Float = 0f,
-    public val scaleX: Float = 1f,
-    public val scaleY: Float = 1f,
-    public val translationX: Float = 0f,
-    public val translationY: Float = 0f,
-    public val clipPathData: String = "",
-    public val children: List<RemoteEvaluatedNode> = emptyList(),
+    val rotation: Float = 0f,
+    val pivotX: Float = 0f,
+    val pivotY: Float = 0f,
+    val scaleX: Float = 1f,
+    val scaleY: Float = 1f,
+    val translationX: Float = 0f,
+    val translationY: Float = 0f,
+    val clipPathData: String = "",
+    val children: List<RemoteEvaluatedNode> = emptyList(),
 ) : RemoteEvaluatedNode
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteEvaluatedPath(
+internal class RemoteEvaluatedPath(
     override val name: String = "",
-    public val pathData: String = "",
-    public val fillColor: Int? = null,
-    public val fillAlpha: Float = 1f,
-    public val strokeColor: Int? = null,
-    public val strokeAlpha: Float = 1f,
-    public val strokeWidth: Float = 0f,
-    public val strokeLineCap: Int = 0,
-    public val strokeLineJoin: Int = 0,
-    public val strokeLineMiter: Float = 4f,
-    public val trimPathStart: Float = 0f,
-    public val trimPathEnd: Float = 1f,
-    public val trimPathOffset: Float = 0f,
+    val pathData: String = "",
+    val fillColor: Int? = null,
+    val fillAlpha: Float = 1f,
+    val strokeColor: Int? = null,
+    val strokeAlpha: Float = 1f,
+    val strokeWidth: Float = 0f,
+    val strokeLineCap: Int = 0,
+    val strokeLineJoin: Int = 0,
+    val strokeLineMiter: Float = 4f,
+    val trimPathStart: Float = 0f,
+    val trimPathEnd: Float = 1f,
+    val trimPathOffset: Float = 0f,
 ) : RemoteEvaluatedNode
 
 internal fun interpolateColor(from: Int, to: Int, fraction: Float): Int {
     return Utils.interpolateColor(from, to, fraction)
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun interpolatePathData(startPath: String, endPath: String, fraction: Float): String {
+internal fun interpolatePathData(startPath: String, endPath: String, fraction: Float): String {
     val startTokens = tokenizePathData(startPath)
     val endTokens = tokenizePathData(endPath)
     if (startTokens.size != endTokens.size) {

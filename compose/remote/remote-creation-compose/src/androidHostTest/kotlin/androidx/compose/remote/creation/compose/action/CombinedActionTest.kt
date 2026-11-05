@@ -29,7 +29,7 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class CombinedActionTest {
-    val testStateScope = NoRemoteCompose()
+    private val testStateScope = NoRemoteCompose()
 
     @Test
     fun toRemoteAction_delegatesToChildren() {

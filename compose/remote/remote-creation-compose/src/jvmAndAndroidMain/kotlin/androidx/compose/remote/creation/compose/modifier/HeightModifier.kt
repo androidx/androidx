@@ -32,7 +32,6 @@ import androidx.compose.remote.creation.modifiers.RecordingModifier
 internal class HeightModifier(val type: Type, val value: RemoteFloat) : RemoteModifier.Element {
     internal constructor(typeInt: Int, value: RemoteFloat) : this(Type.fromInt(typeInt), value)
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return RecordingHeightModifier(type, value.floatId)
     }
