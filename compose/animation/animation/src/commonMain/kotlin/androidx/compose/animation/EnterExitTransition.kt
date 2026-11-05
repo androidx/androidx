@@ -55,6 +55,7 @@ import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.LayoutAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.requireLayoutCoordinates
+import androidx.compose.ui.node.updateLayerBlock
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
@@ -1776,6 +1777,12 @@ private class EnterExitTransitionModifierNode(
                     (currentAlignment?.align(target, currentSize, LayoutDirection.Ltr)
                         ?: IntOffset.Zero) + combinedSlideOffset
 
+                if (mutableTransformState?.isMutating == true) {
+                    // `combinedSlide` above just evaluated the mutable transform. Force the layer
+                    // to update immediately before `placeWithLayer` places children (such as
+                    // in-place shared elements).
+                    updateLayerBlock(layerBlock)
+                }
                 placeable.placeWithLayer(
                     offset.x + offsetDelta.x,
                     offset.y + offsetDelta.y,
