@@ -16,8 +16,6 @@
 
 package androidx.benchmark.macro
 
-import androidx.annotation.RestrictTo
-
 public class BaselineProfileConfig
 internal constructor(
     private val outputFilePrefix: String?,
@@ -28,20 +26,18 @@ internal constructor(
     private val includeInStartupProfile: Boolean = false,
     private val strictStability: Boolean = false,
     private val filterPredicate: ((String) -> Boolean) = { true },
-    private val maxLoadOrderIterations: Int = 0,
-    private val isRestrictLoadOrderToDataDirectory: Boolean = true,
 ) {
 
     /**
      * @return An optional file name prefix used when creating the output file with the contents of
-     *   the human-readable baseline profile. For example: `outputFilePrefix-baseline-prof.txt`
+     *   the human readable baseline profile. For example: `outputFilePrefix-baseline-prof.txt`
      */
     public fun getOutputFilePrefix(): String? = outputFilePrefix
 
     /** @return The Package name of the app for which profiles are to be generated. */
     public fun getPackageName(): String = packageName
 
-    /** @return the critical user journey. */
+    /** @return the he critical user journey. */
     public fun getProfileBlock(): MacrobenchmarkScope.() -> Unit = profileBlock
 
     /** @return the maximum number of iterations to run when collecting profiles. */
@@ -68,16 +64,6 @@ internal constructor(
     /** @return the function used to filter individual rules / lines of the baseline profile. */
     public fun getFilterPredicate(): (String) -> Boolean = filterPredicate
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun isRestrictLoadOrderToDataDirectory(): Boolean = isRestrictLoadOrderToDataDirectory
-
-    /**
-     * @return the maximum number of iterations to determine native load order entries. The default
-     *   number of iterations for load order is `0`. For apps that use native libraries, this number
-     *   should be > 0.
-     */
-    public fun getMaxLoadOrderIterations(): Int = maxLoadOrderIterations
-
     /** Can be used to build a [androidx.benchmark.macro.BaselineProfileConfig] instance. */
     public class Builder
     public constructor(
@@ -90,12 +76,10 @@ internal constructor(
         private var includeInStartupProfile: Boolean = false
         private var strictStability: Boolean = false
         private var filterPredicate: ((String) -> Boolean) = { true }
-        private var maxLoadOrderIterations = 0
-        private var isRestrictLoadOrderToDataDirectory = true
 
         /**
          * Sets the optional file name prefix used when creating the output file with the contents
-         * of the human-readable baseline profile. For example: `outputFilePrefix-baseline-prof.txt`
+         * of the human readable baseline profile. For example: `outputFilePrefix-baseline-prof.txt`
          *
          * @return The [androidx.benchmark.macro.BaselineProfileConfig.Builder] instance for
          *   chaining.
@@ -168,35 +152,6 @@ internal constructor(
             return this
         }
 
-        /**
-         * Overrides the number of iterations to determine native load order entries. This is only
-         * supported iff `Build.VERSION.SDK_INT >= 31` (Android S+). You should only enable this if
-         * your `profileBlock` corresponds to a startup core user journey.
-         *
-         * @return The [androidx.benchmark.macro.BaselineProfileConfig.Builder] instance for
-         *   chaining.
-         */
-        public fun setMaxLoadOrderIterations(maxLoadOrderIterations: Int): Builder {
-            require(maxLoadOrderIterations > 0)
-            this.maxLoadOrderIterations = maxLoadOrderIterations
-            return this
-        }
-
-        /**
-         * Overrides whether the `so`'s being considered for load order are being filtered to just
-         * include the ones in the `data` directory.
-         *
-         * @return The [androidx.benchmark.macro.BaselineProfileConfig.Builder] instance for
-         *   chaining.
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun setRestrictLoadOrderToDataDirectory(
-            isRestrictLoadOrderToDataDirectory: Boolean
-        ): Builder {
-            this.isRestrictLoadOrderToDataDirectory = isRestrictLoadOrderToDataDirectory
-            return this
-        }
-
         /** @return the [androidx.benchmark.macro.BaselineProfileConfig] instance. */
         public fun build(): BaselineProfileConfig {
             return BaselineProfileConfig(
@@ -208,8 +163,6 @@ internal constructor(
                 includeInStartupProfile = includeInStartupProfile,
                 strictStability = strictStability,
                 filterPredicate = filterPredicate,
-                maxLoadOrderIterations = maxLoadOrderIterations,
-                isRestrictLoadOrderToDataDirectory = isRestrictLoadOrderToDataDirectory,
             )
         }
     }
