@@ -16,7 +16,11 @@
 
 package androidx.compose.foundation.text.input
 
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -178,5 +182,79 @@ class RememberTextFieldStateTest {
                 assertThat(paragraphStyles[1].expandPolicy).isEqualTo(ExpandPolicy.AtBoth)
             }
         }
+    }
+
+    @Test
+    fun rememberTextFieldState_onTextChanged_isCalledWithNewText() {
+        lateinit var state: TextFieldState
+        val calls = mutableListOf<String>()
+        rule.setContent {
+            state = rememberTextFieldState(onTextChanged = { calls += it.toString() })
+        }
+
+        rule.runOnIdle { state.edit { replace(length, length, "hello") } }
+
+        rule.runOnIdle { assertThat(calls).containsExactly("hello") }
+    }
+
+    @Test
+    fun rememberTextFieldState_onTextChanged_usesLatestLambda() {
+        lateinit var state: TextFieldState
+        var target by mutableStateOf("first")
+        val calls = mutableListOf<String>()
+        rule.setContent {
+            val currentTarget = target
+            state = rememberTextFieldState(onTextChanged = { calls += "$currentTarget:$it" })
+        }
+
+        rule.runOnIdle { state.edit { replace(length, length, "a") } }
+        rule.runOnIdle { target = "second" }
+        rule.runOnIdle { state.edit { replace(length, length, "b") } }
+
+        rule.runOnIdle { assertThat(calls).containsExactly("first:a", "second:ab").inOrder() }
+    }
+
+    @Test
+    fun rememberTextFieldState_onTextChanged_usesLatestLambdaInDisposableEffect() {
+        var key by mutableStateOf("first")
+        val calls = mutableListOf<String>()
+        rule.setContent {
+            val currentKey = key
+            val state = rememberTextFieldState(onTextChanged = { calls += "$currentKey:$it" })
+            DisposableEffect(currentKey) {
+                state.edit { replace(length, length, "!") }
+                onDispose {}
+            }
+        }
+
+        rule.runOnIdle { assertThat(calls).containsExactly("first:!") }
+        rule.runOnIdle { key = "second" }
+        rule.runOnIdle { assertThat(calls).containsExactly("first:!", "second:!!").inOrder() }
+    }
+
+    @Test
+    fun rememberTextFieldState_onTextChanged_isAttachedAfterRestoration() {
+        lateinit var originalState: TextFieldState
+        lateinit var restoredState: TextFieldState
+        var rememberCount = 0
+        val calls = mutableListOf<String>()
+        restorationTester.setContent {
+            val state = rememberTextFieldState(onTextChanged = { calls += it.toString() })
+            if (remember { rememberCount++ } == 0) {
+                originalState = state
+            } else {
+                restoredState = state
+            }
+        }
+        rule.runOnIdle { originalState.edit { replace(length, length, "hello") } }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        rule.runOnIdle {
+            assertThat(restoredState).isNotSameInstanceAs(originalState)
+            assertThat(restoredState.text.toString()).isEqualTo("hello")
+            restoredState.edit { replace(length, length, " world") }
+        }
+        rule.runOnIdle { assertThat(calls).containsExactly("hello", "hello world").inOrder() }
     }
 }

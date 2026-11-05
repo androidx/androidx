@@ -50,6 +50,7 @@ import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.byValue
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.delete
 import androidx.compose.foundation.text.input.forEachChange
 import androidx.compose.foundation.text.input.forEachChangeReversed
@@ -318,6 +319,46 @@ fun BasicTextFieldStateEditSample() {
         // Select the new name so the user can change it by just starting to type.
         selection = TextRange(9, 16) // "goodbye, ̲C̲o̲m̲p̲o̲s̲e"
     }
+}
+
+@Sampled
+fun TextFieldStateOnTextChangedSample() {
+    // The ViewModel owns the state because it also writes to it (clearQuery) and because the state
+    // must outlive the composable that displays it.
+    class SearchViewModel {
+        var results: List<String> by mutableStateOf(emptyList())
+            private set
+
+        val query = TextFieldState(onTextChanged = { results = search(it.toString()) })
+
+        fun clearQuery() {
+            query.clearText()
+        }
+
+        private fun search(query: String): List<String> = TODO()
+    }
+
+    @Composable
+    fun SearchScreen(viewModel: SearchViewModel) {
+        Column {
+            Row {
+                BasicTextField(viewModel.query)
+                IconButton(onClick = { viewModel.clearQuery() }) {
+                    Icon(Icons.Default.Clear, contentDescription = "clear search query")
+                }
+            }
+            LazyColumn { items(viewModel.results) { Text(it) } }
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun RememberTextFieldStateOnTextChangedSample(onNameChanged: (String) -> Unit) {
+    // The composable owns the state. onNameChanged is read again on every recomposition, so the
+    // latest lambda is always the one that runs.
+    val state = rememberTextFieldState(onTextChanged = { onNameChanged(it.toString()) })
+    BasicTextField(state)
 }
 
 @Sampled
