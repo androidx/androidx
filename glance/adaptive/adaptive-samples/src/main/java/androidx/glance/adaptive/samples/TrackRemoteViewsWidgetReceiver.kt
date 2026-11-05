@@ -19,22 +19,31 @@ package androidx.glance.adaptive.samples
 import android.content.Context
 import androidx.glance.adaptive.appwidget.GlanceAdaptiveWidgetManager
 import androidx.glance.adaptive.appwidget.GlanceAdaptiveWidgetReceiver
+import androidx.glance.adaptive.core.templates.TrackTemplate
 
 /**
  * Receiver for the Track demo widget drawn by the direct RemoteViews renderer.
  *
- * Pushes the same [TrackWidgetReceiver.SampleData] payload as [TrackWidgetReceiver], so the two can
- * be compared side by side. The renderer is routed to this [widgetName] in [SamplesApplication].
+ * A Glance Adaptive widget declares a [widgetName] and pushes a template payload via
+ * [GlanceAdaptiveWidgetManager].
  */
 class TrackRemoteViewsWidgetReceiver : GlanceAdaptiveWidgetReceiver() {
     override val widgetName: String = WIDGET_NAME
 
     override suspend fun onUpdate(context: Context) {
         GlanceAdaptiveWidgetManager(context)
-            .pushUpdate(widgetName = widgetName, currentData = TrackWidgetReceiver.SampleData)
+            .pushUpdate(widgetName = widgetName, currentData = SampleData)
     }
 
     internal companion object {
         const val WIDGET_NAME = "track_remoteviews_widget"
+
+        val SampleData =
+            TrackTemplate(
+                title = "11,056",
+                subtitle = "Steps",
+                progress = 0.55f,
+                statusText = "55%",
+            )
     }
 }
