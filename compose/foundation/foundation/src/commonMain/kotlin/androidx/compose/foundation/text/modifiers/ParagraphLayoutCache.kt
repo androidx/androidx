@@ -447,6 +447,58 @@ internal class ParagraphLayoutCache(
             "lastDensity=$lastDensity, history=$historyFlag, constraints=$)"
 }
 
+@Suppress("NOTHING_TO_INLINE")
+@JvmInline
+internal value class PhaseInvalidations private constructor(val mask: Int) {
+    inline val layoutChanged: Boolean
+        get() = (mask and LayoutMask) != 0
+
+    inline val drawChanged: Boolean
+        get() = (mask and DrawMask) != 0
+
+    inline infix fun or(other: PhaseInvalidations): PhaseInvalidations =
+        PhaseInvalidations(mask or other.mask)
+
+    inline operator fun plus(other: PhaseInvalidations): PhaseInvalidations =
+        PhaseInvalidations(mask or other.mask)
+
+    inline operator fun contains(other: PhaseInvalidations): Boolean =
+        (mask and other.mask) == other.mask && other.mask != 0
+
+    override fun toString(): String = buildString {
+        append("PhaseInvalidations(")
+        var first = true
+        if (layoutChanged) {
+            append("Layout")
+            first = false
+        }
+        if (drawChanged) {
+            if (!first) append(", ")
+            append("Draw")
+            first = false
+        }
+        if (first) append("None")
+        append(")")
+    }
+
+    companion object {
+        private const val LayoutMask = 1 shl 0
+        private const val DrawMask = 1 shl 1
+
+        inline val None
+            get() = PhaseInvalidations(0)
+
+        inline val Layout
+            get() = PhaseInvalidations(LayoutMask)
+
+        inline val Draw
+            get() = PhaseInvalidations(DrawMask)
+
+        inline val All
+            get() = PhaseInvalidations(LayoutMask or DrawMask)
+    }
+}
+
 @JvmInline
 internal value class LayoutCacheOperation private constructor(val flag: Long) {
     companion object {

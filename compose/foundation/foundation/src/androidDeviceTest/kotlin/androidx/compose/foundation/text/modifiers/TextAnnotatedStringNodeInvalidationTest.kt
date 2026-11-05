@@ -43,6 +43,7 @@ class TextAnnotatedStringNodeInvalidationTest : NodeInvalidationTestParent() {
             textChanged = true,
             layoutChanged = true,
             callbacksChanged = true,
+            styleChanged = false,
         )
     }
 

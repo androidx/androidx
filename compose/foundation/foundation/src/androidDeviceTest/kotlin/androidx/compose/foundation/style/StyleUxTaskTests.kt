@@ -1266,7 +1266,21 @@ private fun Text_n(
         softWrap = softWrap,
         maxLines = maxLines,
         minLines = minLines,
-        color = { styleResolver.resolve { contentColor } },
+        styleProvider = {
+            styleResolver.resolve {
+                setTextAlign(textAlignLocal.value)
+                setTextDirection(textDirectionLocal.value)
+                setFontFamily(fontFamilyLocal.value)
+                setFontWeight(fontWeightLocal.value)
+                setFontStyle(fontStyleLocal.value)
+                setFontSynthesis(fontSynthesisLocal.value)
+                setFontSize(fontSizeLocal.value)
+                setLineHeight(lineHeightLocal.value)
+                setLetterSpacing(letterSpacingLocal.value)
+                setTextMotion(textMotionLocal.value)
+                setColor(contentColor)
+            }
+        },
         autoSize = autoSize,
     )
 }
