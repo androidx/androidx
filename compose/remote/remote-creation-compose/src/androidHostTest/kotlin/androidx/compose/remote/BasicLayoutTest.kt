@@ -259,7 +259,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                     val blue = Color.Blue
                     val w = width
                     val h = height
-                    val topLeft = RemoteOffset(0f, 0f)
+                    val topLeft = RemoteOffset.Zero
                     val topRight = RemoteOffset(w, 0f.rf)
                     val bottomLeft = RemoteOffset(0f.rf, h)
                     val bottomRight = RemoteOffset(w, h)
@@ -818,7 +818,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                 RemoteBox(
                     modifier =
                         RemoteModifier.background(Color.Red.rc)
-                            .weight(1f)
+                            .weight(1f.rf)
                             .height(30.rdp)
                             .padding(start = 4.rdp)
                 )
@@ -829,7 +829,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                 RemoteBox(
                     modifier =
                         RemoteModifier.background(Color.Blue.rc)
-                            .weight(1f)
+                            .weight(1f.rf)
                             .height(60.rdp)
                             .padding(end = 4.rdp)
                 )
@@ -875,7 +875,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                     RemoteBox(
                         modifier =
                             RemoteModifier.background(Color.Red.rc)
-                                .weight(1f)
+                                .weight(1f.rf)
                                 .height(60.rdp)
                                 .padding(start = 4.rdp)
                     )
@@ -886,7 +886,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                     RemoteBox(
                         modifier =
                             RemoteModifier.background(Color.Blue.rc)
-                                .weight(1f)
+                                .weight(1f.rf)
                                 .height(30.rdp)
                                 .padding(end = 4.rdp)
                     )

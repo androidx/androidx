@@ -34,6 +34,7 @@ import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.widgets.RemoteComposeWidget
@@ -71,9 +72,9 @@ class MyWidget : RemoteComposeWidget() {
             horizontalArrangement = RemoteArrangement.Center,
             verticalAlignment = RemoteAlignment.CenterVertically,
         ) {
-            Button("-", RemoteModifier.weight(1f)) { writeCounter(context, widgetId, -1) }
+            Button("-", RemoteModifier.weight(1f.rf)) { writeCounter(context, widgetId, -1) }
             RemoteText("$counter".rs, fontSize = 48.rsp)
-            Button("+", RemoteModifier.weight(1f)) { writeCounter(context, widgetId, 1) }
+            Button("+", RemoteModifier.weight(1f.rf)) { writeCounter(context, widgetId, 1) }
         }
     }
 

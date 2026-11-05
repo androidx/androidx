@@ -2613,7 +2613,7 @@ class RcPlayerInteractivityTest {
                 // The weighted spacer pushes LegacyCanvas to the right edge, so it moves
                 // (without resizing) when the host width changes.
                 RemoteRow(modifier = RemoteModifier.fillMaxWidth().height(100.rdp)) {
-                    RemoteBox(modifier = RemoteModifier.weight(1f).height(100.rdp))
+                    RemoteBox(modifier = RemoteModifier.weight(1f.rf).height(100.rdp))
                     RemoteCanvas(
                         modifier =
                             RemoteModifier.size(100.rdp, 100.rdp).semantics {

@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.creation.compose.layout
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation.Type
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.modifier.HeightModifier
@@ -42,10 +41,6 @@ public class RemoteColumnScope {
      */
     public fun RemoteModifier.weight(weight: RemoteFloat): RemoteModifier =
         then(HeightModifier(Type.WEIGHT, weight))
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun RemoteModifier.weight(weight: Float): RemoteModifier =
-        then(HeightModifier(Type.WEIGHT, RemoteFloat(weight)))
 }
 
 internal class RemoteColumnNode : RemoteLayoutNode() {

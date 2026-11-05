@@ -1959,7 +1959,7 @@ class RcPlayerPrimitivesTest {
     fun testRemoteColumnWeight() {
         rule.setRemoteContent(modifier = Modifier.size(100.dp).testTag("columnWeightParent")) {
             RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
-                RemoteBox(modifier = RemoteModifier.weight(1f).background(Color.Red.rc)) {
+                RemoteBox(modifier = RemoteModifier.weight(1f.rf).background(Color.Red.rc)) {
                     RemoteText("Weight 1".rs)
                 }
                 RemoteBox(modifier = RemoteModifier.size(50.rdp).background(Color.Blue.rc)) {

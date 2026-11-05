@@ -53,6 +53,7 @@ import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.modifiers.RoundedRectShape
@@ -177,7 +178,7 @@ fun StateLayoutRowToColumnDemo() {
                         modifier =
                             RemoteModifier.animationSpec(101, true)
                                 .size(60.rdp)
-                                .weight(1f)
+                                .weight(1f.rf)
                                 .background(ComposeColor.Green.rc)
                     )
                     RemoteBox(
