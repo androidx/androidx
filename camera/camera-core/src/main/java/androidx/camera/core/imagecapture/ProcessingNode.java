@@ -33,6 +33,7 @@ import static java.util.Objects.requireNonNull;
 import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CaptureResult;
 
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
@@ -301,18 +302,22 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
                 throw new ImageCaptureException(ERROR_UNKNOWN,
                         "CameraCharacteristics is null, DngCreator cannot be created", null);
             }
-            if (originalImage.getCameraCaptureResult().getCaptureResult() == null) {
-                throw new ImageCaptureException(ERROR_UNKNOWN,
-                        "CameraCaptureResult is null, DngCreator cannot be created", null);
-            }
-            mDngImage2Disk = new DngImage2Disk(
-                    requireNonNull(mCameraCharacteristics),
-                    requireNonNull(originalImage.getCameraCaptureResult().getCaptureResult()));
+            mDngImage2Disk = new DngImage2Disk(requireNonNull(mCameraCharacteristics));
         }
-        return mDngImage2Disk.apply(DngImage2Disk.In.of(
-                originalImage.getData(),
-                originalImage.getRotationDegrees(),
-                requireNonNull(outputFileOptions)));
+        CaptureResult captureResult = originalImage.getCameraCaptureResult().getCaptureResult();
+        if (captureResult == null) {
+            originalImage.getData().close();
+            throw new ImageCaptureException(
+                    ERROR_UNKNOWN,
+                    "CameraCaptureResult is null, DngCreator cannot be created",
+                    null);
+        }
+        return mDngImage2Disk.apply(
+                DngImage2Disk.In.of(
+                        originalImage.getData(),
+                        captureResult,
+                        originalImage.getRotationDegrees(),
+                        requireNonNull(outputFileOptions)));
     }
 
     private ImageCapture.@NonNull OutputFileResults saveJpegToDisk(

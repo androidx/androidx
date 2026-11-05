@@ -29,6 +29,7 @@ import android.net.Uri;
 
 import androidx.annotation.OptIn;
 import androidx.annotation.VisibleForTesting;
+import androidx.arch.core.util.Function;
 import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
@@ -45,16 +46,15 @@ import java.io.IOException;
 
 public class DngImage2Disk implements Operation<DngImage2Disk.In, ImageCapture.OutputFileResults> {
 
-    private @NonNull DngCreator mDngCreator;
+    private final @NonNull Function<CaptureResult, DngCreator> mDngCreatorFactory;
 
-    public DngImage2Disk(@NonNull CameraCharacteristics cameraCharacteristics,
-            @NonNull CaptureResult captureResult) {
-        this(new DngCreator(cameraCharacteristics, captureResult));
+    public DngImage2Disk(@NonNull CameraCharacteristics cameraCharacteristics) {
+        this(captureResult -> new DngCreator(cameraCharacteristics, captureResult));
     }
 
     @VisibleForTesting
-    DngImage2Disk(@NonNull DngCreator dngCreator) {
-        mDngCreator = dngCreator;
+    DngImage2Disk(@NonNull Function<CaptureResult, DngCreator> dngCreatorFactory) {
+        mDngCreatorFactory = dngCreatorFactory;
     }
 
     @Override
@@ -62,7 +62,8 @@ public class DngImage2Disk implements Operation<DngImage2Disk.In, ImageCapture.O
             throws ImageCaptureException {
         ImageCapture.OutputFileOptions options = in.getOutputFileOptions();
         File tempFile = createTempFile(options);
-        writeImageToFile(tempFile, in.getImageProxy(), in.getRotationDegrees());
+        writeImageToFile(
+                tempFile, in.getImageProxy(), in.getRotationDegrees(), in.getCaptureResult());
         Uri uri = moveFileToTarget(tempFile, options);
         return new ImageCapture.OutputFileResults(uri, ImageFormat.RAW_SENSOR);
     }
@@ -74,10 +75,14 @@ public class DngImage2Disk implements Operation<DngImage2Disk.In, ImageCapture.O
     private void writeImageToFile(
             @NonNull File tempFile,
             @NonNull ImageProxy imageProxy,
-            int rotationDegrees) throws ImageCaptureException {
-        try (FileOutputStream output = new FileOutputStream(tempFile)) {
-            mDngCreator.setOrientation(computeExifOrientation(rotationDegrees));
-            mDngCreator.writeImage(output, imageProxy.getImage());
+            int rotationDegrees,
+            @NonNull CaptureResult captureResult)
+            throws ImageCaptureException {
+        // DngCreator retains capture metadata, so each image needs its own creator.
+        try (DngCreator dngCreator = mDngCreatorFactory.apply(captureResult);
+                FileOutputStream output = new FileOutputStream(tempFile)) {
+            dngCreator.setOrientation(computeExifOrientation(rotationDegrees));
+            dngCreator.writeImage(output, imageProxy.getImage());
         } catch (IllegalArgumentException e) {
             throw new ImageCaptureException(ERROR_FILE_IO,
                     "Image with an unsupported format was used", e);
@@ -114,16 +119,19 @@ public class DngImage2Disk implements Operation<DngImage2Disk.In, ImageCapture.O
 
         abstract @NonNull ImageProxy getImageProxy();
 
+        abstract @NonNull CaptureResult getCaptureResult();
+
         abstract int getRotationDegrees();
 
         abstract ImageCapture.@NonNull OutputFileOptions getOutputFileOptions();
 
         static DngImage2Disk.@NonNull In of(
                 @NonNull ImageProxy imageProxy,
+                @NonNull CaptureResult captureResult,
                 int rotationDegrees,
                 ImageCapture.@NonNull OutputFileOptions outputFileOptions) {
-            return new AutoValue_DngImage2Disk_In(imageProxy,
-                    rotationDegrees, outputFileOptions);
+            return new AutoValue_DngImage2Disk_In(
+                    imageProxy, captureResult, rotationDegrees, outputFileOptions);
         }
     }
 }
