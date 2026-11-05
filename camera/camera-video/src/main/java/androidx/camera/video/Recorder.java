@@ -4546,7 +4546,14 @@ public final class Recorder implements VideoOutput {
          *       background setup thread during recording initialization. Streaming methods
          *       run synchronously on an internal audio worker thread. Implementations must
          *       be non-blocking.</li>
+         *   <li><b>Timing:</b> Processors may delay output by buffering input, but must not add
+         *       or drop audio frames. See {@link AudioProcessor} for details.</li>
+         *   <li><b>Reuse:</b> The same processor instances are reused for every recording made
+         *       with the built {@link Recorder}, and are flushed or reset between them. Do not
+         *       share processor instances between {@link Recorder}s.</li>
          * </ul>
+         *
+         * <p>See {@link AudioProcessor} for the complete contract.
          *
          * @param audioProcessors ordered list of non-null audio processors
          * @return this builder

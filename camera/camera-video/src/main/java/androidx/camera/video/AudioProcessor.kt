@@ -42,6 +42,10 @@ import java.nio.ByteOrder
  * * **Terminal format**: The final processor in the chain configured on
  *   [Recorder.Builder.setAudioProcessors] must output
  *   [android.media.AudioFormat.ENCODING_PCM_16BIT].
+ * * **Timing**: CameraX derives output timestamps by assuming output frames correspond, in order,
+ *   to input frames (scaled by any sample rate change). Processors may delay output by buffering
+ *   input, but must not add or drop frames, including extra leading frames such as priming silence
+ *   from algorithmic lookahead; otherwise audio will be offset by their duration.
  * * **Error handling**: If a processor fails [configure] (such as throwing
  *   [UnsupportedAudioFormatException]) or throws an unhandled exception during streaming
  *   ([queueInput], [getOutput]), audio recording will fail with
@@ -103,12 +107,18 @@ public interface AudioProcessor {
      * @property channelCount number of audio channels (e.g. `1` for mono, `2` for stereo)
      * @property encoding audio PCM encoding format such as
      *   [android.media.AudioFormat.ENCODING_PCM_16BIT]
+     * @throws IllegalArgumentException if [sampleRate] or [channelCount] is not positive, or if
+     *   [encoding] is not one of [android.media.AudioFormat.ENCODING_PCM_8BIT],
+     *   [android.media.AudioFormat.ENCODING_PCM_16BIT],
+     *   [android.media.AudioFormat.ENCODING_PCM_24BIT_PACKED],
+     *   [android.media.AudioFormat.ENCODING_PCM_32BIT], or
+     *   [android.media.AudioFormat.ENCODING_PCM_FLOAT]
      */
     public class AudioFormat
     @JvmOverloads
     constructor(
-        @get:IntRange(from = 1) public val sampleRate: Int,
-        @get:IntRange(from = 1) public val channelCount: Int,
+        @param:IntRange(from = 1) @get:IntRange(from = 1) public val sampleRate: Int,
+        @param:IntRange(from = 1) @get:IntRange(from = 1) public val channelCount: Int,
         public val encoding: Int = android.media.AudioFormat.ENCODING_PCM_16BIT,
     ) {
         init {
@@ -167,24 +177,19 @@ public interface AudioProcessor {
         public val audioFormat: AudioFormat?
 
         /**
-         * Creates an exception for the unsupported [audioFormat].
+         * Creates an exception with an optional detail [message], [audioFormat], and [cause].
          *
+         * @param message detail message, or `null` to use a default message describing
+         *   [audioFormat]
          * @param audioFormat unsupported audio format that caused this exception
-         */
-        public constructor(
-            audioFormat: AudioFormat
-        ) : super("Unsupported audio format: $audioFormat") {
-            this.audioFormat = audioFormat
-        }
-
-        /**
-         * Creates an exception with a custom detail [message] and optional [audioFormat].
-         *
-         * @param message detail message
-         * @param audioFormat unsupported audio format that caused this exception
+         * @param cause underlying cause, such as an error from an adapted audio pipeline
          */
         @JvmOverloads
-        public constructor(message: String?, audioFormat: AudioFormat? = null) : super(message) {
+        public constructor(
+            message: String?,
+            audioFormat: AudioFormat? = null,
+            cause: Throwable? = null,
+        ) : super(message ?: audioFormat?.let { "Unsupported audio format: $it" }, cause) {
             this.audioFormat = audioFormat
         }
     }
@@ -212,7 +217,9 @@ public interface AudioProcessor {
      *
      * Called synchronously on the audio streaming thread. The processor reads incoming audio data
      * from [inputBuffer] and makes processed output available via [getOutput]. Implementations must
-     * consume or buffer all incoming frames; unconsumed frames are not re-queued.
+     * consume all data between the position and limit of [inputBuffer], by processing it or
+     * buffering it for later output, and advance its position to its limit. A processor that does
+     * not modify audio may instead return [inputBuffer] itself from [getOutput].
      * * **Buffer ownership**: The caller guarantees [inputBuffer] remains valid and unmodified
      *   until the next call to [queueInput], [flush], or [reset]. Implementations must not retain
      *   references for asynchronous access without copying.

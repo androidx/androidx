@@ -106,9 +106,23 @@ class AudioProcessorTest {
         assertThat(exception.message).isEqualTo(message)
         assertThat(exception.audioFormat).isEqualTo(testAudioFormat)
 
-        val defaultException = AudioProcessor.UnsupportedAudioFormatException(testAudioFormat)
+        val defaultException =
+            AudioProcessor.UnsupportedAudioFormatException(
+                message = null,
+                audioFormat = testAudioFormat,
+            )
         assertThat(defaultException.message).contains(testAudioFormat.toString())
         assertThat(defaultException.audioFormat).isEqualTo(testAudioFormat)
+    }
+
+    @Test
+    fun unsupportedAudioFormatException_storesCause() {
+        val cause = IllegalStateException("External pipeline failure")
+        val exception =
+            AudioProcessor.UnsupportedAudioFormatException("Unsupported", testAudioFormat, cause)
+
+        assertThat(exception.cause).isSameInstanceAs(cause)
+        assertThat(exception.audioFormat).isEqualTo(testAudioFormat)
     }
 
     @Test
