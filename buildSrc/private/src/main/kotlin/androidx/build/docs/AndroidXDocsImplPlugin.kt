@@ -26,6 +26,7 @@ import androidx.build.dackka.DokkaUtils
 import androidx.build.dackka.GenerateMetadataTask
 import androidx.build.defaultAndroidConfig
 import androidx.build.getAndroidJar
+import androidx.build.getBuildId
 import androidx.build.getDistributionDirectory
 import androidx.build.getLibraryClasspath
 import androidx.build.getSupportRootFolder
@@ -34,6 +35,7 @@ import androidx.build.metalava.versionMetadataUsage
 import androidx.build.multiplatformExtension
 import androidx.build.sources.PROJECT_STRUCTURE_METADATA_FILENAME
 import androidx.build.sources.SourceJarAttributeConfiguration.multiplatformUsage
+import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import androidx.build.versionCatalog
 import androidx.build.workaroundAndroidXDependencyResolutions
 import com.android.build.api.attributes.BuildTypeAttr
@@ -776,6 +778,29 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                 }
             }
 
+        // Check that there are no new warnings logged
+        val validateWarningsTask =
+            project.tasks.register("validateWarnings", ValidateDocsWarningsTask::class.java) { task
+                ->
+                task.buildLogSimplifierScript.set(
+                    File(
+                        project.getSupportRootFolder(),
+                        "development/build_log_simplifier/build_log_simplifier.py",
+                    )
+                )
+                task.loggingFile.set(dackkaTask.flatMap { it.loggingFile })
+                task.baselineFile.set(project.layout.projectDirectory.file("warnings.ignore"))
+                // Use the `docs-tip-of-tree` baseline as an additional baseline for `docs-public`
+                // so that warnings don't need to be added to a second baseline at release time.
+                if (project.name == "docs-public") {
+                    task.additionalBaselineFile.set(
+                        File(project.getSupportRootFolder(), "docs-tip-of-tree/warnings.ignore")
+                    )
+                }
+                task.buildId.set(project.providers.getBuildId())
+                task.cacheEvenIfNoOutputs()
+            }
+
         val zipTask =
             project.tasks.register("zipDocs", Zip::class.java) { task ->
                 task.apply {
@@ -787,7 +812,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                     group = JavaBasePlugin.DOCUMENTATION_GROUP
                 }
             }
-        buildOnServer.configure { it.dependsOn(zipTask) }
+        buildOnServer.configure { it.dependsOn(zipTask, validateWarningsTask) }
     }
 
     /**

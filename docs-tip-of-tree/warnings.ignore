@@ -1,0 +1,138 @@
+# Warnings in the file are used as a baseline for both docs-public and docs-tip-of-tree
+WARN: Couldn't resolve link: \[IUpdateInfoService\.listAvailableUpdates\] in .*\/unzippedJvmSources\/androidx\/security\/state\/UpdateCheckResult\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[affectsLookahead\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/node\/DepthSortedSet\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[android\.accessibilityservice\.AccessibilityService\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/semantics\/SemanticsProperties\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[android\.accessibilityservice\.AccessibilityServiceInfo\.isAccessibilityTool\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/semantics\/SemanticsProperties\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[android\.accounts\.Account\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/input\/key\/Key\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[android\.content\.pm\.PackageItemInfo\.loadSafeLabel\] in .*\/unzippedJvmSources\/androidx\/glance\/wear\/core\/WearWidgetProviderInfoXmlParser\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[android\.database\.CursorWindow\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/room3\/Transaction\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[android\.graphics\.Color\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/annotation\/ColorLong\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[android\.graphics\.Typeface\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/text\/font\/FontFamily\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[android\.R.attr\.ambientShadowAlpha\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/graphics\/GraphicsLayerScope\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[android\.R.attr\.ambientShadowAlpha\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/graphics\/layer\/GraphicsLayer\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[android\.R.attr\.spotShadowAlpha\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/graphics\/GraphicsLayerScope\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[android\.R.attr\.spotShadowAlpha\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/graphics\/layer\/GraphicsLayer\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[android\.telecom\.CallAttributes\.CallType\] in .*\/unzippedJvmSources\/androidx\/core\/telecom\/internal\/utils\/CallAttributesUtils\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[android\.view\.accessibility\.AccessibilityNodeInfo\.ACTION_SCROLL_BACKWARD\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/semantics\/SemanticsProperties\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[android\.view\.accessibility\.AccessibilityNodeInfo\.ACTION_SCROLL_FORWARD\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/semantics\/SemanticsProperties\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[android\.view\.View\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/node\/Owner\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[android\.widget\.ImageView\.ScaleType\.CENTER_CROP\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/layout\/ContentScale\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[android\.widget\.ImageView\.ScaleType\.CENTER_INSIDE\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/layout\/ContentScale\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[android\.widget\.ImageView\.ScaleType\.FIT_CENTER\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/layout\/ContentScale\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[AndroidView\] in 'androidx\.compose\.ui\.viewinterop' package documentation \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.activity\.ComponentActivity\.ComponentActivity\] in .*\/unzippedMultiplatformSources\/jvmMain\/androidx\/annotation\/ContentView\.jvm\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.annotation\.RequiresExtension\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/annotation\/RequiresApi\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.collection\.ArrayMap\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/collection\/SimpleArrayMap\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.compose\.animation\.graphics\.res\.loadAnimatedVectorResource\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/animation\/graphics\/vector\/AnimatedImageVector\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.compose\.ui\.platform\.ComposeView\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/layout\/LayoutCoordinates\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.compose\.ui\.test\.junit4.ComposeTestRule\.runOnIdle\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/test\/MainTestClock\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.compose\.ui\.test\.junit4.ComposeTestRule\.waitForIdle\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/test\/MainTestClock\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.compose\.ui\.test\.junit4.ComposeTestRule\.waitUntil\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/test\/MainTestClock\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.compose\.ui\.test\.junit4.ComposeTestRule\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/platform\/InfiniteAnimationPolicy\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.compose\.ui\.text\.android\.minIntrinsicWidth\] in .*\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/ui\/text\/android\/LayoutIntrinsics\.android\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.fragment\.app\.Fragment\.Fragment\] in .*\/unzippedMultiplatformSources\/jvmMain\/androidx\/annotation\/ContentView\.jvm\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.lifecycle\.Transformations\.map\] in .*\/unzippedJvmSources\/androidx\/camera\/core\/impl\/utils\/LiveDataUtil\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.paging\.AsyncPagingDataAdapter\] in .*\/unzippedJvmSources\/androidx\/paging\/PagingLiveData\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.paging\.AsyncPagingDataAdapter\] in .*\/unzippedJvmSources\/androidx\/paging\/rxjava2\/PagingRx\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.paging\.AsyncPagingDataAdapter\] in .*\/unzippedJvmSources\/androidx\/paging\/rxjava3\/PagingRx\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.paging\.AsyncPagingDataAdapter\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/paging\/CachedPagingData\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.paging\.AsyncPagingDataAdapter\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/paging\/PagingData\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.paging\.AsyncPagingDataDiffer\.addLoadStateListener\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/paging\/LoadState\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.paging\.AsyncPagingDataDiffer\.addLoadStateListener\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/paging\/LoadType\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.paging\.PagedList\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/paging\/LoadState\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.paging\.PagingDataAdapter\.addLoadStateListener\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/paging\/LoadState\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.paging\.PagingDataAdapter\.addLoadStateListener\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/paging\/LoadType\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.paging\.PagingDataAdapter\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/paging\/ItemSnapshotList\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.paging\.PagingDataAdapter\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/paging\/PagingSource\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.paging\.PagingDataAdapter\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/paging\/RemoteMediator\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.pagingAsyncPagingDataDiffer\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/paging\/ItemSnapshotList\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.room3.Room\.databaseBuilder\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/room3\/Database\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.room3.Room\.inMemoryDatabaseBuilder\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/room3\/Database\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.sqlite\.db\.SupportSQLiteQuery\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/room3\/RawQuery\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.wear\.watchface\.ComplicationSlot\] in .*\/unzippedJvmSources\/androidx\/wear\/watchface\/complications\/ComplicationSlotBounds\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.wear\.watchface\.ComplicationSlotsManager\] in .*\/unzippedJvmSources\/androidx\/wear\/watchface\/complications\/data\/Data\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[GPUInstance\.waitAny\] in .*\/unzippedJvmSources\/androidx\/webgpu\/CallbackMode\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.work\.impl\.background\.systemalarm\.SystemAlarmService\] in .*\/unzippedJvmSources\/androidx\/work\/impl\/utils\/WakeLocks\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[ArrayMap\.retainAll\] in .*\/unzippedJvmSources\/androidx\/fragment\/app\/FragmentTransition\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[ArrayMap\] in .*\/unzippedMultiplatformSources\/androidMain\/androidx\/room3\/util\/RelationUtil\.android\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[ArrayMap\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/collection\/ArraySet\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[ArrayMap\] in .*\/unzippedMultiplatformSources\/nonJvmMain\/androidx\/collection\/ArraySet\.nonJvm\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[AsyncPagingDataDiffer\.refresh\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/paging\/Pager\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[AsyncPagingDataDiffer\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/paging\/PagingDataPresenter\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[callback\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/androidMain\/androidx\/ink\/authoring\/internal\/CanvasInProgressStrokesRenderHelperV29\.kt:[0-9]+:[0-9]+ \(androidx\/androidMain\)
+WARN: Couldn't resolve link: \[callback\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/androidMain\/androidx\/ink\/authoring\/internal\/CanvasInProgressStrokesRenderHelperV33\.kt:[0-9]+:[0-9]+ \(androidx\/androidMain\)
+WARN: Couldn't resolve link: \[ComplicationType\.ICON\] in .*\/unzippedJvmSources\/androidx\/wear\/watchface\/complications\/SystemDataSources\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[Configuration\.fontScale\] in .*\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/ui\/unit\/fontscaling\/FontScaleConverterFactory\.android\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[createMultiProcessCoordinator\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/datastore\/core\/InterProcessCoordinator\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[ExerciseUpdateListener\] in .*\/unzippedJvmSources\/androidx\/health\/services\/client\/impl\/event\/ExerciseUpdateListenerEvent\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[findViewTreeNavigationEventDispatcherOwner\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/navigationevent\/compose\/LocalNavigationEventDispatcherOwner\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[GlanceWearWidget\.onActivated\] in .*\/unzippedJvmSources\/androidx\/glance\/wear\/core\/WearWidgetParams\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[GPUInstance\.waitAny\] in .*\/unzippedJvmSources\/androidx\/webgpu\/InstanceFeatureName\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[LayoutModifierNode\.invalidateLayout\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/draw\/PainterModifier\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[NavigationEventProcessor\.isPredictiveInProgress\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/navigationevent\/NavigationEventInput\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[PagingDataAdapter\.refresh\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/paging\/Pager\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[PlatformParagraphStyle\.includeFontPadding\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/text\/style\/LineHeightStyle\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[RenderBox\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/geometry\/Offset\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[RequestAdapterOptions\.featureLevel\] in .*\/unzippedJvmSources\/androidx\/webgpu\/FeatureLevel\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[savedInstanceState\] in .*\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/ui\/test\/junit4\/StateRestorationTester\.android\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[ScaleIndication\] in .*\/unzippedJvmSources\/androidx\/tv\/material3\/ButtonStyles\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[ScaleIndication\] in .*\/unzippedJvmSources\/androidx\/tv\/material3\/CardStyles\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[ScaleIndication\] in .*\/unzippedJvmSources\/androidx\/tv\/material3\/ChipStyles\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[ScaleIndication\] in .*\/unzippedJvmSources\/androidx\/tv\/material3\/ListItemStyles\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[ScaleIndication\] in .*\/unzippedJvmSources\/androidx\/tv\/material3\/NavigationDrawerItemStyles\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[ScaleIndication\] in .*\/unzippedJvmSources\/androidx\/tv\/material3\/SurfaceStyles\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[SemanticsNodeInteraction\.captureToImage\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/test\/MainTestClock\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[Settings\.Global\.Wearable\.PAIRED_DEVICE_OS_TYPE\] in .*\/unzippedJvmSources\/androidx\/wear\/phone\/interactions\/PhoneTypeHelper\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[SharedPreferencesMigration\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/datastore\/core\/DataMigration\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[System\.nanoTime\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/animation\/core\/AnimationState\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[TestCoroutineExceptionHandler\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/test\/UncaughtExceptionHandler\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[testTagsAsResourceId\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/semantics\/SemanticsProperties\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[TreeBuilder\.mapTree\] in .*\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/ui\/tooling\/ComposeViewAdapter\.android\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[UncaughtExceptionCaptor\.cleanupTestCoroutines\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/test\/UncaughtExceptionHandler\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[updateCollection\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/datastore\/core\/DataStoreImpl\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[UsesReflectionToAccessMethod\.returnClass\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/annotation\/keep\/Unspecified\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[ViewLayer\.shouldUseDispatchDraw\] in .*\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/ui\/graphics\/layer\/view\/ViewLayerContainer\.android\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[WearWidgetContent\] in .*\/unzippedJvmSources\/androidx\/glance\/wear\/core\/WearWidgetRawContent\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[WindowExtensions\.VENDOR_API_LEVEL_1\] in .*\/unzippedJvmSources\/androidx\/window\/layout\/SafeWindowLayoutComponentProvider\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[WindowExtensions\.VENDOR_API_LEVEL_2\] in .*\/unzippedJvmSources\/androidx\/window\/layout\/SafeWindowLayoutComponentProvider\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: .*\/unzippedJvmSources\/androidx\/camera\/view\/RotationProvider\.java:[0-9]+ Missing @param tag for parameter `listener` in DFunction addListener
+WARN: .*\/unzippedJvmSources\/androidx\/core\/database\/sqlite\/SQLiteDatabase\.kt:[0-9]+ Missing @param tag for parameter `body` in DFunction transaction
+WARN: .*\/unzippedJvmSources\/androidx\/emoji2\/text\/EmojiCompat\.java:[0-9]+ Missing @param tag for parameter `useEmojiAsDefaultStyle` in DFunction setUseEmojiAsDefaultStyle
+WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/material\/TextFieldDefaults\.kt:[0-9]+ Missing @param tag for parameter `shape` in DFunction BorderBox
+WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/material3\/Card\.kt:[0-9]+ Missing @param tag for parameter `disabledElevation` in DFunction outlinedCardElevation
+WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/material3\/MaterialTheme\.kt:[0-9]+ Missing @param tag for parameter `content` in DFunction MaterialTheme
+# b/351805708: upstream bug in Kotlin: can't have a nested class with different expect from parent
+ERROR: An attempt to write .*\/reference\/androidx\/lifecycle\/ViewModelProvider\.NewInstanceFactory\.html several times!
+ERROR: An attempt to write .*\/reference\/kotlin\/androidx\/lifecycle\/ViewModelProvider\.NewInstanceFactory\.html several times!
+# https://github.com/Kotlin/dokka/issues/4554
+WARN: `java\.io\.Serializable` is unresolved in .*
+# b/493983427
+WARN: `ArrayMap` is unresolved in .*
+# b/527069050
+WARN: Couldn't resolve JavaDoc link '.*' in .*\/unzippedJvmSources\/org\/chromium\/.*
+# b/530213736
+WARN: Couldn't resolve JavaDoc link '.*' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/leanback\/.*
+# https://github.com/Kotlin/dokka/issues/4560
+WARN: Couldn't resolve JavaDoc link 'equals' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/appsearch\/.*
+# b/542186112
+WARN: `.*_.*` is unresolved in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/nativeMain\/androidx\/ink\/.*
+WARN: Couldn't resolve JavaDoc link 'CombinationQuery' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/camera\/featurecombinationquery\/playservices\/PlayServicesCameraDeviceSetupCompatProvider\.java:[0-9]+:[0-9]+
+# b/537719836
+WARN: Couldn't resolve JavaDoc link 'checkMarkTint(Mode)?' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/appcompat\/widget\/AppCompatCheckedTextView\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'menu' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/appcompat\/widget\/Toolbar\.java:[0-9]+:[0-9]+
+# b/537731050
+WARN: Couldn't resolve JavaDoc link 'content_limit_(grid|list|pane|place_list|route_list)' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/car\/app\/constraints\/ConstraintManager\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'onGetItem' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/car\/app\/mediaextensions\/MetadataExtras\.java:[0-9]+:[0-9]+
+# https://github.com/Kotlin/dokka/issues/4516
+WARN: Couldn't resolve JavaDoc link 'CoroutineDispatcher' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/work\/impl\/utils\/taskexecutor\/TaskExecutor\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'kotlinx\.coroutines\.test\..*' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/work\/testing\/WorkManagerTestInitHelper\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve link: \[java\.lang\.Throwable\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/benchmark\/junit4\/BenchmarkRule\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[java\.lang\.Throwable\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/benchmark\/junit4\/BenchmarkRuleLegacy\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+# b/542187847
+WARN: Couldn't resolve JavaDoc link 'navigate' in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/androidMain\/androidx\/navigation\/package-info\.java:[0-9]+:[0-9]+
+# b/541328985
+WARN: Couldn't resolve JavaDoc link 'layout_boxedEdges' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/wear\/R\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'BoxInsetLayout Layout Attributes' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/wear\/widget\/BoxInsetLayout\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'layout_boxedEdges' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/wear\/widget\/BoxInsetLayout\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'clipEnabled' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/wear\/widget\/RoundedDrawable\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'radius' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/wear\/widget\/RoundedDrawable\.java:[0-9]+:[0-9]+

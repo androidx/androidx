@@ -1,0 +1,383 @@
+# Both this file and docs-tip-of-tree/warnings.ignore are used as a baseline for docs-public
+WARN: Couldn't resolve link: \[ActivityScenario\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/ext\/junit\/rules\/ActivityScenarioRule\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[android\.database\.Cursor\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/Embedded\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[android\.database\.Cursor\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/Query\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[android\.database\.CursorWindow\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/Transaction\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.annotation\.NonNull\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/Embedded\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.lifecycle\.FlowLiveDataConversions\.asLiveData\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/wear\/watchface\/editor\/EditorSession\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.lifecycle\.FlowLiveDataConversions\.asLiveData\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/wear\/watchface\/style\/CurrentUserStyleRepository\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.lifecycle\.LiveData\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/Query\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.lifecycle\.LiveData\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/Transaction\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.privacysandbox\.sdkruntime\.core\.controller\.SdkSandboxControllerCompat\.registerSdkSandboxActivityHandler\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/privacysandbox\/activity\/core\/SdkActivityLauncher\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.room\.EmptyResultSetException\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/Query\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.room\.Room\.databaseBuilder\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/Database\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.room\.Room\.inMemoryDatabaseBuilder\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/Database\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.room\.RoomDatabase\.Builder\.setQueryExecutor\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/work\/Configuration\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.room\.RoomDatabase\.openHelper\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/RawQuery\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.room\.RoomDatabase\.query\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/RawQuery\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.sqlite\.db\.SupportSQLiteQuery\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/RawQuery\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.test\.espresso\.screenshot\.captureToBitmap\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/core\/app\/DeviceCapture\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.wear\.watchface\.client\.InteractiveWatchFaceClient\.OnWatchFaceColorsListener\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/wear\/watchface\/Renderer\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[androidx\.wear\.watchface\.EditorRequest\.watchFaceId\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/wear\/watchface\/client\/EditorState\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[awaitDeferredEarlyInitDetailsThenRunOnBinderThread\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/wear\/watchface\/WatchFaceService\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[awaitDeferredWatchFaceThenRunOnBinderThread\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/wear\/watchface\/WatchFaceService\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[ComparisonType\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/health\/services\/client\/ExerciseClient\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[ComparisonType\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/health\/services\/client\/ExerciseClientExtension\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[ComplicationSlot\.id\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/wear\/watchface\/style\/UserStyleFlavors\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[db\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/paging\/util\/RoomPagingUtil\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[DeoubcendGoal\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/health\/services\/client\/data\/ExerciseConfig\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[Engine\.onPropertiesChanged\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/android\/support\/wearable\/watchface\/Constants\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[ExerciseTypeCapabilities\.supportedDebouncedGoals\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/health\/services\/client\/ExerciseClient\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[ExerciseTypeCapabilities\.supportedDebouncedGoals\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/health\/services\/client\/ExerciseClientExtension\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[ExerciseUpdate\.activeDuration\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/health\/services\/client\/data\/DataType\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[Flowable\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/Transaction\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[GlanceWearTiles\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/glance\/wear\/tiles\/GlanceWearTiles\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[GolfShotSwingType\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/health\/services\/client\/data\/GolfShotEventCapabilities\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[IMultiInstanceInvalidationService\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/androidMain\/androidx\/room\/MultiInstanceInvalidationClient\.android\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[java\.nio\.ByteBuffer\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/BuiltInTypeConverters\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[java\.util\.List\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/Query\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[java\.util\.List\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/Relation\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[java\.util\.Set\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/Relation\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[java\.util\.UUID\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/BuiltInTypeConverters\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[LayoutElementBuilders\.LayoutElement\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/glance\/wear\/tiles\/AndroidLayoutElement\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[LayoutModifier\.clearSemantics\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/wear\/protolayout\/material3\/PrimaryLayout\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[LayoutModifier\.clearSemantics\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/wear\/protolayout\/material3\/Text\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[locale\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/core\/i18n\/DateTimeFormatter\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[MatchInfo\.FTS3\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/Fts4\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[MatchInfo\.FTS4\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/Fts4\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[options\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/core\/i18n\/DateTimeFormatter\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[Order\.ASC\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/Fts4\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[Order\.DESC\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/Fts4\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[Packet\.payload\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/media3\/effect\/PacketConsumer\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[ComposeView\] in file:///\$DOCS_DIR/unzippedJvmSources/androidx/photopicker/testing/TestEmbeddedPhotoPickerSession\.kt:[0-9]+:[0-9]+ \(androidx/main\)
+WARN: Couldn't resolve link: \[renderWatchFaceToSurface\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/wear\/watchface\/client\/HeadlessWatchFaceClient\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[resistanceConfig\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/androidMain\/androidx\/constraintlayout\/compose\/carousel\/CarouselSwipeable\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[RoomDatabase\.openHelper\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/room\/support\/RoomSupportSQLiteDatabase\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[SuppressWarnings\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/RoomWarnings\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[TextContext\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/wear\/protolayout\/testing\/LayoutElementMatcher\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[the\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/espresso\/util\/StringJoiner\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[Timeline\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/wear\/tiles\/checkers\/TimelineChecker\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[TimelineEntry\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/wear\/tiles\/checkers\/TimelineChecker\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[topCornerRadius\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/wear\/protolayout\/material3\/EdgeButton\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[UserStyle\.MAXIMUM_SIZE_BYTES\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/wear\/watchface\/style\/UserStyleSetting\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[UserStyleSchema\.computeDigestHash\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/wear\/watchface\/client\/HeadlessWatchFaceClient\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[View\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/dynamicanimation\/animation\/DynamicAnimation\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[WatchFaceService\.resourceOnlyWatchFacePackageName\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/wear\/watchface\/client\/WatchFaceControlClient\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+# b/576220918
+WARN: \$DOCS_DIR/unzippedJvmSources/androidx/media[0-9]+/ui/compose/material[0-9]+/indicator/BufferingIndicator\.kt:[0-9]+ Missing @param tag for parameter `content` in DFunction BufferingIndicator
+WARN: \$DOCS_DIR/unzippedJvmSources/androidx/media[0-9]+/ui/compose/state/PlayPauseButtonState\.kt:[0-9]+ Missing @param tag for parameter `player` in DFunction PlayPauseButtonState
+# b/576220918
+WARN: Couldn't resolve JavaDoc link 'APPLICATION_STOPPED' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/media[0-9]+/cast/RemoteCastPlayer\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'SESSION_ENDED_WITH_REASON_ROUTE_CHANGED' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/media[0-9]+/cast/RemoteCastPlayer\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'SESSION_ENDED_WITH_REASON_STOPPED' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/media[0-9]+/cast/RemoteCastPlayer\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'EnhancementSession' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/media[0-9]+/effect/playservices/EnhancementSessionDecorator\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'EnhancementClient' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/media[0-9]+/effect/playservices/EnhancementSessionManager\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'EnhancementSession' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/media[0-9]+/effect/playservices/EnhancementSessionManager\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link '.*' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/android\/.*
+WARN: `EmulatorControllerGrpc\.EmulatorControllerBlockingStub` is unresolved in androidx\.test\.espresso\.device\.controller\.emulator\/EmulatorController\/\/#\/PointingToDeclaration\/
+WARN: `EmulatorControllerGrpc\.EmulatorControllerBlockingStub` is unresolved in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/espresso\/device\/controller\/emulator\/EmulatorController\.kt:[0-9]+:[0-9]+
+WARN: `EmulatorControllerGrpc\.EmulatorControllerBlockingStub` is unresolved in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/espresso\/device\/controller\/emulator\/EmulatorGrpcConn\.kt:[0-9]+:[0-9]+
+WARN: `EmulatorControllerGrpc\.EmulatorControllerBlockingStub` is unresolved in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/espresso\/device\/controller\/emulator\/EmulatorGrpcConnImpl\.kt:[0-9]+:[0-9]+
+WARN: `IMultiInstanceInvalidationCallback` is unresolved in androidx\.room\/MultiInstanceInvalidationClient\/\/#\/PointingToDeclaration\/
+WARN: `IMultiInstanceInvalidationCallback` is unresolved in androidx\.room\/MultiInstanceInvalidationService\/\/#\/PointingToDeclaration\/
+WARN: `IMultiInstanceInvalidationCallback` is unresolved in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/androidMain\/androidx\/room\/MultiInstanceInvalidationClient\.android\.kt:[0-9]+:[0-9]+
+WARN: `IMultiInstanceInvalidationCallback` is unresolved in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/androidMain\/androidx\/room\/MultiInstanceInvalidationService\.android\.kt:[0-9]+:[0-9]+
+WARN: `IMultiInstanceInvalidationService\.Stub` is unresolved in androidx\.room\/MultiInstanceInvalidationService\/\/#\/PointingToDeclaration\/
+WARN: `IMultiInstanceInvalidationService\.Stub` is unresolved in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/androidMain\/androidx\/room\/MultiInstanceInvalidationService\.android\.kt:[0-9]+:[0-9]+
+WARN: `IMultiInstanceInvalidationService` is unresolved in androidx\.room\/MultiInstanceInvalidationClient\/\/#\/PointingToDeclaration\/
+WARN: `IMultiInstanceInvalidationService` is unresolved in androidx\.room\/MultiInstanceInvalidationClient\/\/#<ERROR CLASS> ERROR CLASS: Symbol not found for IMultiInstanceInvalidationService\?\?\/PointingToCallableParameters\(0\)\/
+WARN: `IMultiInstanceInvalidationService` is unresolved in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/androidMain\/androidx\/room\/MultiInstanceInvalidationClient\.android\.kt:[0-9]+:[0-9]+
+WARN: `RoomSQLiteQuery` is unresolved in androidx\.room\.paging\.guava\/LimitOffsetListenableFuturePagingSource\/\/#\/PointingToDeclaration\/
+WARN: `RoomSQLiteQuery` is unresolved in androidx\.room\.paging\.rxjava2\/LimitOffsetRxPagingSource\/\/#\/PointingToDeclaration\/
+WARN: `RoomSQLiteQuery` is unresolved in androidx\.room\.paging\.rxjava3\/LimitOffsetRxPagingSource\/\/#\/PointingToDeclaration\/
+WARN: `RoomSQLiteQuery` is unresolved in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/room\/guava\/GuavaRoom\.kt:[0-9]+:[0-9]+
+WARN: `RoomSQLiteQuery` is unresolved in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/room\/paging\/guava\/LimitOffsetListenableFuturePagingSource\.kt:[0-9]+:[0-9]+
+WARN: `RoomSQLiteQuery` is unresolved in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/room\/paging\/rxjava2\/LimitOffsetRxPagingSource\.kt:[0-9]+:[0-9]+
+WARN: `RoomSQLiteQuery` is unresolved in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/room\/paging\/rxjava3\/LimitOffsetRxPagingSource\.kt:[0-9]+:[0-9]+
+WARN: `T` is unresolved in androidx\.room\.coroutines\/PassthroughConnectionPool\/\/#\/PointingToDeclaration\/
+WARN: `T` is unresolved in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/coroutines\/PassthroughConnectionPool\.kt:[0-9]+:[0-9]+
+WARN: `T` is unresolved in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/RoomConnectionManager\.kt:[0-9]+:[0-9]+
+WARN: `ThreadSafeInvalidationObserver` is unresolved in androidx\.room\.paging\.guava\/LimitOffsetListenableFuturePagingSource\/\/#\/PointingToDeclaration\/
+WARN: `ThreadSafeInvalidationObserver` is unresolved in androidx\.room\.paging\.rxjava2\/LimitOffsetRxPagingSource\/\/#\/PointingToDeclaration\/
+WARN: `ThreadSafeInvalidationObserver` is unresolved in androidx\.room\.paging\.rxjava3\/LimitOffsetRxPagingSource\/\/#\/PointingToDeclaration\/
+WARN: `ThreadSafeInvalidationObserver` is unresolved in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/room\/paging\/guava\/LimitOffsetListenableFuturePagingSource\.kt:[0-9]+:[0-9]+
+WARN: `ThreadSafeInvalidationObserver` is unresolved in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/room\/paging\/rxjava2\/LimitOffsetRxPagingSource\.kt:[0-9]+:[0-9]+
+WARN: `ThreadSafeInvalidationObserver` is unresolved in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/room\/paging\/rxjava3\/LimitOffsetRxPagingSource\.kt:[0-9]+:[0-9]+
+WARN: `V` is unresolved in androidx\.glance\.appwidget\/\/\/#\/PointingToDeclaration\/
+WARN: `V` is unresolved in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/glance\/appwidget\/LayoutSelection\.kt:[0-9]+:[0-9]+
+WARN: `ViewStructureCompat` is unresolved in androidx\.compose\.ui\.contentcapture\/ContentCaptureEvent\/\/#\/PointingToDeclaration\/
+WARN: `ViewStructureCompat` is unresolved in androidx\.compose\.ui\.contentcapture\/ContentCaptureEvent\/component4\/#\/PointingToDeclaration\/
+WARN: `ViewStructureCompat` is unresolved in androidx\.compose\.ui\.contentcapture\/ContentCaptureEvent\/copy\/#kotlin\.Int#kotlin\.Long#androidx\.compose\.ui\.contentcapture\.ContentCaptureEventType#<ERROR CLASS> ERROR CLASS: Symbol not found for ViewStructureCompat\?\?\/PointingToCallableParameters\(3\)\/
+WARN: `ViewStructureCompat` is unresolved in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/ui\/contentcapture\/AndroidContentCaptureManager\.android\.kt:[0-9]+:[0-9]+
+WARN: `ViewStructureCompat` is unresolved in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/ui\/contentcapture\/ContentCaptureSessionWrapper\.android\.kt:[0-9]+:[0-9]+
+WARN: Couldn't resolve link: \[activityOptions\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/glance\/action\/StartActivityAction\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[AutoCloseable\.close\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/jvmAndAndroidMain\/androidx\/tracing\/Tracer\.kt:[0-9]+:[0-9]+ \(androidx\/jvmAndAndroidMain\)
+WARN: Couldn't resolve link: \[backgroundColor\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/glance\/Button\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[content\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/glance\/wear\/tiles\/GlanceWearTiles\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[contentColor\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/glance\/Button\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[context\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/core\/i18n\/DateTimeFormatter\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[context\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/glance\/wear\/tiles\/GlanceWearTiles\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[parameters\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/glance\/action\/StartActivityAction\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[SharedAssetsT\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/wear\/watchface\/Renderer\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[size\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/glance\/wear\/tiles\/GlanceWearTiles\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[state\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/glance\/wear\/tiles\/GlanceWearTiles\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[Value\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/jvmAndAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvmAndAndroid\.kt:[0-9]+:[0-9]+ \(androidx\/jvmAndAndroidMain\)
+# b/542222706
+WARN: Couldn't resolve JavaDoc link 'CacheControl' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/media3\/datasource\/okhttp\/OkHttpDataSource\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Call\.Factory' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/media3\/datasource\/okhttp\/OkHttpDataSource\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'OkHttpClient' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/media3\/datasource\/okhttp\/OkHttpDataSource\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Dispatcher' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/media3\/test\/utils\/WebServerDispatcher\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'okhttp3\.mockwebserver\.MockWebServer' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/media3\/test\/utils\/WebServerDispatcher\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'RecordedRequest' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/media3\/test\/utils\/WebServerDispatcher\.java:[0-9]+:[0-9]+
+# b/542221398
+WARN: Couldn't resolve JavaDoc link 'allAsList' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/core\/app\/ListFuture\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'successfulAsList' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/core\/app\/ListFuture\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'MotionEvent\.ACTION_DOWN' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/core\/view\/MotionEventBuilder\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'isDisplayingAtLeast' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/espresso\/action\/ViewActions\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'JELLY_BEAN_MR1' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/espresso\/base\/PerformExceptionHandler\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'android\.support\.v7\.widget\.PopupMenu' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/espresso\/base\/RootViewPicker\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.test\.espresso\.contrib\.CountingIdlingResource' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/espresso\/idling\/net\/UriIdlingResource\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'getActivityResultFunctionForIntent' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/espresso\/intent\/ActivityResultFunction\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Intents\.init' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/espresso\/intent\/Intents\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'intended' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/espresso\/intent\/rule\/IntentsTestRule\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'intending' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/espresso\/intent\/rule\/IntentsTestRule\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'gatherAnyResult' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/espresso\/InteractionResultsHandler\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'isViewIdGenerated' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/espresso\/matcher\/ViewMatchers\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'View\.VISIBLE' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/espresso\/matcher\/ViewMatchers\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'FieldDescriptor' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/espresso\/remote\/annotation\/RemoteMsgConstructor\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'isViewIdGenerated' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/espresso\/util\/HumanReadables\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link '  Futures\.catching' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/espresso\/web\/util\/concurrent\/AbstractFuture\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Futures\.transform' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/espresso\/web\/util\/concurrent\/AbstractFuture\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'ListeningExecutorService' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/espresso\/web\/util\/concurrent\/AbstractFuture\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'SettableFuture' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/espresso\/web\/util\/concurrent\/AbstractFuture\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'allAsList' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/espresso\/web\/util\/concurrent\/ListFuture\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'successfulAsList' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/espresso\/web\/util\/concurrent\/ListFuture\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'android\.os\.Build\.VERSION\.CODENAME' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/filters\/SdkSuppress\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'android\.os\.Build\.VERSION\.SDK_INT' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/filters\/SdkSuppress\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.test\.orchestrator\.OrchestratorService' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/internal\/events\/client\/OrchestratedInstrumentationListener\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.test\.services\.events\.TestCase' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/internal\/events\/client\/TestDiscoveryEventService\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'addTests' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/internal\/events\/client\/TestEventClient\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.test\.orchestrator\.OrchestratorService' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/internal\/events\/client\/TestEventClient\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'connect' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/internal\/events\/client\/TestEventClientConnectListener\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'OrchestratorConnection' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/internal\/events\/client\/TestEventClientConnectListener\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.test\.services\.events\.Failure' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/internal\/events\/client\/TestRunEventService\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.test\.services\.events\.TestCase' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/internal\/events\/client\/TestRunEventService\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'M' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/internal\/platform\/content\/PermissionGranter\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'ServiceLoader' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/internal\/platform\/util\/TestOutputHandler\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'getCurrentProcessName' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/internal\/util\/LogUtil\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.test\.platform\.reflect\.ReflectiveMethod' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/internal\/util\/ReflectionUtil\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'sendTestNotification' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/orchestrator\/callback\/BundleConverter\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.test\.orchestrator\.AndroidTestOrchestrator' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/orchestrator\/junit\/BundleJUnitUtils\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'org\.junit\.manipulation\.Filter' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/test/filters/SdkSuppressFilter\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'TestStorage' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/platform\/io\/PlatformTestStorageRegistry\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'forceEnableAppTracing' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/platform\/tracing\/AndroidXTracer\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'android\.viee\.inspector\.WindowInspector' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/platform\/view\/inspector\/WindowInspectorCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'ActivityTestRule' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/rule\/ActivityTestRule\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'getTargetContext' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/rule\/ActivityTestRule\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'onActivity' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/rule\/ActivityTestRule\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'OnResumed' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/rule\/ActivityTestRule\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'AndroidTestOrchestrator' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/runner_aidl\/runner\/android_junit_runner\/java\/androidx\/test\/orchestrator\/callback\/OrchestratorCallback\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Instrumentation' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/runner_aidl\/runner\/android_junit_runner\/java\/androidx\/test\/orchestrator\/callback\/OrchestratorCallback\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'OrchestratorService' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/runner_aidl\/runner\/android_junit_runner\/java\/androidx\/test\/orchestrator\/callback\/OrchestratorCallback\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Instrumentation' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/services\/events\/events_aidl\/services\/events\/java\/androidx\/test\/services\/events\/discovery\/ITestDiscoveryEvent\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Instrumentation' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/services\/events\/events_aidl\/services\/events\/java\/androidx\/test\/services\/events\/platform\/ITestPlatformEvent\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Instrumentation' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/services\/events\/events_aidl\/services\/events\/java\/androidx\/test\/services\/events\/run\/ITestRunEvent\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'TestStatus\.Status\.CANCELLED' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/services\/events\/platform\/TestCaseFinishedEvent\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'TestStatus\.Status\.IGNORED' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/services\/events\/platform\/TestCaseFinishedEvent\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.test\.services\.events\.TestStatus\.Status\.CANCELLED' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/services\/events\/platform\/TestCaseStartedEvent\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.test\.services\.events\.TestStatus\.Status\.IGNORED' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/services\/events\/platform\/TestCaseStartedEvent\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'CANCELLED' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/services\/events\/TestStatus\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'SKIPPED' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/services\/events\/TestStatus\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'getDisplayId' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/uiautomator\/BySelector\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'validate' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/uiautomator\/Configurator\.java:[0-9]+:[0-9]+
+# b/513146616
+WARN: Package androidx\.media3\.cast is a compose package but is included in java docs
+# b/527069050
+WARN: Couldn't resolve JavaDoc link 'Lifecycle\.Event\.ON_DESTROY' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/MenuHost\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.wear\.watchface\.HighlightedElement\.AllComplications' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/data/RenderParametersWireFormat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.wear\.watchface\.HighlightedElement\.Complication' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/data/RenderParametersWireFormat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.wear\.watchface\.HighlightedElement\.UserStyle' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/data/RenderParametersWireFormat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link '> ' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/data/LayerParameterWireFormat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link '  \#onInvalidate\(\)' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/protolayout/expression/DynamicBuilders\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'FloatEvaluator' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/protolayout/expression/pipeline/DynamicTypeAnimator\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'IntEvaluator' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/protolayout/expression/pipeline/DynamicTypeAnimator\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'ArgbEvaluator' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/protolayout/expression/pipeline/DynamicTypeAnimator\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'createParent' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/constraintlayout/core/state/Dimension\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'BrowserRoot' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/media/utils/MediaConstants\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'onGetRoot' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/media/utils/MediaConstants\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'getCarApp' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/media/utils/MediaConstants\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.wear\.view\.DotsPageIndicator' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/widget/drawer/PageIndicatorView\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.wear\.watchface\.style\.BooleanUserStyleSetting\.BooleanOption' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/style/data/BooleanOptionWireFormat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.wear\.watchface\.style\.ComplicationsUserStyleSetting\.ComplicationsOption' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/style/data/ComplicationsOptionWireFormat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.wear\.watchface\.style\.ListUserStyleSetting\.ListOption' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/style/data/ListOptionWireFormat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.wear\.watchface\.style\.LongRangeUserStyleSetting\.LongRangeOption' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/style/data/LongRangeOptionWireFormat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.wear\.watchface\.style\.ColorUserStyleSetting\.ColorOption' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/style/data/ColorOptionWireFormat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.wear\.watchface\.style\.CustomValueStyleSetting[0-9]+' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/style/data/CustomValueUserStyleSetting[0-9]+WireFormat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.wear\.watchface\.style\.CustomValueStyleSetting\.CustomValueOption[0-9]+' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/style/data/CustomValueOption[0-9]+WireFormat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.wear\.watchface\.style\.LongRangeUserStyleSetting' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/style/data/LongRangeUserStyleSettingWireFormat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.wear\.watchface\.style\.DoubleRangeUserStyleSetting\.DoubleRangeOption' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/style/data/DoubleRangeOptionWireFormat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.wear\.watchface\.style\.BooleanUserStyleSetting' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/style/data/BooleanUserStyleSettingWireFormat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.wear\.watchface\.style\.CustomValueStyleSetting' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/style/data/CustomValueUserStyleSettingWireFormat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.wear\.watchface\.style\.DoubleRangeUserStyleSetting' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/style/data/DoubleRangeUserStyleSettingWireFormat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.wear\.watchface\.style\.ComplicationsUserStyleSetting' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/style/data/ComplicationsUserStyleSettingWireFormat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.wear\.watchface\.style\.ListUserStyleSetting' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/style/data/ListUserStyleSettingWireFormat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.wear\.watchface\.style\.CustomValueStyleSetting\.CustomValueOption' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/style/data/CustomValueOptionWireFormat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.wear\.watchface\.style\.ColorUserStyleSetting' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/style/data/ColorUserStyleSettingWireFormat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'setWatchUiState' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/data/WatchUiState\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'setComplicationDetails' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/data/ComplicationStateWireFormat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.wear\.watchface\.style\.Layer' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/data/LayerParameterWireFormat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.wear\.watchface\.LayerMode' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/data/LayerParameterWireFormat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.wear\.watchface\.WatchFace\.WatchFaceOverlayStyle' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/data/WatchFaceOverlayStyleWireFormat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'getComplicationSlotMetadata' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/control/data/GetComplicationSlotMetadataParams\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'createHeadlessWatchFaceInstance' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/control/data/HeadlessWatchFaceInstanceParams\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'GetUserStyleFlavors' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/control/data/GetUserStyleFlavorsParams\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'createPendingInteractiveWatchFace' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/control/data/WallpaperInteractiveWatchFaceInstanceParams\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'GetUserStyleSchema' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/control/data/GetUserStyleSchemaParams\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'getDefaultProviderPolicies' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/control/data/DefaultProviderPoliciesParams\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'onEditorStateChange' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/editor/data/EditorStateWireFormat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.wear\.protolayout\.material\.Helper' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/tiles/material/Helper\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Build\.VERSION_CODES\.TIRAMISU' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/transition/TransitionManager\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'android\.os\.Build\.VERSION_CODES\.TIRAMISU' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/transition/TransitionManager\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'setContentIntent' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/role/RoleManagerCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'android\.os\.Build\.VERSION_CODES\.TIRAMISU' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/role/RoleManagerCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'extras' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/app/NotificationCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'small icon' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/app/NotificationCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'setExact' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/app/AlarmManagerCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'shouldUpRecreateTask' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/app/NavUtils\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'navigateUpTo' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/app/NavUtils\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'android\.provider\.Settings\.ACTION_APP_NOTIFICATION_SETTINGS' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/app/ActivityCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'getBinder' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/app/BundleCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'putBinder' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/app/BundleCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'priorityCallSenders' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/app/NotificationManagerCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'priorityCategories' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/app/NotificationManagerCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'priorityMessageSenders' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/app/NotificationManagerCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'showAsDropDown' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/widget/PopupWindowCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'createDragToOpenListener' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/widget/ListPopupWindowCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'setCompoundDrawables' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/widget/TintableCompoundDrawablesView\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'setCompoundDrawablesRelative' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/widget/TextViewCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'setCompoundDrawablesRelativeWithIntrinsicBounds' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/widget/TextViewCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'setSupportOnActionExpandListener' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/internal/view/SupportMenuItem\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Menu' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/internal/view/SupportMenuItem\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'META_META_ON' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/internal/view/SupportMenuItem\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'META_CTRL_ON' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/internal/view/SupportMenuItem\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'META_ALT_ON' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/internal/view/SupportMenuItem\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'META_SHIFT_ON' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/internal/view/SupportMenuItem\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'META_SYM_ON' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/internal/view/SupportMenuItem\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'META_FUNCTION_ON' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/internal/view/SupportMenuItem\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'startActivity' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/content/ContextCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'getExternalFilesDirs' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/content/ContextCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'dispatchPopulateAccessibilityEvent' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'setAutofillId' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'dispatchProvideAutofillStructure' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'getAutofillId' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'getNextAutofillId' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'attached to  a window' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'setImportantForContentCapture' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'isImportantForContentCapture' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'ContentCaptureManager' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'setContentCaptureSession' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'ContentCaptureContext' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'onDraw' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'setLayoutMode' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewGroupCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Lifecycle\.Event\.ON_DESTROY' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/MenuHostHelper\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'setQuickScaleEnabled' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ScaleGestureDetectorCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'notifySubtreeAccessibilityStateChanged' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewParentCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'getFrame' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/WindowInsetsCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'selection' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/accessibility/AccessibilityNodeInfoCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'android\.view\.Display\.DEFAULT_DISPLAY' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/accessibility/AccessibilityWindowInfoCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'setSource' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/accessibility/AccessibilityRecordCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'setMaxScrollX' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/accessibility/AccessibilityRecordCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'setMaxScrollY' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/accessibility/AccessibilityRecordCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'setContentChangeTypes' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/accessibility/AccessibilityEventCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'setMovementGranularity' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/accessibility/AccessibilityEventCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'setAction' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/accessibility/AccessibilityEventCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'loadDescription' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/accessibilityservice/AccessibilityServiceInfoCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'setHasMipMap' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/graphics/BitmapCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'setAutoMirrored' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/graphics/drawable/DrawableCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'MessageFormat' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/i[0-9]+n/messageformat_icu/simple/MessageFormat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Clickable' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/tiles/material/Chip\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Clickable' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/tiles/material/TitleChip\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.core\.view\.ViewCompat\.saveAttributeDataForStyleable' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/resourceinspection/package\-info\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Room\.databaseBuilder' in file:///\$DOCS_DIR/unzippedMultiplatformSources/androidMain/androidx/room/package\-info\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Room\.inMemoryDatabaseBuilder' in file:///\$DOCS_DIR/unzippedMultiplatformSources/androidMain/androidx/room/package\-info\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Room\.databaseBuilder' in file:///\$DOCS_DIR/unzippedMultiplatformSources/androidMain/androidx/room[0-9]+/package\-info\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Room\.inMemoryDatabaseBuilder' in file:///\$DOCS_DIR/unzippedMultiplatformSources/androidMain/androidx/room[0-9]+/package\-info\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Button' in file:\/\/\/\$DOCS_DIR/unzippedJvmSources/androidx/wear/tiles/material/layouts/MultiButtonLayout\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'CompactChip' in file:\/\/\/\$DOCS_DIR/unzippedJvmSources/androidx/wear/tiles/material/layouts/PrimaryLayout\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'CircularProgressIndicator' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/tiles/material/layouts/EdgeContentLayout\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'BoundingBoxRatio' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/protolayout/ModifiersBuilders\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link '\#onInvalidate\(\)' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/protolayout/expression/DynamicBuilders\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link '  \#onInvalidate\(\)' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/protolayout/expression/FixedValueBuilders\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'provideMessagPort' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/javascriptengine/JavaScriptSandbox\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'ViewModelProvider' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/lifecycle/ViewModelProviders\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'setCustomSelectionActionModeCallback' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/emoji/widget/EmojiButton\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'init' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/emoji/widget/EmojiExtractEditText\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'init' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/emoji/widget/EmojiExtractTextLayout\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'setCustomSelectionActionModeCallback' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/emoji/widget/ExtractButtonCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'setCustomSelectionActionModeCallback' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/emoji/widget/EmojiEditText\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'isPreferenceVisible' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/preference/Preference\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'initialExpandedChildrenCount' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/preference/PreferenceGroup\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'setHandledFiles' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/browser/trusted/TrustedWebActivityIntentBuilder\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'CustomTabsIntent' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/browser/auth/AuthTabColorSchemeParams\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'warmup' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/browser/auth/AuthTabCallback\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'COLOR_SCHEME_SYSTEM' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/browser/auth/AuthTabIntent\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'warmup' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/browser/customtabs/CustomTabsCallback\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'AuthTabCallback' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/browser/customtabs/CustomTabsService\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'contains' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/recyclerview/selection/Range\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'AppCompatTextView_emojiCompatEnabled' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/appcompat/widget/AppCompatEmojiTextHelper\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'AppCompatTextView_emojiCompatEnabled' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/appcompat/widget/AppCompatEmojiEditTextHelper\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'TYPE_ICON' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/appcompat/view/menu/MenuView\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'TYPE_EXPANDED' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/appcompat/view/menu/MenuView\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'TYPE_DIALOG' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/appcompat/view/menu/MenuView\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'APPEARANCE_LIGHT_STATUS_BARS' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/browser/auth/AuthTabColorSchemeParams\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'APPEARANCE_LIGHT_NAVIGATION_BARS' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/browser/auth/AuthTabColorSchemeParams\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'RESULT_UNKNOWN_CODE' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/browser/auth/AuthTabIntent\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'android\.view\.View\.getBackgroundTintList' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/resourceinspection/annotation/AppCompatShadowedAttributes\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.resourceinspection\.processor' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/resourceinspection/annotation/AppCompatShadowedAttributes\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'PendingSession' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/browser/customtabs/ExperimentalPendingSession\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'attachSession' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/browser/customtabs/ExperimentalPendingSession\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'getCurrentScene' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/transition/Scene\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.resourceinspection\.processor' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/widget/TintableCheckedTextView\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.resourceinspection\.processor' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/widget/AutoSizeableTextView\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.resourceinspection\.processor' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/widget/TintableImageSourceView\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'EmojiExtractViewHelper' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/emoji/widget/ExtractButtonCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'RESULT_VERIFICATION_FAILED' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/browser/auth/AuthTabIntent\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Executor' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/browser/customtabs/EngagementSignalsCallback\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link '< >' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/browser/browseractions/BrowserActionItem\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'drawerArrowStyle' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/appcompat/app/ActionBarDrawerToggle\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'windowActionBar' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/appcompat/app/ActionBar\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Spinner_popupTheme' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/appcompat/widget/AppCompatSpinner\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'ViewModelProvider\.AndroidViewModelFactory' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/lifecycle/ViewModelProviders\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'getInstance' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/lifecycle/ViewModelProviders\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'RESULT_OK' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/browser/auth/AuthTabIntent\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'RESULT_CANCELED' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/browser/auth/AuthTabIntent\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'RESULT_VERIFICATION_TIMED_OUT' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/browser/auth/AuthTabIntent\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'setDeviceConfiguration' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/tiles/RequestBuilders\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'setCurrentState' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/tiles/RequestBuilders\.java:[0-9]+:[0-9]+
+# b/347911005
+WARN: \$DOCS_DIR/unzippedJvmSources/androidx/constraintlayout/core/ArrayLinkedVariables\.java:[0-9]+ Missing @param tag for parameter `removeFromDefinition` in DFunction add
+WARN: \$DOCS_DIR/unzippedJvmSources/androidx/constraintlayout/core/ArrayLinkedVariables\.java:[0-9]+ Missing @param tag for parameter `removeFromDefinition` in DFunction remove
+WARN: \$DOCS_DIR/unzippedJvmSources/androidx/constraintlayout/core/ArrayLinkedVariables\.java:[0-9]+ Missing @param tag for parameter `removeFromDefinition` in DFunction use
+WARN: \$DOCS_DIR/unzippedJvmSources/androidx/constraintlayout/core/LinearSystem\.java:[0-9]+ Missing @param tag for parameter `widget` in DFunction addCenterPoint
+WARN: \$DOCS_DIR/unzippedJvmSources/androidx/constraintlayout/core/LinearSystem\.java:[0-9]+ Missing @param tag for parameter `target` in DFunction addCenterPoint
+WARN: \$DOCS_DIR/unzippedJvmSources/androidx/constraintlayout/core/motion/Motion\.java:[0-9]+ Missing @param tag for parameter `pointCount` in DFunction buildPath
+WARN: \$DOCS_DIR/unzippedJvmSources/androidx/constraintlayout/core/motion/Motion\.java:[0-9]+ Missing @param tag for parameter `type` in DFunction getKeyFrameInfo
+WARN: \$DOCS_DIR/unzippedJvmSources/androidx/constraintlayout/core/motion/utils/KeyCycleOscillator\.java:[0-9]+ Missing @param tag for parameter `shape` in DFunction setPoint
+WARN: \$DOCS_DIR/unzippedJvmSources/androidx/constraintlayout/core/motion/utils/KeyCycleOscillator\.java:[0-9]+ Missing @param tag for parameter `waveString` in DFunction setPoint
+WARN: \$DOCS_DIR/unzippedJvmSources/androidx/constraintlayout/core/motion/utils/KeyCycleOscillator\.java:[0-9]+ Missing @param tag for parameter `phase` in DFunction setPoint
+WARN: \$DOCS_DIR/unzippedJvmSources/androidx/constraintlayout/core/state/CoreMotionScene\.java:[0-9]+ Missing @param tag for parameter `toJSON` in DFunction setTransitionContent
+WARN: \$DOCS_DIR/unzippedJvmSources/androidx/constraintlayout/core/state/Transition\.java:[0-9]+ Missing @param tag for parameter `currentProgress` in DFunction dragToProgress
+WARN: \$DOCS_DIR/unzippedJvmSources/androidx/constraintlayout/core/widgets/Chain\.java:[0-9]+ Missing @param tag for parameter `widgets` in DFunction applyChainConstraints
+WARN: \$DOCS_DIR/unzippedJvmSources/androidx/constraintlayout/core/widgets/ConstraintWidgetContainer\.java:[0-9]+ Missing @param tag for parameter `flags` in DFunction updateChildrenFromSolver
+WARN: \$DOCS_DIR/unzippedJvmSources/androidx/constraintlayout/motion/widget/DesignTool\.java:[0-9]+ Missing @param tag for parameter `len` in DFunction getAnimationPath
+WARN: \$DOCS_DIR/unzippedJvmSources/androidx/constraintlayout/motion/widget/DesignTool\.java:[0-9]+ Missing @param tag for parameter `type` in DFunction getKeyFrameInfo
+WARN: \$DOCS_DIR/unzippedJvmSources/androidx/constraintlayout/motion/widget/MotionController\.java:[0-9]+ Missing @param tag for parameter `type` in DFunction getKeyFrameInfo
+WARN: \$DOCS_DIR/unzippedJvmSources/androidx/constraintlayout/widget/ConstraintSet\.java:[0-9]+ Missing @param tag for parameter `margin` in DFunction createBarrier
+WARN: \$DOCS_DIR/unzippedJvmSources/androidx/constraintlayout/widget/ConstraintSet\.java:[0-9]+ Missing @param tag for parameter `viewId` in DFunction setApplyElevation
+WARN: \$DOCS_DIR/unzippedJvmSources/androidx/core/widget/RemoteViewsCompat\.kt:[0-9]+ Missing @param tag for parameter `horizontalGravity` in DFunction setLinearLayoutHorizontalGravity
+WARN: \$DOCS_DIR/unzippedJvmSources/androidx/core/widget/RemoteViewsCompat\.kt:[0-9]+ Missing @param tag for parameter `verticalGravity` in DFunction setLinearLayoutVerticalGravity
+WARN: \$DOCS_DIR/unzippedJvmSources/androidx/core/widget/RemoteViewsCompat\.kt:[0-9]+ Missing @param tag for parameter `horizontalGravity` in DFunction setRelativeLayoutHorizontalGravity
+WARN: \$DOCS_DIR/unzippedJvmSources/androidx/core/widget/RemoteViewsCompat\.kt:[0-9]+ Missing @param tag for parameter `verticalGravity` in DFunction setRelativeLayoutVerticalGravity
+WARN: \$DOCS_DIR/unzippedJvmSources/androidx/core/widget/RemoteViewsCompat\.kt:[0-9]+ Missing @param tag for parameter `night` in DFunction setSwitchThumbIcon
+WARN: \$DOCS_DIR/unzippedJvmSources/androidx/core/widget/RemoteViewsCompat\.kt:[0-9]+ Missing @param tag for parameter `night` in DFunction setSwitchTrackIcon
+WARN: \$DOCS_DIR/unzippedMultiplatformSources/androidMain/androidx/constraintlayout/compose/MotionCarousel\.kt:[0-9]+ Missing @param tag for parameter `motionScene` in DFunction MotionCarousel
