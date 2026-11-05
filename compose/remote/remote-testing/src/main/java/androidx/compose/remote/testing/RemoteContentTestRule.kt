@@ -81,7 +81,11 @@ public class RemoteContentTestRule(private val _composeTestRule: ComposeContentT
             creationComposableWrapper = creationComposableWrapper,
             onCoreDocumentCreated = onCoreDocumentCreated,
             player = player,
-            size = remoteCreationDisplayInfo.size,
+            size =
+                Size(
+                    remoteCreationDisplayInfo.width.toFloat(),
+                    remoteCreationDisplayInfo.height.toFloat(),
+                ),
             playComposableWrapper = playComposableWrapper,
             composable = composable,
         )

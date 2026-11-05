@@ -580,9 +580,9 @@ object DisplayPool {
         val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
         return displayManager.createVirtualDisplay(
             "Projection",
-            creationDisplayInfo.size.width.toInt(),
-            creationDisplayInfo.size.height.toInt(),
-            (creationDisplayInfo.density.density * 160f).toInt(),
+            creationDisplayInfo.width,
+            creationDisplayInfo.height,
+            (creationDisplayInfo.density * 160f).toInt(),
             SurfaceView(context).holder.surface,
             DisplayManager.VIRTUAL_DISPLAY_FLAG_PRESENTATION or
                 DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY,

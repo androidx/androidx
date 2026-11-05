@@ -75,15 +75,18 @@ package androidx.compose.remote.creation.compose.capture {
   }
 
   @androidx.compose.runtime.Immutable public final class RemoteCreationDisplayInfo {
-    ctor @BytecodeOnly public RemoteCreationDisplayInfo(long, androidx.compose.ui.unit.Density!, boolean, androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method @InaccessibleFromKotlin public androidx.compose.ui.unit.Density getDensity();
+    method @InaccessibleFromKotlin public float getDensity();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior getDensityBehavior();
-    method @BytecodeOnly public long getSize-NH-jbRc();
+    method @InaccessibleFromKotlin public float getFontScale();
+    method @InaccessibleFromKotlin public int getHeight();
+    method @InaccessibleFromKotlin public int getWidth();
     method @InaccessibleFromKotlin public boolean isInspectionMode();
-    property public androidx.compose.ui.unit.Density density;
+    property public float density;
     property public androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior densityBehavior;
+    property public float fontScale;
+    property public int height;
     property public boolean isInspectionMode;
-    property public androidx.compose.ui.geometry.Size size;
+    property public int width;
   }
 
   public final class RemoteCreationDisplayInfoKt {

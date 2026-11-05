@@ -157,8 +157,8 @@ class BasicLayoutTest {
         player.setDocument(remoteDocument)
         player.setUseChoreographer(false)
 
-        val width = creationDisplayInfo.size.width.toInt()
-        val height = creationDisplayInfo.size.height.toInt()
+        val width = creationDisplayInfo.width
+        val height = creationDisplayInfo.height
         val widthSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
         val heightSpec = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
         player.measure(widthSpec, heightSpec)
@@ -198,8 +198,8 @@ class BasicLayoutTest {
         player.setDocument(remoteDocument)
         player.setUseChoreographer(false)
 
-        val width = creationDisplayInfo.size.width.toInt()
-        val height = creationDisplayInfo.size.height.toInt()
+        val width = creationDisplayInfo.width
+        val height = creationDisplayInfo.height
         val widthSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
         val heightSpec = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
         player.measure(widthSpec, heightSpec)
@@ -1275,8 +1275,8 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
         val player = RemoteComposePlayer(fixedContext)
         player.setDocument(remoteDocument)
 
-        val width = creationDisplayInfo.size.width.toInt()
-        val height = creationDisplayInfo.size.height.toInt()
+        val width = creationDisplayInfo.width
+        val height = creationDisplayInfo.height
         player.measure(
             View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
             View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY),

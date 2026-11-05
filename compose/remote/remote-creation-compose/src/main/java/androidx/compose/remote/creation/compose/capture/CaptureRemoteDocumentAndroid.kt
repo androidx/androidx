@@ -100,8 +100,8 @@ public suspend fun captureSingleRemoteDocument(
     creationDisplayInfo: RemoteCreationDisplayInfo = createCreationDisplayInfo(context),
     remoteDensity: RemoteDensity =
         RemoteDensity(
-            creationDisplayInfo.density.density.rf,
-            creationDisplayInfo.density.fontScale.rf,
+            creationDisplayInfo.density.rf,
+            creationDisplayInfo.fontScale.rf,
         ),
     layoutDirection: LayoutDirection =
         toLayoutDirection(context.resources.configuration.layoutDirection),
@@ -145,8 +145,8 @@ public suspend fun captureSingleRemoteDocument(
     creationDisplayInfo: RemoteCreationDisplayInfo = createCreationDisplayInfo(context),
     remoteDensity: RemoteDensity =
         RemoteDensity(
-            creationDisplayInfo.density.density.rf,
-            creationDisplayInfo.density.fontScale.rf,
+            creationDisplayInfo.density.rf,
+            creationDisplayInfo.fontScale.rf,
         ),
     layoutDirection: LayoutDirection =
         toLayoutDirection(context.resources.configuration.layoutDirection),
@@ -231,8 +231,8 @@ public fun captureRemoteDocument(
     creationDisplayInfo: RemoteCreationDisplayInfo,
     remoteDensity: RemoteDensity =
         RemoteDensity(
-            creationDisplayInfo.density.density.rf,
-            creationDisplayInfo.density.fontScale.rf,
+            creationDisplayInfo.density.rf,
+            creationDisplayInfo.fontScale.rf,
         ),
     layoutDirection: LayoutDirection? = null,
     clock: RemoteClock = RemoteClock.SYSTEM,
@@ -277,8 +277,8 @@ public fun captureRemoteDocument(
     updateThrottle: CaptureUpdateThrottle = CaptureUpdateThrottle.Default,
     remoteDensity: RemoteDensity =
         RemoteDensity(
-            creationDisplayInfo.density.density.rf,
-            creationDisplayInfo.density.fontScale.rf,
+            creationDisplayInfo.density.rf,
+            creationDisplayInfo.fontScale.rf,
         ),
     layoutDirection: LayoutDirection? = null,
     writerEvents: RemoteWriterEvents = RemoteWriterEvents(),
@@ -346,8 +346,8 @@ private fun withAndroidLocals(
             LocalInspectionMode provides creationDisplayInfo.isInspectionMode,
             LocalDensity provides
                 Density(
-                    creationDisplayInfo.density.density,
-                    creationDisplayInfo.density.fontScale,
+                    creationDisplayInfo.density,
+                    creationDisplayInfo.fontScale,
                 ),
             LocalLayoutDirection provides layoutDirection,
             LocalRemoteLayoutDirection providesComputed
@@ -476,8 +476,8 @@ public suspend fun captureSingleRemoteDocument(
     creationDisplayInfo: RemoteCreationDisplayInfo = createCreationDisplayInfo(context),
     remoteDensity: RemoteDensity =
         RemoteDensity(
-            creationDisplayInfo.density.density.rf,
-            creationDisplayInfo.density.fontScale.rf,
+            creationDisplayInfo.density.rf,
+            creationDisplayInfo.fontScale.rf,
         ),
     layoutDirection: LayoutDirection =
         toLayoutDirection(context.resources.configuration.layoutDirection),
