@@ -18,11 +18,12 @@ package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Immutable
+import kotlin.jvm.JvmInline
 
 /** Defines what happens when an edge of a shader falls within the shape being painted. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
-@kotlin.jvm.JvmInline
+@JvmInline
 public value class RemoteTileMode internal constructor(public val value: Int) {
     override fun toString(): String =
         when (this) {

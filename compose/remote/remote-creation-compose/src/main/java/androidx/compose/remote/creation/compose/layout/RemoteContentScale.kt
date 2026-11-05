@@ -19,13 +19,14 @@ package androidx.compose.remote.creation.compose.layout
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.utilities.ImageScaling
 import androidx.compose.runtime.Immutable
+import kotlin.jvm.JvmInline
 
 /**
  * Represents the scaling rule to use when drawing an image or painter into a destination rectangle.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
-@kotlin.jvm.JvmInline
+@JvmInline
 public value class RemoteContentScale internal constructor(public val value: Int) {
     override fun toString(): String =
         when (this) {

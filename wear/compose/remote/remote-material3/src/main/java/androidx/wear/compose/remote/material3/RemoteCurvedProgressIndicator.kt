@@ -26,12 +26,14 @@ import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.clamp
 import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.remoteSpring
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -80,7 +82,6 @@ private val RADIANS_TO_DEGREES = (180f / PI.toFloat()).rf
  */
 @RemoteComposable
 @Composable
-@Suppress("RestrictedApiAndroidX")
 public fun RemoteCurvedProgressIndicator(
     progress: RemoteFloat,
     modifier: RemoteModifier = RemoteModifier,
@@ -149,7 +150,6 @@ public fun RemoteCurvedProgressIndicator(
  */
 @RemoteComposable
 @Composable
-@Suppress("RestrictedApiAndroidX")
 public fun RemoteIntroOutroCurvedProgressIndicator(
     progress: RemoteFloat,
     modifier: RemoteModifier = RemoteModifier,
@@ -186,7 +186,6 @@ public fun RemoteIntroOutroCurvedProgressIndicator(
 
 @RemoteComposable
 @Composable
-@Suppress("RestrictedApiAndroidX")
 private fun RemoteCurvedProgressIndicatorImpl(
     progress: RemoteFloat,
     animateIntroOutro: Boolean,
@@ -426,20 +425,16 @@ private fun calculateCollapsibleArcParams(
  *
  * Between the two springs, the indicator at X % is the mirror image of the one at (100 - X) %.
  */
-@Suppress("RestrictedApiAndroidX")
-private fun RemoteDrawScope.calculateAnimatedProgress(
+private fun calculateAnimatedProgress(
     progress: RemoteFloat,
     countDown: RemoteBoolean,
     endFraction: RemoteFloat,
 ): RemoteFloat {
     val elapsedProgress = countDown.select(ifTrue = 1.0f.rf - progress, ifFalse = progress)
 
+    val springSpec = remoteSpring(stiffness = SPRING_STIFFNESS, dampingRatio = SPRING_DAMPING_RATIO)
     val animateScale = { target: RemoteFloat ->
-        remote.animateSpring(
-            rf = target,
-            stiffness = SPRING_STIFFNESS,
-            dampingRatio = SPRING_DAMPING_RATIO,
-        )
+        animateRemoteFloatAsState(targetValue = target, animationSpec = springSpec)
     }
     val introScale =
         animateScale(

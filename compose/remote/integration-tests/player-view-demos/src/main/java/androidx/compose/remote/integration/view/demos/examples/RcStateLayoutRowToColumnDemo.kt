@@ -59,6 +59,7 @@ import androidx.compose.remote.creation.modifiers.RoundedRectShape
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color as ComposeColor
 
 /**
  * Demo showing a StateLayout transition with 3 colored boxes. State 0 arranges the 3 boxes
@@ -162,7 +163,7 @@ fun StateLayoutRowToColumnDemo() {
                     modifier =
                         RemoteModifier.fillMaxWidth()
                             .height(260.rdp)
-                            .background(androidx.compose.ui.graphics.Color.LightGray.rc),
+                            .background(ComposeColor.LightGray.rc),
                     horizontalArrangement = RemoteArrangement.SpaceEvenly,
                     verticalAlignment = RemoteAlignment.CenterVertically,
                 ) {
@@ -170,20 +171,20 @@ fun StateLayoutRowToColumnDemo() {
                         modifier =
                             RemoteModifier.animationSpec(100, true)
                                 .size(60.rdp)
-                                .background(androidx.compose.ui.graphics.Color.Red.rc)
+                                .background(ComposeColor.Red.rc)
                     )
                     RemoteBox(
                         modifier =
                             RemoteModifier.animationSpec(101, true)
                                 .size(60.rdp)
                                 .weight(1f)
-                                .background(androidx.compose.ui.graphics.Color.Green.rc)
+                                .background(ComposeColor.Green.rc)
                     )
                     RemoteBox(
                         modifier =
                             RemoteModifier.animationSpec(102, true)
                                 .size(60.rdp)
-                                .background(androidx.compose.ui.graphics.Color.Blue.rc)
+                                .background(ComposeColor.Blue.rc)
                     )
                 }
             } else {
@@ -192,7 +193,7 @@ fun StateLayoutRowToColumnDemo() {
                     modifier =
                         RemoteModifier.fillMaxWidth()
                             .height(260.rdp)
-                            .background(androidx.compose.ui.graphics.Color.LightGray.rc),
+                            .background(ComposeColor.LightGray.rc),
                     horizontalAlignment = RemoteAlignment.CenterHorizontally,
                     verticalArrangement = RemoteArrangement.SpaceEvenly,
                 ) {
@@ -200,19 +201,19 @@ fun StateLayoutRowToColumnDemo() {
                         modifier =
                             RemoteModifier.animationSpec(100, true)
                                 .size(60.rdp)
-                                .background(androidx.compose.ui.graphics.Color.Red.rc)
+                                .background(ComposeColor.Red.rc)
                     )
                     RemoteBox(
                         modifier =
                             RemoteModifier.animationSpec(101, true)
                                 .size(120.rdp)
-                                .background(androidx.compose.ui.graphics.Color.Green.rc)
+                                .background(ComposeColor.Green.rc)
                     )
                     RemoteBox(
                         modifier =
                             RemoteModifier.animationSpec(102, true)
                                 .size(60.rdp)
-                                .background(androidx.compose.ui.graphics.Color.Blue.rc)
+                                .background(ComposeColor.Blue.rc)
                     )
                 }
             }
@@ -226,13 +227,13 @@ fun StateLayoutRowToColumnDemo() {
                 RemoteModifier.width(160.rdp)
                     .height(48.rdp)
                     .clip(RemoteRoundedCornerShape(12.rdp))
-                    .background(androidx.compose.ui.graphics.Color.DarkGray.rc)
+                    .background(ComposeColor.DarkGray.rc)
                     .clickable(valueChangeAction(isEndState, !isEndState)),
             contentAlignment = RemoteAlignment.Center,
         ) {
             RemoteText(
                 "Toggle State".rs,
-                color = androidx.compose.ui.graphics.Color.White.rc,
+                color = ComposeColor.White.rc,
                 fontSize = 18.rsp,
             )
         }

@@ -18,11 +18,12 @@ package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Immutable
+import kotlin.jvm.JvmInline
 
 /** Blend mode algorithms used to determine how source and destination pixels are combined. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
-@kotlin.jvm.JvmInline
+@JvmInline
 public value class RemoteBlendMode internal constructor(public val value: Int) {
     override fun toString(): String =
         when (this) {

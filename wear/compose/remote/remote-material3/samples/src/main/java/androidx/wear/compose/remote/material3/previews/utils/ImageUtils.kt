@@ -18,16 +18,17 @@ package androidx.wear.compose.remote.material3.previews.utils
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 
 fun createImage(tw: Int, th: Int): Bitmap {
     val image = Bitmap.createBitmap(tw, th, Bitmap.Config.ARGB_8888)
-    image.eraseColor(android.graphics.Color.BLUE)
+    image.eraseColor(Color.BLUE)
     val paint = Paint()
     val canvas = Canvas(image)
     paint.strokeWidth = 3f
     paint.isAntiAlias = true
-    paint.setColor(android.graphics.Color.RED)
+    paint.setColor(Color.RED)
     canvas.drawLine(0f, 0f, tw.toFloat(), th.toFloat(), paint)
     canvas.drawLine(0f, th.toFloat(), tw.toFloat(), 0f, paint)
     return image

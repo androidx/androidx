@@ -256,8 +256,8 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                             .background(Color.LightGray.rc)
                 ) {
                     val blue = Color.Blue
-                    val w = remote.component.width
-                    val h = remote.component.height
+                    val w = width
+                    val h = height
                     val topLeft = RemoteOffset(0f, 0f)
                     val topRight = RemoteOffset(w, 0f.rf)
                     val bottomLeft = RemoteOffset(0f.rf, h)

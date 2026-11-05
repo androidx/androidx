@@ -22,6 +22,11 @@ import androidx.compose.remote.core.operations.ComponentValue
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.layout.RemoteComponentToken
+import androidx.compose.remote.creation.compose.state.AnimatedRemoteFloat
+import androidx.compose.remote.creation.compose.state.BaseRemoteStateCacheKey
+import androidx.compose.remote.creation.compose.state.RemoteFloatExpression
+import androidx.compose.remote.creation.compose.state.RemoteIntExpression
+import androidx.compose.remote.creation.compose.state.RemoteOperationCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
 import androidx.compose.remote.creation.compose.state.nanIdContentEquals
 import androidx.compose.remote.creation.compose.state.nanIdContentHashCode
@@ -231,6 +236,100 @@ public open class RemoteComposeCreationState : RemoteDocumentScope {
         return Utils.idFromNan(nanEncodedId)
     }
 
+    private class CanvasOperationsScopeFrame {
+        val floatExpressionKeys: ArrayList<LoweredFloatExpressionKey> = ArrayList()
+        val intExpressionKeys: ArrayList<LoweredIntExpressionKey> = ArrayList()
+        val variableKeys: ArrayList<RemoteStateCacheKey> = ArrayList()
+        val floatArrayKeys: ArrayList<RemoteStateCacheKey> = ArrayList()
+        val longArrayKeys: ArrayList<RemoteStateCacheKey> = ArrayList()
+    }
+
+    private val canvasOperationsScopes: ArrayList<CanvasOperationsScopeFrame> = ArrayList()
+
+    /**
+     * Enters a paint-scoped canvas block (`CanvasOperations` or `CanvasContent`).
+     *
+     * Expressions emitted into [document] while a canvas block is active live inside that canvas
+     * container's operation list and are only re-evaluated during `paint()`, not during
+     * `measure()`. Tracking and evicting newly cached computed expressions when the block exits
+     * preserves common subexpression elimination within the canvas block while preventing
+     * subsequent sibling or child layout/modifier expressions from referencing paint-only
+     * expression IDs.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun enterCanvasOperationsScope() {
+        canvasOperationsScopes.add(CanvasOperationsScopeFrame())
+    }
+
+    /** Exits the current paint-scoped canvas block and evicts computed expressions added in it. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun exitCanvasOperationsScope() {
+        val frame = canvasOperationsScopes.removeAt(canvasOperationsScopes.lastIndex)
+        for (i in 0 until frame.floatExpressionKeys.size) {
+            floatExpressionIds.remove(frame.floatExpressionKeys[i])
+        }
+        for (i in 0 until frame.intExpressionKeys.size) {
+            intExpressionIds.remove(frame.intExpressionKeys[i])
+        }
+        for (i in 0 until frame.variableKeys.size) {
+            remoteVariableToId.remove(frame.variableKeys[i])
+        }
+        for (i in 0 until frame.floatArrayKeys.size) {
+            floatArrayCache.remove(frame.floatArrayKeys[i])
+        }
+        for (i in 0 until frame.longArrayKeys.size) {
+            longArrayCache.remove(frame.longArrayKeys[i])
+        }
+    }
+
+    /**
+     * Runs [block] inside a paint-scoped canvas expression cache frame.
+     *
+     * @see enterCanvasOperationsScope
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public inline fun <T> withCanvasOperationsScope(block: () -> T): T {
+        enterCanvasOperationsScope()
+        try {
+            return block()
+        } finally {
+            exitCanvasOperationsScope()
+        }
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun recordScopedFloatArrayKey(key: RemoteStateCacheKey) {
+        if (canvasOperationsScopes.isNotEmpty()) {
+            canvasOperationsScopes[canvasOperationsScopes.lastIndex].floatArrayKeys.add(key)
+        }
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun recordScopedLongArrayKey(key: RemoteStateCacheKey) {
+        if (canvasOperationsScopes.isNotEmpty()) {
+            canvasOperationsScopes[canvasOperationsScopes.lastIndex].longArrayKeys.add(key)
+        }
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun recordScopedVariableKey(key: RemoteStateCacheKey) {
+        if (canvasOperationsScopes.isNotEmpty() && key.isCanvasScopedExpressionKey()) {
+            canvasOperationsScopes[canvasOperationsScopes.lastIndex].variableKeys.add(key)
+        }
+    }
+
+    internal fun recordScopedFloatExpressionKey(key: LoweredFloatExpressionKey) {
+        if (canvasOperationsScopes.isNotEmpty()) {
+            canvasOperationsScopes[canvasOperationsScopes.lastIndex].floatExpressionKeys.add(key)
+        }
+    }
+
+    internal fun recordScopedIntExpressionKey(key: LoweredIntExpressionKey) {
+        if (canvasOperationsScopes.isNotEmpty()) {
+            canvasOperationsScopes[canvasOperationsScopes.lastIndex].intExpressionKeys.add(key)
+        }
+    }
+
     /**
      * Returns the cached [FloatArray] for [key], or computes and caches it using [compute].
      *
@@ -240,7 +339,15 @@ public open class RemoteComposeCreationState : RemoteDocumentScope {
     public inline fun getOrPutFloatArray(
         key: RemoteStateCacheKey,
         crossinline compute: () -> FloatArray,
-    ): FloatArray = floatArrayCache.getOrPut(key) { compute() }
+    ): FloatArray {
+        floatArrayCache[key]?.let {
+            return it
+        }
+        val computed = compute()
+        floatArrayCache[key] = computed
+        recordScopedFloatArrayKey(key)
+        return computed
+    }
 
     /**
      * Returns the cached [LongArray] for [key], or computes and caches it using [compute].
@@ -251,7 +358,15 @@ public open class RemoteComposeCreationState : RemoteDocumentScope {
     public inline fun getOrPutLongArray(
         key: RemoteStateCacheKey,
         crossinline compute: () -> LongArray,
-    ): LongArray = longArrayCache.getOrPut(key) { compute() }
+    ): LongArray {
+        longArrayCache[key]?.let {
+            return it
+        }
+        val computed = compute()
+        longArrayCache[key] = computed
+        recordScopedLongArrayKey(key)
+        return computed
+    }
 
     /**
      * Returns the id of a float expression with the same lowered [array] and [animation] that was
@@ -261,7 +376,17 @@ public open class RemoteComposeCreationState : RemoteDocumentScope {
         array: FloatArray,
         animation: FloatArray?,
         crossinline write: () -> Int,
-    ): Int = floatExpressionIds.getOrPut(LoweredFloatExpressionKey(array, animation)) { write() }
+    ): Int {
+        val key = LoweredFloatExpressionKey(array, animation)
+        val existing = floatExpressionIds.getOrDefault(key, -1)
+        if (existing != -1) {
+            return existing
+        }
+        val id = write()
+        floatExpressionIds.put(key, id)
+        recordScopedFloatExpressionKey(key)
+        return id
+    }
 
     /**
      * Returns the id of an integer expression with the same lowered [array] that was already
@@ -270,7 +395,17 @@ public open class RemoteComposeCreationState : RemoteDocumentScope {
     internal inline fun getOrPutIntExpressionId(
         array: LongArray,
         crossinline write: () -> Int,
-    ): Int = intExpressionIds.getOrPut(LoweredIntExpressionKey(array)) { write() }
+    ): Int {
+        val key = LoweredIntExpressionKey(array)
+        val existing = intExpressionIds.getOrDefault(key, -1)
+        if (existing != -1) {
+            return existing
+        }
+        val id = write()
+        intExpressionIds.put(key, id)
+        recordScopedIntExpressionKey(key)
+        return id
+    }
 
     /** Clears all caches tied to the current [document]. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -281,6 +416,7 @@ public open class RemoteComposeCreationState : RemoteDocumentScope {
         floatArrayCache.clear()
         longArrayCache.clear()
         tokenComponentStates.clear()
+        canvasOperationsScopes.clear()
         currentRenderingNode = null
     }
 
@@ -298,10 +434,19 @@ public open class RemoteComposeCreationState : RemoteDocumentScope {
         if (id == -1) {
             val nextId = compute()
             remoteVariableToId.put(key, nextId)
+            recordScopedVariableKey(key)
             return nextId
         }
         return id
     }
+}
+
+private fun RemoteStateCacheKey.isCanvasScopedExpressionKey(): Boolean {
+    if (this is RemoteOperationCacheKey) return true
+    val state = (this as? BaseRemoteStateCacheKey)?.getState() ?: return false
+    return state is RemoteFloatExpression ||
+        state is AnimatedRemoteFloat ||
+        state is RemoteIntExpression
 }
 
 /**
