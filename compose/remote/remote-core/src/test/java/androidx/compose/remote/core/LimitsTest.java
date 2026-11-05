@@ -20,6 +20,7 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import androidx.compose.remote.core.operations.BitmapData;
+import androidx.compose.remote.core.operations.layout.modifiers.EventHandlerModifierOperation;
 
 import org.junit.Test;
 
@@ -249,7 +250,7 @@ public class LimitsTest {
     }
 
     @Test
-    public void testEventActionOperationDataLenLimit() {
+    public void testEventHandlerModifierOperationDataLenLimit() {
         WireBuffer buffer = new WireBuffer();
         buffer.writeInt(0); // version
         buffer.writeInt(1); // type
@@ -261,9 +262,7 @@ public class LimitsTest {
 
         assertThrows(
                 RuntimeException.class,
-                () ->
-                        androidx.compose.remote.core.operations.EventActionOperation.read(
-                                buffer, new ArrayList<>()));
+                () -> EventHandlerModifierOperation.read(buffer, new ArrayList<>()));
     }
 
     @Test

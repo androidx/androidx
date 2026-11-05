@@ -73,7 +73,6 @@ import androidx.compose.remote.core.Operations.DRAW_TEXT_RUN
 import androidx.compose.remote.core.Operations.DRAW_TO_BITMAP
 import androidx.compose.remote.core.Operations.DRAW_TWEEN_PATH
 import androidx.compose.remote.core.Operations.DYNAMIC_FLOAT_LIST
-import androidx.compose.remote.core.Operations.EVENT_ACTION
 import androidx.compose.remote.core.Operations.FLOAT_LIST
 import androidx.compose.remote.core.Operations.FUNCTION_CALL
 import androidx.compose.remote.core.Operations.FUNCTION_DEFINE
@@ -132,6 +131,7 @@ import androidx.compose.remote.core.Operations.MODIFIER_CLIP_RECT
 import androidx.compose.remote.core.Operations.MODIFIER_COLLAPSIBLE_PRIORITY
 import androidx.compose.remote.core.Operations.MODIFIER_DIMENSION_CONSTRAINTS
 import androidx.compose.remote.core.Operations.MODIFIER_DRAW_CONTENT
+import androidx.compose.remote.core.Operations.MODIFIER_EVENT_HANDLER
 import androidx.compose.remote.core.Operations.MODIFIER_GRAPHICS_LAYER
 import androidx.compose.remote.core.Operations.MODIFIER_HEIGHT
 import androidx.compose.remote.core.Operations.MODIFIER_HEIGHT_IN
@@ -235,7 +235,6 @@ import androidx.compose.remote.core.operations.DrawTextAnchored
 import androidx.compose.remote.core.operations.DrawTextOnPath
 import androidx.compose.remote.core.operations.DrawToBitmap
 import androidx.compose.remote.core.operations.DrawTweenPath
-import androidx.compose.remote.core.operations.EventActionOperation
 import androidx.compose.remote.core.operations.FloatConstant
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.FloatFunctionCall
@@ -329,6 +328,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.CollapsiblePrior
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.DrawContentOperation
+import androidx.compose.remote.core.operations.layout.modifiers.EventHandlerModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.HeightInModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.HeightModifierOperation
@@ -987,7 +987,7 @@ class OperationsProfilesTest {
                     ANIMATED_FLOAT to FloatExpression::class.java,
                     MODIFIER_MULTI_CLICK to MultiClickModifier::class.java,
                     LAYOUT_CUSTOM to Custom::class.java,
-                    EVENT_ACTION to EventActionOperation::class.java,
+                    MODIFIER_EVENT_HANDLER to EventHandlerModifierOperation::class.java,
                     DATA_BITMAP to BitmapData::class.java,
                     DATA_TEXT to TextData::class.java,
                     ROOT_CONTENT_DESCRIPTION to RootContentDescription::class.java,
@@ -1328,7 +1328,7 @@ class OperationsProfilesTest {
                     ANIMATED_FLOAT to FloatExpression::class.java,
                     MODIFIER_MULTI_CLICK to MultiClickModifier::class.java,
                     LAYOUT_CUSTOM to Custom::class.java,
-                    EVENT_ACTION to EventActionOperation::class.java,
+                    MODIFIER_EVENT_HANDLER to EventHandlerModifierOperation::class.java,
                     DATA_BITMAP to BitmapData::class.java,
                     DATA_TEXT to TextData::class.java,
                     ROOT_CONTENT_DESCRIPTION to RootContentDescription::class.java,

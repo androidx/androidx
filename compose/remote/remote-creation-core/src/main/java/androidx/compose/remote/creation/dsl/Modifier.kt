@@ -24,6 +24,7 @@ import androidx.compose.remote.core.operations.layout.MultiClickModifier
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.modifiers.ClickActionModifier
+import androidx.compose.remote.creation.modifiers.EventHandlerModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.Shape
 import androidx.compose.remote.creation.modifiers.TouchActionModifier
@@ -207,6 +208,26 @@ public fun Modifier.onTouchUp(block: RcActionScope.() -> Unit): Modifier =
 /** onTouchCancel modifier with ActionScope. */
 public fun Modifier.onTouchCancel(block: RcActionScope.() -> Unit): Modifier =
     then(TouchActionModifierElement(block, TouchActionModifier.CANCEL))
+
+/**
+ * onEvent modifier with ActionScope. Runs [block]'s actions when an event of [type] whose metadata
+ * equals [filter] is dispatched to the component.
+ *
+ * @param type type identifying compatible events
+ * @param filter filter metadata required to match the event
+ * @param flags routing specific status flags returned on success
+ * @param dataIds optional mapping of input payload indices to target float variables
+ * @param condition optional RPN condition used to conditionally trigger actions
+ * @param block the actions to execute
+ */
+public fun Modifier.onEvent(
+    type: Int,
+    filter: Int,
+    flags: Int = 0,
+    dataIds: IntArray? = null,
+    condition: FloatArray? = null,
+    block: RcActionScope.() -> Unit,
+): Modifier = then(EventHandlerModifierElement(type, filter, flags, dataIds, condition, block))
 
 /** horizontalScroll modifier. */
 public fun Modifier.horizontalScroll(): Modifier = then(HorizontalScrollModifier)
@@ -678,6 +699,26 @@ internal class TouchActionModifierElement(val block: RcActionScope.() -> Unit, v
         val actions = scope.build(writer)
         val legacyModifier = TouchActionModifier(touchType, actions)
         legacyModifier.write(writer)
+    }
+}
+
+internal class EventHandlerModifierElement(
+    val type: Int,
+    val filter: Int,
+    val flags: Int,
+    val dataIds: IntArray?,
+    val condition: FloatArray?,
+    val block: RcActionScope.() -> Unit,
+) : RecordingModifierElement, RecordingModifier.Element {
+    override fun applyTo(modifier: RecordingModifier) {
+        modifier.then(this)
+    }
+
+    override fun write(writer: RemoteComposeWriter) {
+        val scope = RcActionScopeImpl()
+        scope.block()
+        val actions = scope.build(writer)
+        EventHandlerModifier(type, filter, flags, dataIds, condition, actions).write(writer)
     }
 }
 

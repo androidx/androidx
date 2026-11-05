@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.remote.core.operations;
+package androidx.compose.remote.core.operations.layout.modifiers;
 
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
@@ -23,28 +23,42 @@ import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.WireBuffer;
+import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.events.Event;
 import androidx.compose.remote.core.events.EventHandler;
 import androidx.compose.remote.core.events.EventManager;
+import androidx.compose.remote.core.operations.FloatExpression;
+import androidx.compose.remote.core.operations.TextData;
 import androidx.compose.remote.core.operations.layout.ActionOperation;
 import androidx.compose.remote.core.operations.layout.Container;
+import androidx.compose.remote.core.operations.utilities.StringSerializer;
+import androidx.compose.remote.core.serialize.MapSerializer;
+import androidx.compose.remote.core.serialize.SerializeTags;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-/** Handles dispatched events by mapping payloads and running nested actions conditionally. */
+/**
+ * Modifier handling dispatched events by mapping payloads and running nested actions
+ * conditionally.
+ *
+ * <p>This operation is only guaranteed to work when used as a modifier of a component; it is
+ * registered with the {@link EventManager} when its enclosing {@link ComponentModifiers} is
+ * applied.
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class EventActionOperation extends Operation implements EventHandler, Container,
-        ComponentData {
+public class EventHandlerModifierOperation extends Operation
+        implements ModifierOperation, Container, EventHandler {
 
-    private static final int OP_CODE = Operations.EVENT_ACTION;
+    private static final int OP_CODE = Operations.MODIFIER_EVENT_HANDLER;
     private static final int VERSION = 0;
 
     /** The serializable class name. */
-    public static final String CLASS_NAME = "EventActionOperation";
+    public static final String CLASS_NAME = "EventHandlerModifierOperation";
 
     final int mType;
     final int mFilter;
@@ -54,7 +68,7 @@ public class EventActionOperation extends Operation implements EventHandler, Con
     @NonNull private final ArrayList<Operation> mOperations = new ArrayList<>();
 
     /**
-     * Constructs a new EventActionOperation.
+     * Constructs a new EventHandlerModifierOperation.
      *
      * @param type type identifying compatible events
      * @param filter filter metadata required to match onEvent
@@ -62,7 +76,7 @@ public class EventActionOperation extends Operation implements EventHandler, Con
      * @param dataIds optional mapping of input payload indices to target float variables
      * @param condition optional RPN condition used to conditionally trigger actions
      */
-    public EventActionOperation(
+    public EventHandlerModifierOperation(
             int type,
             int filter,
             int flags,
@@ -129,6 +143,14 @@ public class EventActionOperation extends Operation implements EventHandler, Con
 
     @Override
     public void apply(@NonNull RemoteContext context) {
+        // Nested actions may carry inline TextData (e.g. the string of a ValueStringChange or the
+        // name of a HostAction). Apply them so the text is available when the event fires.
+        for (Operation op : mOperations) {
+            if (op instanceof TextData) {
+                op.apply(context);
+                context.incrementOpCount();
+            }
+        }
         if (context.getMode() == RemoteContext.ContextMode.DATA) {
             context.getEventManager().registerHandler(this);
         }
@@ -140,12 +162,81 @@ public class EventActionOperation extends Operation implements EventHandler, Con
     }
 
     @Override
+    public @NonNull String toString() {
+        return "EventHandlerModifier("
+                + "type=" + mType
+                + ", filter=" + mFilter
+                + ", flags=" + mFlags
+                + ")";
+    }
+
+    @Override
     public @NonNull String deepToString(@NonNull String indent) {
         return indent + this;
     }
 
     /**
-     * Serializes EventActionOperation attributes to the provided buffer.
+     * Serializes this modifier and its nested actions as indented text.
+     *
+     * @param indent padding to display
+     * @param serializer append the string
+     */
+    @Override
+    public void serializeToString(int indent, @NonNull StringSerializer serializer) {
+        serializer.append(
+                indent,
+                "EVENT_HANDLER_MODIFIER type=" + mType + " filter=" + mFilter + " flags=" + mFlags);
+        for (Operation o : mOperations) {
+            if (o instanceof ActionOperation) {
+                ((ActionOperation) o).serializeToString(indent + 1, serializer);
+            }
+        }
+    }
+
+    /**
+     * Serializes this modifier into the provided map serializer.
+     *
+     * @param serializer the target map serializer
+     */
+    @Override
+    public void serialize(@NonNull MapSerializer serializer) {
+        serializer
+                .addTags(SerializeTags.MODIFIER)
+                .addType(CLASS_NAME)
+                .add("type", mType)
+                .add("filter", mFilter)
+                .add("flags", mFlags)
+                .add("dataIds", mDataIds == null ? null : Arrays.toString(mDataIds));
+        if (mCondition != null) {
+            serializer.addFloatExpressionSrc("condition", mCondition);
+        }
+        serializer.add("actions", mOperations);
+    }
+
+    /**
+     * The name of the class
+     *
+     * @return the name
+     */
+    public static @NonNull String name() {
+        return CLASS_NAME;
+    }
+
+    /**
+     * Populate the documentation with a description of this operation
+     *
+     * @param doc to append the description to.
+     */
+    public static void documentation(@NonNull DocumentationBuilder doc) {
+        doc.operation("Modifier Operations", OP_CODE, name())
+                .description(
+                        "Event handler modifier. Maps the payload of a matching event onto"
+                                + " float variables and runs the nested list of action"
+                                + " operations when the optional condition holds.");
+    }
+
+    /**
+     * Serializes EventHandlerModifierOperation attributes to the provided buffer.
      *
      * @param buffer the target wire buffer
      * @param type the event type
@@ -199,7 +290,7 @@ public class EventActionOperation extends Operation implements EventHandler, Con
     }
 
     /**
-     * Deserializes and inflates EventActionOperation from the provided buffer.
+     * Deserializes and inflates EventHandlerModifierOperation from the provided buffer.
      *
      * @param buffer the source wire buffer
      * @param operations target collection to append the parsed operation
@@ -207,7 +298,8 @@ public class EventActionOperation extends Operation implements EventHandler, Con
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int version = buffer.readInt();
         if (version != 0) {
-            throw new RuntimeException("Unsupported EventActionOperation version: " + version);
+            throw new RuntimeException(
+                    "Unsupported EventHandlerModifierOperation version: " + version);
         }
         int type = buffer.readInt();
         int filter = buffer.readInt();
@@ -237,7 +329,7 @@ public class EventActionOperation extends Operation implements EventHandler, Con
                 condition[i] = buffer.readNanId();
             }
         }
-        operations.add(new EventActionOperation(type, filter, flags, dataIds, condition));
+        operations.add(new EventHandlerModifierOperation(type, filter, flags, dataIds, condition));
     }
 
     /** Utility for packing and unpacking standard 16-bit common communication flags. */

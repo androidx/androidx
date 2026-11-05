@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.remote.core.operations
+package androidx.compose.remote.core.operations.layout.modifiers
 
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteContext
@@ -24,12 +24,14 @@ import androidx.compose.remote.core.events.Event
 import androidx.compose.remote.core.events.EventHandler
 import androidx.compose.remote.core.events.EventManager
 import androidx.compose.remote.core.events.EventRouter
+import androidx.compose.remote.core.operations.FloatExpression
+import androidx.compose.remote.core.operations.ShaderData
 import androidx.compose.remote.core.operations.utilities.ArrayAccess
 import androidx.compose.remote.core.operations.utilities.DataMap
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
 
-class EventActionOperationRegistrationTest {
+class EventHandlerModifierOperationRegistrationTest {
 
     @Test
     fun `apply in DATA mode registers handler with matching EventRouters`() {
@@ -39,13 +41,13 @@ class EventActionOperationRegistrationTest {
         eventManager.registerRouter(EVENT_TYPE_1, router)
 
         val context = RegistrationRemoteContext(ContextMode.DATA, eventManager)
-        val eventActionOperation = EventActionOperation(EVENT_TYPE_1, 0, 0, null, null)
+        val eventHandlerModifier = EventHandlerModifierOperation(EVENT_TYPE_1, 0, 0, null, null)
 
         // Act.
-        eventActionOperation.apply(context)
+        eventHandlerModifier.apply(context)
 
         // Assert.
-        assertThat(router.registeredHandlers).containsExactly(eventActionOperation)
+        assertThat(router.registeredHandlers).containsExactly(eventHandlerModifier)
     }
 
     @Test
@@ -56,10 +58,10 @@ class EventActionOperationRegistrationTest {
         eventManager.registerRouter(EVENT_TYPE_2, router)
 
         val context = RegistrationRemoteContext(ContextMode.DATA, eventManager)
-        val eventActionOperation = EventActionOperation(EVENT_TYPE_1, 0, 0, null, null)
+        val eventHandlerModifier = EventHandlerModifierOperation(EVENT_TYPE_1, 0, 0, null, null)
 
         // Act.
-        eventActionOperation.apply(context)
+        eventHandlerModifier.apply(context)
 
         // Assert.
         assertThat(router.registeredHandlers).isEmpty()
@@ -73,10 +75,10 @@ class EventActionOperationRegistrationTest {
         eventManager.registerRouter(EVENT_TYPE_1, router)
 
         val context = RegistrationRemoteContext(ContextMode.PAINT, eventManager)
-        val eventActionOperation = EventActionOperation(EVENT_TYPE_1, 0, 0, null, null)
+        val eventHandlerModifier = EventHandlerModifierOperation(EVENT_TYPE_1, 0, 0, null, null)
 
         // Act.
-        eventActionOperation.apply(context)
+        eventHandlerModifier.apply(context)
 
         // Assert.
         assertThat(router.registeredHandlers).isEmpty()
@@ -90,10 +92,10 @@ class EventActionOperationRegistrationTest {
         eventManager.registerRouter(EVENT_TYPE_1, router)
 
         val context = RegistrationRemoteContext(ContextMode.UNSET, eventManager)
-        val eventActionOperation = EventActionOperation(EVENT_TYPE_1, 0, 0, null, null)
+        val eventHandlerModifier = EventHandlerModifierOperation(EVENT_TYPE_1, 0, 0, null, null)
 
         // Act.
-        eventActionOperation.apply(context)
+        eventHandlerModifier.apply(context)
 
         // Assert.
         assertThat(router.registeredHandlers).isEmpty()
@@ -107,16 +109,16 @@ class EventActionOperationRegistrationTest {
         eventManager.registerRouter(EVENT_TYPE_1, router)
 
         val context = RegistrationRemoteContext(ContextMode.DATA, eventManager)
-        val eventActionOperation1 = EventActionOperation(EVENT_TYPE_1, 0, 0, null, null)
-        val eventActionOperation2 = EventActionOperation(EVENT_TYPE_1, 0, 0, null, null)
+        val eventHandlerModifier1 = EventHandlerModifierOperation(EVENT_TYPE_1, 0, 0, null, null)
+        val eventHandlerModifier2 = EventHandlerModifierOperation(EVENT_TYPE_1, 0, 0, null, null)
 
         // Act.
-        eventActionOperation1.apply(context)
-        eventActionOperation2.apply(context)
+        eventHandlerModifier1.apply(context)
+        eventHandlerModifier2.apply(context)
 
         // Assert.
         assertThat(router.registeredHandlers)
-            .containsExactly(eventActionOperation1, eventActionOperation2)
+            .containsExactly(eventHandlerModifier1, eventHandlerModifier2)
             .inOrder()
     }
 
@@ -130,16 +132,34 @@ class EventActionOperationRegistrationTest {
         eventManager.registerRouter(EVENT_TYPE_2, router2)
 
         val context = RegistrationRemoteContext(ContextMode.DATA, eventManager)
-        val eventActionOperation1 = EventActionOperation(EVENT_TYPE_1, 0, 0, null, null)
-        val eventActionOperation2 = EventActionOperation(EVENT_TYPE_2, 0, 0, null, null)
+        val eventHandlerModifier1 = EventHandlerModifierOperation(EVENT_TYPE_1, 0, 0, null, null)
+        val eventHandlerModifier2 = EventHandlerModifierOperation(EVENT_TYPE_2, 0, 0, null, null)
 
         // Act.
-        eventActionOperation1.apply(context)
-        eventActionOperation2.apply(context)
+        eventHandlerModifier1.apply(context)
+        eventHandlerModifier2.apply(context)
 
         // Assert.
-        assertThat(router1.registeredHandlers).containsExactly(eventActionOperation1)
-        assertThat(router2.registeredHandlers).containsExactly(eventActionOperation2)
+        assertThat(router1.registeredHandlers).containsExactly(eventHandlerModifier1)
+        assertThat(router2.registeredHandlers).containsExactly(eventHandlerModifier2)
+    }
+
+    @Test
+    fun `applying the enclosing ComponentModifiers in DATA mode registers the handler`() {
+        // Arrange.
+        val eventManager = EventManager()
+        val router = TestEventRouter()
+        eventManager.registerRouter(EVENT_TYPE_1, router)
+
+        val context = RegistrationRemoteContext(ContextMode.DATA, eventManager)
+        val eventHandlerModifier = EventHandlerModifierOperation(EVENT_TYPE_1, 0, 0, null, null)
+        val componentModifiers = ComponentModifiers().apply { add(eventHandlerModifier) }
+
+        // Act.
+        componentModifiers.apply(context)
+
+        // Assert.
+        assertThat(router.registeredHandlers).containsExactly(eventHandlerModifier)
     }
 
     companion object {

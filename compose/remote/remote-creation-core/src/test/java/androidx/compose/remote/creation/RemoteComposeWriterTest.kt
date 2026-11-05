@@ -21,13 +21,16 @@ import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.SystemInfo
-import androidx.compose.remote.core.operations.EventActionOperation
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.PathData
 import androidx.compose.remote.core.operations.TextData
+import androidx.compose.remote.core.operations.layout.RootLayoutComponent
+import androidx.compose.remote.core.operations.layout.managers.BoxLayout
+import androidx.compose.remote.core.operations.layout.modifiers.EventHandlerModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.ValueFloatChangeActionOperation
 import androidx.compose.remote.core.operations.utilities.IntMap
 import androidx.compose.remote.creation.actions.Action
+import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.profile.Profile
 import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
@@ -310,7 +313,7 @@ class RemoteComposeWriterTest {
     }
 
     @Test
-    fun onEvent_serializesEventActionContainerAndNestedActionChildren() {
+    fun onEvent_modifierSerializesEventHandlerModifierAndNestedActionChildren() {
         // Arrange.
         val expWriter =
             createProfile(
@@ -324,7 +327,14 @@ class RemoteComposeWriterTest {
                 { actual, expected -> actual.toString() == expected.toString() },
                 "matches serialization of",
             )
-        expWriter.onEvent(0, 0, 0, null, null, action1, action2)
+        val dataIds = intArrayOf(7001, 7002)
+        val condition = floatArrayOf(1f)
+        expWriter.root {
+            expWriter.startBox(
+                RecordingModifier().onEvent(10, 20, 30, dataIds, condition, action1, action2)
+            )
+            expWriter.endBox()
+        }
 
         // Act.
         val doc =
@@ -332,10 +342,18 @@ class RemoteComposeWriterTest {
                 expWriter,
                 profileMask = RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
             )
-        val eventAction = doc.operations.filterIsInstance<EventActionOperation>().first()
+        val root = doc.operations.filterIsInstance<RootLayoutComponent>().single()
+        val box = root.list.filterIsInstance<BoxLayout>().single()
+        val eventHandler =
+            box.componentModifiers.modifiersList
+                .filterIsInstance<EventHandlerModifierOperation>()
+                .single()
 
-        // Assert - Verify nesting of written child actions inside the container.
-        assertThat(eventAction.list)
+        // Assert - The modifier is attached to the box and nests the written child actions.
+        assertThat(box.list.filterIsInstance<EventHandlerModifierOperation>()).isEmpty()
+        assertThat(eventHandler.toString())
+            .isEqualTo("EventHandlerModifier(type=10, filter=20, flags=30)")
+        assertThat(eventHandler.list)
             .comparingElementsUsing(stringValueMatcher)
             .containsExactly(
                 ValueFloatChangeActionOperation(5001, 15.5f),
