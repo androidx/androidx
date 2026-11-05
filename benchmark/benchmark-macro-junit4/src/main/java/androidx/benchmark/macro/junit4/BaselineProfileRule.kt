@@ -66,7 +66,7 @@ public class BaselineProfileRule : TestRule {
      * @param stableIterations Minimum number of iterations to observe as stable before assuming
      *   stability, and completing profile generation.
      * @param outputFilePrefix An optional file name prefix used when creating the output file with
-     *   the contents of the human-readable baseline profile. For example:
+     *   the contents of the human readable baseline profile. For example:
      *   `outputFilePrefix-baseline-prof.txt`
      * @param includeInStartupProfile determines whether the generated profile should be also used
      *   as a startup profile. A startup profile is utilized during the build process in order to
@@ -112,7 +112,7 @@ public class BaselineProfileRule : TestRule {
      * @param stableIterations Minimum number of iterations to observe as stable before assuming
      *   stability, and completing profile generation.
      * @param outputFilePrefix An optional file name prefix used when creating the output file with
-     *   the contents of the human-readable baseline profile. For example:
+     *   the contents of the human readable baseline profile. For example:
      *   `outputFilePrefix-baseline-prof.txt`
      * @param includeInStartupProfile determines whether the generated profile should be also used
      *   as a startup profile. A startup profile is utilized during the build process in order to
@@ -170,8 +170,6 @@ public class BaselineProfileRule : TestRule {
             strictStability = config.isStrictStability(),
             filterPredicate = config.getFilterPredicate(),
             profileBlock = config.getProfileBlock(),
-            maxLoadOrderIterations = config.getMaxLoadOrderIterations(),
-            restrictLoadOrderToDataDirectory = config.isRestrictLoadOrderToDataDirectory(),
         )
     }
 
