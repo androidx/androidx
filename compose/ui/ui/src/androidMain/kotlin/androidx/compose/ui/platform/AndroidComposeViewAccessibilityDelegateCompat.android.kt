@@ -2755,6 +2755,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 }
 
             var propertyChanged = false
+            var sendTextSubstitutionChangeEvent = false
 
             newNode._unmergedConfig.props.forEach { key, value ->
                 var newlyObservingScroll = false
@@ -2898,6 +2899,10 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                             AccessibilityEvent.CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION,
                             value as List<String>,
                         )
+                    }
+                    SemanticsProperties.TextSubstitution,
+                    SemanticsProperties.IsShowingTextSubstitution -> {
+                        sendTextSubstitutionChangeEvent = true
                     }
                     SemanticsProperties.EditableText -> {
                         if (newNode.unmergedConfig.contains(SemanticsActions.SetText)) {
@@ -3088,6 +3093,23 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 }
             }
 
+            if (
+                sendTextSubstitutionChangeEvent ||
+                    (oldNode.unmergedConfig.contains(
+                        SemanticsProperties.IsShowingTextSubstitution
+                    ) &&
+                        !newNode.unmergedConfig.contains(
+                            SemanticsProperties.IsShowingTextSubstitution
+                        ))
+            ) {
+                if (getInfoText(oldNode.unmergedConfig) != getInfoText(newNode.unmergedConfig)) {
+                    sendEventForVirtualView(
+                        semanticsNodeIdToAccessibilityVirtualNodeId(id),
+                        AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED,
+                        AccessibilityEvent.CONTENT_CHANGE_TYPE_TEXT,
+                    )
+                }
+            }
             if (!propertyChanged) {
                 propertyChanged = newNode.propertiesDeleted(oldNode.unmergedConfig)
             }
@@ -3552,7 +3574,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             return node.unmergedConfig.getTextForTextField()?.text
         }
 
-        return node.unmergedConfig.getOrNull(SemanticsProperties.Text)?.firstOrNull()?.text
+        return getTextForTranslationOrFirstText(node.unmergedConfig)?.text
     }
 
     private fun SemanticsPropertyProvider.getTextForTextField(): AnnotatedString? {
@@ -3834,9 +3856,22 @@ private val SemanticsNode.isUnmergedLeafNode: Boolean
     }
 
 @OptIn(ExperimentalComposeUiHostApi::class)
-private fun getInfoText(node: SemanticsNode): AnnotatedString? {
-    val editableTextToAssign = node.unmergedConfig.getOrNull(SemanticsProperties.EditableText)
-    val textToAssign = node.unmergedConfig.getOrNull(SemanticsProperties.Text)?.firstOrNull()
+private fun getTextForTranslationOrFirstText(config: SemanticsPropertyProvider): AnnotatedString? {
+    if (config.getOrNull(SemanticsProperties.IsShowingTextSubstitution) == true) {
+        config.getOrNull(SemanticsProperties.TextSubstitution)?.let {
+            return it
+        }
+    }
+    return config.getOrNull(SemanticsProperties.Text)?.firstOrNull()
+}
+
+@OptIn(ExperimentalComposeUiHostApi::class)
+private fun getInfoText(node: SemanticsNode): AnnotatedString? = getInfoText(node.unmergedConfig)
+
+@OptIn(ExperimentalComposeUiHostApi::class)
+private fun getInfoText(config: SemanticsPropertyProvider): AnnotatedString? {
+    val editableTextToAssign = config.getOrNull(SemanticsProperties.EditableText)
+    val textToAssign = getTextForTranslationOrFirstText(config)
     return editableTextToAssign ?: textToAssign
 }
 
@@ -3964,7 +3999,11 @@ private fun SemanticsNode.enabled() = (!config.contains(SemanticsProperties.Disa
 
 private fun SemanticsNode.propertiesDeleted(oldConfig: SemanticsConfiguration): Boolean {
     val currentProps = _unmergedConfig.props
-    return oldConfig.props.any { key, _ -> !currentProps.containsKey(key) }
+    return oldConfig.props.any { key, _ ->
+        key != SemanticsProperties.TextSubstitution &&
+            key != SemanticsProperties.IsShowingTextSubstitution &&
+            !currentProps.containsKey(key)
+    }
 }
 
 private val SemanticsNode.isRtl

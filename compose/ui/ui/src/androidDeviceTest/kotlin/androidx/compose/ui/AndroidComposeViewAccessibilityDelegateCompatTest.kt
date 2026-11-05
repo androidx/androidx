@@ -18,6 +18,7 @@ package androidx.compose.ui
 
 import android.content.Context
 import android.graphics.Rect
+import android.graphics.RectF
 import android.graphics.Region
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
@@ -30,12 +31,15 @@ import android.text.style.BackgroundColorSpan
 import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityEvent.CONTENT_CHANGE_TYPE_TEXT
 import android.view.accessibility.AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFINED
 import android.view.accessibility.AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED
 import android.view.accessibility.AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED
 import android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
 import android.view.accessibility.AccessibilityManager
 import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_RENDERING_INFO_KEY
+import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH
+import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX
 import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -98,6 +102,7 @@ import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.RoleFakeNodeIdOffset
 import androidx.compose.ui.semantics.ScrollAxisRange
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
@@ -3952,6 +3957,191 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             assertThat(eventTypes).doesNotContain(AccessibilityEvent.TYPE_VIEW_FOCUSED)
             assertThat(eventTypes)
                 .doesNotContain(AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED)
+        }
+    }
+
+    @Test
+    fun textSubstitution_whenShowing_updatesAccessibilityNodeInfoTextAndRestoresOnHideOrClear() {
+        rule.setContentWithAccessibilityEnabled {
+            BasicText(text = "Bonjour", modifier = Modifier.testTag(tag))
+        }
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
+
+        val initialInfo = rule.runOnIdle {
+            androidComposeView.createAccessibilityNodeInfo(virtualViewId)
+        }
+        assertThat(initialInfo.text.toString()).isEqualTo("Bonjour")
+
+        // Set substitution without showing it yet: node text should remain original.
+        val semanticsNode = rule.onNodeWithTag(tag).fetchSemanticsNode()
+        rule.runOnIdle {
+            semanticsNode.config[SemanticsActions.SetTextSubstitution]
+                .action
+                ?.invoke(AnnotatedString("Hello"))
+        }
+        val hiddenSubstitutionInfo = rule.runOnIdle {
+            androidComposeView.createAccessibilityNodeInfo(virtualViewId)
+        }
+        assertThat(hiddenSubstitutionInfo.text.toString()).isEqualTo("Bonjour")
+
+        // Show substitution: node text should reflect substituted text.
+        rule.runOnIdle {
+            semanticsNode.config[SemanticsActions.ShowTextSubstitution].action?.invoke(true)
+        }
+        val showingSubstitutionInfo = rule.runOnIdle {
+            androidComposeView.createAccessibilityNodeInfo(virtualViewId)
+        }
+        assertThat(showingSubstitutionInfo.text.toString()).isEqualTo("Hello")
+
+        // Hide substitution: node text should revert to original text.
+        rule.runOnIdle {
+            semanticsNode.config[SemanticsActions.ShowTextSubstitution].action?.invoke(false)
+        }
+        val afterHideInfo = rule.runOnIdle {
+            androidComposeView.createAccessibilityNodeInfo(virtualViewId)
+        }
+        assertThat(afterHideInfo.text.toString()).isEqualTo("Bonjour")
+
+        // Re-show and then clear substitution: node text should revert to original text.
+        rule.runOnIdle {
+            semanticsNode.config[SemanticsActions.ShowTextSubstitution].action?.invoke(true)
+            semanticsNode.config[SemanticsActions.ClearTextSubstitution].action?.invoke()
+        }
+        val afterClearInfo = rule.runOnIdle {
+            androidComposeView.createAccessibilityNodeInfo(virtualViewId)
+        }
+        assertThat(afterClearInfo.text.toString()).isEqualTo("Bonjour")
+    }
+
+    @Test
+    fun textSubstitution_sendsContentChangeTypeTextEvent() {
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithAccessibilityEnabled {
+            BasicText(text = "Bonjour", modifier = Modifier.size(100.dp).testTag(tag))
+        }
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
+        val semanticsNode = rule.onNodeWithTag(tag).fetchSemanticsNode()
+
+        // Act 1: Set text substitution alone (before showing) should dispatch no event.
+        rule.runOnIdle {
+            semanticsNode.config[SemanticsActions.SetTextSubstitution]
+                .action
+                ?.invoke(AnnotatedString("Hello"))
+        }
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+        // Assert 1: No event is dispatched while IsShowingTextSubstitution is false.
+        rule.runOnIdle { assertThat(dispatchedAccessibilityEvents).isEmpty() }
+
+        // Act 2: Show text substitution.
+        rule.runOnIdle {
+            semanticsNode.config[SemanticsActions.ShowTextSubstitution].action?.invoke(true)
+        }
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+        // Assert 2: Only CONTENT_CHANGE_TYPE_TEXT is dispatched for this virtualViewId.
+        rule.runOnIdle {
+            assertThat(dispatchedAccessibilityEvents)
+                .comparingElementsUsing(AccessibilityEventComparator)
+                .containsExactly(
+                    AccessibilityEvent().apply {
+                        eventType = TYPE_WINDOW_CONTENT_CHANGED
+                        contentChangeTypes = CONTENT_CHANGE_TYPE_TEXT
+                        setSource(androidComposeView, virtualViewId)
+                    }
+                )
+            dispatchedAccessibilityEvents.clear()
+        }
+
+        // Act 3: Hide text substitution.
+        rule.runOnIdle {
+            semanticsNode.config[SemanticsActions.ShowTextSubstitution].action?.invoke(false)
+        }
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+        // Assert 3: Only CONTENT_CHANGE_TYPE_TEXT is dispatched when hiding substitution.
+        rule.runOnIdle {
+            assertThat(dispatchedAccessibilityEvents)
+                .comparingElementsUsing(AccessibilityEventComparator)
+                .containsExactly(
+                    AccessibilityEvent().apply {
+                        eventType = TYPE_WINDOW_CONTENT_CHANGED
+                        contentChangeTypes = CONTENT_CHANGE_TYPE_TEXT
+                        setSource(androidComposeView, virtualViewId)
+                    }
+                )
+            dispatchedAccessibilityEvents.clear()
+        }
+
+        // Act 4: Re-show and then clear text substitution while showing.
+        rule.runOnIdle {
+            semanticsNode.config[SemanticsActions.ShowTextSubstitution].action?.invoke(true)
+        }
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+        rule.runOnIdle { dispatchedAccessibilityEvents.clear() }
+
+        rule.runOnIdle {
+            semanticsNode.config[SemanticsActions.ClearTextSubstitution].action?.invoke()
+        }
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+        // Assert 4: Only CONTENT_CHANGE_TYPE_TEXT is dispatched when clearing active substitution.
+        rule.runOnIdle {
+            assertThat(dispatchedAccessibilityEvents)
+                .comparingElementsUsing(AccessibilityEventComparator)
+                .containsExactly(
+                    AccessibilityEvent().apply {
+                        eventType = TYPE_WINDOW_CONTENT_CHANGED
+                        contentChangeTypes = CONTENT_CHANGE_TYPE_TEXT
+                        setSource(androidComposeView, virtualViewId)
+                    }
+                )
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    fun textSubstitution_longerTranslatedText_characterLocationsUseSubstitutedLayout() {
+        rule.setContentWithAccessibilityEnabled {
+            BasicText(text = "Hi", modifier = Modifier.testTag(tag))
+        }
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
+        val semanticsNode = rule.onNodeWithTag(tag).fetchSemanticsNode()
+        val translatedText = "Bonjour"
+
+        rule.runOnIdle {
+            semanticsNode.config[SemanticsActions.SetTextSubstitution]
+                .action
+                ?.invoke(AnnotatedString(translatedText))
+            semanticsNode.config[SemanticsActions.ShowTextSubstitution].action?.invoke(true)
+        }
+
+        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
+        val args =
+            Bundle().apply {
+                putInt(EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX, 0)
+                putInt(EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH, translatedText.length)
+            }
+
+        rule.runOnIdle {
+            androidComposeView.composeAccessibilityDelegate
+                .getAccessibilityNodeProvider(androidComposeView)
+                .addExtraDataToAccessibilityNodeInfo(
+                    virtualViewId,
+                    info,
+                    EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY,
+                    args,
+                )
+        }
+
+        rule.runOnIdle {
+            @Suppress("DEPRECATION")
+            val locations = info.extras.getParcelableArray(EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY)
+            assertThat(locations).isNotNull()
+            assertThat(locations!!.size).isEqualTo(translatedText.length)
+            for (i in translatedText.indices) {
+                assertThat(locations[i] as? RectF).isNotNull()
+            }
         }
     }
 
