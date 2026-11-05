@@ -44,8 +44,6 @@ import androidx.glance.adaptive.core.templates.TrackTemplate
  * - **Height** decides which rows appear: the actions, then the hero (with its description at H4).
  * - The narrowest, shortest containers have no room for a card, so the design draws the widget as a
  *   single ring with the metric inside: the bulb.
- *
- * Not registered by default; the Glance renderer keeps using [TrackSizeSelector].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object TrackMatrixSelector :

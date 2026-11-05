@@ -36,11 +36,7 @@ dependencies {
     api("androidx.compose.runtime:runtime:1.12.0")
     implementation("androidx.collection:collection:1.4.2")
     implementation(libs.kotlinCoroutinesCore)
-    // TODO(b/569862874): Remove glance-appwidget dependency once TrackTemplateRenderer is
-    //  migrated to RemoteViews / RemoteCompose.
-    api("androidx.glance:glance-appwidget:1.1.1")
 
-    testImplementation(project(":glance:glance-appwidget-testing"))
     testImplementation(libs.testCore)
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)

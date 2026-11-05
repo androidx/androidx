@@ -17,10 +17,10 @@
 package androidx.glance.adaptive.appwidget
 
 import androidx.annotation.VisibleForTesting
+import androidx.glance.adaptive.appwidget.matrix.remoteviews.RemoteViewsMatrixRenderer
 import androidx.glance.adaptive.appwidget.renderer.AppWidgetRenderOutput
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
-import androidx.glance.adaptive.appwidget.templates.track.TrackSizeSelector
-import androidx.glance.adaptive.appwidget.templates.track.TrackTemplateRenderer
+import androidx.glance.adaptive.appwidget.templates.track.TrackMatrixSelector
 import androidx.glance.adaptive.core.renderer.TemplateRegistry
 import androidx.glance.adaptive.core.renderer.TemplateRenderer
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
@@ -30,7 +30,8 @@ import androidx.glance.adaptive.core.templates.TrackTemplate
  * The [TemplateRegistry] of platform AppWidget surfaces, holding the library's built-in templates.
  */
 internal object AppWidgetTemplateRegistry {
-    private val defaultTrackRenderer = TemplateRenderer(TrackSizeSelector, TrackTemplateRenderer)
+    private val defaultTrackRenderer =
+        TemplateRenderer(TrackMatrixSelector, RemoteViewsMatrixRenderer)
 
     private val registry =
         TemplateRegistry(

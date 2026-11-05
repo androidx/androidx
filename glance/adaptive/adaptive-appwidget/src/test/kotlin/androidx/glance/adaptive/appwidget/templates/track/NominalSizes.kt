@@ -18,15 +18,13 @@ package androidx.glance.adaptive.appwidget.templates.track
 
 import androidx.glance.adaptive.core.selection.Dimensions
 import androidx.glance.adaptive.core.selection.HeightTier
-import androidx.glance.adaptive.core.selection.SizeTiers
 import androidx.glance.adaptive.core.selection.WidthTier
 
 /**
  * Container width the design nominates for each width tier, in DP.
  *
  * A tier covers a range, so a test that only names the tier has to pick a size within it. Using the
- * design's own figures keeps the hero sizing — which reads the container, not the tier — anchored
- * to the layout that was actually drawn.
+ * design's own figures keeps the sizing anchored to the layout that was actually drawn.
  */
 private val NominalWidthDp =
     mapOf(WidthTier.W1 to 88, WidthTier.W2 to 176, WidthTier.W3 to 264, WidthTier.W4 to 348)
@@ -44,7 +42,3 @@ private val NominalHeightDp =
 /** The container size the design nominates for a cell of the breakpoint matrix. */
 internal fun nominalDimensions(width: WidthTier, height: HeightTier): Dimensions =
     Dimensions(NominalWidthDp.getValue(width), NominalHeightDp.getValue(height))
-
-/** Resolves the Track plan for a cell of the matrix at its [nominalDimensions]. */
-internal fun nominalSlots(width: WidthTier, height: HeightTier): TrackSlots =
-    TrackSlots.from(SizeTiers(width, height), nominalDimensions(width, height))

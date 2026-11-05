@@ -253,11 +253,11 @@ internal class BaseWidgetDelegate(
      * Requests that the launcher pin the receiver declaring [widgetName], if it can be placed on
      * the home screen.
      *
-     * Mirrors [androidx.glance.appwidget.GlanceAppWidgetManager.requestPinGlanceAppWidget], apart
-     * from [widgetId] and [options]. [AppWidgetManager.requestPinAppWidget] only hands its extras
-     * to the launcher, so they cannot reach the pinned widget that way. When either is set, the
-     * request is instead sent with a success callback handled by [RequestPinCallbackReceiver],
-     * which stores them in the options of the pinned widget and then sends [successCallback].
+     * Mirrors `GlanceAppWidgetManager.requestPinGlanceAppWidget`, apart from [widgetId] and
+     * [options]. [AppWidgetManager.requestPinAppWidget] only hands its extras to the launcher, so
+     * they cannot reach the pinned widget that way. When either is set, the request is instead sent
+     * with a success callback handled by [RequestPinCallbackReceiver], which stores them in the
+     * options of the pinned widget and then sends [successCallback].
      *
      * @param widgetName Developer widget definition String identifier matching
      *   [GlanceAdaptiveWidgetReceiver.widgetName].

@@ -35,6 +35,7 @@ android {
 dependencies {
     implementation(project(":glance:adaptive:adaptive-core"))
     implementation(project(":glance:adaptive:adaptive-appwidget"))
+    implementation("androidx.glance:glance-appwidget:1.1.1")
     implementation(project(":activity:activity"))
     implementation(project(":activity:activity-compose"))
     implementation(project(":compose:ui:ui"))
