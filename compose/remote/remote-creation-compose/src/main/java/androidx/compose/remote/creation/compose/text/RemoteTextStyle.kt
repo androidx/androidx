@@ -14,54 +14,32 @@
  * limitations under the License.
  */
 
+@file:JvmName("RemoteTextStyleKt")
+@file:JvmMultifileClass
+
 package androidx.compose.remote.creation.compose.text
 
-import androidx.annotation.RestrictTo
-import androidx.compose.remote.creation.compose.layout.toRemoteFontFamily
-import androidx.compose.remote.creation.compose.layout.toRemoteFontStyle
-import androidx.compose.remote.creation.compose.layout.toRemoteFontWeight
-import androidx.compose.remote.creation.compose.layout.toRemoteHyphens
-import androidx.compose.remote.creation.compose.layout.toRemoteLineBreak
-import androidx.compose.remote.creation.compose.layout.toRemoteTextAlign
-import androidx.compose.remote.creation.compose.layout.toRemoteTextDecoration
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteTextUnit
-import androidx.compose.remote.creation.compose.state.asRemoteTextUnit
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.remote.creation.compose.util.fastFilter
-import androidx.compose.remote.creation.compose.util.fastFirstOrNull
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.ExperimentalTextApi
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.AndroidFont
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontListFontFamily
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontVariation
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.font.ResourceFont
-import androidx.compose.ui.text.style.Hyphens
-import androidx.compose.ui.text.style.LineBreak
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.unit.TextUnit
 
 /**
- * A remote-aware text style that mirrors [androidx.compose.ui.text.TextStyle] but uses remote types
+ * A remote-aware text style that mirrors `androidx.compose.ui.text.TextStyle` but uses remote types
  * where applicable.
  *
- * @param color The color of the text
- * @param fontSize the size of glyphs to use when painting the text in [RemoteTextUnit] .
- * @param fontWeight the typeface thickness to use when painting the text (e.g., [FontWeight.Bold]).
- * @param fontStyle the font style to use when painting the text (e.g., [FontStyle.Italic]).
- * @param fontFamily the font family to be used when rendering the text.
- * @param letterSpacing the amount of space to add between each letter in [RemoteTextUnit] .
+ * @param color The color of the text.
+ * @param fontSize The size of glyphs to use when painting the text in [RemoteTextUnit].
+ * @param fontWeight The typeface thickness to use when painting the text (e.g.,
+ *   [RemoteFontWeight.Bold]).
+ * @param fontStyle The font style to use when painting the text (e.g., [RemoteFontStyle.Italic]).
+ * @param fontFamily The font family to be used when rendering the text.
+ * @param letterSpacing The amount of space to add between each letter in [RemoteTextUnit].
  * @param background The background color for the text.
- * @param textAlign the alignment of the text within the lines of the paragraph.
+ * @param textAlign The alignment of the text within the lines of the paragraph.
  * @param lineHeight Line height for the text in [RemoteTextUnit] unit, e.g. SP or EM.
- * @param textDecoration the decorations to paint on the text (e.g., [TextDecoration.Underline]).
+ * @param textDecoration The decorations to paint on the text (e.g.,
+ *   [RemoteTextDecoration.Underline]).
  * @param lineBreak The configuration of line break.
  * @param hyphens The configuration of hyphenation.
  * @param fontFeatureSettings The advanced typography settings provided by font in CSS format (e.g.
@@ -69,73 +47,29 @@ import androidx.compose.ui.unit.TextUnit
  * @param fontVariationSettings The font variation settings to be applied to the text.
  */
 @Immutable
-public class RemoteTextStyle
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-constructor(
+public class RemoteTextStyle(
     public val color: RemoteColor? = null,
     public val fontSize: RemoteTextUnit? = null,
-    public val fontWeight: FontWeight? = null,
-    public val fontStyle: FontStyle? = null,
+    public val fontWeight: RemoteFontWeight? = null,
+    public val fontStyle: RemoteFontStyle? = null,
     public val fontFamily: RemoteFontFamily? = null,
     public val letterSpacing: RemoteTextUnit? = null,
     public val background: RemoteColor? = null,
-    public val textAlign: TextAlign? = null,
+    public val textAlign: RemoteTextAlign = RemoteTextAlign.Unspecified,
     public val lineHeight: RemoteTextUnit? = null,
-    public val textDecoration: TextDecoration? = null,
-    public val lineBreak: LineBreak = LineBreak.Unspecified,
-    public val hyphens: Hyphens = Hyphens.Unspecified,
+    public val textDecoration: RemoteTextDecoration? = null,
+    public val lineBreak: RemoteLineBreak = RemoteLineBreak.Unspecified,
+    public val hyphens: RemoteHyphens = RemoteHyphens.Unspecified,
     public val fontFeatureSettings: String? = null,
-    public val fontVariationSettings: FontVariation.Settings? = null,
+    public val fontVariationSettings: RemoteFontVariation.Settings? = null,
 ) {
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val remoteFontWeight: RemoteFontWeight?
-        get() = fontWeight?.toRemoteFontWeight()
-
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val remoteFontStyle: RemoteFontStyle?
-        get() = fontStyle?.toRemoteFontStyle()
-
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val remoteTextAlign: RemoteTextAlign?
-        get() =
-            if (textAlign == null || textAlign == TextAlign.Unspecified) {
-                null
-            } else {
-                textAlign.toRemoteTextAlign()
-            }
-
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val remoteTextDecoration: RemoteTextDecoration?
-        get() = textDecoration?.toRemoteTextDecoration()
-
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val remoteLineBreak: RemoteLineBreak?
-        get() =
-            if (lineBreak == LineBreak.Unspecified) {
-                null
-            } else {
-                lineBreak.toRemoteLineBreak()
-            }
-
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val remoteHyphens: RemoteHyphens?
-        get() =
-            if (hyphens == Hyphens.Unspecified) {
-                null
-            } else {
-                hyphens.toRemoteHyphens()
-            }
-
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val remoteFontVariationSettings: RemoteFontVariation.Settings?
-        get() = fontVariationSettings?.toRemoteFontVariationSettings()
 
     /**
      * Returns a new [RemoteTextStyle] that is a combination of this style and the given [other]
      * style.
      *
-     * If [other] is null, this style is returned. If [other] has any null properties, the values
-     * from this style are used for those properties.
+     * If [other] is null, this style is returned. If [other] has any unspecified properties, the
+     * values from this style are used for those properties.
      *
      * @param other The style to merge into this style.
      * @return A new [RemoteTextStyle] with properties from [other] taking precedence.
@@ -150,12 +84,16 @@ constructor(
             fontFamily = other.fontFamily ?: this.fontFamily,
             letterSpacing = other.letterSpacing ?: this.letterSpacing,
             background = other.background ?: this.background,
-            textAlign = other.textAlign ?: this.textAlign,
+            textAlign =
+                if (other.textAlign != RemoteTextAlign.Unspecified) other.textAlign
+                else this.textAlign,
             lineHeight = other.lineHeight ?: this.lineHeight,
             textDecoration = other.textDecoration ?: this.textDecoration,
             lineBreak =
-                if (other.lineBreak != LineBreak.Unspecified) other.lineBreak else this.lineBreak,
-            hyphens = if (other.hyphens != Hyphens.Unspecified) other.hyphens else this.hyphens,
+                if (other.lineBreak != RemoteLineBreak.Unspecified) other.lineBreak
+                else this.lineBreak,
+            hyphens =
+                if (other.hyphens != RemoteHyphens.Unspecified) other.hyphens else this.hyphens,
             fontFeatureSettings = other.fontFeatureSettings ?: this.fontFeatureSettings,
             fontVariationSettings = other.fontVariationSettings ?: this.fontVariationSettings,
         )
@@ -168,15 +106,16 @@ constructor(
      * @param color The color of the text.
      * @param fontSize The size of glyphs to use when painting the text in [RemoteTextUnit].
      * @param fontWeight The typeface thickness to use when painting the text (e.g.,
-     *   [FontWeight.Bold]).
-     * @param fontStyle The font style to use when painting the text (e.g., [FontStyle.Italic]).
+     *   [RemoteFontWeight.Bold]).
+     * @param fontStyle The font style to use when painting the text (e.g.,
+     *   [RemoteFontStyle.Italic]).
      * @param fontFamily The font family to be used when rendering the text.
      * @param letterSpacing The amount of space to add between each letter in [RemoteTextUnit].
      * @param background The background color for the text.
      * @param textAlign The alignment of the text within the lines of the paragraph.
      * @param lineHeight Line height for the text in [RemoteTextUnit] unit, e.g. SP or EM.
      * @param textDecoration The decorations to paint on the text (e.g.,
-     *   [TextDecoration.Underline]).
+     *   [RemoteTextDecoration.Underline]).
      * @param lineBreak The configuration of line break.
      * @param hyphens The configuration of hyphenation.
      * @param fontFeatureSettings The advanced typography settings provided by font in CSS format
@@ -187,18 +126,18 @@ constructor(
     public fun merge(
         color: RemoteColor? = null,
         fontSize: RemoteTextUnit? = null,
-        fontWeight: FontWeight? = null,
-        fontStyle: FontStyle? = null,
+        fontWeight: RemoteFontWeight? = null,
+        fontStyle: RemoteFontStyle? = null,
         fontFamily: RemoteFontFamily? = null,
         letterSpacing: RemoteTextUnit? = null,
         background: RemoteColor? = null,
-        textAlign: TextAlign? = null,
+        textAlign: RemoteTextAlign = RemoteTextAlign.Unspecified,
         lineHeight: RemoteTextUnit? = null,
-        textDecoration: TextDecoration? = null,
-        lineBreak: LineBreak = LineBreak.Unspecified,
-        hyphens: Hyphens = Hyphens.Unspecified,
+        textDecoration: RemoteTextDecoration? = null,
+        lineBreak: RemoteLineBreak = RemoteLineBreak.Unspecified,
+        hyphens: RemoteHyphens = RemoteHyphens.Unspecified,
         fontFeatureSettings: String? = null,
-        fontVariationSettings: FontVariation.Settings? = null,
+        fontVariationSettings: RemoteFontVariation.Settings? = null,
     ): RemoteTextStyle {
         return RemoteTextStyle(
             color = color ?: this.color,
@@ -208,11 +147,11 @@ constructor(
             fontFamily = fontFamily ?: this.fontFamily,
             letterSpacing = letterSpacing ?: this.letterSpacing,
             background = background ?: this.background,
-            textAlign = textAlign ?: this.textAlign,
+            textAlign = if (textAlign != RemoteTextAlign.Unspecified) textAlign else this.textAlign,
             lineHeight = lineHeight ?: this.lineHeight,
             textDecoration = textDecoration ?: this.textDecoration,
-            lineBreak = if (lineBreak != LineBreak.Unspecified) lineBreak else this.lineBreak,
-            hyphens = if (hyphens != Hyphens.Unspecified) hyphens else this.hyphens,
+            lineBreak = if (lineBreak != RemoteLineBreak.Unspecified) lineBreak else this.lineBreak,
+            hyphens = if (hyphens != RemoteHyphens.Unspecified) hyphens else this.hyphens,
             fontFeatureSettings = fontFeatureSettings ?: this.fontFeatureSettings,
             fontVariationSettings = fontVariationSettings ?: this.fontVariationSettings,
         )
@@ -224,15 +163,16 @@ constructor(
      * @param color The color of the text.
      * @param fontSize The size of glyphs to use when painting the text in [RemoteTextUnit].
      * @param fontWeight The typeface thickness to use when painting the text (e.g.,
-     *   [FontWeight.Bold]).
-     * @param fontStyle The font style to use when painting the text (e.g., [FontStyle.Italic]).
+     *   [RemoteFontWeight.Bold]).
+     * @param fontStyle The font style to use when painting the text (e.g.,
+     *   [RemoteFontStyle.Italic]).
      * @param fontFamily The font family to be used when rendering the text.
      * @param letterSpacing The amount of space to add between each letter in [RemoteTextUnit].
      * @param background The background color for the text.
      * @param textAlign The alignment of the text within the lines of the paragraph.
      * @param lineHeight Line height for the text in [RemoteTextUnit] unit, e.g. SP or EM.
      * @param textDecoration The decorations to paint on the text (e.g.,
-     *   [TextDecoration.Underline]).
+     *   [RemoteTextDecoration.Underline]).
      * @param lineBreak The configuration of line break.
      * @param hyphens The configuration of hyphenation.
      * @param fontFeatureSettings The advanced typography settings provided by font in CSS format
@@ -243,18 +183,18 @@ constructor(
     public fun copy(
         color: RemoteColor? = this.color,
         fontSize: RemoteTextUnit? = this.fontSize,
-        fontWeight: FontWeight? = this.fontWeight,
-        fontStyle: FontStyle? = this.fontStyle,
+        fontWeight: RemoteFontWeight? = this.fontWeight,
+        fontStyle: RemoteFontStyle? = this.fontStyle,
         fontFamily: RemoteFontFamily? = this.fontFamily,
         letterSpacing: RemoteTextUnit? = this.letterSpacing,
         background: RemoteColor? = this.background,
-        textAlign: TextAlign? = this.textAlign,
+        textAlign: RemoteTextAlign = this.textAlign,
         lineHeight: RemoteTextUnit? = this.lineHeight,
-        textDecoration: TextDecoration? = this.textDecoration,
-        lineBreak: LineBreak = this.lineBreak,
-        hyphens: Hyphens = this.hyphens,
+        textDecoration: RemoteTextDecoration? = this.textDecoration,
+        lineBreak: RemoteLineBreak = this.lineBreak,
+        hyphens: RemoteHyphens = this.hyphens,
         fontFeatureSettings: String? = this.fontFeatureSettings,
-        fontVariationSettings: FontVariation.Settings? = this.fontVariationSettings,
+        fontVariationSettings: RemoteFontVariation.Settings? = this.fontVariationSettings,
     ): RemoteTextStyle {
         return RemoteTextStyle(
             color = color,
@@ -275,142 +215,9 @@ constructor(
     }
 
     public companion object {
-        /**
-         * Creates a [RemoteTextStyle] from a [TextStyle].
-         *
-         * [TextStyle.fontFeatureSettings] is carried over as [RemoteTextStyle.fontFeatureSettings]
-         * and never affects [RemoteTextStyle.fontVariationSettings]. The variation settings are
-         * taken from the [Font] in the [FontListFontFamily] that best matches the style's
-         * [FontWeight] and [FontStyle], using the same CSS font matching rules as Compose, among
-         * the fonts that declare variation settings.
-         *
-         * @param style The Compose [TextStyle] to convert.
-         * @return a [RemoteTextStyle] converted from [style]
-         */
-        public fun fromTextStyle(style: TextStyle): RemoteTextStyle {
-            // Maps unspecified color into null as it's not supported in remote compose.
-            val color = if (style.color == Color.Unspecified) null else style.color.rc
-            val background =
-                if (style.background == Color.Unspecified) null else style.background.rc
-            val fontSize =
-                if (style.fontSize == TextUnit.Unspecified) null
-                else style.fontSize.asRemoteTextUnit()
-            val letterSpacing =
-                if (style.letterSpacing == TextUnit.Unspecified) null
-                else style.letterSpacing.asRemoteTextUnit()
-            val lineHeight =
-                if (style.lineHeight == TextUnit.Unspecified) null
-                else style.lineHeight.asRemoteTextUnit()
-            val fontVariationSettings =
-                (style.fontFamily as? FontListFontFamily)?.matchFontVariationSettings(
-                    fontWeight = style.fontWeight ?: FontWeight.Normal,
-                    fontStyle = style.fontStyle ?: FontStyle.Normal,
-                )
-            return RemoteTextStyle(
-                color = color,
-                fontSize = fontSize,
-                fontWeight = style.fontWeight,
-                fontStyle = style.fontStyle,
-                fontFamily = style.fontFamily?.toRemoteFontFamily(),
-                letterSpacing = letterSpacing,
-                background = background,
-                textAlign = style.textAlign,
-                lineHeight = lineHeight,
-                textDecoration = style.textDecoration,
-                lineBreak = style.lineBreak,
-                hyphens = style.hyphens,
-                fontFeatureSettings = style.fontFeatureSettings,
-                fontVariationSettings = fontVariationSettings,
-            )
-        }
-
         /** Constant for default [RemoteTextStyle] with no overridden properties. */
         public val Default: RemoteTextStyle = RemoteTextStyle()
     }
-}
-
-@OptIn(ExperimentalTextApi::class)
-private fun Font.extractVariationSettings(): FontVariation.Settings? =
-    when (this) {
-        is AndroidFont -> variationSettings
-        is ResourceFont -> variationSettings
-        else -> null
-    }
-
-/**
- * Returns the [FontVariation.Settings] of the [Font] that Compose would select for [fontWeight] and
- * [fontStyle], considering only fonts that declare non-empty variation settings. Returns null if no
- * font declares variation settings.
- *
- * Remote documents carry a single set of font axes rather than the whole font list, so fonts
- * without variation settings are skipped instead of resolving to no axes.
- */
-internal fun FontListFontFamily.matchFontVariationSettings(
-    fontWeight: FontWeight,
-    fontStyle: FontStyle,
-): FontVariation.Settings? {
-    val candidates = fonts.fastFilter {
-        it.extractVariationSettings()?.settings?.isNotEmpty() == true
-    }
-    if (candidates.isEmpty()) return null
-    return matchFont(candidates, fontWeight, fontStyle).extractVariationSettings()
-}
-
-/**
- * Selects the best [Font] for [fontWeight] and [fontStyle] using the
- * [CSS 4 font matching](https://www.w3.org/TR/css-fonts-4/#font-style-matching) rules, mirroring
- * Compose's internal `FontMatcher`.
- */
-private fun matchFont(fonts: List<Font>, fontWeight: FontWeight, fontStyle: FontStyle): Font {
-    fonts
-        .fastFirstOrNull { it.weight == fontWeight && it.style == fontStyle }
-        ?.let {
-            return it
-        }
-    val fontsToSearch = fonts.fastFilter { it.style == fontStyle }.ifEmpty { fonts }
-    val bestWeight =
-        when {
-            fontWeight < FontWeight.W400 ->
-                fontsToSearch.closestWeight(fontWeight, preferBelow = true)
-            fontWeight > FontWeight.W500 ->
-                fontsToSearch.closestWeight(fontWeight, preferBelow = false)
-            else ->
-                fontsToSearch.closestWeight(
-                    fontWeight,
-                    preferBelow = false,
-                    maxSearchRange = FontWeight.W500,
-                )
-                    ?: fontsToSearch.closestWeight(
-                        fontWeight,
-                        preferBelow = false,
-                        minSearchRange = FontWeight.W500,
-                    )
-        }
-    return fontsToSearch.fastFirstOrNull { it.weight == bestWeight } ?: fontsToSearch.first()
-}
-
-private fun List<Font>.closestWeight(
-    fontWeight: FontWeight,
-    preferBelow: Boolean,
-    minSearchRange: FontWeight? = null,
-    maxSearchRange: FontWeight? = null,
-): FontWeight? {
-    var bestWeightAbove: FontWeight? = null
-    var bestWeightBelow: FontWeight? = null
-    for (index in indices) {
-        val weight = get(index).weight
-        if (minSearchRange != null && weight < minSearchRange) continue
-        if (maxSearchRange != null && weight > maxSearchRange) continue
-        if (weight < fontWeight) {
-            if (bestWeightBelow == null || weight > bestWeightBelow) bestWeightBelow = weight
-        } else if (weight > fontWeight) {
-            if (bestWeightAbove == null || weight < bestWeightAbove) bestWeightAbove = weight
-        } else {
-            return weight
-        }
-    }
-    return if (preferBelow) bestWeightBelow ?: bestWeightAbove
-    else bestWeightAbove ?: bestWeightBelow
 }
 
 /**

@@ -114,6 +114,7 @@ import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontVariation
+import androidx.compose.remote.creation.compose.text.RemoteTextDecoration
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
@@ -133,7 +134,6 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.text.font.FontVariation
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.compose.remote.material3.RemoteButton
@@ -208,7 +208,7 @@ class RcPlayerPrimitivesTest {
     @Test
     fun testRemoteTextWithFontVariationAndDecoration() {
         rule.setRemoteContent {
-            val style = RemoteTextStyle(textDecoration = TextDecoration.Underline)
+            val style = RemoteTextStyle(textDecoration = RemoteTextDecoration.Underline)
             val fontVariationSettings = FontVariation.Settings(FontVariation.Setting("wdth", 100f))
             RemoteText(
                 text = "Decorated Var Text".rs,

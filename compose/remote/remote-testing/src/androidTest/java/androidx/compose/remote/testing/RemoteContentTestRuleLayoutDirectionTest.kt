@@ -217,8 +217,8 @@ class RemoteContentTestRuleLayoutDirectionTest {
         Box(modifier = modifier.fillMaxSize()) {
             RemoteDocumentPlayer(
                 document = coreDocument,
-                documentWidth = creationDisplayInfo.size.width.toInt(),
-                documentHeight = creationDisplayInfo.size.height.toInt(),
+                documentWidth = creationDisplayInfo.width,
+                documentHeight = creationDisplayInfo.height,
             )
         }
     }

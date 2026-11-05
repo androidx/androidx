@@ -2010,6 +2010,31 @@ class CaptureRemoteDocumentTest {
             assertEquals(RemoteLayoutDirection.Rtl, capturedLocal)
             assertEquals(RemoteLayoutDirection.Rtl, capturedCreationState)
         }
+
+    @Test
+    fun remoteCreationDisplayInfo_exposesPrimitivePropertiesAndAndroidBridges() {
+        val displayInfo =
+            RemoteCreationDisplayInfo(
+                width = 640,
+                height = 480,
+                densityDpi = 320,
+                fontScale = 1.25f,
+                isInspectionMode = true,
+                densityBehavior = RemoteDensityBehavior.Dp,
+            )
+
+        assertEquals(640, displayInfo.width)
+        assertEquals(480, displayInfo.height)
+        assertEquals(2.0f, displayInfo.density, 0f)
+        assertEquals(1.25f, displayInfo.fontScale, 0f)
+        assertTrue(displayInfo.isInspectionMode)
+        assertEquals(RemoteDensityBehavior.Dp, displayInfo.densityBehavior)
+        assertEquals(320f, displayInfo.widthDp.value, 0f)
+        assertEquals(240f, displayInfo.heightDp.value, 0f)
+        val remoteDensity = RemoteDensity.from(displayInfo)
+        assertEquals(2.0f, remoteDensity.density.constantValue, 0f)
+        assertEquals(1.25f, remoteDensity.fontScale.constantValue, 0f)
+    }
 }
 
 private const val CLAIMING_THREAD = "CaptureRemoteDocumentTest-claimer"

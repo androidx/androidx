@@ -87,8 +87,8 @@ class RemoteComposeCaptureStateTest {
     @Test
     fun androidConstructors_and_factories() {
         val stateSize = RemoteComposeCaptureState(platform, Size(200f, 300f))
-        assertThat(stateSize.creationDisplayInfo.size.width.toInt()).isEqualTo(200)
-        assertThat(stateSize.creationDisplayInfo.size.height.toInt()).isEqualTo(300)
+        assertThat(stateSize.creationDisplayInfo.width).isEqualTo(200)
+        assertThat(stateSize.creationDisplayInfo.height).isEqualTo(300)
 
         val stateProfiles =
             RemoteComposeCaptureState(
@@ -97,12 +97,12 @@ class RemoteComposeCaptureStateTest {
                 CoreDocument.DOCUMENT_API_LEVEL,
                 0,
             )
-        assertThat(stateProfiles.creationDisplayInfo.size.width.toInt()).isEqualTo(120)
-        assertThat(stateProfiles.creationDisplayInfo.size.height.toInt()).isEqualTo(140)
+        assertThat(stateProfiles.creationDisplayInfo.width).isEqualTo(120)
+        assertThat(stateProfiles.creationDisplayInfo.height).isEqualTo(140)
 
         val stateProfileAndSize = RemoteComposeCaptureState(Size(50f, 60f), profile)
-        assertThat(stateProfileAndSize.creationDisplayInfo.size.width.toInt()).isEqualTo(50)
-        assertThat(stateProfileAndSize.creationDisplayInfo.size.height.toInt()).isEqualTo(60)
+        assertThat(stateProfileAndSize.creationDisplayInfo.width).isEqualTo(50)
+        assertThat(stateProfileAndSize.creationDisplayInfo.height).isEqualTo(60)
 
         val stateLayoutDirection =
             RemoteComposeCaptureState(
@@ -139,8 +139,8 @@ class RemoteComposeCaptureStateTest {
     @Test
     fun noRemoteCompose() {
         val noRemote = NoRemoteCompose()
-        assertThat(noRemote.creationDisplayInfo.size.width.toInt()).isEqualTo(1)
-        assertThat(noRemote.creationDisplayInfo.size.height.toInt()).isEqualTo(1)
+        assertThat(noRemote.creationDisplayInfo.width).isEqualTo(1)
+        assertThat(noRemote.creationDisplayInfo.height).isEqualTo(1)
         assertThat(noRemote.layoutDirection).isEqualTo(RemoteLayoutDirection.Ltr)
     }
 }

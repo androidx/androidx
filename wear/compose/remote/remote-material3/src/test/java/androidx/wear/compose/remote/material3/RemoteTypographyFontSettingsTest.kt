@@ -27,6 +27,7 @@ import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocum
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
+import androidx.compose.remote.creation.compose.text.toRemoteFontVariationSettings
 import androidx.compose.remote.player.compose.embedded.RcPlayer
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsActions
@@ -57,6 +58,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
+@Suppress("RestrictedApiAndroidX")
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Config.TARGET_SDK])
 class RemoteTypographyFontSettingsTest {
@@ -113,7 +115,7 @@ class RemoteTypographyFontSettingsTest {
                 .isNotEmpty()
             assertWithMessage("$name fontVariationSettings")
                 .that(remoteStyle.fontVariationSettings)
-                .isEqualTo(font.variationSettings)
+                .isEqualTo(font.variationSettings.toRemoteFontVariationSettings())
             assertWithMessage("$name fontFeatureSettings")
                 .that(remoteStyle.fontFeatureSettings)
                 .isEqualTo(textStyle.fontFeatureSettings)
@@ -128,7 +130,7 @@ class RemoteTypographyFontSettingsTest {
 
         // The axes survive, but the device font family can't be converted.
         assertThat(remoteTypography.bodyLarge.fontVariationSettings)
-            .isEqualTo(RobotoFlexVariationSettings)
+            .isEqualTo(RobotoFlexVariationSettings.toRemoteFontVariationSettings())
         assertThat(remoteTypography.bodyLarge.fontFamily).isEqualTo(RemoteFontFamily.Default)
 
         val font = renderBodyLargeAndGetFont(remoteTypography)
@@ -144,7 +146,7 @@ class RemoteTypographyFontSettingsTest {
             )
 
         assertThat(remoteTypography.bodyLarge.fontVariationSettings)
-            .isEqualTo(RobotoFlexVariationSettings)
+            .isEqualTo(RobotoFlexVariationSettings.toRemoteFontVariationSettings())
         assertThat(remoteTypography.bodyLarge.fontFamily)
             .isEqualTo(RemoteFontFamily.Named("roboto-flex"))
 
@@ -159,7 +161,7 @@ class RemoteTypographyFontSettingsTest {
             RemoteTypography(GoogleSansFlexTypography, defaultFontFamily = RemoteFontFamily.Default)
 
         assertThat(remoteTypography.bodyLarge.fontVariationSettings)
-            .isEqualTo(GoogleSansFlexVariationSettings)
+            .isEqualTo(GoogleSansFlexVariationSettings.toRemoteFontVariationSettings())
         assertThat(remoteTypography.bodyLarge.fontFamily).isEqualTo(RemoteFontFamily.Default)
 
         val font = renderBodyLargeAndGetFont(remoteTypography)
@@ -175,7 +177,7 @@ class RemoteTypographyFontSettingsTest {
             )
 
         assertThat(remoteTypography.bodyLarge.fontVariationSettings)
-            .isEqualTo(GoogleSansFlexVariationSettings)
+            .isEqualTo(GoogleSansFlexVariationSettings.toRemoteFontVariationSettings())
         assertThat(remoteTypography.bodyLarge.fontFamily)
             .isEqualTo(RemoteFontFamily.Named("device:google-sans-flex"))
 

@@ -23,6 +23,8 @@ import android.content.Context
 import android.os.Bundle
 import android.widget.RemoteViews
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.heightDp
+import androidx.compose.remote.creation.compose.capture.widthDp
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.ui.geometry.Size
@@ -479,7 +481,12 @@ class GlanceRemoteViewsComposerTest {
                 {
                     remoteComposableInvoked = true
                     val state = LocalRemoteComposeCreationState.current
-                    capturedDisplaySize = state.creationDisplayInfo.size
+                    val density = context.resources.displayMetrics.density
+                    capturedDisplaySize =
+                        Size(
+                            state.creationDisplayInfo.widthDp.value * density,
+                            state.creationDisplayInfo.heightDp.value * density,
+                        )
                     capturedProfile = state.profile
                     RemoteBox {}
                 }
@@ -514,8 +521,13 @@ class GlanceRemoteViewsComposerTest {
             TestTemplate::class.java,
             remoteComposeRenderer { _, _ ->
                 {
+                    val displayInfo = LocalRemoteComposeCreationState.current.creationDisplayInfo
+                    val density = context.resources.displayMetrics.density
                     capturedDisplaySize =
-                        LocalRemoteComposeCreationState.current.creationDisplayInfo.size
+                        Size(
+                            displayInfo.widthDp.value * density,
+                            displayInfo.heightDp.value * density,
+                        )
                     RemoteBox {}
                 }
             },

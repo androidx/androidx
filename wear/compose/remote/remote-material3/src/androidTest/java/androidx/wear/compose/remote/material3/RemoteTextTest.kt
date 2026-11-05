@@ -44,6 +44,10 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.state.toRemoteString
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
+import androidx.compose.remote.creation.compose.text.RemoteFontStyle
+import androidx.compose.remote.creation.compose.text.RemoteHyphens
+import androidx.compose.remote.creation.compose.text.RemoteLineBreak
+import androidx.compose.remote.creation.compose.text.RemoteTextDecoration
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.DownloadableTypefaceResolver
@@ -62,10 +66,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontVariation.Setting
 import androidx.compose.ui.text.font.FontVariation.Settings
-import androidx.compose.ui.text.style.Hyphens
-import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
@@ -216,7 +217,7 @@ class RemoteTextTest {
                 text,
                 style =
                     LocalRemoteTextStyle.current.copy(
-                        fontStyle = FontStyle.Italic,
+                        fontStyle = RemoteFontStyle.Italic,
                         fontSize = 32.rsp,
                     ),
             )
@@ -444,7 +445,7 @@ class RemoteTextTest {
                     fontSize = 32.rsp,
                     style =
                         LocalRemoteTextStyle.current.copy(
-                            textDecoration = TextDecoration.Underline
+                            textDecoration = RemoteTextDecoration.Underline
                         ),
                 )
                 RemoteText(
@@ -453,7 +454,7 @@ class RemoteTextTest {
                     fontSize = 32.rsp,
                     style =
                         LocalRemoteTextStyle.current.copy(
-                            textDecoration = TextDecoration.LineThrough
+                            textDecoration = RemoteTextDecoration.LineThrough
                         ),
                 )
             }
@@ -617,7 +618,7 @@ class RemoteTextTest {
                 // Row 2: Hyphens.None
                 LineBreakRow(
                     label = "Hyphens.None",
-                    hyphens = Hyphens.None,
+                    hyphens = RemoteHyphens.None,
                     text = text,
                     textColor = textColor,
                     dividerColor = dividerColor,
@@ -631,7 +632,7 @@ class RemoteTextTest {
                 // Row 3: Hyphens.Auto
                 LineBreakRow(
                     label = "Hyphens.Auto",
-                    hyphens = Hyphens.Auto,
+                    hyphens = RemoteHyphens.Auto,
                     text = text,
                     textColor = textColor,
                     dividerColor = dividerColor,
@@ -644,7 +645,7 @@ class RemoteTextTest {
     @Composable
     private fun LineBreakRow(
         label: String,
-        hyphens: Hyphens,
+        hyphens: RemoteHyphens,
         text: RemoteString,
         textColor: RemoteColor,
         dividerColor: RemoteColor,
@@ -664,7 +665,7 @@ class RemoteTextTest {
                     text = text,
                     color = textColor,
                     fontSize = 8.rsp,
-                    style = RemoteTextStyle(lineBreak = LineBreak.Simple, hyphens = hyphens),
+                    style = RemoteTextStyle(lineBreak = RemoteLineBreak.Simple, hyphens = hyphens),
                 )
             }
             RemoteBox(
@@ -675,7 +676,7 @@ class RemoteTextTest {
                     text = text,
                     color = textColor,
                     fontSize = 8.rsp,
-                    style = RemoteTextStyle(lineBreak = LineBreak.Heading, hyphens = hyphens),
+                    style = RemoteTextStyle(lineBreak = RemoteLineBreak.Heading, hyphens = hyphens),
                 )
             }
             RemoteBox(
@@ -686,7 +687,8 @@ class RemoteTextTest {
                     text = text,
                     color = textColor,
                     fontSize = 8.rsp,
-                    style = RemoteTextStyle(lineBreak = LineBreak.Paragraph, hyphens = hyphens),
+                    style =
+                        RemoteTextStyle(lineBreak = RemoteLineBreak.Paragraph, hyphens = hyphens),
                 )
             }
         }

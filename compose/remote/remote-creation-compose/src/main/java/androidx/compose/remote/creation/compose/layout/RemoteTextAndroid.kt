@@ -96,7 +96,7 @@ public fun RemoteText(
         fontStyle = fontStyle?.toRemoteFontStyle(),
         fontWeight = fontWeight?.toRemoteFontWeight(),
         fontFamily = fontFamily,
-        textAlign = (textAlign ?: TextAlign.Unspecified).toRemoteTextAlign(),
+        textAlign = textAlign?.takeUnless { it == TextAlign.Unspecified }?.toRemoteTextAlign(),
         overflow = overflow.toRemoteTextOverflow(),
         maxLines = maxLines,
         style = style,

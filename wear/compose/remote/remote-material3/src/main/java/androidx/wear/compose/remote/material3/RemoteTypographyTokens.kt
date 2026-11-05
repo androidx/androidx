@@ -17,6 +17,7 @@
 package androidx.wear.compose.remote.material3
 
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
+import androidx.compose.remote.creation.compose.text.fromTextStyle
 import androidx.wear.compose.material3.Typography
 
 internal object RemoteTypographyTokens {

@@ -221,11 +221,11 @@ public class RemoteTextMeasurer(internal val density: RemoteDensity) {
                 .setTextSize(textSizePxId)
                 .setTypeface(
                     0,
-                    (style.remoteFontWeight ?: RemoteFontWeight.Normal)
+                    (style.fontWeight ?: RemoteFontWeight.Normal)
                         .weight
                         .constantValueOrNull
                         ?.toInt() ?: 400,
-                    style.remoteFontStyle == RemoteFontStyle.Italic,
+                    style.fontStyle == RemoteFontStyle.Italic,
                 )
                 .commit()
 

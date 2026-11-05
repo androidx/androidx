@@ -26,10 +26,10 @@ import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
+import androidx.compose.remote.creation.compose.text.RemoteFontStyle
+import androidx.compose.remote.creation.compose.text.RemoteFontWeight
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.profile.Profile
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -144,8 +144,8 @@ class RemoteTextMeasurerTest {
         val customStyle =
             RemoteTextStyle(
                 fontSize = 24.rsp,
-                fontWeight = FontWeight.Bold,
-                fontStyle = FontStyle.Italic,
+                fontWeight = RemoteFontWeight.Bold,
+                fontStyle = RemoteFontStyle.Italic,
             )
         val measurer = RemoteTextMeasurer(density = density)
 
@@ -208,8 +208,8 @@ class RemoteTextMeasurerTest {
                 style =
                     RemoteTextStyle(
                         fontSize = 16.rsp,
-                        fontWeight = FontWeight.Medium,
-                        fontStyle = FontStyle.Italic,
+                        fontWeight = RemoteFontWeight.Medium,
+                        fontStyle = RemoteFontStyle.Italic,
                     ),
             )
 

@@ -22,11 +22,11 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxWidth as remoteF
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
+import androidx.compose.remote.creation.compose.text.RemoteFontStyle
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
@@ -70,7 +70,7 @@ fun RemoteTextDemos(modifier: Modifier = Modifier) {
             remoteDemoItem("Style") {
                 RemoteText(
                     "Italic Text".rs,
-                    style = RemoteTextStyle(fontStyle = FontStyle.Italic, fontSize = 24.rsp),
+                    style = RemoteTextStyle(fontStyle = RemoteFontStyle.Italic, fontSize = 24.rsp),
                 )
             }
             remoteDemoItem("Centered") {

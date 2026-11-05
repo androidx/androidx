@@ -112,7 +112,7 @@ class RemoteButtonTest {
     @Test
     fun button_border_width_is_scaled_with_density() = runTest {
         val displayInfo = createCreationDisplayInfo(context, Size(500f, 500f))
-        val density = displayInfo.density.density
+        val density = displayInfo.density
         val document =
             captureRule.captureDocument(
                 context = context,

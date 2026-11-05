@@ -108,25 +108,28 @@ public fun RemoteText(
         if (style.lineHeight == null || !style.lineHeight.hasConstantValue) 1f.rf
         else // default lineHeight is descent — ascent
          style.lineHeight.value / resolvedFontSize.value
-    val unadjustedFontWeight = (fontWeight ?: style.remoteFontWeight)?.weight ?: 400f.rf
+    val unadjustedFontWeight = (fontWeight ?: style.fontWeight)?.weight ?: 400f.rf
 
     RemoteText(
         text = text,
         color = color ?: style.color ?: RemoteColor(BlackArgb),
         fontSize = resolvedFontSize,
         modifier = modifier,
-        fontStyle = fontStyle ?: style.remoteFontStyle ?: RemoteFontStyle.Normal,
+        fontStyle = fontStyle ?: style.fontStyle ?: RemoteFontStyle.Normal,
         fontWeight = unadjustedFontWeight,
-        textAlign = textAlign ?: style.remoteTextAlign ?: RemoteTextAlign.Start,
+        textAlign = textAlign?.takeUnless { it == RemoteTextAlign.Unspecified } ?: style.textAlign,
         fontFamily = (fontFamily ?: style.fontFamily)?.name,
         overflow = overflow,
         maxLines = maxLines,
         letterSpacing = letterSpacing,
         lineHeightMultiply = lineHeightMultiply,
-        lineBreak = style.remoteLineBreak ?: RemoteLineBreak.Simple,
-        hyphens = style.remoteHyphens ?: RemoteHyphens.None,
-        textDecoration = style.remoteTextDecoration,
-        fontVariationSettings = fontVariationSettings ?: style.remoteFontVariationSettings,
+        lineBreak =
+            style.lineBreak.takeUnless { it == RemoteLineBreak.Unspecified }
+                ?: RemoteLineBreak.Simple,
+        hyphens =
+            style.hyphens.takeUnless { it == RemoteHyphens.Unspecified } ?: RemoteHyphens.None,
+        textDecoration = style.textDecoration,
+        fontVariationSettings = fontVariationSettings ?: style.fontVariationSettings,
         fontFeatureSettings = fontFeatureSettings ?: style.fontFeatureSettings,
     )
 }

@@ -182,8 +182,8 @@ class RemoteCanvasCustomComponentScreenshotTest {
             ) {
                 RemoteDocumentPlayer(
                     document = doc,
-                    documentWidth = creationDisplayInfo.size.width.toInt(),
-                    documentHeight = creationDisplayInfo.size.height.toInt(),
+                    documentWidth = creationDisplayInfo.width,
+                    documentHeight = creationDisplayInfo.height,
                     customSupport = customSupport,
                 )
             }

@@ -127,9 +127,10 @@ class RemoteCanvasCaptureTest {
 
     @Test
     fun creationDisplayInfo() {
-        assertThat(remoteCanvas.creationDisplayInfo.size.width).isEqualTo(WIDTH.toFloat())
-        assertThat(remoteCanvas.creationDisplayInfo.size.height).isEqualTo(HEIGHT.toFloat())
-        assertThat(remoteCanvas.creationDisplayInfo.density.density).isEqualTo(1f)
+        assertThat(remoteCanvas.creationDisplayInfo.width).isEqualTo(WIDTH)
+        assertThat(remoteCanvas.creationDisplayInfo.height).isEqualTo(HEIGHT)
+        assertThat(remoteCanvas.creationDisplayInfo.density).isEqualTo(1f)
+        assertThat(remoteCanvas.creationDisplayInfo.fontScale).isEqualTo(1f)
     }
 
     @Test

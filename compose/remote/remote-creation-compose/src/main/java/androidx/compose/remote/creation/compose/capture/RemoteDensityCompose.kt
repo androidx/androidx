@@ -20,24 +20,8 @@ package androidx.compose.remote.creation.compose.capture
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.asRdp
 import androidx.compose.remote.creation.compose.state.asRemoteTextUnit
-import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
-
-/**
- * Creates a [RemoteDensity] instance from the provided [RemoteCreationDisplayInfo].
- *
- * @param creationDisplayInfo The display information containing the screen density and font scale.
- * @return A [RemoteDensity] instance with the density and font scale from the display info.
- */
-internal fun RemoteDensity.Companion.from(
-    creationDisplayInfo: RemoteCreationDisplayInfo
-): RemoteDensity {
-    return RemoteDensity(
-        creationDisplayInfo.density.density.rf,
-        creationDisplayInfo.density.fontScale.rf,
-    )
-}
 
 /**
  * Converts a [TextUnit] to pixels using the provided [RemoteDensity].

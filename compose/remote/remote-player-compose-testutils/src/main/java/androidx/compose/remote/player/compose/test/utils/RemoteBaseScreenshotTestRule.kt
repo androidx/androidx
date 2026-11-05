@@ -37,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -126,7 +127,7 @@ internal class RemoteBaseScreenshotTestRule(
             creationComposableWrapper = creationComposableWrapper,
             onCoreDocumentCreated = getOnCoreDocumentCreated(onCoreDocumentCreated),
             player = player,
-            size = displayInfo.size,
+            size = Size(displayInfo.width.toFloat(), displayInfo.height.toFloat()),
             playComposableWrapper = customPlayComposableWrapper(displayInfo, playComposableWrapper),
             composable = composable,
         )
