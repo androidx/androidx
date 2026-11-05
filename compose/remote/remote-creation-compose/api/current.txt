@@ -671,9 +671,7 @@ package androidx.compose.remote.creation.compose.modifier {
   public static final class RemoteModifier.Companion implements androidx.compose.remote.creation.compose.modifier.RemoteModifier {
   }
 
-  public abstract class RemoteRenderEffect {
-    ctor public RemoteRenderEffect();
-    method public abstract androidx.compose.ui.graphics.RenderEffect toComposeRenderEffect();
+  public abstract sealed nonexhaustive class RemoteRenderEffect {
   }
 
   @androidx.compose.runtime.Stable public final class RemoteScrollState {
