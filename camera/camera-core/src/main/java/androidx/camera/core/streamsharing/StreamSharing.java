@@ -384,8 +384,7 @@ public class StreamSharing extends UseCase {
         checkMainThread();
         clearPipeline();
 
-        mVirtualCameraAdapter.updateChildrenPipelineConfigs(
-                /* isPreviewRotationChangeRecreatingPipeline= */ getEffect() != null);
+        mVirtualCameraAdapter.updateChildrenPipelineConfigs();
 
         if (secondaryStreamSpec == null) {
             // primary
