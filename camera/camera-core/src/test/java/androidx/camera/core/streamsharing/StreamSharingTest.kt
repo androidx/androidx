@@ -1498,4 +1498,95 @@ class StreamSharingTest {
         streamSharing.updateSuggestedStreamSpec(StreamSpec.builder(resolution).build(), null)
         assertThat(streamSharing.sessionConfig.templateType).isEqualTo(CameraDevice.TEMPLATE_RECORD)
     }
+
+    @Test
+    fun invalidatePreviewSurfaceRequestWithEffect_previewReconnects() =
+        invalidatePreviewSurfaceRequest_previewReconnects(withEffect = true)
+
+    @Test
+    fun invalidatePreviewSurfaceRequestWithoutEffect_previewReconnects() =
+        invalidatePreviewSurfaceRequest_previewReconnects(withEffect = false)
+
+    private fun invalidatePreviewSurfaceRequest_previewReconnects(withEffect: Boolean) {
+        // Arrange: an active Preview shares the stream with a VideoCapture.
+        val surfaceRequests = mutableListOf<SurfaceRequest>()
+        val preview = Preview.Builder().build()
+        preview.setSurfaceProvider(mainThreadExecutor()) { request ->
+            surfaceRequests.add(request)
+            provideTestSurface(request)
+        }
+        streamSharing =
+            createSingleCameraStreamSharing(
+                camera,
+                setOf(preview, createVideoCapture()),
+                if (withEffect) listOf(effect) else emptyList(),
+            )
+        bindAndStartSession(camera)
+        assertThat(effectProcessor.surfaceRequest != null).isEqualTo(withEffect)
+        assertThat(surfaceRequests).hasSize(1)
+
+        // Act: the SurfaceProvider invalidates the SurfaceRequest, e.g. when its Surface is
+        // destroyed, while the previous Surface is still in use by the sharing node.
+        surfaceRequests[0].invalidate()
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: the Preview requests a new Surface, which is connected to the sharing node.
+        assertThat(surfaceRequests).hasSize(2)
+        val previewEdge = requireNotNull(streamSharing.virtualCameraAdapter.mChildrenEdges[preview])
+        assertThat(previewEdge.hasProvider()).isTrue()
+        assertThat(VirtualCameraAdapter.getChildSurface(preview))
+            .isSameInstanceAs(surfaceRequests[1].deferrableSurface)
+    }
+
+    private fun createSingleCameraStreamSharing(
+        parentCamera: FakeCamera,
+        children: Set<UseCase>,
+        effects: List<CameraEffect>,
+    ): StreamSharing =
+        StreamSharing(
+                parentCamera,
+                null,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                children,
+                effects,
+                useCaseConfigFactory,
+            )
+            .apply { this.effect = effects.singleOrNull() }
+
+    private fun bindAndStartSession(parentCamera: FakeCamera) {
+        streamSharing.bindToCamera(parentCamera, null, null, defaultConfig)
+        streamSharing.updateSuggestedStreamSpec(StreamSpec.builder(size).build(), null)
+        streamSharing.onSessionStart()
+        shadowOf(getMainLooper()).idle()
+        for (child in streamSharing.children) {
+            assertThat(streamSharing.virtualCameraAdapter.mChildrenActiveState[child]).isTrue()
+        }
+    }
+
+    private fun createVideoCapture(): VideoCapture<VideoOutput> {
+        val videoOutput: VideoOutput =
+            object : VideoOutput {
+                override fun onSurfaceRequested(request: SurfaceRequest) {
+                    request.willNotProvideSurface()
+                }
+
+                override fun getMediaSpec(): Observable<MediaSpec> {
+                    return ConstantObservable.withValue(MediaSpec.builder().build())
+                }
+            }
+        return VideoCapture.Builder(videoOutput)
+            .setVideoEncoderInfoFinder { FakeVideoEncoderInfo() }
+            .setTargetRotation(Surface.ROTATION_0)
+            .build()
+    }
+
+    private fun provideTestSurface(request: SurfaceRequest) {
+        val surfaceTexture = SurfaceTexture(0)
+        val surface = Surface(surfaceTexture)
+        request.provideSurface(surface, directExecutor()) {
+            surface.release()
+            surfaceTexture.release()
+        }
+    }
 }

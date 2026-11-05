@@ -31,6 +31,7 @@ import static androidx.camera.core.impl.utils.TransformUtils.getRotationDegrees;
 import static androidx.camera.core.impl.utils.TransformUtils.isMirrored;
 import static androidx.camera.core.impl.utils.TransformUtils.rotateSize;
 import static androidx.camera.core.impl.utils.TransformUtils.within360;
+import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
 import static androidx.camera.core.streamsharing.DynamicRangeUtils.resolveDynamicRange;
 import static androidx.core.util.Preconditions.checkNotNull;
 import static androidx.core.util.Preconditions.checkState;
@@ -231,6 +232,7 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
 
     void unbindChildren() {
         for (UseCase useCase : mChildren) {
+            mChildrenActiveState.put(useCase, false);
             useCase.unbindFromCamera(requireNonNull(mChildrenVirtualCameras.get(useCase)));
         }
     }
@@ -481,7 +483,7 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
 
         DeferrableSurface childSurface = getChildSurface(useCase);
         if (childSurface != null) {
-            forceSetProvider(getUseCaseEdge(useCase), childSurface, useCase.getSessionConfig());
+            forceSetProvider(getUseCaseEdge(useCase), childSurface, useCase);
         }
     }
 
@@ -515,7 +517,7 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
         if (childSurface != null) {
             // If the child has a Surface, connect. VideoCapture uses this mechanism to
             // resume/start recording.
-            forceSetProvider(edge, childSurface, useCase.getSessionConfig());
+            forceSetProvider(edge, childSurface, useCase);
         } else {
             // If the child has no Surface, disconnect. VideoCapture uses this mechanism to
             // pause/stop recording.
@@ -540,7 +542,7 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
         DeferrableSurface childSurface = getChildSurface(useCase);
         if (childSurface != null) {
             SurfaceEdge edge = getUseCaseEdge(useCase);
-            forceSetProvider(edge, childSurface, useCase.getSessionConfig());
+            forceSetProvider(edge, childSurface, useCase);
         }
     }
 
@@ -631,20 +633,32 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
         return requireNonNull(mChildrenActiveState.get(useCase));
     }
 
-    private static void forceSetProvider(@NonNull SurfaceEdge edge,
-            @NonNull DeferrableSurface childSurface,
-            @NonNull SessionConfig childSessionConfig) {
+    @MainThread
+    private void forceSetProvider(@NonNull SurfaceEdge edge,
+            @NonNull DeferrableSurface childSurface, @NonNull UseCase useCase) {
         edge.invalidate();
         try {
             edge.setProvider(childSurface);
         } catch (DeferrableSurface.SurfaceClosedException e) {
             // The Surface is closed by the child. This will happen when e.g. the child is Preview
-            // with SurfaceView implementation.
-            // Invoke the error listener so it will recreate the pipeline.
-            if (childSessionConfig.getErrorListener() != null) {
-                childSessionConfig.getErrorListener().onError(childSessionConfig,
-                        SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET);
-            }
+            // with SurfaceView implementation, or its SurfaceProvider invalidated the
+            // SurfaceRequest. Invoke the error listener so it will recreate the pipeline. Post it
+            // since this may be called from a callback of the child's pipeline, e.g. when its
+            // SurfaceRequest is invalidated, and skip it if the child has recreated its pipeline in
+            // the meantime.
+            mainThreadExecutor().execute(() -> {
+                if (!Boolean.TRUE.equals(mChildrenActiveState.get(useCase))
+                        || useCase.getCamera() != mChildrenVirtualCameras.get(useCase)
+                        || getChildSurface(useCase) != childSurface) {
+                    return;
+                }
+                SessionConfig sessionConfig = useCase.getSessionConfig();
+                SessionConfig.ErrorListener errorListener = sessionConfig.getErrorListener();
+                if (errorListener != null) {
+                    errorListener.onError(sessionConfig,
+                            SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET);
+                }
+            });
         }
     }
 

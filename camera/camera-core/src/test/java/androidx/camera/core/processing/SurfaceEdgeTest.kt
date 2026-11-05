@@ -47,6 +47,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import org.junit.After
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -344,6 +345,21 @@ class SurfaceEdgeTest {
     fun connectToClosedProvider_getsException() {
         provider.close()
         surfaceEdge.setProvider(provider)
+    }
+
+    @Test
+    fun connectToClosedProviderStillInUse_getsException() {
+        // Arrange: the provider is closed while it's still in use, e.g. by a previous connection.
+        provider.incrementUseCount()
+        provider.close()
+        try {
+            // Act and assert.
+            assertThrows(SurfaceClosedException::class.java) { surfaceEdge.setProvider(provider) }
+            assertThat(surfaceEdge.hasProvider()).isFalse()
+            assertThat(provider.useCount).isEqualTo(1)
+        } finally {
+            provider.decrementUseCount()
+        }
     }
 
     @Test

@@ -684,9 +684,21 @@ public class SurfaceEdge {
                             getPrescribedStreamFormat(), provider.getPrescribedStreamFormat()));
             checkState(!isClosed(), "The parent is closed. Call SurfaceEdge#invalidate() before "
                     + "setting a new provider.");
-            mProvider = provider;
-            Futures.propagate(provider.getSurface(), mCompleter);
             provider.incrementUseCount();
+            ListenableFuture<Surface> surfaceFuture;
+            try {
+                surfaceFuture = provider.getSurface();
+                if (provider.isClosed()) {
+                    // A closed provider can't provide a Surface, even if it's still in use, e.g.
+                    // by a previous connection.
+                    throw new SurfaceClosedException("The provider is closed.", provider);
+                }
+            } catch (SurfaceClosedException | RuntimeException | Error e) {
+                provider.decrementUseCount();
+                throw e;
+            }
+            mProvider = provider;
+            Futures.propagate(surfaceFuture, mCompleter);
             getTerminationFuture().addListener(provider::decrementUseCount, directExecutor());
             // When the child is closed, close the parent too to stop rendering.
             provider.getCloseFuture().addListener(onProviderClosed, mainThreadExecutor());
