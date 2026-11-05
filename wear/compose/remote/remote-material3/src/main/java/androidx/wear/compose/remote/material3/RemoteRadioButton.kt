@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
 package androidx.wear.compose.remote.material3
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
@@ -39,7 +36,33 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 
-/** @sample androidx.wear.compose.remote.material3.samples.RemoteRadioButtonSample */
+/**
+ * The Wear Material [RemoteRadioButton] offers four slots and a specific layout for an icon, a
+ * label, a secondaryLabel and a radio selection control. The icon and secondaryLabel are optional.
+ * The items are laid out in a row with the optional icon at the start, a column containing the two
+ * label slots and a Radio control at the end.
+ *
+ * Example of a [RemoteRadioButton] toggling selection on click:
+ *
+ * @sample androidx.wear.compose.remote.material3.samples.RemoteRadioButtonSample
+ * @param selected Boolean flag indicating whether this button is currently selected.
+ * @param onSelect Callback to be invoked when this button is clicked.
+ * @param modifier Modifier to be applied to the button.
+ * @param enabled Controls the enabled state of the button. When `false`, this button will not be
+ *   clickable. Note that only constant values are currently supported for [enabled] for click
+ *   handling.
+ * @param shape Defines the button's shape.
+ * @param colors [RemoteRadioButtonColors] that will be used to resolve the colors used for this
+ *   button in different states.
+ * @param contentPadding The spacing values to apply internally between the container and the
+ *   content.
+ * @param border Optional [RemoteBorderStroke] for the button, or `null` for no border.
+ * @param icon An optional slot for providing an icon to indicate the purpose of the button, or
+ *   `null` if there is no icon.
+ * @param secondaryLabel A slot for providing the button's secondary label, or `null` if there is no
+ *   secondary label.
+ * @param label A slot for providing the button's main label.
+ */
 @Composable
 @RemoteComposable
 public fun RemoteRadioButton(
@@ -96,34 +119,94 @@ public fun RemoteRadioButton(
     )
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** Contains the default values used by [RemoteRadioButton]. */
 public object RemoteRadioButtonDefaults {
+    /** The default height of [RemoteRadioButton]. */
     public val Height: RemoteDp = 52.rdp
 
+    /** The default spacing between an icon and label in [RemoteRadioButton]. */
     public val IconSpacing: RemoteDp = 6.rdp
 
+    /** The recommended default size for icons when used inside [RemoteRadioButton]. */
     public val IconSize: RemoteDp = 24.rdp
 
+    /** The default spacing between label and secondary label in [RemoteRadioButton]. */
     public val LabelSpacerSize: RemoteDp = 1.rdp
 
+    /** The default content padding used by [RemoteRadioButton]. */
     public val ContentPadding: RemotePaddingValues =
         RemotePaddingValues(horizontal = 14.rdp, vertical = 8.rdp)
 
+    /** The default shape for [RemoteRadioButton]. */
     public val radioButtonShape: RemoteRoundedCornerShape = RemoteShapeDefaults.Large
 
+    /** The outer radius of the radio button ring. */
     public val CircleRadius: RemoteDp = 9.rdp
 
+    /** The stroke width of the radio button ring. */
     public val CircleStroke: RemoteDp = 2.rdp
 
+    /** The radius of the inner dot when selected. */
     public val DotRadius: RemoteDp = 5.rdp
 
+    /** The outer size of the radio button control. */
     public val ControlSize: RemoteDp = 24.rdp
 
+    /**
+     * Creates a [RemoteRadioButtonColors] with default values for [RemoteRadioButton].
+     *
+     * @return a [RemoteRadioButtonColors] with the default colors for [RemoteRadioButton]
+     */
     @Composable
     @RemoteComposable
     public fun radioButtonColors(): RemoteRadioButtonColors =
         RemoteMaterialTheme.colorScheme.defaultRadioButtonColors
 
+    /**
+     * Creates a [RemoteRadioButtonColors] with customized colors for [RemoteRadioButton].
+     *
+     * @param selectedContainerColor Container color when selected and enabled, or `null` to use the
+     *   theme default.
+     * @param selectedContentColor Content color when selected and enabled, or `null` to use the
+     *   theme default.
+     * @param selectedSecondaryContentColor Secondary content color when selected and enabled, or
+     *   `null` to use the theme default.
+     * @param selectedIconColor Icon color when selected and enabled, or `null` to use the theme
+     *   default.
+     * @param selectedControlColor Control color when selected and enabled, or `null` to use the
+     *   theme default.
+     * @param unselectedContainerColor Container color when unselected and enabled, or `null` to use
+     *   the theme default.
+     * @param unselectedContentColor Content color when unselected and enabled, or `null` to use the
+     *   theme default.
+     * @param unselectedSecondaryContentColor Secondary content color when unselected and enabled,
+     *   or `null` to use the theme default.
+     * @param unselectedIconColor Icon color when unselected and enabled, or `null` to use the theme
+     *   default.
+     * @param unselectedControlColor Control color when unselected and enabled, or `null` to use the
+     *   theme default.
+     * @param disabledSelectedContainerColor Container color when selected and disabled, or `null`
+     *   to use the theme default.
+     * @param disabledSelectedContentColor Content color when selected and disabled, or `null` to
+     *   use the theme default.
+     * @param disabledSelectedSecondaryContentColor Secondary content color when selected and
+     *   disabled, or `null` to use the theme default.
+     * @param disabledSelectedIconColor Icon color when selected and disabled, or `null` to use the
+     *   theme default.
+     * @param disabledSelectedControlColor Control color when selected and disabled, or `null` to
+     *   use the theme default.
+     * @param disabledUnselectedContainerColor Container color when unselected and disabled, or
+     *   `null` to use the theme default.
+     * @param disabledUnselectedContentColor Content color when unselected and disabled, or `null`
+     *   to use the theme default.
+     * @param disabledUnselectedSecondaryContentColor Secondary content color when unselected and
+     *   disabled, or `null` to use the theme default.
+     * @param disabledUnselectedIconColor Icon color when unselected and disabled, or `null` to use
+     *   the theme default.
+     * @param disabledUnselectedControlColor Control color when unselected and disabled, or `null`
+     *   to use the theme default.
+     * @return a [RemoteRadioButtonColors] with the configured colors for [RemoteRadioButton]
+     */
     @Composable
     @RemoteComposable
     public fun radioButtonColors(
@@ -222,7 +305,32 @@ public object RemoteRadioButtonDefaults {
         }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Represents the container, content, and control colors used in [RemoteRadioButton] in various
+ * states.
+ *
+ * @param selectedContainerColor Container color when selected and enabled.
+ * @param selectedContentColor Content color when selected and enabled.
+ * @param selectedSecondaryContentColor Secondary content color when selected and enabled.
+ * @param selectedIconColor Icon color when selected and enabled.
+ * @param selectedControlColor Control color when selected and enabled.
+ * @param unselectedContainerColor Container color when unselected and enabled.
+ * @param unselectedContentColor Content color when unselected and enabled.
+ * @param unselectedSecondaryContentColor Secondary content color when unselected and enabled.
+ * @param unselectedIconColor Icon color when unselected and enabled.
+ * @param unselectedControlColor Control color when unselected and enabled.
+ * @param disabledSelectedContainerColor Container color when selected and disabled.
+ * @param disabledSelectedContentColor Content color when selected and disabled.
+ * @param disabledSelectedSecondaryContentColor Secondary content color when selected and disabled.
+ * @param disabledSelectedIconColor Icon color when selected and disabled.
+ * @param disabledSelectedControlColor Control color when selected and disabled.
+ * @param disabledUnselectedContainerColor Container color when unselected and disabled.
+ * @param disabledUnselectedContentColor Content color when unselected and disabled.
+ * @param disabledUnselectedSecondaryContentColor Secondary content color when unselected and
+ *   disabled.
+ * @param disabledUnselectedIconColor Icon color when unselected and disabled.
+ * @param disabledUnselectedControlColor Control color when unselected and disabled.
+ */
 @Immutable
 public class RemoteRadioButtonColors(
     public val selectedContainerColor: RemoteColor,
@@ -321,6 +429,11 @@ public class RemoteRadioButtonColors(
             ifFalse = selected.select(disabledSelectedControlColor, disabledUnselectedControlColor),
         )
 
+    /**
+     * Returns a copy of this [RemoteRadioButtonColors] optionally overriding some values.
+     *
+     * @return a copy of this [RemoteRadioButtonColors] with the specified values overridden
+     */
     public fun copy(
         selectedContainerColor: RemoteColor = this.selectedContainerColor,
         selectedContentColor: RemoteColor = this.selectedContentColor,

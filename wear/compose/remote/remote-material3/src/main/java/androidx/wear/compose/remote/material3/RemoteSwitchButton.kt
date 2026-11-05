@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
 package androidx.wear.compose.remote.material3
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
@@ -41,7 +38,33 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 
-/** @sample androidx.wear.compose.remote.material3.samples.RemoteSwitchButtonSample */
+/**
+ * The Wear Material [RemoteSwitchButton] offers four slots and a specific layout for an icon, a
+ * label, a secondaryLabel and a switch toggle control. The icon and secondaryLabel are optional.
+ * The items are laid out in a row with the optional icon at the start, a column containing the two
+ * label slots and a Switch at the end.
+ *
+ * Example of a [RemoteSwitchButton] toggling its checked state on click:
+ *
+ * @sample androidx.wear.compose.remote.material3.samples.RemoteSwitchButtonSample
+ * @param checked Boolean flag indicating whether this button is currently checked.
+ * @param onCheckedChange Callback to be invoked when this button is clicked.
+ * @param modifier Modifier to be applied to the button.
+ * @param enabled Controls the enabled state of the button. When `false`, this button will not be
+ *   clickable. Note that only constant values are currently supported for [enabled] for click
+ *   handling.
+ * @param shape Defines the button's shape.
+ * @param colors [RemoteSwitchButtonColors] that will be used to resolve the colors used for this
+ *   button in different states.
+ * @param contentPadding The spacing values to apply internally between the container and the
+ *   content.
+ * @param border Optional [RemoteBorderStroke] for the button, or `null` for no border.
+ * @param icon An optional slot for providing an icon to indicate the purpose of the button, or
+ *   `null` if there is no icon.
+ * @param secondaryLabel A slot for providing the button's secondary label, or `null` if there is no
+ *   secondary label.
+ * @param label A slot for providing the button's main label.
+ */
 @Composable
 @RemoteComposable
 public fun RemoteSwitchButton(
@@ -108,38 +131,118 @@ public fun RemoteSwitchButton(
     )
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** Contains the default values used by [RemoteSwitchButton]. */
 public object RemoteSwitchButtonDefaults {
+    /** The default height of [RemoteSwitchButton]. */
     public val Height: RemoteDp = 52.rdp
 
+    /** The default spacing between an icon and label in [RemoteSwitchButton]. */
     public val IconSpacing: RemoteDp = 6.rdp
 
+    /** The recommended default size for icons when used inside [RemoteSwitchButton]. */
     public val IconSize: RemoteDp = 24.rdp
 
+    /** The default spacing between label and secondary label in [RemoteSwitchButton]. */
     public val LabelSpacerSize: RemoteDp = 1.rdp
 
+    /** The default content padding used by [RemoteSwitchButton]. */
     public val ContentPadding: RemotePaddingValues =
         RemotePaddingValues(horizontal = 14.rdp, vertical = 8.rdp)
 
+    /** The default shape for [RemoteSwitchButton]. */
     public val switchButtonShape: RemoteRoundedCornerShape = RemoteShapeDefaults.Large
 
+    /** The width of the switch control track. */
     public val SwitchWidth: RemoteDp = 32.rdp
 
+    /** The total height of the switch control area. */
     public val SwitchHeight: RemoteDp = 24.rdp
 
+    /** The height of the inner switch control track. */
     public val SwitchInnerHeight: RemoteDp = 22.rdp
 
+    /** The width of the switch track stroke/border. */
     public val SwitchTrackWidth: RemoteDp = 2.rdp
 
+    /** The radius of the thumb when unchecked. */
     public val ThumbRadiusUnchecked: RemoteDp = 6.rdp
 
+    /** The radius of the thumb when checked. */
     public val ThumbRadiusChecked: RemoteDp = 9.rdp
 
+    /**
+     * Creates a [RemoteSwitchButtonColors] with default values for [RemoteSwitchButton].
+     *
+     * @return a [RemoteSwitchButtonColors] with the default colors for [RemoteSwitchButton]
+     */
     @Composable
     @RemoteComposable
     public fun switchButtonColors(): RemoteSwitchButtonColors =
         RemoteMaterialTheme.colorScheme.defaultSwitchButtonColors
 
+    /**
+     * Creates a [RemoteSwitchButtonColors] with customized colors for [RemoteSwitchButton].
+     *
+     * @param checkedContainerColor Container color when checked and enabled, or `null` to use the
+     *   theme default.
+     * @param checkedContentColor Content color when checked and enabled, or `null` to use the theme
+     *   default.
+     * @param checkedSecondaryContentColor Secondary content color when checked and enabled, or
+     *   `null` to use the theme default.
+     * @param checkedIconColor Icon color when checked and enabled, or `null` to use the theme
+     *   default.
+     * @param checkedThumbColor Thumb color when checked and enabled, or `null` to use the theme
+     *   default.
+     * @param checkedThumbIconColor Thumb icon color when checked and enabled, or `null` to use the
+     *   theme default.
+     * @param checkedTrackColor Track color when checked and enabled, or `null` to use the theme
+     *   default.
+     * @param checkedTrackBorderColor Track border color when checked and enabled, or `null` to use
+     *   the theme default.
+     * @param uncheckedContainerColor Container color when unchecked and enabled, or `null` to use
+     *   the theme default.
+     * @param uncheckedContentColor Content color when unchecked and enabled, or `null` to use the
+     *   theme default.
+     * @param uncheckedSecondaryContentColor Secondary content color when unchecked and enabled, or
+     *   `null` to use the theme default.
+     * @param uncheckedIconColor Icon color when unchecked and enabled, or `null` to use the theme
+     *   default.
+     * @param uncheckedThumbColor Thumb color when unchecked and enabled, or `null` to use the theme
+     *   default.
+     * @param uncheckedTrackColor Track color when unchecked and enabled, or `null` to use the theme
+     *   default.
+     * @param uncheckedTrackBorderColor Track border color when unchecked and enabled, or `null` to
+     *   use the theme default.
+     * @param disabledCheckedContainerColor Container color when checked and disabled, or `null` to
+     *   use the theme default.
+     * @param disabledCheckedContentColor Content color when checked and disabled, or `null` to use
+     *   the theme default.
+     * @param disabledCheckedSecondaryContentColor Secondary content color when checked and
+     *   disabled, or `null` to use the theme default.
+     * @param disabledCheckedIconColor Icon color when checked and disabled, or `null` to use the
+     *   theme default.
+     * @param disabledCheckedThumbColor Thumb color when checked and disabled, or `null` to use the
+     *   theme default.
+     * @param disabledCheckedThumbIconColor Thumb icon color when checked and disabled, or `null` to
+     *   use the theme default.
+     * @param disabledCheckedTrackColor Track color when checked and disabled, or `null` to use the
+     *   theme default.
+     * @param disabledCheckedTrackBorderColor Track border color when checked and disabled, or
+     *   `null` to use the theme default.
+     * @param disabledUncheckedContainerColor Container color when unchecked and disabled, or `null`
+     *   to use the theme default.
+     * @param disabledUncheckedContentColor Content color when unchecked and disabled, or `null` to
+     *   use the theme default.
+     * @param disabledUncheckedSecondaryContentColor Secondary content color when unchecked and
+     *   disabled, or `null` to use the theme default.
+     * @param disabledUncheckedIconColor Icon color when unchecked and disabled, or `null` to use
+     *   the theme default.
+     * @param disabledUncheckedThumbColor Thumb color when unchecked and disabled, or `null` to use
+     *   the theme default.
+     * @param disabledUncheckedTrackBorderColor Track border color when unchecked and disabled, or
+     *   `null` to use the theme default.
+     * @return a [RemoteSwitchButtonColors] with the configured colors for [RemoteSwitchButton]
+     */
     @Composable
     @RemoteComposable
     public fun switchButtonColors(
@@ -268,7 +371,41 @@ public object RemoteSwitchButtonDefaults {
         }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Represents the container, content, and control colors used in [RemoteSwitchButton] in various
+ * states.
+ *
+ * @param checkedContainerColor Container color when checked and enabled.
+ * @param checkedContentColor Content color when checked and enabled.
+ * @param checkedSecondaryContentColor Secondary content color when checked and enabled.
+ * @param checkedIconColor Icon color when checked and enabled.
+ * @param checkedThumbColor Thumb color when checked and enabled.
+ * @param checkedThumbIconColor Thumb icon color when checked and enabled.
+ * @param checkedTrackColor Track color when checked and enabled.
+ * @param checkedTrackBorderColor Track border color when checked and enabled.
+ * @param uncheckedContainerColor Container color when unchecked and enabled.
+ * @param uncheckedContentColor Content color when unchecked and enabled.
+ * @param uncheckedSecondaryContentColor Secondary content color when unchecked and enabled.
+ * @param uncheckedIconColor Icon color when unchecked and enabled.
+ * @param uncheckedThumbColor Thumb color when unchecked and enabled.
+ * @param uncheckedTrackColor Track color when unchecked and enabled.
+ * @param uncheckedTrackBorderColor Track border color when unchecked and enabled.
+ * @param disabledCheckedContainerColor Container color when checked and disabled.
+ * @param disabledCheckedContentColor Content color when checked and disabled.
+ * @param disabledCheckedSecondaryContentColor Secondary content color when checked and disabled.
+ * @param disabledCheckedIconColor Icon color when checked and disabled.
+ * @param disabledCheckedThumbColor Thumb color when checked and disabled.
+ * @param disabledCheckedThumbIconColor Thumb icon color when checked and disabled.
+ * @param disabledCheckedTrackColor Track color when checked and disabled.
+ * @param disabledCheckedTrackBorderColor Track border color when checked and disabled.
+ * @param disabledUncheckedContainerColor Container color when unchecked and disabled.
+ * @param disabledUncheckedContentColor Content color when unchecked and disabled.
+ * @param disabledUncheckedSecondaryContentColor Secondary content color when unchecked and
+ *   disabled.
+ * @param disabledUncheckedIconColor Icon color when unchecked and disabled.
+ * @param disabledUncheckedThumbColor Thumb color when unchecked and disabled.
+ * @param disabledUncheckedTrackBorderColor Track border color when unchecked and disabled.
+ */
 @Immutable
 public class RemoteSwitchButtonColors(
     public val checkedContainerColor: RemoteColor,
@@ -416,6 +553,11 @@ public class RemoteSwitchButtonColors(
                 checked.select(disabledCheckedTrackBorderColor, disabledUncheckedTrackBorderColor),
         )
 
+    /**
+     * Returns a copy of this [RemoteSwitchButtonColors] optionally overriding some values.
+     *
+     * @return a copy of this [RemoteSwitchButtonColors] with the specified values overridden
+     */
     public fun copy(
         checkedContainerColor: RemoteColor = this.checkedContainerColor,
         checkedContentColor: RemoteColor = this.checkedContentColor,

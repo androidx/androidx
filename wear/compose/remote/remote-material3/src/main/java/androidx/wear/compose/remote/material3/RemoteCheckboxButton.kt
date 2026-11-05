@@ -13,11 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
 package androidx.wear.compose.remote.material3
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
@@ -38,7 +35,33 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 
-/** @sample androidx.wear.compose.remote.material3.samples.RemoteCheckboxButtonSample */
+/**
+ * The Wear Material [RemoteCheckboxButton] offers four slots and a specific layout for an icon, a
+ * label, a secondaryLabel and a checkbox toggle control. The icon and secondaryLabel are optional.
+ * The items are laid out in a row with the optional icon at the start, a column containing the two
+ * label slots and a Checkbox at the end.
+ *
+ * Example of a [RemoteCheckboxButton] toggling its checked state on click:
+ *
+ * @sample androidx.wear.compose.remote.material3.samples.RemoteCheckboxButtonSample
+ * @param checked Boolean flag indicating whether this button is currently checked.
+ * @param onCheckedChange Callback to be invoked when this button is clicked.
+ * @param modifier Modifier to be applied to the button.
+ * @param enabled Controls the enabled state of the button. When `false`, this button will not be
+ *   clickable. Note that only constant values are currently supported for [enabled] for click
+ *   handling.
+ * @param shape Defines the button's shape.
+ * @param colors [RemoteCheckboxButtonColors] that will be used to resolve the colors used for this
+ *   button in different states.
+ * @param contentPadding The spacing values to apply internally between the container and the
+ *   content.
+ * @param border Optional [RemoteBorderStroke] for the button, or `null` for no border.
+ * @param icon An optional slot for providing an icon to indicate the purpose of the button, or
+ *   `null` if there is no icon.
+ * @param secondaryLabel A slot for providing the button's secondary label, or `null` if there is no
+ *   secondary label.
+ * @param label A slot for providing the button's main label.
+ */
 @Composable
 @RemoteComposable
 public fun RemoteCheckboxButton(
@@ -92,34 +115,98 @@ public fun RemoteCheckboxButton(
     )
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** Contains the default values used by [RemoteCheckboxButton]. */
 public object RemoteCheckboxButtonDefaults {
+    /** The default height of [RemoteCheckboxButton]. */
     public val Height: RemoteDp = 52.rdp
 
+    /** The default spacing between an icon and label in [RemoteCheckboxButton]. */
     public val IconSpacing: RemoteDp = 6.rdp
 
+    /** The recommended default size for icons when used inside [RemoteCheckboxButton]. */
     public val IconSize: RemoteDp = 24.rdp
 
+    /** The default spacing between label and secondary label in [RemoteCheckboxButton]. */
     public val LabelSpacerSize: RemoteDp = 1.rdp
 
+    /** The default content padding used by [RemoteCheckboxButton]. */
     public val ContentPadding: RemotePaddingValues =
         RemotePaddingValues(horizontal = 14.rdp, vertical = 8.rdp)
 
+    /** The default shape for [RemoteCheckboxButton]. */
     public val checkboxButtonShape: RemoteRoundedCornerShape = RemoteShapeDefaults.Large
 
+    /** The size of the inner box of the checkbox. */
     public val BoxSize: RemoteDp = 18.rdp
 
+    /** The stroke width of the checkbox border. */
     public val BoxStroke: RemoteDp = 2.rdp
 
+    /** The corner radius of the checkbox box. */
     public val BoxRadius: RemoteDp = 2.rdp
 
+    /** The outer size of the checkbox touch/draw target. */
     public val BoxOuterSize: RemoteDp = 24.rdp
 
+    /**
+     * Creates a [RemoteCheckboxButtonColors] with default values for [RemoteCheckboxButton].
+     *
+     * @return a [RemoteCheckboxButtonColors] with the default colors for [RemoteCheckboxButton]
+     */
     @Composable
     @RemoteComposable
     public fun checkboxButtonColors(): RemoteCheckboxButtonColors =
         RemoteMaterialTheme.colorScheme.defaultCheckboxButtonColors
 
+    /**
+     * Creates a [RemoteCheckboxButtonColors] with customized colors for [RemoteCheckboxButton].
+     *
+     * @param checkedContainerColor Container color when checked and enabled, or `null` to use the
+     *   theme default.
+     * @param checkedContentColor Content color when checked and enabled, or `null` to use the theme
+     *   default.
+     * @param checkedSecondaryContentColor Secondary content color when checked and enabled, or
+     *   `null` to use the theme default.
+     * @param checkedIconColor Icon color when checked and enabled, or `null` to use the theme
+     *   default.
+     * @param checkedBoxColor Box color when checked and enabled, or `null` to use the theme
+     *   default.
+     * @param checkedCheckmarkColor Checkmark color when checked and enabled, or `null` to use the
+     *   theme default.
+     * @param uncheckedContainerColor Container color when unchecked and enabled, or `null` to use
+     *   the theme default.
+     * @param uncheckedContentColor Content color when unchecked and enabled, or `null` to use the
+     *   theme default.
+     * @param uncheckedSecondaryContentColor Secondary content color when unchecked and enabled, or
+     *   `null` to use the theme default.
+     * @param uncheckedIconColor Icon color when unchecked and enabled, or `null` to use the theme
+     *   default.
+     * @param uncheckedBoxColor Box color when unchecked and enabled, or `null` to use the theme
+     *   default.
+     * @param disabledCheckedContainerColor Container color when checked and disabled, or `null` to
+     *   use the theme default.
+     * @param disabledCheckedContentColor Content color when checked and disabled, or `null` to use
+     *   the theme default.
+     * @param disabledCheckedSecondaryContentColor Secondary content color when checked and
+     *   disabled, or `null` to use the theme default.
+     * @param disabledCheckedIconColor Icon color when checked and disabled, or `null` to use the
+     *   theme default.
+     * @param disabledCheckedBoxColor Box color when checked and disabled, or `null` to use the
+     *   theme default.
+     * @param disabledCheckedCheckmarkColor Checkmark color when checked and disabled, or `null` to
+     *   use the theme default.
+     * @param disabledUncheckedContainerColor Container color when unchecked and disabled, or `null`
+     *   to use the theme default.
+     * @param disabledUncheckedContentColor Content color when unchecked and disabled, or `null` to
+     *   use the theme default.
+     * @param disabledUncheckedSecondaryContentColor Secondary content color when unchecked and
+     *   disabled, or `null` to use the theme default.
+     * @param disabledUncheckedIconColor Icon color when unchecked and disabled, or `null` to use
+     *   the theme default.
+     * @param disabledUncheckedBoxColor Box color when unchecked and disabled, or `null` to use the
+     *   theme default.
+     * @return a [RemoteCheckboxButtonColors] with the configured colors for [RemoteCheckboxButton]
+     */
     @Composable
     @RemoteComposable
     public fun checkboxButtonColors(
@@ -221,7 +308,34 @@ public object RemoteCheckboxButtonDefaults {
         }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Represents the container, content, and control colors used in [RemoteCheckboxButton] in various
+ * states.
+ *
+ * @param checkedContainerColor Container color when checked and enabled.
+ * @param checkedContentColor Content color when checked and enabled.
+ * @param checkedSecondaryContentColor Secondary content color when checked and enabled.
+ * @param checkedIconColor Icon color when checked and enabled.
+ * @param checkedBoxColor Box color when checked and enabled.
+ * @param checkedCheckmarkColor Checkmark color when checked and enabled.
+ * @param uncheckedContainerColor Container color when unchecked and enabled.
+ * @param uncheckedContentColor Content color when unchecked and enabled.
+ * @param uncheckedSecondaryContentColor Secondary content color when unchecked and enabled.
+ * @param uncheckedIconColor Icon color when unchecked and enabled.
+ * @param uncheckedBoxColor Box color when unchecked and enabled.
+ * @param disabledCheckedContainerColor Container color when checked and disabled.
+ * @param disabledCheckedContentColor Content color when checked and disabled.
+ * @param disabledCheckedSecondaryContentColor Secondary content color when checked and disabled.
+ * @param disabledCheckedIconColor Icon color when checked and disabled.
+ * @param disabledCheckedBoxColor Box color when checked and disabled.
+ * @param disabledCheckedCheckmarkColor Checkmark color when checked and disabled.
+ * @param disabledUncheckedContainerColor Container color when unchecked and disabled.
+ * @param disabledUncheckedContentColor Content color when unchecked and disabled.
+ * @param disabledUncheckedSecondaryContentColor Secondary content color when unchecked and
+ *   disabled.
+ * @param disabledUncheckedIconColor Icon color when unchecked and disabled.
+ * @param disabledUncheckedBoxColor Box color when unchecked and disabled.
+ */
 @Immutable
 public class RemoteCheckboxButtonColors(
     public val checkedContainerColor: RemoteColor,
@@ -322,6 +436,11 @@ public class RemoteCheckboxButtonColors(
     internal fun checkmarkColor(enabled: RemoteBoolean): RemoteColor =
         enabled.select(checkedCheckmarkColor, disabledCheckedCheckmarkColor)
 
+    /**
+     * Returns a copy of this [RemoteCheckboxButtonColors] optionally overriding some values.
+     *
+     * @return a copy of this [RemoteCheckboxButtonColors] with the specified values overridden
+     */
     public fun copy(
         checkedContainerColor: RemoteColor = this.checkedContainerColor,
         checkedContentColor: RemoteColor = this.checkedContentColor,
