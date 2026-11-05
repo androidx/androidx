@@ -13,11 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
 package androidx.wear.compose.remote.material3
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -50,8 +47,49 @@ import androidx.compose.ui.text.font.FontVariation
 import androidx.wear.compose.remote.material3.internal.setLuminance
 
 /**
+ * Displays the current time and optional surrounding status text curved along the top of a circular
+ * screen.
+ *
+ * [RemoteTimeText] is typically placed at the top of the screen and is the remote equivalent of
+ * [androidx.wear.compose.material3.TimeText].
+ *
+ * Commonly used properties from [RemoteTextStyle] are also exposed directly as parameters: when
+ * non-`null`, a styling parameter overrides the corresponding property in [style]; when `null`, the
+ * value from [style] is used instead.
+ *
+ * Example of displaying the current time at the top of a circular screen:
+ *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteTimeTextSample
+ *
+ * Example of displaying [RemoteTimeText] with leading status text:
+ *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteTimeTextWithLeadingTextSample
+ * @param modifier The [RemoteModifier] to be applied to the [RemoteTimeText].
+ * @param time The text to display as the time. Defaults to a formatted time string from the remote
+ *   context.
+ * @param fontSize The size of glyphs to use when painting the text. If `null`, uses
+ *   [RemoteTextStyle.fontSize] from [style], or `14.sp` if also `null` in [style].
+ * @param fontFamily The font family to be used when rendering the text. If `null`, uses
+ *   [RemoteTextStyle.fontFamily] from [style], or the default typeface if also `null` in [style].
+ * @param leadingText Text to be displayed before the time, or `null` if not present.
+ * @param trailingText Text to be displayed after the time, or `null` if not present.
+ * @param separator The separator to be used between the leading/trailing text and the time.
+ *   Defaults to `"·"`.
+ * @param color The color of the text. If `null`, uses [RemoteTextStyle.color] from [style], or
+ *   [RemoteColorScheme.onBackground] from [RemoteMaterialTheme.colorScheme] with its luminance set
+ *   to 80 (matching [androidx.wear.compose.material3.TimeText]) if also `null` in [style].
+ * @param backgroundColor The color of the arc drawn behind the text, so it stays visible on top of
+ *   other content. Defaults to [RemoteTimeTextDefaults.backgroundColor].
+ * @param style The [RemoteTextStyle] to be applied to the text. Defaults to
+ *   [RemoteTimeTextDefaults.TimeTextStyle].
+ * @param fontFeatureSettings The OpenType font feature settings applied to the text. If `null`,
+ *   uses [RemoteTextStyle.fontFeatureSettings] from [style] (which defaults to
+ *   [RemoteTimeTextDefaults.FontFeatureSettings]), or applies no custom feature settings if also
+ *   `null` in [style].
+ * @param fontVariationSettings The OpenType font variation settings applied to the text. If `null`,
+ *   uses [RemoteTextStyle.fontVariationSettings] from [style] (which defaults to
+ *   [RemoteTimeTextDefaults.FontVariationSettings]), or applies no custom variation settings if
+ *   also `null` in [style].
  */
 @RemoteComposable
 @Composable
@@ -205,19 +243,27 @@ private const val BackgroundCenterOffset = 0.35f
 
 private const val PI_FLOAT = 3.1415927f
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** Contains the default values used by [RemoteTimeText]. */
 public object RemoteTimeTextDefaults {
+    /** Default font family used by [RemoteTimeText]. */
     public val FontFamily: RemoteFontFamily = RemoteFontFamily.Named("google:Roboto Flex")
 
+    /** Default font feature settings used by [RemoteTimeText]. */
     public val FontFeatureSettings: String? = "tnum"
 
+    /** Default font variation settings used by [RemoteTimeText]. */
     public val FontVariationSettings: FontVariation.Settings? = null
 
+    /**
+     * Default background color used by [RemoteTimeText], so the text stays visible on top of other
+     * content.
+     */
     public val backgroundColor: RemoteColor
         @Composable
         @RemoteComposable
         get() = RemoteMaterialTheme.colorScheme.background.copy(alpha = 0.85f.rf)
 
+    /** Default text style used by [RemoteTimeText]. */
     @Suppress("RestrictedApiAndroidX")
     public val TimeTextStyle: RemoteTextStyle =
         RemoteTextStyle(
