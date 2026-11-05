@@ -78,8 +78,8 @@ internal constructor(
      * It is not called when only the [selection], the [composition], or the [textStyles] change.
      *
      * [onTextChanged] runs on the thread that made the edit, before the edit call returns. When
-     * [onTextChanged] runs, [text] and [selection] show the new value, the undo entry is recorded,
-     * and the IME has been notified.
+     * [onTextChanged] runs, any [InputTransformation] has been applied, [text] and [selection] show
+     * the new value, the undo entry is recorded, and the IME has been notified.
      *
      * [onTextChanged] must not change this state. Calling [edit], its helpers, or [UndoState.undo]
      * and [UndoState.redo] on this state from [onTextChanged] throws an [IllegalStateException]. To
@@ -102,7 +102,7 @@ internal constructor(
     public constructor(
         initialText: String = "",
         initialSelection: TextRange = TextRange(initialText.length),
-        onTextChanged: ((CharSequence) -> Unit)?,
+        onTextChanged: (CharSequence) -> Unit,
     ) : this(initialText, initialSelection, TextUndoManager(), null, onTextChanged)
 
     /**
@@ -852,7 +852,8 @@ internal constructor(
      * Saves and restores a [TextFieldState] for [rememberSaveable].
      *
      * A restored state has no `onTextChanged` callback. To restore a state that was created with
-     * `onTextChanged`, use the [Saver] returned by `TextFieldState.Saver(onTextChanged)`.
+     * `onTextChanged`, use the [Saver][androidx.compose.runtime.saveable.Saver] returned by
+     * `TextFieldState.Saver(onTextChanged)`.
      *
      * @see rememberTextFieldState
      */
@@ -877,41 +878,10 @@ internal constructor(
 
         override fun restore(value: Any): TextFieldState? = restore(value, onTextChanged = null)
 
-        /**
-         * Returns a [Saver][ComposeSaver] that saves a [TextFieldState] the same way as [Saver] and
-         * passes [onTextChanged] to the restored state.
-         *
-         * A lambda cannot be saved, so a state restored by [Saver] has no `onTextChanged`. Use this
-         * function to save a state that was created with `onTextChanged`, for example with
-         * `rememberSaveable(saver = TextFieldState.Saver(onTextChanged))`. [rememberTextFieldState]
-         * does this.
-         *
-         * [onTextChanged] is called after each commit that changes the text of the restored state:
-         * user input, [TextFieldState.edit] and its helpers, and undo/redo. It is not called when
-         * only the selection, composition, or styles change. [onTextChanged] runs on the thread
-         * that made the edit, before the edit call returns. When [onTextChanged] runs,
-         * [TextFieldState.text] and [TextFieldState.selection] show the new value, the undo entry
-         * is recorded, and the IME has been notified.
-         *
-         * [onTextChanged] must not change the state. Calling [TextFieldState.edit], its helpers, or
-         * [UndoState.undo] and [UndoState.redo] on the state from [onTextChanged] throws an
-         * [IllegalStateException]. To intercept and modify user input, use [InputTransformation].
-         *
-         * The [CharSequence] passed to [onTextChanged] is provided for convenience and has the same
-         * text content as [TextFieldState.text].
-         *
-         * @param onTextChanged Called after each commit that changes the text of the restored
-         *   state, receiving the new text with the same content as [TextFieldState.text].
-         */
-        public operator fun invoke(
-            onTextChanged: ((CharSequence) -> Unit)?
-        ): ComposeSaver<TextFieldState, Any> =
-            ComposeSaver(
-                save = { with(Saver) { save(it) } },
-                restore = { restore(it, onTextChanged) },
-            )
-
-        private fun restore(value: Any, onTextChanged: ((CharSequence) -> Unit)?): TextFieldState? {
+        internal fun restore(
+            value: Any,
+            onTextChanged: ((CharSequence) -> Unit)?,
+        ): TextFieldState? {
             val list = value as List<*>
             val text = list[0] as String
             val selectionStart = list[1] as Int
@@ -933,6 +903,41 @@ internal constructor(
                 onTextChanged = onTextChanged,
             )
         }
+    }
+
+    public companion object {
+        /**
+         * Returns a [Saver][androidx.compose.runtime.saveable.Saver] that saves a [TextFieldState]
+         * the same way as [TextFieldState.Saver] and passes [onTextChanged] to the restored state.
+         *
+         * A lambda cannot be saved, so a state restored by [TextFieldState.Saver] has no
+         * `onTextChanged`. Use this function to save a state that was created with `onTextChanged`,
+         * for example with `rememberSaveable(saver = TextFieldState.Saver(onTextChanged))`.
+         * [rememberTextFieldState] does this.
+         *
+         * [onTextChanged] is called after each commit that changes the text of the restored state:
+         * user input, [TextFieldState.edit] and its helpers, and undo/redo. It is not called when
+         * only the selection, composition, or styles change. [onTextChanged] runs on the thread
+         * that made the edit, before the edit call returns. When [onTextChanged] runs, any
+         * [InputTransformation] has been applied, [TextFieldState.text] and
+         * [TextFieldState.selection] show the new value, the undo entry is recorded, and the IME
+         * has been notified.
+         *
+         * [onTextChanged] must not change the state. Calling [TextFieldState.edit], its helpers, or
+         * [UndoState.undo] and [UndoState.redo] on the state from [onTextChanged] throws an
+         * [IllegalStateException]. To intercept and modify user input, use [InputTransformation].
+         *
+         * The [CharSequence] passed to [onTextChanged] is provided for convenience and has the same
+         * text content as [TextFieldState.text].
+         *
+         * @param onTextChanged Called after each commit that changes the text of the restored
+         *   state, receiving the new text with the same content as [TextFieldState.text].
+         */
+        public fun Saver(onTextChanged: (CharSequence) -> Unit): ComposeSaver<TextFieldState, Any> =
+            ComposeSaver(
+                save = { with(TextFieldState.Saver) { save(it) } },
+                restore = { TextFieldState.Saver.restore(it, onTextChanged) },
+            )
     }
 }
 
@@ -967,8 +972,9 @@ public fun rememberTextFieldState(
  * composition, or styles change.
  *
  * [onTextChanged] runs on the thread that made the edit, before the edit call returns. When
- * [onTextChanged] runs, [TextFieldState.text] and [TextFieldState.selection] show the new value,
- * the undo entry is recorded, and the IME has been notified.
+ * [onTextChanged] runs, any [InputTransformation] has been applied, [TextFieldState.text] and
+ * [TextFieldState.selection] show the new value, the undo entry is recorded, and the IME has been
+ * notified.
  *
  * [onTextChanged] must not change the state. Calling [TextFieldState.edit], its helpers, or
  * [UndoState.undo] and [UndoState.redo] on the state from [onTextChanged] throws an
@@ -998,7 +1004,7 @@ public fun rememberTextFieldState(
 public fun rememberTextFieldState(
     initialText: String = "",
     initialSelection: TextRange = TextRange(initialText.length),
-    onTextChanged: ((CharSequence) -> Unit)?,
+    onTextChanged: (CharSequence) -> Unit,
 ): TextFieldState =
     rememberSaveable(saver = TextFieldState.Saver(onTextChanged)) {
             TextFieldState(
