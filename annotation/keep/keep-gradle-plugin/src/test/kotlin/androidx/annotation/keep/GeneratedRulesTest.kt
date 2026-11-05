@@ -29,6 +29,13 @@ class GeneratedRulesTest {
 
     @get:Rule val projectSetup = ProjectSetupRule()
 
+    /*
+     * Normalizes and sorts `# context: ...` keep rule blocks for comparison.
+     *
+     * This test actively changes project/plugin dependencies (AAR, application, `project` dependency, and JAR)
+     * which also changes rule ordering and header banners. For a given set of inputs, `ExtractKeepRulesTask`
+     * produces the same result so this stable sort is only relevant for tests.
+     */
     private fun String.sortKeepRulesByComment(): String {
         return split("#")
             .map { it.trim() }
@@ -89,6 +96,119 @@ class GeneratedRulesTest {
                 .that(generatedRulesFile.exists())
                 .isTrue()
             generatedRulesFile.readText()
+        }
+    }
+
+    @Test
+    fun projectDependency() {
+        val projectRoot = projectSetup.rootDir
+
+        // Root settings.gradle includes :app and :lib
+        File(projectRoot, "settings.gradle")
+            .writeText(
+                """
+                rootProject.name = 'multi-project-keep-example'
+                include ':app'
+                include ':lib'
+                """
+                    .trimIndent()
+            )
+
+        // Setup :lib module
+        val libDir = File(projectRoot, "lib")
+        libDir.mkdirs()
+        File(libDir, "build.gradle")
+            .writeText(
+                """
+                plugins {
+                  id("com.android.library")
+                  id("androidx.annotation.keep")
+                }
+
+                ${projectSetup.repositoriesBlock}
+
+                ${projectSetup.androidProject}
+
+                dependencies {
+                  implementation "androidx.annotation.keep:keep:${projectSetup.annoKeepVersion}"
+                }
+
+                android {
+                  namespace = "androidx.keep.annotation.plugin.lib.example"
+                }
+                """
+                    .trimIndent()
+            )
+        val libSrc = File(libDir, "src/main/java/androidx/annotation/keep/examples/KeepExamples.kt")
+        libSrc.parentFile.mkdirs()
+        libSrc.writeText(TEST_KOTLIN_SOURCE)
+
+        // Setup :app module
+        val appDir = File(projectRoot, "app")
+        appDir.mkdirs()
+        File(appDir, "build.gradle")
+            .writeText(
+                """
+                plugins {
+                  id("com.android.application")
+                }
+
+                ${projectSetup.repositoriesBlock}
+
+                ${projectSetup.androidProject}
+
+                dependencies {
+                  implementation(project(":lib"))
+                }
+
+                android {
+                  namespace = "androidx.keep.annotation.plugin.app.example"
+                  buildTypes {
+                    release {
+                      minifyEnabled true
+                      signingConfig signingConfigs.debug
+                    }
+                  }
+                }
+                """
+                    .trimIndent()
+            )
+        val manifestDir = File(appDir, "src/main")
+        manifestDir.mkdirs()
+        File(manifestDir, "AndroidManifest.xml")
+            .writeText(
+                """
+                <?xml version="1.0" encoding="utf-8"?>
+                <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+                    <application />
+                </manifest>
+                """
+                    .trimIndent()
+            )
+
+        // Build :app:assembleRelease
+        projectSetup.createRunner(":app:assembleRelease").build()
+
+        // 1. Verify library generated the keep rules file
+        val libRulesFile = File(libDir, "build/generated/release/$GENERATED_KEEP_RULES")
+        assertWithMessage("Generated keep rules file missing in library: $libRulesFile")
+            .that(libRulesFile.exists())
+            .isTrue()
+        assertThat(libRulesFile.readText().trim().sortKeepRulesByComment())
+            .isEqualTo(EXPECTED_RULES.trim().sortKeepRulesByComment())
+
+        // 2. Verify app minification consumed and applied the library's keep rules
+        val appConfigFile = File(appDir, "build/outputs/mapping/release/configuration.txt")
+        assertWithMessage("App R8 configuration.txt missing: $appConfigFile")
+            .that(appConfigFile.exists())
+            .isTrue()
+        val appConfigText = appConfigFile.readText()
+        val expectedRuleLines =
+            EXPECTED_RULES.lines().map { it.trim() }.filter { it.startsWith("-") }
+        for (rule in expectedRuleLines) {
+            assertWithMessage("App configuration.txt missing rule from library: $rule")
+                .that(appConfigText)
+                .contains(rule)
         }
     }
 

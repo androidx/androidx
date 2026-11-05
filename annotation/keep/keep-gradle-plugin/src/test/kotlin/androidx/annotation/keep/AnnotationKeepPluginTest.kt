@@ -32,10 +32,12 @@ class AnnotationKeepPluginTest {
         val result = projectSetup.createRunner("tasks").build()
         assertThat(result.output)
             .contains(
-                "releaseKeepRulesTransformAar - Transforms the release AAR to inject keep rules."
+                "releaseExtractKeepRules - Extracts keep rules from annotations for the release variant."
             )
         assertThat(result.output)
-            .contains("debugKeepRulesTransformAar - Transforms the debug AAR to inject keep rules.")
+            .contains(
+                "debugExtractKeepRules - Extracts keep rules from annotations for the debug variant."
+            )
     }
 
     @Test
@@ -77,7 +79,7 @@ class AnnotationKeepPluginTest {
     }
 
     @Test
-    fun kotlinMultiplatformLibraryRegistersTransformAarTask() {
+    fun kotlinMultiplatformLibraryRegistersExtractKeepRulesTask() {
         val projectRoot = projectSetup.rootDir
         val buildScript =
             """
@@ -108,7 +110,7 @@ class AnnotationKeepPluginTest {
 
         assertThat(result.output)
             .contains(
-                "androidMainKeepRulesTransformAar - Transforms the androidMain AAR to inject keep rules."
+                "androidMainExtractKeepRules - Extracts keep rules from annotations for the androidMain variant."
             )
     }
 
@@ -198,5 +200,13 @@ class AnnotationKeepPluginTest {
             projectSetup.createRunner("keepRulesTransformJar", "--configuration-cache").build()
 
         assertThat(ccResult.output).contains("BUILD SUCCESSFUL")
+    }
+
+    @Test
+    fun javaLibraryIsNoOpByDefault() {
+        projectSetup.setupJavaLibrary()
+        val result = projectSetup.createRunner("tasks").build()
+        assertThat(result.output).doesNotContain("ExtractKeepRules")
+        assertThat(result.output).doesNotContain("KeepRulesTransform")
     }
 }
