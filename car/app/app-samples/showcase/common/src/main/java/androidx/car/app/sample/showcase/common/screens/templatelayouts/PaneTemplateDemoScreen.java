@@ -121,7 +121,7 @@ public final class PaneTemplateDemoScreen extends Screen implements DefaultLifec
 
         Action.Builder primaryActionBuilder = new Action.Builder()
                 .setTitle(getCarContext().getString(R.string.search_action_title))
-                .setBackgroundColor(CarColor.BLUE)
+                .setBackgroundColor(CarColor.PRIMARY)
                 .setOnClickListener(
                         () -> CarToast.makeText(
                                         getCarContext(),
@@ -147,7 +147,7 @@ public final class PaneTemplateDemoScreen extends Screen implements DefaultLifec
                                 .build());
 
         CarIconStyle carIconStyle =
-                new CarIconStyle.Builder(CarIconStyle.TINTED).setTint(CarColor.BLUE).build();
+                new CarIconStyle.Builder(CarIconStyle.TINTED).setTint(CarColor.PRIMARY).build();
         Action mapXAction = new Action.Builder()
                 .setTitle("Map+X this!")
                 .setIcon(
