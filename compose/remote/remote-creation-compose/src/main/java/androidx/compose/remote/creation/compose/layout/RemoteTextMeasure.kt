@@ -65,8 +65,7 @@ public class RemoteTextMeasurer(internal val density: RemoteDensity) {
      * Measures [text] as a single unconstrained line and returns a [RemoteTextLayoutResult].
      *
      * Mirrors [androidx.compose.ui.text.TextMeasurer.measure] for single-line text (`softWrap =
-     * false`, `maxLines = 1`) with
-     * [androidx.compose.ui.text.PlatformParagraphStyle.includeFontPadding] disabled:
+     * false`, `maxLines = 1`) with `includeFontPadding` disabled:
      * * [RemoteTextLayoutResult.size] spans the advance width and font-box height (`descent -
      *   ascent`), matching a single-line [RemoteText] layout box and
      *   [androidx.compose.ui.text.TextLayoutResult.size].
@@ -275,10 +274,9 @@ public constructor(
     /**
      * Contains the single-line layout box dimensions in pixels.
      *
-     * * Matches [androidx.compose.ui.text.TextLayoutResult.size] when
-     *   [androidx.compose.ui.text.PlatformParagraphStyle.includeFontPadding] is `false`: [width]
-     *   includes glyph side-bearings and spaces, and [height] spans the font box (`descent -
-     *   ascent`).
+     * * Matches [androidx.compose.ui.text.TextLayoutResult.size] when `includeFontPadding` is
+     *   `false`: [width] includes glyph side-bearings and spaces, and [height] spans the font box
+     *   (`descent - ascent`).
      */
     public val size: RemoteSize,
     /**
@@ -334,9 +332,8 @@ public constructor(
      * * Corresponds to `getLineTop(0) - firstBaseline` on
      *   [androidx.compose.ui.text.TextLayoutResult] (see
      *   [androidx.compose.ui.text.TextLayoutResult.getLineTop] and
-     *   [androidx.compose.ui.text.TextLayoutResult.firstBaseline]) when
-     *   [androidx.compose.ui.text.PlatformParagraphStyle.includeFontPadding] is `false`, and to
-     *   [android.graphics.Paint.FontMetrics.ascent].
+     *   [androidx.compose.ui.text.TextLayoutResult.firstBaseline]) when `includeFontPadding` is
+     *   `false`, and to [android.graphics.Paint.FontMetrics.ascent].
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val ascent: RemoteFloat,
     /**
@@ -345,9 +342,8 @@ public constructor(
      * * Corresponds to `getLineBottom(0) - firstBaseline` on
      *   [androidx.compose.ui.text.TextLayoutResult] (see
      *   [androidx.compose.ui.text.TextLayoutResult.getLineBottom] and
-     *   [androidx.compose.ui.text.TextLayoutResult.firstBaseline]) when
-     *   [androidx.compose.ui.text.PlatformParagraphStyle.includeFontPadding] is `false`, and to
-     *   [android.graphics.Paint.FontMetrics.descent].
+     *   [androidx.compose.ui.text.TextLayoutResult.firstBaseline]) when `includeFontPadding` is
+     *   `false`, and to [android.graphics.Paint.FontMetrics.descent].
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val descent: RemoteFloat,
     /**
@@ -410,8 +406,8 @@ public constructor(
      * * Matches [androidx.compose.ui.text.TextLayoutResult.size] height (and single-line
      *   `getLineBottom(0) - getLineTop(0)` from
      *   [androidx.compose.ui.text.TextLayoutResult.getLineBottom] and
-     *   [androidx.compose.ui.text.TextLayoutResult.getLineTop]) when
-     *   [androidx.compose.ui.text.PlatformParagraphStyle.includeFontPadding] is `false`.
+     *   [androidx.compose.ui.text.TextLayoutResult.getLineTop]) when `includeFontPadding` is
+     *   `false`.
      */
     public val height: RemoteFloat
         get() = size.height
