@@ -20,8 +20,6 @@ import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.toArgb
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -255,8 +253,8 @@ class RemotePaintTest {
         val remotePaint = compatPaint.asRemotePaint()
 
         assertThat(remotePaint.strokeWidth.constantValue).isEqualTo(15f)
-        assertThat(remotePaint.strokeCap).isEqualTo(StrokeCap.Round)
-        assertThat(remotePaint.strokeJoin).isEqualTo(StrokeJoin.Bevel)
+        assertThat(remotePaint.strokeCap).isEqualTo(RemoteStrokeCap.Round)
+        assertThat(remotePaint.strokeJoin).isEqualTo(RemoteStrokeJoin.Bevel)
     }
 
     @Test

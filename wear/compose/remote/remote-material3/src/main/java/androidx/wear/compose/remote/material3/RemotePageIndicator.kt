@@ -29,6 +29,7 @@ import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.abs
 import androidx.compose.remote.creation.compose.state.cos
 import androidx.compose.remote.creation.compose.state.floor
@@ -44,7 +45,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.graphics.StrokeCap
 
 /** An interface for connection between Pager and remote page indicators. */
 @Stable
@@ -313,7 +313,7 @@ private fun RemoteDrawScope.drawPageIndicators(
         this.color = backgroundColor
         style = PaintingStyle.Stroke
         strokeWidth = backgroundStrokeWidthPx
-        strokeCap = StrokeCap.Round
+        strokeCap = RemoteStrokeCap.Round
     }
     drawArc(
         paint = bgPaint,
@@ -499,7 +499,7 @@ private fun RemoteDrawScope.drawPageIndicators(
         this.color = selectedColor
         style = PaintingStyle.Stroke
         strokeWidth = radius * 2f.rf
-        strokeCap = StrokeCap.Round
+        strokeCap = RemoteStrokeCap.Round
     }
 
     drawArc(

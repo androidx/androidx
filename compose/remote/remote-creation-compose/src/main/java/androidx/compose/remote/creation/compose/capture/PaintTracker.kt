@@ -121,13 +121,13 @@ internal class PaintTracker {
                 paintBundle.setStrokeWidth(it)
             }
 
-        val targetCap = newPaint.remoteStrokeCap.value
+        val targetCap = newPaint.strokeCap.value
         updateIfChanged(targetCap, strokeCap) {
             strokeCap = targetCap
             paintBundle.setStrokeCap(targetCap)
         }
 
-        val targetJoin = newPaint.remoteStrokeJoin.value
+        val targetJoin = newPaint.strokeJoin.value
         updateIfChanged(targetJoin, strokeJoin) {
             strokeJoin = targetJoin
             paintBundle.setStrokeJoin(targetJoin)

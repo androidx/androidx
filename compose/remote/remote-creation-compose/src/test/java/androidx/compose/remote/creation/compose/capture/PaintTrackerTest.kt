@@ -51,8 +51,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.unit.sp
@@ -183,8 +181,8 @@ class PaintTrackerTest {
     fun testStyleSync() {
         val paint = RemotePaint {
             style = PaintingStyle.Stroke
-            strokeCap = StrokeCap.Round
-            strokeJoin = StrokeJoin.Bevel
+            strokeCap = RemoteStrokeCap.Round
+            strokeJoin = RemoteStrokeJoin.Bevel
         }
         val bundle = PaintBundle()
         tracker.updateWithPaint(paint, bundle, creationState)
@@ -897,19 +895,18 @@ class PaintTrackerTest {
     fun testAndroidPaintStrokeCapSync() {
         val strokeCaps =
             listOf(
-                Triple(AndroidPaint.Cap.BUTT, StrokeCap.Butt, RemoteStrokeCap.Butt),
-                Triple(AndroidPaint.Cap.ROUND, StrokeCap.Round, RemoteStrokeCap.Round),
-                Triple(AndroidPaint.Cap.SQUARE, StrokeCap.Square, RemoteStrokeCap.Square),
+                Pair(AndroidPaint.Cap.BUTT, RemoteStrokeCap.Butt),
+                Pair(AndroidPaint.Cap.ROUND, RemoteStrokeCap.Round),
+                Pair(AndroidPaint.Cap.SQUARE, RemoteStrokeCap.Square),
             )
         assertThat(strokeCaps.map { it.first }).containsExactlyElementsIn(AndroidPaint.Cap.entries)
-        for ((androidCap, composeCap, remoteCap) in strokeCaps) {
+        for ((androidCap, remoteCap) in strokeCaps) {
             val androidPaint = AndroidPaint().apply { strokeCap = androidCap }
             assertThat(androidPaint.strokeCap).isEqualTo(androidCap)
 
             val paint = androidPaint.asRemotePaint()
 
-            assertWithMessage("$androidCap").that(paint.strokeCap).isEqualTo(composeCap)
-            assertWithMessage("$androidCap").that(paint.remoteStrokeCap).isEqualTo(remoteCap)
+            assertWithMessage("$androidCap").that(paint.strokeCap).isEqualTo(remoteCap)
             assertWithMessage("$androidCap")
                 .that(initialSync(paint).mStrokeCap)
                 .isEqualTo(remoteCap.value)
@@ -920,20 +917,19 @@ class PaintTrackerTest {
     fun testAndroidPaintStrokeJoinSync() {
         val strokeJoins =
             listOf(
-                Triple(AndroidPaint.Join.MITER, StrokeJoin.Miter, RemoteStrokeJoin.Miter),
-                Triple(AndroidPaint.Join.ROUND, StrokeJoin.Round, RemoteStrokeJoin.Round),
-                Triple(AndroidPaint.Join.BEVEL, StrokeJoin.Bevel, RemoteStrokeJoin.Bevel),
+                Pair(AndroidPaint.Join.MITER, RemoteStrokeJoin.Miter),
+                Pair(AndroidPaint.Join.ROUND, RemoteStrokeJoin.Round),
+                Pair(AndroidPaint.Join.BEVEL, RemoteStrokeJoin.Bevel),
             )
         assertThat(strokeJoins.map { it.first })
             .containsExactlyElementsIn(AndroidPaint.Join.entries)
-        for ((androidJoin, composeJoin, remoteJoin) in strokeJoins) {
+        for ((androidJoin, remoteJoin) in strokeJoins) {
             val androidPaint = AndroidPaint().apply { strokeJoin = androidJoin }
             assertThat(androidPaint.strokeJoin).isEqualTo(androidJoin)
 
             val paint = androidPaint.asRemotePaint()
 
-            assertWithMessage("$androidJoin").that(paint.strokeJoin).isEqualTo(composeJoin)
-            assertWithMessage("$androidJoin").that(paint.remoteStrokeJoin).isEqualTo(remoteJoin)
+            assertWithMessage("$androidJoin").that(paint.strokeJoin).isEqualTo(remoteJoin)
             assertWithMessage("$androidJoin")
                 .that(initialSync(paint).mStrokeJoin)
                 .isEqualTo(remoteJoin.value)
@@ -956,11 +952,9 @@ class PaintTrackerTest {
         assertThat(paint.style).isEqualTo(PaintingStyle.Fill)
         assertThat(paint.remoteStyle).isEqualTo(RemotePaintingStyle.Fill)
         assertThat(changes.mStyle).isEqualTo(RemotePaintingStyle.Fill.value)
-        assertThat(paint.strokeCap).isEqualTo(StrokeCap.Butt)
-        assertThat(paint.remoteStrokeCap).isEqualTo(RemoteStrokeCap.Butt)
+        assertThat(paint.strokeCap).isEqualTo(RemoteStrokeCap.Butt)
         assertThat(changes.mStrokeCap).isEqualTo(RemoteStrokeCap.Butt.value)
-        assertThat(paint.strokeJoin).isEqualTo(StrokeJoin.Miter)
-        assertThat(paint.remoteStrokeJoin).isEqualTo(RemoteStrokeJoin.Miter)
+        assertThat(paint.strokeJoin).isEqualTo(RemoteStrokeJoin.Miter)
         assertThat(changes.mStrokeJoin).isEqualTo(RemoteStrokeJoin.Miter.value)
     }
 

@@ -97,6 +97,8 @@ import androidx.compose.remote.creation.compose.state.RemoteLong.Companion.creat
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createRotate
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
+import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
 import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.createNamedRemoteColor
@@ -121,8 +123,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.testTag
@@ -1450,7 +1450,7 @@ class RcPlayerPrimitivesTest {
                     RemotePaint().apply {
                         style = PaintingStyle.Stroke
                         strokeWidth = 5f.rf
-                        strokeCap = StrokeCap.Round
+                        strokeCap = RemoteStrokeCap.Round
                     }
                 drawLine(
                     paint,
@@ -1651,7 +1651,7 @@ class RcPlayerPrimitivesTest {
                     RemotePaint().apply {
                         style = PaintingStyle.Stroke
                         strokeWidth = 5f.rf
-                        strokeJoin = StrokeJoin.Round
+                        strokeJoin = RemoteStrokeJoin.Round
                     }
                 drawRect(
                     paint,

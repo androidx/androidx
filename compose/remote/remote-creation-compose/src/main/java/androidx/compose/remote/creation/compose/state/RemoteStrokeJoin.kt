@@ -16,16 +16,14 @@
 
 package androidx.compose.remote.creation.compose.state
 
-import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import kotlin.jvm.JvmInline
 
 /** Styles to use for line segment joins. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
 @JvmInline
-public value class RemoteStrokeJoin internal constructor(public val value: Int) {
+public value class RemoteStrokeJoin internal constructor(internal val value: Int) {
     override fun toString(): String =
         when (this) {
             Miter -> "Miter"
