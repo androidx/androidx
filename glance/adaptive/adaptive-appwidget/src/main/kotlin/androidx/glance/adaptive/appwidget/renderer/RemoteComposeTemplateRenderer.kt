@@ -20,6 +20,7 @@ import android.content.Context
 import android.os.Build
 import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
@@ -113,7 +114,8 @@ internal class RemoteComposeRenderOutput(val content: @RemoteComposable @Composa
  * @param S The type of [GlanceSurface] this renderer targets.
  * @param A The layout archetype resolved for this render pass.
  */
-internal fun interface RemoteComposeTemplateRenderer<
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun interface RemoteComposeTemplateRenderer<
     in T : GlanceAdaptiveTemplate,
     in S : GlanceSurface,
     in A : Any,
@@ -130,7 +132,7 @@ internal fun interface RemoteComposeTemplateRenderer<
      * @return The `@RemoteComposable @Composable` content lambda to capture into a RemoteCompose
      *   document.
      */
-    fun renderRemoteCompose(
+    public fun renderRemoteCompose(
         template: T,
         archetype: A,
         surface: S,

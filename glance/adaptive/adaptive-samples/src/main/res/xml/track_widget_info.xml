@@ -15,9 +15,10 @@
   limitations under the License.
   -->
 
+<!-- TODO(b/581767548): Tune minWidth/minHeight across portrait phone and pre-API 31 grids. -->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:minWidth="40dp"
-    android:minHeight="40dp"
+    android:minWidth="250dp"
+    android:minHeight="180dp"
     android:minResizeWidth="40dp"
     android:minResizeHeight="40dp"
     android:targetCellWidth="3"

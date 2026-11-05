@@ -18,8 +18,9 @@
 <resources>
     <string name="app_name">Glance Adaptive Samples</string>
     <string name="pin_widget_instructions">Tap a widget to pin it to the home screen.</string>
-    <string name="pin_widget_unsupported">This launcher does not support pinning.</string>
+    <string name="pin_widget_failed">Couldn\'t request to pin this widget.</string>
 
     <string name="track_widget_name">Track Activity Widget</string>
     <string name="track_widget_description">Adaptive Track template widget for fitness metrics</string>
+    <string name="track_remoteviews_widget_name">Track Activity Widget (RemoteViews)</string>
 </resources>
