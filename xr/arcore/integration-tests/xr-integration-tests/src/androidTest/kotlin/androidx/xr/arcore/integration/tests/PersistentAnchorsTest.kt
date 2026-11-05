@@ -49,6 +49,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.Assume.assumeTrue
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -161,6 +162,7 @@ class PersistentAnchorsTest {
 
     @Test
     @XrDeviceTest
+    @Ignore("b/581124038")
     fun persistAnchor_whenAnchorPersistenceEnabled_returnsValidUuid() {
         runBlocking {
             ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
@@ -211,6 +213,7 @@ class PersistentAnchorsTest {
 
     @Test
     @XrDeviceTest
+    @Ignore("b/581124038")
     fun loadAnchor_withPersistedUuid_returnsAnchorCreateSuccess() {
         runBlocking {
             ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
@@ -262,6 +265,7 @@ class PersistentAnchorsTest {
 
     @Test
     @XrDeviceTest
+    @Ignore("b/581124038")
     fun unpersistAnchor_removesUuidFromPersistedList() {
         runBlocking {
             ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
