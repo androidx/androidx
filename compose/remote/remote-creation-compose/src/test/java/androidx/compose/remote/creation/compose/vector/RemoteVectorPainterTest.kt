@@ -19,17 +19,21 @@ package androidx.compose.remote.creation.compose.vector
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.capture.path
+import androidx.compose.remote.creation.compose.capture.toRemoteImageVector
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.shaders.horizontalGradient
 import androidx.compose.remote.creation.compose.shaders.radialGradient
 import androidx.compose.remote.creation.compose.shaders.solidColor
+import androidx.compose.remote.creation.compose.state.RemoteBlendMode
+import androidx.compose.remote.creation.compose.state.RemoteBlendModeColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePathFillType
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType
@@ -203,5 +207,34 @@ class RemoteVectorPainterTest {
         val creationState = RemoteComposeCreationState(AndroidxRcPlatformServices(), Size(48f, 48f))
         val remoteCanvas = RemoteCanvas(creationState)
         remoteImageVector.draw(remoteCanvas)
+    }
+
+    @Test
+    fun painterRemoteVector_fromConvertedImageVector_keepsTintBlendMode() {
+        val imageVector =
+            ImageVector.Builder(
+                    name = "ModulateVector",
+                    defaultWidth = 24.dp,
+                    defaultHeight = 24.dp,
+                    viewportWidth = 24f,
+                    viewportHeight = 24f,
+                    tintColor = Color.Red,
+                    tintBlendMode = BlendMode.Modulate,
+                )
+                .addPath(
+                    PathData {
+                        moveTo(0f, 0f)
+                        lineTo(24f, 24f)
+                    },
+                    fill = SolidColor(Color.Red),
+                )
+                .build()
+
+        val remoteImageVector = imageVector.toRemoteImageVector()
+        assertThat(remoteImageVector.remoteTintBlendMode).isEqualTo(RemoteBlendMode.Modulate)
+
+        val painter = painterRemoteVector(remoteImageVector) as RemoteVectorPainter
+        val colorFilter = painter.intrinsicColorFilter as RemoteBlendModeColorFilter
+        assertThat(colorFilter.blendMode).isEqualTo(RemoteBlendMode.Modulate)
     }
 }

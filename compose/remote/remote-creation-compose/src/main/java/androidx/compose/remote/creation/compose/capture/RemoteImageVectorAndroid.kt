@@ -23,6 +23,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.toRemoteBlendMode
 import androidx.compose.remote.creation.compose.layout.toRemotePathFillType
 import androidx.compose.remote.creation.compose.layout.toRemoteStrokeCap
 import androidx.compose.remote.creation.compose.layout.toRemoteStrokeJoin
@@ -172,7 +173,7 @@ public fun ImageVector.toRemoteImageVector(): RemoteImageVector {
             viewportHeight = vHeight,
             tintColor = RemoteColor(tintColor),
             name = name,
-            tintBlendMode = tintBlendMode,
+            tintBlendMode = tintBlendMode.toRemoteBlendMode(),
             autoMirror = autoMirror,
         )
 
