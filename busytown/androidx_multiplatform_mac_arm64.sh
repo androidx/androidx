@@ -6,8 +6,6 @@ export ANDROIDX_PROJECTS=MAC
 
 export USE_ANDROIDX_REMOTE_BUILD_CACHE=gcp
 
-sharedArgs="-Pandroidx.lowMemory $*"
-
 # Temporary network tests to debug intermittent cache connectivity failures
 set -x
 # 1. Check DNS resolution time
@@ -24,4 +22,4 @@ ulimit -n
 netstat -an | grep ESTABLISHED | wc -l
 set +x
 
-impl/build.sh buildOnServer createAllArchives listTaskOutputs checkExternalLicenses "$sharedArgs"
+impl/build.sh buildOnServer createAllArchives listTaskOutputs checkExternalLicenses "$*"
