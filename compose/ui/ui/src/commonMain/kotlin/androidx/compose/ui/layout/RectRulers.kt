@@ -15,6 +15,8 @@
  */
 package androidx.compose.ui.layout
 
+import kotlin.js.JsName
+
 /**
  * A collection of [Ruler]s used to define a Rectangle.
  *
@@ -37,7 +39,7 @@ public interface RectRulers {
 }
 
 /** Creates a [RectRulers]. */
-public fun RectRulers(): RectRulers = RectRulersImpl(null)
+@JsName("funRectRulers") public fun RectRulers(): RectRulers = RectRulersImpl(null)
 
 internal fun RectRulers(name: String): RectRulers = RectRulersImpl(name)
 
