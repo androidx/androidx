@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
 package androidx.wear.compose.remote.material3
 
 import androidx.annotation.IntRange
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
@@ -49,13 +46,16 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** An interface for connection between Pager and remote page indicators. */
 @Stable
 public interface RemotePageIndicatorState {
+    /** Total number of pages. */
     @get:IntRange(from = 0) public val pageCount: Int
 
+    /** The currently selected page index. */
     public val selectedPage: RemoteInt
 
+    /** The current offset from the start of the selected page, as a ratio of the page width. */
     public val pageOffset: RemoteFloat
 }
 
@@ -73,7 +73,18 @@ internal class DefaultRemotePageIndicatorState(
     override val pageOffset: RemoteFloat = 0f.rf,
 ) : RemotePageIndicatorState
 
-/** @sample androidx.wear.compose.remote.material3.samples.RemoteHorizontalPageIndicatorSample */
+/**
+ * Creates and remembers a [RemotePageIndicatorState].
+ *
+ * Example of remembering state for a [RemoteHorizontalPageIndicator]:
+ *
+ * @sample androidx.wear.compose.remote.material3.samples.RemoteHorizontalPageIndicatorSample
+ * @param pageCount Total number of pages (must be non-negative).
+ * @param selectedPage The currently selected page index.
+ * @param pageOffset The current offset from the start of the selected page, as a ratio of the page
+ *   width.
+ * @return the remembered [RemotePageIndicatorState]
+ */
 @Composable
 @RemoteComposable
 public fun rememberRemotePageIndicatorState(
@@ -90,27 +101,49 @@ public fun rememberRemotePageIndicatorState(
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** Contains default values used by remote page indicators. */
 public object RemotePageIndicatorDefaults {
+    /** Default color of the selected page indicator. */
     public val selectedColor: RemoteColor
         @Composable @RemoteComposable get() = RemoteMaterialTheme.colorScheme.onBackground
 
+    /** Default color of unselected page indicators. */
     public val unselectedColor: RemoteColor
         @Composable
         @RemoteComposable
         get() = RemoteMaterialTheme.colorScheme.onBackground.copy(alpha = 0.3f.rf)
 
+    /** Default color of the indicator background. */
     public val backgroundColor: RemoteColor
         @Composable
         @RemoteComposable
         get() = RemoteMaterialTheme.colorScheme.background.copy(alpha = 0.85f.rf)
 
+    /** Default size (diameter) of each circular indicator dot. */
     public val IndicatorSize: RemoteDp = 6.rdp
 
+    /**
+     * Default padding of the page indicator from the edge of the screen (8dp aligns with standard
+     * Compose edgePadding + background offset).
+     */
     public val PageIndicatorPadding: RemoteDp = 8.rdp
 }
 
-/** @sample androidx.wear.compose.remote.material3.samples.RemoteHorizontalPageIndicatorSample */
+/**
+ * A horizontal page indicator curved along the bottom edge of the screen. Pages are indicated as a
+ * Circle shape.
+ *
+ * Example of a [RemoteHorizontalPageIndicator] curved along the bottom of the screen:
+ *
+ * @sample androidx.wear.compose.remote.material3.samples.RemoteHorizontalPageIndicatorSample
+ * @param state The state object of the page indicator.
+ * @param modifier The modifier to be applied to the layout.
+ * @param selectedColor The color of the selected page indicator.
+ * @param unselectedColor The color of unselected page indicators.
+ * @param backgroundColor The color of the page indicator background.
+ * @param indicatorSize The size (diameter) of each circular indicator dot.
+ * @param padding The padding of the indicator from the bottom edge of the screen.
+ */
 @RemoteComposable
 @Composable
 public fun RemoteHorizontalPageIndicator(
@@ -134,7 +167,21 @@ public fun RemoteHorizontalPageIndicator(
     )
 }
 
-/** @sample androidx.wear.compose.remote.material3.samples.RemoteVerticalPageIndicatorSample */
+/**
+ * A vertical page indicator curved along the right edge of the screen. Pages are indicated as a
+ * Circle shape.
+ *
+ * Example of a [RemoteVerticalPageIndicator] curved along the side of the screen:
+ *
+ * @sample androidx.wear.compose.remote.material3.samples.RemoteVerticalPageIndicatorSample
+ * @param state The state object of the page indicator.
+ * @param modifier The modifier to be applied to the layout.
+ * @param selectedColor The color of the selected page indicator.
+ * @param unselectedColor The color of unselected page indicators.
+ * @param backgroundColor The color of the page indicator background.
+ * @param indicatorSize The size (diameter) of each circular indicator dot.
+ * @param padding The padding of the indicator from the right edge of the screen.
+ */
 @RemoteComposable
 @Composable
 public fun RemoteVerticalPageIndicator(
