@@ -34,6 +34,7 @@ import androidx.annotation.RestrictTo
     ErrorCode.INTERNAL_ERROR,
     ErrorCode.CHANGES_TOKEN_OUTDATED,
     ErrorCode.TRANSACTION_TOO_LARGE,
+    ErrorCode.RATE_LIMITED,
 )
 @Retention(AnnotationRetention.SOURCE)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -92,5 +93,8 @@ public annotation class ErrorCode {
 
         /** Remote end failed to deliver response, likely due to parcel too large. */
         public const val TRANSACTION_TOO_LARGE: Int = 10010
+
+        /** Calling application has been rate limited and the request rejected. */
+        public const val RATE_LIMITED: Int = 10011
     }
 }

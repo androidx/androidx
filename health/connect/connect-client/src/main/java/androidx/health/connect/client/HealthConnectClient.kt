@@ -40,6 +40,9 @@ import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.devicedatasource.DeviceDataSource
 import androidx.health.connect.client.devicedatasource.DeviceDataSourceCapabilities
 import androidx.health.connect.client.devicedatasource.GetDeviceDataSourcesResponse
+import androidx.health.connect.client.exceptions.RateLimitExceededException
+import androidx.health.connect.client.exceptions.RecordTooLargeException
+import androidx.health.connect.client.exceptions.RequestTooLargeException
 import androidx.health.connect.client.feature.ExperimentalPersonalHealthRecordApi
 import androidx.health.connect.client.feature.FEATURE_CONSTANT_NAME_DEVICE_DATA_PROVIDERS
 import androidx.health.connect.client.feature.FEATURE_CONSTANT_NAME_MATCHMAKING
@@ -108,6 +111,14 @@ public interface HealthConnectClient {
      * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws java.io.IOException For any disk I/O issues.
+     * @throws RateLimitExceededException If the caller has exceeded its API call or rolling memory
+     *   rate limit quota.
+     * @throws RequestTooLargeException If the total size of [records] exceeds the maximum allowed
+     *   request size limit (thrown on Android 14 and higher; in previous versions of this library,
+     *   this threw [IllegalStateException]).
+     * @throws RecordTooLargeException If any single record in [records] exceeds the maximum allowed
+     *   single-record size limit (thrown on Android 14 and higher; in previous versions of this
+     *   library, this threw [IllegalStateException]).
      *
      * For example, to insert basic data like step counts:
      *
@@ -140,6 +151,14 @@ public interface HealthConnectClient {
      *   identifiers will result in IPC failure.
      * @throws SecurityException For requests with unpermitted access.
      * @throws java.io.IOException For any disk I/O issues.
+     * @throws RateLimitExceededException If the caller has exceeded its API call or rolling memory
+     *   rate limit quota.
+     * @throws RequestTooLargeException If the total size of [records] exceeds the maximum allowed
+     *   request size limit (thrown on Android 14 and higher; in previous versions of this library,
+     *   this threw [IllegalStateException]).
+     * @throws RecordTooLargeException If any single record in [records] exceeds the maximum allowed
+     *   single-record size limit (thrown on Android 14 and higher; in previous versions of this
+     *   library, this threw [IllegalStateException]).
      */
     public suspend fun updateRecords(records: List<Record>)
 
@@ -156,6 +175,8 @@ public interface HealthConnectClient {
      *   will result in IPC failure.
      * @throws SecurityException For requests with unpermitted access.
      * @throws java.io.IOException For any disk I/O issues.
+     * @throws RateLimitExceededException If the caller has exceeded its API call or rolling memory
+     *   rate limit quota.
      *
      * Example usage to delete written steps data by its unique identifier:
      *
@@ -177,6 +198,8 @@ public interface HealthConnectClient {
      * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws java.io.IOException For any disk I/O issues.
+     * @throws RateLimitExceededException If the caller has exceeded its API call or rolling memory
+     *   rate limit quota.
      *
      * Example usage to delete written steps data in a time range:
      *
@@ -198,6 +221,8 @@ public interface HealthConnectClient {
      *   identifiers will result in IPC failure.
      * @throws SecurityException For requests with unpermitted access.
      * @throws java.io.IOException For any disk I/O issues.
+     * @throws RateLimitExceededException If the caller has exceeded its API call or rolling memory
+     *   rate limit quota.
      */
     public suspend fun <T : Record> readRecord(
         recordType: KClass<T>,
@@ -213,6 +238,8 @@ public interface HealthConnectClient {
      * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws java.io.IOException For any disk I/O issues.
+     * @throws RateLimitExceededException If the caller has exceeded its API call or rolling memory
+     *   rate limit quota.
      *
      * Example code to read basic data like step counts:
      *
@@ -232,6 +259,8 @@ public interface HealthConnectClient {
      * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws java.io.IOException For any disk I/O issues.
+     * @throws RateLimitExceededException If the caller has exceeded its API call or rolling memory
+     *   rate limit quota.
      *
      * Example code to aggregate cumulative data like distance:
      *
@@ -261,6 +290,8 @@ public interface HealthConnectClient {
      * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws java.io.IOException For any disk I/O issues.
+     * @throws RateLimitExceededException If the caller has exceeded its API call or rolling memory
+     *   rate limit quota.
      *
      * Example code to retrieve cumulative step count for each minute within provided time range:
      *
@@ -288,6 +319,8 @@ public interface HealthConnectClient {
      * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws java.io.IOException For any disk I/O issues.
+     * @throws RateLimitExceededException If the caller has exceeded its API call or rolling memory
+     *   rate limit quota.
      *
      * Example code to retrieve cumulative step count for each month within provided time range:
      *
@@ -312,6 +345,8 @@ public interface HealthConnectClient {
      * @return a changes-token
      * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
+     * @throws RateLimitExceededException If the caller has exceeded its API call or rolling memory
+     *   rate limit quota.
      * @see getChanges
      */
     public suspend fun getChangesToken(request: ChangesTokenRequest): String
@@ -342,6 +377,8 @@ public interface HealthConnectClient {
      * @return a [ChangesResponse] with changes since provided [changesToken].
      * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
+     * @throws RateLimitExceededException If the caller has exceeded its API call or rolling memory
+     *   rate limit quota.
      * @see getChangesToken
      */
     public suspend fun getChanges(changesToken: String): ChangesResponse
@@ -359,6 +396,8 @@ public interface HealthConnectClient {
      * @return a [ChangesResponse] with changes since provided [changesToken].
      * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
+     * @throws RateLimitExceededException If the caller has exceeded its API call or rolling memory
+     *   rate limit quota.
      * @see getChangesToken
      */
     public suspend fun getChanges(
@@ -422,6 +461,14 @@ public interface HealthConnectClient {
      * @throws IllegalArgumentException if any request is failed to be processed for any reason such
      *   as invalid [UpsertMedicalResourceRequest.dataSourceId]
      * @throws SecurityException if caller does not hold [PERMISSION_WRITE_MEDICAL_DATA].
+     * @throws RateLimitExceededException if the caller has exceeded its API call or rolling memory
+     *   rate limit quota.
+     * @throws RequestTooLargeException if the total size of [requests] exceeds the maximum allowed
+     *   request size limit (thrown on Android 14 and higher; in previous versions of this library,
+     *   this threw [IllegalStateException]).
+     * @throws RecordTooLargeException if any single request in [requests] exceeds the maximum
+     *   allowed single-record size limit (thrown on Android 14 and higher; in previous versions of
+     *   this library, this threw [IllegalStateException]).
      * @sample androidx.health.connect.client.samples.UpsertMedicalResourcesSample
      */
     @RequiresPermission("android.permission.health.WRITE_MEDICAL_DATA")
