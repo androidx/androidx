@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
 package androidx.wear.compose.remote.material3
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.capture.currentProfileSupportsTouchModifiers
@@ -54,8 +51,33 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 
 /**
+ * Layout component to implement an expressive group of buttons in a row.
+ *
+ * Each button in a [RemoteButtonGroup] should apply at least one [RemoteButtonGroupScope] modifier
+ * ([RemoteButtonGroupScope.weight], [RemoteButtonGroupScope.minWidth], or
+ * [RemoteButtonGroupScope.animateWidth]) to participate in width distribution. With
+ * [RemoteButtonGroupScope.animateWidth], pressing a button expands its width by [expansionWidth]
+ * while its neighboring button(s) shrink accordingly, with the spatial springs of
+ * [RemoteMaterialTheme.motionScheme]. The press animation needs a profile that supports touch
+ * actions.
+ *
+ * Example of a [RemoteButtonGroup] with 3 equal-width buttons:
+ *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteButtonGroupThreeButtonSample
+ *
+ * Example of 3 buttons, the middle one bigger, that animate their width on press:
+ *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteButtonGroupAnimatedSample
+ * @param modifier Modifier to be applied to the button group
+ * @param spacing the amount of spacing between buttons
+ * @param expansionWidth the additional width (delta) added to a pressed button's resting width,
+ *   rather than an absolute target width, while its neighboring button(s) shrink by the same total
+ *   amount. Non-positive values result in no width expansion when pressed.
+ * @param contentPadding The spacing values to apply internally between the container and the
+ *   content
+ * @param verticalAlignment the vertical alignment of the button group's children.
+ * @param content the content and properties of each button. The UX guidance is to use no more than
+ *   3 buttons within a [RemoteButtonGroup].
  */
 @Composable
 @RemoteComposable
@@ -136,16 +158,45 @@ private fun RemoteAlignment.Vertical.toBoxAlignment(): RemoteAlignment =
         else -> RemoteAlignment.Center
     }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Scope for the children of a [RemoteButtonGroup].
+ *
+ * Each child should build its own modifier chain and chain [RemoteButtonGroupScope] modifiers
+ * ([weight], [minWidth], [animateWidth]) contiguously before any other modifiers; do not share a
+ * scope modifier instance across multiple children.
+ */
 @RemoteLayoutScopeMarker
 @Immutable
 public sealed interface RemoteButtonGroupScope {
+    /**
+     * Size the element's width proportional to its [weight] relative to other weighted sibling
+     * elements in the [RemoteButtonGroup].
+     *
+     * @param weight The proportional width to give to this element, as a multiplier of the total
+     *   available width. Must be a positive constant.
+     * @return a [RemoteModifier] that sizes the element's width proportional to [weight]
+     */
     public fun RemoteModifier.weight(weight: RemoteFloat): RemoteModifier
 
+    /**
+     * Sets the minimum width of this item, defaults to [RemoteButtonGroupDefaults.MinWidth].
+     *
+     * @param minWidth The minimum width to use for this item. Must be a positive constant.
+     * @return a [RemoteModifier] that sets the minimum width of the item to [minWidth]
+     */
     public fun RemoteModifier.minWidth(
         minWidth: RemoteDp = RemoteButtonGroupDefaults.MinWidth
     ): RemoteModifier
 
+    /**
+     * Specifies that this item should animate its width when pressed, expanding its resting width
+     * by [RemoteButtonGroup]'s `expansionWidth` delta while neighboring items shrink accordingly.
+     *
+     * The animation needs touch actions, so it's skipped when the creation profile doesn't support
+     * them.
+     *
+     * @return a [RemoteModifier] that animates the item's width when pressed
+     */
     public fun RemoteModifier.animateWidth(): RemoteModifier
 }
 
@@ -375,20 +426,33 @@ private fun buttonGroupShare(
     return share
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** Contains the default values used by [RemoteButtonGroup] */
 public object RemoteButtonGroupDefaults {
+    /**
+     * Return the recommended padding to use as the contentPadding of a [RemoteButtonGroup], when it
+     * takes the full width of the screen.
+     *
+     * @return the recommended [RemotePaddingValues] for a full-width [RemoteButtonGroup]
+     */
     public fun fullWidthPaddings(): RemotePaddingValues {
         // TODO(b/466078229): Use expression of the percentage of screen width as padding,
         // currently it's unable to use that since it's too long.
         return RemotePaddingValues(horizontal = 11.rdp, vertical = 0.rdp)
     }
 
+    /** Spacing between buttons. */
     public val Spacing: RemoteDp = 4.rdp
 
+    /**
+     * Default additional width (delta) added to a pressed button's resting width in
+     * [RemoteButtonGroup], rather than an absolute target width, while neighboring button(s) shrink
+     * by the same total amount.
+     */
     public val ExpansionWidth: RemoteDp = 24.rdp
 
     internal val minimumInteractiveComponentSize = 48.rdp
 
+    /** Default for the minimum width of buttons in a [RemoteButtonGroup]. */
     public val MinWidth: RemoteDp = minimumInteractiveComponentSize
 }
 
