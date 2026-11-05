@@ -19,6 +19,7 @@ package androidx.camera.view;
 import static java.util.Objects.requireNonNull;
 
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Size;
@@ -65,6 +66,13 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
     @SuppressWarnings("WeakerAccess")
     final SurfaceRequestCallback mSurfaceRequestCallback = new SurfaceRequestCallback();
 
+    // Whether mSurfaceView displays the frames through a ContentRotationLayer, which applies the
+    // remaining rotation of a stream without the camera transform. Fixed for each SurfaceView, see
+    // shouldReusePreview().
+    // Synthetic Accessor
+    @SuppressWarnings("WeakerAccess")
+    boolean mRotatesContent;
+
     SurfaceViewImplementation(@NonNull FrameLayout parent,
             @NonNull PreviewTransformation previewTransform) {
         super(parent, previewTransform);
@@ -73,8 +81,11 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
     @Override
     void onSurfaceRequested(@NonNull SurfaceRequest surfaceRequest,
             @Nullable OnSurfaceNotInUseListener onSurfaceNotInUseListener) {
-        if (!shouldReusePreview(mSurfaceView, mResolution, surfaceRequest)) {
+        boolean rotatesContent = shouldRotateContent(surfaceRequest);
+        if (!shouldReusePreview(mSurfaceView, mResolution, mRotatesContent, surfaceRequest,
+                rotatesContent)) {
             mResolution = surfaceRequest.getResolution();
+            mRotatesContent = rotatesContent;
             initializePreview();
         }
         if (onSurfaceNotInUseListener != null) {
@@ -111,6 +122,32 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
     }
 
     @Override
+    void redrawPreview() {
+        super.redrawPreview();
+        mSurfaceRequestCallback.updateContentRotation(/* force= */ false, mSurfaceView);
+        if (!mRotatesContent && getPreviewTransform().getSurfaceViewContentRotationDegrees() != 0) {
+            Logger.e(TAG, "Custom rotation not supported with SurfaceView/PERFORMANCE mode.");
+        }
+    }
+
+    /**
+     * Returns whether a {@link SurfaceView} can apply the remaining rotation of a stream without
+     * the camera transform, which requires {@link android.view.SurfaceControl} on API 29+.
+     */
+    static boolean canRotateContent() {
+        return Build.VERSION.SDK_INT >= 29;
+    }
+
+    /**
+     * Returns whether the frames of the {@link SurfaceRequest} need a {@link ContentRotationLayer},
+     * i.e. the stream has no camera transform, so the remaining rotation must be applied by
+     * {@link PreviewView}.
+     */
+    private static boolean shouldRotateContent(@NonNull SurfaceRequest surfaceRequest) {
+        return canRotateContent() && !PreviewView.hasCameraTransform(surfaceRequest);
+    }
+
+    @Override
     void onAttachedToWindow() {
         // Do nothing currently.
     }
@@ -133,6 +170,10 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
                 || !mSurfaceView.getHolder().getSurface().isValid()) {
             return null;
         }
+        // The frames are not drawn to the SurfaceView's own surface when they go through a
+        // ContentRotationLayer. Copy the unrotated content instead, which is transformed the same
+        // way as a TextureView screenshot.
+        Surface contentSurface = mSurfaceRequestCallback.getContentSurface();
 
         Semaphore screenshotLock = new Semaphore(0);
 
@@ -144,7 +185,7 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         backgroundThread.start();
         Handler backgroundHandler = new Handler(backgroundThread.getLooper());
 
-        Api24Impl.pixelCopyRequest(mSurfaceView, bitmap, copyResult -> {
+        PixelCopy.OnPixelCopyFinishedListener listener = copyResult -> {
             if (copyResult == PixelCopy.SUCCESS) {
                 Logger.d(TAG, "PreviewView.SurfaceViewImplementation.getBitmap() succeeded");
             } else {
@@ -152,7 +193,12 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
                         + copyResult);
             }
             screenshotLock.release();
-        }, backgroundHandler);
+        };
+        if (contentSurface != null) {
+            Api24Impl.pixelCopyRequest(contentSurface, bitmap, listener, backgroundHandler);
+        } else {
+            Api24Impl.pixelCopyRequest(mSurfaceView, bitmap, listener, backgroundHandler);
+        }
         // Blocks the current thread until the screenshot is done or timed out.
         try {
             boolean success = screenshotLock.tryAcquire(1, SCREENSHOT_TIMEOUT_MILLIS,
@@ -201,6 +247,15 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
 
         private boolean mNeedToInvalidate = false;
 
+        // The layer that displays the frames when mRotatesContent is true, from when the
+        // SurfaceView's surface is ready until it's destroyed. API 29+ only.
+        // Guarded by the UI thread.
+        private @Nullable ContentRotationLayer mContentRotationLayer;
+
+        // The clockwise rotation applied to the content of mContentRotationLayer.
+        // Guarded by the UI thread.
+        private int mContentRotationDegrees = 0;
+
         /**
          * Sets the completer and the size. The completer will only be set if the current size of
          * the Surface matches the target size.
@@ -244,15 +299,26 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
          */
         @UiThread
         private boolean tryToComplete() {
-            final Surface surface = mSurfaceView.getHolder().getSurface();
             if (canProvideSurface()) {
                 Logger.d(TAG, "Surface set on Preview.");
 
                 final OnSurfaceNotInUseListener listener = mOnSurfaceNotInUseListener;
+                final ContentRotationLayer contentRotationLayer = mContentRotationLayer;
+                final Surface surface;
+                if (Build.VERSION.SDK_INT >= 29 && contentRotationLayer != null) {
+                    // Keep the layer until the camera no longer uses its Surface.
+                    contentRotationLayer.acquire();
+                    surface = contentRotationLayer.getSurface();
+                } else {
+                    surface = mSurfaceView.getHolder().getSurface();
+                }
                 requireNonNull(mSurfaceRequest).provideSurface(surface,
                         ContextCompat.getMainExecutor(mSurfaceView.getContext()),
                         (result) -> {
                             Logger.d(TAG, "Safe to release surface.");
+                            if (Build.VERSION.SDK_INT >= 29 && contentRotationLayer != null) {
+                                contentRotationLayer.release();
+                            }
                             if (listener != null) {
                                 listener.onSurfaceNotInUse();
                             }
@@ -267,7 +333,58 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
 
         private boolean canProvideSurface() {
             return !mWasSurfaceProvided && mSurfaceRequest != null && Objects.equals(mTargetSize,
-                    mCurrentSurfaceSize);
+                    mCurrentSurfaceSize) && (!mRotatesContent || mContentRotationLayer != null);
+        }
+
+        /** Returns the Surface of the active {@link ContentRotationLayer}, if any. */
+        @UiThread
+        @Nullable Surface getContentSurface() {
+            ContentRotationLayer contentRotationLayer = mContentRotationLayer;
+            if (Build.VERSION.SDK_INT >= 29 && contentRotationLayer != null) {
+                return contentRotationLayer.getSurface();
+            }
+            return null;
+        }
+
+        /**
+         * Rotates the content of the active {@link ContentRotationLayer} by the remaining rotation
+         * of the stream, consistent with how {@link PreviewTransformation} scales the
+         * {@link SurfaceView}.
+         *
+         * @param force    whether to apply the rotation even if it did not change, e.g. when the
+         *                 size of the content changed.
+         * @param syncView the view whose next frame the change is synchronized with, or
+         *                 {@code null} to apply it immediately, e.g. before the first frame.
+         */
+        @UiThread
+        void updateContentRotation(boolean force, @Nullable View syncView) {
+            ContentRotationLayer contentRotationLayer = mContentRotationLayer;
+            Size size = mCurrentSurfaceSize;
+            if (Build.VERSION.SDK_INT < 29 || contentRotationLayer == null || size == null
+                    || size.getWidth() <= 0 || size.getHeight() <= 0) {
+                return;
+            }
+            int rotationDegrees = getPreviewTransform().getSurfaceViewContentRotationDegrees();
+            if (!force && rotationDegrees == mContentRotationDegrees) {
+                return;
+            }
+            contentRotationLayer.setContentRotation(rotationDegrees, size.getWidth(),
+                    size.getHeight(), syncView);
+            mContentRotationDegrees = rotationDegrees;
+        }
+
+        /**
+         * Hides the content of the active {@link ContentRotationLayer} and releases the owner's
+         * reference. The layer is released once the camera no longer uses its Surface.
+         */
+        @UiThread
+        private void releaseContentRotationLayer() {
+            ContentRotationLayer contentRotationLayer = mContentRotationLayer;
+            mContentRotationLayer = null;
+            if (Build.VERSION.SDK_INT >= 29 && contentRotationLayer != null) {
+                contentRotationLayer.detach();
+                contentRotationLayer.release();
+            }
         }
 
         @UiThread
@@ -309,7 +426,25 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         public void surfaceChanged(@NonNull SurfaceHolder surfaceHolder, int format, int width,
                 int height) {
             Logger.d(TAG, "Surface changed. Size: " + width + "x" + height);
+            Size previousSize = mCurrentSurfaceSize;
             mCurrentSurfaceSize = new Size(width, height);
+            if (mRotatesContent && Build.VERSION.SDK_INT >= 29) {
+                boolean isSizeChanged = !mCurrentSurfaceSize.equals(previousSize);
+                if (mContentRotationLayer != null && isSizeChanged && !mWasSurfaceProvided) {
+                    // Recreate the layer, since the default buffer size of its Surface can't be
+                    // updated, e.g. when the SurfaceView is resized to the requested size.
+                    releaseContentRotationLayer();
+                }
+                if (mContentRotationLayer == null) {
+                    mContentRotationLayer = new ContentRotationLayer(mSurfaceView, width, height);
+                    // Apply the rotation before any frame is produced to the new layer.
+                    updateContentRotation(/* force= */ true, /* syncView= */ null);
+                } else if (isSizeChanged) {
+                    // Refit the rotated content to the new size, with the View transformations.
+                    mContentRotationLayer.setBufferSize(width, height);
+                    updateContentRotation(/* force= */ true, mSurfaceView);
+                }
+            }
             tryToComplete();
         }
 
@@ -331,6 +466,8 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
             if (mSurfaceRequest != null) {
                 mSurfaceRequestToBeInvalidated = mSurfaceRequest;
             }
+
+            releaseContentRotationLayer();
 
             // Reset state
             mWasSurfaceProvided = false;
@@ -365,11 +502,17 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
                 PixelCopy.@NonNull OnPixelCopyFinishedListener listener, @NonNull Handler handler) {
             PixelCopy.request(source, dest, listener, handler);
         }
+
+        static void pixelCopyRequest(@NonNull Surface source, @NonNull Bitmap dest,
+                PixelCopy.@NonNull OnPixelCopyFinishedListener listener, @NonNull Handler handler) {
+            PixelCopy.request(source, dest, listener, handler);
+        }
     }
 
     private static boolean shouldReusePreview(@Nullable SurfaceView surfaceView,
-            @Nullable Size resolution, @NonNull SurfaceRequest surfaceRequest) {
+            @Nullable Size resolution, boolean rotatesContent,
+            @NonNull SurfaceRequest surfaceRequest, boolean newRotatesContent) {
         boolean isSameResolution = Objects.equals(resolution, surfaceRequest.getResolution());
-        return surfaceView != null && isSameResolution;
+        return surfaceView != null && isSameResolution && rotatesContent == newRotatesContent;
     }
 }

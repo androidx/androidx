@@ -26,9 +26,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
+import android.graphics.Matrix;
+import android.graphics.Rect;
 import android.os.Build;
 import android.util.Size;
 import android.view.Display;
+import android.view.Surface;
 import android.view.Window;
 import android.widget.FrameLayout;
 
@@ -85,6 +88,38 @@ public class PreviewViewTest {
         // Assert: SurfaceView is used.
         assertThat(PreviewView.shouldUseTextureView(
                 createSurfaceRequestCompatibleWithSurfaceView(),
+                PreviewView.ImplementationMode.PERFORMANCE)).isFalse();
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.Q)
+    public void noCameraTransform_useSurfaceView() {
+        // Assert: SurfaceView is used, since it can apply the remaining rotation on API 29+.
+        assertThat(PreviewView.shouldUseTextureView(
+                createSurfaceRequestWithoutCameraTransform(),
+                PreviewView.ImplementationMode.PERFORMANCE)).isFalse();
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.N_MR1, maxSdk = Build.VERSION_CODES.P)
+    public void noCameraTransformBelowApi29_useTextureView() {
+        // Assert: TextureView is used, since SurfaceView can't apply the remaining rotation.
+        assertThat(PreviewView.shouldUseTextureView(
+                createSurfaceRequestWithoutCameraTransform(),
+                PreviewView.ImplementationMode.PERFORMANCE)).isTrue();
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.N_MR1, maxSdk = Build.VERSION_CODES.P)
+    public void noCameraTransformBelowApi29_notReuseSurfaceViewImplementation() {
+        // Arrange:
+        FrameLayout parent = new FrameLayout(ApplicationProvider.getApplicationContext());
+        PreviewTransformation transformation = new PreviewTransformation();
+
+        // Assert:
+        assertThat(PreviewView.shouldReuseImplementation(
+                new SurfaceViewImplementation(parent, transformation),
+                createSurfaceRequestWithoutCameraTransform(),
                 PreviewView.ImplementationMode.PERFORMANCE)).isFalse();
     }
 
@@ -302,6 +337,14 @@ public class PreviewViewTest {
                     Identifier.create(new Object())));
         }
         return new SurfaceRequest(new Size(800, 600), fakeCamera, () -> {});
+    }
+
+    private SurfaceRequest createSurfaceRequestWithoutCameraTransform() {
+        SurfaceRequest surfaceRequest = createSurfaceRequestCompatibleWithSurfaceView();
+        surfaceRequest.updateTransformationInfo(SurfaceRequest.TransformationInfo.of(
+                new Rect(0, 0, 800, 600), /* rotationDegrees= */ 90, Surface.ROTATION_0,
+                /* hasCameraTransform= */ false, new Matrix(), /* mirroring= */ false));
+        return surfaceRequest;
     }
 
     private ScreenFlash createScreenFlash(boolean assumeNoFailure) {

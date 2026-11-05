@@ -211,6 +211,20 @@ final class PreviewTransformation {
     }
 
     /**
+     * Gets the rotation degrees that a {@link SurfaceView} needs to apply to its content.
+     *
+     * <p>A {@link SurfaceView} applies the camera transform encoded in the {@link Surface}, but
+     * not the remaining rotation of a {@link Surface} without the camera transform. Returns 0 if
+     * the transformation info is not ready.
+     */
+    int getSurfaceViewContentRotationDegrees() {
+        if (!isTransformationInfoReady() || mHasCameraTransform) {
+            return 0;
+        }
+        return getRemainingRotationDegrees();
+    }
+
+    /**
      * Calculates the transformation and applies it to the inner view of {@link PreviewView}.
      *
      * <p> The inner view could be {@link SurfaceView} or a {@link TextureView}.
@@ -230,13 +244,13 @@ final class PreviewTransformation {
             // For TextureView, correct the orientation to match the target rotation.
             ((TextureView) preview).setTransform(getTextureViewCorrectionMatrix());
         } else {
-            // Logs an error if non-display rotation is used with SurfaceView.
+            // Logs an error if non-display rotation is used with SurfaceView. The remaining
+            // rotation of a Surface without the camera transform is applied by
+            // SurfaceViewImplementation.
             Display display = preview.getDisplay();
             boolean mismatchedDisplayRotation = mHasCameraTransform && display != null
                     && display.getRotation() != mTargetRotation;
-            boolean hasRemainingRotation =
-                    !mHasCameraTransform && getRemainingRotationDegrees() != 0;
-            if (mismatchedDisplayRotation || hasRemainingRotation) {
+            if (mismatchedDisplayRotation) {
                 Logger.e(TAG, "Custom rotation not supported with SurfaceView/PERFORMANCE mode.");
             }
         }
