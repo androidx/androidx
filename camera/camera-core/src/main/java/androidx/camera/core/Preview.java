@@ -412,6 +412,9 @@ public final class Preview extends UseCase {
      */
     public void setTargetRotation(@ImageOutputConfig.RotationValue int targetRotation) {
         if (setTargetRotationInternal(targetRotation)) {
+            // Keep the output and only update the TransformationInfo, so the stream continues.
+            // When a node, e.g. an effect or StreamSharing, has applied the rotation to the
+            // buffers, the consumer applies the remaining rotation in the TransformationInfo.
             sendTransformationInfoIfReady();
         }
     }
