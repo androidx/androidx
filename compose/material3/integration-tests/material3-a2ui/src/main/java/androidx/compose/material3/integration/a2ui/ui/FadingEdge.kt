@@ -79,7 +79,22 @@ internal fun Modifier.verticalFadingEdge(
                 (lazyListState.firstVisibleItemScrollOffset.toFloat() / fadePx).coerceIn(0f, 1f)
             }
         },
-        bottomAlpha = { if (lazyListState.canScrollForward) 1f else 0f },
+        bottomAlpha = { fadePx ->
+            val layoutInfo = lazyListState.layoutInfo
+            val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()
+            if (lastVisibleItem == null) {
+                0f
+            } else if (lastVisibleItem.index < layoutInfo.totalItemsCount - 1) {
+                1f
+            } else {
+                val remainingScroll =
+                    (lastVisibleItem.offset +
+                            lastVisibleItem.size +
+                            layoutInfo.afterContentPadding - layoutInfo.viewportEndOffset)
+                        .toFloat()
+                (remainingScroll / fadePx).coerceIn(0f, 1f)
+            }
+        },
     )
 
 private fun Modifier.verticalFadingEdge(

@@ -73,14 +73,32 @@ internal fun JsonBottomSheet(
     dataModel: Map<String, Any?> = emptyMap(),
     onDismissRequest: () -> Unit,
 ) {
+    val jsonString =
+        remember(surfaceId, components, dataModel) {
+            formatA2uiJson(
+                surfaceId = surfaceId,
+                components = components,
+                dataModel = dataModel,
+            )
+        }
+
+    JsonBottomSheet(
+        sheetState = sheetState,
+        rawJson = jsonString,
+        onDismissRequest = onDismissRequest,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun JsonBottomSheet(
+    sheetState: SheetState,
+    rawJson: String,
+    onDismissRequest: () -> Unit,
+) {
     val clipboardManager = LocalClipboard.current
     val coroutineScope = rememberCoroutineScope()
     var isCopied by remember { mutableStateOf(false) }
-
-    val jsonString =
-        remember(surfaceId, components, dataModel) {
-            formatA2uiJson(surfaceId = surfaceId, components = components, dataModel = dataModel)
-        }
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
@@ -103,7 +121,7 @@ internal fun JsonBottomSheet(
 
                 FilledTonalButton(
                     onClick = {
-                        val clipEntry = ClipData.newPlainText("A2UI JSON", jsonString).toClipEntry()
+                        val clipEntry = ClipData.newPlainText("A2UI JSON", rawJson).toClipEntry()
 
                         coroutineScope.launch {
                             clipboardManager.setClipEntry(clipEntry)
@@ -142,7 +160,7 @@ internal fun JsonBottomSheet(
                             .padding(16.dp)
                 ) {
                     Text(
-                        text = jsonString,
+                        text = rawJson,
                         fontFamily = FontFamily.Monospace,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurface,
