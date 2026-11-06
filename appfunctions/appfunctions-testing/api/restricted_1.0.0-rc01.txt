@@ -1,5 +1,5 @@
 // Signature format: 5.0
-// - surface=restricted-non-atomic-group
+// - surface=restricted-atomic-group
 package androidx.appfunctions.testing {
 
   @RequiresApi(android.os.Build.VERSION_CODES.BAKLAVA) public final class AppFunctionTestRule implements org.junit.rules.TestRule {

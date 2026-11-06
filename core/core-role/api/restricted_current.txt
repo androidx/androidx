@@ -1,5 +1,5 @@
 // Signature format: 5.0
-// - surface=restricted-atomic-group
+// - surface=restricted-non-atomic-group
 package androidx.core.role {
 
   public final class RoleManagerCompat {

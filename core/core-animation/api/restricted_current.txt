@@ -1,5 +1,5 @@
 // Signature format: 5.0
-// - surface=restricted-atomic-group
+// - surface=restricted-non-atomic-group
 package androidx.core.animation {
 
   public class AccelerateDecelerateInterpolator implements androidx.core.animation.Interpolator {

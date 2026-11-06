@@ -1,5 +1,5 @@
 // Signature format: 5.0
-// - surface=restricted-atomic-group
+// - surface=restricted-non-atomic-group
 package androidx.leanback.tab {
 
   public class LeanbackTabLayout extends com.google.android.material.tabs.TabLayout {

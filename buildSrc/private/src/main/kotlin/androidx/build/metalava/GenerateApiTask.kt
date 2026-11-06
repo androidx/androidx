@@ -128,8 +128,8 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
             writeEmptySignatureFile(apiLocation.get().publicApiFile, PUBLIC_SURFACE_NAME)
             writeEmptySignatureFile(
                 apiLocation.get().restrictedApiFile,
-                if (generateRestrictToLibraryGroupAPIs.get()) RESTRICTED_ATOMIC_SURFACE_NAME
-                else RESTRICTED_NON_ATOMIC_SURFACE_NAME,
+                if (generateRestrictToLibraryGroupAPIs.get()) RESTRICTED_NON_ATOMIC_SURFACE_NAME
+                else RESTRICTED_ATOMIC_SURFACE_NAME,
             )
             // If a API version history file was requested, write an empty one.
             if (apiLevelsArgs.isNotEmpty()) {

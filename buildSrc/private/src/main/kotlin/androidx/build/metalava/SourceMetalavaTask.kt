@@ -247,8 +247,8 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
             when (generateApiMode) {
                 is GenerateApiMode.PublicApi -> PUBLIC_SURFACE_NAME
                 is GenerateApiMode.RestrictToLibraryGroupPrefixApis ->
-                    RESTRICTED_NON_ATOMIC_SURFACE_NAME
-                is GenerateApiMode.AllRestrictedApis -> RESTRICTED_ATOMIC_SURFACE_NAME
+                    RESTRICTED_ATOMIC_SURFACE_NAME
+                is GenerateApiMode.AllRestrictedApis -> RESTRICTED_NON_ATOMIC_SURFACE_NAME
             }
         val args =
             mutableListOf(

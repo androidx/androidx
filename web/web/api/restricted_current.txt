@@ -1,5 +1,5 @@
 // Signature format: 5.0
-// - surface=restricted-non-atomic-group
+// - surface=restricted-atomic-group
 package androidx.web {
 
   public final class DetachedWebContentView extends androidx.web.WebContentView {

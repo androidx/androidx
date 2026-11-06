@@ -1,5 +1,5 @@
 // Signature format: 5.0
-// - surface=restricted-non-atomic-group
+// - surface=restricted-atomic-group
 package androidx.room3.testing {
 
   public class MigrationTestHelper extends org.junit.rules.TestWatcher {
