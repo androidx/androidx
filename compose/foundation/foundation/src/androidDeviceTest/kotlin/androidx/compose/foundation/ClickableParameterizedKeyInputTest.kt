@@ -38,6 +38,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -75,15 +76,13 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
             )
     }
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(ComposeUiTestConfig(inputMode = Keyboard))
 
     @Test
     fun clickWithKey() {
         var counter = 0
         val focusRequester = FocusRequester()
-        lateinit var inputModeManager: InputModeManager
         rule.setContent {
-            inputModeManager = LocalInputModeManager.current
             BasicText(
                 "ClickableText",
                 modifier =
@@ -92,10 +91,7 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
                     },
             )
         }
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
 
         rule.onNodeWithTag("myClickable").performKeyInput { keyDown(key) }
 
@@ -111,9 +107,7 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
         var counter = 0
         val outerFocusRequester = FocusRequester()
         val clickableFocusRequester = FocusRequester()
-        lateinit var inputModeManager: InputModeManager
         rule.setContent {
-            inputModeManager = LocalInputModeManager.current
             Box(Modifier.padding(10.dp).focusRequester(outerFocusRequester).focusTarget()) {
                 BasicText(
                     "ClickableText",
@@ -124,10 +118,7 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
                 )
             }
         }
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            clickableFocusRequester.requestFocus()
-        }
+        rule.runOnIdle { clickableFocusRequester.requestFocus() }
 
         rule.onNodeWithTag("myClickable").performKeyInput { keyDown(key) }
 
@@ -149,9 +140,7 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
         var counter = 0
         val outerFocusRequester = FocusRequester()
         val clickableFocusRequester = FocusRequester()
-        lateinit var inputModeManager: InputModeManager
         rule.setContent {
-            inputModeManager = LocalInputModeManager.current
             Box(
                 Modifier.testTag("outerBox")
                     .padding(10.dp)
@@ -167,10 +156,7 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
                 )
             }
         }
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            outerFocusRequester.requestFocus()
-        }
+        rule.runOnIdle { outerFocusRequester.requestFocus() }
 
         // Press down on the outer box
         rule.onNodeWithTag("outerBox").performKeyInput { keyDown(key) }
@@ -194,10 +180,8 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
         lateinit var scope: CoroutineScope
-        lateinit var inputModeManager: InputModeManager
         rule.setContent {
             scope = rememberCoroutineScope()
-            inputModeManager = LocalInputModeManager.current
             Box(Modifier.padding(10.dp)) {
                 BasicText(
                     "ClickableText",
@@ -209,10 +193,7 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
                 )
             }
         }
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
         val interactions = mutableListOf<Interaction>()
         scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
 
@@ -238,10 +219,8 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
         val outerFocusRequester = FocusRequester()
         val clickableFocusRequester = FocusRequester()
         lateinit var scope: CoroutineScope
-        lateinit var inputModeManager: InputModeManager
         rule.setContent {
             scope = rememberCoroutineScope()
-            inputModeManager = LocalInputModeManager.current
             Box(Modifier.padding(10.dp).focusRequester(outerFocusRequester).focusTarget()) {
                 BasicText(
                     "ClickableText",
@@ -252,10 +231,7 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
                 )
             }
         }
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            clickableFocusRequester.requestFocus()
-        }
+        rule.runOnIdle { clickableFocusRequester.requestFocus() }
 
         val interactions = mutableListOf<Interaction>()
         scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
@@ -284,10 +260,8 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
         lateinit var scope: CoroutineScope
-        lateinit var inputModeManager: InputModeManager
         rule.setContent {
             scope = rememberCoroutineScope()
-            inputModeManager = LocalInputModeManager.current
             Box(Modifier.padding(10.dp)) {
                 BasicText(
                     "ClickableText",
@@ -299,10 +273,7 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
                 )
             }
         }
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
 
         val interactions = mutableListOf<Interaction>()
         scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
@@ -342,11 +313,9 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
         lateinit var scope: CoroutineScope
-        lateinit var inputModeManager: InputModeManager
         var repeatCounter = 0
         rule.setContent {
             scope = rememberCoroutineScope()
-            inputModeManager = LocalInputModeManager.current
             Box(Modifier.padding(10.dp)) {
                 BasicText(
                     "ClickableText",
@@ -361,10 +330,7 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
                 )
             }
         }
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
 
         val interactions = mutableListOf<Interaction>()
         scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
@@ -398,10 +364,8 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
         val focusRequester = FocusRequester()
         val enabled = mutableStateOf(true)
         lateinit var scope: CoroutineScope
-        lateinit var inputModeManager: InputModeManager
         rule.setContent {
             scope = rememberCoroutineScope()
-            inputModeManager = LocalInputModeManager.current
             Box(Modifier.padding(10.dp)) {
                 BasicText(
                     "ClickableText",
@@ -414,10 +378,7 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
                 )
             }
         }
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
 
         val interactions = mutableListOf<Interaction>()
         scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
@@ -473,10 +434,7 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
                 )
             }
         }
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
 
         rule.onNodeWithTag("myClickable").performKeyInput {
             assertThat(inputModeManager.inputMode).isEqualTo(Keyboard)

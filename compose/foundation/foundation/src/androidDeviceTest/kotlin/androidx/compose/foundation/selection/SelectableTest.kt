@@ -47,15 +47,14 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.InputMode.Companion.Keyboard
 import androidx.compose.ui.input.InputMode.Companion.Touch
-import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
@@ -63,7 +62,6 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.isSelectable
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -72,6 +70,7 @@ import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -80,15 +79,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class SelectableTest {
-
-    @get:Rule val rule = createComposeRule()
 
     @Before
     fun before() {
@@ -101,13 +97,15 @@ class SelectableTest {
     }
 
     @Test
-    fun selectable_defaultSemantics() {
-        rule.setContent {
-            BasicText("Text in item", modifier = Modifier.selectable(selected = true, onClick = {}))
+    fun selectable_defaultSemantics() = runComposeUiTest {
+        setContent {
+            BasicText(
+                "Text in item",
+                modifier = Modifier.selectable(selected = true, onClick = {}),
+            )
         }
 
-        rule
-            .onAllNodes(isSelectable())
+        onAllNodes(isSelectable())
             .assertCountEquals(1)
             .onFirst()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
@@ -115,8 +113,8 @@ class SelectableTest {
     }
 
     @Test
-    fun selectable_defaultClicks() {
-        rule.setContent {
+    fun selectable_defaultClicks() = runComposeUiTest {
+        setContent {
             val state = remember { mutableStateOf(false) }
             BasicText(
                 "Text in item",
@@ -128,8 +126,7 @@ class SelectableTest {
             )
         }
 
-        rule
-            .onNode(isSelectable())
+        onNode(isSelectable())
             .assertIsNotSelected()
             .performClick()
             .assertIsSelected()
@@ -138,8 +135,8 @@ class SelectableTest {
     }
 
     @Test
-    fun selectable_noClicksNoChanges() {
-        rule.setContent {
+    fun selectable_noClicksNoChanges() = runComposeUiTest {
+        setContent {
             val (selected, _) = remember { mutableStateOf(false) }
             BasicText(
                 "Text in item",
@@ -147,13 +144,13 @@ class SelectableTest {
             )
         }
 
-        rule.onNode(isSelectable()).assertIsNotSelected().performClick().assertIsNotSelected()
+        onNode(isSelectable()).assertIsNotSelected().performClick().assertIsNotSelected()
     }
 
     @Test
-    fun selectable_clicks_noPropagationWhenDisabled() {
+    fun selectable_clicks_noPropagationWhenDisabled() = runComposeUiTest {
         val enabled = mutableStateOf(false)
-        rule.setContent {
+        setContent {
             val state = remember { mutableStateOf(false) }
             val outerState = remember { mutableStateOf(false) }
             Box(
@@ -175,29 +172,25 @@ class SelectableTest {
             }
         }
 
-        rule
-            .onNodeWithText("Text in item")
-            .assertIsNotSelected()
-            .performClick()
-            .assertIsNotSelected()
+        onNodeWithText("Text in item").assertIsNotSelected().performClick().assertIsNotSelected()
 
-        rule.onNodeWithTag("outerBox").assertIsNotSelected()
-        rule.runOnIdle { enabled.value = true }
+        onNodeWithTag("outerBox").assertIsNotSelected()
+        runOnIdle { enabled.value = true }
 
-        rule.onNodeWithText("Text in item").performClick().assertIsSelected()
+        onNodeWithText("Text in item").performClick().assertIsSelected()
 
-        rule.onNodeWithTag("outerBox").assertIsNotSelected()
+        onNodeWithTag("outerBox").assertIsNotSelected()
     }
 
     @Test
-    fun selectableTest_interactionSource_noScrollableContainer() {
+    fun selectableTest_interactionSource_noScrollableContainer() = runComposeUiTest {
         val interactionSource = MutableInteractionSource()
 
         lateinit var scope: CoroutineScope
 
-        rule.mainClock.autoAdvance = false
+        mainClock.autoAdvance = false
 
-        rule.setContent {
+        setContent {
             scope = rememberCoroutineScope()
             Box {
                 Box(
@@ -217,18 +210,18 @@ class SelectableTest {
 
         scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
 
-        rule.runOnIdle { assertThat(interactions).isEmpty() }
+        runOnIdle { assertThat(interactions).isEmpty() }
 
-        rule.onNodeWithText("SelectableText").performTouchInput { down(center) }
+        onNodeWithText("SelectableText").performTouchInput { down(center) }
 
-        rule.runOnIdle {
+        runOnIdle {
             assertThat(interactions).hasSize(1)
             assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
         }
 
-        rule.onNodeWithText("SelectableText").performTouchInput { up() }
+        onNodeWithText("SelectableText").performTouchInput { up() }
 
-        rule.runOnIdle {
+        runOnIdle {
             assertThat(interactions).hasSize(2)
             assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
             assertThat(interactions[1]).isInstanceOf(PressInteraction.Release::class.java)
@@ -238,68 +231,69 @@ class SelectableTest {
     }
 
     @Test
-    fun selectableTest_interactionSource_resetWhenDisposed_noScrollableContainer() {
-        val interactionSource = MutableInteractionSource()
-        var emitSelectableText by mutableStateOf(true)
+    fun selectableTest_interactionSource_resetWhenDisposed_noScrollableContainer() =
+        runComposeUiTest {
+            val interactionSource = MutableInteractionSource()
+            var emitSelectableText by mutableStateOf(true)
 
-        lateinit var scope: CoroutineScope
+            lateinit var scope: CoroutineScope
 
-        rule.mainClock.autoAdvance = false
+            mainClock.autoAdvance = false
 
-        rule.setContent {
-            scope = rememberCoroutineScope()
-            Box {
-                if (emitSelectableText) {
-                    Box(
-                        Modifier.selectable(
-                            selected = true,
-                            interactionSource = interactionSource,
-                            indication = null,
-                            onClick = {},
-                        )
-                    ) {
-                        BasicText("SelectableText")
+            setContent {
+                scope = rememberCoroutineScope()
+                Box {
+                    if (emitSelectableText) {
+                        Box(
+                            Modifier.selectable(
+                                selected = true,
+                                interactionSource = interactionSource,
+                                indication = null,
+                                onClick = {},
+                            )
+                        ) {
+                            BasicText("SelectableText")
+                        }
                     }
                 }
             }
+
+            val interactions = mutableListOf<Interaction>()
+
+            scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
+
+            runOnIdle { assertThat(interactions).isEmpty() }
+
+            onNodeWithText("SelectableText").performTouchInput { down(center) }
+
+            runOnIdle {
+                assertThat(interactions).hasSize(1)
+                assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+            }
+
+            // Dispose selectable
+            runOnIdle { emitSelectableText = false }
+
+            mainClock.advanceTimeByFrame()
+
+            runOnIdle {
+                assertThat(interactions).hasSize(2)
+                assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+                assertThat(interactions[1]).isInstanceOf(PressInteraction.Cancel::class.java)
+                assertThat((interactions[1] as PressInteraction.Cancel).press)
+                    .isEqualTo(interactions[0])
+            }
         }
-
-        val interactions = mutableListOf<Interaction>()
-
-        scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
-
-        rule.runOnIdle { assertThat(interactions).isEmpty() }
-
-        rule.onNodeWithText("SelectableText").performTouchInput { down(center) }
-
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(1)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-        }
-
-        // Dispose selectable
-        rule.runOnIdle { emitSelectableText = false }
-
-        rule.mainClock.advanceTimeByFrame()
-
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(2)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-            assertThat(interactions[1]).isInstanceOf(PressInteraction.Cancel::class.java)
-            assertThat((interactions[1] as PressInteraction.Cancel).press)
-                .isEqualTo(interactions[0])
-        }
-    }
 
     @Test
-    fun selectableTest_interactionSource_scrollableContainer() {
+    fun selectableTest_interactionSource_scrollableContainer() = runComposeUiTest {
         val interactionSource = MutableInteractionSource()
 
         lateinit var scope: CoroutineScope
 
-        rule.mainClock.autoAdvance = false
+        mainClock.autoAdvance = false
 
-        rule.setContent {
+        setContent {
             scope = rememberCoroutineScope()
             Box(Modifier.verticalScroll(rememberScrollState())) {
                 Box(
@@ -319,21 +313,21 @@ class SelectableTest {
 
         scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
 
-        rule.runOnIdle { assertThat(interactions).isEmpty() }
+        runOnIdle { assertThat(interactions).isEmpty() }
 
-        rule.onNodeWithText("SelectableText").performTouchInput { down(center) }
+        onNodeWithText("SelectableText").performTouchInput { down(center) }
 
         // Advance past the tap timeout
-        rule.mainClock.advanceTimeBy(TapIndicationDelay)
+        mainClock.advanceTimeBy(TapIndicationDelay)
 
-        rule.runOnIdle {
+        runOnIdle {
             assertThat(interactions).hasSize(1)
             assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
         }
 
-        rule.onNodeWithText("SelectableText").performTouchInput { up() }
+        onNodeWithText("SelectableText").performTouchInput { up() }
 
-        rule.runOnIdle {
+        runOnIdle {
             assertThat(interactions).hasSize(2)
             assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
             assertThat(interactions[1]).isInstanceOf(PressInteraction.Release::class.java)
@@ -343,69 +337,70 @@ class SelectableTest {
     }
 
     @Test
-    fun selectableTest_interactionSource_resetWhenDisposed_scrollableContainer() {
-        val interactionSource = MutableInteractionSource()
-        var emitSelectableText by mutableStateOf(true)
+    fun selectableTest_interactionSource_resetWhenDisposed_scrollableContainer() =
+        runComposeUiTest {
+            val interactionSource = MutableInteractionSource()
+            var emitSelectableText by mutableStateOf(true)
 
-        lateinit var scope: CoroutineScope
+            lateinit var scope: CoroutineScope
 
-        rule.mainClock.autoAdvance = false
+            mainClock.autoAdvance = false
 
-        rule.setContent {
-            scope = rememberCoroutineScope()
-            Box(Modifier.verticalScroll(rememberScrollState())) {
-                if (emitSelectableText) {
-                    Box(
-                        Modifier.selectable(
-                            selected = true,
-                            interactionSource = interactionSource,
-                            indication = null,
-                            onClick = {},
-                        )
-                    ) {
-                        BasicText("SelectableText")
+            setContent {
+                scope = rememberCoroutineScope()
+                Box(Modifier.verticalScroll(rememberScrollState())) {
+                    if (emitSelectableText) {
+                        Box(
+                            Modifier.selectable(
+                                selected = true,
+                                interactionSource = interactionSource,
+                                indication = null,
+                                onClick = {},
+                            )
+                        ) {
+                            BasicText("SelectableText")
+                        }
                     }
                 }
             }
+
+            val interactions = mutableListOf<Interaction>()
+
+            scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
+
+            runOnIdle { assertThat(interactions).isEmpty() }
+
+            onNodeWithText("SelectableText").performTouchInput { down(center) }
+
+            // Advance past the tap timeout
+            mainClock.advanceTimeBy(TapIndicationDelay)
+
+            runOnIdle {
+                assertThat(interactions).hasSize(1)
+                assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+            }
+
+            // Dispose selectable
+            runOnIdle { emitSelectableText = false }
+
+            mainClock.advanceTimeByFrame()
+
+            runOnIdle {
+                assertThat(interactions).hasSize(2)
+                assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+                assertThat(interactions[1]).isInstanceOf(PressInteraction.Cancel::class.java)
+                assertThat((interactions[1] as PressInteraction.Cancel).press)
+                    .isEqualTo(interactions[0])
+            }
         }
-
-        val interactions = mutableListOf<Interaction>()
-
-        scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
-
-        rule.runOnIdle { assertThat(interactions).isEmpty() }
-
-        rule.onNodeWithText("SelectableText").performTouchInput { down(center) }
-
-        // Advance past the tap timeout
-        rule.mainClock.advanceTimeBy(TapIndicationDelay)
-
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(1)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-        }
-
-        // Dispose selectable
-        rule.runOnIdle { emitSelectableText = false }
-
-        rule.mainClock.advanceTimeByFrame()
-
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(2)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-            assertThat(interactions[1]).isInstanceOf(PressInteraction.Cancel::class.java)
-            assertThat((interactions[1] as PressInteraction.Cancel).press)
-                .isEqualTo(interactions[0])
-        }
-    }
 
     @Test
-    fun selectableTest_interactionSource_hover() {
+    fun selectableTest_interactionSource_hover() = runComposeUiTest {
         val interactionSource = MutableInteractionSource()
 
         lateinit var scope: CoroutineScope
 
-        rule.setContent {
+        setContent {
             scope = rememberCoroutineScope()
             Box {
                 Box(
@@ -425,18 +420,18 @@ class SelectableTest {
 
         scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
 
-        rule.runOnIdle { assertThat(interactions).isEmpty() }
+        runOnIdle { assertThat(interactions).isEmpty() }
 
-        rule.onNodeWithText("SelectableText").performMouseInput { enter(center) }
+        onNodeWithText("SelectableText").performMouseInput { enter(center) }
 
-        rule.runOnIdle {
+        runOnIdle {
             assertThat(interactions).hasSize(1)
             assertThat(interactions.first()).isInstanceOf(HoverInteraction.Enter::class.java)
         }
 
-        rule.onNodeWithText("SelectableText").performMouseInput { exit(Offset(-1f, -1f)) }
+        onNodeWithText("SelectableText").performMouseInput { exit(Offset(-1f, -1f)) }
 
-        rule.runOnIdle {
+        runOnIdle {
             assertThat(interactions).hasSize(2)
             assertThat(interactions.first()).isInstanceOf(HoverInteraction.Enter::class.java)
             assertThat(interactions[1]).isInstanceOf(HoverInteraction.Exit::class.java)
@@ -445,106 +440,98 @@ class SelectableTest {
     }
 
     @Test
-    fun selectableTest_interactionSource_focus_inTouchMode() {
-        val interactionSource = MutableInteractionSource()
-        lateinit var scope: CoroutineScope
-        val focusRequester = FocusRequester()
-        lateinit var inputModeManager: InputModeManager
+    fun selectableTest_interactionSource_focus_inTouchMode() =
+        runComposeUiTest(ComposeUiTestConfig(inputMode = Touch)) {
+            val interactionSource = MutableInteractionSource()
+            lateinit var scope: CoroutineScope
+            val focusRequester = FocusRequester()
 
-        rule.setContent {
-            scope = rememberCoroutineScope()
-            inputModeManager = LocalInputModeManager.current
-            Box {
-                Box(
-                    Modifier.focusRequester(focusRequester)
-                        .selectable(
-                            selected = true,
-                            interactionSource = interactionSource,
-                            indication = null,
-                            onClick = {},
-                        )
-                ) {
-                    BasicText("SelectableText")
+            setContent {
+                scope = rememberCoroutineScope()
+                Box {
+                    Box(
+                        Modifier.focusRequester(focusRequester)
+                            .selectable(
+                                selected = true,
+                                interactionSource = interactionSource,
+                                indication = null,
+                                onClick = {},
+                            )
+                    ) {
+                        BasicText("SelectableText")
+                    }
                 }
             }
+
+            val interactions = mutableListOf<Interaction>()
+
+            scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
+
+            runOnIdle { assertThat(interactions).isEmpty() }
+
+            runOnIdle { focusRequester.requestFocus() }
+
+            // Touch mode, so we shouldn't be focused
+            runOnIdle { assertThat(interactions).isEmpty() }
         }
-
-        val interactions = mutableListOf<Interaction>()
-
-        scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
-
-        rule.runOnIdle { assertThat(interactions).isEmpty() }
-
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Touch)
-            focusRequester.requestFocus()
-        }
-
-        // Touch mode by default, so we shouldn't be focused
-        rule.runOnIdle { assertThat(interactions).isEmpty() }
-    }
 
     @Test
-    fun selectableTest_interactionSource_focus_inKeyboardMode() {
-        val interactionSource = MutableInteractionSource()
-        lateinit var scope: CoroutineScope
-        val focusRequester = FocusRequester()
-        lateinit var focusManager: FocusManager
-        lateinit var inputModeManager: InputModeManager
+    fun selectableTest_interactionSource_focus_inKeyboardMode() =
+        runComposeUiTest(ComposeUiTestConfig(inputMode = Keyboard)) {
+            val interactionSource = MutableInteractionSource()
+            lateinit var scope: CoroutineScope
+            val focusRequester = FocusRequester()
+            lateinit var focusManager: FocusManager
 
-        rule.setFocusableContent {
-            scope = rememberCoroutineScope()
-            focusManager = LocalFocusManager.current
-            inputModeManager = LocalInputModeManager.current
-            Box {
-                Box(
-                    Modifier.focusRequester(focusRequester)
-                        .selectable(
-                            selected = true,
-                            interactionSource = interactionSource,
-                            indication = null,
-                            onClick = {},
-                        )
-                ) {
-                    BasicText("SelectableText")
+            setFocusableContent {
+                scope = rememberCoroutineScope()
+                focusManager = LocalFocusManager.current
+                Box {
+                    Box(
+                        Modifier.focusRequester(focusRequester)
+                            .selectable(
+                                selected = true,
+                                interactionSource = interactionSource,
+                                indication = null,
+                                onClick = {},
+                            )
+                    ) {
+                        BasicText("SelectableText")
+                    }
                 }
             }
+
+            val interactions = mutableListOf<Interaction>()
+
+            scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
+
+            runOnIdle { assertThat(interactions).isEmpty() }
+
+            runOnIdle { focusRequester.requestFocus() }
+
+            // Keyboard mode, so we should now be focused and see an interaction
+            runOnIdle {
+                assertThat(interactions).hasSize(1)
+                assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
+            }
+
+            runOnIdle { focusManager.clearFocus() }
+
+            runOnIdle {
+                assertThat(interactions).hasSize(2)
+                assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
+                assertThat(interactions[1]).isInstanceOf(FocusInteraction.Unfocus::class.java)
+                assertThat((interactions[1] as FocusInteraction.Unfocus).focus)
+                    .isEqualTo(interactions[0])
+            }
         }
-
-        val interactions = mutableListOf<Interaction>()
-
-        scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
-
-        rule.runOnIdle { assertThat(interactions).isEmpty() }
-
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            focusRequester.requestFocus()
-        }
-
-        // Keyboard mode, so we should now be focused and see an interaction
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(1)
-            assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
-        }
-
-        rule.runOnIdle { focusManager.clearFocus() }
-
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(2)
-            assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
-            assertThat(interactions[1]).isInstanceOf(FocusInteraction.Unfocus::class.java)
-            assertThat((interactions[1] as FocusInteraction.Unfocus).focus)
-                .isEqualTo(interactions[0])
-        }
-    }
 
     // TODO: b/202871171 - add test for changing between keyboard mode and touch mode, making sure
     // it resets existing focus
 
     @Test
-    fun selectableTest_testInspectorValue_noIndication() {
-        rule.setContent {
+    fun selectableTest_testInspectorValue_noIndication() = runComposeUiTest {
+        setContent {
             val modifier = Modifier.selectable(false) {} as InspectableValue
             assertThat(modifier.nameFallback).isEqualTo("selectable")
             assertThat(modifier.valueOverride).isNull()
@@ -561,8 +548,8 @@ class SelectableTest {
     }
 
     @Test
-    fun selectableTest_testInspectorValue_fullParams() {
-        rule.setContent {
+    fun selectableTest_testInspectorValue_fullParams() = runComposeUiTest {
+        setContent {
             val modifier =
                 Modifier.selectable(
                         false,
@@ -585,475 +572,452 @@ class SelectableTest {
     }
 
     @Test
-    fun selectableTest_clickWithEnterKey() {
-        var counter = 0
-        val focusRequester = FocusRequester()
-        lateinit var inputModeManager: InputModeManager
+    fun selectableTest_clickWithEnterKey() =
+        runComposeUiTest(ComposeUiTestConfig(inputMode = Keyboard)) {
+            var counter = 0
+            val focusRequester = FocusRequester()
 
-        rule.setContent {
-            inputModeManager = LocalInputModeManager.current
-            BasicText(
-                "SelectableText",
-                modifier =
-                    Modifier.testTag("selectable").focusRequester(focusRequester).selectable(
-                        selected = false
-                    ) {
-                        counter++
-                    },
-            )
-        }
-
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            focusRequester.requestFocus()
-        }
-
-        rule.onNodeWithTag("selectable").performKeyInput { keyDown(Key.Enter) }
-
-        rule.runOnIdle { assertThat(counter).isEqualTo(0) }
-
-        rule.onNodeWithTag("selectable").performKeyInput { keyUp(Key.Enter) }
-
-        rule.runOnIdle { assertThat(counter).isEqualTo(1) }
-    }
-
-    @Test
-    fun selectableTest_clickWithNumPadEnterKey() {
-        var counter = 0
-        val focusRequester = FocusRequester()
-        lateinit var inputModeManager: InputModeManager
-
-        rule.setContent {
-            inputModeManager = LocalInputModeManager.current
-            BasicText(
-                "SelectableText",
-                modifier =
-                    Modifier.testTag("selectable").focusRequester(focusRequester).selectable(
-                        selected = false
-                    ) {
-                        counter++
-                    },
-            )
-        }
-
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            focusRequester.requestFocus()
-        }
-
-        rule.onNodeWithTag("selectable").performKeyInput { keyDown(Key.NumPadEnter) }
-
-        rule.runOnIdle { assertThat(counter).isEqualTo(0) }
-
-        rule.onNodeWithTag("selectable").performKeyInput { keyUp(Key.NumPadEnter) }
-
-        rule.runOnIdle { assertThat(counter).isEqualTo(1) }
-    }
-
-    @Test
-    fun selectableTest_clickWithDPadCenter() {
-        var counter = 0
-        val focusRequester = FocusRequester()
-        lateinit var inputModeManager: InputModeManager
-
-        rule.setContent {
-            inputModeManager = LocalInputModeManager.current
-            BasicText(
-                "SelectableText",
-                modifier =
-                    Modifier.testTag("selectable").focusRequester(focusRequester).selectable(
-                        selected = false
-                    ) {
-                        counter++
-                    },
-            )
-        }
-
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            focusRequester.requestFocus()
-        }
-
-        rule.onNodeWithTag("selectable").performKeyInput { keyDown(Key.DirectionCenter) }
-
-        rule.runOnIdle { assertThat(counter).isEqualTo(0) }
-
-        rule.onNodeWithTag("selectable").performKeyInput { keyUp(Key.DirectionCenter) }
-
-        rule.runOnIdle { assertThat(counter).isEqualTo(1) }
-    }
-
-    @Test
-    fun selectableTest_enterKey_emitsIndication() {
-        val interactionSource = MutableInteractionSource()
-        val focusRequester = FocusRequester()
-        lateinit var scope: CoroutineScope
-        lateinit var inputModeManager: InputModeManager
-
-        rule.setContent {
-            scope = rememberCoroutineScope()
-            inputModeManager = LocalInputModeManager.current
-            Box(Modifier.padding(10.dp)) {
+            setContent {
                 BasicText(
                     "SelectableText",
                     modifier =
                         Modifier.testTag("selectable").focusRequester(focusRequester).selectable(
-                            selected = true,
-                            interactionSource = interactionSource,
-                            indication = null,
-                        ) {},
+                            selected = false
+                        ) {
+                            counter++
+                        },
                 )
             }
+
+            runOnIdle { focusRequester.requestFocus() }
+
+            onNodeWithTag("selectable").performKeyInput { keyDown(Key.Enter) }
+
+            runOnIdle { assertThat(counter).isEqualTo(0) }
+
+            onNodeWithTag("selectable").performKeyInput { keyUp(Key.Enter) }
+
+            runOnIdle { assertThat(counter).isEqualTo(1) }
         }
-
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            focusRequester.requestFocus()
-        }
-
-        val interactions = mutableListOf<Interaction>()
-        scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
-
-        rule.onNodeWithTag("selectable").performKeyInput { keyDown(Key.Enter) }
-
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(1)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-        }
-
-        rule.onNodeWithTag("selectable").performKeyInput { keyUp(Key.Enter) }
-
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(2)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-            assertThat(interactions.last()).isInstanceOf(PressInteraction.Release::class.java)
-        }
-    }
 
     @Test
-    fun selectableTest_numPadEnterKey_emitsIndication() {
-        val interactionSource = MutableInteractionSource()
-        val focusRequester = FocusRequester()
-        lateinit var scope: CoroutineScope
-        lateinit var inputModeManager: InputModeManager
+    fun selectableTest_clickWithNumPadEnterKey() =
+        runComposeUiTest(ComposeUiTestConfig(inputMode = Keyboard)) {
+            var counter = 0
+            val focusRequester = FocusRequester()
 
-        rule.setContent {
-            scope = rememberCoroutineScope()
-            inputModeManager = LocalInputModeManager.current
-            Box(Modifier.padding(10.dp)) {
+            setContent {
                 BasicText(
                     "SelectableText",
                     modifier =
                         Modifier.testTag("selectable").focusRequester(focusRequester).selectable(
-                            selected = true,
-                            interactionSource = interactionSource,
-                            indication = null,
-                        ) {},
+                            selected = false
+                        ) {
+                            counter++
+                        },
                 )
             }
+
+            runOnIdle { focusRequester.requestFocus() }
+
+            onNodeWithTag("selectable").performKeyInput { keyDown(Key.NumPadEnter) }
+
+            runOnIdle { assertThat(counter).isEqualTo(0) }
+
+            onNodeWithTag("selectable").performKeyInput { keyUp(Key.NumPadEnter) }
+
+            runOnIdle { assertThat(counter).isEqualTo(1) }
         }
-
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            focusRequester.requestFocus()
-        }
-
-        val interactions = mutableListOf<Interaction>()
-        scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
-
-        rule.onNodeWithTag("selectable").performKeyInput { keyDown(Key.NumPadEnter) }
-
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(1)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-        }
-
-        rule.onNodeWithTag("selectable").performKeyInput { keyUp(Key.NumPadEnter) }
-
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(2)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-            assertThat(interactions.last()).isInstanceOf(PressInteraction.Release::class.java)
-        }
-    }
 
     @Test
-    fun selectableTest_dpadCenter_emitsIndication() {
-        val interactionSource = MutableInteractionSource()
-        val focusRequester = FocusRequester()
-        lateinit var scope: CoroutineScope
-        lateinit var inputModeManager: InputModeManager
+    fun selectableTest_clickWithDPadCenter() =
+        runComposeUiTest(ComposeUiTestConfig(inputMode = Keyboard)) {
+            var counter = 0
+            val focusRequester = FocusRequester()
 
-        rule.setContent {
-            scope = rememberCoroutineScope()
-            inputModeManager = LocalInputModeManager.current
-            Box(Modifier.padding(10.dp)) {
+            setContent {
                 BasicText(
                     "SelectableText",
                     modifier =
                         Modifier.testTag("selectable").focusRequester(focusRequester).selectable(
-                            selected = true,
-                            interactionSource = interactionSource,
-                            indication = null,
-                        ) {},
+                            selected = false
+                        ) {
+                            counter++
+                        },
                 )
+            }
+
+            runOnIdle { focusRequester.requestFocus() }
+
+            onNodeWithTag("selectable").performKeyInput { keyDown(Key.DirectionCenter) }
+
+            runOnIdle { assertThat(counter).isEqualTo(0) }
+
+            onNodeWithTag("selectable").performKeyInput { keyUp(Key.DirectionCenter) }
+
+            runOnIdle { assertThat(counter).isEqualTo(1) }
+        }
+
+    @Test
+    fun selectableTest_enterKey_emitsIndication() =
+        runComposeUiTest(ComposeUiTestConfig(inputMode = Keyboard)) {
+            val interactionSource = MutableInteractionSource()
+            val focusRequester = FocusRequester()
+            lateinit var scope: CoroutineScope
+
+            setContent {
+                scope = rememberCoroutineScope()
+                Box(Modifier.padding(10.dp)) {
+                    BasicText(
+                        "SelectableText",
+                        modifier =
+                            Modifier.testTag("selectable")
+                                .focusRequester(focusRequester)
+                                .selectable(
+                                    selected = true,
+                                    interactionSource = interactionSource,
+                                    indication = null,
+                                ) {},
+                    )
+                }
+            }
+
+            runOnIdle { focusRequester.requestFocus() }
+
+            val interactions = mutableListOf<Interaction>()
+            scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
+
+            onNodeWithTag("selectable").performKeyInput { keyDown(Key.Enter) }
+
+            runOnIdle {
+                assertThat(interactions).hasSize(1)
+                assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+            }
+
+            onNodeWithTag("selectable").performKeyInput { keyUp(Key.Enter) }
+
+            runOnIdle {
+                assertThat(interactions).hasSize(2)
+                assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+                assertThat(interactions.last()).isInstanceOf(PressInteraction.Release::class.java)
             }
         }
 
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            focusRequester.requestFocus()
-        }
-        rule.waitForIdle()
-
-        val interactions = mutableListOf<Interaction>()
-        scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
-
-        rule.onNodeWithTag("selectable").performKeyInput { keyDown(Key.DirectionCenter) }
-
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(1)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-        }
-
-        rule.onNodeWithTag("selectable").performKeyInput { keyUp(Key.DirectionCenter) }
-
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(2)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-            assertThat(interactions.last()).isInstanceOf(PressInteraction.Release::class.java)
-        }
-    }
-
     @Test
-    fun selectableTest_otherKey_doesNotEmitIndication() {
-        val interactionSource = MutableInteractionSource()
-        val focusRequester = FocusRequester()
-        lateinit var scope: CoroutineScope
-        lateinit var inputModeManager: InputModeManager
+    fun selectableTest_numPadEnterKey_emitsIndication() =
+        runComposeUiTest(ComposeUiTestConfig(inputMode = Keyboard)) {
+            val interactionSource = MutableInteractionSource()
+            val focusRequester = FocusRequester()
+            lateinit var scope: CoroutineScope
 
-        rule.setContent {
-            scope = rememberCoroutineScope()
-            inputModeManager = LocalInputModeManager.current
-            Box(Modifier.padding(10.dp)) {
-                BasicText(
-                    "SelectableText",
-                    modifier =
-                        Modifier.testTag("selectable").focusRequester(focusRequester).selectable(
-                            selected = true,
-                            interactionSource = interactionSource,
-                            indication = null,
-                        ) {},
-                )
+            setContent {
+                scope = rememberCoroutineScope()
+                Box(Modifier.padding(10.dp)) {
+                    BasicText(
+                        "SelectableText",
+                        modifier =
+                            Modifier.testTag("selectable")
+                                .focusRequester(focusRequester)
+                                .selectable(
+                                    selected = true,
+                                    interactionSource = interactionSource,
+                                    indication = null,
+                                ) {},
+                    )
+                }
+            }
+
+            runOnIdle { focusRequester.requestFocus() }
+
+            val interactions = mutableListOf<Interaction>()
+            scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
+
+            onNodeWithTag("selectable").performKeyInput { keyDown(Key.NumPadEnter) }
+
+            runOnIdle {
+                assertThat(interactions).hasSize(1)
+                assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+            }
+
+            onNodeWithTag("selectable").performKeyInput { keyUp(Key.NumPadEnter) }
+
+            runOnIdle {
+                assertThat(interactions).hasSize(2)
+                assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+                assertThat(interactions.last()).isInstanceOf(PressInteraction.Release::class.java)
             }
         }
 
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            focusRequester.requestFocus()
-        }
-
-        val interactions = mutableListOf<Interaction>()
-        scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
-
-        rule.onNodeWithTag("selectable").performKeyInput { pressKey(Key.Backspace) }
-        rule.runOnIdle { assertThat(interactions).isEmpty() }
-    }
-
     @Test
-    fun selectableTest_doubleEnterKey_emitsFurtherInteractions() {
-        val interactionSource = MutableInteractionSource()
-        val focusRequester = FocusRequester()
-        lateinit var scope: CoroutineScope
-        lateinit var inputModeManager: InputModeManager
+    fun selectableTest_dpadCenter_emitsIndication() =
+        runComposeUiTest(ComposeUiTestConfig(inputMode = Keyboard)) {
+            val interactionSource = MutableInteractionSource()
+            val focusRequester = FocusRequester()
+            lateinit var scope: CoroutineScope
 
-        rule.setContent {
-            scope = rememberCoroutineScope()
-            inputModeManager = LocalInputModeManager.current
-            Box(Modifier.padding(10.dp)) {
-                BasicText(
-                    "SelectableText",
-                    modifier =
-                        Modifier.testTag("selectable").focusRequester(focusRequester).selectable(
-                            selected = true,
-                            interactionSource = interactionSource,
-                            indication = null,
-                        ) {},
-                )
+            setContent {
+                scope = rememberCoroutineScope()
+                Box(Modifier.padding(10.dp)) {
+                    BasicText(
+                        "SelectableText",
+                        modifier =
+                            Modifier.testTag("selectable")
+                                .focusRequester(focusRequester)
+                                .selectable(
+                                    selected = true,
+                                    interactionSource = interactionSource,
+                                    indication = null,
+                                ) {},
+                    )
+                }
+            }
+
+            runOnIdle { focusRequester.requestFocus() }
+            waitForIdle()
+
+            val interactions = mutableListOf<Interaction>()
+            scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
+
+            onNodeWithTag("selectable").performKeyInput { keyDown(Key.DirectionCenter) }
+
+            runOnIdle {
+                assertThat(interactions).hasSize(1)
+                assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+            }
+
+            onNodeWithTag("selectable").performKeyInput { keyUp(Key.DirectionCenter) }
+
+            runOnIdle {
+                assertThat(interactions).hasSize(2)
+                assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+                assertThat(interactions.last()).isInstanceOf(PressInteraction.Release::class.java)
             }
         }
 
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            focusRequester.requestFocus()
+    @Test
+    fun selectableTest_otherKey_doesNotEmitIndication() =
+        runComposeUiTest(ComposeUiTestConfig(inputMode = Keyboard)) {
+            val interactionSource = MutableInteractionSource()
+            val focusRequester = FocusRequester()
+            lateinit var scope: CoroutineScope
+
+            setContent {
+                scope = rememberCoroutineScope()
+                Box(Modifier.padding(10.dp)) {
+                    BasicText(
+                        "SelectableText",
+                        modifier =
+                            Modifier.testTag("selectable")
+                                .focusRequester(focusRequester)
+                                .selectable(
+                                    selected = true,
+                                    interactionSource = interactionSource,
+                                    indication = null,
+                                ) {},
+                    )
+                }
+            }
+
+            runOnIdle { focusRequester.requestFocus() }
+
+            val interactions = mutableListOf<Interaction>()
+            scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
+
+            onNodeWithTag("selectable").performKeyInput { pressKey(Key.Backspace) }
+            runOnIdle { assertThat(interactions).isEmpty() }
         }
-
-        val interactions = mutableListOf<Interaction>()
-        scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
-
-        val selectableNode = rule.onNodeWithTag("selectable")
-
-        selectableNode.performKeyInput { pressKey(Key.Enter) }
-
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(2)
-            assertThat(interactions[0]).isInstanceOf(PressInteraction.Press::class.java)
-            assertThat(interactions[1]).isInstanceOf(PressInteraction.Release::class.java)
-        }
-
-        selectableNode.performKeyInput { keyDown(Key.Enter) }
-
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(3)
-            assertThat(interactions[0]).isInstanceOf(PressInteraction.Press::class.java)
-            assertThat(interactions[1]).isInstanceOf(PressInteraction.Release::class.java)
-            assertThat(interactions[2]).isInstanceOf(PressInteraction.Press::class.java)
-        }
-
-        selectableNode.performKeyInput { keyUp(Key.Enter) }
-
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(4)
-            assertThat(interactions[0]).isInstanceOf(PressInteraction.Press::class.java)
-            assertThat(interactions[1]).isInstanceOf(PressInteraction.Release::class.java)
-            assertThat(interactions[2]).isInstanceOf(PressInteraction.Press::class.java)
-            assertThat(interactions[3]).isInstanceOf(PressInteraction.Release::class.java)
-        }
-    }
 
     @Test
-    fun selectableTest_repeatKeyEvents_doNotEmitFurtherInteractions() {
-        val interactionSource = MutableInteractionSource()
-        val focusRequester = FocusRequester()
-        lateinit var scope: CoroutineScope
-        lateinit var inputModeManager: InputModeManager
-        var repeatCounter = 0
+    fun selectableTest_doubleEnterKey_emitsFurtherInteractions() =
+        runComposeUiTest(ComposeUiTestConfig(inputMode = Keyboard)) {
+            val interactionSource = MutableInteractionSource()
+            val focusRequester = FocusRequester()
+            lateinit var scope: CoroutineScope
 
-        rule.setContent {
-            scope = rememberCoroutineScope()
-            inputModeManager = LocalInputModeManager.current
-            Box(Modifier.padding(10.dp)) {
-                BasicText(
-                    "SelectableText",
-                    modifier =
-                        Modifier.testTag("selectable")
-                            .focusRequester(focusRequester)
-                            .onKeyEvent {
-                                if (it.nativeKeyEvent.repeatCount != 0) repeatCounter++
-                                false
-                            }
-                            .selectable(
-                                selected = true,
-                                interactionSource = interactionSource,
-                                indication = null,
-                            ) {},
-                )
+            setContent {
+                scope = rememberCoroutineScope()
+                Box(Modifier.padding(10.dp)) {
+                    BasicText(
+                        "SelectableText",
+                        modifier =
+                            Modifier.testTag("selectable")
+                                .focusRequester(focusRequester)
+                                .selectable(
+                                    selected = true,
+                                    interactionSource = interactionSource,
+                                    indication = null,
+                                ) {},
+                    )
+                }
+            }
+
+            runOnIdle { focusRequester.requestFocus() }
+
+            val interactions = mutableListOf<Interaction>()
+            scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
+
+            val selectableNode = onNodeWithTag("selectable")
+
+            selectableNode.performKeyInput { pressKey(Key.Enter) }
+
+            runOnIdle {
+                assertThat(interactions).hasSize(2)
+                assertThat(interactions[0]).isInstanceOf(PressInteraction.Press::class.java)
+                assertThat(interactions[1]).isInstanceOf(PressInteraction.Release::class.java)
+            }
+
+            selectableNode.performKeyInput { keyDown(Key.Enter) }
+
+            runOnIdle {
+                assertThat(interactions).hasSize(3)
+                assertThat(interactions[0]).isInstanceOf(PressInteraction.Press::class.java)
+                assertThat(interactions[1]).isInstanceOf(PressInteraction.Release::class.java)
+                assertThat(interactions[2]).isInstanceOf(PressInteraction.Press::class.java)
+            }
+
+            selectableNode.performKeyInput { keyUp(Key.Enter) }
+
+            runOnIdle {
+                assertThat(interactions).hasSize(4)
+                assertThat(interactions[0]).isInstanceOf(PressInteraction.Press::class.java)
+                assertThat(interactions[1]).isInstanceOf(PressInteraction.Release::class.java)
+                assertThat(interactions[2]).isInstanceOf(PressInteraction.Press::class.java)
+                assertThat(interactions[3]).isInstanceOf(PressInteraction.Release::class.java)
             }
         }
 
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            focusRequester.requestFocus()
-        }
-
-        val interactions = mutableListOf<Interaction>()
-        scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
-
-        rule.onNodeWithTag("selectable").performKeyInput {
-            keyDown(Key.Enter)
-
-            advanceEventTime(500) // First repeat
-            advanceEventTime(50) // Second repeat
-        }
-
-        rule.runOnIdle {
-            // Ensure that expected number of repeats occurred and did not cause press interactions.
-            assertThat(repeatCounter).isEqualTo(2)
-            assertThat(interactions).hasSize(1)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-        }
-
-        rule.onNodeWithTag("selectable").performKeyInput { keyUp(Key.Enter) }
-
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(2)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-            assertThat(interactions.last()).isInstanceOf(PressInteraction.Release::class.java)
-        }
-    }
-
     @Test
-    fun selectableTest_interruptedClick_emitsCancelIndication() {
-        val interactionSource = MutableInteractionSource()
-        val focusRequester = FocusRequester()
-        val enabled = mutableStateOf(true)
-        lateinit var scope: CoroutineScope
-        lateinit var inputModeManager: InputModeManager
+    fun selectableTest_repeatKeyEvents_doNotEmitFurtherInteractions() =
+        runComposeUiTest(ComposeUiTestConfig(inputMode = Keyboard)) {
+            val interactionSource = MutableInteractionSource()
+            val focusRequester = FocusRequester()
+            lateinit var scope: CoroutineScope
+            var repeatCounter = 0
 
-        rule.setContent {
-            scope = rememberCoroutineScope()
-            inputModeManager = LocalInputModeManager.current
-            Box(Modifier.padding(10.dp)) {
-                BasicText(
-                    "SelectableText",
-                    modifier =
-                        Modifier.testTag("selectable").focusRequester(focusRequester).selectable(
-                            selected = true,
-                            interactionSource = interactionSource,
-                            indication = null,
-                            enabled = enabled.value,
-                        ) {},
-                )
+            setContent {
+                scope = rememberCoroutineScope()
+                Box(Modifier.padding(10.dp)) {
+                    BasicText(
+                        "SelectableText",
+                        modifier =
+                            Modifier.testTag("selectable")
+                                .focusRequester(focusRequester)
+                                .onKeyEvent {
+                                    if (it.nativeKeyEvent.repeatCount != 0) repeatCounter++
+                                    false
+                                }
+                                .selectable(
+                                    selected = true,
+                                    interactionSource = interactionSource,
+                                    indication = null,
+                                ) {},
+                    )
+                }
+            }
+
+            runOnIdle { focusRequester.requestFocus() }
+
+            val interactions = mutableListOf<Interaction>()
+            scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
+
+            onNodeWithTag("selectable").performKeyInput {
+                keyDown(Key.Enter)
+
+                advanceEventTime(500) // First repeat
+                advanceEventTime(50) // Second repeat
+            }
+
+            runOnIdle {
+                // Ensure that expected number of repeats occurred and did not cause press
+                // interactions.
+                assertThat(repeatCounter).isEqualTo(2)
+                assertThat(interactions).hasSize(1)
+                assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+            }
+
+            onNodeWithTag("selectable").performKeyInput { keyUp(Key.Enter) }
+
+            runOnIdle {
+                assertThat(interactions).hasSize(2)
+                assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+                assertThat(interactions.last()).isInstanceOf(PressInteraction.Release::class.java)
             }
         }
 
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            focusRequester.requestFocus()
+    @Test
+    fun selectableTest_interruptedClick_emitsCancelIndication() =
+        runComposeUiTest(ComposeUiTestConfig(inputMode = Keyboard)) {
+            val interactionSource = MutableInteractionSource()
+            val focusRequester = FocusRequester()
+            val enabled = mutableStateOf(true)
+            lateinit var scope: CoroutineScope
+
+            setContent {
+                scope = rememberCoroutineScope()
+                Box(Modifier.padding(10.dp)) {
+                    BasicText(
+                        "SelectableText",
+                        modifier =
+                            Modifier.testTag("selectable")
+                                .focusRequester(focusRequester)
+                                .selectable(
+                                    selected = true,
+                                    interactionSource = interactionSource,
+                                    indication = null,
+                                    enabled = enabled.value,
+                                ) {},
+                    )
+                }
+            }
+
+            runOnIdle { focusRequester.requestFocus() }
+
+            val interactions = mutableListOf<Interaction>()
+            scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
+
+            val selectableNode = onNodeWithTag("selectable")
+
+            selectableNode.performKeyInput { keyDown(Key.Enter) }
+
+            runOnIdle {
+                assertThat(interactions).hasSize(1)
+                assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+            }
+
+            enabled.value = false
+
+            selectableNode.assertIsNotEnabled()
+
+            runOnIdle {
+                // Filter out focus interactions.
+                val pressInteractions = interactions.filterIsInstance<PressInteraction>()
+                assertThat(pressInteractions).hasSize(2)
+                assertThat(pressInteractions.first())
+                    .isInstanceOf(PressInteraction.Press::class.java)
+                assertThat(pressInteractions.last())
+                    .isInstanceOf(PressInteraction.Cancel::class.java)
+            }
+
+            // Key releases should not result in interactions.
+            selectableNode.performKeyInput { keyUp(Key.Enter) }
+
+            // Make sure nothing has changed.
+            runOnIdle {
+                val pressInteractions = interactions.filterIsInstance<PressInteraction>()
+                assertThat(pressInteractions).hasSize(2)
+                assertThat(pressInteractions.first())
+                    .isInstanceOf(PressInteraction.Press::class.java)
+                assertThat(pressInteractions.last())
+                    .isInstanceOf(PressInteraction.Cancel::class.java)
+            }
         }
-
-        val interactions = mutableListOf<Interaction>()
-        scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
-
-        val selectableNode = rule.onNodeWithTag("selectable")
-
-        selectableNode.performKeyInput { keyDown(Key.Enter) }
-
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(1)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-        }
-
-        enabled.value = false
-
-        selectableNode.assertIsNotEnabled()
-
-        rule.runOnIdle {
-            // Filter out focus interactions.
-            val pressInteractions = interactions.filterIsInstance<PressInteraction>()
-            assertThat(pressInteractions).hasSize(2)
-            assertThat(pressInteractions.first()).isInstanceOf(PressInteraction.Press::class.java)
-            assertThat(pressInteractions.last()).isInstanceOf(PressInteraction.Cancel::class.java)
-        }
-
-        // Key releases should not result in interactions.
-        selectableNode.performKeyInput { keyUp(Key.Enter) }
-
-        // Make sure nothing has changed.
-        rule.runOnIdle {
-            val pressInteractions = interactions.filterIsInstance<PressInteraction>()
-            assertThat(pressInteractions).hasSize(2)
-            assertThat(pressInteractions.first()).isInstanceOf(PressInteraction.Press::class.java)
-            assertThat(pressInteractions.last()).isInstanceOf(PressInteraction.Cancel::class.java)
-        }
-    }
 
     @Test
-    fun selectableTest_localIndication_interactionSource_eagerlyCreated() {
+    fun selectableTest_localIndication_interactionSource_eagerlyCreated() = runComposeUiTest {
         val interactionSource = MutableInteractionSource()
         var created = false
         val indication = TestIndicationNodeFactory { _, _ -> created = true }
-        rule.setContent {
+        setContent {
             CompositionLocalProvider(LocalIndication provides indication) {
                 Box(Modifier.padding(10.dp)) {
                     BasicText(
@@ -1067,11 +1031,11 @@ class SelectableTest {
                 }
             }
         }
-        rule.runOnIdle { assertThat(created).isTrue() }
+        runOnIdle { assertThat(created).isTrue() }
     }
 
     @Test
-    fun selectableTest_noInteractionSource_lazilyCreated_pointerInput() {
+    fun selectableTest_noInteractionSource_lazilyCreated_pointerInput() = runComposeUiTest {
         var created = false
         lateinit var interactionSource: InteractionSource
         val interactions = mutableListOf<Interaction>()
@@ -1085,7 +1049,7 @@ class SelectableTest {
             }
         }
 
-        rule.setContent {
+        setContent {
             Box(Modifier.padding(10.dp)) {
                 BasicText(
                     "SelectableText",
@@ -1099,12 +1063,12 @@ class SelectableTest {
             }
         }
 
-        rule.runOnIdle { assertThat(created).isFalse() }
+        runOnIdle { assertThat(created).isFalse() }
 
         // The touch event should cause the indication node to be created
-        rule.onNodeWithTag("selectable").performTouchInput { down(center) }
+        onNodeWithTag("selectable").performTouchInput { down(center) }
 
-        rule.runOnIdle {
+        runOnIdle {
             assertThat(created).isTrue()
             assertThat(interactions).hasSize(1)
             assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
@@ -1115,7 +1079,11 @@ class SelectableTest {
     fun nullInteractionSource_equality() {
         val onClick = {}
         assertModifierIsPure { toggleInput ->
-            Modifier.selectable(selected = toggleInput, interactionSource = null, onClick = onClick)
+            Modifier.selectable(
+                selected = toggleInput,
+                interactionSource = null,
+                onClick = onClick,
+            )
         }
     }
 
