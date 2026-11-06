@@ -60,6 +60,8 @@ import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode.Companion.Multiply
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.test.core.app.ApplicationProvider
@@ -109,7 +111,7 @@ class RemoteCanvasCaptureTest {
         }
 
     private val creationState =
-        RemoteComposeCreationState(RemoteCreationDisplayInfo(WIDTH, HEIGHT, 160, 1f), null, profile)
+        RemoteComposeCreationState(Size(WIDTH.toFloat(), HEIGHT.toFloat()), profile)
 
     private val remoteCanvas = RemoteCanvas(creationState)
 
@@ -386,7 +388,7 @@ class RemoteCanvasCaptureTest {
                     RemoteFloat(0.5f),
                     RemoteFloat(1f),
                 ),
-                RemoteBlendMode.Multiply,
+                Multiply,
             )
 
         remoteCanvas.usePaint(paint)
@@ -408,7 +410,7 @@ class RemoteCanvasCaptureTest {
                     RemoteFloat(0.5f),
                     RemoteFloat(1f),
                 ),
-                RemoteBlendMode.Multiply,
+                Multiply,
             )
 
         remoteCanvas.usePaint(paint)
@@ -430,7 +432,7 @@ class RemoteCanvasCaptureTest {
                     RemoteFloat(0.5f),
                     RemoteFloat(1f),
                 ),
-                RemoteBlendMode.Multiply,
+                Multiply,
             )
         remoteCanvas.usePaint(paint)
 
@@ -459,7 +461,7 @@ class RemoteCanvasCaptureTest {
                     RemoteFloat(0.5f),
                     RemoteFloat(1f),
                 ),
-                RemoteBlendMode.Multiply,
+                Multiply,
             )
 
         val paintCopy = StandardRemotePaint(paint)

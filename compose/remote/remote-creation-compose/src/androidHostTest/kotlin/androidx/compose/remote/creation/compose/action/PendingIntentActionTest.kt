@@ -23,8 +23,10 @@ import androidx.compose.remote.creation.compose.action.PendingIntentAction.Compa
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.RemoteWriterEvents
-import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
@@ -46,11 +48,7 @@ class PendingIntentActionTest {
     @Test
     fun toRemoteAction_withDefaultRemoteComposeWriter_throws() {
         val creationState =
-            RemoteComposeCreationState(
-                creationDisplayInfo = RemoteCreationDisplayInfo(1, 1, 160, 1.0f),
-                profile = RcPlatformProfiles.ANDROIDX,
-                writerCallback = null,
-            )
+            RemoteComposeCreationState(platform = AndroidxRcPlatformServices(), size = Size(1f, 1f))
         val testAction = PendingIntentAction({ testPendingIntent })
 
         assertThrows(IllegalStateException::class.java) {
@@ -65,8 +63,8 @@ class PendingIntentActionTest {
             RemoteComposeCreationState(
                 creationDisplayInfo = RemoteCreationDisplayInfo(1, 1, 160, 1.0f),
                 profile = RcPlatformProfiles.ANDROIDX,
-                writerCallback = writerEvents,
-                layoutDirection = RemoteLayoutDirection.Ltr,
+                writerEvents = writerEvents,
+                layoutDirection = LayoutDirection.Ltr,
             )
 
         val testAction = PendingIntentAction({ testPendingIntent })
@@ -92,8 +90,8 @@ class PendingIntentActionTest {
             RemoteComposeCreationState(
                 creationDisplayInfo = RemoteCreationDisplayInfo(1, 1, 160, 1.0f),
                 profile = RcPlatformProfiles.ANDROIDX,
-                writerCallback = writerEvents,
-                layoutDirection = RemoteLayoutDirection.Ltr,
+                writerEvents = writerEvents,
+                layoutDirection = LayoutDirection.Ltr,
             )
 
         assertThat(lambdaCalled).isFalse()

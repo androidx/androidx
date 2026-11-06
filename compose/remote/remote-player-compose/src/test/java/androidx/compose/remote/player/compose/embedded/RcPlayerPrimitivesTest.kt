@@ -123,6 +123,7 @@ import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -1597,7 +1598,7 @@ class RcPlayerPrimitivesTest {
                         colorFilter =
                             RemoteBlendModeColorFilter(
                                 Color.Red.rc,
-                                RemoteBlendMode.SrcOver,
+                                BlendMode.SrcOver,
                             )
                     }
                 drawRect(
@@ -1804,7 +1805,7 @@ class RcPlayerPrimitivesTest {
                     Color.Red,
                 )
             }
-            val colorFilter = RemoteBlendModeColorFilter(namedColor, RemoteBlendMode.SrcOver)
+            val colorFilter = RemoteBlendModeColorFilter(namedColor, BlendMode.SrcOver)
             RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                 val paint = RemotePaint().apply { this.colorFilter = colorFilter }
                 drawRect(
@@ -1835,7 +1836,7 @@ class RcPlayerPrimitivesTest {
                         colorFilter =
                             RemoteBlendModeColorFilter(
                                 Color.Red.rc,
-                                RemoteBlendMode.SrcOver,
+                                BlendMode.SrcOver,
                             )
                     }
                 drawRect(

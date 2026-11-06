@@ -26,12 +26,12 @@ import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.ConditionalOperations
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter
-import androidx.compose.remote.creation.compose.capture.RemoteComposeCaptureState
-import androidx.compose.remote.creation.compose.capture.createTestCreationState
+import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
+import androidx.compose.ui.geometry.Size
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -47,7 +47,13 @@ class RemoteMutableFloatArrayTest {
         AndroidRemoteContext().apply {
             useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
         }
-    val creationState = createTestCreationState(profiles = PROFILE_ANDROIDX)
+    val creationState =
+        RemoteComposeCreationState(
+            AndroidxRcPlatformServices(),
+            Size(1f, 1f),
+            CoreDocument.DOCUMENT_API_LEVEL,
+            PROFILE_ANDROIDX,
+        )
 
     @Test
     fun arraySet_once_constIndex() {
@@ -128,7 +134,7 @@ class RemoteMutableFloatArrayTest {
                     RemoteComposeWriter.hTag(Header.DOC_PROFILES, RcProfiles.PROFILE_ANDROIDX),
                 )
             }
-        val creationState = createTestCreationState(width = 100, height = 100, profile = profile)
+        val creationState = RemoteComposeCreationState(Size(100f, 100f), profile)
         creationState.document.conditionalOperations(ConditionalOperations.TYPE_EQ, 0f, 0f)
         val remoteFloatArray = RemoteMutableFloatArray(4)
         val index = createNamedRemoteInt("testInt", 2)
@@ -225,7 +231,7 @@ class RemoteMutableFloatArrayTest {
         assertThat(result.toDebugString()).isEqualTo("mutableFloatArray(size=4)[user:i]")
     }
 
-    private fun makeAndPaintCoreDocument(cs: RemoteComposeCaptureState = creationState) =
+    private fun makeAndPaintCoreDocument(cs: RemoteComposeCreationState = creationState) =
         CoreDocument().apply {
             val buffer = cs.document.buffer
             buffer.buffer.index = 0

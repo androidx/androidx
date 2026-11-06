@@ -29,7 +29,6 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.shaders.horizontalGradient
 import androidx.compose.remote.creation.compose.shaders.verticalGradient
-import androidx.compose.remote.creation.compose.state.RemotePathFillType
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.vector.painterRemoteVector
@@ -74,7 +73,6 @@ class RcPlayerVectorBrushScreenshotTest {
                     tintColor = Color.Unspecified.rc,
                 )
                 .path(
-                    pathFillType = RemotePathFillType.NonZero,
                     fill = RemoteBrush.horizontalGradient(listOf(Color.Red.rc, Color.Blue.rc)),
                     fillAlpha = 0.5f.rf,
                     stroke = RemoteBrush.verticalGradient(listOf(Color.Green.rc, Color.Magenta.rc)),

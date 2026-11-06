@@ -29,7 +29,6 @@ import androidx.compose.remote.creation.compose.text.RemoteTextAlign
 import androidx.compose.remote.creation.compose.text.RemoteTextOverflow
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.compose.text.fromTextStyle
-import androidx.compose.remote.creation.compose.text.toRemoteFontVariationSettings
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.remote.serialization.yaml.YAMLSerializer
 import androidx.compose.remote.testing.RemoteCaptureTestRule
@@ -153,7 +152,6 @@ class RemoteTextFontSettingsTest {
                     RemoteTextStyle(
                         fontVariationSettings =
                             FontVariation.Settings(FontVariation.Setting("ROND", 100f))
-                                .toRemoteFontVariationSettings()
                     ),
                 fontVariationSettings = FontVariation.Settings(FontVariation.weight(500)),
             )
@@ -171,10 +169,9 @@ class RemoteTextFontSettingsTest {
                     RemoteTextStyle(
                         fontVariationSettings =
                             FontVariation.Settings(
-                                    FontVariation.width(100f),
-                                    FontVariation.weight(700),
-                                )
-                                .toRemoteFontVariationSettings()
+                                FontVariation.width(100f),
+                                FontVariation.weight(700),
+                            )
                     ),
                 fontFeatureSettings = "'wght' 300, tnum",
             )

@@ -38,7 +38,6 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
-import androidx.compose.remote.creation.compose.text.toRemoteFontVariationSettings
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.runtime.CompositionLocalProvider
@@ -433,8 +432,7 @@ class RcPlayerCanvasTextTypefaceTest {
                             fontSize = 18.rsp,
                             fontFeatureSettings = "tnum",
                             fontVariationSettings =
-                                FontVariation.Settings(FontVariation.weight(500))
-                                    .toRemoteFontVariationSettings(),
+                                FontVariation.Settings(FontVariation.weight(500)),
                         ),
                 )
                 RemoteText(
@@ -444,8 +442,7 @@ class RcPlayerCanvasTextTypefaceTest {
                             fontSize = 18.rsp,
                             fontFeatureSettings = "pnum",
                             fontVariationSettings =
-                                FontVariation.Settings(FontVariation.width(110f))
-                                    .toRemoteFontVariationSettings(),
+                                FontVariation.Settings(FontVariation.width(110f)),
                         ),
                 )
             }
@@ -541,9 +538,7 @@ class RcPlayerCanvasTextTypefaceTest {
                     RemoteTextStyle(
                         fontFamily = RemoteFontFamily.Named("google:Roboto Flex"),
                         fontSize = 18.rsp,
-                        fontVariationSettings =
-                            FontVariation.Settings(FontVariation.weight(500))
-                                .toRemoteFontVariationSettings(),
+                        fontVariationSettings = FontVariation.Settings(FontVariation.weight(500)),
                     ),
             )
         }
@@ -603,8 +598,7 @@ class RcPlayerCanvasTextTypefaceTest {
                                 fontFamily = RemoteFontFamily.Named("google:Roboto Flex"),
                                 fontSize = 16.rsp,
                                 fontVariationSettings =
-                                    FontVariation.Settings(FontVariation.weight(500))
-                                        .toRemoteFontVariationSettings(),
+                                    FontVariation.Settings(FontVariation.weight(500)),
                             ),
                     )
                 }
@@ -721,10 +715,9 @@ class RcPlayerCanvasTextTypefaceTest {
                         fontSize = 18.rsp,
                         fontVariationSettings =
                             FontVariation.Settings(
-                                    FontVariation.weight(500),
-                                    FontVariation.width(120f),
-                                )
-                                .toRemoteFontVariationSettings(),
+                                FontVariation.weight(500),
+                                FontVariation.width(120f),
+                            ),
                     ),
             )
         }

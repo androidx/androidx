@@ -287,8 +287,8 @@ class CaptureRemoteDocumentTest {
             RemoteComposeCreationState(
                 creationDisplayInfo = createCreationDisplayInfo(context),
                 profile = RcPlatformProfiles.ANDROIDX,
-                writerCallback = null,
-                layoutDirection = RemoteLayoutDirection.Ltr,
+                writerEvents = null,
+                layoutDirection = LayoutDirection.Ltr,
             )
 
         fun createAndRegister() {
