@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+@file:JvmName("RemoteImageBrushKt")
+@file:JvmMultifileClass
+
 package androidx.compose.remote.creation.compose.shaders
 
 import androidx.annotation.RestrictTo
@@ -33,6 +36,7 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 
 internal class RemoteImageShader(
     public val bitmap: RemoteImageBitmap,
@@ -115,3 +119,25 @@ internal data class RemoteImageBrush(
         return createTranslateXy(dx, dy) * createScaleX(finalScaleX) * createScaleY(finalScaleY)
     }
 }
+
+/**
+ * Creates a texture brush with a specified [image].
+ *
+ * @param image [RemoteImageBitmap] to use as a texture
+ * @param tileModeX [RemoteTileMode] to use for the bitmap along the x-axis, defaulting to
+ *   [RemoteTileMode.Clamp]
+ * @param tileModeY [RemoteTileMode] to use for the bitmap along the y-axis, defaulting to
+ *   [RemoteTileMode.Clamp]
+ * @param contentScale [RemoteContentScale] to use when scaling the bitmap, defaulting to
+ *   [RemoteContentScale.None]
+ * @return a [RemoteShaderBrush] that draws [image] as a texture
+ */
+// TODO: Make public and restore default tileModeX, tileModeY, and contentScale once
+// RemoteImageBrush.android.kt is removed.
+@Stable
+internal fun RemoteBrush.Companion.image(
+    image: RemoteImageBitmap,
+    tileModeX: RemoteTileMode,
+    tileModeY: RemoteTileMode,
+    contentScale: RemoteContentScale,
+): RemoteShaderBrush = RemoteImageBrush(image, tileModeX, tileModeY, contentScale)

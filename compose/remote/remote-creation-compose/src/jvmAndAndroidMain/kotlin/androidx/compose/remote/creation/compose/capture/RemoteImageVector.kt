@@ -20,7 +20,6 @@
 package androidx.compose.remote.creation.compose.capture
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.layout.BlackArgb
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
@@ -263,7 +262,7 @@ internal constructor(
         public fun addPath(
             pathData: List<RemotePathNode>,
             pathFillType: RemotePathFillType = DefaultFillType,
-            name: String = DefaultGroupName,
+            name: String = DefaultPathName,
             fill: RemoteBrush? = null,
             fillAlpha: RemoteFloat = 1.0f.rf,
             stroke: RemoteBrush? = null,
@@ -590,25 +589,27 @@ public fun RemoteImageVector.Builder.group(
 }
 
 /**
- * DSL extension for adding a [RemoteVectorPath] with Remote Compose path styling types to [this].
+ * Adds a path to this [RemoteImageVector.Builder].
  *
- * @param name the name for this path
- * @param fill specifies the [RemoteBrush] used to fill the path
- * @param fillAlpha the alpha to fill the path
- * @param stroke specifies the [RemoteBrush] used to fill the stroke
- * @param strokeAlpha the alpha to stroke the path
- * @param strokeLineWidth the width of the line to stroke the path
- * @param strokeLineCap specifies the [RemoteStrokeCap] for a stroked path
- * @param strokeLineJoin specifies the [RemoteStrokeJoin] for a stroked path
- * @param strokeLineMiter specifies the miter limit for a stroked path
- * @param pathFillType specifies the [RemotePathFillType] winding rule that decides how the interior
- *   of a [RemotePath] is calculated
- * @param pathBuilder [RemotePathScope] lambda for adding [RemotePathNode]s to this path
+ * @param name name for this path
+ * @param fill [RemoteBrush] used to fill the path
+ * @param fillAlpha alpha to fill the path
+ * @param stroke [RemoteBrush] used to stroke the path
+ * @param strokeAlpha alpha to stroke the path
+ * @param strokeLineWidth width of the line to stroke the path
+ * @param strokeLineCap [RemoteStrokeCap] for a stroked path
+ * @param strokeLineJoin [RemoteStrokeJoin] for a stroked path
+ * @param strokeLineMiter miter limit for a stroked path
+ * @param pathFillType [RemotePathFillType] winding rule that decides how the interior of a path is
+ *   calculated
+ * @param pathBuilder [RemotePathScope] lambda for drawing commands in this path
  * @return this [RemoteImageVector.Builder] instance for chaining calls
  */
+// TODO: Remove @RestrictTo and restore default pathFillType = DefaultFillType once
+// RemoteImageVector.android.kt path overload is removed.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteImageVector.Builder.path(
-    name: String = DefaultGroupName,
+    name: String = DefaultPathName,
     fill: RemoteBrush? = null,
     fillAlpha: RemoteFloat = 1.0f.rf,
     stroke: RemoteBrush? = null,

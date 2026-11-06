@@ -38,27 +38,27 @@ import androidx.compose.runtime.Stable
  *
  * ```
  * RemoteBrush.radialGradient(
- *      0.0f.rf to Color.Red.rc,
- *      0.3f.rf to Color.Green.rc,
- *      1.0f.rf to Color.Blue.rc,
+ *      0.0f.rf to 0xFFFF0000.toInt().rc,
+ *      0.3f.rf to 0xFF00FF00.toInt().rc,
+ *      1.0f.rf to 0xFF0000FF.toInt().rc,
  *      center = RemoteOffset(side1 / 2.0f, side2 / 2.0f),
  *      radius = side1 / 2.0f,
- *      tileMode = TileMode.Repeated
+ *      tileMode = RemoteTileMode.Repeated,
  * )
  * ```
  *
- * @param colorStops Colors and offsets to determine how the colors are dispersed throughout the
+ * @param colorStops colors and offsets to determine how the colors are dispersed throughout the
  *   radial gradient
- * @param center Center position of the radial gradient circle. If this is set to `null` then the
- *   center of the drawing area is used as the center for the radial gradient.
- *   [Float.POSITIVE_INFINITY] can be used for either [RemoteOffset.x] or [RemoteOffset.y] to
- *   indicate the far right or far bottom of the drawing area respectively.
- * @param radius Radius for the radial gradient. Defaults to positive infinity to indicate the
- *   largest radius that can fit within the bounds of the drawing area
- * @param tileMode Determines the behavior for how the shader is to fill a region outside its
- *   bounds. Defaults to [RemoteTileMode.Clamp] to repeat the edge pixels
+ * @param center center position of the radial gradient circle, or `null` to center within the
+ *   drawing area. [Float.POSITIVE_INFINITY] can be used for either [RemoteOffset.x] or
+ *   [RemoteOffset.y] to indicate the far right or far bottom of the drawing area respectively.
+ * @param radius radius for the radial gradient, or `null` to use the largest radius fitting the
+ *   drawing area
+ * @param tileMode determines how the shader fills regions outside its bounds
  * @return a [RemoteShaderBrush] that draws a radial gradient with the given [colorStops]
  */
+// TODO: Remove @RestrictTo and restore default tileMode = RemoteTileMode.Clamp once
+// RemoteRadialGradient.android.kt is removed.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable
 public fun RemoteBrush.Companion.radialGradient(
@@ -76,28 +76,28 @@ public fun RemoteBrush.Companion.radialGradient(
     )
 
 /**
- * Creates a radial gradient with the given colors evenly dispersed within the gradient
+ * Creates a radial gradient with the given colors evenly dispersed within the gradient.
  *
  * ```
  * RemoteBrush.radialGradient(
- *      listOf(Color.Red.rc, Color.Blue.rc),
+ *      listOf(0xFFFF0000.toInt().rc, 0xFF0000FF.toInt().rc),
  *      center = RemoteOffset(side1 / 2.0f, side2 / 2.0f),
  *      radius = side1 / 2.0f,
- *      tileMode = TileMode.Repeated
+ *      tileMode = RemoteTileMode.Repeated,
  * )
  * ```
  *
- * @param colors Colors to be rendered as part of the gradient
- * @param center Center position of the radial gradient circle. If this is set to `null` then the
- *   center of the drawing area is used as the center for the radial gradient.
- *   [Float.POSITIVE_INFINITY] can be used for either [RemoteOffset.x] or [RemoteOffset.y] to
- *   indicate the far right or far bottom of the drawing area respectively.
- * @param radius Radius for the radial gradient. Defaults to positive infinity to indicate the
- *   largest radius that can fit within the bounds of the drawing area
- * @param tileMode Determines the behavior for how the shader is to fill a region outside its
- *   bounds. Defaults to [RemoteTileMode.Clamp] to repeat the edge pixels
+ * @param colors colors to be rendered as part of the gradient
+ * @param center center position of the radial gradient circle, or `null` to center within the
+ *   drawing area. [Float.POSITIVE_INFINITY] can be used for either [RemoteOffset.x] or
+ *   [RemoteOffset.y] to indicate the far right or far bottom of the drawing area respectively.
+ * @param radius radius for the radial gradient, or `null` to use the largest radius fitting the
+ *   drawing area
+ * @param tileMode determines how the shader fills regions outside its bounds
  * @return a [RemoteShaderBrush] that draws a radial gradient across the given [colors]
  */
+// TODO: Remove @RestrictTo and restore default tileMode = RemoteTileMode.Clamp once
+// RemoteRadialGradient.android.kt is removed.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable
 public fun RemoteBrush.Companion.radialGradient(

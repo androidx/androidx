@@ -20,16 +20,11 @@ import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Immutable
 import kotlin.jvm.JvmInline
 
-/**
- * Controls offscreen buffer compositing and alpha modulation for graphics layers.
- *
- * Mirrors [androidx.compose.ui.graphics.layer.CompositingStrategy] without depending on
- * `compose.ui`.
- */
+/** Determines when to render content into an offscreen buffer before compositing. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
 @JvmInline
-public value class RemoteCompositingStrategy internal constructor(public val value: Int) {
+public value class RemoteCompositingStrategy internal constructor(internal val value: Int) {
 
     override fun toString(): String =
         when (this) {
@@ -40,8 +35,18 @@ public value class RemoteCompositingStrategy internal constructor(public val val
         }
 
     public companion object {
+        /**
+         * Renders content directly into the destination unless layer parameters require an
+         * offscreen buffer.
+         */
         public val Auto: RemoteCompositingStrategy = RemoteCompositingStrategy(0)
+
+        /**
+         * Always renders layer content into an intermediate offscreen buffer before compositing.
+         */
         public val Offscreen: RemoteCompositingStrategy = RemoteCompositingStrategy(1)
+
+        /** Modulates alpha directly during rendering operations where supported. */
         public val ModulateAlpha: RemoteCompositingStrategy = RemoteCompositingStrategy(2)
     }
 }
