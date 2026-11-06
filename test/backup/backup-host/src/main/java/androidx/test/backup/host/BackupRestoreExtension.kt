@@ -26,6 +26,8 @@ import com.android.adblib.tools.createStandaloneSession
 import java.io.File
 import java.lang.reflect.Constructor
 import java.lang.reflect.Executable
+import java.lang.reflect.InvocationTargetException
+import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.lang.reflect.Parameter
 import java.nio.file.Files
@@ -53,7 +55,99 @@ import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.ExtensionContext.Store.CloseableResource
 import org.junit.jupiter.api.extension.ParameterContext
 import org.junit.jupiter.api.extension.ParameterResolver
+import org.junit.jupiter.api.function.ThrowingConsumer
 import org.opentest4j.TestAbortedException
+
+/** Publishes a per-test file attachment to the active JUnit [ExtensionContext], if supported. */
+internal fun interface FileAttachmentPublisher {
+    fun publish(
+        context: ExtensionContext,
+        fileName: String,
+        mediaType: String,
+        writer: (Path) -> Unit,
+    ): Path?
+}
+
+/**
+ * Publishes file attachments through JUnit 5.12+'s `ExtensionContext.publishFile` when present on
+ * the runtime classpath, returning `null` on older JUnit Platform versions.
+ */
+internal object ReflectiveJunitFilePublisher : FileAttachmentPublisher {
+    internal class JunitPublishFileBinding(val parseMediaType: Method, val publishFile: Method)
+
+    // JUnit 5.14+ and 6.0+ define org.junit.jupiter.api.MediaType; JUnit 5.12–5.13 defined
+    // org.junit.jupiter.api.extension.MediaType.
+    internal val MEDIA_TYPE_CLASS_NAMES =
+        listOf(
+            "org.junit.jupiter.api.MediaType",
+            "org.junit.jupiter.api.extension.MediaType",
+        )
+
+    private val binding: JunitPublishFileBinding? by lazy { resolveBinding() }
+
+    internal fun resolveBinding(
+        targetClass: Class<*> = ExtensionContext::class.java,
+        mediaTypeClassNames: List<String> = MEDIA_TYPE_CLASS_NAMES,
+    ): JunitPublishFileBinding? = mediaTypeClassNames.firstNotNullOfOrNull { className ->
+        try {
+            val mediaTypeClass = Class.forName(className, false, targetClass.classLoader)
+            val parseMethod = mediaTypeClass.getMethod("parse", String::class.java)
+            val publishMethod =
+                targetClass.getMethod(
+                    "publishFile",
+                    String::class.java,
+                    mediaTypeClass,
+                    ThrowingConsumer::class.java,
+                )
+            JunitPublishFileBinding(parseMethod, publishMethod)
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
+    override fun publish(
+        context: ExtensionContext,
+        fileName: String,
+        mediaType: String,
+        writer: (Path) -> Unit,
+    ): Path? {
+        val resolved = binding ?: return null
+        return invokePublishFile(
+            target = context,
+            parseMediaType = resolved.parseMediaType,
+            publishFile = resolved.publishFile,
+            fileName = fileName,
+            mediaType = mediaType,
+            writer = writer,
+        )
+    }
+
+    // Calls JUnit 5.12+ ExtensionContext.publishFile on the host JVM when present at runtime.
+    @Suppress("BanUncheckedReflection")
+    internal fun invokePublishFile(
+        target: Any,
+        parseMediaType: Method,
+        publishFile: Method,
+        fileName: String,
+        mediaType: String,
+        writer: (Path) -> Unit,
+    ): Path? {
+        return try {
+            val parsedMediaType = parseMediaType.invoke(null, mediaType)
+            var writtenPath: Path? = null
+            val action =
+                ThrowingConsumer<Path> { path ->
+                    path.parent?.let { Files.createDirectories(it) }
+                    writer(path)
+                    writtenPath = path
+                }
+            publishFile.invoke(target, fileName, parsedMediaType, action)
+            writtenPath
+        } catch (e: InvocationTargetException) {
+            throw e.targetException ?: e
+        }
+    }
+}
 
 /**
  * A JUnit 5 Jupiter extension that resolves [BackupRestoreController] test parameters.
