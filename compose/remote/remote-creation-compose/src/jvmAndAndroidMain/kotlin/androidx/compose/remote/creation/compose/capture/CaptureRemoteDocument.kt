@@ -20,7 +20,6 @@
 
 package androidx.compose.remote.creation.compose.capture
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
@@ -61,8 +60,7 @@ import kotlinx.coroutines.flow.flow
  *   mutates state on every frame or a Compose animation. Animate remote documents with remote
  *   expressions instead.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public suspend fun captureSingleRemoteDocument(
+internal suspend fun captureSingleRemoteDocument(
     creationDisplayInfo: RemoteCreationDisplayInfo,
     remoteDensity: RemoteDensity = RemoteDensity.from(creationDisplayInfo),
     layoutDirection: RemoteLayoutDirection = RemoteLayoutDirection.Ltr,
@@ -125,8 +123,7 @@ internal suspend fun captureSingleRemoteDocument(
  *
  * @return a [Flow] of [ByteArray]s containing the serialized RemoteCompose documents
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun captureRemoteDocument(
+internal fun captureRemoteDocument(
     creationDisplayInfo: RemoteCreationDisplayInfo,
     updateThrottle: CaptureUpdateThrottle = CaptureUpdateThrottle.Default,
     remoteDensity: RemoteDensity = RemoteDensity.from(creationDisplayInfo),
