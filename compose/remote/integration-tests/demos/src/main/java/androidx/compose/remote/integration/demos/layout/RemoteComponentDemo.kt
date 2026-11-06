@@ -67,7 +67,7 @@ fun RemoteComponentDemoContent() {
     val scrollState = remember { RemoteScrollState() }
     RemoteColumn(modifier = RemoteModifier.fillMaxSize().background(Color(0xFFF5F5F5).rc)) {
         RemoteText(
-            text = "Scroll to observe rootX / rootY update relative to the document:".rs,
+            text = "Scroll to observe positionInRoot update relative to the document:".rs,
             modifier = RemoteModifier.padding(12.rdp),
             color = Color(0xFF212121).rc,
         )
@@ -145,10 +145,8 @@ private fun RemoteComponentInspectorBox(
                 val h = comp.height
                 val cx = comp.centerX
                 val cy = comp.centerY
-                val x = comp.x
-                val y = comp.y
-                val rootX = comp.rootX
-                val rootY = comp.rootY
+                val posInParent = comp.positionInParent
+                val posInRoot = comp.positionInRoot
 
                 val guidePaint = RemotePaint {
                     color = accentColor.copy(alpha = 0.35f.rf)
@@ -201,14 +199,14 @@ private fun RemoteComponentInspectorBox(
                         cy.toRemoteInt().toRemoteString()
 
                 val posText =
-                    "x=".rs +
-                        x.toRemoteInt().toRemoteString() +
-                        " y=".rs +
-                        y.toRemoteInt().toRemoteString() +
-                        " rootX=".rs +
-                        rootX.toRemoteInt().toRemoteString() +
-                        " rootY=".rs +
-                        rootY.toRemoteInt().toRemoteString()
+                    "pos=".rs +
+                        posInParent.x.toRemoteInt().toRemoteString() +
+                        ",".rs +
+                        posInParent.y.toRemoteInt().toRemoteString() +
+                        " root=".rs +
+                        posInRoot.x.toRemoteInt().toRemoteString() +
+                        ",".rs +
+                        posInRoot.y.toRemoteInt().toRemoteString()
 
                 drawAnchoredText(
                     text = sizeText,

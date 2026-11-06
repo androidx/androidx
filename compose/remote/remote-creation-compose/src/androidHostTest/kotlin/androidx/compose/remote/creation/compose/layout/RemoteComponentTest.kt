@@ -92,15 +92,13 @@ class RemoteComponentTest {
         val component = drawScope.remote.component
         val componentId = creationState.document.buffer.lastComponentId
 
-        val x = component.x
-        val y = component.y
-        val rootX = component.rootX
-        val rootY = component.rootY
+        val posInParent = component.positionInParent
+        val posInRoot = component.positionInRoot
 
-        assertThat(x.cacheKey).isEqualTo(RemoteComponentCacheKey(componentId, "x"))
-        assertThat(y.cacheKey).isEqualTo(RemoteComponentCacheKey(componentId, "y"))
-        assertThat(rootX.cacheKey).isEqualTo(RemoteComponentCacheKey(componentId, "rootX"))
-        assertThat(rootY.cacheKey).isEqualTo(RemoteComponentCacheKey(componentId, "rootY"))
+        assertThat(posInParent.x.cacheKey).isEqualTo(RemoteComponentCacheKey(componentId, "x"))
+        assertThat(posInParent.y.cacheKey).isEqualTo(RemoteComponentCacheKey(componentId, "y"))
+        assertThat(posInRoot.x.cacheKey).isEqualTo(RemoteComponentCacheKey(componentId, "rootX"))
+        assertThat(posInRoot.y.cacheKey).isEqualTo(RemoteComponentCacheKey(componentId, "rootY"))
 
         assertThat(fakeBuffer.calls)
             .containsExactly(
