@@ -82,7 +82,7 @@ public class MapWithPaneTemplateDemoScreen extends Screen {
 
         Action.Builder primaryActionBuilder = new Action.Builder()
                 .setTitle(getCarContext().getString(R.string.primary_action_title))
-                .setBackgroundColor(CarColor.BLUE)
+                .setBackgroundColor(CarColor.PRIMARY)
                 .setOnClickListener(
                         () -> CarToast.makeText(
                                         getCarContext(),

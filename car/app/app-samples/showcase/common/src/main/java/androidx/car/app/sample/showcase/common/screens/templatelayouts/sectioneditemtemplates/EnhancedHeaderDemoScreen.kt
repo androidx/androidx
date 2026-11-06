@@ -74,7 +74,7 @@ class EnhancedHeaderDemoScreen(carContext: CarContext) : Screen(carContext) {
         val primaryAction =
             Action.Builder()
                 .setTitle("Primary")
-                .setBackgroundColor(CarColor.BLUE)
+                .setBackgroundColor(CarColor.PRIMARY)
                 .setFlags(Action.FLAG_PRIMARY)
                 .setOnClickListener { showToast("Clicked Primary Action") }
                 .build()
@@ -94,7 +94,7 @@ class EnhancedHeaderDemoScreen(carContext: CarContext) : Screen(carContext) {
         val templateAction =
             Action.Builder()
                 .setIcon(templateActionIcon)
-                .setBackgroundColor(CarColor.BLUE)
+                .setBackgroundColor(CarColor.PRIMARY)
                 .setOnClickListener { showToast("Clicked Template Floating Action") }
                 .build()
 

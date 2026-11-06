@@ -203,7 +203,7 @@ class EndImageAndActionsDemo(carContext: CarContext) : Screen(carContext) {
                 )
             )
             .setOnClickListener { showToast(toastString) }
-            .setBackgroundColor(CarColor.BLUE)
+            .setBackgroundColor(CarColor.PRIMARY)
             .build()
     }
 
