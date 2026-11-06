@@ -17,7 +17,6 @@
 package androidx.wear.compose.material3
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -235,7 +234,12 @@ class DrawCurvedToEdgeScreenshotTest {
     fun drawCurvedToEdge_padded_parent() = verifyScreenshot {
         // Padding the parent draws the arc on a smaller, concentric circle (the red border) at full
         // size, unlike padding the curved content itself.
-        Box(Modifier.fillMaxSize().padding(16.dp).border(1.dp, Color.Red, CircleShape)) {
+        Box(
+            Modifier.fillMaxSize()
+                .background(Color.Red, CircleShape)
+                .padding(16.dp)
+                .background(MaterialTheme.colorScheme.background, CircleShape)
+        ) {
             Text(
                 "Padded parent",
                 Modifier.drawCurvedToEdge(DrawCurvedToEdgeDefaults.StaticContentMaxSweepAngle),
