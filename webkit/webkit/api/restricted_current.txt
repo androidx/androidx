@@ -506,6 +506,12 @@ package androidx.webkit {
     method public androidx.webkit.UserAgentMetadata.Builder setWow64(boolean);
   }
 
+  public final class WebGPU {
+    method @AnyThread @CheckResult public static long getWGPUProcGetProcAddress(@IntRange(from=0, to=0xffffff) int, @IntRange(from=0, to=1099511627775L) long);
+    field public static final long ERROR_APP_TOO_OLD = -1L; // 0xffffffffffffffffL
+    field public static final long ERROR_WEBVIEW_TOO_OLD = 0L; // 0x0L
+  }
+
   public class WebMessageCompat {
     ctor @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public WebMessageCompat(byte[]);
     ctor @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public WebMessageCompat(byte[], androidx.webkit.WebMessagePortCompat![]?);

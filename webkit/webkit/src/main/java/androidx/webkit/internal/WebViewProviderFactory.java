@@ -117,4 +117,10 @@ public interface WebViewProviderFactory {
             @NonNull Executor callbackExecutor,
             @NonNull WebViewOutcomeReceiver<WebViewStartUpResult,
                     WebViewStartupException> callback);
+
+    /**
+     * Dawn stable ABI version handshake, see
+     * {@link androidx.webkit.WebGPU#getWGPUProcGetProcAddress(int, long)}.
+     */
+    long getWGPUProcGetProcAddress(int majorVersion, long minorVersion);
 }

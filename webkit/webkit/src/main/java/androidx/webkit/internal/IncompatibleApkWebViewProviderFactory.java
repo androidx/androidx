@@ -119,4 +119,9 @@ public class IncompatibleApkWebViewProviderFactory implements WebViewProviderFac
                     WebViewStartupException> callback) {
         throw new UnsupportedOperationException(UNSUPPORTED_EXCEPTION_EXPLANATION);
     }
+
+    @Override
+    public long getWGPUProcGetProcAddress(int majorVersion, long minorVersion) {
+        throw new UnsupportedOperationException(UNSUPPORTED_EXCEPTION_EXPLANATION);
+    }
 }
