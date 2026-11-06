@@ -57,7 +57,6 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-@Suppress("RestrictedApiAndroidX")
 fun AppContent() {
     if (
         !WebFeature.isFeatureSupported(WebFeature.WEB_CONTENT) ||

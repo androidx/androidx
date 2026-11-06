@@ -24,7 +24,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.annotation.RequiresFeature
-import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.remember
@@ -83,9 +82,6 @@ import kotlin.math.hypot
  * Creates and retains a [WebContent] instance across configuration changes and transient
  * compositions, automatically [closing][WebContent.close] it when retired.
  *
- * Before calling this composable, verify that [WebFeature.isFeatureSupported] returns `true` for
- * [WebFeature.WEB_CONTENT].
- *
  * @param block configuration block applied to [WebContent.Builder] when creating the [WebContent]
  * @return a retained [WebContent] instance
  * @see WebContent
@@ -98,7 +94,6 @@ import kotlin.math.hypot
     name = WebFeature.WEB_CONTENT,
     enforcement = "androidx.web.WebFeature#isFeatureSupported",
 )
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun retainWebContent(block: WebContent.Builder.() -> Unit = {}): WebContent {
     val webContent = retain { WebContent(block) }
     RetainedEffect(webContent) {
@@ -116,9 +111,6 @@ public fun retainWebContent(block: WebContent.Builder.() -> Unit = {}): WebConte
  * size should be specified via [modifier] (for example using `Modifier.fillMaxSize()`,
  * `Modifier.size()`, or `Modifier.weight()`).
  *
- * Before calling this composable, verify that [WebFeature.isFeatureSupported] returns `true` for
- * [WebFeature.WEB_SURFACE].
- *
  * Only a single [WebSurface] can present [content] at a time. A [WebSurface] entering composition
  * takes over [content] in the same frame from the [WebSurface] presenting it.
  *
@@ -133,12 +125,11 @@ public fun retainWebContent(block: WebContent.Builder.() -> Unit = {}): WebConte
     name = WebFeature.WEB_SURFACE,
     enforcement = "androidx.web.WebFeature#isFeatureSupported",
 )
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun WebSurface(content: WebContent, modifier: Modifier = Modifier) {
     WebSurface(
         content = content,
-        modifier = modifier,
         bridgeFactory = ::WebViewBridge,
+        modifier = modifier,
     )
 }
 
@@ -163,19 +154,16 @@ public fun WebSurface(content: WebContent, modifier: Modifier = Modifier) {
  * Only a single [WebSurface] can present [content] at a time. A [WebSurface] entering composition
  * takes over [content] in the same frame from the [WebSurface] presenting it.
  *
- * Before calling this composable, verify that [WebFeature.isFeatureSupported] returns `true` for
- * [WebFeature.WEB_SURFACE].
- *
  * @param content The [WebContent] hosting the web session to present.
- * @param modifier The [Modifier] to be applied to this layout node.
  * @param bridgeFactory The block creating the [WebViewBridge] to be attached to [content]. This
  *   block is called once when the composable enters composition, or if the [content] instance
  *   changes. The provided [Context] must be passed to the [WebViewBridge] constructor.
+ * @param modifier The [Modifier] to be applied to this layout node.
  * @param bridgeUpdate A callback to be invoked after the [WebViewBridge] is created and upon
  *   recomposition to update the information and state of the [WebViewBridge].
- * @param bridgeRelease A callback invoked as a signal that the [WebViewBridge] instance has exited
- *   the composition hierarchy entirely and is being detached from [content]. Any external
- *   references or resources tied to the [WebViewBridge] should be freed at this time.
+ * @param bridgeRelease A callback invoked when the composable leaves composition, or if the
+ *   [content] instance changes. Clean up any references to the [WebViewBridge] here, but don't call
+ *   [android.webkit.WebView.destroy].
  * @see WebContent
  * @see WebViewBridge
  * @see WebFeature.WEB_SURFACE
@@ -186,11 +174,10 @@ public fun WebSurface(content: WebContent, modifier: Modifier = Modifier) {
     name = WebFeature.WEB_SURFACE,
     enforcement = "androidx.web.WebFeature#isFeatureSupported",
 )
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun <T : WebViewBridge> WebSurface(
     content: WebContent,
-    modifier: Modifier = Modifier,
     bridgeFactory: (Context) -> T,
+    modifier: Modifier = Modifier,
     bridgeUpdate: (T) -> Unit = NoOpUpdate,
     bridgeRelease: (T) -> Unit = NoOpUpdate,
 ) {
@@ -345,8 +332,13 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
     /**
      * Whether the page takes part in nested scrolling, i.e. gets the first claim on drags and
      * passes what it didn't use to parents. Read from the bridge, so apps opt out with
-     * [View.setNestedScrollingEnabled] as they would for a View child, see
-     * [WebViewBridge.setNestedScrollingEnabled].
+     * [View.setNestedScrollingEnabled] as they would for a View child.
+     *
+     * When disabled, parents get the first claim instead, like a [android.webkit.WebView] inside a
+     * [android.widget.ScrollView]: a scrollable parent takes a drag once it passes touch slop and
+     * the page gets a cancel, and only drags that no parent takes reach the page. As with a View
+     * child, the page still keeps gestures it asks its parents not to intercept, such as text
+     * selection drags.
      */
     private val nestedScrollEnabled: Boolean
         get() = state.bridge?.isNestedScrollingEnabled != false

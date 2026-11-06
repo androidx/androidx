@@ -42,6 +42,7 @@ class WebFeatureTest {
     @Test
     fun testFeaturesUnsupportedInUnsupportedEnvironment() {
         assertFalse(WebFeature.isFeatureSupported(WebFeature.WEB_CONTENT))
+        assertFalse(WebFeature.isFeatureSupported(WebFeature.WEB_SURFACE))
     }
 
     @Test

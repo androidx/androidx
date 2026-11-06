@@ -32,7 +32,6 @@ public object WebFeature {
     public const val WEB_CONTENT: String = Features.WEB_CONTENT
 
     /** Feature for WebSurface. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public const val WEB_SURFACE: String = Features.WEB_SURFACE
 
     private val supportedFeatures: Set<String> by lazy {
