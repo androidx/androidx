@@ -79,28 +79,59 @@ internal class ParseContext {
     /**
      * Opens a new [ParseBlock] on [currentLine], falling back to [ParagraphParseBlock] for plain
      * text.
+     *
+     * Incremental parsing relies on this function returning the same block for an unchanged line
+     * (see [ContainerParseBlock.processLine]).
      */
-    fun startBlock(): ParseBlock {
-        return tryStartInterruptingBlock()
-            ?: ParagraphParseBlock(
-                id = generateBlockId(),
-                headingLevel = 0,
-                initialContent = currentLine.getRawUnconsumedText().trimStart().toString(),
-                lineCount = 1,
-            )
-    }
+    fun startBlock(): ParseBlock =
+        checkNotNull(startBlock(isInterrupting = false)) {
+            "A non-interrupting block start must always open a block (paragraph fallback)"
+        }
 
     /**
-     * Attempts to open a [ParseBlock] that can interrupt an open [ParagraphParseBlock] on
-     * [currentLine], or returns `null` if none matches.
+     * Attempts to open a [ParseBlock] that interrupts an open [ParagraphParseBlock] on
+     * [currentLine], or returns `null` (consuming nothing) if none matches.
      */
-    fun tryStartInterruptingBlock(): ParseBlock? {
+    fun tryStartInterruptingBlock(): ParseBlock? = startBlock(isInterrupting = true)
+
+    private fun startBlock(isInterrupting: Boolean): ParseBlock? {
         val scanner = currentLine
 
         // 1. Empty Line
         if (scanner.isEmptyLine()) {
             return EmptyLineParseBlock(id = generateBlockId(), lineCount = 1)
         }
+
+        // 2. Blocks starting with a marker character goes into expensive matchMarkedBlockStart.
+        // Fast path: each of them begins, after at most [MAX_BLOCK_START_INDENT] spaces, with one
+        // of a few marker  characters, so most text lines fail [mayStartMarkedBlock] can skip all
+        // the matchers.
+        if (scanner.mayStartMarkedBlock()) {
+            val block = matchMarkedBlockStart()
+            if (block != null) {
+                return block
+            }
+        }
+
+        if (isInterrupting) {
+            return null
+        }
+
+        // 3. Paragraph fallback
+        return ParagraphParseBlock(
+            id = generateBlockId(),
+            headingLevel = 0,
+            initialContent = scanner.getRawUnconsumedText().trimStart().toString(),
+            lineCount = 1,
+        )
+    }
+
+    /**
+     * Matches a block that starts with a marker character (step 2 of [startBlock]), or returns
+     * `null` (consuming nothing) if none matches.
+     */
+    private fun matchMarkedBlockStart(): ParseBlock? {
+        val scanner = currentLine
 
         // 2. ATX Heading (# Heading)
         val atx = scanner.matchesAtxHeading()
@@ -124,4 +155,14 @@ internal class ParseContext {
         this.currentLine = scanner
         this.isLazyContinuation = false
     }
+}
+
+/**
+ * Whether this line may start a block with a marker character: at most [MAX_BLOCK_START_INDENT]
+ * leading spaces followed by a character that begins an ATX heading. A cheap pre-check before
+ * running the full matchers.
+ */
+private fun LineScanner.mayStartMarkedBlock(): Boolean {
+    if (leadingSpaceCount > MAX_BLOCK_START_INDENT) return false
+    return firstNonSpaceChar == ATX_HEADING_MARKER
 }

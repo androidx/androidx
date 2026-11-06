@@ -43,10 +43,9 @@ internal class ParagraphParseBlock(
     val content: StringBuilder = StringBuilder(initialContent)
 
     override fun parseLine(context: ParseContext): ParseResult {
-        // Headings cannot take continuation lines; close this block and propose starting a new
-        // block.
+        // Headings cannot take continuation lines; close this block.
         if (headingLevel > 0) {
-            return ParseResult.rejectAndPropose(context.startBlock())
+            return ParseResult.reject()
         }
 
         val scanner = context.currentLine
@@ -68,7 +67,9 @@ internal class ParagraphParseBlock(
             }
         }
 
-        // Check if line starts an interrupting block (e.g. ATX Heading, BlockQuote, List)
+        // If the line starts an interrupting block (e.g. ATX Heading, BlockQuote, List), close
+        // this paragraph and propose the block, already started on this line, to the container
+        // that will hold it.
         val interruptingBlock = context.tryStartInterruptingBlock()
         if (interruptingBlock != null) {
             return ParseResult.rejectAndPropose(interruptingBlock)
@@ -94,7 +95,7 @@ internal class ParagraphParseBlock(
 @IntRange(from = 0, to = 2)
 internal fun LineScanner.matchesSetextUnderline(): Int {
     val marker = firstNonSpaceChar
-    if (leadingSpaceCount > 3 || (marker != '=' && marker != '-')) return 0
+    if (leadingSpaceCount > MAX_BLOCK_START_INDENT || !marker.isSetextUnderlineChar()) return 0
     val startPos = position
     consume(leadingSpaceCount)
     matchMultiple(marker)
@@ -115,10 +116,12 @@ internal fun LineScanner.matchesSetextUnderline(): Int {
  * @return [AtxHeadingInfo] with the heading level (1..6) and stripped text, or null if not a match.
  */
 internal fun LineScanner.matchesAtxHeading(): AtxHeadingInfo? {
-    if (leadingSpaceCount > 3 || firstNonSpaceChar != '#') return null
+    if (leadingSpaceCount > MAX_BLOCK_START_INDENT || firstNonSpaceChar != ATX_HEADING_MARKER) {
+        return null
+    }
     val startPos = position
     consume(leadingSpaceCount)
-    val level = matchMultiple('#')
+    val level = matchMultiple(ATX_HEADING_MARKER)
     if (level <= 6 && (isAtEnd || peek() == ' ')) {
         matchSpaces()
         val rawText = getRawUnconsumedText().toString()
@@ -137,16 +140,27 @@ internal fun LineScanner.matchesAtxHeading(): AtxHeadingInfo? {
 private fun stripClosingAtxHashes(text: String): String {
     val trimmed = text.trimEnd()
     var index = trimmed.length - 1
-    while (index >= 0 && trimmed[index] == '#') {
+    while (index >= 0 && trimmed[index] == ATX_HEADING_MARKER) {
         index--
     }
     if (index < trimmed.length - 1) {
         if (index < 0) {
             return ""
         }
-        if (trimmed[index] == ' ' || trimmed[index] == '\t') {
+        if (trimmed[index].isSpaceOrTab()) {
             return trimmed.substring(0, index).trimEnd()
         }
     }
     return trimmed
 }
+
+/** The character that starts an ATX heading (`# Heading`). */
+internal const val ATX_HEADING_MARKER = '#'
+
+/** Whether this character can form a setext heading underline: `=` (H1) or `-` (H2). */
+private fun Char.isSetextUnderlineChar(): Boolean =
+    when (this) {
+        '=',
+        '-' -> true
+        else -> false
+    }

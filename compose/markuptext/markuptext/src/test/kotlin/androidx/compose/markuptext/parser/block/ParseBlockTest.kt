@@ -19,6 +19,7 @@ package androidx.compose.markuptext.parser.block
 import androidx.compose.markuptext.parser.LineScanner
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertSame
@@ -69,7 +70,6 @@ class ParseBlockTest {
         val doc = parseLines("")
         assertTrue(doc.children.isEmpty())
         assertEquals(0, doc.lineCount)
-        assertEquals(0, doc.verifiedLineCount)
     }
 
     @Test
@@ -79,7 +79,6 @@ class ParseBlockTest {
         val empty = assertIs<EmptyLineParseBlock>(doc.children[0])
         assertEquals(4, empty.lineCount)
         assertEquals(4, doc.lineCount)
-        assertEquals(4, doc.verifiedLineCount)
     }
 
     @Test
@@ -87,7 +86,6 @@ class ParseBlockTest {
         val doc = parseLines("Hello world")
         assertEquals(1, doc.children.size)
         assertEquals(1, doc.lineCount)
-        assertEquals(1, doc.verifiedLineCount)
 
         val p = assertIs<ParagraphParseBlock>(doc.children[0])
         assertEquals("Hello world", p.content.toString())
@@ -108,7 +106,6 @@ class ParseBlockTest {
             )
         assertEquals(1, doc.children.size)
         assertEquals(3, doc.lineCount)
-        assertEquals(3, doc.verifiedLineCount)
 
         val p = assertIs<ParagraphParseBlock>(doc.children[0])
         assertEquals("Line 1\nLine 2\nLine 3", p.content.toString())
@@ -149,7 +146,6 @@ class ParseBlockTest {
             )
         assertEquals(5, doc.children.size)
         assertEquals(6, doc.lineCount)
-        assertEquals(6, doc.verifiedLineCount)
 
         val p1 = assertIs<ParagraphParseBlock>(doc.children[0])
         assertEquals("Paragraph 1", p1.content.toString())
@@ -184,7 +180,6 @@ class ParseBlockTest {
             )
         assertEquals(4, doc.children.size)
         assertEquals(4, doc.lineCount)
-        assertEquals(4, doc.verifiedLineCount)
 
         val h1 = assertIs<ParagraphParseBlock>(doc.children[0])
         assertEquals("H1", h1.content.toString())
@@ -388,53 +383,64 @@ class ParseBlockTest {
     @Test
     fun testInvalidateLinesMidDocument() {
         val doc = DocumentParseBlock()
-        val e1 = EmptyLineParseBlock(id = 1L, lineCount = 2)
+        val p1 = ParagraphParseBlock(id = 1L, initialContent = "P1", lineCount = 2)
         val e2 = EmptyLineParseBlock(id = 2L, lineCount = 3)
         val e3 = EmptyLineParseBlock(id = 3L, lineCount = 2)
-        doc.addChild(e1)
+        doc.addChild(p1)
         doc.addChild(e2)
         doc.addChild(e3)
-        doc.verifiedLineCount = 7
 
-        // Invalidate lines 2..5 (affecting e2)
+        // Invalidate lines 2..5 (affecting e2), replaced by 2 new lines
         doc.invalidateLines(oldLineStart = 2, oldLineEndExclusive = 5, newLineCount = 2)
-        assertEquals(2, doc.verifiedLineCount)
-        assertEquals(0, doc.activeChildIndex)
-        assertEquals(e3, doc.unverifiedChild)
-        assertEquals(2, doc.unverifiedChildLineDelta)
+        assertEquals(2, doc.lineCount)
+        assertEquals(listOf<ParseBlock>(p1), doc.children)
+
+        // The 2 new lines continue p1; e3 now starts 2 lines later (new line 4), where a blank
+        // line opens a new EmptyLineParseBlock and converges with e3.
+        val context = ParseContext()
+        doc.feedLines(context, "new 1", "new 2")
+        assertEquals(4, doc.lineCount)
+        context.resetLine(LineScanner(""))
+        assertTrue(doc.processLine(context).isConverged)
+        assertEquals(listOf<ParseBlock>(p1, e3), doc.children)
+        assertEquals(6, doc.lineCount)
     }
 
     @Test
     fun testInvalidateLinesSpanningFromChildContainerAcrossSibling() {
         val doc = DocumentParseBlock()
-        val childContainer = DocumentParseBlock(id = 1L)
-        childContainer.addChild(ParagraphParseBlock(id = 2L, initialContent = "C1", lineCount = 2))
+        val childContainer = IndentedContainer(id = 1L)
+        val c1 = ParagraphParseBlock(id = 2L, initialContent = "C1", lineCount = 2)
+        childContainer.addChild(c1)
         childContainer.addChild(ParagraphParseBlock(id = 3L, initialContent = "C2", lineCount = 2))
-        childContainer.verifiedLineCount = 4
 
         val sibling1 = ParagraphParseBlock(id = 4L, initialContent = "S1", lineCount = 3)
         val sibling2 = ParagraphParseBlock(id = 5L, initialContent = "S2", lineCount = 2)
         doc.addChild(childContainer)
         doc.addChild(sibling1)
         doc.addChild(sibling2)
-        doc.verifiedLineCount = 9
+        assertEquals(9, doc.lineCount)
 
         // Edit spans from line 2 (inside childContainer's second child) across sibling1 (lines
-        // 4..7)
+        // 4..7), replaced by 1 new line
         doc.invalidateLines(oldLineStart = 2, oldLineEndExclusive = 7, newLineCount = 1)
 
-        // childContainer keeps its first child (2 lines) and has no trailing unverified children
-        assertEquals(1, childContainer.children.size)
-        assertEquals(2, childContainer.verifiedLineCount)
-        assertEquals(-1, childContainer.unverifiedChildLineDelta)
-        assertEquals(-1, childContainer.expectedConvergedLineCount)
+        // childContainer keeps its first child (2 lines); doc keeps childContainer open
+        assertEquals(listOf<ParseBlock>(c1), childContainer.children)
+        assertEquals(2, childContainer.lineCount)
+        assertEquals(listOf<ParseBlock>(childContainer), doc.children)
+        assertEquals(2, doc.lineCount)
 
-        // doc retains childContainer as activeChild and sibling2 as unverifiedChild
-        assertEquals(0, doc.activeChildIndex)
-        assertEquals(2, doc.verifiedLineCount)
-        assertSame(sibling2, doc.unverifiedChild)
-        assertEquals(1, doc.unverifiedChildLineDelta)
-        assertEquals(5, doc.expectedConvergedLineCount)
+        // The new line continues c1 inside childContainer. sibling2 now starts right after it
+        // (new line 3): "S2" closes childContainer, opens a paragraph in doc, and converges with
+        // sibling2.
+        val context = ParseContext()
+        doc.feedLines(context, "  new")
+        assertEquals(3, childContainer.lineCount)
+        context.resetLine(LineScanner("S2"))
+        assertTrue(doc.processLine(context).isConverged)
+        assertEquals(listOf<ParseBlock>(childContainer, sibling2), doc.children)
+        assertEquals(5, doc.lineCount)
     }
 
     @Test
@@ -446,17 +452,13 @@ class ParseBlockTest {
         childContainer.addChild(ParagraphParseBlock(id = 4L, initialContent = "C2", lineCount = 1))
         childContainer.addChild(EmptyLineParseBlock(id = 5L, lineCount = 1))
         childContainer.addChild(ParagraphParseBlock(id = 6L, initialContent = "C3", lineCount = 1))
-        childContainer.verifiedLineCount = 5
 
         doc.addChild(childContainer)
-        doc.verifiedLineCount = 5
 
         // Edit line 2 ("C2") inside childContainer (which is the last/only child of doc)
         doc.invalidateLines(oldLineStart = 2, oldLineEndExclusive = 3, newLineCount = 1)
-        assertEquals(-1, doc.unverifiedChildLineDelta)
-        assertEquals(5, doc.expectedConvergedLineCount)
-        assertEquals(1, childContainer.unverifiedChildLineDelta)
-        assertEquals(5, childContainer.expectedConvergedLineCount)
+        assertEquals(2, doc.lineCount)
+        assertEquals(2, childContainer.lineCount)
 
         val context = ParseContext()
         context.resetLine(LineScanner("C2 modified"))
@@ -469,8 +471,8 @@ class ParseBlockTest {
         val result1 = doc.processLine(context)
         assertTrue(result1.accepted)
         assertTrue(result1.isConverged)
-        assertEquals(5, childContainer.verifiedLineCount)
-        assertEquals(5, doc.verifiedLineCount)
+        assertEquals(5, childContainer.lineCount)
+        assertEquals(5, doc.lineCount)
     }
 
     @Test
@@ -495,17 +497,14 @@ class ParseBlockTest {
 
         // Replace line 1 ("") with "bridging text" so Paragraph 1 and Paragraph 2 merge
         doc.invalidateLines(oldLineStart = 1, oldLineEndExclusive = 2, newLineCount = 1)
-        assertEquals(1, doc.verifiedLineCount)
-        assertEquals(1, doc.unverifiedChildLineDelta)
-        assertEquals(5, doc.expectedConvergedLineCount)
+        assertEquals(1, doc.lineCount)
 
         // Line 1 ("bridging text"): absorbed by Paragraph 1; delta reaches 0 for Paragraph 2
         context.resetLine(LineScanner("bridging text"))
         val result1 = doc.processLine(context)
         assertTrue(result1.accepted)
         assertFalse(result1.isConverged)
-        assertEquals(2, doc.verifiedLineCount)
-        assertEquals(0, doc.unverifiedChildLineDelta)
+        assertEquals(2, doc.lineCount)
 
         // Line 2 ("Paragraph 2"): reaches Paragraph 2's convergence point, but Paragraph 1 absorbs
         // it (mismatch!). Paragraph 2 is discarded and delta shifts to e2.
@@ -513,16 +512,13 @@ class ParseBlockTest {
         val result2 = doc.processLine(context)
         assertTrue(result2.accepted)
         assertFalse(result2.isConverged)
-        assertEquals(3, doc.verifiedLineCount)
-        assertEquals(0, doc.unverifiedChildLineDelta)
-        assertEquals(5, doc.expectedConvergedLineCount)
+        assertEquals(3, doc.lineCount)
 
         // Line 3 (""): opens a new EmptyLineParseBlock at delta == 0 and converges with e2!
         context.resetLine(LineScanner(""))
         val result3 = doc.processLine(context)
         assertTrue(result3.accepted)
         assertTrue(result3.isConverged)
-        assertEquals(5, doc.verifiedLineCount)
         assertEquals(5, doc.lineCount)
         assertEquals(3, doc.children.size)
 
@@ -540,13 +536,11 @@ class ParseBlockTest {
         val e2 = EmptyLineParseBlock(id = 2L, lineCount = 1)
         doc.addChild(e1)
         doc.addChild(e2)
-        doc.verifiedLineCount = 2
 
         // Delete line 0 (e1): e2 shifts from line 1 to line 0 (delta = 0)
         doc.invalidateLines(oldLineStart = 0, oldLineEndExclusive = 1, newLineCount = 0)
-        assertEquals(0, doc.verifiedLineCount)
-        assertEquals(e2, doc.unverifiedChild)
-        assertEquals(0, doc.unverifiedChildLineDelta)
+        assertEquals(0, doc.lineCount)
+        assertTrue(doc.children.isEmpty())
 
         // Parsing line 0 opens a new EmptyLineParseBlock at delta == 0, converging with e2
         val context = ParseContext()
@@ -555,7 +549,7 @@ class ParseBlockTest {
         assertTrue(result.accepted)
         assertTrue(result.isConverged)
         assertEquals(1, doc.lineCount)
-        assertEquals(0, doc.activeChildIndex)
+        assertEquals(1, doc.children.size)
         assertEquals(e2, doc.children[0])
     }
 
@@ -581,23 +575,22 @@ class ParseBlockTest {
         // Invalidate line 2 ("Paragraph 2"): oldLineStart = 2, oldLineEndExclusive = 3,
         // newLineCount = 1
         doc.invalidateLines(oldLineStart = 2, oldLineEndExclusive = 3, newLineCount = 1)
-        assertEquals(2, doc.verifiedLineCount)
-        assertEquals(1, doc.activeChildIndex) // activeChild is EmptyLine at index 1
+        assertEquals(2, doc.lineCount)
+        assertEquals(2, doc.children.size) // activeChild is EmptyLine at index 1
 
         // Parse modified line 2 using the same ParseContext
         context.resetLine(LineScanner("Paragraph 2 modified"))
         val result1 = doc.processLine(context)
         assertTrue(result1.accepted)
         assertFalse(result1.isConverged)
-        assertEquals(3, doc.verifiedLineCount)
-        assertEquals(2, doc.activeChildIndex)
+        assertEquals(3, doc.lineCount)
+        assertEquals(3, doc.children.size)
 
         // Parse line 3 (""): aligns with e2 (EmptyLineParseBlock) and converges!
         context.resetLine(LineScanner(""))
         val result2 = doc.processLine(context)
         assertTrue(result2.accepted)
         assertTrue(result2.isConverged)
-        assertEquals(5, doc.verifiedLineCount)
         assertEquals(5, doc.lineCount)
         assertEquals(5, doc.children.size)
 
@@ -609,38 +602,31 @@ class ParseBlockTest {
 
     @Test
     fun testIncrementalParseActiveChildAbsorbsLineDiscardsStaleUnverified() {
-        val doc = DocumentParseBlock()
-        val p1 = ParagraphParseBlock(id = 1L, initialContent = "P1", lineCount = 1)
-        val p2 = ParagraphParseBlock(id = 2L, initialContent = "P2", lineCount = 3)
-        val p3 = ParagraphParseBlock(id = 3L, initialContent = "P3", lineCount = 2)
-        doc.addChild(p1)
-        doc.addChild(p2)
-        doc.addChild(p3)
-        doc.activeChildIndex = 0 // activeChild is p1, unverifiedChild is p2
-        doc.verifiedLineCount = 1
-        doc.unverifiedChildLineDelta = 0 // delta hits 0
-        doc.expectedConvergedLineCount = 6
-
-        // Parse a continuation line "P1 continuation" -> p1 absorbs it (childToAdd is null)
         val context = ParseContext()
-        context.resetLine(LineScanner("P1 continuation"))
+        val doc = parseLines("P1\n\nP2 a\nP2 b\nP2 c\n\nP3", context)
+        assertEquals(5, doc.children.size)
+        val p1 = assertIs<ParagraphParseBlock>(doc.children[0])
+        val e2 = doc.children[3]
+        val p3 = doc.children[4]
 
-        val result = doc.processLine(context)
-        assertTrue(result.accepted)
-        assertFalse(result.isConverged)
+        // Replace line 1 ("") with "P1 continuation": Paragraph 1 now absorbs the old Paragraph 2.
+        doc.invalidateLines(oldLineStart = 1, oldLineEndExclusive = 2, newLineCount = 1)
+        assertEquals(listOf<ParseBlock>(p1), doc.children)
 
-        // p1 grew to lineCount 2; p2 is removed; p3 is now at index 1 (unverifiedChild)
-        assertEquals(0, doc.activeChildIndex)
-        assertEquals(2, doc.children.size)
-        assertSame(p1, doc.children[0])
-        assertSame(p3, doc.children[1])
-        assertEquals("P1\nP1 continuation", p1.content.toString())
-        assertEquals(2, p1.lineCount)
-        // verifiedLineCount incremented for continuation line (1 + 1 = 2)
-        assertEquals(2, doc.verifiedLineCount)
-        // unverifiedChildLineDelta updated with p2.lineCount (3) and decremented for continuation
-        // line (3 - 1 = 2)
-        assertEquals(2, doc.unverifiedChildLineDelta)
+        // Line 1 continues p1. Line 2 ("P2 a") is where the old Paragraph 2 started, but p1
+        // absorbs it too, so the old Paragraph 2 (3 lines) is discarded instead of converging.
+        doc.feedLines(context, "P1 continuation", "P2 a")
+        assertEquals(listOf<ParseBlock>(p1), doc.children)
+        assertEquals("P1\nP1 continuation\nP2 a", p1.content.toString())
+        assertEquals(3, doc.lineCount)
+
+        // The next old child (e2) starts 3 lines after the old Paragraph 2 did. Lines 3..4 are
+        // still absorbed by p1; line 5 ("") opens a blank line block there and converges with e2.
+        doc.feedLines(context, "P2 b", "P2 c")
+        context.resetLine(LineScanner(""))
+        assertTrue(doc.processLine(context).isConverged)
+        assertEquals(listOf(p1, e2, p3), doc.children)
+        assertEquals(7, doc.lineCount)
     }
 
     @Test
@@ -665,7 +651,7 @@ class ParseBlockTest {
 
         // Invalidate line 0 ("# H0"): replace with "# H0 edited"
         doc.invalidateLines(oldLineStart = 0, oldLineEndExclusive = 1, newLineCount = 1)
-        assertEquals(0, doc.verifiedLineCount)
+        assertEquals(0, doc.lineCount)
 
         // Reparse line 0 using the same ParseContext
         context.resetLine(LineScanner("# H0 edited"))
@@ -679,7 +665,6 @@ class ParseBlockTest {
         assertTrue(result1.accepted)
         assertTrue(result1.isConverged)
 
-        assertEquals(6, doc.verifiedLineCount)
         assertEquals(6, doc.lineCount)
         assertEquals(5, doc.children.size)
 
@@ -707,7 +692,7 @@ class ParseBlockTest {
                     .trimIndent(),
                 context,
             )
-        assertEquals(5, doc.verifiedLineCount)
+        assertEquals(5, doc.lineCount)
 
         // Edit 1: Edit line 0 from "Paragraph 1" to "Paragraph 1 edited"
         doc.invalidateLines(oldLineStart = 0, oldLineEndExclusive = 1, newLineCount = 1)
@@ -716,7 +701,6 @@ class ParseBlockTest {
         context.resetLine(LineScanner("")) // line 1 converges with EmptyLineParseBlock
         val convResult1 = doc.processLine(context)
         assertTrue(convResult1.isConverged)
-        assertEquals(5, doc.verifiedLineCount)
         assertEquals(5, doc.lineCount)
 
         val p1 = assertIs<ParagraphParseBlock>(doc.children[0])
@@ -724,14 +708,299 @@ class ParseBlockTest {
 
         // Edit 2: Edit line 4 from "Paragraph 3" to "Paragraph 3 edited"
         doc.invalidateLines(oldLineStart = 4, oldLineEndExclusive = 5, newLineCount = 1)
-        assertEquals(4, doc.verifiedLineCount)
+        assertEquals(4, doc.lineCount)
         context.resetLine(LineScanner("Paragraph 3 edited"))
         val convResult2 = doc.processLine(context)
         assertTrue(convResult2.accepted)
-        assertEquals(5, doc.verifiedLineCount)
         assertEquals(5, doc.lineCount)
 
         val p3 = assertIs<ParagraphParseBlock>(doc.children[4])
         assertEquals("Paragraph 3 edited", p3.content.toString())
+    }
+
+    /** Test container accepting blank lines and lines indented by at least 2 spaces. */
+    private class IndentedContainer(
+        id: Long,
+        override val supportsLazyContinuation: Boolean = false,
+    ) : BaseContainerParseBlock(id) {
+
+        override fun matchLineStart(context: ParseContext): Boolean {
+            val scanner = context.currentLine
+            if (scanner.isEmptyLine()) return true
+            if (scanner.leadingSpaceCount < 2) return false
+            scanner.consume(2)
+            return true
+        }
+
+        override fun canAcceptChild(child: ParseBlock): Boolean = true
+    }
+
+    /** Creates a document whose only child is an [IndentedContainer] holding paragraph `a`. */
+    private fun documentWithIndentedContainer(context: ParseContext): DocumentParseBlock {
+        val doc = DocumentParseBlock()
+        val container = IndentedContainer(id = context.generateBlockId())
+        container.addChild(
+            ParagraphParseBlock(id = context.generateBlockId(), initialContent = "a", lineCount = 1)
+        )
+        doc.addChild(container)
+        return doc
+    }
+
+    /** Test container whose lines start with `>`, supporting lazy continuation. */
+    private class PrefixedContainer(id: Long) : BaseContainerParseBlock(id) {
+        override val supportsLazyContinuation: Boolean = true
+
+        override fun matchLineStart(context: ParseContext): Boolean {
+            val scanner = context.currentLine
+            if (scanner.leadingSpaceCount != 0 || scanner.firstNonSpaceChar != '>') return false
+            scanner.consume(1)
+            return true
+        }
+
+        override fun canAcceptChild(child: ParseBlock): Boolean = true
+    }
+
+    @Test
+    fun testPrefixedContainerReportsNoTrailingEmptyLines() {
+        // ">" lines are blank inside the container but not for its parent, so the container
+        // reports no trailing blank lines even though it ends with an EmptyLineParseBlock.
+        val context = ParseContext()
+        val doc = DocumentParseBlock()
+        val quote = PrefixedContainer(id = context.generateBlockId())
+        quote.addChild(
+            ParagraphParseBlock(id = context.generateBlockId(), initialContent = "a", lineCount = 1)
+        )
+        doc.addChild(quote)
+        doc.feedLines(context, ">", ">")
+        assertEquals(listOf<ParseBlock>(quote), doc.children)
+        assertEquals(2, assertIs<EmptyLineParseBlock>(quote.children[1]).countTrailingEmptyLines())
+        assertEquals(0, quote.countTrailingEmptyLines())
+    }
+
+    @Test
+    fun testLazyContinuationDoesNotMatchDescendantLineStarts() {
+        // document > `>` container > 2-space container (lazy) > paragraph "a"
+        fun buildDocument(context: ParseContext): DocumentParseBlock {
+            val doc = DocumentParseBlock()
+            val outer = PrefixedContainer(id = context.generateBlockId())
+            val inner =
+                IndentedContainer(context.generateBlockId(), supportsLazyContinuation = true)
+            inner.addChild(
+                ParagraphParseBlock(
+                    id = context.generateBlockId(),
+                    initialContent = "a",
+                    lineCount = 1,
+                )
+            )
+            outer.addChild(inner)
+            doc.addChild(outer)
+            return doc
+        }
+
+        // "  # h" fails the outer `>` prefix, so the line is a lazy continuation. The inner
+        // container must not match its 2-space indent: the heading interrupts the paragraph and
+        // opens in the document, not inside the inner container.
+        var context = ParseContext()
+        var doc = buildDocument(context)
+        val outer = doc.children[0] as PrefixedContainer
+        val inner = outer.children[0] as IndentedContainer
+        doc.feedLines(context, "  # h")
+        assertEquals(2, doc.children.size)
+        assertSame(outer, doc.children[0])
+        assertEquals(1, assertIs<ParagraphParseBlock>(doc.children[1]).headingLevel)
+        assertEquals(1, inner.children.size)
+
+        // A plain lazy line still continues the paragraph through both containers.
+        context = ParseContext()
+        doc = buildDocument(context)
+        doc.feedLines(context, "  more")
+        assertEquals(1, doc.children.size)
+        val paragraph =
+            ((doc.children[0] as PrefixedContainer).children[0] as IndentedContainer).children[0]
+        assertEquals("a\nmore", assertIs<ParagraphParseBlock>(paragraph).content.toString())
+    }
+
+    /**
+     * Test leaf that tentatively accepts lines starting with `:` and keeps their text in [content].
+     * On any other line it replaces itself with [replacementFor] holding the same lines, which then
+     * parses the current line.
+     */
+    private class TentativeLeaf(
+        id: Long,
+        initialContent: String,
+        private val replacementFor: (TentativeLeaf) -> ParseBlock,
+    ) : LeafParseBlock(id, lineCount = 1) {
+        val content: StringBuilder = StringBuilder(initialContent)
+
+        override fun parseLine(context: ParseContext): ParseResult {
+            val scanner = context.currentLine
+            if (scanner.firstNonSpaceChar != ':') {
+                return ParseResult.replaceSelf(replacementFor(this))
+            }
+            content.append('\n').append(scanner.getRawUnconsumedText())
+            return ParseResult.accept()
+        }
+    }
+
+    /** Replaces a [TentativeLeaf] with a paragraph holding its lines. */
+    private fun ParseContext.paragraphFrom(leaf: TentativeLeaf) =
+        ParagraphParseBlock(
+            id = generateBlockId(),
+            initialContent = leaf.content.toString(),
+            lineCount = leaf.lineCount,
+        )
+
+    @Test
+    fun testReplaceSelfReplacesChildAndReparsesLine() {
+        val context = ParseContext()
+        val doc = DocumentParseBlock()
+        val tentative =
+            TentativeLeaf(context.generateBlockId(), ": a") { context.paragraphFrom(it) }
+        doc.addChild(tentative)
+        doc.feedLines(context, ": b")
+        assertEquals(listOf<ParseBlock>(tentative), doc.children)
+        assertEquals(2, tentative.lineCount)
+
+        // "c" makes the tentative leaf give up: the paragraph takes its 2 lines, then accepts "c".
+        doc.feedLines(context, "c")
+        val paragraph = assertIs<ParagraphParseBlock>(doc.children.single())
+        assertSame(doc, paragraph.parent)
+        assertEquals(3, paragraph.lineCount)
+        assertEquals(3, doc.lineCount)
+        assertEquals(": a\n: b\nc", paragraph.content.toString())
+    }
+
+    @Test
+    fun testReplaceSelfRejectsMismatchedLineCount() {
+        val context = ParseContext()
+        val doc = DocumentParseBlock()
+        doc.addChild(
+            TentativeLeaf(context.generateBlockId(), ": a") {
+                ParagraphParseBlock(
+                    id = context.generateBlockId(),
+                    initialContent = it.content.toString(),
+                    lineCount = it.lineCount + 1,
+                )
+            }
+        )
+        assertFailsWith<IllegalStateException> { doc.feedLines(context, "c") }
+    }
+
+    @Test
+    fun testReplaceSelfChainThrows() {
+        // The replacement replaces itself again on the same line, which is not allowed.
+        val context = ParseContext()
+        val doc = DocumentParseBlock()
+        doc.addChild(
+            TentativeLeaf(context.generateBlockId(), ": a") { first ->
+                TentativeLeaf(context.generateBlockId(), first.content.toString()) {
+                    context.paragraphFrom(it)
+                }
+            }
+        )
+        assertFailsWith<IllegalStateException> { doc.feedLines(context, "c") }
+    }
+
+    private fun DocumentParseBlock.feedLines(context: ParseContext, vararg lines: String) {
+        for (line in lines) {
+            context.resetLine(LineScanner(line))
+            processLine(context)
+        }
+    }
+
+    @Test
+    fun testTrailingBlankLinesStayInContainerThatConsumedThem() {
+        val context = ParseContext()
+        val doc = documentWithIndentedContainer(context)
+        val container = assertIs<IndentedContainer>(doc.children[0])
+
+        doc.feedLines(context, "", "")
+        assertEquals(3, container.lineCount)
+        assertIs<EmptyLineParseBlock>(container.children[1])
+
+        // "b" closes the container, which keeps its 2 trailing blank lines and reports them.
+        doc.feedLines(context, "b")
+        assertEquals(4, doc.lineCount)
+        assertEquals(2, doc.children.size)
+        assertSame(container, doc.children[0])
+        assertEquals(3, container.lineCount)
+        assertEquals(2, container.children[1].countTrailingEmptyLines())
+        assertEquals("b", assertIs<ParagraphParseBlock>(doc.children[1]).content.toString())
+        assertEquals(0, doc.children[1].countTrailingEmptyLines())
+    }
+
+    @Test
+    fun testEditAfterTrailingBlankLinesIsOfferedToContainer() {
+        val context = ParseContext()
+        val doc = documentWithIndentedContainer(context)
+        val container = assertIs<IndentedContainer>(doc.children[0])
+        doc.feedLines(context, "", "", "b")
+        assertEquals(2, doc.children.size)
+
+        // Edit line 3 ("b" -> "  c"). The container ends right before the edit, so it stays
+        // verified and active, and the edited line continues it.
+        doc.invalidateLines(oldLineStart = 3, oldLineEndExclusive = 4, newLineCount = 1)
+        assertEquals(3, doc.lineCount)
+        assertEquals(listOf<ParseBlock>(container), doc.children)
+
+        doc.feedLines(context, "  c")
+        assertEquals(4, doc.lineCount)
+        assertEquals(listOf<ParseBlock>(container), doc.children)
+        assertEquals(4, container.lineCount)
+        assertEquals(3, container.children.size)
+        assertEquals(2, assertIs<EmptyLineParseBlock>(container.children[1]).lineCount)
+        assertEquals("c", assertIs<ParagraphParseBlock>(container.children[2]).content.toString())
+        assertEquals(0, container.children[2].countTrailingEmptyLines())
+    }
+
+    @Test
+    fun testInvalidateLinesKeepsContainerEndingAtEditVerified() {
+        val doc = DocumentParseBlock()
+        val childContainer = DocumentParseBlock(id = 1L)
+        childContainer.addChild(ParagraphParseBlock(id = 2L, initialContent = "A", lineCount = 1))
+        childContainer.addChild(EmptyLineParseBlock(id = 3L, lineCount = 1))
+        val sibling = ParagraphParseBlock(id = 4L, initialContent = "B", lineCount = 1)
+        doc.addChild(childContainer)
+        doc.addChild(sibling)
+
+        // Edit line 2 ("B"). childContainer ends right before the edit, so it stays verified
+        // (including its trailing EmptyLineParseBlock) and becomes the active child.
+        doc.invalidateLines(oldLineStart = 2, oldLineEndExclusive = 3, newLineCount = 1)
+        assertEquals(2, doc.lineCount)
+        assertEquals(listOf<ParseBlock>(childContainer), doc.children)
+        assertEquals(2, childContainer.lineCount)
+        assertEquals(2, childContainer.children.size)
+    }
+
+    @Test
+    fun testInvalidateLinesKeepsNonEmptyLeafEndingAtEditVerified() {
+        val doc = DocumentParseBlock()
+        val p1 = ParagraphParseBlock(id = 1L, initialContent = "P1", lineCount = 2)
+        val p2 = ParagraphParseBlock(id = 2L, initialContent = "P2", lineCount = 1)
+        doc.addChild(p1)
+        doc.addChild(p2)
+
+        // Edit line 2 ("P2"). p1 ends right before the edit, so it stays verified and becomes the
+        // active child.
+        doc.invalidateLines(oldLineStart = 2, oldLineEndExclusive = 3, newLineCount = 1)
+        assertEquals(2, doc.lineCount)
+        assertEquals(1, doc.children.size)
+        assertEquals(listOf<ParseBlock>(p1), doc.children)
+    }
+
+    @Test
+    fun testIndentedLineDoesNotInterruptParagraph() {
+        val doc =
+            parseLines(
+                """
+                Paragraph line 1
+                    indented continuation line
+                """
+                    .trimIndent()
+            )
+        assertEquals(1, doc.children.size)
+        val p = assertIs<ParagraphParseBlock>(doc.children[0])
+        assertEquals("Paragraph line 1\nindented continuation line", p.content.toString())
+        assertEquals(2, p.lineCount)
     }
 }

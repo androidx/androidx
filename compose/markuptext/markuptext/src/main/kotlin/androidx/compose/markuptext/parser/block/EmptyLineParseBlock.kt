@@ -28,6 +28,9 @@ internal class EmptyLineParseBlock(id: Long, @IntRange(from = 1) lineCount: Int 
         if (context.currentLine.isEmptyLine()) {
             return ParseResult.accept()
         }
-        return ParseResult.rejectAndPropose(context.startBlock())
+        return ParseResult.reject()
     }
+
+    /** Every line of this block is blank, including the line that opened it. */
+    override fun countTrailingEmptyLines(): Int = lineCount
 }

@@ -29,6 +29,28 @@ internal sealed class ParseBlock(
     @get:IntRange(from = 0) abstract val lineCount: Int
 
     /**
+     * Whether the blank lines at the end of this block ([countTrailingEmptyLines]) are part of its
+     * content rather than a separator before the next block. For example, blank lines inside a
+     * fenced code block that is closed by the end of its container.
+     */
+    open val consumesTrailingEmptyLines: Boolean
+        get() = true
+
+    /**
+     * Counts the lines at the end of this block that are blank as seen by its parent, whether or
+     * not they are this block's content.
+     *
+     * A line counts only if it is blank for the parent, not just after this block's own prefix. For
+     * example, a `>` line is blank inside a block quote but is a quote line for the quote's parent,
+     * so it does not count.
+     *
+     * Callers that need the blank lines separating this block from the next one (for example a list
+     * deciding whether it is loose) must check [consumesTrailingEmptyLines] first, and treat the
+     * count as `0` if it is `true`.
+     */
+    @IntRange(from = 0) open fun countTrailingEmptyLines(): Int = 0
+
+    /**
      * Parses the current line according to this block's grammar rules. Overridden by subclasses to
      * perform syntax matching.
      *
@@ -48,33 +70,78 @@ internal sealed class ParseBlock(
 }
 
 /** Leaf block containing text content or atomic elements (Paragraph, EmptyLine). */
-internal sealed class LeafParseBlock(id: Long, @IntRange(from = 1) override var lineCount: Int) :
+internal abstract class LeafParseBlock(id: Long, @IntRange(from = 1) lineCount: Int) :
     ParseBlock(id) {
+
+    @get:IntRange(from = 1)
+    final override var lineCount: Int = lineCount
+        private set
+
+    /** Number of consecutive blank lines this block accepted most recently. */
+    @IntRange(from = 0) private var acceptedTrailingEmptyLineCount: Int = 0
+
     final override fun processLine(context: ParseContext): ParseResult {
+        val isEmptyLine = context.currentLine.isEmptyLine()
         val result = parseLine(context)
         if (result.accepted) {
             this.lineCount++
+            acceptedTrailingEmptyLineCount =
+                if (isEmptyLine) acceptedTrailingEmptyLineCount + 1 else 0
         }
         return result
     }
+
+    /**
+     * Counts the blank lines this block accepted after its last non-blank line. The first line of a
+     * leaf (the line that opened it) is never blank, except for [EmptyLineParseBlock], which
+     * overrides this.
+     */
+    override fun countTrailingEmptyLines(): Int = acceptedTrailingEmptyLineCount
 }
 
-/** Container block holding child blocks (BlockQuote, List, ListItem, Document). */
-internal abstract class ContainerParseBlock(id: Long) : ParseBlock(id) {
-    val children: MutableList<ParseBlock> = mutableListOf()
+/**
+ * Container block holding child blocks (BlockQuote, List, ListItem, Document).
+ *
+ * This class is the incremental parsing engine: child bookkeeping, invalidation and convergence. It
+ * is sealed so that [BaseContainerParseBlock] is its only direct subclass: every container parses
+ * its lines through the same template, which keeps per-line state such as
+ * [ParseContext.isLazyContinuation] consistent.
+ */
+internal sealed class ContainerParseBlock(id: Long) : ParseBlock(id) {
+    private val _children: MutableList<ParseBlock> = mutableListOf()
+
+    /**
+     * Read-only view of the child blocks parsed so far (up to and including the active child).
+     *
+     * During incremental re-parsing, unverified children after the active child are not part of
+     * this list, so [children] always looks exactly like it would in a full parse up to the current
+     * line. This is a live view of the backing list: no children are copied.
+     */
+    val children: List<ParseBlock> =
+        object : AbstractList<ParseBlock>() {
+            override val size: Int
+                get() = activeChildIndex + 1
+
+            override fun get(index: Int): ParseBlock {
+                if (index !in 0..activeChildIndex) {
+                    throw IndexOutOfBoundsException("Index $index out of bounds for size $size")
+                }
+                return _children[index]
+            }
+        }
 
     /**
      * Number of lines from index 0 of this container that are currently verified and up-to-date.
      * During incremental re-parsing, [verifiedLineCount] increments by 1 for each accepted line,
      * and updates to [expectedConvergedLineCount] upon structural convergence.
      */
-    @IntRange(from = 0) var verifiedLineCount: Int = 0
+    @IntRange(from = 0) private var verifiedLineCount: Int = 0
 
     /**
      * Index of the currently active (open) verified child in [children], or `-1` if no verified
      * child precedes the current parsing position.
      */
-    @IntRange(from = -1) var activeChildIndex: Int = -1
+    @IntRange(from = -1) private var activeChildIndex: Int = -1
 
     /**
      * Number of lines remaining in the new document between [verifiedLineCount] and the start line
@@ -84,7 +151,7 @@ internal abstract class ContainerParseBlock(id: Long) : ParseBlock(id) {
      * [unverifiedChild] begins in the updated document and can check if a newly opened block
      * converges with [unverifiedChild].
      */
-    @IntRange(from = -1) var unverifiedChildLineDelta: Int = -1
+    @IntRange(from = -1) private var unverifiedChildLineDelta: Int = -1
 
     /**
      * Precomputed total verified line count of this container upon structural convergence, or `-1`
@@ -103,33 +170,67 @@ internal abstract class ContainerParseBlock(id: Long) : ParseBlock(id) {
      *
      * then this value is never used.
      */
-    @IntRange(from = -1) var expectedConvergedLineCount: Int = -1
+    @IntRange(from = -1) private var expectedConvergedLineCount: Int = -1
 
     @get:IntRange(from = 0)
     override val lineCount: Int
         get() = verifiedLineCount
 
     private val activeChild: ParseBlock?
-        get() = children.getOrNull(activeChildIndex)
+        get() = _children.getOrNull(activeChildIndex)
 
-    val unverifiedChildIndex: Int
+    private val unverifiedChildIndex: Int
         get() = activeChildIndex + 1
 
-    val unverifiedChild: ParseBlock?
-        get() = children.getOrNull(unverifiedChildIndex)
+    private val unverifiedChild: ParseBlock?
+        get() = _children.getOrNull(unverifiedChildIndex)
 
     /**
      * Delegates [context] to the currently active child block, if one exists. If there is no active
      * child, returns an unaccepted [ParseResult].
+     *
+     * If the child does not accept the line, the [ParseContext.currentLine] cursor is restored to
+     * where the child received it, so this container (or an ancestor) can open a new block on the
+     * whole line if no block was proposed.
      */
     protected fun parseLineByChild(context: ParseContext): ParseResult {
-        return activeChild?.processLine(context) ?: ParseResult.reject()
+        val child = activeChild ?: return ParseResult.reject()
+        val childStartPos = context.currentLine.position
+        val oldChildLineCount = child.lineCount
+        var result = child.processLine(context)
+
+        if (result.status == ParseResult.Status.ReplaceSelf) {
+            val replacement =
+                checkNotNull(result.block) { "ReplaceSelf result must carry a replacement block" }
+            check(replacement.lineCount == oldChildLineCount) {
+                "Replacement block must have lineCount == $oldChildLineCount, was ${replacement.lineCount}"
+            }
+            replacement.parent = this
+            _children[activeChildIndex] = replacement
+            context.currentLine.restore(childStartPos)
+            result = replacement.processLine(context)
+            // A block must replace itself with the final block in one step. Chained replacements
+            // re-parse the same line repeatedly and could loop forever.
+            check(result.status != ParseResult.Status.ReplaceSelf) {
+                "Replacement block ${replacement::class.simpleName} must not replace itself again"
+            }
+        }
+
+        if (!result.accepted) {
+            context.currentLine.restore(childStartPos)
+        }
+        return result
     }
 
+    /**
+     * Appends [child] as the new active child when building a block tree (for example, a new
+     * container with its first child), and adds its lines to this container's line count.
+     */
     fun addChild(child: ParseBlock) {
         child.parent = this
-        children.add(child)
-        activeChildIndex = children.size - 1
+        _children.add(child)
+        activeChildIndex = _children.size - 1
+        verifiedLineCount += child.lineCount
     }
 
     /**
@@ -155,7 +256,7 @@ internal abstract class ContainerParseBlock(id: Long) : ParseBlock(id) {
         @IntRange(from = 0) oldLineEndExclusive: Int,
         @IntRange(from = 0) newLineCount: Int,
     ) {
-        if (children.isEmpty()) {
+        if (_children.isEmpty()) {
             activeChildIndex = -1
             verifiedLineCount = 0
             unverifiedChildLineDelta = -1
@@ -177,27 +278,31 @@ internal abstract class ContainerParseBlock(id: Long) : ParseBlock(id) {
         var childStartLine = 0
 
         // 1. Scan verified children from the beginning of this container until we find the first
-        // child whose line range overlaps or starts at oldLineStart.
-        while (
-            childIndex < children.size &&
-                childStartLine + children[childIndex].lineCount <= oldLineStart
-        ) {
-            childStartLine += children[childIndex].lineCount
+        // child whose line range overlaps or starts at oldLineStart. A child that ends exactly at
+        // oldLineStart stays verified and becomes the active child, so the edited line is offered
+        // to it first, exactly as in a full parse.
+        while (childIndex < _children.size) {
+            val child = _children[childIndex]
+            val childEndLine = childStartLine + child.lineCount
+            if (childEndLine > oldLineStart) {
+                break
+            }
+            childStartLine = childEndLine
             childIndex++
         }
 
-        if (childIndex == children.size) {
+        if (childIndex == _children.size) {
             // The edit starts at or after the end of all existing children (e.g., appending at
             // EOF).
             // All existing children remain verified, and the last child remains active.
-            activeChildIndex = children.lastIndex
+            activeChildIndex = _children.lastIndex
             verifiedLineCount = childStartLine
             unverifiedChildLineDelta = -1
             expectedConvergedLineCount = -1
             return
         }
 
-        val firstMatchChild = children[childIndex]
+        val firstMatchChild = _children[childIndex]
         val firstMatchOriginalLineCount = firstMatchChild.lineCount
         val firstMatchRemoved: Boolean
 
@@ -224,7 +329,7 @@ internal abstract class ContainerParseBlock(id: Long) : ParseBlock(id) {
         }
 
         if (firstMatchRemoved) {
-            children.removeAt(childIndex)
+            _children.removeAt(childIndex)
             verifiedLineCount = childStartLine
             activeChildIndex = childIndex - 1
         } else {
@@ -236,10 +341,10 @@ internal abstract class ContainerParseBlock(id: Long) : ParseBlock(id) {
 
         // 3. Remove all subsequent children whose start lines fall within [oldLineStart,
         // oldLineEndExclusive).
-        while (childIndex < children.size && childStartLine < oldLineEndExclusive) {
-            val child = children[childIndex]
+        while (childIndex < _children.size && childStartLine < oldLineEndExclusive) {
+            val child = _children[childIndex]
             childStartLine += child.lineCount
-            children.removeAt(childIndex)
+            _children.removeAt(childIndex)
         }
 
         // 4. If any trailing unverified children remain after the edited range, compute how many
@@ -248,7 +353,7 @@ internal abstract class ContainerParseBlock(id: Long) : ParseBlock(id) {
         // newUnverifiedStartLine = childStartLine + (newLineCount - oldLineCount)
         // unverifiedChildLineDelta = newUnverifiedStartLine - verifiedLineCount
         unverifiedChildLineDelta =
-            if (childIndex < children.size) {
+            if (childIndex < _children.size) {
                 childStartLine - verifiedLineCount + newLineCount - oldLineCount
             } else {
                 -1
@@ -256,11 +361,12 @@ internal abstract class ContainerParseBlock(id: Long) : ParseBlock(id) {
     }
 
     private fun markConverged() {
-        check(expectedConvergedLineCount >= 0) {
-            "expectedConvergedLineCount must be non-negative on convergence (was $expectedConvergedLineCount)"
+        val convergedLineCount = expectedConvergedLineCount
+        check(convergedLineCount >= 0) {
+            "expectedConvergedLineCount must be non-negative on convergence (was $convergedLineCount)"
         }
-        activeChildIndex = children.lastIndex
-        verifiedLineCount = expectedConvergedLineCount
+        activeChildIndex = _children.lastIndex
+        verifiedLineCount = convergedLineCount
         unverifiedChildLineDelta = -1
         expectedConvergedLineCount = -1
     }
@@ -273,13 +379,13 @@ internal abstract class ContainerParseBlock(id: Long) : ParseBlock(id) {
      *    ([ParseResult.isConverged]).
      * 3. Prunes any trailing unverified children if this container rejected the line and closed.
      * 4. Checks for convergence when [unverifiedChildLineDelta] reaches `0`:
-     *     - If a new child block opened on this line (`result.proposedChild` != null), it aligns
+     *     - If a new child block opened on this line ([ParseResult.Status.AcceptChild]), it aligns
      *       with [unverifiedChild], adopts all remaining unverified children, and signals
      *       convergence.
-     *     - If the current line was consumed by [activeChild] (`result.proposedChild` == null),
+     *     - If the current line was consumed by [activeChild] ([ParseResult.Status.Accept]),
      *       discards the stale [unverifiedChild] and shifts [unverifiedChildLineDelta] to the next
      *       unverified sibling.
-     * 5. Inserts any newly proposed child at [unverifiedChildIndex] and updates [verifiedLineCount]
+     * 5. Inserts any newly opened child at [unverifiedChildIndex] and updates [verifiedLineCount]
      *    and [unverifiedChildLineDelta].
      */
     final override fun processLine(context: ParseContext): ParseResult {
@@ -296,16 +402,16 @@ internal abstract class ContainerParseBlock(id: Long) : ParseBlock(id) {
         // unverified children after activeChildIndex belonged to the old extent of this container
         // and must be pruned.
         if (!result.accepted) {
-            while (children.size > activeChildIndex + 1) {
-                children.removeAt(children.size - 1)
+            while (_children.size > activeChildIndex + 1) {
+                _children.removeAt(_children.size - 1)
             }
-            activeChildIndex = children.lastIndex
+            activeChildIndex = _children.lastIndex
             unverifiedChildLineDelta = -1
             expectedConvergedLineCount = -1
             return result
         }
 
-        val childToAdd = result.proposedChild
+        val childToAdd = if (result.status == ParseResult.Status.AcceptChild) result.block else null
         val unverified = unverifiedChild
 
         // 3. Convergence check: when unverifiedChildLineDelta == 0, the current line aligns with
@@ -319,16 +425,15 @@ internal abstract class ContainerParseBlock(id: Long) : ParseBlock(id) {
                 // multi-line properties like Setext `headingLevel` would also be wrong on the first
                 // line). Adopt all remaining unverified children as verified and stop re-parsing.
                 markConverged()
-                result.isConverged = true
-                result.proposedChild = null
+                result.markConverged()
                 return result
             } else {
                 // Mismatch: activeChild consumed the line instead of opening a new block.
                 // Discard `unverified` and advance delta by its lineCount to point to the next
                 // unverified sibling.
                 val oldUnverifiedLines = unverified.lineCount
-                children.removeAt(unverifiedChildIndex)
-                if (unverifiedChildIndex < children.size) {
+                _children.removeAt(unverifiedChildIndex)
+                if (unverifiedChildIndex < _children.size) {
                     // A subsequent unverified sibling shifted into unverifiedChildIndex; advance
                     // delta by the removed block's lineCount so delta measures lines to this next
                     // sibling.
@@ -341,18 +446,18 @@ internal abstract class ContainerParseBlock(id: Long) : ParseBlock(id) {
             }
         }
 
-        // 4. If a new child block was proposed to open on this line, insert it immediately after
+        // 4. If a new child block was opened on this line, insert it immediately after
         // activeChildIndex (before any remaining unverified children) and make it active.
         if (childToAdd != null) {
             childToAdd.parent = this
-            if (children.isEmpty()) {
-                children.add(childToAdd)
+            if (_children.isEmpty()) {
+                _children.add(childToAdd)
                 activeChildIndex = 0
             } else {
-                children.add(unverifiedChildIndex, childToAdd)
+                _children.add(unverifiedChildIndex, childToAdd)
                 activeChildIndex++
             }
-            result.proposedChild = null
+            result.accept()
         }
 
         // 5. Record that one more line of this container has been verified, closing the gap toward
@@ -367,12 +472,13 @@ internal abstract class ContainerParseBlock(id: Long) : ParseBlock(id) {
 }
 
 /**
- * Abstract base container block providing the standard template method for [parseLine]:
- * 1. If [matchLineStart] matches, delegates to [parseLineByChild]. If the child accepts, returns
- *    the result; otherwise, accepts the proposed/default child if [canAcceptChild] permits.
- * 2. If [matchLineStart] does not match, delegates to [parseLineByChild] for lazy continuation if
- *    [supportsLazyContinuation] permits. If the child accepts, returns the result; otherwise,
- *    accepts the proposed child if [canAcceptChild] permits or rejects and bubbles up.
+ * Base class of every container block (the only direct subclass of [ContainerParseBlock]),
+ * providing the standard template method for [parseLine]:
+ * 1. If [matchLineStart] matches, the line belongs to this container: it is delegated to the active
+ *    child, and if the child does not accept it, this container opens a new child on the line if
+ *    [canAcceptChild] permits.
+ * 2. Otherwise, the line can only be a lazy continuation: it is delegated to the active child if
+ *    [supportsLazyContinuation] permits, and rejected (bubbling up) if not accepted.
  */
 internal abstract class BaseContainerParseBlock(id: Long) : ContainerParseBlock(id) {
 
@@ -389,26 +495,47 @@ internal abstract class BaseContainerParseBlock(id: Long) : ContainerParseBlock(
     protected abstract val supportsLazyContinuation: Boolean
 
     final override fun parseLine(context: ParseContext): ParseResult {
-        val matchedStart = matchLineStart(context)
-        if (!matchedStart) {
-            context.startLazyContinuation()
+        // Once an ancestor failed to match its line start, the line is already a lazy continuation,
+        // so this container must not try to match (and consume) its own line start either.
+        return if (!context.isLazyContinuation && matchLineStart(context)) {
+            parseMatchedLine(context)
+        } else {
+            parseLazyContinuationLine(context)
         }
-        val isLazyHere = context.isLazyContinuation
-        if (matchedStart || supportsLazyContinuation) {
-            val result = parseLineByChild(context)
-            if (result.accepted) {
-                return result
-            }
-            val proposed = result.proposedChild ?: context.startBlock()
-            if (!isLazyHere && canAcceptChild(proposed)) {
-                result.acceptChild(proposed)
-            } else {
-                result.rejectAndPropose(proposed)
-            }
+    }
+
+    /**
+     * Parses a line whose start matched (and consumed) this container's prefix: the line belongs to
+     * this container. If the active child does not accept it, this container opens a new child on
+     * the line (the block proposed by the child, or a new one from [ParseContext.startBlock]) if
+     * [canAcceptChild] permits, and otherwise proposes the block to its ancestors.
+     */
+    private fun parseMatchedLine(context: ParseContext): ParseResult {
+        val result = parseLineByChild(context)
+        if (result.accepted) {
             return result
         }
+        val child = result.block ?: context.startBlock()
+        if (canAcceptChild(child)) {
+            result.acceptChild(child)
+        } else {
+            result.rejectAndPropose(child)
+        }
+        return result
+    }
 
-        val proposed = context.startBlock()
-        return ParseResult.rejectAndPropose(proposed)
+    /**
+     * Parses a line whose start did not match this container's prefix. Such a line can only be a
+     * lazy continuation of an open paragraph inside this container, so it is passed to the active
+     * child if [supportsLazyContinuation] permits, and this container never opens a new child for
+     * it. If the line is not accepted, the result (including any block proposed by the child)
+     * bubbles up so an ancestor whose prefix matched can open it.
+     */
+    private fun parseLazyContinuationLine(context: ParseContext): ParseResult {
+        if (!supportsLazyContinuation) {
+            return ParseResult.reject()
+        }
+        context.startLazyContinuation()
+        return parseLineByChild(context)
     }
 }
