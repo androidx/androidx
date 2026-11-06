@@ -166,16 +166,19 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
         if (!options.getString(EXTRA_WIDGET_ID).isNullOrBlank()) {
             return options
         }
-        val widgetId =
+        val existingWidgetId =
             WidgetOptionsCache.getCachedWidgetId(appWidgetId)
                 ?: appWidgetManager
                     .takeIf { checkManagerIfMissing }
                     ?.getAppWidgetOptions(appWidgetId)
                     ?.getString(EXTRA_WIDGET_ID)
                     ?.takeUnless { it.isBlank() }
-                ?: WidgetOptionsCache.generateWidgetId()
+        if (existingWidgetId != null) {
+            return Bundle(options).apply { putString(EXTRA_WIDGET_ID, existingWidgetId) }
+        }
+        val generatedWidgetId = WidgetOptionsCache.generateWidgetId()
         return Bundle(options)
-            .apply { putString(EXTRA_WIDGET_ID, widgetId) }
+            .apply { putString(EXTRA_WIDGET_ID, generatedWidgetId) }
             .also { appWidgetManager.updateAppWidgetOptions(appWidgetId, it) }
     }
 
@@ -189,9 +192,11 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
         runAndLogExceptions {
             super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
             val options = ensureWidgetIdIsPresent(appWidgetManager, appWidgetId, newOptions)
-            val newState = WidgetOptionsState.from(options)
-            val oldState = WidgetOptionsCache.put(appWidgetId, newState)
-            if (oldState != newState) {
+            // A broadcast queued before a library write from outside this receiver (pin callback,
+            // configuration) must not roll back the widgetId that write stored.
+            val updateNeeded =
+                WidgetOptionsCache.putFromBroadcast(appWidgetId, WidgetOptionsState.from(options))
+            if (updateNeeded) {
                 onUpdate(context, appWidgetManager, intArrayOf(appWidgetId))
             }
         }
@@ -241,8 +246,24 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
                         handleUpdateBroadcast(context, intent)
                     }
                 }
+                AppWidgetManager.ACTION_APPWIDGET_UPDATE -> {
+                    consumePendingRenders(intent)
+                    super.onReceive(context, intent)
+                }
                 else -> super.onReceive(context, intent)
             }
+        }
+    }
+
+    /**
+     * Clears the re-render markers that the update [intent] carries the token of, if it was sent
+     * after a library write from outside this receiver, see [updateOptionsAndRerender]. The widgets
+     * are updated by [onUpdate] either way.
+     */
+    private fun consumePendingRenders(intent: Intent) {
+        val token = intent.getStringExtra(WidgetOptionsCache.EXTRA_RENDER_TOKEN) ?: return
+        intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)?.forEach {
+            WidgetOptionsCache.consumePendingRender(it, token)
         }
     }
 
