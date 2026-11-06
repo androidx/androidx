@@ -16,6 +16,7 @@
 
 package androidx.room3.processor
 
+import androidx.room3.DaoReturnTypeConverters
 import androidx.room3.Delete
 import androidx.room3.Insert
 import androidx.room3.Query
@@ -256,6 +257,14 @@ class DaoProcessor(
         invalidAnnotatedFunctions.forEach {
             context.logger.e(it, ProcessorErrors.INVALID_ANNOTATION_COUNT_IN_DAO_FUNCTION)
         }
+        allFunctions
+            .filter {
+                (!it.isAbstract() || it.hasKotlinDefaultImpl()) &&
+                    it.hasAnnotation(DaoReturnTypeConverters::class)
+            }
+            .forEach {
+                context.logger.e(it, ProcessorErrors.DAO_RETURN_TYPE_CONVERTER_ON_NON_DAO_OPERATION)
+            }
 
         return Dao(
             element = element,

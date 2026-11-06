@@ -185,9 +185,14 @@ object ProcessorErrors {
 
     const val DAO_RETURN_TYPE_CONVERTER_WARNING =
         "Did you forget to provide a " +
-            "@DaoReturnTypeConverter to your @Database or @Dao via @DaoReturnTypeConverters? If " +
-            "you are using a @DaoReturnTypeConverter, you must also verify that the converter " +
-            "function's return type matches the DAO function by raw type and type arguments."
+            "@DaoReturnTypeConverter to your @Database, @Dao, or DAO function via " +
+            "@DaoReturnTypeConverters? If you are using a @DaoReturnTypeConverter, you must also " +
+            "verify that the converter function's return type matches the DAO function by raw type " +
+            "and type arguments."
+
+    const val DAO_RETURN_TYPE_CONVERTER_ON_NON_DAO_OPERATION =
+        "@DaoReturnTypeConverters can only be used on @Database, @Dao, or abstract DAO " +
+            "operation functions and getter properties."
 
     fun cannotFindQueryResultAdapter(returnTypeName: String) =
         "Not sure how to convert the query result to this function's return type " +
@@ -221,11 +226,13 @@ object ProcessorErrors {
 
     const val CANNOT_FIND_DELETE_RESULT_ADAPTER =
         "Not sure how to handle delete function's return type. " +
-            "Currently the supported return types are void / Unit or Int"
+            "Currently the supported return types are void / Unit or Int. " +
+            DAO_RETURN_TYPE_CONVERTER_WARNING
 
     const val CANNOT_FIND_UPDATE_RESULT_ADAPTER =
         "Not sure how to handle update function's return type. " +
-            "Currently the supported return types are void / Unit or Int."
+            "Currently the supported return types are void / Unit or Int. " +
+            DAO_RETURN_TYPE_CONVERTER_WARNING
 
     fun suspendReturnsDeferredType(returnTypeName: String) =
         "DAO functions that have a suspend " +

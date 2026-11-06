@@ -570,6 +570,62 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     }
 
     @Test
+    fun customDaoReturnType_onFunctions() {
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
+                import androidx.room3.*
+
+                @Dao
+                @DaoReturnTypeConverters(DaoFooConverter::class)
+                interface MyDao {
+                  @Query("SELECT * FROM MyEntity")
+                  fun getDaoFoo(): Foo<MyEntity>
+
+                  @DaoReturnTypeConverters(FunctionFooConverter::class)
+                  @Query("SELECT * FROM MyEntity")
+                  fun getFunctionFoo(): Foo<MyEntity>
+
+                  @get:DaoReturnTypeConverters(FunctionFooConverter::class)
+                  @get:Query("SELECT * FROM MyEntity")
+                  val fooGetter: Foo<MyEntity>
+
+                  @DaoReturnTypeConverters(ProvidedFooConverter::class)
+                  @Insert
+                  fun insertFoo(item: MyEntity): Foo<Long>
+                }
+
+                @Entity
+                data class MyEntity(@PrimaryKey val pk: Int)
+
+                class Foo<T>(val data: T)
+
+                object DaoFooConverter {
+                    @DaoReturnTypeConverter([OperationType.READ, OperationType.WRITE])
+                    fun <T> convertFromDao(executeAndConvert: suspend () -> T): Foo<T> = TODO()
+                }
+
+                object FunctionFooConverter {
+                    @DaoReturnTypeConverter([OperationType.READ])
+                    fun <T> convertFromFunction(executeAndConvert: suspend () -> T): Foo<T> = TODO()
+                }
+
+                @ProvidedDaoReturnTypeConverter
+                class ProvidedFooConverter {
+                    @DaoReturnTypeConverter([OperationType.WRITE])
+                    fun <T> convertProvided(executeAndConvert: suspend () -> T): Foo<T> = TODO()
+                }
+                """
+                    .trimIndent(),
+            )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName.methodName),
+        )
+    }
+
+    @Test
     fun dataClassRowAdapter_variableProperty() {
         val src =
             Source.kotlin(

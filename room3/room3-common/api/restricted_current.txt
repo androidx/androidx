@@ -123,7 +123,7 @@ package androidx.room3 {
     property public abstract androidx.room3.OperationType[] operations;
   }
 
-  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.CLASS}) public @interface DaoReturnTypeConverters {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface DaoReturnTypeConverters {
     ctor @KotlinOnly public DaoReturnTypeConverters(optional kotlin.reflect.KClass<? extends java.lang.Object?>... value);
     method @InaccessibleFromKotlin public abstract Class<? extends java.lang.Object?>[] value() default {};
     property public abstract kotlin.reflect.KClass<? extends java.lang.Object?>[] value;
