@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
 
 internal class RemoteImageNode : RemoteComposeNode() {
@@ -49,6 +50,25 @@ internal class RemoteImageNode : RemoteComposeNode() {
     }
 }
 
+/**
+ * Creates an image component that lays out and draws a given [RemoteImageBitmap].
+ *
+ * Example of displaying a cropped [RemoteImageBitmap]:
+ *
+ * @sample androidx.compose.remote.creation.compose.samples.RemoteImageSample
+ *
+ * Example of fitting a [RemoteImageBitmap] inside fixed bounds:
+ *
+ * @sample androidx.compose.remote.creation.compose.samples.RemoteImageFitSample
+ * @param bitmap [RemoteImageBitmap] to be drawn
+ * @param contentDescription text used by accessibility services to describe what this image
+ *   represents
+ * @param modifier [RemoteModifier] to be applied to this layout node
+ * @param contentScale rule to apply to scale the image when its size does not match layout size
+ * @param alpha opacity to be applied to [bitmap] when rendered, defaulting to `1.0f`
+ */
+// TODO: Remove @RestrictTo and restore default contentScale = RemoteContentScale.Fit once
+// RemoteImage.android.kt is removed.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 @RemoteComposable
@@ -57,7 +77,7 @@ public fun RemoteImage(
     contentDescription: RemoteString?,
     modifier: RemoteModifier = RemoteModifier,
     contentScale: RemoteContentScale,
-    alpha: RemoteFloat,
+    alpha: RemoteFloat = 1f.rf,
 ) {
     RemoteComposeNode(
         factory = ::RemoteImageNode,

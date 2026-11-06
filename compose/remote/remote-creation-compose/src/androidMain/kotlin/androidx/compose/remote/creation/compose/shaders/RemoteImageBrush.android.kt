@@ -15,6 +15,7 @@
  */
 
 @file:JvmName("RemoteImageBrushKt")
+@file:JvmMultifileClass
 
 package androidx.compose.remote.creation.compose.shaders
 
@@ -43,8 +44,8 @@ public fun RemoteBrush.Companion.image(
     tileModeY: ComposeTileMode = ComposeTileMode.Clamp,
     contentScale: ContentScale = ContentScale.None,
 ): RemoteShaderBrush =
-    RemoteImageBrush(
-        bitmap = image,
+    image(
+        image = image,
         tileModeX = tileModeX.toRemoteTileMode(),
         tileModeY = tileModeY.toRemoteTileMode(),
         contentScale = contentScale.toRemoteContentScale(),

@@ -24,7 +24,7 @@ import kotlin.jvm.JvmInline
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
 @JvmInline
-public value class RemotePathFillType internal constructor(public val value: Int) {
+public value class RemotePathFillType internal constructor(internal val value: Int) {
     override fun toString(): String =
         when (this) {
             NonZero -> "NonZero"

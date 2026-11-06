@@ -166,10 +166,8 @@ internal class GraphicsLayerModifier(
 }
 
 /**
- * Applies a graphics layer modifier to the [RemoteModifier].
- *
- * A graphics layer modifier can be used to apply effects such as scaling, rotation, translation,
- * shadow, clipping, alpha, and render effects (like blur) to the drawing content.
+ * Applies visual effects such as scaling, rotation, translation, shadow, alpha, or clipping to
+ * content.
  *
  * This overload accepts [RemoteFloat] values, which allow binding properties to dynamic expressions
  * or state.
@@ -178,23 +176,25 @@ internal class GraphicsLayerModifier(
  * [RemoteRoundedCornerShape] is provided, [RemoteRoundedCornerShape.topStart] is used for all
  * corners.
  *
- * @param scaleX The horizontal scale factor.
- * @param scaleY The vertical scale factor.
- * @param rotationX The rotation of the layer around the X axis, in degrees.
- * @param rotationY The rotation of the layer around the Y axis, in degrees.
- * @param rotationZ The rotation of the layer around the Z axis, in degrees.
- * @param shadowElevation The shadow elevation of the layer.
- * @param transformOriginX The horizontal center of the transform, as a fraction of the layer width.
- * @param transformOriginY The vertical center of the transform, as a fraction of the layer height.
- * @param translationX The horizontal translation of the layer.
- * @param translationY The vertical translation of the layer.
- * @param alpha The alpha (opacity) of the layer.
- * @param shape The shape of the layer.
- * @param compositingStrategy The compositing strategy to use for the layer.
- * @param cameraDistance The camera distance for 3D transforms.
- * @param renderEffect The [RemoteRenderEffect] to apply, or null.
+ * @param scaleX horizontal scale factor
+ * @param scaleY vertical scale factor
+ * @param rotationX rotation of the layer around the X axis in degrees
+ * @param rotationY rotation of the layer around the Y axis in degrees
+ * @param rotationZ rotation of the layer around the Z axis in degrees
+ * @param shadowElevation shadow elevation of the layer
+ * @param transformOriginX horizontal center of the transform, as a fraction of the layer width
+ * @param transformOriginY vertical center of the transform, as a fraction of the layer height
+ * @param translationX horizontal translation of the layer
+ * @param translationY vertical translation of the layer
+ * @param alpha alpha (opacity) of the layer
+ * @param shape [RemoteShape] of the layer
+ * @param compositingStrategy [RemoteCompositingStrategy] to use for the layer
+ * @param cameraDistance camera distance for 3D transforms
+ * @param renderEffect [RemoteRenderEffect] to apply, or null
  * @return a [RemoteModifier] that applies the graphics layer effects
  */
+// TODO: Remove @RestrictTo and restore default shape = RemoteRectangleShape once
+// GraphicsLayerModifier.android.kt is removed.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.graphicsLayer(
     scaleX: RemoteFloat = 1f.rf,

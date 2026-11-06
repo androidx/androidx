@@ -46,12 +46,12 @@ import androidx.compose.remote.creation.compose.text.combineFontSettings
 import androidx.compose.runtime.Composable
 
 /**
- * Remote composable that displays text.
+ * Creates a text component that displays [text].
  *
- * Note that density-dependent values like [fontSize], [style#letterSpacing], and [style#lineHeight]
- * are converted to pixels using [RemoteDensity] from the environment where the [RemoteText] is
- * being *created*, not the remote environment where it will be displayed. This means these values
- * are fixed at creation time based on the local density.
+ * Note that density-dependent values like [fontSize], [RemoteTextStyle.letterSpacing], and
+ * [RemoteTextStyle.lineHeight] are converted to pixels using [RemoteDensity] from the environment
+ * where the [RemoteText] is being *created*, not the remote environment where it will be displayed.
+ * This means these values are fixed at creation time based on the local density.
  *
  * Basic text display with custom color and font size:
  *
@@ -64,22 +64,24 @@ import androidx.compose.runtime.Composable
  * Using standard font families and variable font settings:
  *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteTextFontFamilySample
- * @param text The text to be displayed.
- * @param modifier The [RemoteModifier] to be applied to this text.
- * @param color [RemoteColor] to apply to the text. If [color] is not specified, and it is not
- *   provided in [style], then [androidx.compose.ui.graphics.Color.Black] will be used.
- * @param fontSize The size of the font.
- * @param fontStyle The font style to be applied to the text.
- * @param fontWeight The font weight to be applied to the text.
- * @param fontFamily The font family to be applied to the text.
- * @param textAlign The alignment of the text within its container.
- * @param overflow How visual overflow should be handled.
- * @param maxLines An optional maximum number of lines for the text.
- * @param fontFeatureSettings The advanced typography settings provided by font in CSS format (e.g.
- *   "smcp" or "tnum").
- * @param fontVariationSettings The font variation settings to be applied to the text.
- * @param style The [RemoteTextStyle] to be applied to the text.
+ * @param text text to be displayed
+ * @param modifier [RemoteModifier] to be applied to this text
+ * @param color [RemoteColor] to apply to the text. If [color] is not specified and not provided in
+ *   [style], then opaque black (`0xFF000000`) is used.
+ * @param fontSize size of the font
+ * @param fontStyle font style to be applied to the text
+ * @param fontWeight font weight to be applied to the text
+ * @param fontFamily font family to be applied to the text
+ * @param textAlign alignment of the text within its container
+ * @param overflow how visual overflow should be handled
+ * @param maxLines optional maximum number of lines for the text
+ * @param fontFeatureSettings advanced typography settings provided by font in CSS format (e.g.
+ *   "smcp" or "tnum")
+ * @param fontVariationSettings font variation settings to be applied to the text
+ * @param style [RemoteTextStyle] to be applied to the text
  */
+// TODO: Remove @RestrictTo and restore default overflow = RemoteTextOverflow.Clip once
+// RemoteText.android.kt is removed.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 @RemoteComposable
