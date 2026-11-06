@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.integration.media
 
+import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.wear.compose.material3.samples.*
 
@@ -137,4 +138,28 @@ val boxScreenshotRegistry: Map<String, @Composable () -> Unit> =
         "TimeTextWithStatusEllipsized" to { TimeTextWithStatusEllipsized() },
         "CurvedTextBottom" to { CurvedTextBottom() },
         "CurvedTextTop" to { CurvedTextTop() },
+        "DrawCurvedToEdgeSample" to
+            {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    DrawCurvedToEdgeSample()
+                }
+            },
+        "InsetDrawCurvedToEdgeSample" to
+            {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    InsetDrawCurvedToEdgeSample()
+                }
+            },
+        "IconsDrawCurvedToEdgeSample" to
+            {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    IconsDrawCurvedToEdgeSample()
+                }
+            },
+        "MixedContentDrawCurvedToEdgeSample" to
+            {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    MixedContentDrawCurvedToEdgeSample()
+                }
+            },
     )
