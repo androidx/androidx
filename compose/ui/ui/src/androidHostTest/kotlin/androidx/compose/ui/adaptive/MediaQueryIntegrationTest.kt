@@ -376,9 +376,13 @@ class MediaQueryIntegrationTest {
         rule.waitForIdle()
 
         val provider = WindowInsetsRulersProvider(composeView.insetsWatcher)
-        assertFalse(
-            "Ruler should not be provided when insets are uninitialized",
+        assertTrue(
+            "Supported ruler should be provided even when insets are uninitialized",
             provider.isRulerProvided(WindowInsetsRulers.StatusBars.current.left),
+        )
+        assertFalse(
+            "Ime.maximum should never be provided",
+            provider.isRulerProvided(WindowInsetsRulers.Ime.maximum.left),
         )
     }
 
