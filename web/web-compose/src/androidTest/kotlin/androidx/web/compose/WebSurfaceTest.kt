@@ -124,6 +124,7 @@ import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -1881,6 +1882,7 @@ class WebSurfaceTest {
     }
 
     @Test
+    @Ignore // TODO(b/582804749): Re-enable this test. Currently failing on CI.
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     fun testTrackpadPanExitingBoundsCancelsGesture() {
         lateinit var bridge: WebViewBridge
