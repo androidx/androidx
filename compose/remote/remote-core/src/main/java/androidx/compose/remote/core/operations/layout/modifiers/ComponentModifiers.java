@@ -213,6 +213,32 @@ public class ComponentModifiers extends PaintOperation
         mList.addAll(operations);
     }
 
+    /** Scratch buffer for {@link #paddingOffsetBefore(int, float[])}. */
+    private final float @NonNull [] mPaddingOffset = new float[2];
+
+    /**
+     * Computes the offset introduced by the padding modifiers that precede {@code index} in the
+     * chain, i.e. the translation from component-local coordinates into the local coordinates of
+     * the modifier at that index.
+     *
+     * @param index index of the modifier in the chain
+     * @param out receives the horizontal offset at [0] and the vertical offset at [1]
+     */
+    private void paddingOffsetBefore(int index, float @NonNull [] out) {
+        float tx = 0f;
+        float ty = 0f;
+        for (int i = 0; i < index; i++) {
+            ModifierOperation op = mList.get(i);
+            if (op instanceof PaddingModifierOperation) {
+                PaddingModifierOperation pop = (PaddingModifierOperation) op;
+                tx += pop.getLeft();
+                ty += pop.getTop();
+            }
+        }
+        out[0] = tx;
+        out[1] = ty;
+    }
+
     @Override
     public boolean onClick(
             @NonNull RemoteContext context,
@@ -220,25 +246,14 @@ public class ComponentModifiers extends PaintOperation
             @NonNull Component component,
             float x,
             float y) {
-        float tx = 0f;
-        float ty = 0f;
-        for (ModifierOperation op : mList) {
-            if (op instanceof PaddingModifierOperation) {
-                PaddingModifierOperation pop = (PaddingModifierOperation) op;
-                tx += pop.getLeft();
-                ty += pop.getTop();
-            }
-        }
         boolean handled = false;
         for (int i = mList.size() - 1; i >= 0; i--) {
             ModifierOperation op = mList.get(i);
-            if (op instanceof PaddingModifierOperation) {
-                PaddingModifierOperation pop = (PaddingModifierOperation) op;
-                tx -= pop.getLeft();
-                ty -= pop.getTop();
-            }
             if (op instanceof ClickHandler) {
-                if (((ClickHandler) op).onClick(context, document, component, x - tx, y - ty)) {
+                paddingOffsetBefore(i, mPaddingOffset);
+                float lx = x - mPaddingOffset[0];
+                float ly = y - mPaddingOffset[1];
+                if (((ClickHandler) op).onClick(context, document, component, lx, ly)) {
                     handled = true;
                 }
             }
@@ -257,7 +272,10 @@ public class ComponentModifiers extends PaintOperation
         for (int i = mList.size() - 1; i >= 0; i--) {
             ModifierOperation op = mList.get(i);
             if (op instanceof ClickHandler) {
-                if (((ClickHandler) op).onLongPress(context, document, component, x, y)) {
+                paddingOffsetBefore(i, mPaddingOffset);
+                float lx = x - mPaddingOffset[0];
+                float ly = y - mPaddingOffset[1];
+                if (((ClickHandler) op).onLongPress(context, document, component, lx, ly)) {
                     handled = true;
                 }
             }
@@ -276,7 +294,10 @@ public class ComponentModifiers extends PaintOperation
         for (int i = mList.size() - 1; i >= 0; i--) {
             ModifierOperation op = mList.get(i);
             if (op instanceof ClickHandler) {
-                if (((ClickHandler) op).onDoubleClick(context, document, component, x, y)) {
+                paddingOffsetBefore(i, mPaddingOffset);
+                float lx = x - mPaddingOffset[0];
+                float ly = y - mPaddingOffset[1];
+                if (((ClickHandler) op).onDoubleClick(context, document, component, lx, ly)) {
                     handled = true;
                 }
             }
@@ -291,30 +312,19 @@ public class ComponentModifiers extends PaintOperation
             @NonNull Component component,
             float x,
             float y) {
-        float tx = 0f;
-        float ty = 0f;
-        for (ModifierOperation op : mList) {
-            if (op instanceof PaddingModifierOperation) {
-                PaddingModifierOperation pop = (PaddingModifierOperation) op;
-                tx += pop.getLeft();
-                ty += pop.getTop();
-            }
-        }
         boolean handled = false;
         for (int i = mList.size() - 1; i >= 0; i--) {
             ModifierOperation op = mList.get(i);
-            if (op instanceof PaddingModifierOperation) {
-                PaddingModifierOperation pop = (PaddingModifierOperation) op;
-                tx -= pop.getLeft();
-                ty -= pop.getTop();
-            }
             if (op instanceof TouchHandler) {
-                if (((TouchHandler) op).onTouchDown(context, document, component, x - tx, y - ty)) {
+                paddingOffsetBefore(i, mPaddingOffset);
+                float lx = x - mPaddingOffset[0];
+                float ly = y - mPaddingOffset[1];
+                if (((TouchHandler) op).onTouchDown(context, document, component, lx, ly)) {
                     handled = true;
                 }
-            // ClickHandler structurally consumes DOWN to preserve click responsiveness after
-            // low-level TouchHandlers.
             } else if (op instanceof ClickHandler) {
+                // ClickHandler structurally consumes DOWN to preserve click responsiveness after
+                // low-level TouchHandlers.
                 handled = true;
             }
         }
@@ -330,26 +340,14 @@ public class ComponentModifiers extends PaintOperation
             float y,
             float dx,
             float dy) {
-        float tx = 0f;
-        float ty = 0f;
-        for (ModifierOperation op : mList) {
-            if (op instanceof PaddingModifierOperation) {
-                PaddingModifierOperation pop = (PaddingModifierOperation) op;
-                tx += pop.getLeft();
-                ty += pop.getTop();
-            }
-        }
         boolean handled = false;
         for (int i = mList.size() - 1; i >= 0; i--) {
             ModifierOperation op = mList.get(i);
-            if (op instanceof PaddingModifierOperation) {
-                PaddingModifierOperation pop = (PaddingModifierOperation) op;
-                tx -= pop.getLeft();
-                ty -= pop.getTop();
-            }
             if (op instanceof TouchHandler) {
-                if (((TouchHandler) op)
-                        .onTouchUp(context, document, component, x - tx, y - ty, dx, dy)) {
+                paddingOffsetBefore(i, mPaddingOffset);
+                float lx = x - mPaddingOffset[0];
+                float ly = y - mPaddingOffset[1];
+                if (((TouchHandler) op).onTouchUp(context, document, component, lx, ly, dx, dy)) {
                     handled = true;
                 }
             }
@@ -368,7 +366,10 @@ public class ComponentModifiers extends PaintOperation
         for (int i = mList.size() - 1; i >= 0; i--) {
             ModifierOperation op = mList.get(i);
             if (op instanceof TouchHandler) {
-                if (((TouchHandler) op).onTouchCancel(context, document, component, x, y)) {
+                paddingOffsetBefore(i, mPaddingOffset);
+                float lx = x - mPaddingOffset[0];
+                float ly = y - mPaddingOffset[1];
+                if (((TouchHandler) op).onTouchCancel(context, document, component, lx, ly)) {
                     handled = true;
                 }
             }
@@ -383,25 +384,14 @@ public class ComponentModifiers extends PaintOperation
             @NonNull Component component,
             float x,
             float y) {
-        float tx = 0f;
-        float ty = 0f;
-        for (ModifierOperation op : mList) {
-            if (op instanceof PaddingModifierOperation) {
-                PaddingModifierOperation pop = (PaddingModifierOperation) op;
-                tx += pop.getLeft();
-                ty += pop.getTop();
-            }
-        }
         boolean handled = false;
         for (int i = mList.size() - 1; i >= 0; i--) {
             ModifierOperation op = mList.get(i);
-            if (op instanceof PaddingModifierOperation) {
-                PaddingModifierOperation pop = (PaddingModifierOperation) op;
-                tx -= pop.getLeft();
-                ty -= pop.getTop();
-            }
             if (op instanceof TouchHandler) {
-                if (((TouchHandler) op).onTouchDrag(context, document, component, x - tx, y - ty)) {
+                paddingOffsetBefore(i, mPaddingOffset);
+                float lx = x - mPaddingOffset[0];
+                float ly = y - mPaddingOffset[1];
+                if (((TouchHandler) op).onTouchDrag(context, document, component, lx, ly)) {
                     handled = true;
                 }
             }
