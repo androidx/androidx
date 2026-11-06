@@ -114,9 +114,8 @@ public fun RemoteBrush.Companion.radialGradient(
         tileMode = tileMode,
     )
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
-public data class RemoteRadialGradient(
+internal data class RemoteRadialGradient(
     private val colors: List<RemoteColor>,
     private val stops: List<RemoteFloat>? = null,
     private val center: RemoteOffset?,
@@ -143,14 +142,13 @@ public data class RemoteRadialGradient(
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteRadialShader(
-    public val centerX: RemoteFloat,
-    public val centerY: RemoteFloat,
-    public val radius: RemoteFloat,
-    public val colors: List<RemoteColor>,
-    public val positions: List<RemoteFloat>?,
-    public val tileMode: RemoteTileMode,
+internal class RemoteRadialShader(
+    val centerX: RemoteFloat,
+    val centerY: RemoteFloat,
+    val radius: RemoteFloat,
+    val colors: List<RemoteColor>,
+    val positions: List<RemoteFloat>?,
+    val tileMode: RemoteTileMode,
 ) : RemoteShader() {
 
     override fun apply(creationState: RemoteComposeCreationState, paintBundle: PaintBundle) {

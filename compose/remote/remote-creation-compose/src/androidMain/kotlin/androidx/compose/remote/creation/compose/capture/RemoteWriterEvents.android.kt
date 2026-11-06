@@ -35,8 +35,7 @@ public class RemoteWriterEvents {
     private val pendingIntentList: MutableList<PendingIntent> = mutableListOf()
     private val lambdaMap: MutableIntObjectMap<() -> Unit> = MutableIntObjectMap()
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun storePendingIntent(pendingIntent: PendingIntent): Int {
+    internal fun storePendingIntent(pendingIntent: PendingIntent): Int {
         val existingIndex = pendingIntentList.indexOfFirst { it === pendingIntent }
         if (existingIndex != -1) {
             return existingIndex
@@ -58,8 +57,7 @@ public class RemoteWriterEvents {
                 }
             }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun storeLambda(id: Int, lambda: () -> Unit) {
+    internal fun storeLambda(id: Int, lambda: () -> Unit) {
         lambdaMap[id] = lambda
     }
 

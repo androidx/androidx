@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.creation.compose.painter
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteColor
@@ -27,8 +26,7 @@ import androidx.compose.remote.creation.compose.state.RemotePaint
  *
  * @param color The [RemoteColor] to draw.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteColorPainter(private val color: RemoteColor) : RemotePainter() {
+internal class RemoteColorPainter(private val color: RemoteColor) : RemotePainter() {
 
     override val intrinsicSize: RemoteSize? = null
 
@@ -40,7 +38,7 @@ public class RemoteColorPainter(private val color: RemoteColor) : RemotePainter(
 }
 
 /**
- * Creates a [RemoteColorPainter] from a [RemoteColor].
+ * Creates a [RemotePainter] that draws a [RemoteColor].
  *
  * @param color The [RemoteColor] to create the painter for.
  * @return a [RemotePainter] that draws [color]

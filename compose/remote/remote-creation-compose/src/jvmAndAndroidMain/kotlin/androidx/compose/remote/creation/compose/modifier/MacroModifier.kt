@@ -25,7 +25,6 @@ import androidx.compose.remote.creation.modifiers.RecordingModifier
 internal class IncludeMacroModifier(val id: Int, val args: Array<out RemoteInt>? = null) :
     RemoteModifier.Element {
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         val argIds = args?.map { it.id }?.toIntArray()
         return MacroCallModifier(id, argIds)

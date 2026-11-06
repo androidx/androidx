@@ -81,8 +81,7 @@ public fun rememberRemoteAnimatedVectorPainter(
  *
  * @return an [ImageVector] representing this snapshot
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteVectorSnapshot.toImageVector(): ImageVector {
+internal fun RemoteVectorSnapshot.toImageVector(): ImageVector {
     val builder =
         ImageVector.Builder(
             defaultWidth = width.dp,

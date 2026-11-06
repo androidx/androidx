@@ -301,9 +301,8 @@ public class RemoteLinearShader(
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
-public data class RemoteLinearGradient(
+internal data class RemoteLinearGradient(
     private val colors: List<RemoteColor>,
     private val stops: List<RemoteFloat>? = null,
     private val start: RemoteOffset?,

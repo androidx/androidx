@@ -13,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
 package androidx.compose.remote.creation.compose.capture
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.NonRestartableComposable
 
 @Composable
 @NonRestartableComposable
-public fun RemoteLog(
+internal fun RemoteLog(
     message: String,
     category: RcPlatformServices.LogCategory = RcPlatformServices.LogCategory.WARN,
 ) {
@@ -33,7 +30,7 @@ public fun RemoteLog(
 
 @Composable
 @NonRestartableComposable
-public fun LogTodo(message: String) {
+internal fun LogTodo(message: String) {
     LocalRemoteComposeCreationState.current.platform.log(
         RcPlatformServices.LogCategory.TODO,
         message,

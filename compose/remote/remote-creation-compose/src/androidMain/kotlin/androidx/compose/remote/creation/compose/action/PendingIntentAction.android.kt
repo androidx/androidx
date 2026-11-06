@@ -185,8 +185,7 @@ public class PendingIntentAction(
          *
          * @return the encoded [RemoteString] metadata, or `null` if [extras] is empty
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun encodeExtras(extras: List<Pair<String, RemoteString>>): RemoteString? {
+        internal fun encodeExtras(extras: List<Pair<String, RemoteString>>): RemoteString? {
             if (extras.isEmpty()) return null
             val header = extras.fastJoinToString("$KEY_SEPARATOR") { it.first } + HEADER_SEPARATOR
             var result: RemoteString = header.rs

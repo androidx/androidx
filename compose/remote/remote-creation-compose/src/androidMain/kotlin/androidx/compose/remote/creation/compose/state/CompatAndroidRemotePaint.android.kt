@@ -126,8 +126,7 @@ public open class CompatAndroidRemotePaint : AndroidPaint {
  *
  * @return a [RemotePaint] configured with this paint's properties
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun android.graphics.Paint.asRemotePaint(): RemotePaint {
+internal fun android.graphics.Paint.asRemotePaint(): RemotePaint {
     val compat = this as? CompatAndroidRemotePaint
     val remotePaint = StandardRemotePaint()
     remotePaint.isAntiAlias = isAntiAlias

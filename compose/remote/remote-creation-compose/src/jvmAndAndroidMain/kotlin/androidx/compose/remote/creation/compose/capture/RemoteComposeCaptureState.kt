@@ -148,8 +148,7 @@ public fun RemoteComposeCreationState(
 ): RemoteComposeCaptureState = RemoteComposeCaptureState(creationDisplayInfo, profile, writer)
 
 // Density and Size should be taken from Compose in this mode
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class NoRemoteCompose :
+internal class NoRemoteCompose :
     RemoteComposeCaptureState(
         creationDisplayInfo = RemoteCreationDisplayInfo(1, 1, 160, 1.0f),
         contentDescription = null,

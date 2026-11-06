@@ -27,7 +27,6 @@ import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.SolidBackgroundModifier
 
 internal data class BackgroundModifier(val color: RemoteColor) : RemoteModifier.Element {
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return if (color.hasConstantValue) {
             SolidBackgroundModifier(
