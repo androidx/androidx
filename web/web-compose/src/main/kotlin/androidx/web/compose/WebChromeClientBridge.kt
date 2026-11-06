@@ -18,7 +18,6 @@ package androidx.web.compose
 
 import android.view.View
 import android.webkit.WebChromeClient
-import androidx.annotation.RestrictTo
 import androidx.web.WebContent
 
 /**
@@ -26,56 +25,47 @@ import androidx.web.WebContent
  * via [WebSurface].
  *
  * Because presentation is managed by [WebSurface] in Compose, custom [View] fullscreen callbacks
- * are not supported on this class.
+ * are not supported by [WebSurface] and are deprecated on this class.
  *
  * @see WebViewBridge.setWebChromeClient
  * @see WebSurface
  * @see WebContent
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class WebChromeClientBridge : WebChromeClient() {
     @Deprecated(
         message = "Fullscreen custom Views are not supported by WebSurface.",
-        level = DeprecationLevel.ERROR,
+        level = DeprecationLevel.WARNING,
     )
-    public final override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
-        throw UnsupportedOperationException(
-            "Fullscreen custom Views are not supported by WebSurface."
-        )
+    override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
+        super.onShowCustomView(view, callback)
     }
 
     @Suppress("DEPRECATION")
     @Deprecated(
         message = "Fullscreen custom Views are not supported by WebSurface.",
-        level = DeprecationLevel.ERROR,
+        level = DeprecationLevel.WARNING,
     )
-    public final override fun onShowCustomView(
+    override fun onShowCustomView(
         view: View?,
         requestedOrientation: Int,
         callback: CustomViewCallback?,
     ) {
-        throw UnsupportedOperationException(
-            "Fullscreen custom Views are not supported by WebSurface."
-        )
+        super.onShowCustomView(view, requestedOrientation, callback)
     }
 
     @Deprecated(
         message = "Fullscreen custom Views are not supported by WebSurface.",
-        level = DeprecationLevel.ERROR,
+        level = DeprecationLevel.WARNING,
     )
-    public final override fun onHideCustomView() {
-        throw UnsupportedOperationException(
-            "Fullscreen custom Views are not supported by WebSurface."
-        )
+    override fun onHideCustomView() {
+        super.onHideCustomView()
     }
 
     @Deprecated(
         message = "Fullscreen custom Views are not supported by WebSurface.",
-        level = DeprecationLevel.ERROR,
+        level = DeprecationLevel.WARNING,
     )
-    public final override fun getVideoLoadingProgressView(): View? {
-        throw UnsupportedOperationException(
-            "Fullscreen custom Views are not supported by WebSurface."
-        )
+    override fun getVideoLoadingProgressView(): View? {
+        return super.getVideoLoadingProgressView()
     }
 }

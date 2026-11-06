@@ -63,7 +63,6 @@ class BenchmarkActivity : ComponentActivity() {
 }
 
 @Composable
-@Suppress("RestrictedApiAndroidX")
 private fun BenchmarkWebContent(useWebSurface: Boolean, modifier: Modifier = Modifier) {
     if (useWebSurface) {
         WebSurface(

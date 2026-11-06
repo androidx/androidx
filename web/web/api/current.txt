@@ -30,8 +30,10 @@ package androidx.web {
   public final class WebFeature {
     method public static boolean isFeatureSupported(String feature);
     property public static String WEB_CONTENT;
+    property public static String WEB_SURFACE;
     field public static final androidx.web.WebFeature INSTANCE;
     field public static final String WEB_CONTENT = "WEB_CONTENT";
+    field public static final String WEB_SURFACE = "WEB_SURFACE_V2";
   }
 
 }

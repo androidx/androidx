@@ -27,9 +27,7 @@ import android.graphics.Rect
 import android.graphics.RenderEffect
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
-import android.view.ActionMode
 import android.view.MotionEvent
-import android.view.OnReceiveContentListener
 import android.view.PointerIcon
 import android.view.View
 import android.view.ViewGroup
@@ -37,10 +35,8 @@ import android.view.ViewOutlineProvider
 import android.view.ViewPropertyAnimator
 import android.view.WindowInsetsAnimation
 import android.view.animation.Animation
-import android.view.contentcapture.ContentCaptureSession
 import android.webkit.WebChromeClient
 import androidx.annotation.RequiresApi
-import androidx.annotation.RestrictTo
 import androidx.compose.ui.Modifier
 import androidx.web.WebContent
 import androidx.web.WebContentView
@@ -59,7 +55,6 @@ import androidx.web.WebContentView
  * @see WebSurface
  * @see WebContent
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class WebViewBridge : WebContentView {
     public constructor(context: Context) : super(context)
 
@@ -79,14 +74,14 @@ public open class WebViewBridge : WebContentView {
 
     @Deprecated(
         message = "Use WebChromeClientBridge instead of WebChromeClient with WebViewBridge.",
-        level = DeprecationLevel.ERROR,
+        level = DeprecationLevel.WARNING,
     )
     override fun setWebChromeClient(client: WebChromeClient?) {
         super.setWebChromeClient(client)
     }
 
     // =========================================================================================
-    // 1. Deprecated View APIs that are already supported via Compose Modifiers or WebContent.
+    // Deprecated View APIs that are already supported via Compose Modifiers or WebContent.
     // =========================================================================================
 
     @Deprecated(
@@ -106,15 +101,6 @@ public open class WebViewBridge : WebContentView {
         attrs: AttributeSet?,
         defStyleAttr: Int,
     ) : super(context, attrs, defStyleAttr)
-
-    @Deprecated(
-        message =
-            "WebViewBridge lifecycle is managed by WebSurface and WebContent. Call WebContent.close() to permanently destroy the web engine.",
-        level = DeprecationLevel.WARNING,
-    )
-    override fun destroy() {
-        super.destroy()
-    }
 
     @Deprecated(
         message = "Use conditional composition instead of View visibility.",
@@ -1431,145 +1417,5 @@ public open class WebViewBridge : WebContentView {
     )
     override fun setNextClusterForwardId(nextClusterForwardId: Int) {
         super.setNextClusterForwardId(nextClusterForwardId)
-    }
-
-    // =========================================================================================
-    // 2. View APIs that currently DO work via the headless View, but NOT yet via Compose.
-    // TODO: Support programmatic scrolling, the nested scrolling opt-out, selection ActionMode,
-    // rich content, stylus handwriting, autofill, content capture, long press, context menus, and
-    // the page background color in WebSurface / WebContent and deprecate these methods.
-    // =========================================================================================
-
-    override fun scrollTo(x: Int, y: Int) {
-        super.scrollTo(x, y)
-    }
-
-    override fun scrollBy(x: Int, y: Int) {
-        super.scrollBy(x, y)
-    }
-
-    override fun setScrollX(value: Int) {
-        super.setScrollX(value)
-    }
-
-    override fun setScrollY(value: Int) {
-        super.setScrollY(value)
-    }
-
-    override fun canScrollHorizontally(direction: Int): Boolean {
-        return super.canScrollHorizontally(direction)
-    }
-
-    override fun canScrollVertically(direction: Int): Boolean {
-        return super.canScrollVertically(direction)
-    }
-
-    override fun pageUp(top: Boolean): Boolean {
-        return super.pageUp(top)
-    }
-
-    override fun pageDown(bottom: Boolean): Boolean {
-        return super.pageDown(bottom)
-    }
-
-    override fun flingScroll(vx: Int, vy: Int) {
-        super.flingScroll(vx, vy)
-    }
-
-    override fun setOnScrollChangeListener(l: OnScrollChangeListener?) {
-        super.setOnScrollChangeListener(l)
-    }
-
-    /**
-     * Sets whether the page takes part in nested scrolling when [WebSurface] presents this bridge,
-     * which it does by default.
-     *
-     * When enabled, the page gets the first claim on drags that start on it, and scrolling it
-     * didn't use goes to nested scroll parents. When disabled, parents get the first claim instead,
-     * like a [android.webkit.WebView] inside a [android.widget.ScrollView]: a scrollable parent
-     * takes a drag once it passes touch slop and the page gets a cancel, and only drags that no
-     * parent takes reach the page. As with a View child, the page still keeps gestures it asks its
-     * parents not to intercept, such as text selection drags. Disable it for a page that doesn't
-     * scroll itself, such as one sized to its content, so that its parents scroll without waiting
-     * for the page to report the scrolling it didn't use.
-     */
-    override fun setNestedScrollingEnabled(enabled: Boolean) {
-        super.setNestedScrollingEnabled(enabled)
-    }
-
-    @RequiresApi(31)
-    override fun setOnReceiveContentListener(
-        mimeTypes: Array<out String>?,
-        listener: OnReceiveContentListener?,
-    ) {
-        super.setOnReceiveContentListener(mimeTypes, listener)
-    }
-
-    override fun startActionMode(callback: ActionMode.Callback?): ActionMode? {
-        return super.startActionMode(callback)
-    }
-
-    override fun startActionMode(callback: ActionMode.Callback?, type: Int): ActionMode? {
-        return super.startActionMode(callback, type)
-    }
-
-    @RequiresApi(33)
-    override fun setAutoHandwritingEnabled(enabled: Boolean) {
-        super.setAutoHandwritingEnabled(enabled)
-    }
-
-    @RequiresApi(26)
-    override fun setImportantForAutofill(mode: Int) {
-        super.setImportantForAutofill(mode)
-    }
-
-    @RequiresApi(26)
-    override fun setAutofillHints(vararg autofillHints: String?) {
-        super.setAutofillHints(*autofillHints)
-    }
-
-    @RequiresApi(30)
-    override fun setImportantForContentCapture(mode: Int) {
-        super.setImportantForContentCapture(mode)
-    }
-
-    @RequiresApi(29)
-    override fun setContentCaptureSession(contentCaptureSession: ContentCaptureSession?) {
-        super.setContentCaptureSession(contentCaptureSession)
-    }
-
-    // Chromium offers long presses to the container View via performLongClick before handling them
-    // itself, so long click listeners and context menus work like they do on WebView.
-    override fun setOnLongClickListener(l: OnLongClickListener?) {
-        super.setOnLongClickListener(l)
-    }
-
-    override fun setLongClickable(longClickable: Boolean) {
-        super.setLongClickable(longClickable)
-    }
-
-    override fun performLongClick(): Boolean {
-        return super.performLongClick()
-    }
-
-    override fun performLongClick(x: Float, y: Float): Boolean {
-        return super.performLongClick(x, y)
-    }
-
-    override fun setOnCreateContextMenuListener(l: OnCreateContextMenuListener?) {
-        super.setOnCreateContextMenuListener(l)
-    }
-
-    override fun showContextMenu(): Boolean {
-        return super.showContextMenu()
-    }
-
-    override fun showContextMenu(x: Float, y: Float): Boolean {
-        return super.showContextMenu(x, y)
-    }
-
-    // On WebView this sets the page's base background color rather than the View background.
-    override fun setBackgroundColor(color: Int) {
-        super.setBackgroundColor(color)
     }
 }
