@@ -570,8 +570,8 @@ class XTypeTest {
                             XClassName.get("qux", "NotExistingType")
                         }
                     } else {
-                        // Generic error types are fixed in JDK 24, but we're not using that yet
-                        XClassName.get("", "<any>")
+                        XClassName.get("qux", "NotExistingType")
+                            .parametrizedBy(XTypeName.MUTABLE_LIST.parametrizedBy(XTypeName.STRING))
                     }
                 val sourceName = source.relativePath.substringBeforeLast('.').replace('/', '.')
                 val element = invocation.processingEnv.requireTypeElement(sourceName)
@@ -634,8 +634,8 @@ class XTypeTest {
                             XClassName.get("qux", "NotExistingType")
                         }
                     } else {
-                        // Generic error types are fixed in JDK 24, but we're not using that yet
-                        XClassName.get("", "<any>")
+                        XClassName.get("qux", "NotExistingType")
+                            .parametrizedBy(XTypeName.ANY_WILDCARD)
                     }
                 val sourceName = source.relativePath.substringBeforeLast('.').replace('/', '.')
                 val element = invocation.processingEnv.requireTypeElement(sourceName)
@@ -698,8 +698,12 @@ class XTypeTest {
                             XClassName.get("qux", "NotExistingType")
                         }
                     } else {
-                        // Generic error types are fixed in JDK 24, but we're not using that yet
-                        XClassName.get("", "<any>")
+                        XClassName.get("qux", "NotExistingType")
+                            .parametrizedBy(
+                                XTypeName.getProducerExtendsName(
+                                    XClassName.get("java.lang", "Number")
+                                )
+                            )
                     }
                 val sourceName = source.relativePath.substringBeforeLast('.').replace('/', '.')
                 val element = invocation.processingEnv.requireTypeElement(sourceName)
@@ -833,8 +837,7 @@ class XTypeTest {
                             XClassName.get("qux", "NotExistingType")
                         }
                     } else {
-                        // Generic error types are fixed in JDK 24, but we're not using that yet
-                        XClassName.get("", "<any>")
+                        XClassName.get("qux", "NotExistingType").parametrizedBy(XTypeName.STRING)
                     }
                 val listOfErrorTypeName =
                     if (source == javaSource) {
