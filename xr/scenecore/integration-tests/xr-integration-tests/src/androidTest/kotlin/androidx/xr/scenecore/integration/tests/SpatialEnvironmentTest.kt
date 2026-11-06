@@ -218,12 +218,12 @@ class SpatialEnvironmentTest {
             // environment, which may itself contain blue.
             env.setPreferredEnvironmentAndSettle(SpatialEnvironmentPreference(null, null))
             env.awaitPreferredEnvironmentActive(expected = true)
-            pollScreenshot("top half to not be blue", ::topHalfBlueFraction) {
+            pollScreenshot("sky hemisphere to not be blue", ::skyBlueFraction) {
                 it <= MAX_NOT_BLUE_FRACTION
             }
 
             env.setPreferredEnvironmentAndSettle(SpatialEnvironmentPreference(blueIbl, null))
-            pollScreenshot("top half to turn blue", ::topHalfBlueFraction) {
+            pollScreenshot("sky hemisphere to turn blue", ::skyBlueFraction) {
                 it >= MIN_BLUE_FRACTION
             }
         } finally {
@@ -569,11 +569,13 @@ class SpatialEnvironmentTest {
         }
 
     /**
-     * Returns the fraction of blue pixels in the top half of [screenshot] (the sky hemisphere). The
-     * screenshot is downscaled to [SAMPLE_WIDTH] pixels wide, keeping its aspect ratio, so that
-     * only a few pixels need to be classified.
+     * Returns the fraction of blue pixels in the sky hemisphere of [screenshot]. Both the top and
+     * bottom halves are evaluated and the larger fraction is returned so the check is independent
+     * of whether a physical headset is resting right-side up or upside down. The screenshot is
+     * downscaled to [SAMPLE_WIDTH] pixels wide, keeping its aspect ratio, so that only a few pixels
+     * need to be classified.
      */
-    private fun topHalfBlueFraction(screenshot: Bitmap): Float {
+    private fun skyBlueFraction(screenshot: Bitmap): Float {
         // Pixel access is not supported on hardware bitmaps.
         val source =
             if (screenshot.config == Bitmap.Config.HARDWARE) {
@@ -582,26 +584,39 @@ class SpatialEnvironmentTest {
                 screenshot
             }
         try {
-            val sampleHeight = (SAMPLE_WIDTH * source.height / source.width).coerceAtLeast(1)
+            val sampleHeight = (SAMPLE_WIDTH * source.height / source.width).coerceAtLeast(2)
             val sample = Bitmap.createScaledBitmap(source, SAMPLE_WIDTH, sampleHeight, true)
             val regionWidth = sample.width
-            val regionHeight = (sample.height / 2).coerceAtLeast(1)
-            val pixels = IntArray(regionWidth * regionHeight)
+            val halfHeight = (sample.height / 2).coerceAtLeast(1)
+            val topPixels = IntArray(regionWidth * halfHeight)
+            val bottomPixels = IntArray(regionWidth * (sample.height - halfHeight))
             try {
-                sample.getPixels(pixels, 0, regionWidth, 0, 0, regionWidth, regionHeight)
+                sample.getPixels(topPixels, 0, regionWidth, 0, 0, regionWidth, halfHeight)
+                sample.getPixels(
+                    bottomPixels,
+                    0,
+                    regionWidth,
+                    0,
+                    halfHeight,
+                    regionWidth,
+                    sample.height - halfHeight,
+                )
             } finally {
                 if (sample !== source) {
                     sample.recycle()
                 }
             }
             val hsv = FloatArray(3)
-            val bluePixels = pixels.count { pixel ->
-                Color.colorToHSV(pixel, hsv)
-                hsv[0] in BLUE_HUE_RANGE &&
-                    hsv[1] >= MIN_BLUE_SATURATION &&
-                    hsv[2] >= MIN_BLUE_BRIGHTNESS
-            }
-            return bluePixels.toFloat() / pixels.size
+            fun IntArray.blueFraction(): Float =
+                count { pixel ->
+                    Color.colorToHSV(pixel, hsv)
+                    hsv[0] in BLUE_HUE_RANGE &&
+                        hsv[1] >= MIN_BLUE_SATURATION &&
+                        hsv[2] >= MIN_BLUE_BRIGHTNESS
+                }
+                    .toFloat() / size
+
+            return maxOf(topPixels.blueFraction(), bottomPixels.blueFraction())
         } finally {
             if (source !== screenshot) {
                 source.recycle()
@@ -632,8 +647,13 @@ class SpatialEnvironmentTest {
         const val MIN_BLUE_SATURATION = 0.25f
         const val MIN_BLUE_BRIGHTNESS = 0.25f
 
-        /** Fractions of blue pixels for a screenshot region to count as blue or as not blue. */
-        const val MIN_BLUE_FRACTION = 0.5f
+        /**
+         * Fractions of blue pixels for a screenshot hemisphere to count as blue or as not blue. Set
+         * to 0.25f so narrow-FOV headsets (e.g. Aura with ±18° vertical FOV, where the horizon
+         * cloud band of BlueSkybox.zip occupies ~70% of the sky hemisphere at identity head pose)
+         * pass while keeping a wide margin above [MAX_NOT_BLUE_FRACTION].
+         */
+        const val MIN_BLUE_FRACTION = 0.25f
         const val MAX_NOT_BLUE_FRACTION = 0.1f
 
         /** Scene graph node that parents the active environment. */
