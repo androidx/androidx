@@ -26,20 +26,17 @@ import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.RecomposerInfo
 import androidx.compose.runtime.tooling.ComposeToolingApi
 import androidx.compose.runtime.tooling.CompositionData
-import androidx.compose.runtime.tooling.CompositionGroup
 import androidx.compose.runtime.tooling.CompositionObserver
 import androidx.compose.runtime.tooling.CompositionObserverHandle
 import androidx.compose.runtime.tooling.CompositionRegistrationObserver
 import androidx.compose.runtime.tooling.IdentifiableRecomposeScope
 import androidx.compose.runtime.tooling.ObservableComposition
-import androidx.compose.ui.inspection.RootsDetector
 import androidx.compose.ui.inspection.inspector.InlineClassConverter
 import androidx.compose.ui.inspection.inspector.RawParameter
 import androidx.compose.ui.inspection.util.AnchorMap
 import androidx.compose.ui.tooling.data.UiToolingDataApi
 import androidx.compose.ui.tooling.data.findParameters
 import androidx.inspection.ArtTooling
-import java.util.IdentityHashMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -75,7 +72,6 @@ internal class StateReadHandler(
     artTooling: ArtTooling,
     anchorMap: AnchorMap,
     private val inlineClassConverter: InlineClassConverter,
-    private val rootsDetector: RootsDetector,
 ) :
     RecompositionHandler<RecompositionDataWithStateReads>(
         artTooling,
@@ -87,15 +83,25 @@ internal class StateReadHandler(
     // Job used for observing state reads.
     @GuardedBy("lock") private var observerJob: Job? = null
 
+    // True while state reads are being observed. Updated under [lock].
+    // A composition pass that started before observation stopped keeps calling the observer, so the
+    // observer callbacks check this flag before recording anything.
+    @Volatile private var observingStateReads = false
+
     // The anchors of all the composable where state reads are being collected for.
-    @GuardedBy("lock") private val anchorsObserved = mutableSetOf<Any>()
+    // An empty set means all composables are observed.
+    // This is an immutable set that is replaced under [lock], but read without holding [lock]
+    // from the composition threads.
+    @Volatile private var anchorsObserved: Set<Any> = emptySet()
+
+    // The composition passes in progress on the current thread, with the innermost pass last.
+    // A composition may create a sub-composition while it is being composed, which will interleave
+    // the events from the 2 compositions on the same thread. Compositions from different
+    // recomposers may be composed concurrently on different threads.
+    // The list is only present on a thread while a composition is in progress on that thread.
+    private val compositionPasses = ThreadLocal<MutableList<CompositionPass>>()
 
     @GuardedBy("lock") private val cache = StateReadCache(counts)
-
-    // The root [CompositionData] by [ObservableComposition] lazily detected.
-    @GuardedBy("lock")
-    private val rootByObservableComposition =
-        IdentityHashMap<ObservableComposition, CompositionData>()
 
     // The recomposers being observed (for state reads)
     @GuardedBy("lock")
@@ -111,14 +117,9 @@ internal class StateReadHandler(
     // composition being composed.
     private val enteredAnchor = ThreadLocal<Any?>()
 
-    // The recomposing anchors and their parameterChangeMask for the current composition.
-    // The insertion order is used to find the last recomposing anchor, which ObjectIntMap lacks.
-    @Suppress("PrimitiveInCollection")
-    @GuardedBy("lock")
-    private val recompositions = LinkedHashMap<Any, Int>()
-
-    // Use the CompositionTracer to keep track of parameter changes.
-    @GuardedBy("lock") private var trackingParameterChanges = false
+    // True while parameter changes are tracked with the CompositionTracer. Updated under [lock].
+    // The composition passes are only needed for parameter changes, and are skipped otherwise.
+    @Volatile private var trackingParameterChanges = false
 
     // An observer to keep track of compositions
     private val observer =
@@ -131,58 +132,98 @@ internal class StateReadHandler(
                 synchronized(lock) { compositions.remove(composition)?.dispose() }
             }
 
-            override fun onBeginComposition(composition: ObservableComposition) {}
+            override fun onBeginComposition(composition: ObservableComposition) {
+                if (!trackingParameterChanges) {
+                    return
+                }
+                val passes =
+                    compositionPasses.get()
+                        ?: mutableListOf<CompositionPass>().also { compositionPasses.set(it) }
+                passes.add(CompositionPass(composition, anchorMap))
+            }
 
             override fun onScopeEnter(scope: RecomposeScope) {
-                (scope as? IdentifiableRecomposeScope)?.identity?.let { enteredAnchor.set(it) }
+                val anchor = scope.identity
+                anchor?.let { enteredAnchor.set(it) }
+                // Note: A pass only exists if parameter changes were tracked when it started.
+                currentCompositionPass()?.enterScope(anchor)
             }
 
             override fun onReadInScope(scope: RecomposeScope, value: Any) {
+                val anchor = scope.identity ?: return
                 synchronized(lock) {
-                    val anchor = (scope as? IdentifiableRecomposeScope)?.identity ?: return
-                    // For now: filter by the composable.
-                    // Possible optimization: create only an observer for this scope.
-                    if (anchorsObserved.isNotEmpty() && !anchorsObserved.contains(anchor)) {
-                        return
+                    if (isObserved(anchor)) {
+                        cache.addStateRead(anchor, value, Exception())
                     }
-                    cache.addStateRead(anchor, value, Exception())
                 }
             }
 
             override fun onScopeExit(scope: RecomposeScope) {
                 enteredAnchor.remove()
+                currentCompositionPass()?.exitScope()
             }
 
             override fun onEndComposition(composition: ObservableComposition) {
+                val pass = removePass(composition) ?: return
+                if (!observingStateReads || pass.dirtyBits.isEmpty() || pass.hasOpenScopes) {
+                    // Nothing to report, or the composition was aborted by an exception.
+                    return
+                }
                 // The recomposition is done.
                 // We can now read the parameter values for all the registered parameter changes.
-                synchronized(lock) {
-                    registerChangedParameterValues(composition)
-                    recompositions.clear()
+                // This is done outside of [lock], since it uses reflection.
+                val changes = findChangedParameterValues(pass)
+                if (changes.isNotEmpty()) {
+                    synchronized(lock) {
+                        changes.forEach { (anchor, parameterChanges) ->
+                            if (isObserved(anchor)) {
+                                cache.addParameterChanges(anchor, parameterChanges)
+                            }
+                        }
+                    }
                 }
             }
 
             override fun onScopeInvalidated(scope: RecomposeScope, value: Any?) {
+                val anchor = scope.identity ?: return
                 synchronized(lock) {
-                    val anchor = (scope as? IdentifiableRecomposeScope)?.identity ?: return
-                    // Again: filter by the composable.
-                    if (!isObserving(anchor)) {
-                        return
+                    if (isObserved(anchor)) {
+                        cache.addInvalidation(anchor, value)
                     }
-                    cache.addInvalidation(anchor, value)
                 }
             }
 
             override fun onScopeDisposed(scope: RecomposeScope) {}
 
             override fun traceEventStart(key: Int, dirty1: Int, dirty2: Int, info: String) {
-                // Detect parameter changes, but do not read the parameter values yet.
-                registerParameterChanges(key, dirty1, dirty2)
+                currentCompositionPass()?.traceEventStart(key, dirty1, dirty2)
             }
 
             override fun traceEventEnd() {}
 
             override fun isTraceInProgress(): Boolean = true
+
+            // The anchor of this scope if it is being observed, otherwise null.
+            private val RecomposeScope.identity: Any?
+                get() {
+                    val anchor = (this as? IdentifiableRecomposeScope)?.identity ?: return null
+                    return anchor.takeIf { isObserved(it) }
+                }
+
+            private fun removePass(composition: ObservableComposition): CompositionPass? {
+                val passes = compositionPasses.get() ?: return null
+                // The runtime calls onEndComposition in a finally block, so the pass for this
+                // composition is always at the top of the stack.
+                if (passes.lastOrNull()?.composition !== composition) {
+                    return null
+                }
+                val pass = passes.removeAt(passes.lastIndex)
+                if (passes.isEmpty()) {
+                    // Do not keep the list on threads that are no longer composing.
+                    compositionPasses.remove()
+                }
+                return pass
+            }
         }
 
     // Apply the [StateReadSettings] and recomposition settings received from Studio.
@@ -198,7 +239,7 @@ internal class StateReadHandler(
                 cache.clear()
             }
             super.changeCollectionMode(includeRecomposeCounts, keepRecomposeCounts)
-            val observingStateReads =
+            val newObservingStateReads =
                 includeRecomposeCounts &&
                     when (settings.methodCase) {
                         MethodCase.BY_ID -> settings.byId.composableToObserveList.isNotEmpty()
@@ -206,28 +247,32 @@ internal class StateReadHandler(
                         else -> false
                     }
             val includeParameterChanges =
-                observingStateReads &&
+                newObservingStateReads &&
                     when (settings.methodCase) {
                         MethodCase.BY_ID -> settings.byId.includeParameterChanges
                         MethodCase.ALL -> settings.all.includeParameterChanges
                         else -> false
                     }
-            if (observingStateReads != (observerJob != null)) {
-                if (observingStateReads) {
+            if (newObservingStateReads != (observerJob != null)) {
+                if (newObservingStateReads) {
                     startObservingStateReads(includeParameterChanges)
                 } else {
                     stopObservingStateReads()
                 }
+            } else if (newObservingStateReads) {
+                // Parameter changes may be turned on or off while observing state reads.
+                trackParameterChanges(includeParameterChanges)
             }
-            if (!observingStateReads || settings.methodCase == MethodCase.ALL) {
-                anchorsObserved.clear()
+            if (!newObservingStateReads || settings.methodCase == MethodCase.ALL) {
+                anchorsObserved = emptySet()
             } else {
                 val anchorsToObserve =
-                    settings.byId.composableToObserveList.mapNotNull { anchorMap[it] }
+                    settings.byId.composableToObserveList.mapNotNullTo(HashSet()) {
+                        anchorMap[it]
+                    }
                 if (anchorsToObserve != anchorsObserved) {
-                    anchorsObserved.clear()
-                    anchorsObserved.addAll(anchorsToObserve)
-                    cache.removeAllExcept(anchorsObserved)
+                    anchorsObserved = anchorsToObserve
+                    cache.removeAllExcept(anchorsToObserve)
                 }
             }
             cache.maxStateReads =
@@ -242,21 +287,26 @@ internal class StateReadHandler(
         }
     }
 
-    override fun incrementRecompositionCount(anchor: Any): RecompositionDataWithStateReads? {
-        // The scope is entered by our observer right before this hook is called, unless the
+    override fun incrementRecompositionCount(
+        composer: Composer,
+        anchor: Any,
+    ): RecompositionDataWithStateReads? {
+        if (!isObserved(anchor)) {
+            return super.incrementRecompositionCount(composer, anchor)
+        }
+        // This is done outside of [lock], since only the current thread uses these.
+        recordCompositionData(composer)
+        // The scope is entered by the observer right before this hook is called, unless the
         // observer is not attached (yet) to the composition being composed.
         val entered = enteredAnchor.get() === anchor
         enteredAnchor.remove()
         synchronized(lock) {
-            val data = super.incrementRecompositionCount(anchor) ?: return null
-            if (isObserving(anchor)) {
-                if (entered) {
-                    // Let the client tell this recomposition apart from one that did not happen
-                    // yet. Not when this recomposition is not observed, since its state reads are
-                    // then not recorded.
-                    data.markObserved()
-                }
-                recompositions[anchor] = 0
+            val data = super.incrementRecompositionCount(composer, anchor) ?: return null
+            if (entered && isObserved(anchor)) {
+                // Let the client tell this recomposition apart from one that did not happen yet.
+                // Not when this recomposition is not observed, since its state reads are then not
+                // recorded.
+                data.markObserved()
             }
             return data
         }
@@ -266,6 +316,38 @@ internal class StateReadHandler(
         super.dispose()
         stopObservingStateReads()
         scope.cancel()
+    }
+
+    /**
+     * Record the data of the composition being composed by [composer] in the current composition
+     * pass. This is called from a hook on the composition thread, which avoids looking for the
+     * composition among the composition roots of the Android Views on the main thread.
+     */
+    private fun recordCompositionData(composer: Composer) {
+        if (!trackingParameterChanges) {
+            return
+        }
+        val pass = currentCompositionPass() ?: return
+        if (pass.compositionData == null && pass.hasOpenScopes) {
+            pass.compositionData = composer.compositionData
+        }
+    }
+
+    private fun currentCompositionPass(): CompositionPass? = compositionPasses.get()?.lastOrNull()
+
+    /**
+     * Return true if the composable with [anchor] is being observed.
+     *
+     * This is called from the composition threads without holding [lock]. Observation may stop or
+     * change right after this returns true, so the observer callbacks call this again while holding
+     * [lock] before recording anything.
+     */
+    private fun isObserved(anchor: Any): Boolean {
+        if (!observingStateReads) {
+            return false
+        }
+        val observed = anchorsObserved
+        return observed.isEmpty() || anchor in observed
     }
 
     /**
@@ -298,101 +380,51 @@ internal class StateReadHandler(
     }
 
     /** Return the number of state reads purged from the state read cache. */
-    fun getPurgedStateReadCount(): Long = cache.purgedStateReads
+    fun getPurgedStateReadCount(): Long = synchronized(lock) { cache.purgedStateReads }
 
     /**
-     * Register the parameters that have changed.
+     * Find the parameter values of the changed parameters in a composition that just completed a
+     * composition [pass].
      *
-     * At this point the parameter value has not been updated in the SlotTree. Instead, we will
-     * compute a compact parameter change mask and store it in the recomposition data.
+     * This is called on the composition thread without holding [lock].
+     *
+     * @return the changed parameters by anchor
      */
-    private fun registerParameterChanges(key: Int, dirty1: Int, dirty2: Int) {
-        synchronized(lock) {
-            val changes = findChanges(dirty1, dirty2)
-            if (changes == 0 || recompositions.isEmpty()) return
-            val anchor = recompositions.keys.last()
-            if (anchorMap.getKey(anchor) == key) {
-                recompositions[anchor] = changes
-            }
-        }
-    }
-
     @OptIn(UiToolingDataApi::class)
-    private fun registerChangedParameterValues(composition: ObservableComposition) {
-        synchronized(lock) {
-            for ((anchor, changes) in recompositions) {
-                if (changes == 0 || !isObserving(anchor)) {
-                    // Observation may have stopped, or changed, during the composition.
-                    continue
-                }
-                val parameters = findGroup(composition, anchor)?.findParameters()
-                if (parameters.isNullOrEmpty()) {
-                    continue
-                }
+    private fun findChangedParameterValues(
+        pass: CompositionPass
+    ): List<Pair<Any, List<RawParameter>>> {
+        val compositionData = pass.compositionData ?: return emptyList()
+        val result = mutableListOf<Pair<Any, List<RawParameter>>>()
+        for ((anchor, candidates) in pass.dirtyBits) {
+            try {
+                val group = compositionData.find(anchor) ?: continue
+                val groupKey = group.key as? Int ?: continue
+                val changes = candidates.firstOrNull { it.key == groupKey }?.changes ?: continue
                 val parameterChanges = mutableListOf<RawParameter>()
                 var bitMask = 1
-                parameters.forEach { parameter ->
+                group.findParameters().forEach { parameter ->
                     if (changes and bitMask != 0) {
                         parameterChanges.add(inlineClassConverter.toRawParameter(parameter))
                     }
                     bitMask = bitMask shl 1
                 }
                 if (parameterChanges.isNotEmpty()) {
-                    cache.addParameterChanges(anchor, parameterChanges)
+                    result.add(anchor to parameterChanges)
                 }
+            } catch (_: Exception) {
+                // Never let the inspector throw from the composition. This may happen if the
+                // composition was aborted by an exception after the anchor was recorded.
+                // TODO(b/562965619): Report the exception to the client.
             }
         }
+        return result
     }
-
-    private fun findGroup(composition: ObservableComposition, anchor: Any): CompositionGroup? {
-        val root = rootByObservableComposition[composition]
-        if (root != null) return root.find(anchor)
-        rootsDetector.getAllCompositionRoots().forEach { foundRoot ->
-            val group = foundRoot.find(anchor)
-            if (group != null) {
-                rootByObservableComposition[composition] = foundRoot
-                return group
-            }
-        }
-        return null
-    }
-
-    private fun findChanges(dirty1: Int, dirty2: Int): Int {
-        return convertDirtyBits(dirty1) or
-            (convertDirtyBits(dirty2) shl NUMBER_OF_CHANGE_MASKS_PER_DIRTY_VARIABLE)
-    }
-
-    private fun convertDirtyBits(dirty: Int): Int {
-        var changeBit = 1
-        var changes = 0
-        var bits = dirty shr 1
-        var index = 0
-        while (index < NUMBER_OF_CHANGE_MASKS_PER_DIRTY_VARIABLE && bits != 0) {
-            // Each parameter uses 3 (BITS_IN_CHANGE_MASK) bits.
-            // Status is in the lower 2 bits of the 3-bit slot, starting at bit 1.
-            // A value of 2 means the value changed.
-            val status = bits and CHANGED_BIT_MASK
-            if (status == 2) {
-                changes = changes or changeBit
-            }
-            bits = bits shr BITS_IN_CHANGE_MASK
-            changeBit = changeBit shl 1
-            index++
-        }
-        return changes
-    }
-
-    private fun isObserving(anchor: Any): Boolean =
-        observerJob != null && (anchorsObserved.isEmpty() || anchorsObserved.contains(anchor))
 
     private fun startObservingStateReads(includeParameterChanges: Boolean) {
         synchronized(lock) {
-            if (includeParameterChanges) {
-                Composer.setTracer(observer)
-            } else if (trackingParameterChanges) {
-                Composer.setTracer(null)
-            }
-            trackingParameterChanges = includeParameterChanges
+            trackParameterChanges(includeParameterChanges)
+            observingStateReads = true
 
             if (observerJob != null) {
                 // We are already observing state reads
@@ -420,12 +452,20 @@ internal class StateReadHandler(
         }
     }
 
+    @GuardedBy("lock")
+    private fun trackParameterChanges(includeParameterChanges: Boolean) {
+        if (includeParameterChanges) {
+            Composer.setTracer(observer)
+        } else if (trackingParameterChanges) {
+            Composer.setTracer(null)
+        }
+        trackingParameterChanges = includeParameterChanges
+    }
+
     private fun stopObservingStateReads() {
         synchronized(lock) {
-            if (trackingParameterChanges) {
-                Composer.setTracer(null)
-                trackingParameterChanges = false
-            }
+            observingStateReads = false
+            trackParameterChanges(false)
             // Just return if we are not currently observing state reads
             val job = observerJob ?: return
             job.cancel()
@@ -434,8 +474,120 @@ internal class StateReadHandler(
             compositions.clear()
             recomposers.values.forEach { it.dispose() }
             recomposers.clear()
-            recompositions.clear()
             cache.clear()
+        }
+    }
+
+    /**
+     * Holds the changed-parameter bitmask recorded from [CompositionTracer.traceEventStart].
+     *
+     * @param key group key passed to [CompositionTracer.traceEventStart]
+     * @param changes bitmask of the changed parameters, where bit `i` is set when parameter `i`
+     *   changed
+     */
+    private data class DirtyBits(val key: Int, val changes: Int)
+
+    /**
+     * The data collected on the composition thread during a single composition pass of a
+     * composition, i.e. between [CompositionObserver.onBeginComposition] and
+     * [CompositionObserver.onEndComposition].
+     *
+     * Instances are confined to the thread doing the composition and do not need [lock].
+     */
+    private class CompositionPass(
+        val composition: ObservableComposition,
+        private val anchorMap: AnchorMap,
+    ) {
+        // The anchors of the entered scopes with the innermost scope last.
+        // A null value is used for scopes that are not being observed.
+        private val scopeAnchors = mutableListOf<Any?>()
+
+        // True if [traceEventStart] was already received for the innermost scope.
+        private var innermostScopeTraced = false
+
+        /**
+         * The candidate parameter changes by anchor of the composables recomposed in this pass.
+         * Only candidates with parameter changes are kept. The candidate with the key of the group
+         * of the anchor holds the parameter changes of the composable.
+         */
+        val dirtyBits = hashMapOf<Any, MutableList<DirtyBits>>()
+
+        /**
+         * The data of the composition being composed in this pass. This is used to find the
+         * parameter values at the end of the pass on the composition thread.
+         */
+        var compositionData: CompositionData? = null
+
+        /** True if a scope was entered and not exited, i.e. the pass was aborted. */
+        val hasOpenScopes: Boolean
+            get() = scopeAnchors.isNotEmpty()
+
+        fun enterScope(anchor: Any?) {
+            scopeAnchors.add(anchor)
+            innermostScopeTraced = false
+        }
+
+        fun exitScope() {
+            if (scopeAnchors.isNotEmpty()) {
+                scopeAnchors.removeAt(scopeAnchors.lastIndex)
+            }
+            // The parent scope has already been traced before any child scope was entered.
+            // Do not attribute trace events from non-restartable composables to the parent.
+            innermostScopeTraced = true
+        }
+
+        fun traceEventStart(key: Int, dirty1: Int, dirty2: Int) {
+            if (innermostScopeTraced) {
+                return
+            }
+            val anchor = scopeAnchors.lastOrNull() ?: return
+            // A non-restartable composable (e.g. called from a default parameter expression)
+            // may be traced before the composable that owns the innermost scope.
+            // When the key of the innermost scope is known, skip events from other composables.
+            // When the key is not known yet (e.g. new composables, composables in a sub-composition
+            // without layout nodes, or hidden system composables), keep all candidates with changes
+            // and match the key of the group when the parameters are read at the end of the
+            // composition.
+            val expectedKey = anchorMap.getKey(anchor)
+            if (expectedKey != 0) {
+                if (expectedKey != key) {
+                    return
+                }
+                innermostScopeTraced = true
+            }
+            val changes = findChanges(dirty1, dirty2)
+            if (changes == 0) {
+                return
+            }
+            val candidates = dirtyBits.getOrPut(anchor) { mutableListOf() }
+            if (candidates.none { it.key == key }) {
+                candidates.add(DirtyBits(key, changes))
+            }
+        }
+
+        private fun findChanges(dirty1: Int, dirty2: Int): Int {
+            return convertDirtyBits(dirty1) or
+                (convertDirtyBits(dirty2) shl NUMBER_OF_CHANGE_MASKS_PER_DIRTY_VARIABLE)
+        }
+
+        private fun convertDirtyBits(dirty: Int): Int {
+            var changeBit = 1
+            var changes = 0
+            var bits = dirty shr 1
+            var index = 0
+            while (index < NUMBER_OF_CHANGE_MASKS_PER_DIRTY_VARIABLE && bits != 0) {
+                // Each parameter uses 3 (BITS_IN_CHANGE_MASK) bits.
+                // Status is in the lower 2 bits of the 3-bit slot, starting at bit 1.
+                // A value of 2 means the value changed.
+                val status = bits and CHANGED_BIT_MASK
+                if (status == 2) {
+                    changes = changes or changeBit
+                }
+                bits = bits shr BITS_IN_CHANGE_MASK
+                changeBit = changeBit shl 1
+                index++
+            }
+            return changes
         }
     }
 }

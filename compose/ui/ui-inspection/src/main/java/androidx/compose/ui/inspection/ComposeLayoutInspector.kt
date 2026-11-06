@@ -132,7 +132,7 @@ class ComposeLayoutInspector(
     private val inlineClassConverter = InlineClassConverter()
     private val layoutInspectorTree = LayoutInspectorTree(anchorMap, inlineClassConverter)
     private val recompositionHandler =
-        StateReadHandler(environment.artTooling(), anchorMap, inlineClassConverter, rootsDetector)
+        StateReadHandler(environment.artTooling(), anchorMap, inlineClassConverter)
     private var delayParameterExtractions = false
     // Reduce the protobuf nesting of ComposableNode by storing nested nodes with only 1 child each
     // as children under the top node. This limits the stack used when computing the protobuf size.

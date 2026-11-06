@@ -54,7 +54,7 @@ internal open class RecompositionHandler<T : RecompositionData>(
     }
 
     open fun dispose() {
-        counts.clear()
+        synchronized(lock) { counts.clear() }
         currentHandler = null
     }
 
@@ -101,10 +101,10 @@ internal open class RecompositionHandler<T : RecompositionData>(
         }
     }
 
-    // Increment the recomposition count.
-    // Adjust the state reads based on the max number of recompositions with state reads
-    // the agent is supposed to maintain.
-    open fun incrementRecompositionCount(anchor: Any): T? {
+    // Increment the recomposition count of the composable with [anchor].
+    // This is called from a hook on the composition thread when [composer] started its restart
+    // group.
+    open fun incrementRecompositionCount(composer: Composer, anchor: Any): T? {
         synchronized(lock) {
             if (collectingRecompositionCounts) {
                 val data = counts.getOrPut(anchor, createRecompositionData)
@@ -143,7 +143,7 @@ private fun installHooks(artTooling: ArtTooling) {
         artTooling.registerExitHook(composer, START_RESTART_GROUP) { composer: Composer ->
             currentHandler?.hasNewRecompositions = true
             composer.recomposeScopeIdentity?.let { anchor ->
-                currentHandler?.incrementRecompositionCount(anchor)
+                currentHandler?.incrementRecompositionCount(composer, anchor)
             }
             composer
         }
