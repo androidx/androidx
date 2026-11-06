@@ -326,6 +326,29 @@ package androidx.compose.remote.creation.compose.layout {
     property public androidx.compose.remote.creation.compose.state.RemoteFloat width;
   }
 
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class RemoteContentScale {
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.layout.RemoteContentScale! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.compose.remote.creation.compose.layout.RemoteContentScale.Companion Companion;
+  }
+
+  public static final class RemoteContentScale.Companion {
+    method @BytecodeOnly public int getCrop-hNhX1dw();
+    method @BytecodeOnly public int getFillBounds-hNhX1dw();
+    method @BytecodeOnly public int getFillHeight-hNhX1dw();
+    method @BytecodeOnly public int getFillWidth-hNhX1dw();
+    method @BytecodeOnly public int getFit-hNhX1dw();
+    method @BytecodeOnly public int getInside-hNhX1dw();
+    method @BytecodeOnly public int getNone-hNhX1dw();
+    property public androidx.compose.remote.creation.compose.layout.RemoteContentScale Crop;
+    property public androidx.compose.remote.creation.compose.layout.RemoteContentScale FillBounds;
+    property public androidx.compose.remote.creation.compose.layout.RemoteContentScale FillHeight;
+    property public androidx.compose.remote.creation.compose.layout.RemoteContentScale FillWidth;
+    property public androidx.compose.remote.creation.compose.layout.RemoteContentScale Fit;
+    property public androidx.compose.remote.creation.compose.layout.RemoteContentScale Inside;
+    property public androidx.compose.remote.creation.compose.layout.RemoteContentScale None;
+  }
+
   public class RemoteDrawScope implements androidx.compose.remote.creation.compose.state.RemoteStateScope {
     method public final void drawArc(androidx.compose.remote.creation.compose.state.RemotePaint? paint, androidx.compose.remote.creation.compose.state.RemoteFloat startAngle, androidx.compose.remote.creation.compose.state.RemoteFloat sweepAngle, boolean useCenter, optional androidx.compose.remote.creation.compose.layout.RemoteOffset topLeft, optional androidx.compose.remote.creation.compose.layout.RemoteSize size);
     method @BytecodeOnly public static void drawArc$default(androidx.compose.remote.creation.compose.layout.RemoteDrawScope!, androidx.compose.remote.creation.compose.state.RemotePaint!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, boolean, androidx.compose.remote.creation.compose.layout.RemoteOffset!, androidx.compose.remote.creation.compose.layout.RemoteSize!, int, Object!);
@@ -1108,6 +1131,21 @@ package androidx.compose.remote.creation.compose.state {
     property public static androidx.compose.remote.creation.compose.state.RemoteColor androidx.compose.ui.graphics.Color.rc;
   }
 
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class RemoteCompositingStrategy {
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteCompositingStrategy! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.compose.remote.creation.compose.state.RemoteCompositingStrategy.Companion Companion;
+  }
+
+  public static final class RemoteCompositingStrategy.Companion {
+    method @BytecodeOnly public int getAuto-5qfakAM();
+    method @BytecodeOnly public int getModulateAlpha-5qfakAM();
+    method @BytecodeOnly public int getOffscreen-5qfakAM();
+    property public androidx.compose.remote.creation.compose.state.RemoteCompositingStrategy Auto;
+    property public androidx.compose.remote.creation.compose.state.RemoteCompositingStrategy ModulateAlpha;
+    property public androidx.compose.remote.creation.compose.state.RemoteCompositingStrategy Offscreen;
+  }
+
   public final class RemoteDpComposeKt {
     method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteDp RemoteDp(androidx.compose.ui.unit.Dp value);
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteDp RemoteDp-0680j_4(float);
@@ -1216,6 +1254,19 @@ package androidx.compose.remote.creation.compose.state {
     method @BytecodeOnly public int getStroke-_ZYGA9Q();
     property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.state.RemotePaintingStyle Fill;
     property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.state.RemotePaintingStyle Stroke;
+  }
+
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class RemotePathFillType {
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemotePathFillType! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.compose.remote.creation.compose.state.RemotePathFillType.Companion Companion;
+  }
+
+  public static final class RemotePathFillType.Companion {
+    method @BytecodeOnly public int getEvenOdd-Y7Jnevs();
+    method @BytecodeOnly public int getNonZero-Y7Jnevs();
+    property public androidx.compose.remote.creation.compose.state.RemotePathFillType EvenOdd;
+    property public androidx.compose.remote.creation.compose.state.RemotePathFillType NonZero;
   }
 
   public final class RemoteStateKt {
@@ -1488,6 +1539,25 @@ package androidx.compose.remote.creation.compose.text {
     property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteTextDecoration LineThrough;
     property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteTextDecoration None;
     property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteTextDecoration Underline;
+  }
+
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class RemoteTextOverflow {
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.text.RemoteTextOverflow! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.compose.remote.creation.compose.text.RemoteTextOverflow.Companion Companion;
+  }
+
+  public static final class RemoteTextOverflow.Companion {
+    method @BytecodeOnly public int getClip-W-PLe1g();
+    method @BytecodeOnly public int getEllipsis-W-PLe1g();
+    method @BytecodeOnly public int getMiddleEllipsis-W-PLe1g();
+    method @BytecodeOnly public int getStartEllipsis-W-PLe1g();
+    method @BytecodeOnly public int getVisible-W-PLe1g();
+    property public androidx.compose.remote.creation.compose.text.RemoteTextOverflow Clip;
+    property public androidx.compose.remote.creation.compose.text.RemoteTextOverflow Ellipsis;
+    property public androidx.compose.remote.creation.compose.text.RemoteTextOverflow MiddleEllipsis;
+    property public androidx.compose.remote.creation.compose.text.RemoteTextOverflow StartEllipsis;
+    property public androidx.compose.remote.creation.compose.text.RemoteTextOverflow Visible;
   }
 
   @androidx.compose.runtime.Immutable public final class RemoteTextStyle {

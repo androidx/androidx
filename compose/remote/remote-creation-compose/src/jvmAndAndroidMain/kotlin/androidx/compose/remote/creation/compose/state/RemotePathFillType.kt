@@ -16,12 +16,10 @@
 
 package androidx.compose.remote.creation.compose.state
 
-import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Immutable
 import kotlin.jvm.JvmInline
 
 /** Rule used to determine how the interior of a path is calculated. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
 @JvmInline
 public value class RemotePathFillType internal constructor(internal val value: Int) {
