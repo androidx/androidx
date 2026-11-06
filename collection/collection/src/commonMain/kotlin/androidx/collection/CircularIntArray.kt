@@ -13,10 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:JvmName("CircularIntArrayKt")
+
 package androidx.collection
 
 import androidx.collection.CollectionPlatformUtils.createIndexOutOfBoundsException
 import androidx.collection.internal.requirePrecondition
+import kotlin.jvm.JvmName
 import kotlin.jvm.JvmOverloads
 
 /**
@@ -208,4 +212,61 @@ public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int 
      * @return `true` if [size] is 0.
      */
     public fun isEmpty(): Boolean = head == tail
+
+    /**
+     * Returns `true` if [size] is not 0.
+     *
+     * @return `true` if [size] is not 0.
+     */
+    public fun isNotEmpty(): Boolean = head != tail
+
+    /** Returns the last valid index in the [CircularIntArray], or -1 if empty. */
+    public inline val lastIndex: Int
+        get() = size() - 1
+
+    /** Returns an [IntRange] of valid indices for this [CircularIntArray]. */
+    public inline val indices: IntRange
+        get() = 0 until size()
+
+    /**
+     * Returns `true` if [element] is present in the [CircularIntArray].
+     *
+     * @param element [Int] to search for.
+     * @return `true` if [element] is present in the array.
+     */
+    public operator fun contains(element: Int): Boolean = indexOf(element) >= 0
+
+    /**
+     * Returns the index of the first occurrence of [element] in the [CircularIntArray], or -1 if
+     * the element is not found.
+     *
+     * @param element [Int] to search for.
+     * @return The 0-based index of the first occurrence, or -1 if not found.
+     */
+    public fun indexOf(element: Int): Int {
+        val mask = capacityBitmask
+        var i = head
+        while (i != tail) {
+            if (elements[i] == element) {
+                return (i - head) and mask
+            }
+            i = (i + 1) and mask
+        }
+        return -1
+    }
+
+    /**
+     * Performs the given [action] on each element in the [CircularIntArray].
+     *
+     * @param action Action to execute on each integer.
+     */
+    public inline fun forEach(action: (element: Int) -> Unit) {
+        for (i in 0 until size()) {
+            action(get(i))
+        }
+    }
 }
+
+/** Returns the number of elements in the [CircularIntArray]. */
+public inline val CircularIntArray.size: Int
+    get() = size()
