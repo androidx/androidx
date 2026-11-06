@@ -77,6 +77,7 @@ internal fun measureLazyList(
     graphicsContext: GraphicsContext,
     stickyItemsPlacement: StickyItemsPlacement?,
     shouldRunItemAnimation: Boolean,
+    layoutDirection: LayoutDirection,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult,
     prefetchState: LazyLayoutPrefetchState?,
     @Suppress("DEPRECATION") prefetchStrategy: LazyListPrefetchStrategy?,
@@ -105,6 +106,7 @@ internal fun measureLazyList(
             graphicsContext = graphicsContext,
             shouldRunItemAnimation = true,
             reverseLayout = reverseLayout,
+            layoutDirection = layoutDirection,
         )
 
         if (!isLookingAhead) {
@@ -394,6 +396,7 @@ internal fun measureLazyList(
             layoutMaxOffset = currentMainAxisOffset,
             graphicsContext = graphicsContext,
             shouldRunItemAnimation = shouldRunItemAnimation,
+            layoutDirection = layoutDirection,
             reverseLayout = reverseLayout,
         )
 

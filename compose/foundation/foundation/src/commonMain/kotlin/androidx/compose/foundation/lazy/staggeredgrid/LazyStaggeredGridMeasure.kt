@@ -25,6 +25,7 @@ import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasuredItem
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasuredItemProvider
+import androidx.compose.foundation.lazy.layout.mirroredForRtl
 import androidx.compose.foundation.lazy.layout.placeablesCount
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridLaneInfo.Companion.LaneFullSpan
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridLaneInfo.Companion.LaneUnset
@@ -34,6 +35,7 @@ import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.util.fastAny
@@ -297,6 +299,7 @@ private fun LazyStaggeredGridMeasureContext.measure(
                 layoutMaxOffset = 0,
                 coroutineScope = coroutineScope,
                 graphicsContext = graphicsContext,
+                layoutDirection = layoutDirection,
                 shouldRunItemAnimation = true,
                 reverseLayout = reverseLayout,
             )
@@ -952,6 +955,7 @@ private fun LazyStaggeredGridMeasureContext.measure(
             layoutMaxOffset = currentItemOffsets.max() + contentPadding,
             coroutineScope = coroutineScope,
             graphicsContext = graphicsContext,
+            layoutDirection = layoutDirection,
             shouldRunItemAnimation = true,
             reverseLayout = reverseLayout,
         )
@@ -993,7 +997,14 @@ private fun LazyStaggeredGridMeasureContext.measure(
                     // animating, to avoid a chasing effect to scrolling.
                     withMotionFrameOfReferencePlacement {
                         positionedItems.fastForEach { item ->
-                            item.place(scope = this, reverseLayout, contentOffset, isLookingAhead)
+                            item.place(
+                                scope = this,
+                                reverseLayout = reverseLayout,
+                                contentOffset = contentOffset,
+                                isLookingAhead = isLookingAhead,
+                                layoutWidth = layoutWidth,
+                                layoutDirection = measureScope.layoutDirection,
+                            )
                         }
                     }
 
@@ -1436,6 +1447,8 @@ internal class LazyStaggeredGridMeasuredItem(
         reverseLayout: Boolean,
         contentOffset: IntOffset,
         isLookingAhead: Boolean,
+        layoutWidth: Int,
+        layoutDirection: LayoutDirection,
     ) {
         requirePrecondition(mainAxisLayoutSize != Unset) { "position() should be called first" }
         with(scope) {
@@ -1482,7 +1495,12 @@ internal class LazyStaggeredGridMeasuredItem(
                 }
                 offset += contentOffset
                 if (!isLookingAhead) {
-                    animation?.placementOffset = offset
+                    animation?.placementOffset =
+                        if (layoutDirection == LayoutDirection.Rtl) {
+                            offset.mirroredForRtl(layoutWidth, placeable.width)
+                        } else {
+                            offset
+                        }
                 }
                 if (layer != null) {
                     placeable.placeRelativeWithLayer(offset, layer)

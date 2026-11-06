@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -67,6 +68,13 @@ internal sealed interface LazyLayoutItemAnimation {
     var exitTransition: ExitTransition?
 
     var placementSpec: FiniteAnimationSpec<IntOffset>?
+
+    var layoutDirection: LayoutDirection
+
+    var reverseLayout: Boolean
+
+    var isVertical: Boolean
+
     val isRunningMovingAwayAnimation: Boolean
 
     /**
@@ -108,6 +116,9 @@ internal sealed interface LazyLayoutItemAnimation {
      */
     var placementOffset: IntOffset
 
+    private val isPlacementMainAxisReversed: Boolean
+        get() = reverseLayout xor (!isVertical && layoutDirection == LayoutDirection.Rtl)
+
     /**
      * Tracks the offset of the item in the lookahead pass. When set, this is the animation target
      * that placementDelta should be applied to.
@@ -123,7 +134,21 @@ internal sealed interface LazyLayoutItemAnimation {
      */
     val placementDelta: IntOffset
 
-    fun applyScrollOffset(offset: IntOffset)
+    /**
+     * Moves this item by the scroll [delta] along the main axis, so changes in its position caused
+     * by scrolling aren't animated.
+     *
+     * [placementOffset] is moved as well, so items running a disappearance animation, which are no
+     * longer placed, keep moving with the content. For items that are still placed,
+     * [placementOffset] is overwritten when the item is next placed.
+     */
+    fun applyScrollOffset(delta: Int) {
+        targetOffset += mainAxisOffset(delta)
+        placementOffset += mainAxisOffset(if (isPlacementMainAxisReversed) -delta else delta)
+    }
+
+    private fun mainAxisOffset(delta: Int): IntOffset =
+        if (isVertical) IntOffset(0, delta) else IntOffset(delta, 0)
 
     /** Cancels the ongoing placement animation if there is one. */
     fun cancelPlacementAnimation()
@@ -158,6 +183,9 @@ internal class StateBasedLazyLayoutItemAnimation(
     override var enterTransition: EnterTransition? = null
     override var exitTransition: ExitTransition? = null
     override var placementSpec: FiniteAnimationSpec<IntOffset>? = null
+    override var layoutDirection: LayoutDirection = LayoutDirection.Ltr
+    override var reverseLayout: Boolean = false
+    override var isVertical: Boolean = true
     var itemSize: IntSize = IntSize.Zero
 
     private var transitionState by mutableStateOf(TransitionState.New)
@@ -199,10 +227,6 @@ internal class StateBasedLazyLayoutItemAnimation(
 
     private val containerSize
         get() = layer?.size?.takeIf { it != IntSize.Zero } ?: itemSize
-
-    override fun applyScrollOffset(offset: IntOffset) {
-        targetOffset += offset
-    }
 
     override fun cancelPlacementAnimation() {
         if (isPlacementAnimationInProgress) {
@@ -336,6 +360,10 @@ internal class BooleanBasedLazyLayoutItemAnimation(
     override var exitTransition: ExitTransition? = null
     override var placementSpec: FiniteAnimationSpec<IntOffset>? = null
 
+    override var layoutDirection: LayoutDirection = LayoutDirection.Ltr
+    override var reverseLayout: Boolean = false
+    override var isVertical: Boolean = true
+
     override var isRunningMovingAwayAnimation = false
         private set
 
@@ -375,10 +403,6 @@ internal class BooleanBasedLazyLayoutItemAnimation(
 
     override var placementDelta by mutableStateOf(IntOffset.Zero)
         private set
-
-    override fun applyScrollOffset(offset: IntOffset) {
-        targetOffset += offset
-    }
 
     override fun cancelPlacementAnimation() {
         if (isPlacementAnimationInProgress) {
@@ -519,3 +543,6 @@ private val InterruptionSpec =
         stiffness = Spring.StiffnessMediumLow,
         visibilityThreshold = IntOffset.VisibilityThreshold,
     )
+
+internal fun IntOffset.mirroredForRtl(layoutWidth: Int, itemWidth: Int): IntOffset =
+    IntOffset(layoutWidth - x - itemWidth, y)

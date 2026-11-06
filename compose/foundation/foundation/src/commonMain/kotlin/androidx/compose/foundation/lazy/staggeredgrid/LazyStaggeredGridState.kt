@@ -351,6 +351,8 @@ internal constructor(
                 // we don't need to remeasure, so we only trigger re-placement:
                 placementScopeInvalidator.invalidateScope()
 
+                itemAnimator.applyScrollToDisappearingItems(intDelta)
+
                 if (prefetchingEnabled) {
                     if (isUsingCacheWindowInStaggeredGrids) {
                         cacheWindowLogic?.onScroll(
