@@ -83,6 +83,7 @@ import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.heightIn
 import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
+import androidx.xr.compose.subspace.layout.resizable
 import androidx.xr.compose.subspace.layout.rotate
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.subspace.rememberSpatialGltfModelState
@@ -157,6 +158,12 @@ class SpatialGltfModelActivity : ComponentActivity() {
                         state.resetCustomMovement()
                         state.useCustomMovement = it
                     },
+                )
+
+                SwitchRow(
+                    label = "Enable Resizable (resizable)",
+                    checked = state.isResizable,
+                    onCheckedChange = { state.isResizable = it },
                 )
 
                 if (state.useCustomMovement) {
@@ -339,7 +346,7 @@ class SpatialGltfModelActivity : ComponentActivity() {
 
         LaunchedEffect(dragonModelState) { state.dragonModelState = dragonModelState }
 
-        val movementModifier =
+        var movementModifier =
             if (state.useCustomMovement) {
                 modifier
                     .offset(x = state.customX, y = state.customY, z = state.customZ)
@@ -354,6 +361,9 @@ class SpatialGltfModelActivity : ComponentActivity() {
                     .movable(movePolicy = MovePolicy.system(scaleWithDistance = false))
                     .scale(1.1f)
             }
+        if (state.isResizable) {
+            movementModifier = movementModifier.resizable()
+        }
 
         SpatialGltfModel(state = dragonModelState, modifier = movementModifier) {
             val selectedNode = state.selectedNode
@@ -425,6 +435,7 @@ class SpatialGltfModelActivity : ComponentActivity() {
         var showArrows by mutableStateOf(false)
 
         var useCustomMovement by mutableStateOf(false)
+        var isResizable by mutableStateOf(false)
 
         var customX by mutableStateOf(0.dp)
         var customY by mutableStateOf(0.dp)
