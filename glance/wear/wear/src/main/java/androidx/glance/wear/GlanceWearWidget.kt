@@ -28,13 +28,9 @@ import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.collection.intSetOf
-import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
-import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.glance.wear.cache.WearWidgetCache
 import androidx.glance.wear.cache.WearWidgetCache.WidgetCacheMissException
 import androidx.glance.wear.core.ActiveWearWidgetHandle
-import androidx.glance.wear.core.RendererVersion
 import androidx.glance.wear.core.WearWidgetEvent
 import androidx.glance.wear.core.WearWidgetParams
 import androidx.glance.wear.core.WearWidgetRawContent
@@ -94,19 +90,11 @@ internal constructor(
      *   can be sent to the Host in a single Binder transaction.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @OptIn(ExperimentalRemoteCreationComposeApi::class)
     public suspend fun provideWidgetDataAsRawContent(
         context: Context,
         params: WearWidgetParams,
         isInspectionMode: Boolean = false,
     ): WearWidgetRawContent {
-        if (!isInspectionMode) {
-            // We need this flag to be false (meaning empty axis won't be send and default normal
-            // weight would be used, for the 1.6 renderer and the player that has a bug in it.
-            RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis =
-                RendererVersion.fromPlHostPackage(context) >
-                    RendererVersion(1, 6, 0, /* not important */ intSetOf())
-        }
         val widgetContent = provideWidgetData(context, params)
         val rawContent = widgetContent.captureRawContent(context, params, isInspectionMode)
         WearWidgetCapture.checkContentSize(rawContent.rcDocument.size)

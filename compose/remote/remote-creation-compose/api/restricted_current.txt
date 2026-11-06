@@ -6,10 +6,8 @@ package androidx.compose.remote.creation.compose {
   }
 
   @SuppressCompatibility @androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi public final class RemoteComposeCreationComposeFlags {
-    property public boolean allowSendingEmptyFontAxis;
     property public boolean isEnforceCleanRecompositionEnabled;
     field public static final androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags INSTANCE;
-    field public static boolean allowSendingEmptyFontAxis;
     field public static boolean isEnforceCleanRecompositionEnabled;
   }
 

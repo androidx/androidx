@@ -21,8 +21,6 @@ import android.content.Context
 import android.os.Bundle
 import android.os.SystemClock
 import android.provider.Settings
-import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
-import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.glance.wear.cache.WearWidgetCache
 import androidx.glance.wear.core.ActiveWearWidgetHandle
 import androidx.glance.wear.core.ContainerInfo
@@ -717,28 +715,6 @@ class GlanceWearWidgetTest {
 
         assertThat(rawContent.rcDocument.size)
             .isAtMost(WearWidgetContentTooLargeException.WARNING_CONTENT_SIZE_BYTES)
-    }
-
-    @OptIn(ExperimentalRemoteCreationComposeApi::class)
-    @Test
-    fun provideWidgetDataAsRawContent_inInspectionMode_doesNotChangeFontAxisFlag() = runTest {
-        val widget = TestWidget(mock<WidgetUpdateClient>())
-        val context = getApplicationContext<Context>()
-        val params = testWidgetParams(TEST_INSTANCE_ID)
-        val originalValue = RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis
-        try {
-            RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis = true
-
-            widget.provideWidgetDataAsRawContent(context, params, isInspectionMode = true)
-            assertThat(RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis).isTrue()
-
-            // Without a renderer installed, the renderer version falls back to the initial one,
-            // which doesn't support empty font axes.
-            widget.provideWidgetDataAsRawContent(context, params, isInspectionMode = false)
-            assertThat(RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis).isFalse()
-        } finally {
-            RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis = originalValue
-        }
     }
 
     private suspend fun withDebuggableBuild(
