@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.compose.shaders.solidColor
 import androidx.compose.remote.creation.compose.shaders.verticalGradient
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
+import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.layout.ContentScale
 
@@ -116,7 +117,7 @@ public fun WearWidgetBrush.verticalGradient(colors: List<RemoteColor>): WearWidg
                 colors = colors,
                 startY = null,
                 endY = null,
-                tileMode = TileMode.Clamp,
+                tileMode = RemoteTileMode.Clamp,
             )
         )
     )
@@ -142,7 +143,7 @@ public fun WearWidgetBrush.horizontalGradient(colors: List<RemoteColor>): WearWi
                 colors = colors,
                 startX = null,
                 endX = null,
-                tileMode = TileMode.Clamp,
+                tileMode = RemoteTileMode.Clamp,
             )
         )
     )
