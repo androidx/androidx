@@ -52,10 +52,16 @@ public interface GlanceAdaptiveWidgetDelegate {
      * Returns the active widget instances matching [widgetName] currently placed on host surfaces
      * of this device.
      *
+     * Placements that have not yet been assigned a widget instance String identifier are omitted.
+     *
      * @param widgetName The developer-defined identifier of the widget definition.
+     * @return The active instances for [widgetName], or an empty list if none are placed or have an
+     *   assigned identifier yet.
      * @throws IllegalArgumentException if [widgetName] does not identify exactly one widget of the
      *   app.
      * @throws IllegalStateException if a widget of the app cannot be read to resolve [widgetName].
+     * @throws RuntimeException if the placements or their options cannot be read, rather than
+     *   returning a partial result.
      */
     public suspend fun getActiveInstances(widgetName: String): List<WidgetInstanceInfo>
 }

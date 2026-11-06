@@ -148,7 +148,7 @@ internal class BaseWidgetDelegate(
      * @throws IllegalArgumentException if [widgetName] cannot be resolved, see
      *   [GlanceAdaptiveWidgetReceiver.widgetName].
      * @throws IllegalStateException if [widgetName] cannot be resolved.
-     * @throws RuntimeException if the options of any placement cannot be read, rather than
+     * @throws RuntimeException if the placements or their options cannot be read, rather than
      *   returning a partial result.
      */
     override suspend fun getActiveInstances(widgetName: String): List<WidgetInstanceInfo> =
