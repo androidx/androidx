@@ -32,6 +32,7 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.shaders.solidColor
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.RemotePathFillType
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
@@ -240,7 +241,10 @@ private object TestImageVectors {
                 tintColor = RemoteColor(Color.Black),
                 name = "Volume up",
             )
-            .path(fill = RemoteBrush.solidColor(Color.Black.rc)) {
+            .path(
+                pathFillType = RemotePathFillType.NonZero,
+                fill = RemoteBrush.solidColor(Color.Black.rc),
+            ) {
                 moveTo(3.0f.rf, 9.0f.rf)
                 verticalLineToRelative(6.0f.rf)
                 horizontalLineToRelative(4.0f.rf)

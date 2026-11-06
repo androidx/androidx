@@ -28,7 +28,6 @@ import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
-import androidx.compose.ui.geometry.Size
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -54,7 +53,8 @@ class RemoteCanvasPathTest {
             )
         }
 
-    private val creationState = RemoteComposeCreationState(Size(400f, 400f), profile)
+    private val creationState =
+        RemoteComposeCreationState(RemoteCreationDisplayInfo(400, 400, 160, 1f), null, profile)
     private val remoteCanvas = RemoteCanvas(creationState)
 
     private fun inflateOperations(): ArrayList<Operation> {

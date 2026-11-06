@@ -49,7 +49,6 @@ import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.compose.text.RemoteTypeface.Companion.create
 import androidx.compose.remote.creation.compose.text.toRemoteFontVariationSettings
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -75,12 +74,7 @@ class PaintTrackerTest {
 
     @Before
     fun setUp() {
-        val size = Size(500f, 500f)
-        creationState =
-            RemoteComposeCreationState(
-                androidx.compose.remote.creation.platform.AndroidxRcPlatformServices(),
-                size,
-            )
+        creationState = createTestCreationState(width = 500, height = 500)
         tracker = PaintTracker()
         remoteContext = AndroidRemoteContext()
         remoteContext.useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
