@@ -1,6 +1,6 @@
 # Plan to review and clean up Restricted APIs in remote-creation-compose
 
-This plan outlines the strategy to review and clean up all restricted APIs in the `remote-creation-compose` module.
+This plan outlines the strategy to review and clean up the remaining restricted APIs in `remote-creation-compose` and `remote-creation-expression`.
 
 ## Guidelines
 
@@ -8,189 +8,72 @@ This plan outlines the strategy to review and clean up all restricted APIs in th
 - **Refactor First**: Make refactoring changes in a previous CL, then stack the API request. Ensure refactoring tasks (like redesigning interfaces to avoid leaky restricted APIs) are tracked as first tasks.
 - **Compose Standards**: APIs should be reviewed and match Compose standards and naming. Analysis should be included in the CL body.
 - **Downstream Churn**: Consider churn for downstream users. Avoid breaking everything multiple times; do it once or use temporary deprecations.
-- **No Public Java Classes**: Avoid exposing public APIs from remote-creation Java classes directly due to lack of named parameters.
+- **No Public Java Classes**: Avoid exposing public APIs from `remote-creation` Java classes directly due to lack of named parameters.
 - **Internal/Private Visibility**: Prefer making APIs `internal` or `private` if they are only needed within the module or file, rather than making them public or deleting them if they are still useful for implementation.
-
-## Batches (TODO List)
-
-We will tackle the cleanup in batches, grouped by package.
-
-### In-Progress API Cleanups & CLs
-
-The following API reviews and cleanups are currently in flight:
-
-- **[CL 4324946](https://android-review.googlesource.com/c/platform/frameworks/support/+/4324946)**: Enable `RemoteModifier.animateEnterExit` by defaulting `animationId` to `-1`.
-- **[CL 4306272](https://android-review.googlesource.com/c/platform/frameworks/support/+/4306272)**: Expose `RemoteColor.Companion.createThemedRemoteColor` API.
-- **[CL 4295551](https://android-review.googlesource.com/c/platform/frameworks/support/+/4295551)**: Expose `fontFeatureSettings` on `RemotePaint` and remove `combinedFontVariationSettings` from `RemoteTextStyle`.
-- **[CL 4279995](https://android-review.googlesource.com/c/platform/frameworks/support/+/4279995)**: Expose `RemoteTextMeasurer`, `RemoteTextLayoutResult`, and `rememberRemoteTextMeasurer` APIs.
-- **[CL 4224689](https://android-review.googlesource.com/c/platform/frameworks/support/+/4224689)**: Deprecate `rememberMutableRemote*` and `rememberNamedRemote*` state composable functions in favor of `remember { MutableRemote*(...) }` and `remember { Remote*.createNamedRemote*(...) }`.
-- **[CL 4177957](https://android-review.googlesource.com/c/platform/frameworks/support/+/4177957)**: Refactor `remote-creation-compose` to KMP (decouple `RemotePaint` and `RemoteModifier`, move Android-specific APIs to extensions, make `AndroidRecordingCanvas`/`JvmRecordingCanvas` `internal`, expose `toRemoteLayoutDirection`/`toLayoutDirection`).
-
-### Recently Landed API Cleanups & CLs
-
-- **[CL 4003513](https://android-review.googlesource.com/c/platform/frameworks/support/+/4003513)**: Removed `RemoteInt/Float.toRemoteString(before, after, flags)` to clean up leaky APIs.
-- **[CL 4003413](https://android-review.googlesource.com/c/platform/frameworks/support/+/4003413)**: Exposed `RemoteEnum` and `RemoteStateLayout` as public APIs.
-- **[CL 4034886](https://android-review.googlesource.com/c/platform/frameworks/support/+/4034886)**: Exposed `fontVariationSettings` in `RemotePaint`.
-- **[CL 4076652](https://android-review.googlesource.com/c/platform/frameworks/support/+/4076652)**: Exposed the `RemotePathScope` (`remotePath`) DSL API.
-- **[CL 4092671](https://android-review.googlesource.com/c/platform/frameworks/support/+/4092671)**: Exposed the capture `Flow` API and made the non-deprecated `captureSingleRemoteDocument` public.
-- **[CL 4094960](https://android-review.googlesource.com/c/platform/frameworks/support/+/4094960)**: Refactored logical and bitwise operator parameters in `RemoteState`.
-- **[CL 4097154](https://android-review.googlesource.com/c/platform/frameworks/support/+/4097154)**: Renamed `RemoteBoolean` comparison operators.
-- **[CL 4097153](https://android-review.googlesource.com/c/platform/frameworks/support/+/4097153)**: Renamed `RemoteFloat` comparison operators.
-
----
-
-
-- [x] **Batch 1: `androidx.compose.remote.creation.compose.action`**
-  - **Focus**: Actions and input events.
-  - **Key APIs to Review**:
-    - `Action.toRemoteAction()`: Core method to convert to remote operation. Redesigned to use `RemoteAction` base class so `Action` interface is clean public API.
-    - `HostAction` class and `HostAction.Type` enum: Made internal, public `hostAction` factory functions exposed.
-    - `ValueChange`: Made internal, public `valueChange` factory function exposed.
-  - **Proposed CL Split**:
-    - [x] **CL 1**: Redesign `Action` to avoid `toRemoteAction()` on public interface.
-    - [x] **CL 2**: Review `HostAction` and related types.
-    - [x] **CL 3**: Review `ValueChange` factory functions and overloads.
-
-- [x] **Batch 2: `androidx.compose.remote.creation.compose.layout` (Part 1: Arrangements & Alignments)**
-  - [x] Review `RemoteArrangement` (15 occurrences) and `RemoteAlignment` (8 occurrences). Public interfaces and standard arrangement/alignment presets exposed; internal wire conversion `toRemote()` methods restricted.
-  - [x] Investigate inconsistencies with Compose and fix naming (in-flight [CL 4177957](https://android-review.googlesource.com/c/platform/frameworks/support/+/4177957) exposing `LayoutDirection.toRemoteLayoutDirection()` and `RemoteLayoutDirection.toLayoutDirection()`).
-  - [x] Decided to keep interfaces and factory presets public while restricting implementation classes.
-
-- [ ] **Batch 3: `androidx.compose.remote.creation.compose.layout` (Part 2: Drawing)**
-  - [ ] Review `RemoteDrawScope` (25 occurrences), `DrawHelpers` (7 occurrences), `RemoteAccess` (1 occurrence), and `RemoteContentDrawScope` (1 occurrence).
-  - [x] Standard draw methods (`drawLine`, `drawRect`, `drawCircle`, `drawOval`, `drawArc`, `drawRoundRect`, `drawTextOnCircle`, `drawOutline`) and `CircularAlignment` / `CircularPlacement` enums exposed as public APIs.
-  - [ ] Review remaining restricted transformation, path, text, and offscreen drawing methods.
-  - [ ] Compare with Compose `DrawScope` and match standards.
-
-- [x] **Batch 4: `androidx.compose.remote.creation.compose.layout` (Part 3: Components)**
-  - [x] Review `RemoteBox` and `RemoteBoxScope` (`RemoteBox` standard layout exposed).
-  - [x] Review `RemoteRow` (specifically `weight(RemoteFloat)` in `RemoteRowScope` exposed as public).
-  - [x] Review `RemoteColumn` (specifically `weight(RemoteFloat)` in `RemoteColumnScope` exposed as public).
-  - [x] Ensure standard layout components are correctly exposed.
-
-- [x] **Batch 5: `RemoteText`**
-  - [x] Review `RemoteText` (1 restricted overload remaining; primary `RemoteText` composable exposed with full Compose styling parameters).
-  - [x] Review `RemoteTextStyle` (1 restricted constructor remaining; public class and `fromTextStyle` factory exposed; in-flight [CL 4295551](https://android-review.googlesource.com/c/platform/frameworks/support/+/4295551) removing `combinedFontVariationSettings`).
-  - [ ] Review `RemoteTextMeasurer` and `RemoteTextLayoutResult` (in-flight [CL 4279995](https://android-review.googlesource.com/c/platform/frameworks/support/+/4279995) exposing `RemoteTextMeasurer`, `RemoteTextLayoutResult`, and `rememberRemoteTextMeasurer`).
-  - [x] Review `RemoteTypeface` (removed `toAndroidTypeface` and `fromAndroidTypeface`).
-
-- [x] **Batch 6: `androidx.compose.remote.creation.compose.state` (Part 1: Primitives)**
-  - [x] Review `RemoteBoolean` ([CL 4097154](https://android-review.googlesource.com/c/platform/frameworks/support/+/4097154); non-composable `MutableRemoteBoolean` constructor and `RemoteBoolean.createNamedRemoteBoolean` exposed; in-flight [CL 4224689](https://android-review.googlesource.com/c/platform/frameworks/support/+/4224689) deprecating `remember*` composable functions).
-  - [x] Review `RemoteInt` ([CL 4003513](https://android-review.googlesource.com/c/platform/frameworks/support/+/4003513) and [CL 4094960](https://android-review.googlesource.com/c/platform/frameworks/support/+/4094960); non-composable `MutableRemoteInt` constructors and `RemoteInt.createNamedRemoteInt` exposed; in-flight [CL 4224689](https://android-review.googlesource.com/c/platform/frameworks/support/+/4224689) deprecating `remember*` composable functions; in-flight [CL 4177957](https://android-review.googlesource.com/c/platform/frameworks/support/+/4177957) moving `DecimalFormat` `toRemoteString` to Android extension).
-  - [x] Review `RemoteFloat` ([CL 4003513](https://android-review.googlesource.com/c/platform/frameworks/support/+/4003513) and [CL 4097153](https://android-review.googlesource.com/c/platform/frameworks/support/+/4097153); non-composable `MutableRemoteFloat` constructors and `RemoteFloat.createNamedRemoteFloat` exposed; in-flight [CL 4224689](https://android-review.googlesource.com/c/platform/frameworks/support/+/4224689) deprecating `remember*` composable functions; in-flight [CL 4177957](https://android-review.googlesource.com/c/platform/frameworks/support/+/4177957) moving `DecimalFormat` `toRemoteString` to Android extension).
-  - [x] Review `RemoteLong` (`constantValueOrNull`, non-composable `MutableRemoteLong` constructors, `RemoteLong.createNamedRemoteLong`, `rememberNamedRemoteLong`, arithmetic operators, and `toRemoteInt()` exposed; in-flight [CL 4224689](https://android-review.googlesource.com/c/platform/frameworks/support/+/4224689) deprecating `remember*` composable functions).
-  - [x] Review `RemoteString` (`.rs` extension, string operations `lowercase`, `uppercase`, `trim`, `isEmpty`, `isNotEmpty`, `plus`, non-composable `MutableRemoteString` constructors, `RemoteString.createNamedRemoteString`, `rememberNamedRemoteString`, `rememberMutableRemoteString` exposed; in-flight [CL 4224689](https://android-review.googlesource.com/c/platform/frameworks/support/+/4224689) deprecating `remember*` composable functions).
-  - [x] Cluster operations into related groups (arithmetic, comparison, conversion, etc.)
-
-- [x] **Batch 7: `androidx.compose.remote.creation.compose.state` (Part 2: Complex Types)**
-  - [x] Review `RemoteColor` (12 occurrences) - companion invoke, `RemoteColor.createNamedRemoteColor`, `rememberNamedRemoteColor`, `.rc` extensions exposed; in-flight [CL 4306272](https://android-review.googlesource.com/c/platform/frameworks/support/+/4306272) exposing `createThemedRemoteColor` and in-flight [CL 4224689](https://android-review.googlesource.com/c/platform/frameworks/support/+/4224689) deprecating `remember*` composable functions.
-  - [x] Review `RemotePaint` (14 occurrences) - Exposed `fontVariationSettings` ([CL 4034886](https://android-review.googlesource.com/c/platform/frameworks/support/+/4034886)); in-flight [CL 4295551](https://android-review.googlesource.com/c/platform/frameworks/support/+/4295551) exposing `fontFeatureSettings` and in-flight [CL 4177957](https://android-review.googlesource.com/c/platform/frameworks/support/+/4177957) unsealing `RemotePaint` for KMP.
-  - [x] Review `RemoteImageBitmap` (2 occurrences) - `MutableRemoteImageBitmap`, `RemoteImageBitmap.createNamedRemoteImageBitmap`, `rememberNamedRemoteImageBitmap`, `rememberMutableRemoteImageBitmap` exposed; in-flight [CL 4224689](https://android-review.googlesource.com/c/platform/frameworks/support/+/4224689) deprecating `remember*` composable functions.
-  - [x] Review `RemoteBitmapFont` (3 occurrences) - `rememberRemoteBitmapFont` exposed.
-  - [x] Review `RemoteColorFilter` (3 occurrences) - `tint`, `colorMatrix` exposed.
-  - [x] Review `RemoteTextUnit` (2 occurrences) - `toPx()`, `Int.rsp`, `Float.rsp`, `RemoteFloat.rsp`, `.toRsp()`, `asRemoteTextUnit()` exposed.
-  - [x] Review `RemoteDp` (4 occurrences) - `toPx()`, `.rdp`, `asRdp()`, `asRemoteDp()`, `toRemoteDp()`, arithmetic/comparison operators, `RemoteDp.createNamedRemoteDp`, `rememberNamedRemoteDp`, `min`, `max` exposed; in-flight [CL 4224689](https://android-review.googlesource.com/c/platform/frameworks/support/+/4224689) deprecating `rememberNamedRemoteDp`.
-  - [x] Compare and fix mapping to Compose naming for graphics types.
-
-- [x] **Batch 8: `androidx.compose.remote.creation.compose.state` (Part 3: Helpers)**
-  - [x] Review `RemoteFloatOperations` / logical and bitwise operators ([CL 4094960](https://android-review.googlesource.com/c/platform/frameworks/support/+/4094960)).
-  - [x] Review `RemoteEnum` and `RemoteStateLayout` ([CL 4003413](https://android-review.googlesource.com/c/platform/frameworks/support/+/4003413); non-composable `MutableRemoteEnum` constructor and `RemoteEnum.createNamedRemoteEnum` exposed; in-flight [CL 4224689](https://android-review.googlesource.com/c/platform/frameworks/support/+/4224689) deprecating `remember*` composable functions).
-  - [x] Review `RemoteAnimation` (`RemoteAnimationSpec`, `RemoteTweenSpec`, `RemoteSpringSpec`, `RemoteSnapSpec`, `RemoteEasing`, `animateRemoteFloatAsState`, `animateRemoteDpAsState`, `remoteTween`, `remoteSpring`, `remoteSnap` exposed as public APIs).
-  - [x] Review `RemoteMatrix3x3` (2 occurrences) - `times` operator and `constantValueOrNull` exposed.
-  - [x] Review `RemoteStateScope` - public interface with `parentScope`, `remoteDensity`, `layoutDirection`, `remotePath` exposed; internal document access restricted.
-
-- [x] **Batch 9: `androidx.compose.remote.creation.compose.vector`**
-  - [x] Review `RemoteVectorPainter` (`painterRemoteVector` overloads for `RemoteImageVector` and `ImageVector` exposed; 3 restricted occurrences remaining).
-  - [x] Review `RemotePathScope` / `RemotePathNode` ([CL 4076652](https://android-review.googlesource.com/c/platform/frameworks/support/+/4076652); full `RemotePathScope` DSL including `moveTo`, `lineTo`, `quadraticTo`, `conicTo`, `cubicTo`, `arcTo`, `relative*To` variants, `RemoteOffset` overloads, and shape helpers `addRect`, `addRoundRect`, `addOval`, `addCircle`, `addArc`, `addPath` exposed; `RemotePathNode` kept restricted).
-  - [x] Review `RemoteVector` / `RemoteImageVector` - Exposed `RemoteImageVector`, `RemoteImageVector.Builder`, `path`, `ImageVector.toRemoteImageVector()`, and `RemoteImageVector.Companion.vectorResource` (in `capture`) as the public vector model APIs; `RemoteVector` (`RemotePathData`, `RemoteVNode`, etc., 1 occurrence) kept internal/restricted as vector model internals.
-
-- [x] **Batch 10: `androidx.compose.remote.creation.compose.shapes`**
-  - [x] Review `RemoteCornerSize` (0 occurrences remaining) - `RemoteCornerSize` interface and factory functions (`RemoteDp`, `RemoteFloat`, `percent`, `ZeroRemoteCornerSize`) fully exposed.
-  - [x] Review `RemoteOutline` (0 occurrences remaining) - public sealed class (`Rectangle`, `Rounded`, `Generic`) and `RemoteDrawScope.drawOutline` extension fully exposed.
-  - [x] Review `RemoteCornerBasedShape` (0 occurrences remaining) - public abstract class (`topStart`, `topEnd`, `bottomEnd`, `bottomStart`, `createOutline`, `copy`) fully exposed.
-  - [x] Review `RemoteRoundedCornerShape` (0 occurrences remaining) - public class, `RemoteCircleShape`, and all constructor/factory overloads (`RemoteCornerSize`, `RemoteDp`, `RemoteFloat`, `Int` percent) fully exposed.
-  - [x] Focus on shapes support.
-
-- [x] **Batch 11: `androidx.compose.remote.creation.compose.modifier`**
-  - [x] Make Modifier implementation classes `internal` (17 modifier implementation classes converted to `internal`; in-flight [CL 4177957](https://android-review.googlesource.com/c/platform/frameworks/support/+/4177957) unsealing `RemoteModifier` and `RemoteModifier.Element` for KMP).
-  - [x] Separate internal implementation from public modifier factory functions (40+ public modifier factory functions exposed in `api/current.txt`, including `defaultMinSize`, `RemoteScrollState` non-composable constructors, and animation modifiers `animateEnterExit`, `animationSpec`, `sharedBounds`, `sharedElement`, `RemoteEnterTransition`, `RemoteExitTransition`, `remoteFadeIn`, `remoteFadeOut`; in-flight [CL 4324946](https://android-review.googlesource.com/c/platform/frameworks/support/+/4324946) defaulting `animationId` to `-1` in `animateEnterExit`).
-
-- [x] **Batch 12: `androidx.compose.remote.creation.compose.painter`**
-  - [x] Review `RemoteColorPainter` (`painterRemoteColor` exposed).
-  - [x] Review `RemoteBitmapPainter` / `RemoteImageBitmapPainter` (`painterRemoteImageBitmap` exposed).
-  - [x] Review `RemotePainter` base class exposed.
-
-- [x] **Batch 13: Others**
-  - [x] Review `ExperimentalRemoteCreationComposeApi` (opt-in annotation restricted to library group).
-  - [x] Review `RemoteComposeCreationComposeFlags` (public flags object exposed).
-
-- [x] **Batch 14: `androidx.compose.remote.creation.compose.capture`**
-  - [x] Address `Flow<>` capture and make `captureSingleRemoteDocument` public ([CL 4092671](https://android-review.googlesource.com/c/platform/frameworks/support/+/4092671)).
-  - [x] Expose `createProfile` and `RemoteImageVector` (`Builder`, `path`, `toRemoteImageVector`, `vectorResource`).
-  - [x] Review `RemoteComposeCreationState` & `LocalRemoteComposeCreationState`.
-  - [x] `RecordingCanvas` (2 occurrences) - Not planned (kept internal/restricted; in-flight [CL 4177957](https://android-review.googlesource.com/c/platform/frameworks/support/+/4177957) making `AndroidRecordingCanvas` and `JvmRecordingCanvas` `internal`).
 
 ## What's Left
 
-The following restricted APIs remain across `remote-creation-compose` to be reviewed (either exposed as public APIs, migrated to `internal`, or removed):
+The following restricted APIs remain across `remote-creation-compose` and `remote-creation-expression` to be reviewed (exposed as public APIs, deleted, or kept restricted across module boundaries):
 
 ### 1. Layout & Drawing (`androidx.compose.remote.creation.compose.layout`)
+
 - **`RemoteDrawScope`**:
-  - Bitmap & path drawing: `drawImage`, `drawScaledBitmap`, `drawPath`, `drawRoundedPolygon`, `drawRoundedPolygonMorph`, `drawTweenPath`.
-  - Text drawing: `drawText`, `drawAnchoredText`, `drawTextOnPath`.
-  - Transformations & clipping: `rotate`, `translate`, `scale`, `withTransform`, `clipRect`, `clipPath`.
+  - Path drawing & clipping (pending Kotlin `RemotePath` API): `drawPath`, `drawTweenPath`, `drawTextOnPath`, `clipPath`, and `RemoteStateScope.remotePath`.
+  - Bitmap & anchored text: `drawScaledBitmap`, `drawAnchoredText`.
   - Control flow & offscreen: `drawConditionally`, `drawToOffscreenBitmap`, `loop`.
-  - `DrawHelpersAndroid`: Conversion helpers (`toAndroidCap`, `toAndroidJoin`, `toBlendMode`, `toImageScalingInt`, etc.).
+  - Remote utilities: `remote` (`RemoteAccess`).
+- **`RemoteTextMeasurer` & `RemoteTextLayoutResult`**:
+  - Split single-line layout measurement, font metrics (`ascent`, `descent`), tight glyph bounds (`glyphLeft`, `glyphTop`, `glyphRight`, `glyphBottom`), and `monospaceWidth` into dedicated `RemoteTextMeasurer` methods and result types.
 - **Layout Components & Types**:
   - `RemoteFlowRow`: `@Composable RemoteFlowRow` layout component.
-  - `RemotePaddingValues`: `RemotePaddingValues` class and constructors (`all`, `horizontal`/`vertical`, `left`/`top`/`right`/`bottom`).
-  - `RemoteTextMeasure`: `RemoteTextMeasurer`, `RemoteTextLayoutResult`, and `rememberRemoteTextMeasurer` (in-flight [CL 4279995](https://android-review.googlesource.com/c/platform/frameworks/support/+/4279995)).
-  - `RemoteOffset` & `RemoteSize`: Mixed primitive/remote constructors (`RemoteOffset(Float, RemoteFloat)`, `RemoteOffset(Offset)`, `RemoteSize(Size)`) and `asOffset` / `asSize` helpers.
-  - `RemoteRowScope` / `RemoteColumnScope`: Primitive `weight(Float)` overloads.
-  - `RemoteCustomComponent` & `CustomComponentFactory`: Custom component support.
+  - `RemoteArrangement.Absolute`: `Left`, `Center`, `Right`, `SpaceBetween`, `SpaceEvenly`, `SpaceAround`, `aligned`, `spacedBy`.
+  - `RemoteContentScale` & `RemoteImage(..., RemoteContentScale, ...)`: Remote-typed content scale enum and `RemoteImage` overload.
+  - `RemoteText`: `RemoteText(..., RemoteFontVariation.Settings?, ...)` overload and `RemoteTextOverflow`.
+  - `RemoteCustomComponent` & `RemoteCustomPropertiesScope`: Custom component DSL.
 
-### 2. Built-in Context / "Magic" Floats (`ANIMATION_TIME`, `RemoteTime`, `RemoteComponent`)
-- **Typed APIs for `RemoteContext.FLOAT_*` NaN Constants**:
-  - Replace direct usage of restricted `RemoteContext` NaN-encoded floats (`RemoteFloat(RemoteContext.FLOAT_ANIMATION_TIME)`, `FLOAT_ANIMATION_DELTA_TIME`, `FLOAT_CONTINUOUS_SEC`, `FLOAT_TIME_IN_HR`, `FLOAT_TIME_IN_MIN`, `FLOAT_TIME_IN_SEC`, `FLOAT_DAY_OF_MONTH`, `FLOAT_WEEK_DAY`, `FLOAT_OFFSET_TO_UTC`, `FLOAT_WINDOW_WIDTH`, `FLOAT_WINDOW_HEIGHT`, `FLOAT_COMPONENT_WIDTH`, `FLOAT_COMPONENT_HEIGHT`, touch/sensor values like `FLOAT_TOUCH_POS_*`, `FLOAT_ACCELERATION_*`, `FLOAT_GYRO_ROT_*`, `FLOAT_LIGHT`, etc.) with clean, typed `RemoteFloat` / `RemoteInt` APIs.
-  - Review and unify `RemoteTime`, `RemoteComponent`, `RemoteFloatContext`, and `RemoteAccess` (`RemoteDrawScope.remote`).
-  - Prevent public `RemoteFloat(Float)` / `Float.rf` from acting as a backdoor for raw NaN-encoded IDs once typed context accessors are public.
+### 2. Built-in Context Variables & Time
 
-### 3. Modifiers (`androidx.compose.remote.creation.compose.modifier`)
-- `BackgroundModifier`: `RemoteModifier.background(RemoteBrush)` overload.
-- `CombinedClickableModifier`: `RemoteModifier.combinedClickable`.
-- `RippleModifier`: `RemoteModifier.rippleEffect()`.
-- `MarqueeModifier`: `RemoteModifier.basicMarquee(...)`.
-- `BlurEffect` & `RenderEffect`: Graphics layer render effects.
-- `WidthModifier`, `HeightModifier`, `SizeModifier`: `IntrinsicSize` overloads (`width(IntrinsicSize)`, `height(IntrinsicSize)`), `fillParentMaxSize`, and primitive `Float`/`Int` overloads.
+- **Reference-Epoch Time Helpers**:
+  - Review remaining restricted reference-time helpers (`deltaFromReferenceInMinutes`, `deltaFromReferenceInHours`, `timeOfReferenceInSeconds`, `timeOfReferenceInMinutes`, `timeOfReferenceInHours`, `dayOfMonthForReference`, `monthOfYearForReference`, `dayOfWeekForReference`, `yearForReference`) and retire or internalize legacy `RemoteTime`.
+- **Guard `RemoteFloat(Float)` / `Float.rf`**:
+  - Prevent public `RemoteFloat(Float)` and `Float.rf` from acting as a backdoor for raw `RemoteContext.FLOAT_*` NaN-encoded IDs once typed context accessors cover all public use cases.
 
-### 4. State (`androidx.compose.remote.creation.compose.state`)
+### 3. Modifiers & Transitions (`androidx.compose.remote.creation.compose.modifier`)
+
+- **Graphics Layer & Effects**:
+  - `RemoteBlurEffect`, `RemoteCompositingStrategy`, and the `RemoteModifier.graphicsLayer` overload accepting `RemoteShape`, `RemoteBlurEffect`, and `RemoteCompositingStrategy`.
+- **Visibility & Motion**:
+  - `RemoteEnterTransition.Custom`, `RemoteExitTransition.Custom`, `RemoteModifier.animationSpec` (with custom enter/exit transitions), and `RemoteModifier.includeMacro` / `RemoteMacro`.
+
+### 4. State, Paint & Expressions (`androidx.compose.remote.creation.compose.state`)
+
 - **`RemotePaint`**:
-  - Remaining restricted properties (`isAntiAlias`, `filterQuality`, `shader`, `pathEffect`, `colorFilter`; `fontFeatureSettings` in [CL 4295551](https://android-review.googlesource.com/c/platform/frameworks/support/+/4295551)).
+  - `isAntiAlias`, `filterQuality` (`RemoteFilterQuality`), `shader` (`RemoteShader`), and `colorFilter` (`RemoteColorFilter` / `RemoteBlendModeColorFilter`).
 - **`RemoteColor`**:
-  - `createThemedRemoteColor` (in-flight [CL 4306272](https://android-review.googlesource.com/c/platform/frameworks/support/+/4306272)), `fromAHSV`, `rgb`, `compositeOver`, `times`, and `tween`.
+  - `fromAHSV`, `rgb(Float, Float, Float, Float)`, `lerp(@ColorInt Int, @ColorInt Int, RemoteFloat)`, `compositeOver`, `times`, and `RemoteBoolean.select(@ColorInt Int, @ColorInt Int)`.
+- **`RemoteImageBitmap` & `RemoteBitmapFont`**:
+  - `createOffscreenRemoteBitmap`, URL `width`/`height` `createNamedRemoteImageBitmap` / `rememberNamedRemoteImageBitmap` overloads, and `RemoteBitmapFont` class/glyph constructors.
 - **Primitives & Math Operations**:
-  - `RemoteString`: `substring` overloads, `plus(String)`, `selectIf*` helpers.
-  - `RemoteFloatOperations`: `lerp`, `clamp`, `atan2`, `cubicEasing`, `evalSpline`, `interpolateRemoteFloat`, `animateRemoteFloat`, `rand`, `randRange`.
-  - `RemoteFloat` & `RemoteInt`: Remaining mixed-primitive overloads and `selectIf*` helpers.
-  - Deprecated `rememberMutableRemote*` and `rememberNamedRemote*` composable functions (in-flight [CL 4224689](https://android-review.googlesource.com/c/platform/frameworks/support/+/4224689)).
-- **Array Types**:
-  - `RemoteFloatArray`, `RemoteMutableFloatArray`, `RemoteIntArray`, `RemoteStringArray`.
+  - `RemoteString`: `RemoteString(String)` constructor, `length`, `substring` overloads, `plus(String)`, and `selectIf*` helpers.
+  - `RemoteFloatOperations`: `cubicEasing` (and `CUBIC_*` / `SPLINE_CUSTOM` / `EASE_OUT_*` constants), `evalSpline`, `interpolateRemoteFloat`, `animateRemoteFloat`, `rand`, `randRange`, and mixed `Float` overloads (`min`, `max`, `lerp`, `clamp`, `atan2`).
+  - `RemoteFloat`, `RemoteInt`, & `RemoteLong`: Mixed primitive `Float`/`Int` operators, `RemoteInt` math/bitwise helpers, `toRemoteStringWithPadding` / `toRemoteStringOptions`, `RemoteLong(Long)` constructor & `fromLowHigh`, `createReference`, `Hoist`, and `selectIf*` helpers.
+- **Array & Scope Helpers**:
+  - `RemoteFloatArray`, `RemoteMutableFloatArray`, `RemoteIntArray`, `RemoteStringArray`, and `RemoteState.withGlobalScope`.
 
-### 5. Shaders, Vectors, Painters & Actions
+### 5. Shaders, Vectors, Capture & Actions
+
 - **`androidx.compose.remote.creation.compose.shaders`**:
-  - `colorStops` overloads on `RemoteLinearGradient` (`linearGradient`, `horizontalGradient`, `verticalGradient`) and `RemoteBrush.fromComposeUi`.
+  - `colorStops` overloads on `RemoteLinearGradient` (`linearGradient`, `horizontalGradient`, `verticalGradient`), `RemoteTileMode` overloads on `RemoteLinearGradient`, `RemoteRadialGradient`, `RemoteSweepGradient`, and `RemoteBrush.image`, plus `RemoteShader`.
 - **`androidx.compose.remote.creation.compose.vector`**:
-  - Animated vector APIs: `RemoteAnimatedVector`, `RemoteAnimatedVectorPainter`, `RemoteAnimatedVectorParser`.
-- **`androidx.compose.remote.creation.compose.painter`**:
-  - `painterRemoteColor(Color)` overload.
+  - Animated vector APIs (`RemoteAnimatedVector`, `painterRemoteAnimatedVector`, `animatedVectorResource`) and `RemoteImageVector.Builder` `group` / `addPath`.
+- **`androidx.compose.remote.creation.compose.capture`**:
+  - `createProfile`, `CaptureUpdateThrottle`, and `DocumentStats`.
 - **`androidx.compose.remote.creation.compose.action`**:
-  - `ScrollAction` and `LambdaAction`.
+  - `ScrollAction` (`scrollBy`, `scrollTo`) and `LambdaAction`.
 
-### 6. Make `internal`
-- Wire serialization and ID resolution (`writeToDocument`, `getIdForCreationState`, `getFloatIdForCreationState`, `getLongIdForCreationState`, `toRecordingModifier`, `toRecordingModifierElement`, `toRemote`, `RemoteStateVisitor`).
-- `RemoteComposeCreationState`, `RemoteComposeCapture`, `RecordingCanvas`, `RemoteVector` / `RemotePathNode` internals, and `DocumentStats`.
-- Modifier implementation classes (`ClipModifier`, `GraphicsLayerModifier`, `CollapsiblePriorityModifier`, `MacroModifier`, `RippleModifier`).
-- Paint, shader, painter, and vector implementation classes (`StandardRemotePaint`, `CompatAndroidRemotePaint`, `RemoteLinearShader`, `RemoteRadialShader`, `RemoteSweepShader`, `RemoteSolidColor`, `RemoteShader`, `RemoteVectorPainter` and `draw(RemoteCanvas)` helpers, `RemoteColorPainter`, `RemoteImageBitmapPainter`).
+### 6. Keep Restricted (Cross-Module Boundary)
+
+- Wire-serialization, capture-state, and cache-key APIs shared across RemoteCompose modules (`:compose:remote:remote-creation-expression`, `:compose:remote:remote-creation-compose`, `:compose:remote:remote-player-compose`, `:compose:remote:remote-testing`, `:wear:compose:remote:remote-material3`, and `:xr:glimmer:glimmer-remote`), including `RemoteComposeCreationState`, `RemoteComposeCaptureState`, `LocalRemoteComposeCreationState`, `RemoteStateScope` ID accessors (`id`, `floatId`, `longId`, `document`, `creationState`), `BaseRemoteState` ID methods, `RemoteStateCacheKey`, `RemoteStateVisitor`, `RemoteCanvas`, `RemoteAction.toRemoteAction()`, `RemoteModifier.toRecordingModifier`, and prebuilt binary bridges (`CapturedDocument`, `WriterEvents`).
 
 ## Out of Scope
 
