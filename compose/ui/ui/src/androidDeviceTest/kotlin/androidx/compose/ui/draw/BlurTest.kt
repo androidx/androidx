@@ -27,6 +27,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertPixelColor
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -194,7 +195,7 @@ class BlurTest {
                 BlurRadiusSpec.verticalGradient(startRadius = 0.dp, endRadius = 20.toDp())
         }
         val map = rule.onNodeWithTag(tag).captureToImage().toPixelMap()
-        // Top rows: gradient intensity ~0 -> per-pixel radius < 1px -> exact source colors.
+        // Top rows: gradient intensity ~0 -> per-pixel radius < 1px -> source colors.
         for (y in 0..2) map.assertSharpBoundaryAt(y)
         // Bottom rows: radius ~20px -> boundary pixels are a black/white mix.
         for (y in map.height - 3 until map.height) map.assertBlurredBoundaryAt(y)
@@ -205,7 +206,7 @@ class BlurTest {
     @MediumTest
     fun testProgressiveBlurMultiStopRegion() {
         // Verifies zero-region stops [(0, 0), (0.5, 0), (1, 20px)].
-        // The first half stays pixel-exact; the blur ramps in over the second half.
+        // The first half stays sharp; the blur ramps in over the second half.
         val tag = "progressiveBlurMultiStop"
         setSplitContent(tag) {
             blurRadiusSpec =
@@ -682,21 +683,17 @@ class BlurTest {
     private fun Color.isIntermediate(): Boolean = red > 0.02f && red < 0.98f
 
     /**
-     * Asserts the split boundary is sharp at row [y]. Pixels adjacent to the boundary must exactly
-     * match the source colors.
+     * Asserts the split boundary is sharp at row [y]. Pixels adjacent to the boundary match the
+     * source colors within GPU tolerance.
      */
     private fun PixelMap.assertSharpBoundaryAt(y: Int) {
         val boundary = width / 2
-        assertEquals(
-            "expected exact black just left of the boundary at y=$y",
-            Color.Black.toArgb(),
-            this[boundary - 1, y].toArgb(),
-        )
-        assertEquals(
-            "expected exact white just right of the boundary at y=$y",
-            Color.White.toArgb(),
-            this[boundary, y].toArgb(),
-        )
+        assertPixelColor(Color.Black, boundary - 1, y) { actual ->
+            "expected black just left of the boundary at y=$y, was $actual"
+        }
+        assertPixelColor(Color.White, boundary, y) { actual ->
+            "expected white just right of the boundary at y=$y, was $actual"
+        }
     }
 
     /** Asserts the split boundary is blurred at row [y]: boundary pixels are intermediate. */

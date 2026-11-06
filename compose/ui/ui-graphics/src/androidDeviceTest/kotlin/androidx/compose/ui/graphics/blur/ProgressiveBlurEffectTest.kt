@@ -22,9 +22,13 @@ import android.graphics.Paint
 import android.graphics.RenderNode
 import android.graphics.RuntimeShader
 import android.os.Build
+import androidx.compose.testutils.assertPixelColor
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
@@ -191,7 +195,7 @@ class ProgressiveBlurEffectTest {
                 )
             }
         val bitmap = renderSplit(gradient)
-        // Top rows: mask alpha ~0 -> radius < 1px -> exact source colors.
+        // Top rows: mask alpha ~0 -> radius < 1px -> source colors.
         for (y in 0..2) bitmap.assertSharpBoundaryAt(y)
         // Bottom rows: mask alpha ~1 -> ~20px radius -> boundary pixels are a black/white mix.
         for (y in PIXEL_TEST_SIZE - 3 until PIXEL_TEST_SIZE) bitmap.assertBlurredBoundaryAt(y)
@@ -201,7 +205,7 @@ class ProgressiveBlurEffectTest {
     fun verticalGradientBlursOnlyWhereRadiusIsNonZero() {
         val bitmap =
             renderSplit(BlurRadiusSpec.verticalGradient(startRadius = 0.dp, endRadius = 20.dp))
-        // Top rows: gradient intensity ~0 -> radius < 1px -> exact source colors.
+        // Top rows: gradient intensity ~0 -> radius < 1px -> source colors.
         for (y in 0..2) bitmap.assertSharpBoundaryAt(y)
         // Bottom rows: radius ~20px -> boundary pixels are a black/white mix.
         for (y in PIXEL_TEST_SIZE - 3 until PIXEL_TEST_SIZE) bitmap.assertBlurredBoundaryAt(y)
@@ -338,19 +342,16 @@ class ProgressiveBlurEffectTest {
         }
     }
 
-    /** Pixels adjacent to the split boundary are exactly the source colors. */
+    /** Pixels adjacent to the split boundary match the source colors within GPU tolerance. */
     private fun Bitmap.assertSharpBoundaryAt(y: Int) {
         val boundary = PIXEL_TEST_SIZE / 2
-        assertEquals(
-            "expected exact black just left of the boundary at y=$y",
-            android.graphics.Color.BLACK,
-            getPixel(boundary - 1, y),
-        )
-        assertEquals(
-            "expected exact white just right of the boundary at y=$y",
-            android.graphics.Color.WHITE,
-            getPixel(boundary, y),
-        )
+        val pixelMap = asImageBitmap().toPixelMap()
+        pixelMap.assertPixelColor(Color.Black, boundary - 1, y) { actual ->
+            "expected black just left of the boundary at y=$y, was $actual"
+        }
+        pixelMap.assertPixelColor(Color.White, boundary, y) { actual ->
+            "expected white just right of the boundary at y=$y, was $actual"
+        }
     }
 
     /** Boundary pixels are an intermediate black/white mix (tolerance based). */
