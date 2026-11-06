@@ -70,6 +70,7 @@ import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
+import androidx.compose.ui.unit.round
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.viewinterop.NoOpUpdate
@@ -586,9 +587,8 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
                 it.updateSize(size.width, size.height)
             }
         }
-        val position = coordinates.positionInRoot()
-        holder?.translationX = position.x
-        holder?.translationY = position.y
+        val position = coordinates.positionInRoot().round()
+        holder?.updatePosition(position.x, position.y)
     }
 
     override fun ContentDrawScope.draw() {
