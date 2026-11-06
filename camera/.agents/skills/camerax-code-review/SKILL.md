@@ -251,7 +251,7 @@ applicable. Prioritize clarity and conciseness.
         - **Documentation & KDoc Integrity**: Confirm public API docs and guide
           updates are accurate, wrapped at 80 characters, and 100% public-safe.
 6.  **Universal Clean-Context Multi-Model Verification Loop (Canonical Gate —
-    Autonomous Convergence, Default 3 Rounds / Auto-Scale up to 5 Rounds):**
+    Adaptive 1-Turn Read-Only Audit & Up-to-5-Round Code Convergence):**
     During investigation and solution design (before committing to a fix
     design) and again before delivering any finalized review, code change,
     root-cause investigation, implementation plan, test verification report, or
@@ -261,140 +261,14 @@ applicable. Prioritize clarity and conciseness.
     is present, it supplies internal model-routing/CLI commands and
     programmatic loop runners but **never** relaxes the verification gates,
     zero-priming rules, or convergence exit criteria below):
-    *   **Smart & Flexible Trigger Scope (When to Auto-Invoke vs. Skip):**
-        - **Auto-Trigger at Both Investigation/Design Time AND Pre-Delivery Time
-          (Mandatory by Default)**: Automatically trigger for (1) Code Review /
-          Pre-Upload Self-Review, (2) Issue Investigation, Root-Cause Triage &
-          Non-Trivial Technical/Behavioral Questions, (3) Implementation,
-          Solution Proposals & Architectural Planning, (4) Test / Verification
-          Reports & Data Summaries, and (5) Open-Ended Design Trade-Offs, Quirk
-          Scoping, Complex Test Synthesis, or any question/task where high
-          quality or multiple independent perspectives can uncover a better
-          solution.
-          - *Checkpoint 1 — Hard Pre-Coding Investigation & Design Gate (Before
-            Implementing Production Fixes or Finalizing Any Plan/Triage):*
-            When investigating a non-trivial bug, race condition, HAL failure,
-            or multi-class change, you may add temporary diagnostic logging or
-            write a failing reproduction test first (staging their output as
-            raw evidence), but do **not** implement the production fix or
-            finalize an investigation/plan without running this gate first.
-            Spawn independent clean-context cross-family verifiers (Modes 2, 3,
-            and 5) to explicitly verify: (a) the true first causal failure in
-            the raw logs, (b) the **Section 6.A User-Impact vs. Test-Only Gate**
-            (rejecting test-only workarounds when real application users can
-            trigger the issue in library code), and (c) **Deep-Module
-            Simplicity & Object Job** (selecting the simplest minimal-state
-            design before coding the fix).
-          - *Checkpoint 2 — Deterministic Pre-Gate & Recursive Post-Fix
-            Convergence Audit:* Run deterministic checks first—formatting
-            (`./gradlew :ktCheckFile --format`), compilation/ErrorProne, and
-            relevant unit tests—*before* spawning clean-context verifiers (and
-            after every fix pass) so reviewers focus 100% on logic, concurrency,
-            and architecture rather than syntax or build noise. Then run the
-            clean-context verification loop (Modes 1–5), autonomously applying
-            fixes and re-verifying in fresh clean contexts until the
-            convergence exit gate is satisfied (`0` `OPEN`
-            `Critical`/`High`/`Medium` or factual/architectural issues, `0`
-            `REGRESSED` issues, and `0` `PATCHED_PENDING_REAUDIT` items).
-        - **Skip (Lightweight Flash Single-Fact Lookup or Direct Status
-          Check)**: Skip **only** for simple, single-step operational commands
-          or status checks (e.g., listing devices, checking device status, or
-          initializing a workspace) or a flash single-fact lookup (e.g., a
-          single file path, constant value, or exact method signature verified
-          via `read_file`) where no root-cause analysis, concurrency/lifecycle
-          reasoning, architectural trade-off, solution proposal, or code diff is
-          being delivered. Whenever a user question asks *why* a CameraX
-          behavior occurs, how to solve/design a feature or fix, or spans
-          multiple interacting layers, do **not** skip—stage
-          `<scratch_or_tmp>/draft_deliverable.md` and run Modes 2, 3, or 5
-          before replying.
-    *   **Runtime Capability Detection, Live Model Query & Notification:** Check
-        whether the agent console/harness supports spawning independent
-        sub-agents across distinct model families or tiers (see
-        `AGENTS_INTERNAL.md` when configured).
-        - **Prefer Cross-Family Multi-Model Verification Over Same-Family
-          Tiers:** Do **not** default to different reasoning tiers of the same
-          model family if the harness (or `AGENTS_INTERNAL.md` when configured)
-          supports dispatching or dynamically registering verifier sub-agents
-          across genuinely distinct model families. Fall back to same-family
-          reasoning tiers only when cross-family model selection is unavailable
-          in the current environment.
-        - **Author vs. Verifier Model Specialization & Opposite-Family-First
-          Routing:** Read-only post-hoc reviews alone cannot turn a flawed
-          initial architecture into clean code if the primary authoring model
-          repeatedly patches around its own design. When multiple model families
-          are available in the harness (see `AGENTS_INTERNAL.md` when
-          configured):
-          1. *Phase-Matched Authoring:* Use high-throughput search/tool models
-             for fast codebase exploration, log/query ingestion, and test
-             runner execution, and switch the active coordinator model in-place
-             (or delegate to a dedicated coding/architect worker) on the
-             strongest available coding/architecture model family *before*
-             designing and authoring non-trivial Kotlin/Java state-machine or
-             concurrency changes.
-          2. *Opposite-Family-First Round 1 (`R1`):* Never start Round 1 (`R1`)
-             on the **same** model family as the active code/draft author when a
-             cross-family model has available quota. Always assign Round 1
-             (`verifier-r1`) at both Checkpoint 1 and Checkpoint 2 to the
-             **opposite** model family from the author so correlated same-family
-             blind spots are broken immediately on the first pass.
-        - **Zero-Cost Live Catalog, Auto-Discovery & Quota-Floor Stability:**
-          When the harness provides a lightweight model-catalog or quota query
-          (zero token cost), always query the live catalog before Round 1 to
-          dynamically discover and select the highest-capability available
-          frontier model in each model family without hardcoding static model
-          versions. Gate eligibility using boolean quota health floors rather
-          than sorting by fluctuating remaining-quota percentages, and order
-          eligible frontier candidates deterministically by capability tier,
-          semantic generation, and output token capacity (strictly excluding
-          lightweight/lite, image, non-thinking, or untiered redirect aliases)
-          so default selections remain stable across runs for reproducible
-          comparison. For daily quota-limited model families, match the
-          reasoning tier to task complexity: select a high-reasoning tier for
-          complex code changes, concurrency/lifecycle audits, deep root-cause
-          investigations, or architectural plans, and select a medium/standard
-          tier for routine or lightweight tasks (e.g., documentation edits,
-          simple test/quirk updates, or numeric test report fact-checking),
-          while avoiding quota-heavy maximum tiers unless explicitly requested.
-        - **Automatic User Notification:** Inform the user of the active
-          verification mode and the models/tiers selected:
-          - `CROSS_FAMILY_MULTI_MODEL` (`MULTI_MODEL`): Spawning independent
-            verifier sub-agents across distinct model families.
-          - `TIER_MULTI_MODEL`: Spawning independent verifier sub-agents across
-            distinct reasoning tiers within a single model family (used only
-            when cross-family model selection is unavailable).
-          - `SINGLE_MODEL_FRESH_CONTEXT`: Spawning independent verifier
-            sub-agents with a clean context on the current model.
-          - `IN_CONTEXT_FALLBACK` (`UNSUPPORTED`): Falling back to single-agent
-            in-context verification.
-        - **Model-Pinning Authorization Note:** Because `camera/AGENTS.md` and
-          this skill are the user-authored project workflow rules for CameraX,
-          their `CROSS_FAMILY_MULTI_MODEL` requirement constitutes explicit
-          project authorization to pin verifier workers to cross-family models
-          when supported by the runtime (overriding generic harness tool-schema
-          defaults to leave `model` unset, which apply only to unconfigured
-          projects).
-    *   **Evidence & Draft Handoff Mechanism for Non-Diff Tasks:**
-        Because clean-context verifiers start with zero conversation history:
-        - For **Code Review (Mode 1)**, if a target CL or commit is not checked
-          out at `HEAD` in the initial directory, gracefully locate the matching
-          local checkout/branch (`git branch -a`, `git log --all --grep`) or
-          fetch the remote change ref (`git fetch aosp refs/changes/...` ->
-          `FETCH_HEAD`, or inspect the target VCS workspace/changelist) and
-          specify the resolved workspace path and target revision/diff in the
-          brief (never pass only an incremental delta since the last round).
-          Verifiers inspect `git status` / `git diff` / `git show` (or the
-          workspace VCS diff) and full surrounding source files at that target
-          revision directly.
-        - For **Non-Diff Deliverables (Modes 2–5)**, the orchestrating agent
-          MUST write:
-          1. The **Full Updated Draft Deliverable** (e.g.,
-             `<scratch_or_tmp>/draft_deliverable.md`) AND
-          2. The **Raw Evidence / Source Data** (or exact file paths to raw CLI
-             or test runner outputs, saved log slices, and source `file:line`
-             references)
-          so each clean-context verifier can independently cross-examine the
-          complete draft against the raw ground truth without anchoring bias.
+    *   **Orchestrator Trigger Scope, Cross-Family Model Routing & Evidence
+        Handoff (`read_file` Reference — Coordinators Only):** When
+        orchestrating verification (Checkpoints 1 & 2, live model-catalog
+        probing, author vs. opposite-family verifier routing, quota-floor
+        stability, user mode notification, and Mode 1–5 raw evidence / draft
+        handoff), read
+        `camera/.agents/skills/camerax-code-review/MULTI_MODEL_HARNESS.md` in
+        full (read-only leaf verifiers skip `MULTI_MODEL_HARNESS.md`).
     *   **Zero-Priming ("Second-Console") Briefs, Orthogonal Critic Lenses,
         Shared-Board Isolation & Per-CL Granularity:**
         To replicate the bug-finding effectiveness of opening a brand-new AI
@@ -418,12 +292,17 @@ applicable. Prioritize clarity and conciseness.
           *before* reading `<scratch_or_tmp>/draft_deliverable.md` in a
           subsequent turn.
         - **Post-Blind Adjudication Turn (Round 2+, Compact Tag Reply — Zero
-          Report Rewrites):** Only *after* the verifier has posted its
-          independent cold audit, provide it a neutral list of prior
-          `PATCHED_PENDING_REAUDIT` and `DISMISSED_WITH_PROOF` items (location +
-          original finding text only; never the author's rationale) for a
-          **compact inline status reply (`<= 15` lines: `VERIFIED_RESOLVED` /
-          `REGRESSED` / `UPHELD` / `REJECTED`)** without re-reading files or
+          Report Rewrites):** Mode 1 Round 1 has no draft or prior ledger and
+          runs in **1 single turn / 1 report**. Only *after* the Round 2+
+          verifier has posted its independent cold audit, whenever Round `n-1`
+          has `PATCHED_PENDING_REAUDIT` or `DISMISSED_WITH_PROOF` items not
+          explicitly tagged in Turn 1 (silence in blind Turn 1 is never
+          resolution), send a neutral list of those items (location + original
+          finding text only; never the author's rationale) as Turn 2 in Mode 1
+          (or appended to Turn 2 in Modes 2–5) for a **compact inline status
+          reply (`<= 15` lines: `VERIFIED_RESOLVED` / `REGRESSED` / `UPHELD` /
+          `REJECTED` -> `OPEN`)** without re-reading files already read in Turn
+          1 (targeted `read_file` on an unread cited `file:line` is allowed) or
           rewriting a second report file.
         - **Three Orthogonal Hostile Critic Lenses**: Instruct every verifier to
           audit across three complementary lenses: (1) *Correctness,
@@ -475,19 +354,50 @@ applicable. Prioritize clarity and conciseness.
         (without the author's chain-of-thought) and be instructed to read this
         `AGENTS.md` (Code Review Guidelines, Step 5 Mode Checklist, Section 6 &
         Section 8 Rubrics, and Standards Hierarchy), `AGENTS_INTERNAL.md` (if
-        available), the target diff or draft deliverable, the raw evidence
-        files, and the surrounding CameraX codebase widely. Read-only verifiers
-        must never edit files, switch `git` branches, or run parallel
-        `./gradlew` builds.
-    *   **Autonomous Convergence Loop (Adaptive 1-Pass Read-Only Audit & Code
-        Convergence up to 5 Rounds):**
-        0. *Adaptive 1-Pass Read-Only Audit vs. Multi-Round Code Convergence:*
+        available per the matrix below), the target diff or draft deliverable,
+        the raw evidence files, and the surrounding CameraX codebase widely.
+        Read-only verifiers must never edit files, switch `git` branches, or
+        run parallel `./gradlew` builds.
+        In Round 2+, keep **Turn 1 100% cold and full-diff** (`git show` /
+        `git diff` plus surrounding classes; never pass incremental-only diffs
+        or prior finding lists in Turn 1) before any adjudication turn.
+        - **Role-Scoped Super CameraX SWE Context Matrix:**
+          Verifiers load full CameraX architectural/review knowledge for their
+          scope while skipping coordinator-only harness files:
+          1. *Core Super CameraX SWE Review Bundle (Always Load by Scope):*
+             Read `camera/AGENTS.md` + `camerax-code-review` +
+             `camerax-guidelines-governance`.
+          2. *Domain-Conditional CameraX Skills (Load Only When In Scope; Skip
+             When Out of Scope):*
+             - `camerax-testing`: Load when unit/device tests, fakes, Test
+               Pyramid migrations, or Section 1 4-layer package placement are
+               in scope.
+             - `camerax-triage-and-quirks`: Load when Mode 1 bug-fix / behavior
+               changes (`Section 6.B-6.F`), root-cause triage, HAL behavior,
+               `Quirk` scoping (`Sections 5-6`), Section 8 capability
+               abstractions, test skips/timeouts (`assume*`, `@Ignore`),
+               `DeviceQuirk`, Section 6.A test-skip / public-contract audits, or
+               public API behavior (`Section 6.A/6.E/6.F`) are in scope.
+          3. *Execution- & Coordinator-Only Skills (Explicitly SKIP in Read-Only
+             Leaf Verifiers):* Read-only leaf verifiers skip
+             `MULTI_MODEL_HARNESS.md` and execution/coordinator-only workflow
+             guides (unless auditing their modified diff lines or CI/lab
+             reports; pure `camera/` read-only leaf reviews without CI/lab
+             reports skip internal guides).
+          4. *Single-Call Full-File Read Discipline (`<= 780` Lines):* Read
+             every `AGENTS.md` / `SKILL.md` guide in **1 single un-sliced
+             `read_file` call** and read source files in `<= 780`-line chunks
+             (never 80–120 line micro-slices).
+    *   **Autonomous Multi-Round Convergence Loop (Adaptive 1-Turn Read-Only
+        Audit & Code Convergence up to 5 Rounds):**
+        0. *Adaptive Read-Only Depth vs. Multi-Round Code Convergence:*
            For read-only reviews, triage analyses, architectural plans, or
-           technical Q&A where no code edits are made by the agent (or when
-           Round 1 confirms 0 defects), exit after **1 cross-family pass**.
-           Never run 3 to 5 rounds on read-only tasks unless Round 1 overturns
-           the primary root cause or architecture. Multi-round convergence
-           (R2–R5) is strictly reserved for iterative code-change repair loops.
+           technical Q&A where no repository code edits are made by the agent,
+           exit after **1 cross-family pass** (lightweight) or **2 parallel
+           cross-family verifiers in 1 turn** (non-trivial/architectural; see
+           item 7). Run a focused Round 2 on read-only tasks only under the
+           Fundamental-Pivot Anti-Ping-Pong Guard; iterative multi-round
+           convergence (R2–R5) is reserved for code-change repair loops.
         1. *Autonomous Multi-Turn Execution (No Conversational Yielding Between
            Rounds):* Never pause to ask the user for permission between
            intermediate review-and-fix rounds. Autonomously execute the state
@@ -523,10 +433,12 @@ applicable. Prioritize clarity and conciseness.
            surrounding class for all instances of the same anti-pattern and fix
            them in the same pass before re-running deterministic checks and
            spawning the next verifier round.
-        4. *Dynamic 3-to-5 Round Scaling & Hard Convergence Exit Gate:*
-           - **Rounds 1 -> 2 -> 3 (Baseline Cross-Family Chain):** Spawn fresh
-             clean-context verifiers across distinct model families/tiers
-             (`verifier-r1` -> fix -> `verifier-r2` -> fix -> `verifier-r3`).
+        4. *Dynamic Multi-Round Scaling & Hard Convergence Exit Gate:*
+           - **Rounds 1 -> 2 (-> 3) (Cross-Family Chain for Code Edits):**
+             Spawn fresh clean-context verifiers across distinct model
+             families/tiers (`verifier-r1` -> fix -> `verifier-r2`, adding
+             `verifier-r3` when R2 finds `P0-P2` issues or applies a semantic
+             edit; early exit per item 7).
            - **Hard Convergence Exit Gate:** Convergence is achieved **only**
              when the latest clean-context verifier round reports **`0` `OPEN`
              (`Critical` / `High` / `Medium` or factual/architectural) issues,
@@ -579,20 +491,60 @@ applicable. Prioritize clarity and conciseness.
              constraint; if a design choice returns to a previously rejected
              state (`v1 -> v2 -> v1`), lock the state and surface the trade-off
              (`ESCALATED`) to the user.
-        7. *Flexible Early Exit:*
-           - **After Round 1 (Routine Non-Code / Doc Deliverables Only):** For
-             routine or low-risk non-code deliverables (e.g., straightforward
-             test result tables or localized doc-only updates) where
-             `verifier-r1` reports `0` `OPEN` issues and `0`
-             `PATCHED_PENDING_REAUDIT` items, exit early after Round 1.
-           - **After Round 2 (Code, Deep Triage, Plans, Trade-Offs & Edited
-             Drafts):** For all production/test code changes (`git diff`),
-             complex investigations/plans, trade-off syntheses (`Mode 5`), or
-             any draft modified after Round 1, run Round 2 on a second model
-             family/tier; stop early after Round 2 only if the ledger has `0`
-             `OPEN` (`Critical`/`High`/`Medium` or factual/architectural)
-             issues, `0` `REGRESSED` issues, and `0` `PATCHED_PENDING_REAUDIT`
-             items.
+           - Before modifying an existing CL or applying verifier refactors,
+             inspect patchset/commit history (`git --no-lazy-fetch log -p`,
+             `git reflog`, or fetched Gerrit patchsets) and seed prior resolved
+             findings into `convergence_ledger.md` so solved bugs never
+             ping-pong back across revisions.
+        7. *Flexible Early Exit (Adaptive Depth by Deliverable Type &
+           Anti-Ping-Pong Guards):*
+           - **Read-Only Deliverables (`0` Repository Files Modified — Mode 1
+             CL Reviews & Modes 2–5 Non-Code Q&A/Triage/Plans/Reports):**
+             Adapt review depth by complexity:
+             1. *Lightweight / Localized Reviews* (typos, single-function
+                logic, doc updates, localized test additions): **1 cross-family
+                blind pass** (`1` opposite-family verifier + coordinator direct
+                `file:line` & `git --no-lazy-fetch blame` verification) suffices
+                for early exit.
+             2. *Non-Trivial / Architectural Reviews* (concurrency, lifecycle
+                state machines, cross-class audio/video pipelines, multi-class
+                boundary changes, public API, or `DeviceQuirk`/HAL/5-Gate root
+                causes): Mandate spawning **2 distinct vendor families in
+                parallel**. Because both run in parallel on the same snapshot,
+                it executes in **1 turn** (no multi-round sequential ping-pong
+                loops or unnecessary token waste) while capturing complementary
+                cross-family perspectives on full call chains and OEM device
+                quirks (e.g. an `AudioSource` pause/flush review where one
+                family caught latch happens-before timing while the other
+                traced upstream encoder state transitions and an OEM timestamp
+                quirk exception).
+             R1 findings merged into `<scratch_or_tmp>/draft_deliverable.md`
+             after direct `file:line` verification are logged
+             `VERIFIED_RESOLVED (coordinator-verified)` rather than
+             `PATCHED_PENDING_REAUDIT` and satisfy the exit gate without R2–R5
+             codebase re-audits. *Fundamental-Pivot Anti-Ping-Pong Guard:*
+             Spawn a focused Round 2 clean-context check on a non-code
+             deliverable **only** when R1 **overturned the core root cause or
+             replaced the proposed Checkpoint 1 fix architecture**, or when
+             parallel R1 verifiers have an **unresolved factual contradiction**
+             on `file:line` / specification behavior.
+           - **Post-Review Fix Sign-Off Fast-Path (1 Opposite-Vendor Cold
+             Pass):** When applying localized code fixes to a CL after a prior
+             cross-family clean-context review or Gerrit review (seeding
+             `convergence_ledger.md` from prior review threads & patchset
+             history so solved bugs never ping-pong back, with green Stage 2
+             compiler/ErrorProne/lint/repohook checks), **1 fresh clean-context
+             full-diff round on the opposite model family from the fix author**
+             (+ inline Turn 2 `Post-Blind Adjudication Turn` confirming
+             `100% VERIFIED_RESOLVED`, `0` `OPEN` `P0-P2`, `0` `REGRESSED`, AND
+             `0` unadjudicated `DISMISSED_WITH_PROOF` with each `UPHELD`)
+             satisfies convergence immediately (extending to Round 2+ only if
+             that pass finds a new `P0-P2` defect or regression).
+           - **Cold Newly-Authored Code Changes (Cross-Family R2 Gate):** For
+             newly authored production, test, or doc/skill changes, run Round 2
+             on a second model so R1 and R2 span distinct model families, and
+             stop once cross-family coverage + the Hard Convergence Exit Gate
+             hold (auto-scaling through R3–R5 while fixes continue converging).
     *   **Read-Only Verifier, Search Discipline & Watchdog Recovery:**
         Verifier sub-agents must never edit repository files, run build/Gradle
         tasks, or run unbounded `find` / recursive `grep` commands across

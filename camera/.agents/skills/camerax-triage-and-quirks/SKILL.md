@@ -512,9 +512,12 @@ pathway to engineer robust, architecturally sound solutions:
      code change, multi-device verification report, or quirk-scoping synthesis
      engineered under this framework, pass the draft deliverable and raw
      evidence through the **Universal Clean-Context Multi-Model Verification
-     Loop** (Step 5 & Step 6, Modes 1–5; default 3 rounds, auto-scaling up to 5
-     rounds while fixes converge) to independently audit specification claims,
-     architectural placement, test coverage, and report accuracy.
+     Loop** (Step 5 & Step 6, Modes 1–5: 1 cross-family pass for lightweight
+     investigations/reports or 2 parallel cross-family verifiers in 1 turn for
+     non-trivial `DeviceQuirk`/HAL/architectural analyses; cross-family
+     convergence up to 5 rounds when modifying repository code) to
+     independently audit specification claims, architectural placement, test
+     coverage, and report accuracy.
 
 
 
