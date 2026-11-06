@@ -28,23 +28,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
-import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.FocusEventModifierNode
+import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyInputModifierNode
 import androidx.compose.ui.input.key.NativeKeyEvent
-import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 @Composable
@@ -128,69 +128,192 @@ internal fun Modifier.handleDPadEnter(
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
     selected: Boolean = false,
-) =
-    composed(
-        inspectorInfo =
-            debugInspectorInfo {
-                name = "handleDPadEnter"
-                properties["enabled"] = enabled
-                properties["interactionSource"] = interactionSource
-                properties["onClick"] = onClick
-                properties["onLongClick"] = onLongClick
-                properties["selected"] = selected
-            }
+): Modifier =
+    this.then(
+        HandleDPadEnterElement(
+            enabled = enabled,
+            interactionSource = interactionSource,
+            onClick = onClick,
+            onLongClick = onLongClick,
+            selected = selected,
+        )
+    )
+
+private class HandleDPadEnterElement(
+    private val enabled: Boolean,
+    private val interactionSource: MutableInteractionSource,
+    private val onClick: (() -> Unit)?,
+    private val onLongClick: (() -> Unit)?,
+    private val selected: Boolean,
+) : ModifierNodeElement<HandleDPadEnterNode>() {
+    override fun create(): HandleDPadEnterNode =
+        HandleDPadEnterNode(
+            enabled = enabled,
+            interactionSource = interactionSource,
+            onClick = onClick,
+            onLongClick = onLongClick,
+            selected = selected,
+        )
+
+    override fun update(node: HandleDPadEnterNode) {
+        node.update(
+            enabled = enabled,
+            interactionSource = interactionSource,
+            onClick = onClick,
+            onLongClick = onLongClick,
+            selected = selected,
+        )
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "handleDPadEnter"
+        properties["enabled"] = enabled
+        properties["interactionSource"] = interactionSource
+        properties["onClick"] = onClick
+        properties["onLongClick"] = onLongClick
+        properties["selected"] = selected
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is HandleDPadEnterElement) return false
+        if (enabled != other.enabled) return false
+        if (interactionSource != other.interactionSource) return false
+        if (onClick !== other.onClick) return false
+        if (onLongClick !== other.onLongClick) return false
+        if (selected != other.selected) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = enabled.hashCode()
+        result = 31 * result + interactionSource.hashCode()
+        result = 31 * result + (onClick?.hashCode() ?: 0)
+        result = 31 * result + (onLongClick?.hashCode() ?: 0)
+        result = 31 * result + selected.hashCode()
+        return result
+    }
+}
+
+private class HandleDPadEnterNode(
+    private var enabled: Boolean,
+    private var interactionSource: MutableInteractionSource,
+    private var onClick: (() -> Unit)?,
+    private var onLongClick: (() -> Unit)?,
+    private var selected: Boolean,
+) : Modifier.Node(), FocusEventModifierNode, KeyInputModifierNode {
+    private val pressInteraction = PressInteraction.Press(Offset.Zero)
+    private var isLongClick = false
+    private var isPressed = false
+    private var collectJob: Job? = null
+
+    override fun onAttach() {
+        if (enabled) {
+            startCollectingPressed()
+        }
+    }
+
+    override fun onDetach() {
+        collectJob?.cancel()
+        collectJob = null
+        isPressed = false
+        isLongClick = false
+    }
+
+    fun update(
+        enabled: Boolean,
+        interactionSource: MutableInteractionSource,
+        onClick: (() -> Unit)?,
+        onLongClick: (() -> Unit)?,
+        selected: Boolean,
     ) {
-        if (!enabled) return@composed this
+        val enabledChanged = this.enabled != enabled
+        val interactionSourceChanged = this.interactionSource != interactionSource
+        this.enabled = enabled
+        this.interactionSource = interactionSource
+        this.onClick = onClick
+        this.onLongClick = onLongClick
+        this.selected = selected
 
-        val coroutineScope = rememberCoroutineScope()
-        val pressInteraction = remember { PressInteraction.Press(Offset.Zero) }
-        var isLongClick by remember { mutableStateOf(false) }
-        val isPressed by interactionSource.collectIsPressedAsState()
-
-        this.onFocusChanged {
-                if (!it.isFocused && isPressed) {
-                    coroutineScope.launch {
-                        interactionSource.emit(PressInteraction.Release(pressInteraction))
-                    }
-                }
+        if (enabledChanged || interactionSourceChanged) {
+            collectJob?.cancel()
+            collectJob = null
+            isPressed = false
+            isLongClick = false
+            if (isAttached && enabled) {
+                startCollectingPressed()
             }
-            .onKeyEvent { keyEvent ->
-                if (AcceptableEnterClickKeys.contains(keyEvent.nativeKeyEvent.keyCode)) {
-                    when (keyEvent.nativeKeyEvent.action) {
-                        NativeKeyEvent.ACTION_DOWN -> {
-                            when (keyEvent.nativeKeyEvent.repeatCount) {
-                                0 ->
-                                    coroutineScope.launch {
-                                        interactionSource.emit(pressInteraction)
-                                    }
-                                1 ->
-                                    onLongClick?.let {
-                                        isLongClick = true
-                                        coroutineScope.launch {
-                                            interactionSource.emit(
-                                                PressInteraction.Release(pressInteraction)
-                                            )
-                                        }
-                                        it.invoke()
-                                    }
+        }
+    }
+
+    private fun startCollectingPressed() {
+        val currentInteractionSource = interactionSource
+        collectJob = coroutineScope.launch {
+            val pressInteractions = mutableListOf<PressInteraction.Press>()
+            currentInteractionSource.interactions.collect { interaction ->
+                when (interaction) {
+                    is PressInteraction.Press -> pressInteractions.add(interaction)
+                    is PressInteraction.Release -> pressInteractions.remove(interaction.press)
+                    is PressInteraction.Cancel -> pressInteractions.remove(interaction.press)
+                }
+                isPressed = pressInteractions.isNotEmpty()
+            }
+        }
+    }
+
+    override fun onFocusEvent(focusState: FocusState) {
+        if (!enabled) return
+        if (!focusState.isFocused && isPressed) {
+            val currentInteractionSource = interactionSource
+            coroutineScope.launch {
+                currentInteractionSource.emit(PressInteraction.Release(pressInteraction))
+            }
+        }
+    }
+
+    override fun onKeyEvent(event: KeyEvent): Boolean {
+        if (!enabled) return KeyEventPropagation.ContinuePropagation
+        if (AcceptableEnterClickKeys.contains(event.nativeKeyEvent.keyCode)) {
+            val currentInteractionSource = interactionSource
+            when (event.nativeKeyEvent.action) {
+                NativeKeyEvent.ACTION_DOWN -> {
+                    when (event.nativeKeyEvent.repeatCount) {
+                        0 ->
+                            coroutineScope.launch {
+                                currentInteractionSource.emit(pressInteraction)
                             }
-                        }
-                        NativeKeyEvent.ACTION_UP -> {
-                            if (!isLongClick) {
+                        1 ->
+                            onLongClick?.let {
+                                isLongClick = true
                                 coroutineScope.launch {
-                                    interactionSource.emit(
+                                    currentInteractionSource.emit(
                                         PressInteraction.Release(pressInteraction)
                                     )
                                 }
-                                onClick?.invoke()
-                            } else isLongClick = false
-                        }
+                                it.invoke()
+                            }
                     }
-                    return@onKeyEvent KeyEventPropagation.StopPropagation
                 }
-                KeyEventPropagation.ContinuePropagation
+                NativeKeyEvent.ACTION_UP -> {
+                    if (!isLongClick) {
+                        coroutineScope.launch {
+                            currentInteractionSource.emit(
+                                PressInteraction.Release(pressInteraction)
+                            )
+                        }
+                        onClick?.invoke()
+                    } else {
+                        isLongClick = false
+                    }
+                }
             }
+            return KeyEventPropagation.StopPropagation
+        }
+        return KeyEventPropagation.ContinuePropagation
     }
+
+    override fun onPreKeyEvent(event: KeyEvent): Boolean = false
+}
 
 private fun calculateAlphaBasedOnState(
     enabled: Boolean,

@@ -16,38 +16,51 @@
 
 package androidx.tv.material3
 
-import androidx.compose.foundation.relocation.bringIntoViewResponder
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.node.LayoutAwareModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.relocation.BringIntoViewModifierNode
+import androidx.compose.ui.relocation.bringIntoView
+import androidx.compose.ui.unit.IntSize
 
-// Suppressed the deprecation because BringIntoViewModifierNode is not
-// available in compose.ui 1.7.x
-@Suppress("DEPRECATION")
 internal fun Modifier.bringIntoViewIfChildrenAreFocused(): Modifier =
-    composed(
-        inspectorInfo = debugInspectorInfo { name = "bringIntoViewIfChildrenAreFocused" },
-        factory = {
-            var myRect: Rect = Rect.Zero
-            this.onSizeChanged {
-                    myRect = Rect(Offset.Zero, Offset(it.width.toFloat(), it.height.toFloat()))
-                }
-                .bringIntoViewResponder(
-                    remember {
-                        object : androidx.compose.foundation.relocation.BringIntoViewResponder {
-                            // return the current rectangle and ignoring the child rectangle
-                            // received.
-                            override fun calculateRectForParent(localRect: Rect): Rect = myRect
+    this.then(BringIntoViewIfChildrenAreFocusedElement)
 
-                            // The container is not expected to be scrollable. Hence, the child is
-                            // already in view with respect to the container.
-                            override suspend fun bringChildIntoView(localRect: () -> Rect?) {}
-                        }
-                    }
-                )
-        },
-    )
+private object BringIntoViewIfChildrenAreFocusedElement :
+    ModifierNodeElement<BringIntoViewIfChildrenAreFocusedNode>() {
+    override fun create(): BringIntoViewIfChildrenAreFocusedNode =
+        BringIntoViewIfChildrenAreFocusedNode()
+
+    override fun update(node: BringIntoViewIfChildrenAreFocusedNode) {}
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "bringIntoViewIfChildrenAreFocused"
+    }
+
+    override fun hashCode(): Int = "bringIntoViewIfChildrenAreFocused".hashCode()
+
+    override fun equals(other: Any?): Boolean = other === this
+}
+
+private class BringIntoViewIfChildrenAreFocusedNode :
+    Modifier.Node(), BringIntoViewModifierNode, LayoutAwareModifierNode {
+    private var myRect: Rect = Rect.Zero
+
+    override fun onRemeasured(size: IntSize) {
+        myRect = Rect(Offset.Zero, Offset(size.width.toFloat(), size.height.toFloat()))
+    }
+
+    override suspend fun bringIntoView(
+        childCoordinates: LayoutCoordinates,
+        boundsProvider: () -> Rect?,
+    ) {
+        // The container is not expected to be scrollable. Hence, the child is
+        // already in view with respect to the container. Pass the current rectangle
+        // to the parent and ignore the child rectangle received.
+        bringIntoView { myRect }
+    }
+}
