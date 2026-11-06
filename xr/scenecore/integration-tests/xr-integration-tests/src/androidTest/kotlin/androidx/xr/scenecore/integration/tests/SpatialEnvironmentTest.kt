@@ -253,10 +253,8 @@ class SpatialEnvironmentTest {
                 // The entity renders through its own subspace, which starts in the app task.
                 val entitySubspace =
                     checkNotNull(
-                        SpatialSceneHelper.awaitSpatialScene(
+                        awaitSpatialScene(
                             description = "entity subspace to appear in the app task",
-                            timeout = SCENE_TIMEOUT,
-                            pollInterval = SCENE_POLL_INTERVAL,
                             select = { scene ->
                                 scene
                                     .findTaskByPackageName(activity.packageName)
@@ -265,7 +263,9 @@ class SpatialEnvironmentTest {
                             },
                             until = { it != null },
                         )
-                    )
+                    ) {
+                        "Entity subspace did not appear in the app task"
+                    }
 
                 // The environment reuses the entity's subspace node as its geometry node.
                 env.setPreferredEnvironmentAndSettle(
@@ -453,6 +453,22 @@ class SpatialEnvironmentTest {
     private suspend fun captureSpatialScene(): SpatialScene =
         withContext(Dispatchers.IO) { SpatialSceneHelper.captureSpatialScene() }
 
+    /** Polls the spatial scene off the main thread, since waiting blocks between captures. */
+    private suspend fun <T> awaitSpatialScene(
+        description: String,
+        select: (SpatialScene) -> T,
+        until: (T) -> Boolean,
+    ): T =
+        withContext(Dispatchers.IO) {
+            SpatialSceneHelper.waitForSpatialScene(
+                description = description,
+                timeout = SCENE_TIMEOUT,
+                pollInterval = SCENE_POLL_INTERVAL,
+                select = select,
+                until = until,
+            )
+        }
+
     /** Returns the geometry node currently attached under the environment root, if any. */
     private fun environmentGeometryNode(scene: SpatialScene): SpatialNode? =
         scene.rootNodes
@@ -463,10 +479,8 @@ class SpatialEnvironmentTest {
         description: String,
         until: (SpatialNode?) -> Boolean,
     ): SpatialNode? =
-        SpatialSceneHelper.awaitSpatialScene(
+        awaitSpatialScene(
             description = description,
-            timeout = SCENE_TIMEOUT,
-            pollInterval = SCENE_POLL_INTERVAL,
             select = ::environmentGeometryNode,
             until = until,
         )
@@ -505,10 +519,8 @@ class SpatialEnvironmentTest {
         invariant: (T) -> Boolean,
     ) {
         var value =
-            SpatialSceneHelper.awaitSpatialScene(
+            awaitSpatialScene(
                 description = "anchor for $description",
-                timeout = SCENE_TIMEOUT,
-                pollInterval = SCENE_POLL_INTERVAL,
                 select = select,
                 until = anchor,
             )

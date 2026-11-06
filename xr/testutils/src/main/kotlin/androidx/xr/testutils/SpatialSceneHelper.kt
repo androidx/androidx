@@ -22,7 +22,8 @@ import android.app.Activity
 import android.app.UiAutomation
 import android.graphics.Bitmap
 import android.graphics.Rect
-import android.os.Build
+import android.graphics.RectF
+import android.os.Looper
 import android.os.ParcelFileDescriptor
 import android.os.SystemClock
 import android.util.Log
@@ -36,13 +37,12 @@ import androidx.xr.runtime.math.Vector3
 import java.io.InputStream
 import java.util.regex.Pattern
 import kotlin.math.abs
+import kotlin.math.ceil
+import kotlin.math.max
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeSource
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 
 /**
  * Utility for capturing, inspecting, and querying spatial scenes from Android XR devices and
@@ -69,8 +69,8 @@ public object SpatialSceneHelper {
     ): SpatialScene = captureSceneWithPolling(uiAutomation = uiAutomation)
 
     /**
-     * Repeatedly captures the spatial scene graph off the main thread ([Dispatchers.IO]) until
-     * [until] holds for the value returned by [select].
+     * Repeatedly captures the spatial scene graph until [until] holds for the value returned by
+     * [select].
      *
      * Note that each iteration calls [captureSpatialScene], which may itself poll internally for up
      * to 3 seconds while waiting for window transition snapshots to clear.
@@ -85,7 +85,9 @@ public object SpatialSceneHelper {
      * @return The first selected value for which [until] returns `true`.
      * @throws AssertionError if [until] does not hold within [timeout].
      */
-    public suspend fun <T> awaitSpatialScene(
+    @JvmStatic
+    @JvmOverloads
+    public fun <T> waitForSpatialScene(
         description: String,
         timeout: Duration = 5.seconds,
         pollInterval: Duration = 100.milliseconds,
@@ -95,8 +97,7 @@ public object SpatialSceneHelper {
     ): T {
         val start = TimeSource.Monotonic.markNow()
         while (true) {
-            val scene =
-                withContext(Dispatchers.IO) { captureSpatialScene(uiAutomation = uiAutomation) }
+            val scene = captureSpatialScene(uiAutomation = uiAutomation)
             val selected = select(scene)
             if (until(selected)) return selected
             if (start.elapsedNow() >= timeout) {
@@ -104,14 +105,79 @@ public object SpatialSceneHelper {
                     "Timed out after $timeout waiting for $description, last value: $selected"
                 )
             }
-            delay(pollInterval)
+            SystemClock.sleep(pollInterval.inWholeMilliseconds)
+        }
+    }
+
+    /**
+     * Repeatedly captures the spatial scene graph until the target [SpatialTask] (for [activity] if
+     * provided, or [SpatialScene.activeTask] otherwise) satisfies [SpatialTask.isSettled].
+     *
+     * @param activity Optional [Activity] whose spatial task should be awaited. When `null`, awaits
+     *   the foreground [SpatialScene.activeTask].
+     * @param expectedEmbeddedPanelCount Expected number of visible
+     *   [SpatialTask.embeddedWindowLeashes] with valid surface bounds, or `null` to not constrain
+     *   the embedded panel count.
+     * @param expectedMainPanelVisible Expected visibility of [SpatialTask.taskWindowLeash], or
+     *   `null` to not constrain the main panel visibility.
+     * @param requireFullSpace Whether the task must have an active Full Space transform
+     *   ([SpatialTask.isFullSpace]).
+     * @param timeout Maximum duration to poll before throwing an [AssertionError].
+     * @param pollInterval Delay between successive scene captures.
+     * @param uiAutomation The [UiAutomation] instance used to execute the shell command.
+     * @return The settled [SpatialTask].
+     * @throws AssertionError if the task does not settle within [timeout].
+     */
+    @JvmStatic
+    @JvmOverloads
+    public fun waitForSettledSpatialTask(
+        activity: Activity? = null,
+        expectedEmbeddedPanelCount: Int? = null,
+        expectedMainPanelVisible: Boolean? = null,
+        requireFullSpace: Boolean = true,
+        timeout: Duration = 5.seconds,
+        pollInterval: Duration = 100.milliseconds,
+        uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation,
+    ): SpatialTask {
+        val targetDesc = activity?.let { "task for $it" } ?: "active spatial task"
+        val panelDesc =
+            if (expectedEmbeddedPanelCount != null) {
+                " with $expectedEmbeddedPanelCount visible embedded window leashes"
+            } else {
+                ""
+            }
+        val settledTask =
+            waitForSpatialScene(
+                description = "settled $targetDesc$panelDesc",
+                timeout = timeout,
+                pollInterval = pollInterval,
+                uiAutomation = uiAutomation,
+                select = { scene ->
+                    if (activity != null) {
+                        scene.findTaskByActivity(activity)
+                    } else {
+                        scene.activeTask
+                    }
+                },
+                until = { task ->
+                    task != null &&
+                        task.isSettled(
+                            expectedEmbeddedPanelCount = expectedEmbeddedPanelCount,
+                            expectedMainPanelVisible = expectedMainPanelVisible,
+                            requireFullSpace = requireFullSpace,
+                        )
+                },
+            )
+        return checkNotNull(settledTask) {
+            "waitForSpatialScene returned null for settled $targetDesc$panelDesc"
         }
     }
 
     /**
      * Captures the 3D XR compositor output via [UiAutomation.takeScreenshot], waits for consecutive
      * compositor frames to stabilize, converts hardware-backed bitmaps to
-     * [Bitmap.Config.ARGB_8888], optionally crops to [cropBounds], and returns the resulting
+     * [Bitmap.Config.ARGB_8888], optionally crops to [cropBounds] (or automatically crops out the
+     * empty background when [autoCrop] is true and [cropBounds] is null), and returns the resulting
      * [Bitmap] for assertion with `androidx.test.screenshot.assertAgainstGolden`.
      *
      * The caller owns the returned [Bitmap] and is responsible for calling [Bitmap.recycle] when
@@ -120,10 +186,15 @@ public object SpatialSceneHelper {
      * Standard Android 2D `View.drawToBitmap()` or `SemanticsNodeInteraction.captureToImage()` only
      * captures flat 2D window surfaces and does not include 3D `GltfModelEntity`, `SurfaceEntity`,
      * `SpatialEnvironment` skyboxes, or 3D spatial relationships rendered by SpaceFlinger/Impress.
-     * Use this helper after awaiting [awaitSpatialScene] for the scene graph to settle.
+     * Use this helper after [waitForSpatialScene] for the scene graph to settle.
      *
      * @param cropBounds Optional [Rect] in screen pixel coordinates to crop the compositor
-     *   screenshot. Bounds that extend past the screenshot are clamped to it.
+     *   screenshot. If null and [autoCrop] is true, the screenshot is automatically cropped to the
+     *   rendered foreground content via [cropForeground].
+     * @param padding Extra padding in pixels to preserve around the cropped foreground bounds when
+     *   [cropBounds] is null and [autoCrop] is true.
+     * @param autoCrop When true and [cropBounds] is null, automatically crops out the background.
+     *   Set to false to retrieve the full uncropped compositor frame.
      * @param timeout Maximum duration to wait for consecutive frames to stabilize. If frames have
      *   not stabilized by then, the latest frame is returned and a warning is logged.
      * @param pollInterval Delay between successive compositor captures.
@@ -136,28 +207,118 @@ public object SpatialSceneHelper {
     @JvmOverloads
     public fun captureSceneToBitmap(
         cropBounds: Rect? = null,
+        padding: Int = 0,
+        autoCrop: Boolean = true,
         timeout: Duration = 5.seconds,
         pollInterval: Duration = 100.milliseconds,
         uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation,
     ): Bitmap {
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        }
         captureSpatialScene(uiAutomation = uiAutomation)
-        val settledBitmap = awaitSettledSoftwareScreenshot(uiAutomation, timeout, pollInterval)
-        if (cropBounds == null) {
-            return settledBitmap
-        }
-        val cropped =
-            try {
-                settledBitmap.crop(cropBounds)
-            } catch (t: Throwable) {
+        val settledBitmap = waitForSettledSoftwareScreenshot(uiAutomation, timeout, pollInterval)
+        if (cropBounds != null) {
+            val cropped =
+                try {
+                    crop(settledBitmap, cropBounds)
+                } catch (t: Throwable) {
+                    settledBitmap.recycle()
+                    throw t
+                }
+            // createBitmap returns the source itself when the crop covers the whole bitmap.
+            if (cropped !== settledBitmap) {
                 settledBitmap.recycle()
-                throw t
             }
-        // createBitmap returns the source itself when the crop covers the whole bitmap.
-        if (cropped !== settledBitmap) {
-            settledBitmap.recycle()
+            return cropped
         }
-        return cropped
+        if (autoCrop) {
+            val cropped =
+                try {
+                    cropForeground(settledBitmap, padding = padding)
+                } catch (t: Throwable) {
+                    settledBitmap.recycle()
+                    throw t
+                }
+            if (cropped !== settledBitmap) {
+                settledBitmap.recycle()
+            }
+            return cropped
+        }
+        return settledBitmap
+    }
+
+    /**
+     * Captures the 3D XR compositor output and automatically crops the screenshot to the rendered
+     * content of [node], accounting for its position relative to the user's head pose.
+     *
+     * Delegates to [SpatialNode.captureToBitmap].
+     *
+     * @param node Target [SpatialNode] (such as [SpatialTask.spatialTransform],
+     *   [SpatialTask.activitySpaceRoot], or an individual window leash/panel node) whose rendered
+     *   content should be cropped.
+     * @param padding Extra padding in pixels to preserve around the cropped content bounds.
+     * @param timeout Maximum duration to wait for consecutive frames to stabilize. If frames have
+     *   not stabilized by then, the latest frame is returned and a warning is logged.
+     * @param pollInterval Delay between successive compositor captures.
+     * @param uiAutomation The [UiAutomation] instance used to capture the compositor frame.
+     * @return A cropped software-backed [Bitmap.Config.ARGB_8888] [Bitmap] owned by the caller.
+     * @throws AssertionError if no screenshot could be captured within [timeout].
+     */
+    @JvmStatic
+    @JvmOverloads
+    public fun captureSceneToBitmap(
+        node: SpatialNode,
+        padding: Int = 0,
+        timeout: Duration = 5.seconds,
+        pollInterval: Duration = 100.milliseconds,
+        uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation,
+    ): Bitmap =
+        node.captureToBitmap(
+            padding = padding,
+            timeout = timeout,
+            pollInterval = pollInterval,
+            uiAutomation = uiAutomation,
+        )
+
+    /**
+     * Captures the spatial scene and 3D XR compositor output, resolves the target [SpatialNode] via
+     * [nodeSelector], and automatically crops the screenshot to the rendered content of the
+     * selected node.
+     *
+     * @param nodeSelector Selector invoked on the settled [SpatialScene] to identify the target
+     *   [SpatialNode] to crop.
+     * @param padding Extra padding in pixels to preserve around the cropped content bounds.
+     * @param timeout Maximum duration to wait for consecutive frames to stabilize.
+     * @param pollInterval Delay between successive compositor captures.
+     * @param uiAutomation The [UiAutomation] instance used to capture the compositor frame.
+     * @return A cropped software-backed [Bitmap.Config.ARGB_8888] [Bitmap] owned by the caller.
+     * @throws IllegalArgumentException if [nodeSelector] returns `null` for the captured scene.
+     * @throws AssertionError if no screenshot could be captured within [timeout].
+     */
+    @JvmStatic
+    @JvmOverloads
+    public fun captureSceneToBitmap(
+        nodeSelector: (SpatialScene) -> SpatialNode?,
+        padding: Int = 0,
+        timeout: Duration = 5.seconds,
+        pollInterval: Duration = 100.milliseconds,
+        uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation,
+    ): Bitmap {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        }
+        val scene = captureSpatialScene(uiAutomation = uiAutomation)
+        val targetNode =
+            requireNotNull(nodeSelector(scene)) {
+                "nodeSelector returned null for captured SpatialScene (tasks=${scene.tasks})"
+            }
+        return targetNode.captureToBitmap(
+            padding = padding,
+            timeout = timeout,
+            pollInterval = pollInterval,
+            uiAutomation = uiAutomation,
+        )
     }
 
     private fun captureSceneWithPolling(uiAutomation: UiAutomation): SpatialScene {
@@ -448,6 +609,17 @@ constructor(
     public val rootNodes: List<SpatialNode>,
     public val taskPackageMap: Map<Int, String> = emptyMap(),
 ) {
+    init {
+        fun attach(n: SpatialNode) {
+            n.scene = this
+            for (c in n.children) {
+                attach(c)
+            }
+        }
+        for (r in rootNodes) {
+            attach(r)
+        }
+    }
 
     /**
      * Discovers all structured tasks in the scene graph.
@@ -491,6 +663,92 @@ constructor(
     /** Finds the task associated with the given [activity], or null if not found. */
     public fun findTaskByActivity(activity: Activity): SpatialTask? =
         findTaskById(activity.taskId) ?: findTaskByPackageName(activity.packageName)
+
+    /**
+     * The currently active foreground [SpatialTask] in the scene graph, or `null` if no task is
+     * active.
+     */
+    public val activeTask: SpatialTask?
+        get() = tasks.firstOrNull { it.isActive }
+
+    /**
+     * True if the scene graph currently contains in-flight window transition snapshots or an active
+     * system transition scrim.
+     */
+    public val hasActiveTransition: Boolean
+        get() = rootNodes.any { root ->
+            root.findNode { node ->
+                node.name.contains("transition snapshot", ignoreCase = true) ||
+                    (node.name == "Scrim" && node.isVisible && node.scrimTargetAlpha > 0.01f)
+            } != null
+        }
+
+    /**
+     * The world-space pose of the user's head (`HEAD` coordinate space,
+     * `transformUpdateRequest.coordinateSpace=2` in `dumpsys spf_cpm`) if a head-locked transform
+     * node is present in the scene graph, or `null` if unavailable.
+     */
+    public val headPose: Pose? by lazy {
+        val headTransformNodes =
+            rootNodes
+                .flatMap { listOf(it) + it.getDescendants() }
+                .filter { it.properties["transformUpdateRequest.coordinateSpace"] == "2" }
+        val selected =
+            headTransformNodes.firstOrNull {
+                it.properties["ImpNodeIsActive"] == "true" ||
+                    it.parent?.properties?.get("ImpNodeIsActive") == "true"
+            } ?: headTransformNodes.firstOrNull()
+        selected?.let { transformNode ->
+            val parent = transformNode.parent
+            if (parent != null && parent.name != "Root") parent.pose else transformNode.pose
+        }
+    }
+
+    /**
+     * Crops [bitmap] to the foreground content of this scene (plus optional [padding]), cropping
+     * out the surrounding black environment background.
+     *
+     * Delegates to [cropForeground].
+     *
+     * @param bitmap Source [Bitmap] from the XR compositor.
+     * @param padding Extra padding in pixels to preserve around the cropped content bounds.
+     * @return A software-backed [Bitmap.Config.ARGB_8888] [Bitmap] containing the cropped
+     *   foreground.
+     */
+    @JvmOverloads
+    public fun crop(
+        bitmap: Bitmap,
+        padding: Int = 0,
+    ): Bitmap = cropForeground(bitmap, padding)
+
+    /**
+     * Captures the 3D XR compositor output and automatically crops the screenshot to the rendered
+     * foreground content of the entire scene, cropping out the surrounding black background.
+     *
+     * This is particularly useful for scenes containing 3D entities (such as GLTF models) that do
+     * not have 2D surface bounds in CPM.
+     *
+     * @param padding Extra padding in pixels to preserve around the cropped content bounds.
+     * @param timeout Maximum duration to wait for consecutive frames to stabilize.
+     * @param pollInterval Delay between successive compositor captures.
+     * @param uiAutomation The [UiAutomation] instance used to capture the compositor frame.
+     * @return A cropped software-backed [Bitmap.Config.ARGB_8888] [Bitmap] owned by the caller.
+     * @throws AssertionError if no screenshot could be captured within [timeout].
+     */
+    @JvmOverloads
+    public fun captureToBitmap(
+        padding: Int = 0,
+        timeout: Duration = 5.seconds,
+        pollInterval: Duration = 100.milliseconds,
+        uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation,
+    ): Bitmap =
+        SpatialSceneHelper.captureSceneToBitmap(
+            cropBounds = null,
+            padding = padding,
+            timeout = timeout,
+            pollInterval = pollInterval,
+            uiAutomation = uiAutomation,
+        )
 }
 
 /**
@@ -569,6 +827,93 @@ constructor(public val activitySpaceRoot: SpatialNode, packageName: String? = nu
     public val subspaceNodes: List<SpatialNode>
         get() = findNodes { it.hasSubspace }
 
+    /**
+     * True if this task's root container is visible and active in the scene graph and hosts an
+     * active 3D spatial transform or visible window leash.
+     */
+    public val isActive: Boolean
+        get() =
+            activitySpaceRoot.isVisible &&
+                activitySpaceRoot.properties["ImpNodeIsActive"] != "false" &&
+                (isFullSpace ||
+                    taskWindowLeash?.isVisible == true ||
+                    windowLeashes.any { it.isVisible })
+
+    /**
+     * True if this task has a visible 3D spatial transform node (`space-transform-spatial-<id>`) in
+     * the scene graph, indicating Full Space Mode is active for the task.
+     */
+    public val isFullSpace: Boolean
+        get() =
+            spatialTransform?.let {
+                it.isVisible && it.properties["ImpNodeIsActive"] != "false"
+            } == true
+
+    /**
+     * Effective virtual pixel density in pixels per meter for this task, resolved from
+     * [SpatialNode.computedPixelsPerMeter] on the task hierarchy or derived from 2D surface bounds,
+     * or `null` if unavailable.
+     */
+    public val computedPixelsPerMeter: Float?
+        get() =
+            (spatialTransform ?: activitySpaceRoot).computedPixelsPerMeter
+                ?: allNodes.firstNotNullOfOrNull { it.computedPixelsPerMeter }
+                ?: allNodes.firstNotNullOfOrNull { node ->
+                    val px = node.surfaceBoundsInPixels
+                    val m = node.surfaceBoundsInMeters
+                    if (px != null && m != null && px.x > 0f && m.x > 0f) px.x / m.x else null
+                }
+
+    /**
+     * Returns `true` if this task and its spatial scene have settled with no in-flight transitions
+     * or alpha animations, and its panels match the expected visibility and count.
+     *
+     * @param expectedEmbeddedPanelCount Expected number of visible [embeddedWindowLeashes] with
+     *   non-null [SpatialNode.effectiveSurfaceBoundsInMeters], or `null` to not constrain the
+     *   embedded panel count.
+     * @param expectedMainPanelVisible Expected visibility of [taskWindowLeash], or `null` to not
+     *   constrain the main panel visibility.
+     * @param requireFullSpace Whether the task must be in Full Space Mode ([isFullSpace]).
+     */
+    @JvmOverloads
+    public fun isSettled(
+        expectedEmbeddedPanelCount: Int? = null,
+        expectedMainPanelVisible: Boolean? = null,
+        requireFullSpace: Boolean = true,
+    ): Boolean {
+        if (!isActive) return false
+        if (requireFullSpace && !isFullSpace) return false
+        if (activitySpaceRoot.scene?.hasActiveTransition == true) return false
+        if (allNodes.any { it.name.contains("transition snapshot", ignoreCase = true) }) {
+            return false
+        }
+        val alphasSettled =
+            allNodes
+                .filter { it.isVisible }
+                .all { node ->
+                    val requested = node.properties["requestedAlpha"]?.toFloatOrNull()
+                    val computed = node.properties["computedAlpha"]?.toFloatOrNull()
+                    requested == null || computed == null || abs(requested - computed) <= 0.01f
+                }
+        if (!alphasSettled) return false
+
+        if (
+            expectedMainPanelVisible != null &&
+                (taskWindowLeash?.isVisible == true) != expectedMainPanelVisible
+        ) {
+            return false
+        }
+
+        if (expectedEmbeddedPanelCount != null) {
+            val visiblePanels = embeddedWindowLeashes.count {
+                it.isVisible && it.effectiveSurfaceBoundsInMeters != null
+            }
+            if (visiblePanels != expectedEmbeddedPanelCount) return false
+        }
+
+        return true
+    }
+
     /** Finds all nodes matching [predicate] within this task. */
     public fun findNodes(predicate: (SpatialNode) -> Boolean): List<SpatialNode> =
         allNodes.filter(predicate)
@@ -611,6 +956,44 @@ constructor(public val activitySpaceRoot: SpatialNode, packageName: String? = nu
             return search(root)
         }
     }
+
+    /**
+     * Crops [bitmap] to the rendered content bounds of this task (plus optional [padding]),
+     * delegating to [spatialTransform] or [activitySpaceRoot].
+     *
+     * @param bitmap Source [Bitmap] from the XR compositor.
+     * @param padding Extra padding in pixels to preserve around the cropped content bounds.
+     * @return A software-backed [Bitmap.Config.ARGB_8888] [Bitmap] containing the cropped content.
+     */
+    @JvmOverloads
+    public fun crop(
+        bitmap: Bitmap,
+        padding: Int = 0,
+    ): Bitmap = (spatialTransform ?: activitySpaceRoot).crop(bitmap, padding)
+
+    /**
+     * Captures the 3D XR compositor output and automatically crops the screenshot to the rendered
+     * bounds of this task's main spatial transform or activity space root.
+     *
+     * @param padding Extra padding in pixels to preserve around the cropped content bounds.
+     * @param timeout Maximum duration to wait for consecutive frames to stabilize.
+     * @param pollInterval Delay between successive compositor captures.
+     * @param uiAutomation The [UiAutomation] instance used to capture the compositor frame.
+     * @return A cropped software-backed [Bitmap.Config.ARGB_8888] [Bitmap] owned by the caller.
+     */
+    @JvmOverloads
+    public fun captureToBitmap(
+        padding: Int = 0,
+        timeout: Duration = 5.seconds,
+        pollInterval: Duration = 100.milliseconds,
+        uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation,
+    ): Bitmap =
+        (spatialTransform ?: activitySpaceRoot).captureToBitmap(
+            padding = padding,
+            timeout = timeout,
+            pollInterval = pollInterval,
+            uiAutomation = uiAutomation,
+        )
 }
 
 /**
@@ -631,6 +1014,43 @@ constructor(
     public var parent: SpatialNode? = null
         internal set
 
+    /** The [SpatialScene] containing this node, or null if constructed standalone. */
+    public var scene: SpatialScene? = null
+        internal set
+
+    /** The topmost ancestor node in this spatial node's hierarchy (the root of the tree). */
+    public val root: SpatialNode
+        get() {
+            var curr = this
+            while (curr.parent != null) {
+                curr = curr.parent!!
+            }
+            return curr
+        }
+
+    /**
+     * The world-space pose of the user's head (`HEAD` coordinate space,
+     * `transformUpdateRequest.coordinateSpace=2` in `dumpsys spf_cpm`), or `null` if unavailable.
+     */
+    public val headPose: Pose?
+        get() = scene?.headPose ?: findHeadPoseInHierarchy()
+
+    private fun findHeadPoseInHierarchy(): Pose? {
+        val rootNode = root
+        val headTransformNodes = rootNode.findNodes {
+            it.properties["transformUpdateRequest.coordinateSpace"] == "2"
+        }
+        val selected =
+            headTransformNodes.firstOrNull {
+                it.properties["ImpNodeIsActive"] == "true" ||
+                    it.parent?.properties?.get("ImpNodeIsActive") == "true"
+            } ?: headTransformNodes.firstOrNull()
+        return selected?.let { transformNode ->
+            val parent = transformNode.parent
+            if (parent != null && parent.name != "Root") parent.pose else transformNode.pose
+        }
+    }
+
     private val _children = mutableListOf<SpatialNode>()
 
     public val children: List<SpatialNode>
@@ -638,6 +1058,7 @@ constructor(
 
     internal fun addChild(child: SpatialNode) {
         child.parent = this
+        child.scene = this.scene
         _children.add(child)
     }
 
@@ -915,6 +1336,17 @@ constructor(
     public val worldHalfExtents: Vector3?
         get() = worldExtents?.div(2f)
 
+    /**
+     * Effective virtual pixel density in pixels per meter (`computedPixelsPerMeter` or positive
+     * `pixelsPerMeter` in `dumpsys spf_cpm`), inheriting from [parent] if not explicitly present on
+     * this node, or `null` if unavailable.
+     */
+    public val computedPixelsPerMeter: Float?
+        get() =
+            properties["computedPixelsPerMeter"]?.toFloatOrNull()?.takeIf { it > 0f }
+                ?: properties["pixelsPerMeter"]?.toFloatOrNull()?.takeIf { it > 0f }
+                ?: parent?.computedPixelsPerMeter
+
     // --- System Flags & Capabilities ---
 
     public val canReceiveInput: Boolean
@@ -1036,6 +1468,13 @@ constructor(
             val metadata = properties["sysUIMetadata"] ?: return null
             val match = SYS_UI_SPECIAL_NODE_REGEX.find(metadata)
             return match?.groupValues?.get(1)?.toIntOrNull()
+        }
+
+    internal val scrimTargetAlpha: Float
+        get() {
+            val metadata = properties["sysUIMetadata"] ?: return 0f
+            val match = SCRIM_TARGET_ALPHA_REGEX.find(metadata) ?: return 0f
+            return match.groupValues[1].toFloatOrNull() ?: 0f
         }
 
     /**
@@ -1183,9 +1622,131 @@ constructor(
     override fun toString(): String =
         "SpatialNode(name='$name', id=$id, depth=$depth, pos=$position, children=${children.size})"
 
+    /**
+     * Detects the bounds of this [SpatialNode]'s rendered content within [bitmap] (projected
+     * relative to the user's head pose) and crops the resulting [Bitmap] to the node's content
+     * bounds (plus optional [padding]).
+     *
+     * @param bitmap Source [Bitmap] from the XR compositor.
+     * @param padding Extra padding in pixels to preserve around the cropped content bounds.
+     * @return A software-backed [Bitmap.Config.ARGB_8888] [Bitmap] containing the cropped content
+     *   of this [SpatialNode].
+     */
+    @JvmOverloads
+    public fun crop(
+        bitmap: Bitmap,
+        padding: Int = 0,
+    ): Bitmap {
+        val softwareBitmap = toSoftwareBitmap(bitmap)
+        val width = softwareBitmap.width
+        val height = softwareBitmap.height
+        val pixels = toPixelArray(softwareBitmap)
+        val bgColor = detectBackgroundColor(pixels, width, height)
+        val fullBounds = Rect(0, 0, width, height)
+        val overallBounds =
+            findForegroundBounds(pixels, width, height, fullBounds, bgColor)
+                ?: return softwareBitmap
+
+        val fraction = computeRelativeNodeBoundsFraction(this)
+        val isFullFraction =
+            fraction.left <= 0.001f &&
+                fraction.top <= 0.001f &&
+                fraction.right >= 0.999f &&
+                fraction.bottom >= 0.999f
+        val tightBounds =
+            if (isFullFraction) {
+                overallBounds
+            } else {
+                val w = overallBounds.width()
+                val h = overallBounds.height()
+                val searchBounds =
+                    Rect(
+                        (overallBounds.left + (fraction.left * w).toInt()).coerceAtLeast(
+                            overallBounds.left
+                        ),
+                        (overallBounds.top + (fraction.top * h).toInt()).coerceAtLeast(
+                            overallBounds.top
+                        ),
+                        (overallBounds.left + ceil((fraction.right * w).toDouble()).toInt())
+                            .coerceAtMost(overallBounds.right),
+                        (overallBounds.top + ceil((fraction.bottom * h).toDouble()).toInt())
+                            .coerceAtMost(overallBounds.bottom),
+                    )
+                findForegroundBounds(
+                    pixels,
+                    width,
+                    height,
+                    searchBounds,
+                    bgColor,
+                ) ?: searchBounds
+            }
+
+        val safePadding = max(0, padding)
+        val finalBounds =
+            Rect(
+                (tightBounds.left - safePadding).coerceAtLeast(0),
+                (tightBounds.top - safePadding).coerceAtLeast(0),
+                (tightBounds.right + safePadding).coerceAtMost(width),
+                (tightBounds.bottom + safePadding).coerceAtMost(height),
+            )
+
+        val cropped =
+            try {
+                crop(softwareBitmap, finalBounds)
+            } catch (t: Throwable) {
+                if (softwareBitmap !== bitmap && !softwareBitmap.isRecycled) {
+                    softwareBitmap.recycle()
+                }
+                throw t
+            }
+        if (cropped !== softwareBitmap && softwareBitmap !== bitmap && !softwareBitmap.isRecycled) {
+            softwareBitmap.recycle()
+        }
+        return cropped
+    }
+
+    /**
+     * Captures the 3D XR compositor output and automatically crops the screenshot to the rendered
+     * bounds of this [SpatialNode], accounting for its position relative to the user's head pose.
+     *
+     * @param padding Extra padding in pixels to preserve around the cropped content bounds.
+     * @param timeout Maximum duration to wait for consecutive frames to stabilize.
+     * @param pollInterval Delay between successive compositor captures.
+     * @param uiAutomation The [UiAutomation] instance used to capture the compositor frame.
+     * @return A cropped software-backed [Bitmap.Config.ARGB_8888] [Bitmap] owned by the caller.
+     * @throws AssertionError if no screenshot could be captured within [timeout].
+     */
+    @JvmOverloads
+    public fun captureToBitmap(
+        padding: Int = 0,
+        timeout: Duration = 5.seconds,
+        pollInterval: Duration = 100.milliseconds,
+        uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation,
+    ): Bitmap {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        }
+        val settledBitmap = waitForSettledSoftwareScreenshot(uiAutomation, timeout, pollInterval)
+        val processed =
+            try {
+                crop(
+                    bitmap = settledBitmap,
+                    padding = padding,
+                )
+            } catch (t: Throwable) {
+                settledBitmap.recycle()
+                throw t
+            }
+        if (processed !== settledBitmap && !settledBitmap.isRecycled) {
+            settledBitmap.recycle()
+        }
+        return processed
+    }
+
     internal companion object {
         private val REFORM_ENABLE_REGEX = Regex("enable=(\\d+)")
         private val SYS_UI_SPECIAL_NODE_REGEX = Regex("specialNode=(\\d+)")
+        private val SCRIM_TARGET_ALPHA_REGEX = Regex("targetAlpha=([0-9.+-]+)")
         private val TASK_WINDOW_NODE_REGEX = Regex("^task-\\d+-window$")
     }
 }
@@ -1193,42 +1754,88 @@ constructor(
 private const val SCENE_CAPTURE_TAG = "SpatialSceneHelper"
 private const val FRAME_STABILITY_MSSIM_THRESHOLD: Double = 0.999
 
-private fun Bitmap.crop(cropBounds: Rect): Bitmap {
-    val clamped = Rect(cropBounds)
-    require(clamped.intersect(0, 0, width, height)) {
-        "cropBounds $cropBounds does not overlap the ${width}x$height screenshot"
-    }
-    if (clamped != cropBounds) {
-        Log.w(
-            SCENE_CAPTURE_TAG,
-            "cropBounds $cropBounds clamped to $clamped to fit the ${width}x$height screenshot",
-        )
-    }
-    return Bitmap.createBitmap(this, clamped.left, clamped.top, clamped.width(), clamped.height())
+private fun collectGeometryNodes(root: SpatialNode): List<SpatialNode> = root.findNodes { node ->
+    node.isVisible &&
+        !node.isSysUi &&
+        (node.worldExtents != null || node.effectiveSurfaceBoundsInMeters != null)
 }
 
-internal val Bitmap.isHardwareBitmap: Boolean
-    get() = Build.VERSION.SDK_INT >= 26 && config == Bitmap.Config.HARDWARE
+private fun SpatialNode.effectiveWorldExtents(): Vector3? {
+    worldExtents?.let {
+        return it
+    }
+    val bounds = effectiveSurfaceBoundsInMeters ?: return null
+    return Vector3(
+        bounds.x * scale.x,
+        bounds.y * scale.y,
+        if (scale.z > 0f) scale.z else 0.01f,
+    )
+}
 
-internal fun Bitmap.toSoftwareBitmap(): Bitmap =
-    if (isHardwareBitmap) {
-        checkNotNull(copy(Bitmap.Config.ARGB_8888, false)) {
-            "Failed to copy HARDWARE screenshot bitmap to ARGB_8888"
-        }
-    } else {
-        this
+private fun computeRelativeNodeBoundsFraction(node: SpatialNode): RectF {
+    if (node.isTaskRoot || node.name.startsWith("space-transform-spatial-")) {
+        return RectF(0f, 0f, 1f, 1f)
+    }
+    val contextRoot = node.activitySpaceRoot ?: node.root
+    if (contextRoot === node) {
+        return RectF(0f, 0f, 1f, 1f)
     }
 
-private fun Bitmap.toPixelArray(destination: IntArray? = null): IntArray {
-    val pixelCount = width * height
-    val pixels =
-        if (destination != null && destination.size == pixelCount) {
-            destination
-        } else {
-            IntArray(pixelCount)
+    val targetNodes = collectGeometryNodes(node).ifEmpty { listOf(node) }
+    val allNodes = collectGeometryNodes(contextRoot)
+    if (allNodes.isEmpty() || allNodes.size <= targetNodes.size) {
+        return RectF(0f, 0f, 1f, 1f)
+    }
+
+    val head = node.headPose ?: Pose.Identity
+    val viewRotInv = head.rotation.inverse
+
+    fun computeBoundsInHead(nodes: List<SpatialNode>): FloatArray? {
+        var minX = Float.POSITIVE_INFINITY
+        var maxX = Float.NEGATIVE_INFINITY
+        var minY = Float.POSITIVE_INFINITY
+        var maxY = Float.NEGATIVE_INFINITY
+        var count = 0
+        for (n in nodes) {
+            val ext = n.effectiveWorldExtents() ?: continue
+            val center = viewRotInv * (n.position - head.translation)
+            val depth = (-center.z).coerceAtLeast(0.01f)
+            val projX = center.x / depth
+            val projY = center.y / depth
+
+            val localRot = viewRotInv * n.rotation
+            val rx = localRot * Vector3(ext.x / 2f, 0f, 0f)
+            val ry = localRot * Vector3(0f, ext.y / 2f, 0f)
+            val halfW = (abs(rx.x) + abs(ry.x)) / depth
+            val halfH = (abs(rx.y) + abs(ry.y)) / depth
+
+            if (projX - halfW < minX) minX = projX - halfW
+            if (projX + halfW > maxX) maxX = projX + halfW
+            if (projY - halfH < minY) minY = projY - halfH
+            if (projY + halfH > maxY) maxY = projY + halfH
+            count++
         }
-    getPixels(pixels, 0, width, 0, 0, width, height)
-    return pixels
+        return if (count > 0) floatArrayOf(minX, minY, maxX, maxY) else null
+    }
+
+    val allBounds = computeBoundsInHead(allNodes) ?: return RectF(0f, 0f, 1f, 1f)
+    val targetBounds = computeBoundsInHead(targetNodes) ?: return RectF(0f, 0f, 1f, 1f)
+
+    val totalW = allBounds[2] - allBounds[0]
+    val totalH = allBounds[3] - allBounds[1]
+    if (totalW <= 1e-4f || totalH <= 1e-4f) {
+        return RectF(0f, 0f, 1f, 1f)
+    }
+
+    val leftFrac = ((targetBounds[0] - allBounds[0]) / totalW).coerceIn(0f, 1f)
+    val rightFrac = ((targetBounds[2] - allBounds[0]) / totalW).coerceIn(0f, 1f)
+    val topFrac = ((allBounds[3] - targetBounds[3]) / totalH).coerceIn(0f, 1f)
+    val bottomFrac = ((allBounds[3] - targetBounds[1]) / totalH).coerceIn(0f, 1f)
+
+    if (rightFrac - leftFrac < 1e-3f || bottomFrac - topFrac < 1e-3f) {
+        return RectF(0f, 0f, 1f, 1f)
+    }
+    return RectF(leftFrac, topFrac, rightFrac, bottomFrac)
 }
 
 private fun logUnsettledTimeout(timeout: Duration) {
@@ -1245,7 +1852,7 @@ private fun logUnsettledTimeout(timeout: Duration) {
  * finished latching), or returns the latest non-null frame (logging a warning) if the timeout
  * elapses. All intermediate bitmaps are recycled before returning.
  */
-private fun awaitSettledSoftwareScreenshot(
+private fun waitForSettledSoftwareScreenshot(
     uiAutomation: UiAutomation,
     timeout: Duration,
     pollInterval: Duration,
@@ -1263,14 +1870,14 @@ private fun awaitSettledSoftwareScreenshot(
             if (raw != null) {
                 val softwareBitmap =
                     try {
-                        raw.toSoftwareBitmap()
+                        toSoftwareBitmap(raw)
                     } finally {
-                        if (raw.isHardwareBitmap && !raw.isRecycled) {
+                        if (isHardwareBitmap(raw) && !raw.isRecycled) {
                             raw.recycle()
                         }
                     }
                 currentBitmap = softwareBitmap
-                currentPixels = softwareBitmap.toPixelArray(currentPixels)
+                currentPixels = toPixelArray(softwareBitmap, currentPixels)
                 val prev = previousBitmap
                 val prevPix = previousPixels
 

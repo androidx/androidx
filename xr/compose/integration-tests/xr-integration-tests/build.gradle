@@ -43,6 +43,7 @@ androidx {
     type = SoftwareType.TEST_APPLICATION
     inceptionYear = "2026"
     description = "Integration tests app for JXR Compose."
+    addGoldenImageAssets()
 }
 
 dependencies {
@@ -104,3 +105,5 @@ dependencies {
 
     androidTestUtil(libs.testOrchestrator)
 }
+
+apply from: "$rootDir/xr/testutils/xr-device-tests.gradle"

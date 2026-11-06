@@ -1998,4 +1998,95 @@ class SpatialSceneHelperTest {
         assertEquals(localVector.y, backToLocal.y, 1e-4f)
         assertEquals(localVector.z, backToLocal.z, 1e-4f)
     }
+
+    @Test
+    fun spatialScene_headPose_extractsActiveCoordinateSpace2Pose() {
+        val scene = SpatialSceneHelper.parseSpatialScene(complexDumpsys)
+        // complexDumpsys includes PERSISTENT_INDICATOR with coordinateSpace=2
+        val headPose = assertNotNull(scene.headPose)
+        assertEquals(Vector3(0.0f, 1.6f, 0.0f), headPose.translation)
+        assertEquals(Quaternion.Identity, headPose.rotation)
+
+        // Verify that nodes in the scene resolve headPose directly
+        val anyNode = assertNotNull(scene.tasks.firstOrNull()?.activitySpaceRoot)
+        assertEquals(headPose, anyNode.headPose)
+    }
+
+    @Test
+    fun spatialScene_activeTask_and_isSettled_resolvesCorrectly() {
+        val scene = SpatialSceneHelper.parseSpatialScene(complexDumpsys)
+
+        val inactiveHomeTask = assertNotNull(scene.findTaskById(2264))
+        assertFalse(inactiveHomeTask.isActive)
+        assertFalse(inactiveHomeTask.isFullSpace)
+        assertFalse(inactiveHomeTask.isSettled())
+
+        val activeTask = assertNotNull(scene.activeTask)
+        assertEquals(2311, activeTask.taskId)
+        assertTrue(activeTask.isActive)
+        assertTrue(activeTask.isFullSpace)
+        assertFalse(scene.hasActiveTransition)
+        assertTrue(activeTask.isSettled())
+
+        val visibleEmbeddedCount =
+            activeTask.embeddedWindowLeashes.count {
+                it.isVisible && it.effectiveSurfaceBoundsInMeters != null
+            }
+        assertTrue(
+            activeTask.isSettled(
+                expectedEmbeddedPanelCount = visibleEmbeddedCount,
+                expectedMainPanelVisible = true,
+            )
+        )
+        assertFalse(
+            activeTask.isSettled(
+                expectedEmbeddedPanelCount = visibleEmbeddedCount + 1,
+                expectedMainPanelVisible = true,
+            )
+        )
+        assertFalse(
+            activeTask.isSettled(
+                expectedEmbeddedPanelCount = visibleEmbeddedCount,
+                expectedMainPanelVisible = false,
+            )
+        )
+    }
+
+    @Test
+    fun spatialNode_and_spatialTask_computedPixelsPerMeter_resolvesCorrectly() {
+        val scene = SpatialSceneHelper.parseSpatialScene(complexDumpsys)
+        val activeTask = assertNotNull(scene.activeTask)
+        assertEquals(1600f, assertNotNull(activeTask.computedPixelsPerMeter), 1e-3f)
+
+        val subspaceRoot = assertNotNull(activeTask.findNodeByName("SubspaceRoot"))
+        assertEquals(1600f, assertNotNull(subspaceRoot.computedPixelsPerMeter), 1e-3f)
+    }
+
+    @Test
+    fun spatialScene_hasActiveTransition_detectsTransitionSnapshotAndScrim() {
+        val scrimActiveDump =
+            """
+            Node Root (stateIndex=0) id=1:
+              Node Scrim (stateIndex=0) id=11:
+              visible on both (requested-vis=show) sysUIMetadata=<specialNode=0, scrim=(targetColor=(0.00, 0.00, 0.00), targetAlpha=1.00)>
+              Node space-root-task-100 (stateIndex=0) id=100:
+                Node space-transform-spatial-101 (stateIndex=0) id=101:
+            """
+                .trimIndent()
+        val scrimScene = SpatialSceneHelper.parseSpatialScene(scrimActiveDump)
+        assertTrue(scrimScene.hasActiveTransition)
+        assertFalse(assertNotNull(scrimScene.findTaskById(100)).isSettled())
+
+        val transitionSnapshotDump =
+            """
+            Node Root (stateIndex=0) id=1:
+              Node space-root-task-100 (stateIndex=0) id=100:
+                Node space-transform-spatial-101 (stateIndex=0) id=101:
+                  Node transition snapshot (stateIndex=0) id=102:
+            """
+                .trimIndent()
+        val snapshotScene = SpatialSceneHelper.parseSpatialScene(transitionSnapshotDump)
+        assertTrue(snapshotScene.hasActiveTransition)
+        assertFalse(assertNotNull(snapshotScene.findTaskById(100)).isSettled())
+    }
 }

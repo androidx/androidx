@@ -24,6 +24,7 @@ import android.os.Bundle
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.test.screenshot.matchers.PixelPerfectMatcher
 import androidx.xr.runtime.manifest.FEATURE_XR_API_SPATIAL
 import java.io.File
@@ -268,6 +269,289 @@ class XrScreenshotTestRuleTest {
             assertTrue(stagedFile.exists())
         } finally {
             bitmap.recycle()
+        }
+    }
+
+    @Test
+    fun spatialNode_crop_cropsToContentBounds() {
+        val width = 600
+        val height = 400
+        val pixels = IntArray(width * height) { Color.BLACK }
+        // Draw a 200x100 blue panel centered at (300, 200)
+        for (y in 150 until 250) {
+            for (x in 200 until 400) {
+                pixels[y * width + x] = Color.BLUE
+            }
+        }
+        val source = Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888)
+
+        val node = SpatialNode(name = "space-transform-spatial-1", id = 10)
+        try {
+            val result = node.crop(source)
+            try {
+                assertEquals(200, result.width)
+                assertEquals(100, result.height)
+                assertEquals(Color.BLUE, result.getPixel(result.width / 2, result.height / 2))
+            } finally {
+                result.recycle()
+            }
+        } finally {
+            source.recycle()
+        }
+    }
+
+    @Test
+    fun spatialNode_crop_withPadding_preservesMargin() {
+        val width = 300
+        val height = 200
+        val pixels = IntArray(width * height) { Color.BLACK }
+        for (y in 60 until 140) {
+            for (x in 100 until 200) {
+                pixels[y * width + x] = Color.GREEN
+            }
+        }
+        val source = Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888)
+
+        val node = SpatialNode(name = "space-transform-spatial-1", id = 10)
+        try {
+            val result = node.crop(source, padding = 10)
+            try {
+                assertEquals(120, result.width)
+                assertEquals(100, result.height)
+                assertEquals(Color.BLACK, result.getPixel(2, 2))
+                assertEquals(Color.GREEN, result.getPixel(result.width / 2, result.height / 2))
+            } finally {
+                result.recycle()
+            }
+        } finally {
+            source.recycle()
+        }
+    }
+
+    @Test
+    fun spatialNode_crop_multiPanelScene_cropsToSelectedChildNode() {
+        val width = 400
+        val height = 200
+        val pixels = IntArray(width * height) { Color.BLACK }
+        for (y in 50 until 150) {
+            for (x in 50 until 150) {
+                pixels[y * width + x] = Color.BLUE
+            }
+            for (x in 250 until 350) {
+                pixels[y * width + x] = Color.RED
+            }
+        }
+        val source = Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888)
+
+        val taskRoot = SpatialNode(name = "space-root-task-1", id = 1)
+        val leftNode =
+            SpatialNode(
+                name = "LeftPanel",
+                id = 2,
+                attributes =
+                    mapOf(
+                        "ImpNodeWorldPosition" to floatArrayOf(-0.2f, 0f, -1.5f),
+                        "ImpNodeWorldRotation" to floatArrayOf(1f, 0f, 0f, 0f),
+                        "ImpNodeWorldScale" to floatArrayOf(1f, 1f, 1f),
+                        "root2DSurfaceBoundsInMeters" to floatArrayOf(0.2f, 0.2f),
+                    ),
+            )
+        val rightNode =
+            SpatialNode(
+                name = "RightPanel",
+                id = 3,
+                attributes =
+                    mapOf(
+                        "ImpNodeWorldPosition" to floatArrayOf(0.2f, 0f, -1.5f),
+                        "ImpNodeWorldRotation" to floatArrayOf(1f, 0f, 0f, 0f),
+                        "ImpNodeWorldScale" to floatArrayOf(1f, 1f, 1f),
+                        "root2DSurfaceBoundsInMeters" to floatArrayOf(0.2f, 0.2f),
+                    ),
+            )
+        taskRoot.addChild(leftNode)
+        taskRoot.addChild(rightNode)
+        SpatialScene(listOf(taskRoot))
+
+        try {
+            val leftCropped = leftNode.crop(source)
+            val rightCropped = rightNode.crop(source)
+            try {
+                assertEquals(100, leftCropped.width)
+                assertEquals(100, leftCropped.height)
+                assertEquals(Color.BLUE, leftCropped.getPixel(50, 50))
+
+                assertEquals(100, rightCropped.width)
+                assertEquals(100, rightCropped.height)
+                assertEquals(Color.RED, rightCropped.getPixel(50, 50))
+            } finally {
+                leftCropped.recycle()
+                rightCropped.recycle()
+            }
+        } finally {
+            source.recycle()
+        }
+    }
+
+    @Test
+    fun cropForeground_cropsToNonBlackForeground() {
+        val width = 400
+        val height = 300
+        val pixels = IntArray(width * height) { Color.BLACK }
+        for (y in 100 until 180) {
+            for (x in 150 until 250) {
+                pixels[y * width + x] = Color.GREEN
+            }
+        }
+        val source = Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888)
+        try {
+            val result = cropForeground(source)
+            try {
+                assertEquals(100, result.width)
+                assertEquals(80, result.height)
+                assertEquals(Color.GREEN, result.getPixel(50, 40))
+            } finally {
+                result.recycle()
+            }
+        } finally {
+            source.recycle()
+        }
+    }
+
+    @Test
+    fun cropForeground_withPadding_preservesMargin() {
+        val width = 400
+        val height = 300
+        val pixels = IntArray(width * height) { Color.BLACK }
+        for (y in 100 until 180) {
+            for (x in 150 until 250) {
+                pixels[y * width + x] = Color.YELLOW
+            }
+        }
+        val source = Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888)
+        try {
+            val result = cropForeground(source, padding = 10)
+            try {
+                assertEquals(120, result.width)
+                assertEquals(100, result.height)
+                assertEquals(Color.BLACK, result.getPixel(2, 2))
+                assertEquals(Color.YELLOW, result.getPixel(60, 50))
+            } finally {
+                result.recycle()
+            }
+        } finally {
+            source.recycle()
+        }
+    }
+
+    @Test
+    fun cropForeground_customBackgroundColor_cropsNonBackgroundContent() {
+        val width = 300
+        val height = 200
+        val pixels = IntArray(width * height) { Color.BLUE }
+        for (y in 50 until 120) {
+            for (x in 80 until 180) {
+                pixels[y * width + x] = Color.RED
+            }
+        }
+        val source = Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888)
+        try {
+            val result = cropForeground(source, backgroundColor = Color.BLUE)
+            try {
+                assertEquals(100, result.width)
+                assertEquals(70, result.height)
+                assertEquals(Color.RED, result.getPixel(50, 35))
+            } finally {
+                result.recycle()
+            }
+        } finally {
+            source.recycle()
+        }
+    }
+
+    @Test
+    fun cropForeground_allBackground_returnsSourceBitmap() {
+        val width = 100
+        val height = 100
+        val pixels = IntArray(width * height) { Color.BLACK }
+        val source = Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888)
+        try {
+            val result = cropForeground(source)
+            try {
+                assertEquals(100, result.width)
+                assertEquals(100, result.height)
+            } finally {
+                if (result !== source) result.recycle()
+            }
+        } finally {
+            source.recycle()
+        }
+    }
+
+    @Test
+    fun spatialScene_crop_cropsForegroundOfEntireScene() {
+        val width = 500
+        val height = 400
+        val pixels = IntArray(width * height) { Color.BLACK }
+        for (y in 100 until 250) {
+            for (x in 150 until 350) {
+                pixels[y * width + x] = Color.MAGENTA
+            }
+        }
+        val source = Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888)
+
+        // GLTF node without CPM surface bounds (only transform/scale)
+        val gltfNode =
+            SpatialNode(
+                name = "GltfModelEntity",
+                id = 10,
+                attributes =
+                    mapOf(
+                        "ImpNodeWorldPosition" to floatArrayOf(0f, 0f, -1.0f),
+                        "ImpNodeWorldRotation" to floatArrayOf(1f, 0f, 0f, 0f),
+                        "ImpNodeWorldScale" to floatArrayOf(1f, 1f, 1f),
+                    ),
+            )
+        val taskRoot = SpatialNode(name = "space-root-task-1", id = 1)
+        taskRoot.addChild(gltfNode)
+        val scene = SpatialScene(listOf(taskRoot))
+
+        try {
+            val sceneCropped = scene.crop(source)
+            val nodeCropped = gltfNode.crop(source)
+            try {
+                assertEquals(200, sceneCropped.width)
+                assertEquals(150, sceneCropped.height)
+                assertEquals(Color.MAGENTA, sceneCropped.getPixel(100, 75))
+
+                // Node without CPM surface bounds falls back gracefully to full foreground crop
+                assertEquals(200, nodeCropped.width)
+                assertEquals(150, nodeCropped.height)
+                assertEquals(Color.MAGENTA, nodeCropped.getPixel(100, 75))
+            } finally {
+                sceneCropped.recycle()
+                nodeCropped.recycle()
+            }
+        } finally {
+            source.recycle()
+        }
+    }
+
+    @Test
+    fun assertBitmapAgainstGolden_minorCropSizeDifference_scalesAndPassesWithMSSIMMatcher() {
+        val rule = XrScreenshotTestRule("xr/testutils", updateGoldens = false)
+        // test_golden_moohan.png is 4x4 Color.RED; a 6x5 Color.RED bitmap is within the 6px
+        // auto-crop size tolerance and should pass when using MSSIMMatcher.
+        val slightlyLargerRedBitmap = createSolidBitmap(Color.RED, width = 6, height = 5)
+        try {
+            runWithRule(rule) {
+                rule.assertBitmapAgainstGolden(
+                    slightlyLargerRedBitmap,
+                    "test_golden",
+                    MSSIMMatcher(threshold = 0.95),
+                )
+            }
+        } finally {
+            slightlyLargerRedBitmap.recycle()
         }
     }
 }
