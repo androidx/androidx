@@ -17,17 +17,10 @@
 package androidx.test.backup.host
 
 import java.util.Locale
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
 
 /**
- * Holds structured per-test execution details written to `suite-details/<id>.json`.
- *
- * Linked from JUnit Platform report entries via [BackupReportKeys.DETAIL_PATH].
+ * Holds structured per-test execution details published via JUnit report entries and file
+ * attachments.
  */
 internal data class TestDetailRecord(
     val schemaVersion: Int = SCHEMA_VERSION,
@@ -40,20 +33,8 @@ internal data class TestDetailRecord(
     val logs: List<LogRecord> = emptyList(),
     val artifacts: List<ArtifactEntry> = emptyList(),
 ) {
-    /** Identifies the source file and declaration line of a test. */
-    internal data class SourceLocation(
-        val file: String?,
-        val line: Int? = null,
-        val className: String = "",
-        val methodName: String? = null,
-    ) {
-        fun toJsonObject(): JsonObject = buildJsonObject {
-            put("file", file)
-            put("line", line)
-            put("className", className)
-            put("methodName", methodName)
-        }
-    }
+    /** Identifies the source file and optional 1-based line number of a test. */
+    internal data class SourceLocation(val file: String, val line: Int? = null)
 
     /** Describes a key-value attribute surfaced on summary rows and detail headers. */
     internal data class SummaryAttribute(
@@ -62,15 +43,7 @@ internal data class TestDetailRecord(
         val value: String,
         val displayValue: String,
         val filterable: Boolean = false,
-    ) {
-        fun toJsonObject(): JsonObject = buildJsonObject {
-            put("key", key)
-            put("label", label)
-            put("value", value)
-            put("displayValue", displayValue)
-            put("filterable", filterable)
-        }
-    }
+    )
 
     /** Summarizes a test failure, naming the failed step and diagnosed backup-rule cause. */
     internal data class Callout(
@@ -79,15 +52,7 @@ internal data class TestDetailRecord(
         val title: String,
         val message: String,
         val likelyCause: String? = null,
-    ) {
-        fun toJsonObject(): JsonObject = buildJsonObject {
-            put("kind", kind)
-            put("failedStep", failedStep)
-            put("title", title)
-            put("message", message)
-            put("likelyCause", likelyCause)
-        }
-    }
+    )
 
     /** Describes a device or emulator participant in the test execution. */
     internal data class ActorRecord(
@@ -98,17 +63,7 @@ internal data class TestDetailRecord(
         val serial: String,
         val image: String,
         val playServices: String? = null,
-    ) {
-        fun toJsonObject(): JsonObject = buildJsonObject {
-            put("id", id)
-            put("role", role)
-            put("name", name)
-            put("api", api)
-            put("serial", serial)
-            put("image", image)
-            put("playServices", playServices)
-        }
-    }
+    )
 
     /** Records a single execution step in the test timeline. */
     internal data class StepRecord(
@@ -119,64 +74,21 @@ internal data class TestDetailRecord(
         val call: String,
         val durationMs: Long,
         val status: String,
-    ) {
-        fun toJsonObject(): JsonObject = buildJsonObject {
-            put("n", n)
-            put("name", name)
-            put("on", on)
-            put("shared", shared)
-            put("call", call)
-            put("durationMs", durationMs)
-            put("status", status)
-        }
-    }
+    )
 
-    /** References a captured log file relative to the suite results directory. */
+    /** References an attached log file by file name. */
     internal data class LogRecord(
         val title: String,
         val path: String,
         val truncated: Boolean = false,
-    ) {
-        fun toJsonObject(): JsonObject = buildJsonObject {
-            put("title", title)
-            put("path", path)
-            put("truncated", truncated)
-        }
-    }
+    )
 
-    /** Describes an artifact summary or file attachment relative to the results directory. */
+    /** Describes an artifact summary or attached file. */
     internal data class ArtifactEntry(
         val name: String,
         val values: Map<String, String> = emptyMap(),
         val path: String? = null,
-    ) {
-        fun toJsonObject(): JsonObject = buildJsonObject {
-            put("name", name)
-            put(
-                "values",
-                buildJsonObject {
-                    for ((k, v) in values) {
-                        put(k, v)
-                    }
-                },
-            )
-            put("path", path)
-        }
-    }
-
-    fun toJsonObject(): JsonObject = buildJsonObject {
-        put("schemaVersion", schemaVersion)
-        put("suiteType", suiteType)
-        put("sourceLocation", sourceLocation?.toJsonObject() ?: JsonNull)
-        put("summaryAttributes", JsonArray(summaryAttributes.map { it.toJsonObject() }))
-        put("callout", callout?.toJsonObject() ?: JsonNull)
-        put("actors", JsonArray(actors.map { it.toJsonObject() }))
-        put("steps", JsonArray(steps.map { it.toJsonObject() }))
-        put("logs", JsonArray(logs.map { it.toJsonObject() }))
-        put("artifacts", JsonArray(artifacts.map { it.toJsonObject() }))
-    }
-
-    fun toJsonString(): String = PRETTY_JSON.encodeToString(JsonObject.serializer(), toJsonObject())
+    )
 
     /** Flattens this record into ordered non-blank `androidx.report.*` JUnit report entries. */
     fun toReportEntries(): Map<String, String> {
@@ -185,7 +97,7 @@ internal data class TestDetailRecord(
         putNonBlank(out, BackupReportKeys.SUITE_TYPE, suiteType)
 
         sourceLocation?.let { loc ->
-            val file = loc.file?.takeIf { it.isNotBlank() }
+            val file = loc.file.takeIf { it.isNotBlank() }
             if (file != null) {
                 val formatted = if (loc.line != null && loc.line > 0) "$file:${loc.line}" else file
                 putNonBlank(out, BackupReportKeys.SOURCE, formatted)
@@ -297,8 +209,6 @@ internal data class TestDetailRecord(
 
         const val CALLOUT_ASSERTION_FAILURE = "ASSERTION_FAILURE"
         const val CALLOUT_STEP_FAILURE = "STEP_FAILURE"
-
-        private val PRETTY_JSON = Json { prettyPrint = true }
 
         internal fun defaultSummaryAttributeLabel(key: String): String =
             key.replace('_', ' ').replaceFirstChar {

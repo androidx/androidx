@@ -163,10 +163,7 @@ internal class TestExecutionCapture(
     @Volatile var testClassName: String?,
     @Volatile var testMethodName: String?,
     @Volatile var parent: TestExecutionCapture? = null,
-    @Volatile
-    var includeRawArchives: Boolean =
-        BackupReportKeys.readProperty(null, BackupReportKeys.PROP_INCLUDE_RAW_ARCHIVES)
-            .equals("true", ignoreCase = true),
+    @Volatile var includeRawArchives: Boolean = false,
 ) : CloseableResource, AutoCloseable {
 
     internal enum class StepKind(val stage: BackupExecutionStage? = null) {
@@ -617,17 +614,14 @@ internal class TestExecutionCapture(
     )
 
     /**
-     * Builds the finalized [TestDetailRecord] and writes sidecar artifacts into [detailDir].
-     *
-     * Writes `host-log.txt` and any requested raw archive when [detailId] and [detailDir] are
-     * provided inside a test suite.
+     * Builds the finalized [TestDetailRecord] and publishes `host-log.txt` and any requested raw
+     * archive via [filePublisher] when provided.
      */
     fun buildFinalizedReport(
-        detailId: String?,
-        detailDir: Path?,
         savedLogcatFiles: Map<String, SavedLogcatFile>,
         failure: Throwable?,
         suiteProperties: Properties?,
+        filePublisher: ((fileName: String, mediaType: String, writer: (Path) -> Unit) -> Path?)?,
     ): FinalizedReport {
         val snapshot = buildStepSnapshot()
         val actorsWithLookup = snapshot.actorsWithLookup
@@ -755,25 +749,34 @@ internal class TestExecutionCapture(
         }
 
         val logs = ArrayList<TestDetailRecord.LogRecord>()
-        if (detailId != null && detailDir != null) {
-            Files.createDirectories(detailDir)
-            val hostLogFile = detailDir.resolve("host-log.txt")
+        if (filePublisher != null) {
             val (sharedPrefix, sharedTruncated) = parent?.sharedHostLogSnapshot() ?: ("" to false)
             val encodedHostLog = hostLogCollector.toBoundedUtf8(sharedPrefix, sharedTruncated)
-            Files.write(hostLogFile, encodedHostLog.bytes)
-            logs +=
-                TestDetailRecord.LogRecord(
-                    title = "Host log",
-                    path = "suite-details/$detailId/host-log.txt",
-                    truncated = encodedHostLog.truncated,
-                )
+            val attachedHostLog =
+                try {
+                    filePublisher("host-log.txt", MEDIA_TYPE_TEXT_UTF8) { path ->
+                        Files.write(path, encodedHostLog.bytes)
+                    }
+                } catch (e: Exception) {
+                    logger.warning("Failed to attach host-log.txt: ${e.message}")
+                    null
+                }
+            if (attachedHostLog != null) {
+                logs +=
+                    TestDetailRecord.LogRecord(
+                        title = "Host log",
+                        path = attachedHostLog.fileName.toString(),
+                        truncated = encodedHostLog.truncated,
+                    )
+            }
             for ((serial, savedLogcat) in savedLogcatFiles) {
+                if (!savedLogcat.attached) continue
                 val actorId = actorsWithLookup.actorIdFor(serial, "")
                 val logTitle = if (actorId != null) "Logcat ($actorId)" else "Logcat ($serial)"
                 logs +=
                     TestDetailRecord.LogRecord(
                         title = logTitle,
-                        path = "suite-details/$detailId/${savedLogcat.path.fileName}",
+                        path = savedLogcat.path.fileName.toString(),
                         truncated = savedLogcat.truncated,
                     )
             }
@@ -789,20 +792,24 @@ internal class TestExecutionCapture(
                     path = null,
                 )
             val tempCopy = archive.rawTempCopy
-            if (
-                detailId != null &&
-                    detailDir != null &&
-                    tempCopy != null &&
-                    Files.isRegularFile(tempCopy)
-            ) {
-                val targetFile = detailDir.resolve(archive.fileName)
-                Files.copy(tempCopy, targetFile, StandardCopyOption.REPLACE_EXISTING)
-                artifacts +=
-                    TestDetailRecord.ArtifactEntry(
-                        name = archive.fileName,
-                        values = mapOf("size" to formatByteSize(archive.rawSizeBytes)),
-                        path = "suite-details/$detailId/${archive.fileName}",
-                    )
+            if (filePublisher != null && tempCopy != null && Files.isRegularFile(tempCopy)) {
+                val attachedArchive =
+                    try {
+                        filePublisher(archive.fileName, MEDIA_TYPE_OCTET_STREAM) { path ->
+                            Files.copy(tempCopy, path, StandardCopyOption.REPLACE_EXISTING)
+                        }
+                    } catch (e: Exception) {
+                        logger.warning("Failed to attach ${archive.fileName}: ${e.message}")
+                        null
+                    }
+                if (attachedArchive != null) {
+                    artifacts +=
+                        TestDetailRecord.ArtifactEntry(
+                            name = archive.fileName,
+                            values = mapOf("size" to formatByteSize(archive.rawSizeBytes)),
+                            path = attachedArchive.fileName.toString(),
+                        )
+                }
             }
         }
 
@@ -928,11 +935,10 @@ internal class TestExecutionCapture(
             } else {
                 synchronized(lock) { ownFirstCallFrame }
             }
+        val fileName = frame?.fileName?.takeIf { it.isNotBlank() } ?: return null
         return TestDetailRecord.SourceLocation(
-            file = frame?.fileName,
-            line = frame?.lineNumber?.takeIf { it > 0 },
-            className = clsName,
-            methodName = testMethodName,
+            file = fileName,
+            line = frame.lineNumber.takeIf { it > 0 },
         )
     }
 
