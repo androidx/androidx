@@ -123,7 +123,7 @@ reason = "b/TODO - <reason>"
 library = "androidx.compose.material3:material3"
 dependsOn = "androidx.compose.foundation:foundation"
 validThroughLibraryVersion = "1.6.0-beta01"
-reason = "b/TODO - <reason>"
+reason = "b/557717376 - BorderRenderer, which isn't in a released foundation yet"
 
 [[exemption]]
 library = "androidx.compose.material3:material3"
