@@ -43,9 +43,9 @@ internal data class TestDetailRecord(
     /** Identifies the source file and declaration line of a test. */
     internal data class SourceLocation(
         val file: String?,
-        val line: Int?,
-        val className: String,
-        val methodName: String?,
+        val line: Int? = null,
+        val className: String = "",
+        val methodName: String? = null,
     ) {
         fun toJsonObject(): JsonObject = buildJsonObject {
             put("file", file)
@@ -178,6 +178,115 @@ internal data class TestDetailRecord(
 
     fun toJsonString(): String = PRETTY_JSON.encodeToString(JsonObject.serializer(), toJsonObject())
 
+    /** Flattens this record into ordered non-blank `androidx.report.*` JUnit report entries. */
+    fun toReportEntries(): Map<String, String> {
+        val out = LinkedHashMap<String, String>()
+        putNonBlank(out, BackupReportKeys.SCHEMA_VERSION, schemaVersion.toString())
+        putNonBlank(out, BackupReportKeys.SUITE_TYPE, suiteType)
+
+        sourceLocation?.let { loc ->
+            val file = loc.file?.takeIf { it.isNotBlank() }
+            if (file != null) {
+                val formatted = if (loc.line != null && loc.line > 0) "$file:${loc.line}" else file
+                putNonBlank(out, BackupReportKeys.SOURCE, formatted)
+            }
+        }
+
+        for (attr in summaryAttributes) {
+            if (attr.key.isBlank()) continue
+            val prefix = "${BackupReportKeys.ATTR_PREFIX}${attr.key}"
+            putNonBlank(out, prefix, attr.value)
+            if (attr.label != defaultSummaryAttributeLabel(attr.key)) {
+                putNonBlank(out, "$prefix.label", attr.label)
+            }
+            if (attr.displayValue != attr.value) {
+                putNonBlank(out, "$prefix.displayValue", attr.displayValue)
+            }
+            if (attr.filterable) {
+                putNonBlank(out, "$prefix.filterable", "true")
+            }
+        }
+
+        for (actor in actors) {
+            if (actor.id.isBlank()) continue
+            val prefix = "${BackupReportKeys.ACTOR_PREFIX}${actor.id}"
+            putNonBlank(out, "$prefix.role", actor.role)
+            putNonBlank(out, "$prefix.name", actor.name)
+            putNonBlank(out, "$prefix.api", actor.api.toString())
+            putNonBlank(out, "$prefix.serial", actor.serial)
+            putNonBlank(out, "$prefix.image", actor.image)
+            putNonBlank(out, "$prefix.playServices", actor.playServices)
+        }
+
+        var unnumberedIndex = 0
+        for (step in steps) {
+            val stepKey = step.n?.toString() ?: "prepare_${++unnumberedIndex}"
+            val prefix = "${BackupReportKeys.STEP_PREFIX}$stepKey"
+            putNonBlank(out, "$prefix.name", step.name)
+            putNonBlank(out, "$prefix.on", step.on)
+            if (step.shared) {
+                putNonBlank(out, "$prefix.shared", "true")
+            }
+            putNonBlank(out, "$prefix.call", step.call)
+            putNonBlank(out, "$prefix.durationMs", step.durationMs.toString())
+            putNonBlank(out, "$prefix.status", step.status)
+        }
+
+        callout?.let { co ->
+            val prefix = BackupReportKeys.CALLOUT_PREFIX
+            putNonBlank(out, "${prefix}kind", co.kind)
+            co.failedStep?.let { putNonBlank(out, "${prefix}failedStep", it.toString()) }
+            putNonBlank(out, "${prefix}title", co.title)
+            putNonBlank(out, "${prefix}message", co.message)
+            putNonBlank(out, "${prefix}likelyCause", co.likelyCause)
+        }
+
+        var summaryIndex = 0
+        for (artifact in artifacts) {
+            if (artifact.path == null) {
+                summaryIndex++
+                val prefix = "${BackupReportKeys.ARTIFACT_PREFIX}$summaryIndex"
+                putNonBlank(out, "$prefix.name", artifact.name)
+                if (artifact.values.isNotEmpty()) {
+                    putNonBlank(out, "$prefix.values", formatKeyValues(artifact.values))
+                }
+            } else {
+                val fileName = artifact.path.substringAfterLast('/')
+                if (fileName.isNotBlank()) {
+                    if (artifact.name != fileName) {
+                        putNonBlank(
+                            out,
+                            "${BackupReportKeys.FILE_PREFIX}$fileName.name",
+                            artifact.name,
+                        )
+                    }
+                    if (artifact.values.isNotEmpty()) {
+                        putNonBlank(
+                            out,
+                            "${BackupReportKeys.FILE_PREFIX}$fileName.values",
+                            formatKeyValues(artifact.values),
+                        )
+                    }
+                }
+            }
+        }
+
+        for (log in logs) {
+            val fileName = log.path.substringAfterLast('/')
+            if (fileName.isNotBlank()) {
+                val isDefaultHostLogTitle = fileName == "host-log.txt" && log.title == "Host log"
+                if (log.title.isNotBlank() && log.title != fileName && !isDefaultHostLogTitle) {
+                    putNonBlank(out, "${BackupReportKeys.FILE_PREFIX}$fileName.name", log.title)
+                }
+                if (log.truncated) {
+                    putNonBlank(out, "${BackupReportKeys.FILE_PREFIX}$fileName.truncated", "true")
+                }
+            }
+        }
+
+        return out
+    }
+
     companion object {
         const val SCHEMA_VERSION = 1
         const val SUITE_TYPE = "androidx.test.backup"
@@ -190,61 +299,19 @@ internal data class TestDetailRecord(
         const val CALLOUT_STEP_FAILURE = "STEP_FAILURE"
 
         private val PRETTY_JSON = Json { prettyPrint = true }
-    }
-}
 
-/** Formats [bytes] into a concise human-readable unit string (`412 B`, `3.1 KB`, `1.8 MB`). */
-internal fun formatByteSize(bytes: Long): String {
-    val safeBytes = bytes.coerceAtLeast(0L)
-    return when {
-        safeBytes < 1024L -> "$safeBytes B"
-        safeBytes < 1024L * 1024L -> String.format(Locale.US, "%.1f KB", safeBytes / 1024.0)
-        safeBytes < 1024L * 1024L * 1024L ->
-            String.format(Locale.US, "%.1f MB", safeBytes / (1024.0 * 1024.0))
-        else -> String.format(Locale.US, "%.1f GB", safeBytes / (1024.0 * 1024.0 * 1024.0))
-    }
-}
+        internal fun defaultSummaryAttributeLabel(key: String): String =
+            key.replace('_', ' ').replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString()
+            }
 
-/** Holds UTF-8 tail bytes and whether [capUtf8TailBounded] truncated the input. */
-internal class BoundedUtf8Result(val bytes: ByteArray, val truncated: Boolean)
+        private fun formatKeyValues(values: Map<String, String>): String =
+            values.entries.joinToString(", ") { (k, v) -> "$k=$v" }
 
-/**
- * Encodes [text] as UTF-8 bounded to [maxBytes] tail bytes, reporting whether truncation occurred.
- */
-internal fun capUtf8TailBounded(text: String, maxBytes: Int): BoundedUtf8Result {
-    if (maxBytes <= 0) return BoundedUtf8Result(ByteArray(0), truncated = text.isNotEmpty())
-    val bytes = text.toByteArray(Charsets.UTF_8)
-    if (bytes.size <= maxBytes) return BoundedUtf8Result(bytes, truncated = false)
-
-    val noticeBytes = TRUNCATION_NOTICE_BYTES
-    if (maxBytes <= noticeBytes.size + 4) {
-        var start = bytes.size - maxBytes
-        while (start < bytes.size && isUtf8Continuation(bytes[start])) {
-            start++
-        }
-        return BoundedUtf8Result(bytes.copyOfRange(start, bytes.size), truncated = true)
-    }
-
-    val tailBudget = maxBytes - noticeBytes.size
-    var start = bytes.size - tailBudget
-    while (start < bytes.size && isUtf8Continuation(bytes[start])) {
-        start++
-    }
-    // Prefer starting on a line boundary; stop before the last byte so tailLength > 0.
-    val scanLimit = minOf(bytes.size - 1, start + 256)
-    for (i in start until scanLimit) {
-        if (bytes[i] == '\n'.code.toByte()) {
-            start = i + 1
-            break
+        private fun putNonBlank(map: MutableMap<String, String>, key: String, value: String?) {
+            if (key.isNotBlank() && !value.isNullOrBlank()) {
+                map[key] = value
+            }
         }
     }
-    val tailLength = bytes.size - start
-    val out = ByteArray(noticeBytes.size + tailLength)
-    System.arraycopy(noticeBytes, 0, out, 0, noticeBytes.size)
-    System.arraycopy(bytes, start, out, noticeBytes.size, tailLength)
-    return BoundedUtf8Result(out, truncated = true)
 }
-
-private val TRUNCATION_NOTICE_BYTES = "... [truncated]\n".toByteArray(Charsets.UTF_8)
-
-private fun isUtf8Continuation(byte: Byte): Boolean = (byte.toInt() and 0xC0) == 0x80

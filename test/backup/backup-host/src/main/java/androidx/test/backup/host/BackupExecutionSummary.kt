@@ -88,7 +88,7 @@ internal enum class BackupExecutionStage {
      * Classifies [e], thrown during this stage: by the cause that a [BackupRestoreException]
      * carries, or else as a failure of this stage.
      */
-    fun errorCodeFor(e: Exception): BackupErrorCode =
+    fun errorCodeFor(e: Throwable): BackupErrorCode =
         (e as? BackupRestoreException)?.errorCode
             ?: when (this) {
                 PRECONDITION -> BackupErrorCode.UNKNOWN_ERROR
@@ -148,7 +148,9 @@ internal data class BackupExecutionSummary(
         if (!isSuccess) {
             publish(BackupReportKeys.ERROR_CODE, errorCode.name)
             failureStage?.let { publish(BackupReportKeys.FAILURE_STAGE, it.name) }
-            errorMessage?.let { publish(BackupReportKeys.ERROR_MESSAGE, it) }
+            errorMessage
+                ?.takeIf { it.isNotBlank() }
+                ?.let { publish(BackupReportKeys.ERROR_MESSAGE, it) }
         }
     }
 }

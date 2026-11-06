@@ -44,6 +44,7 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.ExtensionContext.Store.CloseableResource
 import org.junit.jupiter.api.extension.ParameterContext
+import org.junit.jupiter.api.function.ThrowingConsumer
 import org.junit.platform.commons.PreconditionViolationException
 import org.junit.rules.TemporaryFolder
 import org.mockito.Mockito.any
@@ -919,6 +920,94 @@ class BackupRestoreExtensionTest {
     }
 
     @Test
+    fun reflectiveJunitFilePublisherInvokesPublishFileTargetMethod() {
+        val outDir = tempFolder.newFolder("reflective-publish").toPath()
+        val parseMethod = FakeJunit512MediaType::class.java.getMethod("parse", String::class.java)
+        val publishMethod =
+            FakeJunit512Context::class
+                .java
+                .getMethod(
+                    "publishFile",
+                    String::class.java,
+                    FakeJunit512MediaType::class.java,
+                    ThrowingConsumer::class.java,
+                )
+        val fakeCtx = FakeJunit512Context(outDir)
+
+        val written =
+            ReflectiveJunitFilePublisher.invokePublishFile(
+                target = fakeCtx,
+                parseMediaType = parseMethod,
+                publishFile = publishMethod,
+                fileName = "host-log.txt",
+                mediaType = "text/plain; charset=utf-8",
+            ) { path ->
+                Files.write(path, "hello attachment".toByteArray(Charsets.UTF_8))
+            }
+        assertNotNull(written)
+        assertEquals("hello attachment", Files.readAllBytes(written).toString(Charsets.UTF_8))
+        assertEquals("text/plain; charset=utf-8", fakeCtx.lastMediaType?.value)
+
+        // Target exceptions unwrap InvocationTargetException cleanly.
+        assertFailsWith<IOException> {
+            ReflectiveJunitFilePublisher.invokePublishFile(
+                target = fakeCtx,
+                parseMediaType = parseMethod,
+                publishFile = publishMethod,
+                fileName = "broken.txt",
+                mediaType = "text/plain; charset=utf-8",
+            ) {
+                throw IOException("disk full")
+            }
+        }
+    }
+
+    @Test
+    fun reflectiveJunitFilePublisherPrefersApiMediaTypeWithExtensionFallback() {
+        assertEquals(
+            listOf(
+                "org.junit.jupiter.api.MediaType",
+                "org.junit.jupiter.api.extension.MediaType",
+            ),
+            ReflectiveJunitFilePublisher.MEDIA_TYPE_CLASS_NAMES,
+        )
+
+        val primaryBinding =
+            ReflectiveJunitFilePublisher.resolveBinding(
+                targetClass = FakeJunit512Context::class.java,
+                mediaTypeClassNames =
+                    listOf(
+                        FakePrimaryMediaType::class.java.name,
+                        FakeJunit512MediaType::class.java.name,
+                    ),
+            )
+        assertNotNull(primaryBinding)
+        assertEquals(FakePrimaryMediaType::class.java, primaryBinding.parseMediaType.declaringClass)
+
+        val fallbackBinding =
+            ReflectiveJunitFilePublisher.resolveBinding(
+                targetClass = FakeJunit512Context::class.java,
+                mediaTypeClassNames =
+                    listOf(
+                        "org.junit.jupiter.api.MissingMediaType",
+                        FakeJunit512MediaType::class.java.name,
+                    ),
+            )
+        assertNotNull(fallbackBinding)
+        assertEquals(
+            FakeJunit512MediaType::class.java,
+            fallbackBinding.parseMediaType.declaringClass,
+        )
+
+        assertNull(
+            ReflectiveJunitFilePublisher.resolveBinding(
+                targetClass = FakeJunit512Context::class.java,
+                mediaTypeClassNames = listOf("org.junit.jupiter.api.MissingMediaType"),
+            )
+        )
+    }
+
+    @Test
     fun aFailedTestSavesTheLogsOfTheDevicesThatItsClassShares() = withResultsDir { resultsDir ->
         stubDeviceLogs("I Backup: restore failed\n")
         val failure = AssertionError("The restored data differs")
@@ -1477,6 +1566,42 @@ class BackupRestoreExtensionTest {
             assertTrue(savedLog.isFile)
             assertEquals("Device logs saved to $savedLog", failure.suppressed.single().toString())
         }
+
+    private class FakePrimaryMediaType(val value: String) {
+        companion object {
+            @JvmStatic fun parse(value: String): FakePrimaryMediaType = FakePrimaryMediaType(value)
+        }
+    }
+
+    private class FakeJunit512MediaType(val value: String) {
+        companion object {
+            @JvmStatic
+            fun parse(value: String): FakeJunit512MediaType = FakeJunit512MediaType(value)
+        }
+    }
+
+    private class FakeJunit512Context(private val dir: Path) {
+        var lastMediaType: FakeJunit512MediaType? = null
+        var lastPrimaryMediaType: FakePrimaryMediaType? = null
+
+        fun publishFile(
+            name: String,
+            mediaType: FakePrimaryMediaType,
+            action: ThrowingConsumer<Path>,
+        ) {
+            lastPrimaryMediaType = mediaType
+            action.accept(dir.resolve(name))
+        }
+
+        fun publishFile(
+            name: String,
+            mediaType: FakeJunit512MediaType,
+            action: ThrowingConsumer<Path>,
+        ) {
+            lastMediaType = mediaType
+            action.accept(dir.resolve(name))
+        }
+    }
 
     @BackupRestoreConfig(applicationId = "com.example.outer")
     @Isolation(IsolationPolicy.AUTOMATIC)

@@ -59,12 +59,13 @@ internal class BackupRestoreControllerImpl(
     backupServiceProvider: () -> Service = { createBackupService(adbSession) },
 ) : BackupRestoreController {
 
+    @Volatile
     internal var lastExecutionSummary: BackupExecutionSummary? = null
         private set
 
-    internal var explicitRole: String = ""
+    @Volatile internal var explicitRole: String = ""
 
-    internal var cachedDeviceFacts: DeviceFacts? = null
+    @Volatile internal var cachedDeviceFacts: DeviceFacts? = null
 
     private val logger = Logger.getLogger(BackupRestoreControllerImpl::class.java.name)
 
@@ -124,35 +125,30 @@ internal class BackupRestoreControllerImpl(
                 val stageSpecs =
                     listOf(
                         FlowStageSpec(
-                            BackupExecutionStage.SEEDING,
                             TestExecutionCapture.StepKind.SEED_ACTION,
                             "Setup",
                             this@BackupRestoreControllerImpl,
                             formatFlowDomainCall("Seed", storages),
                         ),
                         FlowStageSpec(
-                            BackupExecutionStage.BACKUP,
                             TestExecutionCapture.StepKind.BACKUP,
                             "Backup",
                             this@BackupRestoreControllerImpl,
                             "performBackup($mode)",
                         ),
                         FlowStageSpec(
-                            BackupExecutionStage.CLEAR_DATA,
                             TestExecutionCapture.StepKind.CLEAR_DATA,
                             "Clear",
                             restoreOn,
                             "clearAppData()",
                         ),
                         FlowStageSpec(
-                            BackupExecutionStage.RESTORE,
                             TestExecutionCapture.StepKind.RESTORE,
                             "Restore",
                             restoreOn,
                             "performRestore(backupFile)",
                         ),
                         FlowStageSpec(
-                            BackupExecutionStage.VERIFICATION,
                             TestExecutionCapture.StepKind.VERIFY_ACTION,
                             "Verify",
                             restoreOn,
@@ -536,7 +532,7 @@ internal class BackupRestoreControllerImpl(
                 fileName = file.name,
                 summaryValues = inspectBackupArchive(file),
                 rawSourceFile = backupFile,
-                includeRawCopy = isIncludeRawArchivesEnabled(),
+                includeRawCopy = active.effectiveIncludeRawArchives,
             )
         }
     }
@@ -549,7 +545,6 @@ internal class BackupRestoreControllerImpl(
             kindProvider = { TestExecutionCapture.StepKind.RESTORE },
             stepNameProvider = { "Restore" },
             callLabel = "performRestore(backupFile)",
-            beforeRun = { it.markRestoreStarted(serialNumber) },
         ) {
             withinTimeout(timeout) { restore(backupFile, timeout) }
                 ?: throw BackupRestoreException(
@@ -562,15 +557,16 @@ internal class BackupRestoreControllerImpl(
     private suspend fun restore(backupFile: Path, timeout: Duration) {
         val localBackup = BackupLocalTransport.localBackupOf(backupFile)
         if (localBackup != null) {
-            ActiveCaptureContext.current()
-                ?.markRestoreStarted(serialNumber, BackupTransportMode.LOCAL)
+            val activeCapture = ActiveCaptureContext.current()
+            activeCapture?.markRestoreStarted(serialNumber, BackupTransportMode.LOCAL)
             localTransport.restore(backupFile, localBackup, timeout.toKotlinDuration())
+            activeCapture?.markRestoreCompleted()
             return
         }
         val activeCapture = ActiveCaptureContext.current()
         if (activeCapture != null) {
             val detectedMode =
-                if (activeCapture.effectiveTransportMode == null) {
+                if (!activeCapture.hasOwnTransportMode) {
                     detectTransportModeFromArchive(backupFile)
                 } else {
                     null
@@ -595,6 +591,7 @@ internal class BackupRestoreControllerImpl(
         when (result) {
             is BackupResult.Success -> {
                 restoreStart?.let { checkRestoreNotSkipped(backupFile, it) }
+                activeCapture?.markRestoreCompleted()
                 logger.info("BackupService successfully executed production restore.")
             }
             is BackupResult.WithoutAppData ->
@@ -1016,12 +1013,13 @@ internal class BackupRestoreControllerImpl(
     }
 
     private class FlowStageSpec(
-        val stage: BackupExecutionStage,
         val kind: TestExecutionCapture.StepKind,
         val name: String,
         val controller: BackupRestoreController,
         val call: String,
-    )
+    ) {
+        val stage: BackupExecutionStage = checkNotNull(kind.stage)
+    }
 
     internal companion object {
         /**
@@ -1035,8 +1033,6 @@ internal class BackupRestoreControllerImpl(
          * device-to-device backups on Android 16 QPR2 (API level 36.1) and higher.
          */
         const val MIN_GMS_VERSION_CODE_API_36_1 = 263330000L
-
-        const val PROP_INCLUDE_RAW_ARCHIVES = "androidx.test.backup.report.includeRawArchives"
 
         private const val LOCAL_ARCHIVE_SUMMARY = "Stored on the device"
 
@@ -1152,8 +1148,5 @@ internal class BackupRestoreControllerImpl(
             } catch (_: Exception) {
                 null
             }
-
-        private fun isIncludeRawArchivesEnabled(): Boolean =
-            System.getProperty(PROP_INCLUDE_RAW_ARCHIVES).equals("true", ignoreCase = true)
     }
 }

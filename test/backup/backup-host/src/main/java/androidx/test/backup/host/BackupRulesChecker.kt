@@ -17,16 +17,9 @@
 package androidx.test.backup.host
 
 import com.android.utils.XmlUtils
-import java.io.File
 import java.io.StringReader
 import java.util.Locale
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.booleanOrNull
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.jsonObject
+import java.util.Properties
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.xml.sax.InputSource
@@ -34,11 +27,20 @@ import org.xml.sax.InputSource
 /**
  * Diagnoses backup rule configurations that omit app data during failed tests.
  *
- * Reads the resolved manifest and XML backup rules written to `suite-environment.json`
+ * Reads the resolved manifest and XML backup rules passed in the AGP test suite input properties
  * (`backup_rules.xml` and `data_extraction_rules.xml`).
  */
 internal object BackupRulesChecker {
-    private const val SUITE_ENVIRONMENT_FILE = "suite-environment.json"
+    private val BACKUP_RULE_INPUT_KEYS =
+        listOf(
+            BackupReportKeys.INPUT_ALLOW_BACKUP,
+            BackupReportKeys.INPUT_FULL_BACKUP_CONTENT,
+            BackupReportKeys.INPUT_FULL_BACKUP_CONTENT_FILE,
+            BackupReportKeys.INPUT_FULL_BACKUP_CONTENT_XML,
+            BackupReportKeys.INPUT_DATA_EXTRACTION_RULES,
+            BackupReportKeys.INPUT_DATA_EXTRACTION_RULES_FILE,
+            BackupReportKeys.INPUT_DATA_EXTRACTION_RULES_XML,
+        )
 
     private enum class StorageKind {
         PREFS,
@@ -75,19 +77,18 @@ internal object BackupRulesChecker {
     )
 
     /**
-     * Diagnoses whether backup rules in `suite-environment.json` explain a failure under
-     * [transportMode].
+     * Diagnoses whether backup rules in [suiteProperties] explain a failure under [transportMode].
      *
      * Returns a human-readable cause string, or null when no backup configuration rule matches.
      */
     fun diagnoseLikelyCause(
-        resultsDirPath: String?,
+        suiteProperties: Properties?,
         transportMode: BackupTransportMode?,
         storages: List<StorageDomain>,
         actionTargets: List<TargetCoordinate>,
         failureMessage: String?,
     ): String? {
-        val config = loadFromSuiteEnvironment(resultsDirPath) ?: return null
+        val config = loadFromSuiteProperties(suiteProperties) ?: return null
         return diagnoseFromConfig(
             config = config,
             transportMode = transportMode,
@@ -432,26 +433,57 @@ internal object BackupRulesChecker {
         return true
     }
 
-    private fun loadFromSuiteEnvironment(resultsDirPath: String?): ParsedBackupConfig? {
-        if (resultsDirPath.isNullOrEmpty()) return null
-        val envFile = File(resultsDirPath, SUITE_ENVIRONMENT_FILE)
-        if (!envFile.isFile) return null
+    private fun loadFromSuiteProperties(suiteProperties: Properties?): ParsedBackupConfig? {
+        if (
+            BACKUP_RULE_INPUT_KEYS.none {
+                BackupReportKeys.readProperty(suiteProperties, it) != null
+            }
+        ) {
+            return null
+        }
         return try {
-            val root = Json.parseToJsonElement(envFile.readText(Charsets.UTF_8)).jsonObject
-            val targetSdkVersion = root["targetSdkVersion"].asStringOrNull()?.toIntOrNull()
-            val rules = root["backupRules"]?.takeIf { it !is JsonNull }?.jsonObject ?: return null
-            val allowBackup = (rules["allowBackup"] as? JsonPrimitive)?.booleanOrNull ?: true
-            val fullBackupRef = rules["fullBackupContent"].asStringOrNull()
+            val targetSdkVersion =
+                BackupReportKeys.readProperty(
+                        suiteProperties,
+                        BackupReportKeys.INPUT_TARGET_SDK_VERSION,
+                    )
+                    ?.toIntOrNull()
+            val allowBackup =
+                !BackupReportKeys.readProperty(suiteProperties, BackupReportKeys.INPUT_ALLOW_BACKUP)
+                    .equals("false", ignoreCase = true)
+            val fullBackupRef =
+                BackupReportKeys.readProperty(
+                    suiteProperties,
+                    BackupReportKeys.INPUT_FULL_BACKUP_CONTENT,
+                )
             val fullBackupDisabled = fullBackupRef.equals("false", ignoreCase = true)
             val fullBackupFile =
-                rules["fullBackupContentFile"].asStringOrNull()?.takeIf { isSafeFileName(it) }
-                    ?: xmlFileNameFromRef(fullBackupRef)
-            val fullBackupXml = rules["fullBackupContentXml"].asStringOrNull()
-            val dataExtractionRef = rules["dataExtractionRules"].asStringOrNull()
+                BackupReportKeys.readProperty(
+                        suiteProperties,
+                        BackupReportKeys.INPUT_FULL_BACKUP_CONTENT_FILE,
+                    )
+                    ?.takeIf { isSafeFileName(it) } ?: xmlFileNameFromRef(fullBackupRef)
+            val fullBackupXml =
+                BackupReportKeys.readProperty(
+                    suiteProperties,
+                    BackupReportKeys.INPUT_FULL_BACKUP_CONTENT_XML,
+                )
+            val dataExtractionRef =
+                BackupReportKeys.readProperty(
+                    suiteProperties,
+                    BackupReportKeys.INPUT_DATA_EXTRACTION_RULES,
+                )
             val dataExtractionFile =
-                rules["dataExtractionRulesFile"].asStringOrNull()?.takeIf { isSafeFileName(it) }
-                    ?: xmlFileNameFromRef(dataExtractionRef)
-            val dataExtractionXml = rules["dataExtractionRulesXml"].asStringOrNull()
+                BackupReportKeys.readProperty(
+                        suiteProperties,
+                        BackupReportKeys.INPUT_DATA_EXTRACTION_RULES_FILE,
+                    )
+                    ?.takeIf { isSafeFileName(it) } ?: xmlFileNameFromRef(dataExtractionRef)
+            val dataExtractionXml =
+                BackupReportKeys.readProperty(
+                    suiteProperties,
+                    BackupReportKeys.INPUT_DATA_EXTRACTION_RULES_XML,
+                )
             ParsedBackupConfig(
                 allowBackup = allowBackup,
                 targetSdkVersion = targetSdkVersion,
@@ -672,6 +704,4 @@ internal object BackupRulesChecker {
         } catch (_: Exception) {
             null
         }
-
-    private fun JsonElement?.asStringOrNull(): String? = (this as? JsonPrimitive)?.contentOrNull
 }
