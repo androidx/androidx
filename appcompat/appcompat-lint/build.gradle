@@ -49,5 +49,4 @@ androidx {
     type = SoftwareType.LINT
     inceptionYear = "2019"
     description = "AppCompat Lint Checks"
-    legacyDisableReferenceEqualityCheck = true
 }
