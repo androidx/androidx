@@ -17,12 +17,12 @@
 package androidx.compose.material3.internal
 
 import androidx.compose.animation.animateColor
-import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.Transition
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.updateTransition
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.BorderRenderer
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
@@ -36,6 +36,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.LocalMaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
@@ -56,7 +57,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,7 +65,10 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
@@ -77,6 +80,13 @@ import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.DrawModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.currentValueOf
+import androidx.compose.ui.node.invalidateDraw
+import androidx.compose.ui.node.requireGraphicsContext
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.error
@@ -94,6 +104,7 @@ import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.lerp as lerpDp
 import androidx.compose.ui.unit.offset
@@ -2111,35 +2122,133 @@ private fun Transition<InputPhase>.labelContentColor(labelColor: Color): State<C
     )
 }
 
-@Composable
-internal fun animateBorderStrokeAsState(
+/**
+ * Draws a text field container background and, if a border thickness is specified, a border. Unlike
+ * `animateColorAsState`, state changes are animated with a [NodeTransition], so they don't
+ * recompose and only allocate animations once the container appearance actually changes.
+ */
+internal fun Modifier.textFieldContainer(
     enabled: Boolean,
     isError: Boolean,
-    focused: Boolean,
+    interactionSource: InteractionSource,
     colors: TextFieldColors,
-    focusedBorderThickness: Dp,
-    unfocusedBorderThickness: Dp,
-): State<BorderStroke> {
-    // TODO Load the motionScheme tokens from the component tokens file
-    val targetColor = colors.indicatorColor(enabled, isError, focused)
-    val colorAnimationSpec = MotionSchemeKeyTokens.FastEffects.value<Color>()
-    val indicatorColor =
-        if (enabled) {
-            animateColorAsState(targetColor, colorAnimationSpec)
-        } else {
-            rememberUpdatedState(targetColor)
+    shape: Shape,
+    focusedBorderThickness: Dp = Dp.Unspecified,
+    unfocusedBorderThickness: Dp = Dp.Unspecified,
+): Modifier =
+    this then
+        TextFieldContainerElement(
+            enabled,
+            isError,
+            interactionSource,
+            colors,
+            shape,
+            focusedBorderThickness,
+            unfocusedBorderThickness,
+        )
+
+private data class TextFieldContainerElement(
+    val enabled: Boolean,
+    val isError: Boolean,
+    val interactionSource: InteractionSource,
+    val colors: TextFieldColors,
+    val shape: Shape,
+    val focusedBorderThickness: Dp,
+    val unfocusedBorderThickness: Dp,
+) : ModifierNodeElement<TextFieldContainerNode>() {
+    override fun create() = TextFieldContainerNode(this)
+
+    override fun update(node: TextFieldContainerNode) = node.update(this)
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "textFieldContainer"
+        properties["enabled"] = enabled
+        properties["isError"] = isError
+        properties["interactionSource"] = interactionSource
+        properties["colors"] = colors
+        properties["shape"] = shape
+        properties["focusedBorderThickness"] = focusedBorderThickness
+        properties["unfocusedBorderThickness"] = unfocusedBorderThickness
+    }
+}
+
+private class TextFieldContainerNode(initialParams: TextFieldContainerElement) :
+    Modifier.Node(), DrawModifierNode, CompositionLocalConsumerModifierNode {
+    override val shouldAutoInvalidate = false
+
+    private var params = initialParams
+
+    private val interactions =
+        object : InteractionTracker(this@TextFieldContainerNode, InteractionTracker.Focus) {
+            override fun onChanged() {
+                if (transition.update()) invalidateDraw()
+            }
+        }
+    private val focused
+        get() = interactions.isFocused
+
+    private val transition = NodeTransition(this)
+    private val containerColor =
+        transition.animateColor({ motionScheme.fastEffectsSpec() }) {
+            params.colors.containerColor(params.enabled, params.isError, focused)
+        }
+    private val borderColor =
+        transition.animateColor({ borderSpec(motionScheme.fastEffectsSpec()) }) {
+            params.colors.indicatorColor(params.enabled, params.isError, focused)
+        }
+    private val borderWidth =
+        transition.animateDp({ borderSpec(motionScheme.fastSpatialSpec()) }) {
+            if (focused && params.enabled) params.focusedBorderThickness
+            else params.unfocusedBorderThickness
         }
 
-    val thicknessAnimationSpec = MotionSchemeKeyTokens.FastSpatial.value<Dp>()
-    val thickness =
-        if (enabled) {
-            val targetThickness = if (focused) focusedBorderThickness else unfocusedBorderThickness
-            animateDpAsState(targetThickness, thicknessAnimationSpec)
-        } else {
-            rememberUpdatedState(unfocusedBorderThickness)
-        }
+    private val motionScheme
+        get() = currentValueOf(LocalMaterialTheme).motionScheme
 
-    return rememberUpdatedState(BorderStroke(thickness.value, indicatorColor.value))
+    // As before, the border doesn't animate while the text field is disabled.
+    private fun <T> borderSpec(spec: AnimationSpec<T>): AnimationSpec<T> =
+        if (params.enabled) spec else snap()
+
+    private val hasBorder: Boolean
+        get() =
+            params.focusedBorderThickness.isSpecified || params.unfocusedBorderThickness.isSpecified
+
+    private var borderLayer: GraphicsLayer? = null
+    private val borderRenderer = BorderRenderer {
+        borderLayer ?: requireGraphicsContext().createGraphicsLayer().also { borderLayer = it }
+    }
+
+    override fun onAttach() {
+        interactions.track(params.interactionSource)
+    }
+
+    override fun onDetach() {
+        transition.reset()
+        borderLayer?.let { requireGraphicsContext().releaseGraphicsLayer(it) }
+        borderLayer = null
+    }
+
+    fun update(params: TextFieldContainerElement) {
+        this.params = params
+        if (!isAttached) return
+        interactions.track(params.interactionSource)
+        transition.update()
+        invalidateDraw()
+    }
+
+    override fun ContentDrawScope.draw() {
+        val outline = params.shape.createOutline(size, layoutDirection, this)
+        drawOutline(outline, color = containerColor.value)
+        drawContent()
+        if (hasBorder) {
+            borderRenderer.drawBorder(
+                this,
+                borderWidth.value,
+                SolidColor(borderColor.value),
+                outline,
+            )
+        }
+    }
 }
 
 /** An internal state used to animate a label and an indicator. */

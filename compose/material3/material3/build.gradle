@@ -54,7 +54,7 @@ androidXMultiplatform {
             implementation(project(":compose:material3:material3-ripple"))
             api("androidx.compose.runtime:runtime:1.13.0-alpha03")
             api("androidx.compose.ui:ui:1.13.0-alpha03")
-            api("androidx.compose.foundation:foundation:1.13.0-alpha03")
+            api(project(":compose:foundation:foundation"))
             api("androidx.compose.ui:ui-text:1.13.0-alpha03")
             api("androidx.graphics:graphics-shapes:1.1.0")
         }

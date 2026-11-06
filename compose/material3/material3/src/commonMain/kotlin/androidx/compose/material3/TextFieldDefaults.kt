@@ -19,12 +19,9 @@
 package androidx.compose.material3
 
 import androidx.annotation.FloatRange
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.text.BasicTextField
@@ -40,11 +37,9 @@ import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.internal.CommonDecorationBox
 import androidx.compose.material3.internal.SupportingTopPadding
 import androidx.compose.material3.internal.TextFieldPadding
-import androidx.compose.material3.internal.animateBorderStrokeAsState
-import androidx.compose.material3.internal.textFieldBackground
+import androidx.compose.material3.internal.textFieldContainer
 import androidx.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.compose.material3.tokens.FilledTextFieldTokens
-import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.OutlinedTextFieldTokens
 import androidx.compose.material3.tokens.ShapeKeyTokens
 import androidx.compose.runtime.Composable
@@ -239,16 +234,9 @@ public object TextFieldDefaults {
         focusedIndicatorLineThickness: Dp = FocusedIndicatorThickness,
         unfocusedIndicatorLineThickness: Dp = UnfocusedIndicatorThickness,
     ) {
-        val focused = interactionSource.collectIsFocusedAsState().value
-        // TODO Load the motionScheme tokens from the component tokens file
-        val containerColor =
-            animateColorAsState(
-                targetValue = colors.containerColor(enabled, isError, focused),
-                animationSpec = MotionSchemeKeyTokens.FastEffects.value(),
-            )
         Box(
             modifier
-                .textFieldBackground(containerColor::value, shape)
+                .textFieldContainer(enabled, isError, interactionSource, colors, shape)
                 .indicatorLine(
                     enabled = enabled,
                     isError = isError,
@@ -1164,26 +1152,16 @@ public object OutlinedTextFieldDefaults {
         focusedBorderThickness: Dp = FocusedBorderThickness,
         unfocusedBorderThickness: Dp = UnfocusedBorderThickness,
     ) {
-        val focused = interactionSource.collectIsFocusedAsState().value
-        val borderStroke =
-            animateBorderStrokeAsState(
-                enabled,
-                isError,
-                focused,
-                colors,
-                focusedBorderThickness,
-                unfocusedBorderThickness,
-            )
-        // TODO Load the motionScheme tokens from the component tokens file
-        val containerColor =
-            animateColorAsState(
-                targetValue = colors.containerColor(enabled, isError, focused),
-                animationSpec = MotionSchemeKeyTokens.FastEffects.value(),
-            )
         Box(
-            modifier
-                .border(borderStroke.value, shape)
-                .textFieldBackground(containerColor::value, shape)
+            modifier.textFieldContainer(
+                enabled = enabled,
+                isError = isError,
+                interactionSource = interactionSource,
+                colors = colors,
+                shape = shape,
+                focusedBorderThickness = focusedBorderThickness,
+                unfocusedBorderThickness = unfocusedBorderThickness,
+            )
         )
     }
 
