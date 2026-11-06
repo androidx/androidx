@@ -22,6 +22,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
@@ -989,6 +990,228 @@ class ParseBlockTest {
     }
 
     @Test
+    fun testDividerVariantsAndNonMatchingLines() {
+        val doc =
+            parseLines(
+                """
+                ---
+                ***
+                ___
+                   - - -
+                *  *  *  *
+                --
+                -*-
+                --- trailing
+                """
+                    .trimIndent()
+            )
+        // First 5 lines are DividerParseBlocks; last 3 lines merge into a single
+        // ParagraphParseBlock
+        assertEquals(6, doc.children.size)
+        assertEquals(8, doc.lineCount)
+        for (i in 0 until 5) {
+            val divider = assertIs<DividerParseBlock>(doc.children[i])
+            assertEquals(1, divider.lineCount)
+        }
+        val p = assertIs<ParagraphParseBlock>(doc.children[5])
+        assertEquals("--\n-*-\n--- trailing", p.content.toString())
+        assertEquals(3, p.lineCount)
+    }
+
+    @Test
+    fun testSetextHeadingPrecedenceOverDividerAndParagraphInterruption() {
+        val doc =
+            parseLines(
+                """
+                Setext H2
+                ---
+                Interrupted by asterisks
+                ***
+                Interrupted by spaced dashes
+                - - -
+                After divider
+                """
+                    .trimIndent()
+            )
+        assertEquals(6, doc.children.size)
+        assertEquals(7, doc.lineCount)
+
+        val h2 = assertIs<ParagraphParseBlock>(doc.children[0])
+        assertEquals("Setext H2", h2.content.toString())
+        assertEquals(2, h2.headingLevel)
+        assertEquals(2, h2.lineCount)
+
+        val p1 = assertIs<ParagraphParseBlock>(doc.children[1])
+        assertEquals("Interrupted by asterisks", p1.content.toString())
+        assertEquals(0, p1.headingLevel)
+        assertEquals(1, p1.lineCount)
+
+        assertIs<DividerParseBlock>(doc.children[2])
+
+        val p2 = assertIs<ParagraphParseBlock>(doc.children[3])
+        assertEquals("Interrupted by spaced dashes", p2.content.toString())
+        assertEquals(0, p2.headingLevel)
+        assertEquals(1, p2.lineCount)
+
+        assertIs<DividerParseBlock>(doc.children[4])
+
+        val p3 = assertIs<ParagraphParseBlock>(doc.children[5])
+        assertEquals("After divider", p3.content.toString())
+        assertEquals(1, p3.lineCount)
+    }
+
+    @Test
+    fun testFencedCodeBlockBackticksAndTildes() {
+        val doc =
+            parseLines(
+                """
+                ```kotlin
+                fun main() {
+                    println("Hello")
+                }
+                ```
+                ~~~c\+\+ extra info
+                int x = 0;
+                ~~~~
+                """
+                    .trimIndent()
+            )
+        assertEquals(2, doc.children.size)
+        assertEquals(8, doc.lineCount)
+
+        val kotlinCode = assertIs<FencedCodeBlockParseBlock>(doc.children[0])
+        assertTrue(kotlinCode.isClosed)
+        assertEquals('`', kotlinCode.fenceChar)
+        assertEquals(3, kotlinCode.fenceLength)
+        assertEquals("kotlin", kotlinCode.language)
+        assertEquals("fun main() {\n    println(\"Hello\")\n}", kotlinCode.getCodeContent())
+        assertEquals(5, kotlinCode.lineCount)
+
+        val cppCode = assertIs<FencedCodeBlockParseBlock>(doc.children[1])
+        assertTrue(cppCode.isClosed)
+        assertEquals('~', cppCode.fenceChar)
+        assertEquals(3, cppCode.fenceLength)
+        assertEquals("c++", cppCode.language)
+        assertEquals("int x = 0;", cppCode.getCodeContent())
+        assertEquals(3, cppCode.lineCount)
+    }
+
+    @Test
+    fun testFencedCodeBlockIndentStrippingAndClosingRules() {
+        val doc =
+            parseLines(
+                """
+                  ````
+                    line with 4 spaces (2 stripped)
+                  ```
+                  ```` trailing text is not a closing fence
+                   ````
+                After code block
+                """
+                    .trimIndent()
+            )
+        assertEquals(2, doc.children.size)
+        assertEquals(6, doc.lineCount)
+
+        val code = assertIs<FencedCodeBlockParseBlock>(doc.children[0])
+        assertTrue(code.isClosed)
+        assertEquals(4, code.fenceLength)
+        assertEquals(2, code.fenceIndent)
+        assertNull(code.language)
+        assertEquals(
+            "  line with 4 spaces (2 stripped)\n```\n```` trailing text is not a closing fence",
+            code.getCodeContent(),
+        )
+        assertEquals(5, code.lineCount)
+
+        val after = assertIs<ParagraphParseBlock>(doc.children[1])
+        assertEquals("After code block", after.content.toString())
+        assertEquals(1, after.lineCount)
+    }
+
+    @Test
+    fun testBacktickFenceRejectsBacktickInInfoString() {
+        val doc =
+            parseLines(
+                """
+                ```foo`bar
+                ~~~foo`bar
+                inside tilde block
+                ~~~
+                """
+                    .trimIndent()
+            )
+        assertEquals(2, doc.children.size)
+        val p = assertIs<ParagraphParseBlock>(doc.children[0])
+        assertEquals("```foo`bar", p.content.toString())
+
+        val tildeCode = assertIs<FencedCodeBlockParseBlock>(doc.children[1])
+        assertEquals("foo`bar", tildeCode.language)
+        assertEquals("inside tilde block", tildeCode.getCodeContent())
+    }
+
+    @Test
+    fun testUnclosedFencedCodeBlockRunsToEndOfDocument() {
+        // Without a closing fence, the code block takes every remaining line: blank lines and lines
+        // that would otherwise start other blocks are code, including blank lines at the end.
+        val doc = parseLines("```kotlin\ncode\n\n# not a heading\n***\n    indented\n\n")
+        val code = assertIs<FencedCodeBlockParseBlock>(doc.children.single())
+        assertFalse(code.isClosed)
+        assertEquals("kotlin", code.language)
+        assertEquals(8, code.lineCount)
+        assertEquals("code\n\n# not a heading\n***\n    indented\n\n", code.getCodeContent())
+        // The block ends with 2 blank lines, but they are code, not a separator before the next
+        // block.
+        assertEquals(2, code.countTrailingEmptyLines())
+        assertTrue(code.consumesTrailingEmptyLines)
+    }
+
+    @Test
+    fun testIndentedCodeBlockAndTrailingBlankLines() {
+        // A line with 4+ spaces and no non-whitespace characters is an empty line, not a code block
+        assertFalse(LineScanner("    ").matchesIndentedCodeBlock())
+        val leadingEmptyDoc = parseLines("      \n    val a = 1")
+        assertEquals(2, leadingEmptyDoc.children.size)
+        assertIs<EmptyLineParseBlock>(leadingEmptyDoc.children[0])
+        assertIs<IndentedCodeBlockParseBlock>(leadingEmptyDoc.children[1])
+
+        val doc =
+            parseLines(
+                "    val a = 1\n" +
+                    "  \n" +
+                    "      val b = 2\n" +
+                    "\n" +
+                    "   \n" +
+                    "Paragraph after indented code"
+            )
+        assertEquals(2, doc.children.size)
+        assertEquals(6, doc.lineCount)
+
+        val code = assertIs<IndentedCodeBlockParseBlock>(doc.children[0])
+        // The internal blank line is code. The trailing 2 blank lines stay in the block's lines
+        // when the paragraph line closes it, but they are not code: they are reported as trailing
+        // empty lines instead.
+        assertEquals("val a = 1\n\n  val b = 2", code.getCodeContent())
+        assertEquals(5, code.lineCount)
+        assertEquals(2, code.countTrailingEmptyLines())
+
+        val p = assertIs<ParagraphParseBlock>(doc.children[1])
+        assertEquals("Paragraph after indented code", p.content.toString())
+        assertEquals(1, p.lineCount)
+    }
+
+    @Test
+    fun testIndentedCodeBlankLineKeepsSpacesBeyondIndentAndTrailingBlankLinesAtEnd() {
+        // An interior blank line keeps the spaces beyond the 4-space indent. Blank lines at the end
+        // of the document, with no closing line, stay in the block's lines but are not code.
+        val doc = parseLines("    a\n      \n    b\n\n  ")
+        val code = assertIs<IndentedCodeBlockParseBlock>(doc.children.single())
+        assertEquals("a\n  \nb", code.getCodeContent())
+        assertEquals(5, code.lineCount)
+        assertEquals(2, code.countTrailingEmptyLines())
+    }
+
+    @Test
     fun testIndentedLineDoesNotInterruptParagraph() {
         val doc =
             parseLines(
@@ -1002,5 +1225,86 @@ class ParseBlockTest {
         val p = assertIs<ParagraphParseBlock>(doc.children[0])
         assertEquals("Paragraph line 1\nindented continuation line", p.content.toString())
         assertEquals(2, p.lineCount)
+    }
+
+    @Test
+    fun testIncrementalParseConvergesAcrossCodeBlockAndDivider() {
+        val context = ParseContext()
+        val doc =
+            parseLines(
+                """
+                Intro paragraph
+                ***
+                ```kotlin
+                val x = 1
+                ```
+                Trailing paragraph
+                """
+                    .trimIndent(),
+                context,
+            )
+        assertEquals(4, doc.children.size)
+        val originalDivider = doc.children[1]
+        val originalCodeBlock = doc.children[2]
+        val originalTrailing = doc.children[3]
+
+        // Edit line 0 ("Intro paragraph" -> "Updated intro")
+        doc.invalidateLines(oldLineStart = 0, oldLineEndExclusive = 1, newLineCount = 1)
+        context.resetLine(LineScanner("Updated intro"))
+        val r0 = doc.processLine(context)
+        assertTrue(r0.accepted)
+        assertFalse(r0.isConverged)
+
+        // Line 1 ("***") opens DividerParseBlock at delta == 0 and converges!
+        context.resetLine(LineScanner("***"))
+        val r1 = doc.processLine(context)
+        assertTrue(r1.accepted)
+        assertTrue(r1.isConverged)
+
+        assertEquals(6, doc.lineCount)
+        assertSame(originalDivider, doc.children[1])
+        assertSame(originalCodeBlock, doc.children[2])
+        assertSame(originalTrailing, doc.children[3])
+    }
+
+    @Test
+    fun testIncrementalParseConvergesAfterIndentedCodeTrailingBlankLines() {
+        val context = ParseContext()
+        val doc =
+            parseLines(
+                "    val a = 1\n" + "\n" + "Paragraph 1\n" + "\n" + "Paragraph 2",
+                context,
+            )
+        // The blank line after the code stays in the code block (lines 0..1).
+        assertEquals(4, doc.children.size)
+        assertEquals(5, doc.lineCount)
+        val originalP1 = doc.children[1]
+        val originalP2 = doc.children[3]
+
+        // Edit line 0 ("    val a = 1" -> "    val a = 2")
+        doc.invalidateLines(oldLineStart = 0, oldLineEndExclusive = 1, newLineCount = 1)
+
+        // Line 0: opens new IndentedCodeBlockParseBlock
+        context.resetLine(LineScanner("    val a = 2"))
+        assertFalse(doc.processLine(context).isConverged)
+
+        // Line 1 (""): tentatively absorbed by IndentedCodeBlockParseBlock
+        context.resetLine(LineScanner(""))
+        assertFalse(doc.processLine(context).isConverged)
+
+        // Line 2 ("Paragraph 1"): closes the code block, and Paragraph 1 converges with originalP1
+        // without needing to re-parse lines 3..4!
+        context.resetLine(LineScanner("Paragraph 1"))
+        val r2 = doc.processLine(context)
+        assertTrue(r2.accepted)
+        assertTrue(r2.isConverged)
+
+        assertEquals(5, doc.lineCount)
+        assertEquals(4, doc.children.size)
+        val code = assertIs<IndentedCodeBlockParseBlock>(doc.children[0])
+        assertEquals("val a = 2", code.getCodeContent())
+        assertEquals(1, code.countTrailingEmptyLines())
+        assertSame(originalP1, doc.children[1])
+        assertSame(originalP2, doc.children[3])
     }
 }

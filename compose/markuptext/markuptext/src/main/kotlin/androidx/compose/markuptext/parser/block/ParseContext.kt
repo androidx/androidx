@@ -117,7 +117,16 @@ internal class ParseContext {
             return null
         }
 
-        // 3. Paragraph fallback
+        // 3. Indented Code Block (4+ leading spaces on a non-empty line; cannot interrupt a
+        // paragraph)
+        if (scanner.matchesIndentedCodeBlock()) {
+            return IndentedCodeBlockParseBlock(
+                id = generateBlockId(),
+                initialCode = "${scanner.getRawUnconsumedText()}\n",
+            )
+        }
+
+        // 4. Paragraph fallback
         return ParagraphParseBlock(
             id = generateBlockId(),
             headingLevel = 0,
@@ -133,7 +142,7 @@ internal class ParseContext {
     private fun matchMarkedBlockStart(): ParseBlock? {
         val scanner = currentLine
 
-        // 2. ATX Heading (# Heading)
+        // 2.1. ATX Heading (# Heading)
         val atx = scanner.matchesAtxHeading()
         if (atx != null) {
             return ParagraphParseBlock(
@@ -142,6 +151,17 @@ internal class ParseContext {
                 initialContent = atx.text,
                 lineCount = 1,
             )
+        }
+
+        // 2.2. Fenced Code Block (``` or ~~~)
+        val fenced = scanner.matchesFencedCodeBlock()
+        if (fenced != null) {
+            return FencedCodeBlockParseBlock(id = generateBlockId(), fence = fenced)
+        }
+
+        // 2.3. Thematic Break / Divider (---, ***, ___)
+        if (scanner.matchesDivider()) {
+            return DividerParseBlock(id = generateBlockId())
         }
 
         return null
@@ -159,10 +179,11 @@ internal class ParseContext {
 
 /**
  * Whether this line may start a block with a marker character: at most [MAX_BLOCK_START_INDENT]
- * leading spaces followed by a character that begins an ATX heading. A cheap pre-check before
- * running the full matchers.
+ * leading spaces followed by a character that begins an ATX heading, fenced code block, or divider.
+ * A cheap pre-check before running the full matchers.
  */
 private fun LineScanner.mayStartMarkedBlock(): Boolean {
     if (leadingSpaceCount > MAX_BLOCK_START_INDENT) return false
-    return firstNonSpaceChar == ATX_HEADING_MARKER
+    val c = firstNonSpaceChar
+    return c == ATX_HEADING_MARKER || c.isFenceChar() || c.isDividerMarker()
 }

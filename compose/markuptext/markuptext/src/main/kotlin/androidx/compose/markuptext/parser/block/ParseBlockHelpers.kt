@@ -33,3 +33,19 @@ internal fun Char.isSpaceOrTab(): Boolean = this == ' ' || this == '\t'
  * Unicode digits, which never form ordered list markers.
  */
 internal fun Char.isAsciiDigit(): Boolean = this in '0'..'9'
+
+/**
+ * Whether this character is an ASCII punctuation character, the characters that a backslash can
+ * escape.
+ *
+ * In the ASCII table, the printable characters from `!` (0x21) to `~` (0x7E) are punctuation,
+ * except for three runs of letters and digits. So the punctuation forms the four ranges between
+ * those runs:
+ * - `!` to `/` (0x21..0x2F), after the space (0x20) and before the digits `0..9`: `!"#$%&'()*+,-./`
+ * - `:` to `@` (0x3A..0x40), between the digits and the uppercase letters `A..Z`: `:;<=>?@`
+ * - `[` to the backtick (0x5B..0x60), between the uppercase and the lowercase letters `a..z`:
+ *   `[\]^_` and the backtick
+ * - `{` to `~` (0x7B..0x7E), after the lowercase letters and before DEL (0x7F): `{|}~`
+ */
+internal fun Char.isAsciiPunctuation(): Boolean =
+    this in '!'..'/' || this in ':'..'@' || this in '['..'`' || this in '{'..'~'
