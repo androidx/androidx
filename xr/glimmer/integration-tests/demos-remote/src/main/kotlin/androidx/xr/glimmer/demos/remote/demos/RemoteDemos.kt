@@ -26,5 +26,6 @@ internal val RemoteDemos =
             ComposableDemo("Remote Box") { RemoteBoxDemo() },
             RemoteThemeDemos,
             RemoteSurfaceDemos,
+            ComposableDemo("Remote Icon") { RemoteIconDemo() },
         ),
     )

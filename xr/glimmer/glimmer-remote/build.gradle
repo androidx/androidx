@@ -31,10 +31,16 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
 
     testImplementation(project(":compose:remote:remote-core"))
+    testImplementation(project(":compose:remote:remote-player-compose"))
+    testImplementation(project(":compose:remote:remote-player-compose-testutils"))
+    testImplementation(project(":compose:remote:remote-player-core"))
+    testImplementation(project(":compose:ui:ui-test-junit4"))
+    testImplementation("androidx.compose.foundation:foundation-layout:1.12.1")
     testImplementation(libs.junit)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.robolectric)
     testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
     testImplementation(libs.truth)
 
     androidTestImplementation("androidx.compose.foundation:foundation-layout:1.12.1")

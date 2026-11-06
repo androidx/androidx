@@ -53,9 +53,11 @@ public fun RemoteGlimmerTheme(
     content: @RemoteComposable @Composable () -> Unit,
 ) {
     val theme = RemoteGlimmerTheme(typography, componentSpacingValues)
-    // TODO: b/560206798 - Provide LocalRemoteIconSize (theme.iconSizes.medium) once RemoteIcon
-    // lands.
-    CompositionLocalProvider(_localRemoteGlimmerTheme provides theme, content = content)
+    CompositionLocalProvider(
+        _localRemoteGlimmerTheme provides theme,
+        LocalRemoteIconSize provides theme.iconSizes.medium,
+        content = content,
+    )
 }
 
 /**
@@ -135,7 +137,7 @@ public class RemoteGlimmerTheme(
          * Cached [RemoteIconSizes] instance to be used across [RemoteGlimmerTheme] instances -
          * currently icon sizes are not user-configurable.
          */
-        private val _iconSizes = RemoteIconSizes()
+        internal val _iconSizes = RemoteIconSizes()
     }
 }
 
