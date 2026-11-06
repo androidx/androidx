@@ -51,13 +51,12 @@ import kotlin.collections.toFloatArray
  * @param colorStops Colors and their offset in the gradient area
  * @param start Starting position of the linear gradient. This can be set to [RemoteOffset.Zero] to
  *   position at the far left and top of the drawing area
- * @param end Ending position of the linear gradient. This can be set to [RemoteOffset] Inifnite to
+ * @param end Ending position of the linear gradient. This can be set to [RemoteOffset] Infinite to
  *   position at the far right and bottom of the drawing area
  * @param tileMode Determines the behavior for how the shader is to fill a region outside its
  *   bounds. Defaults to [RemoteTileMode.Clamp] to repeat the edge pixels
  * @return a [RemoteShaderBrush] that draws a linear gradient with the given [colorStops]
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable
 public fun RemoteBrush.Companion.linearGradient(
     vararg colorStops: Pair<RemoteFloat, RemoteColor>,
@@ -93,13 +92,12 @@ public fun RemoteBrush.Companion.linearGradient(
  *   bounds. Defaults to [RemoteTileMode.Clamp] to repeat the edge pixels
  * @return a [RemoteShaderBrush] that draws a linear gradient across the given [colors]
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable
 public fun RemoteBrush.Companion.linearGradient(
     colors: List<RemoteColor>,
     start: RemoteOffset? = null,
     end: RemoteOffset? = null,
-    tileMode: RemoteTileMode,
+    tileMode: RemoteTileMode = RemoteTileMode.Clamp,
 ): RemoteShaderBrush =
     RemoteLinearGradient(
         colors = colors,
@@ -130,13 +128,12 @@ public fun RemoteBrush.Companion.linearGradient(
  *   bounds. Defaults to [RemoteTileMode.Clamp] to repeat the edge pixels
  * @return a [RemoteShaderBrush] that draws a horizontal gradient across the given [colors]
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable
 public fun RemoteBrush.Companion.horizontalGradient(
     colors: List<RemoteColor>,
     startX: RemoteFloat? = null,
     endX: RemoteFloat? = null,
-    tileMode: RemoteTileMode,
+    tileMode: RemoteTileMode = RemoteTileMode.Clamp,
 ): RemoteShaderBrush =
     RemoteLinearGradient(
         colors = colors,
@@ -172,12 +169,11 @@ public fun RemoteBrush.Companion.horizontalGradient(
  *   bounds. Defaults to [RemoteTileMode.Clamp] to repeat the edge pixels
  * @return a [RemoteShaderBrush] that draws a horizontal gradient with the given [colorStops]
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable
 public fun RemoteBrush.Companion.horizontalGradient(
     vararg colorStops: Pair<RemoteFloat, RemoteColor>,
-    startX: RemoteFloat?,
-    endX: RemoteFloat?,
+    startX: RemoteFloat? = null,
+    endX: RemoteFloat? = null,
     tileMode: RemoteTileMode = RemoteTileMode.Clamp,
 ): RemoteShaderBrush =
     RemoteLinearGradient(
@@ -208,14 +204,13 @@ public fun RemoteBrush.Companion.horizontalGradient(
  *   bounds. Defaults to [RemoteTileMode.Clamp] to repeat the edge pixels
  * @return a [RemoteShaderBrush] that draws a vertical gradient across the given [colors]
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable
 @Suppress("PrimitiveInCollection")
 public fun RemoteBrush.Companion.verticalGradient(
     colors: List<RemoteColor>,
     startY: RemoteFloat? = null,
     endY: RemoteFloat? = null,
-    tileMode: RemoteTileMode,
+    tileMode: RemoteTileMode = RemoteTileMode.Clamp,
 ): RemoteShaderBrush =
     RemoteLinearGradient(
         colors = colors,
@@ -251,12 +246,11 @@ public fun RemoteBrush.Companion.verticalGradient(
  *   bounds. Defaults to [RemoteTileMode.Clamp] to repeat the edge pixels
  * @return a [RemoteShaderBrush] that draws a vertical gradient with the given [colorStops]
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable
 public fun RemoteBrush.Companion.verticalGradient(
     vararg colorStops: Pair<RemoteFloat, RemoteColor>,
-    startY: RemoteFloat?,
-    endY: RemoteFloat?,
+    startY: RemoteFloat? = null,
+    endY: RemoteFloat? = null,
     tileMode: RemoteTileMode = RemoteTileMode.Clamp,
 ): RemoteShaderBrush =
     RemoteLinearGradient(

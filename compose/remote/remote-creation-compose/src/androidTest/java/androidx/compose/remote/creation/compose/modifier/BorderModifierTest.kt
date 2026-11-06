@@ -24,6 +24,7 @@ import androidx.compose.remote.creation.compose.shaders.verticalGradient
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
+import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
@@ -32,7 +33,6 @@ import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI.Compa
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.TileMode
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -160,7 +160,7 @@ class BorderModifierTest {
                     colors = listOf(Color.Red.rc, Color.Blue.rc, Color.Green.rc),
                     startY = 0f.rf,
                     endY = 10000f.rf,
-                    tileMode = TileMode.Repeated,
+                    tileMode = RemoteTileMode.Repeated,
                 )
             RemoteBox(
                 modifier =

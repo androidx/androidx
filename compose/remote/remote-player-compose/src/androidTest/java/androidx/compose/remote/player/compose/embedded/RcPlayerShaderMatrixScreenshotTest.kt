@@ -38,7 +38,6 @@ import androidx.compose.remote.creation.compose.shaders.image
 import androidx.compose.remote.creation.compose.shaders.linearGradient
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createRotationAround
 import androidx.compose.remote.creation.compose.state.RemotePaint
-import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.state.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
@@ -207,8 +206,8 @@ class RcPlayerShaderMatrixScreenshotTest {
                             .setColor(Color.White.toArgb())
                             .setTextureShader(
                                 bitmapId,
-                                RemoteTileMode.Repeated.value.toShort(),
-                                RemoteTileMode.Repeated.value.toShort(),
+                                TILE_MODE_REPEATED,
+                                TILE_MODE_REPEATED,
                                 Rc.Texture.FILTER_DEFAULT,
                                 0,
                             )
@@ -221,6 +220,8 @@ class RcPlayerShaderMatrixScreenshotTest {
     }
 
     private companion object {
+        private const val TILE_MODE_REPEATED: Short = 1
+
         fun ContentScale.GetLabel(): String =
             when (this) {
                 ContentScale.Crop -> "crop"
