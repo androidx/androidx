@@ -22,11 +22,14 @@ import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
 import android.widget.RemoteViews
+import androidx.collection.IntObjectMap
+import androidx.collection.MutableIntObjectMap
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurfaceDetector
 import androidx.glance.adaptive.core.selection.Dimensions
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 import kotlin.math.roundToInt
+import kotlinx.coroutines.CancellationException
 
 /**
  * Identifies one RemoteViews composition: everything sharing a surface and container dimensions
@@ -35,6 +38,18 @@ import kotlin.math.roundToInt
 internal data class RenderTarget(
     val surface: AppWidgetSurface,
     val dimensions: Dimensions,
+)
+
+/**
+ * The placements of one update, bucketed by [RenderTarget].
+ *
+ * @property targetToInstances The appWidgetIds sharing each [RenderTarget].
+ * @property intIdsToStringIds The widget instance String identifier stored in the options read for
+ *   each grouped appWidgetId, for the placements that have one.
+ */
+internal class GroupedInstances(
+    val targetToInstances: Map<RenderTarget, List<Int>>,
+    val intIdsToStringIds: IntObjectMap<String>,
 )
 
 /** A single widget picker entry: one provider's preview for one host category. */
@@ -66,14 +81,31 @@ internal class GlanceRemoteViewsComposer(
      * ensuring differently sized instances resolve their own layout tier and slot dimensions:
      * grouping by surface alone would collapse them into one composition and give one instance the
      * other's layout.
+     *
+     * A placement whose options cannot be read is left out and reported to [onUnreadableOptions],
+     * so that it does not prevent the others from being grouped.
      */
     fun groupInstancesByRenderTarget(
-        componentToAppWidgetIds: Map<ComponentName, IntArray>
-    ): Map<RenderTarget, List<Int>> {
+        componentToAppWidgetIds: Map<ComponentName, IntArray>,
+        onUnreadableOptions: (appWidgetId: Int, error: Exception) -> Unit,
+    ): GroupedInstances {
         val targetToInstances = mutableMapOf<RenderTarget, MutableList<Int>>()
+        val intIdsToStringIds = MutableIntObjectMap<String>()
         for ((_, appWidgetIds) in componentToAppWidgetIds) {
             for (appWidgetId in appWidgetIds) {
-                val options = appWidgetManager.getAppWidgetOptions(appWidgetId)
+                val options =
+                    try {
+                        appWidgetManager.getAppWidgetOptions(appWidgetId)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        onUnreadableOptions(appWidgetId, e)
+                        continue
+                    }
+                options
+                    ?.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID)
+                    ?.takeIf { it.isNotBlank() }
+                    ?.let { intIdsToStringIds[appWidgetId] = it }
                 val target =
                     RenderTarget(
                         surface = AppWidgetSurfaceDetector.fromAppWidgetOptions(options),
@@ -82,7 +114,7 @@ internal class GlanceRemoteViewsComposer(
                 targetToInstances.getOrPut(target) { mutableListOf() }.add(appWidgetId)
             }
         }
-        return targetToInstances
+        return GroupedInstances(targetToInstances, intIdsToStringIds)
     }
 
     /**

@@ -44,6 +44,9 @@ import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.spy
+import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
@@ -93,6 +96,45 @@ class GlanceRemoteViewsComposerTest {
                 RenderTarget(AppWidgetSurface.MOBILE_LOCK_SCREEN, UNSPECIFIED),
                 listOf(402),
             )
+    }
+
+    @Test
+    fun groupInstances_withUnreadableOptions_reportsPlacementAndGroupsTheOthers() {
+        bindWidget(701)
+        bindWidget(702)
+        val failingManager = spy(appWidgetManager)
+        val failure = RuntimeException("Simulated IPC failure")
+        doThrow(failure).whenever(failingManager).getAppWidgetOptions(702)
+        val unreadable = mutableListOf<Pair<Int, Exception>>()
+
+        val grouped =
+            GlanceRemoteViewsComposer(context, failingManager).groupInstancesByRenderTarget(
+                mapOf(component to intArrayOf(701, 702))
+            ) { appWidgetId, error ->
+                unreadable += appWidgetId to error
+            }
+
+        assertThat(grouped.targetToInstances.values.flatten()).containsExactly(701)
+        assertThat(unreadable).containsExactly(702 to failure)
+    }
+
+    @Test
+    fun groupInstances_returnsStoredWidgetIds() {
+        bindWidget(711)
+        appWidgetManager.updateAppWidgetOptions(
+            711,
+            Bundle().apply { putString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID, "stored") },
+        )
+        bindWidget(712)
+
+        val grouped =
+            composer.groupInstancesByRenderTarget(mapOf(component to intArrayOf(711, 712))) { _, e
+                ->
+                throw e
+            }
+
+        assertThat(grouped.intIdsToStringIds[711]).isEqualTo("stored")
+        assertThat(grouped.intIdsToStringIds.containsKey(712)).isFalse()
     }
 
     @Test
@@ -505,7 +547,9 @@ class GlanceRemoteViewsComposerTest {
     // endregion
 
     private fun groupInstances(vararg appWidgetIds: Int) =
-        composer.groupInstancesByRenderTarget(mapOf(component to appWidgetIds))
+        composer
+            .groupInstancesByRenderTarget(mapOf(component to appWidgetIds)) { _, e -> throw e }
+            .targetToInstances
 
     private fun bindWidget(
         appWidgetId: Int,

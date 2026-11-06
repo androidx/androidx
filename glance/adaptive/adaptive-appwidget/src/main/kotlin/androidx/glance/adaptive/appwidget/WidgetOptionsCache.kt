@@ -197,6 +197,17 @@ internal object WidgetOptionsCache {
     fun hasPendingRender(appWidgetId: Int): Boolean =
         synchronized(lock) { pendingRenderTokens.containsKey(appWidgetId) }
 
+    /**
+     * Removes [widgetId] as the cached widgetId of [appWidgetId], if it still is, after the library
+     * failed to store it in the options of the placement. The whole entry is removed, so that the
+     * next update of the placement reads its options again and assigns a widgetId.
+     */
+    fun removeIdMapping(appWidgetId: Int, widgetId: String) {
+        synchronized(lock) {
+            if (cache[appWidgetId]?.widgetId == widgetId) cache.remove(appWidgetId)
+        }
+    }
+
     fun restore(oldWidgetIds: IntArray, newWidgetIds: IntArray) {
         val count = minOf(oldWidgetIds.size, newWidgetIds.size)
         synchronized(lock) {

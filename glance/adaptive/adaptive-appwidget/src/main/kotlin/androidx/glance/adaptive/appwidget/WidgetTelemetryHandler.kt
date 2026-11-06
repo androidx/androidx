@@ -60,6 +60,9 @@ internal class WidgetTelemetryHandler(private val appWidgetManager: AppWidgetMan
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
+                    // Library-internal metadata the developer cannot act on: logged as a warning,
+                    // and retried by the next pushUpdate, as the "needs telemetry update" check
+                    // runs on every call.
                     Log.w(TAG, "Error updating telemetry options for appWidgetId $appWidgetId", e)
                 }
             }
@@ -78,6 +81,8 @@ internal class WidgetTelemetryHandler(private val appWidgetManager: AppWidgetMan
         // the system's resulting ACTION_APPWIDGET_OPTIONS_CHANGED broadcast does not mistake a
         // cold cache for a dimension change and trigger a recursive onUpdate.
         val widgetId = WidgetOptionsCache.cacheWidgetOptionsIfMissing(appWidgetId, options)
+        val storesWidgetId =
+            options.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID).isNullOrBlank()
 
         // Create a delta bundle containing only the telemetry keys (and EXTRA_WIDGET_ID if not yet
         // persisted). Since AppWidgetManager.updateAppWidgetOptions merges via Bundle.putAll(),
@@ -85,9 +90,7 @@ internal class WidgetTelemetryHandler(private val appWidgetManager: AppWidgetMan
         // changes).
         val telemetryOptions =
             Bundle().apply {
-                if (
-                    options.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID).isNullOrBlank()
-                ) {
+                if (storesWidgetId) {
                     putString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID, widgetId)
                 }
                 putBoolean(OPTION_ADAPTIVE_WIDGET_ENABLED, true)
@@ -95,7 +98,22 @@ internal class WidgetTelemetryHandler(private val appWidgetManager: AppWidgetMan
                 putInt(OPTION_ADAPTIVE_WIDGET_SDK_VERSION_CODE, XFF_SDK_VERSION_CODE)
                 putBoolean(OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS, hasDroppedSlots)
             }
-        appWidgetManager.updateAppWidgetOptions(appWidgetId, telemetryOptions)
+        try {
+            appWidgetManager.updateAppWidgetOptions(appWidgetId, telemetryOptions)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            if (storesWidgetId) {
+                // The widgetId cached above was never stored. Removing it keeps lookups from
+                // targeting a widgetId the placement does not have, and lets the receiver assign
+                // one on the next update of the placement.
+                WidgetOptionsCache.removeIdMapping(appWidgetId, widgetId)
+            }
+            // Library-internal metadata the developer cannot act on: logged as a warning, and
+            // retried by the next pushUpdate, as the "needs telemetry update" check runs on every
+            // call.
+            Log.w(TAG, "Error updating telemetry options for appWidgetId $appWidgetId", e)
+        }
     }
 
     private fun needsTelemetryUpdate(
