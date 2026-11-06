@@ -28,6 +28,10 @@
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
   <uses-feature android:name="android.hardware.camera" android:required="false" />
   <uses-permission android:name="android.permission.CAMERA" />
+  <!-- Lets the OpenXR loader find the runtime broker of projected OpenXR runtimes. -->
+  <queries>
+    <provider android:authorities="org.khronos.openxr.runtime_broker;org.khronos.openxr.system_runtime_broker" />
+  </queries>
   <application
       android:label="JXR ARCore Tests"
       android:taskAffinity="">
@@ -107,9 +111,20 @@
         android:theme="@style/Theme.AppCompat.NoActionBar" >
     </activity>
     <activity
+        android:name=".flags.RuntimeFlagsActivity"
+        android:exported="true"
+        android:label="OpenXR Runtime Flags"
+        android:theme="@style/Theme.AppCompat.NoActionBar" />
+    <activity
         android:name=".nativedata.NativeDataActivity"
         android:exported="true"
         android:label="Native Data"
+        android:process=":nativeTest"
+        android:theme="@style/Theme.AppCompat.NoActionBar" />
+    <activity
+        android:name=".nativedata.ProjectedNativeDataActivity"
+        android:exported="true"
+        android:label="Native Data (Projected)"
         android:process=":nativeTest"
         android:theme="@style/Theme.AppCompat.NoActionBar" />
   </application>
