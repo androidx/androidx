@@ -61,6 +61,7 @@ public fun <T> StateFlow<T>.collectAsState(
     mutationPolicy: SnapshotMutationPolicy<T> = structuralEqualityPolicy(),
 ): State<T> {
     val state = remember { mutableStateOf(value, mutationPolicy) }
+    remember(this) { state.value = value }
     collectInto(state, context)
     return state
 }
