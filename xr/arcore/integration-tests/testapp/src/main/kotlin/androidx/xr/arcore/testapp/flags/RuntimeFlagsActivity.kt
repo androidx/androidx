@@ -69,7 +69,7 @@ class RuntimeFlagsActivity : ComponentActivity() {
             RuntimeFlag(
                 "androidx.xr.force_openxr",
                 "Use the OpenXR runtime on devices that do not declare the OpenXR system " +
-                    "feature, such as phones driving projected XR glasses.",
+                    "feature.",
             ),
             RuntimeFlag(
                 "debug.androidx.xr.openxr.activity_binding",
