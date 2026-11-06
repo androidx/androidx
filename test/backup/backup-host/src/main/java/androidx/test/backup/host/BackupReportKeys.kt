@@ -22,9 +22,8 @@ import java.util.Properties
 /**
  * Defines JUnit Platform report entry keys and engine input keys for backup and restore tests.
  *
- * [BackupRestoreExtension], [BackupRestoreControllerImpl], and [TestExecutionCapture] publish these
- * entries: `BackupRestore.*` keys carry execution telemetry, while [DETAIL_PATH] links each test to
- * its structured [TestDetailRecord] JSON file.
+ * [BackupRestoreExtension], [BackupRestoreControllerImpl], and [TestExecutionCapture] publish
+ * `BackupRestore.*` telemetry entries alongside `androidx.report.*` detail entries.
  */
 internal object BackupReportKeys {
     /** Backup transport the execution ran against, as a [BackupTransportMode] name. */
@@ -67,6 +66,36 @@ internal object BackupReportKeys {
      * Relative path from the suite results directory to the test's [TestDetailRecord] JSON file.
      */
     const val DETAIL_PATH = "androidx.report.detailPath"
+
+    /** Prefix shared by all structured test report entries. */
+    const val REPORT_PREFIX = "androidx.report."
+
+    /** Schema version of the structured `androidx.report.*` entries. */
+    const val SCHEMA_VERSION = "${REPORT_PREFIX}schemaVersion"
+
+    /** Identifier of the test suite type that produced the entries. */
+    const val SUITE_TYPE = "${REPORT_PREFIX}suiteType"
+
+    /** Source file and optional 1-based line number (`File.kt:47`) of the test. */
+    const val SOURCE = "${REPORT_PREFIX}source"
+
+    /** Prefix for per-test summary attribute entries (`androidx.report.attr.<key>`). */
+    const val ATTR_PREFIX = "${REPORT_PREFIX}attr."
+
+    /** Prefix for device or participant entries (`androidx.report.actor.<id>.<field>`). */
+    const val ACTOR_PREFIX = "${REPORT_PREFIX}actor."
+
+    /** Prefix for ordered execution step entries (`androidx.report.step.<id>.<field>`). */
+    const val STEP_PREFIX = "${REPORT_PREFIX}step."
+
+    /** Prefix for failure callout entries (`androidx.report.callout.<field>`). */
+    const val CALLOUT_PREFIX = "${REPORT_PREFIX}callout."
+
+    /** Prefix for non-file artifact summary entries (`androidx.report.artifact.<n>.<field>`). */
+    const val ARTIFACT_PREFIX = "${REPORT_PREFIX}artifact."
+
+    /** Prefix for metadata on attached files (`androidx.report.file.<fileName>.<field>`). */
+    const val FILE_PREFIX = "${REPORT_PREFIX}file."
 
     /** Engine input property holding the tested app's `targetSdkVersion`. */
     const val INPUT_TARGET_SDK_VERSION = "com.android.agp.test.TARGET_SDK_VERSION"

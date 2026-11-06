@@ -16,6 +16,7 @@
 
 package androidx.test.backup.host
 
+import java.util.Locale
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonNull
@@ -42,9 +43,9 @@ internal data class TestDetailRecord(
     /** Identifies the source file and declaration line of a test. */
     internal data class SourceLocation(
         val file: String?,
-        val line: Int?,
-        val className: String,
-        val methodName: String?,
+        val line: Int? = null,
+        val className: String = "",
+        val methodName: String? = null,
     ) {
         fun toJsonObject(): JsonObject = buildJsonObject {
             put("file", file)
@@ -177,6 +178,115 @@ internal data class TestDetailRecord(
 
     fun toJsonString(): String = PRETTY_JSON.encodeToString(JsonObject.serializer(), toJsonObject())
 
+    /** Flattens this record into ordered non-blank `androidx.report.*` JUnit report entries. */
+    fun toReportEntries(): Map<String, String> {
+        val out = LinkedHashMap<String, String>()
+        putNonBlank(out, BackupReportKeys.SCHEMA_VERSION, schemaVersion.toString())
+        putNonBlank(out, BackupReportKeys.SUITE_TYPE, suiteType)
+
+        sourceLocation?.let { loc ->
+            val file = loc.file?.takeIf { it.isNotBlank() }
+            if (file != null) {
+                val formatted = if (loc.line != null && loc.line > 0) "$file:${loc.line}" else file
+                putNonBlank(out, BackupReportKeys.SOURCE, formatted)
+            }
+        }
+
+        for (attr in summaryAttributes) {
+            if (attr.key.isBlank()) continue
+            val prefix = "${BackupReportKeys.ATTR_PREFIX}${attr.key}"
+            putNonBlank(out, prefix, attr.value)
+            if (attr.label != defaultSummaryAttributeLabel(attr.key)) {
+                putNonBlank(out, "$prefix.label", attr.label)
+            }
+            if (attr.displayValue != attr.value) {
+                putNonBlank(out, "$prefix.displayValue", attr.displayValue)
+            }
+            if (attr.filterable) {
+                putNonBlank(out, "$prefix.filterable", "true")
+            }
+        }
+
+        for (actor in actors) {
+            if (actor.id.isBlank()) continue
+            val prefix = "${BackupReportKeys.ACTOR_PREFIX}${actor.id}"
+            putNonBlank(out, "$prefix.role", actor.role)
+            putNonBlank(out, "$prefix.name", actor.name)
+            putNonBlank(out, "$prefix.api", actor.api.toString())
+            putNonBlank(out, "$prefix.serial", actor.serial)
+            putNonBlank(out, "$prefix.image", actor.image)
+            putNonBlank(out, "$prefix.playServices", actor.playServices)
+        }
+
+        var unnumberedIndex = 0
+        for (step in steps) {
+            val stepKey = step.n?.toString() ?: "prepare_${++unnumberedIndex}"
+            val prefix = "${BackupReportKeys.STEP_PREFIX}$stepKey"
+            putNonBlank(out, "$prefix.name", step.name)
+            putNonBlank(out, "$prefix.on", step.on)
+            if (step.shared) {
+                putNonBlank(out, "$prefix.shared", "true")
+            }
+            putNonBlank(out, "$prefix.call", step.call)
+            putNonBlank(out, "$prefix.durationMs", step.durationMs.toString())
+            putNonBlank(out, "$prefix.status", step.status)
+        }
+
+        callout?.let { co ->
+            val prefix = BackupReportKeys.CALLOUT_PREFIX
+            putNonBlank(out, "${prefix}kind", co.kind)
+            co.failedStep?.let { putNonBlank(out, "${prefix}failedStep", it.toString()) }
+            putNonBlank(out, "${prefix}title", co.title)
+            putNonBlank(out, "${prefix}message", co.message)
+            putNonBlank(out, "${prefix}likelyCause", co.likelyCause)
+        }
+
+        var summaryIndex = 0
+        for (artifact in artifacts) {
+            if (artifact.path == null) {
+                summaryIndex++
+                val prefix = "${BackupReportKeys.ARTIFACT_PREFIX}$summaryIndex"
+                putNonBlank(out, "$prefix.name", artifact.name)
+                if (artifact.values.isNotEmpty()) {
+                    putNonBlank(out, "$prefix.values", formatKeyValues(artifact.values))
+                }
+            } else {
+                val fileName = artifact.path.substringAfterLast('/')
+                if (fileName.isNotBlank()) {
+                    if (artifact.name != fileName) {
+                        putNonBlank(
+                            out,
+                            "${BackupReportKeys.FILE_PREFIX}$fileName.name",
+                            artifact.name,
+                        )
+                    }
+                    if (artifact.values.isNotEmpty()) {
+                        putNonBlank(
+                            out,
+                            "${BackupReportKeys.FILE_PREFIX}$fileName.values",
+                            formatKeyValues(artifact.values),
+                        )
+                    }
+                }
+            }
+        }
+
+        for (log in logs) {
+            val fileName = log.path.substringAfterLast('/')
+            if (fileName.isNotBlank()) {
+                val isDefaultHostLogTitle = fileName == "host-log.txt" && log.title == "Host log"
+                if (log.title.isNotBlank() && log.title != fileName && !isDefaultHostLogTitle) {
+                    putNonBlank(out, "${BackupReportKeys.FILE_PREFIX}$fileName.name", log.title)
+                }
+                if (log.truncated) {
+                    putNonBlank(out, "${BackupReportKeys.FILE_PREFIX}$fileName.truncated", "true")
+                }
+            }
+        }
+
+        return out
+    }
+
     companion object {
         const val SCHEMA_VERSION = 1
         const val SUITE_TYPE = "androidx.test.backup"
@@ -189,5 +299,19 @@ internal data class TestDetailRecord(
         const val CALLOUT_STEP_FAILURE = "STEP_FAILURE"
 
         private val PRETTY_JSON = Json { prettyPrint = true }
+
+        internal fun defaultSummaryAttributeLabel(key: String): String =
+            key.replace('_', ' ').replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString()
+            }
+
+        private fun formatKeyValues(values: Map<String, String>): String =
+            values.entries.joinToString(", ") { (k, v) -> "$k=$v" }
+
+        private fun putNonBlank(map: MutableMap<String, String>, key: String, value: String?) {
+            if (key.isNotBlank() && !value.isNullOrBlank()) {
+                map[key] = value
+            }
+        }
     }
 }

@@ -25,6 +25,7 @@ import java.io.File
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.Locale
 import java.util.concurrent.Callable
 import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.ExecutionException
@@ -199,6 +200,141 @@ class BackupReportCaptureTest {
         assertNotNull(minimalObj["steps"])
         assertNotNull(minimalObj["actors"])
         assertNotNull(minimalObj["artifacts"])
+    }
+
+    @Test
+    fun testDetailRecordSerializesAllReportEntriesAndRoundTrips() {
+        val attachDir = tempFolder.newFolder("round-trip-attachments").toPath()
+        val hostLogPath = attachDir.resolve("host-log.txt").also { Files.write(it, ByteArray(10)) }
+        val logcatPath =
+            attachDir.resolve("logcat-emulator-5554.txt").also { Files.write(it, ByteArray(20)) }
+        val rawArchivePath =
+            attachDir.resolve("d2d.backup").also { Files.write(it, ByteArray(100)) }
+
+        val original =
+            TestDetailRecord(
+                sourceLocation =
+                    TestDetailRecord.SourceLocation(
+                        file = "CrossDeviceMigrationTests.kt",
+                        line = 47,
+                    ),
+                summaryAttributes =
+                    listOf(
+                        TestDetailRecord.SummaryAttribute(
+                            key = "transport",
+                            label = "Transport",
+                            value = "DEVICE_TO_DEVICE",
+                            displayValue = "Device to device",
+                            filterable = true,
+                        ),
+                        TestDetailRecord.SummaryAttribute(
+                            key = "api_pair",
+                            label = "API Pair",
+                            value = "31->34",
+                            displayValue = "31->34",
+                            filterable = false,
+                        ),
+                    ),
+                callout =
+                    TestDetailRecord.Callout(
+                        kind = "ASSERTION_FAILURE",
+                        failedStep = 5,
+                        title = "Assertion failed at step 5 \u00b7 Verify",
+                        message = "expected auth_token to be restored",
+                        likelyCause =
+                            "data_extraction_rules.xml excludes domain=\"sharedpref\" " +
+                                "path=\"user_session.xml\" for <device-transfer>.",
+                    ),
+                actors =
+                    listOf(
+                        TestDetailRecord.ActorRecord(
+                            id = "source",
+                            role = "SOURCE",
+                            name = "Pixel 6",
+                            api = 31,
+                            serial = SERIAL_SOURCE,
+                            image = "Google APIs",
+                            playServices = "26.39.33",
+                        )
+                    ),
+                steps =
+                    listOf(
+                        TestDetailRecord.StepRecord(
+                            n = null,
+                            name = "Prepare",
+                            on = "source",
+                            shared = false,
+                            call = "Install APKs, unlock device, clear app data",
+                            durationMs = 820,
+                            status = "PASSED",
+                        ),
+                        TestDetailRecord.StepRecord(
+                            n = 1,
+                            name = "Setup",
+                            on = "source",
+                            shared = true,
+                            call = "runOnDevice(\"\u2026StageSession\")",
+                            durationMs = 1420,
+                            status = "PASSED",
+                        ),
+                    ),
+                logs =
+                    listOf(
+                        TestDetailRecord.LogRecord(
+                            title = "Host log",
+                            path = "host-log.txt",
+                        ),
+                        TestDetailRecord.LogRecord(
+                            title = "Logcat (source)",
+                            path = "logcat-emulator-5554.txt",
+                            truncated = true,
+                        ),
+                    ),
+                artifacts =
+                    listOf(
+                        TestDetailRecord.ArtifactEntry(
+                            name = "Backup file summary",
+                            values = mapOf("app_backup" to "1.8 MB", "pm_backup" to "3.1 KB"),
+                            path = null,
+                        ),
+                        TestDetailRecord.ArtifactEntry(
+                            name = "Custom archive label",
+                            values = mapOf("size" to "412 B"),
+                            path = "d2d.backup",
+                        ),
+                    ),
+            )
+
+        val entries = original.toReportEntries()
+        assertTrue(entries.all { (k, v) -> k.isNotBlank() && v.isNotBlank() })
+        // Default summary attribute label ("Transport") is omitted; actor roles are explicit.
+        assertNull(entries["androidx.report.attr.transport.label"])
+        assertEquals("API Pair", entries["androidx.report.attr.api_pair.label"])
+        assertEquals("SOURCE", entries["androidx.report.actor.source.role"])
+        assertEquals(
+            "Logcat (source)",
+            entries["androidx.report.file.logcat-emulator-5554.txt.name"],
+        )
+        assertNull(entries["androidx.report.file.host-log.txt.name"])
+        assertEquals("size=412 B", entries["androidx.report.file.d2d.backup.values"])
+        assertEquals("true", entries["androidx.report.file.logcat-emulator-5554.txt.truncated"])
+        assertNull(entries["androidx.report.file.host-log.txt.truncated"])
+
+        val reconstructed =
+            TestDetailRecord.fromReportEntries(
+                entries = entries,
+                attachedFiles = listOf(hostLogPath, logcatPath, rawArchivePath),
+            )
+        assertEquals(original, reconstructed)
+
+        val minimalEntries = TestDetailRecord().toReportEntries()
+        assertEquals(
+            mapOf(
+                BackupReportKeys.SCHEMA_VERSION to "1",
+                BackupReportKeys.SUITE_TYPE to "androidx.test.backup",
+            ),
+            minimalEntries,
+        )
     }
 
     @Test
@@ -2481,3 +2617,201 @@ private fun JsonElement?.asIntOrNull(): Int? = (this as? JsonPrimitive)?.intOrNu
 private fun JsonElement?.asLongOrNull(): Long? = (this as? JsonPrimitive)?.longOrNull
 
 private fun JsonElement?.asBooleanOrNull(): Boolean? = (this as? JsonPrimitive)?.booleanOrNull
+
+/** Reconstructs a [TestDetailRecord] from JUnit report [entries] and [attachedFiles] in tests. */
+internal fun TestDetailRecord.Companion.fromReportEntries(
+    entries: Map<String, String>,
+    attachedFiles: List<Path> = emptyList(),
+): TestDetailRecord {
+    val schemaVersion =
+        entries[BackupReportKeys.SCHEMA_VERSION]?.toIntOrNull() ?: TestDetailRecord.SCHEMA_VERSION
+    val suiteType = entries[BackupReportKeys.SUITE_TYPE] ?: TestDetailRecord.SUITE_TYPE
+
+    val rawSource = entries[BackupReportKeys.SOURCE]?.trim()?.takeIf { it.isNotEmpty() }
+    val sourceLocation =
+        if (rawSource != null) {
+            val colon = rawSource.lastIndexOf(':')
+            val parsedLine =
+                if (colon > 0) rawSource.substring(colon + 1).toIntOrNull()?.takeIf { it > 0 }
+                else null
+            if (parsedLine != null) {
+                TestDetailRecord.SourceLocation(
+                    file = rawSource.substring(0, colon),
+                    line = parsedLine,
+                )
+            } else {
+                TestDetailRecord.SourceLocation(file = rawSource, line = null)
+            }
+        } else {
+            null
+        }
+
+    val attrMetaSuffixes = listOf(".label", ".displayValue", ".filterable")
+    val summaryAttributes =
+        entries.entries
+            .filter { (k, _) ->
+                k.startsWith(BackupReportKeys.ATTR_PREFIX) &&
+                    attrMetaSuffixes.none { suffix -> k.endsWith(suffix) }
+            }
+            .mapNotNull { (k, value) ->
+                val attrKey = k.removePrefix(BackupReportKeys.ATTR_PREFIX)
+                if (attrKey.isBlank() || '.' in attrKey) return@mapNotNull null
+                val prefix = "${BackupReportKeys.ATTR_PREFIX}$attrKey"
+                TestDetailRecord.SummaryAttribute(
+                    key = attrKey,
+                    label = entries["$prefix.label"] ?: defaultSummaryAttributeLabel(attrKey),
+                    value = value,
+                    displayValue = entries["$prefix.displayValue"] ?: value,
+                    filterable = entries["$prefix.filterable"].equals("true", ignoreCase = true),
+                )
+            }
+
+    val actorFields = setOf("role", "name", "api", "serial", "image", "playServices")
+    val actorIds = LinkedHashSet<String>()
+    for (key in entries.keys) {
+        if (!key.startsWith(BackupReportKeys.ACTOR_PREFIX)) continue
+        val rest = key.removePrefix(BackupReportKeys.ACTOR_PREFIX)
+        val dot = rest.lastIndexOf('.')
+        if (dot <= 0) continue
+        val id = rest.substring(0, dot)
+        val field = rest.substring(dot + 1)
+        if (field in actorFields) actorIds += id
+    }
+    val actors = actorIds.map { id ->
+        val p = "${BackupReportKeys.ACTOR_PREFIX}$id"
+        TestDetailRecord.ActorRecord(
+            id = id,
+            role = entries["$p.role"].orEmpty(),
+            name = entries["$p.name"].orEmpty(),
+            api = entries["$p.api"]?.toIntOrNull() ?: 0,
+            serial = entries["$p.serial"].orEmpty(),
+            image = entries["$p.image"].orEmpty(),
+            playServices = entries["$p.playServices"],
+        )
+    }
+
+    val stepFields = setOf("name", "on", "shared", "call", "durationMs", "status")
+    val stepKeys = LinkedHashSet<String>()
+    for (key in entries.keys) {
+        if (!key.startsWith(BackupReportKeys.STEP_PREFIX)) continue
+        val rest = key.removePrefix(BackupReportKeys.STEP_PREFIX)
+        val dot = rest.lastIndexOf('.')
+        if (dot <= 0) continue
+        val stepKey = rest.substring(0, dot)
+        val field = rest.substring(dot + 1)
+        if (field in stepFields) stepKeys += stepKey
+    }
+    val steps = stepKeys.map { stepKey ->
+        val p = "${BackupReportKeys.STEP_PREFIX}$stepKey"
+        TestDetailRecord.StepRecord(
+            n = stepKey.toIntOrNull(),
+            name = entries["$p.name"].orEmpty(),
+            on = entries["$p.on"],
+            shared = entries["$p.shared"].equals("true", ignoreCase = true),
+            call = entries["$p.call"].orEmpty(),
+            durationMs = entries["$p.durationMs"]?.toLongOrNull() ?: 0L,
+            status = entries["$p.status"].orEmpty(),
+        )
+    }
+
+    val cp = BackupReportKeys.CALLOUT_PREFIX
+    val callout =
+        if (
+            entries["${cp}kind"] != null ||
+                entries["${cp}title"] != null ||
+                entries["${cp}message"] != null
+        ) {
+            TestDetailRecord.Callout(
+                kind = entries["${cp}kind"].orEmpty(),
+                failedStep = entries["${cp}failedStep"]?.toIntOrNull(),
+                title = entries["${cp}title"].orEmpty(),
+                message = entries["${cp}message"].orEmpty(),
+                likelyCause = entries["${cp}likelyCause"],
+            )
+        } else {
+            null
+        }
+
+    val artifactIndices = LinkedHashSet<String>()
+    for (key in entries.keys) {
+        if (!key.startsWith(BackupReportKeys.ARTIFACT_PREFIX)) continue
+        val rest = key.removePrefix(BackupReportKeys.ARTIFACT_PREFIX)
+        val dot = rest.lastIndexOf('.')
+        if (dot <= 0) continue
+        val idx = rest.substring(0, dot)
+        val field = rest.substring(dot + 1)
+        if (field == "name" || field == "values") artifactIndices += idx
+    }
+    val artifacts = ArrayList<TestDetailRecord.ArtifactEntry>()
+    for (idx in artifactIndices.sortedBy { it.toIntOrNull() ?: Int.MAX_VALUE }) {
+        val p = "${BackupReportKeys.ARTIFACT_PREFIX}$idx"
+        artifacts +=
+            TestDetailRecord.ArtifactEntry(
+                name = entries["$p.name"].orEmpty(),
+                values = parseReportValues(entries["$p.values"]),
+                path = null,
+            )
+    }
+
+    val logs = ArrayList<TestDetailRecord.LogRecord>()
+    for (filePath in attachedFiles) {
+        val fileName = filePath.fileName.toString()
+        val lower = fileName.lowercase(Locale.ROOT)
+        val truncated =
+            entries["${BackupReportKeys.FILE_PREFIX}$fileName.truncated"].equals(
+                "true",
+                ignoreCase = true,
+            )
+        val customName = entries["${BackupReportKeys.FILE_PREFIX}$fileName.name"]
+        if (lower.endsWith(".txt") || lower.endsWith(".log")) {
+            val title =
+                when {
+                    customName != null -> customName
+                    fileName == "host-log.txt" -> "Host log"
+                    fileName.startsWith("logcat-") && lower.endsWith(".txt") -> {
+                        val suffix = fileName.removePrefix("logcat-").substringBeforeLast('.')
+                        val matchedActor = actors.firstOrNull {
+                            it.serial == suffix || it.id == suffix
+                        }
+                        "Logcat (${matchedActor?.id ?: suffix})"
+                    }
+                    else -> fileName
+                }
+            logs +=
+                TestDetailRecord.LogRecord(title = title, path = fileName, truncated = truncated)
+        } else {
+            artifacts +=
+                TestDetailRecord.ArtifactEntry(
+                    name = customName ?: fileName,
+                    values =
+                        parseReportValues(
+                            entries["${BackupReportKeys.FILE_PREFIX}$fileName.values"]
+                        ),
+                    path = fileName,
+                )
+        }
+    }
+
+    return TestDetailRecord(
+        schemaVersion = schemaVersion,
+        suiteType = suiteType,
+        sourceLocation = sourceLocation,
+        summaryAttributes = summaryAttributes,
+        callout = callout,
+        actors = actors,
+        steps = steps,
+        logs = logs.sortedBy { if (it.path.substringAfterLast('/') == "host-log.txt") 0 else 1 },
+        artifacts = artifacts,
+    )
+}
+
+private fun parseReportValues(rawValues: String?): Map<String, String> {
+    if (rawValues.isNullOrBlank()) return emptyMap()
+    return rawValues
+        .split(Regex(", (?=[^,=]+=)"))
+        .mapNotNull { token ->
+            val eq = token.indexOf('=')
+            if (eq > 0) token.substring(0, eq) to token.substring(eq + 1) else null
+        }
+        .toMap(LinkedHashMap())
+}
