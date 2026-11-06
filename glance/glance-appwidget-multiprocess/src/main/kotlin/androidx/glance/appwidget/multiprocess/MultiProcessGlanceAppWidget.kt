@@ -22,11 +22,14 @@ import android.os.Bundle
 import androidx.annotation.LayoutRes
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope
+import androidx.glance.ExperimentalGlanceApi
 import androidx.glance.appwidget.AppWidgetId
 import androidx.glance.appwidget.AppWidgetSession
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceComponents
 import androidx.glance.appwidget.R
+import androidx.glance.appwidget.updatestrategy.SessionBasedUpdateStrategy
+import androidx.glance.appwidget.updatestrategy.UpdateStrategy
 import androidx.glance.session.GlanceSessionManager
 import androidx.glance.session.SessionManager
 import androidx.work.multiprocess.RemoteWorkerService
@@ -57,13 +60,15 @@ public abstract class MultiProcessGlanceAppWidget(
     final override fun getComponents(context: Context): GlanceComponents? =
         getMultiProcessConfig(context)?.toGlanceComponents()
 
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    final override fun getSessionManager(context: Context): SessionManager =
+    private fun getSessionManager(context: Context): SessionManager =
         if (getMultiProcessConfig(context) != null) {
             RemoteSessionManager
         } else {
             GlanceSessionManager
         }
+
+    @ExperimentalGlanceApi
+    override val updateStrategy: UpdateStrategy = SessionBasedUpdateStrategy(::getSessionManager)
 
     @RestrictTo(Scope.LIBRARY_GROUP)
     final override fun createAppWidgetSession(

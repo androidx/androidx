@@ -25,8 +25,9 @@ import androidx.core.os.bundleOf
 import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.action.ActionCallbackBroadcastReceiver.Companion.ExtraParameters
 import androidx.glance.appwidget.action.ActionCallbackBroadcastReceiver.Companion.getParameterExtras
-import androidx.glance.appwidget.action.RunCallbackAction
 import androidx.glance.appwidget.proto.LayoutProto.AsyncRequest
+import androidx.glance.appwidget.protobuf.ByteString
+import androidx.glance.appwidget.updatestrategy.BroadcastRequest
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.Data
@@ -55,64 +56,19 @@ public class AsyncRequestWorker(appContext: Context, params: WorkerParameters) :
     private val request = AsyncRequest.parseFrom(params.inputData.getByteArray("request"))
 
     override suspend fun doWork(): Result = coroutineScope {
-        when {
-            request.hasUpdate() -> {
-                val update = request.update
-                createReceiver(update.receiver)?.run {
-                    doUpdate(applicationContext, update.appWidgetIdsList.toIntArray())
-                }
-            }
-            request.hasDelete() -> {
-                val delete = request.delete
-                createReceiver(delete.receiver)?.run {
-                    doDelete(applicationContext, delete.appWidgetIdsList.toIntArray())
-                }
-            }
-            request.hasLambda() -> {
-                val lambda = request.lambda
-                createReceiver(lambda.receiver)?.run {
-                    doLambda(applicationContext, lambda.appWidgetId, lambda.actionKey)
-                }
-            }
-            request.hasRunCallback() -> {
-                val runCallback = request.runCallback
-                RunCallbackAction.run(
-                    applicationContext,
-                    runCallback.className,
-                    AppWidgetId(runCallback.appWidgetId),
-                    actionParametersFromBytes(runCallback.actionParameters.toByteArray()),
-                )
-            }
-            request.hasMyPackageReplaced() -> {
-                val manager = GlanceAppWidgetManager(applicationContext)
-                manager.cleanReceivers()
-            }
-            request.hasOptionsChanged() -> {
-                val optionsChanged = request.optionsChanged
-                createReceiver(optionsChanged.receiver)?.run {
-                    doOptionsChanged(
-                        applicationContext,
-                        optionsChanged.appWidgetId,
-                        bundleFromBytes(optionsChanged.bundle.toByteArray()),
-                    )
-                }
-            }
-        }
+        request.toBroadcastRequest()?.execute(applicationContext)
         Result.success()
     }
 
     internal companion object {
-        private fun createReceiver(className: String): GlanceAppWidgetReceiver? {
-            return className.let { Class.forName(it) }.getDeclaredConstructor().newInstance()
-                as? GlanceAppWidgetReceiver
-        }
-
-        fun launchAsyncRequestWorker(context: Context, request: AsyncRequest) {
+        /** Enqueues a one-time [AsyncRequestWorker] in [WorkManager] to process [request]. */
+        fun launch(context: Context, request: BroadcastRequest) {
+            val proto = request.toProto()
             WorkManager.getInstance(context).run {
                 enqueue(
                     OneTimeWorkRequestBuilder<AsyncRequestWorker>()
                         .setInputData(
-                            Data.Builder().putByteArray("request", request.toByteArray()).build()
+                            Data.Builder().putByteArray("request", proto.toByteArray()).build()
                         )
                         .build()
                 )
@@ -132,7 +88,108 @@ public class AsyncRequestWorker(appContext: Context, params: WorkerParameters) :
             )
         }
 
-        fun ActionParameters.toBytes(): ByteArray {
+        private fun BroadcastRequest.toProto(): AsyncRequest =
+            AsyncRequest.newBuilder()
+                .apply {
+                    when (val req = this@toProto) {
+                        is BroadcastRequest.Update ->
+                            update =
+                                AsyncRequest.Update.newBuilder()
+                                    .apply {
+                                        receiver = req.widgetReceiver::class.java.canonicalName
+                                        addAllAppWidgetIds(req.appWidgetIds.toList())
+                                    }
+                                    .build()
+                        is BroadcastRequest.OptionsChanged ->
+                            optionsChanged =
+                                AsyncRequest.OptionsChanged.newBuilder()
+                                    .apply {
+                                        receiver = req.widgetReceiver::class.java.canonicalName
+                                        appWidgetId = req.appWidgetId
+                                        bundle = ByteString.copyFrom(req.newOptions.toBytes())
+                                    }
+                                    .build()
+                        is BroadcastRequest.Delete ->
+                            delete =
+                                AsyncRequest.Delete.newBuilder()
+                                    .apply {
+                                        receiver = req.widgetReceiver::class.java.canonicalName
+                                        addAllAppWidgetIds(req.appWidgetIds.toList())
+                                    }
+                                    .build()
+                        is BroadcastRequest.Lambda ->
+                            lambda =
+                                AsyncRequest.Lambda.newBuilder()
+                                    .apply {
+                                        receiver = req.widgetReceiver::class.java.canonicalName
+                                        appWidgetId = req.appWidgetId
+                                        actionKey = req.actionKey
+                                    }
+                                    .build()
+                        is BroadcastRequest.RunCallback ->
+                            runCallback =
+                                AsyncRequest.RunCallback.newBuilder()
+                                    .apply {
+                                        className = req.className
+                                        appWidgetId = req.glanceId.appWidgetId
+                                        actionParameters =
+                                            ByteString.copyFrom(req.parameters.toBytes())
+                                    }
+                                    .build()
+                    }
+                }
+                .build()
+
+        private fun AsyncRequest.toBroadcastRequest(): BroadcastRequest? =
+            when {
+                hasUpdate() ->
+                    createReceiver(update.receiver)?.let {
+                        BroadcastRequest.Update(
+                            widgetReceiver = it,
+                            appWidgetIds = update.appWidgetIdsList.toIntArray(),
+                        )
+                    }
+                hasDelete() ->
+                    createReceiver(delete.receiver)?.let {
+                        BroadcastRequest.Delete(
+                            widgetReceiver = it,
+                            appWidgetIds = delete.appWidgetIdsList.toIntArray(),
+                        )
+                    }
+                hasLambda() ->
+                    createReceiver(lambda.receiver)?.let {
+                        BroadcastRequest.Lambda(
+                            widgetReceiver = it,
+                            appWidgetId = lambda.appWidgetId,
+                            actionKey = lambda.actionKey,
+                        )
+                    }
+                hasRunCallback() ->
+                    BroadcastRequest.RunCallback(
+                        receiver = null,
+                        widgetOwner = null,
+                        className = runCallback.className,
+                        glanceId = AppWidgetId(runCallback.appWidgetId),
+                        parameters =
+                            actionParametersFromBytes(runCallback.actionParameters.toByteArray()),
+                    )
+                hasOptionsChanged() ->
+                    createReceiver(optionsChanged.receiver)?.let {
+                        BroadcastRequest.OptionsChanged(
+                            widgetReceiver = it,
+                            appWidgetId = optionsChanged.appWidgetId,
+                            newOptions = bundleFromBytes(optionsChanged.bundle.toByteArray()),
+                        )
+                    }
+                else -> null
+            }
+
+        private fun createReceiver(className: String): GlanceAppWidgetReceiver? {
+            return className.let { Class.forName(it) }.getDeclaredConstructor().newInstance()
+                as? GlanceAppWidgetReceiver
+        }
+
+        private fun ActionParameters.toBytes(): ByteArray {
             val typedArray = asMap().map { (key, value) -> key.name to value }.toTypedArray()
 
             return Bundle()
@@ -143,16 +200,16 @@ public class AsyncRequestWorker(appContext: Context, params: WorkerParameters) :
                 .toBytes()
         }
 
-        fun actionParametersFromBytes(bytes: ByteArray): ActionParameters =
+        private fun actionParametersFromBytes(bytes: ByteArray): ActionParameters =
             getParameterExtras(bundleFromBytes(bytes))
 
-        fun Bundle.toBytes(): ByteArray =
+        private fun Bundle.toBytes(): ByteArray =
             Parcel.obtain().let { parcel ->
                 writeToParcel(parcel, 0)
                 parcel.marshall().also { parcel.recycle() }
             }
 
-        fun bundleFromBytes(bytes: ByteArray): Bundle =
+        private fun bundleFromBytes(bytes: ByteArray): Bundle =
             Parcel.obtain().let { parcel ->
                 parcel.unmarshall(bytes, 0, bytes.size)
                 parcel.setDataPosition(0)

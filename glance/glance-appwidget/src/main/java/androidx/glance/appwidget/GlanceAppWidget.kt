@@ -28,15 +28,14 @@ import androidx.annotation.LayoutRes
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope
 import androidx.compose.runtime.Composable
+import androidx.glance.ExperimentalGlanceApi
 import androidx.glance.GlanceComposable
 import androidx.glance.GlanceId
 import androidx.glance.appwidget.action.ActionCallbackBroadcastReceiver
 import androidx.glance.appwidget.action.ActionTrampolineActivity
 import androidx.glance.appwidget.action.InvisibleActionTrampolineActivity
 import androidx.glance.appwidget.state.getAppWidgetState
-import androidx.glance.session.GlanceSessionManager
-import androidx.glance.session.SessionManager
-import androidx.glance.session.SessionManagerScope
+import androidx.glance.appwidget.updatestrategy.UpdateStrategy
 import androidx.glance.state.GlanceState
 import androidx.glance.state.GlanceStateDefinition
 import androidx.glance.state.PreferencesGlanceStateDefinition
@@ -58,8 +57,13 @@ import kotlinx.coroutines.CancellationException
 public abstract class GlanceAppWidget(
     @LayoutRes internal open val errorUiLayout: Int = R.layout.glance_error_layout
 ) {
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public open fun getSessionManager(context: Context): SessionManager = GlanceSessionManager
+    /**
+     * Controls how this widget runs its composition. Defaults to [UpdateStrategy.DEFAULT]. Use
+     * [UpdateStrategy.IMMEDIATE] to run without WorkManager.
+     */
+    @ExperimentalGlanceApi
+    public open val updateStrategy: UpdateStrategy
+        get() = UpdateStrategy.DEFAULT
 
     /**
      * Override this function to provide the Glance Composable.
@@ -135,9 +139,10 @@ public abstract class GlanceAppWidget(
      *
      * This is meant to be called when the App Widget instance has been deleted from the host.
      */
+    @OptIn(ExperimentalGlanceApi::class)
     internal suspend fun deleted(context: Context, appWidgetId: Int) {
         val glanceId = AppWidgetId(appWidgetId)
-        getSessionManager(context).runWithLock { closeSession(glanceId.toSessionKey()) }
+        updateStrategy.handleDelete(context, this, glanceId)
         try {
             onDelete(context, glanceId)
         } catch (cancelled: CancellationException) {
@@ -153,31 +158,28 @@ public abstract class GlanceAppWidget(
     }
 
     /** Internal version of [update], to be used by the broadcast receiver directly. */
+    @OptIn(ExperimentalGlanceApi::class)
     internal suspend fun update(context: Context, appWidgetId: Int, options: Bundle? = null) {
         Tracing.beginGlanceAppWidgetUpdate()
-        val glanceId = AppWidgetId(appWidgetId)
-        getOrCreateAppWidgetSession(context, glanceId, options) { session, wasRunning ->
-            if (wasRunning) session.updateGlance()
-        }
+        updateStrategy.handleUpdate(context, this, AppWidgetId(appWidgetId), options)
     }
 
     /**
      * Trigger an action to be run in the [AppWidgetSession] for this widget, starting the session
      * if necessary.
      */
+    @OptIn(ExperimentalGlanceApi::class)
     internal suspend fun triggerAction(
         context: Context,
         appWidgetId: Int,
         actionKey: String,
         options: Bundle? = null,
     ) {
-        val glanceId = AppWidgetId(appWidgetId)
-        getOrCreateAppWidgetSession(context, glanceId, options) { session, _ ->
-            session.runLambda(actionKey)
-        }
+        updateStrategy.handleLambda(context, this, AppWidgetId(appWidgetId), actionKey, options)
     }
 
     /** Internal method called when a resize event is detected. */
+    @OptIn(ExperimentalGlanceApi::class)
     internal suspend fun resize(context: Context, appWidgetId: Int, options: Bundle) {
         // Note, on Android S, if the mode is `Responsive`, then all the sizes are specified from
         // the start and we don't need to update the AppWidget when the size changes.
@@ -187,10 +189,7 @@ public abstract class GlanceAppWidget(
         ) {
             return
         }
-        val glanceId = AppWidgetId(appWidgetId)
-        getOrCreateAppWidgetSession(context, glanceId, options) { session, _ ->
-            session.updateAppWidgetOptions(options)
-        }
+        updateStrategy.handleResize(context, this, AppWidgetId(appWidgetId), options)
     }
 
     /**
@@ -228,21 +227,6 @@ public abstract class GlanceAppWidget(
         }
     }
 
-    internal suspend fun <T> getOrCreateAppWidgetSession(
-        context: Context,
-        glanceId: AppWidgetId,
-        options: Bundle? = null,
-        block: suspend SessionManagerScope.(AppWidgetSession, Boolean) -> T,
-    ): T =
-        getSessionManager(context).runWithLock {
-            val wasRunning = isSessionRunning(context, glanceId.toSessionKey())
-            if (!wasRunning) {
-                startSession(context, createAppWidgetSession(context, glanceId, options))
-            }
-            val session = getSession(glanceId.toSessionKey()) as AppWidgetSession
-            return@runWithLock block(session, wasRunning)
-        }
-
     /**
      * Override this function to specify the components that will be used for actions and
      * RemoteViewsService. All of the components must run in the same process.
@@ -253,7 +237,7 @@ public abstract class GlanceAppWidget(
     public open fun getComponents(context: Context): GlanceComponents? = null
 
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected open fun createAppWidgetSession(
+    public open fun createAppWidgetSession(
         context: Context,
         id: AppWidgetId,
         options: Bundle? = null,

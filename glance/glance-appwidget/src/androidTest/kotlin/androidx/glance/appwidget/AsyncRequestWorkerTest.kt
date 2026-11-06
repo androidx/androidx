@@ -26,11 +26,11 @@ import org.junit.Before
 class AsyncRequestWorkerTest : GlanceAppWidgetReceiverTest() {
     @Before
     fun before() {
-        ForceAsyncRequestWorker.set(true)
+        DisableGoAsyncForTesting.set(true)
     }
 
     @After
     fun after() {
-        ForceAsyncRequestWorker.set(false)
+        DisableGoAsyncForTesting.set(false)
     }
 }
