@@ -842,6 +842,26 @@ class BackupReportCaptureTest {
     }
 
     @Test
+    fun sharedPrefixAndOverflowCollectorPlaceSingleTruncationNoticeAtTop() {
+        val collector = HostLogCollector(maxBytes = 128)
+        repeat(40) { idx -> collector.appendRaw("method-log-line-$idx-0123456789\n") }
+        assertTrue(collector.isOverflowTruncated())
+        assertFalse(collector.snapshotText().contains(TRUNCATION_NOTICE))
+
+        // Combining a short @BeforeAll prefix with an overflow-truncated method buffer places the
+        // truncation notice once at byte 0 rather than in the middle of host-log.txt.
+        val wideCollector = HostLogCollector(maxBytes = 4096)
+        repeat(400) { idx -> wideCollector.appendRaw("wide-line-$idx-0123456789abcdef\n") }
+        assertTrue(wideCollector.isOverflowTruncated())
+        val combined = wideCollector.toBoundedUtf8(prefixText = "[00:00:00.000] INFO beforeAll\n")
+        assertTrue(combined.truncated)
+        val decoded = combined.bytes.decodeToString()
+        assertTrue(decoded.startsWith(TRUNCATION_NOTICE))
+        assertEquals(1, Regex(Regex.escape(TRUNCATION_NOTICE)).findAll(decoded).count())
+        assertContains(decoded, "wide-line-399-0123456789abcdef")
+    }
+
+    @Test
     fun detailIdDistinguishesOverloadedParameterizedRepeatedAndNestedTests() {
         val extension = BackupRestoreExtension()
         val ids =
@@ -2195,10 +2215,10 @@ class BackupReportCaptureTest {
             assertTrue(collector.isOverflowTruncated())
             val snapText = collector.snapshotText()
             assertContains(snapText, "SINGLE_LINE_TAIL_MARKER")
-            val afterPrefix = snapText.removePrefix("... [truncated]\n")
-            assertFalse(afterPrefix.first().isLowSurrogate())
+            assertFalse(snapText.first().isLowSurrogate())
             val bounded = collector.toBoundedUtf8()
             assertTrue(bounded.truncated)
+            assertTrue(bounded.bytes.decodeToString().startsWith(TRUNCATION_NOTICE))
             assertTrue(bounded.bytes.size <= HostLogCollector.MAX_HOST_LOG_BYTES)
         }
 

@@ -16,7 +16,6 @@
 
 package androidx.test.backup.host
 
-import java.util.Locale
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonNull
@@ -192,59 +191,3 @@ internal data class TestDetailRecord(
         private val PRETTY_JSON = Json { prettyPrint = true }
     }
 }
-
-/** Formats [bytes] into a concise human-readable unit string (`412 B`, `3.1 KB`, `1.8 MB`). */
-internal fun formatByteSize(bytes: Long): String {
-    val safeBytes = bytes.coerceAtLeast(0L)
-    return when {
-        safeBytes < 1024L -> "$safeBytes B"
-        safeBytes < 1024L * 1024L -> String.format(Locale.US, "%.1f KB", safeBytes / 1024.0)
-        safeBytes < 1024L * 1024L * 1024L ->
-            String.format(Locale.US, "%.1f MB", safeBytes / (1024.0 * 1024.0))
-        else -> String.format(Locale.US, "%.1f GB", safeBytes / (1024.0 * 1024.0 * 1024.0))
-    }
-}
-
-/** Holds UTF-8 tail bytes and whether [capUtf8TailBounded] truncated the input. */
-internal class BoundedUtf8Result(val bytes: ByteArray, val truncated: Boolean)
-
-/**
- * Encodes [text] as UTF-8 bounded to [maxBytes] tail bytes, reporting whether truncation occurred.
- */
-internal fun capUtf8TailBounded(text: String, maxBytes: Int): BoundedUtf8Result {
-    if (maxBytes <= 0) return BoundedUtf8Result(ByteArray(0), truncated = text.isNotEmpty())
-    val bytes = text.toByteArray(Charsets.UTF_8)
-    if (bytes.size <= maxBytes) return BoundedUtf8Result(bytes, truncated = false)
-
-    val noticeBytes = TRUNCATION_NOTICE_BYTES
-    if (maxBytes <= noticeBytes.size + 4) {
-        var start = bytes.size - maxBytes
-        while (start < bytes.size && isUtf8Continuation(bytes[start])) {
-            start++
-        }
-        return BoundedUtf8Result(bytes.copyOfRange(start, bytes.size), truncated = true)
-    }
-
-    val tailBudget = maxBytes - noticeBytes.size
-    var start = bytes.size - tailBudget
-    while (start < bytes.size && isUtf8Continuation(bytes[start])) {
-        start++
-    }
-    // Prefer starting on a line boundary; stop before the last byte so tailLength > 0.
-    val scanLimit = minOf(bytes.size - 1, start + 256)
-    for (i in start until scanLimit) {
-        if (bytes[i] == '\n'.code.toByte()) {
-            start = i + 1
-            break
-        }
-    }
-    val tailLength = bytes.size - start
-    val out = ByteArray(noticeBytes.size + tailLength)
-    System.arraycopy(noticeBytes, 0, out, 0, noticeBytes.size)
-    System.arraycopy(bytes, start, out, noticeBytes.size, tailLength)
-    return BoundedUtf8Result(out, truncated = true)
-}
-
-private val TRUNCATION_NOTICE_BYTES = "... [truncated]\n".toByteArray(Charsets.UTF_8)
-
-private fun isUtf8Continuation(byte: Byte): Boolean = (byte.toInt() and 0xC0) == 0x80

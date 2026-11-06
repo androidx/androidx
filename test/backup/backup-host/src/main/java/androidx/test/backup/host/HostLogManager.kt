@@ -59,7 +59,6 @@ internal class HostLogCollector(val maxBytes: Int = MAX_HOST_LOG_BYTES) {
                     cut++
                 }
                 buffer.delete(0, cut)
-                buffer.insert(0, "... [truncated]\n")
             }
         }
     }
@@ -71,24 +70,19 @@ internal class HostLogCollector(val maxBytes: Int = MAX_HOST_LOG_BYTES) {
     /**
      * Encodes [prefixText] and buffered text as UTF-8 capped at [maxBytes] bytes.
      *
-     * Reports whether truncation occurred in either prefix or buffered text.
+     * Reports whether truncation occurred in either prefix or buffered text, placing any truncation
+     * notice once at the start of the combined output.
      */
     fun toBoundedUtf8(
         prefixText: String = "",
         prefixTruncated: Boolean = false,
     ): BoundedUtf8Result {
         val (ownText, ownTruncated) = synchronized(lock) { buffer.toString() to overflowTruncated }
-        val combined =
-            when {
-                prefixText.isEmpty() -> ownText
-                ownText.isEmpty() -> prefixText
-                prefixText.endsWith('\n') -> prefixText + ownText
-                else -> "$prefixText\n$ownText"
-            }
-        val bounded = capUtf8TailBounded(combined, maxBytes)
-        return BoundedUtf8Result(
-            bytes = bounded.bytes,
-            truncated = prefixTruncated || ownTruncated || bounded.truncated,
+        val combined = joinLines(prefixText, ownText)
+        return capUtf8TailBounded(
+            text = combined,
+            maxBytes = maxBytes,
+            alreadyTruncated = prefixTruncated || ownTruncated,
         )
     }
 
