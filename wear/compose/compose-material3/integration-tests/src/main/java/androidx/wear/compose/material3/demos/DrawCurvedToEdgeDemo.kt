@@ -52,21 +52,49 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.AngularDirection
 import androidx.wear.compose.material3.Button
-import androidx.wear.compose.material3.CurvedTextDefaults
+import androidx.wear.compose.material3.DrawCurvedToEdgeDefaults
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Slider
 import androidx.wear.compose.material3.SwitchButton
 import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.curveToEdge
+import androidx.wear.compose.material3.drawCurvedToEdge
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun CurveToEdgeTextAnchorDemo() {
+fun SmallArcDrawCurvedToEdgeDemo() {
+    Box(Modifier.fillMaxSize()) {
+        // Default sweep is DrawCurvedToEdgeDefaults.ScrollableContentMaxSweepAngle (70 degrees)
+        Text(
+            "Long text that will be cut for sure.",
+            Modifier.drawCurvedToEdge(),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+@Composable
+fun LargeArcDrawCurvedToEdgeDemo() {
+    Box(Modifier.fillMaxSize()) {
+        // Static content can use DrawCurvedToEdgeDefaults.StaticContentMaxSweepAngle (120 degrees)
+        Text(
+            "Long text that will be cut for sure.",
+            Modifier.drawCurvedToEdge(DrawCurvedToEdgeDefaults.StaticContentMaxSweepAngle),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+@Composable
+fun DrawCurvedToEdgeTextAnchorDemo() {
     var anchor by remember { mutableFloatStateOf(270f) }
 
     Text(
-        "CurveToEdge Text (Modifier.curveToEdge()) Example, with a changing anchor.",
-        Modifier.curveToEdge(360f, anchor = anchor),
+        "Modifier.drawCurvedToEdge Text Example, with a changing anchor.",
+        Modifier.drawCurvedToEdge(360f, anchor = anchor),
     )
     Column(Modifier.fillMaxSize(), Arrangement.Center, Alignment.CenterHorizontally) {
         Slider(anchor, { anchor = it }, 72, Modifier.fillMaxWidth(0.8f), valueRange = 0f..360f)
@@ -75,27 +103,35 @@ fun CurveToEdgeTextAnchorDemo() {
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun CurveToEdgeTextAngleDemo() {
-    var ang by remember { mutableFloatStateOf(CurvedTextDefaults.StaticContentMaxSweepAngle) }
+fun DrawCurvedToEdgeTextSweepAngleDemo() {
+    var sweepAngle by remember {
+        mutableFloatStateOf(DrawCurvedToEdgeDefaults.StaticContentMaxSweepAngle)
+    }
 
     Text(
-        "CurveToEdge Text (Modifier.curveToEdge()) Example, with a changing sweep angle.",
-        Modifier.curveToEdge(ang),
+        "Modifier.drawCurvedToEdge Text Example, with a changing sweep angle.",
+        Modifier.drawCurvedToEdge(sweepAngle),
         overflow = TextOverflow.Ellipsis,
         maxLines = 1,
     )
     Column(Modifier.fillMaxSize(), Arrangement.Center, Alignment.CenterHorizontally) {
-        Slider(ang, { ang = it }, 72, Modifier.fillMaxWidth(0.8f), valueRange = 0f..360f)
+        Slider(
+            sweepAngle,
+            { sweepAngle = it },
+            72,
+            Modifier.fillMaxWidth(0.8f),
+            valueRange = 0f..360f,
+        )
     }
 }
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun CounterClockwiseCurveToEdgeTextDemo() {
+fun CounterClockwiseDrawCurvedToEdgeTextDemo() {
     Text(
-        "Modifier.curveToEdge",
-        Modifier.curveToEdge(
-            CurvedTextDefaults.StaticContentMaxSweepAngle,
+        "Modifier.drawCurvedToEdge",
+        Modifier.drawCurvedToEdge(
+            DrawCurvedToEdgeDefaults.StaticContentMaxSweepAngle,
             AngularDirection.CounterClockwise,
             90f,
         ),
@@ -104,23 +140,23 @@ fun CounterClockwiseCurveToEdgeTextDemo() {
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun CursiveCurveToEdgeTextDemo() {
-    Text("नमस्कार जीवलोक", Modifier.curveToEdge())
+fun CursiveDrawCurvedToEdgeTextDemo() {
+    Text("नमस्कार जीवलोक", Modifier.drawCurvedToEdge())
 }
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun CursiveRTLCurveToEdgeTextDemo() {
+fun CursiveRTLDrawCurvedToEdgeTextDemo() {
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-        Text("مرحبا 👋 بالعالم 🌏!", Modifier.curveToEdge())
+        Text("مرحبا 👋 بالعالم 🌏!", Modifier.drawCurvedToEdge())
     }
 }
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun CurveToEdgeImageDemo() {
+fun DrawCurvedToEdgeImageDemo() {
     var curve by remember { mutableStateOf(false) }
-    val modifier = if (curve) Modifier.curveToEdge() else Modifier
+    val modifier = if (curve) Modifier.drawCurvedToEdge() else Modifier
 
     Column(Modifier.fillMaxSize(), Arrangement.Top, Alignment.CenterHorizontally) {
         Box(modifier.paint(painterResource(R.drawable.backgroundsplitimage)))
@@ -130,13 +166,15 @@ fun CurveToEdgeImageDemo() {
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun CurveToEdgeRowDemo() {
+fun DrawCurvedToEdgeRowDemo() {
     val style = MaterialTheme.typography.titleSmall
     val height = 35.dp
     var checked by remember { mutableStateOf(false) }
-    var ang by remember { mutableFloatStateOf(CurvedTextDefaults.StaticContentMaxSweepAngle) }
+    var sweepAngle by remember {
+        mutableFloatStateOf(DrawCurvedToEdgeDefaults.StaticContentMaxSweepAngle)
+    }
     Row(
-        Modifier.curveToEdge(ang)
+        Modifier.drawCurvedToEdge(sweepAngle)
             .padding(PaddingValues(2.dp))
             .background(Color(0xff0077ff), RoundedCornerShape(50))
             // Height is 5dp more than in CurvedLayout for the same size
@@ -144,12 +182,18 @@ fun CurveToEdgeRowDemo() {
             .padding(horizontal = 15.dp)
     ) {
         Box(Modifier.paint(painterResource(R.drawable.backgroundsplitimage)).size(height))
-        Text("CurveToEdge Text", style = style, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text("drawCurvedToEdge Text", style = style, maxLines = 1, overflow = TextOverflow.Ellipsis)
         SwitchButton(checked, { checked = !checked }) { Text("Toggle button") }
         Text("More Text", style = style, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
     Column(Modifier.fillMaxSize(), Arrangement.Center, Alignment.CenterHorizontally) {
-        Slider(ang, { ang = it }, 72, Modifier.fillMaxWidth(0.7f), valueRange = 0f..360f)
+        Slider(
+            sweepAngle,
+            { sweepAngle = it },
+            72,
+            Modifier.fillMaxWidth(0.7f),
+            valueRange = 0f..360f,
+        )
     }
 }
 
@@ -161,12 +205,12 @@ fun FourCirclesDemo() {
         Text(
             text,
             if (counterClockwise)
-                Modifier.curveToEdge(
-                    CurvedTextDefaults.StaticContentMaxSweepAngle,
+                Modifier.drawCurvedToEdge(
+                    DrawCurvedToEdgeDefaults.StaticContentMaxSweepAngle,
                     AngularDirection.CounterClockwise,
                     90f,
                 )
-            else Modifier.curveToEdge(CurvedTextDefaults.StaticContentMaxSweepAngle),
+            else Modifier.drawCurvedToEdge(DrawCurvedToEdgeDefaults.StaticContentMaxSweepAngle),
             style = MaterialTheme.typography.titleSmall,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -190,7 +234,7 @@ fun FourCirclesDemo() {
 fun DualCurvesDemo() {
     var checked by remember { mutableStateOf(false) }
     Box(Modifier.fillMaxSize()) {
-        Box(Modifier.curveToEdge(210f)) {
+        Box(Modifier.drawCurvedToEdge(210f)) {
             Row(
                 Modifier.padding(PaddingValues(2.dp))
                     .background(Color(0xff0077ff), RoundedCornerShape(50))
@@ -204,7 +248,7 @@ fun DualCurvesDemo() {
                 Box(Modifier.padding(2.dp).clip(RectangleShape).background(Color.Yellow))
             }
         }
-        Box(Modifier.curveToEdge(120f, AngularDirection.CounterClockwise, 90f)) {
+        Box(Modifier.drawCurvedToEdge(120f, AngularDirection.CounterClockwise, 90f)) {
             Row(
                 Modifier.padding(PaddingValues(1.dp))
                     .background(Color(0x19ff34ff), RoundedCornerShape(80))

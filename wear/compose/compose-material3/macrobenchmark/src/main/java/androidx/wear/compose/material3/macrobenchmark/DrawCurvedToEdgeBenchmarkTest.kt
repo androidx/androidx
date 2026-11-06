@@ -42,7 +42,7 @@ import org.junit.runners.Parameterized
 @LargeTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
 @RunWith(Parameterized::class)
-class CurveModifierBenchmark(private val compilationMode: CompilationMode) {
+class DrawCurvedToEdgeBenchmarkTest(private val compilationMode: CompilationMode) {
     @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     private fun test(action: String) {
@@ -80,20 +80,20 @@ class CurveModifierBenchmark(private val compilationMode: CompilationMode) {
 
     @Test
     fun startSimple() {
-        test(SIMPLE_CURVETOEDGE_ACTIVITY)
+        test(SIMPLE_DRAW_CURVED_TO_EDGE_ACTIVITY)
     }
 
     @Test
     fun startComplex() {
-        test(COMPLEX_CURVETOEDGE_ACTIVITY)
+        test(COMPLEX_DRAW_CURVED_TO_EDGE_ACTIVITY)
     }
 
     companion object {
         private const val PACKAGE_NAME = "androidx.wear.compose.material3.macrobenchmark.target"
-        private const val SIMPLE_CURVETOEDGE_ACTIVITY =
-            "${PACKAGE_NAME}.SIMPLE_CURVETOEDGE_ACTIVITY"
-        private const val COMPLEX_CURVETOEDGE_ACTIVITY =
-            "${PACKAGE_NAME}.COMPLEX_CURVETOEDGE_ACTIVITY"
+        private const val SIMPLE_DRAW_CURVED_TO_EDGE_ACTIVITY =
+            "${PACKAGE_NAME}.SIMPLE_DRAW_CURVED_TO_EDGE_ACTIVITY"
+        private const val COMPLEX_DRAW_CURVED_TO_EDGE_ACTIVITY =
+            "${PACKAGE_NAME}.COMPLEX_DRAW_CURVED_TO_EDGE_ACTIVITY"
 
         @Parameterized.Parameters(name = "compilation={0}")
         @JvmStatic
