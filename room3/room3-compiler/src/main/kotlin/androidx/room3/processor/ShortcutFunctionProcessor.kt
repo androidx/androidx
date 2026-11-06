@@ -29,11 +29,10 @@ import kotlin.reflect.KClass
 
 /** Common functionality for shortcut function processors */
 class ShortcutFunctionProcessor(
-    baseContext: Context,
+    val context: Context,
     val containing: XType,
     val executableElement: XMethodElement,
 ) {
-    val context = baseContext.fork(executableElement)
     private val delegate =
         FunctionProcessorDelegate.createFor(context, containing, executableElement)
 

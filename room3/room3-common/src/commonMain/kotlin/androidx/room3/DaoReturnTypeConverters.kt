@@ -24,9 +24,13 @@ import kotlin.reflect.KClass
  * This annotation is used to register converter classes that contain methods annotated with
  * [DaoReturnTypeConverter] via annotating a [Database] or [Dao].
  *
- * All [Dao] methods in that database will be able to use the converters. These converters allow you
- * to wrap or transform the result of a DAO method into a custom Kotlin return type (e.g.,
+ * All [Dao] methods in the annotated scope will be able to use the converters. These converters
+ * allow you to wrap or transform the result of a DAO method into a custom Kotlin return type (e.g.,
  * `Result<MyEntity>`, `Result<List<MyEntity>>`).
+ *
+ * Converters in inner scopes override matching converters in outer scopes (for example, a [Dao]
+ * converter overrides a [Database] converter). Defining duplicate converters within the same scope
+ * is not allowed.
  *
  * **Important Distinction from [ColumnTypeConverters]:**
  *
