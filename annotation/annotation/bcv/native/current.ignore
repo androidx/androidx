@@ -1,2 +1,5 @@
 // Baseline format: 1.0
-[watchosArm32]: Target was removed
+[androidNativeArm32]: Target was removed
+[androidNativeArm64]: Target was removed
+[androidNativeX64]: Target was removed
+[androidNativeX86]: Target was removed
