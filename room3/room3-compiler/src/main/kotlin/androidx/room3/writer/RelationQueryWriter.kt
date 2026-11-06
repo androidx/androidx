@@ -113,15 +113,9 @@ class RelationQueryWriter(val relation: Relation, val queryParam: QueryParameter
                 }
             addStatement("%L.append(%S)", sbVar, whereClause)
 
-            val countVar = scope.getTmpVar("_inputSize")
             checkNotNull(queryParam.queryParamAdapter) {
                 "RelationQueryWriter param adapter must not be null for relationships."
             }
-            queryParam.queryParamAdapter.getArgCount(
-                inputVarName = inputVarName,
-                outputVarName = countVar,
-                scope = scope,
-            )
 
             if (relation.hasCompositeKey) {
                 // Composite key placeholders (row values), e.g: (?, ?), (?, ?)
@@ -132,14 +126,20 @@ class RelationQueryWriter(val relation: Relation, val queryParam: QueryParameter
                         relation.entityProperties.size
                     }
                 addStatement(
-                    "%M(%L, %L, %L)",
+                    "%M(%L, %L.size, %L)",
                     RoomTypeNames.STRING_UTIL.packageMember("appendRowValuePlaceholders"),
                     sbVar,
-                    countVar,
+                    inputVarName,
                     columnsSize,
                 )
             } else {
                 // Single key placeholders: ?, ?, ?
+                val countVar = scope.getTmpVar("_inputSize")
+                queryParam.queryParamAdapter.getArgCount(
+                    inputVarName = inputVarName,
+                    outputVarName = countVar,
+                    scope = scope,
+                )
                 addStatement(
                     "%M(%L, %L)",
                     RoomTypeNames.STRING_UTIL.packageMember("appendPlaceholders"),
