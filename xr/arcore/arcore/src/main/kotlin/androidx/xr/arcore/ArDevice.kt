@@ -41,6 +41,7 @@ public class ArDevice internal constructor(internal val runtimeArDevice: Runtime
          * @param session the currently active [Session]
          * @throws [IllegalStateException] if [Session.config] is set to
          *   [androidx.xr.runtime.DeviceTrackingMode.DISABLED]
+         * @sample androidx.xr.arcore.samples.detectHeadTilt
          */
         @JvmStatic
         public fun getInstance(session: Session): ArDevice {
