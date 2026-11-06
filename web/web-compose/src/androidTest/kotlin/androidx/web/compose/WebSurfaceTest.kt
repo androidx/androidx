@@ -66,6 +66,7 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
+import androidx.compose.ui.graphics.toAndroidRect
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -74,6 +75,8 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
@@ -93,8 +96,10 @@ import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -1602,6 +1607,54 @@ class WebSurfaceTest {
             )
         }
         composeTestRule.runOnIdle { assertTrue(listState.firstVisibleItemScrollOffset > 0) }
+    }
+
+    /**
+     * When the IME opens, ViewRootImpl pans the window to keep the focused View visible. It locates
+     * the focused View with ViewGroup.offsetDescendantRectToMyCoords, which only uses layout
+     * positions and ignores View translation, so the bridge needs to be laid out where the surface
+     * is.
+     */
+    @Test
+    fun testFocusedBridgeIsWhereImePanningExpectsIt() {
+        lateinit var bridge: WebViewBridge
+        var surfaceBounds = IntRect.Zero
+        var topOffset by mutableStateOf(80.dp)
+        composeTestRule.setContent {
+            Box(modifier = Modifier.padding(start = 30.dp, top = topOffset)) {
+                WebSurface(
+                    content = webContent,
+                    modifier =
+                        Modifier.size(100.dp).onGloballyPositioned {
+                            surfaceBounds = it.boundsInWindow().roundToIntRect()
+                        },
+                    bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+                )
+            }
+        }
+
+        // Mirrors how ViewRootImpl.scrollToRectOrFocus finds the focused View.
+        fun assertImePanningFindsBridgeOverSurface() {
+            val focusedRect = Rect()
+            bridge.getFocusedRect(focusedRect)
+            (bridge.rootView as ViewGroup).offsetDescendantRectToMyCoords(bridge, focusedRect)
+            assertEquals(surfaceBounds.toAndroidRect(), focusedRect)
+        }
+
+        composeTestRule.runOnIdle {
+            bridge.requestFocus()
+            assertTrue(bridge.hasFocus())
+            assertImePanningFindsBridgeOverSurface()
+            topOffset = 120.dp
+        }
+        composeTestRule.runOnIdle {
+            assertImePanningFindsBridgeOverSurface()
+            // HeadlessViewHolder lays the bridge out again when it requests layout, e.g. when
+            // Chromium adds popup anchor views.
+            bridge.requestLayout()
+        }
+        composeTestRule.waitUntil(TIMEOUT_MS) { !bridge.isLayoutRequested }
+        composeTestRule.runOnIdle { assertImePanningFindsBridgeOverSurface() }
     }
 
     @Test

@@ -110,7 +110,16 @@ internal class HeadlessViewHolder(
             MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
             MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY),
         )
-        layout(0, 0, width, height)
+        layout(left, top, left + width, top + height)
+    }
+
+    /**
+     * Moves the holder to [x], [y] in the Compose host. It's laid out there rather than translated
+     * because ViewRootImpl ignores View translation when it pans the window to keep the focused
+     * View visible above the IME.
+     */
+    fun updatePosition(x: Int, y: Int) {
+        layout(x, y, x + width, y + height)
     }
 
     override fun requestFocus(direction: Int, previouslyFocusedRect: Rect?): Boolean =
