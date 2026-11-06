@@ -14,12 +14,98 @@
  * limitations under the License.
  */
 
+import androidx.build.PlatformIdentifier
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
+}
+
+androidXMultiplatform {
+    androidLibrary {
+        minSdk { version = release(29) }
+        compileSdk { version = release(35) }
+        namespace = "androidx.compose.remote.creation.compose"
+        androidResources.enable = true
+    }
+    jvm()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        jvmAndAndroidMain.dependencies {
+            api(project(":compose:remote:remote-creation-expression"))
+            api(project(":compose:remote:remote-creation"))
+            implementation("androidx.collection:collection:1.7.0")
+            implementation("androidx.compose.runtime:runtime:1.11.0")
+        }
+
+        androidMain.dependencies {
+            api("androidx.collection:collection:1.7.0")
+            api("androidx.compose.ui:ui:1.11.0")
+            implementation("androidx.core:core-ktx:1.16.0")
+            implementation("androidx.compose.foundation:foundation:1.11.0")
+            implementation("androidx.lifecycle:lifecycle-viewmodel:2.10.0")
+            implementation("androidx.tracing:tracing:2.0.0")
+        }
+
+        androidHostTest.dependencies {
+            implementation(libs.junit)
+            implementation(libs.truth)
+            implementation(project(":compose:remote:foundation:foundation"))
+            implementation(project(":compose:remote:remote-testing"))
+            implementation(project(":compose:remote:remote-core-testutils"))
+            implementation(project(":compose:remote:remote-player-view"))
+            implementation(project(":compose:remote:remote-player-compose"))
+            implementation(project(":compose:remote:remote-player-compose-testutils"))
+            implementation(project(":compose:remote:remote-player-core"))
+            implementation("androidx.compose.ui:ui-test-junit4:1.12.0")
+            implementation(libs.testCoreKtx)
+            implementation(libs.testRules)
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(libs.kotlinTest)
+        }
+
+        androidDeviceTest.dependencies {
+            implementation("androidx.compose.material:material:1.11.0")
+            implementation(libs.testExtJunit)
+            implementation(libs.junit)
+            implementation(libs.truth)
+            implementation(libs.kotlinTest)
+            implementation(libs.testRunner)
+            implementation(libs.dexmakerMockito)
+            implementation(libs.mockitoCore)
+            implementation(libs.mockitoKotlin)
+            implementation(project(":test:uiautomator:uiautomator"))
+            implementation(project(":test:uiautomator:uiautomator-shell"))
+            implementation(project(":compose:remote:remote-core-testutils"))
+            implementation(project(":compose:remote:remote-player-view"))
+            implementation(project(":compose:remote:remote-player-compose-testutils"))
+            implementation(project(":compose:remote:foundation:foundation"))
+            implementation(project(":compose:remote:remote-testing"))
+            implementation(project(":compose:remote:remote-player-compose"))
+            implementation(project(":compose:remote:remote-player-core"))
+            implementation(project(":compose:test-utils"))
+            implementation("androidx.compose.ui:ui-test-junit4:1.12.0")
+            implementation(project(":test:screenshot:screenshot"))
+            implementation(project(":compose:remote:remote-creation-compose-samples"))
+            implementation("org.jetbrains.kotlin:kotlin-reflect")
+        }
+    }
+}
+
+dependencies {
+    lintChecks(project(":compose:remote:remote-lint"))
+    lintPublish(project(":compose:remote:remote-lint"))
+}
+
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.deviceTests.values().forEach {
+            it.pseudoLocalesEnabled.set(true)
+        }
+    }
 }
 
 androidx {
@@ -30,75 +116,11 @@ androidx {
     enableRobolectric()
     addGoldenImageAssets()
     samples(project(":compose:remote:remote-creation-compose-samples"))
-}
-
-android {
-    namespace = "androidx.compose.remote.creation.compose"
-    compileSdk { version = release(35) }
-    defaultConfig {
-        minSdk { version = release(29) }
-    }
-    buildTypes.configureEach {
-        pseudoLocalesEnabled = true
+    // TODO: b/582487979 - Remove once BanRestrictTo exemption is applied to lintJvm.
+    afterEvaluate {
+        lint {
+            disable.add("BanRestrictTo")
+        }
     }
 }
 
-dependencies {
-    lintChecks(project(":compose:remote:remote-lint"))
-    lintPublish(project(":compose:remote:remote-lint"))
-
-    api(project(":compose:remote:remote-creation-expression"))
-    api(libs.jspecify)
-    api("androidx.collection:collection:1.7.0")
-    api("androidx.compose.ui:ui:1.11.0")
-    api(project(":compose:remote:remote-core"))
-    api(project(":compose:remote:remote-creation"))
-    implementation("androidx.compose.ui:ui-text:1.11.0")
-    implementation("androidx.core:core-ktx:1.16.0")
-    implementation("androidx.compose.foundation:foundation:1.11.0")
-    implementation("androidx.compose.foundation:foundation-layout:1.11.0")
-    implementation("androidx.compose.runtime:runtime:1.11.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel:2.10.0")
-    implementation("androidx.tracing:tracing:2.0.0")
-    testImplementation(libs.junit)
-    testImplementation(libs.truth)
-    testImplementation(project(":compose:remote:foundation:foundation"))
-    testImplementation(project(":compose:remote:remote-testing"))
-    testImplementation(project(":compose:remote:remote-core-testutils"))
-    testImplementation(project(":compose:remote:remote-player-view"))
-    testImplementation(project(":compose:remote:remote-player-compose"))
-    testImplementation(project(":compose:remote:remote-player-compose-testutils"))
-    testImplementation(project(":compose:remote:remote-player-core"))
-    testImplementation("androidx.compose.ui:ui-test-junit4:1.12.0")
-    testImplementation(libs.testParameterInjector)
-    testImplementation(libs.testCoreKtx)
-    testImplementation(libs.testRules)
-    testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(libs.kotlinTest)
-    androidTestImplementation("androidx.compose.material:material:1.11.0")
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.kotlinTest)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.espressoCore)
-    androidTestImplementation(libs.testParameterInjector)
-    androidTestImplementation(libs.dexmakerMockito)
-    androidTestImplementation(libs.mockitoCore)
-    androidTestImplementation(libs.mockitoKotlin)
-    androidTestImplementation(project(":test:uiautomator:uiautomator"))
-    androidTestImplementation(project(":test:uiautomator:uiautomator-shell"))
-    androidTestImplementation(project(":compose:remote:remote-core-testutils"))
-    androidTestImplementation(project(":compose:remote:remote-player-view"))
-    androidTestImplementation(project(":compose:remote:remote-player-compose-testutils"))
-    androidTestImplementation(project(":compose:remote:foundation:foundation"))
-    androidTestImplementation(project(":compose:remote:remote-testing"))
-    androidTestImplementation(project(":compose:remote:remote-player-compose"))
-    androidTestImplementation(project(":compose:remote:remote-player-core"))
-    androidTestImplementation(project(":compose:test-utils"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.12.0")
-    androidTestImplementation(project(":test:screenshot:screenshot"))
-    androidTestImplementation(project(":compose:remote:remote-creation-compose-samples"))
-    androidTestImplementation("org.jetbrains.kotlin:kotlin-reflect")
-}
