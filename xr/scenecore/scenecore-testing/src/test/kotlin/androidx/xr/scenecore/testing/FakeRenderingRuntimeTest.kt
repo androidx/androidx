@@ -48,7 +48,7 @@ class FakeRenderingRuntimeTest {
 
     @Before
     fun setUp() {
-        val activityController = Robolectric.buildActivity<Activity?>(Activity::class.java)
+        val activityController = Robolectric.buildActivity(Activity::class.java)
         val activity: Activity? = activityController.create().start().get()
 
         assertThat(activity).isNotNull()

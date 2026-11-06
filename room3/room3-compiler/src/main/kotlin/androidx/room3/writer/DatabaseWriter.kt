@@ -153,7 +153,7 @@ class DatabaseWriter(val database: Database, writerContext: WriterContext) :
             )
             database.autoMigrations
                 .filter { it.isSpecProvided }
-                .map { autoMigration ->
+                .forEach { autoMigration ->
                     val specClassName = checkNotNull(autoMigration.specClassName)
                     addStatement(
                         "%L.add(%L)",

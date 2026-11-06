@@ -253,12 +253,12 @@ private constructor(
 
         public companion object {
 
-            @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+            @field:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
             @InkInternalOnlyApi
             @JvmField
             public val MAPPING_TILING: Int = 0
 
-            @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+            @field:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
             @InkInternalOnlyApi
             @JvmField
             public val MAPPING_STAMPING: Int = 1
