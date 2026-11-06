@@ -184,11 +184,15 @@ class AudioController(
             scope.launch(Dispatchers.IO) {
                 val file = File(context.filesDir, AUDIO_FILE_NAME)
                 val fos = FileOutputStream(file)
+                var isSilent = true
                 try {
                     while (viewModel.isRecording.value) {
                         val read = record.read(audioBuffer, 0, audioBuffer.size)
                         if (read > 0) {
                             fos.write(audioBuffer, 0, read)
+                            // A 16-bit PCM sample is zero only if both of its bytes are zero.
+                            isSilent =
+                                isSilent && (0 until read).all { audioBuffer[it] == 0.toByte() }
                         }
                     }
                 } finally {
@@ -197,9 +201,15 @@ class AudioController(
                         fos.close()
                     } catch (_: Exception) {}
                 }
-                withContext(Dispatchers.Main) {
-                    viewModel.setStatusMessage("Recording saved (${file.length()} bytes).")
-                }
+                val size = file.length()
+                val status =
+                    when {
+                        size == 0L -> "No audio data recorded (0 bytes)."
+                        isSilent -> "Recording saved ($size bytes), but it contains only silence."
+                        else -> "Recording saved ($size bytes)."
+                    }
+                Log.i(TAG, status)
+                withContext(Dispatchers.Main) { viewModel.setStatusMessage(status) }
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error recording audio", e)
