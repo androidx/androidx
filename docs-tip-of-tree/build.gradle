@@ -29,6 +29,7 @@ dependencies {
     docs(project(":appsearch:appsearch-platform-storage"))
     docs(project(":appsearch:appsearch-play-services-storage"))
     docs(project(":appsearch:appsearch-local-storage"))
+    kmpDocs(project(":appstate:dataflow:dataflow"))
     kmpDocs(project(":appstate:statestore:statestore"))
     kmpDocs(project(":appstate:statestore:statestore-datastore"))
     kmpDocs(project(":appstate:transform:transform"))
