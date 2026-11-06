@@ -21,13 +21,13 @@ import android.graphics.BlendMode as AndroidBlendMode
 import android.graphics.BlendModeColorFilter
 import android.graphics.Canvas
 import android.graphics.Paint as AndroidPaint
+import androidx.collection.intSetOf
 import androidx.compose.remote.core.Operation
+import androidx.compose.remote.core.Operations
 import androidx.compose.remote.core.PaintContext
 import androidx.compose.remote.core.operations.PaintData
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.paint.PaintChanges
-import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
-import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.shaders.RemoteShader
 import androidx.compose.remote.creation.compose.state.CompatAndroidRemotePaint
@@ -424,55 +424,116 @@ class PaintTrackerTest {
     }
 
     @Test
-    @OptIn(ExperimentalRemoteCreationComposeApi::class)
-    fun testFontVariationSettingsSync_FallbackToWeight400() {
-        val originalFlag = RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis
-        RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis = false
-        try {
-            val paint = RemotePaint { fontVariationSettings = null }
-            val bundle = PaintBundle()
+    fun testFontVariationSettingsSync_WithoutCoreText_FallbackToWeight400() {
+        val stateWithoutCoreText =
+            RemoteComposeCreationState(
+                Size(500f, 500f),
+                createProfile(
+                    supportedOperations = intSetOf(Operations.HEADER, Operations.DATA_TEXT)
+                ),
+            )
+        val paint = RemotePaint { fontVariationSettings = null }
+        val bundle = PaintBundle()
 
-            val wghtId = creationState.document.addText("wght")
-            remoteContext.loadText(wghtId, "wght")
+        val wghtId = stateWithoutCoreText.document.addText("wght")
+        remoteContext.loadText(wghtId, "wght")
 
-            tracker.updateWithPaint(paint, bundle, creationState)
+        tracker.updateWithPaint(paint, bundle, stateWithoutCoreText)
 
-            assertThat(tracker.isChanged).isTrue()
+        assertThat(tracker.isChanged).isTrue()
 
-            val changes = TestPaintChanges()
-            bundle.applyPaintChange(paintContext, changes)
+        val changes = TestPaintChanges()
+        bundle.applyPaintChange(paintContext, changes)
 
-            assertThat(changes.fontVariationAxesSet).isTrue()
-            assertThat(changes.mFontAxisTags?.single()).isEqualTo("wght")
-            assertThat(changes.mFontAxisValues?.single()).isEqualTo(400f)
-        } finally {
-            RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis = originalFlag
-        }
+        assertThat(changes.fontVariationAxesSet).isTrue()
+        assertThat(changes.mFontAxisTags?.single()).isEqualTo("wght")
+        assertThat(changes.mFontAxisValues?.single()).isEqualTo(400f)
     }
 
     @Test
-    @OptIn(ExperimentalRemoteCreationComposeApi::class)
-    fun testFontVariationSettingsSync_FallbackToWeight400NotResentForEqualWeight() {
-        val originalFlag = RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis
-        RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis = false
-        try {
-            tracker.updateWithPaint(
-                RemotePaint { fontVariationSettings = null },
-                PaintBundle(),
-                creationState,
+    fun testFontVariationSettingsSync_WithoutCoreText_FallbackToWeight400NotResentForEqualWeight() {
+        val stateWithoutCoreText =
+            RemoteComposeCreationState(
+                Size(500f, 500f),
+                createProfile(
+                    supportedOperations = intSetOf(Operations.HEADER, Operations.DATA_TEXT)
+                ),
             )
-            tracker.reset(force = false)
+        tracker.updateWithPaint(
+            RemotePaint { fontVariationSettings = null },
+            PaintBundle(),
+            stateWithoutCoreText,
+        )
+        tracker.reset(force = false)
 
-            val paint = RemotePaint {
-                fontVariationSettings =
-                    RemoteFontVariation.Settings(RemoteFontVariation.Setting("wght", 400f.rf))
-            }
-            tracker.updateWithPaint(paint, PaintBundle(), creationState)
-
-            assertThat(tracker.isChanged).isFalse()
-        } finally {
-            RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis = originalFlag
+        val paint = RemotePaint {
+            fontVariationSettings =
+                RemoteFontVariation.Settings(RemoteFontVariation.Setting("wght", 400f.rf))
         }
+        tracker.updateWithPaint(paint, PaintBundle(), stateWithoutCoreText)
+
+        assertThat(tracker.isChanged).isFalse()
+    }
+
+    @Test
+    fun testFontVariationSettingsSync_WithoutCoreText_PreservesTypefaceWeight() {
+        val stateWithoutCoreText =
+            RemoteComposeCreationState(
+                Size(500f, 500f),
+                createProfile(
+                    supportedOperations = intSetOf(Operations.HEADER, Operations.DATA_TEXT)
+                ),
+            )
+        val paint = RemotePaint {
+            typeface = RemoteTypeface.Named("RobotoFlex", weight = 700, isItalic = false)
+            fontVariationSettings = null
+        }
+        val bundle = PaintBundle()
+
+        val robotoId = stateWithoutCoreText.document.addText("RobotoFlex")
+        val wghtId = stateWithoutCoreText.document.addText("wght")
+        remoteContext.loadText(robotoId, "RobotoFlex")
+        remoteContext.loadText(wghtId, "wght")
+
+        tracker.updateWithPaint(paint, bundle, stateWithoutCoreText)
+
+        val changes = TestPaintChanges()
+        bundle.applyPaintChange(paintContext, changes)
+
+        assertThat(changes.fontVariationAxesSet).isTrue()
+        assertThat(changes.mFontAxisTags?.single()).isEqualTo("wght")
+        assertThat(changes.mFontAxisValues?.single()).isEqualTo(700f)
+    }
+
+    @Test
+    fun testFontVariationSettingsSync_WithCoreText_SendsEmptyAxis() {
+        val stateWithCoreText =
+            RemoteComposeCreationState(
+                Size(500f, 500f),
+                createProfile(
+                    supportedOperations =
+                        intSetOf(Operations.HEADER, Operations.DATA_TEXT, Operations.CORE_TEXT)
+                ),
+            )
+        val settings = RemoteFontVariation.Settings(RemoteFontVariation.Setting("wght", 500f.rf))
+        val paintWithSettings = RemotePaint { fontVariationSettings = settings }
+        val wghtId = stateWithCoreText.document.addText("wght")
+        remoteContext.loadText(wghtId, "wght")
+        tracker.updateWithPaint(paintWithSettings, PaintBundle(), stateWithCoreText)
+        tracker.reset(force = false)
+
+        val paintNull = RemotePaint { fontVariationSettings = null }
+        val bundle = PaintBundle()
+        tracker.updateWithPaint(paintNull, bundle, stateWithCoreText)
+
+        assertThat(tracker.isChanged).isTrue()
+
+        val changes = TestPaintChanges()
+        bundle.applyPaintChange(paintContext, changes)
+
+        assertThat(changes.fontVariationAxesSet).isTrue()
+        assertThat(changes.mFontAxisTags).isEmpty()
+        assertThat(changes.mFontAxisValues).isEmpty()
     }
 
     @Test

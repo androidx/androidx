@@ -13,13 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:OptIn(ExperimentalRemoteCreationComposeApi::class)
-
 package androidx.compose.remote.creation.compose.capture
 
+import androidx.compose.remote.core.Operations
 import androidx.compose.remote.core.operations.paint.PaintBundle
-import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
-import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.shaders.RemoteShader
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemoteColor
@@ -172,13 +169,15 @@ internal class PaintTracker {
 
         val targetFontVariationSettings =
             combineFontSettings(newPaint.fontFeatureSettings, newPaint.fontVariationSettings)
+        val allowEmptyFontAxis =
+            creationState.profile.supportedOperations.contains(Operations.CORE_TEXT)
         val settingsToUse =
-            if (RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis) {
+            if (allowEmptyFontAxis) {
                 targetFontVariationSettings
             } else {
                 targetFontVariationSettings
                     ?: RemoteFontVariation.Settings(
-                        RemoteFontVariation.Setting("wght", DEFAULT_FONT_WEIGHT.rf)
+                        RemoteFontVariation.Setting("wght", targetWeight.rf)
                     )
             }
         updateIfChanged(settingsToUse, fontVariationSettings) {
@@ -282,9 +281,5 @@ internal class PaintTracker {
             FloatArray(size) { settings[it].value.getFloatIdForCreationState(creationState) }
 
         return Pair(fontAxisNames, fontAxisValues)
-    }
-
-    private companion object {
-        const val DEFAULT_FONT_WEIGHT = 400
     }
 }
