@@ -17,6 +17,7 @@
 package androidx.wear.compose.material
 
 import android.annotation.SuppressLint
+import androidx.annotation.VisibleForTesting
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ContentTransform
@@ -93,11 +94,14 @@ import androidx.wear.compose.materialcore.CustomTouchSlopProvider
 import androidx.wear.compose.materialcore.SwipeableV2State
 import androidx.wear.compose.materialcore.swipeAnchors
 import androidx.wear.compose.materialcore.swipeableV2
+import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicReference
 import java.util.function.Predicate
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 /**
@@ -980,19 +984,30 @@ internal constructor(
      * [RevealValue.LeftRevealed], the action has been performed and it will not be reset.
      */
     private suspend fun resetLastState(currentState: RevealState) {
-        val oldState = SingleSwipeCoordinator.lastUpdatedState.getAndSet(currentState)
+        if (SingleSwipeCoordinator.lastUpdatedState.get()?.get() === currentState) return
+        val oldState =
+            SingleSwipeCoordinator.lastUpdatedState.getAndSet(WeakReference(currentState))?.get()
         if (
-            currentState != oldState &&
+            oldState !== currentState &&
                 (oldState?.currentValue == RevealValue.RightRevealing ||
                     oldState?.currentValue == RevealValue.LeftRevealing)
         ) {
-            oldState.animateTo(RevealValue.Covered)
+            if (oldState.coroutineScope.isActive) {
+                oldState.coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
+                    oldState.animateTo(RevealValue.Covered)
+                }
+            } else {
+                oldState.snapTo(RevealValue.Covered)
+            }
         }
     }
 
     /** A singleton instance to keep track of the [RevealState] which was modified the last time. */
-    private object SingleSwipeCoordinator {
-        var lastUpdatedState: AtomicReference<RevealState?> = AtomicReference(null)
+    @VisibleForTesting
+    internal object SingleSwipeCoordinator {
+        // Weak, so that the last revealed item (and the composition it belongs to) can be
+        // garbage collected once it leaves the composition.
+        val lastUpdatedState: AtomicReference<WeakReference<RevealState>?> = AtomicReference(null)
     }
 }
 
