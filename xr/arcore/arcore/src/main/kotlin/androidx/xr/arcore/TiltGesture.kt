@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.arcore
 
 import androidx.annotation.FloatRange
@@ -33,6 +35,9 @@ import kotlinx.coroutines.flow.runningFold
 public annotation class ExperimentalGesturesApi
 
 /** Vertical tilt state of the device. */
+@Deprecated(
+    "Tilt is deprecated and will be removed in a future release. Observe ArDevice.state to compute device orientation directly."
+)
 @ExperimentalGesturesApi
 public class Tilt private constructor(private val value: Int) {
     public companion object {
@@ -66,6 +71,9 @@ public class Tilt private constructor(private val value: Int) {
  * The primary way to use this is via the [TiltGesture.detect] method, which provides a [Flow] of
  * [Tilt] states.
  */
+@Deprecated(
+    "TiltGesture is deprecated and will be removed in a future release. Observe ArDevice.state to compute device orientation directly."
+)
 @ExperimentalGesturesApi
 public object TiltGesture {
     /**
@@ -111,6 +119,9 @@ public object TiltGesture {
      * @throws [IllegalStateException] if [session] is configured with
      *   [androidx.xr.runtime.DeviceTrackingMode.DISABLED]
      */
+    @Deprecated(
+        "TiltGesture is deprecated and will be removed in a future release. Observe ArDevice.state to compute device orientation directly."
+    )
     public fun detect(session: Session): Flow<State> {
         return ArDevice.getInstance(session).state.runningFold(State()) { lastValue, state ->
             getTiltFromPoseRotation(lastValue.internalTiltValue, state.devicePose.rotation)
@@ -123,6 +134,9 @@ public object TiltGesture {
      * @property tilt the current tilt state ([Tilt.UP] or [Tilt.DOWN])
      * @property progress a value from 0.0 to 1.0 indicating the progress of the current transition
      */
+    @Deprecated(
+        "TiltGesture.State is deprecated and will be removed in a future release. Observe ArDevice.state to compute device orientation directly."
+    )
     @ExperimentalGesturesApi
     public class State(
         public val tilt: Tilt = Tilt.UP,

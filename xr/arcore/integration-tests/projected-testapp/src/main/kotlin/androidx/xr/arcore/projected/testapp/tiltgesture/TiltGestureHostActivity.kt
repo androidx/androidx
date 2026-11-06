@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.arcore.projected.testapp.tiltgesture
 
 import android.app.Activity
