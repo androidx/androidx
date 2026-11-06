@@ -34,7 +34,9 @@ import androidx.camera.core.CameraEffect
 import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.CompositionSettings
+import androidx.camera.core.DynamicRange
 import androidx.camera.core.DynamicRange.HDR_UNSPECIFIED_10_BIT
+import androidx.camera.core.DynamicRange.HLG_10_BIT
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.FocusMeteringAction.FLAG_AE
 import androidx.camera.core.FocusMeteringAction.FLAG_AF
@@ -112,6 +114,7 @@ import org.mockito.Mockito.verify
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.internal.DoNotInstrument
+import org.robolectric.shadows.ShadowBuild
 import org.robolectric.util.ReflectionHelpers
 
 private const val CAMERA_ID = "0"
@@ -213,6 +216,42 @@ class CameraUseCaseAdapterTest {
         adapter.addUseCases(setOf(video, image))
         // Assert: StreamSharing is not bound.
         adapter.cameraUseCases.hasExactTypes(FakeUseCase::class.java, ImageCapture::class.java)
+    }
+
+    // 10-bit HDR is only supported on API 33+.
+    @org.robolectric.annotation.Config(minSdk = 33)
+    @Test
+    fun attachHlg10VideoCaptureWithStabilization_onSamsungSm8550_streamSharingForceEnabled() {
+        // Arrange: a Samsung Snapdragon 8 Gen 2 device, affected by
+        // AbnormalStreamWhenHlg10WithStabilizationQuirk.
+        setSamsungSm8550Device()
+        val adapter = createCameraUseCaseAdapter(fakeCamera)
+        val preview = Preview.Builder().setPreviewStabilizationEnabled(true).build()
+        val video = createFakeVideoCaptureUseCase(HLG_10_BIT)
+
+        // Act.
+        adapter.addUseCases(setOf(preview, video))
+
+        // Assert: StreamSharing is force enabled so the camera doesn't output HLG10 directly to
+        // the encoder surface.
+        adapter.cameraUseCases.hasExactTypes(StreamSharing::class.java)
+        assertThat(adapter.getStreamSharing().children).containsExactly(preview, video)
+    }
+
+    // 10-bit HDR is only supported on API 33+.
+    @org.robolectric.annotation.Config(minSdk = 33)
+    @Test
+    fun attachHlg10VideoCaptureWithoutStabilization_onSamsungSm8550_streamSharingNotEnabled() {
+        // Arrange.
+        setSamsungSm8550Device()
+        val adapter = createCameraUseCaseAdapter(fakeCamera)
+        val video = createFakeVideoCaptureUseCase(HLG_10_BIT)
+
+        // Act.
+        adapter.addUseCases(setOf(preview, video))
+
+        // Assert: StreamSharing isn't needed without stabilization.
+        adapter.cameraUseCases.hasExactTypes(Preview::class.java, FakeUseCase::class.java)
     }
 
     @Test(expected = CameraException::class)
@@ -1747,12 +1786,19 @@ class CameraUseCaseAdapterTest {
         )
     }
 
-    private fun createFakeVideoCaptureUseCase(): FakeUseCase {
+    private fun createFakeVideoCaptureUseCase(dynamicRange: DynamicRange? = null): FakeUseCase {
         return FakeUseCaseConfig.Builder()
             .setCaptureType(CaptureType.VIDEO_CAPTURE)
             .setSurfaceOccupancyPriority(0)
+            .apply { dynamicRange?.let { setDynamicRange(it) } }
             .build()
             .apply { this.supportedEffectTargets = setOf(VIDEO_CAPTURE) }
+    }
+
+    private fun setSamsungSm8550Device() {
+        ShadowBuild.setBrand("samsung")
+        ShadowBuild.setManufacturer("samsung")
+        ShadowBuild.setSystemOnChipModel("SM8550")
     }
 
     private fun createCoexistingRequiredRuleCameraConfig(
