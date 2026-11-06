@@ -156,7 +156,9 @@ internal inline fun DrawScope.drawTextAnchoredOp(
 /**
  * Curved text (`DRAW_TEXT_ON_CIRCLE`): lay the string along an arc of the given circle and draw via
  * the native canvas. Mirrors `DrawTextOnCircle.paint` / the View player's `drawTextOnCircle` —
- * build an arc [Path] sized to the measured text and `drawTextOnPath` onto it.
+ * build an arc [Path] sized to the measured text and `drawTextOnPath` onto it. Every geometry field
+ * may be a NaN-encoded float variable (e.g. `width / 2`), resolved through [read] so the draw
+ * follows the variable.
  */
 internal fun DrawScope.drawTextOnCircleOp(
     op: DrawTextOnCircle,
@@ -166,11 +168,15 @@ internal fun DrawScope.drawTextOnCircleOp(
 ) {
     val full = read.getText(op.mTextId)
     if (full != null && !paintState.textSize.isNaN()) {
-        val centerX = op.centerX
-        val centerY = op.centerY
-        val radius = op.radius
-        val startAngle = op.startAngle
-        val warpRadiusOffset = op.warpRadiusOffset
+        val centerX = resolveFloat(op.centerX, op.centerX, read)
+        val centerY = resolveFloat(op.centerY, op.centerY, read)
+        val radius = resolveFloat(op.radius, op.radius, read)
+        val startAngle = resolveFloat(op.startAngle, op.startAngle, read)
+        val warpRadiusOffset = resolveFloat(op.warpRadiusOffset, op.warpRadiusOffset, read)
+        val finalRadius = radius + warpRadiusOffset
+        // As the View player: nothing to draw on an empty circle. A variable can be 0 before
+        // the size it depends on is known, and a NaN centre would make the arc Rect throw.
+        if (!(finalRadius > 0f) || centerX.isNaN() || centerY.isNaN()) return
         val alignment = op.alignment
         val placement = op.placement
         val textWidth =
@@ -183,7 +189,6 @@ internal fun DrawScope.drawTextOnCircleOp(
                 )
                 .getLineRight(0)
         val nativePaint = paintState.toNativeTextPaint(read)
-        val finalRadius = radius + warpRadiusOffset
         val clockwise = placement == DrawTextOnCircle.Placement.OUTSIDE
         var sweepDegrees = Math.toDegrees((textWidth / finalRadius).toDouble()).toFloat()
         var finalStartAngle = startAngle
