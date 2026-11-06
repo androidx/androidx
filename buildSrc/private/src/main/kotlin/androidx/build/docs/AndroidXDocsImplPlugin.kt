@@ -830,11 +830,6 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
 
         multiplatformExtension.jvm()
 
-        multiplatformExtension.androidNativeX64()
-        multiplatformExtension.androidNativeX86()
-        multiplatformExtension.androidNativeArm32()
-        multiplatformExtension.androidNativeArm64()
-
         multiplatformExtension.mingwX64()
         multiplatformExtension.macosArm64()
 

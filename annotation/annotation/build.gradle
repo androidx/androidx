@@ -13,7 +13,6 @@ plugins {
 }
 
 androidXMultiplatform {
-    androidNative()
     ios()
     js()
     jvm()

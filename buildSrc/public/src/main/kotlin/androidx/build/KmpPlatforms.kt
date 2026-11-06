@@ -60,10 +60,6 @@ enum class PlatformIdentifier(val id: String, val group: PlatformGroup) {
     JS("js", PlatformGroup.JS),
     WASM_JS("wasmJs", PlatformGroup.WASM),
     ANDROID("android", PlatformGroup.JVM),
-    ANDROID_NATIVE_ARM32("androidNativeArm32", PlatformGroup.ANDROID_NATIVE),
-    ANDROID_NATIVE_ARM64("androidNativeArm64", PlatformGroup.ANDROID_NATIVE),
-    ANDROID_NATIVE_X86("androidNativeX86", PlatformGroup.ANDROID_NATIVE),
-    ANDROID_NATIVE_X64("androidNativeX64", PlatformGroup.ANDROID_NATIVE),
     MAC_ARM_64("macosarm64", PlatformGroup.MAC),
     MINGW_X_64("mingwx64", PlatformGroup.WINDOWS),
     LINUX_ARM_64("linuxarm64", PlatformGroup.LINUX),
@@ -127,9 +123,6 @@ private open class KmpPlatformsExtension(project: Project) {
 }
 
 fun Project.enableJs(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.JS)
-
-fun Project.enableAndroidNative(): Boolean =
-    enabledKmpPlatforms.contains(PlatformGroup.ANDROID_NATIVE)
 
 fun Project.enableMac(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.MAC)
 
