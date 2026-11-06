@@ -43,7 +43,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewWrapper
 import androidx.xr.glimmer.remote.surface
 
-@Suppress("RestrictedApiAndroidX") // remove once the API becomes public
 @Sampled
 @Composable
 @RemoteComposable
@@ -62,7 +61,6 @@ fun StaticSurfaceSample() {
     }
 }
 
-@Suppress("RestrictedApiAndroidX") // remove once the API becomes public
 @Sampled
 @Composable
 @RemoteComposable
@@ -80,7 +78,6 @@ fun HostStateSurfaceSample() {
     }
 }
 
-@Suppress("RestrictedApiAndroidX") // remove once the API becomes public
 @Sampled
 @Composable
 @RemoteComposable
@@ -104,7 +101,6 @@ fun PlayerStateSurfaceSample() {
     }
 }
 
-@Suppress("RestrictedApiAndroidX") // remove once the API becomes public
 @Sampled
 @Composable
 @RemoteComposable

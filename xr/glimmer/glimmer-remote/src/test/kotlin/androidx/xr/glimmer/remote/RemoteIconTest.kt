@@ -79,7 +79,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
-@Suppress("RestrictedApiAndroidX")
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Config.TARGET_SDK])
 @GraphicsMode(GraphicsMode.Mode.NATIVE)

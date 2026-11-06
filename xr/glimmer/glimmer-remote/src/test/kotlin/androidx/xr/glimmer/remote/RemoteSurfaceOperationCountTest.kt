@@ -33,13 +33,13 @@ import androidx.compose.remote.creation.compose.util.DocumentStats
 import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Size
 import androidx.test.core.app.ApplicationProvider
-import androidx.xr.glimmer.remote.SurfaceOperationCountTest.RemoteSurfaceStats.Companion.ColorExpressions
-import androidx.xr.glimmer.remote.SurfaceOperationCountTest.RemoteSurfaceStats.Companion.DocumentSizeBytes
-import androidx.xr.glimmer.remote.SurfaceOperationCountTest.RemoteSurfaceStats.Companion.DrawOperations
-import androidx.xr.glimmer.remote.SurfaceOperationCountTest.RemoteSurfaceStats.Companion.DynamicStateFloatExpressionsSize
-import androidx.xr.glimmer.remote.SurfaceOperationCountTest.RemoteSurfaceStats.Companion.FloatExpressions
-import androidx.xr.glimmer.remote.SurfaceOperationCountTest.RemoteSurfaceStats.Companion.FloatExpressionsSize
-import androidx.xr.glimmer.remote.SurfaceOperationCountTest.RemoteSurfaceStats.Companion.PaintObjects
+import androidx.xr.glimmer.remote.RemoteSurfaceOperationCountTest.RemoteSurfaceStats.Companion.ColorExpressions
+import androidx.xr.glimmer.remote.RemoteSurfaceOperationCountTest.RemoteSurfaceStats.Companion.DocumentSizeBytes
+import androidx.xr.glimmer.remote.RemoteSurfaceOperationCountTest.RemoteSurfaceStats.Companion.DrawOperations
+import androidx.xr.glimmer.remote.RemoteSurfaceOperationCountTest.RemoteSurfaceStats.Companion.DynamicStateFloatExpressionsSize
+import androidx.xr.glimmer.remote.RemoteSurfaceOperationCountTest.RemoteSurfaceStats.Companion.FloatExpressions
+import androidx.xr.glimmer.remote.RemoteSurfaceOperationCountTest.RemoteSurfaceStats.Companion.FloatExpressionsSize
+import androidx.xr.glimmer.remote.RemoteSurfaceOperationCountTest.RemoteSurfaceStats.Companion.PaintObjects
 import com.google.common.truth.Expect
 import java.io.ByteArrayInputStream
 import kotlinx.coroutines.test.runTest
@@ -54,10 +54,9 @@ import org.robolectric.annotation.Config
  * ensures that any regressions in [surface] are spotted, as the amount of operations running on the
  * hardware directly impacts performance.
  */
-@Suppress("RestrictedApiAndroidX")
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Config.TARGET_SDK])
-class SurfaceOperationCountTest {
+class RemoteSurfaceOperationCountTest {
 
     @get:Rule(order = 0) val expect: Expect = Expect.create()
 

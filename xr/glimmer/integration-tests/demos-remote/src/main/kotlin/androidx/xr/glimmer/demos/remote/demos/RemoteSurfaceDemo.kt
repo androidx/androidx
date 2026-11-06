@@ -222,7 +222,6 @@ private fun HostActionSurfaceDemo() {
     }
 }
 
-@SuppressLint("RestrictedApiAndroidX")
 @Composable
 @RemoteComposable
 private fun ListItem(text: String, modifier: RemoteModifier) {
@@ -231,7 +230,7 @@ private fun ListItem(text: String, modifier: RemoteModifier) {
         RemoteText(
             text = text.rs,
             color = Color.White.rc,
-            fontSize = 9.rsp,
+            fontSize = 24.rsp,
             modifier = RemoteModifier.fillMaxWidth().padding(20.rdp),
         )
     }

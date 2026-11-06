@@ -37,7 +37,6 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operations
 import androidx.compose.remote.core.RcProfiles.PROFILE_ANDROIDX
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
-import androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior
 import androidx.compose.remote.creation.compose.capture.captureRemoteDocument
 import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -88,11 +87,7 @@ internal fun remoteDocumentFlow(
 ): Flow<ByteArray> {
     return captureRemoteDocument(
         context = context,
-        creationDisplayInfo =
-            createRemoteCreationDisplayInfo(
-                context = context,
-                densityBehavior = RemoteDensityBehavior.Dp,
-            ),
+        creationDisplayInfo = createRemoteCreationDisplayInfo(context),
         profile = RemoteGlimmerProfile,
         content = content,
     )
