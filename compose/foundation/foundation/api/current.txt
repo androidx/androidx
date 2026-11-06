@@ -181,7 +181,7 @@ package androidx.compose.foundation {
     property public boolean isKeepAroundDuringLookaheadDisabled;
     property public boolean isLazyLayoutItemAnimationEnterExitTransitionsEnabled;
     property public boolean isLazyListItemAnimatorVisibleBoundsFixEnabled;
-    property public boolean isLinkMinimumTouchTargetSizeZeroEnabled;
+    property public boolean isLinkPerformanceOptimizationEnabled;
     property public boolean isMouseSelectionBetweenTextEnabled;
     property public boolean isMultiLaneCacheWindowEnabled;
     property public boolean isNewBorderImplementationEnabled;
@@ -217,7 +217,7 @@ package androidx.compose.foundation {
     field public static boolean isKeepAroundDuringLookaheadDisabled;
     field public static boolean isLazyLayoutItemAnimationEnterExitTransitionsEnabled;
     field public static boolean isLazyListItemAnimatorVisibleBoundsFixEnabled;
-    field public static boolean isLinkMinimumTouchTargetSizeZeroEnabled;
+    field public static boolean isLinkPerformanceOptimizationEnabled;
     field public static boolean isMouseSelectionBetweenTextEnabled;
     field public static boolean isMultiLaneCacheWindowEnabled;
     field public static boolean isNewBorderImplementationEnabled;
