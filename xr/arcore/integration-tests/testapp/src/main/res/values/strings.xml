@@ -23,6 +23,6 @@
     <string name="spatial_annotations_tracking">Spatial Annotations test case</string>
     <string name="qr_code_tracking">Qr Code Tracking test case</string>
     <string name="native_data">Native Data test case</string>
-    <string name="native_data_projected">Native Data (projected glasses) test case</string>
+    <string name="native_data_projected">Native Data (projected) test case</string>
     <string name="runtime_flags">OpenXR runtime flags</string>
 </resources>

@@ -22,12 +22,12 @@ import androidx.xr.projected.ProjectedContext
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
 
 /**
- * [NativeDataActivity] for projected OpenXR runtimes (XR glasses driven by a phone).
+ * [NativeDataActivity] for projected OpenXR runtimes.
  *
  * It runs on the phone, started from the main activity like the other test cases, and targets the
- * connected glasses: the Session is created with the projected device context, which is bound to
- * the glasses but is not an Activity, so the Session does not attach a SceneCore Scene (this app
- * only bundles the headset SceneCore runtimes).
+ * connected projected device: the Session is created with the projected device context, which is
+ * bound to the projected device but is not an Activity, so the Session does not attach a SceneCore
+ * Scene (this app only bundles the headset SceneCore runtimes).
  *
  * It injects `XR_EXT_debug_utils`, which projected runtimes advertise but Jetpack XR does not
  * enable by default, calls one of its functions through the native `xrGetInstanceProcAddr` (test

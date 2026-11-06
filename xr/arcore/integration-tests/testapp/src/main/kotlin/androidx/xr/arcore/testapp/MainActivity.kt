@@ -85,7 +85,7 @@ import java.util.Locale
 class MainActivity : ComponentActivity() {
 
     private fun requestUserPermissions(permissions: Array<String>) {
-        // On a host phone (projected glasses mode), headset-only XR permissions are not
+        // On a host phone (projected mode), headset-only XR permissions are not
         // defined by the system and would immediately report as denied.
         val definedPermissions =
             permissions
