@@ -34,9 +34,22 @@ android {
     defaultConfig {
         minSdk { version = release(31) }
         compileSdk { version = release(36) }
+        // Jetpack XR only ships 64-bit native libraries, and nativedata_jni assumes 64-bit
+        // OpenXR handles.
+        ndk {
+            abiFilters.clear()
+            abiFilters.addAll(["arm64-v8a", "x86_64"])
+        }
     }
     buildFeatures { viewBinding = true }
     namespace = "androidx.xr.arcore.testapp"
+
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+            version = libs.versions.cmake.get()
+        }
+    }
 
     buildTypes {
         release {
@@ -62,6 +75,7 @@ dependencies {
     implementation(project(":xr:arcore:arcore-openxr"))
     implementation(project(":xr:assets"))
     implementation(project(":xr:compose:compose"))
+    implementation(project(":xr:projected:projected"))
     implementation(project(":xr:scenecore:scenecore"))
     implementation(project(":xr:scenecore:scenecore-spatial-core"))
     implementation(project(":xr:scenecore:scenecore-spatial-rendering"))

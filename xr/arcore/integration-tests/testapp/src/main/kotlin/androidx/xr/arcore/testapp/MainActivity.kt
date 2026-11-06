@@ -18,6 +18,7 @@ package androidx.xr.arcore.testapp
 
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
@@ -64,6 +65,7 @@ import androidx.xr.arcore.testapp.common.TestCaseButton
 import androidx.xr.arcore.testapp.depth.DepthActivity
 import androidx.xr.arcore.testapp.eyetracking.EyeTrackingActivity
 import androidx.xr.arcore.testapp.facetracking.FaceTrackingActivity
+import androidx.xr.arcore.testapp.flags.RuntimeFlagsActivity
 import androidx.xr.arcore.testapp.geospatial.GeospatialActivity
 import androidx.xr.arcore.testapp.handtracking.HandTrackingActivity
 import androidx.xr.arcore.testapp.helloar.HelloArAugmentedImageActivity
@@ -72,6 +74,7 @@ import androidx.xr.arcore.testapp.helloar.HelloArPlaneActivity
 import androidx.xr.arcore.testapp.helloar.HelloArQrCodeActivity
 import androidx.xr.arcore.testapp.helloar.HelloArSpatialAnnotationActivity
 import androidx.xr.arcore.testapp.nativedata.NativeDataActivity
+import androidx.xr.arcore.testapp.nativedata.ProjectedNativeDataActivity
 import androidx.xr.arcore.testapp.persistentanchors.PersistentAnchorsActivity
 import androidx.xr.arcore.testapp.ui.theme.GoogleYellow
 import androidx.xr.arcore.testapp.ui.theme.JXRARCoreTestsTheme
@@ -82,15 +85,31 @@ import java.util.Locale
 class MainActivity : ComponentActivity() {
 
     private fun requestUserPermissions(permissions: Array<String>) {
+        // On a host phone (projected glasses mode), headset-only XR permissions are not
+        // defined by the system and would immediately report as denied.
+        val definedPermissions =
+            permissions
+                .filter { permission ->
+                    try {
+                        packageManager.getPermissionInfo(permission, 0)
+                        true
+                    } catch (_: PackageManager.NameNotFoundException) {
+                        false
+                    }
+                }
+                .toTypedArray()
+        if (definedPermissions.isEmpty()) {
+            return
+        }
         val permissionsLauncher =
             super.registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-                permissions ->
-                if (permissions.values.contains(false)) {
+                grantedPermissions ->
+                if (grantedPermissions.values.contains(false)) {
                     Toast.makeText(this, "Missing required permissions", Toast.LENGTH_LONG).show()
                     this.finish()
                 }
             }
-        permissionsLauncher.launch(permissions)
+        permissionsLauncher.launch(definedPermissions)
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -209,6 +228,12 @@ class MainActivity : ComponentActivity() {
                     startTest<HelloArQrCodeActivity>(it)
                 }
                 TestCaseColumnRowItem(R.string.native_data) { startTest<NativeDataActivity>(it) }
+                TestCaseColumnRowItem(R.string.native_data_projected) {
+                    startTest<ProjectedNativeDataActivity>(it)
+                }
+                TestCaseColumnRowItem(R.string.runtime_flags) {
+                    startTest<RuntimeFlagsActivity>(it)
+                }
             }
         }
     }

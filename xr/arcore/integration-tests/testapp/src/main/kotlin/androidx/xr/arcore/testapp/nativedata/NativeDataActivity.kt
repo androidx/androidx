@@ -16,6 +16,7 @@
 
 package androidx.xr.arcore.testapp.nativedata
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -65,7 +66,30 @@ import androidx.xr.runtime.getNativeInstanceData
 import androidx.xr.runtime.getNativeSessionData
 import kotlin.coroutines.coroutineContext
 
-class NativeDataActivity : ComponentActivity() {
+open class NativeDataActivity : ComponentActivity() {
+
+    /** OpenXR extension injected with [XrDevice.getCurrentDevice] in tests 2 and 3. */
+    protected open val extensionToInject: String = "XR_ANDROID_trackables_marker"
+
+    /**
+     * Whether to show the results in a [SpatialPanel] once a session is created. Spatial panels
+     * need a headset, so activities on other displays (such as projected displays) show them in the
+     * activity window instead.
+     */
+    protected open val showResultsInSpatialPanel: Boolean = true
+
+    /**
+     * Whether to run test 5, which calls a function of the injected extension through the native
+     * `xrGetInstanceProcAddr`. Requires [extensionToInject] to be `XR_EXT_debug_utils`.
+     */
+    protected open val verifyInjectedFunctionCall: Boolean = false
+
+    /**
+     * Context passed to [Session.create]. Sessions created with an Activity context also attach a
+     * SceneCore Scene, which needs a SceneCore runtime for the current device.
+     */
+    protected open val sessionContext: Context
+        get() = this
 
     private var invalidExtensionInjectResult by mutableStateOf("Not started")
     private var invalidExtensionInjectPassed by mutableStateOf(false)
@@ -79,12 +103,15 @@ class NativeDataActivity : ComponentActivity() {
     private var getNativeDataResult by mutableStateOf("Not started")
     private var getNativeDataPassed by mutableStateOf(false)
 
+    private var injectedFunctionCallResult by mutableStateOf("Not started")
+    private var injectedFunctionCallPassed by mutableStateOf(false)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
             LaunchedEffect(Unit) { runTests() }
-            if (validExtensionInjectPassed) {
+            if (validExtensionInjectPassed && showResultsInSpatialPanel) {
                 Subspace {
                     SpatialPanel(
                         modifier =
@@ -234,6 +261,33 @@ class NativeDataActivity : ComponentActivity() {
                         Text(text = "Failed", color = Color.Red, fontWeight = FontWeight.Bold)
                     }
                 }
+
+                if (verifyInjectedFunctionCall) {
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = "Test 5: Call Injected Extension Function",
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                    )
+
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(text = injectedFunctionCallResult, modifier = Modifier.weight(1f))
+                        if (injectedFunctionCallPassed) {
+                            Icon(
+                                imageVector = Icons.Default.CheckCircle,
+                                contentDescription = "Passed",
+                                tint = Color.Green,
+                                modifier = Modifier.size(24.dp),
+                            )
+                        } else if (injectedFunctionCallResult != "Not started") {
+                            Text(text = "Failed", color = Color.Red, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
             }
         }
     }
@@ -256,7 +310,7 @@ class NativeDataActivity : ComponentActivity() {
         }
 
         // Test 2: Valid Extension and Session Creation
-        val extensionsToInject = listOf("XR_ANDROID_trackables_marker")
+        val extensionsToInject = listOf(extensionToInject)
         val customLifecycleOwner =
             object : LifecycleOwner {
                 val registry = LifecycleRegistry(this)
@@ -274,7 +328,7 @@ class NativeDataActivity : ComponentActivity() {
 
             val result =
                 Session.create(
-                    this,
+                    sessionContext,
                     coroutineContext = coroutineContext,
                     lifecycleOwner = customLifecycleOwner,
                 )
@@ -285,7 +339,7 @@ class NativeDataActivity : ComponentActivity() {
 
                 // Test 3: Inject Extensions After Initialization
                 try {
-                    XrDevice.getCurrentDevice(this, listOf("XR_ANDROID_trackables_marker"))
+                    XrDevice.getCurrentDevice(this, listOf(extensionToInject))
                     injectExtensionAfterInitResult =
                         "Failed: Unexpectedly succeeded injecting extensions after initialization."
                     injectExtensionAfterInitPassed = false
@@ -312,6 +366,12 @@ class NativeDataActivity : ComponentActivity() {
                             instanceData.sessionPointer
                         }
 
+                    Log.i(
+                        TAG,
+                        "Native handles: instance=0x${java.lang.Long.toHexString(instanceData.instancePointer)}, " +
+                            "session=0x${java.lang.Long.toHexString(instanceData.sessionPointer)}, " +
+                            "getInstanceProcAddr=0x${java.lang.Long.toHexString(instanceData.functionTablePointer)}",
+                    )
                     if (
                         instanceData.instancePointer != 0L &&
                             instanceData.functionTablePointer != 0L &&
@@ -319,12 +379,19 @@ class NativeDataActivity : ComponentActivity() {
                     ) {
                         getNativeDataResult = "Success: Valid native handles retrieved."
                         getNativeDataPassed = true
+                        if (verifyInjectedFunctionCall) {
+                            runInjectedFunctionCallTest(
+                                instanceData.functionTablePointer,
+                                instanceData.instancePointer,
+                                instanceData.sessionPointer,
+                            )
+                        }
                     } else {
                         getNativeDataResult = "Failed: One or more native handles were zero."
                         getNativeDataPassed = false
                     }
                 } catch (e: Exception) {
-                    Log.e("NativeDataActivity", "Failed to get native data: ${e.message}", e)
+                    Log.e(TAG, "Failed to get native data: ${e.message}", e)
                     getNativeDataResult = "Failed to get native data: ${e.message}"
                     getNativeDataPassed = false
                 }
@@ -338,7 +405,7 @@ class NativeDataActivity : ComponentActivity() {
             }
         } catch (e: Exception) {
             Log.e(
-                "NativeDataActivity",
+                TAG,
                 "Failed to create session with valid extensions: ${e.message}",
                 e,
             )
@@ -346,6 +413,84 @@ class NativeDataActivity : ComponentActivity() {
             validExtensionInjectPassed = false
             customLifecycleOwner.registry.currentState = Lifecycle.State.DESTROYED
         }
+        logResults()
+    }
+
+    /**
+     * Logs every test result so that runs can be checked with `adb logcat -s NativeDataActivity`.
+     */
+    private fun logResults() {
+        Log.i(TAG, "Injected extension: $extensionToInject")
+        logResult(
+            "Test 1 (invalid extension)",
+            invalidExtensionInjectPassed,
+            invalidExtensionInjectResult,
+        )
+        logResult(
+            "Test 2 (valid extension + session)",
+            validExtensionInjectPassed,
+            validExtensionInjectResult,
+        )
+        logResult(
+            "Test 3 (inject after init)",
+            injectExtensionAfterInitPassed,
+            injectExtensionAfterInitResult,
+        )
+        logResult("Test 4 (native data)", getNativeDataPassed, getNativeDataResult)
+        if (verifyInjectedFunctionCall) {
+            logResult(
+                "Test 5 (call injected extension function)",
+                injectedFunctionCallPassed,
+                injectedFunctionCallResult,
+            )
+        }
+    }
+
+    /**
+     * Test 5: checks that the injected `XR_EXT_debug_utils` is enabled on the native instance by
+     * resolving `xrSetDebugUtilsObjectNameEXT` through the native `xrGetInstanceProcAddr` and
+     * calling it on the native session. As a control, `xrLocateSpacesKHR` from
+     * `XR_KHR_locate_spaces`, which is not injected, must not resolve.
+     */
+    private fun runInjectedFunctionCallTest(
+        getInstanceProcAddr: Long,
+        instance: Long,
+        session: Long,
+    ) {
+        try {
+            val callResult =
+                OpenXrProcAddrChecker.setSessionDebugName(
+                    getInstanceProcAddr,
+                    instance,
+                    session,
+                    "NativeDataActivitySession",
+                )
+            val controlResult =
+                OpenXrProcAddrChecker.resolveFunction(
+                    getInstanceProcAddr,
+                    instance,
+                    "xrLocateSpacesKHR",
+                )
+            injectedFunctionCallPassed =
+                callResult == OpenXrProcAddrChecker.XR_SUCCESS &&
+                    controlResult == OpenXrProcAddrChecker.XR_ERROR_FUNCTION_UNSUPPORTED
+            injectedFunctionCallResult =
+                "xrSetDebugUtilsObjectNameEXT(session) = $callResult (expected 0), " +
+                    "xrGetInstanceProcAddr(xrLocateSpacesKHR) = $controlResult (expected -7)"
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to call the injected extension function: ${e.message}", e)
+            injectedFunctionCallResult =
+                "Failed to call the injected extension function: ${e.message}"
+            injectedFunctionCallPassed = false
+        }
+    }
+
+    private fun logResult(name: String, passed: Boolean, result: String) {
+        Log.i(TAG, "$name: ${if (passed) "PASS" else "FAIL"} - $result")
+    }
+
+    private companion object {
+        const val TAG = "NativeDataActivity"
     }
 }
 
