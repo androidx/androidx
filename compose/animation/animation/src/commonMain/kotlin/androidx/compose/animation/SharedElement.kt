@@ -180,14 +180,13 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
                                 includeMotionFrameOfReference = false,
                             )
                         }
-                    if (!state.renderTarget) {
-                        // During the deferred phase, `state` is the outgoing entry (!renderTarget).
-                        // Initialize the match once from its pre-transition bounds on screen (the
-                        // same source non-deferred transitions use for the outgoing entry's
-                        // starting bounds) rather than re-reading the outgoing entry's lookahead
-                        // size and structural offset during the transition. MFR offset changes
-                        // (e.g. scrolling of the outgoing content) are still tracked, but only
-                        // take effect while a transition is active.
+                    if (state.isDeferredExiting()) {
+                        // Initialize the match once from the outgoing entry's pre-transition bounds
+                        // on screen (the same source non-deferred transitions use for the outgoing
+                        // entry's starting bounds) rather than re-reading the outgoing entry's
+                        // lookahead size and structural offset during the transition. MFR offset
+                        // changes (e.g. scrolling of the outgoing content) are still tracked, but
+                        // only take effect while a transition is active.
                         val mfrOffset = topLeft - structuralOffset
                         if (!matchState.matchIsOrHasBeenConfigured) {
                             matchState.initializeCurrentBounds(this@SharedElement)?.let { bounds ->
@@ -206,7 +205,7 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
                     }
                 }
             }
-        } else if (state.renderTarget && matchState.activeMatchFound) {
+        } else if (state.isDeferredEntering() && matchState.activeMatchFound) {
             with(placementScope) {
                 coordinates?.let {
                     val lookaheadSize = it.size.toSize()
