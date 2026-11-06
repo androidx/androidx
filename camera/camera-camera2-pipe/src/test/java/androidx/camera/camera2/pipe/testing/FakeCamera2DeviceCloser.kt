@@ -23,6 +23,24 @@ import androidx.camera.camera2.pipe.compat.Camera2DeviceCloser
 import androidx.camera.camera2.pipe.compat.CameraDeviceWrapper
 
 internal class FakeCamera2DeviceCloser : Camera2DeviceCloser {
+    /** Parameters recorded from a single [closeCamera] invocation on a camera device. */
+    data class CloseCameraCall(
+        val cameraDeviceWrapper: CameraDeviceWrapper?,
+        val cameraDevice: CameraDevice?,
+        val androidCameraState: AndroidCameraState,
+        val audioRestrictionController: AudioRestrictionController,
+        val shouldReopenCamera: Boolean,
+        val shouldCreateEmptyCaptureSession: Boolean,
+        val shouldWaitForCameraDeviceOnClosed: Boolean,
+    )
+
+    /** Mutable backing list for [closeCameraCalls]. */
+    private val _closeCameraCalls = mutableListOf<CloseCameraCall>()
+
+    /** Recorded [closeCamera] invocations on a camera device in call order. */
+    val closeCameraCalls: List<CloseCameraCall>
+        get() = _closeCameraCalls
+
     override fun closeCamera(
         cameraDeviceWrapper: CameraDeviceWrapper?,
         cameraDevice: CameraDevice?,
@@ -30,7 +48,21 @@ internal class FakeCamera2DeviceCloser : Camera2DeviceCloser {
         audioRestrictionController: AudioRestrictionController,
         shouldReopenCamera: Boolean,
         shouldCreateEmptyCaptureSession: Boolean,
+        shouldWaitForCameraDeviceOnClosed: Boolean,
     ) {
+        if (cameraDeviceWrapper != null || cameraDevice != null) {
+            _closeCameraCalls.add(
+                CloseCameraCall(
+                    cameraDeviceWrapper = cameraDeviceWrapper,
+                    cameraDevice = cameraDevice,
+                    androidCameraState = androidCameraState,
+                    audioRestrictionController = audioRestrictionController,
+                    shouldReopenCamera = shouldReopenCamera,
+                    shouldCreateEmptyCaptureSession = shouldCreateEmptyCaptureSession,
+                    shouldWaitForCameraDeviceOnClosed = shouldWaitForCameraDeviceOnClosed,
+                )
+            )
+        }
         cameraDeviceWrapper?.onDeviceClosing()
         cameraDeviceWrapper?.onDeviceClosed()
     }

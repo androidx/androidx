@@ -35,14 +35,34 @@ import androidx.camera.common.CameraId
 import java.lang.Class
 
 /** Fake implementation of [CameraDeviceWrapper] for tests. */
-internal class FakeCameraDeviceWrapper(val fakeCamera: RobolectricCameras.FakeCamera) :
-    CameraDeviceWrapper {
+internal class FakeCameraDeviceWrapper(
+    val fakeCamera: RobolectricCameras.FakeCamera,
+    /**
+     * Whether [createFakeCaptureSession] automatically invokes
+     * [CameraCaptureSessionWrapper.StateCallback.onConfigured] (and
+     * [CameraCaptureSessionWrapper.StateCallback.onClosed] if closed during configuration).
+     */
+    var autoConfigureCaptureSession: Boolean = false,
+) : CameraDeviceWrapper {
     override val cameraId: CameraId
         get() = fakeCamera.cameraId
 
+    /** Last session state callback passed to [createFakeCaptureSession]. */
     var currentStateCallback: CameraCaptureSessionWrapper.StateCallback? = null
+
+    /** Last extension session state callback passed to [createFakeExtensionSession]. */
     var currentExtensionStateCallback: CameraExtensionSessionWrapper.StateCallback? = null
+
+    /** Most recently created [FakeCaptureSessionWrapper]. */
     var currentSession: FakeCaptureSessionWrapper? = null
+
+    /** Whether [onDeviceClosing] was invoked on this wrapper. */
+    var deviceClosingInvoked = false
+        private set
+
+    /** Whether [onDeviceClosed] was invoked on this wrapper. */
+    var deviceClosedInvoked = false
+        private set
 
     override fun createCaptureRequest(template: RequestTemplate): CaptureRequest.Builder {
         return fakeCamera.cameraDevice.createCaptureRequest(template.value)
@@ -117,11 +137,13 @@ internal class FakeCameraDeviceWrapper(val fakeCamera: RobolectricCameras.FakeCa
     }
 
     override fun onDeviceClosing() {
+        deviceClosingInvoked = true
         currentStateCallback?.onSessionDisconnected()
         currentExtensionStateCallback?.onSessionDisconnected()
     }
 
     override fun onDeviceClosed() {
+        deviceClosedInvoked = true
         currentStateCallback?.onSessionFinalized()
         currentExtensionStateCallback?.onSessionFinalized()
     }
@@ -132,6 +154,12 @@ internal class FakeCameraDeviceWrapper(val fakeCamera: RobolectricCameras.FakeCa
         val nextSession = FakeCaptureSessionWrapper(this)
         currentSession = nextSession
         currentStateCallback = stateCallback
+        if (autoConfigureCaptureSession) {
+            stateCallback?.onConfigured(nextSession)
+            if (nextSession.closed) {
+                stateCallback?.onClosed(nextSession)
+            }
+        }
         return nextSession
     }
 

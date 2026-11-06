@@ -331,22 +331,17 @@ internal class AndroidCameraState(
                 cameraDevice = cameraDevice,
                 androidCameraState = this,
                 audioRestrictionController = audioRestrictionController,
-                shouldReopenCamera =
-                    camera2Quirks.shouldReopenCameraWhenClosing(
-                        cameraId,
-                        currentCloseInfo.errorCode,
-                    ),
-                shouldCreateEmptyCaptureSession =
-                    camera2Quirks.shouldCreateEmptyCaptureSessionBeforeClosing(
-                        cameraId,
-                        currentCloseInfo.errorCode,
-                    ),
+                shouldReopenCamera = false,
+                shouldCreateEmptyCaptureSession = false,
+                shouldWaitForCameraDeviceOnClosed = false,
             )
+            Debug.traceStop()
             return
         }
 
-        // Update _state.value _without_ holding the lock. This may block the calling thread for a
-        // while if it synchronously calls createCaptureSession.
+        // Update _state.value _without_ holding the lock. Capture session creation is dispatched
+        // asynchronously via coroutine collectors, so no capture session can be created on
+        // cameraDevice before onOpened returns.
         val androidCameraDevice =
             AndroidCameraDevice(
                 metadata,
@@ -372,13 +367,9 @@ internal class AndroidCameraState(
                 cameraDevice = cameraDevice,
                 androidCameraState = this,
                 audioRestrictionController = audioRestrictionController,
-                shouldReopenCamera =
-                    camera2Quirks.shouldReopenCameraWhenClosing(cameraId, closeInfo.errorCode),
-                shouldCreateEmptyCaptureSession =
-                    camera2Quirks.shouldCreateEmptyCaptureSessionBeforeClosing(
-                        cameraId,
-                        closeInfo.errorCode,
-                    ),
+                shouldReopenCamera = false,
+                shouldCreateEmptyCaptureSession = false,
+                shouldWaitForCameraDeviceOnClosed = false,
             )
             _state.value = computeClosedState(closeInfo)
         }
@@ -505,11 +496,14 @@ internal class AndroidCameraState(
                     cameraDevice = cameraDevice,
                     androidCameraState = this,
                     audioRestrictionController = audioRestrictionController,
-                    shouldReopenCamera,
-                    camera2Quirks.shouldCreateEmptyCaptureSessionBeforeClosing(
-                        cameraId,
-                        closeInfo.errorCode,
-                    ),
+                    shouldReopenCamera = shouldReopenCamera,
+                    shouldCreateEmptyCaptureSession =
+                        camera2Quirks.shouldCreateEmptyCaptureSessionBeforeClosing(
+                            cameraId,
+                            closeInfo.errorCode,
+                        ),
+                    shouldWaitForCameraDeviceOnClosed =
+                        camera2Quirks.shouldWaitForCameraDeviceOnClosed(cameraId),
                 )
             }
 
