@@ -294,6 +294,10 @@ for compact in "--ci" "--strict" "--clean" "--no-ci"; do
     if [ "$USE_ANDROIDX_REMOTE_BUILD_CACHE" == "" -o "$USE_ANDROIDX_REMOTE_BUILD_CACHE" == "false" ]; then
       expanded="$expanded --offline"
     fi
+    # Unless ALLOW_PUBLIC_REPOS is set, the Gradle daemon may only reach allowlisted hosts
+    if [[ " ${@} " =~ " --strict " && -z "${ALLOW_PUBLIC_REPOS+set}" ]]; then
+      ORG_GRADLE_JVMARGS="$ORG_GRADLE_JVMARGS $("$SCRIPT_PATH/development/host-allowlist/javaagent-arg.sh")"
+    fi
   fi
   # if compact is something else then we parsed the argument above but
   # still have to remove it (expanded == "") to avoid confusing Gradle
