@@ -19,14 +19,10 @@ package androidx.glance.adaptive.appwidget
 import android.content.Context
 import android.widget.RemoteViews
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.runtime.AbstractApplier
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Composition
-import androidx.compose.runtime.Recomposer
-import androidx.glance.adaptive.appwidget.renderer.GlanceRenderOutput
-import androidx.glance.adaptive.appwidget.renderer.GlanceTemplateRenderer
 import androidx.glance.adaptive.appwidget.renderer.RemoteComposeRenderOutput
 import androidx.glance.adaptive.appwidget.renderer.RemoteViewsRenderOutput
+import androidx.glance.adaptive.appwidget.renderer.RemoteViewsTemplateRenderer
 import androidx.glance.adaptive.appwidget.renderer.remoteComposeRenderer
 import androidx.glance.adaptive.appwidget.renderer.remoteViewsRenderer
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
@@ -34,9 +30,9 @@ import androidx.glance.adaptive.core.renderer.TemplateRenderer
 import androidx.glance.adaptive.core.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.selection.Dimensions
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
+import androidx.glance.adaptive.core.templates.TrackTemplate
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.Dispatchers
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -67,7 +63,21 @@ class AppWidgetTemplateRegistryTest {
     }
 
     @Test
+    fun defaultTemplates_includeTrackTemplate() {
+        val template = TrackTemplate(title = "Morning Run", statusText = "5.2 km")
+        for (targetSurface in AppWidgetSurface.ALL) {
+            val output =
+                AppWidgetTemplateRegistry.render(
+                    template,
+                    targetSurface.withDimensions(Dimensions(200, 100)),
+                )
+            assertThat(output).isInstanceOf(RemoteViewsRenderOutput::class.java)
+        }
+    }
+
+    @Test
     fun register_and_render_invokesRegisteredRenderer() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
         var observedTemplate: DummyTemplate? = null
         var observedSurface: AppWidgetSurface? = null
         var rendered = false
@@ -76,10 +86,11 @@ class AppWidgetTemplateRegistryTest {
             DummyTemplate::class.java,
             TemplateRenderer(
                 noArchetype,
-                GlanceTemplateRenderer { template, _, placedSurface ->
+                RemoteViewsTemplateRenderer { ctx, template, _, placedSurface ->
                     observedTemplate = template
                     observedSurface = placedSurface
-                    { rendered = true }
+                    rendered = true
+                    RemoteViews(ctx.packageName, android.R.layout.simple_list_item_1)
                 },
             ),
         )
@@ -88,8 +99,8 @@ class AppWidgetTemplateRegistryTest {
 
         val output =
             AppWidgetTemplateRegistry.render(dummy, surface.withDimensions(Dimensions(200, 100)))
-        assertThat(output).isInstanceOf(GlanceRenderOutput::class.java)
-        runComposition { (output as GlanceRenderOutput).content() }
+        assertThat(output).isInstanceOf(RemoteViewsRenderOutput::class.java)
+        (output as RemoteViewsRenderOutput).provider(context)
 
         assertThat(observedTemplate).isSameInstanceAs(dummy)
         assertThat(observedSurface).isEqualTo(surface)
@@ -99,6 +110,7 @@ class AppWidgetTemplateRegistryTest {
 
     @Test
     fun render_passesSelectedArchetypeToRenderer() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
         var observedArchetype: DummyArchetype? = null
         AppWidgetTemplateRegistry.registerDefault(
             DummyTemplate::class.java,
@@ -107,17 +119,19 @@ class AppWidgetTemplateRegistryTest {
                     if (placedSurface.dimensions.widthDp >= 250) DummyArchetype.ROW
                     else DummyArchetype.CARD
                 },
-                GlanceTemplateRenderer { _, archetype, _ ->
+                RemoteViewsTemplateRenderer { ctx, _, archetype, _ ->
                     observedArchetype = archetype
-                    {}
+                    RemoteViews(ctx.packageName, android.R.layout.simple_list_item_1)
                 },
             ),
         )
 
-        AppWidgetTemplateRegistry.render(
-            DummyTemplate("Test"),
-            surface.withDimensions(Dimensions(300, 100)),
-        )
+        val output =
+            AppWidgetTemplateRegistry.render(
+                DummyTemplate("Test"),
+                surface.withDimensions(Dimensions(300, 100)),
+            )
+        (output as RemoteViewsRenderOutput).provider(context)
 
         assertThat(observedArchetype).isEqualTo(DummyArchetype.ROW)
     }
@@ -164,34 +178,31 @@ class AppWidgetTemplateRegistryTest {
 
     @Test
     fun register_replacesPreviousRenderer() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
         var firstCalls = 0
         var secondCalls = 0
 
         AppWidgetTemplateRegistry.registerDefault(
             DummyTemplate::class.java,
-            TemplateRenderer(
-                noArchetype,
-                GlanceTemplateRenderer { _, _, _ ->
-                    firstCalls++
-                    {}
-                },
-            ),
+            remoteViewsRenderer { ctx, _, _ ->
+                firstCalls++
+                RemoteViews(ctx.packageName, android.R.layout.simple_list_item_1)
+            },
         )
         AppWidgetTemplateRegistry.registerDefault(
             DummyTemplate::class.java,
-            TemplateRenderer(
-                noArchetype,
-                GlanceTemplateRenderer { _, _, _ ->
-                    secondCalls++
-                    {}
-                },
-            ),
+            remoteViewsRenderer { ctx, _, _ ->
+                secondCalls++
+                RemoteViews(ctx.packageName, android.R.layout.simple_list_item_1)
+            },
         )
 
-        AppWidgetTemplateRegistry.render(
-            DummyTemplate("Test"),
-            surface.withDimensions(Dimensions(200, 100)),
-        )
+        val output =
+            AppWidgetTemplateRegistry.render(
+                DummyTemplate("Test"),
+                surface.withDimensions(Dimensions(200, 100)),
+            )
+        (output as RemoteViewsRenderOutput).provider(context)
 
         assertThat(firstCalls).isEqualTo(0)
         assertThat(secondCalls).isEqualTo(1)
@@ -246,7 +257,9 @@ class AppWidgetTemplateRegistryTest {
         )
         AppWidgetTemplateRegistry.registerDefault(
             OtherTemplate::class.java,
-            TemplateRenderer(noArchetype, GlanceTemplateRenderer { _, _, _ -> {} }),
+            remoteViewsRenderer { ctx, _, _ ->
+                RemoteViews(ctx.packageName, android.R.layout.simple_list_item_2)
+            },
         )
         AppWidgetTemplateRegistry.register(
             widgetName = "custom_widget",
@@ -283,23 +296,7 @@ class AppWidgetTemplateRegistryTest {
         assertThat(customLockOutput).isInstanceOf(RemoteViewsRenderOutput::class.java)
         assertThat(customHomeOutput).isInstanceOf(RemoteComposeRenderOutput::class.java)
         assertThat(defaultWidgetLockOutput).isInstanceOf(RemoteComposeRenderOutput::class.java)
-        assertThat(otherTemplateOnCustomWidgetOutput).isInstanceOf(GlanceRenderOutput::class.java)
-    }
-
-    private fun runComposition(content: @Composable () -> Unit) {
-        val applier =
-            object : AbstractApplier<Unit>(Unit) {
-                override fun insertTopDown(index: Int, instance: Unit) {}
-
-                override fun insertBottomUp(index: Int, instance: Unit) {}
-
-                override fun remove(index: Int, count: Int) {}
-
-                override fun move(from: Int, to: Int, count: Int) {}
-
-                override fun onClear() {}
-            }
-        val composition = Composition(applier, Recomposer(Dispatchers.Unconfined))
-        composition.setContent(content)
+        assertThat(otherTemplateOnCustomWidgetOutput)
+            .isInstanceOf(RemoteViewsRenderOutput::class.java)
     }
 }

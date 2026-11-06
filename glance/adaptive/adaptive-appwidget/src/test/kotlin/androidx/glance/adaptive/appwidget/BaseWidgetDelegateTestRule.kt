@@ -23,7 +23,7 @@ import android.content.Context
 import android.content.IntentFilter
 import android.os.Bundle
 import android.widget.RemoteViews
-import androidx.glance.adaptive.appwidget.renderer.GlanceTemplateRenderer
+import androidx.glance.adaptive.appwidget.renderer.RemoteViewsTemplateRenderer
 import androidx.glance.adaptive.core.renderer.TemplateRenderer
 import androidx.glance.adaptive.core.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.selection.GlanceSurface
@@ -87,14 +87,14 @@ class BaseWidgetDelegateTestRule : ExternalResource() {
         appWidgetManager = spy(AppWidgetManager.getInstance(context))
         WidgetOptionsCache.clear()
         WidgetInstanceRepository.resetForTesting()
-        GlanceRemoteViewsComposer.resetForTesting()
         AppWidgetTemplateRegistry.resetForTesting()
         AppWidgetTemplateRegistry.registerDefault(
             TestTemplate::class.java,
             TemplateRenderer(
                 ArchetypeSelector { _, surface -> surface },
-                GlanceTemplateRenderer { template, _, surface ->
-                    { mockRenderer(template, surface) }
+                RemoteViewsTemplateRenderer { ctx, template, _, surface ->
+                    mockRenderer(template, surface)
+                    RemoteViews(ctx.packageName, android.R.layout.simple_list_item_1)
                 },
             ),
         )

@@ -23,7 +23,7 @@ import android.widget.RemoteViews
 import androidx.glance.adaptive.appwidget.BaseWidgetDelegateTestRule.OtherReceiver
 import androidx.glance.adaptive.appwidget.BaseWidgetDelegateTestRule.TestReceiver
 import androidx.glance.adaptive.appwidget.BaseWidgetDelegateTestRule.TestTemplate
-import androidx.glance.adaptive.appwidget.renderer.GlanceTemplateRenderer
+import androidx.glance.adaptive.appwidget.renderer.RemoteViewsTemplateRenderer
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
 import androidx.glance.adaptive.core.renderer.TemplateRenderer
 import androidx.glance.adaptive.core.selection.ArchetypeSelector
@@ -207,7 +207,10 @@ class BaseWidgetDelegatePushUpdateTest {
             DimensionAwareTemplate::class.java,
             TemplateRenderer(
                 selector,
-                GlanceTemplateRenderer { _, archetype, _ -> { onRender(archetype) } },
+                RemoteViewsTemplateRenderer { ctx, _, archetype, _ ->
+                    onRender(archetype)
+                    RemoteViews(ctx.packageName, android.R.layout.simple_list_item_1)
+                },
             ),
         )
     }

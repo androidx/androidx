@@ -22,18 +22,10 @@ import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
 import android.widget.RemoteViews
-import androidx.annotation.VisibleForTesting
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurfaceDetector
-import androidx.glance.adaptive.appwidget.selection.LocalContainerDimensions
 import androidx.glance.adaptive.core.selection.Dimensions
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
-import androidx.glance.appwidget.ExperimentalGlanceRemoteViewsApi
-import androidx.glance.appwidget.GlanceRemoteViews
 import kotlin.math.roundToInt
 
 /**
@@ -57,11 +49,10 @@ internal data class PreviewTarget(
  * Owns every decision about *how* a composition is produced: which host surface and container
  * dimensions it targets, what can share a single composition, and how that context reaches
  * templates through the placed surface's
- * [androidx.glance.adaptive.core.selection.GlanceSurface.dimensions], [LocalContainerDimensions],
- * and [androidx.glance.LocalSize]. Placed instances and picker previews differ only in where their
- * [RenderTarget] comes from, so both funnel through the same [compose] call. Callers retain the
- * orchestration concerns of resolving what to render and handing the resulting [RemoteViews] to
- * [AppWidgetManager].
+ * [androidx.glance.adaptive.core.selection.GlanceSurface.dimensions]. Placed instances and picker
+ * previews differ only in where their [RenderTarget] comes from, so both funnel through the same
+ * [compose] call. Callers retain the orchestration concerns of resolving what to render and handing
+ * the resulting [RemoteViews] to [AppWidgetManager].
  */
 internal class GlanceRemoteViewsComposer(
     private val context: Context,
@@ -182,53 +173,10 @@ internal class GlanceRemoteViewsComposer(
         private val UNSPECIFIED_DIMENSIONS = Dimensions(0, 0)
 
         /**
-         * Process-wide [GlanceRemoteViews] instance shared across [GlanceRemoteViewsComposer]
-         * instances so cached layout-index assignments survive across
-         * `GlanceAdaptiveWidgetManager(context)` calls (such as widget resize updates), allowing
-         * hosts to rebind unchanged trees and forcing re-inflation when a resized widget switches
-         * layout structure.
-         */
-        @OptIn(ExperimentalGlanceRemoteViewsApi::class)
-        @Volatile
-        private var glanceRemoteViews = GlanceRemoteViews()
-
-        /** Composes [content] into a [RemoteViews] representation using [glanceRemoteViews]. */
-        // TODO(b/569862874): Remove composeGlance and glanceRemoteViews once TrackTemplateRenderer
-        //  is migrated to RemoteViews / RemoteCompose.
-        @OptIn(ExperimentalGlanceRemoteViewsApi::class)
-        internal suspend fun composeGlance(
-            appContext: Context,
-            dimensions: Dimensions,
-            content: @Composable () -> Unit,
-        ): RemoteViews {
-            val compositionSize =
-                if (dimensions == UNSPECIFIED_DIMENSIONS) {
-                    DpSize.Unspecified
-                } else {
-                    DpSize(dimensions.widthDp.dp, dimensions.heightDp.dp)
-                }
-            return glanceRemoteViews
-                .compose(context = appContext, size = compositionSize) {
-                    CompositionLocalProvider(
-                        LocalContainerDimensions provides dimensions,
-                        content = content,
-                    )
-                }
-                .remoteViews
-        }
-
-        @OptIn(ExperimentalGlanceRemoteViewsApi::class)
-        @VisibleForTesting
-        internal fun resetForTesting() {
-            glanceRemoteViews = GlanceRemoteViews()
-        }
-
-        /**
          * Normalizes a resolved dp pair into [Dimensions].
          *
          * Returns [UNSPECIFIED_DIMENSIONS] when either bound is missing or non-positive so
-         * templates fall back to their most compact tier and [androidx.glance.LocalSize] stays
-         * consistent with [LocalContainerDimensions].
+         * templates fall back to their most compact tier.
          */
         private fun dimensionsOf(widthDp: Int, heightDp: Int): Dimensions =
             if (widthDp > 0 && heightDp > 0) {

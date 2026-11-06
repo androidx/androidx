@@ -40,12 +40,11 @@ private const val START_ANGLE_DEGREES = -90f
 @VisibleForTesting internal const val MAX_RING_SIZE_PX: Int = 384
 
 /**
- * Rasterizes the determinate progress ring from the Track title slot.
+ * Rasterizes a determinate circular progress ring onto a [Bitmap] for [android.widget.RemoteViews].
  *
- * Glance 1.1.1 only offers an indeterminate `CircularProgressIndicator`, so the arc is drawn onto a
- * bitmap and emitted through `ImageProvider` instead. Callers are expected to cache the result —
- * see [androidx.glance.adaptive.appwidget.templates.track.ProgressRingBlock], which keys a
- * `remember` on every input.
+ * `RemoteViews` does not provide a built-in circular determinate ring view with rounded stroke caps
+ * and an inner container fill, so the arc is drawn onto a [Bitmap] and bound to an `ImageView` (see
+ * `RemoteViewsRing`).
  *
  * @param sizePx Requested edge length in pixels; clamped to [MAX_RING_SIZE_PX].
  * @param strokeWidthPx Ring thickness in pixels.

@@ -25,5 +25,5 @@
     android:targetCellHeight="2"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="@integer/glance_adaptive_widget_category_all_known"
-    android:initialLayout="@layout/glance_default_loading_layout"
+    android:initialLayout="@layout/track_widget_loading"
     android:description="@string/track_widget_description" />

@@ -28,22 +28,14 @@ import androidx.compose.remote.creation.compose.capture.widthDp
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpSize
-import androidx.glance.LocalSize
 import androidx.glance.adaptive.appwidget.renderer.GlanceAppWidgetProfiles
-import androidx.glance.adaptive.appwidget.renderer.GlanceTemplateRenderer
 import androidx.glance.adaptive.appwidget.renderer.RemoteViewsRenderOutput
 import androidx.glance.adaptive.appwidget.renderer.remoteComposeRenderer
 import androidx.glance.adaptive.appwidget.renderer.remoteViewsRenderer
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
 import androidx.glance.adaptive.core.renderer.TemplateRenderer
-import androidx.glance.adaptive.core.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.selection.Dimensions
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
-import androidx.glance.layout.Box
-import androidx.glance.layout.Row
-import androidx.glance.text.Text
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
@@ -62,10 +54,6 @@ class GlanceRemoteViewsComposerTest {
 
     private class TestTemplate : GlanceAdaptiveTemplate(templateId = 1)
 
-    /** Selector for tests that do not exercise archetype selection. */
-    private val noArchetype =
-        ArchetypeSelector<GlanceAdaptiveTemplate, AppWidgetSurface, Unit> { _, _ -> }
-
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val appWidgetManager: AppWidgetManager = AppWidgetManager.getInstance(context)
     private val component = ComponentName(context.packageName, "TestReceiver")
@@ -73,23 +61,17 @@ class GlanceRemoteViewsComposerTest {
 
     /** Every placed surface the registry handed the renderer, in composition order. */
     private val recordedSurfaces = mutableListOf<AppWidgetSurface>()
-    private val recordedLocalSizes = mutableListOf<DpSize>()
 
     @Before
     fun setUp() {
         recordedSurfaces.clear()
-        recordedLocalSizes.clear()
-        GlanceRemoteViewsComposer.resetForTesting()
         AppWidgetTemplateRegistry.resetForTesting()
         AppWidgetTemplateRegistry.registerDefault(
             TestTemplate::class.java,
-            TemplateRenderer(
-                noArchetype,
-                GlanceTemplateRenderer { _, _, surface ->
-                    recordedSurfaces += surface
-                    { recordedLocalSizes += LocalSize.current }
-                },
-            ),
+            remoteViewsRenderer { ctx, _, surface ->
+                recordedSurfaces += surface
+                RemoteViews(ctx.packageName, android.R.layout.simple_list_item_1)
+            },
         )
         composer = GlanceRemoteViewsComposer(context, appWidgetManager)
     }
@@ -371,60 +353,26 @@ class GlanceRemoteViewsComposerTest {
     // region compose
 
     @Test
-    fun compose_providesTargetToRendererAndLocalSize() = runTest {
+    fun compose_providesTargetToRenderer() = runTest {
         val target = RenderTarget(AppWidgetSurface.MOBILE_LOCK_SCREEN, Dimensions(348, 88))
 
         composer.compose(TestTemplate(), target)
 
         assertThat(recordedSurfaces).containsExactly(AppWidgetSurface.MOBILE_LOCK_SCREEN)
         assertThat(recordedSurfaces.map { it.dimensions }).containsExactly(Dimensions(348, 88))
-        assertThat(recordedLocalSizes).containsExactly(DpSize(Dp(348f), Dp(88f)))
     }
 
     @Test
-    fun compose_unspecifiedDimensions_composesAtUnspecifiedDpSize() = runTest {
+    fun compose_unspecifiedDimensions_providesUnspecifiedDimensionsToRenderer() = runTest {
         val target = RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, UNSPECIFIED)
 
         composer.compose(TestTemplate(), target)
 
         assertThat(recordedSurfaces.map { it.dimensions }).containsExactly(UNSPECIFIED)
-        assertThat(recordedLocalSizes).containsExactly(DpSize.Unspecified)
     }
 
     @Test
-    fun compose_acrossComposerInstances_preservesAndRotatesLayoutIdOnStructureChange() = runTest {
-        AppWidgetTemplateRegistry.registerDefault(
-            TestTemplate::class.java,
-            TemplateRenderer(
-                noArchetype,
-                GlanceTemplateRenderer { _, _, surface ->
-                    {
-                        if (surface.dimensions.widthDp >= 200) {
-                            Row { Text("wide") }
-                        } else {
-                            Box { Text("compact") }
-                        }
-                    }
-                },
-            ),
-        )
-        val compact = RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(88, 88))
-        val wide = RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(348, 88))
-
-        val first = GlanceRemoteViewsComposer(context).compose(TestTemplate(), compact)
-        // Re-composing the same structure via a fresh composer instance reuses the same layout ID.
-        val second = GlanceRemoteViewsComposer(context).compose(TestTemplate(), compact)
-        // A wider tier emits a Row instead of a Box; a fresh composer instance must assign a
-        // distinct root layout ID so AppWidgetHostView re-inflates instead of calling reapply()
-        // on the previous Box ViewStub.
-        val third = GlanceRemoteViewsComposer(context).compose(TestTemplate(), wide)
-
-        assertThat(second.layoutId).isEqualTo(first.layoutId)
-        assertThat(third.layoutId).isNotEqualTo(first.layoutId)
-    }
-
-    @Test
-    fun compose_remoteViewsRenderer_invokesRendererDirectlyWithoutGlanceComposition() = runTest {
+    fun compose_remoteViewsRenderer_invokesRendererDirectly() = runTest {
         val expectedRemoteViews =
             RemoteViews(context.packageName, android.R.layout.simple_list_item_1)
         var observedContext: Context? = null
@@ -446,7 +394,6 @@ class GlanceRemoteViewsComposerTest {
         assertThat(observedContext).isEqualTo(context.applicationContext)
         assertThat(observedSurface).isEqualTo(target.surface)
         assertThat(observedSurface?.dimensions).isEqualTo(Dimensions(348, 88))
-        assertThat(recordedLocalSizes).isEmpty()
     }
 
     @Test
@@ -508,7 +455,6 @@ class GlanceRemoteViewsComposerTest {
             .isEqualTo(GlanceAppWidgetProfiles.WIDGETS_V7_DOC_API_LEVEL)
         assertThat(capturedProfile?.operationsProfiles)
             .isEqualTo(GlanceAppWidgetProfiles.PROFILE_WIDGETS)
-        assertThat(recordedLocalSizes).isEmpty()
     }
 
     @Ignore("b/580960449")
