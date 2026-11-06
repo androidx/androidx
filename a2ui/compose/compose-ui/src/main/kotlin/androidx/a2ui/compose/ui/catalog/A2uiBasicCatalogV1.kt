@@ -493,10 +493,7 @@ public class A2uiBasicCatalogV1(
             properties: A2uiComponentProperties,
             modifier: Modifier,
         ) {
-            val textValue =
-                checkNotNull(properties.bind(TextProperty)) {
-                    "Required property '${TextProperty.key}' is missing."
-                }
+            val textValue = properties.bind(TextProperty) ?: return
             val variant = properties[VariantProperty] ?: Variant.Default
             val accessibility = properties.bind(AccessibilityProperty)
             TypedContent(
@@ -653,10 +650,7 @@ public class A2uiBasicCatalogV1(
             properties: A2uiComponentProperties,
             modifier: Modifier,
         ) {
-            val url =
-                checkNotNull(properties.bind(UrlProperty)) {
-                    "Required property '${UrlProperty.key}' is missing."
-                }
+            val url = properties.bind(UrlProperty) ?: return
             val description = properties.bind(DescriptionProperty)
             val fit = properties[FitProperty] ?: Fit.Default
             val variant = properties[VariantProperty] ?: Variant.Default
@@ -883,10 +877,7 @@ public class A2uiBasicCatalogV1(
             properties: A2uiComponentProperties,
             modifier: Modifier,
         ) {
-            val nameValue =
-                checkNotNull(properties.bind(NameProperty)) {
-                    "Required property '${NameProperty.key}' is missing."
-                }
+            val nameValue = properties.bind(NameProperty) ?: return
             val accessibility = properties.bind(AccessibilityProperty)
             TypedContent(source = nameValue, accessibility = accessibility, modifier = modifier)
         }
@@ -952,10 +943,7 @@ public class A2uiBasicCatalogV1(
             properties: A2uiComponentProperties,
             modifier: Modifier,
         ) {
-            val url =
-                checkNotNull(properties.bind(UrlProperty)) {
-                    "Required property '${UrlProperty.key}' is missing."
-                }
+            val url = properties.bind(UrlProperty) ?: return
             val accessibility = properties.bind(AccessibilityProperty)
 
             TypedContent(url = url, accessibility = accessibility, modifier = modifier)
@@ -1032,10 +1020,7 @@ public class A2uiBasicCatalogV1(
             properties: A2uiComponentProperties,
             modifier: Modifier,
         ) {
-            val url =
-                checkNotNull(properties.bind(UrlProperty)) {
-                    "Required property '${UrlProperty.key}' is missing."
-                }
+            val url = properties.bind(UrlProperty) ?: return
             val description = properties.bind(DescriptionProperty)
             val accessibility = properties.bind(AccessibilityProperty)
 
@@ -1195,11 +1180,7 @@ public class A2uiBasicCatalogV1(
             properties: A2uiComponentProperties,
             modifier: Modifier,
         ) {
-            val children =
-                checkNotNull(properties.bindChildReferences(ChildrenProperty)) {
-                    "Required property '${ChildrenProperty.key}' is missing or could not be " +
-                        "resolved."
-                }
+            val children = properties.bindChildReferences(ChildrenProperty) ?: return
             val justify = properties[JustifyProperty] ?: Justify.Default
             val align = properties[AlignProperty] ?: Align.Default
             val accessibility = properties.bind(AccessibilityProperty)
@@ -1362,11 +1343,7 @@ public class A2uiBasicCatalogV1(
             properties: A2uiComponentProperties,
             modifier: Modifier,
         ) {
-            val children =
-                checkNotNull(properties.bindChildReferences(ChildrenProperty)) {
-                    "Required property '${ChildrenProperty.key}' is missing or could not be " +
-                        "resolved."
-                }
+            val children = properties.bindChildReferences(ChildrenProperty) ?: return
             val justify = properties[JustifyProperty] ?: Justify.Default
             val align = properties[AlignProperty] ?: Align.Default
             val accessibility = properties.bind(AccessibilityProperty)
@@ -1512,11 +1489,7 @@ public class A2uiBasicCatalogV1(
             properties: A2uiComponentProperties,
             modifier: Modifier,
         ) {
-            val children =
-                checkNotNull(properties.bindChildReferences(ChildrenProperty)) {
-                    "Required property '${ChildrenProperty.key}' is missing or could not be " +
-                        "resolved."
-                }
+            val children = properties.bindChildReferences(ChildrenProperty) ?: return
             val direction = properties[DirectionProperty] ?: Direction.Default
             val align = properties[AlignProperty] ?: Align.Default
             val accessibility = properties.bind(AccessibilityProperty)
@@ -1729,10 +1702,7 @@ public class A2uiBasicCatalogV1(
             val resolvedTabs = ArrayList<Tab>(tabsList.size)
             for (i in tabsList.indices) {
                 val tabProps = tabsList[i]
-                val title =
-                    checkNotNull(tabProps.bind(TitleProperty)) {
-                        "Required property '${TitleProperty.key}' is missing."
-                    }
+                val title = tabProps.bind(TitleProperty) ?: return
                 val childId =
                     checkNotNull(tabProps[ChildProperty]) {
                         "Required property '${ChildProperty.key}' is missing."
@@ -2049,10 +2019,7 @@ public class A2uiBasicCatalogV1(
                     "Required property '${ActionProperty.key}' is missing."
                 }
             val accessibility = properties.bind(AccessibilityProperty)
-            val checks =
-                checkNotNull(bindChecks(properties)) {
-                    "Property '${ChecksProperty.key}' could not be resolved."
-                }
+            val checks = bindChecks(properties) ?: return
 
             TypedContent(
                 childId = childId,
@@ -2197,20 +2164,14 @@ public class A2uiBasicCatalogV1(
             properties: A2uiComponentProperties,
             modifier: Modifier,
         ) {
-            val label =
-                checkNotNull(properties.bind(LabelProperty)) {
-                    "Required property '${LabelProperty.key}' is missing."
-                }
+            val label = properties.bind(LabelProperty) ?: return
             val value = properties.bind(ValueProperty)
             val variant = properties[VariantProperty] ?: Variant.Default
             val validationRegexp = properties[ValidationRegexpProperty]
             val onValueChange = properties.bindUpdater(ValueProperty)
             val isEnabled = onValueChange != null
             val accessibility = properties.bind(AccessibilityProperty)
-            val checks =
-                checkNotNull(bindChecks(properties)) {
-                    "Property '${ChecksProperty.key}' could not be resolved."
-                }
+            val checks = bindChecks(properties) ?: return
 
             TypedContent(
                 label = label,
@@ -2327,21 +2288,12 @@ public class A2uiBasicCatalogV1(
             properties: A2uiComponentProperties,
             modifier: Modifier,
         ) {
-            val label =
-                checkNotNull(properties.bind(LabelProperty)) {
-                    "Required property '${LabelProperty.key}' is missing."
-                }
-            val value =
-                checkNotNull(properties.bind(ValueProperty)) {
-                    "Required property '${ValueProperty.key}' is missing."
-                }
+            val label = properties.bind(LabelProperty) ?: return
+            val value = properties.bind(ValueProperty) ?: return
             val onValueChange = properties.bindUpdater(ValueProperty)
             val isEnabled = onValueChange != null
             val accessibility = properties.bind(AccessibilityProperty)
-            val checks =
-                checkNotNull(bindChecks(properties)) {
-                    "Property '${ChecksProperty.key}' could not be resolved."
-                }
+            val checks = bindChecks(properties) ?: return
 
             TypedContent(
                 label = label,
@@ -2602,14 +2554,8 @@ public class A2uiBasicCatalogV1(
             properties: A2uiComponentProperties,
             modifier: Modifier,
         ) {
-            val options =
-                checkNotNull(properties.bind(OptionsProperty)) {
-                    "Required property '${OptionsProperty.key}' is missing."
-                }
-            val value =
-                checkNotNull(properties.bind(ValueProperty)) {
-                    "Required property '${ValueProperty.key}' is missing."
-                }
+            val options = properties.bind(OptionsProperty) ?: return
+            val value = properties.bind(ValueProperty) ?: return
             val onValueChange = properties.bindUpdater(ValueProperty)
             val isEnabled = onValueChange != null
 
@@ -2618,10 +2564,7 @@ public class A2uiBasicCatalogV1(
             val displayStyle = properties[DisplayStyleProperty] ?: DisplayStyle.Default
             val filterable = properties[FilterableProperty] ?: false
             val accessibility = properties.bind(AccessibilityProperty)
-            val checks =
-                checkNotNull(bindChecks(properties)) {
-                    "Property '${ChecksProperty.key}' could not be resolved."
-                }
+            val checks = bindChecks(properties) ?: return
 
             ReportDuplicateOptions(options)
 
@@ -2803,17 +2746,11 @@ public class A2uiBasicCatalogV1(
                 checkNotNull(properties[MaxProperty]?.toFloat()) {
                     "Required property '${MaxProperty.key}' is missing."
                 }
-            val value =
-                checkNotNull(properties.bind(ValueProperty)?.toFloat()) {
-                    "Required property '${ValueProperty.key}' is missing."
-                }
+            val value = properties.bind(ValueProperty)?.toFloat() ?: return
             val onValueChange = properties.bindUpdater(ValueProperty)
             val isEnabled = onValueChange != null
             val accessibility = properties.bind(AccessibilityProperty)
-            val checks =
-                checkNotNull(bindChecks(properties)) {
-                    "Property '${ChecksProperty.key}' could not be resolved."
-                }
+            val checks = bindChecks(properties) ?: return
 
             TypedContent(
                 label = label,
@@ -3051,15 +2988,10 @@ public class A2uiBasicCatalogV1(
             properties: A2uiComponentProperties,
             modifier: Modifier,
         ) {
-            val value =
-                checkNotNull(properties.bind(ValueProperty)) {
-                    "Required property '${ValueProperty.key}' is missing."
-                }
+            val value = properties.bind(ValueProperty) ?: return
             val valueMillis =
                 if (value.isNotEmpty()) {
-                    checkNotNull(remember(value) { parseIsoDateTimeToUtcMillis(value) }) {
-                        "Required property '${ValueProperty.key}' could not be parsed: '$value'."
-                    }
+                    remember(value) { parseIsoDateTimeToUtcMillis(value) } ?: return
                 } else {
                     null
                 }
@@ -3082,10 +3014,7 @@ public class A2uiBasicCatalogV1(
                     }
                 } else null
             val accessibility = properties.bind(AccessibilityProperty)
-            val checks =
-                checkNotNull(bindChecks(properties)) {
-                    "Property '${ChecksProperty.key}' could not be resolved."
-                }
+            val checks = bindChecks(properties) ?: return
 
             TypedContent(
                 value = valueMillis,

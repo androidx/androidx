@@ -37,10 +37,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -61,7 +63,13 @@ class MaterialA2uiBasicCatalogV1ColumnTest {
     private val testCatalog =
         A2uiCatalog(
             catalogId = "test_catalog",
-            components = listOf(MaterialA2uiBasicCatalogV1Defaults.column),
+            components =
+                listOf(
+                    MaterialA2uiBasicCatalogV1Defaults.column,
+                    MaterialA2uiBasicCatalogV1Defaults.card,
+                    MaterialA2uiBasicCatalogV1Defaults.icon,
+                    MaterialA2uiBasicCatalogV1Defaults.text,
+                ),
         )
 
     @Test
@@ -292,6 +300,123 @@ class MaterialA2uiBasicCatalogV1ColumnTest {
     }
 
     @Test
+    fun children_dynamicTemplate_listShrinks_rendersRemainingItems() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Column",
+                            properties =
+                                mapOf(
+                                    "children" to mapOf("path" to "/rows", "componentId" to "row")
+                                ),
+                        ),
+                        A2uiComponentPayload(
+                            id = "row",
+                            type = "Card",
+                            properties = mapOf("child" to "row_body"),
+                        ),
+                        A2uiComponentPayload(
+                            id = "row_body",
+                            type = "Column",
+                            properties = mapOf("children" to listOf("row_icon", "row_label")),
+                        ),
+                        A2uiComponentPayload(
+                            id = "row_icon",
+                            type = "Icon",
+                            properties = mapOf("name" to mapOf("path" to "icon")),
+                        ),
+                        A2uiComponentPayload(
+                            id = "row_label",
+                            type = "Text",
+                            properties = mapOf("text" to mapOf("path" to "label")),
+                        ),
+                    ),
+                initialData =
+                    mapOf("rows" to List(3) { mapOf("label" to "...", "icon" to "moreHoriz") }),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        onAllNodesWithText("...").assertCountEquals(3)
+
+        // The agent replaces the placeholder rows with fewer real rows.
+        controller.updateData(
+            "/rows",
+            listOf(
+                mapOf("label" to "Item 1", "icon" to "person"),
+                mapOf("label" to "Item 2", "icon" to "payment"),
+            ),
+        )
+        controller.waitForIdle()
+
+        onNodeWithText("Item 1").assertIsDisplayed()
+        onNodeWithText("Item 2").assertIsDisplayed()
+        onNodeWithText("...").assertDoesNotExist()
+        onNodeWithTag(MaterialA2uiDefaults.LOADING_INDICATOR_TEST_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun children_dynamicTemplate_itemDataRemoved_showsLoadingForItem() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Column",
+                            properties =
+                                mapOf(
+                                    "children" to mapOf("path" to "/rows", "componentId" to "row")
+                                ),
+                        ),
+                        A2uiComponentPayload(
+                            id = "row",
+                            type = "Card",
+                            properties = mapOf("child" to "row_body"),
+                        ),
+                        A2uiComponentPayload(
+                            id = "row_body",
+                            type = "Column",
+                            properties = mapOf("children" to listOf("row_icon", "row_label")),
+                        ),
+                        A2uiComponentPayload(
+                            id = "row_icon",
+                            type = "Icon",
+                            properties = mapOf("name" to mapOf("path" to "icon")),
+                        ),
+                        A2uiComponentPayload(
+                            id = "row_label",
+                            type = "Text",
+                            properties = mapOf("text" to mapOf("path" to "label")),
+                        ),
+                    ),
+                initialData =
+                    mapOf("rows" to List(3) { mapOf("label" to "...", "icon" to "moreHoriz") }),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        onAllNodesWithText("...").assertCountEquals(3)
+        onNodeWithTag(MaterialA2uiDefaults.LOADING_INDICATOR_TEST_TAG).assertDoesNotExist()
+
+        // The agent removes the data of the third row. The row stays in the list, so the required
+        // bindings of its icon and label resolve to null while their content is still composed and
+        // animating out.
+        controller.updateData("/rows/2", null)
+        controller.waitForIdle()
+
+        onAllNodesWithText("...").assertCountEquals(2)
+        onAllNodesWithTag(MaterialA2uiDefaults.LOADING_INDICATOR_TEST_TAG).assertCountEquals(2)
+    }
+
+    @Test
     fun children_listChanges_rendersUpdatedChildren() = runComposeUiTest {
         val controller =
             A2uiTestController(
@@ -433,8 +558,8 @@ class MaterialA2uiBasicCatalogV1ColumnTest {
                         A2uiComponentStub.withType("Progress") { _, modifier ->
                             CircularProgressIndicator(modifier = modifier.testTag("progress"))
                         },
-                        A2uiComponentStub.withType("Text") { _, modifier ->
-                            Text("Text Content", modifier = modifier)
+                        A2uiComponentStub.withType("Label") { _, modifier ->
+                            Text("Label Content", modifier = modifier)
                         },
                     ),
             )
@@ -444,11 +569,11 @@ class MaterialA2uiBasicCatalogV1ColumnTest {
 
         onNodeWithTag("progress").assertIsDisplayed()
 
-        controller.updateComponent(id = "child_1", type = "Text", properties = emptyMap())
+        controller.updateComponent(id = "child_1", type = "Label", properties = emptyMap())
         controller.waitForIdle()
 
         onNodeWithTag("progress").assertDoesNotExist()
-        onNodeWithText("Text Content").assertIsDisplayed()
+        onNodeWithText("Label Content").assertIsDisplayed()
     }
 
     @Test
