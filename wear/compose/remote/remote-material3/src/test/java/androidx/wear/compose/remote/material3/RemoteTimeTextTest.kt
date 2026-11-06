@@ -17,20 +17,34 @@
 package androidx.wear.compose.remote.material3
 
 import android.content.Context
+import androidx.compose.remote.core.Operation
+import androidx.compose.remote.core.operations.DrawArc
+import androidx.compose.remote.core.operations.DrawTextOnCircle
+import androidx.compose.remote.core.operations.TextAttribute
+import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.asConstantColor
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
+import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.compose.remote.material3.util.TestProfiles
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -40,6 +54,9 @@ import org.robolectric.annotation.Config
 @Config(sdk = [Config.TARGET_SDK])
 @RunWith(RobolectricTestRunner::class)
 class RemoteTimeTextTest {
+    @get:Rule val captureRule = RemoteCaptureTestRule()
+    @get:Rule val composeTestRule = createComposeRule()
+
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     @Test
@@ -75,6 +92,69 @@ class RemoteTimeTextTest {
                 )
             }
         }
+
+    @Test
+    fun background_isDrawnBehindTheText() {
+        val operations = captureOperations {
+            RemoteTimeText(modifier = RemoteModifier.fillMaxSize(), time = "10:09".rs)
+        }
+
+        val arcIndex = operations.indexOfFirst { it is DrawArc }
+        val textIndex = operations.indexOfFirst { it is DrawTextOnCircle }
+        assertThat(operations.count { it is DrawArc }).isEqualTo(1)
+        assertThat(arcIndex).isAtLeast(0)
+        assertThat(textIndex).isGreaterThan(arcIndex)
+        // The background sweeps as far as the measured text.
+        assertThat(operations.any { it is TextAttribute }).isTrue()
+    }
+
+    @Test
+    fun transparentBackground_isNotDrawn() {
+        val operations = captureOperations {
+            RemoteTimeText(
+                modifier = RemoteModifier.fillMaxSize(),
+                time = "10:09".rs,
+                backgroundColor = Color.Transparent.rc,
+            )
+        }
+
+        assertThat(operations.any { it is DrawArc }).isFalse()
+        assertThat(operations.any { it is TextAttribute }).isFalse()
+        assertThat(operations.any { it is DrawTextOnCircle }).isTrue()
+    }
+
+    @Test
+    fun backgroundColor_defaultsToBackgroundWithAlpha() {
+        lateinit var backgroundColor: RemoteColor
+        composeTestRule.setContent {
+            RemoteMaterialTheme(
+                colorScheme = RemoteColorScheme().copy(background = Color.Blue.rc)
+            ) {
+                backgroundColor = RemoteTimeTextDefaults.backgroundColor
+            }
+        }
+
+        assertThat(backgroundColor.asConstantColor()).isEqualTo(Color.Blue.copy(alpha = 0.85f))
+    }
+
+    /** Captures [content] and returns its operations, including the operations of containers. */
+    private fun captureOperations(
+        content: @Composable @RemoteComposable () -> Unit
+    ): List<Operation> {
+        val document = runBlocking {
+            captureRule.captureDocument(
+                context = context,
+                profile = TestProfiles.androidNativeProfile,
+                content = content,
+            )
+        }
+        return document.operations.flatten()
+    }
+
+    private fun List<Operation>.flatten(): List<Operation> = flatMap { operation ->
+        if (operation is Container) listOf(operation) + operation.list.flatten()
+        else listOf(operation)
+    }
 
     private suspend fun runDocumentTest(content: @Composable @RemoteComposable () -> Unit) {
         val bytes =

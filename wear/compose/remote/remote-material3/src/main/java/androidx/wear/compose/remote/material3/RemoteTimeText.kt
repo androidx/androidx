@@ -19,13 +19,18 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
+import androidx.compose.remote.creation.compose.layout.RemoteOffset
+import androidx.compose.remote.creation.compose.layout.RemoteSize
+import androidx.compose.remote.creation.compose.layout.rememberRemoteTextMeasurer
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clearAndSetSemantics
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.RemoteTextUnit
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
@@ -73,6 +78,8 @@ import androidx.wear.compose.remote.material3.internal.setLuminance
  * @param color The color of the text. If `null`, uses [RemoteTextStyle.color] from [style], or
  *   [RemoteColorScheme.onBackground] from [RemoteMaterialTheme.colorScheme] with its luminance set
  *   to 80 (matching [androidx.wear.compose.material3.TimeText]) if also `null` in [style].
+ * @param backgroundColor The color of the arc drawn behind the text, so it stays visible on top of
+ *   other content. Defaults to [RemoteTimeTextDefaults.backgroundColor].
  * @param style The [RemoteTextStyle] to be applied to the text. Defaults to
  *   [RemoteTimeTextDefaults.TimeTextStyle].
  * @param fontFeatureSettings The OpenType font feature settings applied to the text. If `null`,
@@ -95,6 +102,7 @@ public fun RemoteTimeText(
     trailingText: RemoteString? = null,
     separator: RemoteString = "·".rs,
     color: RemoteColor? = null,
+    backgroundColor: RemoteColor = RemoteTimeTextDefaults.backgroundColor,
     style: RemoteTextStyle = RemoteTimeTextDefaults.TimeTextStyle,
     fontFeatureSettings: String? = null,
     fontVariationSettings: FontVariation.Settings? = null,
@@ -119,13 +127,30 @@ public fun RemoteTimeText(
     val resolvedColor =
         mergedStyle.color
             ?: RemoteMaterialTheme.colorScheme.onBackground.setLuminance(DefaultColorLuminance)
+    // A fully transparent background isn't drawn, so the text doesn't need to be measured.
+    val textWidth =
+        if (backgroundColor.alpha.constantValueOrNull == 0f) {
+            null
+        } else {
+            rememberRemoteTextMeasurer()
+                .measure(text, RemoteTextStyle(fontSize = resolvedFontSize))
+                .width
+        }
 
     RemoteBox(modifier.clearAndSetSemantics {}) {
         RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
+            val fontSizePx = resolvedFontSize.toPx()
+            if (textWidth != null) {
+                drawTimeTextBackground(
+                    textWidth = textWidth,
+                    backgroundColor = backgroundColor,
+                    fontSize = fontSizePx,
+                )
+            }
             drawTimeText(
                 text = text,
                 textColor = resolvedColor,
-                fontSize = resolvedFontSize.toPx(),
+                fontSize = fontSizePx,
                 fontFamily = mergedStyle.fontFamily,
                 fontVariationSettings = mergedStyle.fontVariationSettings,
                 fontFeatureSettings = mergedStyle.fontFeatureSettings,
@@ -144,6 +169,33 @@ private fun buildTimeTextString(
     val leadingWithSeparator = leadingText.isNotEmpty.select(leadingText + separator, "".rs)
     val trailingWithSeparator = trailingText.isNotEmpty.select(separator + trailingText, "".rs)
     return leadingWithSeparator + time + trailingWithSeparator
+}
+
+private fun RemoteDrawScope.drawTimeTextBackground(
+    textWidth: RemoteFloat,
+    backgroundColor: RemoteColor,
+    fontSize: RemoteFloat,
+) {
+    // The text baseline lies on this circle, with the glyphs drawn outside it.
+    val radius = width / 2f.rf - fontSize
+    // Like the curved row background of TimeText, the arc is as thick as a line of text and
+    // sweeps as far as the text, with round caps extending past both ends.
+    val backgroundRadius = radius + fontSize * BackgroundCenterOffset.rf
+    val sweepDegrees = textWidth / radius * (180f / PI_FLOAT).rf
+    val backgroundPaint = RemotePaint {
+        color = backgroundColor
+        style = RemotePaintingStyle.Stroke
+        strokeWidth = fontSize * BackgroundThickness.rf
+        strokeCap = RemoteStrokeCap.Round
+    }
+    drawArc(
+        paint = backgroundPaint,
+        startAngle = 270f.rf - sweepDegrees / 2f.rf,
+        sweepAngle = sweepDegrees,
+        useCenter = false,
+        topLeft = RemoteOffset(width / 2f.rf - backgroundRadius, height / 2f.rf - backgroundRadius),
+        size = RemoteSize(backgroundRadius * 2f.rf, backgroundRadius * 2f.rf),
+    )
 }
 
 @Suppress("RestrictedApiAndroidX")
@@ -180,6 +232,17 @@ private fun RemoteDrawScope.drawTimeText(
 /** Luminance of the default text color, matching `TimeTextDefaults.timeTextStyle`. */
 private const val DefaultColorLuminance = 80f
 
+/** Thickness of the background, relative to the font size: the arc typography line height. */
+private const val BackgroundThickness = 1.2f
+
+/**
+ * Distance from the text baseline to the middle of the background, relative to the font size: half
+ * the difference between the ascent and descent of Roboto, centering the background on the text.
+ */
+private const val BackgroundCenterOffset = 0.35f
+
+private const val PI_FLOAT = 3.1415927f
+
 /** Contains the default values used by [RemoteTimeText]. */
 public object RemoteTimeTextDefaults {
     /** Default font family used by [RemoteTimeText]. */
@@ -190,6 +253,15 @@ public object RemoteTimeTextDefaults {
 
     /** Default font variation settings used by [RemoteTimeText]. */
     public val FontVariationSettings: FontVariation.Settings? = null
+
+    /**
+     * Default background color used by [RemoteTimeText], so the text stays visible on top of other
+     * content.
+     */
+    public val backgroundColor: RemoteColor
+        @Composable
+        @RemoteComposable
+        get() = RemoteMaterialTheme.colorScheme.background.copy(alpha = 0.85f.rf)
 
     /** Default text style used by [RemoteTimeText]. */
     @Suppress("RestrictedApiAndroidX")
