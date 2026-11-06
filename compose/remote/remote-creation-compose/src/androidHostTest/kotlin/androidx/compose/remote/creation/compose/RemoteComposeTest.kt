@@ -38,6 +38,7 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.MutableRemoteEnum
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
@@ -90,7 +91,7 @@ class RemoteComposeTest {
         val document =
             captureSingleRemoteDocument(creationDisplayInfo = displayInfo, context = context) {
                 RemoteRow {
-                    RemoteBox(modifier = RemoteModifier.weight(1f))
+                    RemoteBox(modifier = RemoteModifier.weight(1f.rf))
                     RemoteText(text = "End".rs)
                 }
             }

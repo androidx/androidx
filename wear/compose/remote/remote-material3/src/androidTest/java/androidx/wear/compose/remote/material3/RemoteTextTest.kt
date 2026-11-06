@@ -573,7 +573,7 @@ class RemoteTextTest {
                         "".rs,
                         color = textColor,
                         fontSize = 8.rsp,
-                        modifier = RemoteModifier.weight(0.7f),
+                        modifier = RemoteModifier.weight(0.7f.rf),
                     )
                     RemoteBox(
                         modifier =
@@ -584,7 +584,7 @@ class RemoteTextTest {
                         color = textColor,
                         fontSize = 8.rsp,
                         textAlign = TextAlign.Center,
-                        modifier = RemoteModifier.weight(1f),
+                        modifier = RemoteModifier.weight(1f.rf),
                     )
                     RemoteBox(
                         modifier =
@@ -595,7 +595,7 @@ class RemoteTextTest {
                         color = textColor,
                         fontSize = 8.rsp,
                         textAlign = TextAlign.Center,
-                        modifier = RemoteModifier.weight(1f),
+                        modifier = RemoteModifier.weight(1f.rf),
                     )
                     RemoteBox(
                         modifier =
@@ -606,7 +606,7 @@ class RemoteTextTest {
                         color = textColor,
                         fontSize = 8.rsp,
                         textAlign = TextAlign.Center,
-                        modifier = RemoteModifier.weight(1f),
+                        modifier = RemoteModifier.weight(1f.rf),
                     )
                 }
 
@@ -654,13 +654,13 @@ class RemoteTextTest {
         RemoteRow(
             modifier = RemoteModifier.fillMaxWidth().height(RemoteIntrinsicSize.Min).then(modifier)
         ) {
-            RemoteColumn(modifier = RemoteModifier.weight(0.7f).padding(top = 6.rdp)) {
+            RemoteColumn(modifier = RemoteModifier.weight(0.7f.rf).padding(top = 6.rdp)) {
                 RemoteText(label.rs, color = textColor, fontSize = 8.rsp)
             }
             RemoteBox(
                 modifier = RemoteModifier.fillMaxHeight().width(1.rdp).background(dividerColor)
             )
-            RemoteColumn(modifier = RemoteModifier.weight(1f).padding(4.rdp)) {
+            RemoteColumn(modifier = RemoteModifier.weight(1f.rf).padding(4.rdp)) {
                 RemoteText(
                     text = text,
                     color = textColor,
@@ -671,7 +671,7 @@ class RemoteTextTest {
             RemoteBox(
                 modifier = RemoteModifier.fillMaxHeight().width(1.rdp).background(dividerColor)
             )
-            RemoteColumn(modifier = RemoteModifier.weight(1f).padding(4.rdp)) {
+            RemoteColumn(modifier = RemoteModifier.weight(1f.rf).padding(4.rdp)) {
                 RemoteText(
                     text = text,
                     color = textColor,
@@ -682,7 +682,7 @@ class RemoteTextTest {
             RemoteBox(
                 modifier = RemoteModifier.fillMaxHeight().width(1.rdp).background(dividerColor)
             )
-            RemoteColumn(modifier = RemoteModifier.weight(1f).padding(4.rdp)) {
+            RemoteColumn(modifier = RemoteModifier.weight(1f.rf).padding(4.rdp)) {
                 RemoteText(
                     text = text,
                     color = textColor,

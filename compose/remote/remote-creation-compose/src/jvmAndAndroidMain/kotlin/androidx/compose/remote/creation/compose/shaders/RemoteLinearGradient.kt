@@ -140,7 +140,7 @@ public fun RemoteBrush.Companion.horizontalGradient(
         stops = null,
         start = startX?.let { RemoteOffset(it, 0.0f.rf) },
         end = endX?.let { RemoteOffset(it, 0.0f.rf) },
-        endVector = { size -> RemoteOffset(size.width, 0f) },
+        endVector = { size -> RemoteOffset(size.width, 0f.rf) },
         tileMode = tileMode,
     )
 
@@ -181,7 +181,7 @@ public fun RemoteBrush.Companion.horizontalGradient(
         stops = List(colorStops.size) { i -> colorStops[i].first },
         start = startX?.let { RemoteOffset(startX, 0f.rf) },
         end = endX?.let { RemoteOffset(endX, 0f.rf) },
-        endVector = { size -> RemoteOffset(size.width, 0f) },
+        endVector = { size -> RemoteOffset(size.width, 0f.rf) },
         tileMode = tileMode,
     )
 
@@ -217,7 +217,7 @@ public fun RemoteBrush.Companion.verticalGradient(
         stops = null,
         start = startY?.let { RemoteOffset(0f.rf, it) },
         end = endY?.let { RemoteOffset(0f.rf, it) },
-        endVector = { size -> RemoteOffset(0f, size.height) },
+        endVector = { size -> RemoteOffset(0f.rf, size.height) },
         tileMode = tileMode,
     )
 
@@ -258,7 +258,7 @@ public fun RemoteBrush.Companion.verticalGradient(
         stops = List(colorStops.size) { i -> colorStops[i].first },
         start = startY?.let { RemoteOffset(0.0f.rf, startY) },
         end = endY?.let { RemoteOffset(0.0f.rf, endY) },
-        endVector = { size -> RemoteOffset(0f, size.height) },
+        endVector = { size -> RemoteOffset(0f.rf, size.height) },
         tileMode = tileMode,
     )
 

@@ -123,7 +123,7 @@ fun AiAgent(currentTimeSeconds: Float = 1000f, animate: Boolean = true) {
         ) {
             // Chat conversation
             RemoteColumn(
-                modifier = RemoteModifier.fillMaxWidth().weight(1f),
+                modifier = RemoteModifier.fillMaxWidth().weight(1f.rf),
                 verticalArrangement = RemoteArrangement.spacedBy(12.rdp),
             ) {
                 messages.forEach { message ->

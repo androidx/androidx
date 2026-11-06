@@ -275,7 +275,7 @@ fun DogeCalendar(initialSelectedIndex: Int = -1) {
                 entries = DOGE_LIST_SCHEDULE,
                 scrollState = scrollState,
                 toggleDetailAction = toggleDetailAction,
-                modifier = RemoteModifier.weight(1f).fillMaxHeight().padding(14.rdp),
+                modifier = RemoteModifier.weight(1f.rf).fillMaxHeight().padding(14.rdp),
             )
         }
 
@@ -392,11 +392,11 @@ private fun DogeFullScreenList(
 
         // Scrollable list + XR scroll progress indicator side-by-side
         RemoteRow(
-            modifier = RemoteModifier.fillMaxWidth().weight(1f),
+            modifier = RemoteModifier.fillMaxWidth().weight(1f.rf),
             verticalAlignment = RemoteAlignment.CenterVertically,
         ) {
             RemoteColumn(
-                modifier = RemoteModifier.weight(1f).fillMaxHeight().verticalScroll(scrollState),
+                modifier = RemoteModifier.weight(1f.rf).fillMaxHeight().verticalScroll(scrollState),
                 horizontalAlignment = RemoteAlignment.CenterHorizontally,
             ) {
                 entries.forEachIndexed { index, entry ->
@@ -510,7 +510,7 @@ private fun DogeListItemRow(
             DogeCategoryBadge(category = entry.category, badgeSize = 42)
 
             RemoteFitBox(
-                modifier = RemoteModifier.weight(1f).padding(start = 14.rdp, end = 8.rdp),
+                modifier = RemoteModifier.weight(1f.rf).padding(start = 14.rdp, end = 8.rdp),
                 horizontalAlignment = RemoteAlignment.Start,
             ) {
                 arrayOf(15.rsp, 13.rsp, 11.rsp, 9.rsp).forEach { size ->

@@ -185,11 +185,11 @@ class AnimatedVectorComparisonScreenshotTest {
                         horizontalArrangement = RemoteArrangement.spacedBy(16.rdp),
                     ) {
                         // Left Column: Empty space matching Compose column
-                        RemoteBox(modifier = RemoteModifier.weight(1f))
+                        RemoteBox(modifier = RemoteModifier.weight(1f.rf))
 
                         // Right Column: Remote Compose content
                         RemoteColumn(
-                            modifier = RemoteModifier.weight(1f),
+                            modifier = RemoteModifier.weight(1f.rf),
                             verticalArrangement = RemoteArrangement.spacedBy(16.rdp),
                             horizontalAlignment = RemoteAlignment.CenterHorizontally,
                         ) {

@@ -239,7 +239,7 @@ fun RcSimpleClock1(
                                 minHandColor.paint(),
                                 topLeft = RemoteOffset(centerX - 10f, shift),
                                 size = RemoteSize(20f.rf, 40f.rf),
-                                RemoteOffset(10f, 10f),
+                                RemoteOffset(10f.rf, 10f.rf),
                             )
                         }
                         // drawRect(rect1, 130f, rect2, 180f)
