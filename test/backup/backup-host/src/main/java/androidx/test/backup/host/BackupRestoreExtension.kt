@@ -32,11 +32,8 @@ import java.lang.reflect.Modifier
 import java.lang.reflect.Parameter
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
-import java.security.MessageDigest
 import java.time.Duration
 import java.time.Instant
-import java.util.Locale
 import java.util.Properties
 import java.util.concurrent.atomic.AtomicLong
 import java.util.logging.Logger
@@ -170,12 +167,21 @@ internal object ReflectiveJunitFilePublisher : FileAttachmentPublisher {
  * `androidx.test.backup.report.captureLogcatOnPass` to `true`; to copy raw backup archives into the
  * report artifacts, set `androidx.test.backup.report.includeRawArchives` to `true`.
  *
- * The files are in `suite-details` in the results directory of the test suite. Outside of a test
- * suite, they are in a new temporary directory, which the extension keeps after the test run.
+ * The files are published as JUnit file attachments when the JUnit Platform version supports them,
+ * or else saved in a new temporary directory that the extension keeps after the test run.
  */
 public class BackupRestoreExtension
-internal constructor(private val adbSessionProvider: () -> AdbSession) :
-    BeforeAllCallback, AfterAllCallback, BeforeEachCallback, AfterEachCallback, ParameterResolver {
+internal constructor(
+    private val adbSessionProvider: () -> AdbSession,
+    private val fileAttachmentPublisher: FileAttachmentPublisher = ReflectiveJunitFilePublisher,
+    private val suitePropertiesPathProvider: () -> String? = {
+        System.getenv(BackupReportKeys.SUITE_PROPERTIES_ENV)
+    },
+) : BeforeAllCallback, AfterAllCallback, BeforeEachCallback, AfterEachCallback, ParameterResolver {
+
+    internal constructor(
+        adbSessionProvider: () -> AdbSession
+    ) : this(adbSessionProvider, ReflectiveJunitFilePublisher)
 
     /**
      * Creates an extension, which manages its own ADB session.
@@ -509,8 +515,8 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
      * constructor parameter.
      *
      * Keeps constructor `"Prepare"` steps and logs off the enclosing class capture, and registers
-     * [TestExecutionCapture.onUnfinalizedClose] under a unique `_ctor_` detail ID in case
-     * construction fails before [beforeEach] runs.
+     * [TestExecutionCapture.onUnfinalizedClose] in case construction fails before [beforeEach]
+     * runs.
      */
     private fun ensurePendingInstanceCapture(
         classContext: ExtensionContext,
@@ -538,6 +544,7 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
             if (adoptedFromOuter != null) {
                 adoptedFromOuter.capture.testClassName = resolveTestClassName(classContext)
                 adoptedFromOuter.capture.parent = parentClassCapture
+                adoptedFromOuter.capture.includeRawArchives = isIncludeRawArchivesEnabled()
                 bindPendingUnfinalizedClose(classContext, adoptedFromOuter)
                 store.put(pendingKey, adoptedFromOuter)
             }
@@ -546,8 +553,6 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
             store.getOrComputeIfAbsent(
                 pendingKey,
                 {
-                    val ctorSeq = ctorAttemptCounter.incrementAndGet()
-                    val ctorDetailId = "${detailIdOf(classContext.uniqueId)}_ctor_$ctorSeq"
                     val created =
                         TestExecutionCapture(
                             start = Instant.now(),
@@ -555,8 +560,9 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
                             testClassName = resolveTestClassName(classContext),
                             testMethodName = null,
                             parent = parentClassCapture,
+                            includeRawArchives = isIncludeRawArchivesEnabled(),
                         )
-                    PendingInstanceCapture(created, ctorDetailId).also { createdPending ->
+                    PendingInstanceCapture(created).also { createdPending ->
                         bindPendingUnfinalizedClose(classContext, createdPending)
                     }
                 },
@@ -582,7 +588,6 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
                     capture = pending.capture,
                     isClassLevel = false,
                     explicitFailure = failure,
-                    detailIdOverride = pending.detailId,
                     allowPublishReportEntries = false,
                 )
             } else {
@@ -612,11 +617,13 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
         claimed.parent =
             generateSequence(methodContext.parent?.orElse(null)) { it.parent?.orElse(null) }
                 .firstNotNullOfOrNull(::captureOrNull)
+        claimed.includeRawArchives = isIncludeRawArchivesEnabled()
         claimed.onUnfinalizedClose = {
             if (methodContext.executionException?.orElse(null) != null) {
                 finalizeExecution(methodContext, isClassLevel = false)
             }
         }
+        claimed.attachLiveEntryPublisher { entries -> methodContext.publishReportEntry(entries) }
         methodContext.getStore(NAMESPACE).put(TestCaptureKey(methodContext.uniqueId), claimed)
     }
 
@@ -665,6 +672,7 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
                             testMethodName =
                                 if (isClassLevel) null else resolveTestMethodName(context),
                             parent = parentCapture,
+                            includeRawArchives = isIncludeRawArchivesEnabled(),
                         )
                         .also { created ->
                             created.onUnfinalizedClose = {
@@ -672,12 +680,18 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
                                     finalizeExecution(context, isClassLevel)
                                 }
                             }
+                            if (!isClassLevel) {
+                                created.attachLiveEntryPublisher { entries ->
+                                    context.publishReportEntry(entries)
+                                }
+                            }
                         }
                 },
                 TestExecutionCapture::class.java,
             )
 
-    private fun captureOrNull(context: ExtensionContext): TestExecutionCapture? =
+    @VisibleForTesting
+    internal fun captureOrNull(context: ExtensionContext): TestExecutionCapture? =
         context
             .getStore(NAMESPACE)
             .get(TestCaptureKey(context.uniqueId), TestExecutionCapture::class.java)
@@ -695,7 +709,6 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
         capture: TestExecutionCapture,
         isClassLevel: Boolean,
         explicitFailure: Throwable? = null,
-        detailIdOverride: String? = null,
         allowPublishReportEntries: Boolean = true,
     ) {
         if (capture.finalized) {
@@ -710,13 +723,20 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
             if (failure is TestAbortedException) return
 
             val suiteProps = suiteProperties()
-            val resultsDirPath = suiteProperty(suiteProps, PROP_RESULTS_DIR)
-            val detailId = detailIdOverride ?: detailIdOf(context.uniqueId)
+            val shouldPublishDetail =
+                allowPublishReportEntries && (!isClassLevel || failure != null)
 
             val deviceLogsEnabled =
-                !suiteProperty(suiteProps, PROP_DEVICE_LOGS).equals("false", ignoreCase = true)
+                !BackupReportKeys.readProperty(
+                        suiteProps,
+                        BackupReportKeys.PROP_DEVICE_LOGS_ENABLED,
+                    )
+                    .equals("false", ignoreCase = true)
             val captureLogcatOnPass =
-                suiteProperty(suiteProps, PROP_CAPTURE_LOGCAT_ON_PASS)
+                BackupReportKeys.readProperty(
+                        suiteProps,
+                        BackupReportKeys.PROP_CAPTURE_LOGCAT_ON_PASS,
+                    )
                     .equals("true", ignoreCase = true)
             val shouldSaveLogcat =
                 deviceLogsEnabled && (failure != null || (!isClassLevel && captureLogcatOnPass))
@@ -726,21 +746,78 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
                 val controllers = capture.allControllers()
                 // The device clock that dates the logs is read to the second.
                 val window = Duration.between(capture.start, Instant.now()).plusSeconds(1)
+                var fallbackDir: Path? = null
                 for (controller in controllers) {
                     try {
-                        val dir = deviceLogsDir(context, suiteProps).resolve(detailId)
-                        val file =
-                            Files.createDirectories(dir)
-                                .resolve("logcat-${fileSafe(controller.serialNumber)}.txt")
-                        val logcatTruncated = runBlocking {
-                            withTimeout(DEVICE_LOGS_TIMEOUT_MS) {
-                                controller.saveBoundedDeviceLogs(file, window, MAX_LOGCAT_BYTES)
+                        val fileName = "logcat-${fileSafe(controller.serialNumber)}.txt"
+                        var savedPath: Path? = null
+                        var logcatTruncated = false
+                        var attached = false
+                        var deviceReadFailed = false
+                        if (shouldPublishDetail) {
+                            try {
+                                savedPath =
+                                    fileAttachmentPublisher.publish(
+                                        context,
+                                        fileName,
+                                        TestExecutionCapture.MEDIA_TYPE_TEXT_UTF8,
+                                    ) { path ->
+                                        try {
+                                            logcatTruncated = runBlocking {
+                                                withTimeout(DEVICE_LOGS_TIMEOUT_MS) {
+                                                    controller.saveBoundedDeviceLogs(
+                                                        path,
+                                                        window,
+                                                        MAX_LOGCAT_BYTES,
+                                                    )
+                                                }
+                                            }
+                                        } catch (e: Exception) {
+                                            deviceReadFailed = true
+                                            throw e
+                                        }
+                                    }
+                                attached = savedPath != null
+                            } catch (e: Exception) {
+                                if (deviceReadFailed) throw e
+                                logger.warning(
+                                    "Failed to attach the logs of ${controller.serialNumber}: ${e.message}"
+                                )
                             }
                         }
-                        logger.info("Saved the logs of ${controller.serialNumber} to $file")
-                        failure?.addSuppressed(DeviceLogsNotice(file))
-                        savedLogcatFiles[controller.serialNumber] =
-                            TestExecutionCapture.SavedLogcatFile(file, logcatTruncated)
+                        if (savedPath == null && failure != null) {
+                            val dir =
+                                fallbackDir
+                                    ?: Files.createDirectories(
+                                            fallbackDeviceLogsDir(context)
+                                                .resolve(fallbackLogDirName(context))
+                                        )
+                                        .also { fallbackDir = it }
+                            val fallbackFile = dir.resolve(fileName)
+                            logcatTruncated = runBlocking {
+                                withTimeout(DEVICE_LOGS_TIMEOUT_MS) {
+                                    controller.saveBoundedDeviceLogs(
+                                        fallbackFile,
+                                        window,
+                                        MAX_LOGCAT_BYTES,
+                                    )
+                                }
+                            }
+                            savedPath = fallbackFile
+                            attached = false
+                        }
+                        if (savedPath != null) {
+                            logger.info(
+                                "Saved the logs of ${controller.serialNumber} to $savedPath"
+                            )
+                            failure?.addSuppressed(DeviceLogsNotice(savedPath))
+                            savedLogcatFiles[controller.serialNumber] =
+                                TestExecutionCapture.SavedLogcatFile(
+                                    path = savedPath,
+                                    truncated = logcatTruncated,
+                                    attached = attached,
+                                )
+                        }
                     } catch (e: Exception) {
                         logger.warning(
                             "Failed to save the logs of ${controller.serialNumber}: ${e.message}"
@@ -749,50 +826,48 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
                 }
             }
 
-            val shouldWriteDetailRecord =
-                resultsDirPath != null && (!isClassLevel || failure != null)
             val finalized =
-                try {
-                    if (shouldWriteDetailRecord) {
-                        val suiteDetailsDir = Paths.get(resultsDirPath, "suite-details")
-                        val detailDir = suiteDetailsDir.resolve(detailId)
-                        val report =
-                            capture.buildFinalizedReport(
-                                detailId = detailId,
-                                detailDir = detailDir,
-                                savedLogcatFiles = savedLogcatFiles,
-                                failure = failure,
-                                suiteProperties = suiteProps,
-                            )
-                        Files.createDirectories(suiteDetailsDir)
-                        Files.write(
-                            suiteDetailsDir.resolve("$detailId.json"),
-                            report.record.toJsonString().toByteArray(Charsets.UTF_8),
-                        )
-                        if (allowPublishReportEntries) {
-                            context.publishReportEntry(
-                                BackupReportKeys.DETAIL_PATH,
-                                "suite-details/$detailId.json",
-                            )
-                        }
-                        report
-                    } else if (failure != null) {
+                if (shouldPublishDetail || failure != null) {
+                    try {
                         capture.buildFinalizedReport(
-                            detailId = null,
-                            detailDir = null,
                             savedLogcatFiles = savedLogcatFiles,
                             failure = failure,
                             suiteProperties = suiteProps,
+                            filePublisher =
+                                if (shouldPublishDetail) {
+                                    { fileName, mediaType, writer ->
+                                        fileAttachmentPublisher.publish(
+                                            context,
+                                            fileName,
+                                            mediaType,
+                                            writer,
+                                        )
+                                    }
+                                } else {
+                                    null
+                                },
                         )
-                    } else {
+                    } catch (e: Exception) {
+                        logger.warning(
+                            "Failed to build report details for ${context.displayName}: ${e.message}"
+                        )
                         null
+                    }
+                } else {
+                    null
+                }
+
+            if (shouldPublishDetail && finalized != null) {
+                try {
+                    capture.publishFinalEntries(finalized.record.toReportEntries()) { entries ->
+                        context.publishReportEntry(entries)
                     }
                 } catch (e: Exception) {
                     logger.warning(
-                        "Failed to write report details for ${context.displayName}: ${e.message}"
+                        "Failed to publish report entries for ${context.displayName}: ${e.message}"
                     )
-                    null
                 }
+            }
 
             if (failure != null) {
                 finalized?.failureNoticeText?.let { notice ->
@@ -811,52 +886,49 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
     }
 
     /**
-     * Returns the directory for the device logs of failed tests: `suite-details` in the results
-     * directory of the test suite, or else a temporary directory for the test run.
+     * Returns the temporary directory for the device logs of failed tests when JUnit file
+     * attachments are unavailable.
      */
-    private fun deviceLogsDir(context: ExtensionContext, suiteProps: Properties): Path =
-        suiteProperty(suiteProps, PROP_RESULTS_DIR)?.let { Paths.get(it, "suite-details") }
-            ?: context.root
-                .getStore(NAMESPACE)
-                .getOrComputeIfAbsent(
-                    DEVICE_LOGS_DIR_KEY,
-                    { Files.createTempDirectory("backup-test-logs") },
-                    Path::class.java,
-                )
+    private fun fallbackDeviceLogsDir(context: ExtensionContext): Path =
+        context.root
+            .getStore(NAMESPACE)
+            .getOrComputeIfAbsent(
+                DEVICE_LOGS_DIR_KEY,
+                { Files.createTempDirectory("backup-test-logs") },
+                Path::class.java,
+            )
 
-    /**
-     * Builds a filesystem-safe detail identifier for [uniqueId] with a readable prefix and hash.
-     */
-    @VisibleForTesting
-    internal fun detailIdOf(uniqueId: String): String {
-        val segments = uniqueId.split("]/[").drop(1)
-        val readableParts = segments.mapNotNull { raw ->
-            val clean = raw.removeSuffix("]")
-            val type = clean.substringBefore(':', missingDelimiterValue = "")
-            val value = clean.substringAfter(':')
-            when (type) {
-                "class",
-                "test-class" -> value.substringAfterLast('.').substringAfterLast('$')
-                "nested-class" -> value.substringAfterLast('$').substringAfterLast('.')
-                "method",
-                "test-template" -> value.substringBefore('(')
-                "test-template-invocation",
-                "dynamic-test",
-                "dynamic-container" -> value.removePrefix("#")
-                else -> value.substringBefore('(').substringAfterLast('.')
-            }.takeIf { it.isNotEmpty() }
-        }
-        val basePrefix =
-            fileSafe(readableParts.joinToString("."))
-                .take(MAX_DETAIL_PREFIX_LENGTH)
-                .trim('.', '_', '-')
-                .ifEmpty { "test" }
-        val hashSuffix = sha256HexPrefix(uniqueId, 8)
-        return "$basePrefix-$hashSuffix"
+    private fun fallbackLogDirName(context: ExtensionContext): String {
+        val classPart = context.testClass.orElse(null)?.simpleName.orEmpty().ifEmpty { "test" }
+        val methodPart = context.testMethod.orElse(null)?.name.orEmpty()
+        val label = if (methodPart.isNotEmpty()) "$classPart.$methodPart" else classPart
+        return "${fileSafe(label)}-${fallbackLogCounter.incrementAndGet()}"
     }
 
-    /** Returns [name] with each run of characters that file names can't hold replaced by `_`. */
-    private fun fileSafe(name: String): String = name.replace(Regex("[^A-Za-z0-9._-]+"), "_")
+    /**
+     * Returns [name] sanitized for file names by replacing disallowed characters 1-for-1 with `_`.
+     */
+    private fun fileSafe(name: String): String {
+        val sanitized =
+            buildString(name.length) {
+                for (ch in name) {
+                    if (
+                        ch in 'a'..'z' ||
+                            ch in 'A'..'Z' ||
+                            ch in '0'..'9' ||
+                            ch == '.' ||
+                            ch == '_' ||
+                            ch == '-'
+                    ) {
+                        append(ch)
+                    } else {
+                        append('_')
+                    }
+                }
+            }
+        return if (sanitized.isEmpty() || sanitized == "." || sanitized == "..") "test"
+        else sanitized
+    }
 
     private fun isClassLevelContext(context: ExtensionContext): Boolean =
         context.testMethod.orElse(null) == null
@@ -1113,10 +1185,14 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
      * properties file at [path], or no properties outside of a test suite or if the file can't be
      * read.
      */
-    internal fun suiteProperties(path: String? = System.getenv(SUITE_PROPERTIES_ENV)): Properties =
+    internal fun suiteProperties(path: String? = suitePropertiesPathProvider()): Properties =
         BackupReportKeys.loadSuiteProperties(path) { e ->
             logger.warning("Failed to load parameters properties file: ${e.message}")
         }
+
+    private fun isIncludeRawArchivesEnabled(suiteProps: Properties = suiteProperties()): Boolean =
+        BackupReportKeys.readProperty(suiteProps, BackupReportKeys.PROP_INCLUDE_RAW_ARCHIVES)
+            .equals("true", ignoreCase = true)
 
     /**
      * Returns the ID of the app that the tests of [testClass] target: the
@@ -1127,7 +1203,7 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
         classAnnotations(testClass, BackupRestoreConfig::class.java)
             .map { it.applicationId }
             .firstOrNull { it.isNotEmpty() }
-            ?: suiteProperty(suiteProperties, PROP_TESTED_APPLICATION_ID)
+            ?: BackupReportKeys.readProperty(suiteProperties, PROP_TESTED_APPLICATION_ID)
             ?: throw IllegalStateException(
                 "No application ID for ${testClass.name}: annotate it with @BackupRestoreConfig, " +
                     "or run it in an Android Gradle Plugin backup test suite."
@@ -1150,8 +1226,8 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
 
     /** Returns the APK files of the tested app, then of the test app, of [suiteProperties]. */
     internal fun suiteApks(suiteProperties: Properties): List<File> =
-        apkFilesIn(suiteProperty(suiteProperties, PROP_TESTED_APKS)) +
-            apkFilesIn(suiteProperty(suiteProperties, PROP_TEST_APKS))
+        apkFilesIn(BackupReportKeys.readProperty(suiteProperties, PROP_TESTED_APKS)) +
+            apkFilesIn(BackupReportKeys.readProperty(suiteProperties, PROP_TEST_APKS))
 
     /**
      * Publishes the report entries describing a precondition failure, so that failures detected
@@ -1169,7 +1245,9 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
             BackupReportKeys.FAILURE_STAGE,
             BackupExecutionStage.PRECONDITION.name,
         )
-        context.publishReportEntry(BackupReportKeys.ERROR_MESSAGE, errorMessage)
+        if (errorMessage.isNotBlank()) {
+            context.publishReportEntry(BackupReportKeys.ERROR_MESSAGE, errorMessage)
+        }
     }
 
     /**
@@ -1189,13 +1267,9 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
         }
     }
 
-    /**
-     * Wraps an unclaimed [TestInstance.Lifecycle.PER_METHOD] constructor [capture] alongside its
-     * unique [detailId].
-     */
+    /** Wraps an unclaimed [TestInstance.Lifecycle.PER_METHOD] constructor [capture]. */
     private class PendingInstanceCapture(
         val capture: TestExecutionCapture,
-        val detailId: String,
         var failure: Throwable? = null,
     ) : CloseableResource, AutoCloseable {
         override fun close() {
@@ -1279,9 +1353,6 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
         /** Maximum size of a saved per-device logcat file (512 KB). */
         private const val MAX_LOGCAT_BYTES = 512 * 1024
 
-        /** Maximum character length of the readable prefix in a detail file identifier. */
-        private const val MAX_DETAIL_PREFIX_LENGTH = 96
-
         /** Property specifying a comma-separated list of device serial numbers. */
         private const val PROP_DEVICE_SERIALS = "androidx.test.backup.device.serials"
 
@@ -1297,19 +1368,6 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
         /** Global property specifying a fallback device API level. */
         private const val PROP_DEVICE_API = "androidx.test.backup.device.api"
 
-        /** Property that turns off saving the device logs of failed tests when set to `false`. */
-        private const val PROP_DEVICE_LOGS = "androidx.test.backup.device.logs.enabled"
-
-        /** Property that enables saving device logcat even on passing tests when set to `true`. */
-        private const val PROP_CAPTURE_LOGCAT_ON_PASS =
-            "androidx.test.backup.report.captureLogcatOnPass"
-
-        /**
-         * Environment variable with the path of the properties file in which an Android Gradle
-         * Plugin test suite passes its inputs to the tests.
-         */
-        private const val SUITE_PROPERTIES_ENV = "com.android.junit.engine.input.parameters"
-
         /** Test suite input with the application ID of the tested app. */
         private const val PROP_TESTED_APPLICATION_ID =
             "com.android.junit.engine.tested.application.id"
@@ -1320,23 +1378,13 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
         /** Test suite input with the APK files of the test app. */
         private const val PROP_TEST_APKS = "com.android.agp.test.TEST_APKS"
 
-        /** Test suite input with the directory for the results of the tests. */
-        private const val PROP_RESULTS_DIR = "com.android.junit.engine.results.dir"
-
         /** Timeout limit for discovering connected devices via ADB. */
         private const val ADB_TIMEOUT_MS = 30000L
 
         /** Minimum Android API level required for backup/restore capability (Android 12). */
         private const val MIN_REQUIRED_API = 31
 
-        private val ctorAttemptCounter = AtomicLong()
-
-        /**
-         * Returns the test suite input [name] of [suiteProperties], or else the system property.
-         */
-        private fun suiteProperty(suiteProperties: Properties, name: String): String? =
-            suiteProperties.getProperty(name)?.takeIf { it.isNotEmpty() }
-                ?: System.getProperty(name)?.takeIf { it.isNotEmpty() }
+        private val fallbackLogCounter = AtomicLong()
 
         /**
          * Returns whether [parameter] is a [BackupRestoreController], which this extension
@@ -1344,17 +1392,5 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
          */
         private fun isController(parameter: Parameter): Boolean =
             parameter.type == BackupRestoreController::class.java
-
-        private fun sha256HexPrefix(input: String, hexLength: Int): String {
-            val digest =
-                MessageDigest.getInstance("SHA-256").digest(input.toByteArray(Charsets.UTF_8))
-            return buildString(hexLength) {
-                    for (b in digest) {
-                        if (length >= hexLength) break
-                        append(String.format(Locale.ROOT, "%02x", b.toInt() and 0xff))
-                    }
-                }
-                .take(hexLength)
-        }
     }
 }

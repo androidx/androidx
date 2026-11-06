@@ -46,17 +46,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.booleanOrNull
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.intOrNull
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.longOrNull
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
@@ -88,118 +77,6 @@ class BackupReportCaptureTest {
         ActiveCaptureContext.clearCurrentThread()
         assertEquals(0, HostLogManager.activeCollectorCountForTesting())
         assertFalse(HostLogManager.hasAttachedHandlersForTesting())
-    }
-
-    @Test
-    fun testDetailRecordSerializesAllSchemaFieldsAndRoundTrips() {
-        val original =
-            TestDetailRecord(
-                sourceLocation =
-                    TestDetailRecord.SourceLocation(
-                        file = "CrossDeviceMigrationTests.kt",
-                        line = 47,
-                        className = "com.example.CrossDeviceMigrationTests",
-                        methodName = "testSessionTokenRestored",
-                    ),
-                summaryAttributes =
-                    listOf(
-                        TestDetailRecord.SummaryAttribute(
-                            key = "transport",
-                            label = "Transport",
-                            value = "DEVICE_TO_DEVICE",
-                            displayValue = "Device to device",
-                            filterable = true,
-                        )
-                    ),
-                callout =
-                    TestDetailRecord.Callout(
-                        kind = "ASSERTION_FAILURE",
-                        failedStep = 5,
-                        title = "Assertion failed at step 5 \u00b7 Verify",
-                        message = "expected auth_token to be restored",
-                        likelyCause =
-                            "data_extraction_rules.xml excludes domain=\"sharedpref\" " +
-                                "path=\"user_session.xml\" for <device-transfer>.",
-                    ),
-                actors =
-                    listOf(
-                        TestDetailRecord.ActorRecord(
-                            id = "source",
-                            role = "SOURCE",
-                            name = "Pixel 6",
-                            api = 31,
-                            serial = SERIAL_SOURCE,
-                            image = "Google APIs",
-                            playServices = "26.39.33",
-                        )
-                    ),
-                steps =
-                    listOf(
-                        TestDetailRecord.StepRecord(
-                            n = null,
-                            name = "Prepare",
-                            on = "source",
-                            shared = false,
-                            call = "Install APKs, unlock device, clear app data",
-                            durationMs = 820,
-                            status = "PASSED",
-                        ),
-                        TestDetailRecord.StepRecord(
-                            n = 1,
-                            name = "Setup",
-                            on = "source",
-                            shared = true,
-                            call = "runOnDevice(\"\u2026StageSession\")",
-                            durationMs = 1420,
-                            status = "PASSED",
-                        ),
-                    ),
-                logs =
-                    listOf(
-                        TestDetailRecord.LogRecord(
-                            title = "Host log",
-                            path = "suite-details/test-1/host-log.txt",
-                        ),
-                        TestDetailRecord.LogRecord(
-                            title = "Logcat (source)",
-                            path = "suite-details/test-1/logcat-emulator-5554.txt",
-                            truncated = true,
-                        ),
-                    ),
-                artifacts =
-                    listOf(
-                        TestDetailRecord.ArtifactEntry(
-                            name = "Backup file summary",
-                            values = mapOf("app_backup" to "1.8 MB", "pm_backup" to "3.1 KB"),
-                            path = null,
-                        )
-                    ),
-            )
-
-        val jsonText = original.toJsonString()
-        val parsedObj = Json.parseToJsonElement(jsonText).jsonObject
-        assertEquals(
-            setOf(
-                "schemaVersion",
-                "suiteType",
-                "sourceLocation",
-                "summaryAttributes",
-                "callout",
-                "actors",
-                "steps",
-                "logs",
-                "artifacts",
-            ),
-            parsedObj.keys,
-        )
-        assertEquals(original, TestDetailRecord.fromJson(jsonText))
-
-        // Verify empty record emits explicit JSON arrays and nulls rather than omitting keys.
-        val minimalObj = TestDetailRecord().toJsonObject()
-        assertTrue(minimalObj["callout"] is JsonNull)
-        assertNotNull(minimalObj["steps"])
-        assertNotNull(minimalObj["actors"])
-        assertNotNull(minimalObj["artifacts"])
     }
 
     @Test
@@ -432,11 +309,8 @@ class BackupReportCaptureTest {
     }
 
     @Test
-    fun passingLocalFlowWritesDetailSidecarHostLogAndDeviceStoredSummaryWithoutXmlFiles() =
-        withDeviceProperties {
-            val resultsDir = tempFolder.newFolder("results-local")
-            System.setProperty(RESULTS_DIR, resultsDir.absolutePath)
-
+    fun passingLocalFlowPublishesEntriesHostLogAttachmentAndLiveStepProgress() =
+        withSuiteSink { sink ->
             stubHealthyDevice(
                 sourceDevice,
                 avdName = "Pixel_6_API_31",
@@ -445,13 +319,14 @@ class BackupReportCaptureTest {
             )
 
             val published = LinkedHashMap<String, String>()
-            val extension = BackupRestoreExtension { sourceDevice.session }
-            val classCtx = childContext(rootContext, CLASS_ID)
+            val extension = BackupRestoreExtension({ sourceDevice.session }, sink)
+            val classCtx = childContext(rootContext, CLASS_ID, suiteSink = sink)
             val testCtx =
                 childContext(
                     classCtx,
                     TEST_ID,
                     reportSink = published,
+                    suiteSink = sink,
                     testClass = BackupReportCaptureTest::class.java,
                 )
 
@@ -473,6 +348,8 @@ class BackupReportCaptureTest {
                 controller = controller,
                 apks = listOf(apk),
             )
+            // Prepare alone (unnumbered) holds off until the first numbered step starts.
+            assertTrue(sink.batches(TEST_ID).isEmpty())
 
             runBlocking {
                 controller.runBackupRestoreFlow(
@@ -481,16 +358,19 @@ class BackupReportCaptureTest {
                     BackupTransportMode.LOCAL,
                 )
             }
+            // Before afterEach runs, all 5 numbered steps have already streamed incrementally!
+            val liveBatchesBeforeAfterEach =
+                sink.batches(TEST_ID).filter { batch ->
+                    batch.keys.any { it.startsWith(BackupReportKeys.STEP_PREFIX) }
+                }
+            assertEquals(5, liveBatchesBeforeAfterEach.size)
+            assertEquals("Setup", published["androidx.report.step.1.name"])
+            assertEquals("Verify", published["androidx.report.step.5.name"])
 
             extension.afterEach(testCtx)
             extension.afterAll(classCtx)
 
-            val detailId = extension.detailIdOf(TEST_ID)
-            assertEquals("suite-details/$detailId.json", published[BackupReportKeys.DETAIL_PATH])
-
-            val jsonFile = File(resultsDir, "suite-details/$detailId.json")
-            assertTrue(jsonFile.isFile)
-            val record = TestDetailRecord.fromJson(jsonFile.readText())
+            val record = sink.recordOf(testCtx)
 
             assertEquals(1, record.schemaVersion)
             assertEquals("androidx.test.backup", record.suiteType)
@@ -529,24 +409,14 @@ class BackupReportCaptureTest {
 
             // Passing tests do not capture logcat unless captureLogcatOnPass=true.
             assertEquals(listOf("Host log"), record.logs.map { it.title })
-            val hostLogFile = File(resultsDir, "suite-details/$detailId/host-log.txt")
+            val hostLogFile = assertNotNull(sink.attachment(TEST_ID, "host-log.txt")).toFile()
             assertTrue(hostLogFile.isFile)
             assertContains(hostLogFile.readText(), "Executing standard backup and restore flow")
-
-            // Never write .xml files into RESULTS_DIR.
-            val xmlFiles =
-                resultsDir
-                    .walkTopDown()
-                    .filter { it.isFile && it.extension.equals("xml", true) }
-                    .toList()
-            assertEquals(emptyList(), xmlFiles)
+            assertNull(sink.attachment(TEST_ID, "logcat-$SERIAL_SOURCE.txt"))
         }
 
     @Test
-    fun failingFlowEmitsSkippedStagesAfterFailureWithZeroDuration() = withDeviceProperties {
-        val resultsDir = tempFolder.newFolder("results-skipped")
-        System.setProperty(RESULTS_DIR, resultsDir.absolutePath)
-
+    fun failingFlowEmitsSkippedStagesAfterFailureWithZeroDuration() = withSuiteSink { sink ->
         stubHealthyDevice(sourceDevice, avdName = "Pixel_6_API_31", gmsVersionName = "26.39.33")
         stubHealthyDevice(targetDevice, avdName = "Pixel_8_API_34", gmsVersionName = "26.40.12")
 
@@ -559,8 +429,9 @@ class BackupReportCaptureTest {
                     )
             )
 
-        val extension = BackupRestoreExtension { sourceDevice.session }
-        val classCtx = childContext(rootContext, CLASS_ID)
+        val extension = BackupRestoreExtension({ sourceDevice.session }, sink)
+        val classCtx = childContext(rootContext, CLASS_ID, suiteSink = sink)
+        lateinit var testCtx: ExtensionContext
         val failure = run {
             val published = LinkedHashMap<String, String>()
             val source =
@@ -581,12 +452,13 @@ class BackupReportCaptureTest {
                 )
 
             var thrown: Throwable? = null
-            val testCtx =
+            testCtx =
                 childContext(
                     classCtx,
                     TEST_ID,
                     failureProvider = { thrown },
                     reportSink = published,
+                    suiteSink = sink,
                 )
             extension.beforeAll(classCtx)
             extension.beforeEach(testCtx)
@@ -610,9 +482,7 @@ class BackupReportCaptureTest {
             thrown!!
         }
 
-        val detailId = extension.detailIdOf(TEST_ID)
-        val record =
-            TestDetailRecord.fromJson(File(resultsDir, "suite-details/$detailId.json").readText())
+        val record = sink.recordOf(testCtx)
 
         assertEquals(listOf("source", "target"), record.actors.map { it.id })
         assertEquals(listOf("SOURCE", "TARGET"), record.actors.map { it.role })
@@ -645,8 +515,7 @@ class BackupReportCaptureTest {
 
     @Test
     fun stepByStepCrossDeviceTestRecordsPhasesSharedStepsBackupRulesProgressAndTelemetry() =
-        withDeviceProperties {
-            val resultsDir = tempFolder.newFolder("results-step-by-step")
+        withSuiteSink { sink ->
             setSuiteBackupSystemProperties(
                 allowBackup = true,
                 dataExtractionRulesRef = "@xml/data_extraction_rules",
@@ -660,7 +529,6 @@ class BackupReportCaptureTest {
                     """
                         .trimIndent(),
             )
-            System.setProperty(RESULTS_DIR, resultsDir.absolutePath)
 
             stubHealthyDevice(sourceDevice, avdName = "Pixel_6_API_31", gmsVersionName = "26.39.33")
             stubHealthyDevice(targetDevice, avdName = "Pixel_8_API_34", gmsVersionName = "26.39.33")
@@ -675,8 +543,8 @@ class BackupReportCaptureTest {
                     emitProgress = true,
                 )
 
-            val extension = BackupRestoreExtension { sourceDevice.session }
-            val classCtx = childContext(rootContext, CLASS_ID)
+            val extension = BackupRestoreExtension({ sourceDevice.session }, sink)
+            val classCtx = childContext(rootContext, CLASS_ID, suiteSink = sink)
 
             // Shared @BeforeAll setup on source controller.
             extension.beforeAll(classCtx)
@@ -701,6 +569,7 @@ class BackupReportCaptureTest {
                     test1Id,
                     failureProvider = { failure1 },
                     reportSink = published1,
+                    suiteSink = sink,
                 )
             extension.beforeEach(test1Ctx)
             val target =
@@ -731,7 +600,8 @@ class BackupReportCaptureTest {
             // steps.
             val published2 = LinkedHashMap<String, String>()
             val test2Id = "$CLASS_ID/[method:testDraftsRestored()]"
-            val test2Ctx = childContext(classCtx, test2Id, reportSink = published2)
+            val test2Ctx =
+                childContext(classCtx, test2Id, reportSink = published2, suiteSink = sink)
             extension.beforeEach(test2Ctx)
             runBlocking {
                 val archive2 =
@@ -746,11 +616,7 @@ class BackupReportCaptureTest {
             extension.afterAll(classCtx)
 
             // Verify Test 1 record.
-            val detail1Id = extension.detailIdOf(test1Id)
-            val record1 =
-                TestDetailRecord.fromJson(
-                    File(resultsDir, "suite-details/$detail1Id.json").readText()
-                )
+            val record1 = sink.recordOf(test1Ctx)
             assertEquals(
                 listOf(
                     Triple(1, "Setup", true),
@@ -794,7 +660,8 @@ class BackupReportCaptureTest {
             assertEquals(2, suppressedMessages.count { it.startsWith("Device logs saved to ") })
 
             // Verify BackupService progress sub-steps in host-log.txt.
-            val hostLog1 = File(resultsDir, "suite-details/$detail1Id/host-log.txt").readText()
+            val hostLog1 =
+                assertNotNull(sink.attachment(test1Id, "host-log.txt")).toFile().readText()
             assertContains(hostLog1, "Backup step 1/2: Initializing transport")
             assertContains(hostLog1, "Restore step 1/2: Pushing restore archive")
 
@@ -816,11 +683,7 @@ class BackupReportCaptureTest {
             assertEquals("SUCCESS", published2[BackupReportKeys.STATUS])
 
             // Verify Test 2 inherited only the shared step (n = 1) plus its own 3 steps (n = 2..4).
-            val detail2Id = extension.detailIdOf(test2Id)
-            val record2 =
-                TestDetailRecord.fromJson(
-                    File(resultsDir, "suite-details/$detail2Id.json").readText()
-                )
+            val record2 = sink.recordOf(test2Ctx)
             assertEquals(
                 listOf(1 to true, 2 to false, 3 to false, 4 to false),
                 record2.steps.map { it.n to it.shared },
@@ -828,62 +691,123 @@ class BackupReportCaptureTest {
         }
 
     @Test
-    fun includeRawArchivesAndCaptureLogcatOnPassFlagsControlOptionalFiles() = withDeviceProperties {
-        val resultsDir = tempFolder.newFolder("results-flags")
-        System.setProperty(RESULTS_DIR, resultsDir.absolutePath)
-        System.setProperty(BackupReportKeys.PROP_INCLUDE_RAW_ARCHIVES, "true")
-        System.setProperty(PROP_CAPTURE_LOGCAT_ON_PASS, "true")
+    fun includeRawArchivesAndCaptureLogcatOnPassFlagsControlOptionalFiles() =
+        withSuiteSink { sink ->
+            System.setProperty(BackupReportKeys.PROP_INCLUDE_RAW_ARCHIVES, "true")
+            System.setProperty(BackupReportKeys.PROP_CAPTURE_LOGCAT_ON_PASS, "true")
 
-        stubHealthyDevice(sourceDevice, logcat = "I BackupManager: backup pass ok\n")
-        val zipService = fakeZipBackupService(entries = mapOf("app_backup" to ByteArray(500) { 7 }))
+            stubHealthyDevice(sourceDevice, logcat = "I BackupManager: backup pass ok\n")
+            val zipService =
+                fakeZipBackupService(entries = mapOf("app_backup" to ByteArray(500) { 7 }))
 
-        val extension = BackupRestoreExtension { sourceDevice.session }
-        val classCtx = childContext(rootContext, CLASS_ID)
-        val testCtx = childContext(classCtx, TEST_ID)
+            val extension = BackupRestoreExtension({ sourceDevice.session }, sink)
+            val classCtx = childContext(rootContext, CLASS_ID, suiteSink = sink)
+            val testCtx = childContext(classCtx, TEST_ID, suiteSink = sink)
 
-        extension.beforeAll(classCtx)
-        extension.beforeEach(testCtx)
-        val controller = newController(sourceDevice, apiLevel = 34, backupService = zipService)
-        extension.track(testCtx, controller)
+            extension.beforeAll(classCtx)
+            extension.beforeEach(testCtx)
+            val controller = newController(sourceDevice, apiLevel = 34, backupService = zipService)
+            extension.track(testCtx, controller)
 
-        val callerTempDir = tempFolder.newFolder("caller-temp")
-        runBlocking {
-            controller.performBackup(
-                BackupTransportMode.CLOUD_ENCRYPTED,
-                callerTempDir.toPath(),
+            val callerTempDir = tempFolder.newFolder("caller-temp")
+            runBlocking {
+                controller.performBackup(
+                    BackupTransportMode.CLOUD_ENCRYPTED,
+                    callerTempDir.toPath(),
+                )
+            }
+            // Simulate caller deleting @TempDir before afterEach runs.
+            callerTempDir.deleteRecursively()
+
+            extension.afterEach(testCtx)
+            extension.afterAll(classCtx)
+
+            val record = sink.recordOf(testCtx)
+
+            assertEquals(
+                listOf("Host log", "Logcat (device)"),
+                record.logs.map { it.title },
             )
+            val savedLogcat =
+                assertNotNull(sink.attachment(TEST_ID, "logcat-$SERIAL_SOURCE.txt")).toFile()
+            assertEquals("I BackupManager: backup pass ok\n", savedLogcat.readText())
+
+            assertEquals(2, record.artifacts.size)
+            val rawAttachment = record.artifacts[1]
+            assertEquals("backup_cloud_encrypted_device.zip", rawAttachment.path)
+            assertNotNull(rawAttachment.values["size"])
+            assertTrue(
+                assertNotNull(sink.attachment(TEST_ID, rawAttachment.path!!)).toFile().isFile
+            )
+
+            // Verify junit_inputs.txt (without -D system property) enables includeRawArchives
+            // and Cuttlefish TCP serials preserve "Logcat (source)" / "Logcat (target)" titles.
+            System.clearProperty(BackupReportKeys.PROP_INCLUDE_RAW_ARCHIVES)
+            System.clearProperty(BackupReportKeys.PROP_CAPTURE_LOGCAT_ON_PASS)
+            val suiteInputs =
+                tempFolder.newFile("junit_inputs.txt").apply {
+                    writer(Charsets.UTF_8).use { writer ->
+                        java.util
+                            .Properties()
+                            .apply {
+                                setProperty(
+                                    BackupReportKeys.PROP_INCLUDE_RAW_ARCHIVES,
+                                    "true",
+                                )
+                                setProperty(BackupReportKeys.PROP_CAPTURE_LOGCAT_ON_PASS, "true")
+                            }
+                            .store(writer, null)
+                    }
+                }
+            val tcpSource = FakeAdbDevice("127.0.0.1:6520").also { stubHealthyDevice(it) }
+            val tcpTarget = FakeAdbDevice("127.0.0.1:6521").also { stubHealthyDevice(it) }
+            val tcpExtension =
+                BackupRestoreExtension({ tcpSource.session }, sink) { suiteInputs.path }
+            val tcpClassCtx = childContext(rootContext, "$CLASS_ID-tcp", suiteSink = sink)
+            val tcpTestId = "$TEST_ID-tcp"
+            val tcpTestCtx = childContext(tcpClassCtx, tcpTestId, suiteSink = sink)
+
+            tcpExtension.beforeAll(tcpClassCtx)
+            tcpExtension.beforeEach(tcpTestCtx)
+            val tcpSourceCtrl = newController(tcpSource, apiLevel = 33, backupService = zipService)
+            val tcpTargetCtrl = newController(tcpTarget, apiLevel = 34, backupService = zipService)
+            tcpExtension.track(tcpTestCtx, tcpSourceCtrl)
+            tcpExtension.track(tcpTestCtx, tcpTargetCtrl)
+
+            val tcpTempDir = tempFolder.newFolder("tcp-temp")
+            runBlocking {
+                val backupPath =
+                    tcpSourceCtrl.performBackup(
+                        BackupTransportMode.DEVICE_TO_DEVICE,
+                        tcpTempDir.toPath(),
+                    )
+                tcpTargetCtrl.performRestore(backupPath)
+            }
+            tcpTempDir.deleteRecursively()
+
+            tcpExtension.afterEach(tcpTestCtx)
+            tcpExtension.afterAll(tcpClassCtx)
+
+            val tcpEntries = sink.entries(tcpTestId)
+            assertEquals(
+                "Logcat (source)",
+                tcpEntries["androidx.report.file.logcat-127.0.0.1_6520.txt.name"],
+            )
+            assertEquals(
+                "Logcat (target)",
+                tcpEntries["androidx.report.file.logcat-127.0.0.1_6521.txt.name"],
+            )
+            val tcpRecord = sink.recordOf(tcpTestCtx)
+            assertEquals(
+                listOf("Host log", "Logcat (source)", "Logcat (target)"),
+                tcpRecord.logs.map { it.title },
+            )
+            assertEquals(2, tcpRecord.artifacts.size)
+            assertNotNull(tcpRecord.artifacts[1].values["size"])
         }
-        // Simulate caller deleting @TempDir before afterEach runs.
-        callerTempDir.deleteRecursively()
-
-        extension.afterEach(testCtx)
-        extension.afterAll(classCtx)
-
-        val detailId = extension.detailIdOf(TEST_ID)
-        val record =
-            TestDetailRecord.fromJson(File(resultsDir, "suite-details/$detailId.json").readText())
-
-        assertEquals(
-            listOf("Host log", "Logcat (device)"),
-            record.logs.map { it.title },
-        )
-        val savedLogcat = File(resultsDir, "suite-details/$detailId/logcat-$SERIAL_SOURCE.txt")
-        assertEquals("I BackupManager: backup pass ok\n", savedLogcat.readText())
-
-        assertEquals(2, record.artifacts.size)
-        val rawAttachment = record.artifacts[1]
-        assertEquals(
-            "suite-details/$detailId/backup_cloud_encrypted_device.zip",
-            rawAttachment.path,
-        )
-        assertTrue(File(resultsDir, rawAttachment.path!!).isFile)
-    }
 
     @Test
-    fun hostLogAndDeviceLogcatRespectByteSizeCaps() = withDeviceProperties {
-        val resultsDir = tempFolder.newFolder("results-caps")
-        System.setProperty(RESULTS_DIR, resultsDir.absolutePath)
-
+    fun hostLogAndDeviceLogcatRespectByteSizeCaps() = withSuiteSink { sink ->
         // Generate > 700 KB of logcat lines with a distinctive tail marker.
         val oversizedLogcat = buildString {
             repeat(10_000) { idx ->
@@ -896,9 +820,10 @@ class BackupReportCaptureTest {
         stubHealthyDevice(sourceDevice, logcat = oversizedLogcat)
 
         val failure = AssertionError("verify failed")
-        val extension = BackupRestoreExtension { sourceDevice.session }
-        val classCtx = childContext(rootContext, CLASS_ID)
-        val testCtx = childContext(classCtx, TEST_ID, failureProvider = { failure })
+        val extension = BackupRestoreExtension({ sourceDevice.session }, sink)
+        val classCtx = childContext(rootContext, CLASS_ID, suiteSink = sink)
+        val testCtx =
+            childContext(classCtx, TEST_ID, failureProvider = { failure }, suiteSink = sink)
 
         extension.beforeAll(classCtx)
         extension.beforeEach(testCtx)
@@ -917,13 +842,11 @@ class BackupReportCaptureTest {
         extension.afterEach(testCtx)
         extension.afterAll(classCtx)
 
-        val detailId = extension.detailIdOf(TEST_ID)
-        val record =
-            TestDetailRecord.fromJson(File(resultsDir, "suite-details/$detailId.json").readText())
+        val record = sink.recordOf(testCtx)
         assertEquals(listOf(true, true), record.logs.map { it.truncated })
 
         val hostLogBytes =
-            Files.readAllBytes(resultsDir.toPath().resolve("suite-details/$detailId/host-log.txt"))
+            Files.readAllBytes(assertNotNull(sink.attachment(TEST_ID, "host-log.txt")))
         assertTrue(
             hostLogBytes.size <= 256 * 1024,
             "Expected host-log.txt <= 262144 bytes, got ${hostLogBytes.size}",
@@ -932,9 +855,7 @@ class BackupReportCaptureTest {
         assertContains(hostLogText, "FINAL_HOST_LOG_TAIL_MARKER")
 
         val logcatBytes =
-            Files.readAllBytes(
-                resultsDir.toPath().resolve("suite-details/$detailId/logcat-$SERIAL_SOURCE.txt")
-            )
+            Files.readAllBytes(assertNotNull(sink.attachment(TEST_ID, "logcat-$SERIAL_SOURCE.txt")))
         assertTrue(
             logcatBytes.size <= 512 * 1024,
             "Expected logcat <= 524288 bytes, got ${logcatBytes.size}",
@@ -997,41 +918,14 @@ class BackupReportCaptureTest {
     }
 
     @Test
-    fun detailIdDistinguishesOverloadedParameterizedRepeatedAndNestedTests() {
-        val extension = BackupRestoreExtension()
-        val ids =
-            listOf(
-                    "[engine:junit-jupiter]/[class:com.a.BackupTest]/[method:run(androidx.test.backup.host.BackupRestoreController)]",
-                    "[engine:junit-jupiter]/[class:com.a.BackupTest]/[method:run(androidx.test.backup.host.BackupRestoreController,java.nio.file.Path)]",
-                    "[engine:junit-jupiter]/[class:com.b.BackupTest]/[method:run(androidx.test.backup.host.BackupRestoreController)]",
-                    "[engine:junit-jupiter]/[class:com.a.BackupTest]/[test-template:run(java.lang.String)]/[test-template-invocation:#1]",
-                    "[engine:junit-jupiter]/[class:com.a.BackupTest]/[test-template:run(java.lang.String)]/[test-template-invocation:#2]",
-                    "[engine:junit-jupiter]/[class:com.a.BackupTest]/[nested-class:SignedIn]/[method:run()]",
-                    "[engine:junit-jupiter]/[class:com.a.BackupTest]/[nested-class:SignedOut]/[method:run()]",
-                )
-                .map { extension.detailIdOf(it) }
-
-        assertEquals(ids.size, ids.toSet().size, "Expected all detailIds to be unique: $ids")
-        val safePattern = Regex("^[A-Za-z0-9._-]+$")
-        for (id in ids) {
-            assertTrue(safePattern.matches(id), "Unsafe detailId: $id")
-        }
-        assertTrue(ids[0].startsWith("BackupTest.run-"))
-        assertTrue(ids[3].startsWith("BackupTest.run.1-"))
-        assertTrue(ids[5].startsWith("BackupTest.SignedIn.run-"))
-    }
-
-    @Test
-    fun deviceLogsDisabledOverridesCaptureLogcatOnPass() = withDeviceProperties {
-        val resultsDir = tempFolder.newFolder("results-disabled-logs")
-        System.setProperty(RESULTS_DIR, resultsDir.absolutePath)
-        System.setProperty(PROP_CAPTURE_LOGCAT_ON_PASS, "true")
-        System.setProperty("androidx.test.backup.device.logs.enabled", "false")
+    fun deviceLogsDisabledOverridesCaptureLogcatOnPass() = withSuiteSink { sink ->
+        System.setProperty(BackupReportKeys.PROP_CAPTURE_LOGCAT_ON_PASS, "true")
+        System.setProperty(BackupReportKeys.PROP_DEVICE_LOGS_ENABLED, "false")
 
         stubHealthyDevice(sourceDevice, logcat = "I Backup: should not save\n")
-        val extension = BackupRestoreExtension { sourceDevice.session }
-        val classCtx = childContext(rootContext, CLASS_ID)
-        val testCtx = childContext(classCtx, TEST_ID)
+        val extension = BackupRestoreExtension({ sourceDevice.session }, sink)
+        val classCtx = childContext(rootContext, CLASS_ID, suiteSink = sink)
+        val testCtx = childContext(classCtx, TEST_ID, suiteSink = sink)
 
         extension.beforeAll(classCtx)
         extension.beforeEach(testCtx)
@@ -1039,17 +933,13 @@ class BackupReportCaptureTest {
         extension.afterEach(testCtx)
         extension.afterAll(classCtx)
 
-        val detailId = extension.detailIdOf(TEST_ID)
-        val record =
-            TestDetailRecord.fromJson(File(resultsDir, "suite-details/$detailId.json").readText())
+        val record = sink.recordOf(testCtx)
         assertEquals(listOf("Host log"), record.logs.map { it.title })
-        assertFalse(File(resultsDir, "suite-details/$detailId/logcat-$SERIAL_SOURCE.txt").exists())
+        assertNull(sink.attachment(TEST_ID, "logcat-$SERIAL_SOURCE.txt"))
     }
 
     @Test
-    fun restoreOnlyTestDetectsTransportModeFromGoldenArchiveMetadata() = withDeviceProperties {
-        val resultsDir = tempFolder.newFolder("results-golden-restore")
-        System.setProperty(RESULTS_DIR, resultsDir.absolutePath)
+    fun restoreOnlyTestDetectsTransportModeFromGoldenArchiveMetadata() = withSuiteSink { sink ->
         stubHealthyDevice(sourceDevice)
 
         val goldenArchive = tempFolder.newFile("golden_fixture.backup").toPath()
@@ -1064,9 +954,9 @@ class BackupReportCaptureTest {
         }
 
         val published = LinkedHashMap<String, String>()
-        val extension = BackupRestoreExtension { sourceDevice.session }
-        val classCtx = childContext(rootContext, CLASS_ID)
-        val testCtx = childContext(classCtx, TEST_ID, reportSink = published)
+        val extension = BackupRestoreExtension({ sourceDevice.session }, sink)
+        val classCtx = childContext(rootContext, CLASS_ID, suiteSink = sink)
+        val testCtx = childContext(classCtx, TEST_ID, reportSink = published, suiteSink = sink)
 
         extension.beforeAll(classCtx)
         extension.beforeEach(testCtx)
@@ -1078,9 +968,7 @@ class BackupReportCaptureTest {
         extension.afterEach(testCtx)
         extension.afterAll(classCtx)
 
-        val detailId = extension.detailIdOf(TEST_ID)
-        val record =
-            TestDetailRecord.fromJson(File(resultsDir, "suite-details/$detailId.json").readText())
+        val record = sink.recordOf(testCtx)
         val attrs = record.summaryAttributes.associateBy { it.key }
         assertEquals("DEVICE_TO_DEVICE", attrs["transport"]?.value)
         assertEquals("Device to device", attrs["transport"]?.displayValue)
@@ -1090,10 +978,7 @@ class BackupReportCaptureTest {
 
     @Test
     fun asyncFutureCallsPropagateStepAndHostLogCaptureAcrossConcurrentTests() =
-        withDeviceProperties {
-            val resultsDir = tempFolder.newFolder("results-async")
-            System.setProperty(RESULTS_DIR, resultsDir.absolutePath)
-
+        withSuiteSink { sink ->
             val executor = Executors.newFixedThreadPool(4)
             val poolDispatcher = executor.asCoroutineDispatcher()
             try {
@@ -1102,14 +987,14 @@ class BackupReportCaptureTest {
                 stubHealthyDevice(deviceA)
                 stubHealthyDevice(deviceB)
 
-                val extension = BackupRestoreExtension { deviceA.session }
-                val classCtx = childContext(rootContext, CLASS_ID)
+                val extension = BackupRestoreExtension({ deviceA.session }, sink)
+                val classCtx = childContext(rootContext, CLASS_ID, suiteSink = sink)
                 extension.beforeAll(classCtx)
 
                 val testAId = "$CLASS_ID/[method:testOne()]"
                 val testBId = "$CLASS_ID/[method:testTwo()]"
-                val testACtx = childContext(classCtx, testAId)
-                val testBCtx = childContext(classCtx, testBId)
+                val testACtx = childContext(classCtx, testAId, suiteSink = sink)
+                val testBCtx = childContext(classCtx, testBId, suiteSink = sink)
 
                 val ctrlA =
                     newController(
@@ -1190,28 +1075,20 @@ class BackupReportCaptureTest {
                 }
                 extension.afterAll(classCtx)
 
-                val idA = extension.detailIdOf(testAId)
-                val recA =
-                    TestDetailRecord.fromJson(
-                        File(resultsDir, "suite-details/$idA.json").readText()
-                    )
+                val recA = sink.recordOf(testACtx)
                 assertEquals(listOf("Setup", "Backup", "Restore"), recA.steps.map { it.name })
                 assertEquals("runOnDevice(\"\u2026SeedAsyncA\")", recA.steps[0].call)
                 assertEquals("performBackup(CLOUD_UNENCRYPTED)", recA.steps[1].call)
-                val logA = File(resultsDir, "suite-details/$idA/host-log.txt").readText()
+                val logA = Files.readString(assertNotNull(sink.attachment(testAId, "host-log.txt")))
                 assertContains(logA, "ASYNC_ONLY_A")
                 assertContains(logA, "Backup step 1/2: Initializing transport")
                 assertFalse("ASYNC_ONLY_B" in logA)
 
-                val idB = extension.detailIdOf(testBId)
-                val recB =
-                    TestDetailRecord.fromJson(
-                        File(resultsDir, "suite-details/$idB.json").readText()
-                    )
+                val recB = sink.recordOf(testBCtx)
                 assertEquals(listOf("Setup", "Backup", "Restore"), recB.steps.map { it.name })
                 assertEquals("runOnDevice(\"\u2026SeedAsyncB\")", recB.steps[0].call)
                 assertEquals("performBackup(DEVICE_TO_DEVICE)", recB.steps[1].call)
-                val logB = File(resultsDir, "suite-details/$idB/host-log.txt").readText()
+                val logB = Files.readString(assertNotNull(sink.attachment(testBId, "host-log.txt")))
                 assertContains(logB, "ASYNC_ONLY_B")
                 assertFalse("ASYNC_ONLY_A" in logB)
             } finally {
@@ -1223,10 +1100,7 @@ class BackupReportCaptureTest {
 
     @Test
     fun multiThreadedDispatcherIsolatesStepsAndHostLogsAcrossSequentialTests() =
-        withDeviceProperties {
-            val resultsDir = tempFolder.newFolder("results-multithreaded")
-            System.setProperty(RESULTS_DIR, resultsDir.absolutePath)
-
+        withSuiteSink { sink ->
             val executor = Executors.newFixedThreadPool(4)
             val poolDispatcher = executor.asCoroutineDispatcher()
             try {
@@ -1263,8 +1137,8 @@ class BackupReportCaptureTest {
                         }
                     }
 
-                val extension = BackupRestoreExtension { pooledDevice.session }
-                val classCtx = childContext(rootContext, CLASS_ID)
+                val extension = BackupRestoreExtension({ pooledDevice.session }, sink)
+                val classCtx = childContext(rootContext, CLASS_ID, suiteSink = sink)
                 extension.beforeAll(classCtx)
                 val sharedController =
                     newController(pooledDevice, apiLevel = 34, backupService = switchingService)
@@ -1281,7 +1155,7 @@ class BackupReportCaptureTest {
 
                 // Test 1 switches across worker threads in both step-by-step and BackupService.
                 val test1Id = "$CLASS_ID/[method:testOne()]"
-                val test1Ctx = childContext(classCtx, test1Id)
+                val test1Ctx = childContext(classCtx, test1Id, suiteSink = sink)
                 extension.beforeEach(test1Ctx)
                 val out1 = tempFolder.newFolder("pool-out-1").toPath()
                 runBlocking {
@@ -1301,7 +1175,7 @@ class BackupReportCaptureTest {
 
                 // Test 2 reuses the same worker pool; nothing from Test 1 may leak into Test 2.
                 val test2Id = "$CLASS_ID/[method:testTwo()]"
-                val test2Ctx = childContext(classCtx, test2Id)
+                val test2Ctx = childContext(classCtx, test2Id, suiteSink = sink)
                 extension.beforeEach(test2Ctx)
                 val out2 = tempFolder.newFolder("pool-out-2").toPath()
                 runBlocking {
@@ -1318,27 +1192,19 @@ class BackupReportCaptureTest {
                 extension.afterEach(test2Ctx)
                 extension.afterAll(classCtx)
 
-                val id1 = extension.detailIdOf(test1Id)
-                val rec1 =
-                    TestDetailRecord.fromJson(
-                        File(resultsDir, "suite-details/$id1.json").readText()
-                    )
+                val rec1 = sink.recordOf(test1Ctx)
                 assertEquals(
                     listOf("Setup", "Backup", "Clear", "Restore"),
                     rec1.steps.map { it.name },
                 )
                 assertEquals(listOf(true, false, false, false), rec1.steps.map { it.shared })
-                val log1 = File(resultsDir, "suite-details/$id1/host-log.txt").readText()
+                val log1 = Files.readString(assertNotNull(sink.attachment(test1Id, "host-log.txt")))
                 assertContains(log1, "SHARED_BEFORE_ALL_MARKER")
                 assertContains(log1, "TEST_ONE_ONLY_MARKER")
                 assertContains(log1, "Pooled backup worker log")
                 assertFalse("TEST_TWO_ONLY_MARKER" in log1)
 
-                val id2 = extension.detailIdOf(test2Id)
-                val rec2 =
-                    TestDetailRecord.fromJson(
-                        File(resultsDir, "suite-details/$id2.json").readText()
-                    )
+                val rec2 = sink.recordOf(test2Ctx)
                 assertEquals(
                     listOf("Setup", "Setup", "Backup", "Clear", "Restore", "Verify"),
                     rec2.steps.map { it.name },
@@ -1347,7 +1213,7 @@ class BackupReportCaptureTest {
                     listOf(true, false, false, false, false, false),
                     rec2.steps.map { it.shared },
                 )
-                val log2 = File(resultsDir, "suite-details/$id2/host-log.txt").readText()
+                val log2 = Files.readString(assertNotNull(sink.attachment(test2Id, "host-log.txt")))
                 assertContains(log2, "SHARED_BEFORE_ALL_MARKER")
                 assertContains(log2, "TEST_TWO_ONLY_MARKER")
                 assertContains(log2, "Pooled backup worker log")
@@ -1360,130 +1226,137 @@ class BackupReportCaptureTest {
         }
 
     @Test
-    fun backupRulesLikelyCauseSkippedForSetupClearAndInfrastructureErrors() = withDeviceProperties {
-        val resultsDir = tempFolder.newFolder("results-rules-gate")
-        setSuiteBackupSystemProperties(allowBackup = false)
-        System.setProperty(RESULTS_DIR, resultsDir.absolutePath)
+    fun backupRulesLikelyCauseSkippedForSetupClearAndInfrastructureErrors() =
+        withSuiteSink { sink ->
+            setSuiteBackupSystemProperties(allowBackup = false)
 
-        // (a) Setup failure in runBackupRestoreFlow must NOT blame allowBackup="false".
-        sourceDevice.onShell { cmd ->
-            when {
-                cmd == "pm list instrumentation $PACKAGE" -> shellOutput("")
-                cmd == "date +%s" -> shellOutput("1700000100\n")
-                cmd.startsWith("logcat ") -> shellOutput("E Runner: missing test apk\n")
-                else -> ShellCommandOutput("", "", 0)
+            // (a) Setup failure in runBackupRestoreFlow must NOT blame allowBackup="false".
+            sourceDevice.onShell { cmd ->
+                when {
+                    cmd == "pm list instrumentation $PACKAGE" -> shellOutput("")
+                    cmd == "date +%s" -> shellOutput("1700000100\n")
+                    cmd.startsWith("logcat ") -> shellOutput("E Runner: missing test apk\n")
+                    else -> ShellCommandOutput("", "", 0)
+                }
             }
+            val extension = BackupRestoreExtension({ sourceDevice.session }, sink)
+            val classCtx = childContext(rootContext, CLASS_ID, suiteSink = sink)
+            extension.beforeAll(classCtx)
+
+            var setupErr: Throwable? = null
+            val setupTestId = "$CLASS_ID/[method:setupFails()]"
+            val setupCtx =
+                childContext(
+                    classCtx,
+                    setupTestId,
+                    failureProvider = { setupErr },
+                    suiteSink = sink,
+                )
+            extension.beforeEach(setupCtx)
+            val c1 = newController(sourceDevice, apiLevel = 34)
+            extension.track(setupCtx, c1)
+            setupErr =
+                assertFailsWith<Exception> {
+                    runBlocking {
+                        c1.runBackupRestoreFlow(
+                            StorageDomain.Preference("prefs", "k", "v"),
+                            tempFolder.newFolder("setup-fail-out").toPath(),
+                            BackupTransportMode.CLOUD_ENCRYPTED,
+                        )
+                    }
+                }
+            extension.afterEach(setupCtx)
+            val setupRecord = sink.recordOf(setupCtx)
+            assertEquals("Setup", setupRecord.steps.first { it.status == "FAILED" }.name)
+            assertNull(setupRecord.callout?.likelyCause)
+
+            // (b) Infrastructure BMGR_INIT_FAILED during Backup must NOT blame allowBackup="false".
+            stubHealthyDevice(sourceDevice)
+            val nonInfraBackupFailService =
+                fakeBackupService(
+                    backupResult =
+                        BackupResult.Error(
+                            ErrorCode.BACKUP_FAILED,
+                            IOException("Backup rejected package"),
+                        )
+                )
+            var infraErr: Throwable? = null
+            val infraTestId = "$CLASS_ID/[method:bmgrInitFails()]"
+            val infraCtx =
+                childContext(
+                    classCtx,
+                    infraTestId,
+                    failureProvider = { infraErr },
+                    suiteSink = sink,
+                )
+            extension.beforeEach(infraCtx)
+            val c2 =
+                newController(
+                    sourceDevice,
+                    apiLevel = 34,
+                    backupService =
+                        mock(BackupService::class.java) { inv ->
+                            if (inv.method.name == "backup") {
+                                throw BackupRestoreException(
+                                    BackupErrorCode.BMGR_INIT_FAILED,
+                                    "Backup Manager failed to initialize",
+                                )
+                            } else {
+                                RETURNS_DEFAULTS.answer(inv)
+                            }
+                        },
+                )
+            extension.track(infraCtx, c2)
+            infraErr =
+                assertFailsWith<BackupRestoreException> {
+                    runBlocking {
+                        c2.performBackup(
+                            BackupTransportMode.CLOUD_ENCRYPTED,
+                            tempFolder.newFolder("infra-fail-out").toPath(),
+                        )
+                    }
+                }
+            extension.afterEach(infraCtx)
+            val infraRecord = sink.recordOf(infraCtx)
+            assertNull(infraRecord.callout?.likelyCause)
+
+            // (c) Non-infrastructure BACKUP_FAILED during Backup DOES report allowBackup="false".
+            var backupErr: Throwable? = null
+            val backupTestId = "$CLASS_ID/[method:backupRejected()]"
+            val backupCtx =
+                childContext(
+                    classCtx,
+                    backupTestId,
+                    failureProvider = { backupErr },
+                    suiteSink = sink,
+                )
+            extension.beforeEach(backupCtx)
+            val c3 =
+                newController(
+                    sourceDevice,
+                    apiLevel = 34,
+                    backupService = nonInfraBackupFailService,
+                )
+            extension.track(backupCtx, c3)
+            backupErr =
+                assertFailsWith<BackupRestoreException> {
+                    runBlocking {
+                        c3.performBackup(
+                            BackupTransportMode.CLOUD_ENCRYPTED,
+                            tempFolder.newFolder("backup-fail-out").toPath(),
+                        )
+                    }
+                }
+            extension.afterEach(backupCtx)
+            extension.afterAll(classCtx)
+
+            val backupRecord = sink.recordOf(backupCtx)
+            assertContains(backupRecord.callout?.likelyCause.orEmpty(), "allowBackup=\"false\"")
         }
-        val extension = BackupRestoreExtension { sourceDevice.session }
-        val classCtx = childContext(rootContext, CLASS_ID)
-        extension.beforeAll(classCtx)
-
-        var setupErr: Throwable? = null
-        val setupTestId = "$CLASS_ID/[method:setupFails()]"
-        val setupCtx = childContext(classCtx, setupTestId, failureProvider = { setupErr })
-        extension.beforeEach(setupCtx)
-        val c1 = newController(sourceDevice, apiLevel = 34)
-        extension.track(setupCtx, c1)
-        setupErr =
-            assertFailsWith<Exception> {
-                runBlocking {
-                    c1.runBackupRestoreFlow(
-                        StorageDomain.Preference("prefs", "k", "v"),
-                        tempFolder.newFolder("setup-fail-out").toPath(),
-                        BackupTransportMode.CLOUD_ENCRYPTED,
-                    )
-                }
-            }
-        extension.afterEach(setupCtx)
-        val setupRecord =
-            TestDetailRecord.fromJson(
-                File(resultsDir, "suite-details/${extension.detailIdOf(setupTestId)}.json")
-                    .readText()
-            )
-        assertEquals("Setup", setupRecord.steps.first { it.status == "FAILED" }.name)
-        assertNull(setupRecord.callout?.likelyCause)
-
-        // (b) Infrastructure BMGR_INIT_FAILED during Backup must NOT blame allowBackup="false".
-        stubHealthyDevice(sourceDevice)
-        val nonInfraBackupFailService =
-            fakeBackupService(
-                backupResult =
-                    BackupResult.Error(
-                        ErrorCode.BACKUP_FAILED,
-                        IOException("Backup rejected package"),
-                    )
-            )
-        var infraErr: Throwable? = null
-        val infraTestId = "$CLASS_ID/[method:bmgrInitFails()]"
-        val infraCtx = childContext(classCtx, infraTestId, failureProvider = { infraErr })
-        extension.beforeEach(infraCtx)
-        val c2 =
-            newController(
-                sourceDevice,
-                apiLevel = 34,
-                backupService =
-                    mock(BackupService::class.java) { inv ->
-                        if (inv.method.name == "backup") {
-                            throw BackupRestoreException(
-                                BackupErrorCode.BMGR_INIT_FAILED,
-                                "Backup Manager failed to initialize",
-                            )
-                        } else {
-                            RETURNS_DEFAULTS.answer(inv)
-                        }
-                    },
-            )
-        extension.track(infraCtx, c2)
-        infraErr =
-            assertFailsWith<BackupRestoreException> {
-                runBlocking {
-                    c2.performBackup(
-                        BackupTransportMode.CLOUD_ENCRYPTED,
-                        tempFolder.newFolder("infra-fail-out").toPath(),
-                    )
-                }
-            }
-        extension.afterEach(infraCtx)
-        val infraRecord =
-            TestDetailRecord.fromJson(
-                File(resultsDir, "suite-details/${extension.detailIdOf(infraTestId)}.json")
-                    .readText()
-            )
-        assertNull(infraRecord.callout?.likelyCause)
-
-        // (c) Non-infrastructure BACKUP_FAILED during Backup DOES report allowBackup="false".
-        var backupErr: Throwable? = null
-        val backupTestId = "$CLASS_ID/[method:backupRejected()]"
-        val backupCtx = childContext(classCtx, backupTestId, failureProvider = { backupErr })
-        extension.beforeEach(backupCtx)
-        val c3 =
-            newController(sourceDevice, apiLevel = 34, backupService = nonInfraBackupFailService)
-        extension.track(backupCtx, c3)
-        backupErr =
-            assertFailsWith<BackupRestoreException> {
-                runBlocking {
-                    c3.performBackup(
-                        BackupTransportMode.CLOUD_ENCRYPTED,
-                        tempFolder.newFolder("backup-fail-out").toPath(),
-                    )
-                }
-            }
-        extension.afterEach(backupCtx)
-        extension.afterAll(classCtx)
-
-        val backupRecord =
-            TestDetailRecord.fromJson(
-                File(resultsDir, "suite-details/${extension.detailIdOf(backupTestId)}.json")
-                    .readText()
-            )
-        assertContains(backupRecord.callout?.likelyCause.orEmpty(), "allowBackup=\"false\"")
-    }
 
     @Test
     fun twoDeviceReversedParameterOrderKeepsSourceBeforeTargetOnBackupFailure() =
-        withDeviceProperties {
-            val resultsDir = tempFolder.newFolder("results-actor-order")
-            System.setProperty(RESULTS_DIR, resultsDir.absolutePath)
+        withSuiteSink { sink ->
             stubHealthyDevice(sourceDevice, avdName = "Pixel_6_API_31")
             stubHealthyDevice(targetDevice, avdName = "Pixel_8_API_34")
 
@@ -1497,9 +1370,10 @@ class BackupReportCaptureTest {
                 )
 
             var failure: Throwable? = null
-            val extension = BackupRestoreExtension { sourceDevice.session }
-            val classCtx = childContext(rootContext, CLASS_ID)
-            val testCtx = childContext(classCtx, TEST_ID, failureProvider = { failure })
+            val extension = BackupRestoreExtension({ sourceDevice.session }, sink)
+            val classCtx = childContext(rootContext, CLASS_ID, suiteSink = sink)
+            val testCtx =
+                childContext(classCtx, TEST_ID, failureProvider = { failure }, suiteSink = sink)
             extension.beforeAll(classCtx)
             extension.beforeEach(testCtx)
 
@@ -1533,11 +1407,7 @@ class BackupReportCaptureTest {
             extension.afterEach(testCtx)
             extension.afterAll(classCtx)
 
-            val detailId = extension.detailIdOf(TEST_ID)
-            val record =
-                TestDetailRecord.fromJson(
-                    File(resultsDir, "suite-details/$detailId.json").readText()
-                )
+            val record = sink.recordOf(testCtx)
             assertEquals(
                 listOf("source" to SERIAL_SOURCE, "target" to SERIAL_TARGET),
                 record.actors.map { it.id to it.serial },
@@ -1546,22 +1416,27 @@ class BackupReportCaptureTest {
 
     @Test
     fun stepByStepActionFailurePreconditionClassTelemetryAndLogDirResolution() =
-        withDeviceProperties {
+        withSuiteSink { sink ->
             stubHealthyDevice(sourceDevice)
-            val extension = BackupRestoreExtension { sourceDevice.session }
 
-            // 1. Run a failing test WITHOUT RESULTS_DIR first (caching fallback temp dir in root).
+            // 1. Run a failing test when file attachment publishing is unavailable (caching
+            // fallback temp dir in rootStore).
+            val fallbackExtension =
+                BackupRestoreExtension(
+                    { sourceDevice.session },
+                    FileAttachmentPublisher { _, _, _, _ -> null },
+                )
             val preFailure = AssertionError("outside suite failure")
             val preClass = childContext(rootContext, "$CLASS_ID-pre")
             val preTest = childContext(preClass, "$TEST_ID-pre", failureProvider = { preFailure })
-            extension.beforeEach(preTest)
-            extension.track(preTest, newController(sourceDevice, apiLevel = 34))
-            extension.afterEach(preTest)
+            fallbackExtension.beforeEach(preTest)
+            fallbackExtension.track(preTest, newController(sourceDevice, apiLevel = 34))
+            fallbackExtension.afterEach(preTest)
             assertEquals(1, preFailure.suppressed.size)
 
-            // 2. Now enable RESULTS_DIR on the same rootStore; logcat must land under RESULTS_DIR.
-            val resultsDir = tempFolder.newFolder("results-telemetry")
-            System.setProperty(RESULTS_DIR, resultsDir.absolutePath)
+            // 2. Now run with JUnit file attachment publishing on the same rootStore; logcat must
+            // be published via sink rather than suppressed into the fallback temp dir.
+            val extension = BackupRestoreExtension({ sourceDevice.session }, sink)
 
             // 3. Step-by-step runOnDevice returning BackupActionResult.Failure + getOrThrow()
             // must emit SEEDING_FAILED rather than UNKNOWN_ERROR.
@@ -1584,7 +1459,7 @@ class BackupReportCaptureTest {
             }
             val actionPublished = LinkedHashMap<String, String>()
             var actionErr: Throwable? = null
-            val classCtx = childContext(rootContext, CLASS_ID)
+            val classCtx = childContext(rootContext, CLASS_ID, suiteSink = sink)
             extension.beforeAll(classCtx)
             val actionTestId = "$CLASS_ID/[method:actionFailure()]"
             val actionCtx =
@@ -1593,6 +1468,7 @@ class BackupReportCaptureTest {
                     actionTestId,
                     failureProvider = { actionErr },
                     reportSink = actionPublished,
+                    suiteSink = sink,
                 )
             extension.beforeEach(actionCtx)
             val c1 = newController(sourceDevice, apiLevel = 34)
@@ -1607,16 +1483,17 @@ class BackupReportCaptureTest {
                 BackupErrorCode.SEEDING_FAILED.name,
                 actionPublished[BackupReportKeys.ERROR_CODE],
             )
-            val actionDetailId = extension.detailIdOf(actionTestId)
             assertTrue(
-                File(resultsDir, "suite-details/$actionDetailId/logcat-$SERIAL_SOURCE.txt").isFile
+                Files.isRegularFile(
+                    assertNotNull(sink.attachment(actionTestId, "logcat-$SERIAL_SOURCE.txt"))
+                )
             )
 
             // 4. Failed require(...) in runBackupRestoreFlow after a shared step must publish
             // BackupRestore.status exactly once.
             stubHealthyDevice(sourceDevice)
             val sharedClassId = "$CLASS_ID-shared"
-            val sharedClassCtx = childContext(rootContext, sharedClassId)
+            val sharedClassCtx = childContext(rootContext, sharedClassId, suiteSink = sink)
             extension.beforeAll(sharedClassCtx)
             val sharedCtrl = newController(sourceDevice, apiLevel = 34)
             extension.track(sharedClassCtx, sharedCtrl)
@@ -1629,6 +1506,7 @@ class BackupReportCaptureTest {
                     sharedClassCtx,
                     "$sharedClassId/[method:emptyStorages()]",
                     failureProvider = { reqErr },
+                    suiteSink = sink,
                 )
             doAnswer { inv ->
                     if (inv.getArgument<String>(0) == BackupReportKeys.STATUS) {
@@ -1672,6 +1550,7 @@ class BackupReportCaptureTest {
                     failingClassId,
                     failureProvider = { classErr },
                     reportSink = classPublished,
+                    suiteSink = sink,
                 )
             extension.beforeAll(failingClassCtx)
             val failingClassCtrl =
@@ -1709,10 +1588,7 @@ class BackupReportCaptureTest {
 
     @Test
     fun perMethodConstructorResolvedInClassContextAndLogcatSaveDoNotLeakAcrossTests() =
-        withDeviceProperties {
-            val resultsDir = tempFolder.newFolder("results-per-method-ctor")
-            System.setProperty(RESULTS_DIR, resultsDir.absolutePath)
-
+        withSuiteSink { sink ->
             sourceDevice.stubOnlineDevices(SERIAL_SOURCE to 34)
             stubHealthyDevice(
                 sourceDevice,
@@ -1721,11 +1597,12 @@ class BackupReportCaptureTest {
                 logcat = "E AppInit: test1 failure log\n",
             )
 
-            val extension = BackupRestoreExtension { sourceDevice.session }
+            val extension = BackupRestoreExtension({ sourceDevice.session }, sink)
             val classCtx =
                 childContext(
                     rootContext,
                     CLASS_ID,
+                    suiteSink = sink,
                     testClass = ConstructorInjectedDummyTestClass::class.java,
                 )
             val ctor = ConstructorInjectedDummyTestClass::class.java.declaredConstructors.single()
@@ -1746,6 +1623,7 @@ class BackupReportCaptureTest {
                     test1Id,
                     failureProvider = { test1Failure },
                     reportSink = published1,
+                    suiteSink = sink,
                     testClass = ConstructorInjectedDummyTestClass::class.java,
                 )
             extension.resolveParameter(paramCtx, classCtx)
@@ -1762,6 +1640,7 @@ class BackupReportCaptureTest {
                     classCtx,
                     test2Id,
                     reportSink = published2,
+                    suiteSink = sink,
                     testClass = ConstructorInjectedDummyTestClass::class.java,
                 )
             extension.resolveParameter(paramCtx, classCtx)
@@ -1769,24 +1648,16 @@ class BackupReportCaptureTest {
             extension.afterEach(test2Ctx)
             extension.afterAll(classCtx)
 
-            val detail1Id = extension.detailIdOf(test1Id)
-            val record1 =
-                TestDetailRecord.fromJson(
-                    File(resultsDir, "suite-details/$detail1Id.json").readText()
-                )
+            val record1 = sink.recordOf(test1Ctx)
             assertEquals(listOf("Prepare"), record1.steps.map { it.name })
             assertFalse(record1.steps.single().shared)
-            val hostLog1 = File(resultsDir, "suite-details/$detail1Id/host-log.txt").readText()
+            val hostLog1 = Files.readString(assertNotNull(sink.attachment(test1Id, "host-log.txt")))
             assertContains(hostLog1, "Saved the logs of $SERIAL_SOURCE")
 
-            val detail2Id = extension.detailIdOf(test2Id)
-            val record2 =
-                TestDetailRecord.fromJson(
-                    File(resultsDir, "suite-details/$detail2Id.json").readText()
-                )
+            val record2 = sink.recordOf(test2Ctx)
             assertEquals(listOf("Prepare"), record2.steps.map { it.name })
             assertFalse(record2.steps.single().shared)
-            val hostLog2 = File(resultsDir, "suite-details/$detail2Id/host-log.txt").readText()
+            val hostLog2 = Files.readString(assertNotNull(sink.attachment(test2Id, "host-log.txt")))
             assertFalse(
                 hostLog2.contains("Saved the logs of $SERIAL_SOURCE"),
                 "Test 1 logcat-save log line must not leak into Test 2 host-log.txt",
@@ -1795,10 +1666,8 @@ class BackupReportCaptureTest {
 
     @Test
     fun postRestoreCleanupErrorsPreservePassedVerifyAndSharedBackupPassingTestsOmitSuccessStatus() =
-        withDeviceProperties {
-            val resultsDir = tempFolder.newFolder("results-attribution")
+        withSuiteSink { sink ->
             setSuiteBackupSystemProperties(allowBackup = false)
-            System.setProperty(RESULTS_DIR, resultsDir.absolutePath)
 
             var failUninstall = false
             sourceDevice.onShell { cmd ->
@@ -1818,8 +1687,8 @@ class BackupReportCaptureTest {
                 }
             }
 
-            val extension = BackupRestoreExtension { sourceDevice.session }
-            val classCtx = childContext(rootContext, CLASS_ID)
+            val extension = BackupRestoreExtension({ sourceDevice.session }, sink)
+            val classCtx = childContext(rootContext, CLASS_ID, suiteSink = sink)
             extension.beforeAll(classCtx)
             val sharedCtrl = newController(sourceDevice, apiLevel = 34)
             extension.track(classCtx, sharedCtrl)
@@ -1834,7 +1703,8 @@ class BackupReportCaptureTest {
             // itself must NOT publish BackupRestore.status=SUCCESS.
             val passPublished = LinkedHashMap<String, String>()
             val passId = "$CLASS_ID/[method:passingAfterSharedBackup()]"
-            val passCtx = childContext(classCtx, passId, reportSink = passPublished)
+            val passCtx =
+                childContext(classCtx, passId, reportSink = passPublished, suiteSink = sink)
             extension.beforeEach(passCtx)
             runBlocking { sharedCtrl.runOnDevice("com.example.InspectState") }
             extension.afterEach(passCtx)
@@ -1852,6 +1722,7 @@ class BackupReportCaptureTest {
                     cleanupId,
                     failureProvider = { cleanupErr },
                     reportSink = cleanupPublished,
+                    suiteSink = sink,
                 )
             extension.beforeEach(cleanupCtx)
             cleanupErr =
@@ -1864,11 +1735,7 @@ class BackupReportCaptureTest {
                 }
             extension.afterEach(cleanupCtx)
 
-            val cleanupRecord =
-                TestDetailRecord.fromJson(
-                    File(resultsDir, "suite-details/${extension.detailIdOf(cleanupId)}.json")
-                        .readText()
-                )
+            val cleanupRecord = sink.recordOf(cleanupCtx)
             assertEquals("PASSED", cleanupRecord.steps.first { it.name == "Verify" }.status)
             assertEquals("FAILED", cleanupRecord.steps.last().status)
             assertNull(cleanupRecord.callout?.likelyCause)
@@ -1888,6 +1755,7 @@ class BackupReportCaptureTest {
                     midId,
                     failureProvider = { midErr },
                     reportSink = midPublished,
+                    suiteSink = sink,
                 )
             extension.beforeEach(midCtx)
             val midCtrl = newController(sourceDevice, apiLevel = 34)
@@ -1913,20 +1781,18 @@ class BackupReportCaptureTest {
 
     @Test
     fun multiLevelNestedClassesInheritSharedStepsSerialsArchiveAndHostLogs() =
-        withDeviceProperties {
-            val resultsDir = tempFolder.newFolder("results-nested")
-            System.setProperty(RESULTS_DIR, resultsDir.absolutePath)
+        withSuiteSink { sink ->
             stubHealthyDevice(sourceDevice, avdName = "Pixel_6_API_31")
             stubHealthyDevice(targetDevice, avdName = "Pixel_8_API_34")
 
-            val extension = BackupRestoreExtension { sourceDevice.session }
-            val outerCtx = childContext(rootContext, CLASS_ID)
+            val extension = BackupRestoreExtension({ sourceDevice.session }, sink)
+            val outerCtx = childContext(rootContext, CLASS_ID, suiteSink = sink)
             val middleId = "$CLASS_ID/[nested-class:Middle]"
-            val middleCtx = childContext(outerCtx, middleId)
+            val middleCtx = childContext(outerCtx, middleId, suiteSink = sink)
             val innerId = "$middleId/[nested-class:Inner]"
-            val innerCtx = childContext(middleCtx, innerId)
+            val innerCtx = childContext(middleCtx, innerId, suiteSink = sink)
             val leafId = "$innerId/[method:nestedTest()]"
-            val leafCtx = childContext(innerCtx, leafId)
+            val leafCtx = childContext(innerCtx, leafId, suiteSink = sink)
 
             extension.beforeAll(outerCtx)
             val sharedSource =
@@ -1965,11 +1831,7 @@ class BackupReportCaptureTest {
             extension.afterAll(middleCtx)
             extension.afterAll(outerCtx)
 
-            val detailId = extension.detailIdOf(leafId)
-            val record =
-                TestDetailRecord.fromJson(
-                    File(resultsDir, "suite-details/$detailId.json").readText()
-                )
+            val record = sink.recordOf(leafCtx)
             assertEquals(
                 listOf("source" to SERIAL_SOURCE, "target" to SERIAL_TARGET),
                 record.actors.map { it.id to it.serial },
@@ -1979,7 +1841,7 @@ class BackupReportCaptureTest {
                 record.steps.map { it.name to it.shared },
             )
             assertEquals("Backup file summary", record.artifacts.single().name)
-            val hostLog = File(resultsDir, "suite-details/$detailId/host-log.txt").readText()
+            val hostLog = Files.readString(assertNotNull(sink.attachment(leafId, "host-log.txt")))
             assertContains(hostLog, "OUTER_ANCESTOR_LOG")
             assertContains(hostLog, "MIDDLE_ANCESTOR_LOG")
             assertContains(hostLog, "INNER_ANCESTOR_LOG")
@@ -1987,32 +1849,22 @@ class BackupReportCaptureTest {
 
     @Test
     fun sourceLocationNeverFabricatesFileNameAndIgnoresLibraryFailureFrames() =
-        withDeviceProperties {
-            val resultsDir = tempFolder.newFolder("results-source-location")
-            System.setProperty(RESULTS_DIR, resultsDir.absolutePath)
+        withSuiteSink { sink ->
             stubHealthyDevice(sourceDevice)
 
-            val extension = BackupRestoreExtension { sourceDevice.session }
-            val classCtx = childContext(rootContext, CLASS_ID)
+            val extension = BackupRestoreExtension({ sourceDevice.session }, sink)
+            val classCtx = childContext(rootContext, CLASS_ID, suiteSink = sink)
             extension.beforeAll(classCtx)
 
             // 1. No controller call and no testClass stack frame -> file is null, never fabricated.
             val noFrameId = "$CLASS_ID/[method:testOne()]"
-            val noFrameCtx = childContext(classCtx, noFrameId)
+            val noFrameCtx = childContext(classCtx, noFrameId, suiteSink = sink)
             extension.beforeEach(noFrameCtx)
             extension.afterEach(noFrameCtx)
 
-            val noFrameRecord =
-                TestDetailRecord.fromJson(
-                    File(resultsDir, "suite-details/${extension.detailIdOf(noFrameId)}.json")
-                        .readText()
-                )
-            assertNull(noFrameRecord.sourceLocation?.file)
-            assertEquals(
-                ConfiguredDummyTestClass::class.java.name,
-                noFrameRecord.sourceLocation?.className,
-            )
-            assertEquals("testOne", noFrameRecord.sourceLocation?.methodName)
+            val noFrameRecord = sink.recordOf(noFrameCtx)
+            assertNull(noFrameRecord.sourceLocation)
+            assertNull(sink.entries(noFrameId)[BackupReportKeys.SOURCE])
 
             // 2. Failure carrying only library stack frames falls back to ownFirstCallFrame rather
             // than blaming com.android.backup.* at line 9999.
@@ -2023,6 +1875,7 @@ class BackupReportCaptureTest {
                     classCtx,
                     libFailId,
                     failureProvider = { libErr },
+                    suiteSink = sink,
                     testClass = BackupReportCaptureTest::class.java,
                 )
             extension.beforeEach(libFailCtx)
@@ -2044,11 +1897,7 @@ class BackupReportCaptureTest {
             extension.afterEach(libFailCtx)
             extension.afterAll(classCtx)
 
-            val libFailRecord =
-                TestDetailRecord.fromJson(
-                    File(resultsDir, "suite-details/${extension.detailIdOf(libFailId)}.json")
-                        .readText()
-                )
+            val libFailRecord = sink.recordOf(libFailCtx)
             assertEquals("BackupReportCaptureTest.kt", libFailRecord.sourceLocation?.file)
             assertNotEquals(9999, libFailRecord.sourceLocation?.line)
             assertTrue((libFailRecord.sourceLocation?.line ?: 0) > 0)
@@ -2056,18 +1905,16 @@ class BackupReportCaptureTest {
 
     @Test
     fun coversAsyncUnwrapStepAttributionClosedCaptureRolePreserveCancellationAndLogDrop() =
-        withDeviceProperties {
-            val resultsDir = tempFolder.newFolder("results-r2-coverage")
+        withSuiteSink { sink ->
             setSuiteBackupSystemProperties(allowBackup = false)
-            System.setProperty(RESULTS_DIR, resultsDir.absolutePath)
             stubHealthyDevice(sourceDevice)
 
-            val extension = BackupRestoreExtension { sourceDevice.session }
+            val extension = BackupRestoreExtension({ sourceDevice.session }, sink)
 
-            // 1. (R2-A-M1) Java *Async ExecutionException wrapping BackupRestoreException(GMSCORE)
+            // 1. Java *Async ExecutionException wrapping BackupRestoreException(GMSCORE)
             // unwraps to GMSCORE_OUTDATED_OR_MISSING and skips BackupRulesChecker.
             val asyncClassId = "$CLASS_ID-async-unwrap"
-            val asyncClassCtx = childContext(rootContext, asyncClassId)
+            val asyncClassCtx = childContext(rootContext, asyncClassId, suiteSink = sink)
             extension.beforeAll(asyncClassCtx)
 
             val gmsAsyncPublished = LinkedHashMap<String, String>()
@@ -2079,6 +1926,7 @@ class BackupReportCaptureTest {
                     gmsTestId,
                     failureProvider = { gmsAsyncErr },
                     reportSink = gmsAsyncPublished,
+                    suiteSink = sink,
                 )
             extension.beforeEach(gmsTestCtx)
             val gmsCtrl =
@@ -2113,17 +1961,13 @@ class BackupReportCaptureTest {
                 BackupErrorCode.GMSCORE_OUTDATED_OR_MISSING.name,
                 gmsAsyncPublished[BackupReportKeys.ERROR_CODE],
             )
-            val gmsRecord =
-                TestDetailRecord.fromJson(
-                    File(resultsDir, "suite-details/${extension.detailIdOf(gmsTestId)}.json")
-                        .readText()
-                )
+            val gmsRecord = sink.recordOf(gmsTestCtx)
             assertNull(gmsRecord.callout?.likelyCause)
             assertEquals("STEP_FAILURE", gmsRecord.callout?.kind)
 
-            // 2. (R2-A-M1 & R2-A-M2) Caught earlier step failure before post-restore AssertionError
-            // wrapped in ExecutionException adds synthetic Verify (FAILED) rather than blaming the
-            // caught step, and unwraps AssertionError to ASSERTION_FAILURE.
+            // 2. Caught earlier step failure before post-restore AssertionError wrapped in
+            // ExecutionException adds synthetic Verify (FAILED) rather than blaming the caught
+            // step, and unwraps AssertionError to ASSERTION_FAILURE.
             val caughtPublished = LinkedHashMap<String, String>()
             var caughtErr: Throwable? = null
             val caughtTestId = "$asyncClassId/[method:testOne()]"
@@ -2133,6 +1977,7 @@ class BackupReportCaptureTest {
                     caughtTestId,
                     failureProvider = { caughtErr },
                     reportSink = caughtPublished,
+                    suiteSink = sink,
                 )
             extension.beforeEach(caughtTestCtx)
             var failFirstClear = true
@@ -2168,11 +2013,7 @@ class BackupReportCaptureTest {
             extension.afterEach(caughtTestCtx)
             extension.afterAll(asyncClassCtx)
 
-            val caughtRecord =
-                TestDetailRecord.fromJson(
-                    File(resultsDir, "suite-details/${extension.detailIdOf(caughtTestId)}.json")
-                        .readText()
-                )
+            val caughtRecord = sink.recordOf(caughtTestCtx)
             assertEquals("ASSERTION_FAILURE", caughtRecord.callout?.kind)
             assertEquals("Verify", caughtRecord.steps.last().name)
             assertEquals("FAILED", caughtRecord.steps.last().status)
@@ -2181,12 +2022,13 @@ class BackupReportCaptureTest {
                 caughtPublished[BackupReportKeys.ERROR_CODE],
             )
 
-            // 3. (R2-A-M2) @BeforeAll runOnDevice(...).getOrThrow() failure marks the shared Setup
-            // step as FAILED in afterAll; and a 0-step @Test failure after @BeforeAll backup does
-            // not re-emit BACKUP_FAILED or mark the shared Backup step as FAILED.
+            // 3. @BeforeAll runOnDevice(...).getOrThrow() failure marks the shared Setup step as
+            // FAILED in afterAll; and a 0-step @Test failure after @BeforeAll backup does not
+            // re-emit BACKUP_FAILED or mark the shared Backup step as FAILED.
             stubHealthyDevice(sourceDevice)
             val sharedBackupClassId = "$CLASS_ID-shared-bkp-zero"
-            val sharedBackupClassCtx = childContext(rootContext, sharedBackupClassId)
+            val sharedBackupClassCtx =
+                childContext(rootContext, sharedBackupClassId, suiteSink = sink)
             extension.beforeAll(sharedBackupClassCtx)
             val sharedBkpCtrl = newController(sourceDevice, apiLevel = 34)
             extension.track(sharedBackupClassCtx, sharedBkpCtrl)
@@ -2205,11 +2047,11 @@ class BackupReportCaptureTest {
                     zeroStepId,
                     failureProvider = { zeroStepErr },
                     reportSink = zeroStepPublished,
+                    suiteSink = sink,
                 )
             extension.beforeEach(zeroStepCtx)
             // Merge child controller with explicitRole="source" to verify
-            // sharedBkpCtrl.explicitRole
-            // is not mutated (R2-A-M4).
+            // sharedBkpCtrl.explicitRole is not mutated.
             val childSourceCtrl = newController(sourceDevice, apiLevel = 34, role = "source")
             extension.track(zeroStepCtx, childSourceCtrl)
             assertEquals("", sharedBkpCtrl.explicitRole)
@@ -2218,11 +2060,7 @@ class BackupReportCaptureTest {
             extension.afterAll(sharedBackupClassCtx)
 
             assertNull(zeroStepPublished[BackupReportKeys.STATUS])
-            val zeroStepRecord =
-                TestDetailRecord.fromJson(
-                    File(resultsDir, "suite-details/${extension.detailIdOf(zeroStepId)}.json")
-                        .readText()
-                )
+            val zeroStepRecord = sink.recordOf(zeroStepCtx)
             assertEquals("PASSED", zeroStepRecord.steps.single().status)
 
             // Also verify @BeforeAll getOrThrow() failure marks the class's own Setup step FAILED.
@@ -2250,6 +2088,7 @@ class BackupReportCaptureTest {
                     rootContext,
                     beforeAllFailClassId,
                     failureProvider = { beforeAllActionErr },
+                    suiteSink = sink,
                 )
             extension.beforeAll(beforeAllFailClassCtx)
             val beforeAllCtrl = newController(sourceDevice, apiLevel = 34)
@@ -2259,18 +2098,11 @@ class BackupReportCaptureTest {
                     runBlocking { beforeAllCtrl.runOnDevice("com.example.Seed").getOrThrow() }
                 }
             extension.afterAll(beforeAllFailClassCtx)
-            val beforeAllRecord =
-                TestDetailRecord.fromJson(
-                    File(
-                            resultsDir,
-                            "suite-details/${extension.detailIdOf(beforeAllFailClassId)}.json",
-                        )
-                        .readText()
-                )
+            val beforeAllRecord = sink.recordOf(beforeAllFailClassCtx)
             assertEquals("FAILED", beforeAllRecord.steps.single().status)
 
-            // 4. (R2-A-M3) Closed CaptureContextElement suppresses single-leaf fallback to Test 2,
-            // and recordArchive after close() deletes its temp copy immediately.
+            // 4. Closed CaptureContextElement suppresses single-leaf fallback to Test 2, and
+            // recordArchive after close() deletes its temp copy immediately.
             val closedCapture =
                 TestExecutionCapture(
                     start = java.time.Instant.now(),
@@ -2291,9 +2123,7 @@ class BackupReportCaptureTest {
                 val closedCtx = closedCapture.coroutineContext()
                 closedCapture.close()
                 ActiveCaptureContext.clearCurrentThread()
-                runBlocking(closedCtx) {
-                    assertNull(ActiveCaptureContext.current())
-                }
+                runBlocking(closedCtx) { assertNull(ActiveCaptureContext.current()) }
                 val tempBefore =
                     File(System.getProperty("java.io.tmpdir"))
                         .listFiles { _, name ->
@@ -2321,7 +2151,7 @@ class BackupReportCaptureTest {
                 openCapture.close()
             }
 
-            // 5. (R2-A-M5) DeviceFactsReader.read rethrows CancellationException.
+            // 5. DeviceFactsReader.read rethrows CancellationException.
             sourceDevice.onShell { cmd ->
                 if (cmd == "pm list packages --show-versioncode com.google.android.gms") {
                     throw CancellationException("cancelled during device facts read")
@@ -2338,8 +2168,8 @@ class BackupReportCaptureTest {
                 }
             }
 
-            // 6. (R2-A-M6) HostLogCollector.appendRaw bounded newline scan preserves 256 KB tail
-            // on long single-line inputs and does not split UTF-16 surrogate pairs.
+            // 6. HostLogCollector.appendRaw bounded newline scan preserves 256 KB tail on long
+            // single-line inputs and does not split UTF-16 surrogate pairs.
             val collector = HostLogCollector()
             val surrogatePair = "\uD83D\uDE00" // 😀 (2 UTF-16 chars, 4 UTF-8 bytes)
             val longSingleLine = buildString {
@@ -2490,11 +2320,17 @@ class BackupReportCaptureTest {
             }
         }
 
+    private fun withSuiteSink(block: (TestSuiteReportSink) -> Unit) = withDeviceProperties {
+        val sink = TestSuiteReportSink(tempFolder.newFolder())
+        block(sink)
+    }
+
     private fun childContext(
         parent: ExtensionContext,
         uniqueId: String,
         failureProvider: () -> Throwable? = { null },
         reportSink: MutableMap<String, String>? = null,
+        suiteSink: TestSuiteReportSink? = null,
         testClass: Class<*> = ConfiguredDummyTestClass::class.java,
     ): ExtensionContext =
         createChildContext(
@@ -2503,6 +2339,7 @@ class BackupReportCaptureTest {
             stores = stores,
             failureProvider = failureProvider,
             reportSink = reportSink,
+            suiteSink = suiteSink,
             testClass = testClass,
         )
 
@@ -2512,111 +2349,11 @@ class BackupReportCaptureTest {
         const val PACKAGE = "com.example.journaling"
         const val SERIAL_SOURCE = "emulator-5554"
         const val SERIAL_TARGET = "emulator-5556"
-        const val PROP_CAPTURE_LOGCAT_ON_PASS = "androidx.test.backup.report.captureLogcatOnPass"
         const val CLASS_ID = "[engine:junit-jupiter]/[class:com.example.journaling.MigrationTests]"
         const val TEST_ID =
             "$CLASS_ID/[method:restoresData(androidx.test.backup.host.BackupRestoreController)]"
     }
 }
-
-/** Parses a [TestDetailRecord] from JSON text in tests. */
-internal fun TestDetailRecord.Companion.fromJson(jsonText: String): TestDetailRecord {
-    val root = Json.parseToJsonElement(jsonText).jsonObject
-    return TestDetailRecord(
-        schemaVersion = root["schemaVersion"].asIntOrNull() ?: 1,
-        suiteType = root["suiteType"].asStringOrNull() ?: "androidx.test.backup",
-        sourceLocation =
-            root["sourceLocation"].asObjectOrNull()?.let { loc ->
-                TestDetailRecord.SourceLocation(
-                    file = loc["file"].asStringOrNull(),
-                    line = loc["line"].asIntOrNull(),
-                    className = loc["className"].asString(),
-                    methodName = loc["methodName"].asStringOrNull(),
-                )
-            },
-        summaryAttributes =
-            root["summaryAttributes"]?.jsonArray?.map { el ->
-                val obj = el.jsonObject
-                TestDetailRecord.SummaryAttribute(
-                    key = obj["key"].asString(),
-                    label = obj["label"].asString(),
-                    value = obj["value"].asString(),
-                    displayValue = obj["displayValue"].asString(),
-                    filterable = obj["filterable"].asBooleanOrNull() ?: false,
-                )
-            } ?: emptyList(),
-        callout =
-            root["callout"].asObjectOrNull()?.let { co ->
-                TestDetailRecord.Callout(
-                    kind = co["kind"].asString(),
-                    failedStep = co["failedStep"].asIntOrNull(),
-                    title = co["title"].asString(),
-                    message = co["message"].asString(),
-                    likelyCause = co["likelyCause"].asStringOrNull(),
-                )
-            },
-        actors =
-            root["actors"]?.jsonArray?.map { el ->
-                val obj = el.jsonObject
-                TestDetailRecord.ActorRecord(
-                    id = obj["id"].asString(),
-                    role = obj["role"].asString(),
-                    name = obj["name"].asString(),
-                    api = obj["api"].asIntOrNull() ?: 0,
-                    serial = obj["serial"].asString(),
-                    image = obj["image"].asString(),
-                    playServices = obj["playServices"].asStringOrNull(),
-                )
-            } ?: emptyList(),
-        steps =
-            root["steps"]?.jsonArray?.map { el ->
-                val obj = el.jsonObject
-                TestDetailRecord.StepRecord(
-                    n = obj["n"].asIntOrNull(),
-                    name = obj["name"].asString(),
-                    on = obj["on"].asStringOrNull(),
-                    shared = obj["shared"].asBooleanOrNull() ?: false,
-                    call = obj["call"].asString(),
-                    durationMs = obj["durationMs"].asLongOrNull() ?: 0L,
-                    status = obj["status"].asString(),
-                )
-            } ?: emptyList(),
-        logs =
-            root["logs"]?.jsonArray?.map { el ->
-                val obj = el.jsonObject
-                TestDetailRecord.LogRecord(
-                    title = obj["title"].asString(),
-                    path = obj["path"].asString(),
-                    truncated = obj["truncated"].asBooleanOrNull() ?: false,
-                )
-            } ?: emptyList(),
-        artifacts =
-            root["artifacts"]?.jsonArray?.map { el ->
-                val obj = el.jsonObject
-                val valuesMap =
-                    obj["values"].asObjectOrNull()?.mapValues { (_, v) -> v.asString() }
-                        ?: emptyMap()
-                TestDetailRecord.ArtifactEntry(
-                    name = obj["name"].asString(),
-                    values = valuesMap,
-                    path = obj["path"].asStringOrNull(),
-                )
-            } ?: emptyList(),
-    )
-}
-
-private fun JsonElement?.asObjectOrNull(): JsonObject? =
-    if (this == null || this is JsonNull) null else jsonObject
-
-private fun JsonElement?.asStringOrNull(): String? = (this as? JsonPrimitive)?.contentOrNull
-
-private fun JsonElement?.asString(): String = asStringOrNull().orEmpty()
-
-private fun JsonElement?.asIntOrNull(): Int? = (this as? JsonPrimitive)?.intOrNull
-
-private fun JsonElement?.asLongOrNull(): Long? = (this as? JsonPrimitive)?.longOrNull
-
-private fun JsonElement?.asBooleanOrNull(): Boolean? = (this as? JsonPrimitive)?.booleanOrNull
 
 /** Reconstructs a [TestDetailRecord] from JUnit report [entries] and [attachedFiles] in tests. */
 internal fun TestDetailRecord.Companion.fromReportEntries(

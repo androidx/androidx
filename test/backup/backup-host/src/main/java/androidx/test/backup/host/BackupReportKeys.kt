@@ -62,11 +62,6 @@ internal object BackupReportKeys {
     /** Human-readable description of the failure. */
     const val ERROR_MESSAGE = "BackupRestore.errorMessage"
 
-    /**
-     * Relative path from the suite results directory to the test's [TestDetailRecord] JSON file.
-     */
-    const val DETAIL_PATH = "androidx.report.detailPath"
-
     /** Prefix shared by all structured test report entries. */
     const val REPORT_PREFIX = "androidx.report."
 
