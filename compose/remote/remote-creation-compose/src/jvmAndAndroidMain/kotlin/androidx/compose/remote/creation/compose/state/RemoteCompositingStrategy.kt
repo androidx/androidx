@@ -16,12 +16,10 @@
 
 package androidx.compose.remote.creation.compose.state
 
-import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Immutable
 import kotlin.jvm.JvmInline
 
 /** Determines when to render content into an offscreen buffer before compositing. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
 @JvmInline
 public value class RemoteCompositingStrategy internal constructor(internal val value: Int) {
