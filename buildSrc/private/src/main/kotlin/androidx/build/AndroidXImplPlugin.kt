@@ -211,9 +211,13 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
         project.tasks.withType(Test::class.java).configureEach { task ->
             task.javaLauncher.set(
                 project.the<JavaToolchainService>().launcherFor {
-                    it.languageVersion.set(JavaLanguageVersion.of(21))
+                    it.languageVersion.set(JavaLanguageVersion.of(25))
                 }
             )
+            // Keep JDK 24+ native access warnings (e.g. sqlite) out of the build log.
+            task.jvmArgs("--enable-native-access=ALL-UNNAMED")
+            // Keep JDK 24+ sun.misc.Unsafe warnings (e.g. protobuf) out of the build log.
+            task.systemProperty("sun.misc.unsafe.memory.access", "allow")
         }
 
         project.configureTaskTimeouts()

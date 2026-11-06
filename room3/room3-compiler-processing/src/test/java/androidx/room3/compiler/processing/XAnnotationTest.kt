@@ -1648,17 +1648,9 @@ class XAnnotationTest(private val preCompiled: Boolean) {
                             constructor.parameters.single().type.typeArguments.single().type,
                     )
                     .forEach { (desc, type) ->
-                        if (!invocation.isKsp && source == javaSource && preCompiled) {
-                            // We can't see type annotations from precompiled Java classes in JAVAC.
-                            //   https://github.com/google/ksp/issues/1296
-                            assertWithMessage("$desc type: $type")
-                                .that(type.getAllAnnotationTypeElements())
-                                .isEmpty()
-                        } else {
-                            assertWithMessage("$desc type: $type")
-                                .that(type.getAllAnnotationTypeElements())
-                                .containsExactly(a, b)
-                        }
+                        assertWithMessage("$desc type: $type")
+                            .that(type.getAllAnnotationTypeElements())
+                            .containsExactly(a, b)
                     }
             }
         }
