@@ -135,6 +135,36 @@ class CompositeKeyRelationshipTest {
         val classInfo: List<ClassInfo>,
     )
 
+    @Entity(primaryKeys = ["k1", "k2", "k3", "k4", "k5", "k6"])
+    data class SixKeyParent(
+        val k1: Long,
+        val k2: Long,
+        val k3: Long,
+        val k4: Long,
+        val k5: Long,
+        val k6: Long,
+    )
+
+    @Entity
+    data class SixKeyChild(
+        @PrimaryKey val childId: Long,
+        val p1: Long,
+        val p2: Long,
+        val p3: Long,
+        val p4: Long,
+        val p5: Long,
+        val p6: Long,
+    )
+
+    data class SixKeyParentWithChildren(
+        @Embedded val parent: SixKeyParent,
+        @Relation(
+            parentColumns = ["k1", "k2", "k3", "k4", "k5", "k6"],
+            entityColumns = ["p1", "p2", "p3", "p4", "p5", "p6"],
+        )
+        val children: List<SixKeyChild>,
+    )
+
     @Dao
     interface MyDao {
         @Insert fun insertStudent(student: Student)
@@ -160,10 +190,26 @@ class CompositeKeyRelationshipTest {
         @Transaction
         @Query("SELECT * FROM Student")
         fun getStudentsWithClassNames(): List<StudentWithClassNames>
+
+        @Insert fun insertSixKeyParents(parents: List<SixKeyParent>)
+
+        @Insert fun insertSixKeyChildren(children: List<SixKeyChild>)
+
+        @Transaction
+        @Query("SELECT * FROM SixKeyParent")
+        fun getSixKeyParentsWithChildren(): List<SixKeyParentWithChildren>
     }
 
     @Database(
-        entities = [Student::class, Class::class, Enrollment::class, ClubMembership::class],
+        entities =
+            [
+                Student::class,
+                Class::class,
+                Enrollment::class,
+                ClubMembership::class,
+                SixKeyParent::class,
+                SixKeyChild::class,
+            ],
         version = 1,
         exportSchema = false,
     )
@@ -251,5 +297,18 @@ class CompositeKeyRelationshipTest {
         assertThat(result.first().student).isEqualTo(student)
         assertThat(result.first().classInfo)
             .containsExactly(ClassInfo("Math"), ClassInfo("History"))
+    }
+
+    @Test
+    fun testQueryForManyParentsStaysUnderVariableLimit() {
+        val parents = (1L..911L).map { SixKeyParent(it, it, it, it, it, it) }
+        val child = SixKeyChild(1, 5, 5, 5, 5, 5, 5)
+        dao.insertSixKeyParents(parents)
+        dao.insertSixKeyChildren(listOf(child))
+
+        val result = dao.getSixKeyParentsWithChildren()
+        assertThat(result).hasSize(911)
+        assertThat(result.single { it.parent.k1 == 5L }.children).containsExactly(child)
+        assertThat(result.filter { it.parent.k1 != 5L }.all { it.children.isEmpty() }).isTrue()
     }
 }

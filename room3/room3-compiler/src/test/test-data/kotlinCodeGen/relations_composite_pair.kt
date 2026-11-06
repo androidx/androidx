@@ -188,8 +188,7 @@ internal class MyDao_Impl(
     val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT `c1`, `c2` FROM `Child`")
     _stringBuilder.append(" WHERE (`c1`, `c2`) IN (")
-    val _inputSize: Int = __mapKeySet.size * 2
-    appendRowValuePlaceholders(_stringBuilder, _inputSize, 2)
+    appendRowValuePlaceholders(_stringBuilder, __mapKeySet.size, 2)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
     val _stmt: SQLiteStatement = _connection.prepare(_sql)
@@ -245,8 +244,7 @@ internal class MyDao_Impl(
     val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT `c1`, `c2` FROM `Child`")
     _stringBuilder.append(" WHERE (`c1`, `c2`) IN (")
-    val _inputSize: Int = __mapKeySet.size * 2
-    appendRowValuePlaceholders(_stringBuilder, _inputSize, 2)
+    appendRowValuePlaceholders(_stringBuilder, __mapKeySet.size, 2)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
     val _stmt: SQLiteStatement = _connection.prepare(_sql)
@@ -303,8 +301,7 @@ internal class MyDao_Impl(
     val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT `Child`.`c1` AS `c1`, `Child`.`c2` AS `c2`, _junction.`pk1`, _junction.`pk2` FROM `ParentChildXRef` AS _junction INNER JOIN `Child` ON _junction.`ck1` = `Child`.`c1` AND _junction.`ck2` = `Child`.`c2`")
     _stringBuilder.append(" WHERE (_junction.`pk1`, _junction.`pk2`) IN (")
-    val _inputSize: Int = __mapKeySet.size * 2
-    appendRowValuePlaceholders(_stringBuilder, _inputSize, 2)
+    appendRowValuePlaceholders(_stringBuilder, __mapKeySet.size, 2)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
     val _stmt: SQLiteStatement = _connection.prepare(_sql)
