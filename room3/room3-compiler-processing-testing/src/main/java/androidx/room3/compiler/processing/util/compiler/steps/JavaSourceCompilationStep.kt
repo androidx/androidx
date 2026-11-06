@@ -61,7 +61,7 @@ internal object JavaSourceCompilationStep : KotlinCompilationStep {
         val generatedClasses =
             if (result.status() == Compilation.Status.SUCCESS) {
                 val classpathOut = workingDir.resolve(GEN_CLASS_OUT)
-                result.generatedFiles().map {
+                result.generatedFiles().forEach {
                     val targetFile =
                         classpathOut
                             .resolve(it.toUri().path.substringAfter("CLASS_OUTPUT/"))

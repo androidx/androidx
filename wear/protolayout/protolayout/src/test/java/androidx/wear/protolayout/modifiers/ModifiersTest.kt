@@ -256,7 +256,7 @@ class ModifiersTest {
 
         assertThat(collectedPendingIntents.containsKey(id)).isTrue()
         assertThat(
-                BundleCompat.getParcelable<PendingIntent?>(
+                BundleCompat.getParcelable(
                     collectedPendingIntents,
                     id,
                     PendingIntent::class.java,

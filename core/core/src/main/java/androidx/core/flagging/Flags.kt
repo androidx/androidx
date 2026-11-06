@@ -22,7 +22,6 @@ import android.os.Build.VERSION.SDK_INT
 import android.os.flagging.AconfigPackage
 import android.os.flagging.AconfigStorageReadException
 import androidx.annotation.ChecksSdkIntAtLeast
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX
 import java.util.concurrent.ConcurrentHashMap
@@ -36,11 +35,8 @@ import java.util.concurrent.CopyOnWriteArraySet
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class Flags {
     public companion object {
-        @get:RequiresApi(36)
         private val aconfigCache: MutableMap<String, AconfigPackage>? =
             if (SDK_INT >= 36) ConcurrentHashMap() else null
-
-        @get:RequiresApi(36)
         private val missingPackageCache: MutableSet<String>? =
             if (SDK_INT >= 36) CopyOnWriteArraySet() else null
 

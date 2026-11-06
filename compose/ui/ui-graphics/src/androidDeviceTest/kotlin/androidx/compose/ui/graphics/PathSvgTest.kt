@@ -171,7 +171,7 @@ class PathSvgTest {
         assertPathEquals(reference, twoRects)
     }
 
-    @Test(IllegalArgumentException::class)
+    @Test(expected = IllegalArgumentException::class)
     fun addInvalidSvg() {
         Path().apply {
             // 'K' is an invalid SVG instruction

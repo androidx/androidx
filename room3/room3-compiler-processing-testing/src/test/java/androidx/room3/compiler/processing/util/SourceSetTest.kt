@@ -18,7 +18,7 @@ package androidx.room3.compiler.processing.util
 
 import androidx.room3.compiler.processing.util.compiler.SourceSet
 import com.google.common.truth.Truth.assertThat
-import org.jetbrains.kotlin.konan.file.File
+import java.io.File
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
