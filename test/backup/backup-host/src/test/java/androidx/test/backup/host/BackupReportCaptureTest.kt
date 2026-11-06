@@ -511,8 +511,7 @@ class BackupReportCaptureTest {
     fun stepByStepCrossDeviceTestRecordsPhasesSharedStepsBackupRulesProgressAndTelemetry() =
         withDeviceProperties {
             val resultsDir = tempFolder.newFolder("results-step-by-step")
-            writeSuiteEnvironmentJson(
-                resultsDir,
+            setSuiteBackupSystemProperties(
                 allowBackup = true,
                 dataExtractionRulesRef = "@xml/data_extraction_rules",
                 dataExtractionRulesXml =
@@ -696,7 +695,7 @@ class BackupReportCaptureTest {
     fun includeRawArchivesAndCaptureLogcatOnPassFlagsControlOptionalFiles() = withDeviceProperties {
         val resultsDir = tempFolder.newFolder("results-flags")
         System.setProperty(RESULTS_DIR, resultsDir.absolutePath)
-        System.setProperty(BackupRestoreControllerImpl.PROP_INCLUDE_RAW_ARCHIVES, "true")
+        System.setProperty(BackupReportKeys.PROP_INCLUDE_RAW_ARCHIVES, "true")
         System.setProperty(PROP_CAPTURE_LOGCAT_ON_PASS, "true")
 
         stubHealthyDevice(sourceDevice, logcat = "I BackupManager: backup pass ok\n")
@@ -1227,7 +1226,7 @@ class BackupReportCaptureTest {
     @Test
     fun backupRulesLikelyCauseSkippedForSetupClearAndInfrastructureErrors() = withDeviceProperties {
         val resultsDir = tempFolder.newFolder("results-rules-gate")
-        writeSuiteEnvironmentJson(resultsDir, allowBackup = false)
+        setSuiteBackupSystemProperties(allowBackup = false)
         System.setProperty(RESULTS_DIR, resultsDir.absolutePath)
 
         // (a) Setup failure in runBackupRestoreFlow must NOT blame allowBackup="false".
@@ -1662,7 +1661,7 @@ class BackupReportCaptureTest {
     fun postRestoreCleanupErrorsPreservePassedVerifyAndSharedBackupPassingTestsOmitSuccessStatus() =
         withDeviceProperties {
             val resultsDir = tempFolder.newFolder("results-attribution")
-            writeSuiteEnvironmentJson(resultsDir, allowBackup = false)
+            setSuiteBackupSystemProperties(allowBackup = false)
             System.setProperty(RESULTS_DIR, resultsDir.absolutePath)
 
             var failUninstall = false
@@ -1923,7 +1922,7 @@ class BackupReportCaptureTest {
     fun coversAsyncUnwrapStepAttributionClosedCaptureRolePreserveCancellationAndLogDrop() =
         withDeviceProperties {
             val resultsDir = tempFolder.newFolder("results-r2-coverage")
-            writeSuiteEnvironmentJson(resultsDir, allowBackup = false)
+            setSuiteBackupSystemProperties(allowBackup = false)
             System.setProperty(RESULTS_DIR, resultsDir.absolutePath)
             stubHealthyDevice(sourceDevice)
 

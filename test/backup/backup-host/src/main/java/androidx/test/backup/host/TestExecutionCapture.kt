@@ -23,6 +23,7 @@ import java.nio.file.StandardCopyOption
 import java.time.Duration
 import java.time.Instant
 import java.util.Locale
+import java.util.Properties
 import java.util.concurrent.CompletionException
 import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.ExecutionException
@@ -505,7 +506,7 @@ internal class TestExecutionCapture(
         detailDir: Path?,
         savedLogcatFiles: Map<String, SavedLogcatFile>,
         failure: Throwable?,
-        resultsDirPath: String?,
+        suiteProperties: Properties?,
     ): FinalizedReport {
         val mergedControllers = collectMergedControllers()
         val backupSerial = effectiveBackupSerial
@@ -605,7 +606,7 @@ internal class TestExecutionCapture(
             val likelyCause =
                 if (isBackupRuleEligible && !isInfrastructureError) {
                     BackupRulesChecker.diagnoseLikelyCause(
-                        resultsDirPath = resultsDirPath,
+                        suiteProperties = suiteProperties,
                         transportMode = transport,
                         storages = storages,
                         actionTargets = actionTargets,

@@ -668,7 +668,7 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
                                 detailDir = detailDir,
                                 savedLogcatFiles = savedLogcatFiles,
                                 failure = failure,
-                                resultsDirPath = resultsDirPath,
+                                suiteProperties = suiteProps,
                             )
                         Files.createDirectories(suiteDetailsDir)
                         Files.write(
@@ -688,7 +688,7 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
                             detailDir = null,
                             savedLogcatFiles = savedLogcatFiles,
                             failure = failure,
-                            resultsDirPath = null,
+                            suiteProperties = suiteProps,
                         )
                     } else {
                         null
@@ -1019,16 +1019,10 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
      * properties file at [path], or no properties outside of a test suite or if the file can't be
      * read.
      */
-    internal fun suiteProperties(path: String? = System.getenv(SUITE_PROPERTIES_ENV)): Properties {
-        val file = path?.takeIf { it.isNotEmpty() }?.let { File(it) }
-        if (file == null || !file.exists()) return Properties()
-        return try {
-            Properties().apply { file.reader(Charsets.UTF_8).use { load(it) } }
-        } catch (e: Exception) {
+    internal fun suiteProperties(path: String? = System.getenv(SUITE_PROPERTIES_ENV)): Properties =
+        BackupReportKeys.loadSuiteProperties(path) { e ->
             logger.warning("Failed to load parameters properties file: ${e.message}")
-            Properties()
         }
-    }
 
     /**
      * Returns the ID of the app that the tests of [testClass] target: the

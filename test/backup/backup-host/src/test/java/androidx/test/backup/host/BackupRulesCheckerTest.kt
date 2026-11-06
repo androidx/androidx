@@ -16,24 +16,17 @@
 
 package androidx.test.backup.host
 
-import java.io.File
+import java.util.Properties
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
-import kotlinx.serialization.json.putJsonObject
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
 
 class BackupRulesCheckerTest {
 
-    @get:Rule val tempFolder = TemporaryFolder()
-
     @Test
     fun reportsAllowBackupFalseOnCloudLocalAndApi30DeviceToDevice() {
-        val resultsDir = writeSuiteEnvironment(allowBackup = false, targetSdkVersion = 34)
+        val props = suiteBackupProperties(allowBackup = false, targetSdkVersion = 34)
         val pref = StorageDomain.Preference("user_prefs", "k", "v")
 
         for (mode in listOf(BackupTransportMode.CLOUD_ENCRYPTED, BackupTransportMode.LOCAL)) {
@@ -41,7 +34,7 @@ class BackupRulesCheckerTest {
                 "AndroidManifest.xml sets android:allowBackup=\"false\", which disables app data " +
                     "backup and restore.",
                 BackupRulesChecker.diagnoseLikelyCause(
-                    resultsDirPath = resultsDir.absolutePath,
+                    suiteProperties = props,
                     transportMode = mode,
                     storages = listOf(pref),
                     actionTargets = emptyList(),
@@ -50,12 +43,12 @@ class BackupRulesCheckerTest {
             )
         }
 
-        val api30Dir = writeSuiteEnvironment(allowBackup = false, targetSdkVersion = 30)
+        val api30Props = suiteBackupProperties(allowBackup = false, targetSdkVersion = 30)
         assertEquals(
             "AndroidManifest.xml sets android:allowBackup=\"false\", which disables app data " +
                 "backup and restore.",
             BackupRulesChecker.diagnoseLikelyCause(
-                resultsDirPath = api30Dir.absolutePath,
+                suiteProperties = api30Props,
                 transportMode = BackupTransportMode.DEVICE_TO_DEVICE,
                 storages = listOf(pref),
                 actionTargets = emptyList(),
@@ -66,8 +59,8 @@ class BackupRulesCheckerTest {
 
     @Test
     fun reportsAllowBackupFalseOnD2DWhenBackupFailsWithoutAppDataOtherwiseChecksDeviceTransfer() {
-        val resultsDir =
-            writeSuiteEnvironment(
+        val props =
+            suiteBackupProperties(
                 allowBackup = false,
                 targetSdkVersion = 34,
                 dataExtractionRulesRef = "@xml/data_extraction_rules",
@@ -88,7 +81,7 @@ class BackupRulesCheckerTest {
             "AndroidManifest.xml sets android:allowBackup=\"false\". Device-to-device test " +
                 "backups require android:allowBackup=\"true\".",
             BackupRulesChecker.diagnoseLikelyCause(
-                resultsDirPath = resultsDir.absolutePath,
+                suiteProperties = props,
                 transportMode = BackupTransportMode.DEVICE_TO_DEVICE,
                 storages = listOf(sessionPref),
                 actionTargets = emptyList(),
@@ -100,7 +93,7 @@ class BackupRulesCheckerTest {
             "AndroidManifest.xml sets android:allowBackup=\"false\". Device-to-device test " +
                 "backups require android:allowBackup=\"true\".",
             BackupRulesChecker.diagnoseLikelyCause(
-                resultsDirPath = resultsDir.absolutePath,
+                suiteProperties = props,
                 transportMode = BackupTransportMode.DEVICE_TO_DEVICE,
                 storages = listOf(sessionPref),
                 actionTargets = emptyList(),
@@ -112,7 +105,7 @@ class BackupRulesCheckerTest {
             "AndroidManifest.xml sets android:allowBackup=\"false\". Device-to-device test " +
                 "backups require android:allowBackup=\"true\".",
             BackupRulesChecker.diagnoseLikelyCause(
-                resultsDirPath = resultsDir.absolutePath,
+                suiteProperties = props,
                 transportMode = BackupTransportMode.DEVICE_TO_DEVICE,
                 storages = listOf(sessionPref),
                 actionTargets = emptyList(),
@@ -124,7 +117,7 @@ class BackupRulesCheckerTest {
             "data_extraction_rules.xml excludes domain=\"sharedpref\" path=\"user_session.xml\" " +
                 "for <device-transfer>.",
             BackupRulesChecker.diagnoseLikelyCause(
-                resultsDirPath = resultsDir.absolutePath,
+                suiteProperties = props,
                 transportMode = BackupTransportMode.DEVICE_TO_DEVICE,
                 storages = listOf(sessionPref),
                 actionTargets = emptyList(),
@@ -139,7 +132,7 @@ class BackupRulesCheckerTest {
             "data_extraction_rules.xml excludes domain=\"sharedpref\" path=\"user_session.xml\" " +
                 "for <device-transfer>.",
             BackupRulesChecker.diagnoseLikelyCause(
-                resultsDirPath = resultsDir.absolutePath,
+                suiteProperties = props,
                 transportMode = BackupTransportMode.DEVICE_TO_DEVICE,
                 storages = listOf(sessionPref),
                 actionTargets = emptyList(),
@@ -147,10 +140,10 @@ class BackupRulesCheckerTest {
             ),
         )
 
-        val unblockedDir = writeSuiteEnvironment(allowBackup = false, targetSdkVersion = 34)
+        val unblockedProps = suiteBackupProperties(allowBackup = false, targetSdkVersion = 34)
         assertNull(
             BackupRulesChecker.diagnoseLikelyCause(
-                resultsDirPath = unblockedDir.absolutePath,
+                suiteProperties = unblockedProps,
                 transportMode = BackupTransportMode.DEVICE_TO_DEVICE,
                 storages = listOf(sessionPref),
                 actionTargets = emptyList(),
@@ -161,8 +154,8 @@ class BackupRulesCheckerTest {
 
     @Test
     fun matchesDeviceTransferSectionForD2DAndCloudBackupSectionForCloud() {
-        val resultsDir =
-            writeSuiteEnvironment(
+        val props =
+            suiteBackupProperties(
                 dataExtractionRulesRef = "@xml/data_extraction_rules",
                 dataExtractionRulesXml =
                     """
@@ -183,7 +176,7 @@ class BackupRulesCheckerTest {
             "data_extraction_rules.xml excludes domain=\"sharedpref\" path=\"user_session.xml\" " +
                 "for <device-transfer>.",
             BackupRulesChecker.diagnoseLikelyCause(
-                resultsDirPath = resultsDir.absolutePath,
+                suiteProperties = props,
                 transportMode = BackupTransportMode.DEVICE_TO_DEVICE,
                 storages = listOf(sessionPref),
                 actionTargets = emptyList(),
@@ -193,7 +186,7 @@ class BackupRulesCheckerTest {
 
         assertNull(
             BackupRulesChecker.diagnoseLikelyCause(
-                resultsDirPath = resultsDir.absolutePath,
+                suiteProperties = props,
                 transportMode = BackupTransportMode.CLOUD_ENCRYPTED,
                 storages = listOf(sessionPref),
                 actionTargets = emptyList(),
@@ -204,8 +197,8 @@ class BackupRulesCheckerTest {
 
     @Test
     fun mergesMultipleSectionsAndFallsThroughToFullBackupContentWhenSectionAbsent() {
-        val resultsDir =
-            writeSuiteEnvironment(
+        val props =
+            suiteBackupProperties(
                 dataExtractionRulesRef = "@xml/data_extraction_rules",
                 dataExtractionRulesXml =
                     """
@@ -234,7 +227,7 @@ class BackupRulesCheckerTest {
             "data_extraction_rules.xml excludes domain=\"sharedpref\" path=\"second.xml\" " +
                 "for <device-transfer>.",
             BackupRulesChecker.diagnoseLikelyCause(
-                resultsDirPath = resultsDir.absolutePath,
+                suiteProperties = props,
                 transportMode = BackupTransportMode.DEVICE_TO_DEVICE,
                 storages = listOf(StorageDomain.Preference("second", "k", "v")),
                 actionTargets = emptyList(),
@@ -247,7 +240,7 @@ class BackupRulesCheckerTest {
             "backup_rules.xml excludes domain=\"sharedpref\" path=\"cloud_legacy.xml\" " +
                 "in <full-backup-content>.",
             BackupRulesChecker.diagnoseLikelyCause(
-                resultsDirPath = resultsDir.absolutePath,
+                suiteProperties = props,
                 transportMode = BackupTransportMode.CLOUD_ENCRYPTED,
                 storages = listOf(StorageDomain.Preference("cloud_legacy", "k", "v")),
                 actionTargets = emptyList(),
@@ -258,11 +251,11 @@ class BackupRulesCheckerTest {
 
     @Test
     fun skipsFullBackupContentOnApi31PlusDeviceToDevice() {
-        val disabledDir =
-            writeSuiteEnvironment(targetSdkVersion = 34, fullBackupContentRef = "false")
+        val disabledProps =
+            suiteBackupProperties(targetSdkVersion = 34, fullBackupContentRef = "false")
         assertNull(
             BackupRulesChecker.diagnoseLikelyCause(
-                resultsDirPath = disabledDir.absolutePath,
+                suiteProperties = disabledProps,
                 transportMode = BackupTransportMode.DEVICE_TO_DEVICE,
                 storages = listOf(StorageDomain.Preference("prefs", "k", "v")),
                 actionTargets = emptyList(),
@@ -271,7 +264,7 @@ class BackupRulesCheckerTest {
         )
         assertContains(
             BackupRulesChecker.diagnoseLikelyCause(
-                    resultsDirPath = disabledDir.absolutePath,
+                    suiteProperties = disabledProps,
                     transportMode = BackupTransportMode.CLOUD_ENCRYPTED,
                     storages = listOf(StorageDomain.Preference("prefs", "k", "v")),
                     actionTargets = emptyList(),
@@ -281,8 +274,8 @@ class BackupRulesCheckerTest {
             "fullBackupContent=\"false\"",
         )
 
-        val xmlDir =
-            writeSuiteEnvironment(
+        val xmlProps =
+            suiteBackupProperties(
                 targetSdkVersion = 34,
                 fullBackupContentRef = "@xml/backup_rules",
                 fullBackupContentXml =
@@ -290,7 +283,7 @@ class BackupRulesCheckerTest {
             )
         assertNull(
             BackupRulesChecker.diagnoseLikelyCause(
-                resultsDirPath = xmlDir.absolutePath,
+                suiteProperties = xmlProps,
                 transportMode = BackupTransportMode.DEVICE_TO_DEVICE,
                 storages = listOf(StorageDomain.Preference("prefs", "k", "v")),
                 actionTargets = emptyList(),
@@ -301,8 +294,8 @@ class BackupRulesCheckerTest {
 
     @Test
     fun checksFullBackupContentEncryptionFlagsButIgnoresPerRuleFlagsInDataExtractionRules() {
-        val fbcDir =
-            writeSuiteEnvironment(
+        val fbcProps =
+            suiteBackupProperties(
                 fullBackupContentRef = "@xml/backup_rules",
                 fullBackupContentXml =
                     """
@@ -318,7 +311,7 @@ class BackupRulesCheckerTest {
             "backup_rules.xml excludes domain=\"file\" " +
                 "path=\"datastore/cache.preferences_pb\" in <full-backup-content>.",
             BackupRulesChecker.diagnoseLikelyCause(
-                resultsDirPath = fbcDir.absolutePath,
+                suiteProperties = fbcProps,
                 transportMode = BackupTransportMode.CLOUD_ENCRYPTED,
                 storages = listOf(StorageDomain.DataStorePreference("cache", "token", "123")),
                 actionTargets = emptyList(),
@@ -328,7 +321,7 @@ class BackupRulesCheckerTest {
 
         assertContains(
             BackupRulesChecker.diagnoseLikelyCause(
-                    resultsDirPath = fbcDir.absolutePath,
+                    suiteProperties = fbcProps,
                     transportMode = BackupTransportMode.CLOUD_UNENCRYPTED,
                     storages = listOf(StorageDomain.Preference("vault", "pin", "9999")),
                     actionTargets = emptyList(),
@@ -340,7 +333,7 @@ class BackupRulesCheckerTest {
 
         val omittedFromIncludeCause =
             BackupRulesChecker.diagnoseLikelyCause(
-                resultsDirPath = fbcDir.absolutePath,
+                suiteProperties = fbcProps,
                 transportMode = BackupTransportMode.CLOUD_ENCRYPTED,
                 storages = listOf(StorageDomain.TextFile("notes/todo.txt", "hello")),
                 actionTargets = emptyList(),
@@ -350,8 +343,8 @@ class BackupRulesCheckerTest {
         assertContains(omittedFromIncludeCause.orEmpty(), "notes/todo.txt")
 
         // Per-rule requireFlags inside <data-extraction-rules> is ignored by Android.
-        val derDir =
-            writeSuiteEnvironment(
+        val derProps =
+            suiteBackupProperties(
                 dataExtractionRulesRef = "@xml/data_extraction_rules",
                 dataExtractionRulesXml =
                     """
@@ -365,7 +358,7 @@ class BackupRulesCheckerTest {
             )
         assertNull(
             BackupRulesChecker.diagnoseLikelyCause(
-                resultsDirPath = derDir.absolutePath,
+                suiteProperties = derProps,
                 transportMode = BackupTransportMode.CLOUD_UNENCRYPTED,
                 storages = listOf(StorageDomain.Preference("vault", "pin", "9999")),
                 actionTargets = emptyList(),
@@ -376,8 +369,8 @@ class BackupRulesCheckerTest {
 
     @Test
     fun emptyTargetsOnlyDiagnoseHintedExcludesOrAllFlagBlockedIncludes() {
-        val derDir =
-            writeSuiteEnvironment(
+        val derProps =
+            suiteBackupProperties(
                 dataExtractionRulesRef = "@xml/data_extraction_rules",
                 dataExtractionRulesXml =
                     """
@@ -397,7 +390,7 @@ class BackupRulesCheckerTest {
             "data_extraction_rules.xml excludes domain=\"sharedpref\" path=\"user_session.xml\" " +
                 "for <device-transfer>.",
             BackupRulesChecker.diagnoseLikelyCause(
-                resultsDirPath = derDir.absolutePath,
+                suiteProperties = derProps,
                 transportMode = BackupTransportMode.DEVICE_TO_DEVICE,
                 storages = emptyList(),
                 actionTargets = emptyList(),
@@ -408,7 +401,7 @@ class BackupRulesCheckerTest {
         // Unrelated failureMessage with empty targets must NOT guess excludes.first() or <include>.
         assertNull(
             BackupRulesChecker.diagnoseLikelyCause(
-                resultsDirPath = derDir.absolutePath,
+                suiteProperties = derProps,
                 transportMode = BackupTransportMode.DEVICE_TO_DEVICE,
                 storages = emptyList(),
                 actionTargets = emptyList(),
@@ -417,8 +410,8 @@ class BackupRulesCheckerTest {
         )
 
         // When every <include> in <full-backup-content> is blocked by requireFlags, still report.
-        val allBlockedDir =
-            writeSuiteEnvironment(
+        val allBlockedProps =
+            suiteBackupProperties(
                 fullBackupContentRef = "@xml/backup_rules",
                 fullBackupContentXml =
                     """
@@ -430,7 +423,7 @@ class BackupRulesCheckerTest {
             )
         assertContains(
             BackupRulesChecker.diagnoseLikelyCause(
-                    resultsDirPath = allBlockedDir.absolutePath,
+                    suiteProperties = allBlockedProps,
                     transportMode = BackupTransportMode.LOCAL,
                     storages = emptyList(),
                     actionTargets = emptyList(),
@@ -439,12 +432,23 @@ class BackupRulesCheckerTest {
                 .orEmpty(),
             "requireFlags=\"clientSideEncryption\"",
         )
+
+        // Missing backup rule properties return null rather than assuming allowBackup=true rules.
+        assertNull(
+            BackupRulesChecker.diagnoseLikelyCause(
+                suiteProperties = Properties(),
+                transportMode = BackupTransportMode.CLOUD_ENCRYPTED,
+                storages = listOf(StorageDomain.Preference("user_session", "k", "v")),
+                actionTargets = emptyList(),
+                failureMessage = "missing key",
+            )
+        )
     }
 
     @Test
     fun matchesSharedPrefWithoutXmlSuffixAndUnconditionalStorageSuffixes() {
-        val resultsDir =
-            writeSuiteEnvironment(
+        val props =
+            suiteBackupProperties(
                 dataExtractionRulesRef = "@xml/data_extraction_rules",
                 dataExtractionRulesXml =
                     """
@@ -465,7 +469,7 @@ class BackupRulesCheckerTest {
             "data_extraction_rules.xml excludes domain=\"sharedpref\" path=\"user_session\" " +
                 "for <cloud-backup>.",
             BackupRulesChecker.diagnoseLikelyCause(
-                resultsDirPath = resultsDir.absolutePath,
+                suiteProperties = props,
                 transportMode = BackupTransportMode.CLOUD_ENCRYPTED,
                 storages = listOf(StorageDomain.Preference("user_session", "k", "v")),
                 actionTargets = emptyList(),
@@ -477,7 +481,7 @@ class BackupRulesCheckerTest {
         // unconditionally (foo.xml.xml), matching SharedPreferencesImpl on Android.
         assertContains(
             BackupRulesChecker.diagnoseLikelyCause(
-                    resultsDirPath = resultsDir.absolutePath,
+                    suiteProperties = props,
                     transportMode = BackupTransportMode.CLOUD_ENCRYPTED,
                     storages = listOf(StorageDomain.Preference("foo.xml", "k", "v")),
                     actionTargets = emptyList(),
@@ -488,7 +492,7 @@ class BackupRulesCheckerTest {
         )
         assertContains(
             BackupRulesChecker.diagnoseLikelyCause(
-                    resultsDirPath = resultsDir.absolutePath,
+                    suiteProperties = props,
                     transportMode = BackupTransportMode.CLOUD_ENCRYPTED,
                     storages = emptyList(),
                     actionTargets =
@@ -510,7 +514,7 @@ class BackupRulesCheckerTest {
         // DataStorePreference("bar.preferences_pb") appends ".preferences_pb" unconditionally.
         assertContains(
             BackupRulesChecker.diagnoseLikelyCause(
-                    resultsDirPath = resultsDir.absolutePath,
+                    suiteProperties = props,
                     transportMode = BackupTransportMode.CLOUD_ENCRYPTED,
                     storages =
                         listOf(StorageDomain.DataStorePreference("bar.preferences_pb", "k", "v")),
@@ -524,8 +528,8 @@ class BackupRulesCheckerTest {
 
     @Test
     fun ignoresExpectedExclusionOfExcludedDataDomain() {
-        val resultsDir =
-            writeSuiteEnvironment(
+        val props =
+            suiteBackupProperties(
                 dataExtractionRulesRef = "@xml/data_extraction_rules",
                 dataExtractionRulesXml =
                     """
@@ -540,7 +544,7 @@ class BackupRulesCheckerTest {
 
         assertNull(
             BackupRulesChecker.diagnoseLikelyCause(
-                resultsDirPath = resultsDir.absolutePath,
+                suiteProperties = props,
                 transportMode = BackupTransportMode.CLOUD_ENCRYPTED,
                 storages =
                     listOf(
@@ -554,12 +558,11 @@ class BackupRulesCheckerTest {
     }
 
     @Test
-    fun rejectsPathTraversalReferencesInXmlFileNameAndSuiteEnvironment() {
+    fun rejectsPathTraversalReferencesInXmlFileNameAndSuiteProperties() {
         assertEquals(
             "data_extraction_rules.xml",
             BackupRulesChecker.xmlFileNameFromRef("@xml/data_extraction_rules"),
         )
-        val resultsDir = tempFolder.newFolder("traversal-results")
         val ruleXml =
             """
             <data-extraction-rules>
@@ -582,22 +585,16 @@ class BackupRulesCheckerTest {
                 BackupRulesChecker.xmlFileNameFromRef(maliciousRef),
                 "Expected xmlFileNameFromRef('$maliciousRef') to return null",
             )
-            File(resultsDir, "suite-environment.json")
-                .writeText(
-                    buildJsonObject {
-                        put("schemaVersion", 1)
-                        putJsonObject("backupRules") {
-                            put("allowBackup", true)
-                            put("dataExtractionRules", maliciousRef)
-                            put("dataExtractionRulesFile", maliciousRef)
-                            put("dataExtractionRulesXml", ruleXml)
-                        }
-                    }
-                        .toString()
-                )
+            val derProps =
+                Properties().apply {
+                    setProperty(BackupReportKeys.INPUT_ALLOW_BACKUP, "true")
+                    setProperty(BackupReportKeys.INPUT_DATA_EXTRACTION_RULES, maliciousRef)
+                    setProperty(BackupReportKeys.INPUT_DATA_EXTRACTION_RULES_FILE, maliciousRef)
+                    setProperty(BackupReportKeys.INPUT_DATA_EXTRACTION_RULES_XML, ruleXml)
+                }
             val diagnosis =
                 BackupRulesChecker.diagnoseLikelyCause(
-                    resultsDirPath = resultsDir.absolutePath,
+                    suiteProperties = derProps,
                     transportMode = BackupTransportMode.CLOUD_ENCRYPTED,
                     storages = listOf(StorageDomain.Preference("user_prefs", "k", "v")),
                     actionTargets = emptyList(),
@@ -611,26 +608,20 @@ class BackupRulesCheckerTest {
             )
             // Also verify unsafe fullBackupContentFile is rejected and falls back to
             // fullBackupContentRef.
-            File(resultsDir, "suite-environment.json")
-                .writeText(
-                    buildJsonObject {
-                        put("schemaVersion", 1)
-                        putJsonObject("backupRules") {
-                            put("allowBackup", true)
-                            put("fullBackupContent", "@xml/backup_rules")
-                            put("fullBackupContentFile", maliciousRef)
-                            put(
-                                "fullBackupContentXml",
-                                "<full-backup-content><exclude domain=\"sharedpref\" path=\"user_prefs.xml\"/></full-backup-content>",
-                            )
-                        }
-                    }
-                        .toString()
-                )
+            val fbcProps =
+                Properties().apply {
+                    setProperty(BackupReportKeys.INPUT_ALLOW_BACKUP, "true")
+                    setProperty(BackupReportKeys.INPUT_FULL_BACKUP_CONTENT, "@xml/backup_rules")
+                    setProperty(BackupReportKeys.INPUT_FULL_BACKUP_CONTENT_FILE, maliciousRef)
+                    setProperty(
+                        BackupReportKeys.INPUT_FULL_BACKUP_CONTENT_XML,
+                        "<full-backup-content><exclude domain=\"sharedpref\" path=\"user_prefs.xml\"/></full-backup-content>",
+                    )
+                }
             assertEquals(
                 "backup_rules.xml excludes domain=\"sharedpref\" path=\"user_prefs.xml\" in <full-backup-content>.",
                 BackupRulesChecker.diagnoseLikelyCause(
-                    resultsDirPath = resultsDir.absolutePath,
+                    suiteProperties = fbcProps,
                     transportMode = BackupTransportMode.CLOUD_ENCRYPTED,
                     storages = listOf(StorageDomain.Preference("user_prefs", "k", "v")),
                     actionTargets = emptyList(),
@@ -644,8 +635,8 @@ class BackupRulesCheckerTest {
     fun coversDisableIfNoEncryptionDeviceProtectedRootBomActionArgsAndShortStemHints() {
         // 1. <cloud-backup disableIfNoEncryptionCapabilities="true"> blocks unencrypted cloud/local
         // but not encrypted cloud.
-        val encAttrDir =
-            writeSuiteEnvironment(
+        val encAttrProps =
+            suiteBackupProperties(
                 dataExtractionRulesRef = "@xml/data_extraction_rules",
                 dataExtractionRulesXml =
                     "\uFEFF<data-extraction-rules><cloud-backup disableIfNoEncryptionCapabilities=\"true\">" +
@@ -655,7 +646,7 @@ class BackupRulesCheckerTest {
         for (mode in listOf(BackupTransportMode.CLOUD_UNENCRYPTED, BackupTransportMode.LOCAL)) {
             assertContains(
                 BackupRulesChecker.diagnoseLikelyCause(
-                        resultsDirPath = encAttrDir.absolutePath,
+                        suiteProperties = encAttrProps,
                         transportMode = mode,
                         storages = listOf(StorageDomain.Preference("user_prefs", "k", "v")),
                         actionTargets = emptyList(),
@@ -667,7 +658,7 @@ class BackupRulesCheckerTest {
         }
         assertNull(
             BackupRulesChecker.diagnoseLikelyCause(
-                resultsDirPath = encAttrDir.absolutePath,
+                suiteProperties = encAttrProps,
                 transportMode = BackupTransportMode.CLOUD_ENCRYPTED,
                 storages = listOf(StorageDomain.Preference("user_prefs", "k", "v")),
                 actionTargets = emptyList(),
@@ -677,8 +668,8 @@ class BackupRulesCheckerTest {
 
         // 2. transportMode = null falls back to <full-backup-content> when <cloud-backup> is
         // absent.
-        val fallbackDir =
-            writeSuiteEnvironment(
+        val fallbackProps =
+            suiteBackupProperties(
                 dataExtractionRulesRef = "@xml/data_extraction_rules",
                 dataExtractionRulesXml =
                     "<data-extraction-rules><device-transfer><exclude domain=\"database\" path=\"d2d.db\"/></device-transfer></data-extraction-rules>",
@@ -689,7 +680,7 @@ class BackupRulesCheckerTest {
         assertEquals(
             "backup_rules.xml excludes domain=\"sharedpref\" path=\"legacy.xml\" in <full-backup-content>.",
             BackupRulesChecker.diagnoseLikelyCause(
-                resultsDirPath = fallbackDir.absolutePath,
+                suiteProperties = fallbackProps,
                 transportMode = null,
                 storages = listOf(StorageDomain.Preference("legacy", "k", "v")),
                 actionTargets = emptyList(),
@@ -699,8 +690,8 @@ class BackupRulesCheckerTest {
 
         // 3. requireFlags="deviceToDeviceTransfer" in <full-backup-content> blocks CLOUD_ENCRYPTED,
         // and domain="root" / domain="device_root" match CE and DE storages.
-        val rootRulesDir =
-            writeSuiteEnvironment(
+        val rootRulesProps =
+            suiteBackupProperties(
                 fullBackupContentRef = "@xml/backup_rules",
                 fullBackupContentXml =
                     """
@@ -717,7 +708,7 @@ class BackupRulesCheckerTest {
             )
         assertContains(
             BackupRulesChecker.diagnoseLikelyCause(
-                    resultsDirPath = rootRulesDir.absolutePath,
+                    suiteProperties = rootRulesProps,
                     transportMode = BackupTransportMode.CLOUD_ENCRYPTED,
                     storages = listOf(StorageDomain.Preference("d2d_only", "k", "v")),
                     actionTargets = emptyList(),
@@ -728,7 +719,7 @@ class BackupRulesCheckerTest {
         )
         assertContains(
             BackupRulesChecker.diagnoseLikelyCause(
-                    resultsDirPath = rootRulesDir.absolutePath,
+                    suiteProperties = rootRulesProps,
                     transportMode = BackupTransportMode.CLOUD_ENCRYPTED,
                     storages = listOf(StorageDomain.Preference("ce_root", "k", "v")),
                     actionTargets = emptyList(),
@@ -739,7 +730,7 @@ class BackupRulesCheckerTest {
         )
         assertContains(
             BackupRulesChecker.diagnoseLikelyCause(
-                    resultsDirPath = rootRulesDir.absolutePath,
+                    suiteProperties = rootRulesProps,
                     transportMode = BackupTransportMode.CLOUD_ENCRYPTED,
                     storages =
                         listOf(
@@ -760,7 +751,7 @@ class BackupRulesCheckerTest {
         )
         assertContains(
             BackupRulesChecker.diagnoseLikelyCause(
-                    resultsDirPath = rootRulesDir.absolutePath,
+                    suiteProperties = rootRulesProps,
                     transportMode = BackupTransportMode.CLOUD_ENCRYPTED,
                     storages =
                         listOf(
@@ -779,7 +770,7 @@ class BackupRulesCheckerTest {
         )
         assertContains(
             BackupRulesChecker.diagnoseLikelyCause(
-                    resultsDirPath = rootRulesDir.absolutePath,
+                    suiteProperties = rootRulesProps,
                     transportMode = BackupTransportMode.CLOUD_ENCRYPTED,
                     storages =
                         listOf(
@@ -816,8 +807,8 @@ class BackupRulesCheckerTest {
 
         // 5. Empty-target exclude hint: short stem "id.db" does not false-match "invalid", while
         // dotfile ".secret" matches when named in failureMessage.
-        val hintDir =
-            writeSuiteEnvironment(
+        val hintProps =
+            suiteBackupProperties(
                 dataExtractionRulesRef = "@xml/data_extraction_rules",
                 dataExtractionRulesXml =
                     """
@@ -832,7 +823,7 @@ class BackupRulesCheckerTest {
             )
         assertNull(
             BackupRulesChecker.diagnoseLikelyCause(
-                resultsDirPath = hintDir.absolutePath,
+                suiteProperties = hintProps,
                 transportMode = BackupTransportMode.CLOUD_ENCRYPTED,
                 storages = emptyList(),
                 actionTargets = emptyList(),
@@ -841,7 +832,7 @@ class BackupRulesCheckerTest {
         )
         assertContains(
             BackupRulesChecker.diagnoseLikelyCause(
-                    resultsDirPath = hintDir.absolutePath,
+                    suiteProperties = hintProps,
                     transportMode = BackupTransportMode.CLOUD_ENCRYPTED,
                     storages = emptyList(),
                     actionTargets = emptyList(),
@@ -854,8 +845,8 @@ class BackupRulesCheckerTest {
 
     @Test
     fun strictEmptyTargetExcludeHintSkipsPackageNamesCommonWordsAndExplicitReasons() {
-        val resultsDir =
-            writeSuiteEnvironment(
+        val props =
+            suiteBackupProperties(
                 dataExtractionRulesRef = "@xml/data_extraction_rules",
                 dataExtractionRulesXml =
                     """
@@ -877,7 +868,7 @@ class BackupRulesCheckerTest {
         // Package name ".app" and "no app data" in a restore skip failure must not match "app.db".
         assertNull(
             BackupRulesChecker.diagnoseLikelyCause(
-                resultsDirPath = resultsDir.absolutePath,
+                suiteProperties = props,
                 transportMode = BackupTransportMode.DEVICE_TO_DEVICE,
                 storages = emptyList(),
                 actionTargets = emptyList(),
@@ -898,7 +889,7 @@ class BackupRulesCheckerTest {
             )) {
             assertNull(
                 BackupRulesChecker.diagnoseLikelyCause(
-                    resultsDirPath = resultsDir.absolutePath,
+                    suiteProperties = props,
                     transportMode = BackupTransportMode.DEVICE_TO_DEVICE,
                     storages = emptyList(),
                     actionTargets = emptyList(),
@@ -914,7 +905,7 @@ class BackupRulesCheckerTest {
             "data_extraction_rules.xml excludes domain=\"database\" path=\"app.db\" " +
                 "for <device-transfer>.",
             BackupRulesChecker.diagnoseLikelyCause(
-                resultsDirPath = resultsDir.absolutePath,
+                suiteProperties = props,
                 transportMode = BackupTransportMode.DEVICE_TO_DEVICE,
                 storages = emptyList(),
                 actionTargets = emptyList(),
@@ -925,7 +916,7 @@ class BackupRulesCheckerTest {
         // Sandbox and absolute device paths match the rule's domain subdirectory.
         assertContains(
             BackupRulesChecker.diagnoseLikelyCause(
-                    resultsDirPath = resultsDir.absolutePath,
+                    suiteProperties = props,
                     transportMode = BackupTransportMode.DEVICE_TO_DEVICE,
                     storages = emptyList(),
                     actionTargets = emptyList(),
@@ -937,7 +928,7 @@ class BackupRulesCheckerTest {
         )
         assertContains(
             BackupRulesChecker.diagnoseLikelyCause(
-                    resultsDirPath = resultsDir.absolutePath,
+                    suiteProperties = props,
                     transportMode = BackupTransportMode.DEVICE_TO_DEVICE,
                     storages = emptyList(),
                     actionTargets = emptyList(),
@@ -948,7 +939,7 @@ class BackupRulesCheckerTest {
         )
         assertContains(
             BackupRulesChecker.diagnoseLikelyCause(
-                    resultsDirPath = resultsDir.absolutePath,
+                    suiteProperties = props,
                     transportMode = BackupTransportMode.DEVICE_TO_DEVICE,
                     storages = emptyList(),
                     actionTargets = emptyList(),
@@ -959,32 +950,44 @@ class BackupRulesCheckerTest {
             "path=\"datastore/auth_prefs.preferences_pb\"",
         )
     }
-
-    private fun writeSuiteEnvironment(
-        allowBackup: Boolean = true,
-        targetSdkVersion: Int? = null,
-        fullBackupContentRef: String? = null,
-        fullBackupContentXml: String? = null,
-        dataExtractionRulesRef: String? = null,
-        dataExtractionRulesXml: String? = null,
-    ): File {
-        val resultsDir = tempFolder.newFolder("results-${System.nanoTime()}")
-        writeSuiteEnvironmentJson(
-            resultsDir = resultsDir,
-            allowBackup = allowBackup,
-            targetSdkVersion = targetSdkVersion,
-            fullBackupContentRef = fullBackupContentRef,
-            fullBackupContentXml = fullBackupContentXml,
-            dataExtractionRulesRef = dataExtractionRulesRef,
-            dataExtractionRulesXml = dataExtractionRulesXml,
-        )
-        return resultsDir
-    }
 }
 
-/** Writes a `suite-environment.json` file into [resultsDir] for tests. */
-internal fun writeSuiteEnvironmentJson(
-    resultsDir: File,
+/** Builds AGP test suite input [Properties] carrying resolved manifest and XML backup rules. */
+internal fun suiteBackupProperties(
+    allowBackup: Boolean = true,
+    targetSdkVersion: Int? = null,
+    fullBackupContentRef: String? = null,
+    fullBackupContentXml: String? = null,
+    dataExtractionRulesRef: String? = null,
+    dataExtractionRulesXml: String? = null,
+): Properties =
+    Properties().apply {
+        setProperty(BackupReportKeys.INPUT_ALLOW_BACKUP, allowBackup.toString())
+        targetSdkVersion?.let {
+            setProperty(BackupReportKeys.INPUT_TARGET_SDK_VERSION, it.toString())
+        }
+        fullBackupContentRef?.let {
+            setProperty(BackupReportKeys.INPUT_FULL_BACKUP_CONTENT, it)
+            BackupRulesChecker.xmlFileNameFromRef(it)?.let { fileName ->
+                setProperty(BackupReportKeys.INPUT_FULL_BACKUP_CONTENT_FILE, fileName)
+            }
+        }
+        fullBackupContentXml?.let {
+            setProperty(BackupReportKeys.INPUT_FULL_BACKUP_CONTENT_XML, it)
+        }
+        dataExtractionRulesRef?.let {
+            setProperty(BackupReportKeys.INPUT_DATA_EXTRACTION_RULES, it)
+            BackupRulesChecker.xmlFileNameFromRef(it)?.let { fileName ->
+                setProperty(BackupReportKeys.INPUT_DATA_EXTRACTION_RULES_FILE, fileName)
+            }
+        }
+        dataExtractionRulesXml?.let {
+            setProperty(BackupReportKeys.INPUT_DATA_EXTRACTION_RULES_XML, it)
+        }
+    }
+
+/** Sets resolved manifest and XML backup rule system properties for the active test scope. */
+internal fun setSuiteBackupSystemProperties(
     allowBackup: Boolean = true,
     targetSdkVersion: Int? = null,
     fullBackupContentRef: String? = null,
@@ -992,24 +995,16 @@ internal fun writeSuiteEnvironmentJson(
     dataExtractionRulesRef: String? = null,
     dataExtractionRulesXml: String? = null,
 ) {
-    val json = buildJsonObject {
-        put("schemaVersion", 1)
-        put("targetSdkVersion", targetSdkVersion)
-        putJsonObject("backupRules") {
-            put("allowBackup", allowBackup)
-            put("fullBackupContent", fullBackupContentRef)
-            put(
-                "fullBackupContentFile",
-                fullBackupContentRef?.let(BackupRulesChecker::xmlFileNameFromRef),
-            )
-            put("fullBackupContentXml", fullBackupContentXml)
-            put("dataExtractionRules", dataExtractionRulesRef)
-            put(
-                "dataExtractionRulesFile",
-                dataExtractionRulesRef?.let(BackupRulesChecker::xmlFileNameFromRef),
-            )
-            put("dataExtractionRulesXml", dataExtractionRulesXml)
-        }
+    val props =
+        suiteBackupProperties(
+            allowBackup = allowBackup,
+            targetSdkVersion = targetSdkVersion,
+            fullBackupContentRef = fullBackupContentRef,
+            fullBackupContentXml = fullBackupContentXml,
+            dataExtractionRulesRef = dataExtractionRulesRef,
+            dataExtractionRulesXml = dataExtractionRulesXml,
+        )
+    for (name in props.stringPropertyNames()) {
+        System.setProperty(name, props.getProperty(name))
     }
-    File(resultsDir, "suite-environment.json").writeText(json.toString())
 }
