@@ -20,6 +20,7 @@ import android.media.AudioFormat
 import com.google.common.truth.Truth.assertThat
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -97,5 +98,61 @@ class PassthroughAudioProcessorTest {
         passthroughProcessor.queueInput(inputBuffer)
         passthroughProcessor.reset()
         assertThat(passthroughProcessor.getOutput()).isEqualTo(AudioProcessor.EMPTY_BUFFER)
+    }
+
+    @Test
+    fun passthroughAudioProcessor_invokesHooksAndForwardsInputFormat() {
+        var configuredFormat: AudioProcessor.AudioFormat? = null
+        var flushCount = 0
+        var resetCount = 0
+        val passthroughProcessor =
+            object : PassthroughAudioProcessor() {
+                override fun onConfigure(inputAudioFormat: AudioProcessor.AudioFormat) {
+                    configuredFormat = inputAudioFormat
+                }
+
+                override fun onFlush() {
+                    flushCount++
+                }
+
+                override fun onReset() {
+                    resetCount++
+                }
+
+                override fun onAudioBuffer(audioBuffer: ByteBuffer) {
+                    // no-op
+                }
+            }
+
+        assertThat(passthroughProcessor.configure(testAudioFormat)).isEqualTo(testAudioFormat)
+        passthroughProcessor.flush()
+        passthroughProcessor.reset()
+
+        assertThat(configuredFormat).isEqualTo(testAudioFormat)
+        assertThat(flushCount).isEqualTo(1)
+        assertThat(resetCount).isEqualTo(1)
+    }
+
+    @Test
+    fun passthroughAudioProcessor_onConfigureThrows_configureThrows() {
+        val passthroughProcessor =
+            object : PassthroughAudioProcessor() {
+                override fun onConfigure(inputAudioFormat: AudioProcessor.AudioFormat) {
+                    throw AudioProcessor.UnsupportedAudioFormatException(
+                        message = null,
+                        audioFormat = inputAudioFormat,
+                    )
+                }
+
+                override fun onAudioBuffer(audioBuffer: ByteBuffer) {
+                    // no-op
+                }
+            }
+
+        val exception =
+            assertThrows(AudioProcessor.UnsupportedAudioFormatException::class.java) {
+                passthroughProcessor.configure(testAudioFormat)
+            }
+        assertThat(exception.audioFormat).isEqualTo(testAudioFormat)
     }
 }

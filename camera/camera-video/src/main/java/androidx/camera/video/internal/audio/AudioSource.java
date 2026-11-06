@@ -147,8 +147,10 @@ public final class AudioSource {
     @VisibleForTesting
     final int mReadBufferSize;
     private @Nullable ByteBuffer mReadBuffer;
-    private long mCurrentPacketTimestampUs = 0L;
-    private long mFramesDispatchedFromCurrentPacket = 0L;
+    // The frame size of the audio before processing, as read from the AudioStream.
+    private final int mInputBytesPerFrame;
+    // Maps processed output frames back to the capture timestamps of their input.
+    private final ProcessedAudioTimestampTracker mTimestampTracker;
 
     /**
      * Creates an AudioSource for the given settings.
@@ -195,6 +197,9 @@ public final class AudioSource {
         mAudioProcessingPipeline = new AudioProcessingPipeline(audioProcessors);
         mOutputAudioSettings = mAudioProcessingPipeline.configure(settings);
         int bytesPerFrame = settings.getBytesPerFrame();
+        mInputBytesPerFrame = bytesPerFrame;
+        mTimestampTracker = new ProcessedAudioTimestampTracker(settings.getCaptureSampleRate(),
+                mOutputAudioSettings.getCaptureSampleRate());
         mReadBufferSize = Math.max(4096 / bytesPerFrame, 1024) * bytesPerFrame;
         try {
             mAudioStream = new BufferedAudioStream(audioStreamFactory.create(settings,
@@ -337,7 +342,6 @@ public final class AudioSource {
                 case STARTED:
                     setState(CONFIGURED);
                     updateSendingAudio();
-                    flushAudioProcessors();
                     break;
                 case CONFIGURED:
                     // Do nothing
@@ -640,6 +644,10 @@ public final class AudioSource {
         Logger.d(TAG, "stopSendingAudio");
         mAudioStream.stop();
         mSilentAudioStream.stop();
+        // Stopping the stream ends the continuous audio being sent, whether the recording is
+        // stopped or paused, or the BufferProvider is replaced or removed. Discard audio buffered
+        // in the processors as well, so it isn't mixed with audio sent after sending restarts.
+        flushAudioProcessors();
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -715,14 +723,19 @@ public final class AudioSource {
     private void processAndDispatchAudio(@NonNull InputBuffer inputBuffer)
             throws AudioSourceAccessException {
         try {
-            // Drain existing output from the pipeline first.
-            ByteBuffer output = mAudioProcessingPipeline.getOutput();
-            if (output.hasRemaining()) {
-                dispatchToInputBuffer(inputBuffer, output);
-                return;
+            // Drain existing output from the pipeline first. Skip draining until an input packet
+            // has been queued, so that every dispatched output frame has a capture timestamp to
+            // be mapped to.
+            ByteBuffer output;
+            if (mTimestampTracker.hasTrackedInput()) {
+                output = mAudioProcessingPipeline.getOutput();
+                if (output.hasRemaining()) {
+                    dispatchToInputBuffer(inputBuffer, output);
+                    return;
+                }
             }
 
-            // Pipeline is fully drained. Read next packet from AudioStream.
+            // No pending output. Read next packet from AudioStream.
             AudioStream audioStream = getCurrentAudioStream();
             if (mReadBuffer == null || mReadBuffer.capacity() < mReadBufferSize) {
                 mReadBuffer = ByteBuffer.allocateDirect(mReadBufferSize)
@@ -741,8 +754,9 @@ public final class AudioSource {
                     mAmplitudeTimestamp = packetInfo.getTimestampNs();
                     postMaxAmplitude(mReadBuffer);
                 }
-                mCurrentPacketTimestampUs = NANOSECONDS.toMicros(packetInfo.getTimestampNs());
-                mFramesDispatchedFromCurrentPacket = 0L;
+                mTimestampTracker.onInputQueued(
+                        NANOSECONDS.toMicros(packetInfo.getTimestampNs()),
+                        packetInfo.getSizeInBytes() / mInputBytesPerFrame);
 
                 mAudioProcessingPipeline.queueInput(mReadBuffer);
                 output = mAudioProcessingPipeline.getOutput();
@@ -784,9 +798,8 @@ public final class AudioSource {
         processedBuffer.limit(oldLimit);
         encoderBuffer.limit(encoderBuffer.position()).position(positionBefore);
 
-        long presentationTimeUs = mCurrentPacketTimestampUs
-                + computeDurationUs(mFramesDispatchedFromCurrentPacket, mOutputAudioSettings);
-        mFramesDispatchedFromCurrentPacket += toCopy / bytesPerFrame;
+        long presentationTimeUs =
+                mTimestampTracker.takeOutputPresentationTimeUs(toCopy / bytesPerFrame);
 
         inputBuffer.setPresentationTimeUs(presentationTimeUs);
         inputBuffer.submit();
@@ -806,16 +819,14 @@ public final class AudioSource {
             mReadBuffer.position(mReadBuffer.limit());
         }
         mAudioProcessingPipeline.flush();
+        mTimestampTracker.reset();
     }
 
     @ExecutedBy("mExecutor")
     private void resetAudioProcessors() {
         mReadBuffer = null;
         mAudioProcessingPipeline.reset();
-    }
-
-    private static long computeDurationUs(long frameCount, @NonNull AudioSettings settings) {
-        return frameCount * 1_000_000L / Math.max(1, settings.getCaptureSampleRate());
+        mTimestampTracker.reset();
     }
 
 

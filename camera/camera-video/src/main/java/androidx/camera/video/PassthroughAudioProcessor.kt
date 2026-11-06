@@ -29,9 +29,9 @@ import java.nio.ByteBuffer
  *
  * Subclasses only need to override [onAudioBuffer] to receive audio data. Buffer forwarding, format
  * passthrough, flushing, and resetting are handled automatically. To inspect stream parameters
- * (such as sample rate or channel count), override [configure], record the incoming
- * [AudioProcessor.AudioFormat], and return `super.configure(inputAudioFormat)`. To modify or filter
- * the audio stream, implement [AudioProcessor] directly instead.
+ * (such as sample rate or channel count) or reject unsupported formats, override [onConfigure]. To
+ * clear inspection state when the audio stream is interrupted or released, override [onFlush] or
+ * [onReset]. To modify or filter the audio stream, implement [AudioProcessor] directly instead.
  * * **Threading**: [onAudioBuffer] is called on an internal, serialized audio thread.
  *   Implementations must not block this thread.
  *
@@ -44,11 +44,15 @@ public abstract class PassthroughAudioProcessor : AudioProcessor {
 
     private var outputBuffer: ByteBuffer = AudioProcessor.EMPTY_BUFFER
 
-    override fun configure(
+    @Throws(AudioProcessor.UnsupportedAudioFormatException::class)
+    final override fun configure(
         inputAudioFormat: AudioProcessor.AudioFormat
-    ): AudioProcessor.AudioFormat = inputAudioFormat
+    ): AudioProcessor.AudioFormat {
+        onConfigure(inputAudioFormat)
+        return inputAudioFormat
+    }
 
-    override fun queueInput(inputBuffer: ByteBuffer) {
+    final override fun queueInput(inputBuffer: ByteBuffer) {
         if (inputBuffer.hasRemaining()) {
             val readOnlyBuffer = inputBuffer.asReadOnlyBuffer().order(inputBuffer.order())
             onAudioBuffer(readOnlyBuffer)
@@ -58,19 +62,53 @@ public abstract class PassthroughAudioProcessor : AudioProcessor {
         }
     }
 
-    override fun getOutput(): ByteBuffer {
+    final override fun getOutput(): ByteBuffer {
         val output = outputBuffer
         outputBuffer = AudioProcessor.EMPTY_BUFFER
         return output
     }
 
-    override fun flush() {
+    final override fun flush() {
         outputBuffer = AudioProcessor.EMPTY_BUFFER
+        onFlush()
     }
 
-    override fun reset() {
+    final override fun reset() {
         outputBuffer = AudioProcessor.EMPTY_BUFFER
+        onReset()
     }
+
+    /**
+     * Called when the processor is configured with the format of the incoming audio stream.
+     *
+     * Override to record stream parameters (such as sample rate or channel count) or to reject
+     * unsupported formats. The audio is always forwarded in [inputAudioFormat]. The default
+     * implementation does nothing.
+     *
+     * @param inputAudioFormat format of the incoming audio stream
+     * @throws AudioProcessor.UnsupportedAudioFormatException if [inputAudioFormat] is not supported
+     * @see AudioProcessor.configure
+     */
+    @Throws(AudioProcessor.UnsupportedAudioFormatException::class)
+    protected open fun onConfigure(inputAudioFormat: AudioProcessor.AudioFormat) {}
+
+    /**
+     * Called when the audio stream is interrupted, such as when the recording is paused or stopped.
+     *
+     * Override to clear inspection state. The default implementation does nothing.
+     *
+     * @see AudioProcessor.flush
+     */
+    protected open fun onFlush() {}
+
+    /**
+     * Called when the processor is reset to its unconfigured state.
+     *
+     * Override to release resources held for inspection. The default implementation does nothing.
+     *
+     * @see AudioProcessor.reset
+     */
+    protected open fun onReset() {}
 
     /**
      * Receives audio buffers synchronously as they arrive during recording.
@@ -84,5 +122,5 @@ public abstract class PassthroughAudioProcessor : AudioProcessor {
      * @param audioBuffer read-only direct buffer containing incoming audio frames in native byte
      *   order
      */
-    public abstract fun onAudioBuffer(audioBuffer: ByteBuffer)
+    protected abstract fun onAudioBuffer(audioBuffer: ByteBuffer)
 }
