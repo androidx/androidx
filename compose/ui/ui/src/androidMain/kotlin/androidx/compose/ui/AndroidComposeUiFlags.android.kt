@@ -150,4 +150,15 @@ public object AndroidComposeUiFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isPointerInteropFilterNodeEnabled: Boolean = true
+
+    /**
+     * Enables synchronously flushing pending snapshot notifications and running measure and layout
+     * when [androidx.compose.ui.viewinterop.AndroidView] dispatches nested pre-scroll and
+     * post-scroll deltas to parent Compose nested scroll connections, so the child `View` observes
+     * any resulting container window offset synchronously during the nested scroll callback.
+     */
+    // TODO(b/569795619): Cleanup feature flag once proven stable.
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isNestedScrollInteropMeasureAndLayoutEnabled: Boolean = true
 }
