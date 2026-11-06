@@ -19,6 +19,7 @@ package androidx.web
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.view.ViewGroup
 import androidx.annotation.RequiresFeature
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
@@ -64,6 +65,38 @@ internal constructor(private val boundaryInterface: WebContentBoundaryInterface)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun isAttached(): Boolean = !isDetached && !isDestroyed
 
+    /**
+     * Transfers this [WebContent] to a new [WebContentView], like [attach] but first removing the
+     * attached view from the view hierarchy, so the new view can take over in the same frame.
+     */
+    @InternalWebApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @UiThread
+    public fun <T : WebContentView> transfer(context: Context, factory: Function<Context, T>): T {
+        checkCanAttach(context)
+        val previousView = if (isAttached()) currentView else null
+        if (previousView != null) {
+            // We need to remove the previous views focus so that the View system
+            // doesn't search for something new to focus on.
+            // We also need to remove the previous view before attaching to the
+            // new one to avoid Chromium complaining at us.
+            previousView.clearFocus()
+            (previousView.parent as? ViewGroup)?.removeView(previousView)
+        }
+        return internalAttach(context, factory::apply)
+    }
+
+    /**
+     * Like [detach], but does nothing if this [WebContent] is no longer attached to [view], e.g.
+     * after it was [transfer]red to another view.
+     */
+    @InternalWebApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @UiThread
+    public fun detach(view: WebContentView) {
+        if (currentView === view) detach()
+    }
+
     private fun unwrapActivity(context: Context): Activity? {
         var ctx: Context? = context
         while (ctx is ContextWrapper) {
@@ -71,6 +104,13 @@ internal constructor(private val boundaryInterface: WebContentBoundaryInterface)
             ctx = ctx.baseContext
         }
         return null
+    }
+
+    private fun checkCanAttach(context: Context) {
+        check(!isDestroyed) { "Cannot attach to a destroyed WebContent." }
+        require(unwrapActivity(context) != null) {
+            "WebContent must be attached with an Activity context."
+        }
     }
 
     /**
@@ -95,10 +135,7 @@ internal constructor(private val boundaryInterface: WebContentBoundaryInterface)
      */
     @UiThread
     public fun <T : WebContentView> attach(context: Context, factory: Function<Context, T>): T {
-        check(!isDestroyed) { "Cannot attach to a destroyed WebContent." }
-        require(unwrapActivity(context) != null) {
-            "WebContent must be attached with an Activity context."
-        }
+        checkCanAttach(context)
         return internalAttach(context, factory::apply)
     }
 

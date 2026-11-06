@@ -335,6 +335,116 @@ class WebSurfaceTest {
     }
 
     @Test
+    fun testEnteringSurfaceTakesOverFromOneStillInComposition() {
+        var showFirst by mutableStateOf(true)
+        var showSecond by mutableStateOf(false)
+        var firstBridge: WebViewBridge? = null
+        var secondBridge: WebViewBridge? = null
+
+        composeTestRule.setContent {
+            Column {
+                if (showFirst) {
+                    WebSurface(
+                        content = webContent,
+                        modifier = Modifier.size(100.dp),
+                        bridgeFactory = { WebViewBridge(it).also { b -> firstBridge = b } },
+                    )
+                }
+                if (showSecond) {
+                    WebSurface(
+                        content = webContent,
+                        modifier = Modifier.size(100.dp),
+                        bridgeFactory = { WebViewBridge(it).also { b -> secondBridge = b } },
+                    )
+                }
+            }
+        }
+
+        val initialBridge = composeTestRule.runOnIdle {
+            // Trigger synchronous Chromium startup so queued WebView initialization completes
+            // before WebContent is closed in tearDown.
+            checkNotNull(firstBridge).apply { settings }
+        }
+
+        // The first surface is still in composition, e.g. while animating out.
+        composeTestRule.runOnIdle { showSecond = true }
+
+        composeTestRule.runOnIdle {
+            assertTrue(checkNotNull(secondBridge).isAttachedToWindow)
+            assertFalse(initialBridge.isAttachedToWindow)
+        }
+
+        composeTestRule.runOnIdle { showFirst = false }
+
+        composeTestRule.runOnIdle {
+            assertTrue(checkNotNull(secondBridge).isAttachedToWindow)
+            assertTrue(webContent.isAttached())
+        }
+
+        composeTestRule.runOnIdle { showSecond = false }
+
+        composeTestRule.runOnIdle { assertFalse(webContent.isAttached()) }
+    }
+
+    @Test
+    fun testFocusedLazyColumnItemHandsOffInSameFrame() {
+        var fullscreen by mutableStateOf(false)
+        var itemBridge: WebViewBridge? = null
+        var fullscreenBridge: WebViewBridge? = null
+
+        composeTestRule.setContent {
+            Box(modifier = Modifier.size(200.dp)) {
+                LazyColumn(modifier = Modifier.size(200.dp)) {
+                    // Removed items are disposed after the frame, or kept while pinned by focus, so
+                    // this is still in composition when the fullscreen surface enters.
+                    if (!fullscreen) {
+                        item(key = "web") {
+                            WebSurface(
+                                content = webContent,
+                                modifier = Modifier.size(200.dp, 150.dp),
+                                bridgeFactory = { WebViewBridge(it).also { b -> itemBridge = b } },
+                            )
+                        }
+                    }
+                    items(5) { Box(modifier = Modifier.size(200.dp, 100.dp)) }
+                }
+                if (fullscreen) {
+                    WebSurface(
+                        content = webContent,
+                        modifier = Modifier.size(200.dp),
+                        bridgeFactory = { WebViewBridge(it).also { b -> fullscreenBridge = b } },
+                    )
+                }
+            }
+        }
+
+        val initialItemBridge = composeTestRule.runOnIdle {
+            checkNotNull(itemBridge).apply {
+                settings
+                requestFocus()
+                assertTrue(hasFocus())
+            }
+        }
+
+        composeTestRule.runOnIdle { fullscreen = true }
+
+        composeTestRule.runOnIdle {
+            val bridge = checkNotNull(fullscreenBridge)
+            assertTrue(bridge.isAttachedToWindow)
+            assertFalse(initialItemBridge.isAttachedToWindow)
+        }
+
+        composeTestRule.runOnIdle { fullscreen = false }
+
+        composeTestRule.runOnIdle {
+            val bridge = checkNotNull(itemBridge)
+            assertTrue(bridge !== initialItemBridge)
+            assertTrue(bridge.isAttachedToWindow)
+            assertFalse(checkNotNull(fullscreenBridge).isAttachedToWindow)
+        }
+    }
+
+    @Test
     fun testUpdatesViewportOnResize() {
         lateinit var bridge: WebViewBridge
         var size by mutableStateOf(100.dp)
