@@ -19,9 +19,11 @@ package androidx.camera.camera2.impl
 import android.os.Handler
 import android.os.Looper
 import androidx.annotation.VisibleForTesting
+import androidx.camera.camera2.adapter.completeFailing
 import androidx.camera.camera2.adapter.propagateTo
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import java.util.concurrent.Executor
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -95,14 +97,20 @@ public class UseCaseThreads(
      * purpose of thread confinement.
      *
      * Cancelling the `Deferred` returned from this function does not cancel the `Deferred` returned
-     * by `block`.
+     * by `block`. If the launched sequential coroutine fails or is cancelled before propagating,
+     * the returned `Deferred` is completed with that failure/cancellation.
      *
      * @return A [Deferred] which is completed as per the [Deferred] returned from [block] via
      *   [propagateTo].
      */
     public inline fun <T> confineDeferred(crossinline block: () -> Deferred<T>): Deferred<T> {
         val signal = CompletableDeferred<T>()
-        sequentialScope.launch { block().propagateTo(signal) }
+        val job = sequentialScope.launch { block().propagateTo(signal) }
+        job.invokeOnCompletion { throwable ->
+            if (throwable != null) {
+                signal.completeFailing(throwable)
+            }
+        }
         return signal
     }
 
@@ -135,7 +143,8 @@ public class UseCaseThreads(
      * [UseCaseThreads.sequentialScope] for the purpose of thread confinement.
      *
      * Cancelling the `Deferred` returned from this function does not cancel the `Deferred` returned
-     * by `block`.
+     * by `block`. If the launched sequential coroutine fails or is cancelled before propagating,
+     * the returned `Deferred` is completed with that failure/cancellation.
      *
      * @param block The suspend lambda that returns a [Deferred].
      * @param start The start option for the coroutine. Defaults to [CoroutineStart.DEFAULT].
@@ -149,7 +158,52 @@ public class UseCaseThreads(
         start: CoroutineStart = CoroutineStart.DEFAULT,
     ): Deferred<T> {
         val signal = CompletableDeferred<T>()
-        sequentialScope.launch(start = start) { block().propagateTo(signal) }
+        val job = sequentialScope.launch(start = start) { block().propagateTo(signal) }
+        job.invokeOnCompletion { throwable ->
+            if (throwable != null) {
+                signal.completeFailing(throwable)
+            }
+        }
+        return signal
+    }
+
+    /**
+     * Confines a [Deferred] returning suspendable [block] parameter to
+     * [UseCaseThreads.sequentialScope] and propagates cancellation from the returned [Deferred] to
+     * both the launched sequential coroutine and the inner [Deferred] returned by [block].
+     *
+     * @param block The suspend lambda that returns a [Deferred].
+     * @param start The start option for the coroutine. Defaults to [CoroutineStart.DEFAULT].
+     *   **Note:** Do not use [CoroutineStart.LAZY] as the internal [Job] is not returned, meaning
+     *   the coroutine cannot be started manually.
+     * @return A [Deferred] which is completed as per the [Deferred] returned from [block] via
+     *   [propagateTo], and whose cancellation cancels the underlying operation.
+     */
+    public inline fun <T> confineDeferredSuspendCancellable(
+        crossinline block: suspend () -> Deferred<T>,
+        start: CoroutineStart = CoroutineStart.DEFAULT,
+    ): Deferred<T> {
+        val signal = CompletableDeferred<T>()
+        val job =
+            sequentialScope.launch(start = start) {
+                val deferred = block()
+                signal.invokeOnCompletion { throwable ->
+                    if (throwable is CancellationException) {
+                        deferred.cancel(throwable)
+                    }
+                }
+                deferred.propagateTo(signal)
+            }
+        job.invokeOnCompletion { throwable ->
+            if (throwable != null) {
+                signal.completeFailing(throwable)
+            }
+        }
+        signal.invokeOnCompletion { throwable ->
+            if (throwable is CancellationException) {
+                job.cancel(throwable)
+            }
+        }
         return signal
     }
 

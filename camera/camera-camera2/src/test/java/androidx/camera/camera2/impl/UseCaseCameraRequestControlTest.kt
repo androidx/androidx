@@ -30,6 +30,7 @@ import androidx.camera.camera2.interop.setCamera2CaptureRequestConfigurator
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
+import androidx.camera.camera2.pipe.CameraGraph.Constants3A.METERING_REGIONS_DEFAULT
 import androidx.camera.camera2.pipe.ControlMode
 import androidx.camera.camera2.pipe.FlashMode
 import androidx.camera.camera2.pipe.FrameMetadata
@@ -67,6 +68,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -722,12 +725,181 @@ class UseCaseCameraRequestControlTest {
                 threads = testThreads,
             )
 
-        val resultDeferred = localRequestControl.cancelFocusAndMeteringAsync()
+        val resultDeferred =
+            localRequestControl.cancelFocusAndMeteringAsync(
+                aeRegions = METERING_REGIONS_DEFAULT.asList(),
+                afRegions = METERING_REGIONS_DEFAULT.asList(),
+                awbRegions = METERING_REGIONS_DEFAULT.asList(),
+            )
 
         advanceUntilIdle()
         assertThat(resultDeferred.await().status).isEqualTo(Result3A.Status.OK)
         assertThat(update3ACalled).isTrue()
         assertThat(stalledGraph.activeSessionCount).isEqualTo(0)
+    }
+
+    @Test
+    fun update3aRegions_nullUnsupportedRegions_doesNotFallbackToDefault(): Unit = runBlocking {
+        requestControl
+            .update3aRegions(
+                aeRegions = METERING_REGIONS_DEFAULT.asList(),
+                afRegions = null,
+                awbRegions = null,
+            )
+            .await()
+
+        assertThat(fakeCameraGraph.fakeCameraGraphSession.update3ACalls).hasSize(1)
+        val updateCall = fakeCameraGraph.fakeCameraGraphSession.update3ACalls.single()
+        assertThat(updateCall.aeRegions).isEqualTo(METERING_REGIONS_DEFAULT.asList())
+        assertThat(updateCall.afRegions).isNull()
+        assertThat(updateCall.awbRegions).isNull()
+    }
+
+    @Test
+    fun cancelFocusAndMeteringAsync_allRegionsNull_skipsUpdate3A(): Unit = runBlocking {
+        requestControl
+            .cancelFocusAndMeteringAsync(aeRegions = null, afRegions = null, awbRegions = null)
+            .await()
+
+        assertThat(fakeCameraGraph.fakeCameraGraphSession.unlock3ACallCount).isEqualTo(1)
+        assertThat(fakeCameraGraph.fakeCameraGraphSession.update3ACalls).isEmpty()
+    }
+
+    @Test
+    fun startFocusAndMeteringAsync_cancelledBeforeExecution_doesNotCallLock3A(): Unit =
+        runBlocking {
+            val blockGate = CountDownLatch(1)
+            val blockedEntered = CountDownLatch(1)
+            useCaseThreads.sequentialExecutor.execute {
+                blockedEntered.countDown()
+                blockGate.await(5, TimeUnit.SECONDS)
+            }
+            assertThat(blockedEntered.await(5, TimeUnit.SECONDS)).isTrue()
+
+            val focusDeferred =
+                requestControl.startFocusAndMeteringAsync(
+                    aeRegions = METERING_REGIONS_DEFAULT.asList(),
+                    afRegions = METERING_REGIONS_DEFAULT.asList(),
+                    awbRegions = null,
+                )
+            focusDeferred.cancel()
+            blockGate.countDown()
+
+            // Flush sequential queue
+            requestControl
+                .cancelFocusAndMeteringAsync(aeRegions = null, afRegions = null, awbRegions = null)
+                .await()
+
+            assertThat(fakeCameraGraph.fakeCameraGraphSession.lock3ACallCount).isEqualTo(0)
+        }
+
+    @Test
+    fun startFocusAndMeteringAsync_cancelledWhileAwaitingResult_cancelsInnerDeferred(): Unit =
+        runBlocking {
+            val innerResult = CompletableDeferred<Result3A>()
+            fakeCameraGraph.fakeCameraGraphSession.lock3AResult = innerResult
+
+            val focusDeferred =
+                requestControl.startFocusAndMeteringAsync(
+                    aeRegions = METERING_REGIONS_DEFAULT.asList(),
+                    afRegions = METERING_REGIONS_DEFAULT.asList(),
+                    awbRegions = null,
+                )
+            // Ensure startFocusAndMeteringAsync has executed lock3A on sequentialScope
+            useCaseThreads.sequentialScope.launch {}.join()
+            assertThat(fakeCameraGraph.fakeCameraGraphSession.lock3ACallCount).isEqualTo(1)
+
+            focusDeferred.cancel()
+
+            assertThat(innerResult.isCancelled).isTrue()
+        }
+
+    @Test
+    fun startFocusAndMeteringAsync_cancelledWhileSuspendedInLock3A_releasesSession(): Unit =
+        runBlocking {
+            val suspendGate = CompletableDeferred<Unit>()
+            fakeCameraGraph.fakeCameraGraphSession.lock3ASuspendGate = suspendGate
+
+            val focusDeferred =
+                requestControl.startFocusAndMeteringAsync(
+                    aeRegions = METERING_REGIONS_DEFAULT.asList(),
+                    afRegions = METERING_REGIONS_DEFAULT.asList(),
+                    awbRegions = null,
+                )
+            // Ensure startFocusAndMeteringAsync has entered lock3A and suspended on suspendGate
+            useCaseThreads.sequentialScope.launch {}.join()
+            assertThat(fakeCameraGraph.fakeCameraGraphSession.lock3ACallCount).isEqualTo(1)
+            assertThat(fakeCameraGraph.fakeCameraGraphSession.activeCount).isEqualTo(1)
+
+            // Cancel while suspended inside useGraphSession { it.lock3A(...) }
+            focusDeferred.cancel()
+            useCaseThreads.sequentialScope.launch {}.join()
+
+            assertThat(fakeCameraGraph.fakeCameraGraphSession.activeCount).isEqualTo(0)
+
+            // Subsequent cancelFocusAndMeteringAsync can acquire the session and execute unlock3A
+            requestControl
+                .cancelFocusAndMeteringAsync(aeRegions = null, afRegions = null, awbRegions = null)
+                .await()
+            assertThat(fakeCameraGraph.fakeCameraGraphSession.unlock3ACallCount).isEqualTo(1)
+        }
+
+    @Test
+    fun cancelThenStartFocusAndMetering_issuesUnlockAndUpdateBeforeLock3A(): Unit = runBlocking {
+        val blockGate = CountDownLatch(1)
+        val blockedEntered = CountDownLatch(1)
+        useCaseThreads.sequentialExecutor.execute {
+            blockedEntered.countDown()
+            blockGate.await(5, TimeUnit.SECONDS)
+        }
+        assertThat(blockedEntered.await(5, TimeUnit.SECONDS)).isTrue()
+
+        val unlockDeferred = CompletableDeferred<Result3A>()
+        fakeCameraGraph.fakeCameraGraphSession.unlock3AResult = unlockDeferred
+
+        val cancelDeferred =
+            requestControl.cancelFocusAndMeteringAsync(
+                aeRegions = METERING_REGIONS_DEFAULT.asList(),
+                afRegions = METERING_REGIONS_DEFAULT.asList(),
+                awbRegions = null,
+            )
+        val startDeferred =
+            requestControl.startFocusAndMeteringAsync(
+                aeRegions = METERING_REGIONS_DEFAULT.asList(),
+                afRegions = METERING_REGIONS_DEFAULT.asList(),
+                awbRegions = null,
+            )
+
+        blockGate.countDown()
+        startDeferred.await()
+
+        assertThat(fakeCameraGraph.fakeCameraGraphSession.unlock3ACallCount).isEqualTo(1)
+        assertThat(fakeCameraGraph.fakeCameraGraphSession.update3ACalls).hasSize(1)
+        assertThat(fakeCameraGraph.fakeCameraGraphSession.lock3ACallCount).isEqualTo(1)
+        assertThat(fakeCameraGraph.fakeCameraGraphSession.callOrder)
+            .containsExactly("unlock3A", "update3A", "lock3A")
+            .inOrder()
+        assertThat(cancelDeferred.isActive).isTrue()
+
+        unlockDeferred.complete(Result3A(Result3A.Status.OK))
+        cancelDeferred.await()
+        assertThat(fakeCameraGraph.fakeCameraGraphSession.update3ACalls).hasSize(1)
+    }
+
+    @Test
+    fun cancelSequentialScope_cancelsConfinedDeferred(): Unit = runBlocking {
+        val suspendGate = CompletableDeferred<Deferred<Unit>>()
+        val confinedDeferred =
+            useCaseThreads.confineDeferredSuspend(block = { suspendGate.await() })
+        useCaseThreads.sequentialScope.launch {}.join()
+        assertThat(confinedDeferred.isActive).isTrue()
+
+        useCaseThreads.sequentialScope.cancel()
+        val drainLatch = CountDownLatch(1)
+        useCaseThreads.sequentialExecutor.execute { drainLatch.countDown() }
+        assertThat(drainLatch.await(5, TimeUnit.SECONDS)).isTrue()
+
+        assertThat(confinedDeferred.isCancelled).isTrue()
     }
 
     private fun UseCaseCameraRequestControl.setSessionConfigAsync(
