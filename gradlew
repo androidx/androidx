@@ -254,9 +254,6 @@ function setGradleAndKotlinDaemonMemoryLimits() {
       # by replacing a string like "-Xmx1g" with one like "-Xms1g -Xmx1g"
       # First sed command replaces Gradle daemon -Xmx and second replaces Kotlin compiler daemon -Xmx
       ORG_GRADLE_JVMARGS="$(echo "${ORG_GRADLE_JVMARGS}" | sed "s/-Xmx\([^ ]*\)/-Xms${GRADLE_MEMORY_OVERRIDE} -Xmx${GRADLE_MEMORY_OVERRIDE}/" | sed "s/,-Xmx\([^, ]*\)/,-Xms${KOTLIN_MEMORY_OVERRIDE},-Xmx${KOTLIN_MEMORY_OVERRIDE}/")"
-
-      # Increase the compiler cache size: b/260643754. Remove when updating to JDK 20 (https://bugs.openjdk.org/browse/JDK-8295724)
-      ORG_GRADLE_JVMARGS="$(echo "${ORG_GRADLE_JVMARGS}" | sed "s|$| -XX:ReservedCodeCacheSize=576M|")"
     else
       # If we are not running in CI, we want to only set the max heap size for gradle and kotlin daemons.
       ORG_GRADLE_JVMARGS="$(echo "${ORG_GRADLE_JVMARGS}" | sed "s/-Xmx\([^ ]*\)/-Xmx${GRADLE_MEMORY_OVERRIDE}/" | sed "s/,-Xmx\([^, ]*\)/,-Xmx${KOTLIN_MEMORY_OVERRIDE}/")"
