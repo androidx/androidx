@@ -125,49 +125,14 @@ class KeyframeSplineAnimationTest {
         // Velocities on balanced bias should be the average of the start/end velocities of the
         // regular monotonic spline
         val avg = (regularV0.value + regularV1.value) / 2f
-        assertEquals(avg, balancedV0.value, 0.00001f)
-        assertEquals(avg, balancedV1.value, 0.00001f)
+        assertEquals(avg, balancedV0.value)
+        assertEquals(avg, balancedV1.value)
 
         // On fully biased at the start, the end velocity remains unchanged
         assertEquals(startBiasV1.value, regularV1.value, 0.00001f)
 
         // On fully biased at the end, the start velocity remains unchanged
         assertEquals(endBiasV0.value, regularV0.value, 0.00001f)
-    }
-
-    @Test
-    fun subMillisecondInterpolationAndFlag() {
-        val animation = keyframesWithSpline {
-            durationMillis = 500
-            Offset(1f, 2f) at 250
-        }
-            .vectorize(Offset.VectorConverter)
-        val start = AnimationVector2D(0f, 0f)
-        val end = AnimationVector2D(2f, 2f)
-        val initialVelocity = AnimationVector2D(0f, 0f)
-
-        try {
-            ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled = true
-            val valAt0 =
-                animation.getValueFromNanos(0L, start, end, initialVelocity).let {
-                    AnimationVector2D(it.v1, it.v2)
-                }
-            val valAtHalfMs =
-                animation.getValueFromNanos(500_000L, start, end, initialVelocity).let {
-                    AnimationVector2D(it.v1, it.v2)
-                }
-            assertTrue(valAtHalfMs.v1 > valAt0.v1)
-            assertTrue(valAtHalfMs.v2 > valAt0.v2)
-
-            ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled = false
-            val valAtHalfMsDisabled =
-                animation.getValueFromNanos(500_000L, start, end, initialVelocity).let {
-                    AnimationVector2D(it.v1, it.v2)
-                }
-            assertEquals(valAt0, valAtHalfMsDisabled)
-        } finally {
-            ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled = true
-        }
     }
 
     @Test

@@ -272,12 +272,6 @@ package androidx.compose.animation.core {
     property public androidx.compose.animation.core.ArcMode ArcLinear;
   }
 
-  @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi public final class ComposeAnimationCoreFlags {
-    property public boolean isNanosecondAnimationSpecEnabled;
-    field public static final androidx.compose.animation.core.ComposeAnimationCoreFlags INSTANCE;
-    field public static boolean isNanosecondAnimationSpecEnabled;
-  }
-
   @androidx.compose.runtime.Immutable public final class CubicBezierEasing implements androidx.compose.animation.core.Easing {
     ctor public CubicBezierEasing(float a, float b, float c, float d);
     method public float transform(float fraction);

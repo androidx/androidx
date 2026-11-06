@@ -142,40 +142,28 @@ public class FloatSpringSpec(
             it.stiffness = stiffness
         }
 
-    @OptIn(ExperimentalAnimationSpecApi::class)
     override fun getValueFromNanos(
         playTimeNanos: Long,
         initialValue: Float,
         targetValue: Float,
         initialVelocity: Float,
     ): Float {
+        // TODO: Properly support Nanos in the spring impl
+        val playTimeMillis = playTimeNanos / MillisToNanos
         spring.finalPosition = targetValue
-        val effectivePlayTimeNanos =
-            if (ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled) {
-                playTimeNanos
-            } else {
-                (playTimeNanos / MillisToNanos) * MillisToNanos
-            }
-        return spring.updateValuesNanos(initialValue, initialVelocity, effectivePlayTimeNanos).value
+        return spring.updateValues(initialValue, initialVelocity, playTimeMillis).value
     }
 
-    @OptIn(ExperimentalAnimationSpecApi::class)
     override fun getVelocityFromNanos(
         playTimeNanos: Long,
         initialValue: Float,
         targetValue: Float,
         initialVelocity: Float,
     ): Float {
+        // TODO: Properly support Nanos in the spring impl
+        val playTimeMillis = playTimeNanos / MillisToNanos
         spring.finalPosition = targetValue
-        val effectivePlayTimeNanos =
-            if (ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled) {
-                playTimeNanos
-            } else {
-                (playTimeNanos / MillisToNanos) * MillisToNanos
-            }
-        return spring
-            .updateValuesNanos(initialValue, initialVelocity, effectivePlayTimeNanos)
-            .velocity
+        return spring.updateValues(initialValue, initialVelocity, playTimeMillis).velocity
     }
 
     override fun getEndVelocity(
@@ -184,32 +172,19 @@ public class FloatSpringSpec(
         initialVelocity: Float,
     ): Float = 0f
 
-    @OptIn(ExperimentalAnimationSpecApi::class)
     @Suppress("MethodNameUnits")
     override fun getDurationNanos(
         initialValue: Float,
         targetValue: Float,
         initialVelocity: Float,
     ): Long =
-        if (ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled) {
-            estimateAnimationDurationNanos(
-                stiffness = spring.stiffness,
-                dampingRatio = spring.dampingRatio,
-                initialDisplacement = (initialValue - targetValue) / visibilityThreshold,
-                initialVelocity = initialVelocity / visibilityThreshold,
-                delta = 1f,
-            )
-        } else {
-            val durationMillis =
-                estimateAnimationDurationMillis(
-                    stiffness = spring.stiffness,
-                    dampingRatio = spring.dampingRatio,
-                    initialDisplacement = (initialValue - targetValue) / visibilityThreshold,
-                    initialVelocity = initialVelocity / visibilityThreshold,
-                    delta = 1f,
-                )
-            durationMillis * MillisToNanos
-        }
+        estimateAnimationDurationMillis(
+            stiffness = spring.stiffness,
+            dampingRatio = spring.dampingRatio,
+            initialDisplacement = (initialValue - targetValue) / visibilityThreshold,
+            initialVelocity = initialVelocity / visibilityThreshold,
+            delta = 1f,
+        ) * MillisToNanos
 }
 
 /**
