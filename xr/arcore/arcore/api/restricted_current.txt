@@ -220,9 +220,6 @@ package androidx.xr.arcore {
     property public int width;
   }
 
-  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalGesturesApi {
-  }
-
   public final class Eye implements androidx.xr.arcore.Trackable<androidx.xr.arcore.Eye.State> {
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Eye.State> getState();
     method public static androidx.xr.arcore.Eye left(androidx.xr.runtime.Session session);
@@ -800,32 +797,6 @@ package androidx.xr.arcore {
     method public androidx.xr.arcore.SpatialAnnotationTrackingOptions.Builder setQuads(java.util.Map<androidx.xr.arcore.SpatialAnnotationId,androidx.xr.runtime.math.Quad> quads);
     method public androidx.xr.arcore.SpatialAnnotationTrackingOptions.Builder setRowStride(int rowStride);
     method @Deprecated public androidx.xr.arcore.SpatialAnnotationTrackingOptions.Builder setTimestampNanos(long timestampNanos);
-  }
-
-  @Deprecated @SuppressCompatibility @androidx.xr.arcore.ExperimentalGesturesApi public final class Tilt {
-    field @Deprecated public static final androidx.xr.arcore.Tilt.Companion Companion;
-    field @Deprecated public static final androidx.xr.arcore.Tilt DOWN;
-    field @Deprecated public static final androidx.xr.arcore.Tilt UP;
-  }
-
-  @Deprecated @SuppressCompatibility @androidx.xr.arcore.ExperimentalGesturesApi public static final class Tilt.Companion {
-    property @Deprecated public androidx.xr.arcore.Tilt DOWN;
-    property @Deprecated public androidx.xr.arcore.Tilt UP;
-  }
-
-  @Deprecated @SuppressCompatibility @androidx.xr.arcore.ExperimentalGesturesApi public final class TiltGesture {
-    method @Deprecated public kotlinx.coroutines.flow.Flow<androidx.xr.arcore.TiltGesture.State> detect(androidx.xr.runtime.Session session);
-    field @Deprecated public static final androidx.xr.arcore.TiltGesture INSTANCE;
-  }
-
-  @Deprecated @SuppressCompatibility @androidx.xr.arcore.ExperimentalGesturesApi public static final class TiltGesture.State {
-    ctor @Deprecated public TiltGesture.State();
-    ctor @Deprecated public TiltGesture.State(optional androidx.xr.arcore.Tilt tilt, optional @FloatRange(from=0.0, to=1.0) float progress);
-    ctor @BytecodeOnly @Deprecated public TiltGesture.State(androidx.xr.arcore.Tilt!, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method @InaccessibleFromKotlin @Deprecated public float getProgress();
-    method @InaccessibleFromKotlin @Deprecated public androidx.xr.arcore.Tilt getTilt();
-    property @Deprecated public float progress;
-    property @Deprecated public androidx.xr.arcore.Tilt tilt;
   }
 
   public interface Trackable<State> {

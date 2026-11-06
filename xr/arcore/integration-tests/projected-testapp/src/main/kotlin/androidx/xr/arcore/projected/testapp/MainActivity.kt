@@ -52,9 +52,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.xr.arcore.projected.testapp.tiltgesture.TiltGestureHostActivity
-import androidx.xr.arcore.projected.testapp.tiltgesture.TiltGestureProjectedActivity
-import androidx.xr.arcore.projected.testapp.tiltgesture.TiltGestureTrackingActivity
 import androidx.xr.arcore.projected.testapp.tracking.TrackingHostActivity
 import androidx.xr.arcore.projected.testapp.tracking.TrackingProjectedActivity
 import androidx.xr.projected.ProjectedContext
@@ -77,8 +74,6 @@ class MainActivity : ComponentActivity() {
             override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
                 if (
                     activity != this@MainActivity &&
-                        activity !is TiltGestureProjectedActivity &&
-                        activity !is TiltGestureHostActivity &&
                         activity !is TrackingProjectedActivity &&
                         activity !is TrackingHostActivity
                 ) {
@@ -127,20 +122,8 @@ class MainActivity : ComponentActivity() {
                                 this@MainActivity,
                             )
                             TestActivityRow(
-                                "(New!) TiltGesture Test",
-                                TiltGestureHostActivity::class.java,
-                                isProjected = false,
-                                this@MainActivity,
-                            )
-                            TestActivityRow(
                                 "(Deprecated) Inertial Tracking test",
                                 InertialTrackingActivity::class.java,
-                                isProjected = true,
-                                this@MainActivity,
-                            )
-                            TestActivityRow(
-                                "(Deprecated) TiltGesture test",
-                                TiltGestureTrackingActivity::class.java,
                                 isProjected = true,
                                 this@MainActivity,
                             )
