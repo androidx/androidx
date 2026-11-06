@@ -309,6 +309,7 @@ internal class Camera2DeviceManagerImplTest {
                 any(),
                 any(),
                 any(),
+                any(),
             )
     }
 
