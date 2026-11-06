@@ -17,9 +17,11 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
-import androidx.compose.remote.creation.compose.capture.createTestCreationState
 import androidx.compose.remote.creation.compose.util.RemoteDocumentTestRule
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.ui.geometry.Size
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -44,7 +46,7 @@ class NonLinearFontScalingTest {
 
     private fun RemoteTextUnit.toPxValue(density: RemoteDensity): Float {
         // Create a fresh state to avoid caching issues with different densities
-        val state = createTestCreationState()
+        val state = RemoteComposeCreationState(AndroidxRcPlatformServices(), Size(1f, 1f))
         val resultId = this.toPx(density).getIdForCreationState(state)
 
         // Init document from buffer

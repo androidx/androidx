@@ -393,7 +393,7 @@ class RemoteTextStyleTest {
                 lineBreak = RemoteLineBreak.Heading,
                 hyphens = RemoteHyphens.Auto,
                 fontFeatureSettings = "tnum",
-                fontVariationSettings = initialSettings.toRemoteFontVariationSettings(),
+                fontVariationSettings = initialSettings,
             )
 
         // Preserves fontVariationSettings when not specified, and clears nullable properties when
@@ -450,7 +450,7 @@ class RemoteTextStyleTest {
         val style =
             RemoteTextStyle(
                 fontWeight = RemoteFontWeight.Normal,
-                fontVariationSettings = initialSettings.toRemoteFontVariationSettings(),
+                fontVariationSettings = initialSettings,
             )
 
         val preserved =
@@ -474,9 +474,7 @@ class RemoteTextStyleTest {
         val style =
             RemoteTextStyle(
                 fontFeatureSettings = "tnum",
-                fontVariationSettings =
-                    FontVariation.Settings(FontVariation.weight(700))
-                        .toRemoteFontVariationSettings(),
+                fontVariationSettings = FontVariation.Settings(FontVariation.weight(700)),
             )
 
         assertThat(style.fontFeatureSettings).isEqualTo("tnum")
@@ -530,7 +528,6 @@ class RemoteTextStyleTest {
             RemoteTextStyle(
                 fontVariationSettings =
                     FontVariation.Settings(FontVariation.weight(700), FontVariation.width(80f))
-                        .toRemoteFontVariationSettings()
             )
 
         assertThat(style.fontVariationSettings)

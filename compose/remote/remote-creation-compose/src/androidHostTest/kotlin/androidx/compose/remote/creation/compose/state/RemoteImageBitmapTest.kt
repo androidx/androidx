@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.state
 import android.graphics.Bitmap
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createOffscreenRemoteBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.unit.IntSize
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -77,8 +78,7 @@ class RemoteImageBitmapTest {
             RemoteImageBitmap.createNamedRemoteImageBitmap(
                 name = "avatar",
                 url = url,
-                width = 300,
-                height = 200,
+                size = IntSize(300, 200),
             )
 
         assertThat(bitmap).isNotNull()

@@ -29,13 +29,14 @@ import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
-import androidx.compose.remote.creation.compose.capture.createTestCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.runtime.remember
+import androidx.compose.ui.geometry.Size
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -73,7 +74,7 @@ class RemoteFloatTest {
     @Before
     fun setUp() {
         // Necessary for test isolation.
-        creationState = createTestCreationState()
+        creationState = RemoteComposeCreationState(AndroidxRcPlatformServices(), Size(1f, 1f))
     }
 
     @Test
@@ -2120,7 +2121,7 @@ class RemoteFloatTest {
 
     @Test
     fun companionContextVariables() {
-        creationState = createTestCreationState(width = 40, height = 50)
+        creationState = RemoteComposeCreationState(AndroidxRcPlatformServices(), Size(40f, 50f))
         val animTimeId =
             (RemoteTimeVariables.animationTime + 1f).getIdForCreationState(creationState)
         val animDeltaId =

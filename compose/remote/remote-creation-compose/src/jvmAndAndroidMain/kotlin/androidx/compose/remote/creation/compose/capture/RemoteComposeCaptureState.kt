@@ -15,6 +15,7 @@
  */
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @file:JvmName("RemoteComposeCaptureStateKt")
+@file:JvmMultifileClass
 
 package androidx.compose.remote.creation.compose.capture
 

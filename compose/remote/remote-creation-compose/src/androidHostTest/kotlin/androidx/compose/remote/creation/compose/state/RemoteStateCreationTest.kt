@@ -45,6 +45,7 @@ import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
@@ -228,12 +229,11 @@ class RemoteStateCreationTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 val namedBitmap = remember {
-                    RemoteImageBitmap.createNamedRemoteImageBitmap(
+                    createNamedRemoteImageBitmap(
                         name = "testBitmapUrl",
                         url =
                             "android.resource://androidx.compose.remote.foundation/drawable/dummy",
-                        width = 300,
-                        height = 200,
+                        size = IntSize(300, 200),
                     )
                 }
                 RemoteBox(
