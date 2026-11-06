@@ -80,18 +80,31 @@ import org.intellij.lang.annotations.Language
  *
  * @sample androidx.wear.compose.material3.samples.DrawCurvedToEdgeSample
  *
+ * ![DrawCurvedToEdgeSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_DrawCurvedToEdgeSample_CompositeImage.png)
+ *
  * Example of drawing the arc further in from the edge by padding the parent container, with
  * overflow handling for a long piece of text:
  *
  * @sample androidx.wear.compose.material3.samples.InsetDrawCurvedToEdgeSample
  *
+ * ![InsetDrawCurvedToEdgeSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_InsetDrawCurvedToEdgeSample_CompositeImage.png)
+ *
  * Example of applying Modifier.drawCurvedToEdge to a row of Icons:
  *
  * @sample androidx.wear.compose.material3.samples.IconsDrawCurvedToEdgeSample
  *
+ * ![IconsDrawCurvedToEdgeSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_IconsDrawCurvedToEdgeSample_CompositeImage.png)
+ *
  * Example of applying Modifier.drawCurvedToEdge to mixed content:
  *
  * @sample androidx.wear.compose.material3.samples.MixedContentDrawCurvedToEdgeSample
+ *
+ * ![MixedContentDrawCurvedToEdgeSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_MixedContentDrawCurvedToEdgeSample_CompositeImage.png)
+ *
  * @param maxSweepAngle The maximum sweep angle in degrees,
  *   [DrawCurvedToEdgeDefaults.ScrollableContentMaxSweepAngle] by default. For screens without
  *   scrollable content, [DrawCurvedToEdgeDefaults.StaticContentMaxSweepAngle] may be used instead.
