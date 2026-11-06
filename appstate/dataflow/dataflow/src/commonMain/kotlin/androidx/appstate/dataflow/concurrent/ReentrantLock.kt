@@ -14,5 +14,21 @@
  * limitations under the License.
  */
 
-// Placeholder file to generate klib and avoid empty project issues.
-package androidx.appstate.dataflow
+package androidx.appstate.dataflow.concurrent
+
+internal expect class ReentrantLock() {
+    fun lock()
+
+    fun tryLock(): Boolean
+
+    fun unlock()
+}
+
+internal inline fun <T> ReentrantLock.withLock(block: () -> T): T {
+    lock()
+    try {
+        return block()
+    } finally {
+        unlock()
+    }
+}

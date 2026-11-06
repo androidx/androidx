@@ -1,2 +1,27 @@
 // Signature format: 5.0
 // - surface=public
+package androidx.appstate.dataflow {
+
+  public interface DataKey<S> {
+  }
+
+  public final class DataflowRegistry {
+    ctor @BytecodeOnly public DataflowRegistry(kotlin.coroutines.CoroutineContext!, androidx.appstate.dataflow.DataflowRegistry!, java.util.Map!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public DataflowRegistry(kotlin.coroutines.CoroutineContext coroutineContext, optional androidx.appstate.dataflow.DataflowRegistry? parent, optional java.util.Map<kotlin.reflect.KClass<? extends androidx.appstate.dataflow.DataKey<? extends java.lang.Object?>>,? extends androidx.appstate.dataflow.Reducer.Factory<? extends java.lang.Object?,? extends java.lang.Object?>> reducerFactories);
+    method public void dispose();
+    method public <S> androidx.compose.runtime.State<S> getState(androidx.appstate.dataflow.DataKey<? extends S> key);
+  }
+
+  public interface Reducer<K extends androidx.appstate.dataflow.DataKey<?>, S> {
+    method @InaccessibleFromKotlin public S getInitialValue();
+    method @KotlinOnly @androidx.compose.runtime.Composable public S reduce(K key);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public S reduce(K, androidx.compose.runtime.Composer?, int);
+    property public abstract S initialValue;
+  }
+
+  public static fun interface Reducer.Factory<K extends androidx.appstate.dataflow.DataKey<?>, S> {
+    method public androidx.appstate.dataflow.Reducer<K,S> create();
+  }
+
+}
+
