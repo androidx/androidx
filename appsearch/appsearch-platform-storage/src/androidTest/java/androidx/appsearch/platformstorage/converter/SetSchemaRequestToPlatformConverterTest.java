@@ -100,4 +100,12 @@ public class SetSchemaRequestToPlatformConverterTest {
                 () -> SetSchemaRequestToPlatformConverter.toPlatformSetSchemaRequest(
                         mContext, jetpackRequest, adapter));
     }
+
+    @Test
+    public void testManagedProfileCalendarAndScreenshotsAccess_notSupportedYet() {
+        // TODO(b/573265642): Update once service-appsearch supports these permissions.
+        assertThat(PlatformStorage.getFeatures(mContext).isFeatureSupported(
+                Features.SET_SCHEMA_REQUEST_MANAGED_PROFILE_CALENDAR_AND_SCREENSHOTS_ACCESS))
+                .isFalse();
+    }
 }

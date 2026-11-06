@@ -410,6 +410,15 @@ public interface Features {
     String SET_SCHEMA_REQUEST_SET_WIPEOUT_ACCOUNT = "SET_SCHEMA_REQUEST_SET_WIPEOUT_ACCOUNT";
 
     /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link SetSchemaRequest#MANAGED_PROFILE_CALENDAR_ACCESS} and
+     * {@link SetSchemaRequest#MANAGED_PROFILE_SCREENSHOTS_ACCESS}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    String SET_SCHEMA_REQUEST_MANAGED_PROFILE_CALENDAR_AND_SCREENSHOTS_ACCESS =
+            "SET_SCHEMA_REQUEST_MANAGED_PROFILE_CALENDAR_AND_SCREENSHOTS_ACCESS";
+
+    /**
      * Returns whether a feature is supported at run-time. Feature support depends on the
      * feature in question, the AppSearch backend being used and the Android version of the
      * device.

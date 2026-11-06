@@ -326,4 +326,12 @@ public class FlagsTest {
         assertThat(Flags.FLAG_ENABLE_ICING_TERM_INDEX_FLUSH_FIX)
                 .isEqualTo("com.android.appsearch.flags.enable_icing_term_index_flush_fix");
     }
+
+    @Test
+    public void testFlagValue_enableManagedProfileCalendarScreenshots() {
+        assertThat(Flags.FLAG_ENABLE_MANAGED_PROFILE_CALENDAR_SCREENSHOTS)
+                .isEqualTo(
+                        "com.android.appsearch.flags"
+                                + ".enable_managed_profile_calendar_screenshots");
+    }
 }

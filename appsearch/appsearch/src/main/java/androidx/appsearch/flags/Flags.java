@@ -312,6 +312,15 @@ public final class Flags {
     public static final String FLAG_ENABLE_ICING_TERM_INDEX_FLUSH_FIX =
             FLAG_PREFIX + "enable_icing_term_index_flush_fix";
 
+    /**
+     * Enables {@link androidx.appsearch.app.SetSchemaRequest#MANAGED_PROFILE_CALENDAR_ACCESS} and
+     * {@link androidx.appsearch.app.SetSchemaRequest#MANAGED_PROFILE_SCREENSHOTS_ACCESS} in {@link
+     * androidx.appsearch.app.SetSchemaRequest.Builder
+     * #addRequiredPermissionsForSchemaTypeVisibility}.
+     */
+    public static final String FLAG_ENABLE_MANAGED_PROFILE_CALENDAR_SCREENSHOTS =
+            FLAG_PREFIX + "enable_managed_profile_calendar_screenshots";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -688,6 +697,17 @@ public final class Flags {
     /** Whether to enable the fix for term index flush in Icing. */
     public static boolean enableIcingTermIndexFlushFix() {
         // TODO(b/439850795): Enable this once the fix is rolled out to Nextfood in platform.
+        return false;
+    }
+
+    /**
+     * Whether {@link androidx.appsearch.app.SetSchemaRequest#MANAGED_PROFILE_CALENDAR_ACCESS} and
+     * {@link androidx.appsearch.app.SetSchemaRequest#MANAGED_PROFILE_SCREENSHOTS_ACCESS} should be
+     * enabled in {@link androidx.appsearch.app.SetSchemaRequest.Builder
+     * #addRequiredPermissionsForSchemaTypeVisibility}.
+     */
+    public static boolean enableManagedProfileCalendarScreenshots() {
+        // TODO(b/573265642): Enable this once the feature is rolled out to Nextfood in platform.
         return false;
     }
 }
