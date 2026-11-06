@@ -20,7 +20,9 @@ description: >-
 > 1. **Technical/Architectural Questions, Codebase Explanations, Code Review, PR
 >    Audit, Plan/Report Audit, or Multi-Model Verification** *(Steps 1-7 & Modes
 >    1-5)* -> Read `camera/.agents/skills/camerax-code-review/SKILL.md`
->    ([`camerax-code-review`][skill-review]).
+>    ([`camerax-code-review`][skill-review]; plus
+>    `camera/.agents/skills/camerax-code-review/MULTI_MODEL_HARNESS.md` when
+>    orchestrating verifier sub-agents).
 > 2. **Writing/Modifying Code, API/Design Questions, Refactoring, Preparing
 >    Commits / CLs, or Updating Docs** *(Standards Hierarchy, 4-Layer
 >    Package/Object-Job Map, Pre-Placement Checklist, Development Workflow,
@@ -256,25 +258,22 @@ invariants:
     Problem-Solving Framework)**: Follow the 6-phase hardware abstraction and
     caller audit protocol in [`camerax-triage-and-quirks`][skill-triage].
 - **Universal Clean-Context Multi-Model Verification Gate (Step 5 & Step 6)**
-  (full protocol in [`camerax-code-review`][skill-review]):
-  - Trigger at **Checkpoint 1** (upfront root-cause & design exploration) and
-    **Checkpoint 2** (pre-delivery audit across Modes 1-5: Code Review, Triage,
-    Plan, Report, and Synthesis).
-  - Route verifiers **Opposite-Family First** (e.g. Claude reviews Gemini;
-    Gemini reviews Claude) with **Zero Author Narrative** in verifier briefs,
-    the **Fix-Scope Boundary Rule** (distinguishing in-scope bugs/regressions
-    from `[Optional / Out-of-Scope]` pre-existing caller trade-offs so
-    out-of-scope notes never block convergence or cause scope creep), a
-    **Two-Turn Read Barrier** in Modes 2-5 (Turn 1: raw evidence blind
-    diagnosis; Turn 2: **Post-Blind Adjudication Turn** auditing the draft), and
-    three hostile critic lenses (Specification, Quantitative/State,
-    Counter-Hypothesis).
-  - Track findings in an ephemeral `convergence_ledger.md` using strict status
-    transitions (`OPEN`, `PATCHED_PENDING_REAUDIT`,
+  ([`camerax-code-review`][skill-review] & `MULTI_MODEL_HARNESS.md`):
+  - Trigger at **Checkpoint 1** (upfront root-cause/design) and
+    **Checkpoint 2** (Modes 1-5), routing **Opposite-Family First** with
+    **Zero Author Narrative**, the **Fix-Scope Boundary Rule** (`P0-P2`
+    in-scope vs. `[Optional / Out-of-Scope]` caller notes), **Two-Turn Read
+    Barrier** (Modes 2-5; Turn 2 **Post-Blind Adjudication Turn**), and three
+    critic lenses (Correctness & Lifecycle, Object Job, API Contract &
+    Section 6.A).
+  - Seed `convergence_ledger.md` (`OPEN`, `PATCHED_PENDING_REAUDIT`,
     `REVERTED_VERIFICATION_FAILURE`, `DISMISSED_WITH_PROOF`,
-    `VERIFIED_RESOLVED`, `ESCALATED`) across a default 3-round (up to 5-round)
-    clean-context loop until `0` `OPEN`, `0` `REGRESSED`, and `0`
-    `PATCHED_PENDING_REAUDIT` items remain.
+    `VERIFIED_RESOLVED`, `ESCALATED`) from CL history so solved bugs never
+    ping-pong back: **Read-Only** (`0` edits) runs **1 cross-family pass**
+    (lightweight) or **2 parallel cross-family verifiers** in 1 turn
+    (architectural/`DeviceQuirk`/HAL); **Code Edits** exit at R2 once
+    cross-family + `0` `OPEN`/`REGRESSED`/`PATCHED_PENDING_REAUDIT` hold (**1**
+    opposite-family pass for post-review fixes), scaling up to 5 rounds.
 
 ## Prompt & Skill Update Governance Rule (Cross-File Refresh & Size Caps)
 
