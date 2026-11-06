@@ -16,15 +16,20 @@
 
 package androidx.compose.foundation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.scrollBy
 import androidx.compose.runtime.Stable
 import androidx.compose.testutils.assertIsEqualTo
+import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -37,13 +42,19 @@ import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
+import androidx.compose.ui.unit.width
 import org.junit.Rule
 
 open class BaseLazyLayoutTestWithOrientation(private val orientation: Orientation) {
@@ -70,6 +81,22 @@ open class BaseLazyLayoutTestWithOrientation(private val orientation: Orientatio
         }
 
     @Stable
+    fun Modifier.requiredMainAxisSize(size: Dp) =
+        if (vertical) {
+            this.requiredHeight(size)
+        } else {
+            this.requiredWidth(size)
+        }
+
+    @Stable
+    fun Modifier.requiredCrossAxisSize(size: Dp) =
+        if (vertical) {
+            this.requiredWidth(size)
+        } else {
+            this.requiredHeight(size)
+        }
+
+    @Stable
     fun Modifier.fillMaxCrossAxis() =
         if (vertical) {
             this.fillMaxWidth()
@@ -84,6 +111,34 @@ open class BaseLazyLayoutTestWithOrientation(private val orientation: Orientatio
         } else {
             this.size(mainAxis, crossAxis)
         }
+
+    fun axisSize(crossAxis: Int, mainAxis: Int): IntSize =
+        if (vertical) IntSize(crossAxis, mainAxis) else IntSize(mainAxis, crossAxis)
+
+    fun axisOffset(crossAxis: Int, mainAxis: Int): IntOffset =
+        if (vertical) IntOffset(crossAxis, mainAxis) else IntOffset(mainAxis, crossAxis)
+
+    val IntOffset.mainAxis: Int
+        get() = if (vertical) y else x
+
+    val IntOffset.crossAxis: Int
+        get() = if (vertical) x else y
+
+    fun SemanticsNodeInteraction.getMainAxisSizeInRoot(): Dp =
+        getBoundsInRoot().let { if (vertical) it.height else it.width }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun SemanticsNodeInteraction.assertAxisPixels(
+        mainAxisSize: Int,
+        crossAxisSize: Int,
+        expectedColorProvider: (crossAxis: Int, mainAxis: Int) -> Color?,
+    ) {
+        captureToImage().assertPixels(
+            axisSize(crossAxis = crossAxisSize, mainAxis = mainAxisSize)
+        ) {
+            expectedColorProvider(it.crossAxis, it.mainAxis)
+        }
+    }
 
     fun SemanticsNodeInteraction.scrollMainAxisBy(distance: Dp) {
         if (vertical) {

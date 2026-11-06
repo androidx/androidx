@@ -21,18 +21,13 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.requiredHeight
-import androidx.compose.foundation.layout.requiredWidth
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
@@ -47,30 +42,26 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.assertHeightIsEqualTo
-import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.getBoundsInRoot
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.height
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.runBlocking
+import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @LargeTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-class LazyListItemDisappearanceAnimationTest {
-
-    @get:Rule val rule = createComposeRule()
+@RunWith(Parameterized::class)
+class LazyListItemDisappearanceAnimationTest(orientation: Orientation) :
+    BaseLazyListTestWithOrientation(orientation) {
 
     // the numbers should be divisible by 8 to avoid the rounding issues as we run 4 or 8 frames
     // of the animation.
@@ -158,7 +149,7 @@ class LazyListItemDisappearanceAnimationTest {
             LazyList(
                 containerSize = itemSizeDp * 3,
                 reverseLayout = true,
-                contentPadding = PaddingValues(bottom = itemSizeDp),
+                contentPadding = PaddingValues(afterContent = itemSizeDp),
             ) {
                 items(list, key = { it.toArgb() }) { Item(it) }
             }
@@ -179,15 +170,16 @@ class LazyListItemDisappearanceAnimationTest {
 
     @Test
     fun oneRemoved_rtl_contentPadding() {
+        // RTL mirrors the main axis of horizontal lists only.
+        assumeTrue(!vertical)
         var list by mutableStateOf(listOf(Color.Black, Color.Red))
         rule.setContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 LazyList(
                     containerSize = itemSizeDp * 3,
-                    contentPadding = PaddingValues(start = itemSizeDp),
-                    isVertical = false,
+                    contentPadding = PaddingValues(beforeContent = itemSizeDp),
                 ) {
-                    items(list, key = { it.toArgb() }) { Item(it, isVertical = false) }
+                    items(list, key = { it.toArgb() }) { Item(it) }
                 }
             }
         }
@@ -195,7 +187,7 @@ class LazyListItemDisappearanceAnimationTest {
         rule.runOnUiThread { list = listOf(Color.Black) }
 
         onAnimationFrame { fraction ->
-            assertPixels(itemSize * 3, isVertical = false) { offset ->
+            assertPixels(itemSize * 3) { offset ->
                 when (offset) {
                     in 0 until itemSize -> Color.Red.copy(alpha = 1f - fraction)
                     in itemSize until itemSize * 2 -> Color.Black
@@ -267,15 +259,15 @@ class LazyListItemDisappearanceAnimationTest {
             LazyList(containerSize = null) { items(list, key = { it.toArgb() }) { Item(it) } }
         }
 
-        rule.onNodeWithTag(ContainerTag).assertHeightIsEqualTo(itemSizeDp * 2)
+        rule.onNodeWithTag(ContainerTag).assertMainAxisSizeIsEqualTo(itemSizeDp * 2)
 
         rule.runOnUiThread { list = listOf(Color.Black) }
 
         onAnimationFrame { fraction ->
-            val heightDp = rule.onNodeWithTag(ContainerTag).getBoundsInRoot().height
-            val heightPx = with(rule.density) { heightDp.roundToPx() }
-            assertWithMessage("Height on fraction=$fraction")
-                .that(heightPx)
+            val mainAxisSizeDp = rule.onNodeWithTag(ContainerTag).getMainAxisSizeInRoot()
+            val mainAxisSizePx = with(rule.density) { mainAxisSizeDp.roundToPx() }
+            assertWithMessage("Main axis size on fraction=$fraction")
+                .that(mainAxisSizePx)
                 .isEqualTo(if (fraction < 1f) itemSize * 2 else itemSize)
 
             if (fraction < 1f) {
@@ -300,7 +292,7 @@ class LazyListItemDisappearanceAnimationTest {
             }
         }
 
-        rule.onNodeWithTag(ContainerTag).assertHeightIsEqualTo(itemSizeDp * 2)
+        rule.onNodeWithTag(ContainerTag).assertMainAxisSizeIsEqualTo(itemSizeDp * 2)
 
         assertPixels(itemSize * 2) { offset ->
             when (offset) {
@@ -312,10 +304,10 @@ class LazyListItemDisappearanceAnimationTest {
         rule.runOnUiThread { list = listOf(Color.Black) }
 
         onAnimationFrame { fraction ->
-            val heightDp = rule.onNodeWithTag(ContainerTag).getBoundsInRoot().height
-            val heightPx = with(rule.density) { heightDp.roundToPx() }
-            assertWithMessage("Height on fraction=$fraction")
-                .that(heightPx)
+            val mainAxisSizeDp = rule.onNodeWithTag(ContainerTag).getMainAxisSizeInRoot()
+            val mainAxisSizePx = with(rule.density) { mainAxisSizeDp.roundToPx() }
+            assertWithMessage("Main axis size on fraction=$fraction")
+                .that(mainAxisSizePx)
                 .isEqualTo(if (fraction < 1f) itemSize * 2 else itemSize)
 
             if (fraction < 1f) {
@@ -405,18 +397,11 @@ class LazyListItemDisappearanceAnimationTest {
     private fun assertPixels(
         mainAxisSize: Int,
         crossAxisSize: Int = this.crossAxisSize,
-        isVertical: Boolean = true,
-        expectedColorProvider: (offset: Int) -> Color?,
+        expectedColorProvider: (mainAxis: Int) -> Color?,
     ) {
-        rule.onNodeWithTag(ContainerTag).captureToImage().assertPixels(
-            if (isVertical) {
-                IntSize(crossAxisSize, mainAxisSize)
-            } else {
-                IntSize(mainAxisSize, crossAxisSize)
-            }
-        ) {
-            val offset = if (isVertical) it.y else it.x
-            expectedColorProvider(offset)?.compositeOver(Color.White)
+        rule.onNodeWithTag(ContainerTag).assertAxisPixels(mainAxisSize, crossAxisSize) { _, mainAxis
+            ->
+            expectedColorProvider(mainAxis)?.compositeOver(Color.White)
         }
     }
 
@@ -443,60 +428,32 @@ class LazyListItemDisappearanceAnimationTest {
         crossAxisSize: Dp = crossAxisSizeDp,
         reverseLayout: Boolean = false,
         contentPadding: PaddingValues = PaddingValues(0.dp),
-        isVertical: Boolean = true,
         content: LazyListScope.() -> Unit,
     ) {
         state = rememberLazyListState(startIndex)
-
-        if (isVertical) {
-            LazyColumn(
-                state = state,
-                modifier =
-                    Modifier.then(
-                            if (containerSize != null) {
-                                Modifier.requiredHeight(containerSize)
-                            } else {
-                                Modifier
-                            }
-                        )
-                        .background(Color.White)
-                        .then(
-                            if (crossAxisSize != Dp.Unspecified) {
-                                Modifier.requiredWidth(crossAxisSize)
-                            } else {
-                                Modifier.fillMaxWidth()
-                            }
-                        )
-                        .testTag(ContainerTag),
-                contentPadding = contentPadding,
-                reverseLayout = reverseLayout,
-                content = content,
-            )
-        } else {
-            LazyRow(
-                state = state,
-                modifier =
-                    Modifier.then(
-                            if (containerSize != null) {
-                                Modifier.requiredWidth(containerSize)
-                            } else {
-                                Modifier
-                            }
-                        )
-                        .background(Color.White)
-                        .then(
-                            if (crossAxisSize != Dp.Unspecified) {
-                                Modifier.requiredHeight(crossAxisSize)
-                            } else {
-                                Modifier.fillMaxHeight()
-                            }
-                        )
-                        .testTag(ContainerTag),
-                contentPadding = contentPadding,
-                reverseLayout = reverseLayout,
-                content = content,
-            )
-        }
+        LazyColumnOrRow(
+            modifier =
+                Modifier.then(
+                        if (containerSize != null) {
+                            Modifier.requiredMainAxisSize(containerSize)
+                        } else {
+                            Modifier
+                        }
+                    )
+                    .background(Color.White)
+                    .then(
+                        if (crossAxisSize != Dp.Unspecified) {
+                            Modifier.requiredCrossAxisSize(crossAxisSize)
+                        } else {
+                            Modifier.fillMaxCrossAxis()
+                        }
+                    )
+                    .testTag(ContainerTag),
+            state = state,
+            contentPadding = contentPadding,
+            reverseLayout = reverseLayout,
+            content = content,
+        )
     }
 
     @Composable
@@ -506,7 +463,6 @@ class LazyListItemDisappearanceAnimationTest {
         crossAxisSize: Dp = crossAxisSizeDp,
         disappearanceSpec: FiniteAnimationSpec<Float>? = AnimSpec,
         appearanceSpec: FiniteAnimationSpec<Float>? = null,
-        isVertical: Boolean = true,
     ) {
         Box(
             Modifier.animateItem(
@@ -515,14 +471,15 @@ class LazyListItemDisappearanceAnimationTest {
                     fadeOutSpec = disappearanceSpec,
                 )
                 .background(color)
-                .then(
-                    if (isVertical) {
-                        Modifier.requiredHeight(size).requiredWidth(crossAxisSize)
-                    } else {
-                        Modifier.requiredWidth(size).requiredHeight(crossAxisSize)
-                    }
-                )
+                .requiredMainAxisSize(size)
+                .requiredCrossAxisSize(crossAxisSize)
         )
+    }
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun params() = arrayOf(Orientation.Vertical, Orientation.Horizontal)
     }
 }
 
