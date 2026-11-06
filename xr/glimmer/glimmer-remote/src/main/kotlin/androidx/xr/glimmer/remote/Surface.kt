@@ -24,7 +24,6 @@ import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.drawWithContent
 import androidx.compose.remote.creation.compose.shaders.RemoteSweepGradient
 import androidx.compose.remote.creation.compose.shapes.RemoteOutline
-import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
 import androidx.compose.remote.creation.compose.shapes.drawOutline
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
@@ -96,8 +95,7 @@ public fun RemoteModifier.surface(
     focused: RemoteBoolean = false.rb,
     // TODO: b/560199673 - Replace pressed with RC version of InteractionSource once it's available.
     pressed: RemoteBoolean = false.rb,
-    // TODO: b/560206798 - Replace the default value with a value from RemoteGlimmerTheme.
-    shape: RemoteShape = RemoteRoundedCornerShape(36.rdp),
+    shape: RemoteShape = RemoteGlimmerTheme.shapes.medium,
 ): RemoteModifier {
     val focusProgress =
         animateRemoteFloatAsState(

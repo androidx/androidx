@@ -2,6 +2,145 @@
 // - surface=public
 package androidx.xr.glimmer.remote {
 
+  @androidx.compose.runtime.Immutable public final class RemoteColors {
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteColor getBackground();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteColor getContent();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteColor getNegative();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteColor getPositive();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteColor getPrimary();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteColor getSecondary();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteColor getSurface();
+    property public androidx.compose.remote.creation.compose.state.RemoteColor background;
+    property public androidx.compose.remote.creation.compose.state.RemoteColor content;
+    property public androidx.compose.remote.creation.compose.state.RemoteColor negative;
+    property public androidx.compose.remote.creation.compose.state.RemoteColor positive;
+    property public androidx.compose.remote.creation.compose.state.RemoteColor primary;
+    property public androidx.compose.remote.creation.compose.state.RemoteColor secondary;
+    property public androidx.compose.remote.creation.compose.state.RemoteColor surface;
+  }
+
+  @androidx.compose.runtime.Immutable public final class RemoteComponentSpacingValues {
+    ctor public RemoteComponentSpacingValues();
+    ctor public RemoteComponentSpacingValues(optional androidx.compose.remote.creation.compose.state.RemoteDp extraSmall, optional androidx.compose.remote.creation.compose.state.RemoteDp small, optional androidx.compose.remote.creation.compose.state.RemoteDp medium, optional androidx.compose.remote.creation.compose.state.RemoteDp large, optional androidx.compose.remote.creation.compose.state.RemoteDp extraLarge);
+    ctor @BytecodeOnly public RemoteComponentSpacingValues(androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.xr.glimmer.remote.RemoteComponentSpacingValues copy(optional androidx.compose.remote.creation.compose.state.RemoteDp extraSmall, optional androidx.compose.remote.creation.compose.state.RemoteDp small, optional androidx.compose.remote.creation.compose.state.RemoteDp medium, optional androidx.compose.remote.creation.compose.state.RemoteDp large, optional androidx.compose.remote.creation.compose.state.RemoteDp extraLarge);
+    method @BytecodeOnly public static androidx.xr.glimmer.remote.RemoteComponentSpacingValues! copy$default(androidx.xr.glimmer.remote.RemoteComponentSpacingValues!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, int, Object!);
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteDp getExtraLarge();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteDp getExtraSmall();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteDp getLarge();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteDp getMedium();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteDp getSmall();
+    property public androidx.compose.remote.creation.compose.state.RemoteDp extraLarge;
+    property public androidx.compose.remote.creation.compose.state.RemoteDp extraSmall;
+    property public androidx.compose.remote.creation.compose.state.RemoteDp large;
+    property public androidx.compose.remote.creation.compose.state.RemoteDp medium;
+    property public androidx.compose.remote.creation.compose.state.RemoteDp small;
+  }
+
+  @androidx.compose.runtime.Immutable public final class RemoteGlimmerTheme {
+    ctor public RemoteGlimmerTheme();
+    ctor public RemoteGlimmerTheme(optional androidx.xr.glimmer.remote.RemoteTypography typography, optional androidx.xr.glimmer.remote.RemoteComponentSpacingValues componentSpacingValues);
+    ctor @BytecodeOnly public RemoteGlimmerTheme(androidx.xr.glimmer.remote.RemoteTypography!, androidx.xr.glimmer.remote.RemoteComponentSpacingValues!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public androidx.xr.glimmer.remote.RemoteColors getColors();
+    method @InaccessibleFromKotlin public androidx.xr.glimmer.remote.RemoteComponentSpacingValues getComponentSpacingValues();
+    method @InaccessibleFromKotlin public androidx.xr.glimmer.remote.RemoteIconSizes getIconSizes();
+    method @InaccessibleFromKotlin public androidx.xr.glimmer.remote.RemoteShapes getShapes();
+    method @InaccessibleFromKotlin public androidx.xr.glimmer.remote.RemoteTypography getTypography();
+    property public androidx.xr.glimmer.remote.RemoteColors colors;
+    property public androidx.xr.glimmer.remote.RemoteComponentSpacingValues componentSpacingValues;
+    property public androidx.xr.glimmer.remote.RemoteIconSizes iconSizes;
+    property public androidx.xr.glimmer.remote.RemoteShapes shapes;
+    property public androidx.xr.glimmer.remote.RemoteTypography typography;
+    field public static final androidx.xr.glimmer.remote.RemoteGlimmerTheme.Companion Companion;
+  }
+
+  public static final class RemoteGlimmerTheme.Companion {
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.remote.RemoteColors getColors(androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.remote.RemoteComponentSpacingValues getComponentSpacingValues(androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.remote.RemoteIconSizes getIconSizes(androidx.compose.runtime.Composer?, int);
+    method @InaccessibleFromKotlin public androidx.compose.runtime.CompositionLocal<androidx.xr.glimmer.remote.RemoteGlimmerTheme> getLocalRemoteGlimmerTheme();
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.remote.RemoteShapes getShapes(androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.remote.RemoteTypography getTypography(androidx.compose.runtime.Composer?, int);
+    property public androidx.compose.runtime.CompositionLocal<androidx.xr.glimmer.remote.RemoteGlimmerTheme> LocalRemoteGlimmerTheme;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.remote.RemoteColors colors;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.remote.RemoteComponentSpacingValues componentSpacingValues;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.remote.RemoteIconSizes iconSizes;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.remote.RemoteShapes shapes;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.remote.RemoteTypography typography;
+  }
+
+  public final class RemoteGlimmerThemeKt {
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteGlimmerTheme(optional androidx.xr.glimmer.remote.RemoteTypography typography, optional androidx.xr.glimmer.remote.RemoteComponentSpacingValues componentSpacingValues, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteGlimmerTheme(androidx.xr.glimmer.remote.RemoteTypography?, androidx.xr.glimmer.remote.RemoteComponentSpacingValues?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+  }
+
+  @androidx.compose.runtime.Immutable public final class RemoteIconSizes {
+    ctor public RemoteIconSizes();
+    ctor public RemoteIconSizes(optional androidx.compose.remote.creation.compose.state.RemoteDp small, optional androidx.compose.remote.creation.compose.state.RemoteDp medium, optional androidx.compose.remote.creation.compose.state.RemoteDp large);
+    ctor @BytecodeOnly public RemoteIconSizes(androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.xr.glimmer.remote.RemoteIconSizes copy(optional androidx.compose.remote.creation.compose.state.RemoteDp small, optional androidx.compose.remote.creation.compose.state.RemoteDp medium, optional androidx.compose.remote.creation.compose.state.RemoteDp large);
+    method @BytecodeOnly public static androidx.xr.glimmer.remote.RemoteIconSizes! copy$default(androidx.xr.glimmer.remote.RemoteIconSizes!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, int, Object!);
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteDp getLarge();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteDp getMedium();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteDp getSmall();
+    property public androidx.compose.remote.creation.compose.state.RemoteDp large;
+    property public androidx.compose.remote.creation.compose.state.RemoteDp medium;
+    property public androidx.compose.remote.creation.compose.state.RemoteDp small;
+  }
+
+  @androidx.compose.runtime.Immutable public final class RemoteShapes {
+    ctor public RemoteShapes();
+    ctor public RemoteShapes(optional androidx.compose.remote.creation.compose.shapes.RemoteShape small, optional androidx.compose.remote.creation.compose.shapes.RemoteShape medium, optional androidx.compose.remote.creation.compose.shapes.RemoteShape large);
+    ctor @BytecodeOnly public RemoteShapes(androidx.compose.remote.creation.compose.shapes.RemoteShape!, androidx.compose.remote.creation.compose.shapes.RemoteShape!, androidx.compose.remote.creation.compose.shapes.RemoteShape!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.xr.glimmer.remote.RemoteShapes copy(optional androidx.compose.remote.creation.compose.shapes.RemoteShape small, optional androidx.compose.remote.creation.compose.shapes.RemoteShape medium, optional androidx.compose.remote.creation.compose.shapes.RemoteShape large);
+    method @BytecodeOnly public static androidx.xr.glimmer.remote.RemoteShapes! copy$default(androidx.xr.glimmer.remote.RemoteShapes!, androidx.compose.remote.creation.compose.shapes.RemoteShape!, androidx.compose.remote.creation.compose.shapes.RemoteShape!, androidx.compose.remote.creation.compose.shapes.RemoteShape!, int, Object!);
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.shapes.RemoteShape getLarge();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.shapes.RemoteShape getMedium();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.shapes.RemoteShape getSmall();
+    property public androidx.compose.remote.creation.compose.shapes.RemoteShape large;
+    property public androidx.compose.remote.creation.compose.shapes.RemoteShape medium;
+    property public androidx.compose.remote.creation.compose.shapes.RemoteShape small;
+  }
+
+  @androidx.compose.runtime.Immutable public final class RemoteTypography {
+    ctor public RemoteTypography(optional androidx.compose.remote.creation.compose.text.RemoteFontFamily? defaultFontFamily, optional androidx.compose.remote.creation.compose.text.RemoteTextStyle titleLarge, optional androidx.compose.remote.creation.compose.text.RemoteTextStyle titleMedium, optional androidx.compose.remote.creation.compose.text.RemoteTextStyle titleSmall, optional androidx.compose.remote.creation.compose.text.RemoteTextStyle bodyLarge, optional androidx.compose.remote.creation.compose.text.RemoteTextStyle bodyMedium, optional androidx.compose.remote.creation.compose.text.RemoteTextStyle bodySmall, optional androidx.compose.remote.creation.compose.text.RemoteTextStyle caption);
+    ctor @BytecodeOnly public RemoteTypography(androidx.compose.remote.creation.compose.text.RemoteFontFamily!, androidx.compose.remote.creation.compose.text.RemoteTextStyle!, androidx.compose.remote.creation.compose.text.RemoteTextStyle!, androidx.compose.remote.creation.compose.text.RemoteTextStyle!, androidx.compose.remote.creation.compose.text.RemoteTextStyle!, androidx.compose.remote.creation.compose.text.RemoteTextStyle!, androidx.compose.remote.creation.compose.text.RemoteTextStyle!, androidx.compose.remote.creation.compose.text.RemoteTextStyle!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.xr.glimmer.remote.RemoteTypography copy(optional androidx.compose.remote.creation.compose.text.RemoteTextStyle titleLarge, optional androidx.compose.remote.creation.compose.text.RemoteTextStyle titleMedium, optional androidx.compose.remote.creation.compose.text.RemoteTextStyle titleSmall, optional androidx.compose.remote.creation.compose.text.RemoteTextStyle bodyLarge, optional androidx.compose.remote.creation.compose.text.RemoteTextStyle bodyMedium, optional androidx.compose.remote.creation.compose.text.RemoteTextStyle bodySmall, optional androidx.compose.remote.creation.compose.text.RemoteTextStyle caption);
+    method @BytecodeOnly public static androidx.xr.glimmer.remote.RemoteTypography! copy$default(androidx.xr.glimmer.remote.RemoteTypography!, androidx.compose.remote.creation.compose.text.RemoteTextStyle!, androidx.compose.remote.creation.compose.text.RemoteTextStyle!, androidx.compose.remote.creation.compose.text.RemoteTextStyle!, androidx.compose.remote.creation.compose.text.RemoteTextStyle!, androidx.compose.remote.creation.compose.text.RemoteTextStyle!, androidx.compose.remote.creation.compose.text.RemoteTextStyle!, androidx.compose.remote.creation.compose.text.RemoteTextStyle!, int, Object!);
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteTextStyle getBodyLarge();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteTextStyle getBodyMedium();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteTextStyle getBodySmall();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteTextStyle getCaption();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteTextStyle getTitleLarge();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteTextStyle getTitleMedium();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteTextStyle getTitleSmall();
+    property public androidx.compose.remote.creation.compose.text.RemoteTextStyle bodyLarge;
+    property public androidx.compose.remote.creation.compose.text.RemoteTextStyle bodyMedium;
+    property public androidx.compose.remote.creation.compose.text.RemoteTextStyle bodySmall;
+    property public androidx.compose.remote.creation.compose.text.RemoteTextStyle caption;
+    property public androidx.compose.remote.creation.compose.text.RemoteTextStyle titleLarge;
+    property public androidx.compose.remote.creation.compose.text.RemoteTextStyle titleMedium;
+    property public androidx.compose.remote.creation.compose.text.RemoteTextStyle titleSmall;
+  }
+
+  public final class RemoteTypographyDefaults {
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteTextStyle getBodyLarge();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteTextStyle getBodyMedium();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteTextStyle getBodySmall();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteTextStyle getCaption();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteTextStyle getTitleLarge();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteTextStyle getTitleMedium();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteTextStyle getTitleSmall();
+    property public androidx.compose.remote.creation.compose.text.RemoteTextStyle BodyLarge;
+    property public androidx.compose.remote.creation.compose.text.RemoteTextStyle BodyMedium;
+    property public androidx.compose.remote.creation.compose.text.RemoteTextStyle BodySmall;
+    property public androidx.compose.remote.creation.compose.text.RemoteTextStyle Caption;
+    property public androidx.compose.remote.creation.compose.text.RemoteTextStyle TitleLarge;
+    property public androidx.compose.remote.creation.compose.text.RemoteTextStyle TitleMedium;
+    property public androidx.compose.remote.creation.compose.text.RemoteTextStyle TitleSmall;
+    field public static final androidx.xr.glimmer.remote.RemoteTypographyDefaults INSTANCE;
+  }
+
   public final class SurfaceKt {
     method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier surface(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteBoolean enabled, optional androidx.compose.remote.creation.compose.state.RemoteBoolean focused, optional androidx.compose.remote.creation.compose.state.RemoteBoolean pressed, optional androidx.compose.remote.creation.compose.shapes.RemoteShape shape);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier surface(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteBoolean?, androidx.compose.remote.creation.compose.state.RemoteBoolean?, androidx.compose.remote.creation.compose.state.RemoteBoolean?, androidx.compose.remote.creation.compose.shapes.RemoteShape?, androidx.compose.runtime.Composer?, int, int);
