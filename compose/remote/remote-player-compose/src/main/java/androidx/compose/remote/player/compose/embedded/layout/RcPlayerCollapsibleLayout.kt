@@ -24,9 +24,6 @@ import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
 import androidx.compose.remote.core.operations.layout.managers.RowLayout
 import androidx.compose.remote.core.operations.layout.modifiers.CollapsiblePriorityModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation
-import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation
-import androidx.compose.remote.core.operations.layout.modifiers.HeightModifierOperation
-import androidx.compose.remote.core.operations.layout.modifiers.WidthModifierOperation
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.components.RcPlayerChildren
 import androidx.compose.remote.player.compose.embedded.doc.rawDimensionDp
@@ -37,7 +34,6 @@ import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
-import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 
@@ -79,6 +75,12 @@ internal fun RcPlayerCollapsible(
         )
     val verticalAlignment = rowVerticalAlignment(verticalPositioning)
     val horizontalAlignment = columnHorizontalAlignment(horizontalPositioning)
+    // Resolved in composition, where a variable weight is read reactively; the measure block below
+    // only reads the result.
+    val childWeights = FloatArray(layout.childrenComponents.size)
+    layout.childrenComponents.fastForEachIndexed { index, child ->
+        childWeights[index] = rememberChildWeight(child, vertical)
+    }
 
     Layout(content = { RcPlayerChildren(layout) { Modifier } }, modifier = modifier) {
         measurables,
@@ -93,24 +95,7 @@ internal fun RcPlayerCollapsible(
         val children = layout.childrenComponents
         val placeables = arrayOfNulls<Placeable>(n)
 
-        fun childWeight(child: Component): Float {
-            val mods = (child as? LayoutComponent)?.componentModifiers?.getList() ?: return 0f
-            return if (vertical) {
-                (mods.fastFirstOrNull {
-                        it is HeightModifierOperation &&
-                            it.getType() == DimensionModifierOperation.Type.WEIGHT
-                    } as? HeightModifierOperation)
-                    ?.getValue() ?: 0f
-            } else {
-                (mods.fastFirstOrNull {
-                        it is WidthModifierOperation &&
-                            it.getType() == DimensionModifierOperation.Type.WEIGHT
-                    } as? WidthModifierOperation)
-                    ?.getValue() ?: 0f
-            }
-        }
-
-        val weights = FloatArray(n) { i -> if (i < children.size) childWeight(children[i]) else 0f }
+        val weights = FloatArray(n) { i -> if (i < childWeights.size) childWeights[i] else 0f }
         for (i in 0 until n) {
             if (weights[i] <= 0f) {
                 placeables[i] = measurables[i].measure(childConstraints)

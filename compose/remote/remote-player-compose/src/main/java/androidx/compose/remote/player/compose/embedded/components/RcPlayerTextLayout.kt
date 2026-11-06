@@ -82,9 +82,11 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
     val remoteContext = LocalRemoteContext.current
     val readContext = LocalGraphContext.current ?: remoteContext
 
+    // CoreText only exposes the weight its setup-time updateVariables resolved (or the raw NaN id
+    // before that has run), so a variable weight isn't followed after setup here.
+    val layoutFontWeight = rememberFontWeight(layout.fontWeightValue)
     val fontWeight =
-        if (paintState.isTypefaceSet) FontWeight(paintState.fontWeight)
-        else FontWeight(layout.fontWeightValue.toInt())
+        if (paintState.isTypefaceSet) FontWeight(paintState.fontWeight) else layoutFontWeight
     val fontStyle =
         if (paintState.isTypefaceSet) paintState.fontStyle
         else {
@@ -119,13 +121,22 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
             else -> TextDecoration.None
         }
 
+    // Font size bounds, letter spacing and line height may be NaN-encoded float variables:
+    // RemoteText
+    // writes letter spacing and line height as a ratio to the font size, which is a variable when
+    // the font size is. Core never resolves them, so resolve them here, and treat a value that
+    // doesn't resolve to a number as unset rather than handing NaN to Compose text layout.
+    val minFontSize = rememberRemoteFloatAsState(layout.minFontSize).value
+    val maxFontSize = rememberRemoteFloatAsState(layout.maxFontSize).value
+    val letterSpacing = rememberRemoteFloatAsState(layout.letterSpacing).value.finiteOr(0f)
+    val lineHeightMultiplier =
+        rememberRemoteFloatAsState(layout.lineHeightMultiplier).value.finiteOr(1f)
+    val lineHeightAdd = rememberRemoteFloatAsState(layout.lineHeightAdd).value.finiteOr(0f)
+
     val autoSize =
         if (layout.autosize) {
-            val min =
-                if (layout.minFontSize <= 0f) 4.sp else with(density) { layout.minFontSize.toSp() }
-            val max =
-                if (layout.maxFontSize <= 0f) 400.sp
-                else with(density) { layout.maxFontSize.toSp() }
+            val min = if (!(minFontSize > 0f)) 4.sp else with(density) { minFontSize.toSp() }
+            val max = if (!(maxFontSize > 0f)) 400.sp else with(density) { maxFontSize.toSp() }
             TextAutoSize.StepBased(minFontSize = min, maxFontSize = max, stepSize = 0.5.sp)
         } else {
             null
@@ -172,12 +183,12 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
                 textAlign = textAlign,
                 lineBreak = lineBreak,
                 hyphens = hyphens,
-                letterSpacing = layout.letterSpacing.em,
+                letterSpacing = letterSpacing.em,
                 lineHeight =
                     resolveCoreTextLineHeight(
                         fontSize = fontSize,
-                        lineHeightMultiplier = layout.lineHeightMultiplier,
-                        lineHeightAdd = layout.lineHeightAdd,
+                        lineHeightMultiplier = lineHeightMultiplier,
+                        lineHeightAdd = lineHeightAdd,
                         autosize = layout.autosize,
                         density = density,
                     ),
@@ -228,9 +239,9 @@ internal fun RcPlayerText(layout: TextLayout, modifier: Modifier) {
     val fontSize = resolveTextFontSizePx(paintState, layout.fontSize)
     val fontSizeSp = with(density) { fontSize.toSp() }
 
+    val layoutFontWeight = rememberFontWeight(layout.fontWeight)
     val fontWeight =
-        if (paintState.isTypefaceSet) FontWeight(paintState.fontWeight)
-        else FontWeight(layout.fontWeight.toInt())
+        if (paintState.isTypefaceSet) FontWeight(paintState.fontWeight) else layoutFontWeight
     val fontStyle = if (paintState.isTypefaceSet) paintState.fontStyle else FontStyle.Normal
 
     val fontFamilyType = if (paintState.isTypefaceSet) paintState.fontFamily else layout.type
@@ -294,6 +305,19 @@ private fun resolveTextColor(
     } else {
         Color(colorValue)
     }
+
+/**
+ * A text's own font weight, which may be a NaN-encoded float variable (`RemoteText`'s `fontWeight:
+ * RemoteFloat`), resolved reactively. [FontWeight] only accepts 1..1000: a weight that doesn't
+ * resolve to a number keeps the normal weight, and others are clamped, rather than throwing.
+ */
+@Composable
+private fun rememberFontWeight(rawWeight: Float): FontWeight {
+    val weight = rememberRemoteFloatAsState(rawWeight).value
+    return if (weight.isNaN()) FontWeight.Normal else FontWeight(weight.toInt().coerceIn(1, 1000))
+}
+
+private fun Float.finiteOr(default: Float): Float = if (isFinite()) this else default
 
 @Composable
 private fun resolveTextFontSizePx(paintState: ComposeLocalPaint, rawFontSize: Float): Float {

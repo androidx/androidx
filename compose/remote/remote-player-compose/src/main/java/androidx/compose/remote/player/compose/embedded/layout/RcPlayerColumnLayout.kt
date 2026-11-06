@@ -17,7 +17,6 @@
 package androidx.compose.remote.player.compose.embedded.layout
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.layout.managers.CollapsibleColumnLayout
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
@@ -51,13 +50,8 @@ internal fun RcPlayerColumn(layout: ColumnLayout, modifier: Modifier) {
             horizontalAlignment = columnHorizontalAlignment(layout.horizontalPositioning),
         ) {
             RcPlayerChildren(layout) { child ->
-                val layoutChild = child as? LayoutComponent
-                val heightModifier = layoutChild?.heightModifier
-                if (heightModifier != null && heightModifier.hasWeight()) {
-                    Modifier.weight(heightModifier.value)
-                } else {
-                    Modifier
-                }
+                val weight = rememberChildWeight(child, vertical = true)
+                if (weight > 0f) Modifier.weight(weight) else Modifier
             }
         }
     }
