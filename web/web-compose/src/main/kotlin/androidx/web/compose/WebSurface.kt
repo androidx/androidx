@@ -75,7 +75,6 @@ import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.viewinterop.NoOpUpdate
 import androidx.web.WebContent
-import androidx.web.WebContentView
 import androidx.web.WebFeature
 import androidx.web.WebSurfaceChromium
 import kotlin.math.hypot
@@ -120,10 +119,11 @@ public fun retainWebContent(block: WebContent.Builder.() -> Unit = {}): WebConte
  * Before calling this composable, verify that [WebFeature.isFeatureSupported] returns `true` for
  * [WebFeature.WEB_SURFACE].
  *
+ * Only a single [WebSurface] can present [content] at a time. A [WebSurface] entering composition
+ * takes over [content] in the same frame from the [WebSurface] presenting it.
+ *
  * @param content The [WebContent] hosting the web session to present.
  * @param modifier The [Modifier] to be applied to this layout node.
- * @throws IllegalStateException if [content] is already attached to a [WebContentView] or another
- *   [WebSurface].
  * @see WebContent
  * @see WebFeature.WEB_SURFACE
  */
@@ -160,6 +160,9 @@ public fun WebSurface(content: WebContent, modifier: Modifier = Modifier) {
  * composable leaves composition, [bridgeRelease] is invoked and the [WebViewBridge] is
  * automatically detached from [content].
  *
+ * Only a single [WebSurface] can present [content] at a time. A [WebSurface] entering composition
+ * takes over [content] in the same frame from the [WebSurface] presenting it.
+ *
  * Before calling this composable, verify that [WebFeature.isFeatureSupported] returns `true` for
  * [WebFeature.WEB_SURFACE].
  *
@@ -173,8 +176,6 @@ public fun WebSurface(content: WebContent, modifier: Modifier = Modifier) {
  * @param bridgeRelease A callback invoked as a signal that the [WebViewBridge] instance has exited
  *   the composition hierarchy entirely and is being detached from [content]. Any external
  *   references or resources tied to the [WebViewBridge] should be freed at this time.
- * @throws IllegalStateException if [content] is already attached to a [WebContentView] or another
- *   [WebSurface].
  * @see WebContent
  * @see WebViewBridge
  * @see WebFeature.WEB_SURFACE
@@ -240,10 +241,9 @@ internal class WebSurfaceState<T : WebViewBridge>(
     var node: WebSurfaceNode<T>? = null
 
     override fun onRemembered() {
-        check(!content.isAttached()) {
-            "WebContent is already attached to a WebContentView or another WebSurface."
-        }
-        val createdBridge = content.attach(context, bridgeFactory)
+        // Takes over from a WebSurface that hasn't left composition yet, e.g. one animating out or
+        // in a lazy layout item disposed after the frame.
+        val createdBridge = content.transfer(context, bridgeFactory)
         bridge = createdBridge
         node?.onBridgeAttached(createdBridge)
     }
@@ -255,7 +255,8 @@ internal class WebSurfaceState<T : WebViewBridge>(
         node = null
         (currentBridge.parent as? ViewGroup)?.removeView(currentBridge)
         bridgeRelease(currentBridge)
-        content.detach()
+        // Does nothing if another WebSurface took over content.
+        content.detach(currentBridge)
     }
 
     override fun onAbandoned() {
