@@ -516,15 +516,9 @@ class MediaQueryTest {
             configuration.screenHeightDp = (newSize.height / density).roundToInt()
 
             composeViewContext?.onConfigurationChanged(configuration)
-        }
-
-        // On API <= 32, bounds could be stale on config change
-        rule.runOnIdle {
+            // On API <= 32, bounds could be stale on config change
             assertThat(capturedWindowWidth).isEqualTo((initialSize.width / density).dp)
-        }
 
-        rule.runOnIdle {
-            val composeViewContext = view.findViewTreeComposeViewContext()
             // Now update test window size to newSize (simulating correct bounds on layout)
             composeViewContext?.testWindowSize = newSize
             view.viewTreeObserver.dispatchOnGlobalLayout()

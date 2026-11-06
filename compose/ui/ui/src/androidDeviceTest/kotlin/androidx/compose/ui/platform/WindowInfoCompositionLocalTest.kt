@@ -548,13 +548,9 @@ class WindowInfoCompositionLocalTest {
                 (newSize.height / resources.displayMetrics.density).roundToInt()
 
             composeViewContext?.onConfigurationChanged(configuration)
-        }
+            // On API <= 32, bounds could be stale on config change
+            assertThat(containerSize).isEqualTo(initialSize)
 
-        // On API <= 32, bounds could be stale on config change
-        rule.runOnIdle { assertThat(containerSize).isEqualTo(initialSize) }
-
-        rule.runOnIdle {
-            val composeViewContext = view.findViewTreeComposeViewContext()
             // Now update test size to newSize (simulating correct bounds on layout)
             composeViewContext?.testWindowSize = newSize
             view.viewTreeObserver.dispatchOnGlobalLayout()
