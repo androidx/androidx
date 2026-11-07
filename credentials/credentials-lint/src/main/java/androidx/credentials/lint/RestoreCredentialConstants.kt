@@ -51,6 +51,14 @@ internal object RestoreCredentialConstants {
     const val CLASS_PUBLIC_KEY_CREDENTIAL = "androidx.credentials.PublicKeyCredential"
     const val CLASS_MUTABLE_CONTEXT_WRAPPER = "android.content.MutableContextWrapper"
     const val CLASS_BACKUP_AGENT = "android.app.backup.BackupAgent"
+    const val CLASS_BACKUP_DATA_INPUT = "android.app.backup.BackupDataInput"
+
+    const val ANDROID_URI = "http://schemas.android.com/apk/res/android"
+    const val TAG_MANIFEST = "manifest"
+    const val TAG_APPLICATION = "application"
+    const val ATTR_ALLOW_BACKUP = "allowBackup"
+    const val ATTR_BACKUP_AGENT = "backupAgent"
+    const val ATTR_FULL_BACKUP_ONLY = "fullBackupOnly"
 
     const val RESTORE_CREDENTIALS_GUIDE_URL =
         "https://developer.android.com/identity/sign-in/restore-credentials"
