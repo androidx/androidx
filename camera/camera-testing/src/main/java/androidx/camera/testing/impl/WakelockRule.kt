@@ -17,6 +17,7 @@
 package androidx.camera.testing.impl
 
 import android.Manifest
+import android.app.Instrumentation
 import android.content.Context
 import android.os.Build
 import android.os.PowerManager
@@ -34,13 +35,27 @@ import org.junit.runners.model.Statement
  * acquires a [PowerManager.PARTIAL_WAKE_LOCK] (via shell permission identity on API 29+ or standard
  * power manager) to prevent the CPU/device from sleeping during test execution.
  */
-public class WakelockRule(private val timeoutMs: Long = TimeUnit.MINUTES.toMillis(5)) : TestRule {
+public class WakelockRule
+internal constructor(
+    private val timeoutMs: Long,
+    private val clearDeviceUi: (Instrumentation) -> Unit,
+) : TestRule {
+    public constructor(
+        timeoutMs: Long = TimeUnit.MINUTES.toMillis(5)
+    ) : this(timeoutMs, RequireForegroundRule::clearDeviceUI)
+
     override fun apply(base: Statement, description: Description): Statement =
         object : Statement() {
             override fun evaluate() {
                 val instrumentation = InstrumentationRegistry.getInstrumentation()
                 val context = instrumentation.targetContext
-                RequireForegroundRule.clearDeviceUI(instrumentation)
+                try {
+                    clearDeviceUi(instrumentation)
+                } catch (e: IllegalStateException) {
+                    // UiAutomation can fail to connect for the entire instrumentation process.
+                    // Continue acquiring PARTIAL_WAKE_LOCK so headless tests are not blocked.
+                    Logger.w(TAG, "Failed to clear device UI; continuing with PARTIAL_WAKE_LOCK", e)
+                }
 
                 var wakeLock: PowerManager.WakeLock? = null
                 val hasAdoptedShell = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
