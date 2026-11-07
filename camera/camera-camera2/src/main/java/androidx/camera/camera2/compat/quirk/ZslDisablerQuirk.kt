@@ -25,12 +25,13 @@ import androidx.camera.core.impl.Quirk
 
 /**
  * QuirkSummary
- * - Bug Id: 252818931, 261744070, 319913852, 361328838, 579702854
+ * - Bug Id: 252818931, 261744070, 319913852, 361328838, 579702854, 582678183
  * - Description: On certain devices, the captured image has color or zoom freezing issue for
- *   reprocessing. We need to disable zero-shutter lag and return false for
+ *   reprocessing, or the HAL stops delivering capture results when switching zoom across physical
+ *   lenses in a reprocessable session. We need to disable zero-shutter lag and return false for
  *   [androidx.camera.core.CameraInfo.isZslSupported].
- * - Device(s): Samsung Fold4, Flip4, Flip5, Samsung S6/S22/S24/A05 series, Xiaomi Mi 8, Redmi Note
- *   11, Redmi Note 12, Redmi Note 13, Motorola Razr+ 2024, Honor 90
+ * - Device(s): Samsung Fold4, Flip4, Flip5, SM-F971, Samsung S6/S22/S24/A05 series, Xiaomi Mi 8,
+ *   Redmi Note 11, Redmi Note 12, Redmi Note 13, Motorola Razr+ 2024, Honor 90
  */
 @SuppressLint("CameraXQuirksClassDetector")
 // TODO(b/270421716): enable when kotlin is supported.
@@ -40,6 +41,7 @@ public class ZslDisablerQuirk : Quirk {
         private val AFFECTED_SAMSUNG_MODEL =
             listOf(
                 "SM-F936",
+                "SM-F971",
                 "SM-S901U",
                 "SM-S908U",
                 "SM-S908U1",

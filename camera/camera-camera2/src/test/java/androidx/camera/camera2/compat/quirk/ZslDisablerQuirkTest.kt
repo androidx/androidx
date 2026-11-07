@@ -36,6 +36,14 @@ class ZslDisablerQuirkTest {
     }
 
     @Test
+    fun samsungSmF971_loadsQuirk() {
+        ShadowBuild.setBrand("samsung")
+        ShadowBuild.setModel("SM-F971U1")
+
+        assertThat(DeviceQuirks[ZslDisablerQuirk::class.java]).isNotNull()
+    }
+
+    @Test
     fun samsungFlip5_loadsQuirk() {
         ShadowBuild.setBrand("samsung")
         ShadowBuild.setModel("SM-F731U1")
@@ -49,6 +57,14 @@ class ZslDisablerQuirkTest {
         ShadowBuild.setModel("23129RA5FL")
 
         assertThat(DeviceQuirks[ZslDisablerQuirk::class.java]).isNotNull()
+    }
+
+    @Test
+    fun samsungUnaffectedModel_doesNotLoadQuirk() {
+        ShadowBuild.setBrand("samsung")
+        ShadowBuild.setModel("SM-F966U1")
+
+        assertThat(DeviceQuirks[ZslDisablerQuirk::class.java]).isNull()
     }
 
     @Test
