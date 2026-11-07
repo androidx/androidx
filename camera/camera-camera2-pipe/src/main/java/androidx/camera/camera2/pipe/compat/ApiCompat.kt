@@ -28,9 +28,11 @@ import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
+import android.hardware.camera2.MultiResolutionImageReader
 import android.hardware.camera2.TotalCaptureResult
 import android.hardware.camera2.params.ExtensionSessionConfiguration
 import android.hardware.camera2.params.InputConfiguration
+import android.hardware.camera2.params.MultiResolutionStreamConfigurationMap
 import android.hardware.camera2.params.MultiResolutionStreamInfo
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
@@ -44,6 +46,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.availableVideoStabilizationModes
+import androidx.camera.camera2.pipe.CameraOnActiveOutputSurfacesListener
 import java.util.concurrent.Executor
 
 @RequiresApi(26)
@@ -583,5 +586,43 @@ internal object Api37Compat {
         extension: Int,
     ): Boolean {
         return extensionCharacteristics.isExtensionSupported(extension)
+    }
+
+    @JvmStatic
+    fun isConcurrentReadersSupported(
+        multiResolutionStreamConfigurationMap: MultiResolutionStreamConfigurationMap,
+        format: Int,
+    ): Boolean {
+        return multiResolutionStreamConfigurationMap.isConcurrentReadersSupported(format)
+    }
+
+    @JvmStatic
+    fun buildMultiResolutionImageReader(
+        streams: Collection<MultiResolutionStreamInfo>,
+        format: Int,
+        maxImages: Int,
+        usage: Long? = null,
+        concurrentOutputsEnabled: Boolean? = null,
+    ): MultiResolutionImageReader {
+        return MultiResolutionImageReader.Builder(streams, format, maxImages)
+            .apply {
+                if (usage != null) setUsage(usage)
+                if (concurrentOutputsEnabled != null) {
+                    setConcurrentOutputsEnabled(concurrentOutputsEnabled)
+                }
+            }
+            .build()
+    }
+
+    @JvmStatic
+    fun setOnActiveOutputSurfacesListener(
+        multiResolutionImageReader: MultiResolutionImageReader,
+        executor: Executor,
+        listener: CameraOnActiveOutputSurfacesListener,
+    ) {
+        multiResolutionImageReader.setOnActiveOutputSurfacesListener(
+            executor,
+            listener::onActiveOutputSurfaces,
+        )
     }
 }

@@ -54,7 +54,14 @@ internal class Camera2MultiResolutionStreamConfigurationMap(
     }
 
     override fun isConcurrentReadersSupported(format: StreamFormat): Boolean {
-        TODO("Not yet implemented")
+        return if (Build.VERSION.SDK_INT >= 37) {
+            Api37Compat.isConcurrentReadersSupported(
+                multiResolutionStreamConfigurationMap,
+                format.value,
+            )
+        } else {
+            false
+        }
     }
 
     @Suppress("UNCHECKED_CAST")

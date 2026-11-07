@@ -33,6 +33,7 @@ import org.mockito.junit.MockitoRule
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -127,5 +128,40 @@ class Camera2MultiResolutionStreamConfigurationMapTest {
         val unwrapped = camera2MultiResolutionStreamConfigurationMap.unwrapAs<String>()
 
         assertThat(unwrapped).isNull()
+    }
+
+    @Test
+    @Config(maxSdk = 36)
+    fun isConcurrentReadersSupported_belowApi37_returnsFalse() {
+        val result =
+            camera2MultiResolutionStreamConfigurationMap.isConcurrentReadersSupported(
+                StreamFormat.JPEG
+            )
+
+        assertThat(result).isFalse()
+        verifyNoInteractions(mockedConfigMap)
+    }
+
+    @Test
+    @Config(minSdk = 37)
+    fun isConcurrentReadersSupported_api37AndAbove_delegatesToFramework() {
+        whenever(mockedConfigMap.isConcurrentReadersSupported(ImageFormat.JPEG)) doReturn true
+        whenever(mockedConfigMap.isConcurrentReadersSupported(ImageFormat.YUV_420_888)) doReturn
+            false
+
+        assertThat(
+                camera2MultiResolutionStreamConfigurationMap.isConcurrentReadersSupported(
+                    StreamFormat.JPEG
+                )
+            )
+            .isTrue()
+        assertThat(
+                camera2MultiResolutionStreamConfigurationMap.isConcurrentReadersSupported(
+                    StreamFormat.YUV_420_888
+                )
+            )
+            .isFalse()
+        verify(mockedConfigMap, times(1)).isConcurrentReadersSupported(ImageFormat.JPEG)
+        verify(mockedConfigMap, times(1)).isConcurrentReadersSupported(ImageFormat.YUV_420_888)
     }
 }
