@@ -22,8 +22,11 @@ import android.view.View
 import android.view.View.MeasureSpec
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.collection.floatListOf
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.glance.adaptive.appwidget.R
 import androidx.glance.adaptive.appwidget.components.RemoteViewsActions
 import androidx.glance.adaptive.appwidget.components.density
@@ -206,10 +209,10 @@ class RemoteViewsMatrixRendererTest {
 
         assertThat(
                 root
-                    .findViewById<View>(R.id.glance_adaptive_appwidget_remoteviews_primary)
+                    .findViewById<View>(R.id.glance_adaptive_appwidget_remoteviews_slot_header)
                     .visibility
             )
-            .isEqualTo(View.INVISIBLE)
+            .isEqualTo(View.GONE)
         assertThat(
                 root
                     .findViewById<View>(R.id.glance_adaptive_appwidget_remoteviews_slot_hero)
@@ -269,6 +272,96 @@ class RemoteViewsMatrixRendererTest {
             .isNull()
     }
 
+    @Test
+    fun icon_isCappedAtTheLeadingSizeAndDescribed() {
+        val root =
+            render(
+                MatrixCardContent(
+                    leading = Icon(GLYPH, contentDescription = "Fitbit"),
+                    primary = TemplateText("Start a workout"),
+                    leadingSize = 24.dp,
+                    primaryTextSize = 16.sp,
+                ),
+                Dimensions(348, 264),
+            )
+
+        val icon = root.findViewById<ImageView>(R.id.glance_adaptive_appwidget_remoteviews_icon)
+        assertThat(icon.maxWidth).isEqualTo(24f.dpToPx(context.density))
+        assertThat(icon.maxHeight).isEqualTo(24f.dpToPx(context.density))
+        assertThat(icon.contentDescription.toString()).isEqualTo("Fitbit")
+    }
+
+    @Test
+    fun compactCard_headerIsAsTallAsItsSlotsRatherThanTheDefaultLeadingComponent() {
+        val root =
+            render(
+                MatrixCardContent(
+                    leading = Icon(GLYPH),
+                    primary = TemplateText("Start a workout"),
+                    hero = week,
+                    leadingSize = 24.dp,
+                    primaryTextSize = 16.sp,
+                ),
+                Dimensions(348, 264),
+            )
+
+        val header = root.findViewById<View>(R.id.glance_adaptive_appwidget_remoteviews_slot_header)
+        assertThat(header.height).isLessThan(56f.dpToPx(context.density))
+    }
+
+    @Test
+    fun compactHeader_runsTheSecondaryTextUnderThePrimaryText() {
+        val root =
+            render(
+                MatrixCardContent(
+                    leading = Icon(GLYPH),
+                    primary = TemplateText("Start a workout"),
+                    secondary = TemplateText("Fitbit"),
+                    leadingSize = 40.dp,
+                    primaryTextSize = 16.sp,
+                ),
+                Dimensions(348, 132),
+            )
+
+        val primary =
+            root.findViewById<TextView>(R.id.glance_adaptive_appwidget_remoteviews_primary)
+        val secondary = secondary(root)
+        assertThat(secondary.text.toString()).isEqualTo("Fitbit")
+        assertThat(secondary.top).isAtLeast(primary.bottom)
+        assertThat(secondary.left).isEqualTo(primary.left)
+    }
+
+    @Test
+    fun compactCard_fitsTheLockScreenStrip() {
+        val root =
+            render(
+                MatrixCardContent(
+                    leading = Icon(GLYPH),
+                    primary = TemplateText("Start a run"),
+                    padding = 0.dp,
+                    leadingSize = 16.dp,
+                    primaryTextSize = 14.sp,
+                ),
+                Dimensions(168, 28),
+                AppWidgetSurface.MOBILE_LOCK_SCREEN,
+            )
+
+        val primary =
+            root.findViewById<TextView>(R.id.glance_adaptive_appwidget_remoteviews_primary)
+        assertThat(primary.text.toString()).isEqualTo("Start a run")
+        assertThat(primary.bottom).isAtMost(28f.dpToPx(context.density))
+    }
+
+    @Test
+    fun card_withoutHeaderStartsItsHeroAtThePadding() {
+        val root = render(MatrixCardContent(hero = week, padding = 12.dp), Dimensions(176, 176))
+
+        assertThat(
+                root.findViewById<View>(R.id.glance_adaptive_appwidget_remoteviews_slot_hero).top
+            )
+            .isEqualTo(12f.dpToPx(context.density))
+    }
+
     /** A card with every slot filled. */
     private fun fullCard() =
         MatrixCardContent(
@@ -290,8 +383,12 @@ class RemoteViewsMatrixRendererTest {
     private fun secondary(root: View): TextView =
         root.findViewById(R.id.glance_adaptive_appwidget_remoteviews_secondary)
 
-    private fun render(content: MatrixContent, dimensions: Dimensions): View {
-        val surface = AppWidgetSurface.MOBILE_HOME_SCREEN.withDimensions(dimensions)
+    private fun render(
+        content: MatrixContent,
+        dimensions: Dimensions,
+        surface: AppWidgetSurface = AppWidgetSurface.MOBILE_HOME_SCREEN,
+    ): View {
+        val surface = surface.withDimensions(dimensions)
         val rv = RemoteViewsMatrixRenderer.renderRemoteViews(context, template, content, surface)
 
         val host = FrameLayout(context)
@@ -309,6 +406,9 @@ class RemoteViewsMatrixRendererTest {
     }
 
     private companion object {
+        /** A glyph drawable of the library, declared at 32 dp. */
+        val GLYPH = R.drawable.glance_adaptive_appwidget_remoteviews_track_placeholder_steps_glyph
+
         const val RUN_URI = "app://run"
         val RUN = GlanceWidgetAction.LaunchDeeplink(RUN_URI)
     }

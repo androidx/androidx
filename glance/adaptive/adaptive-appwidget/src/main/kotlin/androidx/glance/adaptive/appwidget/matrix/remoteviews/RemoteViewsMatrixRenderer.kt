@@ -27,6 +27,7 @@ import androidx.glance.adaptive.appwidget.components.RemoteViewsActions
 import androidx.glance.adaptive.appwidget.components.badge.buildRemoteViews
 import androidx.glance.adaptive.appwidget.components.density
 import androidx.glance.adaptive.appwidget.components.graph.buildRemoteViews
+import androidx.glance.adaptive.appwidget.components.icon.buildRemoteViews
 import androidx.glance.adaptive.appwidget.components.ring.buildRemoteViews
 import androidx.glance.adaptive.appwidget.components.setCornerRadius
 import androidx.glance.adaptive.appwidget.components.setOptionalText
@@ -136,6 +137,9 @@ private fun renderMatrix(
  *   row to the bottom edge and the header to the top.
  * - **Header only**: the card centers it.
  *
+ * A header with every slot empty is hidden, so a hero below it takes its room, as a card that is a
+ * single button needs.
+ *
  * The card itself is never clickable: taps belong to its interactive components, which run them
  * through [taps].
  */
@@ -149,7 +153,11 @@ private fun matrixCard(taps: RemoteViewsActions, card: ResolvedMatrixCard): Remo
     views.setViewPadding(android.R.id.background, padding, padding, padding, padding)
     card.cornerRadius?.let { views.setCornerRadius(android.R.id.background, it) }
 
-    views.setSlot(R.id.glance_adaptive_appwidget_remoteviews_slot_header, header(context, card))
+    val hasHeader = card.leading != null || card.primary != null || card.secondary != null
+    views.setSlot(
+        R.id.glance_adaptive_appwidget_remoteviews_slot_header,
+        if (hasHeader) header(context, card) else null,
+    )
 
     val hero = card.hero
     val actions = card.actions
@@ -164,7 +172,7 @@ private fun matrixCard(taps: RemoteViewsActions, card: ResolvedMatrixCard): Remo
         views.setViewPadding(
             R.id.glance_adaptive_appwidget_remoteviews_slot_hero,
             0,
-            spacing,
+            if (hasHeader) spacing else 0,
             0,
             if (hasActions) spacing else 0,
         )
@@ -193,10 +201,11 @@ private fun matrixCard(taps: RemoteViewsActions, card: ResolvedMatrixCard): Remo
 /** The header slots, in a row or stacked. */
 private fun header(context: Context, card: ResolvedMatrixCard): RemoteViews {
     val layout =
-        if (card.stacked) {
-            R.layout.glance_adaptive_appwidget_remoteviews_matrix_header_stacked
-        } else {
-            R.layout.glance_adaptive_appwidget_remoteviews_matrix_header_row
+        when {
+            card.stacked -> R.layout.glance_adaptive_appwidget_remoteviews_matrix_header_stacked
+            card.compactHeader ->
+                R.layout.glance_adaptive_appwidget_remoteviews_matrix_header_row_compact
+            else -> R.layout.glance_adaptive_appwidget_remoteviews_matrix_header_row
         }
     val views = RemoteViews(context.packageName, layout)
 
@@ -248,7 +257,7 @@ private fun matrixBulb(context: Context, bulb: ResolvedMatrixBulb): RemoteViews 
 private fun LeadingComponent.toRemoteViews(context: Context, size: Dp): RemoteViews =
     when (this) {
         is Ring -> buildRemoteViews(context, size)
-        is Icon -> notDrawnYet()
+        is Icon -> buildRemoteViews(context, size)
     }
 
 /** Shows this component in the header's primary text view, at [textSizeSp]. */
@@ -289,7 +298,8 @@ private fun BulbComponent.toRemoteViews(context: Context, containerSize: Dp): Re
         is IconButton -> notDrawnYet()
     }
 
-// TODO(b/580007927): Draw the icon and button components. Until then no selector places them.
+// TODO(b/580007927): Draw the button and icon grid components. Until then no selector places
+//  them.
 private fun SlotComponent.notDrawnYet(): Nothing =
     throw UnsupportedOperationException(
         "${javaClass.simpleName} is not drawn with RemoteViews yet."
