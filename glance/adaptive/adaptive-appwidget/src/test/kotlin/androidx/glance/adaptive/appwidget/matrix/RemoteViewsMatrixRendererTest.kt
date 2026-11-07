@@ -458,6 +458,45 @@ class RemoteViewsMatrixRendererTest {
     }
 
     @Test
+    fun icon_whenContainedIsDrawnInACircle() {
+        val root =
+            render(
+                MatrixCardContent(
+                    leading = Icon(GLYPH, contentDescription = "Fitbit", contained = true),
+                    primary = TemplateText("Start a workout"),
+                    leadingSize = 56.dp,
+                    primaryTextSize = 18.sp,
+                ),
+                Dimensions(348, 264),
+            )
+
+        val density = context.density
+        val container =
+            root.findViewById<View>(R.id.glance_adaptive_appwidget_remoteviews_icon_container)
+        val icon = root.findViewById<ImageView>(R.id.glance_adaptive_appwidget_remoteviews_icon)
+        assertThat(icon.maxWidth).isEqualTo(30f.dpToPx(density))
+        assertThat(container.paddingLeft + container.paddingRight)
+            .isEqualTo(56f.dpToPx(density) - 30f.dpToPx(density))
+        assertThat(icon.contentDescription.toString()).isEqualTo("Fitbit")
+
+        // A small icon, as on the lock screen strip, is the glyph alone.
+        val strip =
+            render(
+                MatrixCardContent(
+                    leading = Icon(GLYPH),
+                    primary = TemplateText("Start a run"),
+                    padding = 0.dp,
+                    leadingSize = 16.dp,
+                ),
+                Dimensions(168, 28),
+            )
+        assertThat(
+                strip.findViewById<View>(R.id.glance_adaptive_appwidget_remoteviews_icon_container)
+            )
+            .isNull()
+    }
+
+    @Test
     fun compactCard_headerIsAsTallAsItsSlotsRatherThanTheDefaultLeadingComponent() {
         val root =
             render(
@@ -550,7 +589,7 @@ class RemoteViewsMatrixRendererTest {
     }
 
     @Test
-    fun iconButton_trailingTheHeaderMatchesTheLeadingComponentAndRunsItsAction() {
+    fun iconButton_trailingTheHeaderIsAPillAsTallAsTheLeadingComponentAndRunsItsAction() {
         val root =
             render(
                 MatrixCardContent(
@@ -558,8 +597,8 @@ class RemoteViewsMatrixRendererTest {
                     primary = TemplateText("Start a workout"),
                     secondary = TemplateText("Fitbit"),
                     trailing = IconButton(GLYPH, "Other workouts", RUN),
-                    leadingSize = 40.dp,
-                    primaryTextSize = 16.sp,
+                    leadingSize = 56.dp,
+                    primaryTextSize = 18.sp,
                 ),
                 Dimensions(264, 88),
             )
@@ -570,9 +609,12 @@ class RemoteViewsMatrixRendererTest {
         assertThat(trailingSlot.visibility).isEqualTo(View.VISIBLE)
         val button = iconButton(root)
         assertThat(button.contentDescription.toString()).isEqualTo("Other workouts")
-        assertThat(iconButtonGlyph(root).maxWidth).isEqualTo(20f.dpToPx(density))
+        // The design's 64 x 56 dp pill around a 30 dp glyph.
+        assertThat(iconButtonGlyph(root).maxWidth).isEqualTo(30f.dpToPx(density))
         assertThat(button.paddingLeft + button.paddingRight)
-            .isEqualTo(40f.dpToPx(density) - 20f.dpToPx(density))
+            .isEqualTo(64f.dpToPx(density) - 30f.dpToPx(density))
+        assertThat(button.paddingTop + button.paddingBottom)
+            .isEqualTo(56f.dpToPx(density) - 30f.dpToPx(density))
         // The trailing button sits at the header's end, after the texts.
         assertThat(button.right + trailingSlot.left).isAtMost(root.width)
         assertThat(trailingSlot.left).isAtLeast(secondary(root).right)
@@ -706,7 +748,7 @@ class RemoteViewsMatrixRendererTest {
                     hero = IconGrid(List(6) { IconTile(GLYPH, "Workout $it") }, 3, 2),
                     padding = 12.dp,
                 ),
-                Dimensions(264, 264),
+                Dimensions(264, 248),
             )
 
         val grid =
@@ -717,7 +759,7 @@ class RemoteViewsMatrixRendererTest {
         assertThat(tiles.maxOf { it.width } - tiles.minOf { it.width }).isAtMost(1)
         // The rows fill the grid, with the design's gap between them.
         assertThat(rows[1].bottom).isEqualTo(grid.height)
-        assertThat(rows[1].top - rows[0].bottom).isEqualTo(4f.dpToPx(context.density))
+        assertThat(rows[1].top - rows[0].bottom).isEqualTo(6f.dpToPx(context.density))
         assertThat(
                 rows[0]
                     .getChildAt(0)
@@ -770,8 +812,148 @@ class RemoteViewsMatrixRendererTest {
             labelled.findViewById<View>(R.id.glance_adaptive_appwidget_remoteviews_icon_tile_glyph)
         assertThat(label.visibility).isEqualTo(View.VISIBLE)
         assertThat(label.text.toString()).isEqualTo("Rachel")
-        assertThat(label.top).isAtLeast(glyph.bottom)
+        val text =
+            labelled.findViewById<View>(R.id.glance_adaptive_appwidget_remoteviews_icon_tile_text)
+        assertThat(text.top).isAtLeast(glyph.bottom)
+        // The glyph sits at the tile's top start, inside its 4 dp padding.
+        val density = context.density
+        assertThat(glyph.left).isEqualTo(4f.dpToPx(density))
+        assertThat(glyph.top).isEqualTo(4f.dpToPx(density))
         assertThat(labelled.contentDescription.toString()).isEqualTo("Rachel")
+    }
+
+    @Test
+    fun iconGrid_rowsFillATallHeroWithTheirContentAtTheTop() {
+        val content =
+            MatrixCardContent(
+                hero = IconGrid(List(8) { IconTile(GLYPH, "Workout $it") }, 4, 2),
+                padding = 12.dp,
+            )
+        // The host may draw the widget taller than the size it reports, as a phone launcher does in
+        // portrait; the rows fill the size it draws at.
+        val root = render(content, Dimensions(348, 200), drawnAt = Dimensions(348, 400))
+
+        val density = context.density
+        val grid =
+            root.findViewById<ViewGroup>(R.id.glance_adaptive_appwidget_remoteviews_icon_grid)
+        val rows = List(grid.childCount) { grid.getChildAt(it) as ViewGroup }
+        // A 376 dp hero holds two 185 dp rows 6 dp apart, edge to edge.
+        assertThat(grid.height - 376f.dpToPx(density)).isIn(-1..1)
+        for (row in rows) {
+            assertThat(row.height - 185f.dpToPx(density)).isIn(-1..1)
+        }
+        assertThat(rows[0].top).isEqualTo(0)
+        assertThat(rows[1].bottom).isEqualTo(grid.height)
+        // The tiles fill their rows, with their glyphs at the top start.
+        val tile = tile(rows[0], 0)
+        assertThat(tile.height).isEqualTo(rows[0].height)
+        assertThat(
+                tile
+                    .findViewById<View>(R.id.glance_adaptive_appwidget_remoteviews_icon_tile_glyph)
+                    .top
+            )
+            .isEqualTo(4f.dpToPx(density))
+    }
+
+    @Test
+    fun iconGrid_singleRowFillsTheHero() {
+        val root =
+            render(
+                MatrixCardContent(
+                    hero = IconGrid(List(4) { IconTile(GLYPH, "Workout $it") }, 4, 1),
+                    padding = 12.dp,
+                ),
+                Dimensions(348, 400),
+            )
+
+        val grid =
+            root.findViewById<ViewGroup>(R.id.glance_adaptive_appwidget_remoteviews_icon_grid)
+        assertThat(grid.getChildAt(0).height).isEqualTo(grid.height)
+        assertThat(grid.height - 376f.dpToPx(context.density)).isIn(-1..1)
+    }
+
+    @Test
+    fun iconGrid_tileBudgetsItsTextLinesAtTheDefaultFontScale() {
+        val tile = subtitledTileIn(Dimensions(176, 120))
+
+        // A 96 dp row leaves 52 dp beneath the glyph: 3 lines of 16 dp.
+        assertThat(tileLabel(tile).maxLines).isEqualTo(2)
+        assertThat(tileSubtitle(tile).visibility).isEqualTo(View.VISIBLE)
+    }
+
+    @Test
+    @Config(fontScale = 2f)
+    fun iconGrid_tileDropsTextLinesAtALargeFontScale() {
+        val tile = subtitledTileIn(Dimensions(176, 120))
+
+        // At twice the font size, the same 52 dp holds a single line of label.
+        assertThat(tileLabel(tile).maxLines).isEqualTo(1)
+        assertThat(tileSubtitle(tile).visibility).isEqualTo(View.GONE)
+        assertThat(tile.contentDescription.toString()).isEqualTo("Garage Door, Open")
+    }
+
+    @Test
+    fun iconGrid_tileDrawsItsSubtitleWhereTheRowHasRoom() {
+        fun tileIn(heightDp: Int): View {
+            val root =
+                render(
+                    MatrixCardContent(
+                        hero =
+                            IconGrid(
+                                listOf(
+                                    IconTile(
+                                        GLYPH,
+                                        "Garage Door",
+                                        RUN,
+                                        subtitle = TemplateText("Open"),
+                                    )
+                                ),
+                                columns = 1,
+                                rows = 1,
+                            ),
+                        padding = 12.dp,
+                    ),
+                    Dimensions(176, heightDp),
+                )
+            return tile(
+                root.findViewById(R.id.glance_adaptive_appwidget_remoteviews_icon_grid_row),
+                0,
+            )
+        }
+
+        // A tall row has room for two lines of label and the subtitle, and never draws more.
+        val tall = tileIn(200)
+        val tallLabel =
+            tall.findViewById<TextView>(R.id.glance_adaptive_appwidget_remoteviews_icon_tile_label)
+        val tallSubtitle =
+            tall.findViewById<TextView>(
+                R.id.glance_adaptive_appwidget_remoteviews_icon_tile_subtitle
+            )
+        assertThat(tallLabel.maxLines).isEqualTo(2)
+        assertThat(tallSubtitle.visibility).isEqualTo(View.VISIBLE)
+        assertThat(tallSubtitle.text.toString()).isEqualTo("Open")
+        assertThat(tallSubtitle.top).isAtLeast(tallLabel.bottom)
+        assertThat(tall.contentDescription.toString()).isEqualTo("Garage Door, Open")
+
+        // A 72 dp row has room for a line of label only, but still announces the subtitle.
+        val short = tileIn(96)
+        assertThat(
+                short
+                    .findViewById<TextView>(
+                        R.id.glance_adaptive_appwidget_remoteviews_icon_tile_label
+                    )
+                    .maxLines
+            )
+            .isEqualTo(1)
+        assertThat(
+                short
+                    .findViewById<View>(
+                        R.id.glance_adaptive_appwidget_remoteviews_icon_tile_subtitle
+                    )
+                    .visibility
+            )
+            .isEqualTo(View.GONE)
+        assertThat(short.contentDescription.toString()).isEqualTo("Garage Door, Open")
     }
 
     @Test
@@ -916,16 +1098,50 @@ class RemoteViewsMatrixRendererTest {
     private fun iconButtonGlyph(root: View): ImageView =
         root.findViewById(R.id.glance_adaptive_appwidget_remoteviews_icon_button_glyph)
 
+    /** The only tile of a one-tile grid with a subtitle, drawn in a 12 dp padded card. */
+    private fun subtitledTileIn(dimensions: Dimensions): View {
+        val root =
+            render(
+                MatrixCardContent(
+                    hero =
+                        IconGrid(
+                            listOf(
+                                IconTile(GLYPH, "Garage Door", RUN, subtitle = TemplateText("Open"))
+                            ),
+                            columns = 1,
+                            rows = 1,
+                        ),
+                    padding = 12.dp,
+                ),
+                dimensions,
+            )
+        return tile(
+            root.findViewById(R.id.glance_adaptive_appwidget_remoteviews_icon_grid_row),
+            0,
+        )
+    }
+
+    private fun tileLabel(tile: View): TextView =
+        tile.findViewById(R.id.glance_adaptive_appwidget_remoteviews_icon_tile_label)
+
+    private fun tileSubtitle(tile: View): TextView =
+        tile.findViewById(R.id.glance_adaptive_appwidget_remoteviews_icon_tile_subtitle)
+
     private fun tile(row: ViewGroup, column: Int): View =
         row.getChildAt(column).findViewById(R.id.glance_adaptive_appwidget_remoteviews_icon_tile)
 
     private fun secondary(root: View): TextView =
         root.findViewById(R.id.glance_adaptive_appwidget_remoteviews_secondary)
 
+    /**
+     * Renders [content] for a container of [dimensions] on [surface], and lays it out at [drawnAt],
+     * which the host may draw a widget at instead of the size it reports.
+     */
     private fun render(
         content: MatrixContent,
         dimensions: Dimensions,
         surface: AppWidgetSurface = AppWidgetSurface.MOBILE_HOME_SCREEN,
+        drawnAt: Dimensions = dimensions,
     ): View {
         val surface = surface.withDimensions(dimensions)
         val rv = RemoteViewsMatrixRenderer.renderRemoteViews(context, template, content, surface)
@@ -934,8 +1150,8 @@ class RemoteViewsMatrixRendererTest {
         val view = rv.apply(context, host)
         host.addView(view)
 
-        val widthPx = dimensions.widthDp.toFloat().dpToPx(context.density)
-        val heightPx = dimensions.heightDp.toFloat().dpToPx(context.density)
+        val widthPx = drawnAt.widthDp.toFloat().dpToPx(context.density)
+        val heightPx = drawnAt.heightDp.toFloat().dpToPx(context.density)
         view.measure(
             MeasureSpec.makeMeasureSpec(widthPx, MeasureSpec.EXACTLY),
             MeasureSpec.makeMeasureSpec(heightPx, MeasureSpec.EXACTLY),

@@ -58,6 +58,9 @@ import androidx.glance.adaptive.core.slots.TrailingComponent
  */
 private const val MATRIX_SECONDARY_MAX_WIDTH_FRACTION = 0.4f
 
+/** Line height of the matrix's text as a multiple of its type size, for height estimates. */
+private const val LINE_HEIGHT_RATIO = 1.25f
+
 /** Least padding a stacked card gives up to keep its leading component at its full size. */
 private const val MIN_STACKED_PADDING_DP = 8f
 
@@ -118,6 +121,18 @@ internal object MatrixDefaults {
             WidthTier.W4 -> 40.sp
             else -> 30.sp
         }
+
+    /**
+     * How much wider than tall the header's trailing component is drawn: the design's trailing
+     * button is a 64 dp wide pill as tall as the 56 dp leading icon.
+     */
+    val TrailingExtraWidth: Dp = 8.dp
+
+    /** Least height of a header in a row, which the backends declare in its layout. */
+    val HeaderRowMinHeight: Dp = 56.dp
+
+    /** Height of the bottom action row, as tall as an icon button's touch target. */
+    val ActionRowHeight: Dp = 48.dp
 
     /** Whether the header stacks: W1 is too narrow for the leading component beside the primary. */
     fun isStacked(tiers: SizeTiers): Boolean = tiers.width == WidthTier.W1
@@ -239,6 +254,9 @@ internal class MatrixBulbContent(
  * @property trailing Component in the header's trailing slot, or `null` when hidden.
  * @property trailingSize Edge length [trailing] is drawn at, the leading component's.
  * @property hero Component in the hero slot, or `null` when hidden.
+ * @property heroHeight Height the hero is drawn in, estimated from the container and the slots
+ *   around it, for a hero that lays itself out by it, such as an icon grid capping its rows; `null`
+ *   when there is no hero or the container has no size.
  * @property actions The action positions of the bottom row; empty when hidden.
  */
 internal class ResolvedMatrixCard(
@@ -257,6 +275,7 @@ internal class ResolvedMatrixCard(
     val trailing: TrailingComponent?,
     val trailingSize: Dp,
     val hero: HeroComponent?,
+    val heroHeight: Dp?,
     val actions: List<ActionComponent?>,
 )
 
@@ -282,11 +301,13 @@ internal class ResolvedMatrixBulb(val component: BulbComponent, val containerSiz
  * @param content The components to lay out.
  * @param surface The target surface, carrying the container size as
  *   [androidx.glance.adaptive.core.selection.GlanceSurface.dimensions].
+ * @param fontScale The user's font scale, by which text lines are taller in height estimates.
  * @return The laid out card.
  */
 internal fun resolve(
     content: MatrixCardContent,
     surface: AppWidgetSurface,
+    fontScale: Float = 1f,
 ): ResolvedMatrixCard {
     val dimensions = surface.dimensions
     val tiers = SizeTiers.from(dimensions, surface)
@@ -335,7 +356,10 @@ internal fun resolve(
     if (!stacked) {
         if (leading != null) primaryMaxWidthDp -= leadingSizeDp + MatrixDefaults.HeaderSpacing.value
         if (trailing != null)
-            primaryMaxWidthDp -= leadingDefaultDp + MatrixDefaults.HeaderSpacing.value
+            primaryMaxWidthDp -=
+                leadingDefaultDp +
+                    MatrixDefaults.TrailingExtraWidth.value +
+                    MatrixDefaults.HeaderSpacing.value
         secondary
             ?.takeIf { secondaryBeside }
             ?.let {
@@ -354,6 +378,35 @@ internal fun resolve(
             secondaryBesideMaxWidthDp
         }
 
+    val actions = List(content.actions.size) { i -> content.actions[i]?.shownOn(locked) }
+    val heightDp = dimensions.heightDp.toFloat()
+    val heroHeightDp =
+        if (content.hero != null && heightDp > 0f) {
+            var available = heightDp - 2 * paddingDp
+            val hasHeader =
+                leading != null || content.primary != null || secondary != null || trailing != null
+            if (hasHeader) {
+                available -=
+                    spacingDp +
+                        estimatedHeaderHeightDp(
+                            stacked = stacked,
+                            compact = compactHeader,
+                            leadingSizeDp = if (leading != null) leadingSizeDp else 0f,
+                            trailingSizeDp = if (trailing != null) leadingDefaultDp else 0f,
+                            primaryTextSizeSp =
+                                if (content.primary != null) primaryTextSize.value else 0f,
+                            hasSecondary = secondary != null,
+                            fontScale = fontScale,
+                        )
+            }
+            if (actions.indices.any { actions[it] != null }) {
+                available -= spacingDp + MatrixDefaults.ActionRowHeight.value
+            }
+            available.coerceAtLeast(0f)
+        } else {
+            null
+        }
+
     return ResolvedMatrixCard(
         tiers = tiers,
         padding = paddingDp.dp,
@@ -370,7 +423,8 @@ internal fun resolve(
         trailing = trailing,
         trailingSize = if (trailing != null) leadingDefaultDp.dp else 0.dp,
         hero = content.hero?.shownOn(locked),
-        actions = List(content.actions.size) { i -> content.actions[i]?.shownOn(locked) },
+        heroHeight = heroHeightDp?.dp,
+        actions = actions,
     )
 }
 
@@ -430,16 +484,62 @@ private fun IconButton.redactedIf(locked: Boolean): IconButton {
 
 /** This grid, with every sensitive tile described by its replacement when [locked]. */
 private fun IconGrid.redactedIf(locked: Boolean): IconGrid =
-    if (locked && tiles.indices.any { i -> tiles[i].sensitiveReplacement != null }) {
+    if (
+        locked &&
+            tiles.indices.any { i ->
+                tiles[i].sensitiveReplacement != null ||
+                    tiles[i].subtitle?.sensitiveReplacement != null
+            }
+    ) {
         IconGrid(List(tiles.size) { i -> tiles[i].redacted() }, columns, rows, showLabels)
     } else {
         this
     }
 
-/** This tile, labelled with its sensitive replacement if it has one. */
+/** This tile, with its label and its subtitle replaced by their sensitive replacements. */
 private fun IconTile.redacted(): IconTile {
-    val replacement = sensitiveReplacement
-    return if (replacement != null) IconTile(icon, replacement, action) else this
+    val shownSubtitle = subtitle?.redactedIf(locked = true)
+    if (sensitiveReplacement == null && shownSubtitle === subtitle) return this
+    return IconTile(icon, sensitiveReplacement ?: label, action, subtitle = shownSubtitle)
+}
+
+/** Height of a line of text [sizeSp] large, in DP, at [fontScale]. */
+private fun lineHeightDp(sizeSp: Float, fontScale: Float): Float =
+    sizeSp * fontScale * LINE_HEIGHT_RATIO
+
+/**
+ * Height of a header, in DP, estimated from its slots: a stacked header runs them down, a compact
+ * one is as tall as its tallest slot with the secondary text under the primary one, and a row is at
+ * least [MatrixDefaults.HeaderRowMinHeight].
+ */
+private fun estimatedHeaderHeightDp(
+    stacked: Boolean,
+    compact: Boolean,
+    leadingSizeDp: Float,
+    trailingSizeDp: Float,
+    primaryTextSizeSp: Float,
+    hasSecondary: Boolean,
+    fontScale: Float,
+): Float {
+    val primaryDp = if (primaryTextSizeSp > 0f) lineHeightDp(primaryTextSizeSp, fontScale) else 0f
+    val secondaryDp =
+        if (hasSecondary) lineHeightDp(MatrixDefaults.SecondaryTextSize.value, fontScale) else 0f
+    return when {
+        stacked -> {
+            val leadingDp =
+                if (leadingSizeDp > 0f) leadingSizeDp + MatrixDefaults.HeaderSpacing.value else 0f
+            leadingDp + primaryDp + secondaryDp
+        }
+        compact -> maxOf(leadingSizeDp, trailingSizeDp, primaryDp + secondaryDp)
+        else ->
+            maxOf(
+                MatrixDefaults.HeaderRowMinHeight.value,
+                leadingSizeDp,
+                trailingSizeDp,
+                primaryDp,
+                secondaryDp,
+            )
+    }
 }
 
 /** Width this component takes beside the primary slot, in DP. */

@@ -27,4 +27,12 @@
     <color name="glance_adaptive_appwidget_remoteviews_tertiary">#ff7d5260</color>
     <color name="glance_adaptive_appwidget_remoteviews_on_surface_variant">#ff49454f</color>
     <color name="glance_adaptive_appwidget_remoteviews_widget_background">#ffe0f3ff</color>
+    <!--
+      The Dashboard colors below follow the current M3 container roles (on-container colors at tone
+      30 in light theme), a newer token generation than the colors above, copied from Glance.
+    -->
+    <color name="glance_adaptive_appwidget_remoteviews_primary_container">#ffeaddff</color>
+    <color name="glance_adaptive_appwidget_remoteviews_on_primary_container">#ff4f378b</color>
+    <color name="glance_adaptive_appwidget_remoteviews_on_secondary_container">#ff4a4458</color>
+    <color name="glance_adaptive_appwidget_remoteviews_surface_container_highest">#ffe6e0e9</color>
 </resources>

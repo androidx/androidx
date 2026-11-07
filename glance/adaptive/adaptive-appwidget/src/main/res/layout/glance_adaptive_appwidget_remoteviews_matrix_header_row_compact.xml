@@ -45,8 +45,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical|start"
-            android:textAppearance="@style/GlanceAdaptiveAppwidgetRemoteviews.TextAppearance.Bold"
-            android:textColor="@color/glance_adaptive_appwidget_remoteviews_primary" />
+            android:textAppearance="@style/GlanceAdaptiveAppwidgetRemoteviews.TextAppearance.SemiBold"
+            android:textColor="@color/glance_adaptive_appwidget_remoteviews_on_primary_container" />
 
         <TextView
             android:id="@+id/glance_adaptive_appwidget_remoteviews_secondary"
@@ -55,7 +55,7 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical|start"
             android:textAppearance="@style/GlanceAdaptiveAppwidgetRemoteviews.TextAppearance.Medium"
-            android:textColor="@color/glance_adaptive_appwidget_remoteviews_primary" />
+            android:textColor="@color/glance_adaptive_appwidget_remoteviews_on_secondary_container" />
     </LinearLayout>
 
     <!--

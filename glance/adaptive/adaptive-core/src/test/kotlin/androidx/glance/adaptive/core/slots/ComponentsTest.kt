@@ -194,8 +194,11 @@ class ComponentsTest {
     }
 
     @Test
-    fun icon_addsNoCapability() {
-        assertThat(Icon(icon = GLYPH).capabilities).isEmpty()
+    fun icon_addsNoCapabilityAndDefaultsToUncontained() {
+        val bare = Icon(icon = GLYPH)
+        assertThat(bare.capabilities).isEmpty()
+        assertThat(bare.contained).isFalse()
+        assertThat(Icon(icon = GLYPH, contained = true).contained).isTrue()
     }
 
     @Test
@@ -226,6 +229,13 @@ class ComponentsTest {
                 IconTile(GLYPH, "Alex", sensitiveReplacement = " ")
             }
         assertThat(error).hasMessageThat().isEqualTo("Sensitive replacement must not be blank.")
+    }
+
+    @Test
+    fun iconTile_carriesAnOptionalSubtitle() {
+        assertThat(IconTile(GLYPH, "Garage Door", subtitle = TemplateText("Open")).subtitle?.value)
+            .isEqualTo("Open")
+        assertThat(IconTile(GLYPH, "Garage Door").subtitle).isNull()
     }
 
     @Test

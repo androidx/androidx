@@ -397,6 +397,38 @@ class InformationMatrixTest {
     }
 
     @Test
+    fun card_tileSubtitleIsReplacedOnlyOnTheLockScreen() {
+        val content =
+            MatrixCardContent(
+                hero =
+                    IconGrid(
+                        listOf(
+                            IconTile(
+                                GLYPH,
+                                "Home Alarm",
+                                ACTION,
+                                subtitle =
+                                    TemplateText("Code 1234", sensitiveReplacement = "Armed"),
+                            ),
+                            IconTile(GLYPH, "Garage Door", subtitle = TemplateText("Open")),
+                        ),
+                        columns = 2,
+                        rows = 1,
+                    )
+            )
+
+        val home = resolve(content, at(348, 176)).hero as IconGrid
+        assertThat(home.tiles.map { it.subtitle?.value }).containsExactly("Code 1234", "Open")
+
+        val locked =
+            resolve(content, at(348, 176, AppWidgetSurface.MOBILE_LOCK_SCREEN)).hero as IconGrid
+        assertThat(locked.tiles.map { it.label }).containsExactly("Home Alarm", "Garage Door")
+        assertThat(locked.tiles.map { it.subtitle?.value }).containsExactly("Armed", "Open")
+        // A tile with nothing sensitive is kept as it is.
+        assertThat(locked.tiles[1]).isSameInstanceAs((content.hero as IconGrid).tiles[1])
+    }
+
+    @Test
     fun bulb_iconButtonContentDescriptionIsReplacedOnlyOnTheLockScreen() {
         val button = IconButton(GLYPH, "Call Alex", ACTION, sensitiveReplacement = "Call")
 

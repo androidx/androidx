@@ -38,6 +38,6 @@
         android:adjustViewBounds="true"
         android:importantForAccessibility="no"
         android:scaleType="fitCenter"
-        android:tint="@color/glance_adaptive_appwidget_remoteviews_primary"
+        android:tint="@color/glance_adaptive_appwidget_remoteviews_on_secondary_container"
         tools:ignore="UseAppTint" />
 </FrameLayout>

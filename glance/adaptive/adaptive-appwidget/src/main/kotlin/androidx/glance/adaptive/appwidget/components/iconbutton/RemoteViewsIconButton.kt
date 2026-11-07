@@ -27,26 +27,29 @@ import androidx.glance.adaptive.appwidget.components.toPx
 import androidx.glance.adaptive.core.slots.IconButton
 
 /**
- * Draws the icon button as a circle [diameter] across, with its glyph [glyphSize] across at the
- * center. It centers itself in its slot.
+ * Draws the icon button as a circle [diameter] across, or as a pill [width] wide and [diameter]
+ * tall when [width] is larger, with its glyph [glyphSize] across at the center. It centers itself
+ * in its slot.
  *
  * The glyph cannot be sized before API 31, so it wraps its drawable and is capped at [glyphSize],
- * and the circle is padded out around it: the glyph's drawable must be declared at least
- * [glyphSize] large for the circle to reach [diameter].
+ * and the shape is padded out around it: the glyph's drawable must be declared at least [glyphSize]
+ * large for the shape to reach its size.
  *
  * A button that ignores taps is given no click, since any click makes a view clickable. The matrix
  * renderer adds a tappable button under a stable ID apart from an inert one (see
  * [tappableStableId]), so the host never recycles one into the other.
  *
  * @param taps Where the button's tap goes, and the context its views are built for.
- * @param diameter Diameter of the circle.
+ * @param diameter Height of the button, and its width when it is a circle.
  * @param glyphSize Edge length of the glyph.
+ * @param width Width of the button; a pill when larger than [diameter].
  * @return The button's views.
  */
 internal fun IconButton.buildRemoteViews(
     taps: RemoteViewsActions,
     diameter: Dp,
     glyphSize: Dp,
+    width: Dp = diameter,
 ): RemoteViews {
     val context = taps.context
     val density = context.density
@@ -54,14 +57,31 @@ internal fun IconButton.buildRemoteViews(
         RemoteViews(context.packageName, R.layout.glance_adaptive_appwidget_remoteviews_icon_button)
     val buttonId = R.id.glance_adaptive_appwidget_remoteviews_icon_button
     val glyphId = R.id.glance_adaptive_appwidget_remoteviews_icon_button_glyph
+    val pill = width > diameter
+    // Set either way, as the host reapplies an update onto the previous hierarchy.
+    views.setInt(
+        buttonId,
+        "setBackgroundResource",
+        if (pill) {
+            R.drawable.glance_adaptive_appwidget_remoteviews_button_pill
+        } else {
+            R.drawable.glance_adaptive_appwidget_remoteviews_button_circle
+        },
+    )
 
     views.setImageViewResource(glyphId, icon)
     val glyphPx = glyphSize.toPx(density)
     views.setMaxSize(glyphId, glyphPx)
     // The two halves can differ by a pixel, which leaves the glyph where centering it would.
-    val inset = (diameter.toPx(density) - glyphPx).coerceAtLeast(0)
-    val leading = inset / 2
-    views.setViewPadding(buttonId, leading, leading, inset - leading, inset - leading)
+    val horizontal = (width.toPx(density) - glyphPx).coerceAtLeast(0)
+    val vertical = (diameter.toPx(density) - glyphPx).coerceAtLeast(0)
+    views.setViewPadding(
+        buttonId,
+        horizontal / 2,
+        vertical / 2,
+        horizontal - horizontal / 2,
+        vertical - vertical / 2,
+    )
 
     views.setContentDescription(buttonId, contentDescription)
     taps.pendingIntentFor(action)?.let { views.setOnClickPendingIntent(buttonId, it) }

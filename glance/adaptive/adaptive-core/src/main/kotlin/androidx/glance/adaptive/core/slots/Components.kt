@@ -277,12 +277,15 @@ public class ContainedRing(
  * @property icon Drawable resource of the glyph.
  * @property contentDescription What the glyph shows, for accessibility services, or `null` when it
  *   is decorative.
+ * @property contained Whether the glyph sits inside a filled circle, as a dashboard header's brand
+ *   icon does, rather than drawing as a bare glyph.
  * @throws IllegalArgumentException if [icon] is `0`, or [contentDescription] is blank.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Icon(
     @DrawableRes public val icon: Int,
     public val contentDescription: String? = null,
+    @get:JvmName("isContained") public val contained: Boolean = false,
 ) : LeadingComponent {
     init {
         require(icon != 0) { "An icon needs a drawable resource." }
@@ -382,8 +385,8 @@ public class IconGrid(
 }
 
 /**
- * One cell of an [IconGrid]: a glyph, with its label beneath it when the grid shows labels,
- * centered on a filled rounded tile, which runs [action] when tapped.
+ * One cell of an [IconGrid]: a glyph, with its label and optional [subtitle] beneath it when the
+ * grid shows labels, on a filled rounded tile, which runs [action] when tapped.
  *
  * @property icon Drawable resource of the glyph, tinted with the primary color.
  * @property label Name of the tile, announced by accessibility services, and drawn beneath the
@@ -391,6 +394,9 @@ public class IconGrid(
  * @property action Action to run when tapped, or `null` for a tile that only shows its glyph.
  * @property sensitiveReplacement Label shown and announced instead of [label] on the lock screen,
  *   or `null` when [label] is not sensitive, such as a contact's name.
+ * @property subtitle Optional second line beneath [label], such as a state like `Open` or `On ·
+ *   80%`, drawn more faintly where the tile has room for it and announced after [label]. Its own
+ *   [TemplateText.sensitiveReplacement] replaces it on the lock screen.
  * @throws IllegalArgumentException if [icon] is `0`, or [label] or [sensitiveReplacement] is blank.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -399,6 +405,7 @@ public class IconTile(
     public val label: String,
     public val action: GlanceWidgetAction? = null,
     public val sensitiveReplacement: String? = null,
+    public val subtitle: TemplateText? = null,
 ) {
     init {
         require(icon != 0) { "An icon tile needs a drawable resource." }
