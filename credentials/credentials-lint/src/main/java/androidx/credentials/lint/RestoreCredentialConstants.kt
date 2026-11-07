@@ -36,15 +36,24 @@ import org.jetbrains.uast.visitor.AbstractUastVisitor
 
 internal object RestoreCredentialConstants {
     const val CLASS_CREDENTIAL_MANAGER = "androidx.credentials.CredentialManager"
+    const val CLASS_CREDENTIAL = "androidx.credentials.Credential"
     const val CLASS_CREATE_RESTORE_CREDENTIAL_REQUEST =
         "androidx.credentials.CreateRestoreCredentialRequest"
     const val CLASS_GET_RESTORE_CREDENTIAL_OPTION =
         "androidx.credentials.GetRestoreCredentialOption"
+    const val CLASS_GET_PUBLIC_KEY_CREDENTIAL_OPTION =
+        "androidx.credentials.GetPublicKeyCredentialOption"
     const val CLASS_GET_CREDENTIAL_REQUEST = "androidx.credentials.GetCredentialRequest"
     const val CLASS_GET_CREDENTIAL_REQUEST_BUILDER =
         "androidx.credentials.GetCredentialRequest.Builder"
+    const val CLASS_GET_CREDENTIAL_RESPONSE = "androidx.credentials.GetCredentialResponse"
+    const val CLASS_RESTORE_CREDENTIAL = "androidx.credentials.RestoreCredential"
+    const val CLASS_PUBLIC_KEY_CREDENTIAL = "androidx.credentials.PublicKeyCredential"
     const val CLASS_MUTABLE_CONTEXT_WRAPPER = "android.content.MutableContextWrapper"
     const val CLASS_BACKUP_AGENT = "android.app.backup.BackupAgent"
+
+    const val RESTORE_CREDENTIALS_GUIDE_URL =
+        "https://developer.android.com/identity/sign-in/restore-credentials"
 
     val GET_CREDENTIAL_METHODS = setOf("getCredential", "getCredentialAsync")
     val CREATE_CREDENTIAL_METHODS = setOf("createCredential", "createCredentialAsync")
