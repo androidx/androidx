@@ -26,12 +26,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.glance.adaptive.core.action.GlanceWidgetAction
 import androidx.glance.adaptive.core.selection.SizeTiers
 import androidx.glance.adaptive.core.selection.WidthTier
 
 /*
  * The slot component library: backend-agnostic data models, one per component, each implementing
- * the contract of the slots it fits. Every backend draws them in its own matrix renderer.
+ * the contract of the slots it fits. Every backend draws them in its own matrix renderer, with each
+ * component's drawing code in its own package under components/.
  *
  * Each component checks its own data when it is built, so one that exists is valid and a renderer
  * never has to.
@@ -58,6 +60,7 @@ private const val CONTAINED_RING_TEXT_RATIO = 0.86f
 private const val MIN_GRAPH_VALUES = 2
 
 private val TextCapabilities = setOf(Capability.Text)
+private val ActionCapabilities = setOf(Capability.Action)
 private val RingCapabilities = setOf(Capability.Tracking)
 private val GraphCapabilities = setOf(Capability.Tracking, Capability.History)
 private val BadgeCapabilities = setOf(Capability.Status)
@@ -272,3 +275,138 @@ internal class ContainedRingGeometry(
     val valueMaxWidth: Dp,
     val fontSize: TextUnit,
 )
+
+/**
+ * A glyph, such as an app's badge before a header text. Fits the leading slot, which sizes it (see
+ * [MatrixDefaults.LeadingSize] and [MatrixCardContent.leadingSize]).
+ *
+ * Drawn tinted with the primary color, as every glyph of the matrix is.
+ *
+ * @property icon Drawable resource of the glyph.
+ * @property contentDescription What the glyph shows, for accessibility services, or `null` when it
+ *   is decorative.
+ * @throws IllegalArgumentException if [icon] is `0`, or [contentDescription] is blank.
+ */
+internal class Icon(@DrawableRes val icon: Int, val contentDescription: String? = null) :
+    LeadingComponent {
+    init {
+        require(icon != 0) { "An icon needs a drawable resource." }
+        require(contentDescription == null || contentDescription.isNotBlank()) {
+            "Content description must not be blank."
+        }
+    }
+
+    override val capabilities: Set<Capability>
+        get() = emptySet()
+}
+
+/**
+ * A glyph on a filled circle that runs [action] when tapped. Fits an action slot, the header's
+ * trailing slot, and the bulb slot, where it is the whole widget and spans the circle the bulb
+ * gives it.
+ *
+ * @property icon Drawable resource of the glyph, tinted with the primary color.
+ * @property contentDescription What the button does, for accessibility services.
+ * @property action Action to run when tapped, or `null` for a button that only shows its glyph.
+ * @property sensitiveReplacement Content description used instead of [contentDescription] on the
+ *   lock screen, or `null` when [contentDescription] is not sensitive, such as a contact's name.
+ * @throws IllegalArgumentException if [icon] is `0`, or [contentDescription] or
+ *   [sensitiveReplacement] is blank.
+ */
+internal class IconButton(
+    @DrawableRes val icon: Int,
+    val contentDescription: String,
+    val action: GlanceWidgetAction? = null,
+    val sensitiveReplacement: String? = null,
+) : ActionComponent, TrailingComponent, BulbComponent {
+    init {
+        require(icon != 0) { "An icon button needs a drawable resource." }
+        require(contentDescription.isNotBlank()) { "Content description must not be blank." }
+        require(sensitiveReplacement == null || sensitiveReplacement.isNotBlank()) {
+            "Sensitive replacement must not be blank."
+        }
+    }
+
+    override val capabilities: Set<Capability>
+        get() = if (action != null) ActionCapabilities else emptySet()
+}
+
+/**
+ * Grid of tappable glyph tiles, filled row by row — the design's `Range of buttons`. Fits the hero
+ * slot, and fills its height: the rows share whatever height the other slots leave, and the columns
+ * share the card's width.
+ *
+ * A grid with fewer [tiles] than cells leaves the trailing cells of its last row empty, so the
+ * tiles keep the size they have in a full grid.
+ *
+ * @property tiles The tiles, leading to trailing and top to bottom.
+ * @property columns Number of tiles in a row.
+ * @property rows Number of rows.
+ * @property showLabels Whether each tile draws its label beneath the glyph. Set it to `false` when
+ *   a row is too short for a label line; accessibility services announce the label either way.
+ * @throws IllegalArgumentException if [columns] or [rows] is not positive, or there are no tiles or
+ *   more tiles than cells.
+ */
+internal class IconGrid(
+    tiles: List<IconTile>,
+    val columns: Int,
+    val rows: Int,
+    val showLabels: Boolean = true,
+) : HeroComponent {
+
+    /** The tiles, leading to trailing and top to bottom. */
+    val tiles: List<IconTile> = List(tiles.size) { i -> tiles[i] }
+
+    init {
+        require(columns > 0 && rows > 0) {
+            "An icon grid needs at least one row and one column, had $columns x $rows."
+        }
+        require(this.tiles.size in 1..columns * rows) {
+            "An icon grid of $columns x $rows needs 1 to ${columns * rows} tiles, had ${this.tiles.size}."
+        }
+    }
+
+    override val capabilities: Set<Capability>
+        get() {
+            for (i in tiles.indices) if (tiles[i].action != null) return ActionCapabilities
+            return emptySet()
+        }
+
+    /**
+     * The tile in the cell at [row] and [column], or `null` when the cell is empty or out of
+     * bounds.
+     */
+    fun tileAt(row: Int, column: Int): IconTile? =
+        if (row in 0 until rows && column in 0 until columns) {
+            tiles.getOrNull(row * columns + column)
+        } else {
+            null
+        }
+}
+
+/**
+ * One cell of an [IconGrid]: a glyph, with its label beneath it when the grid shows labels,
+ * centered on a filled rounded tile, which runs [action] when tapped.
+ *
+ * @property icon Drawable resource of the glyph, tinted with the primary color.
+ * @property label Name of the tile, announced by accessibility services, and drawn beneath the
+ *   glyph when [IconGrid.showLabels] is `true`.
+ * @property action Action to run when tapped, or `null` for a tile that only shows its glyph.
+ * @property sensitiveReplacement Label shown and announced instead of [label] on the lock screen,
+ *   or `null` when [label] is not sensitive, such as a contact's name.
+ * @throws IllegalArgumentException if [icon] is `0`, or [label] or [sensitiveReplacement] is blank.
+ */
+internal class IconTile(
+    @DrawableRes val icon: Int,
+    val label: String,
+    val action: GlanceWidgetAction? = null,
+    val sensitiveReplacement: String? = null,
+) {
+    init {
+        require(icon != 0) { "An icon tile needs a drawable resource." }
+        require(label.isNotBlank()) { "An icon tile label must not be blank." }
+        require(sensitiveReplacement == null || sensitiveReplacement.isNotBlank()) {
+            "Sensitive replacement must not be blank."
+        }
+    }
+}

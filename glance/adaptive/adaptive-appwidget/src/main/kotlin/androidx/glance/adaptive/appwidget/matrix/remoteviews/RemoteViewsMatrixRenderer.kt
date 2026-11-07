@@ -41,6 +41,9 @@ import androidx.glance.adaptive.appwidget.matrix.BulbComponent
 import androidx.glance.adaptive.appwidget.matrix.ContainedRing
 import androidx.glance.adaptive.appwidget.matrix.Graph
 import androidx.glance.adaptive.appwidget.matrix.HeroComponent
+import androidx.glance.adaptive.appwidget.matrix.Icon
+import androidx.glance.adaptive.appwidget.matrix.IconButton
+import androidx.glance.adaptive.appwidget.matrix.IconGrid
 import androidx.glance.adaptive.appwidget.matrix.LeadingComponent
 import androidx.glance.adaptive.appwidget.matrix.MatrixBulbContent
 import androidx.glance.adaptive.appwidget.matrix.MatrixCardContent
@@ -51,7 +54,9 @@ import androidx.glance.adaptive.appwidget.matrix.ResolvedMatrixBulb
 import androidx.glance.adaptive.appwidget.matrix.ResolvedMatrixCard
 import androidx.glance.adaptive.appwidget.matrix.Ring
 import androidx.glance.adaptive.appwidget.matrix.SecondaryComponent
+import androidx.glance.adaptive.appwidget.matrix.SlotComponent
 import androidx.glance.adaptive.appwidget.matrix.TemplateText
+import androidx.glance.adaptive.appwidget.matrix.TrailingComponent
 import androidx.glance.adaptive.appwidget.matrix.resolve
 import androidx.glance.adaptive.appwidget.renderer.RemoteViewsTemplateRenderer
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
@@ -167,6 +172,7 @@ private fun header(context: Context, card: ResolvedMatrixCard): RemoteViews {
         card.secondary?.text(),
         MatrixDefaults.SecondaryTextSize.value,
     )
+    card.trailing?.toRemoteViews()
     // In a row, the secondary text is measured before the weighted primary text, so it is capped
     // and ellipsized rather than left to squeeze the primary text out.
     card.secondaryMaxWidth?.let {
@@ -198,6 +204,7 @@ private fun matrixBulb(context: Context, bulb: ResolvedMatrixBulb): RemoteViews 
 private fun LeadingComponent.toRemoteViews(context: Context, size: Dp): RemoteViews =
     when (this) {
         is Ring -> buildRemoteViews(context, size)
+        is Icon -> notDrawnYet()
     }
 
 /** Shows this component in the header's primary text view, at [textSizeSp]. */
@@ -214,18 +221,32 @@ private fun SecondaryComponent.text(): CharSequence =
         is TemplateText -> value
     }
 
+private fun TrailingComponent.toRemoteViews(): RemoteViews =
+    when (this) {
+        is IconButton -> notDrawnYet()
+    }
+
 private fun HeroComponent.toRemoteViews(context: Context, tiers: SizeTiers): RemoteViews =
     when (this) {
         is Graph -> buildRemoteViews(context, Graph.barSpacing(tiers))
+        is IconGrid -> notDrawnYet()
     }
 
 private fun ActionComponent.toRemoteViews(context: Context): RemoteViews =
     when (this) {
         is TemplateText -> buildSupportingRemoteViews(context)
         is Badge -> buildRemoteViews(context)
+        is IconButton -> notDrawnYet()
     }
 
 private fun BulbComponent.toRemoteViews(context: Context, containerSize: Dp): RemoteViews =
     when (this) {
         is ContainedRing -> buildRemoteViews(context, containerSize)
+        is IconButton -> notDrawnYet()
     }
+
+// TODO(b/580007927): Draw the icon and button components. Until then no selector places them.
+private fun SlotComponent.notDrawnYet(): Nothing =
+    throw UnsupportedOperationException(
+        "${javaClass.simpleName} is not drawn with RemoteViews yet."
+    )

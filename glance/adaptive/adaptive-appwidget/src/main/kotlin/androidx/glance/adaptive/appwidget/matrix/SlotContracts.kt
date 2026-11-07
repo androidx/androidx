@@ -47,6 +47,9 @@ internal enum class Capability {
 
     /** Shows a state at a glance. */
     Status,
+
+    /** Runs an action when tapped. */
+    Action,
 }
 
 /** A component that can be placed in a slot of the Information Matrix. */
@@ -74,6 +77,13 @@ internal sealed interface SecondaryComponent : SlotComponent
  * ring or an icon. The matrix decides its size (see [MatrixDefaults.LeadingSize]).
  */
 internal sealed interface LeadingComponent : SlotComponent
+
+/**
+ * Contract of the header's trailing slot: a square item after the primary and secondary ones, such
+ * as a button. The matrix draws it as large as the leading component, and only in a header laid out
+ * in a row.
+ */
+internal sealed interface TrailingComponent : SlotComponent
 
 /**
  * Contract of the hero slot: the card's main visual, such as a graph.
