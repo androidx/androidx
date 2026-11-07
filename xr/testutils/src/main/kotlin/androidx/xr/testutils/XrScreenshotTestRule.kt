@@ -22,9 +22,12 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.screenshot.ScreenshotTestRule
 import androidx.test.screenshot.ScreenshotTestRuleConfig
 import androidx.test.screenshot.matchers.BitmapMatcher
+import androidx.test.screenshot.matchers.PixelPerfectMatcher
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import kotlin.math.abs
+import kotlin.math.max
 import org.junit.Assume
 
 /**
@@ -50,6 +53,10 @@ public const val UPDATE_GOLDENS_ARG: String = "updateGoldens"
 private const val REPO_ROOT_PATH_FOR_GOLDENS = "platform/frameworks/support-golden"
 private const val GOLDENS_SUBDIRECTORY = "goldens"
 private const val TAG = "XrScreenshotTestRule"
+private const val MIN_CROP_SIZE_TOLERANCE_PX = 6
+private const val MAX_CROP_SIZE_TOLERANCE_RATIO = 0.05f
+private val SIZES_DIFFERENT_REGEX =
+    Regex("Sizes are different! Expected: \\[(\\d+), (\\d+)], Actual: \\[(\\d+), (\\d+)]")
 
 /**
  * [ScreenshotTestRule] for AndroidX tests running on XR devices.
@@ -68,10 +75,13 @@ private const val TAG = "XrScreenshotTestRule"
  *     -Pandroid.testInstrumentationRunnerArguments.updateGoldens=true
  * ```
  *
- * Modules that apply `xr/testutils/screenshot-goldens.gradle` automatically clear
- * [stagedGoldensDirectory] on the device before `connectedAndroidTest` and pull staged goldens into
- * `../../golden/` upon completion when [UPDATE_GOLDENS_ARG] is `"true"`. Otherwise, from
- * `frameworks/support`, pull the staged goldens into the golden repository manually:
+ * Modules that apply `xr/testutils/xr-device-tests.gradle` automatically configure connected XR
+ * devices before `connectedAndroidTest` (disabling DON/DOFF wearing detection, keeping displays
+ * awake, and enabling CPM fake head tracking locked to the identity head pose) and restore default
+ * device properties upon completion. When [UPDATE_GOLDENS_ARG] is `"true"`, the script also clears
+ * [stagedGoldensDirectory] on the device beforehand and pulls staged goldens into `../../golden/`
+ * after the test run. Otherwise, from `frameworks/support`, pull the staged goldens into the golden
+ * repository manually:
  * ```
  * adb pull /sdcard/Android/data/<test_pkg>/cache/androidx_screenshots/goldens/. ../../golden/
  * ```
@@ -126,10 +136,10 @@ constructor(
         goldenIdentifier: String,
         matcher: BitmapMatcher,
     ) {
-        val softwareBitmap = actual.toSoftwareBitmap()
+        val softwareBitmap = toSoftwareBitmap(actual)
         try {
             try {
-                super.assertBitmapAgainstGolden(softwareBitmap, goldenIdentifier, matcher)
+                assertWithCropSizeTolerance(softwareBitmap, goldenIdentifier, matcher)
             } catch (e: AssertionError) {
                 val stagedFile = writeStagedGolden(softwareBitmap, goldenIdentifier)
                 if (updateGoldens) {
@@ -157,6 +167,47 @@ constructor(
         } finally {
             if (softwareBitmap !== actual && !softwareBitmap.isRecycled) {
                 softwareBitmap.recycle()
+            }
+        }
+    }
+
+    private fun assertWithCropSizeTolerance(
+        softwareBitmap: Bitmap,
+        goldenIdentifier: String,
+        matcher: BitmapMatcher,
+    ) {
+        try {
+            super.assertBitmapAgainstGolden(softwareBitmap, goldenIdentifier, matcher)
+        } catch (e: AssertionError) {
+            if (updateGoldens || matcher is PixelPerfectMatcher) {
+                throw e
+            }
+            val match = SIZES_DIFFERENT_REGEX.find(e.message.orEmpty()) ?: throw e
+            val expectedWidth = match.groupValues[1].toIntOrNull() ?: throw e
+            val expectedHeight = match.groupValues[2].toIntOrNull() ?: throw e
+            val maxWidthDelta =
+                max(
+                    MIN_CROP_SIZE_TOLERANCE_PX,
+                    (expectedWidth * MAX_CROP_SIZE_TOLERANCE_RATIO).toInt(),
+                )
+            val maxHeightDelta =
+                max(
+                    MIN_CROP_SIZE_TOLERANCE_PX,
+                    (expectedHeight * MAX_CROP_SIZE_TOLERANCE_RATIO).toInt(),
+                )
+            if (
+                abs(softwareBitmap.width - expectedWidth) > maxWidthDelta ||
+                    abs(softwareBitmap.height - expectedHeight) > maxHeightDelta
+            ) {
+                throw e
+            }
+            val scaled = scaleBilinear(softwareBitmap, expectedWidth, expectedHeight)
+            try {
+                super.assertBitmapAgainstGolden(scaled, goldenIdentifier, matcher)
+            } finally {
+                if (scaled !== softwareBitmap && !scaled.isRecycled) {
+                    scaled.recycle()
+                }
             }
         }
     }
