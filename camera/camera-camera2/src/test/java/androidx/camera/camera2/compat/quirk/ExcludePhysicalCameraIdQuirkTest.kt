@@ -77,8 +77,9 @@ class ExcludePhysicalCameraIdQuirkTest(
                 arrayOf("Samsung", "Samsung", "SM-S928U", setOf("2", "5", "6", "7")),
                 arrayOf("Samsung", "Samsung", "SM-S926U", setOf("2", "5", "6")),
                 arrayOf("Samsung", "Samsung", "SM-S921U", setOf("2", "5", "6")),
-                // OPPO Find N2 Flip
+                // OPPO Find N2 Flip / Find N3 Flip
                 arrayOf("OPPO", "OPPO", "CPH2437", setOf("2")),
+                arrayOf("OPPO", "OPPO", "PHT110", setOf("2", "3")),
                 // Xiaomi 15 Pro / 15 Ultra
                 arrayOf("Xiaomi", "Xiaomi", "24129PN74C", setOf("2", "3", "4")),
                 arrayOf("Xiaomi", "Xiaomi", "25010PN30G", setOf("2", "3", "4", "5")),
