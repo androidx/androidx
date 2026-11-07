@@ -20,14 +20,22 @@ import android.hardware.camera2.MultiResolutionImageReader
 import android.hardware.camera2.params.MultiResolutionStreamInfo
 import android.media.Image
 import android.media.ImageReader
+import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.pipe.OutputId
+import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.compat.Api37Compat
+import androidx.camera.common.CameraId
 import androidx.camera.common.ImageWrapper
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executor
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
@@ -363,5 +371,181 @@ class AndroidImageReaderTest {
         multiImageReader.onImageListener = testListener
 
         multiImageReader.onImageAvailable(mockImageReader)
+    }
+
+    @Test
+    @Config(minSdk = 31)
+    fun multiResolutionOnImageAvailable_concurrentOutputsEnabled_doesNotFireExpectedOutputs() {
+        val mockMultiReader = mock<MultiResolutionImageReader>()
+        val mockImageReader = mock<ImageReader>()
+        val mockImage = mock<Image>()
+        val timestamp = 12345L
+
+        whenever(mockImageReader.acquireNextImage()).thenReturn(mockImage)
+        whenever(mockImage.timestamp).thenReturn(timestamp)
+
+        val mockStreamInfo = mock<MultiResolutionStreamInfo>()
+        whenever(mockMultiReader.getStreamInfoForImageReader(mockImageReader))
+            .thenReturn(mockStreamInfo)
+
+        val streamInfoMap = mapOf(mockStreamInfo to outputId)
+
+        val multiImageReader =
+            AndroidMultiResolutionImageReader(
+                multiResolutionImageReader = mockMultiReader,
+                streamFormat = StreamFormat(1),
+                capacity = 10,
+                usageFlags = null,
+                streamId = streamId,
+                outputConfigurations = emptyList(),
+                streamInfoToOutputIdMap = streamInfoMap,
+                surfaceToOutputIdMap = emptyMap(),
+                concurrentOutputsEnabled = true,
+            )
+
+        val mockExpectedOutputsListener = mock<ImageReaderWrapper.OnExpectedOutputsListener>()
+        multiImageReader.onExpectedOutputsListener = mockExpectedOutputsListener
+
+        val testListener =
+            object : ImageReaderWrapper.OnImageListener {
+                var imageReceived: ImageWrapper? = null
+
+                override fun onImage(streamId: StreamId, outputId: OutputId, image: ImageWrapper) {
+                    imageReceived = image
+                }
+            }
+        multiImageReader.onImageListener = testListener
+
+        multiImageReader.onImageAvailable(mockImageReader)
+
+        assertThat(testListener.imageReceived).isNotNull()
+        verifyNoInteractions(mockExpectedOutputsListener)
+    }
+
+    @Test
+    @Config(minSdk = 31)
+    fun multiResolutionOnActiveOutputSurfaces_singleAndMultipleSurfaces_firesExpectedOutputs() {
+        val mockMultiReader = mock<MultiResolutionImageReader>()
+        val mockSurface1 = mock<Surface>()
+        val mockSurface2 = mock<Surface>()
+        val outputId2 = OutputId(43)
+
+        val multiImageReader =
+            AndroidMultiResolutionImageReader(
+                multiResolutionImageReader = mockMultiReader,
+                streamFormat = StreamFormat(1),
+                capacity = 10,
+                usageFlags = null,
+                streamId = streamId,
+                outputConfigurations = emptyList(),
+                streamInfoToOutputIdMap = emptyMap(),
+                surfaceToOutputIdMap = mapOf(mockSurface1 to outputId, mockSurface2 to outputId2),
+                concurrentOutputsEnabled = true,
+            )
+
+        val mockExpectedOutputsListener = mock<ImageReaderWrapper.OnExpectedOutputsListener>()
+        multiImageReader.onExpectedOutputsListener = mockExpectedOutputsListener
+
+        multiImageReader.onActiveOutputSurfaces(listOf(mockSurface1), 1000L, 1L)
+        verify(mockExpectedOutputsListener).onExpectedOutputs(1000L, setOf(outputId))
+
+        multiImageReader.onActiveOutputSurfaces(listOf(mockSurface1, mockSurface2), 2000L, 2L)
+        verify(mockExpectedOutputsListener).onExpectedOutputs(2000L, setOf(outputId, outputId2))
+    }
+
+    @Test
+    @Config(minSdk = 31)
+    fun multiResolutionOnActiveOutputSurfaces_unrecognizedSurface_throws() {
+        val mockMultiReader = mock<MultiResolutionImageReader>()
+        val mockSurface = mock<Surface>()
+
+        val multiImageReader =
+            AndroidMultiResolutionImageReader(
+                multiResolutionImageReader = mockMultiReader,
+                streamFormat = StreamFormat(1),
+                capacity = 10,
+                usageFlags = null,
+                streamId = streamId,
+                outputConfigurations = emptyList(),
+                streamInfoToOutputIdMap = emptyMap(),
+                surfaceToOutputIdMap = emptyMap(),
+                concurrentOutputsEnabled = true,
+            )
+
+        assertThrows<IllegalStateException> {
+            multiImageReader.onActiveOutputSurfaces(listOf(mockSurface), 1000L, 1L)
+        }
+    }
+
+    @Test
+    @Config(minSdk = 31, maxSdk = 36)
+    fun multiResolutionCreate_concurrentOutputsBelowApi37_throws() {
+        val output1 =
+            mock<OutputStream>().apply {
+                whenever(id).thenReturn(outputId)
+                whenever(size).thenReturn(Size(640, 480))
+                whenever(camera).thenReturn(CameraId("0"))
+            }
+        val output2 =
+            mock<OutputStream>().apply {
+                whenever(id).thenReturn(OutputId(43))
+                whenever(size).thenReturn(Size(1280, 720))
+                whenever(camera).thenReturn(CameraId("1"))
+            }
+
+        assertThrows<IllegalArgumentException> {
+            AndroidMultiResolutionImageReader.create(
+                outputFormat = StreamFormat.YUV_420_888.value,
+                streamId = streamId,
+                outputs = listOf(output1, output2),
+                capacity = 10,
+                executor = { it.run() },
+                usageFlags = null,
+                enableConcurrentOutputs = true,
+            )
+        }
+    }
+
+    @Test
+    @Config(minSdk = 37)
+    fun setOnActiveOutputSurfacesListener_api37_delegatesAndForwardsActiveSurfaces() {
+        val mockMultiReader = mock<MultiResolutionImageReader>()
+        val mockSurface1 = mock<Surface>()
+        val mockSurface2 = mock<Surface>()
+        val outputId2 = OutputId(43)
+        val executor = Executor { it.run() }
+
+        val multiImageReader =
+            AndroidMultiResolutionImageReader(
+                multiResolutionImageReader = mockMultiReader,
+                streamFormat = StreamFormat(1),
+                capacity = 10,
+                usageFlags = null,
+                streamId = streamId,
+                outputConfigurations = emptyList(),
+                streamInfoToOutputIdMap = emptyMap(),
+                surfaceToOutputIdMap = mapOf(mockSurface1 to outputId, mockSurface2 to outputId2),
+                concurrentOutputsEnabled = true,
+            )
+        val mockExpectedOutputsListener = mock<ImageReaderWrapper.OnExpectedOutputsListener>()
+        multiImageReader.onExpectedOutputsListener = mockExpectedOutputsListener
+
+        Api37Compat.setOnActiveOutputSurfacesListener(
+            mockMultiReader,
+            executor,
+            multiImageReader,
+        )
+
+        val listenerCaptor =
+            argumentCaptor<MultiResolutionImageReader.OnActiveOutputSurfacesListener>()
+        verify(mockMultiReader)
+            .setOnActiveOutputSurfacesListener(eq(executor), listenerCaptor.capture())
+
+        listenerCaptor.firstValue.onActiveOutputSurfaces(
+            listOf(mockSurface1, mockSurface2),
+            3000L,
+            5L,
+        )
+        verify(mockExpectedOutputsListener).onExpectedOutputs(3000L, setOf(outputId, outputId2))
     }
 }

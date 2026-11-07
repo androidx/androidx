@@ -22,7 +22,6 @@ import android.os.Build
 import android.os.Handler
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraMetadata
-import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.ImageSourceConfig
 import androidx.camera.camera2.pipe.MemoryEstimator
@@ -47,11 +46,9 @@ internal class ImageReaderImageSources
 @Inject
 constructor(
     private val threads: Threads,
-    cameraPipeConfig: CameraPipe.Config,
     cameraMetadata: CameraMetadata,
     private val memoryEstimator: MemoryEstimator,
 ) : ImageSources {
-    private val platformApiCompat = cameraPipeConfig.platformApiCompat
 
     // See: b/172464059
     //
@@ -175,7 +172,6 @@ constructor(
                     executorProvider(),
                     usage,
                     enableConcurrentOutputs,
-                    platformApiCompat,
                 )
             return ImageReaderImageSource.create(imageReader, memoryEstimator)
         }
