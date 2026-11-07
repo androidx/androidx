@@ -95,6 +95,7 @@ public fun Modifier.animateContentSize(
  * @sample androidx.compose.animation.samples.AnimateContent
  * @param animationSpec a finite animation that will be used to animate size change, [spring] by
  *   default
+ * @param clip whether to clip the content to the bounds of the animated size. `true` by default.
  * @param alignment sets the alignment of the content during the animation. [Alignment.TopStart] by
  *   default.
  * @param finishedListener an optional listener to be called when the content change animation is
@@ -107,10 +108,14 @@ public fun Modifier.animateContentSize(
             visibilityThreshold = IntSize.VisibilityThreshold,
         ),
     alignment: Alignment = Alignment.TopStart,
+    clip: Boolean = true,
     finishedListener: ((initialValue: IntSize, targetValue: IntSize) -> Unit)? = null,
 ): Modifier =
-    this.clipToBounds() then
-        SizeAnimationModifierElement(animationSpec, alignment, finishedListener)
+    if (clip) {
+        this.clipToBounds()
+    } else {
+        this
+    } then SizeAnimationModifierElement(animationSpec, alignment, finishedListener)
 
 private class SizeAnimationModifierElement(
     val animationSpec: FiniteAnimationSpec<IntSize>,
