@@ -16,6 +16,9 @@
 
 package androidx.credentials.lint
 
+import androidx.credentials.lint.RestoreCredentialConstants.CLASS_BACKUP_AGENT
+import androidx.credentials.lint.RestoreCredentialConstants.CLASS_CREDENTIAL_MANAGER
+import androidx.credentials.lint.RestoreCredentialConstants.CLASS_MUTABLE_CONTEXT_WRAPPER
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
@@ -25,12 +28,12 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
-import com.intellij.psi.PsiVariable
 import java.util.EnumSet
 import org.jetbrains.uast.UCallExpression
-import org.jetbrains.uast.UReferenceExpression
-import org.jetbrains.uast.UVariable
-import org.jetbrains.uast.toUElementOfType
+import org.jetbrains.uast.UClass
+import org.jetbrains.uast.UThisExpression
+import org.jetbrains.uast.getParentOfType
+import org.jetbrains.uast.skipParenthesizedExprDown
 
 class CredentialManagerMutableContextDetector : Detector(), SourceCodeScanner {
 
@@ -39,53 +42,47 @@ class CredentialManagerMutableContextDetector : Detector(), SourceCodeScanner {
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         // Only target androidx.credentials.CredentialManager
-        if (!context.evaluator.isMemberInClass(method, "androidx.credentials.CredentialManager"))
+        if (!context.evaluator.isMemberInClass(method, CLASS_CREDENTIAL_MANAGER)) {
             return
+        }
 
-        val args = node.valueArguments
-        if (args.isEmpty()) return
+        if (node.valueArguments.isEmpty()) return
 
-        // The context is a named argument. We shouldn't rely on positional indices.
-        val mapping = context.evaluator.computeArgumentMapping(node, method)
-        val contextArgEntry = mapping.entries.find { it.value.name == "context" } ?: return
-        val contextArg = contextArgEntry.key
-        val type = contextArg.getExpressionType() ?: return
+        // Headless Restore Credential operations do not present an Activity-bound UI sheet.
+        if (RestoreCredentialConstants.isNonUiRestoreCredentialCall(context, node, method)) {
+            return
+        }
 
-        var typeClass = context.evaluator.getTypeClass(type)
+        val contextArg =
+            RestoreCredentialConstants.findArgument(context, node, method, "context", 0) ?: return
+        val typeClass =
+            RestoreCredentialConstants.resolveExpressionClass(context, contextArg) ?: return
 
-        // Enhance check to resolve local variables!
-        if (contextArg is UReferenceExpression) {
-            val resolvedElement = contextArg.resolve()
-            if (resolvedElement is PsiVariable) {
-                val uVariable = resolvedElement.toUElementOfType<UVariable>()
-                val initializerType = uVariable?.uastInitializer?.getExpressionType()
-                if (initializerType != null) {
-                    typeClass = context.evaluator.getTypeClass(initializerType) ?: typeClass
-                }
+        // Exempt MutableContextWrapper and headless BackupAgent contexts.
+        if (
+            context.evaluator.inheritsFrom(typeClass, CLASS_MUTABLE_CONTEXT_WRAPPER, false) ||
+                context.evaluator.inheritsFrom(typeClass, CLASS_BACKUP_AGENT, false)
+        ) {
+            return
+        }
+
+        if (contextArg.skipParenthesizedExprDown() is UThisExpression) {
+            val enclosingClass = node.getParentOfType<UClass>(true)?.javaPsi
+            if (
+                enclosingClass != null &&
+                    context.evaluator.inheritsFrom(enclosingClass, CLASS_BACKUP_AGENT, false)
+            ) {
+                return
             }
         }
 
-        if (typeClass != null) {
-            // Check if the argument's type is or inherits from MutableContextWrapper
-            val inheritsMutableContextWrapper =
-                context.evaluator.inheritsFrom(
-                    typeClass,
-                    "android.content.MutableContextWrapper",
-                    false,
-                )
-
-            if (!inheritsMutableContextWrapper) {
-                // If it is any raw context or activity that is NOT a MutableContextWrapper, report
-                // an error
-                context.report(
-                    ISSUE,
-                    node,
-                    context.getLocation(contextArg),
-                    "Use a `MutableContextWrapper` instead of a raw `${typeClass.name}` for credential operations " +
-                        "to properly handle activity configuration changes.",
-                )
-            }
-        }
+        context.report(
+            ISSUE,
+            node,
+            context.getLocation(contextArg),
+            "Use a `MutableContextWrapper` instead of a raw `${typeClass.name}` for credential operations " +
+                "to properly handle activity configuration changes.",
+        )
     }
 
     companion object {
@@ -98,7 +95,8 @@ class CredentialManagerMutableContextDetector : Detector(), SourceCodeScanner {
                 When calling CredentialManager methods such as `getCredential`, it is highly \
                 recommended to pass a `MutableContextWrapper` instead of a raw `Context` or `Activity`. \
                 This ensures that if the underlying Activity undergoes a configuration change (like screen rotation), \
-                the CredentialManager can track and swap the base context correctly, preventing memory leaks and orphaned callbacks.
+                the CredentialManager can track and swap the base context correctly, preventing memory leaks and orphaned callbacks. \
+                Headless `BackupAgent` contexts and non-UI Restore Credential operations are exempt.
             """,
                 category = Category.CORRECTNESS,
                 priority = 5,
