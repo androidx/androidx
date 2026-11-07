@@ -27,15 +27,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import androidx.annotation.RequiresApi
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect as ComposeRect
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.node.InteroperableComposeUiNode
 import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.android.captureRegionToImage
 import androidx.compose.ui.test.android.forceRedraw
+import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.window.DialogWindowProvider
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlin.math.roundToInt
@@ -95,7 +99,11 @@ public fun SemanticsNodeInteraction.captureToImage(timeoutMillis: Long = 2_000):
     val node = nodes.single()
 
     // Popups and Surface Views are in a different window; use the multi-window screenshot mechanism
-    if (node.isInsidePopup || node.hasIntersectingSurfaceView()) {
+    val needsScreenshot =
+        testContext.testOwner.runOnUiThread {
+            node.isInsidePopup || node.hasIntersectingSurfaceView()
+        }
+    if (needsScreenshot) {
         return processMultiWindowScreenshot(listOf(node), testContext, timeoutMillis)
     }
 
@@ -145,33 +153,37 @@ private fun processMultiWindowScreenshot(
  */
 private fun SemanticsNode.hasIntersectingSurfaceView(): Boolean {
     val composeRootView = this.view as? ViewGroup ?: return false
-    val nodeBoundsOnScreen =
-        this.getPositionOnScreen().let { offset ->
-            ComposeRect(
-                left = offset.x,
-                top = offset.y,
-                right = offset.x + this.boundsInRoot.width,
-                bottom = offset.y + this.boundsInRoot.height,
-            )
+    val rootPositionOnScreen = this.getPositionOnScreen()
+    val nodeBoundsOnScreen = this.boundsInRoot.translate(rootPositionOnScreen)
+
+    // Compose can move, scale or rotate an AndroidView through graphics layers without updating
+    // the View's own location and size, so prefer the bounds Compose computed for interop views.
+    val interopViewBoundsInRoot by lazy { interopViewBoundsInRoot() }
+
+    fun SurfaceView.boundsOnScreen(): ComposeRect {
+        var current: View? = this
+        while (current != null && current !== composeRootView) {
+            interopViewBoundsInRoot[current]?.let {
+                return it.translate(rootPositionOnScreen)
+            }
+            current = current.parent as? View
         }
+        val location = intArrayOf(0, 0)
+        getLocationOnScreen(location)
+        return ComposeRect(
+            left = location[0].toFloat(),
+            top = location[1].toFloat(),
+            right = (location[0] + width).toFloat(),
+            bottom = (location[1] + height).toFloat(),
+        )
+    }
 
     fun ViewGroup.containsIntersectingSurfaceView(): Boolean {
         for (i in 0 until childCount) {
             val child = getChildAt(i)
 
             if (child is SurfaceView) {
-                val location = intArrayOf(0, 0)
-                child.getLocationOnScreen(location)
-
-                val childBounds =
-                    ComposeRect(
-                        left = location[0].toFloat(),
-                        top = location[1].toFloat(),
-                        right = (location[0] + child.width).toFloat(),
-                        bottom = (location[1] + child.height).toFloat(),
-                    )
-
-                if (nodeBoundsOnScreen.overlaps(childBounds)) {
+                if (nodeBoundsOnScreen.overlaps(child.boundsOnScreen())) {
                     return true
                 }
             } else if (child is ViewGroup) {
@@ -182,6 +194,28 @@ private fun SemanticsNode.hasIntersectingSurfaceView(): Boolean {
     }
 
     return composeRootView.containsIntersectingSurfaceView()
+}
+
+/**
+ * Returns the bounds in root of where each platform [View] hosted in this node's Compose hierarchy
+ * is drawn, after all modifiers including graphics layer transforms.
+ */
+@OptIn(InternalComposeUiApi::class)
+private fun SemanticsNode.interopViewBoundsInRoot(): Map<View, ComposeRect> {
+    val boundsByView = HashMap<View, ComposeRect>()
+    fun visit(node: SemanticsNode) {
+        val layoutInfo = node.layoutInfo
+        if (layoutInfo.isAttached) {
+            (layoutInfo as? InteroperableComposeUiNode)?.getInteropView()?.let {
+                // SemanticsNode.boundsInRoot can be measured outside a graphics layer, while the
+                // inner coordinates are always where the View is drawn.
+                boundsByView[it] = layoutInfo.coordinates.boundsInRoot()
+            }
+        }
+        node.children.fastForEach(::visit)
+    }
+    root?.semanticsOwner?.unmergedRootSemanticsNode?.let(::visit)
+    return boundsByView
 }
 
 /**
