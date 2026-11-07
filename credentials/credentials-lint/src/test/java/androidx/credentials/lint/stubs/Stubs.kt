@@ -152,6 +152,19 @@ private val CREDENTIAL_EXCEPTIONS_STUB: TestFile =
         )
         .indented()
 
+private val E2EE_EXCEPTION_STUB: TestFile =
+    kotlin(
+            """
+        package androidx.credentials.exceptions.restorecredential
+
+        import androidx.credentials.exceptions.CreateCredentialException
+
+        class E2eeUnavailableException(errorMessage: CharSequence? = null) :
+            CreateCredentialException("androidx.credentials.TYPE_E2EE_UNAVAILABLE_EXCEPTION")
+        """
+        )
+        .indented()
+
 private val CREDENTIAL_MANAGER_STUB: TestFile =
     kotlin(
             """
@@ -266,5 +279,6 @@ internal val CREDENTIALS_STUBS: Array<TestFile> =
         CREDENTIAL_STUB,
         CREDENTIAL_OPTIONS_AND_REQUESTS_STUB,
         CREDENTIAL_EXCEPTIONS_STUB,
+        E2EE_EXCEPTION_STUB,
         CREDENTIAL_MANAGER_STUB,
     )
