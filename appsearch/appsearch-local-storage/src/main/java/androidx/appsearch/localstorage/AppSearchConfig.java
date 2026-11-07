@@ -48,4 +48,13 @@ public interface AppSearchConfig extends IcingOptionsConfig, LimitConfig {
      * PUTs or DELETEs.
      */
     PersistType. @NonNull Code getLightweightPersistType();
+
+    /**
+     * Whether {@link AppSearchImpl#optimize} should use the 2-stage Icing optimize, i.e. prepare
+     * the optimized storage under a read lock and then swap it in under a write lock, instead of
+     * running the whole optimize under a write lock.
+     *
+     * @see androidx.appsearch.flags.Flags#FLAG_ENABLE_UPGRADABLE_LOCK_AND_TWO_STAGE_OPTIMIZE
+     */
+    boolean enableUpgradableLockAndTwoStageOptimize();
 }

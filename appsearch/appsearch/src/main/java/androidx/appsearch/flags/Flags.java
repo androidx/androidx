@@ -321,6 +321,13 @@ public final class Flags {
     public static final String FLAG_ENABLE_MANAGED_PROFILE_CALENDAR_SCREENSHOTS =
             FLAG_PREFIX + "enable_managed_profile_calendar_screenshots";
 
+    /**
+     * Whether to use the 2-stage Icing optimize (prepare under read lock, then swap under write
+     * lock) instead of the single-stage optimize.
+     */
+    public static final String FLAG_ENABLE_UPGRADABLE_LOCK_AND_TWO_STAGE_OPTIMIZE =
+            FLAG_PREFIX + "enable_upgradable_lock_and_two_stage_optimize";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -708,6 +715,15 @@ public final class Flags {
      */
     public static boolean enableManagedProfileCalendarScreenshots() {
         // TODO(b/573265642): Enable this once the feature is rolled out to Nextfood in platform.
+        return false;
+    }
+
+    /**
+     * Whether to use the 2-stage Icing optimize (prepare under read lock, then swap under write
+     * lock) instead of the single-stage optimize.
+     */
+    public static boolean enableUpgradableLockAndTwoStageOptimize() {
+        // TODO(b/448657720): Enable this once the feature is rolled out to Nextfood in platform.
         return false;
     }
 }

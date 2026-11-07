@@ -74,6 +74,8 @@ import androidx.appsearch.localstorage.converter.SearchSpecToProtoConverter;
 import androidx.appsearch.localstorage.converter.SearchSuggestionSpecToProtoConverter;
 import androidx.appsearch.localstorage.converter.SetSchemaResponseToProtoConverter;
 import androidx.appsearch.localstorage.converter.TypePropertyPathToProtoConverter;
+import androidx.appsearch.localstorage.lock.AppSearchReadWriteLock;
+import androidx.appsearch.localstorage.lock.UpgradeableReadWriteLock;
 import androidx.appsearch.localstorage.stats.CallStats;
 import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.OptimizeStats;
@@ -126,6 +128,7 @@ import com.google.android.icing.proto.MaintainAnnIndexOptions;
 import com.google.android.icing.proto.MaintainAnnIndexResultProto;
 import com.google.android.icing.proto.NamespaceBlobStorageInfoProto;
 import com.google.android.icing.proto.NamespaceStorageInfoProto;
+import com.google.android.icing.proto.OptimizePrepareResultProto;
 import com.google.android.icing.proto.OptimizeResultProto;
 import com.google.android.icing.proto.PersistToDiskResultProto;
 import com.google.android.icing.proto.PersistType;
@@ -170,9 +173,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.Lock;
 
 /**
  * Manages interaction with the native IcingSearchEngine and other components to implement AppSearch
@@ -226,7 +229,7 @@ public final class AppSearchImpl implements Closeable {
                     TypePropertyMask.newBuilder().setSchemaType(
                             GetByDocumentIdRequest.PROJECTION_SCHEMA_TYPE_WILDCARD)).build();
 
-    private final ReadWriteLock mReadWriteLock = new ReentrantReadWriteLock();
+    private final AppSearchReadWriteLock mReadWriteLock;
     private final OptimizeStrategy mOptimizeStrategy;
     private final AppSearchConfig mConfig;
     private final File mBlobFilesDir;
@@ -286,12 +289,10 @@ public final class AppSearchImpl implements Closeable {
     private final @Nullable VisibilityChecker mVisibilityCheckerLocked;
 
     /**
-     * The counter to check when to call {@link #checkForOptimize}. The
-     * interval is
+     * The counter to check when to call {@link #checkForOptimize}. The interval is
      * {@link #CHECK_OPTIMIZE_INTERVAL}.
      */
-    @GuardedBy("mReadWriteLock")
-    private int mOptimizeIntervalCountLocked = 0;
+    private final AtomicInteger mOptimizeIntervalCount = new AtomicInteger(0);
 
     /**
      * The call type of the last mutation call holds the write lock. This value will be logged in
@@ -390,6 +391,8 @@ public final class AppSearchImpl implements Closeable {
         // introduce any behavioral changes.
         mBlobFilesDir = new File(icingDir, "blob_dir/blob_files");
         mConfig = Preconditions.checkNotNull(config);
+        mReadWriteLock = new AppSearchReadWriteLock(
+                mConfig.enableUpgradableLockAndTwoStageOptimize());
         mOptimizeStrategy = Preconditions.checkNotNull(optimizeStrategy);
         Preconditions.checkNotNull(appSearchUserPlugins);
         mVisibilityCheckerLocked = appSearchUserPlugins.getVisibilityChecker();
@@ -5244,7 +5247,7 @@ public final class AppSearchImpl implements Closeable {
                 "icingSearchEngine.reset, response",
                 resetResultProto.getStatus(),
                 resetResultProto);
-        mOptimizeIntervalCountLocked = 0;
+        mOptimizeIntervalCount.set(0);
         mSchemaCacheLocked.clear();
         mNamespaceCacheLocked.clear();
 
@@ -5591,26 +5594,8 @@ public final class AppSearchImpl implements Closeable {
             OptimizeStats.@Nullable Builder optimizeStatsBuilder,
             CallStats.@Nullable Builder callStatsBuilder)
             throws AppSearchException {
-        long totalLatencyStartMillis = SystemClock.elapsedRealtime();
-        long javaLockAcquisitionEndTimeMillis = 0;
-        mReadWriteLock.writeLock().lock();
-        try {
-            javaLockAcquisitionEndTimeMillis = SystemClock.elapsedRealtime();
-            if (optimizeStatsBuilder != null) {
-                optimizeStatsBuilder.addJavaLockAcquisitionLatencyMillis(
-                        (int) (javaLockAcquisitionEndTimeMillis - totalLatencyStartMillis));
-            }
-            mOptimizeIntervalCountLocked += mutationSize;
-            if (mOptimizeIntervalCountLocked >= CHECK_OPTIMIZE_INTERVAL) {
-                checkForOptimize(optimizeStatsBuilder, callStatsBuilder);
-            }
-        } finally {
-            logWriteOperationLatencyLocked(totalLatencyStartMillis,
-                    javaLockAcquisitionEndTimeMillis,
-                    /*totalLatencyEndMillis=*/ SystemClock.elapsedRealtime(),
-                    BaseStats.CALL_TYPE_OPTIMIZE,
-                    /*callStatsBuilder=*/ null);
-            mReadWriteLock.writeLock().unlock();
+        if (mOptimizeIntervalCount.addAndGet(mutationSize) >= CHECK_OPTIMIZE_INTERVAL) {
+            checkForOptimize(optimizeStatsBuilder, callStatsBuilder);
         }
     }
 
@@ -5628,26 +5613,59 @@ public final class AppSearchImpl implements Closeable {
             throws AppSearchException {
         long totalLatencyStartMillis = SystemClock.elapsedRealtime();
         long javaLockAcquisitionEndTimeMillis = 0;
-        mReadWriteLock.writeLock().lock();
+        // With the upgradable lock, use the upgrade lock so that reads are not blocked while
+        // checking and preparing the optimize, and it is only upgraded to the write lock for
+        // swapping in the optimized storage.
+        Lock lock = mConfig.enableUpgradableLockAndTwoStageOptimize()
+                ? mReadWriteLock.upgradeLock() : mReadWriteLock.writeLock();
+        boolean twoStageOptimizeStarted = false;
+        lock.lock();
         try {
             javaLockAcquisitionEndTimeMillis = SystemClock.elapsedRealtime();
             if (optimizeStatsBuilder != null) {
+                int lockAcquisitionLatencyMillis =
+                        (int) (javaLockAcquisitionEndTimeMillis - totalLatencyStartMillis);
                 optimizeStatsBuilder.addJavaLockAcquisitionLatencyMillis(
-                        (int) (javaLockAcquisitionEndTimeMillis - totalLatencyStartMillis));
+                        lockAcquisitionLatencyMillis);
+                if (mConfig.enableUpgradableLockAndTwoStageOptimize()) {
+                    // The 2-stage optimize adds the time to upgrade the lock later.
+                    optimizeStatsBuilder.setJavaReadLockAcquisitionLatencyMillis(
+                            lockAcquisitionLatencyMillis);
+                }
             }
             GetOptimizeInfoResultProto optimizeInfo = getOptimizeInfoResultLocked(callStatsBuilder);
             checkSuccess(optimizeInfo.getStatus());
-            mOptimizeIntervalCountLocked = 0;
+            mOptimizeIntervalCount.set(0);
             if (mOptimizeStrategy.shouldOptimize(optimizeInfo)) {
-                optimize(optimizeStatsBuilder, callStatsBuilder);
+                if (mConfig.enableUpgradableLockAndTwoStageOptimize()) {
+                    // The upgrade lock is not reentrant, so call the locked version directly.
+                    twoStageOptimizeStarted = true;
+                    twoStageOptimizeUpgradeLocked(
+                            javaLockAcquisitionEndTimeMillis, optimizeStatsBuilder,
+                            callStatsBuilder);
+                } else {
+                    // optimize() re-enters the write lock.
+                    optimize(optimizeStatsBuilder, callStatsBuilder);
+                }
             }
         } finally {
-            logWriteOperationLatencyLocked(totalLatencyStartMillis,
-                    javaLockAcquisitionEndTimeMillis,
-                    /*totalLatencyEndMillis=*/ SystemClock.elapsedRealtime(),
-                    BaseStats.CALL_TYPE_OPTIMIZE,
-                    /*callStatsBuilder=*/ null);
-            mReadWriteLock.writeLock().unlock();
+            if (!mConfig.enableUpgradableLockAndTwoStageOptimize()) {
+                logWriteOperationLatencyLocked(totalLatencyStartMillis,
+                        javaLockAcquisitionEndTimeMillis,
+                        /*totalLatencyEndMillis=*/ SystemClock.elapsedRealtime(),
+                        BaseStats.CALL_TYPE_OPTIMIZE,
+                        /*callStatsBuilder=*/ null);
+            } else if (!twoStageOptimizeStarted) {
+                // The lock was never upgraded, so this was a read operation.
+                logReadOperationLatencyLocked(totalLatencyStartMillis,
+                        javaLockAcquisitionEndTimeMillis,
+                        /*totalLatencyEndMillis=*/ SystemClock.elapsedRealtime(),
+                        BaseStats.CALL_TYPE_OPTIMIZE,
+                        /*callStatsBuilder=*/ null);
+            }
+            // Otherwise, twoStageOptimizeUpgradeLocked already logged Stage 1 as a read operation
+            // and Stage 2 as a write operation.
+            lock.unlock();
         }
         // TODO(b/147699081): Return OptimizeResultProto & log lost data detail once we add
         //  a field to indicate lost_schema and lost_documents in OptimizeResultProto.
@@ -5657,6 +5675,27 @@ public final class AppSearchImpl implements Closeable {
     /** Triggers {@link IcingSearchEngine#optimize()} directly. */
     public void optimize(OptimizeStats.@Nullable Builder optimizeStatsBuilder,
             CallStats.@Nullable Builder callStatsBuilder) throws AppSearchException {
+        if (mConfig.enableUpgradableLockAndTwoStageOptimize()) {
+            long totalLatencyStartMillis = SystemClock.elapsedRealtime();
+            UpgradeableReadWriteLock.UpgradeLock upgradeLock = mReadWriteLock.upgradeLock();
+            upgradeLock.lock();
+            try {
+                long upgradeLockAcquiredMillis = SystemClock.elapsedRealtime();
+                if (optimizeStatsBuilder != null) {
+                    int readLockAcquisitionLatencyMillis =
+                            (int) (upgradeLockAcquiredMillis - totalLatencyStartMillis);
+                    optimizeStatsBuilder
+                            .setJavaReadLockAcquisitionLatencyMillis(
+                                    readLockAcquisitionLatencyMillis)
+                            .addJavaLockAcquisitionLatencyMillis(readLockAcquisitionLatencyMillis);
+                }
+                twoStageOptimizeUpgradeLocked(
+                        upgradeLockAcquiredMillis, optimizeStatsBuilder, callStatsBuilder);
+            } finally {
+                upgradeLock.unlock();
+            }
+            return;
+        }
         long totalLatencyStartMillis = SystemClock.elapsedRealtime();
         long javaLockAcquisitionEndTimeMillis = 0;
         mReadWriteLock.writeLock().lock();
@@ -5691,30 +5730,7 @@ public final class AppSearchImpl implements Closeable {
             }
             checkSuccess(optimizeResultProto.getStatus());
 
-            // If AppSearch manages blob files, remove the optimized blob files.
-            if (Flags.enableAppSearchManageBlobFiles()) {
-                List<String> blobFileNamesToRemove =
-                        optimizeResultProto.getBlobFileNamesToRemoveList();
-                for (int i = 0; i < blobFileNamesToRemove.size(); i++) {
-                    String blobFileNameToRemove = blobFileNamesToRemove.get(i);
-                    try {
-                        File blobFileToRemove = getSafeBlobFileLocked(blobFileNameToRemove);
-                        if (!blobFileToRemove.delete()) {
-                            Log.e(
-                                    TAG,
-                                    "Cannot delete the optimized blob file: "
-                                            + blobFileToRemove.getName());
-                        }
-                    } catch (AppSearchException | IOException e) {
-                        Log.e(
-                                TAG,
-                                "Path traversal/resolution error for optimized blob file to"
-                                        + " remove: "
-                                        + blobFileNameToRemove,
-                                e);
-                    }
-                }
-            }
+            removeOptimizedBlobFilesLocked(optimizeResultProto.getBlobFileNamesToRemoveList());
         } finally {
             logWriteOperationLatencyLocked(totalLatencyStartMillis,
                     javaLockAcquisitionEndTimeMillis,
@@ -5722,6 +5738,188 @@ public final class AppSearchImpl implements Closeable {
                     BaseStats.CALL_TYPE_OPTIMIZE,
                     /*callStatsBuilder=*/ null);
             mReadWriteLock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Runs the 2-stage Icing optimize. The caller must hold the upgrade lock (not upgraded). This
+     * method upgrades it to the write lock for Stage 2, and does not release it.
+     *
+     * <ol>
+     *     <li>Stage 1, under the upgrade lock in read mode: {@link
+     *     IcingSearchEngineInterface#optimizePrepareDestDirectory()} compacts the storage into a
+     *     temporary directory, while reads can still run concurrently. Like the single-stage
+     *     Icing optimize, it is preceded by a {@link PersistType.Code#FULL} persist unless
+     *     {@link Flags#enableOptimizeImprovements()} is enabled.
+     *     <li>Stage 2, after upgrading to the write lock: {@link
+     *     IcingSearchEngineInterface#optimizeSwapToDestDirectory} swaps the prepared directory in.
+     * </ol>
+     *
+     * <p>Upgrading the lock lets no other writer in between the two stages, so Icing does not
+     * abort Stage 2 because of writes from AppSearch.
+     *
+     * <p>Reads are only blocked by Stage 2, but writes are blocked for as long as the upgrade lock
+     * is held. So the last write operation latency only counts Stage 2, while the last read or
+     * write operation latency counts the whole time since the upgrade lock was acquired.
+     *
+     * @param upgradeLockAcquiredMillis the time when the caller acquired the upgrade lock.
+     */
+    @GuardedBy("mReadWriteLock")
+    private void twoStageOptimizeUpgradeLocked(
+            long upgradeLockAcquiredMillis,
+            OptimizeStats.@Nullable Builder optimizeStatsBuilder,
+            CallStats.@Nullable Builder callStatsBuilder)
+            throws AppSearchException {
+        OptimizePrepareResultProto optimizePrepareResultProto;
+
+        // Stage 1: prepare the optimized storage under the upgrade lock in read mode.
+        try {
+            throwIfClosedLocked();
+            if (optimizeStatsBuilder != null) {
+                optimizeStatsBuilder
+                        .setLastBlockingOperation(mLastReadOrWriteOperationLocked)
+                        .setLastBlockingOperationLatencyMillis(
+                                mLastReadOrWriteOperationLatencyMillisLocked)
+                        .setLaunchVmEnabled(mLaunchVmFeatures.isVmEnabled())
+                        .setLaunchAiSealEnabled(mLaunchVmFeatures.isAiSealEnabled());
+            }
+
+            // Holding the read lock guarantees no AppSearch write between persist and prepare.
+            if (!Flags.enableOptimizeImprovements()) {
+                LogUtil.piiTrace(TAG, "optimize persistToDisk, request");
+                PersistToDiskResultProto persistToDiskResultProto =
+                        mIcingSearchEngineLocked.persistToDisk(PersistType.Code.FULL);
+                LogUtil.piiTrace(
+                        TAG,
+                        "optimize persistToDisk, response",
+                        persistToDiskResultProto.getStatus(),
+                        persistToDiskResultProto);
+                if (callStatsBuilder != null) {
+                    callStatsBuilder
+                            .addGetVmLatencyMillis(persistToDiskResultProto.getGetVmLatencyMs())
+                            .addIcingSearchEngineResponseBytes(
+                                    persistToDiskResultProto.getResponseBytes());
+                }
+                if (optimizeStatsBuilder != null) {
+                    optimizeStatsBuilder
+                            .setStatusCode(
+                                    statusProtoToResultCode(persistToDiskResultProto.getStatus()))
+                            .addGetVmLatencyMillis(persistToDiskResultProto.getGetVmLatencyMs());
+                }
+                checkSuccess(persistToDiskResultProto.getStatus());
+            }
+
+            LogUtil.piiTrace(TAG, "optimizePrepareDestDirectory, request");
+            optimizePrepareResultProto = mIcingSearchEngineLocked.optimizePrepareDestDirectory();
+            LogUtil.piiTrace(
+                    TAG,
+                    "optimizePrepareDestDirectory, response",
+                    optimizePrepareResultProto.getStatus(),
+                    optimizePrepareResultProto);
+            // TODO(b/448657720): Record the VM latency and response bytes of
+            //  optimizePrepareDestDirectory in callStatsBuilder and optimizeStatsBuilder (which
+            //  also counts it as an Icing call), once OptimizePrepareResultProto has the
+            //  get_vm_latency_ms and response_bytes fields.
+            if (optimizeStatsBuilder != null) {
+                optimizeStatsBuilder.setStatusCode(
+                        statusProtoToResultCode(optimizePrepareResultProto.getStatus()));
+                // Stage 1 carries the actual optimize stats (document counts, storage sizes...).
+                AppSearchLoggerHelper.copyNativeStats(
+                        optimizePrepareResultProto.getOptimizeStats(), optimizeStatsBuilder);
+            }
+            checkSuccess(optimizePrepareResultProto.getStatus());
+        } finally {
+            // Writes have been blocked since the upgrade lock was acquired. If Stage 2 runs, it
+            // overwrites this.
+            logReadOperationLatencyLocked(upgradeLockAcquiredMillis,
+                    /*javaLockAcquisitionEndTimeMillis=*/ upgradeLockAcquiredMillis,
+                    /*totalLatencyEndMillis=*/ SystemClock.elapsedRealtime(),
+                    BaseStats.CALL_TYPE_OPTIMIZE,
+                    /*callStatsBuilder=*/ null);
+        }
+
+        // Stage 2: upgrade to the write lock and swap the prepared storage in. No other writer can
+        // get in between the two stages.
+        long swapLatencyStartMillis = SystemClock.elapsedRealtime();
+        long swapJavaLockAcquisitionEndTimeMillis = 0;
+        mReadWriteLock.upgradeLock().upgrade();
+        try {
+            swapJavaLockAcquisitionEndTimeMillis = SystemClock.elapsedRealtime();
+            if (optimizeStatsBuilder != null) {
+                int lockUpgradeLatencyMillis =
+                        (int) (swapJavaLockAcquisitionEndTimeMillis - swapLatencyStartMillis);
+                optimizeStatsBuilder
+                        .setJavaLockUpgradeLatencyMillis(lockUpgradeLatencyMillis)
+                        .addJavaLockAcquisitionLatencyMillis(lockUpgradeLatencyMillis);
+            }
+            LogUtil.piiTrace(TAG, "optimizeSwapToDestDirectory, request");
+            OptimizeResultProto optimizeResultProto =
+                    mIcingSearchEngineLocked.optimizeSwapToDestDirectory(
+                            optimizePrepareResultProto);
+            LogUtil.piiTrace(
+                    TAG,
+                    "optimizeSwapToDestDirectory, response",
+                    optimizeResultProto.getStatus(),
+                    optimizeResultProto);
+            if (callStatsBuilder != null) {
+                callStatsBuilder
+                        .addGetVmLatencyMillis(optimizeResultProto.getGetVmLatencyMs())
+                        .addIcingSearchEngineResponseBytes(
+                                optimizeResultProto.getResponseBytes());
+            }
+            if (optimizeStatsBuilder != null) {
+                optimizeStatsBuilder
+                        .setStatusCode(statusProtoToResultCode(optimizeResultProto.getStatus()))
+                        .setNativeLatencyMillis(
+                                optimizePrepareResultProto.getOptimizeStats().getLatencyMs()
+                                        + optimizeResultProto.getOptimizeStats().getLatencyMs())
+                        .addGetVmLatencyMillis(optimizeResultProto.getGetVmLatencyMs());
+            }
+            checkSuccess(optimizeResultProto.getStatus());
+
+            removeOptimizedBlobFilesLocked(optimizeResultProto.getBlobFileNamesToRemoveList());
+        } finally {
+            long swapLatencyEndMillis = SystemClock.elapsedRealtime();
+            // Reads were only blocked by Stage 2.
+            logWriteOperationLatencyLocked(swapLatencyStartMillis,
+                    swapJavaLockAcquisitionEndTimeMillis,
+                    /*totalLatencyEndMillis=*/ swapLatencyEndMillis,
+                    BaseStats.CALL_TYPE_OPTIMIZE,
+                    /*callStatsBuilder=*/ null);
+            // Writes were blocked by both stages.
+            mLastReadOrWriteOperationLatencyMillisLocked =
+                    (int) (swapLatencyEndMillis - upgradeLockAcquiredMillis);
+        }
+    }
+
+
+    /**
+     * Removes the blob files that are no longer referenced after optimize, if AppSearch manages
+     * blob files.
+     */
+    @GuardedBy("mReadWriteLock")
+    private void removeOptimizedBlobFilesLocked(@NonNull List<String> blobFileNamesToRemove) {
+        if (!Flags.enableAppSearchManageBlobFiles()) {
+            return;
+        }
+        for (int i = 0; i < blobFileNamesToRemove.size(); i++) {
+            String blobFileNameToRemove = blobFileNamesToRemove.get(i);
+            try {
+                File blobFileToRemove = getSafeBlobFileLocked(blobFileNameToRemove);
+                if (!blobFileToRemove.delete()) {
+                    Log.e(
+                            TAG,
+                            "Cannot delete the optimized blob file: "
+                                    + blobFileToRemove.getName());
+                }
+            } catch (AppSearchException | IOException e) {
+                Log.e(
+                        TAG,
+                        "Path traversal/resolution error for optimized blob file to"
+                                + " remove: "
+                                + blobFileNameToRemove,
+                        e);
+            }
         }
     }
 

@@ -1110,6 +1110,8 @@ public class AppSearchStatsTest {
         int lastBlockingOperation = 10;
         int lastBlockingOperationLatencyMillis = 11;
         int getVmLatencyMillis = 12;
+        int javaReadLockAcquisitionLatencyMillis = 13;
+        int javaLockUpgradeLatencyMillis = 14;
 
         final OptimizeStats oStats = new OptimizeStats.Builder()
                 .setStatusCode(TEST_STATUS_CODE)
@@ -1127,6 +1129,8 @@ public class AppSearchStatsTest {
                 .setIndexRestorationMode(indexRestorationMode)
                 .setNumOriginalNamespaces(numOriginalNamespaces)
                 .setNumDeletedNamespaces(numDeletedNamespaces)
+                .setJavaReadLockAcquisitionLatencyMillis(javaReadLockAcquisitionLatencyMillis)
+                .setJavaLockUpgradeLatencyMillis(javaLockUpgradeLatencyMillis)
                 .addJavaLockAcquisitionLatencyMillis(javaLockAcquisitionLatencyMillis)
                 .setLastBlockingOperation(lastBlockingOperation)
                 .setLastBlockingOperationLatencyMillis(lastBlockingOperationLatencyMillis)
@@ -1152,6 +1156,10 @@ public class AppSearchStatsTest {
         assertThat(oStats.getIndexRestorationMode()).isEqualTo(indexRestorationMode);
         assertThat(oStats.getNumOriginalNamespaces()).isEqualTo(numOriginalNamespaces);
         assertThat(oStats.getNumDeletedNamespaces()).isEqualTo(numDeletedNamespaces);
+        assertThat(oStats.getJavaReadLockAcquisitionLatencyMillis())
+                .isEqualTo(javaReadLockAcquisitionLatencyMillis);
+        assertThat(oStats.getJavaLockUpgradeLatencyMillis())
+                .isEqualTo(javaLockUpgradeLatencyMillis);
         assertThat(oStats.getJavaLockAcquisitionLatencyMillis())
                 .isEqualTo(javaLockAcquisitionLatencyMillis);
         assertThat(oStats.getLastBlockingOperation()).isEqualTo(lastBlockingOperation);
@@ -1176,6 +1184,8 @@ public class AppSearchStatsTest {
                 + "  callReceivedTimestampMillis=0,\n"
                 + "  executorAcquisitionLatencyMillis=0,\n"
                 + "  onExecutorLatencyMillis=0,\n"
+                + "  javaReadLockAcquisitionLatencyMillis=13,\n"
+                + "  javaLockUpgradeLatencyMillis=14,\n"
                 + "  enabledFeatures=1,\n"
                 + "  javaLockAcquisitionLatencyMillis=9,\n"
                 + "  lastBlockingOperation=10,\n"
