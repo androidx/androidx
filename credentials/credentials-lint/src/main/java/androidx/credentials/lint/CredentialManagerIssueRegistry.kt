@@ -24,7 +24,12 @@ class CredentialManagerIssueRegistry : IssueRegistry() {
     override val minApi = CURRENT_API
     override val api = 16 // Current standard for AndroidX lint checks
 
-    override val issues = listOf(CredentialManagerMutableContextDetector.ISSUE)
+    override val issues =
+        listOf(
+            CredentialManagerMutableContextDetector.ISSUE,
+            RestoreCredentialOptionChainingDetector.ISSUE,
+            RestoreCredentialInvalidCastDetector.ISSUE,
+        )
 
     override val vendor =
         Vendor(
