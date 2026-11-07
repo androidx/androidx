@@ -61,7 +61,7 @@ class RelationQueryWriter(val relation: Relation, val queryParam: QueryParameter
         // The real query is built at runtime due to dynamic amount of IN arguments.
         if (relation.hasCompositeKey) {
             val placeholders = List(whereClauseColumns.size) { ":p$it" }.joinToString(", ")
-            append(" WHERE (${whereClauseColumns.joinToString(", ")}) IN (($placeholders))")
+            append(" WHERE (${whereClauseColumns.joinToString(", ")}) IN (VALUES ($placeholders))")
         } else {
             append(" WHERE ${whereClauseColumns.single()} IN (:args)")
         }
@@ -107,7 +107,7 @@ class RelationQueryWriter(val relation: Relation, val queryParam: QueryParameter
 
             val whereClause =
                 if (relation.hasCompositeKey) {
-                    " WHERE (${whereClauseColumns.joinToString(", ")}) IN ("
+                    " WHERE (${whereClauseColumns.joinToString(", ")}) IN (VALUES "
                 } else {
                     " WHERE ${whereClauseColumns.single()} IN ("
                 }
@@ -118,7 +118,7 @@ class RelationQueryWriter(val relation: Relation, val queryParam: QueryParameter
             }
 
             if (relation.hasCompositeKey) {
-                // Composite key placeholders (row values), e.g: (?, ?), (?, ?)
+                // Composite key placeholders (row values), e.g: VALUES (?, ?), (?, ?)
                 val columnsSize =
                     if (relation.junction != null) {
                         relation.junction.parentProperties.size
