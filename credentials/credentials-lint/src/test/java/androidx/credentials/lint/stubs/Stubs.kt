@@ -215,6 +215,52 @@ private val CREDENTIAL_MANAGER_STUB: TestFile =
         )
         .indented()
 
+internal val COROUTINES_STUB: TestFile =
+    kotlin(
+            """
+        package kotlinx.coroutines
+
+        import kotlin.coroutines.CoroutineContext
+
+        interface CoroutineScope {
+            val coroutineContext: CoroutineContext
+        }
+
+        fun CoroutineScope(context: CoroutineContext): CoroutineScope =
+            throw UnsupportedOperationException()
+
+        object Dispatchers {
+            val IO: CoroutineContext
+                get() = throw UnsupportedOperationException()
+            val Main: CoroutineContext
+                get() = throw UnsupportedOperationException()
+            val Default: CoroutineContext
+                get() = throw UnsupportedOperationException()
+        }
+
+        class Job
+
+        class Deferred<out T> {
+            suspend fun await(): T = throw UnsupportedOperationException()
+        }
+
+        fun CoroutineScope.launch(block: suspend CoroutineScope.() -> Unit): Job =
+            throw UnsupportedOperationException()
+
+        fun <T> CoroutineScope.async(block: suspend CoroutineScope.() -> T): Deferred<T> =
+            throw UnsupportedOperationException()
+
+        fun <T> runBlocking(block: suspend CoroutineScope.() -> T): T =
+            throw UnsupportedOperationException()
+
+        suspend fun <T> withContext(
+            context: CoroutineContext,
+            block: suspend CoroutineScope.() -> T,
+        ): T = throw UnsupportedOperationException()
+        """
+        )
+        .indented()
+
 internal val CREDENTIALS_STUBS: Array<TestFile> =
     arrayOf(
         CREDENTIAL_STUB,
