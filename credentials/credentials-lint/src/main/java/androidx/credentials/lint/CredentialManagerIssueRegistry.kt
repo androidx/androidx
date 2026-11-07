@@ -32,6 +32,8 @@ class CredentialManagerIssueRegistry : IssueRegistry() {
             RestoreCredentialBackupAgentDetector.ASYNC_ISSUE,
             RestoreCredentialBackupAgentDetector.WRONG_CALLBACK_ISSUE,
             RestoreCredentialManifestBackupDetector.ISSUE,
+            RestoreCredentialE2eeFallbackDetector.ISSUE,
+            RestoreCredentialLogoutClearDetector.ISSUE,
         )
 
     override val vendor =

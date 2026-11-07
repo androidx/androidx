@@ -49,6 +49,14 @@ internal object RestoreCredentialConstants {
     const val CLASS_GET_CREDENTIAL_RESPONSE = "androidx.credentials.GetCredentialResponse"
     const val CLASS_RESTORE_CREDENTIAL = "androidx.credentials.RestoreCredential"
     const val CLASS_PUBLIC_KEY_CREDENTIAL = "androidx.credentials.PublicKeyCredential"
+    const val CLASS_CLEAR_CREDENTIAL_STATE_REQUEST =
+        "androidx.credentials.ClearCredentialStateRequest"
+    const val CLASS_E2EE_UNAVAILABLE_EXCEPTION =
+        "androidx.credentials.exceptions.restorecredential.E2eeUnavailableException"
+    const val CLASS_CREATE_CREDENTIAL_EXCEPTION =
+        "androidx.credentials.exceptions.CreateCredentialException"
+    const val TYPE_CLEAR_CREDENTIAL_STATE = "androidx.credentials.TYPE_CLEAR_CREDENTIAL_STATE"
+    const val TYPE_CLEAR_RESTORE_CREDENTIAL = "androidx.credentials.TYPE_CLEAR_RESTORE_CREDENTIAL"
     const val CLASS_MUTABLE_CONTEXT_WRAPPER = "android.content.MutableContextWrapper"
     const val CLASS_BACKUP_AGENT = "android.app.backup.BackupAgent"
     const val CLASS_BACKUP_DATA_INPUT = "android.app.backup.BackupDataInput"
@@ -65,6 +73,7 @@ internal object RestoreCredentialConstants {
 
     val GET_CREDENTIAL_METHODS = setOf("getCredential", "getCredentialAsync")
     val CREATE_CREDENTIAL_METHODS = setOf("createCredential", "createCredentialAsync")
+    val CLEAR_CREDENTIAL_METHODS = setOf("clearCredentialState", "clearCredentialStateAsync")
 
     private val COLLECTION_FACTORY_METHODS =
         setOf(
