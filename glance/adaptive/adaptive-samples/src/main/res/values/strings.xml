@@ -22,4 +22,11 @@
 
     <string name="track_widget_description">Adaptive Track template widget for fitness metrics</string>
     <string name="track_remoteviews_widget_name">Track Activity Widget (RemoteViews)</string>
+
+    <string name="dashboard_workouts_widget_name">Workouts Dashboard Widget</string>
+    <string name="dashboard_workouts_widget_description">Adaptive Dashboard template widget with workout shortcuts under a header</string>
+    <string name="dashboard_contacts_widget_name">Contacts Dashboard Widget</string>
+    <string name="dashboard_contacts_widget_description">Adaptive Dashboard template widget with favorite contacts and no header</string>
+    <!-- Shown when a Dashboard demo widget opens the demo. %1$s is the tapped tile's label. -->
+    <string name="dashboard_action_tapped">Dashboard: %1$s</string>
 </resources>
