@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
-
 package androidx.xr.compose.subspace.layout
 
+import android.annotation.TargetApi
+import android.os.Build
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
@@ -33,13 +33,17 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.compose.spatial.Subspace
+import androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi
 import androidx.xr.compose.subspace.MAX_SAFE_PANEL_HEIGHT_PX
 import androidx.xr.compose.subspace.MAX_SAFE_PANEL_WIDTH_PX
 import androidx.xr.compose.subspace.SpatialColumn
+import androidx.xr.compose.subspace.SpatialGltfModel
+import androidx.xr.compose.subspace.SpatialGltfModelSource
 import androidx.xr.compose.subspace.SpatialMainPanel
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
 import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
+import androidx.xr.compose.subspace.rememberSpatialGltfModelState
 import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
@@ -47,9 +51,14 @@ import androidx.xr.compose.testing.session
 import androidx.xr.compose.unit.DpVolumeSize
 import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.compose.unit.metersToDp
+import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.scenecore.ResizableComponent
+import androidx.xr.scenecore.ResizeEvent
 import androidx.xr.scenecore.scene
+import androidx.xr.scenecore.testing.ResizableComponentTester
+import androidx.xr.scenecore.testing.SceneCoreTestRule
 import com.google.common.truth.Truth.assertThat
+import java.nio.file.Paths
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNotEquals
@@ -69,6 +78,8 @@ class ResizableModifierTest {
     @Suppress("DEPRECATION")
     @get:Rule
     val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
+
+    @get:Rule val sceneCoreTestRule = SceneCoreTestRule()
 
     @Test
     fun resizable_noComponentByDefault() {
@@ -362,6 +373,42 @@ class ResizableModifierTest {
 
         assertResizableComponentMinSizeIsSet(size = DpVolumeSize(500.dp, 250.dp, 0.dp))
         assertResizableComponentMaxSizeIsSet(size = DpVolumeSize(2000.dp, 1000.dp, 1.dp))
+    }
+
+    @OptIn(ExperimentalSpatialGltfModelApi::class)
+    @TargetApi(Build.VERSION_CODES.O)
+    @Test
+    fun resizable_onSpatialGltfModel_updatesScaleOnOngoingResizeEvents() {
+        composeTestRule.setContent {
+            Subspace {
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                        ),
+                    modifier = SubspaceModifier.testTag("model").size(400.dp).resizable(),
+                )
+            }
+        }
+
+        val gltfNode = composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode()
+        val entity = assertNotNull(gltfNode.semanticsEntity)
+        // Intrinsic model size is 2000x2000x2000px, so at 400.dp the uniform fit scale is 0.2f.
+        assertThat(entity.getScale()).isWithin(0.001f).of(0.2f)
+
+        val resizableComponent = gltfNode.getLastComponent<ResizableComponent>()
+        val resizableTester =
+            sceneCoreTestRule.createTester<ResizableComponentTester>(resizableComponent)
+        resizableTester.triggerOnResizeEvent(
+            ResizeEvent(
+                entity = entity,
+                resizeState = ResizeEvent.ResizeState.ONGOING,
+                newSize = FloatSize3d(0.5f, 0.5f, 0.5f),
+            )
+        )
+        composeTestRule.waitForIdle()
+
+        assertThat(entity.getScale()).isWithin(0.001f).of(0.5f)
     }
 
     private fun assertSingleResizableComponentExists(testTag: String = "panel") {
