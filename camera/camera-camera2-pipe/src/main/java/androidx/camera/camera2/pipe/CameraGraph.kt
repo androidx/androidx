@@ -730,14 +730,17 @@ public interface CameraGraphBase<TSession : Session> : AutoCloseable {
      *
      * Example:
      * ```
-     * suspend fun process(cameraGraph: CameraGraph, analysisStream: CameraStream) {
-     *     cameraGraph.useSession { session ->
-     *         val result = session.capture(
-     *             Request(streams = listOf(jpegStream.id))
-     *         )
-     *         val frame = result.awaitFrame()
-     *         val image = frame?.awaitImage(analysisStream.id)
-     *         // process image if not null
+     * suspend fun process(frameGraph: FrameGraph, analysisStream: CameraStream) {
+     *     frameGraph.useSession { session ->
+     *         session.capture(
+     *             Request(streams = listOf(analysisStream.id))
+     *         ).use { frameCapture ->
+     *             frameCapture.awaitFrame()?.use { frame ->
+     *                 frame.awaitImage(analysisStream.id)?.use { image ->
+     *                     // Process image
+     *                 }
+     *             }
+     *         }
      *     }
      * }
      * ```
@@ -756,15 +759,18 @@ public interface CameraGraphBase<TSession : Session> : AutoCloseable {
      * Example:
      * ```
      * fun capture(
-     *     cameraGraph: CameraGraph, jpegStream: CameraStream, scope: CoroutineScope
+     *     frameGraph: FrameGraph, jpegStream: CameraStream, scope: CoroutineScope
      * ) {
-     *     cameraGraph.useSessionIn(scope) { session ->
-     *         val result = session.capture(
+     *     frameGraph.useSessionIn(scope) { session ->
+     *         session.capture(
      *             Request(streams = listOf(jpegStream.id))
-     *         )
-     *         val frame = result.awaitFrame()
-     *         val jpeg = frame?.awaitImage(jpegStream.id)
-     *         // Save jpeg
+     *         ).use { frameCapture ->
+     *             frameCapture.awaitFrame()?.use { frame ->
+     *                 frame.awaitImage(jpegStream.id)?.use { jpeg ->
+     *                     // Save jpeg
+     *                 }
+     *             }
+     *         }
      *     }
      * }
      * ```

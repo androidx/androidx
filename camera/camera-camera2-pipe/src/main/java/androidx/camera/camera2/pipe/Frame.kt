@@ -58,8 +58,8 @@ import kotlinx.coroutines.Deferred
  *     var frameMetadata: FrameMetadata? = null
  *
  *     frame.use {
- *         jpegImage = frame[jpegStreamId].await()
- *         frameInfo = frame.frameInfo.await()?.metadata
+ *         jpegImage = frame.awaitImage(jpegStreamId)
+ *         frameMetadata = frame.awaitFrameInfo()?.metadata
  *     } // `frame` is closed here. jpegImage is not.
  *
  *
@@ -290,17 +290,17 @@ public value class OutputStatus internal constructor(public val value: Int) {
  *
  * Closing this FrameCapture will *not* cancel or abort the [Request].
  *
- * **Warning**: This object *must* must be closed or it will result in resource leaks and/or camera
+ * **Warning**: This object *must* be closed or it will result in resource leaks and/or camera
  * stalls!
  *
  * Example:
  * ```
  * /** Capture, process, and save a jpeg from the camera.  */
- * suspend fun captureFrame(cameraGraphSession: CameraGraph.Session): Boolean {
+ * suspend fun captureFrame(frameGraphSession: FrameGraph.Session): Boolean {
  *     // Issue the request to the camera and return a deferred capture.
- *     val frameCapture = cameraGraphSession.capture(
+ *     val frameCapture = frameGraphSession.capture(
  *         Request(
- *             streams = listOf(viewfinderStream, jpegStream)
+ *             streams = listOf(viewfinderStreamId, jpegStreamId)
  *         )
  *     )
  *
@@ -335,8 +335,8 @@ public interface FrameCapture : AutoCloseable {
     public suspend fun awaitFrame(): Frame?
 
     /**
-     * Get the [Frame] that will was produced by the camera for this [request] or null if the
-     * request failed, was aborted, or if this [FrameCapture] was closed.
+     * Get the [Frame] that was produced by the camera for this [request] or null if the request
+     * failed, was aborted, or if this [FrameCapture] was closed.
      *
      * Invoking this multiple times will produce distinct Frame instances that will need to be
      * individually closed.
