@@ -61,7 +61,6 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.After
@@ -199,7 +198,7 @@ class CameraXServiceTest(private val implName: String, private val cameraXConfig
     }
 
     @Test
-    fun canRecordVideo() = runBlocking {
+    fun canRecordVideo(): Unit = runBlocking {
         skipVideoRecordingTestIfNotSupportedByEmulator()
         // Arrange.
         context.startService(
@@ -209,15 +208,26 @@ class CameraXServiceTest(private val implName: String, private val cameraXConfig
         )
 
         // Act.
+        val statusLatch = service.acquireRecordVideoStatusCountDownLatch()
         val latch = service.acquireRecordVideoCountDownLatch()
         context.startService(createServiceIntent(ACTION_START_RECORDING))
 
-        delay(3000L)
-
-        context.startService(createServiceIntent(ACTION_STOP_RECORDING))
+        val statusLatchReleased =
+            try {
+                statusLatch.await(15, TimeUnit.SECONDS)
+            } finally {
+                context.startService(createServiceIntent(ACTION_STOP_RECORDING))
+            }
 
         // Assert.
         assertThat(latch.await(15, TimeUnit.SECONDS)).isTrue()
+        // The status latch is also released by an early Finalize event, whose error is verified
+        // below, so a timeout here means neither a qualifying Status nor a Finalize arrived.
+        assertWithMessage(
+                "Timed out waiting for a Status event with >= 1s of recorded data or a Finalize"
+            )
+            .that(statusLatchReleased)
+            .isTrue()
         assertWithMessage("Recording finalized with error")
             .that(service.recordVideoError)
             .isIn(
