@@ -137,7 +137,8 @@ internal object MatrixDefaults {
  *
  * @property leading Component for the leading slot, or `null` to hide it with the gap after it.
  * @property primary Component for the primary slot, or `null` to leave it empty.
- * @property secondary Component for the secondary slot, or `null` to hide it.
+ * @property secondary Component for the secondary slot, or `null` to hide it. In a row header, its
+ *   width is deducted from [primary]'s width budget.
  * @property trailing Component for the header's trailing slot, or `null` to hide it. A stacked
  *   header has no room for it and hides it.
  * @property hero Component for the hero slot, or `null` to hide it.

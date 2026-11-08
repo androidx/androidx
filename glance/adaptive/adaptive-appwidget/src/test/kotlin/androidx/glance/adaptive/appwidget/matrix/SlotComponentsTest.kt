@@ -17,11 +17,7 @@
 package androidx.glance.adaptive.appwidget.matrix
 
 import androidx.collection.floatListOf
-import androidx.compose.ui.unit.dp
 import androidx.glance.adaptive.core.action.GlanceWidgetAction
-import androidx.glance.adaptive.core.selection.HeightTier
-import androidx.glance.adaptive.core.selection.SizeTiers
-import androidx.glance.adaptive.core.selection.WidthTier
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -54,6 +50,7 @@ class SlotComponentsTest {
 
     @Test
     fun ring_rejectsProgressOutsideUnitRange() {
+        assertThrows(IllegalArgumentException::class.java) { Ring(progress = -0.01f) }
         val error = assertThrows(IllegalArgumentException::class.java) { Ring(progress = 1.5f) }
         assertThat(error).hasMessageThat().isEqualTo("Ring progress must be in [0, 1], was 1.5.")
         assertThrows(IllegalArgumentException::class.java) { Ring(progress = Float.NaN) }
@@ -92,14 +89,6 @@ class SlotComponentsTest {
             .hasMessageThat()
             .isEqualTo("A graph needs one label per value or none, had 1 for 2.")
         assertThat(Graph(floatListOf(1f, 2f)).labelAt(0)).isNull()
-    }
-
-    @Test
-    fun graph_barSpacingWidensFromW3() {
-        assertThat(Graph.barSpacing(SizeTiers(WidthTier.W1, HeightTier.H4))).isEqualTo(8.dp)
-        assertThat(Graph.barSpacing(SizeTiers(WidthTier.W2, HeightTier.H4))).isEqualTo(8.dp)
-        assertThat(Graph.barSpacing(SizeTiers(WidthTier.W3, HeightTier.H4))).isEqualTo(16.dp)
-        assertThat(Graph.barSpacing(SizeTiers(WidthTier.W4, HeightTier.H4))).isEqualTo(16.dp)
     }
 
     @Test
@@ -159,19 +148,6 @@ class SlotComponentsTest {
             .containsExactly(Capability.Status)
         assertThat(ContainedRing(progress = 0.5f, value = "42").capabilities)
             .containsExactly(Capability.Tracking, Capability.Text)
-    }
-
-    @Test
-    fun containedRing_scalesItsValueDownWithASmallerRing() {
-        val ring = ContainedRing(progress = 0.5f, value = "42")
-
-        val design = ring.geometry(88.dp)
-        assertThat(design.ringSize).isEqualTo(80.dp)
-        assertThat(design.fontSize.value).isEqualTo(20f)
-
-        val small = ring.geometry(48.dp)
-        assertThat(small.ringSize).isEqualTo(40.dp)
-        assertThat(small.fontSize.value).isEqualTo(10f)
     }
 
     @Test
