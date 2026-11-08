@@ -41,5 +41,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Scenario activities driven by :xr:scenecore:integration-tests:release-tests. -->
+        <activity
+            android:name=".e2e.GltfAnimationScenarioActivity"
+            android:exported="true"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout" />
+        <activity
+            android:name=".e2e.GltfMaterialTextureScenarioActivity"
+            android:exported="true"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout" />
     </application>
 </manifest>
