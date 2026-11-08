@@ -1754,6 +1754,70 @@ public class ViewCompat {
         return stateDescriptionProperty().get(view);
     }
 
+    /**
+     * Sets the {@link View}'s supplemental description.
+     * <p>
+     * A supplemental description provides
+     * brief supplemental information for this node, such as the purpose of the node when
+     * that purpose is not conveyed within its textual representation. For example, if a
+     * dropdown select has a purpose of setting font family, the supplemental description
+     * could be "font family". If this node has children, its supplemental description serves
+     * as additional information and is not intended to replace any existing information
+     * in the subtree. This is different from the {@link View#setContentDescription(CharSequence)}
+     * in that this description is purely supplemental while a content description may be used
+     * to replace a description for a node or its subtree that an assistive technology
+     * would otherwise compute based on other properties of the node and its descendants.
+     *
+     * <p>
+     * This should omit role or state. Role refers to the kind of user-interface element the View
+     * is, such as a Button or Checkbox. State refers to a frequently changing property of the
+     * View, such as an On/Off state of a button or the audio level of a volume slider.
+     *
+     * <p>
+     * <strong>Note:</strong> On Android 16 (API 36) and Android 17 (API 37), calling
+     * {@link View#setSupplementalDescription(CharSequence)} directly or setting
+     * {@code android:supplementalDescription} in XML does not populate
+     * {@link AccessibilityNodeInfo#getSupplementalDescription()}. Use this method (or populate the
+     * node in an {@link AccessibilityDelegateCompat}) to ensure the supplemental description is
+     * exposed to accessibility services on those releases.
+     *
+     * @param view The view for which to set the supplemental description.
+     * @param supplementalDescription The supplemental description.
+     * @see ViewCompat#getSupplementalDescription(View)
+     * @see View#setSupplementalDescription(CharSequence)
+     * @see View#setContentDescription(CharSequence)
+     * @see ViewCompat#setStateDescription(View, CharSequence) for state changes.
+     */
+    @UiThread
+    public static void setSupplementalDescription(@NonNull View view,
+            @Nullable CharSequence supplementalDescription) {
+        supplementalDescriptionProperty().set(view, supplementalDescription);
+    }
+
+    /**
+     * Returns the {@link View}'s supplemental description.
+     * <p>
+     * A supplemental description provides
+     * brief supplemental information for this node, such as the purpose of the node when
+     * that purpose is not conveyed within its textual representation. For example, if a
+     * dropdown select has a purpose of setting font family, the supplemental description
+     * could be "font family". If this node has children, its supplemental description serves
+     * as additional information and is not intended to replace any existing information
+     * in the subtree. This is different from the {@link View#getContentDescription()} in that
+     * this description is purely supplemental while a content description may be used
+     * to replace a description for a node or its subtree that an assistive technology
+     * would otherwise compute based on other properties of the node and its descendants.
+     *
+     * @param view The view for which to get the supplemental description.
+     * @return the supplemental description
+     * @see ViewCompat#setSupplementalDescription(View, CharSequence)
+     * @see View#getSupplementalDescription()
+     * @see View#getContentDescription()
+     */
+    @UiThread
+    public static @Nullable CharSequence getSupplementalDescription(@NonNull View view) {
+        return supplementalDescriptionProperty().get(view);
+    }
 
     /**
      * Allow accessibility services to find and activate clickable spans in the application.
@@ -4583,6 +4647,37 @@ public class ViewCompat {
         };
     }
 
+    private static AccessibilityViewProperty<CharSequence> supplementalDescriptionProperty() {
+        return new AccessibilityViewProperty<CharSequence>(
+                R.id.tag_supplemental_description,
+                CharSequence.class,
+                AccessibilityEvent.CONTENT_CHANGE_TYPE_SUPPLEMENTAL_DESCRIPTION,
+                36) {
+
+            @RequiresApi(36)
+            @Override
+            CharSequence frameworkGet(View view) {
+                return Api36Impl.getSupplementalDescription(view);
+            }
+
+            @RequiresApi(36)
+            @Override
+            void frameworkSet(View view, CharSequence value) {
+                Api36Impl.setSupplementalDescription(view, value);
+                // Work around b/583176410 where View#onInitializeAccessibilityNodeInfoInternal
+                // did not populate AccessibilityNodeInfo#setSupplementalDescription.
+                if (!TextUtils.isEmpty(value)) {
+                    ensureAccessibilityDelegateCompat(view);
+                }
+            }
+
+            @Override
+            boolean shouldUpdate(CharSequence oldValue, CharSequence newValue) {
+                return !TextUtils.equals(oldValue, newValue);
+            }
+        };
+    }
+
     /**
      * Gets whether this view is a heading for accessibility purposes.
      *
@@ -5160,6 +5255,21 @@ public class ViewCompat {
 
         static void transformMatrixToGlobal(View view, Matrix matrix) {
             view.transformMatrixToGlobal(matrix);
+        }
+    }
+
+    @RequiresApi(36)
+    private static class Api36Impl {
+        private Api36Impl() {
+            // This class is not instantiable.
+        }
+
+        static void setSupplementalDescription(View view, CharSequence supplementalDescription) {
+            view.setSupplementalDescription(supplementalDescription);
+        }
+
+        static CharSequence getSupplementalDescription(View view) {
+            return view.getSupplementalDescription();
         }
     }
 

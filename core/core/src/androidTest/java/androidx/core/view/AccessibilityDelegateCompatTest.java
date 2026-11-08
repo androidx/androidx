@@ -37,17 +37,20 @@ import android.app.Instrumentation;
 import android.app.UiAutomation;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.ClickableSpan;
+import android.text.style.TtsSpan;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeProvider;
 
+import androidx.core.view.accessibility.AccessibilityEventCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat;
@@ -665,6 +668,94 @@ public class AccessibilityDelegateCompatTest extends
         assertEquals(state, getNodeCompatForView(mView).getStateDescription());
         ViewCompat.setAccessibilityDelegate(mView, null);
         assertEquals(state, getNodeCompatForView(mView).getStateDescription());
+    }
+
+    @Test
+    public void
+            testSetSupplementalDescription_propagatesToAccessibilityNodeInfo_sendsOutCorrectEvent()
+                    throws Throwable {
+        final Activity activity = mActivityTestRule.getActivity();
+        final CharSequence description = "supplemental test";
+
+        assertNull(ViewCompat.getSupplementalDescription(mView));
+        assertNull(getNodeCompatForView(mView).getSupplementalDescription());
+
+        sUiAutomation.executeAndWaitForEvent(
+                () -> {
+                    try {
+                        mActivityTestRule.runOnUiThread(
+                                () -> ViewCompat.setSupplementalDescription(mView, description));
+                    } catch (Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+                },
+                event -> {
+                    boolean isContentChanged =
+                            event.getEventType()
+                                    == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED;
+                    int isSupplementalDescription =
+                            event.getContentChangeTypes()
+                                    & AccessibilityEventCompat
+                                            .CONTENT_CHANGE_TYPE_SUPPLEMENTAL_DESCRIPTION;
+                    boolean isFromThisPackage =
+                            TextUtils.equals(event.getPackageName(), activity.getPackageName());
+                    return isContentChanged
+                            && (isSupplementalDescription != 0)
+                            && isFromThisPackage;
+                },
+                TIMEOUT_ASYNC_PROCESSING);
+
+        assertEquals(description, ViewCompat.getSupplementalDescription(mView));
+        assertEquals(description, getNodeCompatForView(mView).getSupplementalDescription());
+
+        // The value should still propagate even if we attach and detach another delegate compat
+        ViewCompat.setAccessibilityDelegate(mView, new AccessibilityDelegateCompat());
+        assertEquals(description, getNodeCompatForView(mView).getSupplementalDescription());
+        ViewCompat.setAccessibilityDelegate(mView, null);
+        assertEquals(description, getNodeCompatForView(mView).getSupplementalDescription());
+
+        // Clearing back to null should clear both the View property and the populated node
+        mActivityTestRule.runOnUiThread(() -> ViewCompat.setSupplementalDescription(mView, null));
+        assertNull(ViewCompat.getSupplementalDescription(mView));
+        assertNull(getNodeCompatForView(mView).getSupplementalDescription());
+    }
+
+    @Test
+    public void testSetSupplementalDescription_ttsSpanSurvivesParceling() throws Throwable {
+        final SpannableString description = new SpannableString("supplemental text");
+        final TtsSpan ttsSpan = new TtsSpan.TextBuilder("spoken supplemental text").build();
+        description.setSpan(ttsSpan, 0, 12, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        mActivityTestRule.runOnUiThread(
+                () -> ViewCompat.setSupplementalDescription(mView, description));
+
+        final AccessibilityNodeInfo nodeInfo = AccessibilityNodeInfo.obtain();
+        mView.onInitializeAccessibilityNodeInfo(nodeInfo);
+
+        final Parcel parcel = Parcel.obtain();
+        try {
+            nodeInfo.writeToParcel(parcel, 0);
+            parcel.setDataPosition(0);
+            final AccessibilityNodeInfo unparceled =
+                    AccessibilityNodeInfo.CREATOR.createFromParcel(parcel);
+            final AccessibilityNodeInfoCompat unparceledCompat =
+                    AccessibilityNodeInfoCompat.wrap(unparceled);
+
+            final CharSequence received = unparceledCompat.getSupplementalDescription();
+            assertThat(received).isNotNull();
+            assertThat(received.toString()).isEqualTo("supplemental text");
+            assertThat(received).isInstanceOf(Spanned.class);
+            final Spanned spanned = (Spanned) received;
+            final TtsSpan[] spans = spanned.getSpans(0, spanned.length(), TtsSpan.class);
+            assertThat(spans).hasLength(1);
+            assertThat(spans[0].getType()).isEqualTo(TtsSpan.TYPE_TEXT);
+            assertThat(spans[0].getArgs().getString(TtsSpan.ARG_TEXT))
+                    .isEqualTo("spoken supplemental text");
+            assertThat(spanned.getSpanStart(spans[0])).isEqualTo(0);
+            assertThat(spanned.getSpanEnd(spans[0])).isEqualTo(12);
+        } finally {
+            parcel.recycle();
+        }
     }
 
     private void assertMockAccessibilityDelegateWorkingOnView(
