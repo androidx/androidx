@@ -67,10 +67,14 @@ public value class Focusability private constructor(private val value: Int) {
     internal fun canFocus(node: CompositionLocalConsumerModifierNode): Boolean {
         return when (this@Focusability) {
             Always -> true
-            SystemDefined ->
-                with(node) { currentValueOf(LocalInputModeManager).inputMode != InputMode.Touch }
+            SystemDefined -> systemDefinedCanFocus(node)
             Never -> false
             else -> error("Unknown Focusability")
         }
     }
 }
+
+internal expect fun systemDefinedCanFocus(node: CompositionLocalConsumerModifierNode): Boolean
+
+internal fun mobilePlatformSystemDefinedCanFocus(node: CompositionLocalConsumerModifierNode) =
+    with(node) { currentValueOf(LocalInputModeManager).inputMode != InputMode.Touch }
