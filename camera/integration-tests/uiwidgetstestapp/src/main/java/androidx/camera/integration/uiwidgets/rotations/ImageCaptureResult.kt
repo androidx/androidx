@@ -58,8 +58,11 @@ sealed class ImageCaptureResult {
         private val exif: Exif
 
         init {
-            val inputStream = contentResolver.openInputStream(uri)
-            exif = Exif.createFromInputStream(inputStream!!)
+            exif =
+                checkNotNull(contentResolver.openInputStream(uri)) {
+                        "Failed to open InputStream for $uri"
+                    }
+                    .use { Exif.createFromInputStream(it) }
         }
 
         override fun getResolution() = Size(exif.width, exif.height)

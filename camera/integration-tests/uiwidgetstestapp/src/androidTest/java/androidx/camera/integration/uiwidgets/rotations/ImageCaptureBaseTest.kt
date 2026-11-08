@@ -16,13 +16,16 @@
 
 package androidx.camera.integration.uiwidgets.rotations
 
+import android.content.ContentProviderClient
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
 import android.view.View
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Logger
 import androidx.camera.integration.uiwidgets.R
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -43,6 +46,7 @@ import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
+import org.junit.AssumptionViolatedException
 import org.junit.BeforeClass
 import org.junit.Rule
 
@@ -121,72 +125,141 @@ abstract class ImageCaptureBaseTest<A : CameraActivity> {
         return folder.mkdir()
     }
 
+    /**
+     * Pre-warms and holds an unstable [ContentProviderClient] for [MediaStore] so the provider
+     * process stays published and pinned above cached LMK importance across camera bring-up and
+     * capture (b/583413692; library-side error mapping is covered separately in b/583425305).
+     */
+    protected fun acquireWarmMediaProviderClient(): ContentProviderClient {
+        val resolver = ApplicationProvider.getApplicationContext<Context>().contentResolver
+        repeat(2) { attempt ->
+            val client = resolver.acquireUnstableContentProviderClient(MediaStore.AUTHORITY)
+            if (client == null) {
+                Logger.w(LOG_TAG, "MediaProvider not published (attempt ${attempt + 1})")
+                return@repeat
+            }
+            try {
+                val cursor =
+                    client.query(
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        arrayOf(MediaStore.MediaColumns._ID),
+                        "${MediaStore.MediaColumns._ID} = -1",
+                        null,
+                        null,
+                    )
+                if (cursor != null) {
+                    cursor.close()
+                    return client
+                }
+                Logger.w(
+                    LOG_TAG,
+                    "MediaProvider warm-up query returned null cursor (attempt ${attempt + 1})",
+                )
+                client.close()
+            } catch (e: Exception) {
+                Logger.w(
+                    LOG_TAG,
+                    "MediaProvider warm-up query failed (attempt ${attempt + 1})",
+                    e,
+                )
+                client.close()
+            }
+        }
+        throw AssumptionViolatedException(
+            "MediaProvider failed to publish before camera launch (b/583413692)"
+        )
+    }
+
     protected inline fun <reified A : CameraActivity> verifyRotation(
         lensFacing: Int,
         captureMode: Int,
         rotate: ActivityScenario<A>.() -> Unit,
     ) {
-        val activityScenario: ActivityScenario<A> = launchActivity(lensFacing, captureMode)
-        activityScenario.useAndCatchFinallyException { scenario ->
-
-            // Wait until the camera is set up and analysis starts receiving frames
-            scenario.waitOnCameraFrames()
-
-            // Rotate
-            rotate(scenario)
-
-            // Reset received camera frames count
-            scenario.resetFramesCount()
-
-            // Wait a couple of frames after rotation
-            scenario.waitOnCameraFrames()
-
-            // Take picture
-            scenario.onActivity {
-                val view = it.findViewById<View>(R.id.previewView)
-                view.performClick()
+        val mediaProviderClient =
+            if (captureMode == CameraActivity.IMAGE_CAPTURE_MODE_MEDIA_STORE) {
+                acquireWarmMediaProviderClient()
+            } else {
+                null
             }
+        try {
+            val activityScenario: ActivityScenario<A> = launchActivity(lensFacing, captureMode)
+            activityScenario.useAndCatchFinallyException { scenario ->
 
-            // Wait until a picture is taken and the capture callback is invoked
-            val captureDone = scenario.withActivity { mCaptureDone }
-            assertThat(captureDone.tryAcquire(TIMEOUT, TimeUnit.SECONDS)).isTrue()
+                // Wait until the camera is set up and analysis starts receiving frames
+                scenario.waitOnCameraFrames()
 
-            // If the camera HAL doesn't rotate the image, the captured image should contain a
-            // rotation that's equal to the sensor rotation relative to target rotation
-            val (sensorToTargetRotation, imageRotationDegrees) =
-                scenario.withActivity {
-                    Pair(
-                        getSensorRotationRelativeToCaptureTargetRotation(),
-                        mCaptureResult?.getRotation(),
-                    )
+                // Rotate
+                rotate(scenario)
+
+                // Reset received camera frames count
+                scenario.resetFramesCount()
+
+                // Wait a couple of frames after rotation
+                scenario.waitOnCameraFrames()
+
+                // Take picture
+                scenario.onActivity {
+                    val view = it.findViewById<View>(R.id.previewView)
+                    view.performClick()
                 }
-            val areRotationsEqual = sensorToTargetRotation == imageRotationDegrees
 
-            // If the camera HAL did rotate the image, verifying the image's rotation isn't
-            // possible, so we make sure the image has the correct orientation/resolution.
-            val (expectedResolution, imageSize) =
-                scenario.withActivity {
-                    Pair(getCaptureResolution(), mCaptureResult?.getResolution())
+                // Wait until a picture is taken and the capture callback is invoked
+                val captureDone = scenario.withActivity { mCaptureDone }
+                assertThat(captureDone.tryAcquire(TIMEOUT, TimeUnit.SECONDS)).isTrue()
+
+                try {
+                    var captureError: ImageCaptureException? = null
+                    scenario.onActivity { captureError = it.mCaptureError }
+                    assertWithMessage(
+                            "Image capture failed (captureMode=$captureMode, " +
+                                "errorCode=${captureError?.imageCaptureError}, " +
+                                "cause=${captureError?.cause})"
+                        )
+                        .that(captureError)
+                        .isNull()
+
+                    // If the camera HAL doesn't rotate the image, the captured image should contain
+                    // a rotation that's equal to the sensor rotation relative to target rotation
+                    val (sensorToTargetRotation, imageRotationDegrees) =
+                        scenario.withActivity {
+                            Pair(
+                                getSensorRotationRelativeToCaptureTargetRotation(),
+                                mCaptureResult?.getRotation(),
+                            )
+                        }
+                    val areRotationsEqual = sensorToTargetRotation == imageRotationDegrees
+
+                    // If the camera HAL did rotate the image, verifying the image's rotation isn't
+                    // possible, so we make sure the image has the correct orientation/resolution.
+                    val (expectedResolution, imageSize) =
+                        scenario.withActivity {
+                            Pair(getCaptureResolution(), mCaptureResult?.getResolution())
+                        }
+                    val areResolutionsEqual = expectedResolution == imageSize
+
+                    assertWithMessage(
+                            "The captured image rotation degrees [$imageRotationDegrees] was " +
+                                "expected to be equal to [$sensorToTargetRotation], or the " +
+                                "captured image's resolution [$imageSize] was expected to be " +
+                                "equal to [$expectedResolution]"
+                        )
+                        .that(areRotationsEqual || areResolutionsEqual)
+                        .isTrue()
+
+                    assertWithMessage(
+                            "The captured image's resolution " +
+                                "[$imageSize] was expected to be equal to [$expectedResolution]"
+                        )
+                        .that(expectedResolution.height * expectedResolution.width)
+                        .isEqualTo(imageSize!!.height * imageSize.width)
+                } finally {
+                    // Delete captured image
+                    runCatching { scenario.withActivity { mCaptureResult?.delete() ?: Unit } }
+                        .onFailure { Logger.w(LOG_TAG, "Failed to delete captured image", it) }
                 }
-            val areResolutionsEqual = expectedResolution == imageSize
-
-            assertWithMessage(
-                    "The captured image rotation degrees [$imageRotationDegrees] was expected to be " +
-                        "equal to [$sensorToTargetRotation], or the captured image's resolution " +
-                        "[$imageSize] was expected to be equal to [$expectedResolution]"
-                )
-                .that(areRotationsEqual || areResolutionsEqual)
-                .isTrue()
-
-            assertWithMessage(
-                    "The captured image's resolution " +
-                        "[$imageSize] was expected to be equal to [$expectedResolution]"
-                )
-                .that(expectedResolution.height * expectedResolution.width)
-                .isEqualTo(imageSize!!.height * imageSize.width)
-
-            // Delete captured image
-            scenario.withActivity { mCaptureResult?.delete() ?: Unit }
+            }
+        } finally {
+            mediaProviderClient?.close()
         }
     }
 

@@ -152,6 +152,9 @@ open class CameraActivity : AppCompatActivity() {
 
     private fun ImageCapture.setCallback() {
         mBinding.previewView.setOnClickListener {
+            mCaptureResult = null
+            mCaptureError = null
+            mCaptureDone.drainPermits()
             val imageCaptureMode =
                 intent.getIntExtra(KEY_IMAGE_CAPTURE_MODE, IMAGE_CAPTURE_MODE_IN_MEMORY)
             when (imageCaptureMode) {
@@ -175,6 +178,7 @@ open class CameraActivity : AppCompatActivity() {
                 }
 
                 override fun onError(exception: ImageCaptureException) {
+                    mCaptureError = exception
                     mCaptureDone.release()
                     Log.e(TAG, "InMemory image capture failed", exception)
                 }
@@ -190,12 +194,26 @@ open class CameraActivity : AppCompatActivity() {
             CameraXExecutors.mainThreadExecutor(),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    mCaptureResult = ImageCaptureResult.FileOrOutputStream(imageFile)
-                    mCaptureDone.release()
-                    Log.d(TAG, "File image capture successful")
+                    try {
+                        mCaptureResult = ImageCaptureResult.FileOrOutputStream(imageFile)
+                        Log.d(TAG, "File image capture successful")
+                    } catch (e: Exception) {
+                        imageFile.delete()
+                        mCaptureError =
+                            ImageCaptureException(
+                                ImageCapture.ERROR_FILE_IO,
+                                "Failed to read saved image file",
+                                e,
+                            )
+                        Log.e(TAG, "Failed to read saved image file", e)
+                    } finally {
+                        mCaptureDone.release()
+                    }
                 }
 
                 override fun onError(exception: ImageCaptureException) {
+                    imageFile.delete()
+                    mCaptureError = exception
                     mCaptureDone.release()
                     Log.e(TAG, "File image capture failed", exception)
                 }
@@ -212,12 +230,36 @@ open class CameraActivity : AppCompatActivity() {
             CameraXExecutors.mainThreadExecutor(),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    mCaptureResult = ImageCaptureResult.FileOrOutputStream(imageFile)
-                    mCaptureDone.release()
-                    Log.d(TAG, "OutputStream image capture successful")
+                    try {
+                        try {
+                            outputStream.close()
+                        } catch (e: Exception) {
+                            Log.w(TAG, "Failed to close output stream", e)
+                        }
+                        mCaptureResult = ImageCaptureResult.FileOrOutputStream(imageFile)
+                        Log.d(TAG, "OutputStream image capture successful")
+                    } catch (e: Exception) {
+                        imageFile.delete()
+                        mCaptureError =
+                            ImageCaptureException(
+                                ImageCapture.ERROR_FILE_IO,
+                                "Failed to read saved output stream file",
+                                e,
+                            )
+                        Log.e(TAG, "Failed to read saved output stream file", e)
+                    } finally {
+                        mCaptureDone.release()
+                    }
                 }
 
                 override fun onError(exception: ImageCaptureException) {
+                    try {
+                        outputStream.close()
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Failed to close output stream", e)
+                    }
+                    imageFile.delete()
+                    mCaptureError = exception
                     mCaptureDone.release()
                     Log.e(TAG, "OutputStream image capture failed", exception)
                 }
@@ -243,13 +285,32 @@ open class CameraActivity : AppCompatActivity() {
             CameraXExecutors.mainThreadExecutor(),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    mCaptureResult =
-                        ImageCaptureResult.MediaStore(contentResolver, outputFileResults.savedUri!!)
-                    mCaptureDone.release()
-                    Log.d(TAG, "MediaStore image capture successful")
+                    val savedUri = outputFileResults.savedUri
+                    try {
+                        mCaptureResult =
+                            ImageCaptureResult.MediaStore(
+                                contentResolver,
+                                checkNotNull(savedUri) { "Saved MediaStore URI is null" },
+                            )
+                        Log.d(TAG, "MediaStore image capture successful")
+                    } catch (e: Exception) {
+                        if (savedUri != null) {
+                            runCatching { contentResolver.delete(savedUri, null, null) }
+                        }
+                        mCaptureError =
+                            ImageCaptureException(
+                                ImageCapture.ERROR_FILE_IO,
+                                "Failed to read saved MediaStore URI",
+                                e,
+                            )
+                        Log.e(TAG, "Failed to read saved MediaStore URI", e)
+                    } finally {
+                        mCaptureDone.release()
+                    }
                 }
 
                 override fun onError(exception: ImageCaptureException) {
+                    mCaptureError = exception
                     mCaptureDone.release()
                     Log.e(TAG, "MediaStore image capture failed", exception)
                 }
@@ -272,7 +333,9 @@ open class CameraActivity : AppCompatActivity() {
 
     @VisibleForTesting val mCaptureDone = Semaphore(0)
 
-    @VisibleForTesting var mCaptureResult: ImageCaptureResult? = null
+    @Volatile @VisibleForTesting var mCaptureResult: ImageCaptureResult? = null
+
+    @Volatile @VisibleForTesting var mCaptureError: ImageCaptureException? = null
 
     @VisibleForTesting
     fun getSensorRotationRelativeToAnalysisTargetRotation(): Int {
