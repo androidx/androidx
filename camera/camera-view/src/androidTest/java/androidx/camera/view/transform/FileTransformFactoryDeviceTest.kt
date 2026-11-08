@@ -22,6 +22,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.media.ExifInterface
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import androidx.camera.core.impl.utils.Exif
@@ -33,6 +34,7 @@ import com.google.common.truth.Truth.assertThat
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.util.UUID
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -87,8 +89,11 @@ class FileTransformFactoryDeviceTest {
     @Test
     fun extractFromMediaStoreUri() {
         val uri = createMediaStoreImage()
-        factory.getOutputTransform(contentResolver, uri).assertMapping(1f, 1f, WIDTH, HEIGHT)
-        contentResolver.delete(uri, null, null)
+        try {
+            factory.getOutputTransform(contentResolver, uri).assertMapping(1f, 1f, WIDTH, HEIGHT)
+        } finally {
+            contentResolver.delete(uri, null, null)
+        }
     }
 
     /** Asserts that the [OutputTransform] maps normalized (x, y) to image (x, y). */
@@ -124,17 +129,56 @@ class FileTransformFactoryDeviceTest {
     }
 
     private fun createMediaStoreImage(): Uri {
-        // Ensure the folder of MediaStore.Images.Media is created.
-        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)?.mkdirs()
-
-        val contentValues = ContentValues()
-        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-        val uri =
-            contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
-        contentResolver.openOutputStream(uri!!).use {
-            createBitmap().compress(Bitmap.CompressFormat.JPEG, 100, it!!)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            @Suppress("DEPRECATION")
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)?.mkdirs()
         }
-        return uri
+
+        val tempFile = createImageFile()
+        var uri: Uri? = null
+        var completed = false
+        try {
+            val contentValues =
+                ContentValues().apply {
+                    put(
+                        MediaStore.MediaColumns.DISPLAY_NAME,
+                        "FileTransformFactoryDeviceTest_${UUID.randomUUID()}.jpg",
+                    )
+                    put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
+                        put(MediaStore.Images.Media.IS_PENDING, 1)
+                    }
+                }
+            val insertedUri =
+                requireNotNull(
+                    contentResolver.insert(
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        contentValues,
+                    )
+                ) {
+                    "Failed to insert MediaStore URI"
+                }
+            uri = insertedUri
+            FileInputStream(tempFile).use { input ->
+                requireNotNull(contentResolver.openOutputStream(insertedUri)) {
+                        "Failed to open OutputStream for $insertedUri"
+                    }
+                    .use { output -> input.copyTo(output) }
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val clearPendingValues =
+                    ContentValues().apply { put(MediaStore.Images.Media.IS_PENDING, 0) }
+                contentResolver.update(insertedUri, clearPendingValues, null, null)
+            }
+            completed = true
+            return insertedUri
+        } finally {
+            tempFile.delete()
+            if (!completed && uri != null) {
+                contentResolver.delete(uri, null, null)
+            }
+        }
     }
 
     private fun createBitmap(): Bitmap {
