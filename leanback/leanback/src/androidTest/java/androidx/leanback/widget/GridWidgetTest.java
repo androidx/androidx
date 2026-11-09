@@ -5080,6 +5080,84 @@ public class GridWidgetTest {
                 mGridView.getPaddingTop() - (t2align - t1align), v.getTop());
     }
 
+    /** Provides two alignments (t1 and t2 tops) for the last item only. */
+    public static class LastPositionItemAlignmentFacetProviderForRelativeLayout implements
+            ItemAlignmentFacetProvider {
+        static final int LAST_POSITION = 99;
+        ItemAlignmentFacet mMultipleFacet;
+
+        public LastPositionItemAlignmentFacetProviderForRelativeLayout() {
+            mMultipleFacet = new ItemAlignmentFacet();
+            ItemAlignmentFacet.ItemAlignmentDef[] defs = new ItemAlignmentFacet.ItemAlignmentDef[2];
+            defs[0] = new ItemAlignmentFacet.ItemAlignmentDef();
+            defs[0].setItemAlignmentViewId(R.id.t1);
+            defs[0].setItemAlignmentOffsetPercent(0);
+            defs[1] = new ItemAlignmentFacet.ItemAlignmentDef();
+            defs[1].setItemAlignmentViewId(R.id.t2);
+            defs[1].setItemAlignmentOffsetPercent(0);
+            mMultipleFacet.setAlignmentDefs(defs);
+        }
+
+        @Override
+        public ItemAlignmentFacet getItemAlignmentFacet(int position) {
+            return position == LAST_POSITION ? mMultipleFacet : null;
+        }
+    }
+
+    /**
+     * Focusing a later alignment of the last item must not scroll past the end of the list, also
+     * when the alignment is re-applied during a layout pass (where scroll deltas are not clamped).
+     */
+    @Test
+    public void testMultipleScrollPositionDoesNotScrollPastEnd() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_CHILD_LAYOUT_ID, R.layout.relative_layout);
+        intent.putExtra(GridActivity.EXTRA_REQUEST_FOCUS_ONLAYOUT, true);
+        int[] items = new int[LastPositionItemAlignmentFacetProviderForRelativeLayout.LAST_POSITION
+                + 1];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 300;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_ITEMALIGNMENTPROVIDER_CLASS,
+                LastPositionItemAlignmentFacetProviderForRelativeLayout.class.getName());
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        final int lastPosition = LastPositionItemAlignmentFacetProviderForRelativeLayout
+                .LAST_POSITION;
+        setSelectedPosition(lastPosition);
+        waitForScrollIdle(mVerifyLayout);
+        final int endEdge = mGridView.getHeight() - mGridView.getPaddingBottom();
+        View lastView = mGridView.getLayoutManager().findViewByPosition(lastPosition);
+        assertEquals("Last item is aligned with the end edge", endEdge, lastView.getBottom());
+
+        // Move focus to the 2nd alignment (t2) of the last item. The list is already at the end,
+        // so it must not scroll.
+        sendKey(KeyEvent.KEYCODE_DPAD_DOWN);
+        waitForScrollIdle(mVerifyLayout);
+        lastView = mGridView.getLayoutManager().findViewByPosition(lastPosition);
+        assertTrue("2nd textview of the last item has focus",
+                lastView.findViewById(R.id.t2).hasFocus());
+        assertEquals("Last item stays aligned with the end edge", endEdge, lastView.getBottom());
+
+        // A relayout re-aligns to the focused alignment; it must not overshoot the end either.
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.requestLayout();
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        lastView = mGridView.getLayoutManager().findViewByPosition(lastPosition);
+        assertEquals("Last item stays aligned with the end edge after relayout", endEdge,
+                lastView.getBottom());
+    }
+
     static class TestFastLayoutWithItemAlignmentDefProvider implements
             ItemAlignmentFacetProvider {
         ItemAlignmentFacet mItemAlignmentFacet;
