@@ -62,6 +62,7 @@ import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.ScrollWheel
 import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.captureToImage
@@ -72,6 +73,7 @@ import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pressKey
@@ -1043,6 +1045,34 @@ class TextFieldScrollTest : FocusedWindowTest {
         assertThat(textFieldScrollState.maxValue).isGreaterThan(initialMaxScrollValue)
         assertThat(textFieldScrollState.value).isEqualTo(textFieldScrollState.maxValue)
         assertThat(columnScrollState.value).isEqualTo(columnScrollState.maxValue)
+    }
+
+    @Test
+    fun textFieldScroll_mouseWheel_whileMouseDragSelecting() {
+        val state = TextFieldState((1..100).joinToString("\n") { "Line $it" })
+        val scrollState = ScrollState(0)
+
+        rule.setupVerticallyScrollableContent(
+            state = state,
+            scrollState = scrollState,
+            modifier = Modifier.size(width = 200.dp, height = 100.dp),
+            maxLines = 5,
+        )
+
+        rule.onNodeWithTag(TextfieldTag).performMouseInput {
+            moveTo(Offset(5f, 5f))
+            press()
+            moveBy(Offset(30f, 0f))
+        }
+        rule.runOnIdle {
+            assertThat(state.selection.collapsed).isFalse()
+            assertThat(scrollState.value).isEqualTo(0)
+        }
+
+        rule.onNodeWithTag(TextfieldTag).performMouseInput { scroll(10f, ScrollWheel.Vertical) }
+        rule.runOnIdle { assertThat(scrollState.value).isGreaterThan(0) }
+
+        rule.onNodeWithTag(TextfieldTag).performMouseInput { release() }
     }
 
     @OptIn(ExperimentalTestApi::class)
