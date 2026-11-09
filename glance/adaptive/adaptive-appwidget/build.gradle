@@ -44,6 +44,21 @@ dependencies {
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.mockitoCore)
     testImplementation(libs.mockitoKotlin)
+
+    androidTestImplementation(project(":test:screenshot:screenshot"))
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.truth)
+}
+
+tasks.withType(Test).configureEach { test ->
+    // ScreenshotPaletteTest compares the screenshot tests' palette override with the library's.
+    test.inputs
+        .dir("src/androidTest/res")
+        .withPropertyName("screenshotTestResources")
+        .withPathSensitivity(PathSensitivity.RELATIVE)
 }
 
 android {
@@ -58,4 +73,5 @@ androidx {
     inceptionYear = "2026"
     description = "Enable adaptive glanceable widgets for Android AppWidgets"
     enableRobolectric()
+    addGoldenImageAssets()
 }

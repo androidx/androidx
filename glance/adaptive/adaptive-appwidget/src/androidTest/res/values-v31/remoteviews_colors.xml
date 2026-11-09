@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2026 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<!--
+  On API 31 and above, screenshot tests draw with the fixed M3 baseline palette rather than the
+  wallpaper's dynamic colors, so their goldens do not depend on the device. These override the
+  library's v31 colors in the test APK only. They must equal
+  src/main/res/values/remoteviews_colors.xml; ScreenshotPaletteTest fails when the two differ.
+-->
+<resources>
+    <color name="glance_adaptive_appwidget_remoteviews_primary">#ff6750a4</color>
+    <color name="glance_adaptive_appwidget_remoteviews_secondary_container">#ffe8def8</color>
+    <color name="glance_adaptive_appwidget_remoteviews_tertiary">#ff7d5260</color>
+    <color name="glance_adaptive_appwidget_remoteviews_on_surface_variant">#ff49454f</color>
+    <color name="glance_adaptive_appwidget_remoteviews_widget_background">#ffe0f3ff</color>
+</resources>
