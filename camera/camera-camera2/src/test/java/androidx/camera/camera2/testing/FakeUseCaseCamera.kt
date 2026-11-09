@@ -41,6 +41,7 @@ import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.Lock3ABehavior
+import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
@@ -192,9 +193,18 @@ open class FakeUseCaseCameraRequestControl(
         return CompletableDeferred(Unit)
     }
 
-    override fun updateCamera2ConfigAsync(config: Config, tags: Map<String, Any>): Deferred<Unit> {
+    override fun updateCamera2ConfigAsync(
+        config: Config,
+        tags: Map<String, Any>,
+        listeners: Set<Request.Listener>,
+    ): Deferred<Unit> {
         setConfigCalls.add(
-            RequestParameters(UseCaseCameraRequestControl.Type.CAMERA2_CAMERA_CONTROL, config, tags)
+            RequestParameters(
+                UseCaseCameraRequestControl.Type.CAMERA2_CAMERA_CONTROL,
+                config,
+                tags,
+                listeners,
+            )
         )
         return CompletableDeferred(Unit)
     }
@@ -331,6 +341,7 @@ open class FakeUseCaseCameraRequestControl(
         val type: UseCaseCameraRequestControl.Type,
         val config: Config?,
         val tags: Map<String, Any> = emptyMap(),
+        val listeners: Set<Request.Listener> = emptySet(),
     )
 }
 

@@ -26,7 +26,6 @@ import androidx.camera.camera2.compat.Camera2CameraControlCompat
 import androidx.camera.camera2.impl.ComboRequestListener
 import androidx.camera.camera2.impl.UseCaseCameraControl
 import androidx.camera.camera2.impl.UseCaseCameraRequestControl
-import androidx.camera.camera2.impl.UseCaseThreads
 import androidx.camera.core.CameraControl
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.MutableConfig
@@ -60,7 +59,6 @@ import com.google.common.util.concurrent.ListenableFuture
 public class Camera2CameraControl
 private constructor(
     private val compat: Camera2CameraControlCompat,
-    private val threads: UseCaseThreads,
     @get:VisibleForTesting internal val requestListener: ComboRequestListener,
 ) : UseCaseCameraControl {
 
@@ -70,11 +68,7 @@ private constructor(
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         set(value) {
             _useCaseCameraRequestControl = value
-            _useCaseCameraRequestControl?.also {
-                requestListener.removeListener(compat)
-                requestListener.addListener(compat, threads.sequentialExecutor)
-                compat.applyAsync(it, false)
-            }
+            _useCaseCameraRequestControl?.also { compat.applyAsync(it, false) }
         }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -82,7 +76,6 @@ private constructor(
         // Clear the current task, but don't clear the CaptureRequestOptions. Camera2CameraControl
         // will store the CaptureRequestOptions while use case is detached.
         compat.cancelCurrentTask()
-        requestListener.removeListener(compat)
     }
 
     /**
@@ -202,10 +195,9 @@ private constructor(
         @JvmStatic
         public fun create(
             compat: Camera2CameraControlCompat,
-            threads: UseCaseThreads,
             requestListener: ComboRequestListener,
         ): Camera2CameraControl {
-            return Camera2CameraControl(compat, threads, requestListener)
+            return Camera2CameraControl(compat, requestListener)
         }
     }
 }

@@ -201,12 +201,15 @@ public interface UseCaseCameraRequestControl {
      *
      * @param config The new configuration values to apply.
      * @param tags Optional tags to append to the repeating request.
+     * @param listeners Optional [Request.Listener]s to attach to the repeating request, dispatched
+     *   on the sequential executor after session capture callbacks.
      * @return A [Deferred] representing the asynchronous update operation.
      */
     @AnyThread
     public fun updateCamera2ConfigAsync(
         config: Config,
         tags: Map<String, Any> = emptyMap(),
+        listeners: Set<Request.Listener> = emptySet(),
     ): Deferred<Unit>
 
     // 3A
@@ -542,16 +545,20 @@ constructor(
             }
         } ?: canceledResult
 
-    override fun updateCamera2ConfigAsync(config: Config, tags: Map<String, Any>): Deferred<Unit> =
+    override fun updateCamera2ConfigAsync(
+        config: Config,
+        tags: Map<String, Any>,
+        listeners: Set<Request.Listener>,
+    ): Deferred<Unit> =
         runIfNotClosed {
             runOnSequential {
                 Camera2Logger.debug { "UseCaseCameraRequestControlImpl#updateCamera2ConfigAsync" }
                 val camera2Config = Camera2ImplConfig(config)
-                val listeners = mutableSetOf<Request.Listener>()
+                val mergedListeners = mutableSetOf<Request.Listener>()
 
                 camera2Config.getSessionCaptureCallback()?.let { callback ->
                     val wrapped = CameraUseCaseAdapter.CaptureCallbackContainer.create(callback)
-                    listeners.add(
+                    mergedListeners.add(
                         CameraCallbackMap.createFor(
                             listOf(wrapped),
                             CameraXExecutors.directExecutor(),
@@ -560,12 +567,19 @@ constructor(
                 }
                 camera2Config.getSessionRepeatingCaptureCallback()?.let { callback ->
                     val wrapped = CameraUseCaseAdapter.CaptureCallbackContainer.create(callback)
-                    listeners.add(
+                    mergedListeners.add(
                         CameraCallbackMap.createFor(
                             listOf(wrapped),
                             CameraXExecutors.directExecutor(),
                         )
                     )
+                }
+                // Append request completion listeners after session capture callbacks so all
+                // repeating capture callbacks run or enqueue before interop future completion.
+                if (listeners.isNotEmpty()) {
+                    val comboListener = ComboRequestListener()
+                    listeners.forEach { comboListener.addListener(it, threads.sequentialExecutor) }
+                    mergedListeners.add(comboListener)
                 }
 
                 val template =
@@ -584,7 +598,7 @@ constructor(
                         InfoBundle(
                             options = config.extractCamera2ImplConfigBuilder(),
                             tags = tags.toMutableMap(),
-                            listeners = listeners,
+                            listeners = mergedListeners,
                             template = template,
                         )
                 }
