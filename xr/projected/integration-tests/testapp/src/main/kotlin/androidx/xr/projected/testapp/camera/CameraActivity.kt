@@ -16,12 +16,9 @@
 
 package androidx.xr.projected.testapp.camera
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -46,7 +43,6 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
@@ -58,27 +54,16 @@ class CameraActivity : ComponentActivity() {
     private val viewModel: CameraViewModel by viewModels()
     private lateinit var controller: CameraController
 
-    private val requestPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) {
-                controller.startCamera(this)
-            } else {
-                viewModel.setStatusMessage("Camera permission is required.")
-            }
-        }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        controller = CameraController(this, viewModel, lifecycleScope)
-
-        if (
-            ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
-                PackageManager.PERMISSION_GRANTED
-        ) {
-            controller.startCamera(this)
-        } else {
-            requestPermissionLauncher.launch(Manifest.permission.CAMERA)
-        }
+        controller =
+            CameraController(
+                context = this,
+                lifecycleOwner = this,
+                viewModel = viewModel,
+                scope = lifecycleScope,
+            )
+        controller.start()
 
         setContent {
             MaterialTheme {
@@ -152,18 +137,7 @@ class CameraActivity : ComponentActivity() {
                 Spacer(modifier = Modifier.height(12.dp))
             }
             Button(
-                onClick = {
-                    if (
-                        ContextCompat.checkSelfPermission(
-                            this@CameraActivity,
-                            Manifest.permission.CAMERA,
-                        ) == PackageManager.PERMISSION_GRANTED
-                    ) {
-                        controller.takePicture()
-                    } else {
-                        requestPermissionLauncher.launch(Manifest.permission.CAMERA)
-                    }
-                },
+                onClick = { controller.takePicture() },
                 enabled = isCameraReady && !isTakingPicture,
                 modifier = Modifier.fillMaxWidth(),
             ) {
