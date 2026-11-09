@@ -177,9 +177,7 @@ fun WindowInsetsApp() {
                     )
                 }
 
-                entry<Screen.HorizontalPager> {
-                    HorizontalPagerScreen(onBack = { backStack.removeAt(backStack.lastIndex) })
-                }
+                entry<Screen.HorizontalPager> { HorizontalPagerScreen() }
 
                 entry<Screen.HorizontalPagerWithVerticalScroll> {
                     HorizontalPagerWithVerticalScrollScreen(
@@ -191,9 +189,7 @@ fun WindowInsetsApp() {
                     NestedPagersScreen(onBack = { backStack.removeAt(backStack.lastIndex) })
                 }
 
-                entry<Screen.VerticalPager> {
-                    VerticalPagerScreen(onBack = { backStack.removeAt(backStack.lastIndex) })
-                }
+                entry<Screen.VerticalPager> { VerticalPagerScreen() }
 
                 entry<Screen.SelfRenderedSandbox> {
                     SelfRenderedSandboxScreen(onBack = { backStack.removeAt(backStack.lastIndex) })
