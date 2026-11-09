@@ -447,6 +447,7 @@ public object CardDefaults {
      * @param focusedElevation the elevation used when the [OutlinedCard] is focused.
      * @param hoveredElevation the elevation used when the [OutlinedCard] is hovered.
      * @param draggedElevation the elevation used when the [OutlinedCard] is dragged.
+     * @param disabledElevation the elevation used when the [OutlinedCard] is disabled.
      */
     @Composable
     public fun outlinedCardElevation(

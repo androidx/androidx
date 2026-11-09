@@ -385,3 +385,6 @@ WARN: \$DOCS_DIR/unzippedMultiplatformSources/androidMain/androidx/constraintlay
 WARN: \$DOCS_DIR/unzippedJvmSources/androidx/core/database/sqlite/SQLiteDatabase\.kt:[0-9]+ Missing @param tag for parameter `body` in DFunction transaction
 WARN: \$DOCS_DIR/unzippedJvmSources/androidx/camera/view/RotationProvider\.java:[0-9]+ Missing @param tag for parameter `listener` in DFunction addListener
 WARN: \$DOCS_DIR/unzippedJvmSources/androidx/emoji2/text/EmojiCompat\.java:[0-9]+ Missing @param tag for parameter `useEmojiAsDefaultStyle` in DFunction setUseEmojiAsDefaultStyle
+WARN: \$DOCS_DIR/unzippedMultiplatformSources/commonMain/androidx/compose/material/TextFieldDefaults\.kt:[0-9]+ Missing @param tag for parameter `shape` in DFunction BorderBox
+WARN: \$DOCS_DIR/unzippedMultiplatformSources/commonMain/androidx/compose/material3/Card\.kt:[0-9]+ Missing @param tag for parameter `disabledElevation` in DFunction outlinedCardElevation
+WARN: \$DOCS_DIR/unzippedMultiplatformSources/commonMain/androidx/compose/material3/MaterialTheme\.kt:[0-9]+ Missing @param tag for parameter `content` in DFunction MaterialTheme

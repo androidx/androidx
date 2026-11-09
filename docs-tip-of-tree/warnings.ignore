@@ -95,9 +95,6 @@ WARN: Couldn't resolve link: \[ViewLayer\.shouldUseDispatchDraw\] in .*\/unzippe
 WARN: Couldn't resolve link: \[WearWidgetContent\] in .*\/unzippedJvmSources\/androidx\/glance\/wear\/core\/WearWidgetRawContent\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
 WARN: Couldn't resolve link: \[WindowExtensions\.VENDOR_API_LEVEL_1\] in .*\/unzippedJvmSources\/androidx\/window\/layout\/SafeWindowLayoutComponentProvider\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
 WARN: Couldn't resolve link: \[WindowExtensions\.VENDOR_API_LEVEL_2\] in .*\/unzippedJvmSources\/androidx\/window\/layout\/SafeWindowLayoutComponentProvider\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
-WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/material\/TextFieldDefaults\.kt:[0-9]+ Missing @param tag for parameter `shape` in DFunction BorderBox
-WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/material3\/Card\.kt:[0-9]+ Missing @param tag for parameter `disabledElevation` in DFunction outlinedCardElevation
-WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/material3\/MaterialTheme\.kt:[0-9]+ Missing @param tag for parameter `content` in DFunction MaterialTheme
 # b/351805708: upstream bug in Kotlin: can't have a nested class with different expect from parent
 ERROR: An attempt to write .*\/reference\/androidx\/lifecycle\/ViewModelProvider\.NewInstanceFactory\.html several times!
 ERROR: An attempt to write .*\/reference\/kotlin\/androidx\/lifecycle\/ViewModelProvider\.NewInstanceFactory\.html several times!
