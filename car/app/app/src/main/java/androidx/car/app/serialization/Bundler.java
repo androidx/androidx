@@ -885,18 +885,18 @@ public final class Bundler {
      * A decorator on a {@link BundlerException} that tacks the frame information on its message.
      */
     static class TracedBundlerException extends BundlerException {
-        TracedBundlerException(String msg, Trace trace) {
+        private TracedBundlerException(String msg, Trace trace) {
             super(msg + ", frames: " + trace.toFlatString());
         }
 
-        TracedBundlerException(String msg, Trace trace, Throwable e) {
+        private TracedBundlerException(String msg, Trace trace, Throwable e) {
             super(msg + ", frames: " + trace.toFlatString(), e);
         }
     }
 
     /** A {@link BundlerException} thrown when a cycle is detected during bundling. */
     static class CycleDetectedBundlerException extends TracedBundlerException {
-        CycleDetectedBundlerException(String msg, Trace trace) {
+        private CycleDetectedBundlerException(String msg, Trace trace) {
             super(msg, trace);
         }
     }

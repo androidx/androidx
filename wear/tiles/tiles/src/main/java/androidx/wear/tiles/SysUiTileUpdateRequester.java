@@ -72,7 +72,7 @@ class SysUiTileUpdateRequester implements TileUpdateRequester {
     boolean mBindInProgress = false;
 
     @GuardedBy("mLock")
-    final Set<PendingRequest> mPendingRequests = new HashSet<>();
+    private final Set<PendingRequest> mPendingRequests = new HashSet<>();
 
     private final Executor mUnbindExecutor;
 
@@ -231,7 +231,7 @@ class SysUiTileUpdateRequester implements TileUpdateRequester {
                 Context.BIND_AUTO_CREATE);
     }
 
-    void sendTileUpdateRequest(
+    private void sendTileUpdateRequest(
             PendingRequest pendingRequest, TileUpdateRequesterService updateRequesterService) {
         try {
             ComponentName providerName = new ComponentName(mAppContext, pendingRequest.mService);

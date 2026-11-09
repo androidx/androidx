@@ -368,7 +368,7 @@ public final class DimensionBuilders {
      * bindable layout element.
      */
     @RequiresSchemaVersion(major = 1, minor = 200)
-    @SuppressWarnings("PrivateSuperclass")
+    @SuppressWarnings({"PrivateSuperclass", "ExposedPrivateType"})
     public static final class HorizontalLayoutConstraint extends DpPropLayoutConstraint {
         HorizontalLayoutConstraint(DimensionProto.DpProp impl, @Nullable Fingerprint fingerprint) {
             super(impl, fingerprint);
@@ -387,6 +387,7 @@ public final class DimensionBuilders {
         }
 
         /** Builder for {@link HorizontalLayoutConstraint}. */
+        @SuppressWarnings("ExposedPrivateType")
         public static final class Builder extends DpPropLayoutConstraint.Builder {
             /**
              * Creates a new builder for {@link HorizontalLayoutConstraint}.
@@ -424,7 +425,7 @@ public final class DimensionBuilders {
      * bindable layout element.
      */
     @RequiresSchemaVersion(major = 1, minor = 200)
-    @SuppressWarnings("PrivateSuperclass")
+    @SuppressWarnings({"PrivateSuperclass", "ExposedPrivateType"})
     public static final class VerticalLayoutConstraint extends DpPropLayoutConstraint {
         VerticalLayoutConstraint(DimensionProto.DpProp impl, @Nullable Fingerprint fingerprint) {
             super(impl, fingerprint);
@@ -441,6 +442,7 @@ public final class DimensionBuilders {
         }
 
         /** Builder for {@link VerticalLayoutConstraint}. */
+        @SuppressWarnings("ExposedPrivateType")
         public static final class Builder extends DpPropLayoutConstraint.Builder {
             /**
              * Creates a new builder for {@link VerticalLayoutConstraint}.

@@ -482,8 +482,8 @@ public class CameraXActivity extends AppCompatActivity {
     private boolean mAutoRotationEnabled = true;
     private boolean mTapToFocusAeAwbLockEnabled = false;
 
-    SessionMediaUriSet mSessionImagesUriSet = new SessionMediaUriSet();
-    SessionMediaUriSet mSessionVideosUriSet = new SessionMediaUriSet();
+    private SessionMediaUriSet mSessionImagesUriSet = new SessionMediaUriSet();
+    private SessionMediaUriSet mSessionVideosUriSet = new SessionMediaUriSet();
 
     // Analyzer to be used with ImageAnalysis.
     private final ImageAnalysis.Analyzer mAnalyzer = new ImageAnalysis.Analyzer() {

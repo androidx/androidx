@@ -135,7 +135,7 @@ public abstract class MediaRouteProviderService extends Service {
 
     private final ReceiveHandler mReceiveHandler;
     final Messenger mReceiveMessenger;
-    final PrivateHandler mPrivateHandler;
+    private final PrivateHandler mPrivateHandler;
     private final MediaRouteProvider.Callback mProviderCallback;
 
     PackageManager mPackageManager;

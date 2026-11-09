@@ -604,7 +604,7 @@ public final class ListTemplate implements Template {
     }
 
     /** Truncates ListTemplates to not exceed the Android maximum binder transaction limit. */
-    static ItemList truncate(ItemList itemList, TruncateCounter limit) {
+    private static ItemList truncate(ItemList itemList, TruncateCounter limit) {
         ItemList.Builder builder = new ItemList.Builder(itemList);
         builder.clearItems();
         for (Item item : itemList.getItems()) {

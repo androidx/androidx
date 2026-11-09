@@ -46,7 +46,7 @@ public class RemoveLargeItemsDemo extends Activity {
 
     RecyclerView mRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
-    MyAdapter mAdapter;
+    private MyAdapter mAdapter;
     private int mNumItemsAdded = 0;
     ArrayList<Item> mItems = new ArrayList<>();
 

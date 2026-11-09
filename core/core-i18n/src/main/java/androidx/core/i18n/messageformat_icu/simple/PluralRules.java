@@ -706,12 +706,12 @@ public class PluralRules implements Serializable {
         }
 
         /**
-         * {@inheritDoc}
          *
          * icu_annot::internal CLDR
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
+        @SuppressWarnings("ExposedPrivateType")
         public double get(Operand operand) {
             switch(operand) {
             default: return source;
@@ -728,6 +728,7 @@ public class PluralRules implements Serializable {
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
+        @SuppressWarnings("ExposedPrivateType")
         public static Operand getOperand(String t) {
             return Operand.valueOf(t);
         }

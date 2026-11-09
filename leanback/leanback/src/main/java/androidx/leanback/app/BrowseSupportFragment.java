@@ -394,7 +394,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     public static class MainFragmentAdapter<T extends Fragment> {
         private boolean mScalingEnabled;
         private final T mFragment;
-        FragmentHostImpl mFragmentHost;
+        private FragmentHostImpl mFragmentHost;
 
         public MainFragmentAdapter(T fragment) {
             this.mFragment = fragment;
@@ -471,7 +471,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             return mFragmentHost;
         }
 
-        void setFragmentHost(FragmentHostImpl fragmentHost) {
+        private void setFragmentHost(FragmentHostImpl fragmentHost) {
             this.mFragmentHost = fragmentHost;
         }
     }

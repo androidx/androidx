@@ -150,13 +150,13 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private View mDividerView;
 
     OverlayListView mVolumeGroupList;
-    VolumeGroupAdapter mVolumeGroupAdapter;
+    private VolumeGroupAdapter mVolumeGroupAdapter;
     private List<MediaRouter.RouteInfo> mGroupMemberRoutes;
     Set<MediaRouter.RouteInfo> mGroupMemberRoutesAdded;
     private Set<MediaRouter.RouteInfo> mGroupMemberRoutesRemoved;
     Set<MediaRouter.RouteInfo> mGroupMemberRoutesAnimatingWithBitmap;
     SeekBar mVolumeSlider;
-    VolumeChangeListener mVolumeChangeListener;
+    private VolumeChangeListener mVolumeChangeListener;
     MediaRouter.RouteInfo mRouteInVolumeSliderTouched;
     private int mVolumeGroupListItemIconSize;
     private int mVolumeGroupListItemHeight;
@@ -165,11 +165,11 @@ public class MediaRouteControllerDialog extends AlertDialog {
     Map<MediaRouter.RouteInfo, SeekBar> mVolumeSliderMap;
 
     MediaControllerCompat mMediaController;
-    MediaControllerCallback mControllerCallback;
+    private final MediaControllerCallback mControllerCallback;
     PlaybackStateCompat mState;
     MediaDescriptionCompat mDescription;
 
-    FetchArtTask mFetchArtTask;
+    private FetchArtTask mFetchArtTask;
     Bitmap mArtIconBitmap;
     Uri mArtIconUri;
     boolean mArtIconIsLoaded;

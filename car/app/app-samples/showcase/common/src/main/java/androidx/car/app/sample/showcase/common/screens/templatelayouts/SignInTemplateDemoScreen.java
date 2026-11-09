@@ -63,6 +63,7 @@ public class SignInTemplateDemoScreen extends Screen {
     private final Action mPinSignInAction;
     private final Action mQRCodeSignInAction;
     // package private to avoid synthetic accessor
+    @SuppressWarnings("ExposedPrivateType")
     State mState = State.USERNAME;
     @Nullable String mLastErrorMessage; // last displayed error message
     @Nullable String mErrorMessage;

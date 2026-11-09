@@ -532,12 +532,12 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
      *
      * <p>All other lower layers of the line are not visible so they are not drawn.
      */
-    static class ArcDrawableImpl implements ArcDrawable {
+    private static class ArcDrawableImpl implements ArcDrawable {
         // The list of segments that compose the ArcDrawable, in the order that they should be
         // drawn.
         private final @NonNull List<Segment> mSegments = new ArrayList<>();
 
-        ArcDrawableImpl(
+        private ArcDrawableImpl(
                 @NonNull RectF bounds,
                 float sweepAngle,
                 float thicknessPx,
@@ -668,7 +668,7 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
      * canvas.drawPath}, because {@code canvas.drawPath} implementation has a bug when the path is
      * an Arc which causes the aliasing issue (b/393971851)
      */
-    static class ArcDrawableLegacy implements ArcDrawable {
+    private static class ArcDrawableLegacy implements ArcDrawable {
 
         private final @NonNull Paint mPaint;
         private final RectF mBounds;

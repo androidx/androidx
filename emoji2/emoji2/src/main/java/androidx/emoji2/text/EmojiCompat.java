@@ -1392,7 +1392,7 @@ public class EmojiCompat {
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         int @Nullable [] mEmojiAsDefaultStyleExceptions;
         @SuppressWarnings("WeakerAccess") /* synthetic access */
-        @Nullable Set<InitWithExecutor> mInitCallbacks;
+        private @Nullable Set<InitWithExecutor> mInitCallbacks;
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         boolean mEmojiSpanIndicatorEnabled;
         @SuppressWarnings("WeakerAccess") /* synthetic access */

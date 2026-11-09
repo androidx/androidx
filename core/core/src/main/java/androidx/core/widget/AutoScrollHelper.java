@@ -136,7 +136,7 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
     private static final int VERTICAL = 1;
 
     /** Scroller used to control acceleration toward maximum velocity. */
-    final ClampedScroller mScroller = new ClampedScroller();
+    private final ClampedScroller mScroller = new ClampedScroller();
 
     /** Interpolator used to scale velocity with touch position. */
     private final Interpolator mEdgeInterpolator = new AccelerateInterpolator();

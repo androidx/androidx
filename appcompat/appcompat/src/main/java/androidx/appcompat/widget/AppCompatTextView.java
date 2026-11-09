@@ -824,7 +824,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
 
     @UiThread
     @RequiresApi(api = 26)
-    SuperCaller getSuperCaller() {
+    private SuperCaller getSuperCaller() {
         if (mSuperCaller == null) {
             if (Build.VERSION.SDK_INT >= 34) {
                 mSuperCaller = new SuperCallerApi34();
@@ -862,7 +862,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     }
 
     @RequiresApi(api = 26)
-    class SuperCallerApi26 implements SuperCaller {
+    private class SuperCallerApi26 implements SuperCaller {
         @Override
         public int getAutoSizeMaxTextSize() {
             return AppCompatTextView.super.getAutoSizeMaxTextSize();
@@ -926,7 +926,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     }
 
     @RequiresApi(api = 28)
-    class SuperCallerApi28 extends SuperCallerApi26 {
+    private class SuperCallerApi28 extends SuperCallerApi26 {
 
         @Override
         public void setFirstBaselineToTopHeight(@Px int firstBaselineToTopHeight) {
@@ -940,7 +940,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     }
 
     @RequiresApi(api = 34)
-    class SuperCallerApi34 extends SuperCallerApi28 {
+    private class SuperCallerApi34 extends SuperCallerApi28 {
         @Override
         public void setLineHeight(int unit, float lineHeight) {
             AppCompatTextView.super.setLineHeight(unit, lineHeight);

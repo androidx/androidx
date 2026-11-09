@@ -75,7 +75,7 @@ public class FadeAndShortSlide extends Visibility {
         return mDistance >= 0 ? mDistance : (sceneRoot.getHeight() / 4);
     }
 
-    final static CalculateSlide sCalculateStart = new CalculateSlide() {
+    private static final CalculateSlide sCalculateStart = new CalculateSlide() {
         @Override
         public float getGoneX(FadeAndShortSlide t, ViewGroup sceneRoot, View view, int[] position) {
             final boolean isRtl = sceneRoot.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
@@ -89,7 +89,7 @@ public class FadeAndShortSlide extends Visibility {
         }
     };
 
-    final static CalculateSlide sCalculateEnd = new CalculateSlide() {
+    private static final CalculateSlide sCalculateEnd = new CalculateSlide() {
         @Override
         public float getGoneX(FadeAndShortSlide t, ViewGroup sceneRoot, View view, int[] position) {
             final boolean isRtl = sceneRoot.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
@@ -103,7 +103,7 @@ public class FadeAndShortSlide extends Visibility {
         }
     };
 
-    final static CalculateSlide sCalculateStartEnd = new CalculateSlide() {
+    private static final CalculateSlide sCalculateStartEnd = new CalculateSlide() {
         @Override
         public float getGoneX(FadeAndShortSlide t, ViewGroup sceneRoot, View view, int[] position) {
             final int viewCenter = position[0] + view.getWidth() / 2;
@@ -119,21 +119,21 @@ public class FadeAndShortSlide extends Visibility {
         }
     };
 
-    final static CalculateSlide sCalculateBottom = new CalculateSlide() {
+    private static final CalculateSlide sCalculateBottom = new CalculateSlide() {
         @Override
         public float getGoneY(FadeAndShortSlide t, ViewGroup sceneRoot, View view, int[] position) {
             return view.getTranslationY() + t.getVerticalDistance(sceneRoot);
         }
     };
 
-    final static CalculateSlide sCalculateTop = new CalculateSlide() {
+    private static final CalculateSlide sCalculateTop = new CalculateSlide() {
         @Override
         public float getGoneY(FadeAndShortSlide t, ViewGroup sceneRoot, View view, int[] position) {
             return view.getTranslationY() - t.getVerticalDistance(sceneRoot);
         }
     };
 
-    final CalculateSlide sCalculateTopBottom = new CalculateSlide() {
+    private final CalculateSlide mCalculateTopBottom = new CalculateSlide() {
         @Override
         public float getGoneY(FadeAndShortSlide t, ViewGroup sceneRoot, View view, int[] position) {
             final int viewCenter = position[1] + view.getHeight() / 2;
@@ -210,7 +210,7 @@ public class FadeAndShortSlide extends Visibility {
                 mSlideCalculator = sCalculateBottom;
                 break;
             case Gravity.TOP | Gravity.BOTTOM:
-                mSlideCalculator = sCalculateTopBottom;
+                mSlideCalculator = mCalculateTopBottom;
                 break;
             default:
                 throw new IllegalArgumentException("Invalid slide direction");

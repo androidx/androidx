@@ -83,7 +83,7 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
      * to a single node representing that Animator, not create a new Node
      * if one already exists.
      */
-    SimpleArrayMap<Animator, Node> mNodeMap = new SimpleArrayMap<Animator, Node>();
+    private SimpleArrayMap<Animator, Node> mNodeMap = new SimpleArrayMap<Animator, Node>();
 
     /**
      * Contains the start and end events of all the nodes. All these events are sorted in this list.
@@ -1643,7 +1643,7 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
         return mTotalDuration;
     }
 
-    Node getNodeForAnimation(Animator anim) {
+    private Node getNodeForAnimation(Animator anim) {
         Node node = mNodeMap.get(anim);
         if (node == null) {
             node = new Node(anim);

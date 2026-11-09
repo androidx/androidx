@@ -541,7 +541,7 @@ public final class ResourceManagerInternal {
         }
     }
 
-    static class AsldcInflateDelegate implements InflateDelegate {
+    private static class AsldcInflateDelegate implements InflateDelegate {
         @Override
         public Drawable createFromXmlInner(@NonNull Context context, @NonNull XmlPullParser parser,
                 @NonNull AttributeSet attrs, Resources.@Nullable Theme theme) {
@@ -555,7 +555,7 @@ public final class ResourceManagerInternal {
         }
     }
 
-    static class DrawableDelegate implements InflateDelegate {
+    private static class DrawableDelegate implements InflateDelegate {
         @Override
         public Drawable createFromXmlInner(@NonNull Context context, @NonNull XmlPullParser parser,
                 @NonNull AttributeSet attrs, Resources.@Nullable Theme theme) {

@@ -48,8 +48,8 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
     private ArrayList<ChangeInfo> mPendingChanges = new ArrayList<>();
 
     ArrayList<ArrayList<RecyclerView.ViewHolder>> mAdditionsList = new ArrayList<>();
-    ArrayList<ArrayList<MoveInfo>> mMovesList = new ArrayList<>();
-    ArrayList<ArrayList<ChangeInfo>> mChangesList = new ArrayList<>();
+    private ArrayList<ArrayList<MoveInfo>> mMovesList = new ArrayList<>();
+    private ArrayList<ArrayList<ChangeInfo>> mChangesList = new ArrayList<>();
 
     ArrayList<RecyclerView.ViewHolder> mAddAnimations = new ArrayList<>();
     ArrayList<RecyclerView.ViewHolder> mMoveAnimations = new ArrayList<>();
@@ -356,7 +356,7 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
         return true;
     }
 
-    void animateChangeImpl(final ChangeInfo changeInfo) {
+    private void animateChangeImpl(final ChangeInfo changeInfo) {
         final RecyclerView.ViewHolder holder = changeInfo.oldHolder;
         final View view = holder == null ? null : holder.itemView;
         final RecyclerView.ViewHolder newHolder = changeInfo.newHolder;

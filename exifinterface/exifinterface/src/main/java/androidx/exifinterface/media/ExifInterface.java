@@ -3919,7 +3919,7 @@ public class ExifInterface {
     private static final int IFD_TYPE_PEF = 9;
 
     // List of Exif tag groups, indexed by the IDF_TYPE_* constants above.
-    static final ExifTag[][] EXIF_TAGS =
+    private static final ExifTag[][] EXIF_TAGS =
             new ExifTag[][] {
                 IFD_TIFF_TAGS, IFD_EXIF_TAGS, IFD_GPS_TAGS, IFD_INTEROPERABILITY_TAGS,
                 IFD_THUMBNAIL_TAGS, IFD_TIFF_TAGS, ORF_MAKER_NOTE_TAGS, ORF_CAMERA_SETTINGS_TAGS,

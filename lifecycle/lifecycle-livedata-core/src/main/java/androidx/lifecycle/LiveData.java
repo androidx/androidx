@@ -134,7 +134,7 @@ public abstract class LiveData<T> {
         observer.mObserver.onChanged((T) mData);
     }
 
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @SuppressWarnings({"WeakerAccess", "ExposedPrivateType"}) /* synthetic access */
     void dispatchingValue(@Nullable ObserverWrapper initiator) {
         if (mDispatchingValue) {
             mDispatchInvalidated = true;
@@ -414,7 +414,7 @@ public abstract class LiveData<T> {
         }
     }
 
-    class LifecycleBoundObserver extends ObserverWrapper implements LifecycleEventObserver {
+    private class LifecycleBoundObserver extends ObserverWrapper implements LifecycleEventObserver {
         final @NonNull LifecycleOwner mOwner;
 
         LifecycleBoundObserver(@NonNull LifecycleOwner owner, Observer<? super T> observer) {

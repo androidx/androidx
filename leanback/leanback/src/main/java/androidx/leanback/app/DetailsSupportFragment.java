@@ -381,7 +381,7 @@ public class DetailsSupportFragment extends BaseSupportFragment {
 
     Object mSceneAfterEntranceTransition;
 
-    final SetSelectionRunnable mSetSelectionRunnable = new SetSelectionRunnable();
+    private final SetSelectionRunnable mSetSelectionRunnable = new SetSelectionRunnable();
 
     final BaseOnItemViewSelectedListener<Object> mOnItemViewSelectedListener =
             new BaseOnItemViewSelectedListener<Object>() {

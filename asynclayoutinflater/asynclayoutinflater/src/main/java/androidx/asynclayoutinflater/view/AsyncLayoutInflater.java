@@ -70,7 +70,7 @@ public final class AsyncLayoutInflater {
     private static final String TAG = "AsyncLayoutInflater";
     LayoutInflater mInflater;
     Handler mHandler;
-    InflateThread mInflateThread;
+    private final InflateThread mInflateThread;
 
     public AsyncLayoutInflater(@NonNull Context context) {
         mInflater = new BasicInflater(context);
@@ -138,7 +138,7 @@ public final class AsyncLayoutInflater {
         }
     };
 
-    static void triggerCallbacks(InflateRequest request, InflateThread mInflateThread) {
+    private static void triggerCallbacks(InflateRequest request, InflateThread mInflateThread) {
         request.callback.onInflateFinished(request.view, request.resid, request.parent);
         mInflateThread.releaseRequest(request);
     }

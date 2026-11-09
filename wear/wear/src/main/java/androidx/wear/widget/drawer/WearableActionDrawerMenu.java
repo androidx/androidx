@@ -235,7 +235,7 @@ import java.util.List;
         private Drawable mIconDrawable;
         private MenuItem.OnMenuItemClickListener mClickListener;
 
-        WearableActionDrawerMenuItem(
+        private WearableActionDrawerMenuItem(
                 Context context, int id, CharSequence title, MenuItemChangedListener listener) {
             mContext = context;
             mId = id;
