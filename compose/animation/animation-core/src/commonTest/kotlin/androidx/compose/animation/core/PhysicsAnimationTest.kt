@@ -187,8 +187,35 @@ class PhysicsAnimationTest {
     @Test
     fun testEndSnapping() {
         TargetBasedAnimation(spring(), Float.VectorConverter, 0f, 100f, 0f).also { animation ->
-            assertEquals(0f, animation.getVelocityVectorFromMillis(animation.durationMillis).value)
-            assertEquals(100f, animation.getValueFromMillis(animation.durationMillis))
+            assertEquals(0f, animation.getVelocityVectorFromNanos(animation.durationNanos).value)
+            assertEquals(100f, animation.getValueFromNanos(animation.durationNanos))
+        }
+    }
+
+    @OptIn(ExperimentalAnimationCoreApi::class)
+    @Test
+    fun nanosecondPrecisionAndFlag() {
+        val spec = FloatSpringSpec()
+        val wasEnabled = ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled
+        try {
+            ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled = true
+            val valAt0 = spec.getValueFromNanos(0L, 0f, 100f, 0f)
+            val valAtHalfMs = spec.getValueFromNanos(500_000L, 0f, 100f, 0f)
+            val velAtHalfMs = spec.getVelocityFromNanos(500_000L, 0f, 100f, 0f)
+            val durationNanosEnabled = spec.getDurationNanos(0f, 100f, 0f)
+            assertTrue(valAtHalfMs > valAt0)
+            assertTrue(velAtHalfMs > 0f)
+            assertTrue(durationNanosEnabled % MillisToNanos != 0L)
+
+            ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled = false
+            val valAtHalfMsDisabled = spec.getValueFromNanos(500_000L, 0f, 100f, 0f)
+            val velAtHalfMsDisabled = spec.getVelocityFromNanos(500_000L, 0f, 100f, 0f)
+            val durationNanosDisabled = spec.getDurationNanos(0f, 100f, 0f)
+            assertEquals(valAt0, valAtHalfMsDisabled)
+            assertEquals(0f, velAtHalfMsDisabled)
+            assertEquals(0L, durationNanosDisabled % MillisToNanos)
+        } finally {
+            ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled = wasEnabled
         }
     }
 

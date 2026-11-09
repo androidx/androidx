@@ -63,4 +63,15 @@ public object ComposeAnimationCoreFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isSeekableTransitionStateStartAfterLayoutEnabled: Boolean = true
+
+    /**
+     * Enables nanosecond precision for animation value, velocity, and duration calculations in
+     * [FloatSpringSpec], [FloatExponentialDecaySpec], [VectorizedKeyframesSpec],
+     * `VectorizedMonoSplineKeyframesSpec`, and `SplineBasedFloatDecayAnimationSpec`. When disabled,
+     * animation play times and durations are truncated to whole milliseconds.
+     */
+    // TODO: b/562143106 - Cleanup feature flag
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isNanosecondAnimationSpecEnabled: Boolean = false
 }

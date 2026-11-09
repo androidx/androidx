@@ -289,4 +289,33 @@ class KeyframeAnimationTest {
         assertThat(animation.at(delay + duration + 1)).isEqualTo(5f)
         assertThat(animation.at(delay + duration + 50)).isEqualTo(5f)
     }
+
+    @OptIn(ExperimentalAnimationCoreApi::class)
+    @Test
+    fun subMillisecondInterpolationAndFlag() {
+        val animation = keyframes {
+            durationMillis = 100
+            0f at 0 using LinearEasing
+            100f at 100
+        }
+            .vectorize(Float.VectorConverter)
+        val start = AnimationVector1D(0f)
+        val end = AnimationVector1D(100f)
+        val initialVelocity = AnimationVector1D(0f)
+
+        val wasEnabled = ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled
+        try {
+            ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled = true
+            val valAtHalfMs =
+                animation.getValueFromNanos(500_000L, start, end, initialVelocity).value
+            assertThat(valAtHalfMs).isWithin(0.0001f).of(0.5f)
+
+            ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled = false
+            val valAtHalfMsDisabled =
+                animation.getValueFromNanos(500_000L, start, end, initialVelocity).value
+            assertThat(valAtHalfMsDisabled).isEqualTo(0f)
+        } finally {
+            ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled = wasEnabled
+        }
+    }
 }

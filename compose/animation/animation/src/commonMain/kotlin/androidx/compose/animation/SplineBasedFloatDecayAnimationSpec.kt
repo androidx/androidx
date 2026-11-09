@@ -16,6 +16,8 @@
 
 package androidx.compose.animation
 
+import androidx.compose.animation.core.ComposeAnimationCoreFlags
+import androidx.compose.animation.core.ExperimentalAnimationCoreApi
 import androidx.compose.animation.core.FloatDecayAnimationSpec
 import androidx.compose.ui.unit.Density
 import kotlin.math.sign
@@ -39,28 +41,45 @@ public class SplineBasedFloatDecayAnimationSpec(density: Density) : FloatDecayAn
     override fun getTargetValue(initialValue: Float, initialVelocity: Float): Float =
         initialValue + flingDistance(initialVelocity)
 
+    @OptIn(ExperimentalAnimationCoreApi::class)
     @Suppress("MethodNameUnits")
     override fun getValueFromNanos(
         playTimeNanos: Long,
         initialValue: Float,
         initialVelocity: Float,
     ): Float {
-        val playTimeMillis = playTimeNanos / 1_000_000L
-        return initialValue + flingCalculator.flingInfo(initialVelocity).position(playTimeMillis)
+        val flingInfo = flingCalculator.flingInfo(initialVelocity)
+        return if (ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled) {
+            initialValue + flingInfo.positionFromNanos(playTimeNanos)
+        } else {
+            val playTimeMillis = playTimeNanos / 1_000_000L
+            initialValue + flingInfo.position(playTimeMillis)
+        }
     }
 
+    @OptIn(ExperimentalAnimationCoreApi::class)
     @Suppress("MethodNameUnits")
-    override fun getDurationNanos(initialValue: Float, initialVelocity: Float): Long =
-        flingCalculator.flingDuration(initialVelocity) * 1_000_000L
+    override fun getDurationNanos(initialValue: Float, initialVelocity: Float): Long {
+        if (ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled) {
+            return flingCalculator.flingDurationNanos(initialVelocity)
+        }
+        return flingCalculator.flingDuration(initialVelocity) * 1_000_000L
+    }
 
+    @OptIn(ExperimentalAnimationCoreApi::class)
     @Suppress("MethodNameUnits")
     override fun getVelocityFromNanos(
         playTimeNanos: Long,
         initialValue: Float,
         initialVelocity: Float,
     ): Float {
-        val playTimeMillis = playTimeNanos / 1_000_000L
-        return flingCalculator.flingInfo(initialVelocity).velocity(playTimeMillis)
+        val flingInfo = flingCalculator.flingInfo(initialVelocity)
+        return if (ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled) {
+            flingInfo.velocityFromNanos(playTimeNanos)
+        } else {
+            val playTimeMillis = playTimeNanos / 1_000_000L
+            flingInfo.velocity(playTimeMillis)
+        }
     }
 }
 

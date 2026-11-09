@@ -101,29 +101,48 @@ public class FloatExponentialDecaySpec(
     override val absVelocityThreshold: Float = max(0.0000001f, abs(absVelocityThreshold))
     private val friction: Float = ExponentialDecayFriction * max(0.0001f, frictionMultiplier)
 
+    @OptIn(ExperimentalAnimationCoreApi::class)
     override fun getValueFromNanos(
         playTimeNanos: Long,
         initialValue: Float,
         initialVelocity: Float,
     ): Float {
-        // TODO: Properly support nanos
-        val playTimeMillis = playTimeNanos / MillisToNanos
+        val effectivePlayTimeNanos =
+            if (ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled) {
+                playTimeNanos
+            } else {
+                (playTimeNanos / MillisToNanos) * MillisToNanos
+            }
+        val deltaT = (effectivePlayTimeNanos.toDouble() / SecondsToNanos).toFloat()
         return initialValue - initialVelocity / friction +
-            initialVelocity / friction * exp(friction * playTimeMillis / 1000f)
+            initialVelocity / friction * exp(friction * deltaT)
     }
 
+    @OptIn(ExperimentalAnimationCoreApi::class)
     override fun getVelocityFromNanos(
         playTimeNanos: Long,
         initialValue: Float,
         initialVelocity: Float,
     ): Float {
-        // TODO: Properly support nanos
-        val playTimeMillis = playTimeNanos / MillisToNanos
-        return (initialVelocity * exp(((playTimeMillis / 1000f) * friction)))
+        val effectivePlayTimeNanos =
+            if (ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled) {
+                playTimeNanos
+            } else {
+                (playTimeNanos / MillisToNanos) * MillisToNanos
+            }
+        val deltaT = (effectivePlayTimeNanos.toDouble() / SecondsToNanos).toFloat()
+        return initialVelocity * exp(deltaT * friction)
     }
 
+    @OptIn(ExperimentalAnimationCoreApi::class)
     @Suppress("MethodNameUnits")
     override fun getDurationNanos(initialValue: Float, initialVelocity: Float): Long {
+        if (ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled) {
+            return (SecondsToNanos.toDouble() * ln(absVelocityThreshold / abs(initialVelocity)) /
+                    friction)
+                .toLong()
+                .coerceAtLeast(0L)
+        }
         // Inverse of getVelocity
         return (1000f * ln(absVelocityThreshold / abs(initialVelocity)) / friction).toLong() *
             MillisToNanos
