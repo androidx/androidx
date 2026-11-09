@@ -464,7 +464,13 @@ package androidx.compose.remote.creation.compose.state {
     property public default boolean hasConstantValue;
   }
 
-  public static class RemoteState.Domain {
+  @androidx.compose.runtime.Stable public static class RemoteState.Domain {
+    ctor public RemoteState.Domain(String? namespace);
+    method public final String prefixed(String name);
+  }
+
+  public static final class RemoteState.Domain.None extends androidx.compose.remote.creation.compose.state.RemoteState.Domain {
+    field public static final androidx.compose.remote.creation.compose.state.RemoteState.Domain.None INSTANCE;
   }
 
   public static final class RemoteState.Domain.System extends androidx.compose.remote.creation.compose.state.RemoteState.Domain {

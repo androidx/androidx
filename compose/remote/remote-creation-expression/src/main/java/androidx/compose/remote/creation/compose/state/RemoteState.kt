@@ -64,44 +64,122 @@ public interface RemoteState<T> {
     public fun toDebugString(): String
 
     /**
-     * Represents the domain (namespace) for named remote states.
+     * The [Domain] namespaces named [RemoteState] variables so document-specific, host-defined, and
+     * shared values do not collide.
      *
-     * Named states are used to identify variables that can be updated externally or shared across
-     * different parts of a remote document.
+     * Named states are recorded in a remote document under `<namespace>:<name>` (or bare `<name>`
+     * for [None]; see [prefixed]). Hosts update these variables at playback without re-recording
+     * the document, and can inspect a document's declared variable names to push only the domains
+     * that document reads:
+     * - [User] (`"USER"`): Document-defined state supplied by the host specifically for a single
+     *   document. Its meaning is only known for that document (for example, `"shutter.is_open"` for
+     *   a card's bound device slot).
+     * - [System] (`"SYSTEM"`): Host-defined state whose meaning is defined for a specific host
+     *   across documents, providing values such as current heart rate BPM
+     *   (`"SYSTEM:heart_rate_bpm"`).
+     * - Custom domains (`Domain("HOME")`): Shared namespaces defined for an application ecosystem
+     *   so multiple documents played in the same host can read well-known shared values alongside
+     *   their own [User] slots.
+     * - [None] (`null`): Unprefixed variables stored directly under their bare name without a `':'`
+     *   prefix.
+     *
+     * For example, a home automation dashboard can define a `"HOME"` domain for home-wide values
+     * alongside per-card [User] device slots:
+     * ```kotlin
+     * val Home = RemoteState.Domain("HOME")
+     *
+     * // Document-defined slot in USER ("USER:shutter.is_open"), bound per card instance:
+     * val isShutterOpen =
+     *     RemoteBoolean.createNamedRemoteBoolean(name = "shutter.is_open", defaultValue = false)
+     *
+     * // Shared home values in HOME ("HOME:sun.elevation", "HOME:sun.above_horizon"), meaningful
+     * // to any card on the dashboard and defaulting to daytime when solar data is unavailable:
+     * val sunElevation =
+     *     RemoteFloat.createNamedRemoteFloat(
+     *         name = "sun.elevation",
+     *         defaultValue = 45f,
+     *         domain = Home,
+     *     )
+     * val isSunUp =
+     *     RemoteBoolean.createNamedRemoteBoolean(
+     *         name = "sun.above_horizon",
+     *         defaultValue = true,
+     *         domain = Home,
+     *     )
+     *
+     * // Host-defined value in SYSTEM ("SYSTEM:heart_rate_bpm"), provided by a wearable host:
+     * val heartRateBpm =
+     *     RemoteFloat.createNamedRemoteFloat(
+     *         name = "heart_rate_bpm",
+     *         defaultValue = 70f,
+     *         domain = RemoteState.Domain.System,
+     *     )
+     * ```
+     *
+     * @param namespace non-empty domain identifier without `':'` characters (for example,
+     *   `"HOME"`), or `null` for an unprefixed domain equivalent to [None]
+     * @throws IllegalArgumentException if [namespace] is empty or contains `':'`
      */
-    public open class Domain
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    constructor(internal val coreDomain: String?) {
+    @Stable
+    public open class Domain(namespace: String?) {
+        internal val coreDomain: String? = namespace
+
+        init {
+            if (namespace != null) {
+                require(namespace.isNotEmpty()) {
+                    "Domain namespace cannot be empty; use Domain.None for unprefixed names"
+                }
+                require(':' !in namespace) { "Domain namespace cannot contain ':' ($namespace)" }
+            }
+        }
+
         /**
-         * A string representation of the domain followed by a colon separator, or an empty string
-         * if the domain is null. This is used to namespace named remote states.
+         * The string prefix (`"<namespace>:"`) prepended to variable names in this domain, or `""`
+         * for [None].
          */
         @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public val prefix: String
             get() = if (coreDomain != null) "$coreDomain:" else ""
 
         /**
-         * Returns the given [name] prefixed with this domain and a colon, or just [name] if the
-         * [coreDomain] is null.
+         * Prepends this domain's namespace and `':'` to [name] (for example,
+         * `"HOME:sun.elevation"`), or returns [name] unchanged for [None].
+         *
+         * @param name variable name within this domain
+         * @return qualified variable name stored in the remote document
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun prefixed(name: String): String {
             return "$prefix$name"
         }
 
         /**
-         * The default user-defined domain.
+         * [User] defines the default `"USER"` domain for document-specific named state.
          *
-         * Recommended for application-specific state.
+         * Variables in [User] are defined by the document and expected to be provided by the host
+         * specifically for this document; their meaning is only known for a specific document (for
+         * example, `"USER:shutter.is_open"` or `"USER:target_temperature"` for a dashboard card's
+         * configured device).
          */
         public object User : Domain(USER_DOMAIN)
 
-        /** The system-defined domain, used for platform-level or framework state. */
+        /**
+         * [System] defines the `"SYSTEM"` domain for host-defined state shared across documents.
+         *
+         * Variables in [System] have a meaning defined for a specific host, providing live values
+         * such as current heart rate BPM (`"SYSTEM:heart_rate_bpm"`).
+         */
         public object System : Domain(SYSTEM_DOMAIN)
 
-        /** The domain for states that do not belong to any specific domain. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public object None : Domain(null)
+        /**
+         * [None] defines an unprefixed domain where variables are stored directly under their bare
+         * name without a `':'` namespace prefix.
+         */
+        public object None : Domain(null)
 
+        /**
+         * Returns this domain's namespace (for example, `"USER"`, `"SYSTEM"`, or `"HOME"`), or `""`
+         * for [None].
+         */
         override fun toString(): String {
             return coreDomain ?: ""
         }
