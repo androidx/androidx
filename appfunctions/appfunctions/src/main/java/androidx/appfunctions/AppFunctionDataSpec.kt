@@ -121,6 +121,11 @@ public abstract class AppFunctionDataSpec {
     }
 
     private fun requireSemanticallyEquivalentTo(other: AppFunctionDataSpec) {
+        // Spec equality ignores the component metadata, so only take the fast path when both
+        // specs also resolve references against the same components.
+        if (this == other && componentMetadata === other.componentMetadata) {
+            return
+        }
         val thisKeys = this.getAllPropertyKeys()
         val otherKeys = other.getAllPropertyKeys()
         require(thisKeys == otherKeys) {

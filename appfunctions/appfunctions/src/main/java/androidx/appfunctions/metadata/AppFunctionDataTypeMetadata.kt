@@ -67,6 +67,9 @@ internal constructor(
         otherComponent: AppFunctionComponentsMetadata,
         visitingPairs: MutableSet<Pair<String, String>> = mutableSetOf(),
     ) {
+        if (this === other && thisComponent === otherComponent) {
+            return
+        }
         require(this.isNullable == other.isNullable) {
             "Nullable mismatch. Expected: ${this.isNullable}, actual: ${other.isNullable}"
         }

@@ -1953,6 +1953,83 @@ class AppFunctionDataTest {
     }
 
     @Test
+    fun testValidateDataSpecMatches_equalSpecSameComponents_succeeds() {
+        val components =
+            AppFunctionComponentsMetadata(
+                dataTypes =
+                    mapOf(
+                        "Leaf" to
+                            AppFunctionObjectTypeMetadata(
+                                properties =
+                                    mapOf("v" to AppFunctionStringTypeMetadata(isNullable = false)),
+                                required = listOf("v"),
+                                qualifiedName = "Leaf",
+                                isNullable = false,
+                            )
+                    )
+            )
+        val childType =
+            AppFunctionObjectTypeMetadata(
+                properties =
+                    mapOf("leaf" to AppFunctionReferenceTypeMetadata("Leaf", isNullable = false)),
+                required = listOf("leaf"),
+                qualifiedName = "Child",
+                isNullable = false,
+            )
+        val spec = AppFunctionDataSpec.create(childType, components)
+        val leaf =
+            AppFunctionData.Builder(
+                    components.dataTypes["Leaf"] as AppFunctionObjectTypeMetadata,
+                    components,
+                )
+                .setString("v", "hello")
+                .build()
+        val data =
+            AppFunctionData.Builder(childType, components).setAppFunctionData("leaf", leaf).build()
+
+        spec.validateDataSpecMatches(data)
+    }
+
+    @Test
+    fun testValidateDataSpecMatches_equalObjectTypeDifferentComponents_throwsException() {
+        // Both specs use the same object type, but "Leaf" resolves to different types.
+        val childType =
+            AppFunctionObjectTypeMetadata(
+                properties =
+                    mapOf("leaf" to AppFunctionReferenceTypeMetadata("Leaf", isNullable = false)),
+                required = listOf("leaf"),
+                qualifiedName = "Child",
+                isNullable = false,
+            )
+        val stringLeaf =
+            AppFunctionObjectTypeMetadata(
+                properties = mapOf("v" to AppFunctionStringTypeMetadata(isNullable = false)),
+                required = listOf("v"),
+                qualifiedName = "Leaf",
+                isNullable = false,
+            )
+        val intLeaf =
+            AppFunctionObjectTypeMetadata(
+                properties = mapOf("v" to AppFunctionIntTypeMetadata(isNullable = false)),
+                required = listOf("v"),
+                qualifiedName = "Leaf",
+                isNullable = false,
+            )
+        val expectedComponents =
+            AppFunctionComponentsMetadata(dataTypes = mapOf("Leaf" to stringLeaf))
+        val actualComponents = AppFunctionComponentsMetadata(dataTypes = mapOf("Leaf" to intLeaf))
+        val leaf = AppFunctionData.Builder(intLeaf, actualComponents).setInt("v", 1).build()
+        val data =
+            AppFunctionData.Builder(childType, actualComponents)
+                .setAppFunctionData("leaf", leaf)
+                .build()
+
+        val expectedSpec = AppFunctionDataSpec.create(childType, expectedComponents)
+
+        assertFailsWith<IllegalArgumentException> { expectedSpec.validateDataSpecMatches(data) }
+    }
+
+    @Test
     fun testValidateDataSpecMatches_recursiveValidation_throwsException() {
         val grandChildSpec =
             AppFunctionObjectTypeMetadata(
