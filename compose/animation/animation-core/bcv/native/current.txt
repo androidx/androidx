@@ -6,6 +6,10 @@
 // - Show declarations: true
 
 // Library unique name: <androidx.compose.animation:animation-core>
+open annotation class androidx.compose.animation.core/ExperimentalAnimationCoreApi : kotlin/Annotation { // androidx.compose.animation.core/ExperimentalAnimationCoreApi|null[0]
+    constructor <init>() // androidx.compose.animation.core/ExperimentalAnimationCoreApi.<init>|<init>(){}[0]
+}
+
 open annotation class androidx.compose.animation.core/ExperimentalAnimationSpecApi : kotlin/Annotation { // androidx.compose.animation.core/ExperimentalAnimationSpecApi|null[0]
     constructor <init>() // androidx.compose.animation.core/ExperimentalAnimationSpecApi.<init>|<init>(){}[0]
 }
@@ -817,6 +821,12 @@ final object androidx.compose.animation.core/AnimationConstants { // androidx.co
         final fun <get-UnspecifiedTime>(): kotlin/Long // androidx.compose.animation.core/AnimationConstants.UnspecifiedTime.<get-UnspecifiedTime>|<get-UnspecifiedTime>(){}[0]
 }
 
+final object androidx.compose.animation.core/ComposeAnimationCoreFlags { // androidx.compose.animation.core/ComposeAnimationCoreFlags|null[0]
+    final var isSeekableTransitionStateStartAfterLayoutEnabled // androidx.compose.animation.core/ComposeAnimationCoreFlags.isSeekableTransitionStateStartAfterLayoutEnabled|{}isSeekableTransitionStateStartAfterLayoutEnabled[0]
+        final fun <get-isSeekableTransitionStateStartAfterLayoutEnabled>(): kotlin/Boolean // androidx.compose.animation.core/ComposeAnimationCoreFlags.isSeekableTransitionStateStartAfterLayoutEnabled.<get-isSeekableTransitionStateStartAfterLayoutEnabled>|<get-isSeekableTransitionStateStartAfterLayoutEnabled>(){}[0]
+        final fun <set-isSeekableTransitionStateStartAfterLayoutEnabled>(kotlin/Boolean) // androidx.compose.animation.core/ComposeAnimationCoreFlags.isSeekableTransitionStateStartAfterLayoutEnabled.<set-isSeekableTransitionStateStartAfterLayoutEnabled>|<set-isSeekableTransitionStateStartAfterLayoutEnabled>(kotlin.Boolean){}[0]
+}
+
 final object androidx.compose.animation.core/Spring { // androidx.compose.animation.core/Spring|null[0]
     final const val DampingRatioHighBouncy // androidx.compose.animation.core/Spring.DampingRatioHighBouncy|{}DampingRatioHighBouncy[0]
         final fun <get-DampingRatioHighBouncy>(): kotlin/Float // androidx.compose.animation.core/Spring.DampingRatioHighBouncy.<get-DampingRatioHighBouncy>|<get-DampingRatioHighBouncy>(){}[0]
@@ -962,6 +972,7 @@ final val androidx.compose.animation.core/androidx_compose_animation_core_Animat
 final val androidx.compose.animation.core/androidx_compose_animation_core_AnimationVector4D$stableprop // androidx.compose.animation.core/androidx_compose_animation_core_AnimationVector4D$stableprop|#static{}androidx_compose_animation_core_AnimationVector4D$stableprop[0]
 final val androidx.compose.animation.core/androidx_compose_animation_core_ArcAnimationSpec$stableprop // androidx.compose.animation.core/androidx_compose_animation_core_ArcAnimationSpec$stableprop|#static{}androidx_compose_animation_core_ArcAnimationSpec$stableprop[0]
 final val androidx.compose.animation.core/androidx_compose_animation_core_ArcSpline_Arc$stableprop // androidx.compose.animation.core/androidx_compose_animation_core_ArcSpline_Arc$stableprop|#static{}androidx_compose_animation_core_ArcSpline_Arc$stableprop[0]
+final val androidx.compose.animation.core/androidx_compose_animation_core_ComposeAnimationCoreFlags$stableprop // androidx.compose.animation.core/androidx_compose_animation_core_ComposeAnimationCoreFlags$stableprop|#static{}androidx_compose_animation_core_ComposeAnimationCoreFlags$stableprop[0]
 final val androidx.compose.animation.core/androidx_compose_animation_core_CubicBezierEasing$stableprop // androidx.compose.animation.core/androidx_compose_animation_core_CubicBezierEasing$stableprop|#static{}androidx_compose_animation_core_CubicBezierEasing$stableprop[0]
 final val androidx.compose.animation.core/androidx_compose_animation_core_DecayAnimation$stableprop // androidx.compose.animation.core/androidx_compose_animation_core_DecayAnimation$stableprop|#static{}androidx_compose_animation_core_DecayAnimation$stableprop[0]
 final val androidx.compose.animation.core/androidx_compose_animation_core_DeferredTargetAnimation$stableprop // androidx.compose.animation.core/androidx_compose_animation_core_DeferredTargetAnimation$stableprop|#static{}androidx_compose_animation_core_DeferredTargetAnimation$stableprop[0]
@@ -1055,6 +1066,7 @@ final fun androidx.compose.animation.core/androidx_compose_animation_core_Animat
 final fun androidx.compose.animation.core/androidx_compose_animation_core_AnimationVector4D$stableprop_getter(): kotlin/Int // androidx.compose.animation.core/androidx_compose_animation_core_AnimationVector4D$stableprop_getter|androidx_compose_animation_core_AnimationVector4D$stableprop_getter(){}[0]
 final fun androidx.compose.animation.core/androidx_compose_animation_core_ArcAnimationSpec$stableprop_getter(): kotlin/Int // androidx.compose.animation.core/androidx_compose_animation_core_ArcAnimationSpec$stableprop_getter|androidx_compose_animation_core_ArcAnimationSpec$stableprop_getter(){}[0]
 final fun androidx.compose.animation.core/androidx_compose_animation_core_ArcSpline_Arc$stableprop_getter(): kotlin/Int // androidx.compose.animation.core/androidx_compose_animation_core_ArcSpline_Arc$stableprop_getter|androidx_compose_animation_core_ArcSpline_Arc$stableprop_getter(){}[0]
+final fun androidx.compose.animation.core/androidx_compose_animation_core_ComposeAnimationCoreFlags$stableprop_getter(): kotlin/Int // androidx.compose.animation.core/androidx_compose_animation_core_ComposeAnimationCoreFlags$stableprop_getter|androidx_compose_animation_core_ComposeAnimationCoreFlags$stableprop_getter(){}[0]
 final fun androidx.compose.animation.core/androidx_compose_animation_core_CubicBezierEasing$stableprop_getter(): kotlin/Int // androidx.compose.animation.core/androidx_compose_animation_core_CubicBezierEasing$stableprop_getter|androidx_compose_animation_core_CubicBezierEasing$stableprop_getter(){}[0]
 final fun androidx.compose.animation.core/androidx_compose_animation_core_DecayAnimation$stableprop_getter(): kotlin/Int // androidx.compose.animation.core/androidx_compose_animation_core_DecayAnimation$stableprop_getter|androidx_compose_animation_core_DecayAnimation$stableprop_getter(){}[0]
 final fun androidx.compose.animation.core/androidx_compose_animation_core_DeferredTargetAnimation$stableprop_getter(): kotlin/Int // androidx.compose.animation.core/androidx_compose_animation_core_DeferredTargetAnimation$stableprop_getter|androidx_compose_animation_core_DeferredTargetAnimation$stableprop_getter(){}[0]
