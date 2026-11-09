@@ -376,8 +376,13 @@ internal class ButtonGroupStateImpl(private val initialItemIndex: Int) : ButtonG
             val currentScroll = userScroll
             if (bounds == null || currentScroll.isNaN()) return delegate.scrollBy(pixels)
             if (anchorIndex == -1) anchorIndex = bounds.getIndexOfClosestChildTo(currentScroll)
-            val target = bounds.clampScroll(anchorIndex, currentScroll + pixels)
-            return delegate.scrollBy(target - currentScroll)
+            val unclampedScroll = currentScroll + pixels
+            val target = bounds.clampScroll(anchorIndex, unclampedScroll)
+            val consumed = delegate.scrollBy(target - currentScroll)
+            // Report the delta discarded by the one-item clamp as consumed, so that it isn't
+            // dispatched to overscroll (or nested scroll parents). Only the delta that the delegate
+            // couldn't consume (because we are at the start or end of the content) remains.
+            return consumed + (unclampedScroll - target)
         }
 
         /**
@@ -387,8 +392,9 @@ internal class ButtonGroupStateImpl(private val initialItemIndex: Int) : ButtonG
          *
          * If there is no item before this item, scrolling backwards (towards the start) is
          * unclamped. If there is no item after this item, scrolling forwards (towards the end) is
-         * unclamped. As the bounds are relative to the start of the content, this applies equally
-         * to LTR and RTL layouts.
+         * unclamped. In these cases, the delegate clamps the scroll to the bounds of the content
+         * instead, and the remaining delta can be used for overscroll. As the bounds are relative
+         * to the start of the content, this applies equally to LTR and RTL layouts.
          */
         private fun ButtonGroupChildrenBounds.clampScroll(
             anchorIndex: Int,
@@ -397,10 +403,10 @@ internal class ButtonGroupStateImpl(private val initialItemIndex: Int) : ButtonG
             if (size == 0) return unclampedScroll
 
             val previousItem = if (anchorIndex < 0) null else getOrNull(anchorIndex - 1)
-            val minScroll = previousItem?.center ?: get(0).start.toFloat()
+            val minScroll = previousItem?.center ?: Float.NEGATIVE_INFINITY
 
             val nextItem = if (anchorIndex < 0) null else getOrNull(anchorIndex + 1)
-            val maxScroll = nextItem?.center ?: last().end.toFloat()
+            val maxScroll = nextItem?.center ?: Float.POSITIVE_INFINITY
 
             return unclampedScroll.fastCoerceIn(minScroll, maxScroll)
         }
