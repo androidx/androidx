@@ -602,17 +602,17 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
     ) {
         val motionEvent = pointerEvent.motionEvent ?: return
         // Trackpad swipes on API 34+ have pressed = false; ignore synthetic Enter/Exit touch
-        // events and cancel on Exit since Compose drops the pointer without sending ACTION_UP.
+        // events and cancel on Exit since Compose drops the pointer without sending ACTION_UP
+        // (including when post-layout hover updates synthesize Exit with ACTION_HOVER_MOVE).
         if (
-            motionEvent.isTouchAction &&
-                !pointerEvent.changes.fastAny { it.pressed } &&
+            !pointerEvent.changes.fastAny { it.pressed } &&
                 (pointerEvent.type == PointerEventType.Enter ||
                     pointerEvent.type == PointerEventType.Exit)
         ) {
             if (pass == PointerEventPass.Final && pointerEvent.type == PointerEventType.Exit) {
                 onCancelPointerInput()
             }
-            return
+            if (motionEvent.isTouchAction) return
         }
         // It takes drags for parents in the Initial pass, before we forward events to Chromium.
         nestedScrollHandover.onPointerEvent(pointerEvent, pass)

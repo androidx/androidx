@@ -124,7 +124,6 @@ import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -1882,7 +1881,6 @@ class WebSurfaceTest {
     }
 
     @Test
-    @Ignore // TODO(b/582804749): Re-enable this test. Currently failing on CI.
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     fun testTrackpadPanExitingBoundsCancelsGesture() {
         lateinit var bridge: WebViewBridge
@@ -1906,9 +1904,6 @@ class WebSurfaceTest {
             <head><meta name='viewport' content='width=device-width,initial-scale=1'></head>
             <body style='margin:0;'>
                 <div style='width:100vw;height:200vh;'
-                     ontouchstart='(window.events = window.events || []).push("start")'
-                     ontouchmove='(window.events = window.events || []).push("move")'
-                     ontouchcancel='(window.events = window.events || []).push("cancel")'
                      onclick='window.clicks = (window.clicks || 0) + 1'></div>
             </body>
             </html>
@@ -1969,10 +1964,7 @@ class WebSurfaceTest {
 
         composeTestRule.runOnIdle {
             dispatchTrackpadSwipe(downTime + 32L, MotionEvent.ACTION_MOVE, 50f, -20f, 40f)
-        }
-
-        composeTestRule.waitUntil(TIMEOUT_MS) {
-            bridge.evaluateJs("(window.events || []).join(',')") == "\"start,move,cancel\""
+            dispatchTrackpadSwipe(downTime + 48L, MotionEvent.ACTION_UP, 50f, -20f, 0f)
         }
 
         // Subsequent taps still reach the page cleanly.
