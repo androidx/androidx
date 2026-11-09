@@ -51,6 +51,7 @@ import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.testTag
@@ -86,6 +87,8 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
@@ -393,6 +396,43 @@ class BasicTextLinkTest {
             // the link starts with two right-to-left characters displayed in reverse order, so its
             // second character is its visually leftmost one
             val boundingBox = layoutResult!!.getBoundingBox(link.start + 1)
+            click(boundingBox.center)
+        }
+
+        rule.runOnIdle { assertThat(openedUri).isEqualTo(Url1) }
+    }
+
+    @Test
+    fun mixedBidiLink_onClick_visuallyRightmostCharacter_opensUrl() {
+        assumeTrue(ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled)
+        setupContent { MixedBidiTextWithLink() }
+
+        rule.runOnIdle { assertThat(layoutResult).isNotNull() }
+        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text)).performTouchInput {
+            val text = layoutResult!!.layoutInput.text
+            val link = text.getLinkAnnotations(0, text.length).single()
+            // the link ends with two right-to-left characters displayed in reverse order, so its
+            // second to last character is its visually rightmost one
+            val boundingBox = layoutResult!!.getBoundingBox(link.end - 2)
+            click(boundingBox.center)
+        }
+
+        rule.runOnIdle { assertThat(openedUri).isEqualTo(Url1) }
+    }
+
+    @Test
+    fun multiLineLink_centeredText_onClick_secondLineStart_opensUrl() {
+        assumeTrue(ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled)
+        setupContent { CenteredTextWithMultiLineLink() }
+
+        rule.runOnIdle {
+            assertThat(layoutResult).isNotNull()
+            assertThat(layoutResult!!.lineCount).isEqualTo(2)
+        }
+        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text)).performTouchInput {
+            // the second line of the link is centered, so its first character is displayed to the
+            // right of the left edge of the text, unlike in start aligned text
+            val boundingBox = layoutResult!!.getBoundingBox(layoutResult!!.getLineStart(1))
             click(boundingBox.center)
         }
 
@@ -1229,6 +1269,40 @@ class BasicTextLinkTest {
             onTextLayout = { layoutResult = it },
         )
     }
+
+    /**
+     * Centered text with a link that wraps onto a second, shorter line. Neither line of the link
+     * starts at the left edge of the text, so the top left corner of the link's bounds is neither
+     * at its first character nor at the start of a line.
+     */
+    @Composable
+    private fun CenteredTextWithMultiLineLink() =
+        with(rule.density) {
+            /** +----------+ | aaa bbb | | ccc | +----------+ */
+            val text = buildAnnotatedString {
+                append("aaa ")
+                withLink(Url(Url1)) { append("bbb ccc") }
+            }
+            BasicText(
+                text = text,
+                modifier = Modifier.width((fontSize * 10).toDp()),
+                style =
+                    TextStyle(
+                        fontSize = fontSize,
+                        fontFamily = TEST_FONT_FAMILY,
+                        textAlign = TextAlign.Center,
+                        // see TextWithLinks
+                        lineHeight =
+                            LocalViewConfiguration.current.minimumTouchTargetSize.height.toSp(),
+                        lineHeightStyle =
+                            LineHeightStyle(
+                                alignment = LineHeightStyle.Alignment.Center,
+                                trim = LineHeightStyle.Trim.None,
+                            ),
+                    ),
+                onTextLayout = { layoutResult = it },
+            )
+        }
 
     @Composable
     private fun RtlTextWithLinks() {
