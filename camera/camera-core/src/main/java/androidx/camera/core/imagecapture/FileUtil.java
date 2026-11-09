@@ -153,7 +153,7 @@ public final class FileUtil {
             }
         } catch (IOException e) {
             throw new ImageCaptureException(
-                    ERROR_FILE_IO, "Failed to write to OutputStream.", null);
+                    ERROR_FILE_IO, "Failed to write to OutputStream.", e);
         } finally {
             tempFile.delete();
         }
@@ -190,13 +190,21 @@ public final class FileUtil {
                         ERROR_FILE_IO, "Failed to insert a MediaStore URI.", null);
             }
             copyTempFileToUri(file, uri, contentResolver);
-        } catch (IOException | SecurityException e) {
-            throw new ImageCaptureException(
-                    ERROR_FILE_IO, "Failed to write to MediaStore URI: " + uri, e);
-        } finally {
+            updateUriPendingStatus(uri, contentResolver, NOT_PENDING);
+        } catch (IOException | RuntimeException e) {
             if (uri != null) {
-                updateUriPendingStatus(uri, contentResolver, NOT_PENDING);
+                try {
+                    contentResolver.delete(uri, null, null);
+                } catch (RuntimeException deleteException) {
+                    if (deleteException != e) {
+                        e.addSuppressed(deleteException);
+                    }
+                }
             }
+            String message = uri != null
+                    ? "Failed to write to MediaStore URI: " + uri
+                    : "Failed to insert a MediaStore URI.";
+            throw new ImageCaptureException(ERROR_FILE_IO, message, e);
         }
         return uri;
     }
