@@ -216,7 +216,10 @@ public object SpatialSceneHelper {
         if (Looper.myLooper() != Looper.getMainLooper()) {
             InstrumentationRegistry.getInstrumentation().waitForIdleSync()
         }
-        captureSpatialScene(uiAutomation = uiAutomation)
+        captureSceneWithPolling(
+            uiAutomation = uiAutomation,
+            maxWaitMs = max(MIN_SCREENSHOT_SCENE_SETTLE_WAIT_MS, timeout.inWholeMilliseconds),
+        )
         val settledBitmap = waitForSettledSoftwareScreenshot(uiAutomation, timeout, pollInterval)
         if (cropBounds != null) {
             val cropped =
@@ -308,7 +311,11 @@ public object SpatialSceneHelper {
         if (Looper.myLooper() != Looper.getMainLooper()) {
             InstrumentationRegistry.getInstrumentation().waitForIdleSync()
         }
-        val scene = captureSpatialScene(uiAutomation = uiAutomation)
+        val scene =
+            captureSceneWithPolling(
+                uiAutomation = uiAutomation,
+                maxWaitMs = max(MIN_SCREENSHOT_SCENE_SETTLE_WAIT_MS, timeout.inWholeMilliseconds),
+            )
         val targetNode =
             requireNotNull(nodeSelector(scene)) {
                 "nodeSelector returned null for captured SpatialScene (tasks=${scene.tasks})"
@@ -321,7 +328,10 @@ public object SpatialSceneHelper {
         )
     }
 
-    private fun captureSceneWithPolling(uiAutomation: UiAutomation): SpatialScene {
+    internal fun captureSceneWithPolling(
+        uiAutomation: UiAutomation,
+        maxWaitMs: Long = DEFAULT_SCENE_POLL_MAX_WAIT_MS,
+    ): SpatialScene {
         var scene: SpatialScene
         val startTime = System.currentTimeMillis()
         while (true) {
@@ -329,15 +339,12 @@ public object SpatialSceneHelper {
             val activitiesDump = executeShellCommand("dumpsys activity activities", uiAutomation)
             val taskPackageMap = parseTaskPackageMap(activitiesDump)
             scene = parseSpatialScene(rawDump = rawDump, taskPackageMap = taskPackageMap)
-            val hasTransition =
-                scene.tasks.any { task ->
-                    task.allNodes.any { it.name.contains("transition snapshot") }
-                }
+            val hasTransition = scene.hasActiveTransition
             val isReady =
                 scene.tasks.any { task ->
                     task.allNodes.any { it.hasSurfaceBounds || it.isEmbeddedWindowLeash }
                 }
-            if ((!hasTransition && isReady) || System.currentTimeMillis() - startTime > 3000) {
+            if ((!hasTransition && isReady) || System.currentTimeMillis() - startTime > maxWaitMs) {
                 break
             }
             try {
@@ -536,10 +543,14 @@ public object SpatialSceneHelper {
      */
     internal fun executeShellCommand(
         command: String,
-        uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation,
+        uiAutomation: UiAutomation? = null,
     ): String {
         return try {
-            uiAutomation.executeShellCommand(command).use { pfd ->
+            val automation =
+                uiAutomation
+                    ?: InstrumentationRegistry.getInstrumentation().uiAutomation
+                    ?: return ""
+            automation.executeShellCommand(command).use { pfd ->
                 ParcelFileDescriptor.AutoCloseInputStream(pfd).use { stream: InputStream ->
                     stream.bufferedReader().readText().trim()
                 }
@@ -672,14 +683,16 @@ constructor(
         get() = tasks.firstOrNull { it.isActive }
 
     /**
-     * True if the scene graph currently contains in-flight window transition snapshots or an active
-     * system transition scrim.
+     * True if the scene graph currently contains in-flight window transition snapshots, an active
+     * system transition scrim, or a visible transient system toast overlay.
      */
     public val hasActiveTransition: Boolean
         get() = rootNodes.any { root ->
             root.findNode { node ->
                 node.name.contains("transition snapshot", ignoreCase = true) ||
-                    (node.name == "Scrim" && node.isVisible && node.scrimTargetAlpha > 0.01f)
+                    (node.name == "Scrim" && node.isVisible && node.scrimTargetAlpha > 0.01f) ||
+                    ((node.name == "MIRROR_TOAST_AREA" || node.name.startsWith("Toast#")) &&
+                        node.isVisible)
             } != null
         }
 
@@ -1728,6 +1741,10 @@ constructor(
         if (Looper.myLooper() != Looper.getMainLooper()) {
             InstrumentationRegistry.getInstrumentation().waitForIdleSync()
         }
+        SpatialSceneHelper.captureSceneWithPolling(
+            uiAutomation = uiAutomation,
+            maxWaitMs = max(MIN_SCREENSHOT_SCENE_SETTLE_WAIT_MS, timeout.inWholeMilliseconds),
+        )
         val settledBitmap = waitForSettledSoftwareScreenshot(uiAutomation, timeout, pollInterval)
         val processed =
             try {
@@ -1754,6 +1771,8 @@ constructor(
 }
 
 private const val SCENE_CAPTURE_TAG = "SpatialSceneHelper"
+private const val DEFAULT_SCENE_POLL_MAX_WAIT_MS = 3000L
+private const val MIN_SCREENSHOT_SCENE_SETTLE_WAIT_MS = 5000L
 private const val FRAME_STABILITY_MSSIM_THRESHOLD: Double = 0.999
 
 private fun collectGeometryNodes(root: SpatialNode): List<SpatialNode> = root.findNodes { node ->
