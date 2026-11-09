@@ -3259,6 +3259,17 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         if (subindex != 0) {
             final LayoutParams lp = (LayoutParams) view.getLayoutParams();
             scrollPrimary += lp.getAlignMultiple()[subindex] - lp.getAlignMultiple()[0];
+            // The sub-position offset is added after WindowAlignment applied edge clamping to
+            // alignment 0, so the result can go past the scroll limits (e.g. focusing a later
+            // alignment of an item near the end). Clamp it to the known scroll range so it
+            // never scrolls past the min/max edge, including during a layout pass where
+            // scrollDirectionPrimary() does not clamp.
+            final WindowAlignment.Axis axis = mWindowAlignment.mainAxis();
+            if (scrollPrimary > 0 && !axis.isMaxUnknown()) {
+                scrollPrimary = Math.min(scrollPrimary, Math.max(0, axis.getMaxScroll()));
+            } else if (scrollPrimary < 0 && !axis.isMinUnknown()) {
+                scrollPrimary = Math.max(scrollPrimary, Math.min(0, axis.getMinScroll()));
+            }
         }
         return scrollPrimary;
     }
