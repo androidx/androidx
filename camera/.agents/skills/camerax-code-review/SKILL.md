@@ -113,10 +113,16 @@ applicable. Prioritize clarity and conciseness.
     *   **Standards Hierarchy Compliance:** Does the change adhere to the
         precedence hierarchy (1st: AndroidX standards, 2nd: Android platform &
         Camera2 specifications, 3rd: Google-wide style)?
-    *   **Structural Design, Object Job & Placement Elegance:** Does the change
-        respect each class's single responsibility ("object job") and place
-        logic in the proper architectural layer without leaking domain concerns
-        or breaking intentional workarounds?
+    *   **Structural Design, Object Job & Clean-Context Minimal-Diff Bar:** Does
+        the change respect each class's single responsibility ("object job") and
+        place logic in the owning layer (`camera-core` / `camera-camera2`
+        priority unless the defect is a broken `camera-camera2-pipe`
+        session/callback primitive itself) without leaking domain concerns or
+        breaking intentional workarounds? Reject production bloat added solely
+        for tests—zero test-only hooks, synthetic threads/executors, redundant
+        state flags, or unread `@VisibleForTesting` fields when behavior can be
+        verified via existing contracts and fakes—and squash multi-commit
+        self-churn so temporary scaffolding never survives in the branch.
     *   **Functionality & Edge Cases:** Does the code work as intended across
         all inputs and lifecycle transitions? Are there edge cases with boundary
         values, nulls, empty collections, zero-dimension bitmaps, or hardware
@@ -126,7 +132,10 @@ applicable. Prioritize clarity and conciseness.
           threads properly marked `@Volatile` or protected by atomic types?
         - When evaluating state transitions inside a `synchronized` block, are
           all mutable session/resource references read inside the same critical
-          section rather than captured before acquiring the lock?
+          section rather than captured before acquiring the lock, and are
+          external callbacks, `Executor.execute`, or blocking `shutdown()` /
+          `close()` calls invoked *outside* the lock to prevent lock-order
+          inversion deadlocks?
         - Do `CountDownLatch` or synchronization primitives guarantee release
           in `finally` blocks so test runners never hang on timeouts?
         - Are blocking calls (`get()`, `await()`, thread sleep) strictly
@@ -159,11 +168,14 @@ applicable. Prioritize clarity and conciseness.
     *   **Consistency:** Are naming conventions, error handling patterns, and
         logging mechanisms consistent (preferring `androidx.camera.core.Logger`
         over ad-hoc `android.util.Log` unless justified)?
-    *   **Testing Coverage:**
+    *   **Testing Coverage & Minimal Test Footprint:**
         - Are there sufficient tests covering happy paths, negative paths,
           boundary thresholds, and error states?
         - Are tests using fluent Google `Truth` assertions (`assertThat`) and
-          fakes instead of mocks?
+          compact fakes (`camera-testing`, `camera-camera2-pipe-testing`, or a
+          small inline test-local fake such as a local `ImageProcessor`) rather
+          than mocks, multi-session test bloat, or custom binary/container
+          parsers when standard platform extractors or metadata checks suffice?
 4.  **Verify Locally:** Execute local compilation, unit tests, and
     non-interactive repohooks
     (`timeout 300 repo upload --dry-run --verify -y --cbr . </dev/null` /
@@ -180,6 +192,12 @@ applicable. Prioritize clarity and conciseness.
         - **Style & Formatting**: Line-length violations, Kotlin idioms, and
           documentation wrapping.
         - **Testing & Coverage**: Missing test cases or assertion improvements.
+        - **Clean-Context Elegance & Anti-Quirk-Shortcut Gate**: Challenge any
+          diff that violates the Clean-Context Minimal-Diff Bar above or
+          disables a user-facing capability via a `Quirk` without ruling out
+          Section 6.B `Steps 1–2` and feature-preserving `workaround/`
+          adaptations (`camerax-triage-and-quirks` Section 5 *Quirk as Last
+          Resort* and Section 6.C item 2).
         - Provide **concrete, copy-pasteable replacement code snippets** for
           each issue, verifying wide codebase context, single responsibility
           ("object job"), preservation of intentional workarounds, AndroidX /
@@ -187,8 +205,11 @@ applicable. Prioritize clarity and conciseness.
     *   **Mode 2 — Issue Investigation, Root-Cause Triage & Behavioral
         Questions (Triage & Question Audit):**
         - **Anti-Confirmation-Bias & End-to-End Call-Chain Check**: Verify the
-          raw logcat, stack trace, or test log slice from the beginning; for
-          codebase "why / how does X work" questions, trace the full call chain
+          raw logcat (including framework `CameraService` / `Camera3-*` and
+          vendor HAL / `CCodec` tags; see `camerax-triage-and-quirks` Section 5
+          for cross-device log comparison), stack trace, or test log slice from
+          the beginning; for codebase "why / how does X work" questions, trace
+          the full call chain
           (`UseCase/View/Video/Extensions` ->
           `CameraInternal/CameraUseCaseAdapter/StreamSharing` ->
           `camera-camera2` -> `camera-camera2-pipe`) to confirm the claimed
@@ -235,19 +256,23 @@ applicable. Prioritize clarity and conciseness.
           pre-existing failures.
     *   **Mode 5 — Open-Ended Trade-Offs, Quirk Scoping & Test/Doc Synthesis
         (Multi-Perspective Quality Audit):**
-        - **Competing Design Trade-Offs**: When multiple valid solutions exist,
-          compare independent model perspectives to select the most idiomatic,
-          minimal-complexity design before implementation.
-        - **Quirk Precision, 5-Gate Anti-Broad-Quirk Audit & Test Determinism**:
-          Verify that proposed `DeviceQuirk` mappings avoid magic heuristics,
-          pass the **5-Gate Deep Root-Cause Protocol** in
-          `camerax-triage-and-quirks/SKILL.md` Section 6.D (never disabling a
-          working CameraX feature via a broad `DeviceQuirk` when only
-          raw-framework or synthetic harness tests fail, and never altering
-          fleet-wide test semantics to mask single-device defects), check OS
-          version ceiling persistence (Section 6.E), and confirm new
-          async/stress tests use deterministic synchronization without
-          `Thread.sleep()`.
+        - **Competing Design Trade-Offs & Batch Quality Scoring**: When multiple
+          valid solutions or candidate CLs exist, compare independent model
+          perspectives (optionally rating **Elegance** and **Safe-to-Go**
+          readiness `1–10`—where `>= 9` denotes minimal diff, zero test-only
+          seams, `0 OPEN P0-P2`, and green verification, vs. `<= 6` when open
+          `P0-P2` defects or avoidable seams remain) to select the most
+          idiomatic, minimal-complexity design.
+        - **Quirk Precision, Workaround-First & 5-Gate Anti-Broad-Quirk Audit**:
+          Verify that proposed `Quirk` mappings avoid magic heuristics, satisfy
+          the Mode 1 anti-quirk-shortcut check (Section 5 *Quirk as Last Resort*
+          and Section 6.C item 2), pass the **5-Gate Deep Root-Cause Protocol**
+          in Section 6.D (never disabling a working CameraX feature via a broad
+          `DeviceQuirk` when only raw-framework or synthetic harness tests fail,
+          and never altering fleet-wide test semantics to mask single-device
+          defects), check OS version ceiling persistence (Section 6.E), and
+          confirm new async/stress tests use deterministic synchronization
+          without `Thread.sleep()`.
         - **Documentation & KDoc Integrity**: Confirm public API docs and guide
           updates are accurate, wrapped at 80 characters, and 100% public-safe.
 6.  **Universal Clean-Context Multi-Model Verification Loop (Canonical Gate —
