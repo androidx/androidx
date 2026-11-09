@@ -1,3 +1,4 @@
-# Media
-file: ../../media/OWNERS
-file: ../../mediarouter/OWNERS
+# Bug component: 461356
+file: ../../appcompat/OWNERS
+file: ../../drawerlayout/OWNERS
+file: ../../recyclerview/OWNERS

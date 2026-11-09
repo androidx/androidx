@@ -114,10 +114,6 @@
     <string name="alert_dialog_usage">AppCompat/Dialog/AlertDialog Usage</string>
     <string name="dialogfragment_usage">AppCompat/Dialog/DialogFragment Usage</string>
 
-    <string name="sample_media_route_provider_remote">Remote Playback (Simulated)</string>
-    <string name="sample_media_route_activity_local">Local Playback</string>
-    <string name="sample_media_route_activity_presentation">Local Playback on Presentation Display</string>
-
     <string name="nested_scrolling_rv_cl_appbar_activity">Nested Scrolling/RecyclerView CoordinatorLayout Appbar Activity</string>
     <string name="nested_scrolling_nsv_cl_appbar_activity">Nested Scrolling/NestedScrollView CoordinatorLayout Appbar Activity</string>
 
