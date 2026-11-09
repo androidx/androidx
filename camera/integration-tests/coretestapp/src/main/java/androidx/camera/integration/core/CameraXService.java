@@ -121,17 +121,17 @@ public class CameraXService extends LifecycleService {
     private final IBinder mBinder = new CameraXServiceBinder();
     private final AtomicInteger mAnalysisFrameCount = new AtomicInteger(0);
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // ------------------------------------------------------------------------------------------ //
     //                          Members only accessed on main thread                              //
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // ------------------------------------------------------------------------------------------ //
     private final Map<Class<?>, UseCase> mBoundUseCases = new HashMap<>();
     private @Nullable Recording mActiveRecording;
     private NotificationCompat.@Nullable Builder mNotificationBuilder;
     //--------------------------------------------------------------------------------------------//
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //--------------------------------------------------------------------------------------------//
     //                                   Members for testing                                      //
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //--------------------------------------------------------------------------------------------//
     private final Set<Uri> mSavedMediaUri = new HashSet<>();
 
     private @Nullable Consumer<Collection<UseCase>> mOnUseCaseBoundCallback;

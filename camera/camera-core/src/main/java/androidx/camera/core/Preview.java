@@ -179,10 +179,8 @@ public final class Preview extends UseCase {
     public @interface StreamState {
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase lifetime constant] - Stays constant for the lifetime of the UseCase. Which means
     // they could be created in the constructor.
-    ////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Provides a static configuration with implementation-agnostic options.
@@ -193,18 +191,14 @@ public final class Preview extends UseCase {
     private static final Executor DEFAULT_SURFACE_PROVIDER_EXECUTOR =
             CameraXExecutors.mainThreadExecutor();
 
-    ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase lifetime dynamic] - Dynamic variables which could change during anytime during
     // the UseCase lifetime.
-    ////////////////////////////////////////////////////////////////////////////////////////////
 
     private @Nullable SurfaceProvider mSurfaceProvider;
 
     private @NonNull Executor mSurfaceProviderExecutor = DEFAULT_SURFACE_PROVIDER_EXECUTOR;
 
-    ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
-    ////////////////////////////////////////////////////////////////////////////////////////////
 
     @SuppressWarnings("WeakerAccess") // Synthetic accessor
     SessionConfig.Builder mSessionConfigBuilder;

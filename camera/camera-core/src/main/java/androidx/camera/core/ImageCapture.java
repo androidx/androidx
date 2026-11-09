@@ -180,10 +180,8 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @SuppressWarnings("unused")
 public final class ImageCapture extends UseCase {
-    ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase lifetime constant] - Stays constant for the lifetime of the UseCase. Which means
     // they could be created in the constructor.
-    ////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * An unknown error occurred.
@@ -373,10 +371,8 @@ public final class ImageCapture extends UseCase {
     @FlashType
     private final int mFlashType;
 
-    ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase lifetime dynamic] - Dynamic variables which could change during anytime during
     // the UseCase lifetime.
-    ////////////////////////////////////////////////////////////////////////////////////////////
 
     /** Current flash mode. */
     @GuardedBy("mLockedFlashMode")
@@ -385,9 +381,7 @@ public final class ImageCapture extends UseCase {
     private Rational mCropAspectRatio = null;
     private @NonNull ScreenFlashWrapper mScreenFlashWrapper;
 
-    ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
-    ////////////////////////////////////////////////////////////////////////////////////////////
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     SessionConfig.Builder mSessionConfigBuilder;

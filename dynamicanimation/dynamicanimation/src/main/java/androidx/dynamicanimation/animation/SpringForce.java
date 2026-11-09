@@ -206,7 +206,7 @@ public final class SpringForce implements Force {
         return (float) mFinalPosition;
     }
 
-    /*********************** Below are private APIs *********************/
+    /* ---- Below are private APIs ---- */
 
     /**
      */

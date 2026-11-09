@@ -152,9 +152,9 @@ public class AndroidRemoteContext extends RemoteContext {
         mHeight = canvas.getHeight();
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // ---------------------------------------------------- //
     // Edge effect handling
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // ---------------------------------------------------- //
 
     /** EdgeEffectBuilder interface */
     public interface EdgeEffectBuilder {
@@ -183,10 +183,10 @@ public class AndroidRemoteContext extends RemoteContext {
         return new AndroidEdgeEffect(mEdgeEffectBuilder.create(), direction);
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // ---------------------------------------------------- //
     // Data handling
 
-    /// ////////////////////////////////////////////////////////////////////////////////////////////
+    // ---------------------------------------------------- //
 
     @Override
     public void loadPathData(int instanceId, int winding, float @NonNull [] floatPath) {
@@ -634,10 +634,10 @@ public class AndroidRemoteContext extends RemoteContext {
         mDocument.addTouchListener(touchExpression);
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // ---------------------------------------------------- //
     // Click handling
 
-    /// ////////////////////////////////////////////////////////////////////////////////////////////
+    // ---------------------------------------------------- //
 
     @Override
     public void addClickArea(

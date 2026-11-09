@@ -7,17 +7,14 @@
 
 package androidx.core.i18n.messageformat_icu.simple;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
+import androidx.annotation.RestrictTo;
+import androidx.core.i18n.messageformat_icu.simple.PluralRules.PluralType;
+import androidx.core.i18n.messageformat_icu.text.MessagePattern;
+
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.Locale;
 import java.util.Map;
-
-import androidx.annotation.RestrictTo;
-import androidx.core.i18n.messageformat_icu.simple.PluralRules.FixedDecimal;
-import androidx.core.i18n.messageformat_icu.simple.PluralRules.PluralType;
-import androidx.core.i18n.messageformat_icu.text.MessagePattern;
 
 /**
  * <p>
@@ -173,7 +170,7 @@ public class PluralFormat /* extends UFormat */ {
      */
     private NumberFormat numberFormat = null;
 
-    /**
+    /*
      * The offset to subtract before invoking plural rules.
      */
 //    transient private double offset = 0;
@@ -431,7 +428,7 @@ public class PluralFormat /* extends UFormat */ {
         throw new UnsupportedOperationException();
     }
 
-    /**
+    /*
      * Returns true if this equals the provided PluralFormat.
      * @param rhs the PluralFormat to compare against
      * @return true if this equals rhs

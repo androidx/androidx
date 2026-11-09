@@ -598,7 +598,6 @@ public class PrecomputedTextCompat implements Spannable {
     }
 
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
     // Spannable overrides
     //
     // Do not allow to modify MetricAffectingSpan

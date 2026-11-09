@@ -13903,9 +13903,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
         private SparseArray<Object> mData;
 
-        ////////////////////////////////////////////////////////////////////////////////////////////
         // Fields below are carried from one layout pass to the next
-        ////////////////////////////////////////////////////////////////////////////////////////////
 
         /**
          * Number of items adapter had in the previous layout.
@@ -13918,9 +13916,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          */
         int mDeletedInvisibleItemCountSincePreviousLayout = 0;
 
-        ////////////////////////////////////////////////////////////////////////////////////////////
         // Fields below must be updated or cleared before they are used (generally before a pass)
-        ////////////////////////////////////////////////////////////////////////////////////////////
 
         @IntDef(flag = true, value = {
                 STEP_START, STEP_LAYOUT, STEP_ANIMATIONS
@@ -13950,9 +13946,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
         boolean mIsMeasuring = false;
 
-        ////////////////////////////////////////////////////////////////////////////////////////////
         // Fields below are always reset outside of the pass (or passes) that use them
-        ////////////////////////////////////////////////////////////////////////////////////////////
 
         boolean mRunSimpleAnimations = false;
 
@@ -13971,8 +13965,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
         int mRemainingScrollHorizontal;
         int mRemainingScrollVertical;
-
-        ////////////////////////////////////////////////////////////////////////////////////////////
 
         /**
          * Prepare for a prefetch occurring on the RecyclerView in between traversals, potentially

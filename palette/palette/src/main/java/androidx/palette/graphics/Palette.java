@@ -915,21 +915,21 @@ public final class Palette {
             return !isWhite(hsl) && !isBlack(hsl) && !isNearRedILine(hsl);
         }
 
-        /**
+        /*
          * @return true if the color represents a color which is close to black.
          */
         private boolean isBlack(float[] hslColor) {
             return hslColor[2] <= BLACK_MAX_LIGHTNESS;
         }
 
-        /**
+        /*
          * @return true if the color represents a color which is close to white.
          */
         private boolean isWhite(float[] hslColor) {
             return hslColor[2] >= WHITE_MIN_LIGHTNESS;
         }
 
-        /**
+        /*
          * @return true if the color lies close to the red side of the I line.
          */
         private boolean isNearRedILine(float[] hslColor) {

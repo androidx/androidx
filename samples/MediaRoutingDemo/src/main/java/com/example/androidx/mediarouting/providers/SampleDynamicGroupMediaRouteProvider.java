@@ -254,9 +254,9 @@ public final class SampleDynamicGroupMediaRouteProvider extends SampleMediaRoute
             Log.d(TAG, mRouteId + ": Controller created.");
         }
 
-        //////////////////////////////////////////////
+        // -------------------------------------- //
         // Overrides DynamicGroupRouteController
-        //////////////////////////////////////////////
+        // -------------------------------------- //
 
         @Override
         public String getGroupableSelectionTitle() {
@@ -381,9 +381,9 @@ public final class SampleDynamicGroupMediaRouteProvider extends SampleMediaRoute
             return true;
         }
 
-        //////////////////////////////////////////////
+        //------------------------//
         // Overrides RouteController
-        //////////////////////////////////////////////
+        //------------------------//
 
         @Override
         public void onRelease() {

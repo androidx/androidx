@@ -69,7 +69,7 @@ import java.util.List;
  */
 public abstract class AbstractMediaItemPresenter extends RowPresenter {
 
-    /**
+    /*
      * Different playback states of a media item
      */
 

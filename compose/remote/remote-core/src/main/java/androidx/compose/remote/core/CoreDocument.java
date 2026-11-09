@@ -110,9 +110,9 @@ public class CoreDocument implements Serializable {
     /** Values are interpreted as dp, density applied by default. */
     public static final int DENSITY_BEHAVIOR_DP = 2;
 
-    ////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
     // Default feature values
-    /// /////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
 
     private static final int DEFAULT_FEATURE_PAINT_MEASURE = 1;
     private static final int DEFAULT_FEATURE_PRIORITY_FIX = 1;
@@ -1665,9 +1665,9 @@ public class CoreDocument implements Serializable {
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
     // Document infos
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
 
     /**
      * Returns true if the document can be displayed given this version of the player
@@ -1699,9 +1699,9 @@ public class CoreDocument implements Serializable {
         mVersion = new Version(majorVersion, minorVersion, patch);
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
     // Click handling
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
 
     /**
      * Add a click area to the document, in root coordinates. We are not doing any specific sorting
@@ -2236,9 +2236,9 @@ public class CoreDocument implements Serializable {
         }
     }
 
-    //////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
     // Painting
-    /// ///////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
 
     private final float[] mScaleOutput = new float[2];
     private final float[] mTranslateOutput = new float[2];
@@ -2516,10 +2516,10 @@ public class CoreDocument implements Serializable {
         return count;
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
     // Stats
 
-    /// ////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
     public static class DocInfo {
         public int mNumberOfOps = 0;
         public int mNumberOfImages = 0;

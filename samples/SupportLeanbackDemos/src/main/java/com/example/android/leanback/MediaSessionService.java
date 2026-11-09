@@ -369,7 +369,7 @@ public class MediaSessionService extends Service {
         // set up listener to respond the event when current music item is finished
         mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 
-            /**
+            /*
              * Expected Interaction Behavior:
              * 1. If current media item's playing speed not equal to normal speed.
              *

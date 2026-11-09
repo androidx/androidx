@@ -64,27 +64,27 @@ public interface EncoderCallback {
 
     /** An empty implementation. */
     EncoderCallback EMPTY = new EncoderCallback() {
-        /** {@inheritDoc} */
+        /* {@inheritDoc} */
         @Override
         public void onEncodeStart() {
         }
 
-        /** {@inheritDoc} */
+        /* {@inheritDoc} */
         @Override
         public void onEncodeStop() {
         }
 
-        /** {@inheritDoc} */
+        /* {@inheritDoc} */
         @Override
         public void onEncodeError(@NonNull EncodeException e) {
         }
 
-        /** {@inheritDoc} */
+        /* {@inheritDoc} */
         @Override
         public void onEncodedData(@NonNull EncodedData encodedData) {
         }
 
-        /** {@inheritDoc} */
+        /* {@inheritDoc} */
         @Override
         public void onOutputConfigUpdate(@NonNull OutputConfig outputConfig) {
         }

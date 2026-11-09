@@ -1392,7 +1392,7 @@ public class MessageFormat extends Format {
         }
     }
 
-    /**
+    /*
      * {@inheritDoc}
      * icu_annot::stable ICU 3.0
     @Override
@@ -2448,10 +2448,10 @@ public class MessageFormat extends Format {
                     break;
                 }
                 break;
-            ///CLOVER:OFF
+            //CLOVER:OFF
             default: // Never happens.
                 break;
-            ///CLOVER:ON
+            //CLOVER:ON
             }
             buf.append(c);
         }

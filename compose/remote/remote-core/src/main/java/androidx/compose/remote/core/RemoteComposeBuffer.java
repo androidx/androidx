@@ -260,9 +260,9 @@ public class RemoteComposeBuffer {
         this.mBuffer = buffer;
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
     // Supported operations on the buffer
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
 
     /** Insert a header */
     public void addHeader(short @NonNull [] tags, Object @NonNull [] values) {
@@ -1013,7 +1013,7 @@ public class RemoteComposeBuffer {
         addContainerEnd();
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
 
     /**
      * inflate the buffer into a list of operations

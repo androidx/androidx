@@ -59,9 +59,9 @@ public class LoomWireBuffer extends WireBuffer {
         return mContext;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
     // Delegation to wrapped buffer
-    ///////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
 
     @Override
     public @NonNull SystemInfo getSystemInfo() {

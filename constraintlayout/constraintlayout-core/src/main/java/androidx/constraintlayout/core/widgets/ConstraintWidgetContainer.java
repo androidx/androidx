@@ -47,9 +47,9 @@ public class ConstraintWidgetContainer extends WidgetContainer {
 
     BasicMeasure mBasicMeasureSolver = new BasicMeasure(this);
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
     // Graph measures
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
 
     public DependencyGraph mDependencyGraph = new DependencyGraph(this);
     private int mPass; // number of layout passes
@@ -106,7 +106,7 @@ public class ConstraintWidgetContainer extends WidgetContainer {
                 getVerticalDimensionBehaviour());
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
 
     /**
      * Measure the layout

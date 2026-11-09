@@ -72,7 +72,7 @@ public class ValueAnimator extends Animator implements AnimationHandler.Animatio
      */
     private static float sDurationScale = 1.0f;
 
-    /**
+    /*
      * Internal variables
      * NOTE: This object implements the clone() method, making a deep copy of any referenced
      * objects. As other non-trivial fields are added to this class, make sure to add logic

@@ -61,9 +61,9 @@ public class ConstraintWidget {
     // apply an intrinsic size when wrap content for spread dimensions
     private static final boolean USE_WRAP_DIMENSION_FOR_SPREAD = false;
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
     // Graph measurements
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
 
     public boolean measured = false;
     public WidgetRun[] run = new WidgetRun[2];

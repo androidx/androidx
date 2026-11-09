@@ -23,9 +23,9 @@ import androidx.annotation.RestrictTo;
 public class RcProfiles {
     private RcProfiles() {}
 
-    ////////////////////////////////////////
+    // -------------------------------------- //
     // Available profiles
-    ////////////////////////////////////////
+    // -------------------------------------- //
 
     /**
      * Baseline profile, for a given version this contains the standard (baseline) set of supported

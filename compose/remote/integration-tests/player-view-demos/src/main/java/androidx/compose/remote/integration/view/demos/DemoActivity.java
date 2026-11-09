@@ -709,7 +709,7 @@ public class DemoActivity extends Activity {
             canvas.drawRect(0, 0, canvas.getWidth(), canvas.getHeight(), paint);
         }
 
-        /**
+        /*
          * set the alpha
          * @param alpha the alpha to set to
          */
@@ -721,7 +721,7 @@ public class DemoActivity extends Activity {
         public void setColorFilter(@Nullable ColorFilter colorFilter) {
         }
 
-        /**
+        /*
          * get the opacity
          * @return the opacity
          */
@@ -809,7 +809,7 @@ public class DemoActivity extends Activity {
                 return doc();
             }
 
-            /**
+            /*
              * get the doc
              * @return the doc
              */
@@ -890,7 +890,7 @@ public class DemoActivity extends Activity {
                 return writer().encodeToByteArray();
             }
 
-            /**
+            /*
              * get the doc
              * @return the doc
              */
@@ -971,7 +971,7 @@ public class DemoActivity extends Activity {
                 return baos.size();
             }
 
-            /**
+            /*
              * get the name of the doc
              * @return the name
              */
@@ -981,7 +981,7 @@ public class DemoActivity extends Activity {
                 return name;
             }
 
-            /**
+            /*
              * get the looper
              * @return the looper
              */
@@ -998,7 +998,7 @@ public class DemoActivity extends Activity {
                 return writer().encodeToByteArray();
             }
 
-            /**
+            /*
              * get the doc
              * @return the doc
              */

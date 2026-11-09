@@ -147,9 +147,9 @@ public class ConstraintLayoutStates {
         this.mConstraintsChangedListener = constraintsChangedListener;
     }
 
-    /////////////////////////////////////////////////////////////////////////
-    //      This represents one state
-    /////////////////////////////////////////////////////////////////////////
+    /**
+     *      This represents one state
+     */
     static class State {
         int mId;
         ArrayList<Variant> mVariants = new ArrayList<>();

@@ -987,7 +987,7 @@ public final class ObjectAnimator extends ValueAnimator {
         final Object target = getTarget();
         if (mTarget != null && target == null) {
             // We lost the target reference, cancel and clean up. Note: we allow null target if the
-            /// target has never been set.
+            // target has never been set.
             cancel();
             return;
         }

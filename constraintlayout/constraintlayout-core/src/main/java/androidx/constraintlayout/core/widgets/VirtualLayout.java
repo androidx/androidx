@@ -39,9 +39,9 @@ public class VirtualLayout extends HelperWidget {
 
     protected BasicMeasure.Measure mMeasure = new BasicMeasure.Measure();
 
-    /////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
     // Accessors
-    /////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
 
     // @TODO: add description
     public void setPadding(int value) {
@@ -113,9 +113,9 @@ public class VirtualLayout extends HelperWidget {
         return mResolvedPaddingRight;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
     // Solver callback
-    /////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
 
     protected void needsCallbackFromSolver(boolean value) {
         mNeedsCallFromSolver = value;
@@ -126,9 +126,9 @@ public class VirtualLayout extends HelperWidget {
         return mNeedsCallFromSolver;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
     // Measure
-    /////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
 
     // @TODO: add description
     public void measure(int widthMode, int widthSize, int heightMode, int heightSize) {

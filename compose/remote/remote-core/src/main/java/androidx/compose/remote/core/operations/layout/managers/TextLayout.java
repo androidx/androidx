@@ -322,9 +322,9 @@ public class TextLayout extends LayoutManager implements VariableSupport, Access
         float ty = mPaddingTop;
         context.translate(tx, ty);
 
-        //////////////////////////////////////////////////////////
+        // -------------------------------------- //
         // Text content
-        //////////////////////////////////////////////////////////
+        // -------------------------------------- //
         context.savePaint();
         mPaint.reset();
         mPaint.setStyle(PaintBundle.STYLE_FILL);
@@ -394,7 +394,7 @@ public class TextLayout extends LayoutManager implements VariableSupport, Access
             context.drawLine(0f, mHeight, mWidth, 0f);
         }
         context.restorePaint();
-        //////////////////////////////////////////////////////////
+        // -------------------------------------- //
 
         if (mGraphicsLayerModifier != null) {
             context.endGraphicsLayer();

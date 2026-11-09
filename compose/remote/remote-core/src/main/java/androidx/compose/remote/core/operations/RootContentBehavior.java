@@ -51,21 +51,21 @@ public class RootContentBehavior extends Operation
 
     public static final int NONE = ScrollableComponent.SCROLL_NONE;
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
     // Scrolling
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
     public static final int SCROLL_HORIZONTAL = ScrollableComponent.SCROLL_HORIZONTAL;
     public static final int SCROLL_VERTICAL = ScrollableComponent.SCROLL_VERTICAL;
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
     // Sizing
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
     public static final int SIZING_LAYOUT = 1;
     public static final int SIZING_SCALE = 2;
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
     // Sizing
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
     public static final int ALIGNMENT_TOP = 1;
     public static final int ALIGNMENT_VERTICAL_CENTER = 2;
     public static final int ALIGNMENT_BOTTOM = 4;
@@ -75,9 +75,9 @@ public class RootContentBehavior extends Operation
     public static final int ALIGNMENT_CENTER =
             ALIGNMENT_HORIZONTAL_CENTER + ALIGNMENT_VERTICAL_CENTER;
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
     // Layout mode
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
     public static final int LAYOUT_HORIZONTAL_MATCH_PARENT = 1;
     public static final int LAYOUT_HORIZONTAL_WRAP_CONTENT = 2;
     public static final int LAYOUT_HORIZONTAL_FIXED = 4;
@@ -89,9 +89,9 @@ public class RootContentBehavior extends Operation
     public static final int LAYOUT_WRAP_CONTENT =
             LAYOUT_HORIZONTAL_WRAP_CONTENT + LAYOUT_VERTICAL_WRAP_CONTENT;
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
     // Sizing mode
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------- //
 
     public static final int SCALE_INSIDE = 1;
     public static final int SCALE_FILL_WIDTH = 2;

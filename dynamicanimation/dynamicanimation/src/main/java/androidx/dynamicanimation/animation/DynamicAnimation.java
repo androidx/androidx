@@ -580,7 +580,7 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
         }
     }
 
-    /****************Animation Lifecycle Management***************/
+    /* --------------- Animation Lifecycle Management --------------- */
 
     /**
      * Starts an animation. If the animation has already been started, no op. Note that calling
@@ -792,7 +792,7 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
         mAnimationHandler = new AnimationHandler(scheduler);
     }
 
-    /****************Sub class animations**************/
+    /* ---- Sub class animations ---- */
     /**
      * Returns the acceleration at the given value with the given velocity.
      */

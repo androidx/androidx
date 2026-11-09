@@ -479,9 +479,7 @@ public final class Recorder implements VideoOutput {
             MutableStateObservable.withInitialState(null);
     private final TimeProvider mTimeProvider = new SystemTimeProvider();
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
     //                          Members only accessed when holding mLock                          //
-    ////////////////////////////////////////////////////////////////////////////////////////////////
     @GuardedBy("mLock")
     private State mState = State.CONFIGURING;
     // Tracks the underlying state when in a PENDING_* state. When not in a PENDING_* state, this
@@ -503,9 +501,7 @@ public final class Recorder implements VideoOutput {
     private long mLastGeneratedRecordingId = 0L;
     //--------------------------------------------------------------------------------------------//
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
     //                      Members only accessed on mSequentialExecutor                          //
-    ////////////////////////////////////////////////////////////////////////////////////////////////
     // Volatile since it is also read under mLock on other threads, e.g. to publish StreamInfo.
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     volatile RecordingRecord mInProgressRecording = null;

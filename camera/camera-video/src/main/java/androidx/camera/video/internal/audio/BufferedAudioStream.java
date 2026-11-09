@@ -79,9 +79,7 @@ public class BufferedAudioStream implements AudioStream {
     // so it is volatile. The producer reads it once per collection.
     private volatile int mBufferSize;
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
     //                      Members only accessed on mProducerExecutor                            //
-    ////////////////////////////////////////////////////////////////////////////////////////////////
     private final AudioStream mAudioStream;
     private final int mBytesPerFrame;
     private final int mSampleRate;
