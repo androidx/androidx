@@ -100,8 +100,29 @@ internal class SpringSimulation(var finalPosition: Float) {
         lastVelocity: Float,
         timeElapsed: Long,
     ): Motion {
+        val deltaTSeconds = timeElapsed.toDouble() / SecondsToMillis
+        return updateValuesSeconds(lastDisplacement, lastVelocity, deltaTSeconds)
+    }
+
+    /**
+     * Internal only call for Spring to calculate the spring position/velocity using an analytical
+     * approach with nanosecond precision.
+     */
+    internal fun updateValuesNanos(
+        lastDisplacement: Float,
+        lastVelocity: Float,
+        timeElapsedNanos: Long,
+    ): Motion {
+        val deltaTSeconds = timeElapsedNanos.toDouble() / SecondsToNanos
+        return updateValuesSeconds(lastDisplacement, lastVelocity, deltaTSeconds)
+    }
+
+    private fun updateValuesSeconds(
+        lastDisplacement: Float,
+        lastVelocity: Float,
+        deltaTSeconds: Double,
+    ): Motion {
         val adjustedDisplacement = lastDisplacement - finalPosition
-        val deltaT = timeElapsed / 1000.0 // unit: seconds
         val dampingRatioSquared = dampingRatio * dampingRatio.toDouble()
         val r = -dampingRatio * naturalFreq
 
@@ -118,28 +139,31 @@ internal class SpringSimulation(var finalPosition: Float) {
             val coeffB =
                 (gammaMinus * adjustedDisplacement - lastVelocity) / (gammaMinus - gammaPlus)
             val coeffA = adjustedDisplacement - coeffB
-            displacement = (coeffA * exp(gammaMinus * deltaT) + coeffB * exp(gammaPlus * deltaT))
+            displacement =
+                (coeffA * exp(gammaMinus * deltaTSeconds) + coeffB * exp(gammaPlus * deltaTSeconds))
             currentVelocity =
-                (coeffA * gammaMinus * exp(gammaMinus * deltaT) +
-                    coeffB * gammaPlus * exp(gammaPlus * deltaT))
+                (coeffA * gammaMinus * exp(gammaMinus * deltaTSeconds) +
+                    coeffB * gammaPlus * exp(gammaPlus * deltaTSeconds))
         } else if (dampingRatio == 1.0f) {
             // Critically damped
             val coeffA = adjustedDisplacement
             val coeffB = lastVelocity + naturalFreq * adjustedDisplacement
-            val nFdT = -naturalFreq * deltaT
-            displacement = (coeffA + coeffB * deltaT) * exp(nFdT)
+            val nFdT = -naturalFreq * deltaTSeconds
+            displacement = (coeffA + coeffB * deltaTSeconds) * exp(nFdT)
             currentVelocity =
-                (((coeffA + coeffB * deltaT) * exp(nFdT) * (-naturalFreq)) + coeffB * exp(nFdT))
+                (((coeffA + coeffB * deltaTSeconds) * exp(nFdT) * (-naturalFreq)) +
+                    coeffB * exp(nFdT))
         } else {
             val dampedFreq = naturalFreq * sqrt(1 - dampingRatioSquared)
             // Underdamped
             val cosCoeff = adjustedDisplacement
             val sinCoeff = ((1 / dampedFreq) * (((-r * adjustedDisplacement) + lastVelocity)))
-            val dFdT = dampedFreq * deltaT
-            displacement = (exp(r * deltaT) * ((cosCoeff * cos(dFdT) + sinCoeff * sin(dFdT))))
+            val dFdT = dampedFreq * deltaTSeconds
+            displacement =
+                (exp(r * deltaTSeconds) * ((cosCoeff * cos(dFdT) + sinCoeff * sin(dFdT))))
             currentVelocity =
                 (displacement * r +
-                    (exp(r * deltaT) *
+                    (exp(r * deltaTSeconds) *
                         ((-dampedFreq * cosCoeff * sin(dFdT) + dampedFreq * sinCoeff * cos(dFdT)))))
         }
 

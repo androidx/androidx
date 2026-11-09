@@ -273,8 +273,10 @@ package androidx.compose.animation.core {
   }
 
   @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationCoreApi public final class ComposeAnimationCoreFlags {
+    property public boolean isNanosecondAnimationSpecEnabled;
     property public boolean isSeekableTransitionStateStartAfterLayoutEnabled;
     field public static final androidx.compose.animation.core.ComposeAnimationCoreFlags INSTANCE;
+    field public static boolean isNanosecondAnimationSpecEnabled;
     field public static boolean isSeekableTransitionStateStartAfterLayoutEnabled;
   }
 

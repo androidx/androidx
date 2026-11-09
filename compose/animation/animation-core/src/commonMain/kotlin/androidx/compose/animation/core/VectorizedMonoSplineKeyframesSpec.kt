@@ -92,23 +92,30 @@ internal class VectorizedMonoSplineKeyframesSpec<V : AnimationVector>(
         }
     }
 
+    @OptIn(ExperimentalAnimationCoreApi::class)
     override fun getValueFromNanos(
         playTimeNanos: Long,
         initialValue: V,
         targetValue: V,
         initialVelocity: V,
     ): V {
-        val playTimeMillis = playTimeNanos / MillisToNanos
-        val clampedPlayTime = clampPlayTime(playTimeMillis).toInt()
+        val clampedPlayTimeNanos =
+            if (ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled) {
+                clampPlayTimeNanos(playTimeNanos)
+            } else {
+                clampPlayTimeMillis(playTimeNanos / MillisToNanos) * MillisToNanos
+            }
         // If there is a key frame defined with the given time stamp, return that value
-        val keyframe = keyframes[clampedPlayTime]
-        if (keyframe != null) {
-            return keyframe.first
+        if (clampedPlayTimeNanos % MillisToNanos == 0L) {
+            val keyframe = keyframes[(clampedPlayTimeNanos / MillisToNanos).toInt()]
+            if (keyframe != null) {
+                return keyframe.first
+            }
         }
 
-        if (clampedPlayTime >= durationMillis) {
+        if (clampedPlayTimeNanos >= durationMillis * MillisToNanos) {
             return targetValue
-        } else if (clampedPlayTime <= 0) {
+        } else if (clampedPlayTimeNanos <= 0L) {
             return initialValue
         }
 
@@ -116,36 +123,41 @@ internal class VectorizedMonoSplineKeyframesSpec<V : AnimationVector>(
 
         // There's no promise on the nature of the given time, so we need to search for the correct
         // time range at every call
-        val index = findEntryForTimeMillis(clampedPlayTime)
+        val index = findEntryForTimeMillis((clampedPlayTimeNanos / MillisToNanos).toInt())
 
         val valueVector = valueVector!!
         monoSpline!!.getPos(
             index = index,
-            time = getEasedTimeFromIndex(index, clampedPlayTime),
+            time = getEasedTimeFromIndexNanos(index, clampedPlayTimeNanos),
             v = valueVector,
         )
         return valueVector
     }
 
+    @OptIn(ExperimentalAnimationCoreApi::class)
     override fun getVelocityFromNanos(
         playTimeNanos: Long,
         initialValue: V,
         targetValue: V,
         initialVelocity: V,
     ): V {
-        val playTimeMillis = playTimeNanos / MillisToNanos
-        val clampedPlayTime = clampPlayTime(playTimeMillis).toInt()
+        val clampedPlayTimeNanos =
+            if (ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled) {
+                clampPlayTimeNanos(playTimeNanos)
+            } else {
+                clampPlayTimeMillis(playTimeNanos / MillisToNanos) * MillisToNanos
+            }
 
         init(initialValue, targetValue, initialVelocity)
 
         // There's no promise on the nature of the given time, so we need to search for the correct
         // time range at every call
-        val index = findEntryForTimeMillis(clampedPlayTime)
+        val index = findEntryForTimeMillis((clampedPlayTimeNanos / MillisToNanos).toInt())
 
         val velocityVector = velocityVector!!
         monoSpline!!.getSlope(
             index = index,
-            time = getEasedTimeFromIndex(index, clampedPlayTime),
+            time = getEasedTimeFromIndexNanos(index, clampedPlayTimeNanos),
             v = velocityVector,
         )
         return velocityVector
@@ -157,24 +169,26 @@ internal class VectorizedMonoSplineKeyframesSpec<V : AnimationVector>(
         return keyframes[timestamp]?.second ?: LinearEasing
     }
 
-    private fun getEasedTimeFromIndex(index: Int, timeMillis: Int): Float {
+    private fun getEasedTimeFromIndexNanos(index: Int, timeNanos: Long): Float {
         if (index >= timestamps.lastIndex) {
             // Return the same value. This may only happen at the end of the animation.
-            return timeMillis.toFloat() / SecondsToMillis
+            return (timeNanos.toDouble() / SecondsToNanos).toFloat()
         }
-        val timeMin = timestamps[index]
-        val timeMax = timestamps[index + 1]
+        val timeMinMillis = timestamps[index]
+        val timeMaxMillis = timestamps[index + 1]
+        val timeMinNanos = timeMinMillis * MillisToNanos
 
-        if (timeMillis == timeMin) {
-            return timeMin.toFloat() / SecondsToMillis
+        if (timeNanos == timeMinNanos) {
+            return timeMinMillis.toFloat() / SecondsToMillis
         }
 
-        val timeRange = timeMax - timeMin
+        val timeRangeMillis = timeMaxMillis - timeMinMillis
+        val timeRangeNanos = timeRangeMillis * MillisToNanos
         val easing = getEasing(index)
-        val rawFraction = (timeMillis - timeMin).toFloat() / timeRange
+        val rawFraction = ((timeNanos - timeMinNanos).toDouble() / timeRangeNanos).toFloat()
         val easedFraction = easing.transform(rawFraction)
 
-        return (timeRange * easedFraction + timeMin) / SecondsToMillis
+        return (timeRangeMillis * easedFraction + timeMinMillis) / SecondsToMillis
     }
 
     /**
