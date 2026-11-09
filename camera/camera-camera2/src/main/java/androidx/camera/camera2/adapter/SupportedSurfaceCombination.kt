@@ -37,6 +37,7 @@ import androidx.camera.camera2.adapter.SupportedSurfaceCombination.CheckingMetho
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.compat.quirk.CameraQuirks
 import androidx.camera.camera2.compat.workaround.ExtraSupportedSurfaceCombinationsContainer
+import androidx.camera.camera2.compat.workaround.Hlg10UhdVideoStabilizationValidator
 import androidx.camera.camera2.compat.workaround.ResolutionCorrector
 import androidx.camera.camera2.compat.workaround.TargetAspectRatio
 import androidx.camera.camera2.impl.Camera2Logger
@@ -135,6 +136,8 @@ public class SupportedSurfaceCombination(
     private val surfaceSizeDefinitionFormats = mutableListOf<Int>()
     private val streamConfigurationMapCompat = getStreamConfigurationMapCompat()
     private val cameraQuirks = CameraQuirks(cameraMetadata, streamConfigurationMapCompat)
+    private val hlg10UhdVideoStabilizationValidator =
+        Hlg10UhdVideoStabilizationValidator(cameraQuirks.quirks)
     private val displayInfoManager = DisplayInfoManager.getInstance(context)
     private val resolutionCorrector = ResolutionCorrector()
     private val targetAspectRatio: TargetAspectRatio = TargetAspectRatio()
@@ -191,6 +194,24 @@ public class SupportedSurfaceCombination(
             getSurfaceCombinationTable(featureSettings).combinations.any {
                 it.getOrderedSupportedSurfaceConfigList(surfaceConfigList) != null
             }
+
+        if (
+            isSupported &&
+                hlg10UhdVideoStabilizationValidator.isUnsupported(
+                    featureSettings.videoStabilization,
+                    surfaceConfigList.mapNotNull { surfaceConfig ->
+                        dynamicRangesBySurfaceConfig[surfaceConfig]?.let { dynamicRange ->
+                            surfaceConfig.getResolution(
+                                getUpdatedSurfaceSizeDefinitionByFormat(surfaceConfig.imageFormat)
+                            ) to dynamicRange
+                        }
+                    },
+                )
+        ) {
+            // The device reports this combination as supported (including via the feature
+            // combination query), but the camera HAL crashes with it.
+            return false
+        }
 
         if (isSupported && featureSettings.requiresFeatureComboQuery) {
             val sessionConfig =
