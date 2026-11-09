@@ -194,7 +194,9 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Set;
 
 /** List of operations supported in a RemoteCompose document */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -441,16 +443,113 @@ public class Operations {
     // -------------------------------------- //
 
     static UniqueIntMap<CompanionOperation> sMapV6;
-    static HashMap<Integer, UniqueIntMap<CompanionOperation>> sMapV7;
 
-    static UniqueIntMap<CompanionOperation> sMapV7AndroidX;
-    static UniqueIntMap<CompanionOperation> sMapV7AndroidXExperimental;
-    static UniqueIntMap<CompanionOperation> sMapV7AndroidXDeprecated;
+    /**
+     * The v7 operation maps built so far, one per combination of document settings (currently the
+     * profile mask). Each entry maps opcodes to readers; see {@link #getOperationsV7(int)}.
+     */
+    static HashMap<Integer, UniqueIntMap<CompanionOperation>> sMapV7Cache;
 
-    static UniqueIntMap<CompanionOperation> sMapV7Widgets;
-    static UniqueIntMap<CompanionOperation> sMapV7WidgetsExperimental;
-    static UniqueIntMap<CompanionOperation> sMapV7WidgetsDeprecated;
     static UniqueIntMap<CompanionOperation> sAllOperationsV7;
+
+    // Profiles are sets of opcodes layered on top of the v7 baseline. The readers for these
+    // opcodes come from getAllKnownOperations(7).
+
+    /** Operations of the AndroidX profile. */
+    private static final int[] PROFILE_ANDROIDX_OPS = {
+        MATRIX_FROM_PATH,
+        TEXT_SUBTEXT,
+        BITMAP_TEXT_MEASURE,
+        DRAW_BITMAP_FONT_TEXT_RUN_ON_PATH,
+        DRAW_BITMAP_TEXT_ANCHORED,
+        DATA_SHADER,
+        DATA_FONT,
+        DRAW_TO_BITMAP,
+        WAKE_IN,
+        ID_LOOKUP,
+        PATH_EXPRESSION,
+        PARTICLE_COMPARE,
+        DYNAMIC_FLOAT_LIST,
+        UPDATE_DYNAMIC_FLOAT_LIST,
+        SKIP,
+        CORE_TEXT,
+        TEXT_STYLE,
+        TEXT_TRANSFORM,
+        COLOR_THEME,
+        MODIFIER_ALIGN_BY,
+    };
+
+    /** Experimental operations of the AndroidX profile. */
+    private static final int[] PROFILE_ANDROIDX_EXPERIMENTAL_OPS = {
+        LAYOUT_COMPUTE,
+        LAYOUT_FLOW,
+        MODIFIER_MULTI_CLICK,
+        MODIFIER_DIMENSION_CONSTRAINTS,
+        REFERENCED_OPERATIONS,
+        INCLUDE_REFERENCED_OPERATIONS,
+        MACRO_DEFINE,
+        MACRO_CALL,
+        MACRO_ARGUMENT,
+        MACRO_BLOCK,
+        MACRO_FOR_EACH,
+        LAYOUT_CUSTOM,
+        DATA_SOUND,
+        SOUND_EXPRESSION,
+        PLAY_SOUND,
+        EVENT_ACTION,
+        ADD_MESH_2D,
+        DRAW_MESH_2D,
+        MATRIX_FROM_MESH_2D,
+    };
+
+    /** Deprecated operations of the AndroidX profile. */
+    private static final int[] PROFILE_ANDROIDX_DEPRECATED_OPS = {ROOT_CONTENT_BEHAVIOR};
+
+    /** Operations of the Widgets profile. */
+    private static final int[] PROFILE_WIDGETS_OPS = {
+        MATRIX_FROM_PATH,
+        TEXT_SUBTEXT,
+        BITMAP_TEXT_MEASURE,
+        DRAW_BITMAP_FONT_TEXT_RUN_ON_PATH,
+        DRAW_BITMAP_TEXT_ANCHORED,
+        DRAW_TO_BITMAP,
+        WAKE_IN,
+        ID_LOOKUP,
+        PATH_EXPRESSION,
+        PARTICLE_COMPARE,
+        DYNAMIC_FLOAT_LIST,
+        UPDATE_DYNAMIC_FLOAT_LIST,
+        SKIP,
+        CORE_TEXT,
+        TEXT_STYLE,
+        TEXT_TRANSFORM,
+        COLOR_THEME,
+        MODIFIER_ALIGN_BY,
+    };
+
+    /** Experimental operations of the Widgets profile. */
+    private static final int[] PROFILE_WIDGETS_EXPERIMENTAL_OPS = {
+        LAYOUT_COMPUTE,
+        LAYOUT_FLOW,
+        MODIFIER_MULTI_CLICK,
+        MODIFIER_DIMENSION_CONSTRAINTS,
+        REFERENCED_OPERATIONS,
+        INCLUDE_REFERENCED_OPERATIONS,
+        MACRO_DEFINE,
+        MACRO_CALL,
+        MACRO_ARGUMENT,
+        MACRO_BLOCK,
+        MACRO_FOR_EACH,
+        DATA_SOUND,
+        SOUND_EXPRESSION,
+        PLAY_SOUND,
+        ADD_MESH_2D,
+        DRAW_MESH_2D,
+        MATRIX_FROM_MESH_2D,
+    };
+
+    /** Deprecated operations of the Widgets profile. */
+    private static final int[] PROFILE_WIDGETS_DEPRECATED_OPS = {ROOT_CONTENT_BEHAVIOR};
 
     private static final Object sLock = new Object();
 
@@ -464,15 +563,7 @@ public class Operations {
                     }
                     return sMapV6.get(opId) != null;
                 default: // 7 and above
-                    if (sMapV7 == null) {
-                        sMapV7 = createMapV7(sMapV7, profiles);
-                    }
-                    UniqueIntMap<CompanionOperation> map = sMapV7.get(profiles);
-                    if (map == null) {
-                        sMapV7 = createMapV7(sMapV7, profiles);
-                        map = sMapV7.get(profiles);
-                    }
-                    return map.get(opId) != null;
+                    return getOperationsV7(profiles).get(opId) != null;
             }
         }
     }
@@ -495,13 +586,9 @@ public class Operations {
             // API level 7 and above
             if (sAllOperationsV7 == null) {
                 sAllOperationsV7 = new UniqueIntMap<>();
-                fillDefaultVersionMap(sAllOperationsV7);
+                populateBaselineV7Operations(sAllOperationsV7);
 
-                sAllOperationsV7.put(REM, Rem::read);
-                sAllOperationsV7.put(MATRIX_CONSTANT, MatrixConstant::read);
-                sAllOperationsV7.put(MATRIX_EXPRESSION, MatrixExpression::read);
-                sAllOperationsV7.put(MATRIX_VECTOR_MATH, MatrixVectorMath::read);
-
+                // Profile operations (all profiles).
                 sAllOperationsV7.put(MATRIX_FROM_PATH, MatrixFromPath::read);
                 sAllOperationsV7.put(TEXT_SUBTEXT, TextSubtext::read);
                 sAllOperationsV7.put(BITMAP_TEXT_MEASURE, BitmapTextMeasure::read);
@@ -555,7 +642,7 @@ public class Operations {
         }
     }
 
-    /** Returns a map of operations for the given api level */
+    /** Returns a map of operations for the given api level and profiles */
     public static @Nullable UniqueIntMap<CompanionOperation> getOperations(
             int apiLevel, int profiles) {
         synchronized (sLock) {
@@ -565,256 +652,187 @@ public class Operations {
                 }
                 return sMapV6;
             }
-            // API level 7 and above
-            if (sMapV7 == null || !sMapV7.containsKey(profiles)) {
-                sMapV7 = createMapV7(sMapV7, profiles);
-            }
-            return sMapV7.get(profiles);
+            return getOperationsV7(profiles);
         }
     }
 
-    private static void populateMapFromAll(
-            UniqueIntMap<CompanionOperation> targetMap, int apiLevel, int... opIds) {
+    /**
+     * Returns a map holding exactly the given opcodes, bound to the companion operations the api
+     * level knows for them. Opcodes unknown at that api level are skipped. This is how a player
+     * with its own set of supported operations, rather than a built-in profile, obtains its
+     * companion operations.
+     *
+     * <p>Unlike {@link #getOperations(int, int)} the result is built on each call and not cached.
+     */
+    public static @NonNull UniqueIntMap<CompanionOperation> getOperations(
+            int apiLevel, @NonNull Set<@NonNull Integer> opcodes) {
+        UniqueIntMap<CompanionOperation> map = new UniqueIntMap<>();
         UniqueIntMap<CompanionOperation> allOps = getAllKnownOperations(apiLevel);
+        if (allOps == null) {
+            return map;
+        }
+        for (Integer opId : opcodes) {
+            if (opId == null) {
+                continue;
+            }
+            CompanionOperation companion = allOps.get(opId);
+            if (companion != null) {
+                map.put(opId, companion);
+            }
+        }
+        return map;
+    }
+
+    /** Returns the cached v7 map for the given profiles, creating it if needed. */
+    private static UniqueIntMap<CompanionOperation> getOperationsV7(int profiles) {
+        if (sMapV7Cache == null) {
+            sMapV7Cache = new HashMap<>();
+        }
+        UniqueIntMap<CompanionOperation> map = sMapV7Cache.get(profiles);
+        if (map == null) {
+            map = createMapV7(profiles);
+            sMapV7Cache.put(profiles, map);
+        }
+        return map;
+    }
+
+    /**
+     * Adds the given opcodes to {@code map}, with the readers registered in {@link
+     * #getAllKnownOperations} for api level 7. Opcodes unknown at that level are skipped.
+     */
+    private static void populateOperations(UniqueIntMap<CompanionOperation> map, int[] opIds) {
+        UniqueIntMap<CompanionOperation> allOps = getAllKnownOperations(7);
         if (allOps == null) {
             return;
         }
         for (int opId : opIds) {
             CompanionOperation companion = allOps.get(opId);
             if (companion != null) {
-                targetMap.put(opId, companion);
+                map.put(opId, companion);
             }
         }
     }
 
     private static UniqueIntMap<CompanionOperation> createMapV6() {
         UniqueIntMap<CompanionOperation> map = new UniqueIntMap<>();
-        fillDefaultVersionMap(map);
-        map.put(DATA_SHADER, ShaderData::read);
-        map.put(ROOT_CONTENT_BEHAVIOR, RootContentBehavior::read);
+        populateBaselineV6Operations(map);
         return map;
     }
 
-    private static UniqueIntMap<CompanionOperation> createMapV7_Androidx() {
-        if (sMapV7AndroidX == null) {
-            sMapV7AndroidX = new UniqueIntMap<>();
-            populateMapFromAll(
-                    sMapV7AndroidX,
-                    7,
-                    MATRIX_FROM_PATH,
-                    TEXT_SUBTEXT,
-                    BITMAP_TEXT_MEASURE,
-                    DRAW_BITMAP_FONT_TEXT_RUN_ON_PATH,
-                    DRAW_BITMAP_TEXT_ANCHORED,
-                    DATA_SHADER,
-                    DATA_FONT,
-                    DRAW_TO_BITMAP,
-                    WAKE_IN,
-                    ID_LOOKUP,
-                    PATH_EXPRESSION,
-                    PARTICLE_COMPARE,
-                    DYNAMIC_FLOAT_LIST,
-                    UPDATE_DYNAMIC_FLOAT_LIST,
-                    SKIP,
-                    CORE_TEXT,
-                    TEXT_STYLE,
-                    TEXT_TRANSFORM,
-                    COLOR_THEME,
-                    MODIFIER_ALIGN_BY);
-        }
-        return sMapV7AndroidX;
+    /**
+     * Operations every v6 player supports: the {@link #populateCommonOperations common
+     * operations} plus two that v7 moved behind profiles.
+     */
+    private static void populateBaselineV6Operations(UniqueIntMap<CompanionOperation> map) {
+        populateCommonOperations(map);
+        map.put(DATA_SHADER, ShaderData::read);
+        map.put(ROOT_CONTENT_BEHAVIOR, RootContentBehavior::read);
     }
 
-    private static UniqueIntMap<CompanionOperation> createMapV7_Androidx_Experimental() {
-        if (sMapV7AndroidXExperimental == null) {
-            sMapV7AndroidXExperimental = new UniqueIntMap<>();
-            populateMapFromAll(
-                    sMapV7AndroidXExperimental,
-                    7,
-                    LAYOUT_COMPUTE,
-                    LAYOUT_FLOW,
-                    MODIFIER_MULTI_CLICK,
-                    MODIFIER_DIMENSION_CONSTRAINTS,
-                    REFERENCED_OPERATIONS,
-                    INCLUDE_REFERENCED_OPERATIONS,
-                    MACRO_DEFINE,
-                    MACRO_CALL,
-                    MACRO_ARGUMENT,
-                    MACRO_BLOCK,
-                    MACRO_FOR_EACH,
-                    LAYOUT_CUSTOM,
-                    DATA_SOUND,
-                    SOUND_EXPRESSION,
-                    PLAY_SOUND,
-                    EVENT_ACTION,
-                    ADD_MESH_2D,
-                    DRAW_MESH_2D,
-                    MATRIX_FROM_MESH_2D);
-        }
-        return sMapV7AndroidXExperimental;
+    /**
+     * Operations every v7 player supports without any profile: the {@link
+     * #populateCommonOperations common operations} plus the v7 additions. Profiles add their
+     * operations on top of this; see {@link #createMapV7(int)}.
+     */
+    private static void populateBaselineV7Operations(UniqueIntMap<CompanionOperation> map) {
+        populateCommonOperations(map);
+        map.put(REM, Rem::read);
+        map.put(MATRIX_CONSTANT, MatrixConstant::read);
+        map.put(MATRIX_EXPRESSION, MatrixExpression::read);
+        map.put(MATRIX_VECTOR_MATH, MatrixVectorMath::read);
     }
 
-    private static UniqueIntMap<CompanionOperation> createMapV7_Androidx_Deprecated() {
-        if (sMapV7AndroidXDeprecated == null) {
-            sMapV7AndroidXDeprecated = new UniqueIntMap<>();
-            sMapV7AndroidXDeprecated.put(ROOT_CONTENT_BEHAVIOR, RootContentBehavior::read);
+    /**
+     * Returns the opcodes of one profile family (AndroidX or Widgets): its base operations plus
+     * its experimental and / or deprecated operations when those flags are set in {@code
+     * profiles}.
+     */
+    private static int[] profileFamilyOperations(
+            int profiles, int[] base, int[] experimental, int[] deprecated) {
+        int size = base.length;
+        boolean withExperimental = (profiles & PROFILE_EXPERIMENTAL) != 0;
+        boolean withDeprecated = (profiles & PROFILE_DEPRECATED) != 0;
+        if (withExperimental) {
+            size += experimental.length;
         }
-        return sMapV7AndroidXDeprecated;
-    }
-
-    private static UniqueIntMap<CompanionOperation> createMapV7_Widgets() {
-        if (sMapV7Widgets == null) {
-            sMapV7Widgets = new UniqueIntMap<>();
-            populateMapFromAll(
-                    sMapV7Widgets,
-                    7,
-                    MATRIX_FROM_PATH,
-                    TEXT_SUBTEXT,
-                    BITMAP_TEXT_MEASURE,
-                    DRAW_BITMAP_FONT_TEXT_RUN_ON_PATH,
-                    DRAW_BITMAP_TEXT_ANCHORED,
-                    DRAW_TO_BITMAP,
-                    WAKE_IN,
-                    ID_LOOKUP,
-                    PATH_EXPRESSION,
-                    PARTICLE_COMPARE,
-                    DYNAMIC_FLOAT_LIST,
-                    UPDATE_DYNAMIC_FLOAT_LIST,
-                    SKIP,
-                    CORE_TEXT,
-                    TEXT_STYLE,
-                    TEXT_TRANSFORM,
-                    COLOR_THEME,
-                    MODIFIER_ALIGN_BY);
+        if (withDeprecated) {
+            size += deprecated.length;
         }
-        return sMapV7Widgets;
-    }
-
-    private static UniqueIntMap<CompanionOperation> createMapV7_Widgets_Experimental() {
-        if (sMapV7WidgetsExperimental == null) {
-            sMapV7WidgetsExperimental = new UniqueIntMap<>();
-            populateMapFromAll(
-                    sMapV7WidgetsExperimental,
-                    7,
-                    LAYOUT_COMPUTE,
-                    LAYOUT_FLOW,
-                    MODIFIER_MULTI_CLICK,
-                    MODIFIER_DIMENSION_CONSTRAINTS,
-                    REFERENCED_OPERATIONS,
-                    INCLUDE_REFERENCED_OPERATIONS,
-                    MACRO_DEFINE,
-                    MACRO_CALL,
-                    MACRO_ARGUMENT,
-                    MACRO_BLOCK,
-                    MACRO_FOR_EACH,
-                    DATA_SOUND,
-                    SOUND_EXPRESSION,
-                    PLAY_SOUND,
-                    ADD_MESH_2D,
-                    DRAW_MESH_2D,
-                    MATRIX_FROM_MESH_2D);
+        int[] result = new int[size];
+        int index = 0;
+        System.arraycopy(base, 0, result, index, base.length);
+        index += base.length;
+        if (withExperimental) {
+            System.arraycopy(experimental, 0, result, index, experimental.length);
+            index += experimental.length;
         }
-        return sMapV7WidgetsExperimental;
-    }
-
-    private static UniqueIntMap<CompanionOperation> createMapV7_Widgets_Deprecated() {
-        if (sMapV7WidgetsDeprecated == null) {
-            sMapV7WidgetsDeprecated = new UniqueIntMap<>();
-            sMapV7WidgetsDeprecated.put(ROOT_CONTENT_BEHAVIOR, RootContentBehavior::read);
+        if (withDeprecated) {
+            System.arraycopy(deprecated, 0, result, index, deprecated.length);
         }
-        return sMapV7WidgetsDeprecated;
-    }
-
-    /** Returns a list of operation for the v7 using the given profiles */
-    private static HashMap<Integer, UniqueIntMap<CompanionOperation>> createMapV7(
-            HashMap<Integer, UniqueIntMap<CompanionOperation>> currentMapV7, int profiles) {
-        UniqueIntMap<CompanionOperation> mapV7 = new UniqueIntMap<>();
-
-        // Add the set of pre-v7 operations
-
-        fillDefaultVersionMap(mapV7);
-
-        if (profiles != 0) {
-            // Add profiles operations
-
-            ArrayList<UniqueIntMap<CompanionOperation>> listProfiles = new ArrayList<>();
-            if ((profiles & PROFILE_ANDROIDX) != 0) {
-                UniqueIntMap<CompanionOperation> androidx = new UniqueIntMap<>();
-                androidx.putAll(createMapV7_Androidx());
-
-                if ((profiles & PROFILE_EXPERIMENTAL) != 0) {
-                    androidx.putAll(createMapV7_Androidx_Experimental());
-                }
-                if ((profiles & PROFILE_DEPRECATED) != 0) {
-                    androidx.putAll(createMapV7_Androidx_Deprecated());
-                }
-                listProfiles.add(androidx);
-            }
-            if ((profiles & PROFILE_WIDGETS) != 0) {
-                UniqueIntMap<CompanionOperation> widgets = new UniqueIntMap<>();
-                widgets.putAll(createMapV7_Widgets());
-
-                if ((profiles & PROFILE_EXPERIMENTAL) != 0) {
-                    widgets.putAll(createMapV7_Widgets_Experimental());
-                }
-                if ((profiles & PROFILE_DEPRECATED) != 0) {
-                    widgets.putAll(createMapV7_Widgets_Deprecated());
-                }
-                listProfiles.add(widgets);
-            }
-            // Profiles defined externally (e.g. PROFILE_ANDROID_NATIVE) add no built-in profile
-            // overrides here.
-
-            if (listProfiles.size() == 1) {
-                mapV7.putAll(listProfiles.get(0));
-            } else {
-                // If multiple profiles are specified, we only want to support the intersection
-                // (to ensure that the document will work in all the profiles).
-                // Let's compute the intersection of the operations in the profiles.
-
-                HashMap<Integer, Integer> intersection = new HashMap<>();
-                for (UniqueIntMap<CompanionOperation> profile : listProfiles) {
-                    for (int i = 0; i < 255; i++) { // one day we'll have an iterator in IntMap
-                        CompanionOperation op = profile.get(i);
-                        if (op != null) {
-                            int count = 0;
-                            if (intersection.containsKey(i)) {
-                                count = intersection.get(i);
-                            }
-                            intersection.put(i, count + 1);
-                        }
-                    }
-                }
-                if (!intersection.isEmpty()) {
-                    int max = listProfiles.size();
-                    UniqueIntMap<CompanionOperation> profile = listProfiles.get(0);
-                    for (Integer key : intersection.keySet()) {
-                        int count = intersection.get(key);
-                        if (count == max) {
-                            mapV7.put(key, profile.get(key));
-                        }
-                    }
-                }
-            }
-        }
-
-        // Add baseline v7 operations
-
-        mapV7.put(REM, Rem::read);
-        mapV7.put(MATRIX_CONSTANT, MatrixConstant::read);
-        mapV7.put(MATRIX_EXPRESSION, MatrixExpression::read);
-        mapV7.put(MATRIX_VECTOR_MATH, MatrixVectorMath::read);
-
-        // Add the computed map to the overall hashmap of versions...
-
-        if (currentMapV7 != null) {
-            currentMapV7.put(profiles, mapV7);
-            return currentMapV7;
-        }
-
-        HashMap<Integer, UniqueIntMap<CompanionOperation>> result = new HashMap<>();
-        result.put(profiles, mapV7);
         return result;
+    }
+
+    /** Returns the opcodes present in every one of the given sets. */
+    private static int[] intersection(ArrayList<int[]> sets) {
+        int[] first = sets.get(0);
+        int[] result = new int[first.length];
+        int count = 0;
+        for (int opId : first) {
+            boolean inAll = true;
+            for (int i = 1; i < sets.size() && inAll; i++) {
+                inAll = contains(sets.get(i), opId);
+            }
+            if (inAll) {
+                result[count++] = opId;
+            }
+        }
+        return Arrays.copyOf(result, count);
+    }
+
+    private static boolean contains(int[] values, int value) {
+        for (int v : values) {
+            if (v == value) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Creates the v7 operations map for the given profiles: the v7 baseline plus the operations
+     * of the requested profiles. When several profile families are requested (e.g. AndroidX and
+     * Widgets) only the operations common to all of them are included, so that the document works
+     * in every one of those profiles.
+     */
+    private static UniqueIntMap<CompanionOperation> createMapV7(int profiles) {
+        UniqueIntMap<CompanionOperation> mapV7 = new UniqueIntMap<>();
+        populateBaselineV7Operations(mapV7);
+
+        ArrayList<int[]> families = new ArrayList<>();
+        if ((profiles & PROFILE_ANDROIDX) != 0) {
+            families.add(
+                    profileFamilyOperations(
+                            profiles,
+                            PROFILE_ANDROIDX_OPS,
+                            PROFILE_ANDROIDX_EXPERIMENTAL_OPS,
+                            PROFILE_ANDROIDX_DEPRECATED_OPS));
+        }
+        if ((profiles & PROFILE_WIDGETS) != 0) {
+            families.add(
+                    profileFamilyOperations(
+                            profiles,
+                            PROFILE_WIDGETS_OPS,
+                            PROFILE_WIDGETS_EXPERIMENTAL_OPS,
+                            PROFILE_WIDGETS_DEPRECATED_OPS));
+        }
+        // Profiles defined externally (e.g. PROFILE_ANDROID_NATIVE) add no built-in operations.
+
+        if (families.size() == 1) {
+            populateOperations(mapV7, families.get(0));
+        } else if (families.size() > 1) {
+            populateOperations(mapV7, intersection(families));
+        }
+        return mapV7;
     }
 
     public static class UniqueIntMap<T> extends IntMap<T> {
@@ -825,7 +843,11 @@ public class Operations {
         }
     }
 
-    private static void fillDefaultVersionMap(UniqueIntMap<CompanionOperation> map) {
+    /**
+     * Operations present at every supported api level (v6 and v7). Version specific operations
+     * are added by {@link #populateBaselineV6Operations} and {@link #populateBaselineV7Operations}.
+     */
+    private static void populateCommonOperations(UniqueIntMap<CompanionOperation> map) {
         map.put(HEADER, Header::read);
         map.put(DRAW_BITMAP_INT, DrawBitmapInt::read);
         map.put(DATA_BITMAP, BitmapData::read);

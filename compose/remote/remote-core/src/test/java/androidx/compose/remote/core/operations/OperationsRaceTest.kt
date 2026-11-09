@@ -38,13 +38,8 @@ object OperationsRaceTest {
         val fields =
             arrayOf<String?>(
                 "sMapV6",
-                "sMapV7",
-                "sMapV7AndroidX",
-                "sMapV7AndroidXExperimental",
-                "sMapV7AndroidXDeprecated",
-                "sMapV7Widgets",
-                "sMapV7WidgetsExperimental",
-                "sMapV7WidgetsDeprecated",
+                "sMapV7Cache",
+                "sAllOperationsV7",
             )
         for (fieldName in fields) {
             try {
