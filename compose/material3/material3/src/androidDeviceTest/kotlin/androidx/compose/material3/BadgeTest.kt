@@ -22,10 +22,20 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.tokens.BadgeTokens
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.IntrinsicMeasurable
+import androidx.compose.ui.layout.IntrinsicMeasureScope
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -40,6 +50,7 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onSibling
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -233,6 +244,110 @@ class BadgeTest {
         badge.assertTopPositionInRootIsEqualTo(greatGrandParentBounds.top)
         // Manually test the badge's right bound.
         assertThat(badgeBounds.right == greatGrandParentBounds.right).isTrue()
+    }
+
+    @Test
+    fun badgeBox_resizedGreatGrandParent_updatesBadgePosition() {
+        val greatGrandParentTag = "greatGrandParentLayout"
+        val badgeTag = "badgeTag"
+        var parentSize by mutableStateOf(50.dp)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(
+                modifier =
+                    Modifier.background(Color.Blue)
+                        .badgeBounds()
+                        .size(parentSize)
+                        .testTag(greatGrandParentTag)
+            ) {
+                Box {
+                    BadgedBox(
+                        badge = { Badge(modifier = Modifier.testTag(badgeTag)) { Text("999+") } }
+                    ) {
+                        Icon(icon, null, modifier = Modifier.size(40.dp))
+                    }
+                }
+            }
+        }
+
+        val initialBadgeBounds = rule.onNodeWithTag(badgeTag).getUnclippedBoundsInRoot()
+        val initialParentBounds = rule.onNodeWithTag(greatGrandParentTag).getUnclippedBoundsInRoot()
+        assertThat(initialBadgeBounds.right).isEqualTo(initialParentBounds.right)
+
+        parentSize = 56.dp
+        rule.waitForIdle()
+
+        val updatedBadgeBounds = rule.onNodeWithTag(badgeTag).getUnclippedBoundsInRoot()
+        val updatedParentBounds = rule.onNodeWithTag(greatGrandParentTag).getUnclippedBoundsInRoot()
+        assertThat(updatedBadgeBounds.right).isEqualTo(updatedParentBounds.right)
+        assertThat(updatedBadgeBounds.right).isGreaterThan(initialBadgeBounds.right)
+    }
+
+    @Test
+    fun badgeBounds_forwardsIntrinsicsWithoutMeasuringChild() {
+        var childMeasureCount = 0
+        var minIntrinsicW = 0
+        var maxIntrinsicW = 0
+        var minIntrinsicH = 0
+        var maxIntrinsicH = 0
+        var childMeasureCountDuringIntrinsics = -1
+
+        rule.setMaterialContent(lightColorScheme()) {
+            Layout(
+                content = {
+                    Layout(
+                        modifier = Modifier.badgeBounds(),
+                        measurePolicy =
+                            object : MeasurePolicy {
+                                override fun MeasureScope.measure(
+                                    measurables: List<Measurable>,
+                                    constraints: Constraints,
+                                ): MeasureResult {
+                                    childMeasureCount++
+                                    return layout(100, 50) {}
+                                }
+
+                                override fun IntrinsicMeasureScope.minIntrinsicWidth(
+                                    measurables: List<IntrinsicMeasurable>,
+                                    height: Int,
+                                ): Int = 11
+
+                                override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                                    measurables: List<IntrinsicMeasurable>,
+                                    height: Int,
+                                ): Int = 22
+
+                                override fun IntrinsicMeasureScope.minIntrinsicHeight(
+                                    measurables: List<IntrinsicMeasurable>,
+                                    width: Int,
+                                ): Int = 33
+
+                                override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+                                    measurables: List<IntrinsicMeasurable>,
+                                    width: Int,
+                                ): Int = 44
+                            },
+                    )
+                }
+            ) { measurables, constraints ->
+                val measurable = measurables.first()
+                minIntrinsicW = measurable.minIntrinsicWidth(Constraints.Infinity)
+                maxIntrinsicW = measurable.maxIntrinsicWidth(Constraints.Infinity)
+                minIntrinsicH = measurable.minIntrinsicHeight(Constraints.Infinity)
+                maxIntrinsicH = measurable.maxIntrinsicHeight(Constraints.Infinity)
+                childMeasureCountDuringIntrinsics = childMeasureCount
+                val placeable = measurable.measure(constraints)
+                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(minIntrinsicW).isEqualTo(11)
+        assertThat(maxIntrinsicW).isEqualTo(22)
+        assertThat(minIntrinsicH).isEqualTo(33)
+        assertThat(maxIntrinsicH).isEqualTo(44)
+        assertThat(childMeasureCountDuringIntrinsics).isEqualTo(0)
+        assertThat(childMeasureCount).isEqualTo(1)
     }
 }
 
