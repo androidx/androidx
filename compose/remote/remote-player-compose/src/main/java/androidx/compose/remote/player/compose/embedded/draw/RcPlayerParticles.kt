@@ -56,6 +56,11 @@ internal fun DrawScope.drawParticles(
 ) {
     val source = loop.particlesSource ?: return
     withCorePaintContext(remoteContext, paintState, graph) { paintContext ->
+        // Particle ops resolve their equations against the store, not the graph the dispatcher
+        // used: core writes each particle's values into the store and re-resolves the equations
+        // per particle (ParticlesLoop.paint), and the graph suppresses writes. Computed inputs are
+        // still current, as the dispatcher writes draw-stream FloatExpressions to the store.
+        //
         // A ParticlesCreate the draw stream never painted is seeded once per document, through the
         // core seeding path (ParticlesCreate.paint initializes every particle from its
         // initial-value equations).

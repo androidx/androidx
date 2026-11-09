@@ -34,7 +34,9 @@ internal fun Modifier.marquee(op: MarqueeModifierOperation): Modifier {
     // basic parameters to Compose's basicMarquee. The spacing may be a NaN-encoded
     // variable/expression (e.g. a dp recorded against the density variable), so resolve it before
     // scaling; remote-core scales it by density only under DP (rawDimensionDp). Velocity is not
-    // density-scaled.
+    // density-scaled. Velocity and the delays are read as literals: the creation API only writes
+    // plain floats for them and core never resolves them, and basicMarquee restarts its animation
+    // whenever they change, so a variable there would restart the scroll on every change.
     val density = LocalDensity.current.density
     val behavior = LocalCoreDocument.current.densityBehavior
     val spacing = rememberRemoteFloatAsState(op.spacing).value

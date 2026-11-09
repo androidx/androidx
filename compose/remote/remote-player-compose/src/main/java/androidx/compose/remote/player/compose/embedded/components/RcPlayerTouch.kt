@@ -33,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
@@ -50,6 +51,20 @@ internal class ComponentPlacementHolder {
     var width: Float = Float.NaN
     var height: Float = Float.NaN
     var boundsInitialized: Boolean = false
+    /**
+     * The component's total padding in px, as left, top, right and bottom, resolved as
+     * `Modifier.padding` applies it. Only tracked for components that publish their content size.
+     */
+    var contentPadding: Rect = Rect.Zero
+
+    /** The width inside [contentPadding]. */
+    fun contentWidth(): Float =
+        (width - contentPadding.left - contentPadding.right).coerceAtLeast(0f)
+
+    /** The height inside [contentPadding]. */
+    fun contentHeight(): Float =
+        (height - contentPadding.top - contentPadding.bottom).coerceAtLeast(0f)
+
     /** The component's outermost coordinates (its full, padding-inclusive box). */
     var outerCoords: LayoutCoordinates? = null
     /** The coordinates of the TouchExpression pointerInput, inside the component's modifiers. */
