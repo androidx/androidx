@@ -198,15 +198,11 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
     /**
      * Clips the Box representing the link to the path of the text range corresponding to that link
      */
-    @OptIn(ExperimentalFoundationApi::class)
     private fun Modifier.clipLink(link: LinkRange): Modifier =
         this.graphicsLayer {
-            val linkShape = shapeForRange(link)
-            if (linkShape != null) {
+            shapeForRange(link)?.let { linkShape ->
                 shape = linkShape
                 clip = true
-            } else if (ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled) {
-                clip = false
             }
         }
 
@@ -223,30 +219,12 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
             }
         }
 
-    @OptIn(ExperimentalFoundationApi::class)
     private fun pathForRangeInRangeCoordinates(link: LinkRange): Path? {
         return if (!shouldMeasureLinks()) null
         else {
             textLayoutResult?.let {
                 val range = calculateVisibleLinkRange(link, it) ?: return null
-                // A link displayed as a single rectangle doesn't need to be clipped: the Box
-                // representing it is measured to exactly that rectangle.
-                if (
-                    range.start >= range.end ||
-                        (ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled &&
-                            isSingleLine(range, it) &&
-                            isSingleBidiDirection(range, it))
-                ) {
-                    return null
-                }
                 val path = it.getPathForRange(range.start, range.end)
-                if (ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled) {
-                    // The Box representing the link is measured to the bounds of this path and
-                    // placed at their top left corner, which isn't necessarily at the first or the
-                    // last character of the link, e.g. in mixed bidi text or centered text.
-                    path.translate(-path.getBounds().topLeft)
-                    return path
-                }
 
                 val firstCharBoundingBox = it.getBoundingBox(range.start)
                 val lastCharBoundingBox = it.getBoundingBox(range.end - 1)
