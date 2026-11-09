@@ -1709,6 +1709,33 @@ class VideoCaptureTest {
     }
 
     @Test
+    @Config(sdk = [Config.TARGET_SDK])
+    fun adjustCropRect_skipsClampedSizeExceedingResolution() {
+        // The only width supported for height 1080 is 1920, which exceeds the 1912 resolution.
+        val videoEncoderInfo =
+            object :
+                FakeVideoEncoderInfo(
+                    widthAlignment = 16,
+                    heightAlignment = 16,
+                    supportedWidths = Range.create(16, 1920),
+                    supportedHeights = Range.create(16, 1080),
+                ) {
+                override fun getSupportedWidthsFor(height: Int): Range<Int> =
+                    if (height == 1080) Range.create(1920, 1920) else Range.create(16, 1920)
+
+                override fun getSupportedHeightsFor(width: Int): Range<Int> =
+                    if (width == 1920) Range.create(16, 1080) else Range.create(16, 1072)
+            }
+
+        testAdjustCropRectToValidSize(
+            resolution = Size(1912, 1080),
+            videoEncoderInfo = videoEncoderInfo,
+            cropRect = Rect(0, 0, 1912, 1080),
+            expectedCropRect = Rect(4, 4, 1908, 1076), // 1904x1072
+        )
+    }
+
+    @Test
     fun adjustCropRectAndRotation_withInProgressTransformationInfo() {
         // Arrange.
         val targetCropRect = Rect(0, 0, 1024, 768)

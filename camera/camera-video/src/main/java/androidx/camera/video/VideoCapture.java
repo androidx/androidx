@@ -1336,15 +1336,29 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         }
         try {
             Range<Integer> supportedHeights = videoEncoderInfo.getSupportedHeightsFor(width);
-            candidates.add(new Size(width, supportedHeights.clamp(height)));
+            addIfWithinResolution(candidates, new Size(width, supportedHeights.clamp(height)),
+                    resolution);
         } catch (IllegalArgumentException e) {
             Logger.w(TAG, "No supportedHeights for width: " + width, e);
         }
         try {
             Range<Integer> supportedWidths = videoEncoderInfo.getSupportedWidthsFor(height);
-            candidates.add(new Size(supportedWidths.clamp(width), height));
+            addIfWithinResolution(candidates, new Size(supportedWidths.clamp(width), height),
+                    resolution);
         } catch (IllegalArgumentException e) {
             Logger.w(TAG, "No supportedWidths for height: " + height, e);
+        }
+    }
+
+    private static void addIfWithinResolution(@NonNull Set<Size> candidates, @NonNull Size size,
+            @NonNull Size resolution) {
+        // Clamping to the supported range can enlarge a dimension beyond the surface resolution,
+        // which can't be cropped from the surface.
+        if (size.getWidth() <= resolution.getWidth()
+                && size.getHeight() <= resolution.getHeight()) {
+            candidates.add(size);
+        } else {
+            Logger.d(TAG, "Skip candidate " + size + " exceeding resolution " + resolution);
         }
     }
 
