@@ -21,172 +21,10 @@ package androidx.compose.material3
 import android.content.Context
 import android.os.Build
 import androidx.annotation.ColorRes
-import androidx.annotation.FloatRange
 import androidx.annotation.RequiresApi
 import androidx.compose.material3.internal.colorUtil.Cam
-import androidx.compose.material3.internal.colorUtil.CamUtils
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-
-/** Dynamic colors in Material. */
-@RequiresApi(31)
-internal fun dynamicTonalPalette(context: Context): TonalPalette =
-    TonalPalette(
-        // The neutral tonal range from the generated dynamic color palette.
-        neutral100 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_0),
-        neutral99 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_10),
-        neutral98 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral1_600)
-                .setLuminance(98f),
-        neutral96 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral1_600)
-                .setLuminance(96f),
-        neutral95 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_50),
-        neutral94 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral1_600)
-                .setLuminance(94f),
-        neutral92 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral1_600)
-                .setLuminance(92f),
-        neutral90 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_100),
-        neutral87 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral1_600)
-                .setLuminance(87f),
-        neutral80 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_200),
-        neutral70 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_300),
-        neutral60 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_400),
-        neutral50 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_500),
-        neutral40 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_600),
-        neutral30 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_700),
-        neutral24 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral1_600)
-                .setLuminance(24f),
-        neutral22 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral1_600)
-                .setLuminance(22f),
-        neutral20 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_800),
-        neutral17 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral1_600)
-                .setLuminance(17f),
-        neutral12 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral1_600)
-                .setLuminance(12f),
-        neutral10 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_900),
-        neutral6 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral1_600)
-                .setLuminance(6f),
-        neutral4 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral1_600)
-                .setLuminance(4f),
-        neutral0 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_1000),
-
-        // The neutral variant tonal range, sometimes called "neutral 2",  from the
-        // generated dynamic color palette.
-        neutralVariant100 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral2_0),
-        neutralVariant99 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral2_10),
-        neutralVariant98 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral2_600)
-                .setLuminance(98f),
-        neutralVariant96 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral2_600)
-                .setLuminance(96f),
-        neutralVariant95 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral2_50),
-        neutralVariant94 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral2_600)
-                .setLuminance(94f),
-        neutralVariant92 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral2_600)
-                .setLuminance(92f),
-        neutralVariant90 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral2_100),
-        neutralVariant87 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral2_600)
-                .setLuminance(87f),
-        neutralVariant80 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral2_200),
-        neutralVariant70 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral2_300),
-        neutralVariant60 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral2_400),
-        neutralVariant50 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral2_500),
-        neutralVariant40 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral2_600),
-        neutralVariant30 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral2_700),
-        neutralVariant24 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral2_600)
-                .setLuminance(24f),
-        neutralVariant22 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral2_600)
-                .setLuminance(22f),
-        neutralVariant20 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral2_800),
-        neutralVariant17 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral2_600)
-                .setLuminance(17f),
-        neutralVariant12 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral2_600)
-                .setLuminance(12f),
-        neutralVariant10 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral2_900),
-        neutralVariant6 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral2_600)
-                .setLuminance(6f),
-        neutralVariant4 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral2_600)
-                .setLuminance(4f),
-        neutralVariant0 =
-            ColorResourceHelper.getColor(context, android.R.color.system_neutral2_1000),
-
-        // The primary tonal range from the generated dynamic color palette.
-        primary100 = ColorResourceHelper.getColor(context, android.R.color.system_accent1_0),
-        primary99 = ColorResourceHelper.getColor(context, android.R.color.system_accent1_10),
-        primary95 = ColorResourceHelper.getColor(context, android.R.color.system_accent1_50),
-        primary90 = ColorResourceHelper.getColor(context, android.R.color.system_accent1_100),
-        primary80 = ColorResourceHelper.getColor(context, android.R.color.system_accent1_200),
-        primary70 = ColorResourceHelper.getColor(context, android.R.color.system_accent1_300),
-        primary60 = ColorResourceHelper.getColor(context, android.R.color.system_accent1_400),
-        primary50 = ColorResourceHelper.getColor(context, android.R.color.system_accent1_500),
-        primary40 = ColorResourceHelper.getColor(context, android.R.color.system_accent1_600),
-        primary30 = ColorResourceHelper.getColor(context, android.R.color.system_accent1_700),
-        primary20 = ColorResourceHelper.getColor(context, android.R.color.system_accent1_800),
-        primary10 = ColorResourceHelper.getColor(context, android.R.color.system_accent1_900),
-        primary0 = ColorResourceHelper.getColor(context, android.R.color.system_accent1_1000),
-
-        // The secondary tonal range from the generated dynamic color palette.
-        secondary100 = ColorResourceHelper.getColor(context, android.R.color.system_accent2_0),
-        secondary99 = ColorResourceHelper.getColor(context, android.R.color.system_accent2_10),
-        secondary95 = ColorResourceHelper.getColor(context, android.R.color.system_accent2_50),
-        secondary90 = ColorResourceHelper.getColor(context, android.R.color.system_accent2_100),
-        secondary80 = ColorResourceHelper.getColor(context, android.R.color.system_accent2_200),
-        secondary70 = ColorResourceHelper.getColor(context, android.R.color.system_accent2_300),
-        secondary60 = ColorResourceHelper.getColor(context, android.R.color.system_accent2_400),
-        secondary50 = ColorResourceHelper.getColor(context, android.R.color.system_accent2_500),
-        secondary40 = ColorResourceHelper.getColor(context, android.R.color.system_accent2_600),
-        secondary30 = ColorResourceHelper.getColor(context, android.R.color.system_accent2_700),
-        secondary20 = ColorResourceHelper.getColor(context, android.R.color.system_accent2_800),
-        secondary10 = ColorResourceHelper.getColor(context, android.R.color.system_accent2_900),
-        secondary0 = ColorResourceHelper.getColor(context, android.R.color.system_accent2_1000),
-
-        // The tertiary tonal range from the generated dynamic color palette.
-        tertiary100 = ColorResourceHelper.getColor(context, android.R.color.system_accent3_0),
-        tertiary99 = ColorResourceHelper.getColor(context, android.R.color.system_accent3_10),
-        tertiary95 = ColorResourceHelper.getColor(context, android.R.color.system_accent3_50),
-        tertiary90 = ColorResourceHelper.getColor(context, android.R.color.system_accent3_100),
-        tertiary80 = ColorResourceHelper.getColor(context, android.R.color.system_accent3_200),
-        tertiary70 = ColorResourceHelper.getColor(context, android.R.color.system_accent3_300),
-        tertiary60 = ColorResourceHelper.getColor(context, android.R.color.system_accent3_400),
-        tertiary50 = ColorResourceHelper.getColor(context, android.R.color.system_accent3_500),
-        tertiary40 = ColorResourceHelper.getColor(context, android.R.color.system_accent3_600),
-        tertiary30 = ColorResourceHelper.getColor(context, android.R.color.system_accent3_700),
-        tertiary20 = ColorResourceHelper.getColor(context, android.R.color.system_accent3_800),
-        tertiary10 = ColorResourceHelper.getColor(context, android.R.color.system_accent3_900),
-        tertiary0 = ColorResourceHelper.getColor(context, android.R.color.system_accent3_1000),
-    )
 
 /**
  * Creates a light dynamic color scheme.
@@ -203,10 +41,7 @@ public fun dynamicLightColorScheme(context: Context): ColorScheme {
         // SDKs 34 and greater return appropriate Chroma6 values for neutral palette
         dynamicLightColorScheme34(context)
     } else {
-        // SDKs 31-33 return Chroma4 values for neutral palette, we instead leverage neutral
-        // variant which provides chroma8 for less grey tones.
-        val tonalPalette = dynamicTonalPalette(context)
-        dynamicLightColorScheme31(tonalPalette)
+        dynamicLightColorScheme31(context)
     }
 }
 
@@ -225,10 +60,7 @@ public fun dynamicDarkColorScheme(context: Context): ColorScheme {
         // SDKs 34 and greater return appropriate Chroma6 values for neutral palette
         dynamicDarkColorScheme34(context)
     } else {
-        // SDKs 31-33 return Chroma4 values for neutral palette, we instead leverage neutral
-        // variant which provides chroma8 for less grey tones.
-        val tonalPalette = dynamicTonalPalette(context)
-        dynamicDarkColorScheme31(tonalPalette)
+        dynamicDarkColorScheme31(context)
     }
 }
 
@@ -239,70 +71,112 @@ private object ColorResourceHelper {
 }
 
 /**
- * Set the luminance(tone) of this color. Chroma may decrease because chroma has a different maximum
- * for any given hue and luminance.
- *
- * @param newLuminance 0 <= newLuminance <= 100; invalid values are corrected.
+ * Returns the hue and chroma of the system neutral variant tone 40. SDKs 31-33 don't provide all
+ * the neutral variant tones used by the color schemes, so the missing tones are generated from it.
  */
-internal fun Color.setLuminance(@FloatRange(from = 0.0, to = 100.0) newLuminance: Float): Color {
-    if ((newLuminance < 0.0001) or (newLuminance > 99.9999)) {
-        return Color(CamUtils.argbFromLstar(newLuminance.toDouble()))
-    }
-
-    val baseCam: Cam = Cam.fromInt(this.toArgb())
-    val baseColor = Cam.getInt(baseCam.hue, baseCam.chroma, newLuminance)
-
-    return Color(baseColor)
-}
-
 @RequiresApi(31)
-internal fun dynamicLightColorScheme31(tonalPalette: TonalPalette) =
-    lightColorScheme(
-        primary = tonalPalette.primary40,
-        onPrimary = tonalPalette.primary100,
-        primaryContainer = tonalPalette.primary90,
-        onPrimaryContainer = tonalPalette.primary10,
-        inversePrimary = tonalPalette.primary80,
-        secondary = tonalPalette.secondary40,
-        onSecondary = tonalPalette.secondary100,
-        secondaryContainer = tonalPalette.secondary90,
-        onSecondaryContainer = tonalPalette.secondary10,
-        tertiary = tonalPalette.tertiary40,
-        onTertiary = tonalPalette.tertiary100,
-        tertiaryContainer = tonalPalette.tertiary90,
-        onTertiaryContainer = tonalPalette.tertiary10,
-        background = tonalPalette.neutralVariant98,
-        onBackground = tonalPalette.neutralVariant10,
-        surface = tonalPalette.neutralVariant98,
-        onSurface = tonalPalette.neutralVariant10,
-        surfaceVariant = tonalPalette.neutralVariant90,
-        onSurfaceVariant = tonalPalette.neutralVariant30,
-        inverseSurface = tonalPalette.neutralVariant20,
-        inverseOnSurface = tonalPalette.neutralVariant95,
-        outline = tonalPalette.neutralVariant50,
-        outlineVariant = tonalPalette.neutralVariant80,
-        scrim = tonalPalette.neutralVariant0,
-        surfaceBright = tonalPalette.neutralVariant98,
-        surfaceDim = tonalPalette.neutralVariant87,
-        surfaceContainer = tonalPalette.neutralVariant94,
-        surfaceContainerHigh = tonalPalette.neutralVariant92,
-        surfaceContainerHighest = tonalPalette.neutralVariant90,
-        surfaceContainerLow = tonalPalette.neutralVariant96,
-        surfaceContainerLowest = tonalPalette.neutralVariant100,
-        surfaceTint = tonalPalette.primary40,
-        primaryFixed = tonalPalette.primary90,
-        primaryFixedDim = tonalPalette.primary80,
-        onPrimaryFixed = tonalPalette.primary10,
-        onPrimaryFixedVariant = tonalPalette.primary30,
-        secondaryFixed = tonalPalette.secondary90,
-        secondaryFixedDim = tonalPalette.secondary80,
-        onSecondaryFixed = tonalPalette.secondary10,
-        onSecondaryFixedVariant = tonalPalette.secondary30,
-        tertiaryFixed = tonalPalette.tertiary90,
-        tertiaryFixedDim = tonalPalette.tertiary80,
-        onTertiaryFixed = tonalPalette.tertiary10,
-        onTertiaryFixedVariant = tonalPalette.tertiary30,
+private fun neutralVariantKeyColor(context: Context): Cam =
+    Cam.fromInt(ColorResourceHelper.getColor(context, android.R.color.system_neutral2_600).toArgb())
+
+/** Returns the color with this hue and chroma, and the given [tone] (L* in L*a*b*). */
+private fun Cam.toColor(tone: Float): Color = Color(Cam.getInt(hue, chroma, tone))
+
+/**
+ * Creates a light dynamic color scheme from the system tonal palettes on SDKs 31-33.
+ *
+ * Only the tones used by the scheme are resolved. SDKs 31-33 return Chroma4 values for the neutral
+ * palette, so the neutral variant palette, which provides Chroma8 values, is used instead for less
+ * grey tones.
+ */
+@RequiresApi(31)
+internal fun dynamicLightColorScheme31(context: Context): ColorScheme {
+    val neutralVariantKeyColor = neutralVariantKeyColor(context)
+    val primary100 = ColorResourceHelper.getColor(context, android.R.color.system_accent1_0)
+    val primary90 = ColorResourceHelper.getColor(context, android.R.color.system_accent1_100)
+    val primary80 = ColorResourceHelper.getColor(context, android.R.color.system_accent1_200)
+    val primary40 = ColorResourceHelper.getColor(context, android.R.color.system_accent1_600)
+    val primary30 = ColorResourceHelper.getColor(context, android.R.color.system_accent1_700)
+    val primary10 = ColorResourceHelper.getColor(context, android.R.color.system_accent1_900)
+    val secondary100 = ColorResourceHelper.getColor(context, android.R.color.system_accent2_0)
+    val secondary90 = ColorResourceHelper.getColor(context, android.R.color.system_accent2_100)
+    val secondary80 = ColorResourceHelper.getColor(context, android.R.color.system_accent2_200)
+    val secondary40 = ColorResourceHelper.getColor(context, android.R.color.system_accent2_600)
+    val secondary30 = ColorResourceHelper.getColor(context, android.R.color.system_accent2_700)
+    val secondary10 = ColorResourceHelper.getColor(context, android.R.color.system_accent2_900)
+    val tertiary100 = ColorResourceHelper.getColor(context, android.R.color.system_accent3_0)
+    val tertiary90 = ColorResourceHelper.getColor(context, android.R.color.system_accent3_100)
+    val tertiary80 = ColorResourceHelper.getColor(context, android.R.color.system_accent3_200)
+    val tertiary40 = ColorResourceHelper.getColor(context, android.R.color.system_accent3_600)
+    val tertiary30 = ColorResourceHelper.getColor(context, android.R.color.system_accent3_700)
+    val tertiary10 = ColorResourceHelper.getColor(context, android.R.color.system_accent3_900)
+    val neutralVariant100 = ColorResourceHelper.getColor(context, android.R.color.system_neutral2_0)
+    val neutralVariant98 = neutralVariantKeyColor.toColor(tone = 98f)
+    val neutralVariant96 = neutralVariantKeyColor.toColor(tone = 96f)
+    val neutralVariant95 = ColorResourceHelper.getColor(context, android.R.color.system_neutral2_50)
+    val neutralVariant94 = neutralVariantKeyColor.toColor(tone = 94f)
+    val neutralVariant92 = neutralVariantKeyColor.toColor(tone = 92f)
+    val neutralVariant90 =
+        ColorResourceHelper.getColor(context, android.R.color.system_neutral2_100)
+    val neutralVariant87 = neutralVariantKeyColor.toColor(tone = 87f)
+    val neutralVariant80 =
+        ColorResourceHelper.getColor(context, android.R.color.system_neutral2_200)
+    val neutralVariant50 =
+        ColorResourceHelper.getColor(context, android.R.color.system_neutral2_500)
+    val neutralVariant30 =
+        ColorResourceHelper.getColor(context, android.R.color.system_neutral2_700)
+    val neutralVariant20 =
+        ColorResourceHelper.getColor(context, android.R.color.system_neutral2_800)
+    val neutralVariant10 =
+        ColorResourceHelper.getColor(context, android.R.color.system_neutral2_900)
+    val neutralVariant0 =
+        ColorResourceHelper.getColor(context, android.R.color.system_neutral2_1000)
+    return lightColorScheme(
+        primary = primary40,
+        onPrimary = primary100,
+        primaryContainer = primary90,
+        onPrimaryContainer = primary10,
+        inversePrimary = primary80,
+        secondary = secondary40,
+        onSecondary = secondary100,
+        secondaryContainer = secondary90,
+        onSecondaryContainer = secondary10,
+        tertiary = tertiary40,
+        onTertiary = tertiary100,
+        tertiaryContainer = tertiary90,
+        onTertiaryContainer = tertiary10,
+        background = neutralVariant98,
+        onBackground = neutralVariant10,
+        surface = neutralVariant98,
+        onSurface = neutralVariant10,
+        surfaceVariant = neutralVariant90,
+        onSurfaceVariant = neutralVariant30,
+        inverseSurface = neutralVariant20,
+        inverseOnSurface = neutralVariant95,
+        outline = neutralVariant50,
+        outlineVariant = neutralVariant80,
+        scrim = neutralVariant0,
+        surfaceBright = neutralVariant98,
+        surfaceDim = neutralVariant87,
+        surfaceContainer = neutralVariant94,
+        surfaceContainerHigh = neutralVariant92,
+        surfaceContainerHighest = neutralVariant90,
+        surfaceContainerLow = neutralVariant96,
+        surfaceContainerLowest = neutralVariant100,
+        surfaceTint = primary40,
+        primaryFixed = primary90,
+        primaryFixedDim = primary80,
+        onPrimaryFixed = primary10,
+        onPrimaryFixedVariant = primary30,
+        secondaryFixed = secondary90,
+        secondaryFixedDim = secondary80,
+        onSecondaryFixed = secondary10,
+        onSecondaryFixedVariant = secondary30,
+        tertiaryFixed = tertiary90,
+        tertiaryFixedDim = tertiary80,
+        onTertiaryFixed = tertiary10,
+        onTertiaryFixedVariant = tertiary30,
     )
+}
 
 @RequiresApi(34)
 internal fun dynamicLightColorScheme34(context: Context) =
@@ -408,54 +282,99 @@ internal fun dynamicLightColorScheme34(context: Context) =
             ColorResourceHelper.getColor(context, android.R.color.system_on_tertiary_fixed_variant),
     )
 
+/**
+ * Creates a dark dynamic color scheme from the system tonal palettes on SDKs 31-33.
+ *
+ * Only the tones used by the scheme are resolved. SDKs 31-33 return Chroma4 values for the neutral
+ * palette, so the neutral variant palette, which provides Chroma8 values, is used instead for less
+ * grey tones.
+ */
 @RequiresApi(31)
-internal fun dynamicDarkColorScheme31(tonalPalette: TonalPalette) =
-    darkColorScheme(
-        primary = tonalPalette.primary80,
-        onPrimary = tonalPalette.primary20,
-        primaryContainer = tonalPalette.primary30,
-        onPrimaryContainer = tonalPalette.primary90,
-        inversePrimary = tonalPalette.primary40,
-        secondary = tonalPalette.secondary80,
-        onSecondary = tonalPalette.secondary20,
-        secondaryContainer = tonalPalette.secondary30,
-        onSecondaryContainer = tonalPalette.secondary90,
-        tertiary = tonalPalette.tertiary80,
-        onTertiary = tonalPalette.tertiary20,
-        tertiaryContainer = tonalPalette.tertiary30,
-        onTertiaryContainer = tonalPalette.tertiary90,
-        background = tonalPalette.neutralVariant6,
-        onBackground = tonalPalette.neutralVariant90,
-        surface = tonalPalette.neutralVariant6,
-        onSurface = tonalPalette.neutralVariant90,
-        surfaceVariant = tonalPalette.neutralVariant30,
-        onSurfaceVariant = tonalPalette.neutralVariant80,
-        inverseSurface = tonalPalette.neutralVariant90,
-        inverseOnSurface = tonalPalette.neutralVariant20,
-        outline = tonalPalette.neutralVariant60,
-        outlineVariant = tonalPalette.neutralVariant30,
-        scrim = tonalPalette.neutralVariant0,
-        surfaceBright = tonalPalette.neutralVariant24,
-        surfaceDim = tonalPalette.neutralVariant6,
-        surfaceContainer = tonalPalette.neutralVariant12,
-        surfaceContainerHigh = tonalPalette.neutralVariant17,
-        surfaceContainerHighest = tonalPalette.neutralVariant22,
-        surfaceContainerLow = tonalPalette.neutralVariant10,
-        surfaceContainerLowest = tonalPalette.neutralVariant4,
-        surfaceTint = tonalPalette.primary80,
-        primaryFixed = tonalPalette.primary90,
-        primaryFixedDim = tonalPalette.primary80,
-        onPrimaryFixed = tonalPalette.primary10,
-        onPrimaryFixedVariant = tonalPalette.primary30,
-        secondaryFixed = tonalPalette.secondary90,
-        secondaryFixedDim = tonalPalette.secondary80,
-        onSecondaryFixed = tonalPalette.secondary10,
-        onSecondaryFixedVariant = tonalPalette.secondary30,
-        tertiaryFixed = tonalPalette.tertiary90,
-        tertiaryFixedDim = tonalPalette.tertiary80,
-        onTertiaryFixed = tonalPalette.tertiary10,
-        onTertiaryFixedVariant = tonalPalette.tertiary30,
+internal fun dynamicDarkColorScheme31(context: Context): ColorScheme {
+    val neutralVariantKeyColor = neutralVariantKeyColor(context)
+    val primary90 = ColorResourceHelper.getColor(context, android.R.color.system_accent1_100)
+    val primary80 = ColorResourceHelper.getColor(context, android.R.color.system_accent1_200)
+    val primary40 = ColorResourceHelper.getColor(context, android.R.color.system_accent1_600)
+    val primary30 = ColorResourceHelper.getColor(context, android.R.color.system_accent1_700)
+    val primary20 = ColorResourceHelper.getColor(context, android.R.color.system_accent1_800)
+    val primary10 = ColorResourceHelper.getColor(context, android.R.color.system_accent1_900)
+    val secondary90 = ColorResourceHelper.getColor(context, android.R.color.system_accent2_100)
+    val secondary80 = ColorResourceHelper.getColor(context, android.R.color.system_accent2_200)
+    val secondary30 = ColorResourceHelper.getColor(context, android.R.color.system_accent2_700)
+    val secondary20 = ColorResourceHelper.getColor(context, android.R.color.system_accent2_800)
+    val secondary10 = ColorResourceHelper.getColor(context, android.R.color.system_accent2_900)
+    val tertiary90 = ColorResourceHelper.getColor(context, android.R.color.system_accent3_100)
+    val tertiary80 = ColorResourceHelper.getColor(context, android.R.color.system_accent3_200)
+    val tertiary30 = ColorResourceHelper.getColor(context, android.R.color.system_accent3_700)
+    val tertiary20 = ColorResourceHelper.getColor(context, android.R.color.system_accent3_800)
+    val tertiary10 = ColorResourceHelper.getColor(context, android.R.color.system_accent3_900)
+    val neutralVariant90 =
+        ColorResourceHelper.getColor(context, android.R.color.system_neutral2_100)
+    val neutralVariant80 =
+        ColorResourceHelper.getColor(context, android.R.color.system_neutral2_200)
+    val neutralVariant60 =
+        ColorResourceHelper.getColor(context, android.R.color.system_neutral2_400)
+    val neutralVariant30 =
+        ColorResourceHelper.getColor(context, android.R.color.system_neutral2_700)
+    val neutralVariant24 = neutralVariantKeyColor.toColor(tone = 24f)
+    val neutralVariant22 = neutralVariantKeyColor.toColor(tone = 22f)
+    val neutralVariant20 =
+        ColorResourceHelper.getColor(context, android.R.color.system_neutral2_800)
+    val neutralVariant17 = neutralVariantKeyColor.toColor(tone = 17f)
+    val neutralVariant12 = neutralVariantKeyColor.toColor(tone = 12f)
+    val neutralVariant10 =
+        ColorResourceHelper.getColor(context, android.R.color.system_neutral2_900)
+    val neutralVariant6 = neutralVariantKeyColor.toColor(tone = 6f)
+    val neutralVariant4 = neutralVariantKeyColor.toColor(tone = 4f)
+    val neutralVariant0 =
+        ColorResourceHelper.getColor(context, android.R.color.system_neutral2_1000)
+    return darkColorScheme(
+        primary = primary80,
+        onPrimary = primary20,
+        primaryContainer = primary30,
+        onPrimaryContainer = primary90,
+        inversePrimary = primary40,
+        secondary = secondary80,
+        onSecondary = secondary20,
+        secondaryContainer = secondary30,
+        onSecondaryContainer = secondary90,
+        tertiary = tertiary80,
+        onTertiary = tertiary20,
+        tertiaryContainer = tertiary30,
+        onTertiaryContainer = tertiary90,
+        background = neutralVariant6,
+        onBackground = neutralVariant90,
+        surface = neutralVariant6,
+        onSurface = neutralVariant90,
+        surfaceVariant = neutralVariant30,
+        onSurfaceVariant = neutralVariant80,
+        inverseSurface = neutralVariant90,
+        inverseOnSurface = neutralVariant20,
+        outline = neutralVariant60,
+        outlineVariant = neutralVariant30,
+        scrim = neutralVariant0,
+        surfaceBright = neutralVariant24,
+        surfaceDim = neutralVariant6,
+        surfaceContainer = neutralVariant12,
+        surfaceContainerHigh = neutralVariant17,
+        surfaceContainerHighest = neutralVariant22,
+        surfaceContainerLow = neutralVariant10,
+        surfaceContainerLowest = neutralVariant4,
+        surfaceTint = primary80,
+        primaryFixed = primary90,
+        primaryFixedDim = primary80,
+        onPrimaryFixed = primary10,
+        onPrimaryFixedVariant = primary30,
+        secondaryFixed = secondary90,
+        secondaryFixedDim = secondary80,
+        onSecondaryFixed = secondary10,
+        onSecondaryFixedVariant = secondary30,
+        tertiaryFixed = tertiary90,
+        tertiaryFixedDim = tertiary80,
+        onTertiaryFixed = tertiary10,
+        onTertiaryFixedVariant = tertiary30,
     )
+}
 
 @RequiresApi(34)
 internal fun dynamicDarkColorScheme34(context: Context) =
