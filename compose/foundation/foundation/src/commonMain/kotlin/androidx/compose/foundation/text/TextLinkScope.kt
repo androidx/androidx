@@ -55,12 +55,9 @@ import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastRoundToInt
-import kotlin.math.max
 import kotlin.math.min
 
 internal typealias LinkRange = AnnotatedString.Range<LinkAnnotation>
@@ -112,7 +109,6 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
      * Causes the modified element to be measured with fixed constraints equal to the bounds of the
      * text range and placed over that range of text.
      */
-    @OptIn(ExperimentalFoundationApi::class)
     private fun Modifier.textRange(link: LinkRange): Modifier {
         return this.then(
             TextRangeLayoutModifier {
@@ -122,76 +118,13 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
                 val updatedRange =
                     calculateVisibleLinkRange(link, layoutResult)
                         ?: return@TextRangeLayoutModifier layout(0, 0) { IntOffset.Zero }
-
-                // There's nothing to measure when the link text is empty or when the link is
-                // entirely cut off by the maxLines of the text.
-                if (updatedRange.start >= updatedRange.end) {
-                    return@TextRangeLayoutModifier layout(0, 0) { IntOffset.Zero }
-                }
-
                 val bounds =
-                    if (
-                        ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled &&
-                            isSingleLine(updatedRange, layoutResult)
-                    ) {
-                        getSingleLineBounds(updatedRange, layoutResult)
-                    } else {
-                        layoutResult
-                            .getPathForRange(updatedRange.start, updatedRange.end)
-                            .getBounds()
-                            .roundToIntRect()
-                    }
+                    layoutResult
+                        .getPathForRange(updatedRange.start, updatedRange.end)
+                        .getBounds()
+                        .roundToIntRect()
                 layout(bounds.width, bounds.height) { bounds.topLeft }
             }
-        )
-    }
-
-    /** Returns whether [range] is laid out on a single line. */
-    private fun isSingleLine(range: LinkRange, layoutResult: TextLayoutResult): Boolean =
-        layoutResult.lineCount == 1 ||
-            layoutResult.getLineForOffset(range.start) ==
-                layoutResult.getLineForOffset(range.end - 1)
-
-    /**
-     * Returns whether all characters of [range] resolve to the same bidi direction. Only then is
-     * [range] displayed as a single run of characters in its logical order, or exactly its reverse,
-     * so that its first and its last characters are its visual extremes. In mixed bidi text the
-     * visually leftmost or rightmost character of a range can be in the middle of the range, and
-     * other text can be displayed in between its characters.
-     */
-    private fun isSingleBidiDirection(range: LinkRange, layoutResult: TextLayoutResult): Boolean {
-        val direction = layoutResult.getBidiRunDirection(range.start)
-        for (offset in range.start + 1 until range.end) {
-            if (layoutResult.getBidiRunDirection(offset) != direction) return false
-        }
-        return true
-    }
-
-    /**
-     * Returns the rounded bounds of [range] laid out on a single line without allocating a [Path].
-     * The vertical bounds are the line's top and bottom. The horizontal bounds are the union of the
-     * bounding boxes of the range's visually extreme characters. When all characters of [range]
-     * resolve to the same bidi direction, these are its first and its last characters; otherwise
-     * any character can be one, so all of them are unioned.
-     */
-    private fun getSingleLineBounds(range: LinkRange, layoutResult: TextLayoutResult): IntRect {
-        val line = layoutResult.getLineForOffset(range.start)
-        val firstCharBox = layoutResult.getBoundingBox(range.start)
-        var left = firstCharBox.left
-        var right = firstCharBox.right
-        val lastOffset = range.end - 1
-        var offset = if (isSingleBidiDirection(range, layoutResult)) lastOffset else range.start + 1
-        while (offset <= lastOffset) {
-            val charBox = layoutResult.getBoundingBox(offset)
-            left = min(left, charBox.left)
-            right = max(right, charBox.right)
-            offset++
-        }
-        return IntRect(
-            left = left.fastRoundToInt(),
-            top = layoutResult.getLineTop(line).fastRoundToInt(),
-            right = right.fastRoundToInt(),
-            bottom = layoutResult.getLineBottom(line).fastRoundToInt(),
         )
     }
 
