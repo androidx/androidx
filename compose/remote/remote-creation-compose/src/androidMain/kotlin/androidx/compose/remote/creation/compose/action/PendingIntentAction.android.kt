@@ -23,9 +23,9 @@ import android.content.Context
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RcPlatformServices.LogCategory
 import androidx.compose.remote.core.RcProfiles
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.actions.Action as CreationAction
 import androidx.compose.remote.creation.actions.HostAction as CreationHostAction
+import androidx.compose.remote.creation.compose.capture.RemoteComposeWriterAdapter
 import androidx.compose.remote.creation.compose.capture.RemoteWriterEvents
 import androidx.compose.remote.creation.compose.capture.platform
 import androidx.compose.remote.creation.compose.capture.profile
@@ -136,11 +136,11 @@ public class PendingIntentAction(
                     "Wear widget hosts don't support PendingIntent extras, ignoring them",
                 )
             }
-            val valueId = document.addInteger(index)
+            val valueId = document.addMutableInt(index).id
             CreationHostAction(
                 ACTION_NAME,
                 HostAction.Type.INT.value,
-                Utils.idFromLong(valueId).toInt(),
+                valueId,
             )
         }
     }
@@ -237,7 +237,7 @@ public class PendingIntentAction(
          */
         internal fun RemoteStateScope.isLauncherWidget(): Boolean =
             (creationState.profile.operationsProfiles and RcProfiles.PROFILE_WIDGETS) != 0 ||
-                document is WidgetsProfileWriterV6
+                (document as? RemoteComposeWriterAdapter)?.delegate is WidgetsProfileWriterV6
 
         /**
          * Returns the index of the [PendingIntent] that a host action triggers, or `null` if the

@@ -21,6 +21,8 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
+import androidx.compose.remote.document.RemoteIntId
+import androidx.compose.remote.document.addIdList
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.annotation.RememberInComposition
 import kotlin.reflect.KClass
@@ -289,13 +291,17 @@ private abstract class BaseRemoteBoolean :
                 ),
             object : LazyRemoteString {
                 override fun reserveTextId(creationState: RemoteComposeCreationState): Int {
-                    return creationState.document.textLookup(
-                        creationState.document.addStringList(
+                    val listId =
+                        creationState.document.addIdList(
                             creationState.getId(ifFalse),
                             creationState.getId(ifTrue),
-                        ),
-                        creationState.getId(intValue),
-                    )
+                        )
+                    return creationState.document
+                        .textLookup(
+                            listId,
+                            RemoteIntId(creationState.getId(intValue)),
+                        )
+                        .id
                 }
 
                 override fun computeRequiredCodePointSet(

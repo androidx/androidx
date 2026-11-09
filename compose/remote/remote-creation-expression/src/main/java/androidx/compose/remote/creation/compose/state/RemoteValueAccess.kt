@@ -17,8 +17,10 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.document.MaybeVariableFloat
+import androidx.compose.remote.document.NanEncoding
+import androidx.compose.remote.document.toMaybeVariableFloat
 
 /**
  * Library-group contract implemented by [RemoteValue] implementations to support expression caching
@@ -58,7 +60,15 @@ public interface RemoteValueAccess {
      * @return The ID of this remote value encoded in a Float NaN, for the given [creationState].
      */
     public fun getFloatId(creationState: RemoteComposeCreationState): Float =
-        Utils.asNan(getId(creationState))
+        NanEncoding.asNan(getId(creationState))
+
+    /**
+     * Returns this value as a [MaybeVariableFloat] (either a literal float or a variable reference)
+     * for [creationState].
+     */
+    public fun getMaybeVariableFloat(
+        creationState: RemoteComposeCreationState
+    ): MaybeVariableFloat = getFloatId(creationState).toMaybeVariableFloat()
 }
 
 internal fun RemoteValue<*>.requireRemoteValueAccess(): RemoteValueAccess =

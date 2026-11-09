@@ -17,14 +17,15 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.core.RemoteComposeBuffer
+import androidx.compose.remote.core.operations.FloatConstant
 import androidx.compose.remote.core.operations.NamedVariable
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
+import androidx.compose.remote.document.RemoteDocumentWriter
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayInputStream
+import java.lang.reflect.Proxy
 import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -83,9 +84,52 @@ class RemoteStateDomainTest {
     @Test
     fun namedStatesAcrossDomains_writeDistinctQualifiedVariables() {
         val home = RemoteValue.Domain("HOME")
+        val rawBuffer = RemoteComposeBuffer().apply { header(100, 100, 1f, 0L) }
+        var nextId = 42
+        val testWriter =
+            Proxy.newProxyInstance(
+                RemoteDocumentWriter::class.java.classLoader,
+                arrayOf(RemoteDocumentWriter::class.java),
+            ) { _, method, args ->
+                when {
+                    method.name == "allocateId" -> nextId++
+                    method.name == "setNamedVariable" -> {
+                        rawBuffer.setNamedVariable(
+                            args[0] as Int,
+                            args[1] as String,
+                            args[2] as Int,
+                        )
+                        Unit
+                    }
+                    method.name.startsWith("addNamedFloat") -> {
+                        val id = nextId++
+                        rawBuffer.setNamedVariable(id, args[0] as String, NamedVariable.FLOAT_TYPE)
+                        FloatConstant.apply(rawBuffer.buffer, id, args[1] as Float)
+                        id
+                    }
+                    method.name.startsWith("addNamedInt") -> {
+                        val id = nextId++
+                        rawBuffer.setNamedVariable(id, args[0] as String, NamedVariable.INT_TYPE)
+                        rawBuffer.addInteger(id, args[1] as Int)
+                        id
+                    }
+                    method.name.startsWith("addIntConstant") -> {
+                        val id = nextId++
+                        rawBuffer.addInteger(id, args[0] as Int)
+                        id
+                    }
+                    method.name.startsWith("addNamedString") -> {
+                        val id = nextId++
+                        rawBuffer.setNamedVariable(id, args[0] as String, NamedVariable.STRING_TYPE)
+                        rawBuffer.addText(id, args[1] as String)
+                        id
+                    }
+                    else -> throw UnsupportedOperationException(method.name)
+                }
+            } as RemoteDocumentWriter
         val creationState =
             RemoteComposeCreationState().apply {
-                document = RemoteComposeWriter(RcPlatformServices.None)
+                document = testWriter
                 remoteDensity = RemoteDensity(1f.rf, 1f.rf)
             }
 
@@ -124,7 +168,7 @@ class RemoteStateDomainTest {
         assertThat(setOf(cardTempId, homeTempId, rawTempId, sunUpId, heartRateId)).hasSize(5)
         assertThat(roomLabelId).isGreaterThan(0)
 
-        val bytes = creationState.document.buffer.buffer.cloneBytes()
+        val bytes = rawBuffer.buffer.cloneBytes()
         val decoded =
             CoreDocument().apply {
                 initFromBuffer(RemoteComposeBuffer.fromInputStream(ByteArrayInputStream(bytes)))

@@ -29,12 +29,12 @@ dependencies {
     implementation(libs.jspecify)
     implementation("androidx.collection:collection:1.5.0")
     implementation(project(":compose:remote:remote-core"))
-    implementation(project(":compose:remote:remote-creation-core"))
 
     testImplementation(libs.junit)
     testImplementation(libs.testParameterInjector)
     testImplementation(libs.truth)
     testImplementation(libs.kotlinTest)
+    testImplementation(project(":compose:remote:remote-creation-core"))
 }
 
 androidx {

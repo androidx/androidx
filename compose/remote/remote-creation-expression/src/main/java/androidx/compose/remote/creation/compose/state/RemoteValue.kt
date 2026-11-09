@@ -17,6 +17,7 @@ package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.document.RemoteDocumentWriter
 import androidx.compose.runtime.Stable
 import kotlin.reflect.KClass
 
@@ -283,7 +284,7 @@ internal abstract class BaseRemoteValue<T : Any>(initialCacheKey: RemoteStateCac
      * Writes the Remote Value to the [creationState] and returns the allocated ID.
      *
      * @param creationState The [RemoteComposeCreationState] to write to.
-     * @return The ID allocated by the [androidx.compose.remote.creation.RemoteComposeWriter].
+     * @return The ID allocated by the [RemoteDocumentWriter].
      */
     open fun writeToDocument(creationState: RemoteComposeCreationState): Int {
         throw UnsupportedOperationException(

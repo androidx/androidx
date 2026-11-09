@@ -17,8 +17,9 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.document.RemoteArrayId
+import androidx.compose.remote.document.RemoteIntId
 import kotlin.reflect.KClass
 
 /** Represents an array of remote strings. */
@@ -88,8 +89,7 @@ private class RemoteStringArrayImpl(
             return cacheKey.id
         }
         val ids = constantValueOrNull!!.fastMap { creationState.getId(it) }.toIntArray()
-        val nanId = creationState.document.addStringList(*ids)
-        return Utils.idFromNan(nanId)
+        return creationState.document.addIdList(ids).id
     }
 }
 
@@ -109,9 +109,9 @@ public fun RemoteStringArray(constantValueOrNull: List<RemoteString>?): RemoteSt
 private class StringArrayDerefImpl(val array: RemoteStringArray, val index: RemoteInt) :
     LazyRemoteString {
     override fun reserveTextId(creationState: RemoteComposeCreationState): Int {
-        val arrayId = Utils.asNan(creationState.getId(array))
-        val indexId = creationState.getId(index)
-        return creationState.document.textLookup(arrayId, indexId)
+        val arrayId = RemoteArrayId(creationState.getId(array))
+        val indexId = RemoteIntId(creationState.getId(index))
+        return creationState.document.textLookup(arrayId, indexId).id
     }
 
     override fun computeRequiredCodePointSet(

@@ -17,8 +17,8 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.document.RemoteArrayId
 import kotlin.reflect.KClass
 
 /** Represents an array of remote integers. */
@@ -93,11 +93,11 @@ private class RemoteIntArrayImpl(
             constantValueOrNull = null,
             cacheKey = RemoteOperationCacheKey.create(IntArrayOperationKey.Get, this, v),
         ) { creationState ->
-            val arrayId = getId(creationState)
+            val arrayId = RemoteArrayId(getId(creationState))
             val resultId =
                 creationState.document.idLookup(
-                    Utils.asNan(arrayId),
-                    creationState.getFloatId(v),
+                    arrayId,
+                    creationState.getMaybeVariableFloat(v),
                 )
             longArrayOf(resultId.toLong() + 0x100000000L)
         }
@@ -113,11 +113,11 @@ private class RemoteIntArrayImpl(
             constantValueOrNull = null,
             cacheKey = RemoteOperationCacheKey.create(IntArrayOperationKey.Get, this, v),
         ) { creationState ->
-            val arrayId = getId(creationState)
+            val arrayId = RemoteArrayId(getId(creationState))
             val resultId =
                 creationState.document.idLookup(
-                    Utils.asNan(arrayId),
-                    creationState.getFloatId(v),
+                    arrayId,
+                    creationState.getMaybeVariableFloat(v),
                 )
             longArrayOf(resultId.toLong() + 0x100000000L)
         }
@@ -130,7 +130,7 @@ private class RemoteIntArrayImpl(
             return cacheKey.id
         }
         val values = constantValueOrNull!!.fastMap { creationState.getId(it) }.toIntArray()
-        return Utils.idFromNan(creationState.document.addList(values))
+        return creationState.document.addIdList(values).id
     }
 }
 

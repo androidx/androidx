@@ -124,18 +124,19 @@ class RcPlayerCustomVisibilityAnimationScreenshotTest(private val case: Case) {
         RemoteColumn(
             modifier =
                 RemoteModifier.fillMaxSize().background(Color.White.rc).drawWithContent {
-                    document.beginGlobal()
+                    val writer = document.legacyWriter
+                    writer.beginGlobal()
                     when (case) {
                         Case.ScaleFade -> {
-                            defineScaleFadeFunction(document, ENTER_FN_ID, isEnter = true)
-                            defineScaleFadeFunction(document, EXIT_FN_ID, isEnter = false)
+                            defineScaleFadeFunction(writer, ENTER_FN_ID, isEnter = true)
+                            defineScaleFadeFunction(writer, EXIT_FN_ID, isEnter = false)
                         }
                         Case.OffscreenCapture -> {
-                            defineOffscreenCaptureFunction(document, ENTER_FN_ID, isEnter = true)
-                            defineOffscreenCaptureFunction(document, EXIT_FN_ID, isEnter = false)
+                            defineOffscreenCaptureFunction(writer, ENTER_FN_ID, isEnter = true)
+                            defineOffscreenCaptureFunction(writer, EXIT_FN_ID, isEnter = false)
                         }
                     }
-                    document.endGlobal()
+                    writer.endGlobal()
                     drawContent()
                 }
         ) {

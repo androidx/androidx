@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
+import androidx.compose.remote.creation.compose.capture.writer
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -720,7 +721,7 @@ class RcPlayerPathBuildingTest {
         renderPlayerToBitmap(widthDp, heightDp) {
             RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.White.rc)) {
                 RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
-                    (document as RemoteComposeWriterAndroid).build()
+                    (remoteComposeCreationState.writer as RemoteComposeWriterAndroid).build()
                 }
             }
         }

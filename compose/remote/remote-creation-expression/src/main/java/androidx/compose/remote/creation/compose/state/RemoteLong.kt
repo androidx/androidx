@@ -112,7 +112,7 @@ public sealed interface RemoteLong : RemoteValue<Long> {
                 constantValueOrNull = null,
                 cacheKey = RemoteNamedCacheKey(domain, name),
             ) { creationState ->
-                creationState.document.addNamedLong(domain.prefixed(name), defaultValue)
+                creationState.document.addNamedLong(domain.prefixed(name), defaultValue).id
             }
         }
     }
@@ -299,7 +299,7 @@ public fun RemoteLong(value: Long): RemoteLong =
         low = RemoteInt(value.toInt()),
         high = RemoteInt((value shr 32).toInt()),
         cacheKey = RemoteConstantCacheKey(value),
-        idProvider = { creationState -> creationState.document.addLong(value) },
+        idProvider = { creationState -> creationState.document.addLongConstant(value).id },
     )
 
 /**
@@ -313,7 +313,7 @@ public fun MutableRemoteLong(initialValue: Long): MutableRemoteLong =
     MutableRemoteLongImpl(
         constantValueOrNull = initialValue,
         cacheKey = RemoteStateInstanceKey(),
-        idProvider = { creationState -> creationState.document.addLong(initialValue) },
+        idProvider = { creationState -> creationState.document.addMutableLong(initialValue).id },
     )
 
 internal enum class RemoteLongOp(val symbol: String? = null) : RemoteOperation {

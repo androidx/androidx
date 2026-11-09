@@ -17,6 +17,7 @@
 package androidx.compose.remote.integration.view.demos.blog
 
 import androidx.compose.remote.creation.compose.action.RemoteAction
+import androidx.compose.remote.creation.compose.capture.writer
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
@@ -75,7 +76,7 @@ public fun DiscoBall() {
         val rotationPeriodSec = 24f
 
         RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
-            RcCanvas(remoteComposeCreationState.document) {
+            RcCanvas(remoteComposeCreationState.writer) {
 
                 // ============================================================
                 // 1. SPHERE DIMENSIONS & BASE

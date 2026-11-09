@@ -89,22 +89,18 @@ internal fun recordAndEvaluate(
         }
 
     creationState.document.root {
-        creationState.document.startBox(
-            creationState.toRecordingModifier(
+        creationState.document.startBox(1, 1) {
+            creationState.prepareModifiers(
                 RemoteModifier.width(componentWidth.rf).height(componentHeight.rf)
-            ),
-            1,
-            1,
-        )
-        creationState.document.startBox(
-            creationState.toRecordingModifier(
+            )(creationState.document)
+        }
+        creationState.document.startBox(1, 1) {
+            creationState.prepareModifiers(
                 RemoteModifier.width(componentWidth.rf)
                     .height(componentHeight.rf)
                     .then(buildModifier())
-            ),
-            1,
-            1,
-        )
+            )(creationState.document)
+        }
         creationState.document.endBox()
         creationState.document.endBox()
     }

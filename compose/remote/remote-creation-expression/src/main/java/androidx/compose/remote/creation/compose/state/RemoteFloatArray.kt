@@ -18,7 +18,6 @@ package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.NamedVariable
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import kotlin.reflect.KClass
@@ -69,8 +68,7 @@ public sealed interface RemoteFloatArray : RemoteValue<List<RemoteFloat>> {
                 constantValueOrNull = null,
                 cacheKey = RemoteNamedCacheKey(domain, name),
                 idProvider = { creationState ->
-                    val floatId = creationState.document.addFloatArray(defaultValue)
-                    val id = Utils.idFromNan(floatId)
+                    val id = creationState.document.addFloatArray(defaultValue).id
                     creationState.document.setNamedVariable(
                         id,
                         domain.prefixed(name),
@@ -200,7 +198,7 @@ private class RemoteFloatArrayImpl(
             return idProvider.invoke(creationState)
         }
         val asFloat = constantValueOrNull!!.fastMap { creationState.getFloatId(it) }.toFloatArray()
-        return Utils.idFromNan(creationState.document.addFloatArray(asFloat))
+        return creationState.document.addFloatArray(asFloat).id
     }
 
     fun getIdListForCreationState(creationState: RemoteComposeCreationState): Int {
@@ -209,7 +207,7 @@ private class RemoteFloatArrayImpl(
         }
         return creationState.getOrPutVariableId(idListCacheKey) {
             val ids = constantValueOrNull!!.fastMap { creationState.getId(it) }.toIntArray()
-            Utils.idFromNan(creationState.document.addList(ids))
+            creationState.document.addIdList(ids).id
         }
     }
 }

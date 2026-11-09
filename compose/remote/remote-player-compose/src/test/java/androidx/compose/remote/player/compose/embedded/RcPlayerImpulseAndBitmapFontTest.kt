@@ -83,12 +83,10 @@ class RcPlayerImpulseAndBitmapFontTest {
         rule.mainClock.autoAdvance = false
         play {
             RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
-                document.impulse(0.5f, 1000f) {
-                    (document as RemoteComposeWriterAndroid)
-                        .getRcPaint()
-                        .setColor(AndroidColor.RED)
-                        .commit()
-                    document.drawRect(0f, 0f, 100f, 100f)
+                val writer = document.legacyWriter as RemoteComposeWriterAndroid
+                writer.impulse(0.5f, 1000f) {
+                    writer.getRcPaint().setColor(AndroidColor.RED).commit()
+                    writer.drawRect(0f, 0f, 100f, 100f)
                 }
             }
         }
@@ -106,18 +104,13 @@ class RcPlayerImpulseAndBitmapFontTest {
             RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
                 // Active from 1s to 1.5s of animation time. The initial pass and the process both
                 // draw, so every frame inside the window is red.
-                document.impulse(0.5f, 1f) {
-                    (document as RemoteComposeWriterAndroid)
-                        .getRcPaint()
-                        .setColor(AndroidColor.RED)
-                        .commit()
-                    document.drawRect(0f, 0f, 100f, 100f)
-                    document.impulseProcess {
-                        (document as RemoteComposeWriterAndroid)
-                            .getRcPaint()
-                            .setColor(AndroidColor.RED)
-                            .commit()
-                        document.drawRect(0f, 0f, 100f, 100f)
+                val writer = document.legacyWriter as RemoteComposeWriterAndroid
+                writer.impulse(0.5f, 1f) {
+                    writer.getRcPaint().setColor(AndroidColor.RED).commit()
+                    writer.drawRect(0f, 0f, 100f, 100f)
+                    writer.impulseProcess {
+                        writer.getRcPaint().setColor(AndroidColor.RED).commit()
+                        writer.drawRect(0f, 0f, 100f, 100f)
                     }
                 }
             }
@@ -139,7 +132,8 @@ class RcPlayerImpulseAndBitmapFontTest {
         var hostView: View? = null
         play(onView = { hostView = it }) {
             RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
-                document.impulse(0.5f, 1000f) { document.performHaptic(1) }
+                val writer = document.legacyWriter
+                writer.impulse(0.5f, 1000f) { writer.performHaptic(1) }
             }
         }
         val shadowView = Shadows.shadowOf(requireNotNull(hostView))
@@ -159,7 +153,8 @@ class RcPlayerImpulseAndBitmapFontTest {
         var hostView: View? = null
         play(onView = { hostView = it }) {
             RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
-                document.impulse(0.5f, 1f) { document.performHaptic(1) }
+                val writer = document.legacyWriter
+                writer.impulse(0.5f, 1f) { writer.performHaptic(1) }
             }
         }
         val view = requireNotNull(hostView)
@@ -230,8 +225,9 @@ class RcPlayerImpulseAndBitmapFontTest {
         val document =
             rule.setRemoteContent(profile = experimentalProfile) {
                 RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
+                    val writer = document.legacyWriter
                     val id =
-                        document.addSoundExpression(
+                        writer.addSoundExpression(
                             SoundExpression.TYPE_TONE,
                             440f,
                             0.1f,
@@ -241,9 +237,9 @@ class RcPlayerImpulseAndBitmapFontTest {
                             1f,
                         )
                     soundId = id
-                    document.impulse(0.5f, 1f) { document.playSound(id) }
-                    document.impulse(0.5f, 1000f) { document.playSound(id) }
-                    document.drawRect(0f, 0f, 1f, 1f)
+                    writer.impulse(0.5f, 1f) { writer.playSound(id) }
+                    writer.impulse(0.5f, 1000f) { writer.playSound(id) }
+                    writer.drawRect(0f, 0f, 1f, 1f)
                 }
             }
         // The tone was synthesized once at load and handed over when the feature installed the

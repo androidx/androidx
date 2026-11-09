@@ -21,8 +21,9 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 import androidx.compose.remote.creation.compose.modifier.AlignByBaselineModifier
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.WidthModifier
-import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
+import androidx.compose.remote.creation.compose.modifier.prepareModifiers
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.document.mvf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -62,15 +63,15 @@ internal class RemoteRowNode : RemoteLayoutNode() {
 
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
         val scope = overriddenScope(remoteCanvas)
-        val recordingModifier = scope.toRecordingModifier(modifier)
-        (horizontalArrangement as? RemoteSpaced)?.let {
-            recordingModifier.spacedBy(it.getSpacingFloatId(scope))
-        }
+        val writeModifiers = scope.prepareModifiers(modifier)
+        val spacedBy = (horizontalArrangement as? RemoteSpaced)?.getSpacing(scope) ?: 0f.mvf
         creationState.document.startRow(
-            recordingModifier,
             horizontalArrangement.toRemote(layoutDirection),
             verticalAlignment.toRemote(),
-        )
+            spacedBy,
+        ) {
+            writeModifiers(creationState.document)
+        }
         renderChildren(
             creationState,
             remoteCanvas,

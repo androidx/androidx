@@ -28,6 +28,7 @@ import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.capture.createTestCreationState
+import androidx.compose.remote.creation.compose.capture.writer
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -185,7 +186,7 @@ class RemoteColorTest {
 
     private fun makeAndPaintCoreDocument() =
         CoreDocument().apply {
-            val buffer = creationState.document.buffer
+            val buffer = creationState.writer.buffer
             buffer.buffer.index = 0
             initFromBuffer(buffer)
             initializeContext(context)

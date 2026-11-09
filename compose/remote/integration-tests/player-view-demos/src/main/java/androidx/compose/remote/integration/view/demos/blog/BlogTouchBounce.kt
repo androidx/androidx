@@ -17,6 +17,7 @@
 package androidx.compose.remote.integration.view.demos.blog
 
 import androidx.compose.remote.creation.compose.action.RemoteAction
+import androidx.compose.remote.creation.compose.capture.writer
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
@@ -65,7 +66,7 @@ public fun TouchBounce() {
         contentAlignment = RemoteAlignment.Center,
     ) {
         RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
-            RcCanvas(remoteComposeCreationState.document) {
+            RcCanvas(remoteComposeCreationState.writer) {
                 val w = componentWidth()
                 val h = componentHeight()
                 val centerX = (w * 0.5f).flush()

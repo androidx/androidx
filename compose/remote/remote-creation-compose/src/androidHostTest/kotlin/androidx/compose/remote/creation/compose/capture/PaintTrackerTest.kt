@@ -49,6 +49,8 @@ import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.compose.text.RemoteTypeface.Companion.create
 import androidx.compose.remote.creation.compose.text.toRemoteFontVariationSettings
+import androidx.compose.remote.document.RemotePaintWriter
+import androidx.compose.remote.document.RemoteStringId
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.unit.sp
@@ -742,7 +744,7 @@ class PaintTrackerTest {
 
         // Verify that modifying the input paint does not alter the emitted UsePaint operations
         remoteCanvas.flush()
-        val buffer = creationState.document.buffer
+        val buffer = creationState.writer.buffer
         val operations = ArrayList<Operation>()
         buffer.buffer.index = 0
         buffer.inflateFromBuffer(operations)
@@ -1051,9 +1053,24 @@ class PaintTrackerTest {
         override fun getStrokeJoin(): AndroidPaint.Join? = null
     }
 
+    private fun PaintTracker.updateWithPaint(
+        paint: RemotePaint,
+        bundle: PaintBundle,
+        creationState: RemoteComposeCreationState,
+    ) {
+        updateWithPaint(paint, PaintBundleWriter(bundle), creationState)
+    }
+
+    private fun AndroidRemoteContext.loadText(id: RemoteStringId, text: String) {
+        loadText(id.id, text)
+    }
+
     private class DummyShader(override var remoteMatrix3x3: RemoteMatrix3x3) : RemoteShader() {
-        override fun apply(creationState: RemoteComposeCreationState, paintBundle: PaintBundle) {
-            paintBundle.setShader(1)
+        override fun apply(
+            creationState: RemoteComposeCreationState,
+            paintWriter: RemotePaintWriter,
+        ) {
+            paintWriter.setShader(1)
         }
     }
 

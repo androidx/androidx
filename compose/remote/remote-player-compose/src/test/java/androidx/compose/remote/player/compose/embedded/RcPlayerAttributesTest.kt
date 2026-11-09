@@ -32,7 +32,6 @@ import androidx.compose.remote.core.operations.BitmapTextMeasure
 import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.core.operations.TextAttribute
 import androidx.compose.remote.core.operations.TimeAttribute
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.MUL
 import androidx.compose.remote.creation.RemoteComposeContextAndroid
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -552,11 +551,11 @@ class RcPlayerAttributesTest {
                             drawContent()
                             // Measure without setting textSize in this scope: must use default
                             // paint rather than leaking 72.rsp from the sibling RemoteBox.
-                            val textId = document.textCreateId("MMMM")
-                            val defaultWidthFloat =
-                                document.textAttribute(textId, TextAttribute.MEASURE_WIDTH)
+                            val textId = document.addText("MMMM")
+                            val defaultWidthId =
+                                document.textAttribute(textId, TextAttribute.MEASURE_WIDTH.toInt())
                             document.setNamedVariable(
-                                Utils.idFromNan(defaultWidthFloat),
+                                defaultWidthId.id,
                                 "USER:defaultWidth",
                                 NamedVariable.FLOAT_TYPE,
                             )

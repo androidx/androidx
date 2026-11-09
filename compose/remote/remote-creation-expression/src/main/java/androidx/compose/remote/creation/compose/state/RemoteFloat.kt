@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.state
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.core.operations.TextFromFloat.GROUPING_BY3
 import androidx.compose.remote.core.operations.TextFromFloat.GROUPING_BY32
 import androidx.compose.remote.core.operations.TextFromFloat.GROUPING_BY4
@@ -38,6 +39,10 @@ import androidx.compose.remote.core.operations.Utils.asNan
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.StringUtils
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.document.MaybeVariableFloat
+import androidx.compose.remote.document.RemoteFloatId
+import androidx.compose.remote.document.RemoteLongId
+import androidx.compose.remote.document.floatArrayOf
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.annotation.RememberInComposition
 import kotlin.reflect.KClass
@@ -328,6 +333,18 @@ public sealed interface RemoteFloat : RemoteValue<Float> {
          * @return A [RemoteFloat] referencing the ID.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public operator fun invoke(id: RemoteFloatId): RemoteFloat =
+            RemoteFloat(constantValueOrNull = null, cacheKey = RemoteStateIdKey(id.id)) { _ ->
+                floatArrayOf(id)
+            }
+
+        /**
+         * Creates a [RemoteFloat] referencing a remote ID.
+         *
+         * @param id The remote ID.
+         * @return A [RemoteFloat] referencing the ID.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun createForId(id: Float): RemoteFloat = RemoteFloat(id)
 
         /**
@@ -380,10 +397,11 @@ public sealed interface RemoteFloat : RemoteValue<Float> {
             ) { creationState ->
                 val initialValueId = creationState.getFloatId(defaultValue)
                 if (Utils.isVariable(initialValueId)) {
-                    val floatId = creationState.document.floatExpression(initialValueId)
-                    creationState.document.setFloatName(
-                        Utils.idFromNan(floatId),
+                    val floatId = creationState.document.addFloatExpression(initialValueId)
+                    creationState.document.setNamedVariable(
+                        floatId.id,
                         domain.prefixed(name),
+                        NamedVariable.FLOAT_TYPE,
                     )
                     floatArrayOf(floatId)
                 } else {
@@ -690,7 +708,7 @@ private fun RemoteFloat.writeFloatToDocument(creationState: RemoteComposeCreatio
     }
 
     return creationState.getOrPutFloatExpressionId(array, animation = null) {
-        Utils.idFromNan(creationState.document.floatExpression(*array))
+        creationState.document.addFloatExpression(*array)
     }
 }
 
@@ -788,12 +806,14 @@ internal abstract class BaseRemoteFloat(cacheKey: RemoteStateCacheKey) :
             lazyRemoteString =
                 object : LazyRemoteString {
                     override fun reserveTextId(creationState: RemoteComposeCreationState): Int {
-                        return creationState.document.createTextFromFloat(
-                            asNan(getId(creationState)),
-                            before,
-                            after,
-                            flags,
-                        )
+                        return creationState.document
+                            .textFromFloat(
+                                MaybeVariableFloat.variable(getId(creationState)),
+                                before.toInt(),
+                                after.toInt(),
+                                flags,
+                            )
+                            .id
                     }
 
                     override fun computeRequiredCodePointSet(
@@ -1352,10 +1372,10 @@ internal fun comparisonOp(
                 }
 
             val id =
-                creationState.document.floatExpression(
+                creationState.document.addFloatExpression(
                     *expressionGenerator(finalAArray, finalBArray)
                 )
-            longArrayOf(0x100000000 + Utils.idFromNan(id).toLong())
+            longArrayOf(0x100000000L + id.id.toLong())
         },
         floatComparison = floatComparisonOp?.let { SelectFloatCondition.FloatComparison(a, b, it) },
     )
@@ -1529,8 +1549,8 @@ public fun deltaFromReferenceInSeconds(referenceEpochMillis: RemoteLong): Remote
     ) { creationState ->
         floatArrayOf(
             creationState.document.timeAttribute(
-                creationState.getId(referenceEpochMillis),
-                TimeAttribute.TIME_FROM_NOW_SEC,
+                RemoteLongId(creationState.getId(referenceEpochMillis)),
+                TimeAttribute.TIME_FROM_NOW_SEC.toInt(),
             )
         )
     }
@@ -1556,8 +1576,8 @@ public fun deltaFromReferenceInMinutes(referenceEpochMillis: RemoteLong): Remote
     ) { creationState ->
         floatArrayOf(
             creationState.document.timeAttribute(
-                creationState.getId(referenceEpochMillis),
-                TimeAttribute.TIME_FROM_NOW_MIN,
+                RemoteLongId(creationState.getId(referenceEpochMillis)),
+                TimeAttribute.TIME_FROM_NOW_MIN.toInt(),
             )
         )
     }
@@ -1583,8 +1603,8 @@ public fun deltaFromReferenceInHours(referenceEpochMillis: RemoteLong): RemoteFl
     ) { creationState ->
         floatArrayOf(
             creationState.document.timeAttribute(
-                creationState.getId(referenceEpochMillis),
-                TimeAttribute.TIME_FROM_NOW_HR,
+                RemoteLongId(creationState.getId(referenceEpochMillis)),
+                TimeAttribute.TIME_FROM_NOW_HR.toInt(),
             )
         )
     }
@@ -1610,8 +1630,8 @@ public fun timeOfReferenceInSeconds(referenceEpochMillis: RemoteLong): RemoteFlo
     ) { creationState ->
         floatArrayOf(
             creationState.document.timeAttribute(
-                creationState.getId(referenceEpochMillis),
-                TimeAttribute.TIME_IN_SEC,
+                RemoteLongId(creationState.getId(referenceEpochMillis)),
+                TimeAttribute.TIME_IN_SEC.toInt(),
             )
         )
     }
@@ -1637,8 +1657,8 @@ public fun timeOfReferenceInMinutes(referenceEpochMillis: RemoteLong): RemoteFlo
     ) { creationState ->
         floatArrayOf(
             creationState.document.timeAttribute(
-                creationState.getId(referenceEpochMillis),
-                TimeAttribute.TIME_IN_MIN,
+                RemoteLongId(creationState.getId(referenceEpochMillis)),
+                TimeAttribute.TIME_IN_MIN.toInt(),
             )
         )
     }
@@ -1664,8 +1684,8 @@ public fun timeOfReferenceInHours(referenceEpochMillis: RemoteLong): RemoteFloat
     ) { creationState ->
         floatArrayOf(
             creationState.document.timeAttribute(
-                creationState.getId(referenceEpochMillis),
-                TimeAttribute.TIME_IN_HR,
+                RemoteLongId(creationState.getId(referenceEpochMillis)),
+                TimeAttribute.TIME_IN_HR.toInt(),
             )
         )
     }
@@ -1690,8 +1710,8 @@ public fun dayOfMonthForReference(referenceEpochMillis: RemoteLong): RemoteFloat
     ) { creationState ->
         floatArrayOf(
             creationState.document.timeAttribute(
-                creationState.getId(referenceEpochMillis),
-                TimeAttribute.TIME_DAY_OF_MONTH,
+                RemoteLongId(creationState.getId(referenceEpochMillis)),
+                TimeAttribute.TIME_DAY_OF_MONTH.toInt(),
             )
         )
     }
@@ -1716,8 +1736,8 @@ public fun monthOfYearForReference(referenceEpochMillis: RemoteLong): RemoteFloa
     ) { creationState ->
         floatArrayOf(
             creationState.document.timeAttribute(
-                creationState.getId(referenceEpochMillis),
-                TimeAttribute.TIME_MONTH_VALUE,
+                RemoteLongId(creationState.getId(referenceEpochMillis)),
+                TimeAttribute.TIME_MONTH_VALUE.toInt(),
             )
         )
     }
@@ -1739,8 +1759,8 @@ public fun dayOfWeekForReference(referenceEpochMillis: RemoteLong): RemoteFloat 
     ) { creationState ->
         floatArrayOf(
             creationState.document.timeAttribute(
-                creationState.getId(referenceEpochMillis),
-                TimeAttribute.TIME_DAY_OF_WEEK,
+                RemoteLongId(creationState.getId(referenceEpochMillis)),
+                TimeAttribute.TIME_DAY_OF_WEEK.toInt(),
             )
         )
     }
@@ -1765,11 +1785,15 @@ public fun yearForReference(referenceEpochMillis: RemoteLong): RemoteFloat {
     ) { creationState ->
         floatArrayOf(
             creationState.document.timeAttribute(
-                creationState.getId(referenceEpochMillis),
-                TimeAttribute.TIME_YEAR,
+                RemoteLongId(creationState.getId(referenceEpochMillis)),
+                TimeAttribute.TIME_YEAR.toInt(),
             )
         )
     }
+}
+
+internal fun interface FloatIdProvider {
+    fun provide(creationState: RemoteComposeCreationState): RemoteFloatId
 }
 
 /**
@@ -1795,42 +1819,38 @@ public sealed interface MutableRemoteFloat : RemoteFloat, MutableRemoteValue<Flo
          * Creates a [MutableRemoteFloat] backed by a reserved float variable ID with no initial
          * value.
          *
-         * @return A [MutableRemoteFloat] whose ID is allocated via `reserveFloatVariable()`.
+         * @return A [MutableRemoteFloat] whose ID is allocated via `allocateFloatId()`.
          */
         @RememberInComposition
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun createReserved(): MutableRemoteFloat =
             MutableRemoteFloatImpl(
                 cacheKey = RemoteStateInstanceKey(),
-                idProvider = { creationState -> creationState.document.reserveFloatVariable() },
+                idProvider = { creationState -> creationState.document.allocateFloatId() },
             )
     }
 }
 
 private class MutableRemoteFloatImpl(
     cacheKey: RemoteStateCacheKey,
-    private val idProvider: (creationState: RemoteComposeCreationState) -> Float,
+    private val idProvider: FloatIdProvider,
 ) : BaseRemoteFloat(cacheKey), MutableRemoteFloat {
-    constructor(id: Int) : this(cacheKey = RemoteStateIdKey(id), idProvider = { asNan(id) })
+    constructor(id: Int) : this(cacheKey = RemoteStateIdKey(id), idProvider = { RemoteFloatId(id) })
 
     override val constantValueOrNull: Float?
         get() = null
 
     override val arrayProvider: (creationState: RemoteComposeCreationState) -> FloatArray
         get() = { creationState ->
-            // idProvider returns the allocated ID encoded as a NaN Float. We decode it
-            // to a raw Int using idFromNan because getOrPutVariableId tracks integer IDs.
             // Caching this ID ensures that the same ID is shared when the variable is
             // used in expressions (via arrayProvider) and actions (via getId).
             val id =
-                creationState.getOrPutVariableId(cacheKey) {
-                    Utils.idFromNan(idProvider(creationState))
-                }
-            floatArrayOf(asNan(id))
+                creationState.getOrPutVariableId(cacheKey) { idProvider.provide(creationState).id }
+            floatArrayOf(RemoteFloatId(id))
         }
 
     override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
-        Utils.idFromNan(idProvider(creationState))
+        idProvider.provide(creationState).id
 }
 
 /**
@@ -1883,7 +1903,7 @@ public fun RemoteFloat(
 public fun MutableRemoteFloat(initialValue: Float): MutableRemoteFloat =
     MutableRemoteFloatImpl(
         cacheKey = RemoteStateInstanceKey(),
-        idProvider = { creationState -> creationState.document.floatExpression(initialValue) },
+        idProvider = { creationState -> creationState.document.addMutableFloat(initialValue) },
     )
 
 /**
@@ -1897,7 +1917,7 @@ public fun MutableRemoteFloat(initialValue: RemoteFloat): MutableRemoteFloat =
     MutableRemoteFloatImpl(
         cacheKey = RemoteStateInstanceKey(),
         idProvider = { creationState ->
-            creationState.document.floatExpression(
+            creationState.document.addFloatExpression(
                 *initialValue.arrayForCreationState(creationState)
             )
         },
@@ -2054,7 +2074,7 @@ internal fun animatedRemoteFloat(input: RemoteFloat, anim: FloatArray): RemoteFl
         val array = input.arrayForCreationState(creationState)
         val id =
             creationState.getOrPutFloatExpressionId(array, anim) {
-                Utils.idFromNan(creationState.document.floatExpression(array, anim))
+                creationState.document.addAnimatedFloat(array, anim)
             }
         floatArrayOf(asNan(id))
     }

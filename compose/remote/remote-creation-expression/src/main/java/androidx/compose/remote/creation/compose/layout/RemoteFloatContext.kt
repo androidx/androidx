@@ -15,11 +15,13 @@
  */
 package androidx.compose.remote.creation.compose.layout
 
+import androidx.compose.remote.core.operations.ComponentValue
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.capture.RemoteDocumentScope
 import androidx.compose.remote.creation.compose.state.RemoteComponentCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.document.RemoteDocumentWriter
+import androidx.compose.remote.document.floatArrayOf
 
 /** Exposes component-relative [RemoteFloat] bounds for remote float expressions. */
 internal class RemoteFloatContext
@@ -30,7 +32,7 @@ private constructor(
     /**
      * Creates a [RemoteFloatContext] backed by [scope].
      *
-     * @param scope scope providing the target [RemoteComposeWriter]
+     * @param scope scope providing the target [RemoteDocumentWriter]
      */
     internal constructor(scope: RemoteDocumentScope) : this(scope = scope, token = null)
 
@@ -41,12 +43,12 @@ private constructor(
      */
     internal constructor(token: RemoteComponentToken?) : this(scope = null, token = token)
 
-    internal val document: RemoteComposeWriter
+    internal val document: RemoteDocumentWriter
         get() = requireDocument("unknown")
 
     private fun activeToken(): RemoteComponentToken? = token ?: scope?.resolveComponentToken()
 
-    private fun requireDocument(type: String): RemoteComposeWriter =
+    private fun requireDocument(type: String): RemoteDocumentWriter =
         checkNotNull(scope) {
                 "Component value '$type' requires an enclosing RemoteCompose layout component " +
                     "or RemoteStateScope."
@@ -75,10 +77,10 @@ private constructor(
             return tokenComponentFloat(capturedToken, RemoteComponentToken.PROP_WIDTH, "width")
         }
         val doc = requireDocument("width")
-        val value = doc.addComponentWidthValue()
+        val value = doc.addComponentValue(ComponentValue.WIDTH)
         return RemoteFloat(
             constantValueOrNull = null,
-            cacheKey = RemoteComponentCacheKey(doc.buffer.lastComponentId, "width"),
+            cacheKey = RemoteComponentCacheKey(doc.lastComponentId, "width"),
             arrayProvider = { _ -> floatArrayOf(value) },
         )
     }
@@ -90,10 +92,10 @@ private constructor(
             return tokenComponentFloat(capturedToken, RemoteComponentToken.PROP_HEIGHT, "height")
         }
         val doc = requireDocument("height")
-        val value = doc.addComponentHeightValue()
+        val value = doc.addComponentValue(ComponentValue.HEIGHT)
         return RemoteFloat(
             constantValueOrNull = null,
-            cacheKey = RemoteComponentCacheKey(doc.buffer.lastComponentId, "height"),
+            cacheKey = RemoteComponentCacheKey(doc.lastComponentId, "height"),
             arrayProvider = { _ -> floatArrayOf(value) },
         )
     }
@@ -116,22 +118,22 @@ private constructor(
                             capturedToken,
                             RemoteComponentToken.PROP_WIDTH,
                         )
-                    val value =
-                        creationState.document.floatExpression(
+                    floatArrayOf(
+                        creationState.document.addFloatExpression(
                             componentWidthValue,
                             2f,
                             AnimatedFloatExpression.DIV,
                         )
-                    floatArrayOf(value)
+                    )
                 },
             )
         }
         val doc = requireDocument("centerX")
-        val componentWidthValue = doc.addComponentWidthValue()
-        val value = doc.floatExpression(componentWidthValue, 2f, AnimatedFloatExpression.DIV)
+        val componentWidthValue = doc.addComponentValue(ComponentValue.WIDTH).toNanFloat()
+        val value = doc.addFloatExpression(componentWidthValue, 2f, AnimatedFloatExpression.DIV)
         return RemoteFloat(
             constantValueOrNull = null,
-            cacheKey = RemoteComponentCacheKey(doc.buffer.lastComponentId, "centerX"),
+            cacheKey = RemoteComponentCacheKey(doc.lastComponentId, "centerX"),
             arrayProvider = { _ -> floatArrayOf(value) },
         )
     }
@@ -154,22 +156,22 @@ private constructor(
                             capturedToken,
                             RemoteComponentToken.PROP_HEIGHT,
                         )
-                    val value =
-                        creationState.document.floatExpression(
+                    floatArrayOf(
+                        creationState.document.addFloatExpression(
                             componentHeightValue,
                             2f,
                             AnimatedFloatExpression.DIV,
                         )
-                    floatArrayOf(value)
+                    )
                 },
             )
         }
         val doc = requireDocument("centerY")
-        val componentHeightValue = doc.addComponentHeightValue()
-        val value = doc.floatExpression(componentHeightValue, 2f, AnimatedFloatExpression.DIV)
+        val componentHeightValue = doc.addComponentValue(ComponentValue.HEIGHT).toNanFloat()
+        val value = doc.addFloatExpression(componentHeightValue, 2f, AnimatedFloatExpression.DIV)
         return RemoteFloat(
             constantValueOrNull = null,
-            cacheKey = RemoteComponentCacheKey(doc.buffer.lastComponentId, "centerY"),
+            cacheKey = RemoteComponentCacheKey(doc.lastComponentId, "centerY"),
             arrayProvider = { _ -> floatArrayOf(value) },
         )
     }
@@ -181,10 +183,10 @@ private constructor(
             return tokenComponentFloat(capturedToken, RemoteComponentToken.PROP_X, "x")
         }
         val doc = requireDocument("x")
-        val value = doc.addComponentXValue()
+        val value = doc.addComponentValue(ComponentValue.POS_X)
         return RemoteFloat(
             constantValueOrNull = null,
-            cacheKey = RemoteComponentCacheKey(doc.buffer.lastComponentId, "x"),
+            cacheKey = RemoteComponentCacheKey(doc.lastComponentId, "x"),
             arrayProvider = { _ -> floatArrayOf(value) },
         )
     }
@@ -196,10 +198,10 @@ private constructor(
             return tokenComponentFloat(capturedToken, RemoteComponentToken.PROP_Y, "y")
         }
         val doc = requireDocument("y")
-        val value = doc.addComponentYValue()
+        val value = doc.addComponentValue(ComponentValue.POS_Y)
         return RemoteFloat(
             constantValueOrNull = null,
-            cacheKey = RemoteComponentCacheKey(doc.buffer.lastComponentId, "y"),
+            cacheKey = RemoteComponentCacheKey(doc.lastComponentId, "y"),
             arrayProvider = { _ -> floatArrayOf(value) },
         )
     }
@@ -211,10 +213,10 @@ private constructor(
             return tokenComponentFloat(capturedToken, RemoteComponentToken.PROP_ROOT_X, "rootX")
         }
         val doc = requireDocument("rootX")
-        val value = doc.addComponentRootXValue()
+        val value = doc.addComponentValue(ComponentValue.POS_ROOT_X)
         return RemoteFloat(
             constantValueOrNull = null,
-            cacheKey = RemoteComponentCacheKey(doc.buffer.lastComponentId, "rootX"),
+            cacheKey = RemoteComponentCacheKey(doc.lastComponentId, "rootX"),
             arrayProvider = { _ -> floatArrayOf(value) },
         )
     }
@@ -226,10 +228,10 @@ private constructor(
             return tokenComponentFloat(capturedToken, RemoteComponentToken.PROP_ROOT_Y, "rootY")
         }
         val doc = requireDocument("rootY")
-        val value = doc.addComponentRootYValue()
+        val value = doc.addComponentValue(ComponentValue.POS_ROOT_Y)
         return RemoteFloat(
             constantValueOrNull = null,
-            cacheKey = RemoteComponentCacheKey(doc.buffer.lastComponentId, "rootY"),
+            cacheKey = RemoteComponentCacheKey(doc.lastComponentId, "rootY"),
             arrayProvider = { _ -> floatArrayOf(value) },
         )
     }

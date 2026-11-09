@@ -25,8 +25,6 @@ package androidx.compose.remote.integration.view.demos.examples
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RemoteContext
-import androidx.compose.remote.core.operations.paint.PaintBundle
-import androidx.compose.remote.creation.RemoteComposeShader
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
@@ -53,6 +51,8 @@ import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.asRemoteDp
 import androidx.compose.remote.creation.compose.state.clamp
+import androidx.compose.remote.creation.compose.state.creationState
+import androidx.compose.remote.creation.compose.state.document
 import androidx.compose.remote.creation.compose.state.interpolateRemoteFloat
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
@@ -61,16 +61,19 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontWeight
 import androidx.compose.remote.creation.compose.text.RemoteTextAlign
+import androidx.compose.remote.document.MaybeVariableFloat
+import androidx.compose.remote.document.RemotePaintWriter
+import androidx.compose.remote.document.RemoteShaderId
+import androidx.compose.remote.document.mvf
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import java.util.Calendar
 
 /** Custom RemoteShader implementation to support AGSL in high-level DSL. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class AgslRemoteShader(val remoteComposeShader: RemoteComposeShader) : RemoteShader() {
-    override fun apply(creationState: RemoteComposeCreationState, paintBundle: PaintBundle) {
-        val shaderId = remoteComposeShader.commit()
-        paintBundle.setShader(shaderId)
+class AgslRemoteShader(val shaderId: RemoteShaderId) : RemoteShader() {
+    override fun apply(creationState: RemoteComposeCreationState, paintWriter: RemotePaintWriter) {
+        paintWriter.setShader(shaderId.id)
     }
 }
 
@@ -247,31 +250,42 @@ private fun AiPillGlow(isAi: Boolean, isRim: Boolean, alpha: RemoteFloat, animat
         val c2 = if (isAi) floatArrayOf(0.03f, 0.56f, 0.98f) else floatArrayOf(1.0f, 0.3f, 0.0f)
         val rimC = if (isAi) floatArrayOf(0.25f, 0.18f, 0.55f) else floatArrayOf(0.6f, 0.2f, 0.0f)
 
+        val iTimeUniform =
+            if (animate) {
+                MaybeVariableFloat.variable(RemoteContext.ID_CONTINUOUS_SEC)
+            } else {
+                0f.mvf
+            }
+        val wMvf = creationState.getMaybeVariableFloat(w)
+        val hMvf = creationState.getMaybeVariableFloat(h)
+        val alphaMvf = creationState.getMaybeVariableFloat(alpha)
         val shader =
             if (!isRim) {
                 AgslRemoteShader(
-                    document
-                        .createShader(agslCode)
-                        .setFloatUniform("targetLtwh", 0f, 0f, w.floatId, h.floatId)
-                        .setFloatUniform(
-                            "iTime",
-                            if (animate) RemoteContext.FLOAT_CONTINUOUS_SEC else 0f,
-                        )
-                        .setFloatUniform("color1", c1[0], c1[1], c1[2])
-                        .setFloatUniform("color2", c2[0], c2[1], c2[2])
-                        .setFloatUniform("alpha", alpha.floatId)
+                    document.addShader(
+                        shaderSource = agslCode,
+                        floatUniforms =
+                            mapOf(
+                                "targetLtwh" to listOf(0f.mvf, 0f.mvf, wMvf, hMvf),
+                                "iTime" to listOf(iTimeUniform),
+                                "color1" to listOf(c1[0].mvf, c1[1].mvf, c1[2].mvf),
+                                "color2" to listOf(c2[0].mvf, c2[1].mvf, c2[2].mvf),
+                                "alpha" to listOf(alphaMvf),
+                            ),
+                    )
                 )
             } else {
                 AgslRemoteShader(
-                    document
-                        .createShader(rimAgslCode)
-                        .setFloatUniform("targetLtwh", 0f, 0f, w.floatId, h.floatId)
-                        .setFloatUniform(
-                            "iTime",
-                            if (animate) RemoteContext.FLOAT_CONTINUOUS_SEC else 0f,
-                        )
-                        .setFloatUniform("rimColor", rimC[0], rimC[1], rimC[2])
-                        .setFloatUniform("alpha", alpha.floatId)
+                    document.addShader(
+                        shaderSource = rimAgslCode,
+                        floatUniforms =
+                            mapOf(
+                                "targetLtwh" to listOf(0f.mvf, 0f.mvf, wMvf, hMvf),
+                                "iTime" to listOf(iTimeUniform),
+                                "rimColor" to listOf(rimC[0].mvf, rimC[1].mvf, rimC[2].mvf),
+                                "alpha" to listOf(alphaMvf),
+                            ),
+                    )
                 )
             }
 

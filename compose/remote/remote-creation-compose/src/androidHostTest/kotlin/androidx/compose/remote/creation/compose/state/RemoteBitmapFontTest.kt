@@ -19,9 +19,9 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles.PROFILE_ANDROIDX
-import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.creation.compose.capture.createTestCreationState
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
+import androidx.compose.remote.document.RemoteBitmapGlyph
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.remote.testing.LimitsRule
 import androidx.compose.ui.graphics.asAndroidBitmap
@@ -262,7 +262,7 @@ class RemoteBitmapFontTest {
 
     @Test
     fun glyphWithRemoteImageBitmap() {
-        val preallocatedId = creationState.document.createBitmap(18, 26)
+        val preallocatedId = creationState.document.createBitmap(18, 26).id
         val remoteFont =
             RemoteBitmapFont(
                 listOf(
@@ -340,22 +340,24 @@ class RemoteBitmapFontTest {
         val actualState = createTestCreationState(profiles = PROFILE_ANDROIDX)
 
         val expectedFontId =
-            expectedState.document.addBitmapFont(
-                arrayOf(
-                    BitmapFontData.Glyph(
-                        "a",
-                        expectedState.document.addBitmap(glyphImage.asAndroidBitmap()),
-                        1,
-                        2,
-                        3,
-                        4,
-                        10,
-                        20,
+            expectedState.document
+                .addBitmapFont(
+                    listOf(
+                        RemoteBitmapGlyph(
+                            "a",
+                            expectedState.document.addBitmap(glyphImage.asAndroidBitmap()).id,
+                            1,
+                            2,
+                            3,
+                            4,
+                            10,
+                            20,
+                        ),
+                        RemoteBitmapGlyph(" ", -1, 20, 0, 0, 0, 0, 0),
                     ),
-                    BitmapFontData.Glyph(" ", -1, 20, 0, 0, 0, 0, 0),
-                ),
-                emptyMap(),
-            )
+                    emptyMap(),
+                )
+                .id
         val actualFontId =
             actualState.getId(
                 RemoteBitmapFont(

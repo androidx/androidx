@@ -79,7 +79,7 @@ class RemoteComposeCaptureStateTest {
                 profile = profile,
                 writer = writer,
             )
-        assertThat(state3.document).isSameInstanceAs(writer)
+        assertThat(state3.writer).isSameInstanceAs(writer)
     }
 
     @Test

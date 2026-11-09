@@ -91,7 +91,7 @@ class RemoteComponentTest {
     @Test
     fun componentOffsetProperties_emitComponentValuesAndCacheKeys() {
         val component = drawScope.remote.component
-        val componentId = creationState.document.buffer.lastComponentId
+        val componentId = creationState.document.lastComponentId
 
         val posInParent = component.positionInParent
         val posInRoot = component.positionInRoot
@@ -155,11 +155,7 @@ class RemoteComponentTest {
             CoreDocument().apply {
                 initFromBuffer(
                     RemoteComposeBuffer.fromInputStream(
-                        ByteArrayInputStream(
-                            expState.document.buffer(),
-                            0,
-                            expState.document.bufferSize(),
-                        )
+                        ByteArrayInputStream(expState.document.toByteArray())
                     )
                 )
             }

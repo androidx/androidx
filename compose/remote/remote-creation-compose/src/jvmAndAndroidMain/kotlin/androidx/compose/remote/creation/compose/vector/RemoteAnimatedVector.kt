@@ -19,7 +19,8 @@ package androidx.compose.remote.creation.compose.vector
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.utilities.easing.CubicEasing
-import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.document.RemoteDocumentWriter
+import androidx.compose.remote.document.mvf
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.pow
@@ -101,7 +102,7 @@ public class RemoteAnimatedVector(
         )
     }
 
-    public fun draw(writer: RemoteComposeWriter, progress: Float) {
+    public fun draw(writer: RemoteDocumentWriter, progress: Float) {
         evaluate(progress).draw(writer)
     }
 
@@ -365,16 +366,16 @@ internal class RemoteVectorSnapshot(
     val viewportHeight: Float,
     val rootGroup: RemoteEvaluatedGroup,
 ) {
-    fun draw(writer: RemoteComposeWriter) {
+    fun draw(writer: RemoteDocumentWriter) {
         val scaleX = if (viewportWidth > 0f) width / viewportWidth else 1f
         val scaleY = if (viewportHeight > 0f) height / viewportHeight else 1f
         writer.save()
-        writer.scale(scaleX, scaleY)
+        writer.scale(scaleX.mvf, scaleY.mvf)
         drawGroup(writer, rootGroup)
         writer.restore()
     }
 
-    private fun drawGroup(writer: RemoteComposeWriter, group: RemoteEvaluatedGroup) {
+    private fun drawGroup(writer: RemoteDocumentWriter, group: RemoteEvaluatedGroup) {
         val hasTransform =
             group.translationX != 0f ||
                 group.translationY != 0f ||
@@ -385,12 +386,24 @@ internal class RemoteVectorSnapshot(
 
         if (hasTransform) {
             writer.save()
-            writer.translate(group.translationX, group.translationY)
-            writer.rotate(group.rotation, group.pivotX, group.pivotY)
-            writer.scale(group.scaleX, group.scaleY, group.pivotX, group.pivotY)
+            writer.translate(
+                group.translationX.mvf,
+                group.translationY.mvf,
+            )
+            writer.rotate(
+                group.rotation.mvf,
+                group.pivotX.mvf,
+                group.pivotY.mvf,
+            )
+            writer.scale(
+                group.scaleX.mvf,
+                group.scaleY.mvf,
+                group.pivotX.mvf,
+                group.pivotY.mvf,
+            )
             if (group.clipPathData.isNotEmpty()) {
                 val clipId = writer.addPathString(group.clipPathData)
-                writer.addClipPath(clipId)
+                writer.clipPath(clipId)
             }
         }
 
@@ -406,7 +419,7 @@ internal class RemoteVectorSnapshot(
         }
     }
 
-    private fun drawPath(writer: RemoteComposeWriter, path: RemoteEvaluatedPath) {
+    private fun drawPath(writer: RemoteDocumentWriter, path: RemoteEvaluatedPath) {
         if (path.pathData.isEmpty()) return
         val pathId = writer.addPathString(path.pathData)
         val isTrimmed =
@@ -416,15 +429,22 @@ internal class RemoteVectorSnapshot(
             val alpha = ((path.fillColor ushr 24) and 0xFF) / 255f * path.fillAlpha
             val argb =
                 (path.fillColor and 0x00FFFFFF) or ((alpha * 255f).toInt().coerceIn(0, 255) shl 24)
-            writer.rcPaint.setColor(argb)
-            writer.rcPaint.setStyle(0) // FILL
-            writer.rcPaint.commit()
+            writer.writePaint { paint ->
+                paint.setColor(argb)
+                paint.setStyle(0) // FILL
+            }
             if (isTrimmed) {
                 var start = (path.trimPathStart + path.trimPathOffset) % 1f
                 var end = (path.trimPathEnd + path.trimPathOffset) % 1f
                 if (start < 0f) start += 1f
                 if (end < 0f) end += 1f
-                writer.drawTweenPath(pathId, pathId, 0f, start, end)
+                writer.drawTweenPath(
+                    pathId,
+                    pathId,
+                    0f.mvf,
+                    start.mvf,
+                    end.mvf,
+                )
             } else {
                 writer.drawPath(pathId)
             }
@@ -435,18 +455,25 @@ internal class RemoteVectorSnapshot(
             val argb =
                 (path.strokeColor and 0x00FFFFFF) or
                     ((alpha * 255f).toInt().coerceIn(0, 255) shl 24)
-            writer.rcPaint.setColor(argb)
-            writer.rcPaint.setStyle(1) // STROKE
-            writer.rcPaint.setStrokeWidth(path.strokeWidth)
-            writer.rcPaint.setStrokeCap(path.strokeLineCap)
-            writer.rcPaint.setStrokeJoin(path.strokeLineJoin)
-            writer.rcPaint.commit()
+            writer.writePaint { paint ->
+                paint.setColor(argb)
+                paint.setStyle(1) // STROKE
+                paint.setStrokeWidth(path.strokeWidth.mvf)
+                paint.setStrokeCap(path.strokeLineCap)
+                paint.setStrokeJoin(path.strokeLineJoin)
+            }
             if (isTrimmed) {
                 var start = (path.trimPathStart + path.trimPathOffset) % 1f
                 var end = (path.trimPathEnd + path.trimPathOffset) % 1f
                 if (start < 0f) start += 1f
                 if (end < 0f) end += 1f
-                writer.drawTweenPath(pathId, pathId, 0f, start, end)
+                writer.drawTweenPath(
+                    pathId,
+                    pathId,
+                    0f.mvf,
+                    start.mvf,
+                    end.mvf,
+                )
             } else {
                 writer.drawPath(pathId)
             }

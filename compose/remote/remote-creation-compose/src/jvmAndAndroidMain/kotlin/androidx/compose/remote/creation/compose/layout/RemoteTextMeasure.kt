@@ -30,6 +30,7 @@ import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontStyle
 import androidx.compose.remote.creation.compose.text.RemoteFontWeight
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
+import androidx.compose.remote.document.RemoteStringId
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -316,20 +317,20 @@ public class RemoteTextMeasurer(
         val resolvedStyle = style.fontStyle ?: this.style.fontStyle
 
         return RemoteFloat {
-            val textSizePxId = getFloatId(textSize)
-            document.rcPaint
-                .setTextSize(textSizePxId)
-                .setTypeface(
+            val textSizeValue = getMaybeVariableFloat(textSize)
+            document.writePaint { paint ->
+                paint.setTextSize(textSizeValue)
+                paint.setTextStyle(
                     0,
                     resolvedWeight.weight.constantValueOrNull?.toInt() ?: 400,
                     resolvedStyle == RemoteFontStyle.Italic,
                 )
-                .commit()
+            }
 
             RemoteFloat(
                 document.textAttribute(
-                    getId(text),
-                    attributeType,
+                    RemoteStringId(getId(text)),
+                    attributeType.toInt(),
                 )
             )
         }

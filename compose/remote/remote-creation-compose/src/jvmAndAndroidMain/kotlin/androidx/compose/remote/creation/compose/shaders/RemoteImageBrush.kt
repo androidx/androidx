@@ -19,7 +19,6 @@
 package androidx.compose.remote.creation.compose.shaders
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteContentScale
@@ -34,6 +33,8 @@ import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.document.RemoteBitmapId
+import androidx.compose.remote.document.RemotePaintWriter
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 
@@ -42,12 +43,12 @@ internal class RemoteImageShader(
     public val tileModeX: RemoteTileMode,
     public val tileModeY: RemoteTileMode,
 ) : RemoteShader() {
-    override fun apply(creationState: RemoteComposeCreationState, paintBundle: PaintBundle) {
-        paintBundle.setTextureShader(
-            creationState.getId(bitmap),
-            tileModeX.value.toShort(),
-            tileModeY.value.toShort(),
-            Rc.Texture.FILTER_DEFAULT,
+    override fun apply(creationState: RemoteComposeCreationState, paintWriter: RemotePaintWriter) {
+        paintWriter.setTextureShader(
+            RemoteBitmapId(creationState.getId(bitmap)),
+            tileModeX.value,
+            tileModeY.value,
+            Rc.Texture.FILTER_DEFAULT.toInt(),
             0,
         )
     }

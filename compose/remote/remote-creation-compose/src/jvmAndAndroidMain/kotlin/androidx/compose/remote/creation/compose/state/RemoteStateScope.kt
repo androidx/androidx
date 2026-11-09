@@ -17,7 +17,6 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
@@ -29,6 +28,8 @@ import androidx.compose.remote.creation.compose.layout.RemoteComponentToken
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.vector.RemotePathScope
+import androidx.compose.remote.document.MaybeVariableFloat
+import androidx.compose.remote.document.RemoteDocumentWriter
 import androidx.compose.runtime.Composable
 
 /**
@@ -46,7 +47,8 @@ public sealed interface RemoteStateScope {
 internal interface InternalRemoteStateScope : RemoteStateScope, RemoteDocumentScope {
     val parentScope: RemoteStateScope
 
-    override val document: RemoteComposeWriter
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override val document: RemoteDocumentWriter
         get() = (parentScope as InternalRemoteStateScope).document
 
     override fun resolveComponentToken(): RemoteComponentToken? =
@@ -63,14 +65,19 @@ internal interface InternalRemoteStateScope : RemoteStateScope, RemoteDocumentSc
     val RemoteValue<*>.floatId: Float
         get() = creationState.getFloatId(this)
 
+    /** Returns this state as a [MaybeVariableFloat] within the scope. */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    val RemoteValue<*>.maybeVariableFloat: MaybeVariableFloat
+        get() = creationState.getMaybeVariableFloat(this)
+
     /** Returns the long ID for this state within the scope. */
     val RemoteValue<*>.longId: Long
         get() = creationState.getLongId(this)
 }
 
-/** The [RemoteComposeWriter] associated with the document being drawn into. */
+/** The [RemoteDocumentWriter] associated with the document being drawn into. */
 @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public val RemoteStateScope.document: RemoteComposeWriter
+public val RemoteStateScope.document: RemoteDocumentWriter
     get() = (this as InternalRemoteStateScope).document
 
 /**

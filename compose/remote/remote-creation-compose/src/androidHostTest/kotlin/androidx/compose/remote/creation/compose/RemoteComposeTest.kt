@@ -220,7 +220,7 @@ class RemoteComposeTest {
         try {
             captureSingleRemoteDocument(context) {
                 val state = LocalRemoteComposeCreationState.current
-                state.document.performHaptic(0) // This should fail!
+                state.document.addHostAction(0) // This should fail!
                 RemoteBox(modifier = RemoteModifier.fillMaxSize())
             }
             fail("Expected IllegalStateException to be thrown")

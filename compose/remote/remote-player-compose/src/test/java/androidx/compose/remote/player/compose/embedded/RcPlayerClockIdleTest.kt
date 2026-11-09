@@ -258,13 +258,13 @@ class RcPlayerClockIdleTest {
                     // including the year and the UTC offset.
                     val hour =
                         document.timeAttribute(
-                            document.addTimeLong(System.currentTimeMillis()),
-                            TimeAttribute.TIME_IN_HR,
+                            document.addLongConstant(System.currentTimeMillis()),
+                            TimeAttribute.TIME_IN_HR.toInt(),
                         )
                     drawRect(
                         paint = RemotePaint().apply { color = RemoteColor(Color.Red) },
                         topLeft = RemoteOffset(0f.rf, 0f.rf),
-                        size = RemoteSize(RemoteFloat(hour), 20f.rf),
+                        size = RemoteSize(RemoteFloat(hour.toNanFloat()), 20f.rf),
                     )
                 }
             }

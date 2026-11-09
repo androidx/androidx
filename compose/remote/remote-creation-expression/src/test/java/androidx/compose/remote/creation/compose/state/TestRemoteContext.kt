@@ -19,9 +19,11 @@ package androidx.compose.remote.creation.compose.state
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.PaintContext
 import androidx.compose.remote.core.RcPlatformServices
+import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.TouchListener
 import androidx.compose.remote.core.VariableSupport
+import androidx.compose.remote.core.operations.ComponentValue
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.ShaderData
 import androidx.compose.remote.core.operations.paint.PaintBundle
@@ -31,25 +33,339 @@ import androidx.compose.remote.core.types.LongConstant
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
+import androidx.compose.remote.document.MaybeVariableFloat
+import androidx.compose.remote.document.NanEncoding
+import androidx.compose.remote.document.RemoteArrayId
+import androidx.compose.remote.document.RemoteBitmapId
+import androidx.compose.remote.document.RemoteColorId
+import androidx.compose.remote.document.RemoteDocumentWriter
+import androidx.compose.remote.document.RemoteFloatId
+import androidx.compose.remote.document.RemoteIntId
+import androidx.compose.remote.document.RemoteLongId
+import androidx.compose.remote.document.RemoteStringId
+import java.lang.reflect.Proxy
+
+private val UNSUPPORTED_WRITER_PROXY: RemoteDocumentWriter =
+    Proxy.newProxyInstance(
+        RemoteDocumentWriter::class.java.classLoader,
+        arrayOf(RemoteDocumentWriter::class.java),
+    ) { _, method, _ ->
+        throw UnsupportedOperationException(
+            "Unsupported in TestRemoteDocumentWriter: ${method.name}"
+        )
+    } as RemoteDocumentWriter
+
+internal class TestRemoteDocumentWriter(val delegate: RemoteComposeWriter) :
+    RemoteDocumentWriter by UNSUPPORTED_WRITER_PROXY {
+
+    override val bytesWritten: Int
+        get() = delegate.buffer.buffer.size()
+
+    override val lastComponentId: Int
+        get() = delegate.buffer.lastComponentId
+
+    override val writerCallback: Any?
+        get() = delegate.writerCallback
+
+    override fun allocateId(): Int = delegate.nextId()
+
+    override fun allocateFloatId(): RemoteFloatId =
+        RemoteFloatId(NanEncoding.idFromNan(delegate.reserveFloatVariable()))
+
+    override fun beginGlobal() {
+        delegate.beginGlobal()
+    }
+
+    override fun endGlobal() {
+        delegate.endGlobal()
+    }
+
+    override fun checkAndClearForceSendingNewPaint(): Boolean =
+        delegate.checkAndClearForceSendingNewPaint()
+
+    override fun toByteArray(): ByteArray = delegate.encodeToByteArray()
+
+    override fun addComponentValue(type: Int): RemoteFloatId {
+        val nan =
+            when (type) {
+                ComponentValue.WIDTH -> delegate.addComponentWidthValue()
+                ComponentValue.HEIGHT -> delegate.addComponentHeightValue()
+                ComponentValue.POS_X -> delegate.addComponentXValue()
+                ComponentValue.POS_Y -> delegate.addComponentYValue()
+                ComponentValue.POS_ROOT_X -> delegate.addComponentRootXValue()
+                ComponentValue.POS_ROOT_Y -> delegate.addComponentRootYValue()
+                else -> {
+                    val id = NanEncoding.idFromNan(delegate.reserveFloatVariable())
+                    delegate.buffer.addComponentValue(id, type)
+                    NanEncoding.asNan(id)
+                }
+            }
+        return RemoteFloatId(NanEncoding.idFromNan(nan))
+    }
+
+    override fun bindComponentValue(valueId: RemoteFloatId, type: Int, componentId: Int) {
+        val buf = delegate.buffer
+        if (componentId == -1 || buf.lastComponentId == componentId) {
+            buf.addComponentValue(valueId.id, type)
+        } else {
+            ComponentValue.apply(buf.buffer, type, componentId, valueId.id)
+        }
+    }
+
+    override fun addFloatConstant(value: Float): RemoteFloatId =
+        RemoteFloatId(NanEncoding.idFromNan(delegate.addFloatConstant(value)))
+
+    override fun addMutableFloat(initialValue: Float): RemoteFloatId =
+        RemoteFloatId(NanEncoding.idFromNan(delegate.floatExpression(initialValue)))
+
+    override fun addNamedFloat(name: String, initialValue: Float): RemoteFloatId =
+        RemoteFloatId(NanEncoding.idFromNan(delegate.addNamedFloat(name, initialValue)))
+
+    override fun addFloatExpression(vararg values: Float): RemoteFloatId =
+        RemoteFloatId(NanEncoding.idFromNan(delegate.floatExpression(*values)))
+
+    override fun addAnimatedFloat(expression: FloatArray, animation: FloatArray?): RemoteFloatId =
+        RemoteFloatId(NanEncoding.idFromNan(delegate.floatExpression(expression, animation)))
+
+    override fun addIntConstant(value: Int): RemoteIntId =
+        RemoteIntId(NanEncoding.decodeLongId(delegate.addInteger(value)))
+
+    override fun addMutableInt(initialValue: Int): RemoteIntId =
+        RemoteIntId(NanEncoding.decodeLongId(delegate.addInteger(initialValue)))
+
+    override fun addNamedInt(name: String, initialValue: Int): RemoteIntId =
+        RemoteIntId(NanEncoding.decodeLongId(delegate.addNamedInt(name, initialValue)))
+
+    override fun addIntegerExpression(vararg values: Long): RemoteIntId =
+        RemoteIntId(NanEncoding.decodeLongId(delegate.integerExpression(*values)))
+
+    override fun addLongConstant(value: Long): RemoteLongId = RemoteLongId(delegate.addLong(value))
+
+    override fun addMutableLong(initialValue: Long): RemoteLongId =
+        RemoteLongId(delegate.addLong(initialValue))
+
+    override fun addNamedLong(name: String, initialValue: Long): RemoteLongId =
+        RemoteLongId(delegate.addNamedLong(name, initialValue))
+
+    override fun setNamedVariable(id: Int, name: String, type: Int) {
+        delegate.setNamedVariable(id, name, type)
+    }
+
+    override fun addColorConstant(color: Int): RemoteColorId =
+        RemoteColorId(delegate.addColor(color))
+
+    override fun addNamedColor(name: String, initialColor: Int): RemoteColorId =
+        RemoteColorId(delegate.addNamedColor(name, initialColor))
+
+    override fun addThemedColor(
+        groupName: String,
+        lightId: Short,
+        darkId: Short,
+        lightFallback: Int,
+        darkFallback: Int,
+    ): RemoteColorId =
+        RemoteColorId(
+            delegate.addThemedColor(groupName, lightId, darkId, lightFallback, darkFallback).toInt()
+        )
+
+    override fun addColorExpressionArgb(
+        alpha: MaybeVariableFloat,
+        red: MaybeVariableFloat,
+        green: MaybeVariableFloat,
+        blue: MaybeVariableFloat,
+    ): RemoteColorId =
+        RemoteColorId(
+            delegate
+                .addColorExpression(
+                    alpha.floatValue,
+                    red.floatValue,
+                    green.floatValue,
+                    blue.floatValue,
+                )
+                .toInt()
+        )
+
+    override fun addColorExpressionHsv(
+        alpha: Int,
+        hue: MaybeVariableFloat,
+        saturation: MaybeVariableFloat,
+        value: MaybeVariableFloat,
+    ): RemoteColorId =
+        RemoteColorId(
+            delegate
+                .addColorExpression(
+                    alpha,
+                    hue.floatValue,
+                    saturation.floatValue,
+                    value.floatValue,
+                )
+                .toInt()
+        )
+
+    override fun addColorTween(color1: Int, color2: Int, tween: MaybeVariableFloat): RemoteColorId =
+        RemoteColorId(delegate.addColorExpression(color1, color2, tween.floatValue).toInt())
+
+    override fun addColorIdTween(
+        colorId1: RemoteColorId,
+        colorId2: RemoteColorId,
+        tween: MaybeVariableFloat,
+    ): RemoteColorId =
+        RemoteColorId(
+            delegate
+                .addColorExpression(colorId1.id.toShort(), colorId2.id.toShort(), tween.floatValue)
+                .toInt()
+        )
+
+    override fun getColorAttribute(baseColorId: RemoteColorId, attributeType: Int): RemoteFloatId =
+        RemoteFloatId(
+            NanEncoding.idFromNan(
+                delegate.getColorAttribute(baseColorId.id, attributeType.toShort())
+            )
+        )
+
+    override fun addText(text: String): RemoteStringId = RemoteStringId(delegate.addText(text))
+
+    override fun addMutableText(initialValue: String): RemoteStringId =
+        RemoteStringId(delegate.addText(initialValue))
+
+    override fun addNamedString(name: String, initialValue: String): RemoteStringId =
+        RemoteStringId(delegate.addNamedString(name, initialValue))
+
+    override fun textFromFloat(
+        value: MaybeVariableFloat,
+        digitsBefore: Int,
+        digitsAfter: Int,
+        flags: Int,
+    ): RemoteStringId =
+        RemoteStringId(
+            delegate.createTextFromFloat(
+                value.floatValue,
+                digitsBefore.toShort(),
+                digitsAfter.toShort(),
+                flags,
+            )
+        )
+
+    override fun textMerge(first: RemoteStringId, second: RemoteStringId): RemoteStringId =
+        RemoteStringId(delegate.textMerge(first.id, second.id))
+
+    override fun textSubtext(
+        textId: RemoteStringId,
+        start: MaybeVariableFloat,
+        len: MaybeVariableFloat,
+    ): RemoteStringId =
+        RemoteStringId(delegate.textSubtext(textId.id, start.floatValue, len.floatValue))
+
+    override fun textTransform(
+        textId: RemoteStringId,
+        start: MaybeVariableFloat,
+        len: MaybeVariableFloat,
+        operation: Int,
+    ): RemoteStringId =
+        RemoteStringId(
+            delegate.textTransform(textId.id, start.floatValue, len.floatValue, operation)
+        )
+
+    override fun textLength(textId: RemoteStringId): RemoteFloatId =
+        RemoteFloatId(NanEncoding.idFromNan(delegate.textLength(textId.id)))
+
+    override fun textAttribute(textId: RemoteStringId, attributeType: Int): RemoteFloatId =
+        RemoteFloatId(
+            NanEncoding.idFromNan(delegate.textAttribute(textId.id, attributeType.toShort()))
+        )
+
+    override fun textLookup(arrayId: RemoteArrayId, index: MaybeVariableFloat): RemoteStringId =
+        RemoteStringId(delegate.textLookup(arrayId.toNanFloat(), index.floatValue))
+
+    override fun textLookup(arrayId: RemoteArrayId, indexId: RemoteIntId): RemoteStringId =
+        RemoteStringId(delegate.textLookup(arrayId.toNanFloat(), indexId.id))
+
+    override fun addIdList(ids: IntArray): RemoteArrayId =
+        RemoteArrayId(NanEncoding.idFromNan(delegate.addList(ids)))
+
+    override fun idLookup(arrayId: RemoteArrayId, index: MaybeVariableFloat, destId: Int): Int {
+        if (destId != -1) {
+            delegate.buffer.idLookup(destId, arrayId.toNanFloat(), index.floatValue)
+            return destId
+        }
+        return delegate.idLookup(arrayId.toNanFloat(), index.floatValue)
+    }
+
+    override fun addFloatArray(values: FloatArray): RemoteArrayId =
+        RemoteArrayId(NanEncoding.idFromNan(delegate.addFloatArray(values)))
+
+    override fun addDynamicFloatArray(size: MaybeVariableFloat): RemoteArrayId =
+        RemoteArrayId(NanEncoding.idFromNan(delegate.addDynamicFloatArray(size.floatValue)))
+
+    override fun setArrayValue(
+        arrayId: RemoteArrayId,
+        index: MaybeVariableFloat,
+        value: MaybeVariableFloat,
+    ) {
+        delegate.setArrayValue(arrayId.id, index.floatValue, value.floatValue)
+    }
+
+    override fun timeAttribute(longId: RemoteLongId, attributeType: Int): RemoteFloatId =
+        RemoteFloatId(
+            NanEncoding.idFromNan(delegate.timeAttribute(longId.id, attributeType.toShort()))
+        )
+
+    override fun matrixExpression(vararg exp: Float): RemoteFloatId =
+        RemoteFloatId(NanEncoding.idFromNan(delegate.matrixExpression(*exp)))
+
+    override fun addBitmap(image: Any): RemoteBitmapId = RemoteBitmapId(delegate.addBitmap(image))
+
+    override fun addNamedBitmap(name: String, image: Any): RemoteBitmapId =
+        RemoteBitmapId(delegate.addNamedBitmap(name, image))
+
+    override fun addBitmapUrl(url: String, width: Int, height: Int): RemoteBitmapId =
+        RemoteBitmapId(delegate.addBitmapUrl(url, width, height))
+
+    override fun createBitmap(width: Int, height: Int): RemoteBitmapId =
+        RemoteBitmapId(delegate.createBitmap(width, height))
+
+    override fun bitmapAttribute(bitmapId: RemoteBitmapId, attributeType: Int): RemoteFloatId =
+        RemoteFloatId(
+            NanEncoding.idFromNan(delegate.bitmapAttribute(bitmapId.id, attributeType.toShort()))
+        )
+
+    override fun translate(dx: MaybeVariableFloat, dy: MaybeVariableFloat) {
+        delegate.buffer.addMatrixTranslate(dx.floatValue, dy.floatValue)
+    }
+
+    override fun conditionalOperations(
+        type: Int,
+        a: MaybeVariableFloat,
+        b: MaybeVariableFloat,
+        content: () -> Unit,
+    ) {
+        delegate.conditionalOperations(type.toByte(), a.floatValue, b.floatValue, content)
+    }
+}
+
+internal val RemoteDocumentWriter.buffer: RemoteComposeBuffer
+    get() = (this as TestRemoteDocumentWriter).delegate.buffer
 
 internal fun testCreationState(
     width: Int = 1,
     height: Int = 1,
     profiles: Int = 0,
     remoteDensity: RemoteDensity = RemoteDensity(1f.rf, 1f.rf),
-    document: RemoteComposeWriter =
-        if (profiles == 0) {
-            RemoteComposeWriter(width, height, "", RcPlatformServices.None)
-        } else {
-            RemoteComposeWriter(
-                width,
-                height,
-                "",
-                CoreDocument.DOCUMENT_API_LEVEL,
-                profiles,
-                RcPlatformServices.None,
-            )
-        },
+    document: RemoteDocumentWriter =
+        TestRemoteDocumentWriter(
+            if (profiles == 0) {
+                RemoteComposeWriter(width, height, "", RcPlatformServices.None)
+            } else {
+                RemoteComposeWriter(
+                    width,
+                    height,
+                    "",
+                    CoreDocument.DOCUMENT_API_LEVEL,
+                    profiles,
+                    RcPlatformServices.None,
+                )
+            }
+        ),
 ): RemoteComposeCreationState =
     RemoteComposeCreationState().apply {
         this.document = document

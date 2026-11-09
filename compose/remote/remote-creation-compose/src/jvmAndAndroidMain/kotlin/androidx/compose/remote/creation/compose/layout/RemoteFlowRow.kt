@@ -19,7 +19,8 @@ package androidx.compose.remote.creation.compose.layout
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
+import androidx.compose.remote.creation.compose.modifier.prepareModifiers
+import androidx.compose.remote.document.mvf
 import androidx.compose.runtime.Composable
 
 internal class RemoteFlowRowNode : RemoteLayoutNode() {
@@ -30,17 +31,17 @@ internal class RemoteFlowRowNode : RemoteLayoutNode() {
 
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
         val scope = overriddenScope(remoteCanvas)
-        val recordingModifier = scope.toRecordingModifier(modifier)
-        (horizontalArrangement as? RemoteSpaced)?.let {
-            recordingModifier.spacedBy(it.getSpacingFloatId(scope))
-        }
+        val writeModifiers = scope.prepareModifiers(modifier)
+        val spacedBy = (horizontalArrangement as? RemoteSpaced)?.getSpacing(scope) ?: 0f.mvf
         creationState.document.startFlow(
-            recordingModifier,
             horizontalArrangement.toRemote(layoutDirection),
             verticalArrangement.toRemote(),
             maxItemsInEachRow,
             maxLines,
-        )
+            spacedBy,
+        ) {
+            writeModifiers(creationState.document)
+        }
         renderChildren(
             creationState,
             remoteCanvas,

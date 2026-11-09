@@ -17,15 +17,19 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.compose.remote.core.Operation
-import androidx.compose.remote.core.RcPlatformServices
+import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.ColorExpression
+import androidx.compose.remote.core.operations.FloatConstant
 import androidx.compose.remote.core.operations.NamedVariable
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteComponent
 import androidx.compose.remote.creation.compose.layout.RemoteComponentToken
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
+import androidx.compose.remote.document.MaybeVariableFloat
+import androidx.compose.remote.document.NanEncoding
+import androidx.compose.remote.document.RemoteDocumentWriter
 import com.google.common.truth.Truth.assertThat
+import java.lang.reflect.Proxy
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -287,12 +291,57 @@ class RemoteExpressionJvmTest {
         assertThat(component).isNotEqualTo(centerComponent)
     }
 
+    private fun createBufferBackedWriter(rawBuffer: RemoteComposeBuffer): RemoteDocumentWriter {
+        var nextId = 42
+        return Proxy.newProxyInstance(
+            RemoteDocumentWriter::class.java.classLoader,
+            arrayOf(RemoteDocumentWriter::class.java),
+        ) { _, method, args ->
+            when {
+                method.name == "allocateId" -> nextId++
+                method.name == "setNamedVariable" -> {
+                    rawBuffer.setNamedVariable(args[0] as Int, args[1] as String, args[2] as Int)
+                    Unit
+                }
+                method.name.startsWith("addNamedFloat") -> {
+                    val id = nextId++
+                    rawBuffer.setNamedVariable(id, args[0] as String, NamedVariable.FLOAT_TYPE)
+                    FloatConstant.apply(rawBuffer.buffer, id, args[1] as Float)
+                    id
+                }
+                method.name.startsWith("addNamedColor") -> {
+                    val id = nextId++
+                    rawBuffer.addColor(id, args[1] as Int)
+                    rawBuffer.setNamedVariable(id, args[0] as String, NamedVariable.COLOR_TYPE)
+                    id
+                }
+                method.name.startsWith("addColorExpressionArgb") -> {
+                    val id = nextId++
+                    val a = Float.fromBits(args[0] as Int)
+                    val r = Float.fromBits(args[1] as Int)
+                    val g = Float.fromBits(args[2] as Int)
+                    val b = Float.fromBits(args[3] as Int)
+                    rawBuffer.addColorExpression(id, a, r, g, b)
+                    id
+                }
+                method.name.startsWith("addColorIdTween") -> {
+                    val id = nextId++
+                    val c1 = (args[0] as Int).toShort()
+                    val c2 = (args[1] as Int).toShort()
+                    val tween = Float.fromBits(args[2] as Int)
+                    rawBuffer.addColorExpression(id, c1, c2, tween)
+                    id
+                }
+                else -> throw UnsupportedOperationException(method.name)
+            }
+        } as RemoteDocumentWriter
+    }
+
     @Test
     fun testCreateNamedRemoteColor_constantValueParity() {
+        val rawBuffer = RemoteComposeBuffer().apply { header(100, 100, 1f, 0L) }
         val creationState =
-            RemoteComposeCreationState().apply {
-                document = RemoteComposeWriter(RcPlatformServices.None)
-            }
+            RemoteComposeCreationState().apply { document = createBufferBackedWriter(rawBuffer) }
         val constantColor = 0xFFFF0000.toInt().rc
         val namedColor = RemoteColor.createNamedRemoteColor("primary", constantColor)
         val id = creationState.getId(namedColor)
@@ -303,10 +352,9 @@ class RemoteExpressionJvmTest {
         assertThat(namedColor.constantValueOrNull).isNull()
         assertThat(directNamedColor.constantValueOrNull).isNull()
 
-        val buffer = creationState.document.buffer
-        buffer.buffer.index = 0
+        rawBuffer.buffer.index = 0
         val operations = ArrayList<Operation>()
-        buffer.inflateFromBuffer(operations)
+        rawBuffer.inflateFromBuffer(operations)
 
         val namedVars = operations.filterIsInstance<NamedVariable>()
         assertThat(namedVars.any { it.mVarId == id && it.mVarName == "USER:primary" }).isTrue()
@@ -316,10 +364,9 @@ class RemoteExpressionJvmTest {
 
     @Test
     fun testCreateNamedRemoteColor_dynamicExpressionUniqueness() {
+        val rawBuffer = RemoteComposeBuffer().apply { header(100, 100, 1f, 0L) }
         val creationState =
-            RemoteComposeCreationState().apply {
-                document = RemoteComposeWriter(RcPlatformServices.None)
-            }
+            RemoteComposeCreationState().apply { document = createBufferBackedWriter(rawBuffer) }
         val dynamicExpr =
             RemoteColor.rgb(
                 red = RemoteFloat.createNamedRemoteFloat("r", 0.5f),
@@ -334,10 +381,9 @@ class RemoteExpressionJvmTest {
 
         assertThat(id1).isNotEqualTo(id2)
 
-        val buffer = creationState.document.buffer
-        buffer.buffer.index = 0
+        rawBuffer.buffer.index = 0
         val operations = ArrayList<Operation>()
-        buffer.inflateFromBuffer(operations)
+        rawBuffer.inflateFromBuffer(operations)
 
         val colorExpressions = operations.filterIsInstance<ColorExpression>()
         assertThat(colorExpressions.any { it.mId == id1 }).isTrue()
@@ -427,6 +473,49 @@ class RemoteExpressionJvmTest {
         }
         assertThrows(IllegalArgumentException::class.java) {
             state.getFloatId(unsupported)
+        }
+    }
+
+    @Test
+    fun testMaybeVariableFloat_andNanEncoding_negativeQuietNanNotVariable() {
+        val negativeQuietNanBits = 0xFFC00000.toInt()
+        val negativeQuietNan = MaybeVariableFloat.fromRawBits(negativeQuietNanBits)
+        assertThat(negativeQuietNan.isVariable).isFalse()
+        assertThat(negativeQuietNan.variableId).isEqualTo(-1)
+        assertThat(NanEncoding.isNan(Float.fromBits(negativeQuietNanBits))).isFalse()
+        assertThat(NanEncoding.idFromNan(Float.fromBits(negativeQuietNanBits))).isEqualTo(-1)
+
+        assertThat(MaybeVariableFloat.NaN.isVariable).isFalse()
+        assertThat(MaybeVariableFloat.NaN.variableId).isEqualTo(-1)
+
+        val negInf = MaybeVariableFloat.literal(Float.NEGATIVE_INFINITY)
+        assertThat(negInf.isVariable).isFalse()
+        assertThat(negInf.variableId).isEqualTo(-1)
+
+        for (id in intArrayOf(1, 42, NanEncoding.START_ARRAY_ID, NanEncoding.ID_MASK)) {
+            val variable = MaybeVariableFloat.variable(id)
+            assertThat(variable.isVariable).isTrue()
+            assertThat(variable.variableId).isEqualTo(id)
+            assertThat(NanEncoding.isNan(variable.floatValue)).isTrue()
+            assertThat(NanEncoding.idFromNan(variable.floatValue)).isEqualTo(id)
+        }
+
+        // Hardware-quieted NaN with non-zero 22-bit payload still decodes to the same variable ID.
+        val quietedVar = MaybeVariableFloat.fromRawBits(negativeQuietNanBits or 42)
+        assertThat(quietedVar.isVariable).isTrue()
+        assertThat(quietedVar.variableId).isEqualTo(42)
+
+        // Long-encoded ID bounds check (lower and upper 32-bit signed int limit).
+        val maxEncoded = NanEncoding.encodeLongId(Int.MAX_VALUE)
+        assertThat(NanEncoding.isLongId(maxEncoded)).isTrue()
+        assertThat(NanEncoding.decodeLongId(maxEncoded)).isEqualTo(Int.MAX_VALUE)
+        val overflowEncoded = maxEncoded + 1L
+        assertThat(NanEncoding.isLongId(overflowEncoded)).isFalse()
+        assertThrows(IllegalArgumentException::class.java) {
+            NanEncoding.decodeLongId(overflowEncoded)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            NanEncoding.decodeLongId(NanEncoding.LONG_ID_OFFSET - 1L)
         }
     }
 }

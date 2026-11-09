@@ -19,8 +19,12 @@ package androidx.compose.remote.creation.compose.state
 import androidx.annotation.ColorInt
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.ColorAttribute
+import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.document.RemoteColorId
+import androidx.compose.remote.document.floatArrayOf
+import androidx.compose.remote.document.mvf
 import androidx.compose.runtime.Stable
 import kotlin.reflect.KClass
 
@@ -195,10 +199,12 @@ public sealed interface RemoteColor : RemoteValue<Int> {
                 configuredBlue = null,
                 configuredAlpha = null,
                 idProvider = { creationState ->
-                    creationState.document.addNamedColor(
-                        domain.prefixed(name),
-                        defaultValue,
-                    )
+                    creationState.document
+                        .addNamedColor(
+                            domain.prefixed(name),
+                            defaultValue,
+                        )
+                        .id
                 },
             )
         }
@@ -229,13 +235,16 @@ public sealed interface RemoteColor : RemoteValue<Int> {
                 idProvider = { creationState ->
                     val constValue = defaultValue.constantValueOrNull
                     if (constValue != null) {
-                        creationState.document.addNamedColor(domain.prefixed(name), constValue)
+                        creationState.document.addNamedColor(domain.prefixed(name), constValue).id
                     } else {
-                        val baseId = creationState.getId(defaultValue).toShort()
-                        val colorId =
-                            creationState.document.addColorExpression(baseId, baseId, 0f).toInt()
-                        creationState.document.setColorName(colorId, domain.prefixed(name))
-                        colorId
+                        val baseId = RemoteColorId(creationState.getId(defaultValue))
+                        val colorId = creationState.document.addColorIdTween(baseId, baseId, 0f.mvf)
+                        creationState.document.setNamedVariable(
+                            colorId.id,
+                            domain.prefixed(name),
+                            NamedVariable.COLOR_TYPE,
+                        )
+                        colorId.id
                     }
                 },
             )
@@ -291,13 +300,13 @@ public sealed interface RemoteColor : RemoteValue<Int> {
                             )
                         ) {
                             creationState.document
-                                .addColorExpression(
+                                .addColorExpressionHsv(
                                     fixedAlpha,
-                                    creationState.getFloatId(hue),
-                                    creationState.getFloatId(saturation),
-                                    creationState.getFloatId(value),
+                                    creationState.getMaybeVariableFloat(hue),
+                                    creationState.getMaybeVariableFloat(saturation),
+                                    creationState.getMaybeVariableFloat(value),
                                 )
-                                .toInt()
+                                .id
                         }
                     },
                 )
@@ -355,13 +364,13 @@ public sealed interface RemoteColor : RemoteValue<Int> {
                         )
                     ) {
                         creationState.document
-                            .addColorExpression(
-                                alpha.toFloat() / 255f,
-                                creationState.getFloatId(hue),
-                                creationState.getFloatId(saturation),
-                                creationState.getFloatId(value),
+                            .addColorExpressionHsv(
+                                alpha,
+                                creationState.getMaybeVariableFloat(hue),
+                                creationState.getMaybeVariableFloat(saturation),
+                                creationState.getMaybeVariableFloat(value),
                             )
-                            .toInt()
+                            .id
                     }
                 },
             )
@@ -431,7 +440,7 @@ public sealed interface RemoteColor : RemoteValue<Int> {
                                 lightFallback,
                                 darkFallback,
                             )
-                            .toInt()
+                            .id
                     }
                 },
             )
@@ -541,8 +550,10 @@ private class RemoteColorImpl(
         ) { creationState ->
             floatArrayOf(
                 creationState.document.getColorAttribute(
-                    creationState.getOrPutVariableId(cacheKey) { idProvider(creationState) },
-                    component,
+                    RemoteColorId(
+                        creationState.getOrPutVariableId(cacheKey) { idProvider(creationState) }
+                    ),
+                    component.toInt(),
                 )
             )
         }
@@ -663,7 +674,7 @@ public fun RemoteColor(@ColorInt color: Int): RemoteColor =
         configuredBlue = extractBlueFloat(color).rf,
         configuredAlpha = extractAlphaFloat(color).rf,
         cacheKey = RemoteColorConstantCacheKey(color),
-        idProvider = { creationState -> creationState.document.addColor(color) },
+        idProvider = { creationState -> creationState.document.addColorConstant(color).id },
     )
 
 /**
@@ -697,13 +708,13 @@ public fun RemoteColor(
         idProvider = { creationState ->
             creationState.getOrPutVariableId(cacheKey) {
                 creationState.document
-                    .addColorExpression(
-                        creationState.getFloatId(alpha),
-                        creationState.getFloatId(red),
-                        creationState.getFloatId(green),
-                        creationState.getFloatId(blue),
+                    .addColorExpressionArgb(
+                        creationState.getMaybeVariableFloat(alpha),
+                        creationState.getMaybeVariableFloat(red),
+                        creationState.getMaybeVariableFloat(green),
+                        creationState.getMaybeVariableFloat(blue),
                     )
-                    .toInt()
+                    .id
             }
         },
     )
@@ -733,12 +744,12 @@ public fun lerp(@ColorInt from: Int, @ColorInt to: Int, fraction: RemoteFloat): 
                 RemoteOperationCacheKey.create(ColorOperationKey.TweenInt, from, to, fraction)
             ) {
                 creationState.document
-                    .addColorExpression(
+                    .addColorTween(
                         from,
                         to,
-                        Utils.asNan(creationState.getId(fraction)),
+                        creationState.getMaybeVariableFloat(fraction),
                     )
-                    .toInt()
+                    .id
             }
         },
     )
@@ -771,12 +782,12 @@ public fun lerp(from: RemoteColor, to: RemoteColor, fraction: RemoteFloat): Remo
                 RemoteOperationCacheKey.create(ColorOperationKey.Tween, from, to, fraction)
             ) {
                 creationState.document
-                    .addColorExpression(
-                        creationState.getId(from).toShort(),
-                        creationState.getId(to).toShort(),
-                        Utils.asNan(creationState.getId(fraction)),
+                    .addColorIdTween(
+                        RemoteColorId(creationState.getId(from)),
+                        RemoteColorId(creationState.getId(to)),
+                        creationState.getMaybeVariableFloat(fraction),
                     )
-                    .toInt()
+                    .id
             }
         },
     )

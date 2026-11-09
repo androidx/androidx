@@ -17,10 +17,13 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.BitmapTextMeasure
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.util.fastFirstOrNull
+import androidx.compose.remote.document.RemoteBitmapGlyph
+import androidx.compose.remote.document.RemoteFontId
+import androidx.compose.remote.document.RemoteStringId
+import androidx.compose.remote.document.mvf
 import kotlin.math.max
 import kotlin.math.min
 
@@ -102,22 +105,24 @@ constructor(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public override fun getId(creationState: RemoteComposeCreationState): Int {
         return creationState.getOrPutVariableId(cacheKey) {
-            creationState.document.addBitmapFont(
-                Array<BitmapFontData.Glyph>(glyphs.size) { index ->
-                    val glyph = glyphs[index]
-                    BitmapFontData.Glyph(
-                        glyph.chars,
-                        glyph.bitmap?.let { creationState.getId(it) } ?: -1,
-                        glyph.marginLeft,
-                        glyph.marginTop,
-                        glyph.marginRight,
-                        glyph.marginBottom,
-                        glyph.width,
-                        glyph.height,
-                    )
-                },
-                kerningTable,
-            )
+            creationState.document
+                .addBitmapFont(
+                    List(glyphs.size) { index ->
+                        val glyph = glyphs[index]
+                        RemoteBitmapGlyph(
+                            glyph.chars,
+                            glyph.bitmap?.let { creationState.getId(it) } ?: -1,
+                            glyph.marginLeft,
+                            glyph.marginTop,
+                            glyph.marginRight,
+                            glyph.marginBottom,
+                            glyph.width,
+                            glyph.height,
+                        )
+                    },
+                    kerningTable,
+                )
+                .id
         }
     }
 
@@ -192,10 +197,10 @@ constructor(
         ) {
             RemoteFloat(
                 document.bitmapTextMeasure(
-                    this.getId(text),
-                    this@RemoteBitmapFont.getId(this),
+                    RemoteStringId(this.getId(text)),
+                    RemoteFontId(this@RemoteBitmapFont.getId(this)),
                     BitmapTextMeasure.MEASURE_WIDTH,
-                    this.getFloatId(glyphSpacing),
+                    this.getMaybeVariableFloat(glyphSpacing),
                 )
             )
         }
@@ -217,10 +222,10 @@ constructor(
         ) {
             RemoteFloat(
                 document.bitmapTextMeasure(
-                    this.getId(text),
-                    this@RemoteBitmapFont.getId(this),
+                    RemoteStringId(this.getId(text)),
+                    RemoteFontId(this@RemoteBitmapFont.getId(this)),
                     BitmapTextMeasure.MEASURE_HEIGHT,
-                    0f,
+                    0f.mvf,
                 )
             )
         }

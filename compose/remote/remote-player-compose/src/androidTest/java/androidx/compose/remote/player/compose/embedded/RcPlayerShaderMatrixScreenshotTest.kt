@@ -197,7 +197,7 @@ class RcPlayerShaderMatrixScreenshotTest {
             RemoteBox(
                 modifier =
                     RemoteModifier.size(80.rdp).clip().drawWithContent {
-                        val writer = document as RemoteComposeWriterAndroid
+                        val writer = document.legacyWriter as RemoteComposeWriterAndroid
                         val tileBitmap = createQuadrantTileBitmap()
                         val bitmapId = writer.addBitmap(tileBitmap)
                         val matrixId =
@@ -218,7 +218,7 @@ class RcPlayerShaderMatrixScreenshotTest {
                             )
                             .setShaderMatrix(matrixId)
                             .commit()
-                        document.drawRect(0f, 0f, 300f, 300f)
+                        writer.drawRect(0f, 0f, 300f, 300f)
                     }
             )
         }

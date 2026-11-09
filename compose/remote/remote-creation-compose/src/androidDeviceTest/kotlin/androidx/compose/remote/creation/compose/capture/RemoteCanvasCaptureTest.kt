@@ -813,7 +813,7 @@ class RemoteCanvasCaptureTest {
             // hoisting passes.
             remoteCanvas.flush()
             recordingBuffer.writeToBuffer()
-            val buffer = creationState.document.buffer
+            val buffer = creationState.writer.buffer
             buffer.buffer.index = 0
             initFromBuffer(buffer)
         }
@@ -831,7 +831,7 @@ class RemoteCanvasCaptureTest {
         // hoisting passes.
         remoteCanvas.flush()
         recordingBuffer.writeToBuffer()
-        val buffer = creationState.document.buffer
+        val buffer = creationState.writer.buffer
         buffer.buffer.index = 0
         val operations = ArrayList<Operation>()
         buffer.inflateFromBuffer(operations)

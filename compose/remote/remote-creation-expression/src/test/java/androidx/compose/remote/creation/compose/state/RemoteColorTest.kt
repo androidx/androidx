@@ -201,7 +201,7 @@ class RemoteColorTest {
             RemoteColor(cacheKey = RemoteStateInstanceKey()) { creationState ->
                 // This should only be created once
                 redCreated++
-                creationState.document.addNamedColor("USER:OnPrimaryColor", color)
+                creationState.document.addNamedColor("USER:OnPrimaryColor", color).id
             }
         val green = RemoteColor(COLOR_GREEN)
 
