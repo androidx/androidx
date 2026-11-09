@@ -51,8 +51,8 @@ import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.UriHandler
+import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -86,24 +86,22 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.LineHeightStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assume.assumeTrue
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalFoundationApi::class)
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class BasicTextLinkTest {
@@ -125,9 +123,20 @@ class BasicTextLinkTest {
     private val Url2 = "link2"
     private val Url3 = "link3"
 
+    @OptIn(ExperimentalFoundationApi::class) private var initialLinkTouchTargetFlag: Boolean = true
+
+    @OptIn(ExperimentalFoundationApi::class)
     @Before
     fun setup() {
+        initialLinkTouchTargetFlag = ComposeFoundationFlags.isLinkMinimumTouchTargetSizeZeroEnabled
+        ComposeFoundationFlags.isLinkMinimumTouchTargetSizeZeroEnabled = true
         openedUri = null
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @After
+    fun teardown() {
+        ComposeFoundationFlags.isLinkMinimumTouchTargetSizeZeroEnabled = initialLinkTouchTargetFlag
     }
 
     @Test
@@ -310,122 +319,6 @@ class BasicTextLinkTest {
     }
 
     @Test
-    fun singleBidiLinkAtLineStart_inRtlParagraph_onClick_opensUrlOnlyInsideLink() {
-        assumeTrue(ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled)
-        setupContent {
-            val text = buildAnnotatedString {
-                append("\u05D0\n")
-                withLink(Url(Url1)) { append("link") }
-                append(" \u05D0\u05D1\u05D2\u05D3")
-            }
-            BasicText(
-                text = text,
-                style = TextStyle(fontSize = 50.sp),
-                onTextLayout = { layoutResult = it },
-            )
-        }
-
-        rule.runOnIdle {
-            assertThat(layoutResult).isNotNull()
-            assertThat(layoutResult!!.getLineStart(1)).isEqualTo(2)
-        }
-        val textNode = rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text))
-        textNode.performTouchInput { click(layoutResult!!.getBoundingBox(8).center) }
-        rule.runOnIdle { assertThat(openedUri).isNull() }
-
-        textNode.performTouchInput { click(layoutResult!!.getBoundingBox(3).center) }
-        rule.runOnIdle { assertThat(openedUri).isEqualTo(Url1) }
-    }
-
-    @Test
-    fun singleLineLink_endingAtSoftLineBreak_onClick_opensUrlOnlyInsideLink() {
-        assumeTrue(ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled)
-        setupContent {
-            with(rule.density) {
-                val localFontSize = 50.sp
-                val text = buildAnnotatedString {
-                    append("aaa ")
-                    withLink(Url(Url1)) { append("bbb ") }
-                    append("ccc")
-                }
-                BasicText(
-                    text = text,
-                    modifier = Modifier.width((localFontSize * 10).toDp()),
-                    style = TextStyle(fontSize = localFontSize, fontFamily = TEST_FONT_FAMILY),
-                    onTextLayout = { layoutResult = it },
-                )
-            }
-        }
-
-        rule.runOnIdle {
-            assertThat(layoutResult).isNotNull()
-            assertThat(layoutResult!!.lineCount).isEqualTo(2)
-            assertThat(layoutResult!!.getLineEnd(0)).isEqualTo(8)
-        }
-        val textNode = rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text))
-        textNode.performTouchInput { click(layoutResult!!.getBoundingBox(1).center) }
-        rule.runOnIdle { assertThat(openedUri).isNull() }
-
-        textNode.performTouchInput { click(layoutResult!!.getBoundingBox(5).center) }
-        rule.runOnIdle { assertThat(openedUri).isEqualTo(Url1) }
-    }
-
-    @Test
-    fun mixedBidiLink_onClick_visuallyLeftmostCharacter_opensUrl() {
-        assumeTrue(ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled)
-        setupContent { MixedBidiTextWithLink() }
-
-        rule.runOnIdle { assertThat(layoutResult).isNotNull() }
-        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text)).performTouchInput {
-            val text = layoutResult!!.layoutInput.text
-            val link = text.getLinkAnnotations(0, text.length).single()
-            // the link starts with two right-to-left characters displayed in reverse order, so its
-            // second character is its visually leftmost one
-            val boundingBox = layoutResult!!.getBoundingBox(link.start + 1)
-            click(boundingBox.center)
-        }
-
-        rule.runOnIdle { assertThat(openedUri).isEqualTo(Url1) }
-    }
-
-    @Test
-    fun mixedBidiLink_onClick_visuallyRightmostCharacter_opensUrl() {
-        assumeTrue(ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled)
-        setupContent { MixedBidiTextWithLink() }
-
-        rule.runOnIdle { assertThat(layoutResult).isNotNull() }
-        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text)).performTouchInput {
-            val text = layoutResult!!.layoutInput.text
-            val link = text.getLinkAnnotations(0, text.length).single()
-            // the link ends with two right-to-left characters displayed in reverse order, so its
-            // second to last character is its visually rightmost one
-            val boundingBox = layoutResult!!.getBoundingBox(link.end - 2)
-            click(boundingBox.center)
-        }
-
-        rule.runOnIdle { assertThat(openedUri).isEqualTo(Url1) }
-    }
-
-    @Test
-    fun multiLineLink_centeredText_onClick_secondLineStart_opensUrl() {
-        assumeTrue(ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled)
-        setupContent { CenteredTextWithMultiLineLink() }
-
-        rule.runOnIdle {
-            assertThat(layoutResult).isNotNull()
-            assertThat(layoutResult!!.lineCount).isEqualTo(2)
-        }
-        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text)).performTouchInput {
-            // the second line of the link is centered, so its first character is displayed to the
-            // right of the left edge of the text, unlike in start aligned text
-            val boundingBox = layoutResult!!.getBoundingBox(layoutResult!!.getLineStart(1))
-            click(boundingBox.center)
-        }
-
-        rule.runOnIdle { assertThat(openedUri).isEqualTo(Url1) }
-    }
-
-    @Test
     fun link_andInlineContent_onClick_opensUrl() {
         setupContent {
             /** +--------------------+ | link text [ ] text | +--------------------+ */
@@ -556,27 +449,6 @@ class BasicTextLinkTest {
             .captureToImage()
             .assertContainsColor(Color.Green)
             .assertContainsColor(Color.Red)
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
-    fun link_withoutStatefulStyles_onHover_handPointerIconUsed() {
-        with(PointerIconTestScope(rule)) {
-            setContent {
-                CompositionLocalProvider(LocalUriHandler provides uriHandler) {
-                    BasicText(
-                        buildAnnotatedString {
-                            append("text ")
-                            withLink(Url(Url1)) { append("link") }
-                        },
-                        modifier = Modifier.testTag("text"),
-                    )
-                }
-            }
-
-            rule.onNodeWithTag("text").performMouseInputOnFirstLink { enter(it) }
-            assertIcon(android.view.PointerIcon.TYPE_HAND)
-        }
     }
 
     @Test
@@ -953,47 +825,6 @@ class BasicTextLinkTest {
     }
 
     @Test
-    fun multipleLinks_simultaneousStatefulStyles_appliedToBothLinks() {
-        assumeTrue(ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled)
-        val textWithLink = buildAnnotatedString {
-            withLink(
-                Url(
-                    "link1",
-                    TextLinkStyles(focusedStyle = SpanStyle(color = Color.Green)),
-                )
-            ) {
-                append("link1")
-            }
-            append(" and ")
-            withLink(
-                Url(
-                    "link2",
-                    TextLinkStyles(pressedStyle = SpanStyle(color = Color.Blue)),
-                )
-            ) {
-                append("link2")
-            }
-        }
-        setupContent { BasicText(text = textWithLink, style = TextStyle(color = Color.White)) }
-
-        val links = rule.onAllNodes(hasClickAction(), useUnmergedTree = true)
-        links[0].requestFocus()
-        links[1].performTouchInput { down(center) }
-
-        rule.waitForIdle()
-
-        val styles =
-            rule
-                .onNodeWithText("link1 and link2")
-                .fetchTextLayoutResult()
-                .layoutInput
-                .text
-                .spanStyles
-        val colors = styles.map { it.item.color }.filter { it != Color.Unspecified }
-        assertThat(colors).containsExactly(Color.Green, Color.Blue)
-    }
-
-    @Test
     fun linkAnnotation_url_customInteractionListener_called() {
         var clickedUrlAnnotation: Url? = null
         setupContent {
@@ -1259,22 +1090,7 @@ class BasicTextLinkTest {
                  * +-----------------------+ | text link text a long | | link text | | text link | |
                  * [ ] | +-----------------------+
                  */
-                val style =
-                    TextStyle(
-                        fontSize = fontSize,
-                        fontFamily = TEST_FONT_FAMILY,
-                        // Lines at least as tall as the minimum touch target make the link Boxes
-                        // big enough to not need touch target expansion. With shorter lines, the
-                        // expanded touch target of a link covers text on the adjacent lines.
-                        lineHeight =
-                            LocalViewConfiguration.current.minimumTouchTargetSize.height.toSp(),
-                        // don't trim the first and the last lines below the line height
-                        lineHeightStyle =
-                            LineHeightStyle(
-                                alignment = LineHeightStyle.Alignment.Center,
-                                trim = LineHeightStyle.Trim.None,
-                            ),
-                    )
+                val style = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY)
 
                 val text = buildAnnotatedString {
                     append("text ")
@@ -1313,59 +1129,6 @@ class BasicTextLinkTest {
         }
         BasicText(text, onTextLayout = { layoutResult = it })
     }
-
-    /**
-     * Left-to-right text with a link that starts and ends with two right-to-left characters. The
-     * right-to-left runs are displayed in reverse order, so the visual extremes of the link are its
-     * second and its second to last characters rather than its first and its last ones.
-     */
-    @Composable
-    private fun MixedBidiTextWithLink() {
-        val text = buildAnnotatedString {
-            append("xyz ")
-            withLink(Url(Url1)) { append("\u05D0\u05D1 mixed text \u05D2\u05D3") }
-            append(" xyz")
-        }
-        BasicText(
-            text,
-            style = TextStyle(fontSize = fontSize),
-            onTextLayout = { layoutResult = it },
-        )
-    }
-
-    /**
-     * Centered text with a link that wraps onto a second, shorter line. Neither line of the link
-     * starts at the left edge of the text, so the top left corner of the link's bounds is neither
-     * at its first character nor at the start of a line.
-     */
-    @Composable
-    private fun CenteredTextWithMultiLineLink() =
-        with(rule.density) {
-            /** +----------+ | aaa bbb | | ccc | +----------+ */
-            val text = buildAnnotatedString {
-                append("aaa ")
-                withLink(Url(Url1)) { append("bbb ccc") }
-            }
-            BasicText(
-                text = text,
-                modifier = Modifier.width((fontSize * 10).toDp()),
-                style =
-                    TextStyle(
-                        fontSize = fontSize,
-                        fontFamily = TEST_FONT_FAMILY,
-                        textAlign = TextAlign.Center,
-                        // see TextWithLinks
-                        lineHeight =
-                            LocalViewConfiguration.current.minimumTouchTargetSize.height.toSp(),
-                        lineHeightStyle =
-                            LineHeightStyle(
-                                alignment = LineHeightStyle.Alignment.Center,
-                                trim = LineHeightStyle.Trim.None,
-                            ),
-                    ),
-                onTextLayout = { layoutResult = it },
-            )
-        }
 
     @Composable
     private fun RtlTextWithLinks() {
@@ -1413,4 +1176,11 @@ class BasicTextLinkTest {
         val linkBounds = getFirstLinkBounds(predicate)
         return this.performTouchInput { block(linkBounds!!.center) }
     }
+}
+
+private class DelegatedViewConfiguration(
+    delegate: ViewConfiguration,
+    minimumTouchTargetSizeOverride: DpSize,
+) : ViewConfiguration by delegate {
+    override val minimumTouchTargetSize: DpSize = minimumTouchTargetSizeOverride
 }
