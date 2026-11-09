@@ -925,10 +925,18 @@ internal constructor(
     @WorkerThread
     @RestrictTo(LIBRARY_GROUP)
     public fun visitAppFunctionUriGrants(visitor: (AppFunctionUriGrant) -> Unit) {
-        if (qualifiedName == AppFunctionUriGrant::class.java.canonicalName) {
+        visitGenericDocumentUriGrants(genericDocument, visitor)
+    }
+
+    private fun visitGenericDocumentUriGrants(
+        document: GenericDocument,
+        visitor: (AppFunctionUriGrant) -> Unit,
+    ) {
+        if (document.schemaType == APP_FUNCTION_URI_GRANT_QUALIFIED_NAME) {
             val uriGrant =
                 try {
-                    deserialize(AppFunctionUriGrant::class.java)
+                    AppFunctionData(document, Bundle.EMPTY)
+                        .deserialize(AppFunctionUriGrant::class.java)
                 } catch (e: Exception) {
                     if (isLoggingEnabled) {
                         Log.d(
@@ -943,22 +951,18 @@ internal constructor(
             if (uriGrant != null) {
                 visitor.invoke(uriGrant)
             }
+            // AppFunctionUriGrant has no nested AppFunctionUriGrant.
+            return
         }
 
-        for (key in genericDocument.propertyNames) {
-            // AppFunctionUriGrant would only be stored as either singular AppFunctionData or list
-            // of AppFunctionData.
-            try {
-                getAppFunctionData(key)?.visitAppFunctionUriGrants(visitor)
-            } catch (_: Exception) {
-                // Swallow the exception as it is an unsafe read in the first place
-            }
-            try {
-                for (data in getAppFunctionDataList(key) ?: emptyList()) {
-                    data.visitAppFunctionUriGrants(visitor)
-                }
-            } catch (_: Exception) {
-                // Swallow the exception as it is an unsafe read in the first place
+        for (key in document.propertyNames) {
+            // Nested AppFunctionData, singular or list, is stored as an array of GenericDocument.
+            // Read it directly rather than via getAppFunctionData/getAppFunctionDataList, which
+            // throw an expensive exception for every non-document property.
+            @Suppress("UNCHECKED_CAST")
+            val childDocs = document.getProperty(key) as? Array<GenericDocument> ?: continue
+            for (childDoc in childDocs) {
+                visitGenericDocumentUriGrants(childDoc, visitor)
             }
         }
     }
@@ -1526,6 +1530,9 @@ internal constructor(
         private const val DEFAULT_LONG: Long = 0L
 
         private const val LEGACY_ID_FIELD_KEY = "id"
+        // Must match the schema type written by $AppFunctionUriGrantFactory.
+        private const val APP_FUNCTION_URI_GRANT_QUALIFIED_NAME =
+            "androidx.appfunctions.AppFunctionUriGrant"
 
         private fun extrasKey(key: String) = "property/$key"
 
