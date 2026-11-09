@@ -135,11 +135,13 @@ class CapturePipelineTest {
         object : FakeUseCaseCameraRequestControl() {
             val torchUpdateEventList = mutableListOf<Boolean>()
             val setTorchSemaphore = Semaphore(0)
+            var torchOnResult: Deferred<Result3A> =
+                CompletableDeferred(Result3A(Result3A.Status.OK))
 
             override fun setTorchOnAsync(): Deferred<Result3A> {
                 torchUpdateEventList.add(true)
                 setTorchSemaphore.release()
-                return CompletableDeferred(Result3A(Result3A.Status.OK))
+                return torchOnResult
             }
 
             override fun setTorchOffAsync(aeMode: AeMode): Deferred<Result3A> {
@@ -566,6 +568,41 @@ class CapturePipelineTest {
         assertThat(fakeRequestControl.setTorchSemaphore.tryAcquire(this)).isTrue()
         assertThat(fakeRequestControl.torchUpdateEventList.size).isEqualTo(1)
         assertThat(fakeRequestControl.torchUpdateEventList.removeFirstKt()).isFalse()
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK])
+    fun withFlashTypeTorch_torchOnNeverCompletes_submitsCaptureAfterTimeout(): Unit = runTest {
+        // Arrange, the torch-on result never completes, e.g. when the HAL drops the
+        // FLASH_MODE_TORCH confirmation frames.
+        fakeRequestControl.torchOnResult = CompletableDeferred()
+        val requestList = mutableListOf<Request>()
+        fakeCameraGraphSession.requestHandler = { requests ->
+            requestList.addAll(requests)
+            requests.complete()
+        }
+
+        // Act.
+        capturePipeline
+            .submitStillCaptures(
+                configs = listOf(singleConfig),
+                requestTemplate = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE),
+                sessionConfigOptions = MutableOptionsBundle.create(),
+                captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+                flashMode = ImageCapture.FLASH_MODE_ON,
+                flashType = ImageCapture.FLASH_TYPE_USE_TORCH_AS_FLASH,
+            )
+            .awaitAllWithTimeout(timeMillis = TimeUnit.SECONDS.toMillis(10))
+        val captureCompletedTime = currentTime
+        advanceUntilIdle()
+
+        // Assert, the still capture is submitted right after the 5 s flash 3A time limit, and the
+        // torch is turned off and the session released afterwards.
+        assertThat(captureCompletedTime)
+            .isEqualTo(TimeUnit.SECONDS.toMillis(5) + CHECK_3A_TIMEOUT_BUFFER_IN_MS)
+        assertThat(requestList).hasSize(1)
+        assertThat(fakeRequestControl.torchUpdateEventList).containsExactly(true, false).inOrder()
+        assertThat(fakeCameraGraph.activeSessionCount).isEqualTo(0)
     }
 
     @Test
