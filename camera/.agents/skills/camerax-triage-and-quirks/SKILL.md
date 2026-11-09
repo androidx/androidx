@@ -38,14 +38,25 @@ description: >-
      - When internal test tooling is configured, use test runner query
        options (see `AGENTS_INTERNAL.md`) to extract blast radius, AI
        diagnostic insights, and culprit CLs.
-  2. **Analyze Failure Point & AI Diagnostic Insights**:
-     - Identify the exact failure line and preceding events in the logs.
+  2. **Analyze Failure Point, Raw Framework/HAL Logs & AI Insights**:
+     - Identify the exact first causal failure line and preceding events in raw
+       `logcat`—never rely solely on Java/Kotlin assertion stacks or pre-triaged
+       AI summaries.
+     - Inspect Android camera/media framework tags (`CameraService` /
+       `CameraDeviceClient`, `Camera3-Device` / `Camera3-OutputStream`,
+       `MediaCodec`, `CCodec`, `C2*`) alongside vendor HAL pipeline and buffer
+       allocator tags for the device's SoC. Extract the exact rejected or
+       stalling request key, session parameter, template, stream combination,
+       format/dataspace, buffer size/usage flag, or frame/capture-result counter
+       before hypothesizing.
      - Inspect pre-triaged AI diagnostic verdicts stored in CI test artifacts
        or build metadata (when internal tooling is configured, see
-       `AGENTS_INTERNAL.md`) or inspect raw logcat traces and bugreports.
-  3. **Compare Logs Across Hardware**: Compare the failing log with a passing
-     log from a healthy device to identify differences in HAL behavior or
-     timing.
+       `AGENTS_INTERNAL.md`) only as a secondary cross-check against raw logs.
+  3. **Compare Logs Across Hardware & Working Pipelines**: Compare the failing
+     raw framework/HAL log sequence with a passing device log—or with a passing
+     CameraX pipeline on the same device (e.g., `Preview` + `ImageCapture` vs.
+     capture-only or `StreamSharing`)—to isolate which session flag, repeating
+     request prerequisite, template, or stream surface differs.
   4. **Determine Temporal Trend & Flakiness**:
      - Classify as `[NEW_REGRESSION]` (previously passing, recently failing),
        `[FLAKY_INTERMITTENT]` (intermittent passes and fails), or
@@ -61,8 +72,9 @@ description: >-
   2. **Library/HAL Issues**:
      - Check if the behavior is a known device limitation (e.g., some physical
        lenses not supporting reprocessing).
-     - Explore if a generic workaround is possible without session
-       reconfiguration.
+     - Walk the Feature-Preserving Workaround Ladder (`Section 6.C` Rungs
+       W1-W4) before disabling capabilities (escalating from zero-reset `W1`
+       to device-reset `W3`).
      - **Format/Size Quirks**: If the failure is format-specific (e.g., RAW
        capture crashing):
        a. Check if it's a resolution-specific mismatch (which might be corrected
@@ -93,9 +105,9 @@ description: >-
           clear, copy-pasteable Quirk mapping code snippets when a hardware
           incompatibility is encountered, enabling instantaneous reproduction
           and triage for future maintainers.
-     - **Quirk as Last Resort**: If it is a HAL bug and no generic workaround
-       is possible, add the device model to the corresponding Quirk class
-       (e.g., `ZslDisablerQuirk`). Ensure all affected devices are included.
+     - **Quirk as Last Resort**: Follow `Section 6.C` (`Rungs W1-W4` first, then
+       a capability-disabling `Quirk` only after `Steps 1–2` and `W1-W4` are
+       ruled out), and include all empirically affected devices.
   3. **Multi-Device Lab Verification**:
      - When a fix is implemented, **always run the verification test across ALL
        affected device models** identified in the blast-radius analysis (not
@@ -189,7 +201,7 @@ three layers in order:
                   ├─► NO  ──► [UPDATE CAMERAX TO QUERY CAPABILITY]
                   └─► YES ──► [Step 3: Hardware / Vendor HAL Audit]
                                Is the device HAL falsely advertising support?
-                                 ├─► Impacts Users ──► [AUTHOR DEVICE QUIRK]
+                                 ├─► Impacts Users ──► [WORKAROUND / QUIRK]
                                  └─► Test-Only     ──► [SCOPE TEST HARNESS SKIP]
 ```
 
@@ -222,11 +234,12 @@ three layers in order:
      but the device HAL falsely advertises support while failing or freezing
      at runtime:
      - **Sub-case 3A: Identifiable in advance / Impacts production users:**
-       Implement a `DeviceQuirk` under `camera-core` or `camera-camera2` to
-       filter the unsupported capability from public queries (e.g.,
-       `ImageCaptureCapabilities.getSupportedOutputFormats()`) or adapt the
-       pipeline gracefully (e.g., falling back to software blanking/conversion)
-       so production apps never crash or fail silently.
+       Walk the **Feature-Preserving Workaround Ladder (`Section 6.C` Rungs
+       W1-W4)** first so the user's requested feature continues working via a
+       targeted `workaround/` adaptation; only fall back to a
+       capability-disabling `Quirk` (e.g., filtering
+       `ImageCaptureCapabilities.getSupportedOutputFormats()`) when `W1-W4`
+       cannot safely preserve the feature on hardware.
      - **Sub-case 3B: Unidentifiable in advance / Test-only artifact:**
        If the issue cannot be identified via platform metadata and only
        impacts artificial test harness constructs (e.g., a front camera sensor
@@ -245,24 +258,66 @@ three layers in order:
      or UseCase format and resolution routing.
    - **Action**: Fix directly in core framework abstractions (`camera-core` or
      `camera-camera2`).
-2. **Device Quirk (`DeviceQuirks` vs. `CameraQuirks` & `compat/workaround/`)**:
+2. **Device Workaround or Quirk (`DeviceQuirks`, `CameraQuirks` &
+   `workaround/`)**:
    - **When**: The issue stems from OEM vendor HAL non-compliance, driver
      limitations, or hardware capabilities advertised in `CameraCharacteristics`
      that fail at runtime during camera session creation or streaming, and
-     impacts real-world applications.
-   - **Action**: Implement a `Quirk` in the proper module and registry: place
-     device-wide (`Build`-based) quirks in the owning module's `DeviceQuirks`
-     (e.g., `camera-core`, `camera-video`, `camera-view`, `camera-compose`,
-     `camera-extensions`, `camera-viewfinder`, or `camera-camera2`), place
-     per-camera (`CameraCharacteristics`-based) quirks in `camera-camera2`'s
-     `CameraQuirks`, and encapsulate workaround behavior inside a dedicated
-     `compat/workaround/` collaborator class rather than scattering raw `Quirk`
-     checks across core pipeline classes. **Avoid** adding ad-hoc test
-     assumptions (`assumeFalse`) when a quirk can protect production
-     applications.
-   - *Case Study*: Exclude unsupported simultaneous multi-stream combinations
-     via a quirk on devices where HAL rejects concurrent maximum-resolution
-     streams.
+     impacts real-world applications (`Sub-case 3A`; `Sub-case 3B` / `Gate 4`
+     test-only harness artifacts remain scoped in test utilities).
+   - **Action**: Place device-wide (`Build`-based) quirks in the owning module's
+     `DeviceQuirks` (`camera-core`, `camera-video`, `camera-view`,
+     `camera-compose`, `camera-extensions`, `camera-viewfinder`, or
+     `camera-camera2`), place per-camera (`CameraCharacteristics`-based) quirks
+     in `camera-camera2`'s `CameraQuirks`, and encapsulate behavior inside a
+     `compat/workaround/` (or module `workaround/`) collaborator rather than
+     scattering raw `Quirk` checks across core pipeline classes. **Avoid**
+     ad-hoc test `assumeFalse` skips when a workaround or quirk can protect
+     production applications.
+   - **Feature-Preserving Workaround Ladder (`Rungs W1-W4`, Before Disabling Any
+     User Feature)**: Study existing `compat/quirk/` and `workaround/` packages
+     across `camera-core`, `camera-camera2`, `camera-video`, and
+     `camera-extensions` first to reuse proven hooks, then evaluate in order:
+     - **Rung W1 — Request, Template, Stream, or Size Tweaks (Zero Session
+       Reset)**: Adjust capture request keys/templates, aspect ratios, metering
+       regions, surface ordering, or specific broken sizes while keeping the
+       user feature enabled (e.g., `TemplateParamsOverride`,
+       `TargetAspectRatio`, `MeteringRegionCorrection`, `SurfaceSorter`,
+       `SupportedRepeatingSurfaceSize`, `MaxPreviewSize`, `OutputSizesCorrector`
+       with `ExcludedSupportedSizesQuirk`).
+     - **Rung W2 — Timing, Repeating Readiness, Retry, or Surface Lifecycle**:
+       Gate capture or stop transitions on repeating-request readiness, 3A
+       convergence, capture retry, or surface lifecycle cleanup without dropping
+       capabilities (e.g., `StillCaptureFlow` stopping repeating before capture,
+       `CameraGraph.Flags.awaitRepeatingRequestBeforeCapture` driven by
+       `QuickSuccessiveImageCaptureFailsRepeatingRequestQuirk`,
+       `CameraGraph.Flags.abortCapturesOnStop` disabled via
+       `DisableAbortCapturesOnStopQuirk`, `CaptureFailedRetryEnabler`, or
+       `InactiveSurfaceCloser` driven by
+       `ConfigureSurfaceToSecondarySessionFailQuirk`).
+     - **Rung W3 — Close-and-Reopen Device / Session Reset**: When a vendor HAL
+       crashes or stalls if a new capture session is created on an open
+       `CameraDevice`, close the device on `CameraGraph` close so the next
+       session starts clean, weighing the re-open latency on partial re-binds
+       (e.g., `CloseCameraOnCameraGraphClose` driven by
+       `CloseCameraDeviceOnCameraGraphCloseQuirk`, setting
+       `CameraGraph.Flags.closeCameraDeviceOnClose`).
+     - **Rung W4 — Equivalent Feature-Preserving Fallback Pipeline**: Fulfill
+       the caller's request via an equivalent working CameraX pipeline so the
+       feature succeeds transparently (e.g., `StreamSharingForceEnabler`
+       multiplexing streams when direct multi-surface combinations fail,
+       `UseTorchAsFlash` / `CapturePipelineTorchCorrection` /
+       `UseFlashModeTorchFor3aUpdate`, or `EncoderProfilesProviderFallback`).
+     - **Proven Last Resort — Capability-Disabling Quirk**: Disable a
+       user-visible feature, format, lens, or mode (e.g., `ZslDisablerQuirk`,
+       `ExtensionDisabledQuirk`, `UnsupportedFormatsQuirk`,
+       `ExcludePhysicalCameraIdQuirk`) **only** after `Steps 1–2` and `Rungs
+       W1-W4` are ruled out by empirical hardware probes or fundamental
+       hardware/spec impossibility, documenting why `W1-W4` cannot preserve it.
+   - *Case Study*: Force `StreamSharing` via `StreamSharingForceEnabler`
+     (driven by `ImageCaptureFailedForSpecificCombinationQuirk`) when a
+     specific multi-stream combination fails, or filter only the broken size
+     via `ExcludedSupportedSizesQuirk` before disabling a UseCase.
 3. **Test Harness Utility Scoping**:
    - **When**: The failure occurs purely within an artificial test harness
      construct (e.g. synthetic test patterns) due to an OEM HAL metadata
@@ -360,8 +415,11 @@ three layers in order:
      - **Gate 5 — Mandatory On-Device Hypothesis Verification**: Whenever a root
        cause or candidate fix is proposed for a hardware-dependent failure, run
        a targeted reproduction and verification test directly on the physical
-       lab device to empirically prove both the failure mechanism and the fix
-       before finalizing the CL.
+       device (probing the narrowest `Step 1–2` fix or `Rung W1-W4` workaround
+       first) to empirically prove both the failure mechanism and the fix before
+       finalizing the CL. If the physical device is offline or unavailable,
+       record which rungs were ruled out from raw logs/specifications and keep
+       any unverified hardware quirk CL in draft/WIP (`ESCALATED`) until tested.
 
 ##### E. Device Quirk OS Version Ceilings (The Upstream OS Upgrade Trap)
 When inspecting or authoring quirks with OS version checks (e.g.,

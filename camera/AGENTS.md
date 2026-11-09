@@ -252,8 +252,9 @@ invariants:
        (never mask a CameraX bug with a `DeviceQuirk` or test skip).
     2. *Step 2*: Check standard Android/Camera2 capabilities before adding any
        model-specific `Quirk`.
-    3. *Step 3*: Add a narrowly scoped `Quirk` (with OS version ceilings per
-       `Section 6.E` and empirical verification) only for genuine OEM/HAL bugs.
+    3. *Step 3*: Prefer feature-preserving `workaround/` rungs (`Section 6.C`
+       W1-W4); add a scoped `Quirk` (`Section 6.E` OS ceilings) only as a last
+       resort for genuine OEM/HAL bugs.
   - **Section 7 (Safety Auditing)** & **Section 8 (6-Phase Capability
     Problem-Solving Framework)**: Follow the 6-phase hardware abstraction and
     caller audit protocol in [`camerax-triage-and-quirks`][skill-triage].
