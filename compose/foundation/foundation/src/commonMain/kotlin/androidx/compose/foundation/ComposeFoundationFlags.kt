@@ -446,15 +446,6 @@ public object ComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isNewTextFieldModifierImplementationEnabled: Boolean = true
-
-    /**
-     * Controls whether performance optimizations for [androidx.compose.ui.text.LinkAnnotation] in
-     * [androidx.compose.foundation.text.BasicText] are enabled.
-     */
-    // TODO: Remove this flag once it has soaked (b/581556315)
-    @field:Suppress("MutableBareField")
-    @JvmField
-    public var isLinkPerformanceOptimizationEnabled: Boolean = true
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */
