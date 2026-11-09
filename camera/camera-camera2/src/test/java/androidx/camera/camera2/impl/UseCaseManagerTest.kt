@@ -981,7 +981,6 @@ class UseCaseManagerTest {
                 camera2CameraControl =
                     Camera2CameraControl.create(
                         FakeCamera2CameraControlCompat(),
-                        checkNotNull(useCaseThreads),
                         ComboRequestListener(),
                     ),
                 cameraStateAdapter = CameraStateAdapter(CameraSessionLifecycleAdapter()),

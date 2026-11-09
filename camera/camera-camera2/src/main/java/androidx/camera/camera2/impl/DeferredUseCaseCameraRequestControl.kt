@@ -23,6 +23,7 @@ import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.Lock3ABehavior
+import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.UseCase
@@ -197,10 +198,11 @@ constructor(
         runningUseCases: Collection<UseCase>,
     ): Deferred<Unit> = runOnSequential { updateRepeatingRequestAsync(isPrimary, runningUseCases) }
 
-    override fun updateCamera2ConfigAsync(config: Config, tags: Map<String, Any>): Deferred<Unit> =
-        runOnSequential {
-            updateCamera2ConfigAsync(config, tags)
-        }
+    override fun updateCamera2ConfigAsync(
+        config: Config,
+        tags: Map<String, Any>,
+        listeners: Set<Request.Listener>,
+    ): Deferred<Unit> = runOnSequential { updateCamera2ConfigAsync(config, tags, listeners) }
 
     override fun setTorchOnAsync(): Deferred<Result3A> = runOnSequential { setTorchOnAsync() }
 

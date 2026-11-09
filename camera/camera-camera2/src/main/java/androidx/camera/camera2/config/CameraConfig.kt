@@ -129,9 +129,8 @@ public abstract class CameraModule {
         @Provides
         public fun provideCamera2CameraControl(
             compat: Camera2CameraControlCompat,
-            threads: UseCaseThreads,
             @VisibleForTesting requestListener: ComboRequestListener,
-        ): Camera2CameraControl = Camera2CameraControl.create(compat, threads, requestListener)
+        ): Camera2CameraControl = Camera2CameraControl.create(compat, requestListener)
 
         @CameraScope
         @Nullable

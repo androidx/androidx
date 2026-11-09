@@ -203,6 +203,7 @@ public class Camera2CameraControlCompatImpl @Inject constructor() : Camera2Camer
                 requestControl.updateCamera2ConfigAsync(
                     config = config,
                     tags = mapOf(TAG_KEY to requestId),
+                    listeners = setOf(this),
                 )
             } else {
                 // If there is no camera for the parameter update, the signal would be treated as a

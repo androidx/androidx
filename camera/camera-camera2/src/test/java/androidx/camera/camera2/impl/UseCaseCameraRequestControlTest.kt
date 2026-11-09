@@ -16,8 +16,10 @@
 
 package androidx.camera.camera2.impl
 
+import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.TotalCaptureResult
 import android.hardware.camera2.params.MeteringRectangle
 import android.util.Range
 import androidx.camera.camera2.adapter.CameraSessionLifecycleAdapter
@@ -33,8 +35,11 @@ import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.METERING_REGIONS_DEFAULT
 import androidx.camera.camera2.pipe.ControlMode
 import androidx.camera.camera2.pipe.FlashMode
+import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.Lock3ABehavior
+import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
@@ -57,7 +62,9 @@ import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.TagBundle
 import androidx.camera.testing.impl.fakes.FakeUseCase
 import com.google.common.truth.Truth.assertThat
+import java.util.ArrayDeque
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 import kotlin.collections.removeLast as removeLastKt
 import kotlin.test.assertFailsWith
@@ -79,6 +86,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
+import org.robolectric.util.ReflectionHelpers
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
@@ -301,6 +309,150 @@ class UseCaseCameraRequestControlTest {
 
         // Assert. All the listeners should receive the onComplete signal.
         assertThat(testCaptureCallback.latch.await(1, TimeUnit.SECONDS)).isTrue()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun updateCamera2ConfigAsync_invokesCaptureCallbacksBeforeRequestListeners(): Unit = runTest {
+        // Arrange: Use deterministic queued executors for both CameraX sequentialExecutor and the
+        // caller's callback/future listener executor to verify strict happens-before ordering.
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val testThreads =
+            UseCaseThreads(this, testDispatcher.asExecutor(), testDispatcher).apply {
+                sequentialScope = this@runTest
+            }
+        val localRequestControl =
+            UseCaseCameraRequestControlImpl(
+                capturePipelineProvider = { FakeCapturePipeline() },
+                useCaseCameraStateProvider = { fakeUseCaseCameraState },
+                useCaseCameraContext = fakeUseCaseCameraContext,
+                useCaseSurfaceManagerProvider = {
+                    FakeUseCaseSurfaceManager(threads = testThreads)
+                },
+                threads = testThreads,
+            )
+
+        val userQueue = ArrayDeque<Runnable>()
+        val userExecutor = Executor { runnable -> userQueue.addLast(runnable) }
+        val executionOrder = mutableListOf<String>()
+
+        val sessionCaptureCallback =
+            object : CameraCaptureCallback() {
+                override fun onCaptureCompleted(
+                    captureConfigId: Int,
+                    cameraCaptureResult: CameraCaptureResult,
+                ) {
+                    executionOrder.add("session_capture_callback")
+                }
+            }
+        val sessionConfig =
+            SessionConfig.Builder()
+                .apply {
+                    setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                    addSurface(surface)
+                    addCameraCaptureCallback(sessionCaptureCallback)
+                }
+                .build()
+
+        val interopRepeatingCallback =
+            object : CameraCaptureSession.CaptureCallback() {
+                override fun onCaptureCompleted(
+                    session: CameraCaptureSession,
+                    request: CaptureRequest,
+                    result: TotalCaptureResult,
+                ) {
+                    userExecutor.execute { executionOrder.add("interop_repeating_callback") }
+                }
+            }
+        val interopFuture = CompletableDeferred<Unit>()
+        interopFuture.invokeOnCompletion {
+            userExecutor.execute { executionOrder.add("interop_future_listener") }
+        }
+        val interopRequestListener =
+            object : Request.Listener {
+                override fun onComplete(
+                    requestMetadata: RequestMetadata,
+                    frameNumber: CameraFrameNumber,
+                    result: FrameInfo,
+                ) {
+                    executionOrder.add("interop_request_listener")
+                    interopFuture.complete(Unit)
+                }
+            }
+
+        val interopConfig =
+            Camera2ImplConfig.Builder()
+                .apply {
+                    setCaptureRequestOption(
+                        CaptureRequest.CONTROL_AE_MODE,
+                        CaptureRequest.CONTROL_AE_MODE_OFF,
+                    )
+                    mutableConfig.insertOption(
+                        Camera2ImplConfig.SESSION_REPEATING_CAPTURE_CALLBACK_OPTION,
+                        interopRepeatingCallback,
+                    )
+                }
+                .build()
+
+        // Act: Apply SessionConfig and Camera2Interop config with completion listener.
+        val sessionDeferred = localRequestControl.setSessionConfigAsync(sessionConfig)
+        val interopDeferred =
+            localRequestControl.updateCamera2ConfigAsync(
+                config = interopConfig,
+                tags = mapOf("Camera2CameraControl.tag" to 1L),
+                listeners = setOf(interopRequestListener),
+            )
+        advanceUntilIdle()
+        sessionDeferred.await()
+        interopDeferred.await()
+
+        val fakeCaptureSession = RejectOperationCameraCaptureSession()
+        val fakeCaptureRequest = ReflectionHelpers.callConstructor(CaptureRequest::class.java)
+        val fakeTotalResult = ReflectionHelpers.callConstructor(TotalCaptureResult::class.java)
+        val baseReqMeta = FakeRequestMetadata()
+        val requestMetadata =
+            object : RequestMetadata by baseReqMeta {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : Any> unwrapAs(type: Class<T>): T? =
+                    when (type) {
+                        CameraCaptureSession::class.java -> fakeCaptureSession as T
+                        CaptureRequest::class.java -> fakeCaptureRequest as T
+                        else -> baseReqMeta.unwrapAs(type)
+                    }
+            }
+        val baseFrameInfo = FakeFrameInfo(requestMetadata = requestMetadata)
+        val frameInfo =
+            object : FrameInfo by baseFrameInfo {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : Any> unwrapAs(type: Class<T>): T? =
+                    if (type == TotalCaptureResult::class.java) fakeTotalResult as T
+                    else baseFrameInfo.unwrapAs(type)
+            }
+
+        // Simulate CameraPipe firing Request.Listener.onComplete on camera2Handler thread BEFORE
+        // sequentialExecutor or userExecutor drains queued tasks.
+        val lastRequest = fakeCameraGraph.fakeCameraGraphSession.repeatingRequests.last()
+        lastRequest.listeners.forEach { listener ->
+            listener.onComplete(requestMetadata, CameraFrameNumber(1L), frameInfo)
+        }
+
+        // Drain CameraX sequentialExecutor, then drain caller's userExecutor FIFO queue.
+        advanceUntilIdle()
+        while (userQueue.isNotEmpty()) {
+            userQueue.removeFirst().run()
+        }
+
+        // Assert: Both SessionConfig callbacks (on sequentialExecutor) and Camera2Interop
+        // repeating callbacks (enqueued on userExecutor synchronously from onComplete) MUST
+        // precede interop_request_listener and interop_future_listener!
+        assertThat(executionOrder)
+            .containsExactly(
+                "session_capture_callback",
+                "interop_request_listener",
+                "interop_repeating_callback",
+                "interop_future_listener",
+            )
+            .inOrder()
     }
 
     @Test
