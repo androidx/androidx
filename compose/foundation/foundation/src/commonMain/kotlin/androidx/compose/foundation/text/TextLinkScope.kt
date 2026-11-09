@@ -23,7 +23,6 @@ import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -42,9 +41,7 @@ import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.UriHandler
-import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.semantics.SemanticsProperties.LinkTestMarker
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
@@ -53,7 +50,6 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
@@ -333,24 +329,7 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
                         )
                     }
 
-                // disable minimum touch target for clipping-to-path to correctly handle the
-                // multi-line links clicking
-                if (ComposeFoundationFlags.isLinkMinimumTouchTargetSizeZeroEnabled) {
-                    val viewConfiguration = LocalViewConfiguration.current
-                    val zeroMinTouchTargetViewConfiguration =
-                        remember(viewConfiguration) {
-                            object : ViewConfiguration by viewConfiguration {
-                                override val minimumTouchTargetSize: DpSize
-                                    get() = DpSize.Zero
-                            }
-                        }
-                    CompositionLocalProvider(
-                        LocalViewConfiguration provides zeroMinTouchTargetViewConfiguration,
-                        content = boxContent,
-                    )
-                } else {
-                    boxContent()
-                }
+                boxContent()
 
                 if (!range.item.styles.isNullOrEmpty()) {
                     // the interaction source is not hoisted, we create and remember it in the
