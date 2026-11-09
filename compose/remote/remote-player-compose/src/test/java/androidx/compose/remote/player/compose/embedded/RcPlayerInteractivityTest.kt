@@ -55,6 +55,7 @@ import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.action.lambdaAction
 import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
@@ -76,6 +77,7 @@ import androidx.compose.remote.creation.compose.modifier.contentDescription
 import androidx.compose.remote.creation.compose.modifier.drawWithContent
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.height
+import androidx.compose.remote.creation.compose.modifier.horizontalScroll
 import androidx.compose.remote.creation.compose.modifier.onTouchCancel
 import androidx.compose.remote.creation.compose.modifier.onTouchDown
 import androidx.compose.remote.creation.compose.modifier.onTouchUp
@@ -130,12 +132,14 @@ import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
@@ -155,6 +159,7 @@ import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -3267,5 +3272,155 @@ class RcPlayerInteractivityTest {
         rule.onNode(hasClickAction()).performClick()
 
         assertThat(actions).containsExactly(7 to "metadata")
+    }
+
+    @Test
+    fun scrollReadsInitialPositionFromState() {
+        rule.setRemoteContent(
+            playComposableWrapper = { Box(modifier = Modifier.size(100.dp)) { it() } }
+        ) {
+            val scrollState = remember { RemoteScrollState(position = 100f, notches = 2) }
+            RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
+                RemoteRow(
+                    modifier = RemoteModifier.size(100.rdp, 80.rdp).horizontalScroll(scrollState)
+                ) {
+                    repeat(3) { page ->
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.size(100.rdp, 80.rdp).semantics {
+                                    contentDescription = "Page$page".rs
+                                }
+                        )
+                    }
+                }
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.width(scrollState.positionState).height(10.rdp).semantics {
+                            contentDescription = "ScrollPosMarker".rs
+                        }
+                )
+            }
+        }
+        rule.waitForIdle()
+
+        assertThat(rule.onNodeWithContentDescription("Page0").getUnclippedBoundsInRoot().left.value)
+            .isWithin(0.5f)
+            .of(-100f)
+        assertThat(rule.onNodeWithContentDescription("Page1").getUnclippedBoundsInRoot().left.value)
+            .isWithin(0.5f)
+            .of(0f)
+        val markerWidth =
+            rule.onNodeWithContentDescription("ScrollPosMarker").getUnclippedBoundsInRoot().let {
+                it.right.value - it.left.value
+            }
+        assertThat(markerWidth).isWithin(0.5f).of(100f)
+    }
+
+    @Test
+    fun scrollRebuiltDocumentWithoutKeyStartsAtNewInitialPosition() {
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+
+            suspend fun captureCarousel(pageCount: Int, initialPositionPx: Float): CoreDocument {
+                val bytes =
+                    captureSingleRemoteDocument(context = context) {
+                            val scrollState = remember {
+                                RemoteScrollState(
+                                    position = initialPositionPx,
+                                    notches = (pageCount - 1).coerceAtLeast(0),
+                                )
+                            }
+                            RemoteRow(
+                                modifier =
+                                    RemoteModifier.size(100.rdp).horizontalScroll(scrollState)
+                            ) {
+                                repeat(pageCount) { page ->
+                                    RemoteBox(
+                                        modifier =
+                                            RemoteModifier.size(100.rdp).semantics {
+                                                contentDescription = "Tile$page".rs
+                                            }
+                                    )
+                                }
+                            }
+                        }
+                        .bytes
+                return CoreDocument().apply {
+                    ByteArrayInputStream(bytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                    }
+                }
+            }
+
+            val docPage1 = captureCarousel(pageCount = 3, initialPositionPx = 0f)
+            val docPage2AfterClose = captureCarousel(pageCount = 2, initialPositionPx = 100f)
+            val docClamped = captureCarousel(pageCount = 2, initialPositionPx = 500f)
+
+            val activeDoc = mutableStateOf(docPage1)
+            rule.setContent {
+                Box(modifier = Modifier.size(100.dp)) {
+                    val doc = activeDoc.value
+                    RcPlayer(state = remember(doc) { RcPlayerState(doc) })
+                }
+            }
+            rule.waitForIdle()
+            assertThat(
+                    rule.onNodeWithContentDescription("Tile0").getUnclippedBoundsInRoot().left.value
+                )
+                .isWithin(0.5f)
+                .of(0f)
+
+            // Rebuilt document asks to start on page 2 (100px) at the same RcPlayer call site.
+            activeDoc.value = docPage2AfterClose
+            rule.waitForIdle()
+            assertThat(
+                    rule.onNodeWithContentDescription("Tile1").getUnclippedBoundsInRoot().left.value
+                )
+                .isWithin(0.5f)
+                .of(0f)
+
+            // Initial position exceeding maxScroll (500px > 100px) clamps to the last page (100px).
+            activeDoc.value = docClamped
+            rule.waitForIdle()
+            assertThat(
+                    rule.onNodeWithContentDescription("Tile1").getUnclippedBoundsInRoot().left.value
+                )
+                .isWithin(0.5f)
+                .of(0f)
+        }
+    }
+
+    @Test
+    fun scrollReadsDensityDependentInitialPositionExpression() {
+        rule.setRemoteContent(
+            playComposableWrapper = {
+                CompositionLocalProvider(LocalDensity provides Density(2f)) {
+                    Box(modifier = Modifier.size(100.dp)) { it() }
+                }
+            }
+        ) {
+            // RemoteDensity.Host.toPx(100.rdp) evaluates to 200px at player density 2.0 (100dp).
+            val scrollState = remember {
+                RemoteScrollState(
+                    positionState = MutableRemoteFloat(RemoteDensity.Host.toPx(100.rdp)),
+                    notches = 0,
+                )
+            }
+            RemoteColumn(modifier = RemoteModifier.size(100.rdp).verticalScroll(scrollState)) {
+                repeat(3) { index ->
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.size(100.rdp).semantics {
+                                contentDescription = "Row$index".rs
+                            }
+                    )
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        assertThat(rule.onNodeWithContentDescription("Row1").getUnclippedBoundsInRoot().top.value)
+            .isWithin(0.5f)
+            .of(0f)
     }
 }

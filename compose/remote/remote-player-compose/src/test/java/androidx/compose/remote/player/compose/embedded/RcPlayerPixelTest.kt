@@ -32,12 +32,15 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
+import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.border
 import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.drawWithContent
+import androidx.compose.remote.creation.compose.modifier.horizontalScroll
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
@@ -792,5 +795,27 @@ class RcPlayerPixelTest {
         val center = Color(bitmap.getPixel(50, 50))
         assertThat(center.green).isGreaterThan(0.8f)
         assertThat(center.blue).isLessThan(0.2f)
+    }
+
+    @Test
+    fun scroll_rendersAtInitialPositionFromState() {
+        rule.setRemoteContent(
+            playComposableWrapper = {
+                Box(modifier = Modifier.size(100.dp).testTag("player")) { it() }
+            }
+        ) {
+            val scrollState = remember { RemoteScrollState(position = 100f, notches = 2) }
+            RemoteRow(modifier = RemoteModifier.size(100.rdp).horizontalScroll(scrollState)) {
+                RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Red.rc))
+                RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Blue.rc))
+                RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Green.rc))
+            }
+        }
+        rule.waitForIdle()
+
+        val bitmap = rule.onNodeWithTag("player").captureToImage().asAndroidBitmap()
+        val center = Color(bitmap.getPixel(50, 50))
+        assertThat(center.blue).isGreaterThan(0.8f)
+        assertThat(center.red).isLessThan(0.2f)
     }
 }
