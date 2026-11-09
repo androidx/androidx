@@ -31,7 +31,7 @@ import org.jspecify.annotations.NonNull;
  *                  enabled. This issue also occurs when only VideoCapture is bound, in which case
  *                  a PRIV stream (for metering repeating) will be bound implicitly. As a result of
  *                  repeating request failure, both preview and video capture will fail.
- *     Device(s): Samsung Galaxy S25, S26, and Fold 7 series
+ *     Device(s): Samsung Galaxy S25, S26, Fold 7, and Fold 8 series
  */
 public class HdrRepeatingRequestFailureQuirk implements Quirk {
 
@@ -43,7 +43,7 @@ public class HdrRepeatingRequestFailureQuirk implements Quirk {
         if (!"samsung".equalsIgnoreCase(Build.BRAND)) {
             return false;
         }
-        return isS25Series() || isS26Series() || isFold7Series();
+        return isS25Series() || isS26Series() || isFold7Series() || isFold8Series();
     }
 
     private static boolean isS25Series() {
@@ -64,6 +64,11 @@ public class HdrRepeatingRequestFailureQuirk implements Quirk {
         String device = Build.DEVICE.toLowerCase();
         return "q7q".equals(device) // Z Fold7 (SM-F966)
                 || "q7mq".equals(device); // Z TriFold (SM-F968)
+    }
+
+    private static boolean isFold8Series() {
+        String device = Build.DEVICE.toLowerCase();
+        return "h8q".equals(device); // Z Fold8 (SM-F971)
     }
 
     /**
