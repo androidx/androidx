@@ -59,6 +59,8 @@ internal interface PlatformMagnifierFactory {
                         "Magnifier is only supported on API level 28 and higher."
                     )
                 }
+                // TODO(b/483128101): Remove once Robolectric can show a Magnifier.
+                isRobolectric -> NoOpPlatformMagnifierFactory
                 Build.VERSION.SDK_INT == 28 -> PlatformMagnifierFactoryApi28Impl
                 else -> PlatformMagnifierFactoryApi29Impl
             }
@@ -187,3 +189,36 @@ internal object PlatformMagnifierFactoryApi29Impl : PlatformMagnifierFactory {
         }
     }
 }
+
+/**
+ * Robolectric can't create the surface that the framework [Magnifier] draws into, so showing one
+ * throws or dismissing one crashes, e.g. when a test double-clicks a text field. Don't show
+ * anything there instead.
+ */
+internal object NoOpPlatformMagnifierFactory : PlatformMagnifierFactory {
+    override val canUpdateZoom: Boolean = true
+
+    override fun create(
+        view: View,
+        useTextDefault: Boolean,
+        size: DpSize,
+        cornerRadius: Dp,
+        elevation: Dp,
+        clippingEnabled: Boolean,
+        density: Density,
+        initialZoom: Float,
+    ): PlatformMagnifier = NoOpPlatformMagnifier
+
+    private object NoOpPlatformMagnifier : PlatformMagnifier {
+        override val size: IntSize = IntSize.Zero
+
+        override fun updateContent() {}
+
+        override fun update(sourceCenter: Offset, magnifierCenter: Offset, zoom: Float) {}
+
+        override fun dismiss() {}
+    }
+}
+
+private val isRobolectric: Boolean
+    get() = Build.FINGERPRINT == "robolectric"
