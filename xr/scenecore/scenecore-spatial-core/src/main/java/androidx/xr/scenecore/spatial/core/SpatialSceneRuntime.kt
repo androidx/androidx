@@ -208,7 +208,6 @@ private constructor(
                     oldState ?: this.activity?.let { xrExtensions.getSpatialState(it) }
                 }!!
             }
-        setSpatialStateCallback()
 
         spatialEnvironmentImpl =
             SpatialEnvironmentImpl(activity, xrExtensions, sceneRootNode, lazySpatialStateProvider)
@@ -239,6 +238,8 @@ private constructor(
         isBoundaryConsentGrantedCache = AtomicBoolean(calculateBoundaryConsentState())
         registerBoundaryConsentStateListener()
         spatialApiVersion = SpatialCoreApiVersionProvider().spatialApiVersion
+
+        setSpatialStateCallback()
     }
 
     override fun configure(config: Config) {
