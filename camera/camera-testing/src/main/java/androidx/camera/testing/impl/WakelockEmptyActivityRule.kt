@@ -16,6 +16,7 @@
 
 package androidx.camera.testing.impl
 
+import android.app.Instrumentation
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -39,8 +40,15 @@ import org.junit.runners.model.Statement
  * By default, all brands will be enabled (brandsToEnable == null). Caller can specify the brand
  * list to enable the rule via the [brandsToEnable] parameter.
  */
-public class WakelockEmptyActivityRule(private val brandsToEnable: List<String>? = null) :
-    TestRule {
+public class WakelockEmptyActivityRule
+internal constructor(
+    private val brandsToEnable: List<String>?,
+    private val clearDeviceUi: (Instrumentation) -> Unit,
+) : TestRule {
+    public constructor(
+        brandsToEnable: List<String>? = null
+    ) : this(brandsToEnable, RequireForegroundRule::clearDeviceUI)
+
     override fun apply(base: Statement, description: Description): Statement =
         object : Statement() {
             override fun evaluate() {
@@ -53,7 +61,16 @@ public class WakelockEmptyActivityRule(private val brandsToEnable: List<String>?
                 }
 
                 val instrumentation = InstrumentationRegistry.getInstrumentation()
-                RequireForegroundRule.clearDeviceUI(instrumentation)
+                try {
+                    clearDeviceUi(instrumentation)
+                } catch (e: IllegalStateException) {
+                    // UiAutomation can fail to connect for the entire instrumentation process
+                    // (e.g. when another UiAutomation client is still registered at startup,
+                    // leaving Instrumentation caching an unconnected UiAutomation instance).
+                    // EmptyActivity's window flags still wake the screen and dismiss the keyguard,
+                    // so continue instead of failing every test in the suite.
+                    Logger.w(TAG, "Failed to clear device UI; continuing with EmptyActivity", e)
+                }
                 var activityRef: EmptyActivity? = null
                 try {
                     activityRef =
@@ -70,7 +87,7 @@ public class WakelockEmptyActivityRule(private val brandsToEnable: List<String>?
                             },
                         )
                 } catch (_: Exception) {
-                    Logger.w("WakelockEmptyActivityRule", "Failed to launch EmptyActivity")
+                    Logger.w(TAG, "Failed to launch EmptyActivity")
                 }
 
                 try {
@@ -83,4 +100,8 @@ public class WakelockEmptyActivityRule(private val brandsToEnable: List<String>?
                 }
             }
         }
+
+    private companion object {
+        private const val TAG = "WakelockEmptyActivityRule"
+    }
 }
