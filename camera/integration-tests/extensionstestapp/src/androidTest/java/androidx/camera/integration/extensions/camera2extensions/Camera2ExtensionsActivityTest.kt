@@ -19,7 +19,6 @@ package androidx.camera.integration.extensions.camera2extensions
 import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.hardware.camera2.CameraExtensionCharacteristics
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.integration.extensions.Camera2ExtensionsActivity
 import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_ID
@@ -32,7 +31,6 @@ import androidx.camera.integration.extensions.util.waitForCaptureSessionConfigur
 import androidx.camera.integration.extensions.util.waitForImageSavedIdle
 import androidx.camera.integration.extensions.util.waitForPreviewIdle
 import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.isCamera2ExtensionModeSupported
-import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.isSamsungGalaxyA52s
 import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
@@ -47,7 +45,6 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.testutils.withActivity
-import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.ClassRule
 import org.junit.Rule
@@ -100,7 +97,6 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
     @Test
     fun canCaptureSingleImage() {
         assumePcsSupportedForImageCapture(context)
-        assumeNoKnownHalCrashForImageCapture()
         val activityScenario =
             launchCamera2ExtensionsActivityAndWaitForCaptureSessionConfigured(config)
         with(activityScenario) { // Launches activity
@@ -132,7 +128,6 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
     @Test
     fun canCaptureImage_afterPauseResume() {
         assumePcsSupportedForImageCapture(context)
-        assumeNoKnownHalCrashForImageCapture()
         val activityScenario =
             launchCamera2ExtensionsActivityAndWaitForCaptureSessionConfigured(config)
         with(activityScenario) { // Launches activity
@@ -152,21 +147,6 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
         }
     }
 
-    /**
-     * Skips image capture tests for the camera and extension mode combinations whose camera HAL is
-     * known to crash when capturing still images.
-     */
-    private fun assumeNoKnownHalCrashForImageCapture() {
-        // The camera HAL of Samsung Galaxy A52s (SM-A528B) intermittently crashes (SIGABRT in
-        // CamX::ImageBuffer::Import) when capturing HDR still images on camera 0 (b/570911697).
-        assumeFalse(
-            "Camera HAL crashes when capturing HDR images on SM-A528B camera 0 (b/570911697)",
-            isSamsungGalaxyA52s() &&
-                config.cameraId == "0" &&
-                config.extensionMode == CameraExtensionCharacteristics.EXTENSION_HDR,
-        )
-    }
-
     private fun launchAutoClosedForegroundActivity(
         activityScenario: ActivityScenario<Camera2ExtensionsActivity>
     ) {
@@ -182,7 +162,6 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
     @Test
     fun canCaptureMultipleImages() {
         assumePcsSupportedForImageCapture(context)
-        assumeNoKnownHalCrashForImageCapture()
         val activityScenario =
             launchCamera2ExtensionsActivityAndWaitForCaptureSessionConfigured(config)
         with(activityScenario) { // Launches activity

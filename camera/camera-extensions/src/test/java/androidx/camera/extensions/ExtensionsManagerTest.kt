@@ -37,6 +37,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
+import org.robolectric.shadows.ShadowBuild
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
@@ -47,6 +48,7 @@ class ExtensionsManagerTest {
 
     @After
     fun tearDown() {
+        ShadowBuild.reset()
         if (::extensionsManager.isInitialized) {
             extensionsManager.shutdown()[10000, TimeUnit.MILLISECONDS]
         }
@@ -83,6 +85,38 @@ class ExtensionsManagerTest {
                 extensionsManager.getEstimatedCaptureLatencyRange(baseCameraSelector, extensionMode)
             )
             .isEqualTo(latencyRange)
+    }
+
+    @Test
+    fun isExtensionAvailable_returnsFalseWhenDisabledByQuirk() = runBlocking {
+        ShadowBuild.setBrand("Samsung")
+        ShadowBuild.setModel("SM-A528B")
+        val cameraInfo =
+            FakeCameraInfoInternal("0").apply {
+                setSupportedExtensions(
+                    setOf(
+                        CameraExtensionCharacteristics.EXTENSION_BOKEH,
+                        CameraExtensionCharacteristics.EXTENSION_AUTOMATIC,
+                    )
+                )
+            }
+        extensionsManager =
+            ExtensionsManager.getInstance(context, createFakeCameraProvider(cameraInfo))
+
+        assertThat(
+                extensionsManager.isExtensionAvailable(
+                    CameraSelector.DEFAULT_BACK_CAMERA,
+                    ExtensionMode.BOKEH,
+                )
+            )
+            .isFalse()
+        assertThat(
+                extensionsManager.isExtensionAvailable(
+                    CameraSelector.DEFAULT_BACK_CAMERA,
+                    ExtensionMode.AUTO,
+                )
+            )
+            .isTrue()
     }
 
     private fun createFakeCameraProvider(cameraInfo: CameraInfo) =

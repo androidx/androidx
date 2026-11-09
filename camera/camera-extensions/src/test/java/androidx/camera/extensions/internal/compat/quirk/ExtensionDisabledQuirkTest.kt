@@ -50,12 +50,16 @@ class ExtensionDisabledQuirkTest {
     }
 
     @Test
-    fun samsungA52s_disablesBokehAndFaceRetouchOnCamera0() {
+    fun samsungA52s_disablesBokehFaceRetouchAndHdrOnCamera0() {
         setDevice(brand = "samsung", model = "SM-A528B")
         assertThat(ExtensionDisabledQuirk.load()).isTrue()
 
         assertThat(disabledModes("0"))
-            .containsExactly(ExtensionMode.BOKEH, ExtensionMode.FACE_RETOUCH)
+            .containsExactly(
+                ExtensionMode.BOKEH,
+                ExtensionMode.FACE_RETOUCH,
+                ExtensionMode.HDR,
+            )
         assertThat(disabledModes("1")).isEmpty()
     }
 
@@ -80,12 +84,14 @@ class ExtensionDisabledQuirkTest {
     }
 
     @Test
-    fun samsungZFold5_disablesAutoOnCamera1() {
+    fun samsungZFold5_disablesAutoOnCamera1AndCamera3() {
         setDevice(brand = "samsung", model = "SM-F946U1")
         assertThat(ExtensionDisabledQuirk.load()).isTrue()
 
         assertThat(disabledModes("1")).containsExactly(ExtensionMode.AUTO)
+        assertThat(disabledModes("3")).containsExactly(ExtensionMode.AUTO)
         assertThat(disabledModes("0")).isEmpty()
+        assertThat(disabledModes("2")).isEmpty()
     }
 
     @Test

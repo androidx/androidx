@@ -25,6 +25,7 @@ import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.launchCameraExtensionsActivity
 import androidx.camera.integration.extensions.util.takePictureAndWaitForImageSavedIdle
 import androidx.camera.integration.extensions.util.waitForPreviewViewStreaming
+import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.integration.extensions.utils.ExtensionModeUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
@@ -81,7 +82,7 @@ class SwitchCameraStressTest(private val extensionMode: Int) {
 
                     val isBackCameraSupported =
                         extensionsManager.isExtensionAvailable(
-                            CameraSelector.DEFAULT_BACK_CAMERA,
+                            CameraSelectorUtil.createCameraSelectorById(DEFAULT_BACK_CAMERA_ID),
                             extensionMode,
                         )
                     val isFrontCameraSupported =

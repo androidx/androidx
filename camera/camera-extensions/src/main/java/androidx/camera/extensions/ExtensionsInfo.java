@@ -204,7 +204,7 @@ final class ExtensionsInfo {
         String id = getExtendedCameraConfigProviderId(mode);
 
         VendorExtender vendorExtender = getVendorExtender(mode);
-        filter = new ExtensionCameraFilter(id, vendorExtender, mode);
+        filter = new ExtensionCameraFilter(id, vendorExtender);
         return filter;
     }
 

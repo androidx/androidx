@@ -33,6 +33,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
 import kotlinx.coroutines.runBlocking
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -78,6 +79,7 @@ class Camera2ExtensionsCapabilitiesTest(private val config: CameraIdExtensionMod
 
     @Test
     fun getAvailableCaptureRequestKeys_supportsZoom_after1_3() {
+        assumeCaptureRequestKeysPopulated()
         val keys = extensionsCharacteristics.getAvailableCaptureRequestKeys(config.extensionMode)
         Truth.assertThat(keys)
             .containsAnyOf(CaptureRequest.CONTROL_ZOOM_RATIO, CaptureRequest.SCALER_CROP_REGION)
@@ -85,6 +87,7 @@ class Camera2ExtensionsCapabilitiesTest(private val config: CameraIdExtensionMod
 
     @Test
     fun getAvailableCaptureRequestKeys_supportsAutoFocus_after1_3() {
+        assumeCaptureRequestKeysPopulated()
         // Assume this is not a fixed lens
         val minFocusDistance =
             characteristics.get(CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE)
@@ -109,5 +112,16 @@ class Camera2ExtensionsCapabilitiesTest(private val config: CameraIdExtensionMod
 
         val keys = extensionsCharacteristics.getAvailableCaptureResultKeys(config.extensionMode)
         Truth.assertThat(keys).contains(CaptureResult.CONTROL_AF_STATE)
+    }
+
+    private fun assumeCaptureRequestKeysPopulated() {
+        // Motorola Razr Plus 2024 OEM Night extension implementation omits zoom and CONTROL_AF_*
+        // keys from getAvailableCaptureRequestKeys (b/579703647).
+        assumeFalse(
+            "Razr+ 2024 Night omits zoom/AF request keys (b/579703647)",
+            config.extensionMode == CameraExtensionCharacteristics.EXTENSION_NIGHT &&
+                "motorola".equals(Build.BRAND, ignoreCase = true) &&
+                "motorola razr plus 2024".equals(Build.MODEL, ignoreCase = true),
+        )
     }
 }
