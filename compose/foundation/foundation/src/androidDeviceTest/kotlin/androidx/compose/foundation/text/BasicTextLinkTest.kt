@@ -53,6 +53,7 @@ import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.UriHandler
+import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -91,12 +92,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -125,9 +128,20 @@ class BasicTextLinkTest {
     private val Url2 = "link2"
     private val Url3 = "link3"
 
+    @OptIn(ExperimentalFoundationApi::class) private var initialLinkTouchTargetFlag: Boolean = true
+
+    @OptIn(ExperimentalFoundationApi::class)
     @Before
     fun setup() {
+        initialLinkTouchTargetFlag = ComposeFoundationFlags.isLinkMinimumTouchTargetSizeZeroEnabled
+        ComposeFoundationFlags.isLinkMinimumTouchTargetSizeZeroEnabled = true
         openedUri = null
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @After
+    fun teardown() {
+        ComposeFoundationFlags.isLinkMinimumTouchTargetSizeZeroEnabled = initialLinkTouchTargetFlag
     }
 
     @Test
@@ -1238,22 +1252,7 @@ class BasicTextLinkTest {
                  * +-----------------------+ | text link text a long | | link text | | text link | |
                  * [ ] | +-----------------------+
                  */
-                val style =
-                    TextStyle(
-                        fontSize = fontSize,
-                        fontFamily = TEST_FONT_FAMILY,
-                        // Lines at least as tall as the minimum touch target make the link Boxes
-                        // big enough to not need touch target expansion. With shorter lines, the
-                        // expanded touch target of a link covers text on the adjacent lines.
-                        lineHeight =
-                            LocalViewConfiguration.current.minimumTouchTargetSize.height.toSp(),
-                        // don't trim the first and the last lines below the line height
-                        lineHeightStyle =
-                            LineHeightStyle(
-                                alignment = LineHeightStyle.Alignment.Center,
-                                trim = LineHeightStyle.Trim.None,
-                            ),
-                    )
+                val style = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY)
 
                 val text = buildAnnotatedString {
                     append("text ")
@@ -1392,4 +1391,11 @@ class BasicTextLinkTest {
         val linkBounds = getFirstLinkBounds(predicate)
         return this.performTouchInput { block(linkBounds!!.center) }
     }
+}
+
+private class DelegatedViewConfiguration(
+    delegate: ViewConfiguration,
+    minimumTouchTargetSizeOverride: DpSize,
+) : ViewConfiguration by delegate {
+    override val minimumTouchTargetSize: DpSize = minimumTouchTargetSizeOverride
 }

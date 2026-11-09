@@ -238,6 +238,16 @@ public object ComposeFoundationFlags {
     public var isMouseSelectionBetweenTextEnabled: Boolean = true
 
     /**
+     * Disable minimum touch target expansion for inline links. Touch target expansion for
+     * multi-line links causes incorrect clicks on plain text on the same lines because it uses
+     * layout bounds (bounding box of multi-line path) instead of clipped shape.
+     */
+    // TODO: b/522377028
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isLinkMinimumTouchTargetSizeZeroEnabled: Boolean = false
+
+    /**
      * This flag controls the fix where draggable was ignoring and not consuming zero delta events.
      * This caused issues with the gesture pickup feature. When this flag is enabled, zero delta
      * events will be consumed (after a drag gesture has started).
