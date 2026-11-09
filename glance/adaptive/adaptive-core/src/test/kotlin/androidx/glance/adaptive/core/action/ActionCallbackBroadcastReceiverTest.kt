@@ -16,21 +16,35 @@
 
 package androidx.glance.adaptive.core.action
 
+import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
+import android.os.Looper
+import android.util.Log
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withTimeout
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import org.robolectric.shadow.api.Shadow
+import org.robolectric.shadows.ShadowBroadcastPendingResult
+import org.robolectric.shadows.ShadowLog
 
 @Config(sdk = [Config.TARGET_SDK])
 @RunWith(RobolectricTestRunner::class)
@@ -42,6 +56,9 @@ class ActionCallbackBroadcastReceiverTest {
     fun setUp() {
         RecordingCallback.reset()
         NonCallbackClass.instantiated = false
+        HangingCallback.started = false
+        HangingCallback.cancelled = false
+        AlmostTimeoutCallback.completed = false
     }
 
     @Test
@@ -142,6 +159,53 @@ class ActionCallbackBroadcastReceiverTest {
         )
     }
 
+    @Test
+    fun onReceive_whenCallbackExceedsTimeout_cancelsItLogsErrorAndFinishesBroadcast() {
+        val scheduler = TestCoroutineScheduler()
+        val receiver = ActionCallbackBroadcastReceiver(StandardTestDispatcher(scheduler))
+
+        sendBroadcast(receiver, GlanceWidgetAction.Callback(HangingCallback::class.java))
+        scheduler.advanceTimeBy(OnActionTimeout - 1.milliseconds)
+
+        assertThat(HangingCallback.started).isTrue()
+        assertThat(HangingCallback.cancelled).isFalse()
+        assertThat(receiver.isBroadcastFinished()).isFalse()
+
+        scheduler.advanceTimeBy(1.milliseconds)
+        scheduler.runCurrent()
+
+        assertThat(HangingCallback.cancelled).isTrue()
+        assertThat(receiver.isBroadcastFinished()).isTrue()
+        val errors = receiverErrorLogs()
+        assertThat(errors).hasSize(1)
+        assertThat(errors[0].msg).contains("did not complete within $OnActionTimeout")
+    }
+
+    @Test
+    fun onReceive_whenCallbackOwnTimeoutExpires_doesNotReportLibraryTimeout() {
+        val scheduler = TestCoroutineScheduler()
+        val receiver = ActionCallbackBroadcastReceiver(StandardTestDispatcher(scheduler))
+
+        sendBroadcast(receiver, GlanceWidgetAction.Callback(OwnTimeoutCallback::class.java))
+        scheduler.advanceUntilIdle()
+
+        assertThat(receiver.isBroadcastFinished()).isTrue()
+        assertThat(receiverErrorLogs()).isEmpty()
+    }
+
+    @Test
+    fun onReceive_whenCallbackFinishesJustUnderTimeout_completesItWithoutLogging() {
+        val scheduler = TestCoroutineScheduler()
+        val receiver = ActionCallbackBroadcastReceiver(StandardTestDispatcher(scheduler))
+
+        sendBroadcast(receiver, GlanceWidgetAction.Callback(AlmostTimeoutCallback::class.java))
+        scheduler.advanceUntilIdle()
+
+        assertThat(AlmostTimeoutCallback.completed).isTrue()
+        assertThat(receiver.isBroadcastFinished()).isTrue()
+        assertThat(receiverErrorLogs()).isEmpty()
+    }
+
     private fun callbackIntent(
         action: GlanceWidgetAction.Callback,
         widgetName: String,
@@ -153,6 +217,34 @@ class ActionCallbackBroadcastReceiverTest {
             .onReceive(context, intent)
         testScheduler.advanceUntilIdle()
     }
+
+    /** Delivers a broadcast for [action] to [receiver] like the platform, with a pending result. */
+    // Registered only to receive a broadcast sent by this test, so no export flag is needed.
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
+    private fun sendBroadcast(
+        receiver: ActionCallbackBroadcastReceiver,
+        action: GlanceWidgetAction.Callback,
+    ) {
+        context.registerReceiver(
+            receiver,
+            IntentFilter(ActionCallbackBroadcastReceiver.ACTION_TRIGGER_CALLBACK),
+        )
+        // Without a component or data URI, so that it matches the filter registered above.
+        val intent =
+            callbackIntent(action, widgetName = "widget", widgetId = null)
+                .setComponent(null)
+                .setData(null)
+        context.sendBroadcast(intent)
+        shadowOf(Looper.getMainLooper()).idle()
+    }
+
+    private fun ActionCallbackBroadcastReceiver.isBroadcastFinished(): Boolean =
+        Shadow.extract<ShadowBroadcastPendingResult>(shadowOf(this).originalPendingResult)
+            .future
+            .isDone
+
+    private fun receiverErrorLogs(): List<ShadowLog.LogItem> =
+        ShadowLog.getLogsForTag("GlanceActionReceiver").filter { it.type == Log.ERROR }
 
     data class Invocation(val widgetName: String, val widgetId: String?, val parameters: Bundle)
 
@@ -183,6 +275,57 @@ class ActionCallbackBroadcastReceiverTest {
             parameters: Bundle,
         ) {
             throw IllegalStateException("Simulated callback failure")
+        }
+    }
+
+    /** Suspends until cancelled. */
+    class HangingCallback : GlanceAdaptiveActionCallback {
+        override suspend fun onAction(
+            context: Context,
+            widgetName: String,
+            widgetId: String?,
+            parameters: Bundle,
+        ) {
+            started = true
+            try {
+                awaitCancellation()
+            } finally {
+                cancelled = true
+            }
+        }
+
+        companion object {
+            var started = false
+            var cancelled = false
+        }
+    }
+
+    /** Lets its own, shorter, withTimeout expire. */
+    class OwnTimeoutCallback : GlanceAdaptiveActionCallback {
+        override suspend fun onAction(
+            context: Context,
+            widgetName: String,
+            widgetId: String?,
+            parameters: Bundle,
+        ) {
+            withTimeout(1.seconds) { awaitCancellation() }
+        }
+    }
+
+    /** Returns just before [OnActionTimeout]. */
+    class AlmostTimeoutCallback : GlanceAdaptiveActionCallback {
+        override suspend fun onAction(
+            context: Context,
+            widgetName: String,
+            widgetId: String?,
+            parameters: Bundle,
+        ) {
+            delay(OnActionTimeout - 1.milliseconds)
+            completed = true
+        }
+
+        companion object {
+            var completed = false
         }
     }
 

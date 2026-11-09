@@ -26,9 +26,10 @@ import androidx.annotation.RestrictTo
  * Implementations must have a public zero-argument constructor so the runtime can instantiate them
  * when a [GlanceWidgetAction.Callback] triggers.
  *
- * [onAction] runs on a background thread within the lifetime of the click broadcast, so it must
- * finish within a few seconds (the system limit is about 10 seconds). Hand off longer work, for
- * example to a foreground service or a job.
+ * [onAction] runs on a background thread while the click broadcast is handled, which the system
+ * gives 10 seconds to finish. If [onAction] has not returned after 9 seconds, it is cancelled and
+ * an error is logged. Cancellation can only stop suspending calls, so avoid blocking ones. Hand off
+ * longer work, for example to a foreground service or a job.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface GlanceAdaptiveActionCallback {
