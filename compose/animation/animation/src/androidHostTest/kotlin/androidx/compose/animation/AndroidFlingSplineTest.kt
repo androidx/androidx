@@ -16,9 +16,7 @@
 
 package androidx.compose.animation
 
-import androidx.compose.ui.unit.Density
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -37,23 +35,5 @@ class AndroidFlingSplineTest {
 
         assertEquals(controlEnd, AndroidFlingSpline.flingPosition(1.5f))
         assertEquals(controlEnd, AndroidFlingSpline.flingPosition(10f))
-    }
-
-    @Test
-    fun flingCalculatorNanosecondPrecision() {
-        val calculator = FlingCalculator(friction = 0.015f, density = Density(1f))
-        val info = calculator.flingInfo(1000f)
-        val durationNanos = calculator.flingDurationNanos(1000f)
-        val posAt0 = info.positionFromNanos(0L)
-        val posAtHalfMs = info.positionFromNanos(500_000L)
-        val velAt0 = info.velocityFromNanos(0L)
-        val velAfterFirstSegment = info.velocityFromNanos(durationNanos / 100 + 100L)
-
-        assertTrue(posAtHalfMs > posAt0)
-        assertTrue(velAfterFirstSegment < velAt0)
-        assertTrue(durationNanos % 1_000_000L != 0L)
-        assertEquals(durationNanos, info.duration)
-        assertEquals(calculator.flingDuration(1000f), durationNanos / 1_000_000L)
-        assertEquals(velAt0, info.velocity(0L), 1f)
     }
 }

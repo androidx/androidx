@@ -24,9 +24,6 @@ import kotlin.math.sign
 /** Earth's gravity in SI units (m/s^2); used to compute deceleration based on friction. */
 private const val GravityEarth = 9.80665f
 private const val InchesPerMeter = 39.37f
-private const val SecondsToMillis = 1_000L
-private const val SecondsToNanos = 1_000_000_000L
-private const val MillisToNanos = 1_000_000L
 
 /**
  * The default rate of deceleration for a fling if not specified in the [FlingCalculator]
@@ -59,13 +56,10 @@ internal class FlingCalculator(private val friction: Float, val density: Density
         AndroidFlingSpline.deceleration(velocity, friction * magicPhysicalCoefficient)
 
     /** Compute the duration in milliseconds of a fling with an initial velocity of [velocity] */
-    fun flingDuration(velocity: Float): Long = flingDurationNanos(velocity) / MillisToNanos
-
-    /** Compute the duration in nanoseconds of a fling with an initial velocity of [velocity] */
-    fun flingDurationNanos(velocity: Float): Long {
+    fun flingDuration(velocity: Float): Long {
         val l = getSplineDeceleration(velocity)
         val decelMinusOne = DecelerationRate - 1.0
-        return (SecondsToNanos.toDouble() * exp(l / decelMinusOne)).toLong()
+        return (1000.0 * exp(l / decelMinusOne)).toLong()
     }
 
     /** Compute the distance of a fling in units given an initial [velocity] of units/second */
@@ -85,36 +79,27 @@ internal class FlingCalculator(private val friction: Float, val density: Density
             distance =
                 (friction * magicPhysicalCoefficient * exp(DecelerationRate / decelMinusOne * l))
                     .toFloat(),
-            duration = (SecondsToNanos.toDouble() * exp(l / decelMinusOne)).toLong(),
+            duration = (1000.0 * exp(l / decelMinusOne)).toLong(),
         )
     }
 
     /**
      * Info about a fling started with [initialVelocity]. The units of [initialVelocity] determine
-     * the distance units of [distance]. [duration] is in nanoseconds.
+     * the distance units of [distance] and the time units of [duration].
      */
     data class FlingInfo(val initialVelocity: Float, val distance: Float, val duration: Long) {
-        fun position(time: Long): Float = position(time, duration / MillisToNanos)
-
-        fun velocity(time: Long): Float = velocity(time, duration / MillisToNanos, SecondsToMillis)
-
-        fun positionFromNanos(timeNanos: Long): Float = position(timeNanos, duration)
-
-        fun velocityFromNanos(timeNanos: Long): Float =
-            velocity(timeNanos, duration, SecondsToNanos)
-
-        private fun position(time: Long, duration: Long): Float {
-            val splinePos = if (duration > 0) (time.toDouble() / duration).toFloat() else 1f
+        fun position(time: Long): Float {
+            val splinePos = if (duration > 0) time / duration.toFloat() else 1f
             return distance *
                 sign(initialVelocity) *
                 AndroidFlingSpline.flingPosition(splinePos).distanceCoefficient
         }
 
-        private fun velocity(time: Long, duration: Long, secondsMultiplier: Long): Float {
-            val splinePos = if (duration > 0) (time.toDouble() / duration).toFloat() else 1f
+        fun velocity(time: Long): Float {
+            val splinePos = if (duration > 0) time / duration.toFloat() else 1f
             return AndroidFlingSpline.flingPosition(splinePos).velocityCoefficient *
                 sign(initialVelocity) *
-                distance / duration * secondsMultiplier
+                distance / duration * 1000.0f
         }
     }
 }

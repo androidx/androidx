@@ -106,33 +106,4 @@ class DecayAnimationTest {
 
         assertEquals(finishValue, finishValue2, 2f)
     }
-
-    @OptIn(ExperimentalAnimationSpecApi::class)
-    @Test
-    fun nanosecondPrecisionAndFlag() {
-        val spec = FloatExponentialDecaySpec()
-        try {
-            ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled = true
-            val valAt0 = spec.getValueFromNanos(0L, 0f, 1000f)
-            val valAtHalfMs = spec.getValueFromNanos(500_000L, 0f, 1000f)
-            val velAt0 = spec.getVelocityFromNanos(0L, 0f, 1000f)
-            val velAtHalfMs = spec.getVelocityFromNanos(500_000L, 0f, 1000f)
-            val durationNanosEnabled = spec.getDurationNanos(0f, 1000f)
-            assertTrue(valAtHalfMs > valAt0)
-            assertTrue(velAtHalfMs < velAt0)
-            assertTrue(durationNanosEnabled % MillisToNanos != 0L)
-            assertEquals(0L, spec.getDurationNanos(0f, 0f))
-
-            ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled = false
-            val valAtHalfMsDisabled = spec.getValueFromNanos(500_000L, 0f, 1000f)
-            val velAtHalfMsDisabled = spec.getVelocityFromNanos(500_000L, 0f, 1000f)
-            val durationNanosDisabled = spec.getDurationNanos(0f, 1000f)
-            assertEquals(valAt0, valAtHalfMsDisabled)
-            assertEquals(velAt0, velAtHalfMsDisabled)
-            assertEquals(0L, durationNanosDisabled % MillisToNanos)
-            assertEquals(0L, spec.getDurationNanos(0f, 0f))
-        } finally {
-            ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled = true
-        }
-    }
 }
