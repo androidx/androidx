@@ -188,8 +188,8 @@ public object GlimmerHorizontalPagerDefaults {
      * total pages using a dot-based visual style
      *
      * The color of the dot indicating the currently selected page is extracted by retrieving the
-     * content color from the nearest [surface], while the remaining dots are the content color with
-     * an alpha of [UnselectedIndicatorAlpha] applied. To provide custom colors, see the overload of
+     * content color from the nearest [surface], while the remaining dots use a less prominent,
+     * opaque shade of the content color. To provide custom colors, see the overload of
      * [PageIndicator] with additional color parameters
      *
      * @param state state object to be used to observe the Pager's state
@@ -219,9 +219,7 @@ public object GlimmerHorizontalPagerDefaults {
      *
      * @param state state object to be used to observe the Pager's state
      * @param selectedIndicatorColor color of the selected page indicator dot
-     * @param unselectedIndicatorColor color of the unselected page indicator dots. This value
-     *   should typically be the [selectedIndicatorColor] with the alpha [UnselectedIndicatorAlpha]
-     *   applied
+     * @param unselectedIndicatorColor color of the unselected page indicator dots
      * @param modifier modifier to be applied to the page indicator
      */
     @Composable
@@ -242,12 +240,6 @@ public object GlimmerHorizontalPagerDefaults {
                 )
         )
     }
-
-    /**
-     * The alpha that is applied to the selected page indicator dot color, to color the remaining
-     * (unselected) page indicator dots
-     */
-    public val UnselectedIndicatorAlpha: Float = 0.3f
 }
 
 /** The minimum scale applied to a page when it is scrolled away from the snapped position. */
