@@ -194,16 +194,6 @@ public object RemoteTextToggleButtonDefaults {
         RemoteTextToggleButtonShapes(uncheckedShape = shape)
 
     /**
-     * Creates a [RemoteTextToggleButtonShapes] where the toggle button changes from [shape] to
-     * [checkedShape] when checked.
-     *
-     * @return a [RemoteTextToggleButtonShapes] with the default unchecked and checked shapes
-     */
-    @Composable
-    public fun variantShapes(): RemoteTextToggleButtonShapes =
-        RemoteTextToggleButtonShapes(uncheckedShape = shape, checkedShape = checkedShape)
-
-    /**
      * Creates a [RemoteTextToggleButtonShapes] where the toggle button changes from
      * [uncheckedShape] to [checkedShape] when checked.
      *
@@ -216,22 +206,10 @@ public object RemoteTextToggleButtonDefaults {
      */
     @Composable
     public fun variantShapes(
-        uncheckedShape: RemoteCornerBasedShape? = null,
-        checkedShape: RemoteCornerBasedShape? = null,
+        uncheckedShape: RemoteCornerBasedShape = shape,
+        checkedShape: RemoteCornerBasedShape = this.checkedShape,
     ): RemoteTextToggleButtonShapes =
-        RemoteTextToggleButtonShapes(
-            uncheckedShape = uncheckedShape ?: shape,
-            checkedShape = checkedShape ?: this.checkedShape,
-        )
-
-    /**
-     * Creates a [RemoteTextToggleButtonShapes] with a static [shape] that animates to
-     * [pressedShape] when pressed.
-     *
-     * @return a [RemoteTextToggleButtonShapes] with the default resting and pressed shapes
-     */
-    @Composable
-    public fun animatedShapes(): RemoteTextToggleButtonShapes = animatedShapes(shape = null)
+        RemoteTextToggleButtonShapes(uncheckedShape = uncheckedShape, checkedShape = checkedShape)
 
     /**
      * Creates a [RemoteTextToggleButtonShapes] with a static [shape] that animates to
@@ -246,28 +224,15 @@ public object RemoteTextToggleButtonDefaults {
      */
     @Composable
     public fun animatedShapes(
-        shape: RemoteCornerBasedShape? = null,
-        pressedShape: RemoteCornerBasedShape? = null,
-    ): RemoteTextToggleButtonShapes {
-        val restingShape = shape ?: this.shape
-        val pressed = pressedShape ?: this.pressedShape
-        return RemoteTextToggleButtonShapes(
-            uncheckedShape = restingShape,
-            checkedShape = restingShape,
-            uncheckedPressedShape = pressed,
-            checkedPressedShape = pressed,
+        shape: RemoteCornerBasedShape = this.shape,
+        pressedShape: RemoteCornerBasedShape = this.pressedShape,
+    ): RemoteTextToggleButtonShapes =
+        RemoteTextToggleButtonShapes(
+            uncheckedShape = shape,
+            checkedShape = shape,
+            uncheckedPressedShape = pressedShape,
+            checkedPressedShape = pressedShape,
         )
-    }
-
-    /**
-     * Creates a [RemoteTextToggleButtonShapes] where the toggle button changes from [shape] to
-     * [checkedShape] when checked, and animates to a shape with smaller corners when pressed.
-     *
-     * @return a [RemoteTextToggleButtonShapes] with the default checked and pressed animated shapes
-     */
-    @Composable
-    public fun variantAnimatedShapes(): RemoteTextToggleButtonShapes =
-        variantAnimatedShapes(uncheckedShape = null)
 
     /**
      * Creates a [RemoteTextToggleButtonShapes] where the toggle button changes from
@@ -285,18 +250,15 @@ public object RemoteTextToggleButtonDefaults {
      */
     @Composable
     public fun variantAnimatedShapes(
-        uncheckedShape: RemoteCornerBasedShape? = null,
-        checkedShape: RemoteCornerBasedShape? = null,
-    ): RemoteTextToggleButtonShapes {
-        val unchecked = uncheckedShape ?: shape
-        val checked = checkedShape ?: this.checkedShape
-        return RemoteTextToggleButtonShapes(
-            uncheckedShape = unchecked,
-            checkedShape = checked,
-            uncheckedPressedShape = unchecked.scaleCorners(PressedShapeCornerSizeFraction),
-            checkedPressedShape = checked.scaleCorners(PressedShapeCornerSizeFraction),
+        uncheckedShape: RemoteCornerBasedShape = shape,
+        checkedShape: RemoteCornerBasedShape = this.checkedShape,
+    ): RemoteTextToggleButtonShapes =
+        RemoteTextToggleButtonShapes(
+            uncheckedShape = uncheckedShape,
+            checkedShape = checkedShape,
+            uncheckedPressedShape = uncheckedShape.scaleCorners(PressedShapeCornerSizeFraction),
+            checkedPressedShape = checkedShape.scaleCorners(PressedShapeCornerSizeFraction),
         )
-    }
 
     /**
      * Creates a [RemoteTextToggleButtonColors] for a [RemoteTextToggleButton] - by default, a
