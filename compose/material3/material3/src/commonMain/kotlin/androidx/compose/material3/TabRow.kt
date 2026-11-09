@@ -593,13 +593,14 @@ private fun ScrollableTabRowImpl(
                     )
 
                 var left = edgePadding
-                val tabPlaceables = tabMeasurables.fastMap { it.measure(tabConstraints) }
                 // Get indicator widths based on incoming content size, not based on forced minimum
-                // width applied below.
+                // width applied below. Query intrinsics before measuring so onIntrinsicsQueried()
+                // does not mark the measured LayoutNodes as measurePending.
                 val indicatorWidth = mutableIntListOf()
                 tabMeasurables.fastForEach {
                     indicatorWidth.add(it.maxIntrinsicWidth(Constraints.Infinity))
                 }
+                val tabPlaceables = tabMeasurables.fastMap { it.measure(tabConstraints) }
 
                 val positions =
                     List(tabCount) { index ->
@@ -780,17 +781,6 @@ private fun TabRowWithSubcomposeImpl(
                     maxOf(curr.maxIntrinsicHeight(tabWidth), max)
                 }
 
-            val tabPlaceables = tabMeasurables.fastMap {
-                it.measure(
-                    constraints.copy(
-                        minWidth = tabWidth,
-                        maxWidth = tabWidth,
-                        minHeight = tabRowHeight,
-                        maxHeight = tabRowHeight,
-                    )
-                )
-            }
-
             val tabPositions =
                 List(tabCount) { index ->
                     var contentWidth =
@@ -801,6 +791,17 @@ private fun TabRowWithSubcomposeImpl(
                     val indicatorWidth = maxOf(contentWidth, 24.dp)
                     TabPosition(tabWidth.toDp() * index, tabWidth.toDp(), indicatorWidth)
                 }
+
+            val tabPlaceables = tabMeasurables.fastMap {
+                it.measure(
+                    constraints.copy(
+                        minWidth = tabWidth,
+                        maxWidth = tabWidth,
+                        minHeight = tabRowHeight,
+                        maxHeight = tabRowHeight,
+                    )
+                )
+            }
 
             layout(tabRowWidth, tabRowHeight) {
                 tabPlaceables.fastForEachIndexed { index, placeable ->
@@ -873,9 +874,9 @@ private fun ScrollableTabRowWithSubcomposeImpl(
             val tabPlaceables = mutableListOf<Placeable>()
             val tabContentWidths = mutableListOf<Dp>()
             tabMeasurables.fastForEach {
+                val maxIntrinsicWidth = it.maxIntrinsicWidth(layoutHeight)
                 val placeable = it.measure(tabConstraints)
-                var contentWidth =
-                    minOf(it.maxIntrinsicWidth(placeable.height), placeable.width).toDp()
+                var contentWidth = minOf(maxIntrinsicWidth, placeable.width).toDp()
                 contentWidth -= HorizontalTextPadding * 2
                 tabPlaceables.add(placeable)
                 tabContentWidths.add(contentWidth)

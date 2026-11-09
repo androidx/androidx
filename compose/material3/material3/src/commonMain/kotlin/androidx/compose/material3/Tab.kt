@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.material3.internal.layoutId
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.PrimaryNavigationTabTokens
 import androidx.compose.runtime.Composable
@@ -40,16 +41,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.FirstBaseline
+import androidx.compose.ui.layout.IntrinsicMeasurable
+import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.util.fastFirst
+import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.math.max
 
 /**
@@ -296,28 +304,38 @@ private fun TabTransition(
  */
 @Composable
 private fun TabBaselineLayout(text: @Composable (() -> Unit)?, icon: @Composable (() -> Unit)?) {
-    Layout({
-        if (text != null) {
-            Box(Modifier.layoutId("text").padding(horizontal = HorizontalTextPadding)) { text() }
-        }
-        if (icon != null) {
-            Box(Modifier.layoutId("icon")) { icon() }
-        }
-    }) { measurables, constraints ->
-        val textPlaceable = text?.let {
+    Layout(
+        content = {
+            if (text != null) {
+                Box(Modifier.layoutId("text").padding(horizontal = HorizontalTextPadding)) {
+                    text()
+                }
+            }
+            if (icon != null) {
+                Box(Modifier.layoutId("icon")) { icon() }
+            }
+        },
+        measurePolicy = TabBaselineLayoutMeasurePolicy,
+    )
+}
+
+private object TabBaselineLayoutMeasurePolicy : MeasurePolicy {
+    override fun MeasureScope.measure(
+        measurables: List<Measurable>,
+        constraints: Constraints,
+    ): MeasureResult {
+        val textPlaceable =
             measurables
-                .fastFirst { it.layoutId == "text" }
-                .measure(
+                .fastFirstOrNull { it.layoutId == "text" }
+                ?.measure(
                     // Measure with loose constraints for height as we don't want the text to
                     // take up more
                     // space than it needs
                     constraints.copy(minHeight = 0)
                 )
-        }
 
-        val iconPlaceable = icon?.let {
-            measurables.fastFirst { it.layoutId == "icon" }.measure(constraints)
-        }
+        val iconPlaceable =
+            measurables.fastFirstOrNull { it.layoutId == "icon" }?.measure(constraints)
 
         val tabWidth = max(textPlaceable?.width ?: 0, iconPlaceable?.width ?: 0)
 
@@ -340,11 +358,11 @@ private fun TabBaselineLayout(text: @Composable (() -> Unit)?, icon: @Composable
         val firstBaseline = textPlaceable?.get(FirstBaseline)
         val lastBaseline = textPlaceable?.get(LastBaseline)
 
-        layout(tabWidth, tabHeight) {
+        return layout(tabWidth, tabHeight) {
             when {
                 textPlaceable != null && iconPlaceable != null ->
                     placeTextAndIcon(
-                        density = this@Layout,
+                        density = this@measure,
                         textPlaceable = textPlaceable,
                         iconPlaceable = iconPlaceable,
                         tabWidth = tabWidth,
@@ -357,6 +375,66 @@ private fun TabBaselineLayout(text: @Composable (() -> Unit)?, icon: @Composable
                 else -> {}
             }
         }
+    }
+
+    override fun IntrinsicMeasureScope.minIntrinsicWidth(
+        measurables: List<IntrinsicMeasurable>,
+        height: Int,
+    ): Int =
+        max(
+            measurables.fastFirstOrNull { it.layoutId == "text" }?.minIntrinsicWidth(height) ?: 0,
+            measurables.fastFirstOrNull { it.layoutId == "icon" }?.minIntrinsicWidth(height) ?: 0,
+        )
+
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+        measurables: List<IntrinsicMeasurable>,
+        height: Int,
+    ): Int =
+        max(
+            measurables.fastFirstOrNull { it.layoutId == "text" }?.maxIntrinsicWidth(height) ?: 0,
+            measurables.fastFirstOrNull { it.layoutId == "icon" }?.maxIntrinsicWidth(height) ?: 0,
+        )
+
+    override fun IntrinsicMeasureScope.minIntrinsicHeight(
+        measurables: List<IntrinsicMeasurable>,
+        width: Int,
+    ): Int {
+        val textMeasurable = measurables.fastFirstOrNull { it.layoutId == "text" }
+        val iconMeasurable = measurables.fastFirstOrNull { it.layoutId == "icon" }
+        val textHeight = textMeasurable?.minIntrinsicHeight(width) ?: 0
+        val iconHeight = iconMeasurable?.minIntrinsicHeight(width) ?: 0
+        val specHeight =
+            if (textMeasurable != null && iconMeasurable != null) {
+                    LargeTabHeight
+                } else {
+                    SmallTabHeight
+                }
+                .roundToPx()
+        return max(
+            specHeight,
+            iconHeight + textHeight + IconDistanceFromBaseline.roundToPx(),
+        )
+    }
+
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+        measurables: List<IntrinsicMeasurable>,
+        width: Int,
+    ): Int {
+        val textMeasurable = measurables.fastFirstOrNull { it.layoutId == "text" }
+        val iconMeasurable = measurables.fastFirstOrNull { it.layoutId == "icon" }
+        val textHeight = textMeasurable?.maxIntrinsicHeight(width) ?: 0
+        val iconHeight = iconMeasurable?.maxIntrinsicHeight(width) ?: 0
+        val specHeight =
+            if (textMeasurable != null && iconMeasurable != null) {
+                    LargeTabHeight
+                } else {
+                    SmallTabHeight
+                }
+                .roundToPx()
+        return max(
+            specHeight,
+            iconHeight + textHeight + IconDistanceFromBaseline.roundToPx(),
+        )
     }
 }
 
