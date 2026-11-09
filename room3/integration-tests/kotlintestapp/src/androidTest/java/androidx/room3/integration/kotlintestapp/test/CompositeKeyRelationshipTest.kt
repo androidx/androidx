@@ -31,27 +31,42 @@ import androidx.room3.Relation
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.room3.Transaction
+import androidx.room3.integration.kotlintestapp.test.TestDatabaseTest.UseDriver
+import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import org.junit.After
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
+import org.junit.runners.Parameterized.Parameters
 
 @SmallTest
-@RunWith(AndroidJUnit4::class)
-class CompositeKeyRelationshipTest {
+@RunWith(Parameterized::class)
+class CompositeKeyRelationshipTest(private val useDriver: UseDriver) {
     private lateinit var db: MyDatabase
     private lateinit var dao: MyDao
+
+    private companion object {
+        @JvmStatic
+        @Parameters(name = "useDriver={0}")
+        fun parameters() = arrayOf(UseDriver.BUNDLED, UseDriver.ANDROID)
+    }
 
     @Before
     fun createDb() {
         val context: Context = ApplicationProvider.getApplicationContext()
         db =
             Room.inMemoryDatabaseBuilder<MyDatabase>(context)
-                .setDriver(BundledSQLiteDriver())
+                .setDriver(
+                    when (useDriver) {
+                        UseDriver.ANDROID -> AndroidSQLiteDriver()
+                        UseDriver.BUNDLED -> BundledSQLiteDriver()
+                    }
+                )
                 .build()
         dao = db.getDao()
     }
@@ -301,6 +316,11 @@ class CompositeKeyRelationshipTest {
 
     @Test
     fun testQueryForManyParentsStaysUnderVariableLimit() {
+        // Skipped with the Android driver
+        // The query binds 911 parents * 6 key columns = 5,466 values
+        // The bundled SQLite allows up to 32,766 per query
+        // The device's SQLite on older Android versions allows only 999
+        assumeTrue(useDriver == UseDriver.BUNDLED)
         val parents = (1L..911L).map { SixKeyParent(it, it, it, it, it, it) }
         val child = SixKeyChild(1, 5, 5, 5, 5, 5, 5)
         dao.insertSixKeyParents(parents)
