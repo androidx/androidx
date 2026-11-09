@@ -31,7 +31,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 // Tag length must not exceed 23 characters for pre-API 24 log compatibility.
@@ -109,6 +108,15 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
      * Implement this method to fetch your widget data and call
      * [androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager.pushUpdate].
      *
+     * Exceptions thrown by this method are not caught, exactly like exceptions thrown by a plain
+     * [AppWidgetProvider]: once the broadcast is finished, they reach the
+     * [kotlinx.coroutines.CoroutineExceptionHandler] of [coroutineContext] if it has one, and
+     * otherwise crash the app. A [kotlinx.coroutines.CancellationException], such as from an
+     * expired `withTimeout`, only ends the call, without being reported. It is called even if the
+     * library fails to assign a widgetId to a new widget, as `pushUpdate` with `widgetIds = null`
+     * still updates that widget. The library logs such failures and retries on the next update of
+     * the widget.
+     *
      * @param context The application Context.
      */
     public abstract suspend fun onUpdate(context: Context)
@@ -124,22 +132,30 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
         @Suppress("InvalidNullabilityOverride") appWidgetManager: AppWidgetManager,
         @Suppress("InvalidNullabilityOverride") appWidgetIds: IntArray,
     ) {
-        runAndLogExceptions {
-            initializeWidgetOptionsAndIds(appWidgetManager, appWidgetIds)
-            // The receiver Context is a ReceiverRestrictedContext, which dependency injection
-            // frameworks such as Hilt reject. Pass the application Context, as documented on
-            // onUpdate(Context).
-            val appContext = context.applicationContext ?: context
-            goAsync(coroutineContext) { onUpdate(appContext) }
-        }
+        initializeWidgetOptionsAndIds(appWidgetManager, appWidgetIds)
+        // The receiver Context is a ReceiverRestrictedContext, which dependency injection
+        // frameworks such as Hilt reject. Pass the application Context, as documented on
+        // onUpdate(Context).
+        val appContext = context.applicationContext ?: context
+        goAsyncUncaught(coroutineContext) { onUpdate(appContext) }
     }
 
+    /**
+     * Assigns a widgetId to each widget of [appWidgetIds] that has none yet, and caches its
+     * options.
+     *
+     * Failures are logged rather than thrown, as no caller can handle them, and retried on the next
+     * update or options change of the widget.
+     */
     private fun initializeWidgetOptionsAndIds(
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray,
     ) {
         for (id in appWidgetIds) {
-            if (!WidgetOptionsCache.contains(id)) {
+            // Checked by widgetId rather than by presence in the cache, so that a widget cached
+            // after its widgetId failed to be stored is retried.
+            if (WidgetOptionsCache.getCachedWidgetId(id) != null) continue
+            try {
                 val rawOptions = appWidgetManager.getAppWidgetOptions(id)
                 val options =
                     ensureWidgetIdIsPresent(
@@ -149,6 +165,8 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
                         checkManagerIfMissing = false,
                     )
                 WidgetOptionsCache.cacheWidgetOptionsIfMissing(id, options)
+            } catch (e: Exception) {
+                logWidgetIdAssignmentFailure(id, e)
             }
         }
     }
@@ -182,6 +200,15 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
             .also { appWidgetManager.updateAppWidgetOptions(appWidgetId, it) }
     }
 
+    private fun logWidgetIdAssignmentFailure(appWidgetId: Int, e: Exception) {
+        Log.e(
+            TAG,
+            "Cannot assign a widgetId to appWidgetId $appWidgetId of ${javaClass.name}, " +
+                "retrying on its next update",
+            e,
+        )
+    }
+
     @CallSuper
     override fun onAppWidgetOptionsChanged(
         @Suppress("InvalidNullabilityOverride") context: Context,
@@ -189,16 +216,22 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
         appWidgetId: Int,
         @Suppress("InvalidNullabilityOverride") newOptions: Bundle,
     ) {
-        runAndLogExceptions {
-            super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
-            val options = ensureWidgetIdIsPresent(appWidgetManager, appWidgetId, newOptions)
-            // A broadcast queued before a library write from outside this receiver (pin callback,
-            // configuration) must not roll back the widgetId that write stored.
-            val updateNeeded =
-                WidgetOptionsCache.putFromBroadcast(appWidgetId, WidgetOptionsState.from(options))
-            if (updateNeeded) {
-                onUpdate(context, appWidgetManager, intArrayOf(appWidgetId))
+        super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
+        val options =
+            try {
+                ensureWidgetIdIsPresent(appWidgetManager, appWidgetId, newOptions)
+            } catch (e: Exception) {
+                // Cached without a widgetId below, so that the update this triggers, or the next
+                // one, retries.
+                logWidgetIdAssignmentFailure(appWidgetId, e)
+                newOptions
             }
+        // A broadcast queued before a library write from outside this receiver (pin callback,
+        // configuration) must not roll back the widgetId that write stored.
+        val updateNeeded =
+            WidgetOptionsCache.putFromBroadcast(appWidgetId, WidgetOptionsState.from(options))
+        if (updateNeeded) {
+            onUpdate(context, appWidgetManager, intArrayOf(appWidgetId))
         }
     }
 
@@ -214,10 +247,9 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
         @Suppress("InvalidNullabilityOverride") context: Context,
         @Suppress("InvalidNullabilityOverride") appWidgetIds: IntArray,
     ) {
-        runAndLogExceptions {
-            super.onDeleted(context, appWidgetIds)
-            WidgetOptionsCache.remove(appWidgetIds)
-        }
+        // Not caught: only in-memory bookkeeping, which has no failure to recover from.
+        super.onDeleted(context, appWidgetIds)
+        WidgetOptionsCache.remove(appWidgetIds)
     }
 
     @CallSuper
@@ -226,32 +258,31 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
         @Suppress("InvalidNullabilityOverride") oldWidgetIds: IntArray,
         @Suppress("InvalidNullabilityOverride") newWidgetIds: IntArray,
     ) {
-        runAndLogExceptions {
-            super.onRestored(context, oldWidgetIds, newWidgetIds)
-            WidgetOptionsCache.restore(oldWidgetIds, newWidgetIds)
-        }
+        // Not caught: only in-memory bookkeeping, which has no failure to recover from.
+        super.onRestored(context, oldWidgetIds, newWidgetIds)
+        WidgetOptionsCache.restore(oldWidgetIds, newWidgetIds)
     }
 
     override fun onReceive(
         @Suppress("InvalidNullabilityOverride") context: Context,
         @Suppress("InvalidNullabilityOverride") intent: Intent,
     ) {
-        runAndLogExceptions {
-            when (intent.action) {
-                Intent.ACTION_LOCALE_CHANGED -> {
+        // Not caught, as this calls the callbacks of the developer, whose exceptions must surface
+        // like in a plain AppWidgetProvider.
+        when (intent.action) {
+            Intent.ACTION_LOCALE_CHANGED -> {
+                handleUpdateBroadcast(context, intent)
+            }
+            ACTION_DEBUG_UPDATE -> {
+                if ((context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
                     handleUpdateBroadcast(context, intent)
                 }
-                ACTION_DEBUG_UPDATE -> {
-                    if ((context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
-                        handleUpdateBroadcast(context, intent)
-                    }
-                }
-                AppWidgetManager.ACTION_APPWIDGET_UPDATE -> {
-                    consumePendingRenders(intent)
-                    super.onReceive(context, intent)
-                }
-                else -> super.onReceive(context, intent)
             }
+            AppWidgetManager.ACTION_APPWIDGET_UPDATE -> {
+                consumePendingRenders(intent)
+                super.onReceive(context, intent)
+            }
+            else -> super.onReceive(context, intent)
         }
     }
 
@@ -268,11 +299,18 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
     }
 
     private fun handleUpdateBroadcast(context: Context, intent: Intent) {
-        val appWidgetManager = AppWidgetManager.getInstance(context)
-        val componentName = ComponentName(context, javaClass)
-        val ids =
-            intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)
-                ?: appWidgetManager.getAppWidgetIds(componentName)
+        val appWidgetManager: AppWidgetManager
+        val ids: IntArray
+        try {
+            appWidgetManager = AppWidgetManager.getInstance(context)
+            ids =
+                intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)
+                    ?: appWidgetManager.getAppWidgetIds(ComponentName(context, javaClass))
+        } catch (e: Exception) {
+            // The widgets are still updated by their next update.
+            Log.e(TAG, "Cannot list the widgets of ${javaClass.name} for ${intent.action}", e)
+            return
+        }
         if (ids.isNotEmpty()) {
             onUpdate(context, appWidgetManager, ids)
         }
@@ -301,41 +339,28 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
 }
 
 /**
- * Execute the block asynchronously in a scope with the lifetime of the broadcast.
+ * Executes the developer's [block] asynchronously in a scope with the lifetime of the broadcast.
  *
- * The coroutine scope finishes once the block returns, finishing the broadcast pending result.
+ * Exceptions thrown by [block] are not caught: once the broadcast pending result is finished, they
+ * reach the [kotlinx.coroutines.CoroutineExceptionHandler] of [coroutineContext] if it has one, and
+ * otherwise the uncaught exception handler of the thread, which crashes the app, exactly like an
+ * exception thrown by a plain [AppWidgetProvider]. A [CancellationException] is not an error, so it
+ * is not reported.
  */
-internal fun BroadcastReceiver.goAsync(
-    coroutineContext: CoroutineContext = Dispatchers.Default,
-    block: suspend CoroutineScope.() -> Unit,
+private fun BroadcastReceiver.goAsyncUncaught(
+    coroutineContext: CoroutineContext,
+    block: suspend () -> Unit,
 ) {
-    val parentScope = CoroutineScope(coroutineContext + Job())
     val pendingResult = goAsync()
-
-    parentScope.launch {
+    CoroutineScope(coroutineContext + Job()).launch {
         try {
             block()
-        } catch (e: CancellationException) {
-            // Regular cancellation, do not log as failure
-        } catch (e: Throwable) {
-            Log.e(TAG, "BroadcastReceiver execution failed", e)
         } finally {
-            parentScope.cancel()
             try {
                 pendingResult?.finish()
             } catch (e: IllegalStateException) {
                 Log.e(TAG, "Error thrown when trying to finish broadcast", e)
             }
         }
-    }
-}
-
-private inline fun runAndLogExceptions(block: () -> Unit) {
-    try {
-        block()
-    } catch (ex: CancellationException) {
-        // Regular cancellation, ignore
-    } catch (ex: Exception) {
-        Log.e(TAG, "Error in Glance Adaptive Widget Receiver", ex)
     }
 }
