@@ -16,17 +16,29 @@
 
 package androidx.camera.camera2.adapter
 
+import android.graphics.ColorSpace
+import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
+import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
+import android.hardware.camera2.CameraDevice.TEMPLATE_RECORD
+import android.hardware.camera2.CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
+import android.hardware.camera2.CaptureRequest
 import android.media.MediaCodec
+import android.os.Build
 import android.util.Range
 import android.view.Surface
 import androidx.camera.camera2.impl.Camera2ImplConfig
+import androidx.camera.camera2.impl.createCaptureRequestOption
+import androidx.camera.camera2.impl.createSessionParameterOption
 import androidx.camera.camera2.pipe.OutputStream.StreamUseHint
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.SessionConfig
+import androidx.camera.core.impl.UseCaseConfig
+import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.streamsharing.StreamSharing
 import androidx.camera.testing.impl.fakes.FakeUseCase
@@ -388,6 +400,153 @@ class SessionConfigAdapterTest {
         // Assert.
         assertThat(mapping[fakeSurface1]).isEqualTo(StreamUseHint.VIDEO_RECORD.value)
         assertThat(mapping[fakeSurface2]).isEqualTo(StreamUseHint.DEFAULT.value)
+    }
+
+    @Test
+    fun sessionInteropConfig_overridesTemplateTypeAndPropagatesCallbacksAndOptions() {
+        val surface = createTestDeferrableSurface()
+        val videoUseCase = createFakeTestUseCase {
+            it.setupSessionConfig(
+                SessionConfig.Builder().apply {
+                    setTemplateType(TEMPLATE_RECORD)
+                    addSurface(surface)
+                }
+            )
+        }
+        val deviceCallback =
+            object : CameraDevice.StateCallback() {
+                override fun onOpened(camera: CameraDevice) {}
+
+                override fun onDisconnected(camera: CameraDevice) {}
+
+                override fun onError(camera: CameraDevice, error: Int) {}
+            }
+        val sessionCallback =
+            object : CameraCaptureSession.StateCallback() {
+                override fun onConfigured(session: CameraCaptureSession) {}
+
+                override fun onConfigureFailed(session: CameraCaptureSession) {}
+            }
+        val repeatingCallback = object : CameraCaptureSession.CaptureCallback() {}
+        val sessionParamOpt = CaptureRequest.CONTROL_AWB_MODE.createSessionParameterOption()
+        val interopConfig =
+            MutableOptionsBundle.create().apply {
+                insertOption(Camera2ImplConfig.TEMPLATE_TYPE_OPTION, TEMPLATE_PREVIEW)
+                insertOption(Camera2ImplConfig.DEVICE_STATE_CALLBACK_OPTION, deviceCallback)
+                insertOption(Camera2ImplConfig.SESSION_STATE_CALLBACK_OPTION, sessionCallback)
+                insertOption(
+                    Camera2ImplConfig.SESSION_REPEATING_CAPTURE_CALLBACK_OPTION,
+                    repeatingCallback,
+                )
+                insertOption(Camera2ImplConfig.SESSION_PHYSICAL_CAMERA_ID_OPTION, "2")
+                insertOption(Camera2ImplConfig.SESSION_TYPE_OPTION, 1)
+                if (Build.VERSION.SDK_INT >= 34) {
+                    insertOption(
+                        Camera2ImplConfig.SESSION_COLOR_SPACE_OPTION,
+                        ColorSpace.Named.DISPLAY_P3.ordinal,
+                    )
+                }
+                insertOption(
+                    sessionParamOpt,
+                    androidx.camera.core.impl.Config.OptionPriority.ALWAYS_OVERRIDE,
+                    CaptureRequest.CONTROL_AWB_MODE_INCANDESCENT,
+                )
+                insertOption(
+                    CaptureRequest.CONTROL_AE_MODE.createCaptureRequestOption(),
+                    androidx.camera.core.impl.Config.OptionPriority.ALWAYS_OVERRIDE,
+                    CaptureRequest.CONTROL_AE_MODE_OFF,
+                )
+            }
+
+        val resolved =
+            SessionConfigAdapter(
+                    useCases = listOf(videoUseCase),
+                    sessionInteropConfig = interopConfig,
+                )
+                .getValidSessionConfigOrNull()
+
+        assertThat(resolved).isNotNull()
+        assertThat(resolved!!.templateType).isEqualTo(TEMPLATE_PREVIEW)
+        assertThat(resolved.deviceStateCallbacks).contains(deviceCallback)
+        assertThat(resolved.sessionStateCallbacks).contains(sessionCallback)
+        assertThat(resolved.repeatingCameraCaptureCallbacks)
+            .contains(CameraUseCaseAdapter.CaptureCallbackContainer.create(repeatingCallback))
+        val resolvedCamera2Config = Camera2ImplConfig(resolved.implementationOptions)
+        assertThat(resolvedCamera2Config.getPhysicalCameraId(null)).isEqualTo("2")
+        assertThat(resolvedCamera2Config.getSessionType(-1)).isEqualTo(1)
+        if (Build.VERSION.SDK_INT >= 34) {
+            assertThat(resolvedCamera2Config.getColorSpace(null))
+                .isEqualTo(ColorSpace.Named.DISPLAY_P3.ordinal)
+        }
+        assertThat(resolved.implementationOptions.retrieveOption(sessionParamOpt))
+            .isEqualTo(CaptureRequest.CONTROL_AWB_MODE_INCANDESCENT)
+        assertThat(
+                resolvedCamera2Config.getCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE, -1)
+            )
+            .isEqualTo(CaptureRequest.CONTROL_AE_MODE_OFF)
+    }
+
+    @Test
+    @Config(minSdk = 33)
+    fun sessionInteropConfig_withZslTemplate_suppressesStreamUseCaseMapping() {
+        val surface = createTestDeferrableSurface()
+        val useCaseConfig =
+            FakeUseCaseConfig.Builder(UseCaseConfigFactory.CaptureType.PREVIEW)
+                .apply {
+                    mutableConfig.insertOption(
+                        UseCaseConfig.OPTION_INPUT_FORMAT,
+                        ImageFormat.PRIVATE,
+                    )
+                }
+                .useCaseConfig
+        val previewUseCase =
+            FakeTestUseCase(useCaseConfig).apply {
+                setupSessionConfig(
+                    SessionConfig.Builder().apply {
+                        setTemplateType(TEMPLATE_PREVIEW)
+                        addSurface(surface)
+                        addImplementationOptions(
+                            MutableOptionsBundle.create().apply {
+                                insertOption(
+                                    androidx.camera.camera2.internal.StreamUseCaseUtil
+                                        .STREAM_USE_CASE_STREAM_SPEC_OPTION,
+                                    android.hardware.camera2.CameraMetadata
+                                        .SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW
+                                        .toLong(),
+                                )
+                            }
+                        )
+                    }
+                )
+            }
+        val zslInteropConfig =
+            MutableOptionsBundle.create().apply {
+                insertOption(Camera2ImplConfig.TEMPLATE_TYPE_OPTION, TEMPLATE_ZERO_SHUTTER_LAG)
+            }
+
+        val nonZslAdapter = SessionConfigAdapter(useCases = listOf(previewUseCase))
+        val zslAdapter =
+            SessionConfigAdapter(
+                useCases = listOf(previewUseCase),
+                sessionInteropConfig = zslInteropConfig,
+            )
+
+        assertThat(nonZslAdapter.surfaceConfigOptionsMap[surface]?.streamUseCase).isNotNull()
+        assertThat(zslAdapter.surfaceConfigOptionsMap[surface]?.streamUseCase).isNull()
+    }
+
+    @Test
+    fun sessionInteropConfig_withEmptyUseCases_keepsAdapterInvalid() {
+        val interopConfig =
+            MutableOptionsBundle.create().apply {
+                insertOption(Camera2ImplConfig.TEMPLATE_TYPE_OPTION, TEMPLATE_RECORD)
+            }
+
+        val adapter =
+            SessionConfigAdapter(useCases = emptyList(), sessionInteropConfig = interopConfig)
+
+        assertThat(adapter.isSessionConfigValid()).isFalse()
+        assertThat(adapter.getValidSessionConfigOrNull()).isNull()
     }
 
     private fun createFakeTestUseCase(block: (FakeTestUseCase) -> Unit): FakeTestUseCase = run {

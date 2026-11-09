@@ -193,4 +193,10 @@ public class ForwardingCameraControl implements CameraControlInternal {
     public boolean isInVideoUsage() {
         return mCameraControlInternal.isInVideoUsage();
     }
+
+    @Override
+    public @NonNull ListenableFuture<Void> setEnabledUseCasesAsync(
+            @NonNull List<androidx.camera.core.@NonNull UseCase> useCases) {
+        return mCameraControlInternal.setEnabledUseCasesAsync(useCases);
+    }
 }

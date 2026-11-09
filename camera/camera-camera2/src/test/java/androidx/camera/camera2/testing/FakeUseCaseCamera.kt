@@ -64,6 +64,7 @@ import org.robolectric.shadows.StreamConfigurationMapBuilder
 
 class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
     var buildInvocationCount = 0
+    val fakeUseCaseCamera = FakeUseCaseCamera()
     private var sessionConfigAdapter = SessionConfigAdapter(emptyList())
     private var cameraGraph = FakeCameraGraph()
     private val cameraStateAdapter = CameraStateAdapter(CameraSessionLifecycleAdapter())
@@ -87,6 +88,7 @@ class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
             cameraMetadata = cameraMetadata,
         )
 
+    var lastBuiltConfig: UseCaseCameraConfig? = null
     private var config: UseCaseCameraConfig =
         UseCaseCameraConfig.create(
             cameraGraphConfigProvider = configProvider,
@@ -104,12 +106,14 @@ class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
 
     override fun build(): UseCaseCameraComponent {
         buildInvocationCount++
-        return FakeUseCaseCameraComponent()
+        lastBuiltConfig = config
+        return FakeUseCaseCameraComponent(fakeUseCaseCamera)
     }
 }
 
-class FakeUseCaseCameraComponent() : UseCaseCameraComponent {
-    private val fakeUseCaseCamera = FakeUseCaseCamera()
+class FakeUseCaseCameraComponent(
+    private val fakeUseCaseCamera: FakeUseCaseCamera = FakeUseCaseCamera()
+) : UseCaseCameraComponent {
     private val cameraGraph = FakeCameraGraph()
     private val cameraStateAdapter = CameraStateAdapter(CameraSessionLifecycleAdapter())
     private val useCaseCameraContext =
@@ -342,11 +346,15 @@ class FakeUseCaseCamera(
         flashType: Int,
     ): CameraCapturePipeline = FakeCameraCapturePipeline()
 
+    val runningUseCasesUpdates = mutableListOf<Set<UseCase>>()
+    var updateRepeatingRequestResult: Job = CompletableDeferred(Unit)
+
     override fun updateRepeatingRequestAsync(
         isPrimary: Boolean,
         runningUseCases: Collection<UseCase>,
     ): Job {
-        return CompletableDeferred(Unit)
+        runningUseCasesUpdates.add(runningUseCases.toSet())
+        return updateRepeatingRequestResult
     }
 
     override fun close(): Job {

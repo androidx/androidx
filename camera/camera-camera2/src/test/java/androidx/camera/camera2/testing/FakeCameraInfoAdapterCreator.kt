@@ -16,21 +16,26 @@
 
 package androidx.camera.camera2.testing
 
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.util.Size
 import androidx.camera.camera2.adapter.CameraControlStateAdapter
 import androidx.camera.camera2.adapter.CameraInfoAdapter
 import androidx.camera.camera2.adapter.CameraSessionLifecycleAdapter
 import androidx.camera.camera2.adapter.CameraStateAdapter
+import androidx.camera.camera2.adapter.SupportedSurfaceCombination
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.compat.quirk.CameraQuirks
+import androidx.camera.camera2.compat.workaround.ExtraSupportedSurfaceCombinationsContainer
 import androidx.camera.camera2.compat.workaround.MeteringRegionCorrection
 import androidx.camera.camera2.compat.workaround.NoOpAutoFlashAEModeDisabler
 import androidx.camera.camera2.config.CameraConfig
 import androidx.camera.camera2.impl.CameraCallbackMap
 import androidx.camera.camera2.impl.CameraProperties
 import androidx.camera.camera2.impl.ComboRequestListener
+import androidx.camera.camera2.impl.DisplayInfoManager
 import androidx.camera.camera2.impl.EvCompControl
+import androidx.camera.camera2.impl.FastSwitchConfigQuery
 import androidx.camera.camera2.impl.FocusMeteringControl
 import androidx.camera.camera2.impl.LowLightBoostControl
 import androidx.camera.camera2.impl.NightModeIndicatorMonitor
@@ -45,10 +50,14 @@ import androidx.camera.camera2.pipe.testing.FakeCameraDevices
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.common.CameraId
+import androidx.camera.core.CameraXConfig
+import androidx.camera.core.featuregroup.impl.FeatureCombinationQuery
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.internal.StreamSpecsCalculator.Companion.NO_OP_STREAM_SPECS_CALCULATOR
 import androidx.camera.testing.impl.fakes.FakeEncoderProfilesProvider
+import androidx.test.core.app.ApplicationProvider
 import com.google.common.util.concurrent.MoreExecutors
+import javax.inject.Provider
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -93,6 +102,11 @@ object FakeCameraInfoAdapterCreator {
                 FakeCameraMetadata.fromTemplate(
                     template = HighEndDeviceTemplate,
                     cameraId = cameraId,
+                    characteristicsOverrides =
+                        mapOf(
+                            CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to
+                                streamConfigurationMap
+                        ),
                 ),
                 cameraId,
             ),
@@ -104,6 +118,19 @@ object FakeCameraInfoAdapterCreator {
                 cameraMetadataMap =
                     mapOf(CameraBackendId(cameraId.value) to listOf(cameraProperties.metadata)),
             ),
+        fastSwitchConfigQuery: FastSwitchConfigQuery? = null,
+        supportedSurfaceCombination: Provider<SupportedSurfaceCombination> = Provider {
+            SupportedSurfaceCombination(
+                ApplicationProvider.getApplicationContext(),
+                cameraProperties.metadata,
+                FakeEncoderProfilesProvider.Builder().build(),
+                FeatureCombinationQuery.NO_OP_FEATURE_COMBINATION_QUERY,
+                ExtraSupportedSurfaceCombinationsContainer(),
+            )
+        },
+        displayInfoManager: DisplayInfoManager =
+            DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext()),
+        cameraXConfig: CameraXConfig = CameraXConfig.Builder().build(),
     ): CameraInfoAdapter {
         val fakeRequestControl = FakeUseCaseCameraRequestControl()
         val fakeStreamConfigurationMap =
@@ -149,6 +176,10 @@ object FakeCameraInfoAdapterCreator {
             IntrinsicZoomCalculatorImpl(cameraDevices),
             NO_OP_STREAM_SPECS_CALCULATOR,
             sessionLifecycleAdapter,
+            fastSwitchConfigQuery,
+            supportedSurfaceCombination,
+            displayInfoManager,
+            cameraXConfig,
         )
     }
 }

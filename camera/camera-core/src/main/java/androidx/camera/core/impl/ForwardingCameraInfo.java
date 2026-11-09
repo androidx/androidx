@@ -33,6 +33,7 @@ import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ZoomState;
+import androidx.camera.core.internal.CalculatedUseCaseInfo;
 import androidx.core.util.Consumer;
 import androidx.lifecycle.LiveData;
 
@@ -183,12 +184,6 @@ public class ForwardingCameraInfo implements CameraInfoInternal {
     @Override
     public @NonNull Set<Range<Integer>> getSupportedFrameRateRanges() {
         return mCameraInfoInternal.getSupportedFrameRateRanges();
-    }
-
-    @Override
-    public @NonNull Set<Range<Integer>> getSupportedFrameRateRanges(
-            @NonNull SessionConfig sessionConfig) {
-        return mCameraInfoInternal.getSupportedFrameRateRanges(sessionConfig);
     }
 
     @Override
@@ -365,5 +360,23 @@ public class ForwardingCameraInfo implements CameraInfoInternal {
     public @Nullable CameraExtensionCapabilities getCameraExtensionCapabilities(
             int extensionMode) {
         return mCameraInfoInternal.getCameraExtensionCapabilities(extensionMode);
+    }
+
+    @Override
+    public boolean isRepeatingStreamForced() {
+        return mCameraInfoInternal.isRepeatingStreamForced();
+    }
+
+    @Override
+    public @Nullable ResolvedStreamInfo resolveRepeatingStream(
+            @NonNull CalculatedUseCaseInfo unionInfo,
+            @NonNull List<@NonNull ResolvedStreamInfo> streams) {
+        return mCameraInfoInternal.resolveRepeatingStream(unionInfo, streams);
+    }
+
+    @Override
+    public @NonNull HardwareConfigQueryResult queryFastSwitchHardwareSupport(
+            @NonNull SessionConfig config, @NonNull List<ResolvedStreamInfo> streams) {
+        return mCameraInfoInternal.queryFastSwitchHardwareSupport(config, streams);
     }
 }

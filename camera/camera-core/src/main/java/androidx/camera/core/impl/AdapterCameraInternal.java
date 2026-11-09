@@ -99,6 +99,17 @@ public class AdapterCameraInternal implements CameraInternal {
     }
 
     @Override
+    public @NonNull ListenableFuture<Void> setEnabledUseCases(
+            @Nullable Collection<UseCase> useCases) {
+        return mCameraInternal.setEnabledUseCases(useCases);
+    }
+
+    @Override
+    public void setSessionInteropConfig(@Nullable Config sessionInteropConfig) {
+        mCameraInternal.setSessionInteropConfig(sessionInteropConfig);
+    }
+
+    @Override
     public @NonNull CameraControlInternal getCameraControlInternal() {
         return mAdapterCameraControl;
     }

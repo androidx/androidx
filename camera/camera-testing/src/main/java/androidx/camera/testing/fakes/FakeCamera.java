@@ -30,6 +30,7 @@ import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.DeferrableSurfaces;
 import androidx.camera.core.impl.LiveDataObservable;
@@ -73,6 +74,8 @@ public class FakeCamera implements CameraInternal {
     private final String mCameraId;
     private final UseCaseAttachState mUseCaseAttachState;
     private final Set<UseCase> mAttachedUseCases = new HashSet<>();
+    private @Nullable Set<UseCase> mEnabledUseCases = null;
+    private @Nullable Config mSessionInteropConfig = null;
     private State mState = State.CLOSED;
     private int mAvailableCameraCount = 1;
     private final List<UseCase> mUseCaseActiveHistory = new ArrayList<>();
@@ -297,6 +300,10 @@ public class FakeCamera implements CameraInternal {
         }
 
         mAttachedUseCases.removeAll(useCases);
+        if (mEnabledUseCases != null
+                && Collections.disjoint(mEnabledUseCases, mAttachedUseCases)) {
+            mEnabledUseCases = null;
+        }
 
         Logger.d(TAG, "Use cases " + useCases + " DETACHED for camera " + mCameraId);
         for (UseCase useCase : useCases) {
@@ -305,6 +312,7 @@ public class FakeCamera implements CameraInternal {
         }
 
         if (mUseCaseAttachState.getAttachedSessionConfigs().isEmpty()) {
+            mSessionInteropConfig = null;
             close();
             return;
         }
@@ -321,6 +329,38 @@ public class FakeCamera implements CameraInternal {
      */
     public @NonNull Set<UseCase> getAttachedUseCases() {
         return mAttachedUseCases;
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Override
+    public @NonNull ListenableFuture<Void> setEnabledUseCases(
+            @Nullable Collection<UseCase> useCases) {
+        mEnabledUseCases = useCases != null ? new HashSet<>(useCases) : null;
+        return Futures.immediateFuture(null);
+    }
+
+    /**
+     * Gets the enabled use cases set via {@link #setEnabledUseCases}, or {@code null} if all
+     * attached use cases are enabled.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @Nullable Collection<UseCase> getEnabledUseCases() {
+        return mEnabledUseCases != null ? Collections.unmodifiableSet(mEnabledUseCases) : null;
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Override
+    public void setSessionInteropConfig(@Nullable Config sessionInteropConfig) {
+        mSessionInteropConfig = sessionInteropConfig;
+    }
+
+    /**
+     * Gets the session interop config set via {@link #setSessionInteropConfig}, or {@code null} if
+     * none is set.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @Nullable Config getSessionInteropConfig() {
+        return mSessionInteropConfig;
     }
 
     // Returns fixed CameraControlInternal instance in order to verify the instance is correctly

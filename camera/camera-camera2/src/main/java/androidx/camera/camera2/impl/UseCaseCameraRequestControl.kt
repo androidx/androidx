@@ -350,11 +350,13 @@ public class UseCaseCameraRequestControlImpl
 @Inject
 constructor(
     private val capturePipelineProvider: Provider<CapturePipeline>,
+    private val state3AControlProvider: Provider<State3AControl>? = null,
     private val useCaseCameraStateProvider: Provider<UseCaseCameraState>,
     private val useCaseCameraContext: UseCaseCameraContext,
     private val useCaseSurfaceManagerProvider: Provider<UseCaseSurfaceManager>,
     private val threads: UseCaseThreads,
     private val cameraXConfig: CameraXConfig? = null,
+    private val sessionConfigAdapterProvider: Provider<SessionConfigAdapter>? = null,
 ) : UseCaseCameraRequestControl {
 
     init {
@@ -364,6 +366,7 @@ constructor(
     @Volatile private var closed = false
 
     private val capturePipeline by lazy { capturePipelineProvider.get() }
+    private val state3AControl by lazy { state3AControlProvider?.get() }
     private val useCaseSurfaceManager by lazy { useCaseSurfaceManagerProvider.get() }
     private val useCaseCameraState by lazy { useCaseCameraStateProvider.get() }
 
@@ -501,13 +504,25 @@ constructor(
             runOnSequential {
                 Camera2Logger.debug { "UseCaseCameraRequestControlImpl: Building SessionConfig..." }
 
-                val sessionConfigAdapter = SessionConfigAdapter(runningUseCases, isPrimary)
+                val sessionInteropConfig = sessionConfigAdapterProvider?.get()?.sessionInteropConfig
+                val sessionConfigAdapter =
+                    SessionConfigAdapter(runningUseCases, isPrimary, sessionInteropConfig)
                 val sessionConfig =
                     sessionConfigAdapter.getValidSessionConfigOrNull()
                         ?: run {
                             Camera2Logger.debug { "Using default SessionConfig" }
-                            SessionConfig.Builder()
-                                .apply { setTemplateType(DEFAULT_REQUEST_TEMPLATE) }
+                            SessionConfig.ValidatingBuilder()
+                                .apply {
+                                    add(
+                                        SessionConfig.Builder()
+                                            .apply { setTemplateType(DEFAULT_REQUEST_TEMPLATE) }
+                                            .build()
+                                    )
+                                    SessionConfigAdapter.applySessionInteropConfig(
+                                        this,
+                                        sessionInteropConfig,
+                                    )
+                                }
                                 .build()
                         }
 
@@ -833,16 +848,21 @@ constructor(
         runIfNotClosed {
             val parameters: Map<CaptureRequest.Key<*>, Any>
             val stageResult: Pair<Deferred<Unit>, Boolean>
+            var templateToSync: Int? = null
             synchronized(infoBundleMap) {
                 updateBlock()
                 val mergedBundle = infoBundleMap.merge()
                 parameters = mergedBundle.options.build().toParameters()
-                capturePipeline.template =
+                val template =
                     if (mergedBundle.template!!.value != TEMPLATE_TYPE_NONE) {
                         mergedBundle.template!!.value
                     } else {
                         DEFAULT_REQUEST_TEMPLATE
                     }
+                capturePipeline.template = template
+                if (state3AControl?.template != template) {
+                    templateToSync = template
+                }
                 stageResult =
                     useCaseCameraState.stageUpdate(
                         parameters = parameters,
@@ -851,10 +871,14 @@ constructor(
                             mapOf(CAMERAX_TAG_BUNDLE to mergedBundle.toTagBundle()),
                         appendInternalParameters = false,
                         streams = streams,
-                        template = mergedBundle.template,
+                        template = RequestTemplate(template),
                         listeners = mergedBundle.listeners,
                         session = session,
                     )
+            }
+
+            if (templateToSync != null) {
+                state3AControl?.setTemplateAsync(templateToSync)
             }
 
             cameraXConfig

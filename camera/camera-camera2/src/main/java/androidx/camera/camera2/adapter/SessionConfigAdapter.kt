@@ -19,13 +19,18 @@ package androidx.camera.camera2.adapter
 import android.hardware.camera2.CameraDevice
 import android.media.MediaCodec
 import android.os.Build
+import androidx.annotation.OptIn
 import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.impl.Camera2ImplConfig
 import androidx.camera.camera2.impl.Camera2Logger
 import androidx.camera.camera2.internal.StreamUseCaseUtil
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.core.UseCase
+import androidx.camera.core.impl.CaptureConfig
+import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.DeferrableSurface
+import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.streamsharing.StreamSharing
@@ -41,6 +46,8 @@ import kotlinx.coroutines.launch
 public class SessionConfigAdapter(
     private val useCases: Collection<UseCase>,
     private val isPrimary: Boolean = true,
+    public val sessionInteropConfig: Config? = null,
+    private val allowEmptySurfaceStreamUseCase: Boolean = false,
 ) {
     public val surfaceConfigOptionsMap: Map<DeferrableSurface, SurfaceConfigOptions> by lazy {
         val sessionConfigs = mutableListOf<SessionConfig>()
@@ -49,53 +56,16 @@ public class SessionConfigAdapter(
             sessionConfigs.add(useCase.getSessionConfig(isPrimary))
             useCaseConfigs.add(useCase.currentConfig)
         }
-        val streamUseCaseMap = getSurfaceToStreamUseCaseMapping(sessionConfigs, useCaseConfigs)
-        val streamUseHintMap = getSurfaceToStreamUseHintMapping(sessionConfigs)
-
-        val mapping = mutableMapOf<DeferrableSurface, SurfaceConfigOptions>()
-        for (useCase in useCases) {
-            val camera2Config = Camera2ImplConfig(useCase.currentConfig)
-            val groupId =
-                camera2Config
-                    .getSurfaceGroupId(SessionConfig.OutputConfig.SURFACE_GROUP_ID_NONE)
-                    .takeIf { it != SessionConfig.OutputConfig.SURFACE_GROUP_ID_NONE }
-            val timestampBase = camera2Config.getTimestampBase(null)
-            val profile = camera2Config.getDynamicRangeProfile(null)
-            val mirrorMode = camera2Config.getMirrorMode(null)
-            val sensorPixelModes =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    camera2Config.getSensorPixelModesUsed(null)
-                } else {
-                    null
-                }
-
-            for (surface in useCase.getSessionConfig(isPrimary).surfaces) {
-                val streamUseCase = streamUseCaseMap[surface]
-                val streamUseHint = streamUseHintMap[surface]
-
-                if (
-                    streamUseCase != null ||
-                        streamUseHint != null ||
-                        groupId != null ||
-                        timestampBase != null ||
-                        profile != null ||
-                        mirrorMode != null ||
-                        sensorPixelModes != null
-                ) {
-                    mapping[surface] =
-                        SurfaceConfigOptions(
-                            streamUseCase = streamUseCase,
-                            streamUseHint = streamUseHint,
-                            surfaceGroupId = groupId,
-                            timestampBase = timestampBase,
-                            dynamicRangeProfile = profile,
-                            mirrorMode = mirrorMode,
-                            sensorPixelModes = sensorPixelModes,
-                        )
-                }
-            }
-        }
-        mapping
+        val sessionInteropTemplate =
+            sessionInteropConfig?.let {
+                Camera2ImplConfig(it).getCaptureRequestTemplate(CaptureConfig.TEMPLATE_TYPE_NONE)
+            } ?: CaptureConfig.TEMPLATE_TYPE_NONE
+        buildSurfaceConfigOptionsMap(
+            sessionConfigs,
+            useCaseConfigs,
+            sessionInteropTemplate,
+            allowEmptySurfaceStreamUseCase,
+        )
     }
 
     private val validatingBuilder: SessionConfig.ValidatingBuilder by lazy {
@@ -103,6 +73,9 @@ public class SessionConfigAdapter(
 
         for (useCase in useCases) {
             validatingBuilder.add(useCase.getSessionConfig(isPrimary))
+        }
+        if (sessionInteropConfig != null && validatingBuilder.isValid) {
+            applySessionInteropConfig(validatingBuilder, sessionInteropConfig)
         }
 
         validatingBuilder
@@ -170,22 +143,8 @@ public class SessionConfigAdapter(
     public fun getSurfaceToStreamUseCaseMapping(
         sessionConfigs: Collection<SessionConfig>,
         useCaseConfigs: Collection<UseCaseConfig<*>>,
-    ): Map<DeferrableSurface, Long> {
-        if (sessionConfigs.any { it.templateType == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG }) {
-            // If is ZSL, do not populate anything.
-            Camera2Logger.error { "ZSL in populateSurfaceToStreamUseCaseMapping()" }
-            return emptyMap()
-        }
-
-        val mapping = mutableMapOf<DeferrableSurface, Long>()
-        StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
-            sessionConfigs,
-            useCaseConfigs,
-            mapping,
-        )
-
-        return mapping
-    }
+    ): Map<DeferrableSurface, Long> =
+        Companion.getSurfaceToStreamUseCaseMapping(sessionConfigs, useCaseConfigs)
 
     /**
      * Populates the mapping between surfaces of a capture session and the Stream Use Hint of their
@@ -197,58 +156,216 @@ public class SessionConfigAdapter(
     @VisibleForTesting
     public fun getSurfaceToStreamUseHintMapping(
         sessionConfigs: Collection<SessionConfig>
-    ): Map<DeferrableSurface, Long> {
-        val mapping = mutableMapOf<DeferrableSurface, Long>()
-        for (sessionConfig in sessionConfigs) {
-            for (surface in sessionConfig.surfaces) {
-                if (
-                    sessionConfig.implementationOptions.containsOption(
-                        Camera2ImplConfig.STREAM_USE_HINT_OPTION
-                    ) &&
-                        sessionConfig.implementationOptions.retrieveOption(
-                            Camera2ImplConfig.STREAM_USE_HINT_OPTION
-                        ) != null
-                ) {
-                    mapping[surface] =
-                        sessionConfig.implementationOptions.retrieveOption(
-                            Camera2ImplConfig.STREAM_USE_HINT_OPTION
-                        )!!
-                    continue
-                }
-
-                mapping[surface] = getStreamUseHintForContainerClass(surface.containerClass)
-            }
-        }
-        return mapping
-    }
-
-    /**
-     * Determines the appropriate [OutputStream.StreamUseHint] value based on the provided container
-     * class.
-     *
-     * StreamUseHint is used for the following purposes:
-     *
-     * (1) **Surface Ordering:** To ensure [MediaCodec] surfaces are placed at the end of the output
-     * list within [androidx.camera.camera2.pipe.graph.StreamGraphImpl]. Note: [StreamSharing] uses
-     * [android.graphics.SurfaceTexture], not [MediaCodec] surface.
-     *
-     * (2) **High-Speed Session Operation:** To identify the presence of a [MediaCodec] surface in
-     * high-speed capture session scenarios within
-     * [androidx.camera.camera2.pipe.compat.Camera2CaptureSequenceProcessor].
-     *
-     * @param kClass The Kotlin [Class] of the container.
-     * @return The corresponding [OutputStream.StreamUseHint] value.
-     */
-    private fun getStreamUseHintForContainerClass(kClass: Class<*>?): Long {
-        return when (kClass) {
-            MediaCodec::class.java -> OutputStream.StreamUseHint.VIDEO_RECORD.value
-            else -> OutputStream.StreamUseHint.DEFAULT.value
-        }
-    }
+    ): Map<DeferrableSurface, Long> = Companion.getSurfaceToStreamUseHintMapping(sessionConfigs)
 
     public companion object {
         public fun UseCase.getSessionConfig(isPrimary: Boolean): SessionConfig {
             return if (isPrimary) sessionConfig else secondarySessionConfig
+        }
+
+        /**
+         * Applies session-level Camera2 interop options from [sessionInteropConfig] onto
+         * [validatingBuilder].
+         */
+        @OptIn(ExperimentalCamera2Interop::class)
+        public fun applySessionInteropConfig(
+            validatingBuilder: SessionConfig.ValidatingBuilder,
+            sessionInteropConfig: Config?,
+        ) {
+            if (sessionInteropConfig == null || sessionInteropConfig.listOptions().isEmpty()) {
+                return
+            }
+            val camera2Config = Camera2ImplConfig(sessionInteropConfig)
+            val overlayBuilder = SessionConfig.Builder()
+
+            camera2Config.getDeviceStateCallback()?.let {
+                overlayBuilder.addDeviceStateCallback(it)
+            }
+            camera2Config.getSessionStateCallback()?.let {
+                overlayBuilder.addSessionStateCallback(it)
+            }
+            camera2Config.getSessionCaptureCallback()?.let {
+                overlayBuilder.addCameraCaptureCallback(
+                    CameraUseCaseAdapter.CaptureCallbackContainer.create(it)
+                )
+            }
+            camera2Config.getSessionRepeatingCaptureCallback()?.let {
+                overlayBuilder.addRepeatingCameraCaptureCallback(
+                    CameraUseCaseAdapter.CaptureCallbackContainer.create(it)
+                )
+            }
+
+            val extendedConfig =
+                MutableOptionsBundle.create().apply {
+                    camera2Config.getPhysicalCameraId()?.let { physicalCameraId ->
+                        insertOption(
+                            Camera2ImplConfig.SESSION_PHYSICAL_CAMERA_ID_OPTION,
+                            physicalCameraId,
+                        )
+                    }
+                    if (Build.VERSION.SDK_INT >= 34) {
+                        camera2Config.getColorSpace()?.let { colorSpace ->
+                            insertOption(Camera2ImplConfig.SESSION_COLOR_SPACE_OPTION, colorSpace)
+                        }
+                    }
+                    camera2Config.getSessionType()?.let { sessionType ->
+                        insertOption(Camera2ImplConfig.SESSION_TYPE_OPTION, sessionType)
+                    }
+                    sessionInteropConfig.findOptions(Camera2ImplConfig.SESSION_PARAMETER_ID_STEM) {
+                        @Suppress("UNCHECKED_CAST") val objectOpt = it as Config.Option<Any>
+                        insertOption(
+                            objectOpt,
+                            sessionInteropConfig.getOptionPriority(objectOpt),
+                            sessionInteropConfig.retrieveOption(objectOpt),
+                        )
+                        true
+                    }
+                }
+            overlayBuilder.addImplementationOptions(extendedConfig)
+            overlayBuilder.addImplementationOptions(camera2Config.captureRequestOptions)
+
+            validatingBuilder.add(overlayBuilder.build())
+
+            if (sessionInteropConfig.containsOption(Camera2ImplConfig.TEMPLATE_TYPE_OPTION)) {
+                validatingBuilder.setTemplateType(
+                    camera2Config.getCaptureRequestTemplate(CaptureConfig.TEMPLATE_TYPE_NONE)
+                )
+            }
+        }
+
+        /**
+         * Builds the mapping from each [DeferrableSurface] in [sessionConfigs] to its resolved
+         * [SurfaceConfigOptions].
+         */
+        public fun buildSurfaceConfigOptionsMap(
+            sessionConfigs: List<SessionConfig>,
+            useCaseConfigs: List<UseCaseConfig<*>>,
+            sessionTemplateType: Int = CaptureConfig.TEMPLATE_TYPE_NONE,
+            allowEmptySurfaceStreamUseCase: Boolean = false,
+        ): Map<DeferrableSurface, SurfaceConfigOptions> {
+            val streamUseCaseMap =
+                getSurfaceToStreamUseCaseMapping(
+                    sessionConfigs,
+                    useCaseConfigs,
+                    sessionTemplateType,
+                    allowEmptySurfaceStreamUseCase,
+                )
+            val streamUseHintMap = getSurfaceToStreamUseHintMapping(sessionConfigs)
+
+            val mapping = mutableMapOf<DeferrableSurface, SurfaceConfigOptions>()
+            for (index in sessionConfigs.indices) {
+                val sessionConfig = sessionConfigs[index]
+                val useCaseConfig = useCaseConfigs[index]
+                val camera2Config = Camera2ImplConfig(useCaseConfig)
+                val groupId =
+                    camera2Config
+                        .getSurfaceGroupId(SessionConfig.OutputConfig.SURFACE_GROUP_ID_NONE)
+                        .takeIf { it != SessionConfig.OutputConfig.SURFACE_GROUP_ID_NONE }
+                val timestampBase = camera2Config.getTimestampBase(null)
+                val profile = camera2Config.getDynamicRangeProfile(null)
+                val mirrorMode = camera2Config.getMirrorMode(null)
+                val sensorPixelModes =
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        camera2Config.getSensorPixelModesUsed(null)
+                    } else {
+                        null
+                    }
+
+                for (surface in sessionConfig.surfaces) {
+                    val streamUseCase = streamUseCaseMap[surface]
+                    val streamUseHint = streamUseHintMap[surface]
+
+                    if (
+                        streamUseCase != null ||
+                            streamUseHint != null ||
+                            groupId != null ||
+                            timestampBase != null ||
+                            profile != null ||
+                            mirrorMode != null ||
+                            sensorPixelModes != null
+                    ) {
+                        mapping[surface] =
+                            SurfaceConfigOptions(
+                                streamUseCase = streamUseCase,
+                                streamUseHint = streamUseHint,
+                                surfaceGroupId = groupId,
+                                timestampBase = timestampBase,
+                                dynamicRangeProfile = profile,
+                                mirrorMode = mirrorMode,
+                                sensorPixelModes = sensorPixelModes,
+                            )
+                    }
+                }
+            }
+            return mapping
+        }
+
+        private fun getSurfaceToStreamUseCaseMapping(
+            sessionConfigs: Collection<SessionConfig>,
+            useCaseConfigs: Collection<UseCaseConfig<*>>,
+            sessionTemplateType: Int = CaptureConfig.TEMPLATE_TYPE_NONE,
+            allowEmptySurfaceStreamUseCase: Boolean = false,
+        ): Map<DeferrableSurface, Long> {
+            if (
+                sessionTemplateType == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG ||
+                    sessionConfigs.any { it.templateType == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG }
+            ) {
+                // If is ZSL, do not populate anything.
+                Camera2Logger.error { "ZSL in populateSurfaceToStreamUseCaseMapping()" }
+                return emptyMap()
+            }
+
+            val mapping = mutableMapOf<DeferrableSurface, Long>()
+            StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
+                sessionConfigs,
+                useCaseConfigs,
+                mapping,
+                allowEmptySurfaceStreamUseCase,
+            )
+
+            return mapping
+        }
+
+        private fun getSurfaceToStreamUseHintMapping(
+            sessionConfigs: Collection<SessionConfig>
+        ): Map<DeferrableSurface, Long> {
+            val mapping = mutableMapOf<DeferrableSurface, Long>()
+            for (sessionConfig in sessionConfigs) {
+                for (surface in sessionConfig.surfaces) {
+                    val customHint =
+                        sessionConfig.implementationOptions.retrieveOption(
+                            Camera2ImplConfig.STREAM_USE_HINT_OPTION,
+                            null,
+                        )
+                    mapping[surface] =
+                        customHint ?: getStreamUseHintForContainerClass(surface.containerClass)
+                }
+            }
+            return mapping
+        }
+
+        /**
+         * Determines the appropriate [OutputStream.StreamUseHint] value based on the provided
+         * container class.
+         *
+         * StreamUseHint is used for the following purposes:
+         *
+         * (1) **Surface Ordering:** To ensure [MediaCodec] surfaces are placed at the end of the
+         * output list within [androidx.camera.camera2.pipe.graph.StreamGraphImpl]. Note:
+         * [StreamSharing] uses [android.graphics.SurfaceTexture], not [MediaCodec] surface.
+         *
+         * (2) **High-Speed Session Operation:** To identify the presence of a [MediaCodec] surface
+         * in high-speed capture session scenarios within
+         * [androidx.camera.camera2.pipe.compat.Camera2CaptureSequenceProcessor].
+         *
+         * @param kClass The Kotlin [Class] of the container.
+         * @return The corresponding [OutputStream.StreamUseHint] value.
+         */
+        private fun getStreamUseHintForContainerClass(kClass: Class<*>?): Long {
+            return when (kClass) {
+                MediaCodec::class.java -> OutputStream.StreamUseHint.VIDEO_RECORD.value
+                else -> OutputStream.StreamUseHint.DEFAULT.value
+            }
         }
     }
 }

@@ -16,6 +16,7 @@
 
 package androidx.camera.core.impl
 
+import android.util.Range
 import androidx.camera.core.CameraUseCaseAdapterProvider
 import androidx.camera.core.SessionConfig
 import androidx.camera.core.featuregroup.impl.ResolvedFeatureGroup
@@ -63,6 +64,10 @@ public object UseCaseAdditionSimulator {
      *   the simulation, false by default to improve latency in cases where this info is not
      *   required. This info will be available through the [StreamSpecQueryResult]s of the returned
      *   [CalculatedUseCaseInfo].
+     * @param resolvedFeatureGroup The pre-resolved feature group to apply, or `null` to resolve
+     *   from [sessionConfig].
+     * @param targetFrameRate The target frame rate range to apply when
+     *   [findSupportedFrameRateRanges] is `false`. Defaults to [SessionConfig.frameRateRange].
      * @return A [CalculatedUseCaseInfo] object containing the simulated configuration result.
      * @throws IllegalStateException If a [CameraUseCaseAdapterProvider] has not been set yet.
      * @throws IllegalArgumentException If the underlying camera capabilities don't support the
@@ -78,12 +83,16 @@ public object UseCaseAdditionSimulator {
         sessionConfig: SessionConfig,
         findSupportedFrameRateRanges: Boolean = false,
         resolvedFeatureGroup: ResolvedFeatureGroup? = null,
+        targetFrameRate: Range<Int> = sessionConfig.frameRateRange,
     ): CalculatedUseCaseInfo {
         check(::cameraUseCaseAdapterProvider.isInitialized) {
             "mCameraUseCaseAdapterProvider must be initialized first!"
         }
 
         val cameraUseCaseAdapter = cameraUseCaseAdapterProvider.provide(cameraInfoInternal.cameraId)
+        if (sessionConfig.isInitialEnabledUseCasesSet) {
+            cameraUseCaseAdapter.setBoundSessionConfig(sessionConfig)
+        }
         cameraUseCaseAdapter.viewPort = sessionConfig.viewPort
         cameraUseCaseAdapter.effects = sessionConfig.effects
         cameraUseCaseAdapter.sessionType = sessionConfig.sessionType
@@ -93,7 +102,7 @@ public object UseCaseAdditionSimulator {
             if (findSupportedFrameRateRanges) {
                 StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED
             } else {
-                sessionConfig.frameRateRange
+                targetFrameRate
             }
 
         return cameraUseCaseAdapter.simulateAddUseCases(

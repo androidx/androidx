@@ -44,7 +44,10 @@ import androidx.camera.camera2.impl.CameraCallbackMap
 import androidx.camera.camera2.impl.CameraPipeCameraProperties
 import androidx.camera.camera2.impl.CameraProperties
 import androidx.camera.camera2.impl.DeviceInfoLogger
+import androidx.camera.camera2.impl.DisplayInfoManager
+import androidx.camera.camera2.impl.FastSwitchConfigQuery
 import androidx.camera.camera2.impl.FocusMeteringControl
+import androidx.camera.camera2.impl.MeteringRepeating
 import androidx.camera.camera2.impl.NightModeIndicatorMonitor
 import androidx.camera.camera2.internal.CameraCompatibilityFilter
 import androidx.camera.camera2.internal.IntrinsicZoomCalculator
@@ -66,6 +69,7 @@ import androidx.camera.common.unwrapAs
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
+import androidx.camera.core.CameraXConfig
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.ExperimentalLensFacing
 import androidx.camera.core.ExperimentalZeroShutterLag
@@ -79,9 +83,12 @@ import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraSessionLifecycleCallback
 import androidx.camera.core.impl.DynamicRanges
 import androidx.camera.core.impl.EncoderProfilesProvider
+import androidx.camera.core.impl.HardwareConfigQueryResult
 import androidx.camera.core.impl.Quirks
+import androidx.camera.core.impl.ResolvedStreamInfo
 import androidx.camera.core.impl.Timebase
 import androidx.camera.core.impl.utils.CameraOrientationUtil
+import androidx.camera.core.internal.CalculatedUseCaseInfo
 import androidx.camera.core.internal.StreamSpecsCalculator
 import androidx.core.util.Consumer
 import androidx.lifecycle.LiveData
@@ -89,6 +96,7 @@ import androidx.lifecycle.MutableLiveData
 import java.lang.Class
 import java.util.concurrent.Executor
 import javax.inject.Inject
+import javax.inject.Provider
 
 /** Adapt the [CameraInfoInternal] interface to [CameraPipe]. */
 @CameraScope
@@ -108,8 +116,17 @@ constructor(
     private val intrinsicZoomCalculator: IntrinsicZoomCalculator,
     private val streamSpecsCalculator: StreamSpecsCalculator,
     private val cameraSessionLifecycleAdapter: CameraSessionLifecycleAdapter,
+    private val fastSwitchConfigQuery: FastSwitchConfigQuery?,
+    private val supportedSurfaceCombination: Provider<SupportedSurfaceCombination>,
+    private val displayInfoManager: DisplayInfoManager,
+    private val cameraXConfig: CameraXConfig,
 ) : CameraInfoInternal, UnsafeWrapper {
     private val lock = Any()
+
+    private val meteringRepeating by
+        lazy(LazyThreadSafetyMode.PUBLICATION) {
+            MeteringRepeating.Builder(cameraProperties, displayInfoManager).build()
+        }
 
     @GuardedBy("lock")
     private val extensionCapabilitiesCache = mutableMapOf<Int, CameraExtensionCapabilities>()
@@ -472,6 +489,21 @@ constructor(
             }
         }
     }
+
+    override fun isRepeatingStreamForced(): Boolean = cameraXConfig.isRepeatingStreamForced
+
+    override fun resolveRepeatingStream(
+        unionInfo: CalculatedUseCaseInfo,
+        streams: List<ResolvedStreamInfo>,
+    ): ResolvedStreamInfo? =
+        meteringRepeating.resolveStreamInfo(streams, supportedSurfaceCombination.get())
+
+    override fun queryFastSwitchHardwareSupport(
+        config: androidx.camera.core.SessionConfig,
+        streams: List<ResolvedStreamInfo>,
+    ): HardwareConfigQueryResult =
+        fastSwitchConfigQuery?.isConfigSupported(config, streams)
+            ?: HardwareConfigQueryResult.UNKNOWN
 
     public companion object {
         public inline fun <reified T : Any> CameraInfo.unwrapAs(): T? = unwrapAs(T::class.java)

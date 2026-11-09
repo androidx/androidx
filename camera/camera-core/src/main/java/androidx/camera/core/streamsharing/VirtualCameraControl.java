@@ -22,7 +22,9 @@ import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.imagecapture.CameraCapturePipeline;
+import androidx.camera.core.impl.AdapterCameraControl;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.ForwardingCameraControl;
@@ -44,11 +46,13 @@ public class VirtualCameraControl extends ForwardingCameraControl {
     private static final int DEFAULT_JPEG_QUALITY = 100;
     private static final int DEFAULT_ROTATION_DEGREES = 0;
 
+    private final CameraControlInternal mParentCameraControl;
     private final StreamSharing.Control mStreamSharingControl;
 
     VirtualCameraControl(@NonNull CameraControlInternal parent,
             StreamSharing.@NonNull Control streamSharingControl) {
         super(parent);
+        mParentCameraControl = parent;
         mStreamSharingControl = streamSharingControl;
     }
 
@@ -58,6 +62,15 @@ public class VirtualCameraControl extends ForwardingCameraControl {
             @ImageCapture.CaptureMode int captureMode,
             @ImageCapture.FlashType int flashType) {
         checkArgument(captureConfigs.size() == 1, "Only support one capture config.");
+        if (mParentCameraControl instanceof AdapterCameraControl
+                && !((AdapterCameraControl) mParentCameraControl)
+                        .areCaptureRequestsEnabled(captureConfigs)) {
+            return Futures.immediateFailedFuture(
+                    new ImageCaptureException(
+                            ImageCapture.ERROR_INVALID_CAMERA,
+                            "UseCase is not enabled in the current SessionConfig",
+                            null));
+        }
 
         // FLASH_TYPE_USE_TORCH_AS_FLASH is used to ensure the flash is always on when capturing.
         // Since we are using JPEG snapshot here, there is no way for the framework to know exactly

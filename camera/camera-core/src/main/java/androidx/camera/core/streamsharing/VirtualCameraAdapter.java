@@ -75,6 +75,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -190,10 +191,12 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
                 resolveTargetFrameRate(mChildrenBindConfigs));
 
         boolean isZslDisabled = false;
+        List<UseCaseConfig<?>> childrenConfigs = new ArrayList<>(mChildren.size());
 
         // Merge Preview stabilization, video stabilization and ZSL configs.
         for (UseCase useCase : mChildren) {
             UseCaseConfig<?> useCaseConfig = requireNonNull(mChildrenBindConfigsMap.get(useCase));
+            childrenConfigs.add(useCaseConfig);
             if (useCaseConfig.getVideoStabilizationMode()
                     != StabilizationMode.UNSPECIFIED) {
                 mutableConfig.insertOption(OPTION_VIDEO_STABILIZATION_MODE,
@@ -213,6 +216,7 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
         if (isZslDisabled) {
             mutableConfig.insertOption(UseCaseConfig.OPTION_ZSL_DISABLED, true);
         }
+        mutableConfig.insertOption(StreamSharingConfig.OPTION_CHILDREN_CONFIGS, childrenConfigs);
     }
 
     void bindChildren() {

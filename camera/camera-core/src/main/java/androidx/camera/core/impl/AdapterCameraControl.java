@@ -20,6 +20,9 @@ import android.util.Range;
 
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.utils.SessionProcessorUtil;
 import androidx.camera.core.impl.utils.futures.Futures;
 
@@ -27,6 +30,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
+import java.util.List;
 
 /**
  * A {@link CameraControlInternal} whose capabilities can be restricted by the associated
@@ -37,6 +42,23 @@ import org.jspecify.annotations.Nullable;
 public class AdapterCameraControl extends ForwardingCameraControl {
     private final CameraControlInternal mCameraControl;
     private final @Nullable SessionProcessor mSessionProcessor;
+    private volatile @Nullable EnabledUseCasesHandler mEnabledUseCasesHandler;
+
+    /**
+     * Handler for session-scoped dynamic {@link UseCase} switching and capture request gating.
+     */
+    public interface EnabledUseCasesHandler {
+        /**
+         * Validates and applies the active subset of {@link UseCase}s for the bound session.
+         */
+        @NonNull ListenableFuture<Void> setEnabledUseCasesAsync(@NonNull List<UseCase> useCases);
+
+        /**
+         * Returns whether the given still capture requests target currently enabled
+         * {@link UseCase}s.
+         */
+        boolean areCaptureRequestsEnabled(@NonNull List<CaptureConfig> captureConfigs);
+    }
 
     /**
      * Creates the restricted version of the given {@link CameraControlInternal}.
@@ -148,5 +170,47 @@ public class AdapterCameraControl extends ForwardingCameraControl {
                     new IllegalStateException("ExposureCompensation is not supported"));
         }
         return mCameraControl.setExposureCompensationIndex(value);
+    }
+
+    /**
+     * Sets the handler used for session-scoped dynamic {@link UseCase} switching and capture
+     * request gating.
+     */
+    public void setEnabledUseCasesHandler(@Nullable EnabledUseCasesHandler handler) {
+        mEnabledUseCasesHandler = handler;
+    }
+
+    @Override
+    public @NonNull ListenableFuture<Void> setEnabledUseCasesAsync(
+            @NonNull List<UseCase> useCases) {
+        EnabledUseCasesHandler handler = mEnabledUseCasesHandler;
+        if (handler != null) {
+            return handler.setEnabledUseCasesAsync(useCases);
+        }
+        return mCameraControl.setEnabledUseCasesAsync(useCases);
+    }
+
+    /**
+     * Returns whether all {@code captureConfigs} target surfaces of {@link UseCase}s that are
+     * currently enabled.
+     */
+    public boolean areCaptureRequestsEnabled(@NonNull List<CaptureConfig> captureConfigs) {
+        EnabledUseCasesHandler handler = mEnabledUseCasesHandler;
+        return handler == null || handler.areCaptureRequestsEnabled(captureConfigs);
+    }
+
+    @Override
+    public @NonNull ListenableFuture<List<Void>> submitStillCaptureRequests(
+            @NonNull List<CaptureConfig> captureConfigs,
+            @ImageCapture.CaptureMode int captureMode,
+            @ImageCapture.FlashType int flashType) {
+        if (!areCaptureRequestsEnabled(captureConfigs)) {
+            return Futures.immediateFailedFuture(
+                    new ImageCaptureException(
+                            ImageCapture.ERROR_INVALID_CAMERA,
+                            "UseCase is not enabled in the current SessionConfig",
+                            null));
+        }
+        return mCameraControl.submitStillCaptureRequests(captureConfigs, captureMode, flashType);
     }
 }

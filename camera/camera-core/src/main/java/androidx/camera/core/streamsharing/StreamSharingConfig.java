@@ -26,6 +26,7 @@ import androidx.camera.core.internal.ThreadConfig;
 
 import org.jspecify.annotations.NonNull;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -42,6 +43,12 @@ public class StreamSharingConfig implements UseCaseConfig<StreamSharing>,
             Config.Option.create("camerax.core.streamSharing.captureTypes",
                     List.class);
 
+    @SuppressWarnings("unchecked")
+    static final Config.Option<List<UseCaseConfig<?>>> OPTION_CHILDREN_CONFIGS =
+            (Config.Option<List<UseCaseConfig<?>>>) (Config.Option<?>) Config.Option.create(
+                    "camerax.core.streamSharing.childrenConfigs",
+                    List.class);
+
     private final OptionsBundle mConfig;
 
     /** Creates a new configuration instance. */
@@ -56,5 +63,12 @@ public class StreamSharingConfig implements UseCaseConfig<StreamSharing>,
 
     public @NonNull List<UseCaseConfigFactory.CaptureType> getCaptureTypes() {
         return retrieveOption(OPTION_CAPTURE_TYPES);
+    }
+
+    /**
+     * Returns the merged {@link UseCaseConfig}s of the children wrapped by {@link StreamSharing}.
+     */
+    public @NonNull List<UseCaseConfig<?>> getChildrenConfigs() {
+        return retrieveOption(OPTION_CHILDREN_CONFIGS, Collections.emptyList());
     }
 }

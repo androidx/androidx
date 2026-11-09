@@ -24,27 +24,37 @@ import android.util.Size
 import android.view.Surface
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.adapter.CameraUseCaseAdapter
+import androidx.camera.camera2.adapter.SupportedSurfaceCombination
 import androidx.camera.camera2.compat.workaround.getSupportedRepeatingSurfaceSizes
+import androidx.camera.camera2.internal.DynamicRangeResolver
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.UseCase
+import androidx.camera.core.impl.AttachedSurfaceInfo
+import androidx.camera.core.impl.CameraMode
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.DeferrableSurface
+import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.ImageInputConfig
 import androidx.camera.core.impl.ImmediateSurface
 import androidx.camera.core.impl.MutableOptionsBundle
+import androidx.camera.core.impl.ResolvedStreamInfo
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionConfig.CloseableErrorListener
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.StreamUseCase
+import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_TYPE
+import androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_SESSION_CONFIG
 import androidx.camera.core.impl.UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
+import androidx.camera.core.impl.utils.UseCaseUtil.getVideoStabilization
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME
+import androidx.camera.core.streamsharing.StreamSharingConfig
 import kotlin.collections.isEmpty
 import kotlin.collections.sortBy
 import kotlin.math.min
@@ -63,6 +73,8 @@ public class MeteringRepeating(
 ) : UseCase(config) {
 
     internal val meteringSurfaceSize = getProperPreviewSize(cameraProperties, displayInfoManager)
+
+    private val dynamicRangeResolver = DynamicRangeResolver(cameraProperties.metadata)
 
     private val deferrableSurfaceLock = Any()
 
@@ -157,12 +169,177 @@ public class MeteringRepeating(
         return newSurface
     }
 
+    internal fun resolveDynamicRange(
+        streams: List<ResolvedStreamInfo>,
+        supportedSurfaceCombination: SupportedSurfaceCombination,
+        @CameraMode.Mode cameraMode: Int = CameraMode.DEFAULT,
+    ): DynamicRange? =
+        synchronized(supportedSurfaceCombination) {
+            if (streams.isEmpty()) {
+                return null
+            }
+            val attachedSurfaceInfoList =
+                toAttachedSurfaceInfoList(streams, supportedSurfaceCombination, cameraMode)
+            resolveDynamicRange(attachedSurfaceInfoList)
+        }
+
+    internal fun resolveStreamInfo(
+        streams: List<ResolvedStreamInfo>,
+        supportedSurfaceCombination: SupportedSurfaceCombination,
+        @CameraMode.Mode cameraMode: Int = CameraMode.DEFAULT,
+        sessionSurfaceConfigsProvider:
+            ((SupportedSurfaceCombination.FeatureSettings) -> List<SurfaceConfig>)? =
+            null,
+    ): ResolvedStreamInfo? =
+        synchronized(supportedSurfaceCombination) {
+            if (streams.isEmpty()) {
+                return null
+            }
+            val attachedSurfaceInfoList =
+                toAttachedSurfaceInfoList(streams, supportedSurfaceCombination, cameraMode)
+            val meteringDynamicRange = resolveDynamicRange(attachedSurfaceInfoList) ?: return null
+
+            val requiredMaxBitDepth =
+                if (
+                    meteringDynamicRange.bitDepth == DynamicRange.BIT_DEPTH_10_BIT ||
+                        attachedSurfaceInfoList.any {
+                            it.dynamicRange.bitDepth == DynamicRange.BIT_DEPTH_10_BIT
+                        }
+                ) {
+                    DynamicRange.BIT_DEPTH_10_BIT
+                } else {
+                    DynamicRange.BIT_DEPTH_8_BIT
+                }
+            val hasVideoCapture = attachedSurfaceInfoList.any {
+                it.captureTypes.contains(CaptureType.VIDEO_CAPTURE)
+            }
+            val videoStabilization = streams.map { it.useCaseConfig }.getVideoStabilization()
+            val isUltraHdrOn = streams.any {
+                it.useCaseConfig is ImageCaptureConfig &&
+                    it.useCaseConfig.inputFormat == ImageFormat.JPEG_R
+            }
+
+            val featureSettings =
+                SupportedSurfaceCombination.FeatureSettings(
+                    cameraMode,
+                    requiredMaxBitDepth,
+                    hasVideoCapture = hasVideoCapture,
+                    videoStabilization = videoStabilization,
+                    isUltraHdrOn = isUltraHdrOn,
+                )
+            val sessionSurfacesConfigs =
+                sessionSurfaceConfigsProvider?.invoke(featureSettings)
+                    ?: buildList {
+                        for (stream in streams) {
+                            for (format in stream.useCaseConfig.inputFormats) {
+                                add(
+                                    supportedSurfaceCombination.transformSurfaceConfig(
+                                        cameraMode,
+                                        format,
+                                        stream.streamSpec.resolution,
+                                        stream.useCaseConfig.streamUseCase,
+                                        featureSettings,
+                                    )
+                                )
+                            }
+                        }
+                    }
+            val meteringSurfaceConfig =
+                supportedSurfaceCombination.transformSurfaceConfig(
+                    cameraMode,
+                    imageFormat,
+                    meteringSurfaceSize,
+                    currentConfig.streamUseCase,
+                    featureSettings,
+                )
+
+            val isSupported =
+                supportedSurfaceCombination
+                    .checkSupported(
+                        featureSettings,
+                        mutableListOf<SurfaceConfig>().apply {
+                            addAll(sessionSurfacesConfigs)
+                            add(meteringSurfaceConfig)
+                        },
+                    )
+                    .also {
+                        Camera2Logger.debug {
+                            "Combination of $sessionSurfacesConfigs + $this is supported: $it"
+                        }
+                    }
+            if (!isSupported) {
+                return null
+            }
+            ResolvedStreamInfo(
+                currentConfig,
+                StreamSpec.builder(meteringSurfaceSize)
+                    .setDynamicRange(meteringDynamicRange)
+                    .build(),
+            )
+        }
+
+    private fun toAttachedSurfaceInfoList(
+        streams: List<ResolvedStreamInfo>,
+        supportedSurfaceCombination: SupportedSurfaceCombination,
+        @CameraMode.Mode cameraMode: Int,
+    ): List<AttachedSurfaceInfo> = streams.map { stream ->
+        val useCaseConfig = stream.useCaseConfig
+        val streamSpec = stream.streamSpec
+        val surfaceResolution = streamSpec.resolution
+        val surfaceConfig =
+            supportedSurfaceCombination.transformSurfaceConfig(
+                cameraMode,
+                useCaseConfig.inputFormat,
+                surfaceResolution,
+                useCaseConfig.streamUseCase,
+            )
+        val captureTypes =
+            if (useCaseConfig is StreamSharingConfig) {
+                useCaseConfig.captureTypes
+            } else {
+                listOf(useCaseConfig.captureType)
+            }
+        AttachedSurfaceInfo.create(
+            surfaceConfig,
+            useCaseConfig.inputFormat,
+            surfaceResolution,
+            streamSpec.dynamicRange,
+            captureTypes,
+            streamSpec.implementationOptions ?: MutableOptionsBundle.create(),
+            streamSpec.sessionType,
+            streamSpec.expectedFrameRateRange,
+            useCaseConfig.isStrictFrameRateRequired,
+            useCaseConfig.getCustomMaxFrameRate(surfaceResolution),
+        )
+    }
+
+    private fun resolveDynamicRange(
+        attachedSurfaceInfoList: List<AttachedSurfaceInfo>
+    ): DynamicRange? =
+        try {
+            dynamicRangeResolver
+                .resolveAndValidateDynamicRanges(
+                    attachedSurfaceInfoList,
+                    listOf(currentConfig),
+                    listOf(0),
+                )[currentConfig]
+        } catch (e: IllegalArgumentException) {
+            Camera2Logger.warn(e) { "Failed to resolve dynamic range for MeteringRepeating" }
+            null
+        }
+
     public class MeteringRepeatingConfig : UseCaseConfig<MeteringRepeating>, ImageInputConfig {
         private val config =
             MutableOptionsBundle.create().apply {
                 insertOption(
                     OPTION_SESSION_CONFIG_UNPACKER,
                     CameraUseCaseAdapter.DefaultSessionOptionsUnpacker,
+                )
+                insertOption(
+                    OPTION_DEFAULT_SESSION_CONFIG,
+                    SessionConfig.Builder()
+                        .apply { setTemplateType(CameraDevice.TEMPLATE_PREVIEW) }
+                        .build(),
                 )
                 insertOption(OPTION_TARGET_NAME, "MeteringRepeating")
                 insertOption(OPTION_CAPTURE_TYPE, CaptureType.METERING_REPEATING)

@@ -572,8 +572,12 @@ public class StreamSharing extends UseCase {
         // Send the camera edge Surface to the camera2.
         SessionConfig.Builder builder = SessionConfig.Builder.createFrom(config,
                 streamSpec.getResolution());
-        propagateChildrenTemplate(builder);
-        propagateChildrenCamera2Interop(streamSpec.getResolution(), builder);
+        List<UseCaseConfig<?>> childrenConfigs = new ArrayList<>(getChildren().size());
+        for (UseCase child : getChildren()) {
+            childrenConfigs.add(child.getCurrentConfig());
+        }
+        propagateChildrenConfigsToSessionConfig(childrenConfigs, streamSpec.getResolution(),
+                builder);
 
         DeferrableSurface deferrableSurface = surfaceEdge.getDeferrableSurface();
         builder.addSurface(deferrableSurface,
@@ -592,37 +596,37 @@ public class StreamSharing extends UseCase {
         return builder;
     }
 
-    private void propagateChildrenTemplate(SessionConfig.@NonNull Builder builder) {
+    /**
+     * Propagates children template and Camera2Interop settings from merged child
+     * {@link UseCaseConfig}s to a {@link SessionConfig.Builder}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static void propagateChildrenConfigsToSessionConfig(
+            @NonNull List<UseCaseConfig<?>> childrenConfigs,
+            @NonNull Size resolution,
+            SessionConfig.@NonNull Builder builder) {
         int targetTemplate = TEMPLATE_TYPE_NONE;
-        for (UseCase child : getChildren()) {
-            targetTemplate = getHigherPriorityTemplateType(targetTemplate, getChildTemplate(child));
+        for (UseCaseConfig<?> childConfig : childrenConfigs) {
+            SessionConfig defaultSessionConfig = childConfig.getDefaultSessionConfig(null);
+            if (defaultSessionConfig != null) {
+                targetTemplate = getHigherPriorityTemplateType(
+                        targetTemplate, defaultSessionConfig.getTemplateType());
+            }
+            SessionConfig childSessionConfig =
+                    SessionConfig.Builder.createFrom(childConfig, resolution).build();
+            builder.addAllRepeatingCameraCaptureCallbacks(
+                    childSessionConfig.getRepeatingCameraCaptureCallbacks());
+            builder.addAllCameraCaptureCallbacks(
+                    childSessionConfig.getSingleCameraCaptureCallbacks());
+            builder.addAllSessionStateCallbacks(
+                    childSessionConfig.getSessionStateCallbacks());
+            builder.addAllDeviceStateCallbacks(
+                    childSessionConfig.getDeviceStateCallbacks());
+            builder.addImplementationOptions(
+                    childSessionConfig.getImplementationOptions());
         }
         if (targetTemplate != TEMPLATE_TYPE_NONE) {
             builder.setTemplateType(targetTemplate);
-        }
-    }
-
-    private static int getChildTemplate(@NonNull UseCase useCase) {
-        return useCase.getCurrentConfig().getDefaultSessionConfig().getTemplateType();
-    }
-
-
-    /**
-     * Propagates children Camera2interop settings.
-     */
-    private void propagateChildrenCamera2Interop(
-            @NonNull Size resolution,
-            SessionConfig.@NonNull Builder builder) {
-        for (UseCase useCase : getChildren()) {
-            SessionConfig childConfig =
-                    SessionConfig.Builder.createFrom(useCase.getCurrentConfig(), resolution)
-                            .build();
-            builder.addAllRepeatingCameraCaptureCallbacks(
-                    childConfig.getRepeatingCameraCaptureCallbacks());
-            builder.addAllCameraCaptureCallbacks(childConfig.getSingleCameraCaptureCallbacks());
-            builder.addAllSessionStateCallbacks(childConfig.getSessionStateCallbacks());
-            builder.addAllDeviceStateCallbacks(childConfig.getDeviceStateCallbacks());
-            builder.addImplementationOptions(childConfig.getImplementationOptions());
         }
     }
 

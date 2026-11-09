@@ -1443,4 +1443,59 @@ class StreamSharingTest {
         assertThat(videoCaptureEdgeBefore).isNotEqualTo(videoCaptureEdgeAfter)
         assertThat(videoCaptureEdgeBefore.isClosed).isTrue()
     }
+
+    @Test
+    fun propagateChildrenConfigsToSessionConfig_propagatesChildrenDefaultTemplateOverSessionPreviewTemplate() {
+        val resolution = Size(640, 480)
+        val preview = Preview.Builder().build()
+        val videoOutput: VideoOutput =
+            object : VideoOutput {
+                override fun onSurfaceRequested(request: SurfaceRequest) {
+                    request.willNotProvideSurface()
+                }
+
+                override fun getMediaSpec(): Observable<MediaSpec> {
+                    return ConstantObservable.withValue(MediaSpec.builder().build())
+                }
+            }
+        val videoCapture =
+            VideoCapture.Builder(videoOutput)
+                .setVideoEncoderInfoFinder { FakeVideoEncoderInfo() }
+                .setTargetRotation(Surface.ROTATION_0)
+                .build()
+        streamSharing =
+            StreamSharing(
+                camera,
+                null,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                setOf(preview, videoCapture),
+                emptyList(),
+                useCaseConfigFactory,
+            )
+        val templateOption =
+            androidx.camera.core.impl.Config.Option.create<Int>(
+                "camera2.captureRequest.templateType",
+                Int::class.javaObjectType,
+            )
+        val cameraConfigWithPreviewTemplate =
+            MutableOptionsBundle.from(streamSharing.getDefaultConfig(true, useCaseConfigFactory)!!)
+                .apply {
+                    insertOption(templateOption, CameraDevice.TEMPLATE_PREVIEW)
+                    insertOption(
+                        UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER,
+                        androidx.camera.core.impl.SessionConfig.OptionUnpacker { _, _, b ->
+                            b.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                        },
+                    )
+                }
+        streamSharing.bindToCamera(
+            camera,
+            null,
+            null,
+            streamSharing.getUseCaseConfigBuilder(cameraConfigWithPreviewTemplate).useCaseConfig,
+        )
+        streamSharing.updateSuggestedStreamSpec(StreamSpec.builder(resolution).build(), null)
+        assertThat(streamSharing.sessionConfig.templateType).isEqualTo(CameraDevice.TEMPLATE_RECORD)
+    }
 }
