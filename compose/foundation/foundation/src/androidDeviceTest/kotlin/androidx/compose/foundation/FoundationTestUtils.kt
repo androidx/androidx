@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.unit.dp
 
@@ -38,14 +39,25 @@ internal fun ComposeContentTestRule.setFocusableContent(
     extraItemForInitialFocus: Boolean = true,
     content: @Composable () -> Unit,
 ) {
-    setContent {
-        if (extraItemForInitialFocus) {
-            Row {
-                Box(modifier = Modifier.requiredSize(10.dp, 10.dp).focusable())
-                Box { content() }
-            }
-        } else {
-            Box(modifier = Modifier.requiredSize(100.dp, 100.dp)) { content() }
+    setContent { FocusableContent(extraItemForInitialFocus, content) }
+}
+
+/** [ComposeUiTest] variant of [ComposeContentTestRule.setFocusableContent]. */
+internal fun ComposeUiTest.setFocusableContent(
+    extraItemForInitialFocus: Boolean = true,
+    content: @Composable () -> Unit,
+) {
+    setContent { FocusableContent(extraItemForInitialFocus, content) }
+}
+
+@Composable
+private fun FocusableContent(extraItemForInitialFocus: Boolean, content: @Composable () -> Unit) {
+    if (extraItemForInitialFocus) {
+        Row {
+            Box(modifier = Modifier.requiredSize(10.dp, 10.dp).focusable())
+            Box { content() }
         }
+    } else {
+        Box(modifier = Modifier.requiredSize(100.dp, 100.dp)) { content() }
     }
 }
