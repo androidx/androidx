@@ -53,6 +53,7 @@ package androidx.ink.authoring {
     method public void cancelShape(androidx.ink.authoring.InProgressStrokeId shapeId, optional android.view.MotionEvent? event);
     method @BytecodeOnly public static void cancelShape$default(androidx.ink.authoring.InProgressShapesView!, androidx.ink.authoring.InProgressStrokeId!, android.view.MotionEvent!, int, Object!);
     method public void cancelUnfinishedShapes();
+    method public void cancelUnfinishedShapes(int deviceId);
     method public void clearCompletedShapesListeners();
     method public void eagerInit();
     method public boolean finishShape(android.view.MotionEvent event, int pointerId);
@@ -64,6 +65,7 @@ package androidx.ink.authoring {
     method @InaccessibleFromKotlin public android.graphics.Path? getMaskPath();
     method @InaccessibleFromKotlin public android.graphics.Matrix getMotionEventToViewTransform();
     method public boolean hasUnfinishedShapes();
+    method public boolean hasUnfinishedShapes(int deviceId);
     method public void removeCompletedShapes(java.util.Set<androidx.ink.authoring.InProgressStrokeId> strokeIds);
     method public void removeCompletedShapesListener(androidx.ink.authoring.InProgressShapesCompletedListener<CompletedShapeT> listener);
     method @InaccessibleFromKotlin public void setCustomShapeWorkflow(androidx.ink.authoring.ShapeWorkflow<? super ShapeSpecT,InProgressShapeT,CompletedShapeT>?);
@@ -111,6 +113,7 @@ package androidx.ink.authoring {
     method public void cancelStroke(androidx.ink.authoring.InProgressStrokeId strokeId, optional android.view.MotionEvent? event);
     method @BytecodeOnly public static void cancelStroke$default(androidx.ink.authoring.InProgressStrokesView!, androidx.ink.authoring.InProgressStrokeId!, android.view.MotionEvent!, int, Object!);
     method public void cancelUnfinishedStrokes();
+    method public void cancelUnfinishedStrokes(int deviceId);
     method public void clearFinishedStrokesListeners();
     method public void eagerInit();
     method public boolean finishStroke(android.view.MotionEvent event, int pointerId);
@@ -122,6 +125,7 @@ package androidx.ink.authoring {
     method @InaccessibleFromKotlin public android.graphics.Matrix getMotionEventToViewTransform();
     method @InaccessibleFromKotlin public androidx.ink.brush.TextureBitmapStore getTextureBitmapStore();
     method public boolean hasUnfinishedStrokes();
+    method public boolean hasUnfinishedStrokes(int deviceId);
     method public void removeFinishedStrokes(java.util.Set<androidx.ink.authoring.InProgressStrokeId> strokeIds);
     method public void removeFinishedStrokesListener(androidx.ink.authoring.InProgressStrokesFinishedListener listener);
     method @InaccessibleFromKotlin public void setInProgressStrokeCounter(androidx.test.espresso.idling.CountingIdlingResource?);

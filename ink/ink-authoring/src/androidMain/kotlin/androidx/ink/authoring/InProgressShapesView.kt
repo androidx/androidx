@@ -765,7 +765,6 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
     }
 
     /** Cancel all in-progress shapes for the specified device ID. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public fun cancelUnfinishedShapes(deviceId: Int) {
         val state = initializedState ?: return
         deviceAndPointerIdToInProgressStrokeId.removeIf { deviceAndPointerId, strokeId ->
@@ -784,7 +783,6 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
     }
 
     /** Returns true if there are any in-progress shapes for the specified device ID. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public fun hasUnfinishedShapes(deviceId: Int): Boolean {
         if (initializedState == null) return false
         deviceAndPointerIdToInProgressStrokeId.forEachKey { deviceAndPointerId ->
