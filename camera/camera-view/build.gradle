@@ -95,5 +95,4 @@ androidx {
             "reliable camera foundation that enables great camera driven experiences across all " +
             "of Android."
     enableRobolectric()
-    legacyDisableReferenceEqualityCheck = true
 }

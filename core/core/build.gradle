@@ -123,5 +123,4 @@ androidx {
     failOnDeprecationWarnings = false
     enableRobolectric()
     samples(project(":core:core:core-samples"))
-    legacyDisableReferenceEqualityCheck = true
 }

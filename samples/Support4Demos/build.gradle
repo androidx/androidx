@@ -33,7 +33,3 @@ android {
     compileSdk { version = release(36) { minorApiLevel = 1 }}
     namespace = "com.example.android.supportv4"
 }
-
-androidx {
-    legacyDisableReferenceEqualityCheck = true
-}

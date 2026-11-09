@@ -40,7 +40,6 @@ dependencies {
 androidx {
     name = "Lint Checks Integration Tests"
     description = "This is a sample library for confirming that lint checks execute correctly, b/177437928"
-    legacyDisableReferenceEqualityCheck = true
 }
 
 android {

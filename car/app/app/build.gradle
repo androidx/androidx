@@ -100,7 +100,6 @@ androidx {
     inceptionYear = "2020"
     description = "Build navigation, parking, and charging apps for Android Auto"
     enableRobolectric()
-    legacyDisableReferenceEqualityCheck = true
 }
 
 // Use MetalavaTask to execute Metalava operations. MetalavaTask is defined in the buildSrc project

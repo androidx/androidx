@@ -98,5 +98,4 @@ androidx {
     description = "add pdf viewing to their apps."
     addGoldenImageAssets()
     enableRobolectric()
-    legacyDisableReferenceEqualityCheck = true
 }

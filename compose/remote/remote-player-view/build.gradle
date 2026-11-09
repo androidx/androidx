@@ -28,7 +28,6 @@ androidx {
     description = "Under Development"
     addGoldenImageAssets()
     enableRobolectric()
-    legacyDisableReferenceEqualityCheck = true
 }
 
 android {

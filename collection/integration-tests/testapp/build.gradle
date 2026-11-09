@@ -38,5 +38,4 @@ androidx {
     type = SoftwareType.TEST_APPLICATION
     inceptionYear = "2021"
     description = "AndroidX Collection Integration Tests"
-    legacyDisableReferenceEqualityCheck = true
 }

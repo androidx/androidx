@@ -92,5 +92,4 @@ androidx {
     description = "OEM Extensions for the Jetpack Camera Library, a library providing interfaces" +
             " to integrate with OEM specific camera features."
     enableRobolectric()
-    legacyDisableReferenceEqualityCheck = true
 }

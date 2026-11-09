@@ -96,5 +96,4 @@ androidx {
             "experiences across all of Android."
     enableRobolectric()
     samples(project(":camera:camera-video:camera-video-samples"))
-    legacyDisableReferenceEqualityCheck = true
 }

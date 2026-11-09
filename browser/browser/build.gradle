@@ -66,5 +66,4 @@ androidx {
     inceptionYear = "2015"
     description = "Provides support for embedding Custom Tabs in an app."
     enableRobolectric()
-    legacyDisableReferenceEqualityCheck = true
 }
