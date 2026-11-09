@@ -2099,4 +2099,43 @@ class SpatialSceneHelperTest {
         assertTrue(summary.contains("SpatialTask(taskId=42, packageName=com.example.xr"))
         assertTrue(summary.contains("rootNodes=1"))
     }
+
+    @Test
+    fun spatialScene_hasActiveTransition_detectsVisibleToastOverlayAndIgnoresHiddenToastArea() {
+        val visibleToastAreaDump =
+            """
+            Node Root (stateIndex=0) id=1:
+              Node MIRROR_TOAST_AREA (stateIndex=0) id=19:
+              visible on both (requested-vis=show) isSysUi=true isAndroid2d=true
+                Node space-transform-MIRROR_TOAST_AREA (stateIndex=0) id=20:
+                visible on both (requested-vis=show) isSysUi=true
+                  Node window-MIRROR_TOAST_AREA (stateIndex=0) id=21:
+                  visible on both (requested-vis=show) isSysUi=true isAndroid2d=true
+                    Node Toast#318 (stateIndex=0) id=22:
+                    visible on both (requested-vis=show) isSysUi=false isAndroid2d=true buffer=320x64
+              Node space-root-task-100 (stateIndex=0) id=100:
+                Node space-transform-spatial-101 (stateIndex=0) id=101:
+            """
+                .trimIndent()
+        val visibleToastScene = SpatialSceneHelper.parseSpatialScene(visibleToastAreaDump)
+        assertTrue(visibleToastScene.hasActiveTransition)
+        assertFalse(assertNotNull(visibleToastScene.findTaskById(100)).isSettled())
+
+        val hiddenToastAreaDump =
+            """
+            Node Root (stateIndex=0) id=1:
+              Node MIRROR_TOAST_AREA (stateIndex=0) id=19:
+              hidden on both (requested-vis=hide) isSysUi=true isAndroid2d=true
+                Node space-transform-MIRROR_TOAST_AREA (stateIndex=0) id=20:
+                hidden on both (requested-vis=show) isSysUi=true
+                  Node window-MIRROR_TOAST_AREA (stateIndex=0) id=21:
+                  hidden on both (requested-vis=show) isSysUi=true isAndroid2d=true
+              Node space-root-task-100 (stateIndex=0) id=100:
+                Node space-transform-spatial-101 (stateIndex=0) id=101:
+            """
+                .trimIndent()
+        val hiddenToastScene = SpatialSceneHelper.parseSpatialScene(hiddenToastAreaDump)
+        assertFalse(hiddenToastScene.hasActiveTransition)
+        assertTrue(assertNotNull(hiddenToastScene.findTaskById(100)).isSettled())
+    }
 }

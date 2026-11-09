@@ -580,4 +580,90 @@ class XrScreenshotTestRuleTest {
             slightlyLargerRedBitmap.recycle()
         }
     }
+
+    @Test
+    fun apply_suppressesSystemUiToastWindowAndRestoresPreviousAllowMode() {
+        val executedCommands = mutableListOf<String>()
+        val rule =
+            XrScreenshotTestRule(
+                moduleDirectory = "xr/testutils",
+                updateGoldens = false,
+                shellCommandExecutor = { cmd ->
+                    executedCommands.add(cmd)
+                    if (cmd == "cmd appops get com.android.systemui TOAST_WINDOW") {
+                        "TOAST_WINDOW: allow; time=+1m0s0ms ago"
+                    } else {
+                        ""
+                    }
+                },
+            )
+
+        assertFailsWith<IllegalStateException> {
+            runWithRule(rule) {
+                assertEquals(
+                    listOf(
+                        "cmd appops get com.android.systemui TOAST_WINDOW",
+                        "cmd appops set com.android.systemui TOAST_WINDOW ignore",
+                    ),
+                    executedCommands,
+                )
+                throw IllegalStateException("simulated test failure")
+            }
+        }
+
+        assertEquals(
+            listOf(
+                "cmd appops get com.android.systemui TOAST_WINDOW",
+                "cmd appops set com.android.systemui TOAST_WINDOW ignore",
+                "cmd appops set com.android.systemui TOAST_WINDOW allow",
+            ),
+            executedCommands,
+        )
+    }
+
+    @Test
+    fun apply_preservesPreExistingIgnoreToastWindowModeOnTeardown() {
+        val executedCommands = mutableListOf<String>()
+        val rule =
+            XrScreenshotTestRule(
+                moduleDirectory = "xr/testutils",
+                updateGoldens = false,
+                shellCommandExecutor = { cmd ->
+                    executedCommands.add(cmd)
+                    if (cmd == "cmd appops get com.android.systemui TOAST_WINDOW") {
+                        "TOAST_WINDOW: ignore"
+                    } else {
+                        ""
+                    }
+                },
+            )
+
+        runWithRule(rule) {}
+
+        assertEquals(
+            listOf(
+                "cmd appops get com.android.systemui TOAST_WINDOW",
+                "cmd appops set com.android.systemui TOAST_WINDOW ignore",
+            ),
+            executedCommands,
+        )
+    }
+
+    @Test
+    fun apply_doesNotModifyToastWindowAppOpWhenDeviceUnsupported() {
+        setXrSystemFeature(false)
+        val executedCommands = mutableListOf<String>()
+        val rule =
+            XrScreenshotTestRule(
+                moduleDirectory = "xr/testutils",
+                updateGoldens = false,
+                shellCommandExecutor = { cmd ->
+                    executedCommands.add(cmd)
+                    "No operations."
+                },
+            )
+
+        assertFailsWith<AssumptionViolatedException> { runWithRule(rule) {} }
+        assertTrue(executedCommands.isEmpty())
+    }
 }

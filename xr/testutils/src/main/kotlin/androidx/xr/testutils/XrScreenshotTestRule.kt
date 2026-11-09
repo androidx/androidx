@@ -29,6 +29,8 @@ import java.io.IOException
 import kotlin.math.abs
 import kotlin.math.max
 import org.junit.Assume
+import org.junit.runner.Description
+import org.junit.runners.model.Statement
 
 /**
  * Default Structural Similarity Index (MSSIM) threshold for 3D XR compositor screenshots on XR
@@ -53,10 +55,16 @@ public const val UPDATE_GOLDENS_ARG: String = "updateGoldens"
 private const val REPO_ROOT_PATH_FOR_GOLDENS = "platform/frameworks/support-golden"
 private const val GOLDENS_SUBDIRECTORY = "goldens"
 private const val TAG = "XrScreenshotTestRule"
+private const val SYSTEMUI_PACKAGE = "com.android.systemui"
+private const val GET_SYSTEMUI_TOAST_APPOP_CMD = "cmd appops get $SYSTEMUI_PACKAGE TOAST_WINDOW"
+private const val IGNORE_SYSTEMUI_TOAST_APPOP_CMD =
+    "cmd appops set $SYSTEMUI_PACKAGE TOAST_WINDOW ignore"
 private const val MIN_CROP_SIZE_TOLERANCE_PX = 6
 private const val MAX_CROP_SIZE_TOLERANCE_RATIO = 0.05f
 private val SIZES_DIFFERENT_REGEX =
     Regex("Sizes are different! Expected: \\[(\\d+), (\\d+)], Actual: \\[(\\d+), (\\d+)]")
+private val TOAST_WINDOW_MODE_REGEX =
+    Regex("(?:TOAST_WINDOW|Uid mode):\\s*(allow|ignore|deny|default)\\b")
 
 /**
  * [ScreenshotTestRule] for AndroidX tests running on XR devices.
@@ -64,7 +72,9 @@ private val SIZES_DIFFERENT_REGEX =
  * Uses the same golden repository root and [moduleDirectory] layout as
  * `AndroidXScreenshotTestRule`, but runs on any device with the XR spatial feature instead of only
  * on API 35 emulators. Use it with the standard `androidx.test.screenshot.assertAgainstGolden`
- * extensions.
+ * extensions. While a test is executing on an XR device, `com.android.systemui` `TOAST_WINDOW`
+ * overlays (such as the post-wake input-recovery toast) are temporarily suppressed via AppOps so
+ * transient system toasts cannot pollute compositor captures or auto-cropped bounds.
  *
  * When a golden is missing or mismatched, the captured bitmap is staged under
  * [stagedGoldensDirectory] using its repository-relative path so that it can be pulled directly
@@ -96,10 +106,10 @@ private val SIZES_DIFFERENT_REGEX =
  *   argument.
  */
 public class XrScreenshotTestRule
-@JvmOverloads
-constructor(
+internal constructor(
     moduleDirectory: String,
-    private val updateGoldens: Boolean = isUpdateGoldensArgumentEnabled(),
+    private val updateGoldens: Boolean,
+    private val shellCommandExecutor: (String) -> String,
 ) :
     ScreenshotTestRule(
         ScreenshotTestRuleConfig(
@@ -112,6 +122,16 @@ constructor(
         )
     ) {
 
+    @JvmOverloads
+    public constructor(
+        moduleDirectory: String,
+        updateGoldens: Boolean = isUpdateGoldensArgumentEnabled(),
+    ) : this(
+        moduleDirectory = moduleDirectory,
+        updateGoldens = updateGoldens,
+        shellCommandExecutor = { SpatialSceneHelper.executeShellCommand(it) },
+    )
+
     /**
      * Directory on the device where candidate goldens are written using their exact
      * repository-relative path and `<goldenIdentifier>_<deviceId>.png` filename, so they can be
@@ -119,6 +139,33 @@ constructor(
      */
     public val stagedGoldensDirectory: File
         get() = File(deviceOutputDirectory, GOLDENS_SUBDIRECTORY)
+
+    override fun apply(base: Statement, description: Description?): Statement {
+        val toastSuppressedStatement =
+            object : Statement() {
+                override fun evaluate() {
+                    val previousMode = querySystemUiToastWindowMode()
+                    shellCommandExecutor(IGNORE_SYSTEMUI_TOAST_APPOP_CMD)
+                    try {
+                        base.evaluate()
+                    } finally {
+                        if (previousMode != null && previousMode != "ignore") {
+                            shellCommandExecutor(
+                                "cmd appops set $SYSTEMUI_PACKAGE TOAST_WINDOW $previousMode"
+                            )
+                        }
+                    }
+                }
+            }
+        return super.apply(toastSuppressedStatement, description)
+    }
+
+    private fun querySystemUiToastWindowMode(): String? {
+        val output = shellCommandExecutor(GET_SYSTEMUI_TOAST_APPOP_CMD)
+        if (output.isBlank()) return null
+        if (output.contains("No operations", ignoreCase = true)) return "allow"
+        return TOAST_WINDOW_MODE_REGEX.find(output)?.groupValues?.get(1)
+    }
 
     /** Skips the test on devices without the XR spatial feature, matching [XrDeviceTest]. */
     override fun assumeSupportedDevice() {
