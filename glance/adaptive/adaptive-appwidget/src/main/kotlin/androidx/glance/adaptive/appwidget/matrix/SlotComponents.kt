@@ -19,42 +19,19 @@ package androidx.glance.adaptive.appwidget.matrix
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.annotation.FloatRange
+import androidx.annotation.RestrictTo
 import androidx.collection.FloatList
 import androidx.collection.IntList
 import androidx.collection.emptyIntList
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.glance.adaptive.core.action.GlanceWidgetAction
-import androidx.glance.adaptive.core.selection.SizeTiers
-import androidx.glance.adaptive.core.selection.WidthTier
 
 /*
  * The slot component library: backend-agnostic data models, one per component, each implementing
- * the contract of the slots it fits. Every backend draws them in its own matrix renderer, with each
- * component's drawing code in its own package under components/.
+ * the contract of the slots it fits. Every backend draws them in its own renderer.
  *
  * Each component checks its own data when it is built, so one that exists is valid and a renderer
  * never has to.
  */
-
-/** Total inset of the contained ring inside its circle, from the design's 80 dp ring in 88 dp. */
-private const val CONTAINED_RING_INSET_DP = 8f
-
-/**
- * Diameter of the contained ring the design draws, at which its value is [CONTAINED_RING_TEXT_SP].
- */
-private const val CONTAINED_RING_DESIGN_SIZE_DP = 80f
-
-/** Type size of the contained ring's value at [CONTAINED_RING_DESIGN_SIZE_DP]. */
-private const val CONTAINED_RING_TEXT_SP = 20f
-
-/**
- * Fraction of the contained ring's diameter its value may span: the chord narrows towards the
- * circle's edges, and two stroke widths in from each side is where the design's value sits.
- */
-private const val CONTAINED_RING_TEXT_RATIO = 0.86f
 
 /** Fewest values a [Graph] draws: a single value has no history to show. */
 private const val MIN_GRAPH_VALUES = 2
@@ -76,8 +53,11 @@ private val ContainedRingCapabilities = setOf(Capability.Tracking, Capability.Te
  *   [value] is not sensitive.
  * @throws IllegalArgumentException if [value] or [sensitiveReplacement] is blank.
  */
-internal class TemplateText(val value: String, val sensitiveReplacement: String? = null) :
-    PrimaryComponent, SecondaryComponent, ActionComponent {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class TemplateText(
+    public val value: String,
+    public val sensitiveReplacement: String? = null,
+) : PrimaryComponent, SecondaryComponent, ActionComponent {
     init {
         require(value.isNotBlank()) { "Text must not be blank." }
         require(sensitiveReplacement == null || sensitiveReplacement.isNotBlank()) {
@@ -98,9 +78,10 @@ internal class TemplateText(val value: String, val sensitiveReplacement: String?
  *   must be declared at least as large as the glyph is drawn, about 55% of the ring.
  * @throws IllegalArgumentException if [progress] is outside `[0.0, 1.0]`.
  */
-internal class Ring(
-    @FloatRange(from = 0.0, to = 1.0) val progress: Float,
-    @DrawableRes val icon: Int? = null,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class Ring(
+    @FloatRange(from = 0.0, to = 1.0) public val progress: Float,
+    @DrawableRes public val icon: Int? = null,
 ) : LeadingComponent {
     init {
         require(progress in 0f..1f) { "Ring progress must be in [0, 1], was $progress." }
@@ -114,8 +95,7 @@ internal class Ring(
  * Bar or dot graph — the design's `ContentBlock_chart` / `Progress.BarChart`. Fits the hero slot.
  *
  * Expands to fill the height of the hero slot: the bars take whatever vertical space the labels and
- * the optional description leave. The gap between the bars widens with the card's width tier (see
- * [barSpacing]).
+ * the optional description leave.
  *
  * A value's bar is drawn as a fraction of the goal, or of the largest value when that is larger,
  * and takes the accent color once it reaches the goal.
@@ -128,12 +108,13 @@ internal class Ring(
  * @throws IllegalArgumentException if there are fewer than 2 values, a value is negative or not
  *   finite, the labels do not match the values, or [goal] is not positive.
  */
-internal class Graph(
-    val values: FloatList,
-    val labels: List<String> = emptyList(),
-    val goal: Float? = null,
-    val dotted: Boolean = false,
-    val description: Pair<String, String>? = null,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class Graph(
+    public val values: FloatList,
+    public val labels: List<String> = emptyList(),
+    public val goal: Float? = null,
+    public val dotted: Boolean = false,
+    public val description: Pair<String, String>? = null,
 ) : HeroComponent {
     init {
         require(values.size >= MIN_GRAPH_VALUES) {
@@ -164,28 +145,21 @@ internal class Graph(
     }
 
     /** Height of the bar at [index] as a fraction of a full bar, in `[0.0, 1.0]`. */
-    fun fractionAt(index: Int): Float =
+    public fun fractionAt(index: Int): Float =
         if (scale > 0f) (values[index] / scale).coerceIn(0f, 1f) else 0f
 
     /** Whether the value at [index] reached [goal], and so takes the accent color. */
-    fun meetsGoalAt(index: Int): Boolean = goal != null && values[index] >= goal
+    public fun meetsGoalAt(index: Int): Boolean = goal != null && values[index] >= goal
 
     /**
      * Whether the dot at [index] of a [dotted] graph is filled: its value reached the goal, or the
      * largest value when there is no goal.
      */
-    fun isDotFilledAt(index: Int): Boolean =
+    public fun isDotFilledAt(index: Int): Boolean =
         if (goal != null) values[index] >= goal else scale > 0f && values[index] >= scale
 
     /** The label under the bar at [index], or `null` when the graph has no labels. */
-    fun labelAt(index: Int): String? = labels.getOrNull(index)
-
-    companion object {
-        /**
-         * Horizontal gap between the bars of a graph in a card at [tiers], which widens from W3.
-         */
-        fun barSpacing(tiers: SizeTiers): Dp = if (tiers.width <= WidthTier.W2) 8.dp else 16.dp
-    }
+    public fun labelAt(index: Int): String? = labels.getOrNull(index)
 }
 
 /**
@@ -197,10 +171,11 @@ internal class Graph(
  * @property dotColors ARGB colors of the status dots, leading to trailing. May be empty.
  * @throws IllegalArgumentException if [label] is blank.
  */
-internal class Badge(
-    val label: String,
-    @ColorInt val outlineColor: Int,
-    val dotColors: IntList = emptyIntList(),
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class Badge(
+    public val label: String,
+    @ColorInt public val outlineColor: Int,
+    public val dotColors: IntList = emptyIntList(),
 ) : ActionComponent {
     init {
         require(label.isNotBlank()) { "A badge label must not be blank." }
@@ -212,8 +187,7 @@ internal class Badge(
 
 /**
  * The whole widget as one progress ring, with [value] inside it — the design's
- * `Progress.Ring_Contained`. Fits the bulb slot, and sizes itself to the circle the bulb gives it
- * (see [geometry]).
+ * `Progress.Ring_Contained`. Fits the bulb slot, and sizes itself to the circle the bulb gives it.
  *
  * @property progress Normalized progress in `[0.0, 1.0]`, or `null` to draw an empty ring.
  * @property value Headline value drawn inside the ring.
@@ -223,11 +197,12 @@ internal class Badge(
  * @throws IllegalArgumentException if [progress] is outside `[0.0, 1.0]`, or [value] or
  *   [sensitiveReplacement] is blank.
  */
-internal class ContainedRing(
-    @FloatRange(from = 0.0, to = 1.0) val progress: Float?,
-    val value: String,
-    @DrawableRes val icon: Int? = null,
-    val sensitiveReplacement: String? = null,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class ContainedRing(
+    @FloatRange(from = 0.0, to = 1.0) public val progress: Float?,
+    public val value: String,
+    @DrawableRes public val icon: Int? = null,
+    public val sensitiveReplacement: String? = null,
 ) : BulbComponent {
     init {
         require(progress == null || progress in 0f..1f) {
@@ -241,54 +216,23 @@ internal class ContainedRing(
 
     override val capabilities: Set<Capability>
         get() = ContainedRingCapabilities
-
-    /**
-     * Resolves the ring's layout inside a circle [containerSize] across.
-     *
-     * The value shrinks with a ring drawn smaller than the design's, so the glyph and the value
-     * stacked inside it still clear the ring.
-     *
-     * @param containerSize Diameter of the circle the bulb gives the ring.
-     * @return The ring's size, and the room and type size of its value.
-     */
-    fun geometry(containerSize: Dp): ContainedRingGeometry {
-        val ringDp = (containerSize.value - CONTAINED_RING_INSET_DP).coerceAtLeast(0f)
-        return ContainedRingGeometry(
-            ringSize = ringDp.dp,
-            valueMaxWidth = (ringDp * CONTAINED_RING_TEXT_RATIO).dp,
-            fontSize =
-                (CONTAINED_RING_TEXT_SP * (ringDp / CONTAINED_RING_DESIGN_SIZE_DP).coerceAtMost(1f))
-                    .sp,
-        )
-    }
 }
 
 /**
- * A [ContainedRing] laid out for its circle.
+ * A glyph, such as an app's badge before a header text. Fits the leading slot, which sizes it.
  *
- * @property ringSize Outer diameter of the ring.
- * @property valueMaxWidth Room the value has across the ring.
- * @property fontSize Type size of the value.
- */
-internal class ContainedRingGeometry(
-    val ringSize: Dp,
-    val valueMaxWidth: Dp,
-    val fontSize: TextUnit,
-)
-
-/**
- * A glyph, such as an app's badge before a header text. Fits the leading slot, which sizes it (see
- * [MatrixDefaults.LeadingSize] and [MatrixCardContent.leadingSize]).
- *
- * Drawn tinted with the primary color, as every glyph of the matrix is.
+ * Drawn tinted with the primary color.
  *
  * @property icon Drawable resource of the glyph.
  * @property contentDescription What the glyph shows, for accessibility services, or `null` when it
  *   is decorative.
  * @throws IllegalArgumentException if [icon] is `0`, or [contentDescription] is blank.
  */
-internal class Icon(@DrawableRes val icon: Int, val contentDescription: String? = null) :
-    LeadingComponent {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class Icon(
+    @DrawableRes public val icon: Int,
+    public val contentDescription: String? = null,
+) : LeadingComponent {
     init {
         require(icon != 0) { "An icon needs a drawable resource." }
         require(contentDescription == null || contentDescription.isNotBlank()) {
@@ -313,11 +257,12 @@ internal class Icon(@DrawableRes val icon: Int, val contentDescription: String? 
  * @throws IllegalArgumentException if [icon] is `0`, or [contentDescription] or
  *   [sensitiveReplacement] is blank.
  */
-internal class IconButton(
-    @DrawableRes val icon: Int,
-    val contentDescription: String,
-    val action: GlanceWidgetAction? = null,
-    val sensitiveReplacement: String? = null,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class IconButton(
+    @DrawableRes public val icon: Int,
+    public val contentDescription: String,
+    public val action: GlanceWidgetAction? = null,
+    public val sensitiveReplacement: String? = null,
 ) : ActionComponent, TrailingComponent, BulbComponent {
     init {
         require(icon != 0) { "An icon button needs a drawable resource." }
@@ -347,15 +292,16 @@ internal class IconButton(
  * @throws IllegalArgumentException if [columns] or [rows] is not positive, or there are no tiles or
  *   more tiles than cells.
  */
-internal class IconGrid(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class IconGrid(
     tiles: List<IconTile>,
-    val columns: Int,
-    val rows: Int,
-    val showLabels: Boolean = true,
+    public val columns: Int,
+    public val rows: Int,
+    public val showLabels: Boolean = true,
 ) : HeroComponent {
 
     /** The tiles, leading to trailing and top to bottom. */
-    val tiles: List<IconTile> = List(tiles.size) { i -> tiles[i] }
+    public val tiles: List<IconTile> = List(tiles.size) { i -> tiles[i] }
 
     init {
         require(columns > 0 && rows > 0) {
@@ -376,7 +322,7 @@ internal class IconGrid(
      * The tile in the cell at [row] and [column], or `null` when the cell is empty or out of
      * bounds.
      */
-    fun tileAt(row: Int, column: Int): IconTile? =
+    public fun tileAt(row: Int, column: Int): IconTile? =
         if (row in 0 until rows && column in 0 until columns) {
             tiles.getOrNull(row * columns + column)
         } else {
@@ -396,11 +342,12 @@ internal class IconGrid(
  *   or `null` when [label] is not sensitive, such as a contact's name.
  * @throws IllegalArgumentException if [icon] is `0`, or [label] or [sensitiveReplacement] is blank.
  */
-internal class IconTile(
-    @DrawableRes val icon: Int,
-    val label: String,
-    val action: GlanceWidgetAction? = null,
-    val sensitiveReplacement: String? = null,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class IconTile(
+    @DrawableRes public val icon: Int,
+    public val label: String,
+    public val action: GlanceWidgetAction? = null,
+    public val sensitiveReplacement: String? = null,
 ) {
     init {
         require(icon != 0) { "An icon tile needs a drawable resource." }

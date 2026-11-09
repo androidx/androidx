@@ -26,6 +26,7 @@ import androidx.glance.adaptive.appwidget.R
 import androidx.glance.adaptive.appwidget.components.RemoteViewsActions
 import androidx.glance.adaptive.appwidget.components.badge.buildRemoteViews
 import androidx.glance.adaptive.appwidget.components.density
+import androidx.glance.adaptive.appwidget.components.graph.GraphDefaults
 import androidx.glance.adaptive.appwidget.components.graph.buildRemoteViews
 import androidx.glance.adaptive.appwidget.components.icon.buildRemoteViews
 import androidx.glance.adaptive.appwidget.components.iconbutton.IconButtonDefaults
@@ -59,7 +60,6 @@ import androidx.glance.adaptive.appwidget.matrix.ResolvedMatrixBulb
 import androidx.glance.adaptive.appwidget.matrix.ResolvedMatrixCard
 import androidx.glance.adaptive.appwidget.matrix.Ring
 import androidx.glance.adaptive.appwidget.matrix.SecondaryComponent
-import androidx.glance.adaptive.appwidget.matrix.SlotComponent
 import androidx.glance.adaptive.appwidget.matrix.TemplateText
 import androidx.glance.adaptive.appwidget.matrix.TrailingComponent
 import androidx.glance.adaptive.appwidget.matrix.resolve
@@ -172,7 +172,7 @@ private fun matrixCard(taps: RemoteViewsActions, card: ResolvedMatrixCard): Remo
     views.setSlot(
         R.id.glance_adaptive_appwidget_remoteviews_slot_hero,
         hero?.toRemoteViews(taps, card.tiers),
-        tappable = hero?.isTappable(taps) == true,
+        tappable = hero?.isTappable() == true,
     )
     if (hero != null) {
         // The gaps either side of the hero are its padding, so it still absorbs all the slack.
@@ -308,7 +308,7 @@ private fun TrailingComponent.toRemoteViews(taps: RemoteViewsActions, size: Dp):
 
 private fun HeroComponent.toRemoteViews(taps: RemoteViewsActions, tiers: SizeTiers): RemoteViews =
     when (this) {
-        is Graph -> buildRemoteViews(taps.context, Graph.barSpacing(tiers))
+        is Graph -> buildRemoteViews(taps.context, GraphDefaults.barSpacing(tiers))
         is IconGrid -> buildRemoteViews(taps)
     }
 
@@ -335,19 +335,34 @@ private fun BulbComponent.toRemoteViews(taps: RemoteViewsActions, containerSize:
             )
     }
 
-/**
- * Whether this component runs an action when tapped, which decides the stable ID it is added under
- * (see [androidx.glance.adaptive.appwidget.components.tappableStableId]). An icon grid is not
- * tappable itself: it keys each of its tiles the same way.
+/*
+ * Whether a component runs an action when tapped, which decides the stable ID it is added under
+ * (see [androidx.glance.adaptive.appwidget.components.tappableStableId]). The root [SlotComponent]
+ * is open to other surface modules, so tappability is dispatched per sealed slot contract to stay
+ * exhaustive.
  */
-private fun SlotComponent.isTappable(taps: RemoteViewsActions): Boolean =
+
+private fun TrailingComponent.isTappable(taps: RemoteViewsActions): Boolean =
+    when (this) {
+        is IconButton -> taps.isTappable(action)
+    }
+
+/** An icon grid is not tappable itself: it keys each of its tiles the same way. */
+private fun HeroComponent.isTappable(): Boolean =
+    when (this) {
+        is Graph,
+        is IconGrid -> false
+    }
+
+private fun ActionComponent.isTappable(taps: RemoteViewsActions): Boolean =
     when (this) {
         is IconButton -> taps.isTappable(action)
         is TemplateText,
-        is Ring,
-        is Graph,
-        is Badge,
-        is ContainedRing,
-        is Icon,
-        is IconGrid -> false
+        is Badge -> false
+    }
+
+private fun BulbComponent.isTappable(taps: RemoteViewsActions): Boolean =
+    when (this) {
+        is IconButton -> taps.isTappable(action)
+        is ContainedRing -> false
     }

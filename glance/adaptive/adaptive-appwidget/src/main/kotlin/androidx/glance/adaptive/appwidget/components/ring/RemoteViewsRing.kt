@@ -71,7 +71,7 @@ internal fun Ring.buildRemoteViews(context: Context, size: Dp): RemoteViews {
  * @return The contained ring's views.
  */
 internal fun ContainedRing.buildRemoteViews(context: Context, containerSize: Dp): RemoteViews {
-    val geometry = geometry(containerSize)
+    val geometry = RingDefaults.containedRingGeometry(containerSize)
     val density = context.density
     val views =
         RemoteViews(

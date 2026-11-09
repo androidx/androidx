@@ -15,9 +15,13 @@
  */
 package androidx.glance.adaptive.appwidget.components.graph
 
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.adaptive.appwidget.matrix.Graph
+import androidx.glance.adaptive.core.selection.SizeTiers
+import androidx.glance.adaptive.core.selection.WidthTier
 
 /** Design values of the [Graph] component that every backend draws it with. */
 internal object GraphDefaults {
@@ -33,4 +37,7 @@ internal object GraphDefaults {
      * data, and `1f / fillFraction` is always a finite weight sum.
      */
     const val MinBarFraction: Float = 0.05f
+
+    /** Horizontal gap between the bars of a graph in a card at [tiers], which widens from W3. */
+    fun barSpacing(tiers: SizeTiers): Dp = if (tiers.width <= WidthTier.W2) 8.dp else 16.dp
 }

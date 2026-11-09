@@ -15,6 +15,10 @@
  */
 package androidx.glance.adaptive.appwidget.components.ring
 
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.glance.adaptive.appwidget.matrix.ContainedRing
 import androidx.glance.adaptive.appwidget.matrix.Ring
 
@@ -45,4 +49,55 @@ internal object RingDefaults {
      * so the stroke is derived rather than fixed.
      */
     const val StrokeRatio: Float = 4f / 56f
+
+    /**
+     * Total inset of the contained ring inside its circle, from the design's 80 dp ring in 88 dp.
+     */
+    private const val ContainedRingInsetDp: Float = 8f
+
+    /**
+     * Diameter of the contained ring the design draws, at which its value is [ContainedRingTextSp].
+     */
+    private const val ContainedRingDesignSizeDp: Float = 80f
+
+    /** Type size of the contained ring's value at [ContainedRingDesignSizeDp]. */
+    private const val ContainedRingTextSp: Float = 20f
+
+    /**
+     * Fraction of the contained ring's diameter its value may span: the chord narrows towards the
+     * circle's edges, and two stroke widths in from each side is where the design's value sits.
+     */
+    private const val ContainedRingTextRatio: Float = 0.86f
+
+    /**
+     * Resolves the layout of a [ContainedRing] inside a circle [containerSize] across.
+     *
+     * The value shrinks with a ring drawn smaller than the design's, so the glyph and the value
+     * stacked inside it still clear the ring.
+     *
+     * @param containerSize Diameter of the circle the bulb gives the ring.
+     * @return The ring's size, and the room and type size of its value.
+     */
+    fun containedRingGeometry(containerSize: Dp): ContainedRingGeometry {
+        val ringDp = (containerSize.value - ContainedRingInsetDp).coerceAtLeast(0f)
+        return ContainedRingGeometry(
+            ringSize = ringDp.dp,
+            valueMaxWidth = (ringDp * ContainedRingTextRatio).dp,
+            fontSize =
+                (ContainedRingTextSp * (ringDp / ContainedRingDesignSizeDp).coerceAtMost(1f)).sp,
+        )
+    }
 }
+
+/**
+ * A [ContainedRing] laid out for its circle (see [RingDefaults.containedRingGeometry]).
+ *
+ * @property ringSize Outer diameter of the ring.
+ * @property valueMaxWidth Room the value has across the ring.
+ * @property fontSize Type size of the value.
+ */
+internal class ContainedRingGeometry(
+    val ringSize: Dp,
+    val valueMaxWidth: Dp,
+    val fontSize: TextUnit,
+)
