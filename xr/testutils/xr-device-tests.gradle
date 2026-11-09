@@ -17,6 +17,7 @@
 import com.android.build.api.variant.ApplicationVariant
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -28,12 +29,8 @@ import org.gradle.process.ExecOperations
 
 abstract class BaseXrStagedGoldensTask extends DefaultTask {
     protected static final String SAVED_STATE_FILE = "/data/local/tmp/androidx_xr_saved_state"
-    protected static final String SAVED_SIMULATED_CONFIG_FILE =
-        "/data/local/tmp/androidx_xr_saved_simulated_config.json"
-    protected static final String SIMULATED_CONFIG_FILE = "/data/simulated_dev_xr/config.json"
 
     protected static final List<String> XR_PROPS = [
-        "persist.moohan.disable_prox_wakeup",
         "persist.xr.frames_host.drop_far_event",
         "persist.xr.disable_don_doff_sensor",
         "xr.power.don",
@@ -41,15 +38,12 @@ abstract class BaseXrStagedGoldensTask extends DefaultTask {
         "xr.pose_read_mode",
         "cpm.fake_het_position",
         "cpm.fake_het_orientation",
-        "persist.android.extensions.xr.recommended_content_box",
-        "xr.default_pixels_per_meter",
-        "xr.dp_per_meter",
         "cpm.disable_capture_stabilization",
-        "persist.cpm.default_capture_resolution",
-        "persist.device_config.com_android_xr.com.android.xr.flags.enable_capture_margin",
     ]
 
     protected static final List<String> XR_SETTINGS = [
+        "global:device_provisioned",
+        "secure:user_setup_complete",
         "global:stay_on_while_plugged_in",
         "system:screen_off_timeout",
         "system:doff_screen_timeout_ms",
@@ -138,18 +132,6 @@ abstract class BaseXrStagedGoldensTask extends DefaultTask {
             features.contains("com.google.android.feature.XR")
     }
 
-    protected boolean isEmulator(String serial) {
-        def hardware = runAdbShell(serial, "getprop ro.hardware")
-        def bootHardware = runAdbShell(serial, "getprop ro.boot.hardware")
-        def characteristics = runAdbShell(serial, "getprop ro.build.characteristics")
-        return hardware.contains("goldfish") ||
-            hardware.contains("ranchu") ||
-            hardware.contains("gce_x86") ||
-            bootHardware.contains("goldfish") ||
-            bootHardware.contains("ranchu") ||
-            characteristics.contains("emulator")
-    }
-
     protected void ensureDeviceOnline(String serial) {
         if (serial.contains(":")) {
             execOperations.exec { spec ->
@@ -163,7 +145,11 @@ abstract class BaseXrStagedGoldensTask extends DefaultTask {
         }
     }
 
-    protected void restartAndWaitForXrBoot(String serial, int settleSeconds = 0) {
+    protected void restartAndWaitForXrBoot(
+        String serial,
+        int settleSeconds = 0,
+        boolean failOnTimeout = false
+    ) {
         def hadSysUiReady = !runAdbShell(serial, "getprop xr.stats.sysui_ready_ts_ms").isEmpty()
         def clearSysUiReady = hadSysUiReady ? "setprop xr.stats.sysui_ready_ts_ms '' && " : ""
         runAdbShell(
@@ -195,6 +181,9 @@ abstract class BaseXrStagedGoldensTask extends DefaultTask {
             }
         }
         if (!ready) {
+            if (failOnTimeout) {
+                throw new GradleException("XR device $serial not ready after restart")
+            }
             logger.warn("XR device $serial not ready after restart")
         }
         if (settleSeconds > 0) {
@@ -203,16 +192,78 @@ abstract class BaseXrStagedGoldensTask extends DefaultTask {
         ensureDeviceOnline(serial)
     }
 
-    protected void saveDeviceState(String serial, boolean isEmulator, boolean isPuckWithFrames) {
-        def propsToSave = new ArrayList<String>(XR_PROPS)
-        if (isEmulator) {
-            propsToSave.add(0, "qemu.sf.lcd_density")
+    protected void restoreDevice(String serial) {
+        ensureDeviceOnline(serial)
+        ensureAdbRoot(serial)
+        def isPuckWithFrames =
+            runAdbShell(serial, "getprop xr.device.config.frame_puck_protocol") == "true"
+        def savedState = loadDeviceState(serial)
+
+        Map<String, String> defaultProps = [
+            "persist.xr.frames_host.drop_far_event": "false",
+            "persist.xr.disable_don_doff_sensor": "false",
+            "xr.power.don": "",
+            "cpm.fake_headtracking": "",
+            "xr.pose_read_mode": "2",
+            "cpm.fake_het_position": "",
+            "cpm.fake_het_orientation": "",
+            "cpm.disable_capture_stabilization": "false",
+        ]
+        def propsToRestore = new ArrayList<String>(XR_PROPS)
+        if (isPuckWithFrames) {
+            defaultProps["persist.xr.enable_dynamic_sensor"] = "true"
+            propsToRestore.add(0, "persist.xr.enable_dynamic_sensor")
         }
+
+        def propCommands = propsToRestore.collect { prop ->
+            def savedVal = savedState["prop:" + prop]
+            def val = (savedVal != null && !savedVal.isEmpty()) ? savedVal : defaultProps[prop]
+            "setprop ${prop} ${shellQuote(val)}"
+        }
+
+        def wmDensityOverride = savedState["wm_density_override"] ?: ""
+        def wmDensityCommand = wmDensityOverride.isEmpty() ?
+            "wm density reset" : "wm density ${shellQuote(wmDensityOverride)}"
+
+        runAdbShell(
+            serial,
+            "pm enable com.google.android.apps.vr.wiredmirror >/dev/null 2>&1 || true; " +
+                propCommands.join(" && ") + " && " +
+                wmDensityCommand
+        )
+
+        restartAndWaitForXrBoot(serial)
+
+        def postBootCommands = new ArrayList<String>(propCommands)
+        postBootCommands.add("pm enable com.google.android.apps.vr.wiredmirror >/dev/null 2>&1 || true")
+        postBootCommands.add("svc power stayon false")
+        XR_SETTINGS.each { entry ->
+            def settingKey = "setting:" + entry
+            if (savedState.containsKey(settingKey)) {
+                def parts = entry.split(":", 2)
+                def namespace = parts[0]
+                def key = parts[1]
+                def val = savedState[settingKey]
+                if (val == null || val.isEmpty() || val == "null") {
+                    postBootCommands.add("settings delete ${namespace} ${key} >/dev/null 2>&1 || true")
+                } else {
+                    postBootCommands.add("settings put ${namespace} ${key} ${shellQuote(val)}")
+                }
+            }
+        }
+        postBootCommands.add("cmd XrServiceHelperService sensor-data-injection disable >/dev/null 2>&1 || true")
+        postBootCommands.add("rm -f ${SAVED_STATE_FILE}")
+
+        runAdbShell(serial, postBootCommands.join("; "))
+        ensureDeviceOnline(serial)
+    }
+
+    protected void saveDeviceState(String serial, boolean isPuckWithFrames) {
+        def propsToSave = new ArrayList<String>(XR_PROPS)
         if (isPuckWithFrames) {
             propsToSave.add(0, "persist.xr.enable_dynamic_sensor")
         }
         def commands = [
-            "echo \"selinux=\$(getenforce 2>/dev/null)\"",
             "echo \"wm_density_override=\$(wm density 2>/dev/null | sed -n 's/.*Override density: *//p')\"",
         ]
         propsToSave.each { prop ->
@@ -228,9 +279,6 @@ abstract class BaseXrStagedGoldensTask extends DefaultTask {
         runAdbShell(
             serial,
             "if [ ! -f ${SAVED_STATE_FILE} ]; then " +
-                "if [ -f ${SIMULATED_CONFIG_FILE} ]; then " +
-                "cp ${SIMULATED_CONFIG_FILE} ${SAVED_SIMULATED_CONFIG_FILE}; " +
-                "else rm -f ${SAVED_SIMULATED_CONFIG_FILE}; fi; " +
                 "{ " + commands.join("; ") + "; } > ${tmpFile} && " +
                 "mv ${tmpFile} ${SAVED_STATE_FILE}; " +
                 "fi"
@@ -264,91 +312,80 @@ abstract class PrepareXrDeviceTask extends BaseXrStagedGoldensTask {
             }
             ensureDeviceOnline(serial)
             ensureAdbRoot(serial)
-            def isEmulator = isEmulator(serial)
             def isPuckWithFrames =
-                !isEmulator && runAdbShell(serial, "getprop xr.device.config.frame_puck_protocol") == "true"
-            saveDeviceState(serial, isEmulator, isPuckWithFrames)
-            if (isPuckWithFrames) {
+                runAdbShell(serial, "getprop xr.device.config.frame_puck_protocol") == "true"
+            saveDeviceState(serial, isPuckWithFrames)
+            try {
+                if (isPuckWithFrames) {
+                    runAdbShell(
+                        serial,
+                        "if [ -f /sys/class/qcom-battery/c1_otg_enable ] && " +
+                            "[ -z \"\$(dumpsys display | grep 'HDMI Screen')\" ]; then " +
+                            "echo 0 > /sys/class/qcom-battery/c1_otg_enable && sleep 2 && " +
+                            "echo 1 > /sys/class/qcom-battery/c1_otg_enable && " +
+                            "for i in \$(seq 1 20); do " +
+                            "if [ -n \"\$(dumpsys display | grep 'HDMI Screen')\" ]; then break; fi; " +
+                            "sleep 1; done; fi"
+                    )
+                }
+
+                def dynSensorCommand =
+                    isPuckWithFrames ? "setprop persist.xr.enable_dynamic_sensor false && " : ""
                 runAdbShell(
                     serial,
-                    "if [ -f /sys/class/qcom-battery/c1_otg_enable ] && " +
-                        "[ -z \"\$(dumpsys display | grep 'HDMI Screen')\" ]; then " +
-                        "echo 0 > /sys/class/qcom-battery/c1_otg_enable && sleep 2 && " +
-                        "echo 1 > /sys/class/qcom-battery/c1_otg_enable && " +
-                        "for i in \$(seq 1 20); do " +
-                        "if [ -n \"\$(dumpsys display | grep 'HDMI Screen')\" ]; then break; fi; " +
-                        "sleep 1; done; fi"
+                    "pm disable-user --user 0 com.google.android.apps.vr.wiredmirror >/dev/null 2>&1 || true; " +
+                        dynSensorCommand +
+                        "setprop persist.xr.frames_host.drop_far_event true && " +
+                        "setprop persist.xr.disable_don_doff_sensor true && " +
+                        "setprop xr.power.don true && " +
+                        "setprop cpm.fake_headtracking true && " +
+                        "setprop xr.pose_read_mode 0 && " +
+                        "setprop cpm.fake_het_position '0.0,0.0,0.0' && " +
+                        "setprop cpm.fake_het_orientation '0.0,0.0,0.0,1.0' && " +
+                        "setprop cpm.disable_capture_stabilization true"
                 )
+
+                restartAndWaitForXrBoot(serial, 5, true)
+
+                runAdbShell(
+                    serial,
+                    "setprop xr.power.don true && " +
+                        "setprop cpm.fake_headtracking true && " +
+                        "setprop xr.pose_read_mode 0 && " +
+                        "setprop cpm.fake_het_position '0.0,0.0,0.0' && " +
+                        "setprop cpm.fake_het_orientation '0.0,0.0,0.0,1.0' && " +
+                        "setprop cpm.disable_capture_stabilization true && " +
+                        "wm density 160 && " +
+                        "settings put global device_provisioned 1 && " +
+                        "settings put secure user_setup_complete 1 && " +
+                        "settings put global stay_on_while_plugged_in 15 && " +
+                        "settings put system screen_off_timeout 1800000 && " +
+                        "settings put system doff_screen_timeout_ms 1800000 && " +
+                        "settings put secure guardian_requires_setup 0 && " +
+                        "settings put secure guardian_consent_granted 1 && " +
+                        "svc power stayon true && " +
+                        "input keyevent KEYCODE_WAKEUP && " +
+                        "wm dismiss-keyguard && " +
+                        "dumpsys sensorservice hal_bypass_replay_data_injection android >/dev/null 2>&1 || true; " +
+                        "cmd XrServiceHelperService sensor-data-injection enable >/dev/null 2>&1 || true; " +
+                        "cmd XrServiceHelperService offbody false >/dev/null 2>&1 || true; " +
+                        "if command -v frames_test >/dev/null 2>&1; then " +
+                        "frames_test inject-offbody-sensor-event --value 1 >/dev/null 2>&1 || true; " +
+                        "fi"
+                )
+                ensureDeviceOnline(serial)
+            } catch (Throwable t) {
+                logger.error("Failed to prepare XR device $serial; restoring device state", t)
+                try {
+                    restoreDevice(serial)
+                } catch (Throwable restoreError) {
+                    logger.error(
+                        "Failed to restore XR device $serial after prepare failure",
+                        restoreError
+                    )
+                }
+                throw t
             }
-
-            def dynSensorCommand = isPuckWithFrames ? "setprop persist.xr.enable_dynamic_sensor false && " : ""
-            def qemuDensityCommand = isEmulator ? "setprop qemu.sf.lcd_density 240 && " : ""
-            def simulatedConfigCommand = isPuckWithFrames ?
-                "if [ ! -f ${SAVED_SIMULATED_CONFIG_FILE} ]; then " +
-                    "mkdir -p /data/simulated_dev_xr && chmod 755 /data/simulated_dev_xr && " +
-                    "echo '{\"compositor\":{\"capture_fov\":[0.6457718,0.6457718,0.6457718,0.6457718],\"capture_fov_margin\":[-0.1137828,-0.1445738,-0.3304188,-0.3314598]}}' > ${SIMULATED_CONFIG_FILE} && " +
-                    "chmod 644 ${SIMULATED_CONFIG_FILE} && chown system:system ${SIMULATED_CONFIG_FILE} >/dev/null 2>&1 || true; " +
-                    "fi; " :
-                "if [ -f ${SAVED_SIMULATED_CONFIG_FILE} ] && ! grep -q '\"capture_fov\"' ${SAVED_SIMULATED_CONFIG_FILE}; then " +
-                    "sed 's/\"compositor\"[[:space:]]*:[[:space:]]*{/\"compositor\": {\\n    \"capture_fov\": 37.0,/' ${SAVED_SIMULATED_CONFIG_FILE} > ${SIMULATED_CONFIG_FILE} && " +
-                    "chmod 644 ${SIMULATED_CONFIG_FILE} && chown system:system ${SIMULATED_CONFIG_FILE} >/dev/null 2>&1 || true && " +
-                    "restorecon ${SIMULATED_CONFIG_FILE} >/dev/null 2>&1 || true; " +
-                    "fi; "
-            runAdbShell(
-                serial,
-                "pm disable-user --user 0 com.google.android.apps.vr.wiredmirror >/dev/null 2>&1 || true; " +
-                    simulatedConfigCommand +
-                    dynSensorCommand +
-                    qemuDensityCommand +
-                    "setenforce 0 >/dev/null 2>&1 || true; " +
-                    "setprop persist.moohan.disable_prox_wakeup 1 && " +
-                    "setprop persist.xr.frames_host.drop_far_event true && " +
-                    "setprop persist.xr.disable_don_doff_sensor true && " +
-                    "setprop xr.power.don true && " +
-                    "setprop cpm.fake_headtracking true && " +
-                    "setprop xr.pose_read_mode 0 && " +
-                    "setprop cpm.fake_het_position '0.0,0.0,0.0' && " +
-                    "setprop cpm.fake_het_orientation '0.0,0.0,0.0,1.0' && " +
-                    "setprop persist.android.extensions.xr.recommended_content_box '-0.865,-0.805,-0.25,0.865,0.805,0.25' && " +
-                    "setprop xr.default_pixels_per_meter 1440.0 && " +
-                    "setprop xr.dp_per_meter 960.0 && " +
-                    "setprop cpm.disable_capture_stabilization true && " +
-                    "setprop persist.cpm.default_capture_resolution '2880x2880' && " +
-                    "setprop persist.device_config.com_android_xr.com.android.xr.flags.enable_capture_margin false"
-            )
-
-            restartAndWaitForXrBoot(serial, 5)
-
-            runAdbShell(
-                serial,
-                qemuDensityCommand +
-                    "setprop xr.power.don true && " +
-                    "setprop cpm.fake_headtracking true && " +
-                    "setprop xr.pose_read_mode 0 && " +
-                    "setprop cpm.fake_het_position '0.0,0.0,0.0' && " +
-                    "setprop cpm.fake_het_orientation '0.0,0.0,0.0,1.0' && " +
-                    "setprop persist.android.extensions.xr.recommended_content_box '-0.865,-0.805,-0.25,0.865,0.805,0.25' && " +
-                    "setprop xr.default_pixels_per_meter 1440.0 && " +
-                    "setprop xr.dp_per_meter 960.0 && " +
-                    "setprop cpm.disable_capture_stabilization true && " +
-                    "setprop persist.cpm.default_capture_resolution '2880x2880' && " +
-                    "setprop persist.device_config.com_android_xr.com.android.xr.flags.enable_capture_margin false && " +
-                    "wm density 240 && " +
-                    "settings put global stay_on_while_plugged_in 15 && " +
-                    "settings put system screen_off_timeout 2147483647 && " +
-                    "settings put system doff_screen_timeout_ms 2147483647 && " +
-                    "settings put secure guardian_requires_setup 0 && " +
-                    "settings put secure guardian_consent_granted 1 && " +
-                    "svc power stayon true && " +
-                    "input keyevent KEYCODE_WAKEUP && " +
-                    "wm dismiss-keyguard && " +
-                    "cmd XrServiceHelperService sensor-data-injection enable >/dev/null 2>&1 || true; " +
-                    "cmd XrServiceHelperService offbody false >/dev/null 2>&1 || true; " +
-                    "if command -v frames_test >/dev/null 2>&1; then " +
-                    "frames_test inject-offbody-sensor-event --value 1 >/dev/null 2>&1 || true; " +
-                    "fi"
-            )
-            ensureDeviceOnline(serial)
         }
     }
 }
@@ -360,91 +397,7 @@ abstract class RestoreXrDeviceTask extends BaseXrStagedGoldensTask {
             if (!isXrDevice(serial)) {
                 continue
             }
-            ensureDeviceOnline(serial)
-            ensureAdbRoot(serial)
-            def isEmulator = isEmulator(serial)
-            def isPuckWithFrames =
-                !isEmulator && runAdbShell(serial, "getprop xr.device.config.frame_puck_protocol") == "true"
-            def savedState = loadDeviceState(serial)
-
-            Map<String, String> defaultProps = [
-                "persist.moohan.disable_prox_wakeup": "0",
-                "persist.xr.frames_host.drop_far_event": "false",
-                "persist.xr.disable_don_doff_sensor": "false",
-                "xr.power.don": "",
-                "cpm.fake_headtracking": "",
-                "xr.pose_read_mode": isEmulator ? "" : "2",
-                "cpm.fake_het_position": "",
-                "cpm.fake_het_orientation": "",
-                "persist.android.extensions.xr.recommended_content_box": "",
-                "xr.default_pixels_per_meter": "",
-                "xr.dp_per_meter": "",
-                "cpm.disable_capture_stabilization": "false",
-                "persist.cpm.default_capture_resolution": "",
-                "persist.device_config.com_android_xr.com.android.xr.flags.enable_capture_margin": "",
-            ]
-            def propsToRestore = new ArrayList<String>(XR_PROPS)
-            if (isEmulator) {
-                defaultProps["qemu.sf.lcd_density"] = "320"
-                propsToRestore.add(0, "qemu.sf.lcd_density")
-            }
-            if (isPuckWithFrames) {
-                defaultProps["persist.xr.enable_dynamic_sensor"] = "true"
-                propsToRestore.add(0, "persist.xr.enable_dynamic_sensor")
-            }
-
-            def propCommands = propsToRestore.collect { prop ->
-                def savedVal = savedState["prop:" + prop]
-                def val = (savedVal != null && !savedVal.isEmpty()) ? savedVal : defaultProps[prop]
-                "setprop ${prop} ${shellQuote(val)}"
-            }
-
-            def wmDensityOverride = savedState["wm_density_override"] ?: ""
-            def wmDensityCommand = wmDensityOverride.isEmpty() ?
-                "wm density reset" : "wm density ${shellQuote(wmDensityOverride)}"
-            def restoreSimulatedConfigCommand =
-                "if [ -f ${SAVED_SIMULATED_CONFIG_FILE} ]; then " +
-                    "cat ${SAVED_SIMULATED_CONFIG_FILE} > ${SIMULATED_CONFIG_FILE} && " +
-                    "chmod 644 ${SIMULATED_CONFIG_FILE} && chown system:system ${SIMULATED_CONFIG_FILE} >/dev/null 2>&1 || true && " +
-                    "restorecon ${SIMULATED_CONFIG_FILE} >/dev/null 2>&1 || true && " +
-                    "rm -f ${SAVED_SIMULATED_CONFIG_FILE}; " +
-                    (isPuckWithFrames ? "else rm -f ${SIMULATED_CONFIG_FILE}; " : "") +
-                    "fi; "
-
-            runAdbShell(
-                serial,
-                "pm enable com.google.android.apps.vr.wiredmirror >/dev/null 2>&1 || true; " +
-                    restoreSimulatedConfigCommand +
-                    propCommands.join(" && ") + " && " +
-                    wmDensityCommand
-            )
-
-            restartAndWaitForXrBoot(serial)
-
-            def postBootCommands = new ArrayList<String>(propCommands)
-            postBootCommands.add("svc power stayon false")
-            XR_SETTINGS.each { entry ->
-                def settingKey = "setting:" + entry
-                if (savedState.containsKey(settingKey)) {
-                    def parts = entry.split(":", 2)
-                    def namespace = parts[0]
-                    def key = parts[1]
-                    def val = savedState[settingKey]
-                    if (val == null || val.isEmpty() || val == "null") {
-                        postBootCommands.add("settings delete ${namespace} ${key} >/dev/null 2>&1 || true")
-                    } else {
-                        postBootCommands.add("settings put ${namespace} ${key} ${shellQuote(val)}")
-                    }
-                }
-            }
-            postBootCommands.add("cmd XrServiceHelperService sensor-data-injection disable >/dev/null 2>&1 || true")
-            def savedSelinux = savedState["selinux"] ?: "Enforcing"
-            def enforceArg = (savedSelinux.equalsIgnoreCase("Permissive") || savedSelinux == "0") ? "0" : "1"
-            postBootCommands.add("setenforce ${enforceArg} >/dev/null 2>&1 || true")
-            postBootCommands.add("rm -f ${SAVED_STATE_FILE}")
-
-            runAdbShell(serial, postBootCommands.join("; "))
-            ensureDeviceOnline(serial)
+            restoreDevice(serial)
         }
     }
 }

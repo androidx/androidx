@@ -749,6 +749,8 @@ constructor(
             pollInterval = pollInterval,
             uiAutomation = uiAutomation,
         )
+
+    override fun toString(): String = "SpatialScene(tasks=$tasks, rootNodes=${rootNodes.size})"
 }
 
 /**

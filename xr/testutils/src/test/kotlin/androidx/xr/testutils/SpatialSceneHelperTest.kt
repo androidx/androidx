@@ -2089,4 +2089,14 @@ class SpatialSceneHelperTest {
         assertTrue(snapshotScene.hasActiveTransition)
         assertFalse(assertNotNull(snapshotScene.findTaskById(100)).isSettled())
     }
+
+    @Test
+    fun spatialScene_toString_includesTaskAndRootNodeSummary() {
+        val taskRoot = SpatialNode(name = "space-root-task-42", id = 42)
+        val scene = SpatialScene(listOf(taskRoot), taskPackageMap = mapOf(42 to "com.example.xr"))
+
+        val summary = scene.toString()
+        assertTrue(summary.contains("SpatialTask(taskId=42, packageName=com.example.xr"))
+        assertTrue(summary.contains("rootNodes=1"))
+    }
 }
