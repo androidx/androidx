@@ -415,16 +415,12 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
     }
 
     /** Returns [text] with additional styles from [LinkAnnotation] based on link's state */
-    @OptIn(ExperimentalFoundationApi::class)
     internal fun applyAnnotators(): AnnotatedString {
         val styledText =
             if (annotators.isEmpty()) text
             else {
                 val scope = TextAnnotatorScope(text)
                 annotators.toList().fastForEach { it.invoke(scope) }
-                if (ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled) {
-                    scope.applyStyleReplacements()
-                }
                 scope.styledText
             }
         text = styledText
@@ -472,17 +468,10 @@ internal class TextRangeLayoutModifier(val measurePolicy: TextRangeScopeMeasureP
 /**
  * Provides methods to update styles of the text inside a [TextLinkScope.StyleAnnotation] function.
  */
-@OptIn(ExperimentalFoundationApi::class)
 private class TextAnnotatorScope(private val initialText: AnnotatedString) {
     var styledText = initialText
-    private val styleReplacements = HashMap<AnnotatedString.Range<LinkAnnotation>, SpanStyle?>()
 
     fun replaceStyle(linkRange: AnnotatedString.Range<LinkAnnotation>, newStyle: SpanStyle?) {
-        if (ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled) {
-            styleReplacements[linkRange] = newStyle
-            return
-        }
-
         var linkFound = false
         styledText = initialText.mapAnnotations {
             // if we found a link annotation on previous iteration, we need to update the
@@ -501,34 +490,6 @@ private class TextAnnotatorScope(private val initialText: AnnotatedString) {
                     it
                 }
             linkFound = linkRange == it
-            annotation
-        }
-    }
-
-    fun applyStyleReplacements() {
-        if (styleReplacements.isEmpty()) return
-        var activeLinkRange: AnnotatedString.Range<LinkAnnotation>? = null
-        styledText = initialText.mapAnnotations {
-            val annotation =
-                if (
-                    activeLinkRange != null &&
-                        it.item is SpanStyle &&
-                        it.start == activeLinkRange?.start &&
-                        it.end == activeLinkRange?.end &&
-                        styleReplacements.containsKey(activeLinkRange)
-                ) {
-                    val newStyle = styleReplacements[activeLinkRange]
-                    AnnotatedString.Range(newStyle ?: SpanStyle(), it.start, it.end)
-                } else {
-                    it
-                }
-            activeLinkRange =
-                if (it.item is LinkAnnotation) {
-                    @Suppress("UNCHECKED_CAST")
-                    it as AnnotatedString.Range<LinkAnnotation>
-                } else {
-                    null
-                }
             annotation
         }
     }
