@@ -32,8 +32,13 @@ import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifie
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation
 import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
+import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
+import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
+import androidx.compose.remote.creation.compose.layout.RemoteOffset
+import androidx.compose.remote.creation.compose.layout.RemoteRow
+import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.clickable
@@ -43,7 +48,11 @@ import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.width
+import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteBlendMode
+import androidx.compose.remote.creation.compose.state.RemoteCompositingStrategy
+import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
@@ -61,6 +70,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayInputStream
 import java.util.HashMap
+import kotlin.math.abs
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -325,5 +335,213 @@ class RcPlayerGraphicsLayerTest {
         // so x=105dp is now Red
         rule.mainClock.advanceTimeBy(250)
         assertThat(pixelIsRed(105, 20)).isTrue()
+    }
+
+    @Test
+    fun creationCompose_remoteCompositingStrategy_serializesExpectedWireValues() {
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+
+            suspend fun captureOp(
+                strategy: RemoteCompositingStrategy
+            ): GraphicsLayerModifierOperation {
+                val bytes =
+                    captureSingleRemoteDocument(
+                            context = context,
+                            content = {
+                                RemoteBox(
+                                    modifier =
+                                        RemoteModifier.size(50.rdp)
+                                            .graphicsLayer(
+                                                shape = RemoteRectangleShape,
+                                                compositingStrategy = strategy,
+                                            )
+                                )
+                            },
+                        )
+                        .bytes
+                return findGraphicsLayerOp(loadDocument(bytes).operations)
+            }
+
+            // Auto (0) matches wire default (0) and is omitted from serialized attribute map.
+            val autoOp = captureOp(RemoteCompositingStrategy.Auto)
+            val autoAttrs = HashMap<Int, Any>()
+            autoOp.fillInAttributes(autoAttrs)
+            assertThat(autoAttrs.containsKey(GraphicsLayerModifierOperation.COMPOSITING_STRATEGY))
+                .isFalse()
+            assertThat(autoOp.values[GraphicsLayerModifierOperation.COMPOSITING_STRATEGY].intValue)
+                .isEqualTo(0)
+
+            // Offscreen (1) is serialized explicitly as int attribute 1.
+            val offscreenOp = captureOp(RemoteCompositingStrategy.Offscreen)
+            val offscreenAttrs = HashMap<Int, Any>()
+            offscreenOp.fillInAttributes(offscreenAttrs)
+            assertThat(offscreenAttrs[GraphicsLayerModifierOperation.COMPOSITING_STRATEGY])
+                .isEqualTo(1)
+            assertThat(
+                    offscreenOp.values[GraphicsLayerModifierOperation.COMPOSITING_STRATEGY].intValue
+                )
+                .isEqualTo(1)
+
+            // ModulateAlpha (2) is serialized explicitly as int attribute 2.
+            val modulateOp = captureOp(RemoteCompositingStrategy.ModulateAlpha)
+            val modulateAttrs = HashMap<Int, Any>()
+            modulateOp.fillInAttributes(modulateAttrs)
+            assertThat(modulateAttrs[GraphicsLayerModifierOperation.COMPOSITING_STRATEGY])
+                .isEqualTo(2)
+            assertThat(
+                    modulateOp.values[GraphicsLayerModifierOperation.COMPOSITING_STRATEGY].intValue
+                )
+                .isEqualTo(2)
+        }
+    }
+
+    @Test
+    fun graphicsLayer_compositingStrategyWithTranslucentOverlap_modulateAlphaDiffersFromAutoAndOffscreen() {
+        rule.mainClock.autoAdvance = false
+        val strategies =
+            listOf(
+                RemoteCompositingStrategy.Auto,
+                RemoteCompositingStrategy.Offscreen,
+                RemoteCompositingStrategy.ModulateAlpha,
+            )
+        rule.setRemoteContent(
+            playComposableWrapper = {
+                Box(
+                    modifier = Modifier.size(width = 240.dp, height = 80.dp).background(Color.White)
+                ) {
+                    it()
+                }
+            }
+        ) {
+            RemoteRow {
+                for (strategy in strategies) {
+                    RemoteCanvas(
+                        modifier =
+                            RemoteModifier.size(80.rdp)
+                                .graphicsLayer(
+                                    alpha = 0.5f.rf,
+                                    shape = RemoteRectangleShape,
+                                    compositingStrategy = strategy,
+                                )
+                    ) {
+                        val subSize = RemoteSize(width * 0.7f.rf, height * 0.7f.rf)
+                        val redOffset = RemoteOffset(width * 0.3f.rf, height * 0.3f.rf)
+                        drawRect(paint = RemotePaint { color = Color.Blue.rc }, size = subSize)
+                        drawRect(
+                            paint = RemotePaint { color = Color.Red.rc },
+                            topLeft = redOffset,
+                            size = subSize,
+                        )
+                    }
+                }
+            }
+        }
+
+        val d = rule.density.density
+        val bitmap = rule.onRoot().captureToImage().asAndroidBitmap()
+        fun sampleDp(xDp: Int, yDp: Int): Int =
+            bitmap.getPixel((xDp * d).toInt(), (yDp * d).toInt())
+
+        val autoOverlap = sampleDp(40, 40)
+        val autoRedOnly = sampleDp(68, 68)
+        val offscreenOverlap = sampleDp(80 + 40, 40)
+        val offscreenRedOnly = sampleDp(80 + 68, 68)
+        val modulateOverlap = sampleDp(160 + 40, 40)
+
+        // Auto & Offscreen composite into an offscreen buffer first: opaque Red completely
+        // occludes Blue in the overlap region before 0.5f layer alpha over White -> ~(255,128,128).
+        assertThat(AndroidColor.red(autoOverlap)).isGreaterThan(220)
+        assertThat(abs(AndroidColor.blue(autoOverlap) - AndroidColor.green(autoOverlap)))
+            .isAtMost(5)
+        assertThat(abs(AndroidColor.blue(autoOverlap) - AndroidColor.blue(autoRedOnly))).isAtMost(5)
+
+        assertThat(AndroidColor.red(offscreenOverlap)).isGreaterThan(220)
+        assertThat(abs(AndroidColor.blue(offscreenOverlap) - AndroidColor.green(offscreenOverlap)))
+            .isAtMost(5)
+        assertThat(abs(AndroidColor.blue(offscreenOverlap) - AndroidColor.blue(offscreenRedOnly)))
+            .isAtMost(5)
+
+        // ModulateAlpha modulates each draw call individually without an offscreen buffer:
+        // Blue (0.5) over White -> (128,128,255), then Red (0.5) over that -> ~(191,64,128),
+        // so Blue bleeds strongly through Red in the overlap region.
+        assertThat(AndroidColor.blue(modulateOverlap) - AndroidColor.green(modulateOverlap))
+            .isGreaterThan(40)
+        assertThat(AndroidColor.red(autoOverlap) - AndroidColor.red(modulateOverlap))
+            .isGreaterThan(30)
+    }
+
+    @Test
+    fun graphicsLayer_compositingStrategyOffscreenVsAuto_isolatesBlendModeClearAtFullAlpha() {
+        rule.mainClock.autoAdvance = false
+        val strategies =
+            listOf(
+                RemoteCompositingStrategy.Auto,
+                RemoteCompositingStrategy.Offscreen,
+                RemoteCompositingStrategy.ModulateAlpha,
+            )
+        rule.setRemoteContent(
+            playComposableWrapper = {
+                Box(
+                    modifier = Modifier.size(width = 240.dp, height = 80.dp).background(Color.White)
+                ) {
+                    it()
+                }
+            }
+        ) {
+            RemoteRow {
+                for (strategy in strategies) {
+                    RemoteBox(
+                        modifier = RemoteModifier.size(80.rdp).background(Color.Yellow.rc),
+                        contentAlignment = RemoteAlignment.Center,
+                    ) {
+                        RemoteCanvas(
+                            modifier =
+                                RemoteModifier.size(60.rdp)
+                                    .graphicsLayer(
+                                        alpha = 1f.rf,
+                                        shape = RemoteRectangleShape,
+                                        compositingStrategy = strategy,
+                                    )
+                        ) {
+                            drawRect(paint = RemotePaint { color = Color.Blue.rc })
+                            drawCircle(
+                                paint =
+                                    RemotePaint {
+                                        color = Color.Black.rc
+                                        blendMode = RemoteBlendMode.Clear
+                                    },
+                                radius = width * 0.3f.rf,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        val d = rule.density.density
+        val bitmap = rule.onRoot().captureToImage().asAndroidBitmap()
+        fun sampleDp(xDp: Int, yDp: Int): Int =
+            bitmap.getPixel((xDp * d).toInt(), (yDp * d).toInt())
+
+        val autoCenter = sampleDp(40, 40)
+        val offscreenCenter = sampleDp(80 + 40, 40)
+        val offscreenBlueRing = sampleDp(80 + 14, 40)
+        val modulateCenter = sampleDp(160 + 40, 40)
+
+        // Offscreen allocates an intermediate buffer even at alpha = 1f, so BlendMode.Clear
+        // only clears the Blue square in that layer buffer, revealing the intact Yellow backdrop.
+        assertThat(AndroidColor.red(offscreenCenter)).isGreaterThan(220)
+        assertThat(AndroidColor.green(offscreenCenter)).isGreaterThan(220)
+        assertThat(AndroidColor.blue(offscreenCenter)).isLessThan(30)
+        assertThat(AndroidColor.blue(offscreenBlueRing)).isGreaterThan(220)
+        assertThat(AndroidColor.red(offscreenBlueRing)).isLessThan(30)
+
+        // Auto and ModulateAlpha do not allocate an offscreen buffer at alpha = 1f, so
+        // BlendMode.Clear punches straight through the Yellow parent backdrop.
+        assertThat(AndroidColor.red(autoCenter)).isLessThan(50)
+        assertThat(AndroidColor.green(autoCenter)).isLessThan(50)
+        assertThat(AndroidColor.red(modulateCenter)).isLessThan(50)
+        assertThat(AndroidColor.green(modulateCenter)).isLessThan(50)
     }
 }
