@@ -79,6 +79,11 @@ internal class TransformTestScopeImpl(private val testScope: TestScope) :
     override fun advance() {
         testCoroutineScheduler.runCurrent()
         Snapshot.sendApplyNotifications()
+        while (Snapshot.isApplyObserverNotificationPending) {
+            // TODO(b/583929056): Wait for any concurrent thread (e.g. GlobalSnapshotManager) that
+            // claimed pending snapshot changes to finish running apply observers so that resulting
+            // recomposition work is scheduled before runCurrent() below.
+        }
         testCoroutineScheduler.runCurrent()
     }
 
