@@ -271,15 +271,15 @@ okio = { module = "com.squareup.okio:okio", version = "3.17.0" }
 opentest4j = { module = "org.opentest4j:opentest4j", version = "1.2.0" }
 playFeatureDelivery = { module = "com.google.android.play:feature-delivery", version = "2.1.0" }
 playFeatureDeliveryKtx = { module = "com.google.android.play:feature-delivery-ktx", version = "2.1.0" }
-playServicesAuth = {module = "com.google.android.gms:play-services-auth", version = "21.1.1"}
-playServicesBase = { module = "com.google.android.gms:play-services-base", version = "17.0.0" }
+playServicesAuth = {module = "com.google.android.gms:play-services-auth", version = "21.5.1"}
+playServicesBase = { module = "com.google.android.gms:play-services-base", version = "18.6.0" }
 playServicesBasement = { module = "com.google.android.gms:play-services-basement", version = "18.10.0" }
 playServicesBlockstore = {module = "com.google.android.gms:play-services-auth-blockstore", version = "16.4.0"}
 playServicesCameraLowLightBoost = { module = "com.google.android.gms:play-services-camera-low-light-boost", version = "16.0.1-beta09" }
 playServicesDevicePerformance = { module = "com.google.android.gms:play-services-deviceperformance", version = "16.0.0" }
-playServicesFido = {module = "com.google.android.gms:play-services-fido", version = "21.0.0"}
+playServicesFido = {module = "com.google.android.gms:play-services-fido", version = "21.3.0"}
 playServicesIdentityCredentials = {module = "com.google.android.gms:play-services-identity-credentials", version = "16.0.0-alpha12"}
-playServicesMlkitTextRecognition = { module = "com.google.android.gms:play-services-mlkit-text-recognition", version = "19.0.1" }
+playServicesMlkitTextRecognition = { module = "com.google.android.gms:play-services-mlkit-text-recognition", version = "19.0.2" }
 playServicesWearable = { module = "com.google.android.gms:play-services-wearable", version = "20.0.1" }
 protobuf = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf" }
 protobufCompiler = { module = "com.google.protobuf:protoc", version.ref = "protobuf" }
