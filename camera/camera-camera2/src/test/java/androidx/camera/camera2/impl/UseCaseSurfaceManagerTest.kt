@@ -34,6 +34,7 @@ import androidx.camera.camera2.testing.FakeCameraGraph
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
+import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
 import androidx.test.core.app.ApplicationProvider
 import androidx.testutils.MainDispatcherRule
@@ -125,6 +126,61 @@ class UseCaseSurfaceManagerTest {
         assertThat(errorListener.results[0].second)
             .isEqualTo(SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET)
     }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK])
+    fun setupSurface_surfaceUnavailable_doesNotNotifyError() = runBlocking {
+        // Arrange, the SurfaceProvider declines the request, e.g. via
+        // SurfaceRequest#willNotProvideSurface().
+        val unavailableSurface = createFailingDeferrableSurface {
+            DeferrableSurface.SurfaceUnavailableException("Surface will not be provided")
+        }
+        val errorListener = RecordingErrorListener()
+        val fakeTestUseCase = createFakeTestUseCase(unavailableSurface, errorListener)
+        val fakeGraph = FakeCameraGraph()
+
+        // Act
+        val setupResult =
+            createUseCaseSurfaceManagerAndSetupAsync(
+                    graph = fakeGraph,
+                    useCases = listOf(fakeTestUseCase),
+                    surfaceToStreamMap = mapOf(unavailableSurface to StreamId(0)),
+                )
+                .await()
+
+        // Assert, the Surface is not reset to avoid requesting a new Surface indefinitely.
+        assertThat(setupResult).isFalse()
+        assertThat(fakeGraph.setSurfaceResults).isEmpty()
+        assertThat(errorListener.errors).isEmpty()
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK])
+    fun setupSurface_surfaceClosedWhileWaiting_notifyError() =
+        runBlocking<Unit> {
+            // Arrange, the Surface future fails since the DeferrableSurface is already closed.
+            val closedSurface = createFailingDeferrableSurface {
+                DeferrableSurface.SurfaceClosedException("DeferrableSurface already closed.", it)
+            }
+            val errorListener = RecordingErrorListener()
+            val fakeTestUseCase = createFakeTestUseCase(closedSurface, errorListener)
+            val fakeGraph = FakeCameraGraph()
+
+            // Act
+            val setupResult =
+                createUseCaseSurfaceManagerAndSetupAsync(
+                        graph = fakeGraph,
+                        useCases = listOf(fakeTestUseCase),
+                        surfaceToStreamMap = mapOf(closedSurface to StreamId(0)),
+                    )
+                    .await()
+
+            // Assert, the Surface is reset immediately so the UseCase can provide a new Surface.
+            assertThat(setupResult).isFalse()
+            assertThat(fakeGraph.setSurfaceResults).isEmpty()
+            assertThat(errorListener.errors)
+                .containsExactly(SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET)
+        }
 
     @Test
     fun setupSurface_surfacesShouldSetToGraph() = runBlocking {
@@ -591,6 +647,9 @@ class UseCaseSurfaceManagerTest {
             testDeferrableSurfaces.add(it)
         }
 
+    private fun createFailingDeferrableSurface(failure: (DeferrableSurface) -> Throwable) =
+        FailingDeferrableSurface(failure).also { testDeferrableSurfaces.add(it) }
+
     private fun createNeverCompletingDeferrableSurface() =
         NeverCompletingDeferrableSurface().also { testDeferrableSurfaces.add(it) }
 
@@ -633,6 +692,20 @@ class UseCaseSurfaceManagerTest {
         fun cleanUp() {
             close()
             provideSurfaceDeferred.cancel()
+        }
+    }
+
+    class FailingDeferrableSurface(private val failure: (DeferrableSurface) -> Throwable) :
+        DeferrableSurface() {
+        override fun provideSurface(): ListenableFuture<Surface> =
+            Futures.immediateFailedFuture(failure(this))
+    }
+
+    class RecordingErrorListener : SessionConfig.ErrorListener {
+        val errors = mutableListOf<SessionConfig.SessionError>()
+
+        override fun onError(sessionConfig: SessionConfig, error: SessionConfig.SessionError) {
+            errors.add(error)
         }
     }
 

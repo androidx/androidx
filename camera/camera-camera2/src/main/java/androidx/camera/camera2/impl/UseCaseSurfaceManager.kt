@@ -27,9 +27,12 @@ import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.DeferrableSurface.SurfaceClosedException
+import androidx.camera.core.impl.DeferrableSurface.SurfaceUnavailableException
 import androidx.camera.core.impl.DeferrableSurfaces
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.concurrent.futures.await
+import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.ExecutionException
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
@@ -202,9 +205,10 @@ constructor(
         sessionConfigAdapter: SessionConfigAdapter,
         timeoutMillis: Long,
     ): List<Surface>? {
+        val surfaceFutures = deferrableSurfaces.map { it.surface }
         val surfaces =
             try {
-                getSurfaces(deferrableSurfaces, timeoutMillis)
+                getSurfaces(surfaceFutures, timeoutMillis)
             } catch (e: SurfaceClosedException) {
                 Camera2Logger.warn(e) { "Failed to get Surfaces: Surfaces closed" }
                 sessionConfigAdapter.reportSurfaceInvalid(e.deferrableSurface)
@@ -218,11 +222,21 @@ constructor(
             return null
         }
         if (!surfaces.areValid()) {
-            Camera2Logger.warn { "Surface setup failed: Some Surfaces are invalid" }
-            // Only handle the first failed Surface since subsequent calls to
-            // CameraInternal#onUseCaseReset() will handle the other failed Surfaces
-            // if there are any.
-            sessionConfigAdapter.reportSurfaceInvalid(deferrableSurfaces[surfaces.indexOf(null)])
+            // Skip Surfaces whose provider declined to provide one (e.g. via
+            // SurfaceRequest#willNotProvideSurface()): resetting them would issue a new request
+            // that is declined again, looping indefinitely. Only handle the first other failed
+            // Surface since subsequent calls to CameraInternal#onUseCaseReset() will handle the
+            // other failed Surfaces if there are any.
+            val failedIndex =
+                deferrableSurfaces.indices.firstOrNull {
+                    surfaces[it] == null && !surfaceFutures[it].isSurfaceUnavailable()
+                }
+            if (failedIndex == null) {
+                Camera2Logger.warn { "Surface setup failed: Surfaces will not be provided" }
+            } else {
+                Camera2Logger.warn { "Surface setup failed: Some Surfaces are invalid" }
+                sessionConfigAdapter.reportSurfaceInvalid(deferrableSurfaces[failedIndex])
+            }
             return null
         }
         return surfaces.requireNoNulls()
@@ -327,17 +341,27 @@ constructor(
     }
 
     private suspend fun getSurfaces(
-        deferrableSurfaces: List<DeferrableSurface>,
+        surfaceFutures: List<ListenableFuture<Surface>>,
         timeoutMillis: Long,
     ): List<Surface?> {
         return withTimeoutOrNull(timeMillis = timeoutMillis) {
                 Futures.successfulAsList(
-                        deferrableSurfaces.map { Futures.nonCancellationPropagating(it.surface) }
+                        surfaceFutures.map { Futures.nonCancellationPropagating(it) }
                     )
                     .await()
             }
             .orEmpty()
     }
+
+    private fun ListenableFuture<Surface>.isSurfaceUnavailable(): Boolean =
+        isDone &&
+            !isCancelled &&
+            try {
+                Futures.getDone(this)
+                false
+            } catch (e: ExecutionException) {
+                e.cause is SurfaceUnavailableException
+            }
 
     private fun List<Surface?>.areValid(): Boolean {
         // If a Surface in configuredSurfaces is null it means the
