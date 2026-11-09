@@ -17,6 +17,7 @@
 package androidx.camera.video
 
 import android.media.AudioFormat
+import androidx.camera.video.internal.audio.EMPTY_AUDIO_BUFFER
 import com.google.common.truth.Truth.assertThat
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -72,8 +73,8 @@ class PassthroughAudioProcessorTest {
         val output = passthroughProcessor.getOutput()
         assertThat(output).isEqualTo(inputBuffer)
 
-        // Subsequent getOutput() returns EMPTY_BUFFER
-        assertThat(passthroughProcessor.getOutput()).isEqualTo(AudioProcessor.EMPTY_BUFFER)
+        // Subsequent getOutput() returns EMPTY_AUDIO_BUFFER
+        assertThat(passthroughProcessor.getOutput()).isEqualTo(EMPTY_AUDIO_BUFFER)
     }
 
     @Test
@@ -92,12 +93,12 @@ class PassthroughAudioProcessorTest {
 
         passthroughProcessor.queueInput(inputBuffer)
         passthroughProcessor.flush()
-        assertThat(passthroughProcessor.getOutput()).isEqualTo(AudioProcessor.EMPTY_BUFFER)
+        assertThat(passthroughProcessor.getOutput()).isEqualTo(EMPTY_AUDIO_BUFFER)
 
         inputBuffer.position(0)
         passthroughProcessor.queueInput(inputBuffer)
         passthroughProcessor.reset()
-        assertThat(passthroughProcessor.getOutput()).isEqualTo(AudioProcessor.EMPTY_BUFFER)
+        assertThat(passthroughProcessor.getOutput()).isEqualTo(EMPTY_AUDIO_BUFFER)
     }
 
     @Test

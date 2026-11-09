@@ -17,6 +17,7 @@
 package androidx.camera.video
 
 import android.media.AudioFormat
+import androidx.camera.video.internal.audio.EMPTY_AUDIO_BUFFER
 import com.google.common.truth.Truth.assertThat
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -41,7 +42,7 @@ class AudioProcessorTest {
 
     @Test
     fun emptyBuffer_isDirectAndEmpty() {
-        val emptyBuffer = AudioProcessor.EMPTY_BUFFER
+        val emptyBuffer = EMPTY_AUDIO_BUFFER
         assertThat(emptyBuffer.isDirect).isTrue()
         assertThat(emptyBuffer.capacity()).isEqualTo(0)
         assertThat(emptyBuffer.remaining()).isEqualTo(0)
@@ -130,7 +131,7 @@ class AudioProcessorTest {
         // A processor that doubles 16-bit PCM values (gain effect)
         val gainProcessor =
             object : AudioProcessor {
-                private var outputBuffer: ByteBuffer = AudioProcessor.EMPTY_BUFFER
+                private var outputBuffer: ByteBuffer = EMPTY_AUDIO_BUFFER
 
                 override fun configure(
                     inputAudioFormat: AudioProcessor.AudioFormat
@@ -153,16 +154,16 @@ class AudioProcessorTest {
 
                 override fun getOutput(): ByteBuffer {
                     val output = outputBuffer
-                    outputBuffer = AudioProcessor.EMPTY_BUFFER
+                    outputBuffer = EMPTY_AUDIO_BUFFER
                     return output
                 }
 
                 override fun flush() {
-                    outputBuffer = AudioProcessor.EMPTY_BUFFER
+                    outputBuffer = EMPTY_AUDIO_BUFFER
                 }
 
                 override fun reset() {
-                    outputBuffer = AudioProcessor.EMPTY_BUFFER
+                    outputBuffer = EMPTY_AUDIO_BUFFER
                 }
             }
 
@@ -181,7 +182,7 @@ class AudioProcessorTest {
         assertThat(shortOutput.get()).isEqualTo(20)
         assertThat(shortOutput.get()).isEqualTo(-40)
 
-        // Subsequent getOutput() should return EMPTY_BUFFER
-        assertThat(gainProcessor.getOutput()).isEqualTo(AudioProcessor.EMPTY_BUFFER)
+        // Subsequent getOutput() should return EMPTY_AUDIO_BUFFER
+        assertThat(gainProcessor.getOutput()).isEqualTo(EMPTY_AUDIO_BUFFER)
     }
 }

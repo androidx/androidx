@@ -60,7 +60,7 @@ class AudioProcessingPipelineTest {
         input.flip()
 
         pipeline.queueInput(input)
-        assertThat(pipeline.output).isEqualTo(AudioProcessor.EMPTY_BUFFER)
+        assertThat(pipeline.output).isEqualTo(EMPTY_AUDIO_BUFFER)
     }
 
     @Test
@@ -98,7 +98,7 @@ class AudioProcessingPipelineTest {
         val multiOutputProcessor =
             object : AudioProcessor {
                 private val pendingOutputs = ArrayDeque<ByteBuffer>()
-                private var currentOutput: ByteBuffer = AudioProcessor.EMPTY_BUFFER
+                private var currentOutput: ByteBuffer = EMPTY_AUDIO_BUFFER
 
                 override fun configure(inputAudioFormat: AudioProcessor.AudioFormat) =
                     inputAudioFormat
@@ -126,7 +126,7 @@ class AudioProcessingPipelineTest {
                             if (pendingOutputs.isNotEmpty()) {
                                 pendingOutputs.removeFirst()
                             } else {
-                                AudioProcessor.EMPTY_BUFFER
+                                EMPTY_AUDIO_BUFFER
                             }
                     }
                     return currentOutput
@@ -134,7 +134,7 @@ class AudioProcessingPipelineTest {
 
                 override fun flush() {
                     pendingOutputs.clear()
-                    currentOutput = AudioProcessor.EMPTY_BUFFER
+                    currentOutput = EMPTY_AUDIO_BUFFER
                 }
 
                 override fun reset() {
@@ -163,9 +163,9 @@ class AudioProcessingPipelineTest {
         assertThat(output2.get()).isEqualTo(3)
         assertThat(output2.get()).isEqualTo(4)
 
-        // 3rd getOutput() returns EMPTY_BUFFER
+        // 3rd getOutput() returns EMPTY_AUDIO_BUFFER
         val output3 = pipeline.output
-        assertThat(output3).isEqualTo(AudioProcessor.EMPTY_BUFFER)
+        assertThat(output3).isEqualTo(EMPTY_AUDIO_BUFFER)
     }
 
     @Test
@@ -221,7 +221,7 @@ class AudioProcessingPipelineTest {
         // P2 only consumes up to 2 bytes per queueInput
         val p2 =
             object : AudioProcessor {
-                private var output: ByteBuffer = AudioProcessor.EMPTY_BUFFER
+                private var output: ByteBuffer = EMPTY_AUDIO_BUFFER
 
                 override fun configure(inputAudioFormat: AudioProcessor.AudioFormat) =
                     inputAudioFormat
@@ -236,16 +236,16 @@ class AudioProcessingPipelineTest {
 
                 override fun getOutput(): ByteBuffer {
                     val out = output
-                    output = AudioProcessor.EMPTY_BUFFER
+                    output = EMPTY_AUDIO_BUFFER
                     return out
                 }
 
                 override fun flush() {
-                    output = AudioProcessor.EMPTY_BUFFER
+                    output = EMPTY_AUDIO_BUFFER
                 }
 
                 override fun reset() {
-                    output = AudioProcessor.EMPTY_BUFFER
+                    output = EMPTY_AUDIO_BUFFER
                 }
             }
 
@@ -271,7 +271,7 @@ class AudioProcessingPipelineTest {
         assertThat(out2.get()).isEqualTo(4)
 
         // Third slice: completely drained
-        assertThat(pipeline.output).isEqualTo(AudioProcessor.EMPTY_BUFFER)
+        assertThat(pipeline.output).isEqualTo(EMPTY_AUDIO_BUFFER)
     }
 
     @Test
@@ -279,7 +279,7 @@ class AudioProcessingPipelineTest {
         var p1Flushed = false
         val p1 =
             object : AudioProcessor {
-                private var output: ByteBuffer = AudioProcessor.EMPTY_BUFFER
+                private var output: ByteBuffer = EMPTY_AUDIO_BUFFER
 
                 override fun configure(inputAudioFormat: AudioProcessor.AudioFormat) =
                     inputAudioFormat
@@ -297,7 +297,7 @@ class AudioProcessingPipelineTest {
 
                 override fun flush() {
                     p1Flushed = true
-                    output = AudioProcessor.EMPTY_BUFFER
+                    output = EMPTY_AUDIO_BUFFER
                 }
 
                 override fun reset() {
@@ -316,7 +316,7 @@ class AudioProcessingPipelineTest {
         pipeline.flush()
 
         assertThat(p1Flushed).isTrue()
-        assertThat(pipeline.output).isEqualTo(AudioProcessor.EMPTY_BUFFER)
+        assertThat(pipeline.output).isEqualTo(EMPTY_AUDIO_BUFFER)
     }
 
     @Test
@@ -324,7 +324,7 @@ class AudioProcessingPipelineTest {
         var p1Reset = false
         val p1 =
             object : AudioProcessor {
-                private var output: ByteBuffer = AudioProcessor.EMPTY_BUFFER
+                private var output: ByteBuffer = EMPTY_AUDIO_BUFFER
 
                 override fun configure(inputAudioFormat: AudioProcessor.AudioFormat) =
                     inputAudioFormat
@@ -344,7 +344,7 @@ class AudioProcessingPipelineTest {
 
                 override fun reset() {
                     p1Reset = true
-                    output = AudioProcessor.EMPTY_BUFFER
+                    output = EMPTY_AUDIO_BUFFER
                 }
             }
 
@@ -359,7 +359,7 @@ class AudioProcessingPipelineTest {
         pipeline.reset()
 
         assertThat(p1Reset).isTrue()
-        assertThat(pipeline.output).isEqualTo(AudioProcessor.EMPTY_BUFFER)
+        assertThat(pipeline.output).isEqualTo(EMPTY_AUDIO_BUFFER)
     }
 
     @Test
@@ -430,10 +430,10 @@ class AudioProcessingPipelineTest {
 
     private fun createAudioProcessor(
         onConfigure: (AudioProcessor.AudioFormat) -> AudioProcessor.AudioFormat = { it },
-        processBlock: (ByteBuffer) -> ByteBuffer = { AudioProcessor.EMPTY_BUFFER },
+        processBlock: (ByteBuffer) -> ByteBuffer = { EMPTY_AUDIO_BUFFER },
     ): AudioProcessor =
         object : AudioProcessor {
-            private var outputBuffer: ByteBuffer = AudioProcessor.EMPTY_BUFFER
+            private var outputBuffer: ByteBuffer = EMPTY_AUDIO_BUFFER
 
             override fun configure(inputAudioFormat: AudioProcessor.AudioFormat) =
                 onConfigure(inputAudioFormat)
@@ -444,16 +444,16 @@ class AudioProcessingPipelineTest {
 
             override fun getOutput(): ByteBuffer {
                 val out = outputBuffer
-                outputBuffer = AudioProcessor.EMPTY_BUFFER
+                outputBuffer = EMPTY_AUDIO_BUFFER
                 return out
             }
 
             override fun flush() {
-                outputBuffer = AudioProcessor.EMPTY_BUFFER
+                outputBuffer = EMPTY_AUDIO_BUFFER
             }
 
             override fun reset() {
-                outputBuffer = AudioProcessor.EMPTY_BUFFER
+                outputBuffer = EMPTY_AUDIO_BUFFER
             }
         }
 }

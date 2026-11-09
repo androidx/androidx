@@ -30,6 +30,7 @@ import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Logger;
@@ -39,6 +40,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.video.AudioProcessor;
+import androidx.camera.video.ExperimentalAudioApi;
 import androidx.camera.video.internal.BufferProvider;
 import androidx.camera.video.internal.encoder.InputBuffer;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -178,6 +180,7 @@ public final class AudioSource {
      * @throws AudioSourceAccessException    if the audio device is not available or cannot be
      *                                       initialized with the given settings.
      */
+    @OptIn(markerClass = ExperimentalAudioApi.class)
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     public AudioSource(@NonNull AudioSettings settings, @NonNull Executor executor,
             @Nullable Context attributionContext, @NonNull List<AudioProcessor> audioProcessors,
@@ -187,6 +190,7 @@ public final class AudioSource {
     }
 
     @VisibleForTesting
+    @OptIn(markerClass = ExperimentalAudioApi.class)
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     AudioSource(@NonNull AudioSettings settings, @NonNull Executor executor,
             @Nullable Context attributionContext, @NonNull List<AudioProcessor> audioProcessors,

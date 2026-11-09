@@ -17,9 +17,10 @@
 package androidx.camera.video.internal.audio
 
 import android.media.AudioFormat
+import androidx.annotation.OptIn
 import androidx.camera.core.Logger
 import androidx.camera.video.AudioProcessor
-import androidx.camera.video.AudioProcessor.Companion.EMPTY_BUFFER
+import androidx.camera.video.ExperimentalAudioApi
 import java.nio.ByteBuffer
 import kotlin.math.roundToInt
 
@@ -30,6 +31,7 @@ import kotlin.math.roundToInt
  * Intermediate buffers are retained between adjacent stages to support backpressure and draining of
  * multi-output processors.
  */
+@OptIn(markerClass = [ExperimentalAudioApi::class])
 public class AudioProcessingPipeline(audioProcessors: List<AudioProcessor>) {
 
     private val audioProcessors: List<AudioProcessor> =
@@ -37,7 +39,7 @@ public class AudioProcessingPipeline(audioProcessors: List<AudioProcessor>) {
 
     private val outputBuffers: Array<ByteBuffer> =
         if (audioProcessors.isEmpty()) emptyArray()
-        else Array(audioProcessors.size) { EMPTY_BUFFER }
+        else Array(audioProcessors.size) { EMPTY_AUDIO_BUFFER }
 
     /** Checks whether the pipeline has active processors. */
     public val isOperational: Boolean
@@ -110,12 +112,12 @@ public class AudioProcessingPipeline(audioProcessors: List<AudioProcessor>) {
     /**
      * Returns a [ByteBuffer] containing processed output data from the pipeline.
      *
-     * Returns [EMPTY_BUFFER] if no output is available.
+     * Returns [EMPTY_AUDIO_BUFFER] if no output is available.
      */
     public val output: ByteBuffer
         get() {
             if (!isOperational) {
-                return EMPTY_BUFFER
+                return EMPTY_AUDIO_BUFFER
             }
             val finalIndex = finalOutputBufferIndex
             val outputBuffer = outputBuffers[finalIndex]
@@ -123,7 +125,7 @@ public class AudioProcessingPipeline(audioProcessors: List<AudioProcessor>) {
                 return outputBuffer
             }
 
-            processData(EMPTY_BUFFER)
+            processData(EMPTY_AUDIO_BUFFER)
             return outputBuffers[finalIndex]
         }
 
@@ -146,7 +148,7 @@ public class AudioProcessingPipeline(audioProcessors: List<AudioProcessor>) {
                     } else if (inputBuffer.hasRemaining()) {
                         inputBuffer
                     } else {
-                        EMPTY_BUFFER
+                        EMPTY_AUDIO_BUFFER
                     }
 
                 val inputBytes = input.remaining().toLong()
@@ -164,7 +166,7 @@ public class AudioProcessingPipeline(audioProcessors: List<AudioProcessor>) {
     /** Flushes all audio processors and clears intermediate output buffers. */
     public fun flush() {
         for (i in outputBuffers.indices) {
-            outputBuffers[i] = EMPTY_BUFFER
+            outputBuffers[i] = EMPTY_AUDIO_BUFFER
         }
         for (processor in audioProcessors) {
             try {
@@ -178,7 +180,7 @@ public class AudioProcessingPipeline(audioProcessors: List<AudioProcessor>) {
     /** Resets all audio processors and clears intermediate output buffers. */
     public fun reset() {
         for (i in outputBuffers.indices) {
-            outputBuffers[i] = EMPTY_BUFFER
+            outputBuffers[i] = EMPTY_AUDIO_BUFFER
         }
         for (processor in audioProcessors) {
             try {
