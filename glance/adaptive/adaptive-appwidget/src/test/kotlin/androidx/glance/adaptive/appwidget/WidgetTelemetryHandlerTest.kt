@@ -24,6 +24,7 @@ import android.os.Bundle
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
 import androidx.glance.adaptive.core.selection.Dimensions
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
+import androidx.glance.adaptive.core.templates.TrackTemplate
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -174,6 +175,71 @@ class WidgetTelemetryHandlerTest {
                     .getInt(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_TEMPLATE_TYPE)
             )
             .isEqualTo(2)
+    }
+
+    @Test
+    fun ensureTelemetryOptions_forTrackTemplate_writesHasDroppedSlotsPerTargetSize() {
+        bindWidget(710)
+        bindWidget(711)
+        val compactTarget = RenderTarget(AppWidgetSurface.MOBILE_LOCK_SCREEN, Dimensions(168, 28))
+        val fullTarget = RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(348, 264))
+        val template =
+            TrackTemplate(
+                title = "7,922",
+                subtitle = "steps",
+                progress = 0.8f,
+                statusText = "Goal: 10,000",
+            )
+
+        handler.ensureTelemetryOptions(
+            mapOf(compactTarget to listOf(710), fullTarget to listOf(711)),
+            template,
+        )
+
+        assertThat(
+                appWidgetManager
+                    .getAppWidgetOptions(710)
+                    .getBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS)
+            )
+            .isTrue()
+        assertThat(
+                appWidgetManager
+                    .getAppWidgetOptions(711)
+                    .getBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS)
+            )
+            .isFalse()
+    }
+
+    @Test
+    fun ensureTelemetryOptions_whenHasDroppedSlotsChangesAfterResize_updatesOptions() {
+        bindWidget(
+            712,
+            Bundle().apply {
+                putBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_ENABLED, true)
+                putInt(
+                    WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_TEMPLATE_TYPE,
+                    TrackTemplate.TEMPLATE_ID,
+                )
+                putInt(
+                    WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_SDK_VERSION_CODE,
+                    WidgetTelemetryHandler.XFF_SDK_VERSION_CODE,
+                )
+                putBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS, false)
+            },
+        )
+        val compactTarget = RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(88, 88))
+
+        handler.ensureTelemetryOptions(
+            mapOf(compactTarget to listOf(712)),
+            TrackTemplate(title = "7,922", subtitle = "steps"),
+        )
+
+        assertThat(
+                appWidgetManager
+                    .getAppWidgetOptions(712)
+                    .getBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS)
+            )
+            .isTrue()
     }
 
     @Test

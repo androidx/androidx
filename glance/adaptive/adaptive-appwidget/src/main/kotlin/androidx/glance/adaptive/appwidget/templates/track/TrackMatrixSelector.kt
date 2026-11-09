@@ -56,10 +56,15 @@ public object TrackMatrixSelector :
         val tiers = SizeTiers.from(surface.dimensions, surface)
         val isNarrow = tiers.width == WidthTier.W1
         val title = template.title.takeIf { it.isNotBlank() }
+        val subtitle = template.subtitle.toTextOrNull()
+        val statusText = template.statusText.toTextOrNull()
         val progress = template.progress.validProgress()
         // The bulb is the headline inside the ring, so without a headline the card stays.
         if (isNarrow && tiers.height <= HeightTier.H1 && title != null) {
-            return MatrixBulbContent(ContainedRing(progress, title, TrackPlaceholderData.Glyph))
+            return MatrixBulbContent(
+                component = ContainedRing(progress, title, TrackPlaceholderData.Glyph),
+                hasDroppedSlots = subtitle != null || statusText != null,
+            )
         }
 
         // W1 has a single column, so height alone decides whether the unit label fits.
@@ -85,16 +90,18 @@ public object TrackMatrixSelector :
             // The ring tracks the template's progress, so without progress the slot stays empty.
             leading = progress?.let { Ring(it, TrackPlaceholderData.Glyph) },
             primary = title?.let { TemplateText(it) },
-            secondary = template.subtitle.toTextOrNull()?.takeIf { showSecondary },
+            secondary = subtitle?.takeIf { showSecondary },
             hero = hero,
             // A missing status text leaves its position empty rather than shifting the others.
             actions =
                 listOf(
-                        template.statusText.toTextOrNull(),
+                        statusText,
                         TrackPlaceholderData.SecondaryStatus,
                         TrackPlaceholderData.StatusBadge,
                     )
                     .subList(0, actionCount),
+            hasDroppedSlots =
+                (subtitle != null && !showSecondary) || (statusText != null && actionCount == 0),
         )
     }
 }

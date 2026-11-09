@@ -50,9 +50,8 @@ internal class WidgetTelemetryHandler(private val appWidgetManager: AppWidgetMan
         data: GlanceAdaptiveTemplate,
     ) {
         val templateId = data.templateId
-        for ((_, appWidgetIds) in targetToInstances) {
-            // TODO(b/561481040): Detect responsive slot compaction per target.
-            val hasDroppedSlots = false
+        for ((target, appWidgetIds) in targetToInstances) {
+            val hasDroppedSlots = hasDroppedSlots(data, target)
             for (i in appWidgetIds.indices) {
                 val appWidgetId = appWidgetIds[i]
                 try {
@@ -131,6 +130,16 @@ internal class WidgetTelemetryHandler(private val appWidgetManager: AppWidgetMan
             options.getInt(OPTION_ADAPTIVE_WIDGET_SDK_VERSION_CODE, 0) != XFF_SDK_VERSION_CODE ||
             !options.containsKey(OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS) ||
             options.getBoolean(OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS, false) != hasDroppedSlots
+
+    /**
+     * Returns `true` when [target]'s container size causes at least one non-blank optional slot in
+     * [data] to be omitted from the rendered layout.
+     */
+    private fun hasDroppedSlots(data: GlanceAdaptiveTemplate, target: RenderTarget): Boolean =
+        AppWidgetTemplateRegistry.hasDroppedSlots(
+            data,
+            target.surface.withDimensions(target.dimensions),
+        )
 
     companion object {
         private const val TAG = "WidgetTelemetryHandler"

@@ -299,4 +299,31 @@ class AppWidgetTemplateRegistryTest {
         assertThat(otherTemplateOnCustomWidgetOutput)
             .isInstanceOf(RemoteViewsRenderOutput::class.java)
     }
+
+    @Test
+    fun hasDroppedSlots_evaluatesBuiltInSelectorAndReturnsFalseForUnregisteredTemplates() {
+        val track = TrackTemplate(title = "7,922", subtitle = "steps", statusText = "Goal: 10,000")
+
+        assertThat(
+                AppWidgetTemplateRegistry.hasDroppedSlots(
+                    track,
+                    AppWidgetSurface.MOBILE_LOCK_SCREEN.withDimensions(Dimensions(168, 28)),
+                )
+            )
+            .isTrue()
+        assertThat(
+                AppWidgetTemplateRegistry.hasDroppedSlots(
+                    track,
+                    AppWidgetSurface.MOBILE_HOME_SCREEN.withDimensions(Dimensions(348, 264)),
+                )
+            )
+            .isFalse()
+        assertThat(
+                AppWidgetTemplateRegistry.hasDroppedSlots(
+                    DummyTemplate("Unregistered"),
+                    surface.withDimensions(Dimensions(88, 88)),
+                )
+            )
+            .isFalse()
+    }
 }
