@@ -243,6 +243,26 @@ class InformationMatrixTest {
     }
 
     @Test
+    fun card_compactHeaderGivesTheSecondaryTextTheLineUnderThePrimaryText() {
+        val card =
+            resolve(
+                MatrixCardContent(
+                    leading = Icon(icon = GLYPH),
+                    primary = TemplateText("1,234,567"),
+                    secondary = TemplateText("Steps walked since midnight"),
+                    leadingSize = 40.dp,
+                    primaryTextSize = 16.sp,
+                ),
+                at(176, 88),
+            )
+
+        // 176 dp less 2 x 16 dp padding, a 40 dp icon and an 8 dp gap leaves 96 dp for both lines.
+        assertThat(card.compactHeader).isTrue()
+        assertThat(card.secondaryMaxWidth).isEqualTo(96.dp)
+        assertThat((card.primary as TemplateText).value).isEqualTo("1,234,567")
+    }
+
+    @Test
     fun card_stackedHeaderShrinksAnOverriddenLeadingSizeToItsColumn() {
         val card =
             resolve(

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2026 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<!--
+  Matrix header laid out as a label, for a card that sizes its leading component itself, such as a
+  compact card or a Dashboard header: the leading slot, the primary text with the optional
+  secondary text under it, then the optional trailing slot. Unlike the row header, it has no 56dp minimum height, so it is as tall
+  as its tallest slot. The 8dp gap after the leading component is the leading slot's padding, so it
+  goes with the slot when there is no leading component.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <FrameLayout
+        android:id="@+id/glance_adaptive_appwidget_remoteviews_slot_leading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingEnd="8dp" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/glance_adaptive_appwidget_remoteviews_primary"
+            style="@style/GlanceAdaptiveAppwidgetRemoteviews.Text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical|start"
+            android:textAppearance="@style/GlanceAdaptiveAppwidgetRemoteviews.TextAppearance.Bold"
+            android:textColor="@color/glance_adaptive_appwidget_remoteviews_primary" />
+
+        <TextView
+            android:id="@+id/glance_adaptive_appwidget_remoteviews_secondary"
+            style="@style/GlanceAdaptiveAppwidgetRemoteviews.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical|start"
+            android:textAppearance="@style/GlanceAdaptiveAppwidgetRemoteviews.TextAppearance.Medium"
+            android:textColor="@color/glance_adaptive_appwidget_remoteviews_primary" />
+    </LinearLayout>
+
+    <!--
+      Trailing slot, such as a button. The 8dp gap before it is its padding, so it goes with the
+      slot when there is no trailing component.
+    -->
+    <FrameLayout
+        android:id="@+id/glance_adaptive_appwidget_remoteviews_slot_trailing"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="8dp"
+        android:visibility="gone" />
+</LinearLayout>

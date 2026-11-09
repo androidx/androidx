@@ -131,7 +131,9 @@ internal object MatrixDefaults {
  * the actions after it do not move. With no action at all, the row is hidden.
  *
  * A compact card, such as the design's `Linear` strip on the lock screen, is a header-only card
- * with no padding and a smaller [leadingSize] and [primaryTextSize].
+ * with no padding and a smaller [leadingSize] and [primaryTextSize]. A card that sets [leadingSize]
+ * lays its header out as a label, with the secondary text under the primary one (see
+ * [ResolvedMatrixCard.compactHeader]).
  *
  * @property leading Component for the leading slot, or `null` to hide it with the gap after it.
  * @property primary Component for the primary slot, or `null` to leave it empty.
@@ -197,6 +199,10 @@ internal class MatrixBulbContent(val component: BulbComponent) : MatrixContent
  * @property stacked Whether the header slots run down rather than across.
  * @property leading Component in the leading slot, or `null`.
  * @property leadingSize Edge length the leading component is drawn at.
+ * @property compactHeader Whether the header is laid out as a label rather than a headline, because
+ *   the card sizes its leading component itself, as a compact card does: the header has no minimum
+ *   height of its own, so it is as tall as its tallest slot, and in a row the secondary text runs
+ *   under the primary one rather than beside it.
  * @property primary Component in the primary slot, already fitted to its width budget, or `null`
  *   when empty.
  * @property primaryTextSize Type size of [primary].
@@ -216,6 +222,7 @@ internal class ResolvedMatrixCard(
     val stacked: Boolean,
     val leading: LeadingComponent?,
     val leadingSize: Dp,
+    val compactHeader: Boolean,
     val primary: PrimaryComponent?,
     val primaryTextSize: TextUnit,
     val secondary: SecondaryComponent?,
@@ -283,10 +290,13 @@ internal fun resolve(
         }
 
     val secondary = content.secondary?.shownOn(locked)
+    // A compact header runs the secondary text under the primary one rather than beside it.
+    val compactHeader = content.leadingSize != null
+    val secondaryBeside = !stacked && !compactHeader
     // A stacked secondary text has a line to itself, and an unsized container has no width to
     // share.
-    val secondaryMaxWidthDp =
-        if (!stacked && secondary != null && widthDp > 0f) {
+    val secondaryBesideMaxWidthDp =
+        if (secondaryBeside && secondary != null && widthDp > 0f) {
             (contentWidthDp * MATRIX_SECONDARY_MAX_WIDTH_FRACTION).coerceAtLeast(0f)
         } else {
             null
@@ -299,14 +309,23 @@ internal fun resolve(
         if (leading != null) primaryMaxWidthDp -= leadingSizeDp + MatrixDefaults.HeaderSpacing.value
         if (trailing != null)
             primaryMaxWidthDp -= leadingDefaultDp + MatrixDefaults.HeaderSpacing.value
-        secondary?.let {
-            val secondaryWidthDp = it.estimatedWidthDp()
-            primaryMaxWidthDp -=
-                MatrixDefaults.HeaderSpacing.value +
-                    secondaryWidthDp.coerceAtMost(secondaryMaxWidthDp ?: secondaryWidthDp)
-        }
+        secondary
+            ?.takeIf { secondaryBeside }
+            ?.let {
+                val secondaryWidthDp = it.estimatedWidthDp()
+                primaryMaxWidthDp -=
+                    MatrixDefaults.HeaderSpacing.value +
+                        secondaryWidthDp.coerceAtMost(secondaryBesideMaxWidthDp ?: secondaryWidthDp)
+            }
     }
     primaryMaxWidthDp = primaryMaxWidthDp.coerceAtLeast(0f)
+    // Under the primary text, the secondary text has the primary text's width.
+    val secondaryMaxWidthDp =
+        if (compactHeader && !stacked && secondary != null && widthDp > 0f) {
+            primaryMaxWidthDp
+        } else {
+            secondaryBesideMaxWidthDp
+        }
 
     return ResolvedMatrixCard(
         tiers = tiers,
@@ -316,6 +335,7 @@ internal fun resolve(
         stacked = stacked,
         leading = leading,
         leadingSize = leadingSizeDp.dp,
+        compactHeader = compactHeader,
         primary = content.primary?.shownOn(locked)?.fitTo(primaryMaxWidthDp, primaryTextSize),
         primaryTextSize = primaryTextSize,
         secondary = secondary,

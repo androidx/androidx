@@ -109,12 +109,17 @@ internal fun RemoteViews.addChild(@IdRes containerId: Int, child: RemoteViews, s
  * Fills the slot container [slotId] with [component], or hides the slot when it is `null`.
  *
  * The slot is emptied first and its visibility is set on every call, because the host reapplies an
- * update onto the previous hierarchy. See [addChild] for how the component is still recycled.
+ * update onto the previous hierarchy. See [addChild] for how the component is still recycled, and
+ * [tappableStableId] for what [tappable] changes.
  */
-internal fun RemoteViews.setSlot(@IdRes slotId: Int, component: RemoteViews?) {
+internal fun RemoteViews.setSlot(
+    @IdRes slotId: Int,
+    component: RemoteViews?,
+    tappable: Boolean = false,
+) {
     removeAllViews(slotId)
     setViewVisibility(slotId, visibility(component != null))
-    if (component != null) addChild(slotId, component, stableId = 0)
+    if (component != null) addChild(slotId, component, tappableStableId(0, tappable))
 }
 
 /**
@@ -124,20 +129,39 @@ internal fun RemoteViews.setSlot(@IdRes slotId: Int, component: RemoteViews?) {
  * A `null` entry leaves its position empty but keeps the spacer before it, so the components after
  * it keep their place. The slot is hidden when [components] is empty, and emptied first for the
  * same reason as [setSlot]. Stable IDs follow the position, so an update recycles each position's
- * component.
+ * component, unless it became tappable or stopped being so (see [tappableStableId]).
+ *
+ * @param tappable Whether the component at each position runs an action when tapped; positions past
+ *   its end are not.
  */
 internal fun RemoteViews.setSpreadSlot(
     context: Context,
     @IdRes slotId: Int,
     components: List<RemoteViews?>,
+    tappable: List<Boolean> = emptyList(),
 ) {
     removeAllViews(slotId)
     setViewVisibility(slotId, visibility(components.isNotEmpty()))
     for (index in components.indices) {
         if (index > 0) addChild(slotId, weightedSpacer(context), stableId = 2 * index - 1)
-        components[index]?.let { addChild(slotId, it, stableId = 2 * index) }
+        components[index]?.let {
+            addChild(slotId, it, tappableStableId(2 * index, tappable.getOrElse(index) { false }))
+        }
     }
 }
+
+/**
+ * The stable ID to add a child under at [stableId], kept apart for a [tappable] child.
+ *
+ * A view that ignores taps is never given a click, since any click makes it clickable. So a
+ * tappable child and an inert one at the same position must not be recycled into each other: the
+ * inert one would keep the earlier tap. [addChild] recycles a child only under the same stable ID.
+ */
+internal fun tappableStableId(stableId: Int, tappable: Boolean): Int =
+    if (tappable) stableId or TAPPABLE_STABLE_ID_BIT else stableId
+
+/** Bit [tappableStableId] sets, above any position a slot holds. */
+private const val TAPPABLE_STABLE_ID_BIT = 1 shl 30
 
 /** An empty view that takes an equal share of a horizontal container's slack. */
 internal fun weightedSpacer(context: Context): RemoteViews =
@@ -176,6 +200,25 @@ internal fun RemoteViews.setHorizontalItemSpacing(
     }
 }
 
+/**
+ * Spaces a weighted vertical item [viewId] by [gap] from the next item while keeping every item's
+ * inner content height equal: the vertical counterpart of [setHorizontalItemSpacing], with
+ * `marginBottom` from API 31 and symmetric `gap / 2` vertical padding below it.
+ */
+internal fun RemoteViews.setVerticalItemSpacing(
+    @IdRes viewId: Int,
+    gap: Dp,
+    isLast: Boolean,
+    density: Float,
+) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        RemoteViewsSlotsApi31Impl.setMarginBottom(this, viewId, if (isLast) 0f else gap.value)
+    } else {
+        val half = (gap.value / 2f).dpToPx(density)
+        setViewPadding(viewId, 0, half, 0, half)
+    }
+}
+
 @RequiresApi(Build.VERSION_CODES.S)
 private object RemoteViewsSlotsApi31Impl {
     fun addStableView(rv: RemoteViews, containerId: Int, child: RemoteViews, stableId: Int) {
@@ -190,6 +233,15 @@ private object RemoteViewsSlotsApi31Impl {
         rv.setViewLayoutMargin(
             viewId,
             RemoteViews.MARGIN_END,
+            marginDp,
+            TypedValue.COMPLEX_UNIT_DIP,
+        )
+    }
+
+    fun setMarginBottom(rv: RemoteViews, viewId: Int, marginDp: Float) {
+        rv.setViewLayoutMargin(
+            viewId,
+            RemoteViews.MARGIN_BOTTOM,
             marginDp,
             TypedValue.COMPLEX_UNIT_DIP,
         )

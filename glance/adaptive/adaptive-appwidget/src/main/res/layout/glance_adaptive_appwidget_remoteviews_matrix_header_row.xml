@@ -15,7 +15,8 @@
   limitations under the License.
   -->
 <!--
-  Matrix header laid out in a row: leading slot, primary text, then the optional secondary text.
+  Matrix header laid out in a row: leading slot, primary text, the optional secondary text, then
+  the optional trailing slot.
 
   The row is at least 56dp tall and vertically centers its children, while remaining free to grow
   with the font scale rather than clip its text. The 8dp gaps are mirrored by the matrix builder's
@@ -54,4 +55,15 @@
         android:gravity="center"
         android:textAppearance="@style/GlanceAdaptiveAppwidgetRemoteviews.TextAppearance.Medium"
         android:textColor="@color/glance_adaptive_appwidget_remoteviews_primary" />
+
+    <!--
+      Trailing slot, such as a button. The 8dp gap before it is its padding, so it goes with the
+      slot when there is no trailing component.
+    -->
+    <FrameLayout
+        android:id="@+id/glance_adaptive_appwidget_remoteviews_slot_trailing"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="8dp"
+        android:visibility="gone" />
 </LinearLayout>
