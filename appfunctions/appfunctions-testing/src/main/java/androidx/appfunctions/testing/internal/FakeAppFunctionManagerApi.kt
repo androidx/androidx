@@ -16,6 +16,7 @@
 
 package androidx.appfunctions.testing.internal
 
+import android.app.AppInteractionSession
 import android.app.appfunctions.AppFunctionActivityId
 import android.app.appfunctions.AppFunctionRegistration
 import android.content.Context
@@ -52,6 +53,15 @@ internal class FakeAppFunctionManagerApi(
             request,
             functionMetadata,
         )
+    }
+
+    @RequiresApi(Build.VERSION_CODES_FULL.CINNAMON_BUN_2)
+    override suspend fun executeAppFunction(
+        appInteractionSession: AppInteractionSession,
+        request: ExecuteAppFunctionRequest,
+        functionMetadata: AppFunctionMetadata,
+    ): ExecuteAppFunctionResponse {
+        return executeAppFunction(request, functionMetadata)
     }
 
     override suspend fun isAppFunctionEnabled(packageName: String, functionId: String): Boolean =

@@ -16,6 +16,7 @@
 
 package androidx.appfunctions
 
+import android.app.AppInteractionSession
 import android.app.appfunctions.AppFunctionActivityId
 import android.app.appfunctions.AppFunctionManager as PlatformAppFunctionManager
 import android.app.appfunctions.AppFunctionRegistration
@@ -127,6 +128,49 @@ public constructor(
     public suspend fun executeAppFunction(
         request: ExecuteAppFunctionRequest
     ): ExecuteAppFunctionResponse {
+        return executeAppFunctionInternal(request) { functionMetadata ->
+            appFunctionManagerApi.executeAppFunction(request, functionMetadata)
+        }
+    }
+
+    /**
+     * Executes the app function with an [AppInteractionSession].
+     *
+     * This method matches the platform behavior defined in
+     * [android.app.appfunctions.AppFunctionManager.executeAppFunction].
+     *
+     * @param appInteractionSession the app interaction session to associate with the function
+     *   execution.
+     * @param request the app function details and the arguments.
+     * @return the result of the attempt to execute the function.
+     * @see android.app.AppInteractionManager.createSession
+     */
+    @RequiresApi(Build.VERSION_CODES_FULL.CINNAMON_BUN_2)
+    @RequiresPermission(
+        anyOf =
+            [
+                "android.permission.EXECUTE_APP_FUNCTIONS",
+                "android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM",
+            ],
+        conditional = true,
+    )
+    public suspend fun executeAppFunction(
+        appInteractionSession: AppInteractionSession,
+        request: ExecuteAppFunctionRequest,
+    ): ExecuteAppFunctionResponse {
+        return executeAppFunctionInternal(request) { functionMetadata ->
+            appFunctionManagerApi.executeAppFunction(
+                appInteractionSession,
+                request,
+                functionMetadata,
+            )
+        }
+    }
+
+    private suspend inline fun executeAppFunctionInternal(
+        request: ExecuteAppFunctionRequest,
+        executeAppFunctionCall: (AppFunctionMetadata) -> ExecuteAppFunctionResponse,
+    ): ExecuteAppFunctionResponse {
         val functionMetadata: AppFunctionMetadata =
             try {
                 appFunctionReader.getAppFunctionMetadata(
@@ -146,8 +190,7 @@ public constructor(
                 )
             }
 
-        val executeAppFunctionResponse =
-            appFunctionManagerApi.executeAppFunction(request, functionMetadata)
+        val executeAppFunctionResponse = executeAppFunctionCall(functionMetadata)
 
         return processResponse(functionMetadata, executeAppFunctionResponse)
     }

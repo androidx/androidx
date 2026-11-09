@@ -16,6 +16,7 @@
 
 package androidx.appfunctions.internal
 
+import android.app.AppInteractionSession
 import android.app.appfunctions.AppFunctionRegistration
 import android.os.Build
 import android.util.Log
@@ -40,6 +41,21 @@ public interface AppFunctionManagerApi {
      * @return the result of the attempt to execute the function.
      */
     public suspend fun executeAppFunction(
+        request: ExecuteAppFunctionRequest,
+        functionMetadata: AppFunctionMetadata,
+    ): ExecuteAppFunctionResponse
+
+    /**
+     * Execute the app function with an [AppInteractionSession].
+     *
+     * @param appInteractionSession the app interaction session to associate with the function
+     *   execution.
+     * @param request the app function details and the arguments.
+     * @return the result of the attempt to execute the function.
+     */
+    @RequiresApi(Build.VERSION_CODES_FULL.CINNAMON_BUN_2)
+    public suspend fun executeAppFunction(
+        appInteractionSession: AppInteractionSession,
         request: ExecuteAppFunctionRequest,
         functionMetadata: AppFunctionMetadata,
     ): ExecuteAppFunctionResponse

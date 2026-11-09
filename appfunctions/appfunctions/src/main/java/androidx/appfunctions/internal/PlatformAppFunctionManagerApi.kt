@@ -16,6 +16,7 @@
 
 package androidx.appfunctions.internal
 
+import android.app.AppInteractionSession
 import android.app.appfunctions.AppFunctionActivityId
 import android.app.appfunctions.AppFunctionManager as PlatformAppFunctionManager
 import android.app.appfunctions.AppFunctionRegistration
@@ -200,6 +201,52 @@ internal class PlatformAppFunctionManagerApi(
         request: ExecuteAppFunctionRequest,
         functionMetadata: AppFunctionMetadata,
     ): ExecuteAppFunctionResponse {
+        return executeAppFunctionInternal(request, functionMetadata) {
+            platformRequest,
+            cancellationSignal,
+            callback ->
+            appFunctionManager.executeAppFunction(
+                platformRequest,
+                Runnable::run,
+                cancellationSignal,
+                callback,
+            )
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES_FULL.CINNAMON_BUN_2)
+    override suspend fun executeAppFunction(
+        appInteractionSession: AppInteractionSession,
+        request: ExecuteAppFunctionRequest,
+        functionMetadata: AppFunctionMetadata,
+    ): ExecuteAppFunctionResponse {
+        return executeAppFunctionInternal(request, functionMetadata) {
+            platformRequest,
+            cancellationSignal,
+            callback ->
+            appFunctionManager.executeAppFunction(
+                appInteractionSession,
+                platformRequest,
+                Runnable::run,
+                cancellationSignal,
+                callback,
+            )
+        }
+    }
+
+    private suspend inline fun executeAppFunctionInternal(
+        request: ExecuteAppFunctionRequest,
+        functionMetadata: AppFunctionMetadata,
+        crossinline executePlatformAppFunction:
+            (
+                android.app.appfunctions.ExecuteAppFunctionRequest,
+                CancellationSignal,
+                OutcomeReceiver<
+                    android.app.appfunctions.ExecuteAppFunctionResponse,
+                    android.app.appfunctions.AppFunctionException,
+                >,
+            ) -> Unit,
+    ): ExecuteAppFunctionResponse {
         val platformRequest = request.toPlatformExecuteAppFunctionRequest()
         CallerAccessVerifier.attachCallerVerificationTokens(
             context,
@@ -218,9 +265,8 @@ internal class PlatformAppFunctionManagerApi(
                 cancellationSignal.cancel()
                 activeCont.set(null)
             }
-            appFunctionManager.executeAppFunction(
+            executePlatformAppFunction(
                 platformRequest,
-                Runnable::run,
                 cancellationSignal,
                 object :
                     OutcomeReceiver<

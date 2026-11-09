@@ -19,7 +19,10 @@ package androidx.appfunctions.integration.test.agent
 
 import android.Manifest
 import android.app.AppInteractionAttribution
+import android.app.AppInteractionManager
+import android.app.AppInteractionSession
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import androidx.appfunction.integration.test.sharedschema.ASubclass
@@ -58,9 +61,13 @@ import androidx.appfunctions.integration.test.agent.TestUtil.assertReadInaccessi
 import androidx.appfunctions.integration.test.agent.TestUtil.assertWriteAccessible
 import androidx.appfunctions.integration.test.agent.TestUtil.assertWriteInaccessible
 import androidx.appfunctions.integration.test.agent.TestUtil.awaitAppFunctionsIndexed
+import androidx.appfunctions.integration.test.agent.TestUtil.createSession
+import androidx.appfunctions.integration.test.agent.TestUtil.createSessionAndAllowThisTime
 import androidx.appfunctions.integration.test.agent.TestUtil.doBlocking
 import androidx.appfunctions.integration.test.agent.TestUtil.grantAppFunctionAccess
+import androidx.appfunctions.integration.test.agent.TestUtil.grantAppInteractionAccess
 import androidx.appfunctions.integration.test.agent.TestUtil.revokeAppFunctionAccess
+import androidx.appfunctions.integration.test.agent.TestUtil.revokeAppInteractionAccess
 import androidx.appfunctions.metadata.AppFunctionAllOfTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionArrayTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
@@ -115,11 +122,13 @@ class ExecuteAppFunctionIntegrationTest {
             )
         }
         InstallHelper.install(targetAppApkFile)
+        uiAutomation.grantAppInteractionAccess(targetContext, TARGET_APP_PACKAGE)
         targetContext.awaitAppFunctionsIndexed(TARGET_APP_PACKAGE)
     }
 
     @After
     fun tearDown() {
+        uiAutomation.revokeAppInteractionAccess(targetContext, TARGET_APP_PACKAGE)
         uiAutomation.revokeAppFunctionAccess()
         InstallHelper.uninstall(TARGET_APP_PACKAGE)
         uiAutomation.dropShellPermissionIdentity()
@@ -180,6 +189,90 @@ class ExecuteAppFunctionIntegrationTest {
         assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
         val successResponse = response as ExecuteAppFunctionResponse.Success
         assertThat(successResponse.returnValue.getLong(PROPERTY_RETURN_VALUE)).isEqualTo(3)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    @Suppress("NewApi") // Guarded by assumeTrue(SDK_INT_FULL >= CINNAMON_BUN_2)
+    fun executeAppFunctionWithSession_allowThisTime_success() = doBlocking {
+        assumeTrue(Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.CINNAMON_BUN_2)
+        assumeFalse(isUnsupportedFormFactorForConsentUi())
+        // Revoke it here so that createSession triggers OnStartIntentSenderCallback and shows
+        // the consent dialog.
+        uiAutomation.revokeAppInteractionAccess(targetContext, TARGET_APP_PACKAGE)
+
+        val appInteractionManager =
+            checkNotNull(targetContext.getSystemService(AppInteractionManager::class.java))
+        val metadata =
+            searchAppFunction(
+                "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#add"
+            )
+
+        appInteractionManager
+            .createSessionAndAllowThisTime(targetContext, listOf(TARGET_APP_PACKAGE))
+            .use { session ->
+                val response =
+                    appFunctionManager.executeAppFunction(
+                        appInteractionSession = session,
+                        request =
+                            ExecuteAppFunctionRequest(
+                                metadata.packageName,
+                                metadata.id,
+                                AppFunctionData.Builder(metadata.parameters, metadata.components)
+                                    .setLong("num1", 1)
+                                    .setLong("num2", 2)
+                                    .build(),
+                            ),
+                    )
+
+                assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+                val successResponse = response as ExecuteAppFunctionResponse.Success
+                assertThat(successResponse.returnValue.getLong(PROPERTY_RETURN_VALUE)).isEqualTo(3)
+            }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    @Suppress("NewApi") // Guarded by assumeTrue(SDK_INT_FULL >= CINNAMON_BUN_2)
+    fun executeAppFunctionWithSession_accessRevokedAfterSessionCreated_denied() = doBlocking {
+        assumeTrue(Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.CINNAMON_BUN_2)
+        assumeFalse(isUnsupportedFormFactorForConsentUi())
+
+        val appInteractionManager =
+            checkNotNull(targetContext.getSystemService(AppInteractionManager::class.java))
+        val metadata =
+            searchAppFunction(
+                "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#add"
+            )
+
+        appInteractionManager
+            .createSession(
+                AppInteractionSession.CreateParams.Builder()
+                    .setOnStartIntentSenderCallback({ it.run() }, {})
+                    .setTargetPackages(listOf(TARGET_APP_PACKAGE))
+                    .build()
+            )
+            .use { session ->
+                uiAutomation.revokeAppInteractionAccess(targetContext, TARGET_APP_PACKAGE)
+
+                val response =
+                    appFunctionManager.executeAppFunction(
+                        appInteractionSession = session,
+                        request =
+                            ExecuteAppFunctionRequest(
+                                metadata.packageName,
+                                metadata.id,
+                                AppFunctionData.Builder(metadata.parameters, metadata.components)
+                                    .setLong("num1", 1)
+                                    .setLong("num2", 2)
+                                    .build(),
+                            ),
+                    )
+
+                assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Error::class.java)
+                val errorResponse = response as ExecuteAppFunctionResponse.Error
+                assertThat(errorResponse.error).isInstanceOf(AppFunctionDeniedException::class.java)
+            }
     }
 
     @Test
@@ -1783,6 +1876,12 @@ class ExecuteAppFunctionIntegrationTest {
             assertThat(successResponse.returnValue.getString(PROPERTY_RETURN_VALUE))
                 .isEqualTo("self_disabled_compat_success")
         }
+
+    private fun isUnsupportedFormFactorForConsentUi(): Boolean {
+        val pm = targetContext.packageManager
+        return pm.hasSystemFeature(PackageManager.FEATURE_WATCH) ||
+            pm.hasSystemFeature(PackageManager.FEATURE_LEANBACK)
+    }
 
     private fun isPlatformAccessEnforcementEnabled(): Boolean {
         // Platform natively enforces access restrictions only starting in Android 17.2
