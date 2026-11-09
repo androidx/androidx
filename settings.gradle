@@ -697,6 +697,7 @@ includeProject(":compose:remote:remote-creation-compose-samples", "compose/remot
 includeProject(":compose:remote:remote-creation-core", [BuildType.MAIN])
 includeProject(":compose:remote:remote-creation", [BuildType.MAIN])
 includeProject(":compose:remote:remote-creation-expression", [BuildType.MAIN])
+includeProject(":compose:remote:remote-generator", [BuildType.MAIN])
 includeProject(":compose:remote:remote-player-core", [BuildType.MAIN])
 includeProject(":compose:remote:remote-player-view", [BuildType.MAIN])
 includeProject(":compose:remote:remote-player-compose", [BuildType.MAIN])
