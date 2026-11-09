@@ -17,18 +17,18 @@
 package androidx.glance.adaptive.appwidget.templates.track
 
 import androidx.annotation.RestrictTo
-import androidx.glance.adaptive.appwidget.matrix.ContainedRing
 import androidx.glance.adaptive.appwidget.matrix.MatrixBulbContent
 import androidx.glance.adaptive.appwidget.matrix.MatrixCardContent
 import androidx.glance.adaptive.appwidget.matrix.MatrixContent
-import androidx.glance.adaptive.appwidget.matrix.Ring
-import androidx.glance.adaptive.appwidget.matrix.TemplateText
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
 import androidx.glance.adaptive.appwidget.selection.from
 import androidx.glance.adaptive.core.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.selection.HeightTier
 import androidx.glance.adaptive.core.selection.SizeTiers
 import androidx.glance.adaptive.core.selection.WidthTier
+import androidx.glance.adaptive.core.slots.ContainedRing
+import androidx.glance.adaptive.core.slots.Ring
+import androidx.glance.adaptive.core.slots.TemplateText
 import androidx.glance.adaptive.core.templates.TrackTemplate
 
 /**

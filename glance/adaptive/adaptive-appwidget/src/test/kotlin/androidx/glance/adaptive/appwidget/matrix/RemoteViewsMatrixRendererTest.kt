@@ -39,6 +39,15 @@ import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
 import androidx.glance.adaptive.core.action.GlanceAdaptiveActionCallback
 import androidx.glance.adaptive.core.action.GlanceWidgetAction
 import androidx.glance.adaptive.core.selection.Dimensions
+import androidx.glance.adaptive.core.slots.Badge
+import androidx.glance.adaptive.core.slots.ContainedRing
+import androidx.glance.adaptive.core.slots.Graph
+import androidx.glance.adaptive.core.slots.Icon
+import androidx.glance.adaptive.core.slots.IconButton
+import androidx.glance.adaptive.core.slots.IconGrid
+import androidx.glance.adaptive.core.slots.IconTile
+import androidx.glance.adaptive.core.slots.Ring
+import androidx.glance.adaptive.core.slots.TemplateText
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat

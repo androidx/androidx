@@ -20,7 +20,7 @@ import android.content.Context
 import android.widget.RemoteViews
 import androidx.glance.adaptive.appwidget.R
 import androidx.glance.adaptive.appwidget.components.setText
-import androidx.glance.adaptive.appwidget.matrix.TemplateText
+import androidx.glance.adaptive.core.slots.TemplateText
 
 /**
  * Draws this text as a supporting value, for an action slot — the [RemoteViews] counterpart of the

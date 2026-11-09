@@ -28,8 +28,8 @@ import androidx.glance.adaptive.appwidget.components.setOptionalText
 import androidx.glance.adaptive.appwidget.components.setVerticalItemSpacing
 import androidx.glance.adaptive.appwidget.components.tappableStableId
 import androidx.glance.adaptive.appwidget.components.toPx
-import androidx.glance.adaptive.appwidget.matrix.IconGrid
-import androidx.glance.adaptive.appwidget.matrix.IconTile
+import androidx.glance.adaptive.core.slots.IconGrid
+import androidx.glance.adaptive.core.slots.IconTile
 
 /**
  * Draws the icon grid for the hero slot: [IconGrid.rows] rows that share the hero's height, each

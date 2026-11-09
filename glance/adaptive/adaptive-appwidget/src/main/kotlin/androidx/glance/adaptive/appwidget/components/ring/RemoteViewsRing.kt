@@ -32,8 +32,8 @@ import androidx.glance.adaptive.appwidget.components.setMaxSize
 import androidx.glance.adaptive.appwidget.components.setTextSizeSp
 import androidx.glance.adaptive.appwidget.components.toPx
 import androidx.glance.adaptive.appwidget.components.withAlpha
-import androidx.glance.adaptive.appwidget.matrix.ContainedRing
-import androidx.glance.adaptive.appwidget.matrix.Ring
+import androidx.glance.adaptive.core.slots.ContainedRing
+import androidx.glance.adaptive.core.slots.Ring
 
 /**
  * Draws the ring for the leading slot, [size] across.

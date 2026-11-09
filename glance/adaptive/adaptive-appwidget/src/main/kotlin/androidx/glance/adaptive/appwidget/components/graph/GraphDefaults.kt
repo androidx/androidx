@@ -19,9 +19,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.glance.adaptive.appwidget.matrix.Graph
 import androidx.glance.adaptive.core.selection.SizeTiers
 import androidx.glance.adaptive.core.selection.WidthTier
+import androidx.glance.adaptive.core.slots.Graph
 
 /** Design values of the [Graph] component that every backend draws it with. */
 internal object GraphDefaults {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.adaptive.appwidget.matrix
+package androidx.glance.adaptive.core.slots
 
 import androidx.collection.floatListOf
 import androidx.glance.adaptive.core.action.GlanceWidgetAction
@@ -25,7 +25,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class SlotComponentsTest {
+class ComponentsTest {
 
     @Test
     fun text_rejectsBlankValue() {

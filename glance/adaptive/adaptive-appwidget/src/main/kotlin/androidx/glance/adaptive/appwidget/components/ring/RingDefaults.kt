@@ -19,8 +19,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.glance.adaptive.appwidget.matrix.ContainedRing
-import androidx.glance.adaptive.appwidget.matrix.Ring
+import androidx.glance.adaptive.core.slots.ContainedRing
+import androidx.glance.adaptive.core.slots.Ring
 
 /**
  * Design values of the [Ring] and [ContainedRing] components that every backend draws them with.

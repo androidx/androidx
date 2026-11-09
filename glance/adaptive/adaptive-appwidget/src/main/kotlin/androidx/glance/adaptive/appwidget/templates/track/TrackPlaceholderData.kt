@@ -19,9 +19,9 @@ import androidx.annotation.DrawableRes
 import androidx.collection.floatListOf
 import androidx.collection.intListOf
 import androidx.glance.adaptive.appwidget.R
-import androidx.glance.adaptive.appwidget.matrix.Badge
-import androidx.glance.adaptive.appwidget.matrix.Graph
-import androidx.glance.adaptive.appwidget.matrix.TemplateText
+import androidx.glance.adaptive.core.slots.Badge
+import androidx.glance.adaptive.core.slots.Graph
+import androidx.glance.adaptive.core.slots.TemplateText
 import androidx.glance.adaptive.core.templates.TrackTemplate
 
 /**

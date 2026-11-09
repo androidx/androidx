@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.glance.adaptive.appwidget.matrix.Badge
+import androidx.glance.adaptive.core.slots.Badge
 
 /** Design values of the [Badge] component that every backend draws it with. */
 internal object BadgeDefaults {
