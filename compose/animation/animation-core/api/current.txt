@@ -272,6 +272,12 @@ package androidx.compose.animation.core {
     property public androidx.compose.animation.core.ArcMode ArcLinear;
   }
 
+  @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationCoreApi public final class ComposeAnimationCoreFlags {
+    property public boolean isSeekableTransitionStateStartAfterLayoutEnabled;
+    field public static final androidx.compose.animation.core.ComposeAnimationCoreFlags INSTANCE;
+    field public static boolean isSeekableTransitionStateStartAfterLayoutEnabled;
+  }
+
   @androidx.compose.runtime.Immutable public final class CubicBezierEasing implements androidx.compose.animation.core.Easing {
     ctor public CubicBezierEasing(float a, float b, float c, float d);
     method public float transform(float fraction);
@@ -426,6 +432,9 @@ package androidx.compose.animation.core {
     property public static androidx.compose.animation.core.Easing FastOutSlowInEasing;
     property public static androidx.compose.animation.core.Easing LinearEasing;
     property public static androidx.compose.animation.core.Easing LinearOutSlowInEasing;
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This animation-core API is experimental and is likely to change or be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalAnimationCoreApi {
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental animation API for AnimationSpec. It may change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalAnimationSpecApi {
