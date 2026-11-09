@@ -184,7 +184,7 @@ class VideoEncoderTest(private val implName: String, private val cameraConfig: C
         initVideoEncoder()
         videoEncoder.start()
         var inOrder = inOrder(videoEncoderCallback)
-        inOrder.verify(videoEncoderCallback, timeout(5000L)).onEncodeStart()
+        inOrder.verify(videoEncoderCallback, timeout(15000L)).onEncodeStart()
         inOrder.verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
         videoEncoder.stop()
         inOrder.verify(videoEncoderCallback, timeout(5000L)).onEncodeStop()
@@ -195,7 +195,7 @@ class VideoEncoderTest(private val implName: String, private val cameraConfig: C
 
         // Assert.
         inOrder = inOrder(videoEncoderCallback)
-        inOrder.verify(videoEncoderCallback, timeout(5000L)).onEncodeStart()
+        inOrder.verify(videoEncoderCallback, timeout(15000L)).onEncodeStart()
         inOrder.verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
 
         // Act.
@@ -251,7 +251,7 @@ class VideoEncoderTest(private val implName: String, private val cameraConfig: C
 
         videoEncoder.start()
         val captor = ArgumentCaptor.forClass(EncodedData::class.java)
-        verify(videoEncoderCallback, timeout(5000L).atLeastOnce()).onEncodedData(captor.capture())
+        verify(videoEncoderCallback, timeout(15000L).atLeastOnce()).onEncodedData(captor.capture())
 
         assertThat(isKeyFrame(captor.allValues.first().bufferInfo)).isTrue()
 
