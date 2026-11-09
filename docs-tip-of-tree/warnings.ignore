@@ -96,7 +96,6 @@ WARN: Couldn't resolve link: \[WearWidgetContent\] in .*\/unzippedJvmSources\/an
 WARN: Couldn't resolve link: \[WindowExtensions\.VENDOR_API_LEVEL_1\] in .*\/unzippedJvmSources\/androidx\/window\/layout\/SafeWindowLayoutComponentProvider\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
 WARN: Couldn't resolve link: \[WindowExtensions\.VENDOR_API_LEVEL_2\] in .*\/unzippedJvmSources\/androidx\/window\/layout\/SafeWindowLayoutComponentProvider\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
 WARN: .*\/unzippedJvmSources\/androidx\/camera\/view\/RotationProvider\.java:[0-9]+ Missing @param tag for parameter `listener` in DFunction addListener
-WARN: .*\/unzippedJvmSources\/androidx\/core\/database\/sqlite\/SQLiteDatabase\.kt:[0-9]+ Missing @param tag for parameter `body` in DFunction transaction
 WARN: .*\/unzippedJvmSources\/androidx\/emoji2\/text\/EmojiCompat\.java:[0-9]+ Missing @param tag for parameter `useEmojiAsDefaultStyle` in DFunction setUseEmojiAsDefaultStyle
 WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/material\/TextFieldDefaults\.kt:[0-9]+ Missing @param tag for parameter `shape` in DFunction BorderBox
 WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/material3\/Card\.kt:[0-9]+ Missing @param tag for parameter `disabledElevation` in DFunction outlinedCardElevation
