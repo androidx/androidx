@@ -20,7 +20,9 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
+import android.util.SizeF
 import android.widget.RemoteViews
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.heightDp
@@ -240,6 +242,70 @@ class GlanceRemoteViewsComposerTest {
             )
     }
 
+    @Test
+    fun groupInstances_hostReportsSizes_keepsMinimumDimensionsAndDistinctUsableSizes() {
+        // Sizes a Pixel launcher reports for a 4x2 widget: portrait first, then landscape.
+        bindWidget(
+            641,
+            minWidthDp = 373,
+            minHeightDp = 108,
+            sizes =
+                listOf(
+                    SizeF(373.7f, 198.9f),
+                    SizeF(787.8f, 108.9f),
+                    SizeF(787.8f, 108.9f),
+                    SizeF(0f, 108.9f),
+                ),
+        )
+
+        val groups = groupInstances(641)
+
+        assertThat(groups)
+            .containsExactly(
+                RenderTarget(
+                    AppWidgetSurface.MOBILE_HOME_SCREEN,
+                    Dimensions(373, 108),
+                    sizes = listOf(Dimensions(374, 199), Dimensions(788, 109)),
+                ),
+                listOf(641),
+            )
+    }
+
+    @Test
+    fun groupInstances_hostReportsMoreSizesThanRemoteViewsAccepts_keepsFirst16() {
+        bindWidget(
+            651,
+            minWidthDp = 101,
+            minHeightDp = 100,
+            sizes = List(20) { SizeF(101f + it, 100f) },
+        )
+
+        val groups = groupInstances(651)
+
+        assertThat(groups.keys.single().sizes)
+            .containsExactlyElementsIn(List(16) { Dimensions(101 + it, 100) })
+            .inOrder()
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.R])
+    fun groupInstances_beforeApi31_ignoresHostSizes() {
+        bindWidget(
+            661,
+            minWidthDp = 373,
+            minHeightDp = 108,
+            sizes = listOf(SizeF(373.7f, 198.9f), SizeF(787.8f, 108.9f)),
+        )
+
+        val groups = groupInstances(661)
+
+        assertThat(groups)
+            .containsExactly(
+                RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(373, 108)),
+                listOf(661),
+            )
+    }
+
     // endregion
 
     // region groupPreviewsByRenderTarget
@@ -414,6 +480,83 @@ class GlanceRemoteViewsComposerTest {
     }
 
     @Test
+    fun compose_homeScreenWithSizes_rendersOncePerSize() = runTest {
+        val target =
+            RenderTarget(
+                AppWidgetSurface.MOBILE_HOME_SCREEN,
+                Dimensions(373, 108),
+                sizes = listOf(Dimensions(374, 199), Dimensions(788, 109)),
+            )
+
+        val result = composer.compose(TestTemplate(), target)
+
+        assertThat(result).isNotNull()
+        assertThat(recordedSurfaces.map { it.dimensions })
+            .containsExactly(Dimensions(374, 199), Dimensions(788, 109))
+            .inOrder()
+    }
+
+    @Test
+    fun compose_homeScreenWithSizes_returnsSizeMappedRemoteViews() = runTest {
+        val renderedRemoteViews = mutableListOf<RemoteViews>()
+        AppWidgetTemplateRegistry.registerDefault(
+            TestTemplate::class.java,
+            remoteViewsRenderer { ctx, _, surface ->
+                val layout =
+                    if (surface.dimensions.heightDp > 150) {
+                        android.R.layout.simple_list_item_2
+                    } else {
+                        android.R.layout.simple_list_item_1
+                    }
+                RemoteViews(ctx.packageName, layout).also { renderedRemoteViews += it }
+            },
+        )
+        val target =
+            RenderTarget(
+                AppWidgetSurface.MOBILE_HOME_SCREEN,
+                Dimensions(373, 108),
+                sizes = listOf(Dimensions(374, 199), Dimensions(788, 109)),
+            )
+
+        val result = composer.compose(TestTemplate(), target)
+
+        // A size-mapped RemoteViews wraps one RemoteViews per size and takes its default layout
+        // from the one with the smallest area, here 374x199.
+        assertThat(renderedRemoteViews).hasSize(2)
+        assertThat(renderedRemoteViews).doesNotContain(result)
+        assertThat(result.layoutId).isEqualTo(android.R.layout.simple_list_item_2)
+    }
+
+    @Test
+    fun compose_lockScreenWithSizes_rendersMinimumDimensionsOnly() = runTest {
+        val target =
+            RenderTarget(
+                AppWidgetSurface.MOBILE_LOCK_SCREEN,
+                Dimensions(168, 28),
+                sizes = listOf(Dimensions(168, 28), Dimensions(200, 40)),
+            )
+
+        composer.compose(TestTemplate(), target)
+
+        assertThat(recordedSurfaces.map { it.dimensions }).containsExactly(Dimensions(168, 28))
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.R])
+    fun compose_beforeApi31_rendersMinimumDimensionsOnly() = runTest {
+        val target =
+            RenderTarget(
+                AppWidgetSurface.MOBILE_HOME_SCREEN,
+                Dimensions(373, 108),
+                sizes = listOf(Dimensions(374, 199), Dimensions(788, 109)),
+            )
+
+        composer.compose(TestTemplate(), target)
+
+        assertThat(recordedSurfaces.map { it.dimensions }).containsExactly(Dimensions(373, 108))
+    }
+
+    @Test
     fun compose_remoteViewsRenderer_invokesRendererDirectly() = runTest {
         val expectedRemoteViews =
             RemoteViews(context.packageName, android.R.layout.simple_list_item_1)
@@ -556,6 +699,7 @@ class GlanceRemoteViewsComposerTest {
         hostCategory: Int? = null,
         minWidthDp: Int? = null,
         minHeightDp: Int? = null,
+        sizes: List<SizeF>? = null,
     ) {
         shadowOf(appWidgetManager)
             .addBoundWidget(appWidgetId, AppWidgetProviderInfo().apply { provider = component })
@@ -569,6 +713,9 @@ class GlanceRemoteViewsComposerTest {
         }
         if (minHeightDp != null) {
             bundle.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, minHeightDp)
+        }
+        if (sizes != null) {
+            bundle.putParcelableArrayList(AppWidgetManager.OPTION_APPWIDGET_SIZES, ArrayList(sizes))
         }
         if (!bundle.isEmpty) {
             appWidgetManager.updateAppWidgetOptions(appWidgetId, bundle)
