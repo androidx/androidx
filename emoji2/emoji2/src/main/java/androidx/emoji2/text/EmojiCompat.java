@@ -1507,6 +1507,8 @@ public class EmojiCompat {
         /**
          * @see #setUseEmojiAsDefaultStyle(boolean)
          *
+         * @param useEmojiAsDefaultStyle whether to use the emoji style presentation for all emojis
+         *                               that would be presented as text style by default
          * @param emojiAsDefaultStyleExceptions Contains the exception emojis which will be still
          *                                      presented as text style even if the
          *                                      useEmojiAsDefaultStyle flag is set to {@code true}.
