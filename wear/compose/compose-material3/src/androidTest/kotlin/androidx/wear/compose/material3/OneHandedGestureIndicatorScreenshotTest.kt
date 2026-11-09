@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.hasTestTag
@@ -42,6 +43,7 @@ import androidx.wear.compose.foundation.pager.rememberPagerState
 import androidx.wear.compose.material3.internal.Icons
 import androidx.wear.compose.material3.internal.LocalWristOrientation
 import androidx.wear.compose.material3.internal.WristOrientation
+import androidx.wear.compose.material3.onehandedgesture.DeviceInteractivity
 import androidx.wear.compose.material3.onehandedgesture.INDICATOR_ANIMATION_START_DELAY_MILLIS
 import androidx.wear.compose.material3.onehandedgesture.LocalOneHandedGestureManager
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureAction
@@ -59,6 +61,7 @@ import androidx.wear.compose.material3.onehandedgesture.SdkGestureInputManager
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
@@ -235,8 +238,17 @@ class OneHandedGestureIndicatorScreenshotTest {
 
         rule.setContentWithTheme {
             scope = rememberCoroutineScope()
+            val applicationContext = LocalContext.current.applicationContext
             val gestureManager =
-                remember(scope) { OneHandedGestureManagerImpl(scope, SdkGestureInputManagerMock()) }
+                remember(scope) {
+                    OneHandedGestureManagerImpl(
+                        applicationContext = applicationContext,
+                        scope = scope,
+                        gestureInputManager = SdkGestureInputManagerMock(),
+                        // Don't depend on whether the device screen is on.
+                        deviceInteractivity = AlwaysInteractiveDeviceInteractivity,
+                    )
+                }
 
             CompositionLocalProvider(
                 LocalLayoutDirection provides layoutDirection,
@@ -256,6 +268,12 @@ class OneHandedGestureIndicatorScreenshotTest {
             screenshotRule,
             testTagNode = rule.onAllNodes(hasTestTag(TEST_TAG), true).onFirst(),
         )
+    }
+
+    private object AlwaysInteractiveDeviceInteractivity : DeviceInteractivity {
+        override fun isInteractive(context: Context): Boolean = true
+
+        override suspend fun awaitScreenOff(context: Context) = awaitCancellation()
     }
 
     private class SdkGestureInputManagerMock : SdkGestureInputManager {

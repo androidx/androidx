@@ -17,7 +17,11 @@
 package androidx.wear.compose.material3.onehandedgesture
 
 import android.annotation.SuppressLint
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.PowerManager
 import android.view.View
 import android.view.ViewGroup
 import androidx.collection.MutableIntObjectMap
@@ -29,6 +33,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.AndroidUiDispatcher
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.toOffset
@@ -44,10 +49,14 @@ import com.google.wear.input.GestureEvent
 import com.google.wear.input.GestureInputManager
 import java.util.function.Consumer
 import kotlin.collections.mutableMapOf
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 
 /**
@@ -57,7 +66,8 @@ import kotlinx.coroutines.launch
 internal val LocalOneHandedGestureManager: ProvidableCompositionLocal<OneHandedGestureManager> =
     compositionLocalWithComputedDefaultOf {
         if (cachedGestureManager == null) {
-            cachedGestureManager = OneHandedGestureManagerImpl()
+            cachedGestureManager =
+                OneHandedGestureManagerImpl(LocalContext.currentValue.applicationContext)
         }
         cachedGestureManager!!
     }
@@ -167,6 +177,17 @@ internal interface OneHandedGestureManager {
     fun notifyIndicatorShown(gestureConfiguration: OneHandedGestureConfiguration)
 
     /**
+     * Runs the gesture indicator animation [block].
+     *
+     * The [block] is not run if the device is not interactive (e.g. in ambient mode or with the
+     * screen off), and it is cancelled if the screen turns off while it is running, as the user
+     * can't see the indicator. In both cases this function returns normally.
+     *
+     * @param block The indicator animation.
+     */
+    suspend fun runIndicator(block: suspend CoroutineScope.() -> Unit)
+
+    /**
      * Retrieves the gesture indicator data for the specified [OneHandedGestureConfiguration].
      *
      * @param gestureConfiguration The [OneHandedGestureConfiguration] to look up.
@@ -178,8 +199,10 @@ internal interface OneHandedGestureManager {
 }
 
 internal class OneHandedGestureManagerImpl(
+    private val applicationContext: Context,
     val scope: CoroutineScope = CoroutineScope(SupervisorJob() + AndroidUiDispatcher.Main),
     val gestureInputManager: SdkGestureInputManager = SdkGestureInputManagerImpl(),
+    private val deviceInteractivity: DeviceInteractivity = PowerManagerDeviceInteractivity,
 ) : OneHandedGestureManager {
 
     /** Map of registered gestures per View */
@@ -213,6 +236,7 @@ internal class OneHandedGestureManagerImpl(
                         isOverlayProvider = { config ->
                             indicatorRegistry[config]?.isFloating ?: false
                         },
+                        deviceInteractivity,
                     )
                 },
             )
@@ -283,16 +307,47 @@ internal class OneHandedGestureManagerImpl(
     }
 
     override fun notifyIndicatorShown(gestureConfiguration: OneHandedGestureConfiguration) {
+        // An indicator that finished while the device was not interactive (e.g. in ambient mode)
+        // was not seen by the user, so it must not count towards the indicator display limits.
+        if (!isInteractive()) return
+
         gestureInputManager.notifyIndicatorShown(
             gestureConfiguration.gestureId,
             toSdkGestureAction(gestureConfiguration.action),
         )
     }
 
+    override suspend fun runIndicator(block: suspend CoroutineScope.() -> Unit) {
+        // Don't show the indicator when in ambient mode.
+        if (!isInteractive()) return
+
+        coroutineScope {
+            ensureActive()
+            val indicatorJob = launch(block = block)
+            // Start undispatched, so that the screen-off receiver is registered (and the device
+            // re-checked) before the indicator animation starts.
+            val screenOffJob =
+                launch(start = CoroutineStart.UNDISPATCHED) {
+                    awaitScreenOff()
+                    // Cancel the hint animation when ACTION_SCREEN_OFF broadcast is received.
+                    indicatorJob.cancel()
+                }
+            indicatorJob.join()
+            screenOffJob.cancel()
+        }
+    }
+
     override fun getRegisteredGestureIndicator(
         gestureConfiguration: OneHandedGestureConfiguration
     ): RegisteredIndicator? {
         return indicatorRegistry[gestureConfiguration]
+    }
+
+    private fun isInteractive(): Boolean = deviceInteractivity.isInteractive(applicationContext)
+
+    /** Suspends until the screen turns off or device enters ambient mode. */
+    private suspend fun awaitScreenOff() {
+        deviceInteractivity.awaitScreenOff(applicationContext)
     }
 }
 
@@ -302,6 +357,7 @@ internal class GestureRegistry(
     private val scope: CoroutineScope,
     private val gestureInputManager: SdkGestureInputManager,
     private val isOverlayProvider: (OneHandedGestureConfiguration) -> Boolean,
+    private val deviceInteractivity: DeviceInteractivity,
 ) {
     val numberOfRegisteredGestures: Int
         get() = registeredGestures.size
@@ -431,6 +487,10 @@ internal class GestureRegistry(
             prioritizedGestures.fastForEach { gesture ->
                 delay(maxOf(0L, gesture.showIndicatorDelayMillis - elapsedMillis))
                 elapsedMillis = gesture.showIndicatorDelayMillis
+
+                // Don't query or show the indicator while the user can't see it (e.g. in ambient
+                // mode), so that it isn't counted as shown.
+                if (!deviceInteractivity.isInteractive(view.context)) return@fastForEach
 
                 val gestureConfig = gesture.gestureConfiguration
                 // Check whether to show the indicator, based on whether it is an
@@ -718,6 +778,58 @@ internal class SdkGestureInputManagerImpl : SdkGestureInputManager {
             }
         } catch (t: Throwable) {}
         gestureInputManagerAttemptedToBeCreated = true
+    }
+}
+
+/**
+ * Provides the device interactivity status.
+ *
+ * The device is not interactive in ambient mode and when the screen is off.
+ */
+internal interface DeviceInteractivity {
+    /** Whether the device is currently interactive. */
+    fun isInteractive(context: Context): Boolean
+
+    /**
+     * Suspends until the screen turns off, e.g. when the device enters ambient mode. Returns
+     * immediately if the device is already not interactive.
+     */
+    suspend fun awaitScreenOff(context: Context)
+}
+
+/**
+ * [DeviceInteractivity] backed by [PowerManager.isInteractive], which is false in ambient mode and
+ * when the screen is off, and by the [Intent.ACTION_SCREEN_OFF] broadcast, which is sent when the
+ * device stops being interactive.
+ */
+internal object PowerManagerDeviceInteractivity : DeviceInteractivity {
+    override fun isInteractive(context: Context): Boolean =
+        ContextCompat.getSystemService(context, PowerManager::class.java)?.isInteractive ?: true
+
+    override suspend fun awaitScreenOff(context: Context) {
+        val screenOff = CompletableDeferred<Unit>()
+        val receiver =
+            object : BroadcastReceiver() {
+                override fun onReceive(receiverContext: Context, intent: Intent) {
+                    if (intent.action == Intent.ACTION_SCREEN_OFF) {
+                        screenOff.complete(Unit)
+                    }
+                }
+            }
+        ContextCompat.registerReceiver(
+            context,
+            receiver,
+            IntentFilter(Intent.ACTION_SCREEN_OFF),
+            ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
+        try {
+            // ACTION_SCREEN_OFF isn't re-delivered to receivers registered later, so the screen may
+            // already have turned off before the receiver was registered.
+            if (!isInteractive(context)) return
+            screenOff.await()
+        } finally {
+            context.unregisterReceiver(receiver)
+        }
     }
 }
 
