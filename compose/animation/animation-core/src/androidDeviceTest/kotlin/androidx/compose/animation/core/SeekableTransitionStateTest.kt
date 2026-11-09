@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -48,6 +49,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
@@ -59,7 +62,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachReversed
 import androidx.kruth.assertThat
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import kotlin.math.roundToInt
@@ -71,23 +73,51 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
-@RunWith(AndroidJUnit4::class)
+@RunWith(Parameterized::class)
 @MediumTest
-class SeekableTransitionStateTest {
+class SeekableTransitionStateTest(private val startAfterLayoutEnabled: Boolean) {
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "startAfterLayoutEnabled={0}")
+        fun data(): Array<Any> = arrayOf(false, true)
+    }
+
     private val rule = createComposeRule()
 
     // Detect leaks BEFORE and AFTER compose rule work
     @get:Rule
     val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(rule)
+
+    private var savedStartAfterLayoutFlag: Boolean = false
+
+    @OptIn(ExperimentalAnimationCoreApi::class)
+    @Before
+    fun saveFlags() {
+        savedStartAfterLayoutFlag =
+            ComposeAnimationCoreFlags.isSeekableTransitionStateStartAfterLayoutEnabled
+        ComposeAnimationCoreFlags.isSeekableTransitionStateStartAfterLayoutEnabled =
+            startAfterLayoutEnabled
+    }
+
+    @OptIn(ExperimentalAnimationCoreApi::class)
+    @After
+    fun restoreFlags() {
+        ComposeAnimationCoreFlags.isSeekableTransitionStateStartAfterLayoutEnabled =
+            savedStartAfterLayoutFlag
+    }
 
     private enum class AnimStates {
         From,
@@ -2867,5 +2897,296 @@ class SeekableTransitionStateTest {
 
         assertThat(seekableTransitionState.currentState).isEqualTo(AnimStates.To)
         assertThat(seekableTransitionState.fraction).isEqualTo(0f)
+    }
+
+    // Regression test for b/553804644: expensive measure/layout of newly composed targetState
+    // should not be absorbed as skipped animation progress.
+    @Test
+    fun animateToDoesNotSkipFramesDuringTargetLayout() {
+        assumeTrue(startAfterLayoutEnabled)
+        val seekableTransitionState = SeekableTransitionState(AnimStates.From)
+        var animatedValue by mutableIntStateOf(-1)
+        lateinit var coroutineScope: CoroutineScope
+        lateinit var baseClock: MonotonicFrameClock
+        var wallClockOffsetNanos = 0L
+        var targetMeasured = false
+
+        val wallClock =
+            object : MonotonicFrameClock {
+                override suspend fun <R> withFrameNanos(onFrame: (Long) -> R): R {
+                    return baseClock.withFrameNanos { frameTimeNanos ->
+                        onFrame(frameTimeNanos + wallClockOffsetNanos)
+                    }
+                }
+            }
+
+        rule.setContent {
+            coroutineScope = rememberCoroutineScope()
+            baseClock = coroutineScope.coroutineContext[MonotonicFrameClock]!!
+            val transition = rememberTransition(seekableTransitionState, label = "Test")
+            val value =
+                transition.animateInt(
+                    label = "Value",
+                    transitionSpec = { tween(durationMillis = 300, easing = LinearEasing) },
+                ) { state ->
+                    when (state) {
+                        AnimStates.From -> 0
+                        else -> 1000
+                    }
+                }
+            Box(Modifier.fillMaxSize().drawBehind { animatedValue = value.value }) {
+                transition.AnimatedContent(
+                    transitionSpec = {
+                        fadeIn(tween(300, easing = LinearEasing)) togetherWith
+                            fadeOut(tween(300, easing = LinearEasing))
+                    }
+                ) { state ->
+                    if (state == AnimStates.To) {
+                        var firstMeasure by remember { mutableStateOf(true) }
+                        Box(
+                            Modifier.fillMaxSize().layout { measurable, constraints ->
+                                if (firstMeasure) {
+                                    // Simulate a 400ms main-thread block during first measure of
+                                    // target content (longer than the 300ms transition duration).
+                                    wallClockOffsetNanos += 400_000_000L
+                                    firstMeasure = false
+                                    targetMeasured = true
+                                }
+                                val placeable = measurable.measure(constraints)
+                                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                            }
+                        )
+                    } else {
+                        Box(Modifier.fillMaxSize())
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        val animDeferred = rule.runOnUiThread {
+            coroutineScope.async(wallClock) {
+                seekableTransitionState.animateTo(AnimStates.To)
+            }
+        }
+
+        // Frame 1: composes and measures AnimStates.To (advancing wall-clock by 400ms during
+        // layout)
+        rule.mainClock.advanceTimeByFrame()
+        rule.runOnIdle {
+            assertTrue(targetMeasured)
+            assertEquals(0f, seekableTransitionState.fraction, 0.01f)
+            assertEquals(0, animatedValue)
+            assertFalse(animDeferred.isCompleted)
+        }
+
+        // Frame 2: first 60Hz step (~16.67ms) of the 300ms animation (16.666667/300 = 0.0556f ->
+        // 56), without absorbing the 400ms layout block from Frame 1
+        rule.mainClock.advanceTimeByFrame()
+        rule.runOnIdle {
+            assertEquals(16.666667f / 300f, seekableTransitionState.fraction, 0.01f)
+            assertEquals(56f, animatedValue.toFloat(), 1f)
+            assertFalse(animDeferred.isCompleted)
+        }
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+        assertTrue(animDeferred.isCompleted)
+        assertEquals(1000, animatedValue)
+    }
+
+    // Regression test for b/553804644: SubcomposeLayout children composed and measured on the
+    // target's first frame must also complete without consuming animation progress.
+    @Test
+    fun animateToDoesNotSkipFramesDuringSubcomposeTargetLayout() {
+        assumeTrue(startAfterLayoutEnabled)
+        val seekableTransitionState = SeekableTransitionState(AnimStates.From)
+        var animatedValue by mutableIntStateOf(-1)
+        lateinit var coroutineScope: CoroutineScope
+        lateinit var baseClock: MonotonicFrameClock
+        var wallClockOffsetNanos = 0L
+        var subcomposedAndMeasured = false
+
+        val wallClock =
+            object : MonotonicFrameClock {
+                override suspend fun <R> withFrameNanos(onFrame: (Long) -> R): R {
+                    return baseClock.withFrameNanos { frameTimeNanos ->
+                        onFrame(frameTimeNanos + wallClockOffsetNanos)
+                    }
+                }
+            }
+
+        rule.setContent {
+            coroutineScope = rememberCoroutineScope()
+            baseClock = coroutineScope.coroutineContext[MonotonicFrameClock]!!
+            val transition = rememberTransition(seekableTransitionState, label = "Test")
+            transition.AnimatedContent(
+                transitionSpec = {
+                    fadeIn(tween(300, easing = LinearEasing)) togetherWith
+                        fadeOut(tween(300, easing = LinearEasing))
+                }
+            ) { state ->
+                if (state == AnimStates.To) {
+                    var firstSubcompose by remember { mutableStateOf(true) }
+                    SubcomposeLayout(Modifier.fillMaxSize()) { constraints ->
+                        val placeables =
+                            subcompose("content") {
+                                    val subValue =
+                                        transition.animateInt(
+                                            label = "SubValue",
+                                            transitionSpec = {
+                                                tween(durationMillis = 300, easing = LinearEasing)
+                                            },
+                                        ) { s ->
+                                            if (s == AnimStates.From) 0 else 1000
+                                        }
+                                    Box(
+                                        Modifier.fillMaxSize().drawBehind {
+                                            animatedValue = subValue.value
+                                        }
+                                    )
+                                }
+                                .map { it.measure(constraints) }
+                        if (firstSubcompose) {
+                            wallClockOffsetNanos += 400_000_000L
+                            firstSubcompose = false
+                            subcomposedAndMeasured = true
+                        }
+                        layout(constraints.maxWidth, constraints.maxHeight) {
+                            placeables.forEach { it.place(0, 0) }
+                        }
+                    }
+                } else {
+                    Box(Modifier.fillMaxSize())
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        val animDeferred = rule.runOnUiThread {
+            coroutineScope.async(wallClock) {
+                seekableTransitionState.animateTo(AnimStates.To)
+            }
+        }
+
+        // Frame 1: composes AnimStates.To, subcomposes child animation, and blocks 400ms in layout
+        rule.mainClock.advanceTimeByFrame()
+        rule.runOnIdle {
+            assertTrue(subcomposedAndMeasured)
+            assertEquals(0f, seekableTransitionState.fraction, 0.01f)
+            assertFalse(animDeferred.isCompleted)
+        }
+
+        // Frame 2: first 60Hz step (~16.67ms) of the 300ms animation
+        rule.mainClock.advanceTimeByFrame()
+        rule.runOnIdle {
+            assertEquals(16.666667f / 300f, seekableTransitionState.fraction, 0.01f)
+            assertEquals(56f, animatedValue.toFloat(), 1f)
+            assertFalse(animDeferred.isCompleted)
+        }
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+        assertTrue(animDeferred.isCompleted)
+        assertEquals(1000, animatedValue)
+    }
+
+    @Test
+    fun ongoingAnimationDoesNotHitchOnRecomposition() {
+        assumeTrue(startAfterLayoutEnabled)
+        rule.mainClock.autoAdvance = false
+        val seekableTransitionState = SeekableTransitionState(AnimStates.From)
+        var animatedValue by mutableIntStateOf(-1)
+        var addExtraAnimation by mutableStateOf(false)
+        lateinit var coroutineScope: CoroutineScope
+        lateinit var baseClock: MonotonicFrameClock
+        var wallClockOffsetNanos = 0L
+
+        val wallClock =
+            object : MonotonicFrameClock {
+                override suspend fun <R> withFrameNanos(onFrame: (Long) -> R): R {
+                    return baseClock.withFrameNanos { frameTimeNanos ->
+                        onFrame(frameTimeNanos + wallClockOffsetNanos)
+                    }
+                }
+            }
+
+        rule.setContent {
+            coroutineScope = rememberCoroutineScope()
+            baseClock = coroutineScope.coroutineContext[MonotonicFrameClock]!!
+            val transition = rememberTransition(seekableTransitionState, label = "Test")
+            val value =
+                transition.animateInt(
+                    label = "Value",
+                    transitionSpec = { tween(durationMillis = 300, easing = LinearEasing) },
+                ) { state ->
+                    when (state) {
+                        AnimStates.From -> 0
+                        AnimStates.To -> 1000
+                        AnimStates.Other -> 2000
+                    }
+                }
+            val extra =
+                if (addExtraAnimation) {
+                    transition.animateInt(
+                        label = "Extra",
+                        transitionSpec = { tween(durationMillis = 300, easing = LinearEasing) },
+                    ) { state ->
+                        if (state == AnimStates.From) 0 else 500
+                    }
+                } else {
+                    null
+                }
+            Box(
+                Modifier.fillMaxSize().drawBehind {
+                    animatedValue = value.value
+                    extra?.value
+                }
+            )
+        }
+
+        rule.runOnUiThread {
+            coroutineScope.launch(wallClock) { seekableTransitionState.animateTo(AnimStates.To) }
+        }
+        rule.mainClock.advanceTimeByFrame() // compose To and lock in start time
+        rule.mainClock.advanceTimeBy(160)
+        rule.runOnIdle { assertEquals(533f, animatedValue.toFloat(), 1f) }
+
+        // Trigger a recomposition during the ongoing animation without changing targetState
+        addExtraAnimation = true
+        rule.mainClock.advanceTimeBy(16) // 176ms
+        rule.runOnIdle { assertEquals(586.7f, animatedValue.toFloat(), 1f) }
+        rule.mainClock.advanceTimeBy(16) // 192ms - must not skip a frame after recomposition
+        rule.runOnIdle { assertEquals(640f, animatedValue.toFloat(), 1f) }
+
+        // Advance to 288ms (1 frame before From -> To reaches 1000) and interrupt to Other
+        rule.mainClock.advanceTimeBy(96) // 288ms
+        rule.runOnIdle { assertEquals(960f, animatedValue.toFloat(), 1f) }
+
+        val animateOther = rule.runOnUiThread {
+            coroutineScope.async(wallClock) { seekableTransitionState.animateTo(AnimStates.Other) }
+        }
+
+        // Frame 1: initialValueAnimation finishes at 1000 while Other composes; simulate a 144ms
+        // delay before Frame 2 so Frame 2's total delta is 160ms (skipping frames because an
+        // animation was already running).
+        rule.mainClock.advanceTimeBy(16) // 304ms
+        rule.runOnIdle { assertEquals(1000f, animatedValue.toFloat(), 1f) }
+        wallClockOffsetNanos += 144_000_000L
+
+        // Frame 2: advances by the full 160ms (1000 + 1000 * 160 / 300 = 1533.3f), not capped to
+        // 16ms
+        rule.mainClock.advanceTimeBy(16)
+        rule.runOnIdle { assertEquals(1533.3f, animatedValue.toFloat(), 1f) }
+
+        rule.mainClock.advanceTimeBy(5_000)
+        rule.runOnIdle {
+            assertTrue(animateOther.isCompleted)
+            assertEquals(2000, animatedValue)
+        }
     }
 }
