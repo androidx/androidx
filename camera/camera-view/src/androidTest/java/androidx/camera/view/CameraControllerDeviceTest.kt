@@ -87,12 +87,12 @@ class CameraControllerDeviceTest(
             )
     }
 
-    @get:Rule
-    val requireForegroundRule = RequireForegroundRule { assumeTrue(CameraUtil.deviceHasCamera()) }
-
-    @get:Rule
+    @get:Rule(order = 0)
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraConfig))
+
+    @get:Rule(order = 1)
+    val requireForegroundRule = RequireForegroundRule { assumeTrue(CameraUtil.deviceHasCamera()) }
 
     private var controller: LifecycleCameraController? = null
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -108,8 +108,9 @@ class CameraControllerDeviceTest(
         defaultCameraSelector = CameraUtil.assumeFirstAvailableCameraSelector()
         cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
         requireForegroundRule.deferCleanup {
-            controller?.shutDownForTests()
+            instrumentation.runOnMainSync { controller?.unbind() }
             activityScenario?.close()
+            activityScenario = null
             cameraProvider?.shutdownAsync()?.get(10, TimeUnit.SECONDS)
             cameraProvider = null
         }
@@ -356,7 +357,7 @@ class CameraControllerDeviceTest(
     @Test
     fun lifecycleCameraController_canEnterStreamingStateAndTakePicture_withSetSessionConfig() {
         // Arrange
-        val controller = LifecycleCameraController(context)
+        val controller = LifecycleCameraController(context).also { this.controller = it }
         val previewView = createPreview()
         val streamingStateLatch = getPreviewStreamingStateLatch(previewView)
         val preview = Preview.Builder().build()
@@ -380,7 +381,7 @@ class CameraControllerDeviceTest(
     @Test
     fun lifecycleCameraController_canSwitchSessionConfig_andAllUseCasesWork() {
         // Arrange
-        val controller = LifecycleCameraController(context)
+        val controller = LifecycleCameraController(context).also { this.controller = it }
         val previewView = createPreview()
         val streamingStateLatch = getPreviewStreamingStateLatch(previewView)
         val preview = Preview.Builder().build()
@@ -417,7 +418,7 @@ class CameraControllerDeviceTest(
     @Test
     fun lifecycleCameraController_canEnterStreamingStateAndRecordVideo_withSetSessionConfig() {
         // Arrange
-        val controller = LifecycleCameraController(context)
+        val controller = LifecycleCameraController(context).also { this.controller = it }
         val previewView = createPreview()
         val streamingStateLatch = getPreviewStreamingStateLatch(previewView)
         val preview = Preview.Builder().build()
@@ -441,7 +442,7 @@ class CameraControllerDeviceTest(
     @Test
     fun lifecycleCameraController_canEnterStreamingStateAndAnalyze_withSetSessionConfig() {
         // Arrange
-        val controller = LifecycleCameraController(context)
+        val controller = LifecycleCameraController(context).also { this.controller = it }
         val previewView = createPreview()
         val streamingStateLatch = getPreviewStreamingStateLatch(previewView)
         val preview = Preview.Builder().build()
@@ -503,7 +504,7 @@ class CameraControllerDeviceTest(
         assumeTrue(CameraUtil.hasCameraWithLensFacing(LENS_FACING_BACK))
         assumeTrue(CameraUtil.hasCameraWithLensFacing(LENS_FACING_FRONT))
 
-        val controller = LifecycleCameraController(context)
+        val controller = LifecycleCameraController(context).also { this.controller = it }
         val previewView = createPreview()
         val streamingStateLatch = getPreviewStreamingStateLatch(previewView)
         val preview = Preview.Builder().build()
@@ -540,7 +541,7 @@ class CameraControllerDeviceTest(
     @Test
     fun previewViewCanEnterStreamingState_whenSetPreviewViewControllerAfterSessionConfigIsSet() {
         // Arrange
-        val controller = LifecycleCameraController(context)
+        val controller = LifecycleCameraController(context).also { this.controller = it }
         val previewView = createPreview()
         val streamingStateLatch = getPreviewStreamingStateLatch(previewView)
         val preview = Preview.Builder().build()
@@ -574,7 +575,7 @@ class CameraControllerDeviceTest(
     @Test
     fun previewViewCanEnterStreamingState_whenSetPreviewViewControllerBeforeSessionConfigIsSet() {
         // Arrange
-        val controller = LifecycleCameraController(context)
+        val controller = LifecycleCameraController(context).also { this.controller = it }
         val previewView = createPreview()
         val streamingStateLatch = getPreviewStreamingStateLatch(previewView)
         // Create a Preview without setting a SurfaceProvider.
