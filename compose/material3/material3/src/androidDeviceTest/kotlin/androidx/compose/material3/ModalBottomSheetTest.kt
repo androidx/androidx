@@ -73,6 +73,9 @@ import androidx.compose.ui.unit.width
 import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
 import androidx.test.espresso.Espresso
+import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.matcher.RootMatchers
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -397,7 +400,13 @@ class ModalBottomSheetTest {
         rule.waitForIdle()
         assertThat(sheetState.isVisible).isTrue()
 
-        Espresso.pressBackUnconditionally()
+        // The sheet is hosted in its own dialog window, which gains window focus asynchronously.
+        // Target that window explicitly so Espresso waits for it to be focused before sending the
+        // back key. The default root matcher only matches a dialog once it has focus, so it would
+        // otherwise pick the unfocused activity window and time out waiting for it to gain focus.
+        Espresso.onView(ViewMatchers.isRoot())
+            .inRoot(RootMatchers.isDialog())
+            .perform(ViewActions.pressBackUnconditionally())
         rule.waitForIdle()
 
         assertThat(sheetState.isVisible).isTrue()
