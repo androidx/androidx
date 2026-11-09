@@ -124,21 +124,23 @@ if $darwin; then
     GRADLE_OPTS="$GRADLE_OPTS \"-Xdock:name=$APP_NAME\" \"-Xdock:icon=$APP_HOME/media/gradle.icns\""
 fi
 
-# Some build machines (b/576281048) can only reach the internet over IPv6, but
-# Java tries IPv4 first, so connecting to the remote build cache times out. On machines with no IPv4
-# route, tell Java to try IPv6 first. Don't do this everywhere: Java won't fall back to IPv4 if IPv6
+# Some build machines (b/576281048) can only reach the internet over IPv6, but Java tries IPv4
+# first, so connecting to the remote build cache times out. These machines may still have an IPv4
+# default route that goes nowhere, so test whether IPv4 actually connects instead of checking for
+# a route. Prefer IPv6 only if IPv4 fails and IPv6 works: Java won't fall back to IPv4 if IPv6
 # fails, which would break machines with broken IPv6.
 # The setting only works on the java command line, and Gradle doesn't put -D values from
 # org.gradle.jvmargs there, so pass it via a file instead. The Kotlin daemon needs it too.
-# TODO(fsladkey) file a bug with gradle to request a feature to suppor this
-# and remove the conditionals here once gcpbuilcache supports falling back to ipv4 b/
-hasIpv4DefaultRoute=true
+# TODO(fsladkey): remove once gcp-gradle-build-cache falls back between address families.
+preferIpv6=false
 if $darwin; then
-    /sbin/route -n get -inet default >/dev/null 2>&1 || hasIpv4DefaultRoute=false
-elif [ "`uname`" = "Linux" ] && command -v ip >/dev/null 2>&1; then
-    [ -n "$(ip -4 route show default 2>/dev/null)" ] || hasIpv4DefaultRoute=false
+    probeHost=storage.googleapis.com
+    if ! /usr/bin/nc -4 -z -G 2 "$probeHost" 443 >/dev/null 2>&1 &&
+            /usr/bin/nc -6 -z -G 2 "$probeHost" 443 >/dev/null 2>&1; then
+        preferIpv6=true
+    fi
 fi
-if [ "$hasIpv4DefaultRoute" = "false" ]; then
+if [ "$preferIpv6" = "true" ]; then
     ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s|$| @$SCRIPT_PATH/development/build-environment/prefer-ipv6.jvmargs|; s|-Dkotlin.daemon.jvm.options=|&-Djava.net.preferIPv6Addresses=true,|")"
 fi
 
