@@ -28,7 +28,9 @@ dependencies {
     api(libs.testRunner)
     api(libs.testRules)
     api(libs.testCore)
+    api(libs.testExtJunit)
     api(libs.kotlinTest)
+    api("androidx.activity:activity:1.9.3")
     api("androidx.compose.animation:animation-core:1.7.5")
     api(project(":lifecycle:lifecycle-common"))
     api(project(":xr:runtime:runtime"))
@@ -36,6 +38,7 @@ dependencies {
 
     api(project(":test:screenshot:screenshot"))
     implementation("androidx.compose.runtime:runtime:1.7.5")
+    implementation(libs.kotlinCoroutinesAndroid)
 
     androidTestImplementation(project(":compose:foundation:foundation"))
     androidTestImplementation(project(":compose:material3:material3"))
@@ -44,13 +47,7 @@ dependencies {
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":xr:compose:compose"))
     androidTestImplementation(libs.androidx.activity.compose)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testUiautomator)
-
-    testImplementation(libs.testExtJunit)
 }
 
 android {

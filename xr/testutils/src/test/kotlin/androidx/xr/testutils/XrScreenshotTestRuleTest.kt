@@ -162,7 +162,8 @@ class XrScreenshotTestRuleTest {
             assertTrue(message.contains(stagedFile.absolutePath))
             assertTrue(
                 message.contains(
-                    "adb pull ${stagedFile.absolutePath} ../../golden/xr/testutils/missing_golden_moohan.png"
+                    "adb pull ${stagedFile.absolutePath} " +
+                        "../../golden/xr/testutils/missing_golden_moohan.png"
                 )
             )
             assertTrue(
@@ -267,6 +268,31 @@ class XrScreenshotTestRuleTest {
             }
             val stagedFile = File(rule.stagedGoldensDirectory, "xr/testutils/arg_golden_moohan.png")
             assertTrue(stagedFile.exists())
+        } finally {
+            bitmap.recycle()
+        }
+    }
+
+    @Test
+    fun assertBitmapAgainstGolden_usesDeviceModelSuffixInGoldenFilename() {
+        val bitmap = createSolidBitmap(Color.RED)
+        try {
+            ShadowBuild.setModel("Android XR Puck")
+            val puckRule = XrScreenshotTestRule("xr/testutils", updateGoldens = true)
+            runWithRule(puckRule) {
+                puckRule.assertBitmapAgainstGolden(
+                    bitmap,
+                    "device_golden",
+                    PixelPerfectMatcher(),
+                )
+            }
+            assertTrue(
+                File(
+                        puckRule.stagedGoldensDirectory,
+                        "xr/testutils/device_golden_android_xr_puck.png",
+                    )
+                    .exists()
+            )
         } finally {
             bitmap.recycle()
         }
