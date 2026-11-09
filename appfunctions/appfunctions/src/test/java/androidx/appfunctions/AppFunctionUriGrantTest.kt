@@ -16,8 +16,10 @@
 
 package androidx.appfunctions
 
+import android.app.appsearch.GenericDocument
 import android.content.Intent
 import android.net.Uri
+import android.os.Bundle
 import androidx.appfunctions.internal.AppFunctionUriGrantTestInventory.Companion.URI_GRANT_COMPONENTS_METADATA
 import androidx.appfunctions.internal.AppFunctionUriGrantTestInventory.Companion.URI_GRANT_OBJECT_TYPE_METADATA
 import androidx.appfunctions.internal.AppFunctionUriGrantTestInventory.Companion.URI_OBJECT_TYPE_METADATA
@@ -118,4 +120,55 @@ class AppFunctionUriGrantTest {
                 Intent.FLAG_GRANT_PREFIX_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION
             )
     }
+
+    @Test
+    fun visitAppFunctionUriGrants_withoutSpec_visitsEachGrantOnce() {
+        val grant1 =
+            AppFunctionUriGrant(
+                uri = Uri.parse("content://com.example/1"),
+                modeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION,
+            )
+        val grant2 =
+            AppFunctionUriGrant(
+                uri = Uri.parse("content://com.example/2"),
+                modeFlags = Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
+            )
+        val grant3 =
+            AppFunctionUriGrant(
+                uri = Uri.parse("content://com.example/3"),
+                modeFlags =
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                        Intent.FLAG_GRANT_PREFIX_URI_PERMISSION,
+            )
+        val nestedDoc =
+            GenericDocument.Builder<GenericDocument.Builder<*>>("", "", "com.example.Nested")
+                .setPropertyString("title", "hello")
+                .setPropertyBoolean("enabled", true)
+                .setPropertyLong("count", 42L)
+                .setPropertyDocument("singleGrant", grant1.toGenericDocument())
+                .setPropertyDocument(
+                    "grantList",
+                    grant2.toGenericDocument(),
+                    grant3.toGenericDocument(),
+                )
+                .build()
+        val rootDoc =
+            GenericDocument.Builder<GenericDocument.Builder<*>>("", "", "")
+                .setPropertyDocument("returnValue", nestedDoc)
+                .build()
+
+        val visited = mutableListOf<AppFunctionUriGrant>()
+        AppFunctionData(rootDoc, Bundle.EMPTY).visitAppFunctionUriGrants { visited.add(it) }
+
+        assertThat(visited).containsExactly(grant1, grant2, grant3)
+    }
+
+    private fun AppFunctionUriGrant.toGenericDocument(): GenericDocument =
+        AppFunctionData.serialize(
+                URI_GRANT_OBJECT_TYPE_METADATA,
+                URI_GRANT_COMPONENTS_METADATA,
+                this,
+                AppFunctionUriGrant::class.java,
+            )
+            .genericDocument
 }
