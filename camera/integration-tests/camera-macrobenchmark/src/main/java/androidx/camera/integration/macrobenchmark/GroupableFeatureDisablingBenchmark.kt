@@ -22,6 +22,7 @@ import androidx.camera.integration.macrobenchmark.CameraBenchmarkUtils.GROUPABLE
 import androidx.camera.integration.macrobenchmark.CameraBenchmarkUtils.measureStartupDefault
 import androidx.camera.testing.impl.CameraUtil
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
 import org.junit.Rule
@@ -29,7 +30,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
+// Below API 29 Macrobenchmark sideloads tracebox in u:r:shell:s0, which OEM user builds
+// block from tracefs.
 @LargeTest
+@SdkSuppress(minSdkVersion = 29)
 @RunWith(Parameterized::class)
 class GroupableFeatureDisablingBenchmark(
     private val cameraXConfigName: String,
