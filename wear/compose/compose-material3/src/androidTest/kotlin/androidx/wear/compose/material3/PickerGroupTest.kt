@@ -16,7 +16,11 @@
 
 package androidx.wear.compose.material3
 
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -26,7 +30,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
@@ -35,6 +42,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -109,6 +117,52 @@ class PickerGroupTest {
         rule.waitForIdle()
 
         assertThat(selectedIndex.value).isEqualTo(1)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun pickerGroupItem_withGradientColor_drawsGradientColor() {
+        val backgroundColor = Color.Blue
+        val topCenterPixel = captureTopCenterPixel(backgroundColor, gradientColor = Color.Red)
+
+        assertThat(topCenterPixel.red).isGreaterThan(0.8f)
+        assertThat(topCenterPixel.blue).isLessThan(0.2f)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun pickerGroupItem_withUnspecifiedGradientColor_showsBackground() {
+        val backgroundColor = Color.Blue
+        val topCenterPixel =
+            captureTopCenterPixel(backgroundColor, gradientColor = Color.Unspecified)
+
+        assertThat(topCenterPixel.blue).isGreaterThan(0.8f)
+        assertThat(topCenterPixel.red).isLessThan(0.2f)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun captureTopCenterPixel(backgroundColor: Color, gradientColor: Color): Color {
+        rule.setContentWithTheme {
+            Box(modifier = Modifier.fillMaxSize().background(backgroundColor)) {
+                PickerGroup {
+                    PickerGroupItem(
+                        pickerState = rememberPickerState(10),
+                        selected = true,
+                        onSelected = {},
+                        gradientColor = gradientColor,
+                        modifier =
+                            Modifier.size(width = 60.dp, height = 150.dp).testTag(TEST_TAG_1),
+                    ) { _: Int, _: Boolean ->
+                        Box(modifier = Modifier.size(40.dp))
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        val pixelMap = rule.onNodeWithTag(TEST_TAG_1).captureToImage().toPixelMap()
+        // Sample just below the top edge, where the gradient is at full strength.
+        return pixelMap[pixelMap.width / 2, 2]
     }
 
     @Composable

@@ -223,6 +223,7 @@ val WearMaterial3Demos =
                     arrayOf(
                         Material3DemoCategory("TimePicker", TimePickerDemos),
                         Material3DemoCategory("DatePicker", DatePickerDemos),
+                        Material3DemoCategory("DurationPicker", DurationPickerDemos),
                     )
                 else emptyArray<Material3DemoCategory>()),
                 Material3DemoCategory("Progress Indicator", ProgressIndicatorDemos),

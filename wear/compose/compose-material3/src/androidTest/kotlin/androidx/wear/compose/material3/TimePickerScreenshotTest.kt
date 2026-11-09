@@ -84,6 +84,7 @@ class TimePickerScreenshotTest {
         )
 
     @Test
+    @Suppress("DEPRECATION")
     fun timePicker_minutesSeconds(@TestParameter screenSize: ScreenSize) =
         rule.verifyTimePickerScreenshot(
             testName = testName,

@@ -18,20 +18,37 @@
     <string description="Lets the user know that the time unit being changed is hour. Appears on the top of the TimePicker component. This should be translated as a time, not a duration. [CHAR_LIMIT=8]" name="wear_m3c_time_picker_hour">Hour</string>
     <string description="Lets the user know that the time unit being changed is minute. Appears on the top of the TimePicker component. This should be translated as a time, not a duration. [CHAR_LIMIT=8]" name="wear_m3c_time_picker_minute">Minute</string>
     <string description="Lets the user know that the time unit being changed is second. Appears on the top of the TimePicker component. This should be translated as a time, not a duration. [CHAR_LIMIT=8]" name="wear_m3c_time_picker_second">Second</string>
-    <plurals description="Content description of the current number of hours being selected in TimePicker component. [CHAR_LIMIT=NONE]" name="wear_m3c_time_picker_hours_content_description">
+    <plurals description="Content description of the current number of hours being selected in TimePicker component. This should be translated as a time, not a duration. [CHAR_LIMIT=NONE]" name="wear_m3c_time_picker_hours_content_description">
         <item quantity="one">%d Hour</item>
         <item quantity="other">%d Hours</item>
     </plurals>
-    <plurals description="Content description of the current number of minutes being selected in TimePicker component. [CHAR_LIMIT=NONE]" name="wear_m3c_time_picker_minutes_content_description">
+    <plurals description="Content description of the current number of minutes being selected in TimePicker component. This should be translated as a time, not a duration. [CHAR_LIMIT=NONE]" name="wear_m3c_time_picker_minutes_content_description">
         <item quantity="one">%d Minute</item>
         <item quantity="other">%d Minutes</item>
     </plurals>
-    <plurals description="Content description of the current number of seconds being selected in TimePicker component. [CHAR_LIMIT=NONE]" name="wear_m3c_time_picker_seconds_content_description">
+    <plurals description="Content description of the current number of seconds being selected in TimePicker component. This should be translated as a time, not a duration. [CHAR_LIMIT=NONE]" name="wear_m3c_time_picker_seconds_content_description">
         <item quantity="one">%d Second</item>
         <item quantity="other">%d Seconds</item>
     </plurals>
     <string description="Content description of the period picker in TimePickerWith12HourClock. It lets the user select the period for 12H time format. [CHAR_LIMIT=NONE]" name="wear_m3c_time_picker_period">Period</string>
     <string description="Heading at the top of the TimePicker to instruct the user to set the time by scrolling. [CHAR_LIMIT=NONE]" name="wear_m3c_time_picker_heading">Scroll to set time</string>
+    <string description="Lets the user know that the duration unit being changed is hours. Appears on the top of the DurationPicker component. This represents a duration (a time interval rather than a moment in time). [CHAR_LIMIT=8]" name="wear_m3c_duration_picker_hours">Hours</string>
+    <string description="Lets the user know that the duration unit being changed is minutes. Appears on the top of the DurationPicker component. This represents a duration (a time interval rather than a moment in time). [CHAR_LIMIT=8]" name="wear_m3c_duration_picker_minutes">Minutes</string>
+    <string description="Lets the user know that the duration unit being changed is seconds. Appears on the top of the DurationPicker component. This represents a duration (a time interval rather than a moment in time). [CHAR_LIMIT=8]" name="wear_m3c_duration_picker_seconds">Seconds</string>
+    <plurals description="Content description of the current number of hours being selected in DurationPicker component. This represents a duration (a time interval rather than a moment in time). [CHAR_LIMIT=NONE]" name="wear_m3c_duration_picker_hours_content_description">
+        <item quantity="one">%d Hour</item>
+        <item quantity="other">%d Hours</item>
+    </plurals>
+    <plurals description="Content description of the current number of minutes being selected in DurationPicker component. This represents a duration (a time interval rather than a moment in time). [CHAR_LIMIT=NONE]" name="wear_m3c_duration_picker_minutes_content_description">
+        <item quantity="one">%d Minute</item>
+        <item quantity="other">%d Minutes</item>
+    </plurals>
+    <plurals description="Content description of the current number of seconds being selected in DurationPicker component. This represents a duration (a time interval rather than a moment in time). [CHAR_LIMIT=NONE]" name="wear_m3c_duration_picker_seconds_content_description">
+        <item quantity="one">%d Second</item>
+        <item quantity="other">%d Seconds</item>
+    </plurals>
+    <string description="Heading at the top of the DurationPicker to instruct the user to set the duration by scrolling. [CHAR_LIMIT=NONE]" name="wear_m3c_duration_picker_heading">Scroll to set duration</string>
+    <string description="State description for the disabled confirm button in DurationPicker indicating the required duration range. %1$s is the minimum valid duration (e.g. 1 Minute), and %2$s is the maximum valid duration (e.g. 23 Hours). [CHAR_LIMIT=NONE]" name="wear_m3c_duration_picker_disabled_range_description">Duration must be between %1$s and %2$s.</string>
     <string description="Lets the user know that this picker is to change the value of the day date unit. Appears on the DatePicker component, on top of the day picker. [CHAR_LIMIT=8]" name="wear_m3c_date_picker_day">Day</string>
     <string description="Lets the user know that this picker is to change the value of the month date unit. Appears on the DatePicker component, on top of the month picker. [CHAR_LIMIT=8]" name="wear_m3c_date_picker_month">Month</string>
     <string description="Lets the user know that this picker is to change the value of the year date unit. Appears on the DatePicker component, on top of the year picker. [CHAR_LIMIT=8]" name="wear_m3c_date_picker_year">Year</string>

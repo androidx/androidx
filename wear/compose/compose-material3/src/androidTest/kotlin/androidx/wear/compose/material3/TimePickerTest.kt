@@ -46,10 +46,6 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.wear.compose.material3.internal.Plurals
 import androidx.wear.compose.material3.internal.Strings
-import androidx.wear.compose.material3.samples.TimePickerSample
-import androidx.wear.compose.material3.samples.TimePickerWith12HourClockSample
-import androidx.wear.compose.material3.samples.TimePickerWithMinutesAndSecondsSample
-import androidx.wear.compose.material3.samples.TimePickerWithSecondsSample
 import com.google.common.truth.Truth.assertThat
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
@@ -78,16 +74,6 @@ class TimePickerTest {
         }
 
         rule.onNodeWithTag(TEST_TAG).assertExists()
-    }
-
-    @Test
-    fun timePicker_samples_build() {
-        rule.setContentWithTheme {
-            TimePickerSample()
-            TimePickerWithSecondsSample()
-            TimePickerWith12HourClockSample()
-            TimePickerWithMinutesAndSecondsSample()
-        }
     }
 
     @Test
@@ -159,6 +145,7 @@ class TimePickerTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun timePicker_mmss_initial_state() {
         val initialTime = LocalTime.of(/* hour= */ 14, /* minute= */ 23, /* second= */ 45)
         rule.setContentWithTheme {
@@ -373,6 +360,7 @@ class TimePickerTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun timePicker_mmss_confirmed() {
         lateinit var confirmedTime: LocalTime
         val initialTime = LocalTime.of(/* hour= */ 10, /* minute= */ 23, /* second= */ 45)

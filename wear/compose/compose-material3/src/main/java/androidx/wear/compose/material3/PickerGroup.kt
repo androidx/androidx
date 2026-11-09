@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.changedToDown
@@ -156,6 +157,57 @@ public class PickerGroupScope {
         readOnlyLabel: @Composable (BoxScope.() -> Unit)? = null,
         verticalSpacing: Dp = 0.dp,
         option: @Composable PickerScope.(optionIndex: Int, pickerSelected: Boolean) -> Unit,
+    ): Unit =
+        PickerGroupItem(
+            pickerState = pickerState,
+            selected = selected,
+            onSelected = onSelected,
+            modifier = modifier,
+            contentDescription = contentDescription,
+            focusRequester = focusRequester,
+            readOnlyLabel = readOnlyLabel,
+            verticalSpacing = verticalSpacing,
+            gradientColor = MaterialTheme.colorScheme.background,
+            option = option,
+        )
+
+    /**
+     * A [Picker] in a [PickerGroup]
+     *
+     * @param pickerState The state of the picker.
+     * @param selected If the [Picker] is selected.
+     * @param onSelected Action triggered when the [Picker] is selected by clicking.
+     * @param gradientColor The color of the gradient over the top and bottom of the Picker. Should
+     *   be the color outside of the Picker, so there is continuity. If using a custom background
+     *   (gradients, images), set to [Color.Unspecified].
+     * @param modifier [Modifier] to be applied to the [Picker].
+     * @param contentDescription A block which computes text used by accessibility services to
+     *   describe what the selected option represents. This text should be localized, such as by
+     *   using [androidx.compose.ui.res.stringResource] or similar.
+     * @param focusRequester Optional [FocusRequester] for the [Picker]. If not provided, a local
+     *   instance of [FocusRequester] will be created to handle the focus between different pickers.
+     *   If it is provided, the caller is responsible for handling the focus.
+     * @param readOnlyLabel A slot for providing a label, displayed above the selected option when
+     *   the [Picker] is read-only. The label is overlaid with the currently selected option within
+     *   a Box, so it is recommended that the label is given
+     *   [androidx.compose.ui.Alignment.TopCenter].
+     * @param verticalSpacing The amount of vertical spacing in [Dp] between items. Can be negative,
+     *   which can be useful for Text if it has plenty of whitespace.
+     * @param option A block which describes the content. The integer parameter to the composable
+     *   denotes the index of the option and boolean denotes whether the picker is selected or not.
+     */
+    @Composable
+    public fun PickerGroupItem(
+        pickerState: PickerState,
+        selected: Boolean,
+        onSelected: () -> Unit,
+        gradientColor: Color,
+        modifier: Modifier = Modifier,
+        contentDescription: (() -> String)? = null,
+        focusRequester: FocusRequester? = null,
+        readOnlyLabel: @Composable (BoxScope.() -> Unit)? = null,
+        verticalSpacing: Dp = 0.dp,
+        option: @Composable PickerScope.(optionIndex: Int, pickerSelected: Boolean) -> Unit,
     ) {
         val touchExplorationServicesEnabled by
             LocalTouchExplorationStateProvider.current.touchExplorationState()
@@ -199,6 +251,7 @@ public class PickerGroupScope {
             readOnlyLabel = readOnlyLabel,
             onSelected = latestOnSelected,
             verticalSpacing = verticalSpacing,
+            gradientColor = gradientColor,
             userScrollEnabled = !touchExplorationServicesEnabled || selected,
             option = { optionIndex -> option(optionIndex, selected) },
         )

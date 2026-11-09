@@ -123,7 +123,8 @@ import java.util.Locale
  * ![TimePickerWith12HourClockSample Composite
  * Image](https://developer.android.com/wear/images/design/WearComposeM3_TimePickerWith12HourClockSample_CompositeImage.png)
  *
- * Example of a [TimePicker] with just minutes and seconds:
+ * Example of a [TimePicker] with just minutes and seconds (deprecated - use [DurationPicker]
+ * instead):
  *
  * @sample androidx.wear.compose.material3.samples.TimePickerWithMinutesAndSecondsSample
  *
@@ -148,6 +149,7 @@ import java.util.Locale
  */
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
+@Suppress("DEPRECATION")
 public fun TimePicker(
     initialTime: LocalTime,
     onTimePicked: (LocalTime) -> Unit,
@@ -466,10 +468,22 @@ public value class TimePickerType internal constructor(internal val value: Int) 
         public val HoursMinutesSeconds24H: TimePickerType = TimePickerType(1)
         /** Displays three columns for hours (12-hour format), minutes and AM/PM label. */
         public val HoursMinutesAmPm12H: TimePickerType = TimePickerType(2)
-        /** Displays two columns for minutes and seconds */
+        /**
+         * Displays two columns for minutes and seconds.
+         *
+         * For configuring countdown timers or elapsed durations, prefer using [DurationPicker] with
+         * [DurationPickerType.MinutesSeconds].
+         *
+         * @see DurationPicker
+         */
+        @Deprecated(
+            "Use DurationPicker with DurationPickerType.MinutesSeconds for countdown timers or " +
+                "elapsed durations."
+        )
         public val MinutesSeconds: TimePickerType = TimePickerType(3)
     }
 
+    @Suppress("DEPRECATION")
     override fun toString(): String =
         when (this) {
             HoursMinutes24H -> "HoursMinutes24H"
@@ -668,6 +682,7 @@ public class TimePickerColors(
     }
 }
 
+@Suppress("DEPRECATION")
 private val TimePickerType.isTwoColumnPicker
     get() = this == TimePickerType.HoursMinutes24H || this == TimePickerType.MinutesSeconds
 
@@ -1210,6 +1225,7 @@ private fun createDescription(
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Immutable
+@Suppress("DEPRECATION")
 private class PickerLocaleConfig(val locale: Locale, val timePickerType: TimePickerType) {
     val is12hour: Boolean = timePickerType == TimePickerType.HoursMinutesAmPm12H
 

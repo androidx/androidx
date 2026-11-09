@@ -740,6 +740,82 @@ package androidx.wear.compose.material3 {
     method @BytecodeOnly @RequiresApi(33) public static androidx.compose.ui.Modifier! drawCurvedToEdge-fLie9JQ$default(androidx.compose.ui.Modifier!, float, int, float, float, int, Object!);
   }
 
+  @androidx.compose.runtime.Immutable public final class DurationPickerColors {
+    ctor @KotlinOnly public DurationPickerColors(androidx.compose.ui.graphics.Color selectedPickerContentColor, androidx.compose.ui.graphics.Color unselectedPickerContentColor, androidx.compose.ui.graphics.Color invalidPickerContentColor, androidx.compose.ui.graphics.Color separatorColor, androidx.compose.ui.graphics.Color pickerLabelColor, androidx.compose.ui.graphics.Color confirmButtonContentColor, androidx.compose.ui.graphics.Color confirmButtonContainerColor, androidx.compose.ui.graphics.Color pickerBackgroundColor);
+    ctor @BytecodeOnly public DurationPickerColors(long, long, long, long, long, long, long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @KotlinOnly public androidx.wear.compose.material3.DurationPickerColors copy(optional androidx.compose.ui.graphics.Color selectedPickerContentColor, optional androidx.compose.ui.graphics.Color unselectedPickerContentColor, optional androidx.compose.ui.graphics.Color invalidPickerContentColor, optional androidx.compose.ui.graphics.Color separatorColor, optional androidx.compose.ui.graphics.Color pickerLabelColor, optional androidx.compose.ui.graphics.Color confirmButtonContentColor, optional androidx.compose.ui.graphics.Color confirmButtonContainerColor, optional androidx.compose.ui.graphics.Color pickerBackgroundColor);
+    method @BytecodeOnly public androidx.wear.compose.material3.DurationPickerColors copy-FD3wquc(long, long, long, long, long, long, long, long);
+    method @BytecodeOnly public static androidx.wear.compose.material3.DurationPickerColors! copy-FD3wquc$default(androidx.wear.compose.material3.DurationPickerColors!, long, long, long, long, long, long, long, long, int, Object!);
+    method @BytecodeOnly public long getConfirmButtonContainerColor-0d7_KjU();
+    method @BytecodeOnly public long getConfirmButtonContentColor-0d7_KjU();
+    method @BytecodeOnly public long getInvalidPickerContentColor-0d7_KjU();
+    method @BytecodeOnly public long getPickerBackgroundColor-0d7_KjU();
+    method @BytecodeOnly public long getPickerLabelColor-0d7_KjU();
+    method @BytecodeOnly public long getSelectedPickerContentColor-0d7_KjU();
+    method @BytecodeOnly public long getSeparatorColor-0d7_KjU();
+    method @BytecodeOnly public long getUnselectedPickerContentColor-0d7_KjU();
+    property public androidx.compose.ui.graphics.Color confirmButtonContainerColor;
+    property public androidx.compose.ui.graphics.Color confirmButtonContentColor;
+    property public androidx.compose.ui.graphics.Color invalidPickerContentColor;
+    property public androidx.compose.ui.graphics.Color pickerBackgroundColor;
+    property public androidx.compose.ui.graphics.Color pickerLabelColor;
+    property public androidx.compose.ui.graphics.Color selectedPickerContentColor;
+    property public androidx.compose.ui.graphics.Color separatorColor;
+    property public androidx.compose.ui.graphics.Color unselectedPickerContentColor;
+  }
+
+  public final class DurationPickerDefaults {
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.wear.compose.material3.DurationPickerColors colors();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.wear.compose.material3.DurationPickerColors colors(androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.wear.compose.material3.DurationPickerColors colors(optional androidx.compose.ui.graphics.Color selectedPickerContentColor, optional androidx.compose.ui.graphics.Color unselectedPickerContentColor, optional androidx.compose.ui.graphics.Color invalidPickerContentColor, optional androidx.compose.ui.graphics.Color separatorColor, optional androidx.compose.ui.graphics.Color pickerLabelColor, optional androidx.compose.ui.graphics.Color confirmButtonContentColor, optional androidx.compose.ui.graphics.Color confirmButtonContainerColor, optional androidx.compose.ui.graphics.Color pickerBackgroundColor);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.wear.compose.material3.DurationPickerColors colors-oq7We08(long, long, long, long, long, long, long, long, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly public int getType-hiz9cVU();
+    method @KotlinOnly public androidx.wear.compose.material3.DurationPickerSelection initialSelection(optional androidx.wear.compose.material3.DurationPickerType durationPickerType);
+    method @BytecodeOnly public int initialSelection-v1nGvrA(int);
+    method @BytecodeOnly public static int initialSelection-v1nGvrA$default(androidx.wear.compose.material3.DurationPickerDefaults!, int, int, Object!);
+    property public androidx.wear.compose.material3.DurationPickerType type;
+    field public static final androidx.wear.compose.material3.DurationPickerDefaults INSTANCE;
+  }
+
+  public final class DurationPickerKt {
+    method @KotlinOnly @RequiresApi(android.os.Build.VERSION_CODES.O) @androidx.compose.runtime.Composable public static void DurationPicker(java.time.Duration initialDuration, kotlin.jvm.functions.Function1<java.time.Duration,kotlin.Unit> onDurationPicked, optional androidx.compose.ui.Modifier modifier, optional java.time.Duration? minValidDuration, optional java.time.Duration? maxValidDuration, optional androidx.wear.compose.material3.DurationPickerType durationPickerType, optional androidx.wear.compose.material3.DurationPickerSelection initialSelection, optional androidx.wear.compose.material3.DurationPickerColors colors);
+    method @BytecodeOnly @RequiresApi(26) @androidx.compose.runtime.Composable public static void DurationPicker-J0c5IV8(java.time.Duration, kotlin.jvm.functions.Function1<? super java.time.Duration!,kotlin.Unit!>, androidx.compose.ui.Modifier?, java.time.Duration?, java.time.Duration?, int, int, androidx.wear.compose.material3.DurationPickerColors?, androidx.compose.runtime.Composer?, int, int);
+  }
+
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class DurationPickerSelection {
+    method @BytecodeOnly public static androidx.wear.compose.material3.DurationPickerSelection! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.wear.compose.material3.DurationPickerSelection.Companion Companion;
+  }
+
+  public static final class DurationPickerSelection.Companion {
+    method @BytecodeOnly public int getConfirmButton-tYHJr-0();
+    method @BytecodeOnly public int getHours-tYHJr-0();
+    method @BytecodeOnly public int getMinutes-tYHJr-0();
+    method @BytecodeOnly public int getNone-tYHJr-0();
+    method @BytecodeOnly public int getSeconds-tYHJr-0();
+    property public androidx.wear.compose.material3.DurationPickerSelection ConfirmButton;
+    property public androidx.wear.compose.material3.DurationPickerSelection Hours;
+    property public androidx.wear.compose.material3.DurationPickerSelection Minutes;
+    property public androidx.wear.compose.material3.DurationPickerSelection None;
+    property public androidx.wear.compose.material3.DurationPickerSelection Seconds;
+  }
+
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class DurationPickerType {
+    method @BytecodeOnly public static androidx.wear.compose.material3.DurationPickerType! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.wear.compose.material3.DurationPickerType.Companion Companion;
+  }
+
+  public static final class DurationPickerType.Companion {
+    method @BytecodeOnly public int getHoursMinutes-hiz9cVU();
+    method @BytecodeOnly public int getHoursMinutesSeconds-hiz9cVU();
+    method @BytecodeOnly public int getMinutesSeconds-hiz9cVU();
+    property public androidx.wear.compose.material3.DurationPickerType HoursMinutes;
+    property public androidx.wear.compose.material3.DurationPickerType HoursMinutesSeconds;
+    property public androidx.wear.compose.material3.DurationPickerType MinutesSeconds;
+  }
+
   public final class DynamicColorSchemeKt {
     method public static androidx.wear.compose.material3.ColorScheme? dynamicColorScheme(android.content.Context context);
   }
@@ -1204,8 +1280,10 @@ package androidx.wear.compose.material3 {
 
   public final class PickerGroupScope {
     ctor public PickerGroupScope();
+    method @KotlinOnly @androidx.compose.runtime.Composable public void PickerGroupItem(androidx.wear.compose.material3.PickerState pickerState, boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, androidx.compose.ui.graphics.Color gradientColor, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<java.lang.String>? contentDescription, optional androidx.compose.ui.focus.FocusRequester? focusRequester, optional kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? readOnlyLabel, optional androidx.compose.ui.unit.Dp verticalSpacing, kotlin.jvm.functions.Function3<androidx.wear.compose.material3.PickerScope,java.lang.Integer,java.lang.Boolean,kotlin.Unit> option);
     method @KotlinOnly @androidx.compose.runtime.Composable public void PickerGroupItem(androidx.wear.compose.material3.PickerState pickerState, boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<java.lang.String>? contentDescription, optional androidx.compose.ui.focus.FocusRequester? focusRequester, optional kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? readOnlyLabel, optional androidx.compose.ui.unit.Dp verticalSpacing, kotlin.jvm.functions.Function3<androidx.wear.compose.material3.PickerScope,java.lang.Integer,java.lang.Boolean,kotlin.Unit> option);
     method @BytecodeOnly @androidx.compose.runtime.Composable public void PickerGroupItem-gMrHQkA(androidx.wear.compose.material3.PickerState, boolean, kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.ui.Modifier?, kotlin.jvm.functions.Function0<java.lang.String!>?, androidx.compose.ui.focus.FocusRequester?, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.layout.BoxScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, float, kotlin.jvm.functions.Function5<? super androidx.wear.compose.material3.PickerScope!,? super java.lang.Integer!,? super java.lang.Boolean!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public void PickerGroupItem-q3Pt5Cg(androidx.wear.compose.material3.PickerState, boolean, kotlin.jvm.functions.Function0<kotlin.Unit!>, long, androidx.compose.ui.Modifier?, kotlin.jvm.functions.Function0<java.lang.String!>?, androidx.compose.ui.focus.FocusRequester?, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.layout.BoxScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, float, kotlin.jvm.functions.Function5<? super androidx.wear.compose.material3.PickerScope!,? super java.lang.Integer!,? super java.lang.Boolean!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int, int);
   }
 
   public final class PickerKt {
@@ -2396,11 +2474,11 @@ package androidx.wear.compose.material3 {
     method @BytecodeOnly public int getHoursMinutes24H-5KJDQV4();
     method @BytecodeOnly public int getHoursMinutesAmPm12H-5KJDQV4();
     method @BytecodeOnly public int getHoursMinutesSeconds24H-5KJDQV4();
-    method @BytecodeOnly public int getMinutesSeconds-5KJDQV4();
+    method @BytecodeOnly @Deprecated public int getMinutesSeconds-5KJDQV4();
     property public androidx.wear.compose.material3.TimePickerType HoursMinutes24H;
     property public androidx.wear.compose.material3.TimePickerType HoursMinutesAmPm12H;
     property public androidx.wear.compose.material3.TimePickerType HoursMinutesSeconds24H;
-    property public androidx.wear.compose.material3.TimePickerType MinutesSeconds;
+    property @Deprecated public androidx.wear.compose.material3.TimePickerType MinutesSeconds;
   }
 
   public interface TimeSource {
