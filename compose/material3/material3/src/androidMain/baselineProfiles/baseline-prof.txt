@@ -27,6 +27,4 @@ HSPLandroidx/compose/material3/ShapeTokens;->**(**)**
 HSPLandroidx/compose/material3/TypographyTokens;->**(**)**
 HSPLandroidx/compose/material3/ColorResourceHelper;->**(**)**
 HSPLandroidx/compose/material3/DynamicTonalPaletteKt;->**(**)**
-HSPLandroidx/compose/material3/internal/colorUtil/Cam**->**(**)**
-HSPLandroidx/compose/material3/internal/colorUtil/Frame**->**(**)**
-HSPLandroidx/compose/material3/internal/colorUtil/HctSolver;->**(**)**
+HSPLandroidx/compose/material3/internal/colorUtil/**->**(**)**

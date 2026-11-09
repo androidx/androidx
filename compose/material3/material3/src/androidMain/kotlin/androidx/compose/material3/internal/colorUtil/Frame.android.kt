@@ -16,8 +16,6 @@
 
 package androidx.compose.material3.internal.colorUtil
 
-import androidx.annotation.VisibleForTesting
-import androidx.compose.material3.internal.colorUtil.CamUtils.yFromLstar
 import kotlin.math.PI
 import kotlin.math.cbrt
 import kotlin.math.exp
@@ -25,11 +23,6 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 
 /**
- * NOTICE: Fork and kotlin transpilation of
- * frameworks/base/core/java/com/android/internal/graphics/cam/Frame.java Manual changes have not
- * and should not be implemented except for compilation purposes between kotlin and java. Unused
- * methods were also removed.
- *
  * The frame, or viewing conditions, where a color was seen. Used, along with a color, to create a
  * color appearance model representing the color.
  *
@@ -40,18 +33,21 @@ import kotlin.math.sqrt
  * This class is modelled separately from the color appearance model itself because there are a
  * number of calculations during the color => CAM conversion process that depend only on the viewing
  * conditions. Caching those calculations in a Frame instance saves a significant amount of time.
+ *
+ * Ported from frameworks/base/core/java/com/android/internal/graphics/cam/Frame.java, keeping only
+ * what Material uses. The results must stay identical to that implementation's Kotlin port:
+ * ColorUtilTest checks them.
  */
 internal class Frame
 private constructor(
-    @get:VisibleForTesting val n: Float,
-    @get:VisibleForTesting val aw: Float,
-    @get:VisibleForTesting val nbb: Float,
+    val n: Float,
+    val aw: Float,
+    val nbb: Float,
     val ncb: Float,
     val c: Float,
     val nc: Float,
-    @get:VisibleForTesting val rgbD: FloatArray,
+    val rgbD: FloatArray,
     val fl: Float,
-    @get:VisibleForTesting val flRoot: Float,
     val z: Float,
 ) {
     companion object {
@@ -79,7 +75,7 @@ private constructor(
         // Discounting illuminant = false, doesn't occur for self-luminous displays
         val Default: Frame =
             make(
-                CamUtils.WHITE_POINT_D65,
+                WHITE_POINT_D65,
                 (200.0f / PI * yFromLstar(50.0) / 100.0).toFloat(),
                 50.0f,
                 2.0f,
@@ -87,7 +83,7 @@ private constructor(
             )
 
         /** Create a custom frame. */
-        fun make(
+        private fun make(
             whitepoint: FloatArray,
             adaptingLuminance: Float,
             backgroundLstar: Float,
@@ -95,19 +91,19 @@ private constructor(
             discountingIlluminant: Boolean,
         ): Frame {
             // Transform white point XYZ to 'cone'/'rgb' responses
-            val matrix = CamUtils.XYZ_TO_CAM16RGB
+            val matrix = XYZ_TO_CAM16RGB
             val rW =
-                (whitepoint[0] * matrix[0][0]) +
-                    (whitepoint[1] * matrix[0][1]) +
-                    (whitepoint[2] * matrix[0][2])
+                (whitepoint[0] * matrix[0]) +
+                    (whitepoint[1] * matrix[1]) +
+                    (whitepoint[2] * matrix[2])
             val gW =
-                (whitepoint[0] * matrix[1][0]) +
-                    (whitepoint[1] * matrix[1][1]) +
-                    (whitepoint[2] * matrix[1][2])
+                (whitepoint[0] * matrix[3]) +
+                    (whitepoint[1] * matrix[4]) +
+                    (whitepoint[2] * matrix[5])
             val bW =
-                (whitepoint[0] * matrix[2][0]) +
-                    (whitepoint[1] * matrix[2][1]) +
-                    (whitepoint[2] * matrix[2][2])
+                (whitepoint[0] * matrix[6]) +
+                    (whitepoint[1] * matrix[7]) +
+                    (whitepoint[2] * matrix[8])
 
             // Scale input surround, domain (0, 2), to CAM16 surround, domain (0.8, 1.0)
             val f = 0.8f + (surround / 10.0f)
@@ -164,23 +160,16 @@ private constructor(
 
             // Discounted cone responses to the white point, adjusted for post-chromatic adaptation
             // perceptual nonlinearities.
-            val rgbAFactors =
-                floatArrayOf(
-                    (fl * rgbD[0] * rW / 100f).pow(0.42f),
-                    (fl * rgbD[1] * gW / 100f).pow(0.42f),
-                    (fl * rgbD[2] * bW / 100f).pow(0.42f),
-                )
+            val rAFactor = (fl * rgbD[0] * rW / 100f).pow(0.42f)
+            val gAFactor = (fl * rgbD[1] * gW / 100f).pow(0.42f)
+            val bAFactor = (fl * rgbD[2] * bW / 100f).pow(0.42f)
+            val rA = (400.0f * rAFactor) / (rAFactor + 27.13f)
+            val gA = (400.0f * gAFactor) / (gAFactor + 27.13f)
+            val bA = (400.0f * bAFactor) / (bAFactor + 27.13f)
 
-            val rgbA =
-                floatArrayOf(
-                    (400.0f * rgbAFactors[0]) / (rgbAFactors[0] + 27.13f),
-                    (400.0f * rgbAFactors[1]) / (rgbAFactors[1] + 27.13f),
-                    (400.0f * rgbAFactors[2]) / (rgbAFactors[2] + 27.13f),
-                )
+            val aw = ((2.0f * rA) + gA + (0.05f * bA)) * nbb
 
-            val aw = ((2.0f * rgbA[0]) + rgbA[1] + (0.05f * rgbA[2])) * nbb
-
-            return Frame(n, aw, nbb, nbb, c, nc, rgbD, fl, fl.pow(0.25f), z)
+            return Frame(n, aw, nbb, nbb, c, nc, rgbD, fl, z)
         }
     }
 }

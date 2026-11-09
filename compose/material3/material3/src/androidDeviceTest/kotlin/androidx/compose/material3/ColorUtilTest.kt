@@ -17,15 +17,21 @@
 package androidx.compose.material3
 
 import androidx.compose.material3.internal.colorUtil.Cam
-import androidx.compose.material3.internal.colorUtil.CamUtils.lstarFromInt
-import androidx.compose.material3.internal.colorUtil.CamUtils.yFromLstar
 import androidx.compose.material3.internal.colorUtil.Frame
+import androidx.compose.material3.internal.colorUtil.SRGB_TO_XYZ
+import androidx.compose.material3.internal.colorUtil.linearized
+import androidx.compose.material3.internal.colorUtil.yFromLstar
 import androidx.compose.material3.tokens.ColorLightTokens
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.core.graphics.blue
+import androidx.core.graphics.green
+import androidx.core.graphics.red
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
+import kotlin.math.cbrt
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -192,51 +198,36 @@ class ColorUtilTest {
     @Test
     fun camFromRed() {
         val cam: Cam = Cam.fromInt(RED)
-        assertEquals(46.445f, cam.j, 0.001f)
         assertEquals(113.357f, cam.chroma, 0.001f)
         assertEquals(27.408f, cam.hue, 0.001f)
-        assertEquals(89.494f, cam.m, 0.001f)
-        assertEquals(91.889f, cam.s, 0.001f)
     }
 
     @Test
     fun camFromGreen() {
         val cam: Cam = Cam.fromInt(GREEN)
-        assertEquals(79.331f, cam.j, 0.001f)
         assertEquals(108.410f, cam.chroma, 0.001f)
         assertEquals(142.139f, cam.hue, 0.001f)
-        assertEquals(85.587f, cam.m, 0.001f)
-        assertEquals(78.604f, cam.s, 0.001f)
     }
 
     @Test
     fun camFromBlue() {
         val cam: Cam = Cam.fromInt(BLUE)
-        assertEquals(25.465f, cam.j, 0.001f)
         assertEquals(87.230f, cam.chroma, 0.001f)
         assertEquals(282.788f, cam.hue, 0.001f)
-        assertEquals(68.867f, cam.m, 0.001f)
-        assertEquals(93.674f, cam.s, 0.001f)
     }
 
     @Test
     fun camFromBlack() {
         val cam: Cam = Cam.fromInt(BLACK)
-        assertEquals(0.0f, cam.j, 0.001f)
         assertEquals(0.0f, cam.chroma, 0.001f)
         assertEquals(0.0f, cam.hue, 0.001f)
-        assertEquals(0.0f, cam.m, 0.001f)
-        assertEquals(0.0f, cam.s, 0.001f)
     }
 
     @Test
     fun camFromWhite() {
         val cam: Cam = Cam.fromInt(WHITE)
-        assertEquals(100.0f, cam.j, 0.001f)
         assertEquals(2.869f, cam.chroma, 0.001f)
         assertEquals(209.492f, cam.hue, 0.001f)
-        assertEquals(2.265f, cam.m, 0.001f)
-        assertEquals(12.068f, cam.s, 0.001f)
     }
 
     @Test
@@ -300,25 +291,6 @@ class ColorUtilTest {
     }
 
     @Test
-    fun ucsCoordinates() {
-        val cam: Cam = Cam.fromInt(RED)
-
-        assertEquals(59.584f, cam.jstar, 0.001f)
-        assertEquals(43.297f, cam.astar, 0.001f)
-        assertEquals(22.451f, cam.bstar, 0.001f)
-    }
-
-    @Test
-    fun deltaEWhiteToBlack() {
-        assertEquals(25.661f, Cam.fromInt(WHITE).distance(Cam.fromInt(BLACK)), 0.001f)
-    }
-
-    @Test
-    fun deltaERedToBlue() {
-        assertEquals(21.415f, Cam.fromInt(RED).distance(Cam.fromInt(BLUE)), 0.001f)
-    }
-
-    @Test
     fun viewingConditions_default() {
         val vc = Frame.Default
 
@@ -328,7 +300,54 @@ class ColorUtilTest {
         assertEquals(1.021f, vc.rgbD[0], 0.001f)
         assertEquals(0.986f, vc.rgbD[1], 0.001f)
         assertEquals(0.933f, vc.rgbD[2], 0.001f)
-        assertEquals(0.789f, vc.flRoot, 0.001f)
+    }
+
+    @Test
+    fun generatedTones_matchGoldenValues() {
+        // Tones generated from key colors the way the SDK 31-33 dynamic color schemes generate the
+        // neutral variant tones missing from the system palette, computed with the original port of
+        // the color math. Changes to the color math must not change them.
+        val tones = floatArrayOf(98f, 96f, 94f, 92f, 87f, 24f, 22f, 17f, 12f, 6f, 4f)
+        val expectedTones =
+            mapOf(
+                // Low chroma key colors, like the system neutral variant tone 40.
+                0xFF6A5B5E to
+                    "FFF8F8 FFF0F2 FEE9EC F8E3E7 E9D5D8 433639 3E3134 33272A 281D1F 1B1113 150B0E",
+                0xFF6B5B54 to
+                    "FFF8F6 FFF1EB FFEAE1 FAE4DA EBD6CD 443630 3F322C 342721 291D18 1B110C 160C07",
+                0xFF655E4F to
+                    "FFF8F1 FDF2DF F8EDD9 F2E7D4 E3D9C6 3E392B 3A3427 2F291D 241F13 171308 120E04",
+                0xFF5B6055 to
+                    "F7FBED F1F5E7 EBF0E1 E5EADC D7DCCE 363B31 31362D 272B22 1C2118 10150D 0B0F08",
+                0xFF57605D to
+                    "F2FBF7 ECF6F1 E7F0EC E1EAE6 D3DCD8 323B38 2E3734 232C29 19211F 0D1513 08100E",
+                0xFF576064 to
+                    "F2FBFF ECF5FA E6EFF4 E0EAEE D2DBE0 323B3E 2D363A 232B2F 182124 0C1518 070F13",
+                0xFF5C5E67 to
+                    "FAF8FF F2F3FE ECEDF8 E7E7F2 D8D9E4 373941 32343D 272A32 1D1F27 11131A 0B0E15",
+                0xFF635C65 to
+                    "FFF7FD FBF0FB F5EBF5 EFE5F0 E1D7E2 3D373F 39333B 2D2830 231E25 161219 110D14",
+                // Saturated key colors, which need gamut mapping for some tones.
+                0xFFFF0000 to
+                    "FFF8F6 FFF0EE FFE9E6 FFE2DD FFCFC7 790100 710100 5C0000 490000 310000 270000",
+                0xFF00FF00 to
+                    "EDFFE1 D7FFC6 BDFFA9 9FFF88 00FD00 014400 013F00 013200 002600 001800 001200",
+                0xFF0000FF to
+                    "FBF8FF F5F2FF EEECFF E7E6FF D6D7FF 0001C6 0001B9 000199 00007A 000055 000046",
+                0xFFFFFF00 to
+                    "FFFEAC FCFC00 F6F600 F0F000 E1E100 3B3B00 373700 2C2C00 212100 141400 0F0F00",
+                0xFF6750A4 to
+                    "FDF7FF F8F1FF F3EAFF EEE4FF E1D3FF 41287B 3C2377 31166B 260661 190048 13003A",
+            )
+        expectedTones.forEach { (keyColor, expected) ->
+            val cam = Cam.fromInt(keyColor.toInt())
+            assertWithMessage("Tones of %08X".format(keyColor))
+                .that(tones.map { Color(Cam.getInt(cam.hue, cam.chroma, it)) })
+                .containsExactlyElementsIn(
+                    expected.split(" ").map { Color(0xFF000000 or it.toLong(16)) }
+                )
+                .inOrder()
+        }
     }
 
     @Test
@@ -416,4 +435,19 @@ class ColorUtilTest {
 private fun Color.setLuminance(newLuminance: Float): Color {
     val cam = Cam.fromInt(toArgb())
     return Color(Cam.getInt(cam.hue, cam.chroma, newLuminance))
+}
+
+/** Returns L* from L*a*b*, perceptual luminance, from an ARGB integer (ColorInt). */
+private fun lstarFromInt(argb: Int): Float {
+    val matrix = SRGB_TO_XYZ
+    val y =
+        (linearized(argb.red) * matrix[3]) +
+            (linearized(argb.green) * matrix[4]) +
+            (linearized(argb.blue) * matrix[5])
+    val yNormalized = y.toFloat() / 100.0f
+    return if (yNormalized <= 216f / 24389f) {
+        (24389f / 27f) * yNormalized
+    } else {
+        116f * cbrt(yNormalized.toDouble()).toFloat() - 16f
+    }
 }
