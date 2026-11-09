@@ -17,6 +17,7 @@
 package androidx.camera.core.internal.compat.workaround;
 
 import androidx.camera.core.UseCase;
+import androidx.camera.core.internal.compat.quirk.AbnormalStreamWhenHlg10WithStabilizationQuirk;
 import androidx.camera.core.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.core.internal.compat.quirk.ImageCaptureFailedForSpecificCombinationQuirk;
 import androidx.camera.core.internal.compat.quirk.PreviewGreenTintQuirk;
@@ -31,6 +32,7 @@ import java.util.Collection;
  *
  * @see ImageCaptureFailedForSpecificCombinationQuirk
  * @see PreviewGreenTintQuirk
+ * @see AbnormalStreamWhenHlg10WithStabilizationQuirk
  */
 public class StreamSharingForceEnabler {
     private final @Nullable ImageCaptureFailedForSpecificCombinationQuirk
@@ -39,6 +41,10 @@ public class StreamSharingForceEnabler {
 
     private final @Nullable PreviewGreenTintQuirk mPreviewGreenTintQuirk =
             DeviceQuirks.get(PreviewGreenTintQuirk.class);
+
+    private final @Nullable AbnormalStreamWhenHlg10WithStabilizationQuirk
+            mHlg10WithStabilizationQuirk =
+            DeviceQuirks.get(AbnormalStreamWhenHlg10WithStabilizationQuirk.class);
 
     /**
      * Returns whether stream sharing should be forced enabled.
@@ -50,6 +56,9 @@ public class StreamSharingForceEnabler {
         }
         if (mPreviewGreenTintQuirk != null) {
             return mPreviewGreenTintQuirk.shouldForceEnableStreamSharing(cameraId, appUseCases);
+        }
+        if (mHlg10WithStabilizationQuirk != null) {
+            return mHlg10WithStabilizationQuirk.shouldForceEnableStreamSharing(appUseCases);
         }
 
         return false;

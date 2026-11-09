@@ -79,6 +79,10 @@ public class DeviceQuirksLoader {
                 FastSessionSwitchDisablerQuirk.load())) {
             quirks.add(new FastSessionSwitchDisablerQuirk());
         }
+        if (quirkSettings.shouldEnableQuirk(AbnormalStreamWhenHlg10WithStabilizationQuirk.class,
+                AbnormalStreamWhenHlg10WithStabilizationQuirk.load())) {
+            quirks.add(AbnormalStreamWhenHlg10WithStabilizationQuirk.INSTANCE);
+        }
 
         return quirks;
     }
