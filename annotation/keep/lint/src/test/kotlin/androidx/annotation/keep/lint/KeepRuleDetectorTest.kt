@@ -4130,6 +4130,62 @@ class KeepRuleDetectorTest {
             .run()
             .expectClean()
     }
+
+    @Test
+    fun testGenericClassConstantInAnnotation() {
+        lint()
+            .issues(KeepRuleDetector.ISSUE)
+            .files(
+                kotlin(
+                        """
+                    package test.pkg
+
+                    import androidx.annotation.keep.UsesReflectionToConstruct
+
+                    interface EntryProvider<K>
+
+                    class DynamicEntryLoader<T : Any> {
+                        @Suppress("UNCHECKED_CAST")
+                        @UsesReflectionToConstruct(
+                            classConstant = EntryProvider::class,
+                            parameterTypes = [],
+                        )
+                        fun initializeAnnotated(className: String): EntryProvider<T> {
+                            return Class.forName(className).getConstructor().newInstance()
+                                as EntryProvider<T>
+                        }
+
+                        @Suppress("UNCHECKED_CAST")
+                        fun initializeUnannotated(className: String): EntryProvider<T> {
+                            return Class.forName(className).getConstructor().newInstance()
+                                as EntryProvider<T>
+                        }
+                    }
+                    """
+                    )
+                    .indented(),
+                *usesReflectionStubs,
+            )
+            .run()
+            .expect(
+                """
+                src/test/pkg/EntryProvider.kt:20: Error: This method calls test.pkg.EntryProvider.<init>() reflectively, so it should be annotated with @UsesReflectionToConstruct(...) [ReflectionWithoutKeepAnnotations]
+                        return Class.forName(className).getConstructor().newInstance()
+                                                                         ~~~~~~~~~~~
+                1 error
+                """
+            )
+            .expectFixDiffs(
+                """
+                Autofix for src/test/pkg/EntryProvider.kt line 20: Annotate with @UsesReflectionToConstruct:
+                @@ -17,0 +18,4 @@
+                +    @UsesReflectionToConstruct(
+                +        classConstant = EntryProvider::class,
+                +        parameterTypes = []
+                +    )
+                """
+            )
+    }
 }
 
 val usesReflectionStubs: Array<TestFile> =
