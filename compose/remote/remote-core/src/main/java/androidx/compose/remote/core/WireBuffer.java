@@ -49,6 +49,29 @@ public class WireBuffer {
         this(Limits.BUFFER_SIZE);
     }
 
+    /**
+     * Create a wire buffer wrapping an existing byte array without copying.
+     *
+     * @param buffer the byte array to wrap
+     * @param size the size of valid data in the buffer
+     */
+    public WireBuffer(byte @NonNull [] buffer, int size) {
+        mBuffer = buffer;
+        mMaxSize = buffer.length;
+        mSize = size;
+        Arrays.fill(mValidOperations, true);
+    }
+
+    /**
+     * Wrap an existing byte array into a {@link WireBuffer} without copying.
+     *
+     * @param bytes the byte array to wrap
+     * @return a {@link WireBuffer} wrapping {@code bytes}
+     */
+    public static @NonNull WireBuffer wrap(byte @NonNull [] bytes) {
+        return new WireBuffer(bytes, bytes.length);
+    }
+
     private void resize(int need) {
         if (mSize + need >= mMaxSize) {
             mMaxSize = Math.max(mMaxSize * 2, mSize + need);
