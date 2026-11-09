@@ -21,9 +21,13 @@ import static androidx.heifwriter.HeifWriter.INPUT_MODE_BUFFER;
 import static androidx.heifwriter.HeifWriter.INPUT_MODE_SURFACE;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 
+import static org.junit.Assert.assertTrue;
+
 import android.Manifest;
 import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
+import android.media.MediaCodecInfo;
+import android.media.MediaCodecList;
 import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -66,6 +70,8 @@ public class HeifWriterTest extends TestBase {
 
     private static final boolean DEBUG = true;
     private static final boolean DUMP_YUV_INPUT = false;
+    private static final int GRID_WIDTH = 512;
+    private static final int GRID_HEIGHT = 512;
 
     private static final String HEIFWRITER_INPUT = "heifwriter_input.heic";
     private static final int[] IMAGE_RESOURCES = new int[] {
@@ -270,6 +276,46 @@ public class HeifWriterTest extends TestBase {
             .build();
 
         heifWriter.close();
+    }
+
+    /**
+     * This test is to ensure that if the device advertises support for {@link
+     * MediaFormat#MIMETYPE_IMAGE_ANDROID_HEIC} (which encodes full-frame image
+     * with tiling), it must also support {@link MediaFormat#MIMETYPE_VIDEO_HEVC}
+     * at a specific tile size (512x512) with bitrate control mode {@link
+     * MediaCodecInfo.EncoderCapabilities#BITRATE_MODE_CQ}, so that a fallback
+     * could be implemented for image resolutions that's not supported by the
+     * {@link MediaFormat#MIMETYPE_IMAGE_ANDROID_HEIC} encoder.
+     */
+    @Test
+    @SmallTest
+    public void testHeicFallbackAvailable() throws Throwable {
+        if (!hasEncoderForMime(MediaFormat.MIMETYPE_IMAGE_ANDROID_HEIC)) {
+            return;
+        }
+
+        final MediaCodecList mcl = new MediaCodecList(MediaCodecList.REGULAR_CODECS);
+
+        boolean fallbackFound = false;
+        for (MediaCodecInfo info : mcl.getCodecInfos()) {
+            if (!info.isEncoder() || !info.isHardwareAccelerated()) {
+                continue;
+            }
+            MediaCodecInfo.CodecCapabilities caps = null;
+            try {
+                caps = info.getCapabilitiesForType(MediaFormat.MIMETYPE_VIDEO_HEVC);
+            } catch (IllegalArgumentException e) { // mime is not supported
+                continue;
+            }
+            if (caps.getVideoCapabilities().isSizeSupported(GRID_WIDTH, GRID_HEIGHT)
+                    && caps.getEncoderCapabilities().isBitrateModeSupported(
+                            MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CQ)) {
+                fallbackFound = true;
+                Log.d(TAG, "found fallback on " + info.getName());
+                // not breaking here so that we can log what's available by running this test
+            }
+        }
+        assertTrue("HEIC full-frame image encoder without HEVC fallback", fallbackFound);
     }
 
     @Test
