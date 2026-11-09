@@ -97,11 +97,13 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@OptIn(ExperimentalFoundationApi::class)
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class BasicTextLinkTest {
@@ -316,6 +318,85 @@ class BasicTextLinkTest {
         }
 
         rule.runOnIdle { assertThat(openedUri).isEqualTo(null) }
+    }
+
+    @Test
+    fun singleBidiLinkAtLineStart_inRtlParagraph_onClick_opensUrlOnlyInsideLink() {
+        assumeTrue(ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled)
+        setupContent {
+            val text = buildAnnotatedString {
+                append("\u05D0\n")
+                withLink(Url(Url1)) { append("link") }
+                append(" \u05D0\u05D1\u05D2\u05D3")
+            }
+            BasicText(
+                text = text,
+                style = TextStyle(fontSize = 50.sp),
+                onTextLayout = { layoutResult = it },
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(layoutResult).isNotNull()
+            assertThat(layoutResult!!.getLineStart(1)).isEqualTo(2)
+        }
+        val textNode = rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text))
+        textNode.performTouchInput { click(layoutResult!!.getBoundingBox(8).center) }
+        rule.runOnIdle { assertThat(openedUri).isNull() }
+
+        textNode.performTouchInput { click(layoutResult!!.getBoundingBox(3).center) }
+        rule.runOnIdle { assertThat(openedUri).isEqualTo(Url1) }
+    }
+
+    @Test
+    fun singleLineLink_endingAtSoftLineBreak_onClick_opensUrlOnlyInsideLink() {
+        assumeTrue(ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled)
+        setupContent {
+            with(rule.density) {
+                val localFontSize = 50.sp
+                val text = buildAnnotatedString {
+                    append("aaa ")
+                    withLink(Url(Url1)) { append("bbb ") }
+                    append("ccc")
+                }
+                BasicText(
+                    text = text,
+                    modifier = Modifier.width((localFontSize * 10).toDp()),
+                    style = TextStyle(fontSize = localFontSize, fontFamily = TEST_FONT_FAMILY),
+                    onTextLayout = { layoutResult = it },
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(layoutResult).isNotNull()
+            assertThat(layoutResult!!.lineCount).isEqualTo(2)
+            assertThat(layoutResult!!.getLineEnd(0)).isEqualTo(8)
+        }
+        val textNode = rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text))
+        textNode.performTouchInput { click(layoutResult!!.getBoundingBox(1).center) }
+        rule.runOnIdle { assertThat(openedUri).isNull() }
+
+        textNode.performTouchInput { click(layoutResult!!.getBoundingBox(5).center) }
+        rule.runOnIdle { assertThat(openedUri).isEqualTo(Url1) }
+    }
+
+    @Test
+    fun mixedBidiLink_onClick_visuallyLeftmostCharacter_opensUrl() {
+        assumeTrue(ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled)
+        setupContent { MixedBidiTextWithLink() }
+
+        rule.runOnIdle { assertThat(layoutResult).isNotNull() }
+        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text)).performTouchInput {
+            val text = layoutResult!!.layoutInput.text
+            val link = text.getLinkAnnotations(0, text.length).single()
+            // the link starts with two right-to-left characters displayed in reverse order, so its
+            // second character is its visually leftmost one
+            val boundingBox = layoutResult!!.getBoundingBox(link.start + 1)
+            click(boundingBox.center)
+        }
+
+        rule.runOnIdle { assertThat(openedUri).isEqualTo(Url1) }
     }
 
     @Test
@@ -1128,6 +1209,25 @@ class BasicTextLinkTest {
             append("\u05D0\u05D1 \u05D2\u05D3 \u05D0\u05D1 \u05D2\u05D3")
         }
         BasicText(text, onTextLayout = { layoutResult = it })
+    }
+
+    /**
+     * Left-to-right text with a link that starts and ends with two right-to-left characters. The
+     * right-to-left runs are displayed in reverse order, so the visual extremes of the link are its
+     * second and its second to last characters rather than its first and its last ones.
+     */
+    @Composable
+    private fun MixedBidiTextWithLink() {
+        val text = buildAnnotatedString {
+            append("xyz ")
+            withLink(Url(Url1)) { append("\u05D0\u05D1 mixed text \u05D2\u05D3") }
+            append(" xyz")
+        }
+        BasicText(
+            text,
+            style = TextStyle(fontSize = fontSize),
+            onTextLayout = { layoutResult = it },
+        )
     }
 
     @Composable
