@@ -116,10 +116,9 @@ class UiErrorTraceTests(private val lookahead: Boolean) {
         var drawn = false
         val traceContext = rule.testContent {
             val drawModifier = Modifier.drawBehind {
-                try {
-                    throwTestException()
-                } finally {
+                if (!drawn) {
                     drawn = true
+                    throwTestException()
                 }
             }
             Box(Modifier.size(10.dp).then(drawModifier))
