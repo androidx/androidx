@@ -229,7 +229,7 @@ internal class MyDao_Impl(
     }
     val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT `c1`, `c2`, `c3`, `c4` FROM `Child`")
-    _stringBuilder.append(" WHERE (`c1`, `c2`, `c3`, `c4`) IN (")
+    _stringBuilder.append(" WHERE (`c1`, `c2`, `c3`, `c4`) IN (VALUES ")
     appendRowValuePlaceholders(_stringBuilder, __mapKeySet.size, 4)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
@@ -303,7 +303,7 @@ internal class MyDao_Impl(
     }
     val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT `c1`, `c2`, `c3`, `c4` FROM `Child`")
-    _stringBuilder.append(" WHERE (`c1`, `c2`, `c3`, `c4`) IN (")
+    _stringBuilder.append(" WHERE (`c1`, `c2`, `c3`, `c4`) IN (VALUES ")
     appendRowValuePlaceholders(_stringBuilder, __mapKeySet.size, 4)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
@@ -378,7 +378,7 @@ internal class MyDao_Impl(
     }
     val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT `Child`.`c1` AS `c1`, `Child`.`c2` AS `c2`, `Child`.`c3` AS `c3`, `Child`.`c4` AS `c4`, _junction.`pk1`, _junction.`pk2`, _junction.`pk3`, _junction.`pk4` FROM `ParentChildXRef` AS _junction INNER JOIN `Child` ON _junction.`ck1` = `Child`.`c1` AND _junction.`ck2` = `Child`.`c2` AND _junction.`ck3` = `Child`.`c3` AND _junction.`ck4` = `Child`.`c4`")
-    _stringBuilder.append(" WHERE (_junction.`pk1`, _junction.`pk2`, _junction.`pk3`, _junction.`pk4`) IN (")
+    _stringBuilder.append(" WHERE (_junction.`pk1`, _junction.`pk2`, _junction.`pk3`, _junction.`pk4`) IN (VALUES ")
     appendRowValuePlaceholders(_stringBuilder, __mapKeySet.size, 4)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
