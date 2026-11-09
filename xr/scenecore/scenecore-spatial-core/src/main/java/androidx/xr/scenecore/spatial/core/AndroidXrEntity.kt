@@ -294,19 +294,18 @@ public abstract class AndroidXrEntity(
     /** Dispatches an event to the active pointer capture listener. */
     private fun dispatchCapturedPointerEvent(xrInputEvent: InputEvent) {
         pointerCaptureInputEventListener.ifPresent { listener ->
+            val runtimeEvent = RuntimeUtils.getInputEvent(xrInputEvent, sceneNodeRegistry)
             val executor = pointerCaptureExecutor.orElse(scheduledExecutor)
-            executor.execute {
-                listener.onInputEvent(RuntimeUtils.getInputEvent(xrInputEvent, sceneNodeRegistry))
-            }
+            executor.execute { listener.onInputEvent(runtimeEvent) }
         }
     }
 
     /** Dispatches an event to all standard input listeners. */
     private fun dispatchStandardEvent(xrInputEvent: InputEvent) {
+        if (inputEventListenerMap.isEmpty()) return
+        val runtimeEvent = RuntimeUtils.getInputEvent(xrInputEvent, sceneNodeRegistry)
         inputEventListenerMap.forEach { (listener, executor) ->
-            executor.execute {
-                listener.onInputEvent(RuntimeUtils.getInputEvent(xrInputEvent, sceneNodeRegistry))
-            }
+            executor.execute { listener.onInputEvent(runtimeEvent) }
         }
     }
 

@@ -745,28 +745,33 @@ class RuntimeUtilsTest {
     }
 
     @Test
-    fun getInputEvent_appliesActivitySpaceScale() {
+    fun getInputEvent_appliesOriginCompensationScaleAndRotation() {
         val sceneNodeRegistry = SceneNodeRegistry()
         val sceneRuntime = createSceneRuntime(sceneNodeRegistry)
         val activitySpace = sceneRuntime.activitySpace as ActivitySpaceImpl
         val scaleFactor = 2.0f
-        activitySpace.originCompensation.set(OriginCompensation(scaleFactor, Quaternion.Identity))
+        activitySpace.originCompensation.set(
+            OriginCompensation(scaleFactor, Quaternion.fromEulerAngles(0f, 90f, 0f))
+        )
 
         val xrInputEvent =
             ShadowInputEvent.create(
                 InputEvent.SOURCE_UNKNOWN,
                 InputEvent.POINTER_TYPE_DEFAULT,
                 1000L,
-                Vec3(1f, 1f, 1f),
-                Vec3(0f, 0f, 1f),
+                Vec3(1f, 2f, 3f),
+                Vec3(2f, 0f, 0f),
                 InputEvent.DISPATCH_FLAG_NONE,
                 InputEvent.ACTION_MOVE,
             )
 
         val inputEvent = RuntimeUtils.getInputEvent(xrInputEvent, sceneNodeRegistry)
 
-        assertVector3(inputEvent.origin, Vector3(scaleFactor, scaleFactor, scaleFactor))
-        assertVector3(inputEvent.direction, Vector3(0f, 0f, scaleFactor))
+        // Inverse rotation (-90 deg yaw) on (1, 2, 3) -> (-3, 2, 1), scaled by 2 -> (-6, 4, 2)
+        assertVector3(inputEvent.origin, Vector3(-6f, 4f, 2f))
+        // Direction is inverse rotated and normalized to unit length -> (0, 0, 1)
+        assertVector3(inputEvent.direction, Vector3(0f, 0f, 1f))
+        Truth.assertThat(inputEvent.direction.length).isWithin(1e-5f).of(1.0f)
     }
 
     @Test
@@ -787,6 +792,135 @@ class RuntimeUtilsTest {
 
         Truth.assertThat(hitInfo).isNotNull()
         assertVector3(hitInfo!!.hitPosition!!, Vector3(scaleFactor, scaleFactor, scaleFactor))
+    }
+
+    @Test
+    fun getHitInfo_composesTransformWithCompensation() {
+        val sceneNodeRegistry = SceneNodeRegistry()
+        val sceneRuntime = createSceneRuntime(sceneNodeRegistry)
+        val activitySpace = sceneRuntime.activitySpace as ActivitySpaceImpl
+        val compensation = OriginCompensation(2f, Quaternion.fromEulerAngles(0f, 90f, 0f))
+        activitySpace.originCompensation.set(compensation)
+
+        val testEntity = sceneRuntime.createEntity(Pose(), "testEntity", activitySpace)
+        val testNode = (testEntity as AndroidXrEntity).getNode()
+
+        val rawTransform = Matrix4.fromTranslation(Vector3(10f, 0f, 0f))
+        val xrHitInfo = InputEvent.HitInfo(1, testNode, Mat4f(rawTransform.data), Vec3(1f, 2f, 3f))
+
+        val hitInfo = RuntimeUtils.getHitInfo(xrHitInfo, sceneNodeRegistry)
+
+        Truth.assertThat(hitInfo).isNotNull()
+        // Hit position transformed to activity space (90 deg yaw + scale 2 => (-6, 4, 2))
+        assertVector3(hitInfo!!.hitPosition!!, Vector3(-6f, 4f, 2f))
+        // Transform composed with activity space compensation
+        val expectedTransform =
+            Matrix4.fromTrs(
+                Vector3(10f, 0f, 0f),
+                Quaternion.fromEulerAngles(0f, 90f, 0f),
+                Vector3(0.5f, 0.5f, 0.5f),
+            )
+        Truth.assertThat(hitInfo.transform).isEqualTo(expectedTransform)
+    }
+
+    @Test
+    fun getInputEvent_appliesSnapshotToPrimaryAndSecondaryHitInfo() {
+        val sceneNodeRegistry = SceneNodeRegistry()
+        val sceneRuntime = createSceneRuntime(sceneNodeRegistry)
+        val activitySpace = sceneRuntime.activitySpace as ActivitySpaceImpl
+        // Set live compensation to a different value to verify the explicit snapshot is used
+        // consistently across ray origin, direction, primary hitInfo, and secondaryHitInfo.
+        activitySpace.originCompensation.set(OriginCompensation(5f, Quaternion.Identity))
+
+        val primaryEntity = sceneRuntime.createEntity(Pose(), "primaryEntity", activitySpace)
+        val secondaryEntity = sceneRuntime.createEntity(Pose(), "secondaryEntity", activitySpace)
+        val primaryNode = (primaryEntity as AndroidXrEntity).getNode()
+        val secondaryNode = (secondaryEntity as AndroidXrEntity).getNode()
+
+        val primaryRawTransform = Matrix4.fromTranslation(Vector3(10f, 0f, 0f))
+        val secondaryRawTransform = Matrix4.fromTranslation(Vector3(0f, 20f, 0f))
+        val xrHitInfo =
+            InputEvent.HitInfo(1, primaryNode, Mat4f(primaryRawTransform.data), Vec3(1f, 2f, 3f))
+        val xrSecondaryHitInfo =
+            InputEvent.HitInfo(
+                2,
+                secondaryNode,
+                Mat4f(secondaryRawTransform.data),
+                Vec3(4f, 5f, 6f),
+            )
+        val xrInputEvent =
+            ShadowInputEvent.create(
+                InputEvent.SOURCE_UNKNOWN,
+                InputEvent.POINTER_TYPE_DEFAULT,
+                1000L,
+                Vec3(1f, 0f, 0f),
+                Vec3(2f, 0f, 0f),
+                xrHitInfo,
+                xrSecondaryHitInfo,
+                InputEvent.DISPATCH_FLAG_NONE,
+                InputEvent.ACTION_DOWN,
+            )
+
+        val snapshot = OriginCompensation(2f, Quaternion.fromEulerAngles(0f, 90f, 0f))
+        val inputEvent = RuntimeUtils.getInputEvent(xrInputEvent, sceneNodeRegistry, snapshot)
+
+        assertVector3(inputEvent.origin, Vector3(0f, 0f, 2f))
+        assertVector3(inputEvent.direction, Vector3(0f, 0f, 1f))
+        Truth.assertThat(inputEvent.hitInfoList).hasSize(2)
+        assertVector3(inputEvent.hitInfoList[0].hitPosition!!, Vector3(-6f, 4f, 2f))
+        Truth.assertThat(inputEvent.hitInfoList[0].transform)
+            .isEqualTo(
+                Matrix4.fromTrs(
+                    Vector3(10f, 0f, 0f),
+                    Quaternion.fromEulerAngles(0f, 90f, 0f),
+                    Vector3(0.5f, 0.5f, 0.5f),
+                )
+            )
+        assertVector3(inputEvent.hitInfoList[1].hitPosition!!, Vector3(-12f, 10f, 8f))
+        Truth.assertThat(inputEvent.hitInfoList[1].transform)
+            .isEqualTo(
+                Matrix4.fromTrs(
+                    Vector3(0f, 20f, 0f),
+                    Quaternion.fromEulerAngles(0f, 90f, 0f),
+                    Vector3(0.5f, 0.5f, 0.5f),
+                )
+            )
+    }
+
+    @Test
+    fun handleInputEvent_capturesOriginCompensationSnapshotAtDispatchTime() {
+        val sceneNodeRegistry = SceneNodeRegistry()
+        val sceneRuntime = createSceneRuntime(sceneNodeRegistry)
+        val activitySpace = sceneRuntime.activitySpace as ActivitySpaceImpl
+        activitySpace.originCompensation.set(
+            OriginCompensation(2f, Quaternion.fromEulerAngles(0f, 90f, 0f))
+        )
+
+        val testEntity =
+            sceneRuntime.createEntity(Pose(), "testEntity", activitySpace) as AndroidXrEntity
+        val listenerExecutor = FakeScheduledExecutorService()
+        var receivedEvent: RuntimeInputEvent? = null
+        testEntity.addInputEventListener(listenerExecutor) { event -> receivedEvent = event }
+
+        val xrInputEvent =
+            ShadowInputEvent.create(
+                InputEvent.SOURCE_UNKNOWN,
+                InputEvent.POINTER_TYPE_DEFAULT,
+                1000L,
+                Vec3(1f, 2f, 3f),
+                Vec3(2f, 0f, 0f),
+                InputEvent.DISPATCH_FLAG_NONE,
+                InputEvent.ACTION_MOVE,
+            )
+
+        testEntity.handleInputEvent(xrInputEvent)
+        // Mutate compensation after dispatch but before the listener executor runs.
+        activitySpace.originCompensation.set(OriginCompensation(10f, Quaternion.Identity))
+        listenerExecutor.runAll()
+
+        Truth.assertThat(receivedEvent).isNotNull()
+        assertVector3(receivedEvent!!.origin, Vector3(-6f, 4f, 2f))
+        assertVector3(receivedEvent.direction, Vector3(0f, 0f, 1f))
     }
 
     @Test

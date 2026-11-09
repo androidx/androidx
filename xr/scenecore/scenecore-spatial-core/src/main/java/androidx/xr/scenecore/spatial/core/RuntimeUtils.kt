@@ -46,50 +46,67 @@ import com.android.extensions.xr.space.SpatialCapabilities as ExtensionsSpatialC
 import com.android.extensions.xr.space.VisibilityState
 
 internal object RuntimeUtils {
+    /**
+     * Returns the [OriginCompensation] registered in [sceneNodeRegistry].
+     *
+     * Returns [OriginCompensation.IDENTITY] when the registry has no [ActivitySpaceImpl].
+     */
+    fun getOriginCompensation(sceneNodeRegistry: SceneNodeRegistry): OriginCompensation {
+        val activitySpace =
+            sceneNodeRegistry
+                .getSystemSpaceScenePoseOfType(ActivitySpaceImpl::class.java)
+                .firstOrNull()
+        return activitySpace?.originCompensation?.get() ?: OriginCompensation.IDENTITY
+    }
+
+    /**
+     * Converts [xrHitInfo] from scene parent space into activity space.
+     *
+     * @param xrHitInfo hit info in scene parent space to convert.
+     * @param sceneNodeRegistry registry used to resolve the hit entity.
+     * @param originCompensation coordinate snapshot to use for every converted field.
+     * @return converted [InputEvent.HitInfo] in activity space, or `null` for missing data or an
+     *   unregistered node.
+     */
     @VisibleForTesting
     fun getHitInfo(
         xrHitInfo: ExtensionsInputEvent.HitInfo?,
         sceneNodeRegistry: SceneNodeRegistry,
+        originCompensation: OriginCompensation = getOriginCompensation(sceneNodeRegistry),
     ): InputEvent.HitInfo? {
         if (xrHitInfo == null || xrHitInfo.inputNode == null || xrHitInfo.transform == null) {
             return null
         }
-        // TODO: b/377541143 - Replace instance equality check in EntityManager.
-        val sceneParentScale =
-            sceneNodeRegistry
-                .getSystemSpaceScenePoseOfType(ActivitySpaceImpl::class.java)
-                .firstOrNull()
-                ?.sceneParentScaleAbs ?: Vector3.One
         val hitEntity = sceneNodeRegistry.getEntityForNode(xrHitInfo.inputNode) ?: return null
-        return InputEvent.HitInfo(
-            hitEntity,
+        val hitPositionInActivitySpace =
             if (xrHitInfo.hitPosition == null) null
-            else getVector3(xrHitInfo.hitPosition).scale(sceneParentScale),
-            getMatrix(xrHitInfo.transform),
-        )
+            else originCompensation.toActivitySpace(getVector3(xrHitInfo.hitPosition))
+        val rawHitTransform = getMatrix(xrHitInfo.transform)
+        val transformInActivitySpace =
+            rawHitTransform * originCompensation.activitySpaceToSceneParentTransform
+        return InputEvent.HitInfo(hitEntity, hitPositionInActivitySpace, transformInActivitySpace)
     }
 
     /**
-     * Converts an XR InputEvent to a SceneCore InputEvent.
+     * Converts [xrInputEvent] from scene parent space into activity space.
      *
-     * @param xrInputEvent an [ExtensionsInputEvent] instance to be converted.
-     * @param sceneNodeRegistry an [SceneNodeRegistry] instance to look up entities.
-     * @return a [InputEvent] instance representing the input event.
+     * @param xrInputEvent input event in scene parent space to convert.
+     * @param sceneNodeRegistry registry used to resolve hit entities.
+     * @param originCompensation coordinate snapshot to use for every converted field.
+     * @return converted [InputEvent] in activity space.
      */
     fun getInputEvent(
         xrInputEvent: ExtensionsInputEvent,
         sceneNodeRegistry: SceneNodeRegistry,
+        originCompensation: OriginCompensation = getOriginCompensation(sceneNodeRegistry),
     ): InputEvent {
-        val sceneParentScale =
-            sceneNodeRegistry
-                .getSystemSpaceScenePoseOfType(ActivitySpaceImpl::class.java)
-                .firstOrNull()
-                ?.sceneParentScaleAbs ?: Vector3.One
-        val origin = getVector3(xrInputEvent.origin).scale(sceneParentScale)
-        val direction = getVector3(xrInputEvent.direction).scale(sceneParentScale)
+        val origin = originCompensation.toActivitySpace(getVector3(xrInputEvent.origin))
+        val direction =
+            originCompensation.toActivitySpaceDirection(getVector3(xrInputEvent.direction))
         // TODO: b/431250469 - Handle unregistered hitInfo nodes.
-        val hitInfo = getHitInfo(xrInputEvent.hitInfo, sceneNodeRegistry)
-        val secondaryHitInfo = getHitInfo(xrInputEvent.secondaryHitInfo, sceneNodeRegistry)
+        val hitInfo = getHitInfo(xrInputEvent.hitInfo, sceneNodeRegistry, originCompensation)
+        val secondaryHitInfo =
+            getHitInfo(xrInputEvent.secondaryHitInfo, sceneNodeRegistry, originCompensation)
         val hitInfos = mutableListOf<InputEvent.HitInfo>()
         if (hitInfo != null) {
             hitInfos.add(hitInfo)
