@@ -44,7 +44,7 @@ dependencies {
 
 
 android {
-    namespace = "people"
+    namespace = "androidx.people"
     compileSdk { version = release(37) }
     defaultConfig {
         minSdk { version = release(29) }
@@ -52,7 +52,7 @@ android {
 }
 
 androidx {
-    name = "people:people"
+    name = "androidx.people:people"
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2026"
     description = "Core models, contract constants, and provider base classes for " +
