@@ -30,7 +30,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 
@@ -78,19 +77,12 @@ internal class ActionCallbackBroadcastReceiver(
         val widgetId = intent.getStringExtra(EXTRA_WIDGET_ID)?.takeIf { it.isNotBlank() }
         val parameters = intent.getBundleExtra(EXTRA_PARAMETERS) ?: Bundle()
 
-        // goAsync logs any failure, including a missing class or constructor, and always finishes
-        // the broadcast.
-        goAsync(callbackClassName) {
-            val clazz = Class.forName(callbackClassName, false, context.classLoader)
-            if (!GlanceAdaptiveActionCallback::class.java.isAssignableFrom(clazz)) {
-                Log.e(
-                    TAG,
-                    "Class $callbackClassName does not implement GlanceAdaptiveActionCallback",
-                )
-                return@goAsync
-            }
-            clazz
-                .asSubclass(GlanceAdaptiveActionCallback::class.java)
+        val callbackClass = resolveCallbackClass(context, callbackClassName) ?: return
+
+        // Not caught: the callback is developer code, whose exceptions must surface like in a
+        // plain BroadcastReceiver.
+        goAsyncUncaught(callbackClassName) {
+            callbackClass
                 .getDeclaredConstructor()
                 .newInstance()
                 .onAction(
@@ -103,14 +95,42 @@ internal class ActionCallbackBroadcastReceiver(
     }
 
     /**
-     * Runs [block] for [callbackClassName] in a scope with the lifetime of the broadcast,
-     * cancelling it after [OnActionTimeout] so that the broadcast always finishes in time.
+     * Loads the callback class named by the broadcast, or logs an error and returns null if it does
+     * not exist or is not a [GlanceAdaptiveActionCallback], for example because a widget still
+     * shows a click action from an older version of the app.
      */
-    private fun goAsync(callbackClassName: String, block: suspend CoroutineScope.() -> Unit) {
-        val parentScope = CoroutineScope(coroutineContext + Job())
-        val pendingResult = goAsync()
+    private fun resolveCallbackClass(
+        context: Context,
+        callbackClassName: String,
+    ): Class<out GlanceAdaptiveActionCallback>? {
+        val clazz =
+            try {
+                Class.forName(callbackClassName, false, context.classLoader)
+            } catch (e: ClassNotFoundException) {
+                Log.e(TAG, "Action callback class $callbackClassName not found", e)
+                return null
+            }
+        if (!GlanceAdaptiveActionCallback::class.java.isAssignableFrom(clazz)) {
+            Log.e(TAG, "Class $callbackClassName does not implement GlanceAdaptiveActionCallback")
+            return null
+        }
+        return clazz.asSubclass(GlanceAdaptiveActionCallback::class.java)
+    }
 
-        parentScope.launch {
+    /**
+     * Runs the developer's [block] for [callbackClassName] in a scope with the lifetime of the
+     * broadcast, cancelling it after [OnActionTimeout] so that the broadcast always finishes in
+     * time.
+     *
+     * Exceptions thrown by [block] are not caught: once the broadcast pending result is finished,
+     * they reach the [kotlinx.coroutines.CoroutineExceptionHandler] of [coroutineContext] if it has
+     * one, and otherwise the uncaught exception handler of the thread, which crashes the app,
+     * exactly like an exception thrown by a plain [BroadcastReceiver]. A [CancellationException] is
+     * not an error, so it is not reported.
+     */
+    private fun goAsyncUncaught(callbackClassName: String, block: suspend () -> Unit) {
+        val pendingResult = goAsync()
+        CoroutineScope(coroutineContext + Job()).launch {
             try {
                 // Returns null only for this timeout: a timeout of the callback's own withTimeout
                 // propagates unchanged, like any other CancellationException.
@@ -121,12 +141,7 @@ internal class ActionCallbackBroadcastReceiver(
                             "$OnActionTimeout and was cancelled to finish the broadcast",
                     )
                 }
-            } catch (e: CancellationException) {
-                // Regular cancellation, do not log as failure.
-            } catch (e: Throwable) {
-                Log.e(TAG, "BroadcastReceiver execution failed", e)
             } finally {
-                parentScope.cancel()
                 try {
                     pendingResult?.finish()
                 } catch (e: IllegalStateException) {
