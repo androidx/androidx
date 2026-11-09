@@ -27,11 +27,14 @@ import android.os.Bundle
 import android.util.Log
 import androidx.annotation.CallSuper
 import kotlin.coroutines.CoroutineContext
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 // Tag length must not exceed 23 characters for pre-API 24 log compatibility.
 private const val TAG = "GlanceAdaptiveReceiver"
@@ -116,6 +119,11 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
      * library fails to assign a widgetId to a new widget, as `pushUpdate` with `widgetIds = null`
      * still updates that widget. The library logs such failures and retries on the next update of
      * the widget.
+     *
+     * It runs while the update broadcast is handled, which the system gives as little as 10 seconds
+     * to finish. If it has not returned after 9 seconds, it is cancelled and an error is logged.
+     * Cancellation can only stop suspending calls, so avoid blocking ones. Run longer work outside
+     * the broadcast, and call `pushUpdate` once it completes.
      *
      * @param context The application Context.
      */
@@ -343,6 +351,14 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
 }
 
 /**
+ * How long the developer's `onUpdate(context)` may run. The platform gives a foreground broadcast
+ * 10 seconds to finish (a background one 60), even with [BroadcastReceiver.goAsync], before
+ * reporting the app as not responding, and part of that time is already spent before the block
+ * starts.
+ */
+internal val OnUpdateTimeout: Duration = 9.seconds
+
+/**
  * Executes the developer's [block] asynchronously in a scope with the lifetime of the broadcast.
  *
  * Exceptions thrown by [block] are not caught: once the broadcast pending result is finished, they
@@ -350,6 +366,9 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
  * otherwise the uncaught exception handler of the thread, which crashes the app, exactly like an
  * exception thrown by a plain [AppWidgetProvider]. A [CancellationException] is not an error, so it
  * is not reported.
+ *
+ * If [block] runs longer than [OnUpdateTimeout], it is cancelled and the timeout is logged. The
+ * broadcast finishes once [block] returns, so code that ignores cancellation can still exceed it.
  */
 private fun BroadcastReceiver.goAsyncUncaught(
     coroutineContext: CoroutineContext,
@@ -358,7 +377,15 @@ private fun BroadcastReceiver.goAsyncUncaught(
     val pendingResult = goAsync()
     CoroutineScope(coroutineContext + Job()).launch {
         try {
-            block()
+            // Returns null only for this timeout: a timeout of the developer's own withTimeout
+            // propagates unchanged, like any other CancellationException.
+            if (withTimeoutOrNull(OnUpdateTimeout) { block() } == null) {
+                Log.e(
+                    TAG,
+                    "onUpdate of ${javaClass.name} did not complete within $OnUpdateTimeout and " +
+                        "was cancelled to finish the broadcast",
+                )
+            }
         } finally {
             try {
                 pendingResult?.finish()
