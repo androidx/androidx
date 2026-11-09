@@ -307,43 +307,31 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
         val links = text.getLinkAnnotations(0, text.length)
         links.fastForEach { range ->
             if (range.start != range.end) {
-                val shouldTrackInteractions =
-                    if (ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled) {
-                        range.item.styles.hasStatefulStyles()
-                    } else {
-                        !range.item.styles.isNullOrEmpty()
-                    }
-                val interactionSource =
-                    if (
-                        !ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled ||
-                            shouldTrackInteractions
-                    ) {
-                        remember { MutableInteractionSource() }
-                    } else {
-                        null
+                val interactionSource = remember { MutableInteractionSource() }
+
+                val boxContent =
+                    @Composable {
+                        Box(
+                            Modifier.clipLink(range)
+                                .semantics {
+                                    // adding this to identify links in tests, see
+                                    // performFirstLinkClick
+                                    this[LinkTestMarker] = Unit
+                                }
+                                .textRange(range)
+                                .hoverable(interactionSource)
+                                .pointerHoverIcon(PointerIcon.Hand)
+                                .combinedClickable(
+                                    indication = null,
+                                    interactionSource = interactionSource,
+                                    onClick = { handleLink(range.item, uriHandler) },
+                                )
+                        )
                     }
 
-                Box(
-                    Modifier.clipLink(range)
-                        .semantics {
-                            // adding this to identify links in tests, see
-                            // performFirstLinkClick
-                            this[LinkTestMarker] = Unit
-                        }
-                        .textRange(range)
-                        .then(
-                            if (interactionSource != null) Modifier.hoverable(interactionSource)
-                            else Modifier
-                        )
-                        .pointerHoverIcon(PointerIcon.Hand)
-                        .combinedClickable(
-                            indication = null,
-                            interactionSource = interactionSource,
-                            onClick = { handleLink(range.item, uriHandler) },
-                        )
-                )
+                boxContent()
 
-                if (shouldTrackInteractions && interactionSource != null) {
+                if (!range.item.styles.isNullOrEmpty()) {
                     // the interaction source is not hoisted, we create and remember it in the
                     // code above. Therefore there's no need to pass it as a key to the remember and
                     // a
@@ -435,10 +423,6 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
 private fun TextLinkStyles?.isNullOrEmpty(): Boolean {
     return this == null ||
         (style == null && focusedStyle == null && hoveredStyle == null && pressedStyle == null)
-}
-
-private fun TextLinkStyles?.hasStatefulStyles(): Boolean {
-    return this != null && (focusedStyle != null || hoveredStyle != null || pressedStyle != null)
 }
 
 /** Interface holding the width, height and positioning logic. */
