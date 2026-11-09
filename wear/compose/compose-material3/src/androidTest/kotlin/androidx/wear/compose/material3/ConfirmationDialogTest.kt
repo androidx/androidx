@@ -38,8 +38,6 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.test.filters.SdkSuppress
 import org.junit.Assert
@@ -132,7 +130,7 @@ class ConfirmationDialogTest {
             ) {}
         }
 
-        rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeRight() }
+        rule.swipeToDismiss()
         rule.onNodeWithTag(TEST_TAG).assertDoesNotExist()
         Assert.assertEquals(1, dismissCounter)
     }
@@ -153,7 +151,7 @@ class ConfirmationDialogTest {
             ) {}
         }
 
-        rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeRight() }
+        rule.swipeToDismiss()
         rule.onNodeWithTag(TEST_TAG).assertDoesNotExist()
         Assert.assertEquals(1, dismissCounter)
     }
@@ -175,7 +173,7 @@ class ConfirmationDialogTest {
         }
         // Advancing time so that animation will finish its motion.
         rule.mainClock.advanceTimeBy(1000)
-        rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeRight() }
+        rule.swipeToDismiss()
         rule.mainClock.advanceTimeBy(1000)
         rule.onNodeWithTag(TEST_TAG).assertDoesNotExist()
         Assert.assertEquals(1, dismissCounter)
@@ -198,7 +196,7 @@ class ConfirmationDialogTest {
         }
         // Advancing time so that animation will finish its motion.
         rule.mainClock.advanceTimeBy(1000)
-        rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeRight() }
+        rule.swipeToDismiss()
         rule.mainClock.advanceTimeBy(1000)
         rule.onNodeWithTag(TEST_TAG).assertDoesNotExist()
         Assert.assertEquals(1, dismissCounter)

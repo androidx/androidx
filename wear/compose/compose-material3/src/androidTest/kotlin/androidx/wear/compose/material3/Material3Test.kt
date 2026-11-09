@@ -21,6 +21,10 @@ import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.os.Build
 import android.util.Log
+import android.view.View
+import androidx.activity.BackEventCompat
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.findViewTreeOnBackPressedDispatcherOwner
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -76,6 +80,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.requestFocus
+import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
@@ -237,6 +242,30 @@ fun ComposeContentTestRule.setContentWithTheme(
     composable: @Composable BoxScope.() -> Unit,
 ) {
     setContent { MaterialTheme { Box(modifier = modifier, content = composable) } }
+}
+
+internal fun ComposeContentTestRule.dialogOnBackPressedDispatcher(
+    tag: String = TEST_TAG
+): OnBackPressedDispatcher {
+    val view = onNodeWithTag(tag).fetchSemanticsNode().root as View
+    return view.findViewTreeOnBackPressedDispatcherOwner()!!.onBackPressedDispatcher
+}
+
+internal fun ComposeContentTestRule.swipeToDismiss(tag: String = TEST_TAG) {
+    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+        val dispatcher = dialogOnBackPressedDispatcher(tag)
+        runOnIdle {
+            dispatcher.dispatchOnBackStarted(
+                BackEventCompat(0.1f, 0.1f, 0.1f, BackEventCompat.EDGE_LEFT)
+            )
+            dispatcher.dispatchOnBackProgressed(
+                BackEventCompat(0.1f, 0.1f, 0.8f, BackEventCompat.EDGE_LEFT)
+            )
+            dispatcher.onBackPressed()
+        }
+    } else {
+        onNodeWithTag(tag).performTouchInput { swipeRight() }
+    }
 }
 
 internal fun ComposeContentTestRule.verifyTapSize(

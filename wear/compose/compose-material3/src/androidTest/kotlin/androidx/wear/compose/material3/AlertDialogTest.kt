@@ -58,7 +58,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -538,7 +537,7 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG).performTouchInput({ swipeRight() })
+        rule.swipeToDismiss()
         rule.onNodeWithTag(TEST_TAG).assertDoesNotExist()
         Assert.assertEquals(1, dismissCounter)
     }
@@ -561,7 +560,7 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG).performTouchInput({ swipeRight() })
+        rule.swipeToDismiss()
         rule.onNodeWithTag(TEST_TAG).assertDoesNotExist()
         Assert.assertEquals(1, dismissCounter)
     }

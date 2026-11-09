@@ -35,8 +35,6 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.swipeRight
 import androidx.test.filters.SdkSuppress
 import org.junit.Assert
 import org.junit.Rule
@@ -95,7 +93,7 @@ class OpenOnPhoneDialogTest {
             )
         }
         rule.mainClock.advanceTimeBy(OpenOnPhoneDialogDefaults.DurationMillis / 2)
-        rule.onNodeWithTag(TEST_TAG).performTouchInput({ swipeRight() })
+        rule.swipeToDismiss()
         // Advancing time so that the dialog is dismissed
         rule.mainClock.advanceTimeBy(300)
         rule.onNodeWithTag(TEST_TAG).assertDoesNotExist()
