@@ -15,9 +15,13 @@
  */
 package androidx.camera.viewfinder.view
 
+import android.graphics.Color
+import android.graphics.Paint
 import android.os.Build
 import android.view.Surface
 import androidx.camera.viewfinder.core.ImplementationMode
+import androidx.camera.viewfinder.core.TransformationInfo
+import androidx.camera.viewfinder.core.TransformationMode
 import androidx.camera.viewfinder.core.ViewfinderSurfaceRequest
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -31,6 +35,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
@@ -172,4 +177,68 @@ class ViewfinderViewTest(private val implementationMode: ImplementationMode) {
                 secondRequestFuture.cancel(false)
             }
         }
+
+    @Test
+    fun preAppliedTransformation_getBitmap_rotatesContentBySourceRotation() = runViewfinderTest {
+        assume().that(implementationMode).isEqualTo(ImplementationMode.EMBEDDED)
+        val request =
+            ViewfinderSurfaceRequest(
+                width = 200,
+                height = 200,
+                implementationMode = implementationMode,
+                requestId = testName.methodName,
+            )
+
+        withTimeout(REQUEST_TIMEOUT) {
+                withContext(Dispatchers.Main) {
+                    viewfinder.transformationInfo =
+                        TransformationInfo(
+                            sourceRotation = 90,
+                            transformationMode = TransformationMode.PRE_APPLIED,
+                        )
+                    viewfinder.requestSurfaceSession(request)
+                }
+            }
+            .use { session ->
+                // Pre-rotate quadrants by -90 degrees (TL=Green, TR=Yellow, BL=Red, BR=Blue) so a
+                // 90-degree clockwise viewfinder rotation produces (TL=Red, TR=Green, BL=Blue,
+                // BR=Yellow).
+                val paint = Paint().apply { style = Paint.Style.FILL }
+                val canvas = session.surface.lockHardwareCanvas()
+                try {
+                    paint.color = Color.GREEN
+                    canvas.drawRect(0f, 0f, 100f, 100f, paint)
+                    paint.color = Color.YELLOW
+                    canvas.drawRect(100f, 0f, 200f, 100f, paint)
+                    paint.color = Color.RED
+                    canvas.drawRect(0f, 100f, 100f, 200f, paint)
+                    paint.color = Color.BLUE
+                    canvas.drawRect(100f, 100f, 200f, 200f, paint)
+                } finally {
+                    session.surface.unlockCanvasAndPost(canvas)
+                }
+
+                // Wait for TextureView to receive the frame and verify getBitmap() applies the
+                // 90-degree PRE_APPLIED rotation.
+                var bitmap = withContext(Dispatchers.Main) { viewfinder.bitmap }
+                var attempts = 0
+                while (
+                    attempts < 30 &&
+                        (bitmap == null ||
+                            Color.red(bitmap.getPixel(bitmap.width / 4, bitmap.height / 4)) < 200)
+                ) {
+                    delay(50)
+                    bitmap = withContext(Dispatchers.Main) { viewfinder.bitmap }
+                    attempts++
+                }
+                val captured = checkNotNull(bitmap)
+                val w = captured.width
+                val h = captured.height
+                assertThat(Color.red(captured.getPixel(w / 4, h / 4))).isGreaterThan(200)
+                assertThat(Color.green(captured.getPixel(3 * w / 4, h / 4))).isGreaterThan(200)
+                assertThat(Color.blue(captured.getPixel(w / 4, 3 * h / 4))).isGreaterThan(200)
+                assertThat(Color.red(captured.getPixel(3 * w / 4, 3 * h / 4))).isGreaterThan(200)
+                assertThat(Color.green(captured.getPixel(3 * w / 4, 3 * h / 4))).isGreaterThan(200)
+            }
+    }
 }

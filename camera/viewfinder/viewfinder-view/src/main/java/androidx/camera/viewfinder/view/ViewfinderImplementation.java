@@ -20,9 +20,11 @@ import android.graphics.Bitmap;
 import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
+import android.view.TextureView;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import androidx.camera.viewfinder.core.ImplementationMode;
 import androidx.camera.viewfinder.core.ViewfinderSurfaceRequest;
 import androidx.camera.viewfinder.core.impl.RefCounted;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -106,7 +108,9 @@ abstract class ViewfinderImplementation {
         }
         return mViewfinderTransformation.createTransformedBitmap(bitmap,
                 new Size(mParent.getWidth(), mParent.getHeight()),
-                mParent.getLayoutDirection(), display.getRotation());
+                mParent.getLayoutDirection(), display.getRotation(),
+                viewfinder instanceof TextureView
+                        ? ImplementationMode.EMBEDDED : ImplementationMode.EXTERNAL);
     }
 
     abstract @Nullable Bitmap getViewfinderBitmap();

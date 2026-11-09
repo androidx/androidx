@@ -44,14 +44,21 @@ public object TransformationMode {
     public const val DEFERRED: Int = 0
 
     /**
-     * Indicates that the transformation has already been applied by the producer or an upstream
-     * pipeline before reaching the consumer.
+     * Indicates that the transformation associated with the buffers has already been applied by the
+     * producer or an upstream pipeline before reaching the consumer.
      *
      * The consumer should ignore the transformation matrix associated with the buffers (or assume
-     * it is identity) and display the frames as-is relative to the display.
+     * it is identity). Any clockwise rotation that remains to be applied for the frames to appear
+     * upright relative to the display is described by [TransformationInfo.sourceRotation], and is
+     * applied by the viewfinder. Any mirroring is assumed to have already been baked into the
+     * buffers by the upstream pipeline, so [TransformationInfo.isSourceMirroredHorizontally] and
+     * [TransformationInfo.isSourceMirroredVertically] are ignored in this mode.
      *
-     * For example, if an OpenGL pipeline has already rotated the images to an upright orientation,
-     * the viewfinder should not apply further rotation.
+     * For example, if an OpenGL pipeline has already rotated the images to an upright orientation
+     * for the current display rotation, [TransformationInfo.sourceRotation] should be `0` and the
+     * viewfinder will not apply further rotation. If the display has since rotated, the pipeline
+     * can report the remaining rotation through [TransformationInfo.sourceRotation] instead of
+     * re-rendering the frames.
      */
     public const val PRE_APPLIED: Int = 1
 }
@@ -70,13 +77,26 @@ public annotation class TransformationModeValue
 public class TransformationInfo
 @JvmOverloads
 constructor(
-    /** Rotation of the source, relative to the device's natural rotation, in degrees. */
+    /**
+     * Clockwise rotation in degrees required for the source to appear upright relative to the
+     * display orientation.
+     *
+     * For [TransformationMode.DEFERRED] sources, this is the source's clockwise rotation relative
+     * to the display rotation. For [TransformationMode.PRE_APPLIED] sources, this is the clockwise
+     * rotation relative to the display that remains to be applied after the upstream pipeline's own
+     * transformation (`0` when the upstream pipeline has already rotated frames to match the
+     * display).
+     */
     public val sourceRotation: Int = 0,
 
     /**
      * Indicates whether the source has been mirrored horizontally.
      *
      * This is common if the source comes from a camera that is front-facing.
+     *
+     * Applies only to [TransformationMode.DEFERRED] sources. For [TransformationMode.PRE_APPLIED]
+     * sources, upstream pipelines are responsible for baking any mirroring into the rendered buffer
+     * contents and this property is ignored by the viewfinder.
      *
      * It is not common for both [isSourceMirroredHorizontally] and [isSourceMirroredVertically] to
      * be set to `true`. This is equivalent to [sourceRotation] being rotated by an additional 180
@@ -93,6 +113,10 @@ constructor(
      *
      * It is not common for a camera source to be mirror vertically, and typically
      * [isSourceMirroredHorizontally] will be the appropriate property.
+     *
+     * Applies only to [TransformationMode.DEFERRED] sources. For [TransformationMode.PRE_APPLIED]
+     * sources, upstream pipelines are responsible for baking any mirroring into the rendered buffer
+     * contents and this property is ignored by the viewfinder.
      *
      * It is not common for both [isSourceMirroredHorizontally] and [isSourceMirroredVertically] to
      * be set to `true`. This is equivalent to [sourceRotation] being rotated by an additional 180

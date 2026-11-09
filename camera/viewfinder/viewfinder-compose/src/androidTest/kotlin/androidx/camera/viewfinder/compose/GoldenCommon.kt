@@ -137,19 +137,19 @@ fun drawFaceToSurface(
     coordinateTransformer: CoordinateTransformer,
     touchCoordinates: Offset?,
 ) {
-    val rotation =
-        if (testParams.transformationMode == TransformationMode.PRE_APPLIED) {
-            0
-        } else {
-            testParams.sourceRotation
-        }
+    // For DEFERRED transformations, the source rotation and mirroring are carried by the buffer
+    // transform. For PRE_APPLIED transformations, the buffers carry no transform and any mirroring
+    // is already baked into the rendered content by the upstream pipeline.
+    val isPreApplied = testParams.transformationMode == TransformationMode.PRE_APPLIED
+    val bufferTransformRotation = if (isPreApplied) 0 else testParams.sourceRotation
+    val rotation = testParams.sourceRotation
 
     SurfaceUtil.setBuffersTransform(
         surface,
         toTransformEnum(
-            sourceRotation = rotation,
-            horizontalMirror = testParams.isMirroredHorizontally,
-            verticalMirror = testParams.isMirroredVertically,
+            sourceRotation = bufferTransformRotation,
+            horizontalMirror = !isPreApplied && testParams.isMirroredHorizontally,
+            verticalMirror = !isPreApplied && testParams.isMirroredVertically,
         ),
     )
     val resolution = testParams.sourceResolution
@@ -163,8 +163,8 @@ fun drawFaceToSurface(
         ) {
             val iconSize = painter.calcFitSize(size, rotation)
 
-            var hMirror = testParams.isMirroredHorizontally
-            var vMirror = testParams.isMirroredVertically
+            var hMirror = !isPreApplied && testParams.isMirroredHorizontally
+            var vMirror = !isPreApplied && testParams.isMirroredVertically
             if (rotation == 90 || rotation == 270) {
                 val tmp = hMirror
                 hMirror = vMirror

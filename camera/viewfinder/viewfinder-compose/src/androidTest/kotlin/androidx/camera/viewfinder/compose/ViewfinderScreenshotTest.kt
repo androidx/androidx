@@ -251,6 +251,59 @@ class ViewfinderScreenshotTest {
             drawUprightFaceAndAssert(testParams)
         }
 
+    @Test
+    fun embeddedImplementationDrawsUpright_from90DegreeSource_preAppliedTransformation() =
+        runBlocking {
+            val testParams =
+                ViewfinderTestParams(
+                    sourceRotation = 90,
+                    implementationMode = ImplementationMode.EMBEDDED,
+                    transformationMode = TransformationMode.PRE_APPLIED,
+                )
+
+            drawUprightFaceAndAssert(testParams)
+        }
+
+    @Test
+    fun embeddedImplementationDrawsUpright_from180DegreeSource_preAppliedTransformation() =
+        runBlocking {
+            val testParams =
+                ViewfinderTestParams(
+                    sourceRotation = 180,
+                    implementationMode = ImplementationMode.EMBEDDED,
+                    transformationMode = TransformationMode.PRE_APPLIED,
+                )
+
+            drawUprightFaceAndAssert(testParams)
+        }
+
+    @Test
+    fun embeddedImplementationDrawsUpright_from270DegreeSource_preAppliedTransformation() =
+        runBlocking {
+            val testParams =
+                ViewfinderTestParams(
+                    sourceRotation = 270,
+                    implementationMode = ImplementationMode.EMBEDDED,
+                    transformationMode = TransformationMode.PRE_APPLIED,
+                )
+
+            drawUprightFaceAndAssert(testParams)
+        }
+
+    @Test
+    fun embeddedImplementationDrawsUpright_from90Degree_HorizontallyMirrored_preApplied() =
+        runBlocking {
+            val testParams =
+                ViewfinderTestParams(
+                    sourceRotation = 90,
+                    implementationMode = ImplementationMode.EMBEDDED,
+                    isMirroredHorizontally = true,
+                    transformationMode = TransformationMode.PRE_APPLIED,
+                )
+
+            drawUprightFaceAndAssert(testParams)
+        }
+
     @Ignore("b/338466761")
     @Test
     fun externalImplementationDrawsUpright_from0DegreeSource() = runBlocking {

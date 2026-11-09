@@ -103,6 +103,7 @@ private class ViewfinderEmbeddedExternalSurfaceState(scope: CoroutineScope) :
 
     var surfaceSize = IntSize.Zero
     val matrix = android.graphics.Matrix()
+    val scratchMatrix = android.graphics.Matrix()
 
     var viewfinderSurfaceHolder: ViewfinderEmbeddedExternalSurfaceHolder? = null
 
@@ -209,9 +210,14 @@ internal fun ViewfinderEmbeddedExternalSurface(
             }
 
             view.isOpaque = isOpaque
-            // If transform is null, we'll call setTransform(null) which sets the
-            // identity transform on the TextureView
-            view.setTransform(transform?.let { state.matrix.apply { setFrom(transform) } })
+            val targetMatrix =
+                state.matrix.apply { if (transform != null) setFrom(transform) else reset() }
+            if (targetMatrix != view.getTransform(state.scratchMatrix)) {
+                view.setTransform(targetMatrix)
+                // Redraw with the new transform even if no new frame is produced, e.g. when only
+                // the display rotation changed.
+                view.invalidate()
+            }
         },
     )
 }
