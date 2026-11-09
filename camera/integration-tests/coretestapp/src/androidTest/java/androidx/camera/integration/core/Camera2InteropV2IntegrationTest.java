@@ -34,6 +34,7 @@ import android.hardware.camera2.params.ColorSpaceProfiles;
 import android.os.Build;
 
 import androidx.camera.camera2.Camera2Config;
+import androidx.camera.camera2.compat.quirk.CaptureIntentPreviewQuirk;
 import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.Camera;
@@ -47,6 +48,7 @@ import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.core.SessionConfig;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.lifecycle.ProcessCameraProvider;
@@ -983,8 +985,13 @@ public class Camera2InteropV2IntegrationTest {
         assertThat(request).isNotNull();
         assertThat(request.get(CaptureRequest.CONTROL_AE_MODE))
                 .isEqualTo(CaptureRequest.CONTROL_AE_MODE_OFF);
+        int expectedCaptureIntent =
+                CaptureIntentPreviewQuirk.Companion.workaroundByCaptureIntentPreview(
+                        ((CameraInfoInternal) camera.getCameraInfo()).getCameraQuirks())
+                        ? CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW
+                        : CaptureRequest.CONTROL_CAPTURE_INTENT_VIDEO_RECORD;
         assertThat(request.get(CaptureRequest.CONTROL_CAPTURE_INTENT))
-                .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_VIDEO_RECORD);
+                .isEqualTo(expectedCaptureIntent);
 
         // Act: Clear option
         CountDownLatch captureLatch2 = new CountDownLatch(5);

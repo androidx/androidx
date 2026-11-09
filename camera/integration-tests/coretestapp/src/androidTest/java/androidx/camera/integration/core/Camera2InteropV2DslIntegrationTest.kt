@@ -28,6 +28,7 @@ import android.hardware.camera2.TotalCaptureResult
 import android.os.Build
 import androidx.annotation.OptIn
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.compat.quirk.CaptureIntentPreviewQuirk
 import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.interop.applyCamera2Interop
@@ -36,6 +37,7 @@ import androidx.camera.camera2.interop.camera2Interop
 import androidx.camera.camera2.interop.cameraCharacteristics
 import androidx.camera.camera2.interop.cameraId
 import androidx.camera.camera2.interop.toCameraSelector
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -43,6 +45,7 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.imageAnalysis
 import androidx.camera.core.imageCapture
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.preview
 import androidx.camera.core.sessionConfig
@@ -793,7 +796,7 @@ class Camera2InteropV2DslIntegrationTest {
         assertThat(request.get(CaptureRequest.CONTROL_AE_MODE))
             .isEqualTo(CaptureRequest.CONTROL_AE_MODE_OFF)
         assertThat(request.get(CaptureRequest.CONTROL_CAPTURE_INTENT))
-            .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_VIDEO_RECORD)
+            .isEqualTo(expectedRecordCaptureIntent(camera))
 
         // Act: Clear option
         val captureLatch2 = CountDownLatch(5)
@@ -871,7 +874,7 @@ class Camera2InteropV2DslIntegrationTest {
         assertThat(request.get(CaptureRequest.CONTROL_AE_MODE))
             .isEqualTo(CaptureRequest.CONTROL_AE_MODE_OFF)
         assertThat(request.get(CaptureRequest.CONTROL_CAPTURE_INTENT))
-            .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_VIDEO_RECORD)
+            .isEqualTo(expectedRecordCaptureIntent(camera))
     }
 
     @Test
@@ -908,6 +911,15 @@ class Camera2InteropV2DslIntegrationTest {
 
         assertThat(captureLatch.await(5, TimeUnit.SECONDS)).isTrue()
         assertThat(capturedRequest.get()).isNotNull()
+    }
+
+    private fun expectedRecordCaptureIntent(camera: Camera): Int {
+        val quirks = (camera.cameraInfo as CameraInfoInternal).cameraQuirks
+        return if (CaptureIntentPreviewQuirk.workaroundByCaptureIntentPreview(quirks)) {
+            CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW
+        } else {
+            CaptureRequest.CONTROL_CAPTURE_INTENT_VIDEO_RECORD
+        }
     }
 
     @Test
