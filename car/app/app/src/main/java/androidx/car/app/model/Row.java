@@ -29,7 +29,6 @@ import androidx.annotation.IntRange;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.ActionsConstraints;
@@ -53,7 +52,6 @@ import java.util.Objects;
  */
 @CarProtocol
 @KeepFields
-@OptIn(markerClass = ExperimentalCarApi.class)
 public final class Row implements Item {
     /** A boat that belongs to you. */
     private static final String YOUR_BOAT = "\uD83D\uDEA3"; // 🚣
@@ -291,7 +289,6 @@ public final class Row implements Item {
      * @see Builder#setProgressBar(CarProgressBar)
      */
     @RequiresCarApi(9)
-    @ExperimentalCarApi
     public @Nullable CarProgressBar getProgressBar() {
         return mProgressBar;
     }
@@ -806,7 +803,6 @@ public final class Row implements Item {
          * @throws NullPointerException if {@code progressBar} is {@code null}
          */
         @RequiresCarApi(9)
-        @ExperimentalCarApi
         public @NonNull Builder setProgressBar(@NonNull CarProgressBar progressBar) {
             mProgressBar = requireNonNull(progressBar);
             return this;

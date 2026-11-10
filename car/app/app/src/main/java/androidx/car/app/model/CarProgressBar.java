@@ -20,7 +20,6 @@ import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.FloatRange;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.core.math.MathUtils;
@@ -42,7 +41,6 @@ import java.util.Objects;
 @CarProtocol
 @KeepFields
 @RequiresCarApi(9)
-@ExperimentalCarApi
 public final class CarProgressBar {
     private final float mProgress;
     private final @Nullable CarProgressBarStyle mStyle;
