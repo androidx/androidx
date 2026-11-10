@@ -222,6 +222,111 @@ class ProcessCameraProviderTest {
     }
 
     @Test
+    fun bindAndGetCameraInfo_afterShutdown_throwIllegalStateException(): Unit = runBlocking {
+        ProcessCameraProvider.configureInstance(
+            FakeAppConfig.create(CameraSelector.DEFAULT_BACK_CAMERA)
+        )
+        provider = ProcessCameraProvider.getInstance(context).await()
+        val preview = Preview.Builder().build()
+        val useCaseGroup = UseCaseGroup.Builder().addUseCase(preview).build()
+        val sessionConfig = SessionConfig(useCases = listOf(preview))
+        val singleCameraConfig0 =
+            SingleCameraConfig(CameraSelector.DEFAULT_BACK_CAMERA, useCaseGroup, lifecycleOwner0)
+        val singleCameraConfig1 =
+            SingleCameraConfig(CameraSelector.DEFAULT_FRONT_CAMERA, useCaseGroup, lifecycleOwner0)
+
+        provider.shutdownAsync().await()
+
+        assertThrows<IllegalStateException> {
+            provider.bindToLifecycle(lifecycleOwner0, CameraSelector.DEFAULT_BACK_CAMERA, preview)
+        }
+        assertThrows<IllegalStateException> {
+            provider.bindToLifecycle(
+                lifecycleOwner0,
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                useCaseGroup,
+            )
+        }
+        assertThrows<IllegalStateException> {
+            provider.bindToLifecycle(
+                lifecycleOwner0,
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                sessionConfig,
+            )
+        }
+        assertThrows<IllegalStateException> {
+            provider.bindToLifecycle(listOf(singleCameraConfig0, singleCameraConfig1))
+        }
+        assertThrows<IllegalStateException> {
+            provider.getCameraInfo(CameraSelector.DEFAULT_BACK_CAMERA)
+        }
+        assertThrows<IllegalStateException> {
+            provider.getCameraInfo(CameraSelector.DEFAULT_BACK_CAMERA, sessionConfig)
+        }
+    }
+
+    @Test
+    fun queryAndUnbindMethods_afterShutdown_doNotThrowNpe(): Unit = runBlocking {
+        ProcessCameraProvider.configureInstance(
+            FakeAppConfig.create(CameraSelector.DEFAULT_BACK_CAMERA)
+        )
+        provider = ProcessCameraProvider.getInstance(context).await()
+        val preview = Preview.Builder().build()
+        val sessionConfig = SessionConfig(useCases = listOf(preview))
+
+        provider.shutdownAsync().await()
+
+        assertThat(provider.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA)).isFalse()
+        assertThat(provider.availableConcurrentCameraInfos).isEmpty()
+        assertThat(provider.isBound(preview)).isFalse()
+        assertThat(provider.isBound(sessionConfig)).isFalse()
+        provider.unbind(preview)
+        provider.unbind(sessionConfig)
+        provider.unbindAll()
+    }
+
+    @Test
+    fun shutdownAsync_calledAgainWhileInFlight_preservesShutdownFuture(): Unit = runBlocking {
+        val pendingTasks = ArrayDeque<Runnable>()
+        var deferExecution = false
+        val controllableExecutor =
+            java.util.concurrent.Executor { command ->
+                if (deferExecution) {
+                    pendingTasks.addLast(command)
+                } else {
+                    command.run()
+                }
+            }
+        val config =
+            CameraXConfig.Builder.fromConfig(
+                    createCameraXConfig(
+                        cameraFactory =
+                            createFakeCameraFactory(frontCamera = true, backCamera = true)
+                    )
+                )
+                .setCameraExecutor(controllableExecutor)
+                .setSchedulerHandler(handler)
+                .build()
+        ProcessCameraProvider.configureInstance(config)
+        provider = ProcessCameraProvider.getInstance(context).await()
+
+        deferExecution = true
+        val firstShutdownFuture = provider.shutdownAsync()
+        assertThat(firstShutdownFuture.isDone).isFalse()
+
+        val secondShutdownFuture = provider.shutdownAsync()
+        assertThat(secondShutdownFuture).isSameInstanceAs(firstShutdownFuture)
+        assertThat(secondShutdownFuture.isDone).isFalse()
+
+        deferExecution = false
+        while (pendingTasks.isNotEmpty()) {
+            pendingTasks.removeFirst().run()
+        }
+        firstShutdownFuture.await()
+        assertThat(secondShutdownFuture.isDone).isTrue()
+    }
+
+    @Test
     fun getCameraInfo_returnsCorrectCameraInfo() = runTest {
         // Arrange
         ProcessCameraProvider.configureInstance(
