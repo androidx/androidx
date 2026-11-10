@@ -90,6 +90,7 @@ import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFirst
 import androidx.window.core.layout.WindowSizeClass
+import kotlin.jvm.JvmInline
 
 /** Possible values of [NavigationSuiteScaffoldState]. */
 public enum class NavigationSuiteScaffoldValue {
