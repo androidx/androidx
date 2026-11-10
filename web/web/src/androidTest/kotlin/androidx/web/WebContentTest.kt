@@ -240,6 +240,39 @@ class WebContentTest {
     }
 
     @Test
+    fun testPreservesJavascriptInterfaceOnReattachAndReload() {
+        WebContent().use { webContent ->
+            ActivityScenario.launch(TestActivity::class.java).use { scenario ->
+                scenario.runOnActivityAndWait { activity, done ->
+                    val view = webContent.attach(activity, ::WebContentView)
+                    view.settings.javaScriptEnabled = true
+                    view.addJavascriptInterface(TestObject(), "injectedObject")
+                    view.webViewClient = OnPageFinishedClient(done)
+                    view.loadUrl("data:text/html,<html><body>Page</body></html>")
+                }
+
+                scenario.onActivity { webContent.detach() }
+
+                lateinit var view: WebContentView
+                scenario.runOnActivityAndWait { activity, done ->
+                    view = webContent.attach(activity, ::WebContentView)
+                    view.webViewClient = OnPageFinishedClient(done)
+                    view.reload()
+                }
+
+                var result: String? = null
+                scenario.runOnActivityAndWait { _, done ->
+                    view.evaluateJavascript("window.injectedObject.someMethod()") {
+                        result = it
+                        done()
+                    }
+                }
+                assertEquals("\"injected_success\"", result)
+            }
+        }
+    }
+
+    @Test
     fun testAttachesWithContextThemeWrapper() {
         WebContent().use { webContent ->
             ActivityScenario.launch(TestActivity::class.java).use { scenario ->

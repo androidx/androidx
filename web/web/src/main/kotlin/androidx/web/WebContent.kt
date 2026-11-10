@@ -119,6 +119,10 @@ internal constructor(private val boundaryInterface: WebContentBoundaryInterface)
      * and [android.webkit.WebChromeClient]), to outlive the view's lifetime. Previously bound
      * [WebContentView] instances are destroyed when this method is called.
      *
+     * JavaScript interfaces added with [android.webkit.WebView.addJavascriptInterface] belong to
+     * this [WebContent] rather than the view, so pages loaded or reloaded in a newly attached
+     * [WebContentView] can still use them.
+     *
      * The provided context _must_ be used to construct the [WebContentView], and any previously
      * attached [WebContentView] must be removed from the view hierarchy before calling this method.
      *
