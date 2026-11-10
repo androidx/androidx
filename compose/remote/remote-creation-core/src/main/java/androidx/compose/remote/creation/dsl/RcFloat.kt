@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@file:JvmName("RcFloatKt")
 
 package androidx.compose.remote.creation.dsl
 
@@ -71,7 +72,7 @@ open public class RcFloat {
         return if (isEvaluated) floatArrayOf(id) else array
     }
 
-    /** Commits this expression to the document and returns an [RcFloat] using its ID. */
+    /** Commits this expression to the document and returns this instance bound to its ID. */
     public fun flush(): RcFloat {
         if (isEvaluated && id.isNaN()) return this
         val w = writer ?: return this
@@ -243,28 +244,28 @@ open public class RcFloat {
         wrap: Float = Float.NaN,
     ): RcFloat = anim(duration.id, curve.value, spec, initialValue, wrap)
 
-    /** Returns an [RcFloat] representing the absolute value of this expression. */
+    /** Returns the absolute value of this expression. */
     public fun abs(): RcFloat = RcFloat(writer, floatArrayOf(*toArray(), Rc.FloatExpression.ABS))
 
-    /** Returns an [RcFloat] representing the square root of this expression. */
+    /** Returns the square root of this expression. */
     public fun sqrt(): RcFloat = RcFloat(writer, floatArrayOf(*toArray(), Rc.FloatExpression.SQRT))
 
-    /** Returns an [RcFloat] representing the cosine of this expression. */
+    /** Returns the cosine of this expression. */
     public fun cos(): RcFloat = RcFloat(writer, floatArrayOf(*toArray(), Rc.FloatExpression.COS))
 
-    /** Returns an [RcFloat] representing the sine of this expression. */
+    /** Returns the sine of this expression. */
     public fun sin(): RcFloat = RcFloat(writer, floatArrayOf(*toArray(), Rc.FloatExpression.SIN))
 
-    /** Returns an [RcFloat] representing this expression raised to the power of [v]. */
+    /** Returns this expression raised to the power of [v]. */
     public fun pow(v: Float): RcFloat =
         RcFloat(writer, floatArrayOf(*toArray(), v, Rc.FloatExpression.POW))
 
-    /** Returns an [RcFloat] representing this expression raised to the power of [v]. */
+    /** Returns this expression raised to the power of [v]. */
     public fun pow(v: RcFloat): RcFloat =
         RcFloat(writer ?: v.writer, floatArrayOf(*toArray(), *v.toArray(), Rc.FloatExpression.POW))
 
     /**
-     * Converts this [RcFloat] to an [RcText] using the specified formatting.
+     * Converts this float expression to an [RcText] using the specified formatting.
      *
      * @param whole the number of digits before the decimal point
      * @param decimal the number of digits after the decimal point
@@ -276,7 +277,8 @@ open public class RcFloat {
     }
 
     /**
-     * Converts this [RcFloat] to an [RcText] using the specified [RcTextFromFloatSpec] formatting.
+     * Converts this float expression to an [RcText] using the specified [RcTextFromFloatSpec]
+     * formatting.
      *
      * @param whole the number of digits before the decimal point
      * @param decimal the number of digits after the decimal point
@@ -517,31 +519,35 @@ public fun toRad(a: RcFloat): RcFloat {
     return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.RAD))
 }
 
-/** convert degrees to radians */
+/**
+ * Refers to property [a] of the second particle in a dual-particle [RcScope.particlesComparison].
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun second(a: RcFloat): RcFloat {
     return RcFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.CMD2))
 }
 
-/** convert degrees to radians */
+/**
+ * Refers to property [a] of the first particle in a dual-particle [RcScope.particlesComparison].
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun first(a: RcFloat): RcFloat {
     return RcFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.CMD1))
 }
 
-/** NOISE_FROM operator calculate a random 0..1 number based on a seed */
+/** Calculates a deterministic pseudo-random `0..1` number based on seed [a]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun noiseFrom(a: RcFloat): RcFloat {
     return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.NOISE_FROM))
 }
 
-/** the sum of the square of two numbers */
+/** Returns the sum of the squares of [a] and [b]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun sqrSum(a: RcFloat, b: RcFloat): RcFloat {
     return RcFloat(a.writer, floatArrayOf(*a.array, *b.array, Rc.FloatExpression.SQUARE_SUM))
 }
 
-/**  */
+/** Returns `1f` when [a] is greater than [b], and `0f` otherwise. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun step(a: RcFloat, b: RcFloat): RcFloat {
     return RcFloat(a.writer, floatArrayOf(*a.array, *b.array, Rc.FloatExpression.STEP))
@@ -640,7 +646,7 @@ public fun clamp(min: RcFloat, max: RcFloat, value: RcFloat): RcFloat {
     )
 }
 
-/** clamp a value between min and max */
+/** Evaluates a cubic Bézier curve with control points ([x1], [y1]) and ([x2], [y2]) at [value]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun cubic(x1: RcFloat, x2: RcFloat, y1: RcFloat, y2: RcFloat, value: RcFloat): RcFloat {
     val writer =
@@ -690,12 +696,14 @@ public fun arraySum(a: RcFloat, index: RcFloat): RcFloat {
     return RcFloat(a.writer, floatArrayOf(*a.array, *index.array, Rc.FloatExpression.A_SUM_UNTIL))
 }
 
-@Suppress("RestrictedApiAndroidX")
+/** Returns the dot product (sum of element-wise products) of arrays [a] and [b]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun arraySumXY(a: RcFloat, b: RcFloat): RcFloat {
     return RcFloat(a.writer, floatArrayOf(*a.array, *b.array, Rc.FloatExpression.A_SUM_XY))
 }
 
-@Suppress("RestrictedApiAndroidX")
+/** Returns the sum of the squares of all elements in array [a]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun arraySumSqr(a: RcFloat): RcFloat {
     return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.A_SUM_SQR))
 }
@@ -742,19 +750,18 @@ public fun RemoteComposeWriter.animationTime(): RcFloat {
     return RcFloat(this, FLOAT_ANIMATION_TIME)
 }
 
-/** The time in seconds relative to animation 0 at start of running */
+/** Returns the frame delta time in seconds. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteComposeWriter.deltaTime(): RcFloat {
     return RcFloat(this, FLOAT_ANIMATION_DELTA_TIME)
 }
 
+/** First expression parameter variable (`VAR1`). */
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public val RemoteComposeWriter.var1: RcFloat
     get() = RcFloat(this, floatArrayOf(Rc.FloatExpression.VAR1))
 
-/**
- * This is a collection of utilities that make RcFloat class and allows kotlin float expressions to
- * be converted to remote compose RPM expressions
- */
+/** Creates an [RcFloat] from raw RPN expression elements bound to this [RemoteComposeWriter]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteComposeWriter.rf(vararg elements: Float): RcFloat {
     return RcFloat(this, elements)

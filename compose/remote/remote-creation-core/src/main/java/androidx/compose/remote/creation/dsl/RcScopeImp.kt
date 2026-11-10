@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+
 package androidx.compose.remote.creation.dsl
 
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.core.RemoteContext.FLOAT_ACCELERATION_X
 import androidx.compose.remote.core.RemoteContext.FLOAT_ACCELERATION_Y

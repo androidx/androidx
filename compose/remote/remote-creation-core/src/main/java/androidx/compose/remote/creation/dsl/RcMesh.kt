@@ -70,7 +70,7 @@ public enum class RcMeshBlend(internal val value: Int) {
 }
 
 /**
- * How much of a mesh's local frame RcScope.matrixFromMesh2D applies.
+ * How much of a mesh's local frame [RcCanvasScope.matrixFromMesh2D] applies.
  *
  * These are increasing levels of faithfulness rather than independent bits, which is why they are
  * an enum and not an OR-able flag set. Where the patch is degenerate - a fan's apex, a ring at
@@ -97,8 +97,8 @@ public enum class RcMeshMatrix(internal val value: Int) {
  * back to the layout's default geometry, an absent uv is the identity mapping, and absent colours
  * mean the mesh carries no vertex colours at all rather than black ones.
  *
- * The animation is free. Adding `continuousSec()` to [y] does not change the byte count, so a
- * waving flag costs what a flat one costs.
+ * The animation is free. Adding [RcScope.continuousSeconds] to [y] does not change the byte count,
+ * so a waving flag costs what a flat one costs.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RcMesh2DScope internal constructor(writer: RemoteComposeWriter) {

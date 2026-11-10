@@ -30,7 +30,7 @@ import androidx.compose.remote.creation.RemoteComposeShader
  * is still string/index-based, but the caller side is now type-checked at compile time.
  *
  * ```
- * createShader(myAgsl) {
+ * shader(myAgsl) {
  *     uniform("uTime", 0.5f)
  *     uniform("uResolution", 480f, 800f)
  *     uniform("uTexture", myImage)
