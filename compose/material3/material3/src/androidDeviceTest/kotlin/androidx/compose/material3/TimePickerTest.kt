@@ -94,10 +94,12 @@ import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.then
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -1716,6 +1718,27 @@ class TimePickerTest {
         assertThat(pmResults[0].lineCount).isEqualTo(1)
         assertThat(pmResults[0].didOverflowWidth).isFalse()
         assertThat(pmResults[0].didOverflowHeight).isFalse()
+    }
+
+    @Test
+    fun timePicker_periodToggle_themeWithoutTitleMediumSizes_usesDefaults() {
+        val state = TimePickerState(initialHour = 10, initialMinute = 30, is24Hour = false)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            MaterialTheme(typography = Typography(titleMedium = TextStyle())) {
+                TimePicker(state = state, layoutType = TimePickerLayoutType.Vertical)
+            }
+        }
+
+        rule.onNodeWithText("AM").assertIsDisplayed().assertIsSelected()
+        rule.onNodeWithText("PM").assertIsDisplayed().assertIsNotSelected()
+
+        val amResults = mutableListOf<TextLayoutResult>()
+        rule.onNodeWithText("AM").performSemanticsAction(SemanticsActions.GetTextLayoutResult) {
+            it(amResults)
+        }
+        assertThat(amResults).hasSize(1)
+        assertThat(amResults[0].layoutInput.style.fontSize).isEqualTo(16.sp)
     }
 }
 

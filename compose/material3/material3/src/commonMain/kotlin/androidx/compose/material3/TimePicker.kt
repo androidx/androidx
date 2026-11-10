@@ -70,6 +70,7 @@ import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.delete
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.modifiers.TextAutoSizeLayoutScope
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.formatString
 import androidx.compose.material3.internal.getString
@@ -112,6 +113,7 @@ import androidx.compose.material3.tokens.TimePickerTokens.TimeSelectorSelectedCo
 import androidx.compose.material3.tokens.TimePickerTokens.TimeSelectorSelectedLabelTextColor
 import androidx.compose.material3.tokens.TimePickerTokens.TimeSelectorUnselectedContainerColor
 import androidx.compose.material3.tokens.TimePickerTokens.TimeSelectorUnselectedLabelTextColor
+import androidx.compose.material3.tokens.TypeScaleTokens
 import androidx.compose.material3.tokens.TypographyKeyTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -196,7 +198,9 @@ import androidx.compose.ui.semantics.selectableGroup
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -210,9 +214,11 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastFirst
@@ -2807,15 +2813,11 @@ private fun PeriodToggleImpl(
     shapes: TimePickerShapes? = null,
     toggle: @Composable (() -> Unit)? = null,
 ) {
-    val style = PeriodSelectorLabelTextFont.value
-    val lineHeight = (style.lineHeight.value / style.fontSize.value).em
-    val autoSize =
-        remember(style.fontSize) {
-            TextAutoSize.StepBased(
-                minFontSize = PeriodToggleMinFontSize,
-                maxFontSize = style.fontSize,
-            )
-        }
+    val style = PeriodSelectorLabelTextFont.value.withDefaultPeriodLabelSizes()
+    val lineHeight =
+        if (style.lineHeight.isEm) style.lineHeight
+        else (style.lineHeight.value / style.fontSize.value).em
+    val autoSize = remember(style.fontSize) { PeriodToggleAutoSize(maxFontSize = style.fontSize) }
     val contentDescription = getString(Strings.TimePickerPeriodToggle)
     val useUpdatedToggle =
         ComposeMaterial3Flags.isUpdatedTimepickerToggleEnabled || shapes.orVibrant(false, true)
@@ -2983,6 +2985,44 @@ private fun PeriodToggleImpl(
             }
         },
     )
+}
+
+/**
+ * [TextAutoSize] for the period toggle labels. They fit at [maxFontSize] in most cases, but
+ * [TextAutoSize.StepBased] always runs its full binary search, so lay out at [maxFontSize] first
+ * and only search when the label overflows.
+ */
+private class PeriodToggleAutoSize(private val maxFontSize: TextUnit) : TextAutoSize {
+    private val fallback =
+        TextAutoSize.StepBased(
+            minFontSize = PeriodToggleMinFontSize,
+            maxFontSize = maxFontSize,
+            stepSize = PeriodToggleAutoSizeStep,
+        )
+
+    override fun TextAutoSizeLayoutScope.getFontSize(
+        constraints: Constraints,
+        text: AnnotatedString,
+    ): TextUnit {
+        if (!performLayout(constraints, text, maxFontSize).hasVisualOverflow) return maxFontSize
+        return with(fallback) { getFontSize(constraints, text) }
+    }
+
+    override fun equals(other: Any?): Boolean =
+        other is PeriodToggleAutoSize && other.maxFontSize == maxFontSize
+
+    override fun hashCode(): Int = maxFontSize.hashCode()
+}
+
+/**
+ * Auto-size needs an sp font size and a line height to scale. Fall back to the
+ * [PeriodSelectorLabelTextFont] defaults (TitleMedium) for whatever the theme's style leaves unset.
+ */
+private fun TextStyle.withDefaultPeriodLabelSizes(): TextStyle {
+    val size = if (fontSize.isSp) fontSize else TypeScaleTokens.TitleMediumSize
+    val height = if (lineHeight.isSpecified) lineHeight else TypeScaleTokens.TitleMediumLineHeight
+    return if (size == fontSize && height == lineHeight) this
+    else copy(fontSize = size, lineHeight = height)
 }
 
 @Composable
@@ -4123,6 +4163,8 @@ private val PeriodTogglePaddingLarge
     get() = 16.dp
 private val PeriodToggleMinFontSize
     get() = 6.sp
+private val PeriodToggleAutoSizeStep
+    get() = 1.sp
 
 private val TimePickerMaxHeight
     get() = 384.dp
