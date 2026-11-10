@@ -16,15 +16,13 @@
 
 package androidx.compose.ui.inspection.recompositions
 
-import androidx.collection.IntObjectMap
-import androidx.collection.MutableIntObjectMap
-import androidx.collection.mutableIntObjectMapOf
+import androidx.collection.SparseArrayCompat
 
 /** The state reads stored per @Composable. */
 class RecompositionDataWithStateReads : RecompositionData() {
-    // The state reads per recomposition count starting with 1
-    private var observed: MutableIntObjectMap<ObservedStateReads>? = null
-    private var firstObserved = -1
+    // The state reads per recomposition count starting with 1, sorted by recomposition number.
+    // Entries are usually added in increasing order, which makes adding an entry cheap.
+    private var observed: SparseArrayCompat<ObservedStateReads>? = null
 
     override fun incrementCount() {
         // The invalidations for the previous recomposition are no longer needed,
@@ -49,9 +47,6 @@ class RecompositionDataWithStateReads : RecompositionData() {
         }
         val reads = addObservedStateReads(count)
         reads.addStateRead(value, trace)
-        if (firstObserved < 0) {
-            firstObserved = count
-        }
         return reads
     }
 
@@ -62,10 +57,7 @@ class RecompositionDataWithStateReads : RecompositionData() {
     }
 
     fun remove(recomposition: Int) {
-        val removed = observed?.remove(recomposition)
-        if (removed != null && recomposition == firstObserved) {
-            firstObserved = findNext(recomposition + 1)
-        }
+        observed?.remove(recomposition)
     }
 
     /**
@@ -83,66 +75,67 @@ class RecompositionDataWithStateReads : RecompositionData() {
         recompositionNumberEnd: Int,
         includeExtra: Boolean,
     ): List<ObservedReadResult> {
-        if (observed == null) {
-            return emptyList()
-        }
-        val result = mutableListOf<ObservedReadResult>()
-        val actual = maxOf(firstObserved, recompositionNumberStart)
+        val existing = observed ?: return emptyList()
         val max = if (includeExtra) count else minOf(recompositionNumberEnd, count)
-        var found = removeNextStateRead(actual, max)
-        found?.let { result.add(it) }
         val rangeSize = recompositionNumberEnd - recompositionNumberStart + 1
-        while (found != null && result.size < rangeSize) {
-            found = removeNextStateRead(found.recomposition + 1, max)
-            found?.let { result.add(it) }
-        }
-        if (result.isNotEmpty()) {
-            if (result.first().recomposition == firstObserved) {
-                firstObserved = findNext(result.last().recomposition + 1)
+        val result = mutableListOf<ObservedReadResult>()
+        val first = indexOfFirstRecompositionAtOrAfter(existing, recompositionNumberStart)
+        var index = first
+        while (index < existing.size() && (result.isEmpty() || result.size < rangeSize)) {
+            val recomposition = existing.keyAt(index)
+            if (recomposition > max) {
+                break
             }
+            var stateRead = existing.valueAt(index)
+            if (recomposition == count) {
+                // If this the most recent recomposition, there may still be state reads
+                // being recorded, make a copy:
+                stateRead = stateRead.copy()
+            }
+            result.add(stateRead.toObservedReadResult(recomposition))
+            index++
+        }
+        // Note: Do not use SparseArrayCompat.removeAtRange, which removes too few mappings in
+        // released versions of androidx.collection. The version used at runtime is the one used by
+        // the inspected app.
+        // Note: removeAt only marks the entry as deleted, so the indices do not shift.
+        for (i in first until index) {
+            existing.removeAt(i)
         }
         return result
     }
 
-    private fun findNext(start: Int): Int {
-        val existing = observed ?: return -1
-        var actual = start
-        while (!existing.contains(actual) && actual <= count) {
-            actual++
+    /**
+     * Return the index in [existing] of the first recomposition at or after [recomposition], or the
+     * size of [existing] if there is none.
+     */
+    private fun indexOfFirstRecompositionAtOrAfter(
+        existing: SparseArrayCompat<ObservedStateReads>,
+        recomposition: Int,
+    ): Int {
+        // The keys are sorted, so do a binary search:
+        var low = 0
+        var high = existing.size()
+        while (low < high) {
+            val mid = (low + high) ushr 1
+            if (existing.keyAt(mid) < recomposition) {
+                low = mid + 1
+            } else {
+                high = mid
+            }
         }
-        return if (actual <= count) actual else -1
+        return low
     }
 
-    // Remove the first recomposition found by going up from [start] but not exceeding [max]
-    private fun removeNextStateRead(start: Int, max: Int): ObservedReadResult? {
-        if (start > max) {
-            return null
-        }
-        val existing = observed ?: return null
-        var actual = start
-        var stateRead = existing.remove(actual)
-        while (stateRead == null && actual < max) {
-            stateRead = existing.remove(++actual)
-        }
-        if (actual == count) {
-            // If this the most recent recomposition, there may still be state reads
-            // being recorded, make a copy:
-            stateRead = stateRead?.copy()
-        }
-        return stateRead?.toObservedReadResult(actual)
-    }
-
-    fun clearStateReads(): IntObjectMap<ObservedStateReads>? {
+    fun clearStateReads(): SparseArrayCompat<ObservedStateReads>? {
         val result = observed
         observed = null
-        firstObserved = -1
         return result
     }
 
     private fun addObservedStateReads(recomposition: Int): ObservedStateReads {
-        if (observed == null) {
-            observed = mutableIntObjectMapOf()
-        }
-        return observed!!.getOrPut(recomposition) { ObservedStateReads() }
+        val existing = observed ?: SparseArrayCompat<ObservedStateReads>().also { observed = it }
+        return existing.get(recomposition)
+            ?: ObservedStateReads().also { existing.append(recomposition, it) }
     }
 }

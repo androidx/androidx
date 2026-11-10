@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.inspection.recompositions
 
+import androidx.collection.forEach
+
 /** The default number of state reads kept in memory */
 internal const val DEFAULT_MAX_STATE_READS = 5000
 

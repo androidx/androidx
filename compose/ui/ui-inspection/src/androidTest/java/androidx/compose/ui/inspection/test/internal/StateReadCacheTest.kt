@@ -67,4 +67,44 @@ class StateReadCacheTest {
         // This should remove 2 state reads from the cache:
         assertThat(cache.currentStateReads).isEqualTo(2)
     }
+
+    @Test
+    fun testGetReadsAndRemoveRange() {
+        val counts = mutableMapOf<Any, RecompositionDataWithStateReads>()
+        val cache = StateReadCache(counts)
+        val data1 = RecompositionDataWithStateReads()
+        counts[ANCHOR1] = data1
+
+        // State reads in recompositions 1, 3, 4, and 5, but not in recomposition 2:
+        for (recomposition in 1..5) {
+            data1.incrementCount()
+            if (recomposition != 2) {
+                cache.addStateRead(ANCHOR1, VALUE1, Exception())
+            }
+        }
+        assertThat(cache.currentStateReads).isEqualTo(4)
+
+        // A range starting at a recomposition without state reads:
+        val reads1 = cache.getReadsAndRemove(ANCHOR1, 2, 3, includeExtra = false)
+        assertThat(reads1.map { it.recomposition }).containsExactly(3)
+        assertThat(cache.currentStateReads).isEqualTo(3)
+
+        // Include extra state reads after the range, if there are no state reads in the range:
+        val reads2 = cache.getReadsAndRemove(ANCHOR1, 2, 2, includeExtra = true)
+        assertThat(reads2.map { it.recomposition }).containsExactly(4)
+        assertThat(cache.currentStateReads).isEqualTo(2)
+
+        // The range is limited by the current recomposition:
+        val reads3 = cache.getReadsAndRemove(ANCHOR1, 1, 10, includeExtra = false)
+        assertThat(reads3.map { it.recomposition }).containsExactly(1, 5).inOrder()
+        assertThat(cache.currentStateReads).isEqualTo(0)
+
+        // More state reads for the current recomposition can still be recorded:
+        cache.addStateRead(ANCHOR1, VALUE2, Exception())
+        val reads4 = cache.getReadsAndRemove(ANCHOR1, 5, 5, includeExtra = false)
+        assertThat(reads4.single().recomposition).isEqualTo(5)
+        assertThat(reads4.single().reads).hasSize(1)
+        assertThat(reads3.last().reads).hasSize(1)
+        assertThat(cache.currentStateReads).isEqualTo(0)
+    }
 }
