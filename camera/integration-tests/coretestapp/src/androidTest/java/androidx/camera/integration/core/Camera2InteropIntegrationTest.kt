@@ -97,6 +97,12 @@ class Camera2InteropIntegrationTest(val implName: String, val cameraConfig: Came
     lateinit var captureCallback: Camera2InteropUtil.CaptureCallback
 
     companion object {
+        // Use VIDEO_RECORD rather than CUSTOM: it is valid on every BACKWARD_COMPATIBLE camera
+        // and differs from the PREVIEW intent of the ImageAnalysis-only repeating request, so
+        // the override stays observable. Some HALs (e.g. Unisoc on itel-w6004) stop streaming
+        // when CUSTOM is requested.
+        private const val TEST_CAPTURE_INTENT = CaptureRequest.CONTROL_CAPTURE_INTENT_VIDEO_RECORD
+
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun data() = listOf(arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()))
@@ -253,7 +259,7 @@ class Camera2InteropIntegrationTest(val implName: String, val cameraConfig: Came
     fun setCaptureRequestOptions_valueShouldExist(): Unit = runBlocking {
         // Arrange.
         val testKey = CaptureRequest.CONTROL_CAPTURE_INTENT
-        val testValue = CaptureRequest.CONTROL_CAPTURE_INTENT_CUSTOM
+        val testValue = TEST_CAPTURE_INTENT
         val testLifecycle = TestLifecycleOwner(Lifecycle.State.RESUMED)
 
         // Act.
@@ -271,7 +277,7 @@ class Camera2InteropIntegrationTest(val implName: String, val cameraConfig: Came
     fun setCaptureRequestOptions_valueShouldExist_afterLifeCycleStopStart(): Unit = runBlocking {
         // Arrange.
         val testKey = CaptureRequest.CONTROL_CAPTURE_INTENT
-        val testValue = CaptureRequest.CONTROL_CAPTURE_INTENT_CUSTOM
+        val testValue = TEST_CAPTURE_INTENT
         val testLifecycle = TestLifecycleOwner(Lifecycle.State.RESUMED)
         withContext(Dispatchers.Main) {
             processCameraProvider!!
@@ -294,7 +300,7 @@ class Camera2InteropIntegrationTest(val implName: String, val cameraConfig: Came
     fun clearCaptureRequestOptions_valueShouldNotExist(): Unit = runBlocking {
         // Arrange.
         val testKey = CaptureRequest.CONTROL_CAPTURE_INTENT
-        val testValue = CaptureRequest.CONTROL_CAPTURE_INTENT_CUSTOM
+        val testValue = TEST_CAPTURE_INTENT
         val testLifecycle = TestLifecycleOwner(Lifecycle.State.RESUMED)
         lateinit var camera: Camera
         withContext(Dispatchers.Main) {
