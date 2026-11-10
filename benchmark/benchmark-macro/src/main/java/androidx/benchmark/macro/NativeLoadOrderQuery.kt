@@ -55,49 +55,62 @@ internal class LoadOrderEntry(
 
 internal object NativeLoadOrderQuery {
 
-    internal fun getQuery(targetPackageName: String): String {
+    internal fun getQuery(
+        targetPackageName: String,
+        restrictToDataDirectory: Boolean = true,
+    ): String {
+        val filePattern = if (restrictToDataDirectory) "/data%.so" else "%.so"
         return """
-            WITH RECURSIVE callstack AS (
-              SELECT
-                ps.id AS sample_id,
-                ps.ts,
-                t.name AS thread_name,
-                c.id AS callsite_id,
-                c.parent_id,
-                c.frame_id,
-                0 AS depth
-              FROM perf_sample ps
-              JOIN thread t USING (utid)
-              JOIN process USING (upid)
-              JOIN stack_profile_callsite c ON ps.callsite_id = c.id
-              WHERE ${processNameLikePkg(targetPackageName)}
+            WITH RECURSIVE
+              initial_callsites AS (
+                SELECT
+                  ps.callsite_id,
+                  MIN(ps.ts) AS ts
+                FROM perf_sample ps
+                JOIN thread t USING (utid)
+                JOIN process USING (upid)
+                WHERE ${processNameLikePkg(targetPackageName)}
+                AND ps.callsite_id IS NOT NULL
+                GROUP BY ps.callsite_id
+              ),
+              callstack AS (
+                SELECT
+                  c.id AS callsite_id,
+                  c.parent_id,
+                  c.frame_id,
+                  ic.ts
+                FROM initial_callsites ic
+                JOIN stack_profile_callsite c ON ic.callsite_id = c.id
 
-              UNION ALL
+                UNION ALL
 
-              SELECT
-                cs.sample_id,
-                cs.ts,
-                cs.thread_name,
-                p.id AS callsite_id,
-                p.parent_id,
-                p.frame_id,
-                cs.depth + 1 AS depth
-              FROM callstack cs
-              JOIN stack_profile_callsite p ON cs.parent_id = p.id
-            )
+                SELECT
+                  p.id AS callsite_id,
+                  p.parent_id,
+                  p.frame_id,
+                  cs.ts
+                FROM callstack cs
+                JOIN stack_profile_callsite p ON cs.parent_id = p.id
+              ),
+              frames AS (
+                SELECT
+                  frame_id,
+                  MIN(ts) AS ts
+                FROM callstack
+                GROUP BY frame_id
+              )
             SELECT
-              cs.sample_id,
-              cs.ts AS timestamp_ns,
-              cs.thread_name,
-              cs.depth,
-              COALESCE(m.name, '[anonymous / unmapped]') AS file_name,
+              MIN(frames.ts) AS timestamp_ns,
+              m.name AS file_name,
               COALESCE(m.build_id, '') AS build_id,
               f.rel_pc AS rel_pc,
               COALESCE(f.name, '') AS function_name
-            FROM callstack cs
-            JOIN stack_profile_frame f ON cs.frame_id = f.id
+            FROM frames
+            JOIN stack_profile_frame f ON frames.frame_id = f.id
             JOIN stack_profile_mapping m ON f.mapping = m.id
-            ORDER BY cs.ts ASC;
+            WHERE m.name LIKE '$filePattern'
+            GROUP BY file_name, build_id, rel_pc, function_name
+            ORDER BY timestamp_ns ASC;
         """
             .trimIndent()
     }
@@ -108,35 +121,22 @@ internal object NativeLoadOrderQuery {
         // Useful to restrict to things inside the data directory outside of tests.
         restrictToDataDirectory: Boolean = true,
     ): Sequence<LoadOrderEntry> {
-        val iterator = session.query(query = getQuery(targetPackageName))
-        val set = mutableSetOf<LoadOrderEntry>()
-        val entries = iterator.mapNotNull { row ->
-            val file = row.string("file_name")
-            val buildId = row.string("build_id")
-            val relPc = row.long("rel_pc")
-            val symbol = row.string("function_name")
-            val ts = row.long("timestamp_ns")
-            when {
-                file.isBlank() || !file.endsWith(".so") -> null
-                restrictToDataDirectory && !file.startsWith("/data") -> null
-                else -> {
-                    val entry =
-                        LoadOrderEntry(
-                            file = file,
-                            buildId = buildId,
-                            relPc = relPc,
-                            name = symbol,
-                            ts = ts,
-                        )
-                    if (entry !in set) {
-                        set += entry
-                        entry
-                    } else {
-                        null
-                    }
-                }
-            }
+        val iterator =
+            session.query(
+                query =
+                    getQuery(
+                        targetPackageName = targetPackageName,
+                        restrictToDataDirectory = restrictToDataDirectory,
+                    )
+            )
+        return iterator.map { row ->
+            LoadOrderEntry(
+                file = row.string("file_name"),
+                buildId = row.string("build_id"),
+                relPc = row.long("rel_pc"),
+                name = row.string("function_name"),
+                ts = row.long("timestamp_ns"),
+            )
         }
-        return entries
     }
 }

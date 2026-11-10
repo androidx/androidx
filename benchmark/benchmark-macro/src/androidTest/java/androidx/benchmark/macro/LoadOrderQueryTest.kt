@@ -23,6 +23,7 @@ import androidx.benchmark.runSingleSessionServer
 import androidx.benchmark.traceprocessor.TraceProcessor
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlin.test.Test
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.runner.RunWith
@@ -43,6 +44,29 @@ class LoadOrderQueryTest {
                     .toList()
             assertTrue { entries.isNotEmpty() }
             assertTrue { entries.all { it.buildId.isNotEmpty() && it.relPc > 0L } }
+        }
+    }
+
+    @Test
+    fun largeLoadOrderQueryTest() {
+        assumeTrue(!isEmulator)
+        assumeTrue(PerfettoHelper.isAbiSupported())
+        val traceFile = createTempFileFromAsset("load-order-test-large", ".perfetto-trace")
+        TraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+            val entries =
+                nativeLoadOrderEntries(
+                    session = this,
+                    targetPackageName = "com.google.android.youtube",
+                )
+            assertNotNull(entries.firstOrNull())
+            var index = 0
+            for (entry in entries) {
+                assertTrue { entry.buildId.isNotEmpty() && entry.relPc > 0L }
+                if (index > 100) {
+                    break
+                }
+                index += 1
+            }
         }
     }
 }
