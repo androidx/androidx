@@ -408,3 +408,12 @@ class ColorUtilTest {
         assertThat(expected.alpha).isWithin(tolerance).of(actual.alpha)
     }
 }
+
+/**
+ * Sets the luminance (tone) of this color, keeping its hue and chroma. Chroma may decrease because
+ * chroma has a different maximum for any given hue and luminance.
+ */
+private fun Color.setLuminance(newLuminance: Float): Color {
+    val cam = Cam.fromInt(toArgb())
+    return Color(Cam.getInt(cam.hue, cam.chroma, newLuminance))
+}
