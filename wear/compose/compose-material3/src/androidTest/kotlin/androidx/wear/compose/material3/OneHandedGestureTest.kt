@@ -1423,10 +1423,18 @@ class OneHandedGestureTest {
             edgeButtonClicked = false
         }
 
-        // At 41.dp total height (35.dp inner button height = 50% of EdgeButtonSize.Medium's 70.dp
-        // maximumHeight), gestureVisibilityThreshold = 0.5f does not activate the gesture (must
-        // exceed threshold).
-        buttonHeight = 35.dp + EdgeButtonVerticalPadding * 2
+        // At 50% of EdgeButtonSize.Medium's 70.dp maximumHeight (plus vertical padding),
+        // gestureVisibilityThreshold = 0.5f does not activate the gesture (must exceed threshold).
+        // Computed in px to match AlertDialogDefaults.EdgeButton's onSizeChanged check
+        // (size.height - EdgeButtonVerticalPadding.roundToPx() * 2 vs maximumHeight.roundToPx()),
+        // so rounding maximumHeight and padding separately can't push the inner height above 50%.
+        // The integer division rounds down, so on odd-px densities this is just under 50%.
+        buttonHeight =
+            with(rule.density) {
+                (EdgeButtonSize.Medium.maximumHeight.roundToPx() / 2 +
+                        EdgeButtonVerticalPadding.roundToPx() * 2)
+                    .toDp()
+            }
         gestureVisibilityThreshold = 0.5f
         rule.waitForIdle()
         sdkGestureInputManager.performGesture(sdkActionPrimary)
@@ -1449,7 +1457,14 @@ class OneHandedGestureTest {
         rule.runOnIdle { assertEquals(false, edgeButtonClicked) }
 
         // At full height, gestureVisibilityThreshold = 1.0f activates the gesture.
-        buttonHeight = EdgeButtonSize.Medium.maximumHeightPlusPadding()
+        // Computed in px so rounding maximumHeight and padding separately (e.g. at 1.5x density)
+        // cannot leave visibleButtonHeight 1px short of fullButtonHeightPx.
+        buttonHeight =
+            with(rule.density) {
+                (EdgeButtonSize.Medium.maximumHeight.roundToPx() +
+                        EdgeButtonVerticalPadding.roundToPx() * 2)
+                    .toDp()
+            }
         rule.waitForIdle()
         sdkGestureInputManager.performGesture(sdkActionPrimary)
         rule.runOnIdle {
