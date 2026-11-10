@@ -19,7 +19,6 @@ package androidx.car.app.model;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 
@@ -36,7 +35,6 @@ import java.util.Objects;
  * A {@link Section} within the {@code SectionedItemTemplate} that contains {@link CondensedItem}s.
  */
 @RequiresCarApi(9)
-@ExperimentalCarApi
 @CarProtocol
 @KeepFields
 public final class CondensedSection extends Section<CondensedItem> {
@@ -116,7 +114,6 @@ public final class CondensedSection extends Section<CondensedItem> {
 
     /** A builder for {@link CondensedSection}. */
     @RequiresCarApi(9)
-    @ExperimentalCarApi
     public static final class Builder extends BaseBuilder<CondensedItem, Builder> {
         @IncompleteLastRowStrategy
         private int mIncompleteLastRowStrategy = INCOMPLETE_LAST_ROW_AS_IS;

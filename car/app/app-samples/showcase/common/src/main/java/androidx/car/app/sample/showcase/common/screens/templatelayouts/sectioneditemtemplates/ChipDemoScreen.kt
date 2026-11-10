@@ -17,10 +17,8 @@
 package androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates
 
 import android.graphics.Color
-import androidx.annotation.OptIn
 import androidx.car.app.CarContext
 import androidx.car.app.Screen
-import androidx.car.app.annotations.ExperimentalCarApi
 import androidx.car.app.annotations.RequiresCarApi
 import androidx.car.app.model.Action
 import androidx.car.app.model.CarColor
@@ -48,7 +46,6 @@ import androidx.core.graphics.drawable.IconCompat
  * * Setting a ChipStyle on the section using [ChipSection#setStyle], and overriding this style for
  *   a single chip using [Chip#setStyle] when the chip is selected
  */
-@OptIn(ExperimentalCarApi::class)
 @RequiresCarApi(9)
 class ChipDemoScreen(carContext: CarContext) : Screen(carContext) {
     private val mSectionStyle =

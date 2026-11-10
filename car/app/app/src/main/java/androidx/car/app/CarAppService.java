@@ -169,12 +169,10 @@ public abstract class CarAppService extends Service {
     public static final String CATEGORY_MEDIA_APP = "androidx.car.app.category.MEDIA";
 
     /** Respect system/OEM customization (colors, shapes, typography). */
-    @ExperimentalCarApi
     @RequiresCarApi(9)
     public static final int THEME_SOURCE_SYSTEM = 0;
 
     /** Request standard/neutral theme experience, bypassing OEM overrides. */
-    @ExperimentalCarApi
     @RequiresCarApi(9)
     public static final int THEME_SOURCE_APP = 1;
 
@@ -293,7 +291,6 @@ public abstract class CarAppService extends Service {
     @IntDef({THEME_SOURCE_SYSTEM, THEME_SOURCE_APP})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(LIBRARY)
-    @ExperimentalCarApi
     public @interface ThemeSource {
     }
 
@@ -393,7 +390,6 @@ public abstract class CarAppService extends Service {
     // TODO(b/529845007): Explore the best mechanism to inform 3P developers about the App
     //  Expression opt-in changes in CarApi 9.
     @RequiresCarApi(9)
-    @ExperimentalCarApi
     public @ThemeSource int getCarAppThemeSource() {
         return THEME_SOURCE_SYSTEM;
     }

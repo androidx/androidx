@@ -153,7 +153,7 @@ public class ChipTest {
 
     @Test
     public void setStyle() {
-        ChipStyle style = new ChipStyle.Builder().build();
+        ChipStyle style = new ChipStyle.Builder().setBackgroundColor(CarColor.RED).build();
         Chip chip = new Chip.Builder()
                 .setTitle("Title")
                 .setStyle(style)
@@ -170,7 +170,7 @@ public class ChipTest {
                 .setEndIcon(ALERT)
                 .setSelected(true)
                 .setOnClickListener(() -> {})
-                .setStyle(new ChipStyle.Builder().build())
+                .setStyle(new ChipStyle.Builder().setBackgroundColor(CarColor.RED).build())
                 .build();
 
         assertThat(new Chip.Builder()
@@ -179,7 +179,7 @@ public class ChipTest {
                 .setEndIcon(ALERT)
                 .setSelected(true)
                 .setOnClickListener(() -> {})
-                .setStyle(new ChipStyle.Builder().build())
+                .setStyle(new ChipStyle.Builder().setBackgroundColor(CarColor.RED).build())
                 .build())
                 .isEqualTo(chip);
     }

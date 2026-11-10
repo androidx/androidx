@@ -19,9 +19,9 @@ package androidx.car.app.model;
 import static java.util.Objects.requireNonNull;
 
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.model.constraints.CarColorConstraints;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -39,7 +39,6 @@ import java.util.Objects;
  * the Section, then override the style of the individual "selected" Chips. Remember that
  * these colors will fall back to host defaults if they are unset or they fail contrast checks.
  */
-@ExperimentalCarApi
 @CarProtocol
 @RequiresCarApi(9)
 @KeepFields
@@ -70,7 +69,7 @@ public final class ChipStyle {
     }
 
     /**
-     * Returns the stroke color of the chip, or {@code null} if not set.
+     * Returns the outline color of the chip, or {@code null} if not set.
      */
     @Nullable
     public CarColor getOutlineColor() {
@@ -152,11 +151,14 @@ public final class ChipStyle {
          * <p>If the background color is not set, a host default color will be used,
          * depending on the {@link Chip#isSelected()} state.
          *
-         * <p>@throws NullPointerException if {@code backgroundColor} is {@code null}
+         * @throws NullPointerException     if {@code backgroundColor} is {@code null}
+         * @throws IllegalArgumentException if {@code backgroundColor} contains an unsupported
+         *                                  color type
          */
         @NonNull
         public Builder setBackgroundColor(@NonNull CarColor backgroundColor) {
-            mBackgroundColor = requireNonNull(backgroundColor);
+            CarColorConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(backgroundColor));
+            mBackgroundColor = backgroundColor;
             return this;
         }
 
@@ -172,24 +174,30 @@ public final class ChipStyle {
          * If it does not meet a minimum contrast threshold, this color will be ignored and a
          * host-provided fallback color will be used.
          *
-         * @throws NullPointerException if {@code contentColor} is {@code null}
+         * @throws NullPointerException     if {@code contentColor} is {@code null}
+         * @throws IllegalArgumentException if {@code contentColor} contains an unsupported color
+         *                                  type
          */
         @NonNull
         public Builder setContentColor(@NonNull CarColor contentColor) {
-            mContentColor = requireNonNull(contentColor);
+            CarColorConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(contentColor));
+            mContentColor = contentColor;
             return this;
         }
 
         /**
-         * Sets the stroke color of the chip.
+         * Sets the outline color of the chip.
          *
-         * <p>If the content color is not set, a host default color will be used.
+         * <p>If the outline color is not set, a host default color will be used.
          *
-         * <p>@throws NullPointerException if {@code strokeColor} is {@code null}
+         * @throws NullPointerException     if {@code outlineColor} is {@code null}
+         * @throws IllegalArgumentException if {@code outlineColor} contains an unsupported color
+         *                                  type
          */
         @NonNull
         public Builder setOutlineColor(@NonNull CarColor outlineColor) {
-            mOutlineColor = requireNonNull(outlineColor);
+            CarColorConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(outlineColor));
+            mOutlineColor = outlineColor;
             return this;
         }
 
@@ -208,9 +216,18 @@ public final class ChipStyle {
 
         /**
          * Constructs the {@link ChipStyle} defined by this builder.
+         *
+         * @throws IllegalStateException if background color, content color, outline color, and
+         *                               shape are all unset
          */
         @NonNull
         public ChipStyle build() {
+            if (mBackgroundColor == null && mContentColor == null && mOutlineColor == null
+                    && mShape == null) {
+                throw new IllegalStateException(
+                        "Either a background color, content color, outline color, or shape must"
+                                + " be set for a ChipStyle");
+            }
             return new ChipStyle(this);
         }
     }

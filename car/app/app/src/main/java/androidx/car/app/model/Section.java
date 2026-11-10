@@ -18,10 +18,8 @@ package androidx.car.app.model;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.ItemList.OnItemVisibilityChangedListener;
@@ -48,7 +46,6 @@ import java.util.Objects;
 @KeepFields
 @CarProtocol
 @RequiresCarApi(8)
-@OptIn(markerClass = ExperimentalCarApi.class)
 public abstract class Section<T extends Item> {
     private final @NonNull ListDelegate<T> mItemsDelegate;
     private final @Nullable CarText mTitle;
@@ -96,7 +93,6 @@ public abstract class Section<T extends Item> {
      * <p>If this is set, it takes precedence over {@link #getTitle()}.
      */
     @RequiresCarApi(9)
-    @ExperimentalCarApi
     public @Nullable SectionHeader getSectionHeader() {
         return mSectionHeader;
     }
@@ -280,7 +276,6 @@ public abstract class Section<T extends Item> {
         @CanIgnoreReturnValue
         @SuppressWarnings({"SetterReturnsThis", "unchecked"})
         @RequiresCarApi(9)
-        @ExperimentalCarApi
         public @NonNull B setSectionHeader(@Nullable SectionHeader sectionHeader) {
             mSectionHeader = sectionHeader;
             return (B) this;

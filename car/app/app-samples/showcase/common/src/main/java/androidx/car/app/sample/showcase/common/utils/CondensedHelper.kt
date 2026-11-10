@@ -13,12 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:OptIn(ExperimentalCarApi::class)
-
 package androidx.car.app.sample.showcase.common.utils
 
-import androidx.annotation.OptIn
-import androidx.car.app.annotations.ExperimentalCarApi
 import androidx.car.app.model.CarIcon
 import androidx.car.app.model.CarProgressBar
 import androidx.car.app.model.CarText

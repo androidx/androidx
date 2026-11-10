@@ -278,6 +278,12 @@ public final class CarAppServiceTest {
         }
     }
 
+    @Test
+    public void getCarAppThemeSource_defaultValue() {
+        assertThat(mCarAppService.getCarAppThemeSource())
+                .isEqualTo(CarAppService.THEME_SOURCE_SYSTEM);
+    }
+
     private static class TestCarAppServiceNoOnCreateSession extends CarAppService {
         @Override
         public @NonNull HostValidator createHostValidator() {

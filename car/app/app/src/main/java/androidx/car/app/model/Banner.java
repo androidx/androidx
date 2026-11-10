@@ -25,7 +25,6 @@ import android.annotation.SuppressLint;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.ActionsConstraints;
@@ -47,7 +46,6 @@ import java.util.Objects;
  * <p>For example, a banner can be used to tell the user whether the app is running in an online vs
  * offline mode, or promote a specific event or announcement.
  */
-@ExperimentalCarApi
 @CarProtocol
 @KeepFields
 @RequiresCarApi(9)
@@ -241,7 +239,6 @@ public final class Banner implements Item {
 
     /** A builder of {@link Banner}. */
     @RequiresCarApi(9)
-    @ExperimentalCarApi
     public static final class Builder {
         @Nullable CarText mTitle;
         @Nullable CarText mSubtitle;

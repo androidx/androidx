@@ -19,12 +19,9 @@ package androidx.car.app.model;
 import static java.util.Objects.requireNonNull;
 
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.BackgroundConstraints;
-
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -35,7 +32,6 @@ import java.util.Objects;
  * Holds properties related ONLY to the visual container around a {@link CondensedItem}.
  */
 @RequiresCarApi(9)
-@ExperimentalCarApi
 @CarProtocol
 @KeepFields
 public final class CondensedItemStyle {
@@ -92,7 +88,6 @@ public final class CondensedItemStyle {
 
     /** A builder for {@link CondensedItemStyle}. */
     @RequiresCarApi(9)
-    @ExperimentalCarApi
     public static final class Builder {
         @Nullable Shape mShape;
         @Nullable Background mBackground;
@@ -102,7 +97,6 @@ public final class CondensedItemStyle {
          *
          * @throws NullPointerException if {@code shape} is {@code null}
          */
-        @CanIgnoreReturnValue
         public @NonNull Builder setShape(@NonNull Shape shape) {
             mShape = requireNonNull(shape);
             return this;
@@ -116,7 +110,6 @@ public final class CondensedItemStyle {
          * @throws NullPointerException     if {@code background} is {@code null}
          * @throws IllegalArgumentException if {@code background} contains unsupported type
          */
-        @CanIgnoreReturnValue
         public @NonNull Builder setBackground(@NonNull Background background) {
             BackgroundConstraints.COLOR_ONLY.validateOrThrow(background);
             mBackground = requireNonNull(background);

@@ -23,9 +23,7 @@ import static androidx.car.app.model.constraints.RowConstraints.ROW_CONSTRAINTS_
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.messaging.model.ConversationItem;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.Banner;
@@ -171,7 +169,6 @@ public final class RowListConstraints {
         validateRows(pane.getRows());
     }
 
-    @OptIn(markerClass = ExperimentalCarApi.class)
     private void validateRows(List<? extends Item> rows) {
         for (Item rowObj : rows) {
             if (rowObj instanceof Row) {

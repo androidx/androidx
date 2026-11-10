@@ -19,7 +19,6 @@ package androidx.car.app.model;
 import static java.util.Objects.requireNonNull;
 
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 
@@ -37,7 +36,6 @@ import java.util.Objects;
  *
  * <p>The host may limit the number of chips displayed to ensure driver safety.
  */
-@ExperimentalCarApi
 @CarProtocol
 @RequiresCarApi(9)
 @KeepFields
@@ -119,13 +117,14 @@ public final class ChipSection extends Section<Chip> {
         /**
          * Constructs the {@link ChipSection} defined by this builder.
          *
-         * @throws IllegalArgumentException if the section does not contain at least one item.
+         * <p>Upon building, this class validates that at least one {@link Chip} is present.
+         *
+         * @throws IllegalStateException if the section does not contain at least one {@link Chip}
          */
         @NonNull
         public ChipSection build() {
             if (mItems.isEmpty()) {
-                throw new IllegalArgumentException("ChipSection must contain at least one "
-                        + "item");
+                throw new IllegalStateException("A ChipSection must contain at least one Chip");
             }
             return new ChipSection(this);
         }

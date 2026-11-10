@@ -123,7 +123,6 @@ public final class SectionedItemTemplate implements Template {
     private final @Nullable Header mHeader;
 
     @RequiresCarApi(9)
-    @OptIn(markerClass = ExperimentalCarApi.class)
     private final @Nullable SearchHeader mSearchHeader;
 
     private final boolean mIsLoading;
@@ -179,7 +178,6 @@ public final class SectionedItemTemplate implements Template {
      *
      * @see Builder#setSearchHeader(SearchHeader)
      */
-    @ExperimentalCarApi
     @RequiresCarApi(9)
     public @Nullable SearchHeader getSearchHeader() {
         return mSearchHeader;
@@ -300,7 +298,6 @@ public final class SectionedItemTemplate implements Template {
         private @Nullable Header mHeader = null;
 
         @RequiresCarApi(9)
-        @OptIn(markerClass = ExperimentalCarApi.class)
         private @Nullable SearchHeader mSearchHeader = null;
 
         private boolean mIsLoading = false;
@@ -445,7 +442,6 @@ public final class SectionedItemTemplate implements Template {
          * on this template at the same time.
          * Otherwise, an exception will be thrown on {@link #build()} invocation.
          */
-        @ExperimentalCarApi
         @RequiresCarApi(9)
         @CanIgnoreReturnValue
         public @NonNull Builder setSearchHeader(@Nullable SearchHeader searchHeader) {

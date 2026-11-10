@@ -19,7 +19,6 @@ package androidx.car.app.model;
 import static java.util.Objects.requireNonNull;
 
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.TabContentsConstraints;

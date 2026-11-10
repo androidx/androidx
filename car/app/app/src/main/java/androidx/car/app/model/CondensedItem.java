@@ -25,13 +25,10 @@ import android.annotation.SuppressLint;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
-
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -44,7 +41,6 @@ import java.util.Objects;
  * A main UI component representing an item in a condensed format.
  */
 @RequiresCarApi(9)
-@ExperimentalCarApi
 @CarProtocol
 @KeepFields
 public final class CondensedItem implements Item {
@@ -110,7 +106,7 @@ public final class CondensedItem implements Item {
     }
 
     /**
-     * Returns the type of the leading image.
+     * Returns the type of the leading image. Defaults to {@link #IMAGE_TYPE_MEDIUM}.
      */
     @CondensedItemImageType
     public int getLeadingImageType() {
@@ -125,7 +121,7 @@ public final class CondensedItem implements Item {
     }
 
     /**
-     * Returns the type of the trailing image.
+     * Returns the type of the trailing image. Defaults to {@link #IMAGE_TYPE_MEDIUM}.
      */
     @CondensedItemImageType
     public int getTrailingImageType() {
@@ -216,9 +212,9 @@ public final class CondensedItem implements Item {
         mTitle = null;
         mText = null;
         mLeadingImage = null;
-        mLeadingImageType = IMAGE_TYPE_SMALL;
+        mLeadingImageType = IMAGE_TYPE_MEDIUM;
         mTrailingImage = null;
-        mTrailingImageType = IMAGE_TYPE_SMALL;
+        mTrailingImageType = IMAGE_TYPE_MEDIUM;
         mStyle = null;
         mOnClickDelegate = null;
         mProgressBar = null;
@@ -227,16 +223,15 @@ public final class CondensedItem implements Item {
 
     /** A builder for {@link CondensedItem}. */
     @RequiresCarApi(9)
-    @ExperimentalCarApi
     public static final class Builder {
         @Nullable CarText mTitle;
         @Nullable CarText mText;
         @Nullable CarIcon mLeadingImage;
         @CondensedItemImageType
-        int mLeadingImageType = IMAGE_TYPE_SMALL;
+        int mLeadingImageType = IMAGE_TYPE_MEDIUM;
         @Nullable CarIcon mTrailingImage;
         @CondensedItemImageType
-        int mTrailingImageType = IMAGE_TYPE_SMALL;
+        int mTrailingImageType = IMAGE_TYPE_MEDIUM;
         @Nullable CondensedItemStyle mStyle;
         @Nullable OnClickDelegate mOnClickDelegate;
         @Nullable CarProgressBar mProgressBar;
@@ -248,7 +243,6 @@ public final class CondensedItem implements Item {
          * @throws NullPointerException     if {@code title} is {@code null}
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
          */
-        @CanIgnoreReturnValue
         public @NonNull Builder setTitle(@NonNull CharSequence title) {
             CarText carText = CarText.create(requireNonNull(title));
             CarTextConstraints.TEXT_AND_ICON.validateOrThrow(carText);
@@ -264,7 +258,6 @@ public final class CondensedItem implements Item {
          * @throws NullPointerException     if {@code title} is {@code null}
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
          */
-        @CanIgnoreReturnValue
         public @NonNull Builder setTitle(@NonNull CarText title) {
             CarTextConstraints.TEXT_AND_ICON.validateOrThrow(requireNonNull(title));
             mTitle = title;
@@ -282,7 +275,6 @@ public final class CondensedItem implements Item {
          * @throws NullPointerException     if {@code text} is {@code null}
          * @throws IllegalArgumentException if {@code text} contains unsupported spans
          */
-        @CanIgnoreReturnValue
         public @NonNull Builder setText(@NonNull CharSequence text) {
             setText(CarText.create(requireNonNull(text)));
             return this;
@@ -299,7 +291,6 @@ public final class CondensedItem implements Item {
          * @throws NullPointerException     if {@code text} is {@code null}
          * @throws IllegalArgumentException if {@code text} contains unsupported spans
          */
-        @CanIgnoreReturnValue
         public @NonNull Builder setText(@NonNull CarText text) {
             CarTextConstraints.TEXT_WITH_COLORS_AND_ICON.validateOrThrow(requireNonNull(text));
             mText = text;
@@ -309,12 +300,12 @@ public final class CondensedItem implements Item {
         /**
          * Sets the leading image of the item.
          *
-         * <p>The leading image will default to {@link #IMAGE_TYPE_MEDIUM}.
+         * <p>The leading image type defaults to {@link #IMAGE_TYPE_MEDIUM}. Use
+         * {@link #setLeadingImage(CarIcon, int)} to set a different type.
          *
          * @throws NullPointerException     if {@code image} is {@code null}
          * @throws IllegalArgumentException if {@code image} contains unsupported icon types
          */
-        @CanIgnoreReturnValue
         public @NonNull Builder setLeadingImage(@NonNull CarIcon image) {
             return setLeadingImage(requireNonNull(image), IMAGE_TYPE_MEDIUM);
         }
@@ -327,7 +318,6 @@ public final class CondensedItem implements Item {
          * @throws NullPointerException     if {@code image} is {@code null}
          * @throws IllegalArgumentException if {@code image} contains unsupported icon types
          */
-        @CanIgnoreReturnValue
         public @NonNull Builder setLeadingImage(@NonNull CarIcon image,
                 @CondensedItemImageType int imageType) {
             CarIconConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(image));
@@ -339,12 +329,12 @@ public final class CondensedItem implements Item {
         /**
          * Sets the trailing image of the item.
          *
-         * <p>The trailing image will default to {@link #IMAGE_TYPE_MEDIUM}.
+         * <p>The trailing image type defaults to {@link #IMAGE_TYPE_MEDIUM}. Use
+         * {@link #setTrailingImage(CarIcon, int)} to set a different type.
          *
          * @throws NullPointerException     if {@code image} is {@code null}
          * @throws IllegalArgumentException if {@code image} contains unsupported icon types
          */
-        @CanIgnoreReturnValue
         public @NonNull Builder setTrailingImage(@NonNull CarIcon image) {
             return setTrailingImage(requireNonNull(image), IMAGE_TYPE_MEDIUM);
         }
@@ -357,7 +347,6 @@ public final class CondensedItem implements Item {
          * @throws NullPointerException     if {@code image} is {@code null}
          * @throws IllegalArgumentException if {@code image} contains unsupported icon types
          */
-        @CanIgnoreReturnValue
         public @NonNull Builder setTrailingImage(@NonNull CarIcon image,
                 @CondensedItemImageType int imageType) {
             CarIconConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(image));
@@ -371,7 +360,6 @@ public final class CondensedItem implements Item {
          *
          * @throws NullPointerException if {@code style} is {@code null}
          */
-        @CanIgnoreReturnValue
         public @NonNull Builder setStyle(@NonNull CondensedItemStyle style) {
             mStyle = requireNonNull(style);
             return this;
@@ -382,7 +370,6 @@ public final class CondensedItem implements Item {
          *
          * @throws NullPointerException if {@code onClickListener} is {@code null}
          */
-        @CanIgnoreReturnValue
         @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
         public @NonNull Builder setOnClickListener(@NonNull OnClickListener onClickListener) {
             mOnClickDelegate = OnClickDelegateImpl.create(requireNonNull(onClickListener));
@@ -397,7 +384,6 @@ public final class CondensedItem implements Item {
          *
          * @throws NullPointerException if {@code progressBar} is {@code null}
          */
-        @CanIgnoreReturnValue
         public @NonNull Builder setProgressBar(@NonNull CarProgressBar progressBar) {
             mProgressBar = requireNonNull(progressBar);
             return this;

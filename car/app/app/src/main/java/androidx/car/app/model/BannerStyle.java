@@ -19,7 +19,6 @@ package androidx.car.app.model;
 import static java.util.Objects.requireNonNull;
 
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.BackgroundConstraints;
@@ -39,7 +38,6 @@ import java.util.Objects;
  * or if they fail host-enforced contrast requirements.
  */
 @RequiresCarApi(9)
-@ExperimentalCarApi
 @CarProtocol
 @KeepFields
 public final class BannerStyle {
@@ -96,7 +94,6 @@ public final class BannerStyle {
 
     /** A builder for {@link BannerStyle}. */
     @RequiresCarApi(9)
-    @ExperimentalCarApi
     public static final class Builder {
         @Nullable Shape mShape;
         @Nullable Background mBackground;

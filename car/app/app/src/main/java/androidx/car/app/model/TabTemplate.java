@@ -24,10 +24,8 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.Looper;
 
-import androidx.annotation.OptIn;
 import androidx.car.app.Screen;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.TabsConstraints;
@@ -61,7 +59,6 @@ import java.util.Objects;
 @CarProtocol
 @RequiresCarApi(6)
 @KeepFields
-@OptIn(markerClass = ExperimentalCarApi.class)
 public class TabTemplate implements Template {
 
     /** A listener for tab selection. */
@@ -139,7 +136,6 @@ public class TabTemplate implements Template {
      * @see TabTemplate.Builder#setStyle(TabStyle)
      */
     @RequiresCarApi(9)
-    @ExperimentalCarApi
     public @Nullable TabStyle getStyle() {
         return mStyle;
     }
@@ -150,7 +146,6 @@ public class TabTemplate implements Template {
      * @see Builder#setEndAction(Action)
      */
     @RequiresCarApi(9)
-    @ExperimentalCarApi
     public @Nullable Action getEndAction() {
         return mEndAction;
     }
@@ -208,7 +203,6 @@ public class TabTemplate implements Template {
     }
 
     /** A builder of {@link TabTemplate}. */
-    @OptIn(markerClass = ExperimentalCarApi.class)
     public static final class Builder {
         final @NonNull TabCallbackDelegate mTabCallbackDelegate;
 
@@ -292,7 +286,6 @@ public class TabTemplate implements Template {
          * {@link Tab.Builder#setStyle} will fall back to host defaults.
          */
         @RequiresCarApi(9)
-        @ExperimentalCarApi
         public TabTemplate.@NonNull Builder setStyle(@Nullable TabStyle tabStyle) {
             mStyle = tabStyle;
             return this;
@@ -321,7 +314,6 @@ public class TabTemplate implements Template {
          *                                  requirements
          */
         @RequiresCarApi(9)
-        @ExperimentalCarApi
         public TabTemplate.@NonNull Builder setEndAction(@Nullable Action endAction) {
             if (endAction != null) {
                 ACTIONS_CONSTRAINTS_TAB_ACTIONS.validateOrThrow(

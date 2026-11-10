@@ -90,6 +90,31 @@ class SearchHeaderTest {
     }
 
     @Test
+    fun setEndHeaderActions_replacesPreviousList() {
+        val action1 = Action.Builder().setIcon(CarIcon.APP_ICON).build()
+        val action2 = Action.Builder().setIcon(CarIcon.BACK).build()
+        val searchHeader =
+            SearchHeader.Builder(mockCallback)
+                .setEndHeaderActions(listOf(action1))
+                .setEndHeaderActions(listOf(action2))
+                .build()
+
+        assertThat(searchHeader.endHeaderActions).containsExactly(action2)
+    }
+
+    @Test
+    fun setEndHeaderActions_invalidAction_throws() {
+        val action1 = Action.Builder().setIcon(CarIcon.APP_ICON).build()
+        val action2 = Action.Builder().setIcon(CarIcon.BACK).build()
+        val action3 = Action.Builder().setIcon(CarIcon.APP_ICON).build()
+        val actions = listOf(action1, action2, action3)
+
+        assertThrows(IllegalArgumentException::class.java) {
+            SearchHeader.Builder(mockCallback).setEndHeaderActions(actions)
+        }
+    }
+
+    @Test
     fun sendSearchTextChanged() {
         val searchHeader = SearchHeader.Builder(mockCallback).build()
         val onDoneCallback = mock(OnDoneCallback::class.java)

@@ -21,7 +21,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 
@@ -36,7 +35,6 @@ import java.util.Objects;
  * An internal wrapper class for elements (actions, icons, images) that can be displayed
  * as leading or trailing items in a {@link Banner}.
  */
-@ExperimentalCarApi
 @CarProtocol
 @KeepFields
 @RequiresCarApi(9)

@@ -44,8 +44,8 @@ class ChipSectionTest {
         try {
             ChipSection.Builder().build()
             assertWithMessage("Expected builder to throw an exception, but it didn't").fail()
-        } catch (e: IllegalArgumentException) {
-            assertThat(e.message).contains("must contain at least one item")
+        } catch (e: IllegalStateException) {
+            assertThat(e.message).contains("must contain at least one Chip")
         }
     }
 

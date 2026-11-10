@@ -23,9 +23,9 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.model.constraints.ActionsConstraints;
 import androidx.car.app.utils.CollectionUtils;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -44,7 +44,6 @@ import java.util.Objects;
  */
 @CarProtocol
 @KeepFields
-@ExperimentalCarApi
 @RequiresCarApi(9)
 public final class SearchHeader {
     private final @Nullable SearchCallbackDelegate mSearchCallbackDelegate;
@@ -191,7 +190,7 @@ public final class SearchHeader {
          *
          * @throws NullPointerException     if {@code headerAction} is {@code null}
          * @throws IllegalArgumentException if {@code headerAction} does not meet the
-         * {@link androidx.car.app.model.constraints.ActionsConstraints#ACTIONS_CONSTRAINTS_HEADER requirements}
+         * {@link ActionsConstraints#ACTIONS_CONSTRAINTS_HEADER requirements}
          */
         @CanIgnoreReturnValue
         public @NonNull Builder setStartHeaderAction(@NonNull Action headerAction) {
@@ -202,13 +201,19 @@ public final class SearchHeader {
         }
 
         /**
-         * Adds an {@link Action} to be displayed at the end of the header.
+         * Sets the {@link Action}s to be displayed at the end of the header, overwriting any
+         * previously set actions.
          *
-         * @throws NullPointerException if {@code headerAction} is {@code null}
+         * @throws NullPointerException if {@code endHeaderActions} is {@code null}
+         * @throws IllegalArgumentException if {@code endHeaderActions} does not meet
+         * {@link ActionsConstraints#ACTIONS_CONSTRAINTS_MULTI_HEADER requirements}
          */
         @CanIgnoreReturnValue
         public @NonNull Builder setEndHeaderActions(@NonNull List<Action> endHeaderActions) {
-            mEndHeaderActions.addAll(requireNonNull(endHeaderActions));
+            ActionsConstraints.ACTIONS_CONSTRAINTS_MULTI_HEADER.validateOrThrow(
+                    requireNonNull(endHeaderActions));
+            mEndHeaderActions.clear();
+            mEndHeaderActions.addAll(endHeaderActions);
             return this;
         }
 

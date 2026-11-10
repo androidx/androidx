@@ -22,7 +22,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import androidx.car.app.model.Action;
-import androidx.car.app.model.Banner;
 import androidx.car.app.model.Header;
 import androidx.car.app.model.StrokeCap;
 
@@ -69,15 +68,6 @@ public class MediaPlaybackTemplateTest {
                 new MediaPlaybackTemplate.Builder().setHeader(HEADER).build();
 
         assertEquals(template.getHeader(), HEADER);
-    }
-
-    @Test
-    public void createInstance_bannerProvided_isValid() {
-        Banner banner = new Banner.Builder().setTitle("Banner").build();
-        MediaPlaybackTemplate template =
-                new MediaPlaybackTemplate.Builder().setBanner(banner).build();
-
-        assertEquals(template.getBanner(), banner);
     }
 
     @Test
@@ -139,18 +129,6 @@ public class MediaPlaybackTemplateTest {
 
         MediaPlaybackTemplate template2 =
                 new MediaPlaybackTemplate.Builder().setHeader(null).build();
-
-        assertNotEquals(template1, template2);
-    }
-
-    @Test
-    public void notEquals_differentBanners() {
-        Banner banner = new Banner.Builder().setTitle("Banner").build();
-        MediaPlaybackTemplate template1 =
-                new MediaPlaybackTemplate.Builder().setBanner(banner).build();
-
-        MediaPlaybackTemplate template2 =
-                new MediaPlaybackTemplate.Builder().setBanner(null).build();
 
         assertNotEquals(template1, template2);
     }

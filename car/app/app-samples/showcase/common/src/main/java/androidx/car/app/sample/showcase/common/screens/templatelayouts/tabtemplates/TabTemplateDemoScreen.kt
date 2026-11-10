@@ -17,10 +17,8 @@ package androidx.car.app.sample.showcase.common.screens.templatelayouts.tabtempl
 
 import android.text.SpannableString
 import android.text.Spanned
-import androidx.annotation.OptIn
 import androidx.car.app.CarContext
 import androidx.car.app.Screen
-import androidx.car.app.annotations.ExperimentalCarApi
 import androidx.car.app.model.Action
 import androidx.car.app.model.CarColor
 import androidx.car.app.model.CarIcon
@@ -48,7 +46,6 @@ import androidx.car.app.versioning.CarAppApiLevels
 import androidx.core.graphics.drawable.IconCompat
 
 /** Creates a screen that demonstrates usage of the full screen [TabTemplate]. */
-@OptIn(ExperimentalCarApi::class)
 class TabTemplateDemoScreen(carContext: CarContext) : Screen(carContext) {
     private companion object {
         private const val LIST_SIZE = 10

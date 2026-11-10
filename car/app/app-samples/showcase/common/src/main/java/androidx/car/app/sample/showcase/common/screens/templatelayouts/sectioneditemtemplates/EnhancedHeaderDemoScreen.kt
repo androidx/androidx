@@ -17,11 +17,9 @@
 package androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates
 
 import android.util.Log
-import androidx.annotation.OptIn
 import androidx.car.app.CarContext
 import androidx.car.app.CarToast
 import androidx.car.app.Screen
-import androidx.car.app.annotations.ExperimentalCarApi
 import androidx.car.app.annotations.RequiresCarApi
 import androidx.car.app.model.Action
 import androidx.car.app.model.Background
@@ -40,7 +38,6 @@ import androidx.core.graphics.drawable.IconCompat
  * action.
  */
 @RequiresCarApi(9)
-@OptIn(ExperimentalCarApi::class)
 class EnhancedHeaderDemoScreen(carContext: CarContext) : Screen(carContext) {
 
     private fun showToast(text: String) {

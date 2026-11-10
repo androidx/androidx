@@ -23,7 +23,6 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
@@ -40,7 +39,6 @@ import java.util.Objects;
  * clicked on. A chip's style, content, and selected state can be changed in response to a user
  * click.
  */
-@ExperimentalCarApi
 @CarProtocol
 @RequiresCarApi(9)
 @KeepFields
@@ -279,7 +277,7 @@ public final class Chip implements Item {
          * <p>The icon will attempt to use the most specific tint supplied; this is, it will try to
          * use the first tint found in the following priority:
          * 1. {@link CarIconStyle.Builder#setTint} set in
-         * {@link CarIcon.Builder#setStyle(CarIconStyle)} for the {@code startIcon} property
+         * {@link CarIcon.Builder#setStyle(CarIconStyle)} for the {@code endIcon} property
          * 2. {@link Chip.Builder#setStyle(ChipStyle)}
          * {@link ChipStyle.Builder#setContentColor(CarColor)}
          * 3. {@link ChipSection.Builder#setStyle(ChipStyle)} content color

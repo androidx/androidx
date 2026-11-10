@@ -19,11 +19,9 @@ package androidx.car.app.sample.showcase.common;
 import android.content.pm.ApplicationInfo;
 import android.net.Uri;
 
-import androidx.annotation.OptIn;
 import androidx.car.app.CarAppService;
 import androidx.car.app.Session;
 import androidx.car.app.SessionInfo;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.validation.HostValidator;
 
 import org.jspecify.annotations.NonNull;
@@ -55,7 +53,6 @@ public final class ShowcaseService extends CarAppService {
     }
 
     @Override
-    @OptIn(markerClass = ExperimentalCarApi.class)
     public int getCarAppThemeSource() {
         android.content.SharedPreferences prefs =
                 getSharedPreferences(SHARED_PREF_KEY, android.content.Context.MODE_PRIVATE);
