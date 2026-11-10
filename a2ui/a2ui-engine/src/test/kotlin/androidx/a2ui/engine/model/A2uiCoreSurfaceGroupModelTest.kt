@@ -16,10 +16,10 @@
 
 package androidx.a2ui.engine.model
 
-import androidx.a2ui.engine.catalog.A2uiCoreCatalog
-import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection
 import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
 import androidx.a2ui.engine.platform.A2uiCoreDataModel
+import androidx.a2ui.model.catalog.A2uiCatalogDefinition
+import androidx.a2ui.model.catalog.A2uiComponentDefinitionCollection
 import androidx.a2ui.model.catalog.A2uiFunctionCollection
 import androidx.a2ui.model.protocol.A2uiClientErrorMessage
 import androidx.a2ui.model.protocol.A2uiComponentPayload
@@ -285,10 +285,10 @@ class A2uiCoreSurfaceGroupModelTest {
         )
     }
 
-    private class TestCatalog : A2uiCoreCatalog {
+    private class TestCatalog : A2uiCatalogDefinition {
         override val id: String = "test_catalog"
-        override val componentDefinitions: A2uiCoreComponentDefinitionCollection =
-            A2uiCoreComponentDefinitionCollection()
+        override val componentDefinitions: A2uiComponentDefinitionCollection =
+            A2uiComponentDefinitionCollection()
         override val functions: A2uiFunctionCollection = A2uiFunctionCollection()
         override val themeSchema: A2uiSchema? = null
 

@@ -16,6 +16,7 @@
 
 package androidx.a2ui.engine.catalog
 
+import androidx.a2ui.model.catalog.A2uiCatalogDefinition
 import androidx.a2ui.model.catalog.toSchema
 import androidx.a2ui.model.schema.A2uiAnySchema
 import androidx.a2ui.model.schema.A2uiArraySchema
@@ -39,13 +40,14 @@ import kotlinx.serialization.json.longOrNull
 import kotlinx.serialization.json.put
 
 /**
- * Serializes an [A2uiCoreCatalog] into JSON Schema representations.
+ * Serializes an [A2uiCatalogDefinition] into JSON Schema representations.
  *
- * Traversal and JSON formatting are computed lazily and cached per serializer instance.
+ * Traversal and JSON formatting are computed lazily and cached per serializer instance, so keep the
+ * instance to reuse the results.
  *
  * @param catalog the catalog to serialize
  */
-public class A2uiCoreCatalogSerializer(public val catalog: A2uiCoreCatalog) {
+public class A2uiCoreCatalogDefinitionSerializer(public val catalog: A2uiCatalogDefinition) {
     internal val jsonObject: JsonObject by
         lazy(LazyThreadSafetyMode.PUBLICATION) { catalog.toJsonObject() }
 
@@ -75,7 +77,7 @@ internal fun JsonElement.toMapValue(): Any? =
         is JsonObject -> mapValues { it.value.toMapValue() }
     }
 
-internal fun A2uiCoreCatalog.toJsonObject(): JsonObject = buildJsonObject {
+internal fun A2uiCatalogDefinition.toJsonObject(): JsonObject = buildJsonObject {
     put("\$schema", "https://json-schema.org/draft/2020-12/schema")
     put("\$id", id)
     title?.let { put("title", it) }
@@ -150,7 +152,7 @@ internal fun A2uiCoreCatalog.toJsonObject(): JsonObject = buildJsonObject {
  * We extract the definitions of `A2uiCompositeSchema` that have no schemaId (and by that are
  * considered local), and collect them into this section of the schema.
  */
-private fun A2uiCoreCatalog.collectLocalDefinitions(): Map<String, A2uiSchema> {
+private fun A2uiCatalogDefinition.collectLocalDefinitions(): Map<String, A2uiSchema> {
     val localDefs = mutableMapOf<String, A2uiSchema>()
     val visited = mutableSetOf<A2uiSchema>()
     for (component in componentDefinitions) {

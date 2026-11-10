@@ -19,11 +19,11 @@
 
 package androidx.a2ui.engine.model
 
-import androidx.a2ui.engine.catalog.A2uiCoreCatalog
 import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
 import androidx.a2ui.engine.platform.A2uiCoreDataModel
 import androidx.a2ui.engine.processor.fromPayload
 import androidx.a2ui.engine.schema.A2uiCoreSchemaValidator
+import androidx.a2ui.model.catalog.A2uiCatalogDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.processor.A2uiSurfaceModel
 import androidx.a2ui.model.protocol.A2uiClientErrorMessage
@@ -52,7 +52,7 @@ import java.util.concurrent.ConcurrentHashMap
  */
 public class A2uiCoreSurfaceModel(
     override val id: String,
-    public val catalog: A2uiCoreCatalog,
+    public val catalog: A2uiCatalogDefinition,
     public val dataModel: A2uiCoreDataModel,
     public val componentRegistry: A2uiCoreComponentRegistry,
     private val onDispatchAction: (A2uiUserAction) -> Unit,

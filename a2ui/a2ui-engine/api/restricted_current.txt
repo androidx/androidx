@@ -2,59 +2,18 @@
 // - surface=restricted-atomic-group
 package androidx.a2ui.engine.catalog {
 
-  public interface A2uiCoreCatalog {
-    method @InaccessibleFromKotlin public androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection getComponentDefinitions();
-    method @InaccessibleFromKotlin public default String? getDescription();
-    method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionCollection getFunctions();
-    method @InaccessibleFromKotlin public String getId();
-    method @InaccessibleFromKotlin public default androidx.a2ui.model.schema.A2uiSchema? getThemeSchema();
-    method @InaccessibleFromKotlin public default String? getTitle();
-    method @InaccessibleFromKotlin public default boolean isInline();
-    property public abstract androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection componentDefinitions;
-    property public default String? description;
-    property public abstract androidx.a2ui.model.catalog.A2uiFunctionCollection functions;
-    property public abstract String id;
-    property public default boolean isInline;
-    property public default androidx.a2ui.model.schema.A2uiSchema? themeSchema;
-    property public default String? title;
+  public final class A2uiCoreCatalogDefinitionAdapterKt {
+    method public static androidx.a2ui.model.protocol.A2uiInlineCatalog toInlineCatalog(androidx.a2ui.model.catalog.A2uiCatalogDefinition);
   }
 
-  public final class A2uiCoreCatalogKt {
-    method public static androidx.a2ui.engine.catalog.A2uiCoreCatalogSerializer obtainSerializer(androidx.a2ui.engine.catalog.A2uiCoreCatalog);
-    method public static androidx.a2ui.model.protocol.A2uiInlineCatalog toInlineCatalog(androidx.a2ui.engine.catalog.A2uiCoreCatalog);
-  }
-
-  public final class A2uiCoreCatalogSerializer {
-    ctor public A2uiCoreCatalogSerializer(androidx.a2ui.engine.catalog.A2uiCoreCatalog catalog);
-    method @InaccessibleFromKotlin public androidx.a2ui.engine.catalog.A2uiCoreCatalog getCatalog();
+  public final class A2uiCoreCatalogDefinitionSerializer {
+    ctor public A2uiCoreCatalogDefinitionSerializer(androidx.a2ui.model.catalog.A2uiCatalogDefinition catalog);
+    method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiCatalogDefinition getCatalog();
     method @InaccessibleFromKotlin public java.util.Map<java.lang.String,java.lang.Object?> getJsonSchemaMap();
     method @InaccessibleFromKotlin public String getJsonSchemaString();
-    property public androidx.a2ui.engine.catalog.A2uiCoreCatalog catalog;
+    property public androidx.a2ui.model.catalog.A2uiCatalogDefinition catalog;
     property public java.util.Map<java.lang.String,java.lang.Object?> jsonSchemaMap;
     property public String jsonSchemaString;
-  }
-
-  public interface A2uiCoreComponentDefinition {
-    method @InaccessibleFromKotlin public String getDescription();
-    method @InaccessibleFromKotlin public String getName();
-    method @InaccessibleFromKotlin public androidx.a2ui.model.schema.A2uiSchema getPropertySchema();
-    property public abstract String description;
-    property public abstract String name;
-    property public abstract androidx.a2ui.model.schema.A2uiSchema propertySchema;
-  }
-
-  public sealed nonexhaustive interface A2uiCoreComponentDefinitionCollection extends java.util.List<androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition> kotlin.jvm.internal.markers.KMappedMarker {
-    method public operator androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition? get(String name);
-  }
-
-  public final class A2uiCoreComponentDefinitionCollectionKt {
-    method public static androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection A2uiCoreComponentDefinitionCollection();
-    method public static androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection A2uiCoreComponentDefinitionCollection(optional java.util.List<? extends androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition> definitions);
-    method @BytecodeOnly public static androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection! A2uiCoreComponentDefinitionCollection$default(java.util.List!, int, Object!);
-  }
-
-  public final class A2uiCoreComponentDefinitionKt {
-    method public static androidx.a2ui.model.schema.A2uiSchema toSchema(androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition);
   }
 
 }
@@ -67,21 +26,21 @@ package androidx.a2ui.engine.model {
   }
 
   public final class A2uiCoreSurfaceModel implements androidx.a2ui.model.processor.A2uiSurfaceModel {
-    ctor @BytecodeOnly public A2uiCoreSurfaceModel(String!, androidx.a2ui.engine.catalog.A2uiCoreCatalog!, androidx.a2ui.engine.platform.A2uiCoreDataModel!, androidx.a2ui.engine.platform.A2uiCoreComponentRegistry!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, java.util.Map!, boolean, kotlin.jvm.functions.Function0!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor public A2uiCoreSurfaceModel(String id, androidx.a2ui.engine.catalog.A2uiCoreCatalog catalog, androidx.a2ui.engine.platform.A2uiCoreDataModel dataModel, androidx.a2ui.engine.platform.A2uiCoreComponentRegistry componentRegistry, kotlin.jvm.functions.Function1<? super androidx.a2ui.model.protocol.A2uiUserAction,kotlin.Unit> onDispatchAction, kotlin.jvm.functions.Function1<? super androidx.a2ui.model.protocol.A2uiClientErrorMessage,kotlin.Unit> onDispatchError, optional java.util.Map<java.lang.String,? extends java.lang.Object?> theme, optional boolean shouldSendDataModel, optional kotlin.jvm.functions.Function0<java.lang.Long> timeProvider);
+    ctor @BytecodeOnly public A2uiCoreSurfaceModel(String!, androidx.a2ui.model.catalog.A2uiCatalogDefinition!, androidx.a2ui.engine.platform.A2uiCoreDataModel!, androidx.a2ui.engine.platform.A2uiCoreComponentRegistry!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, java.util.Map!, boolean, kotlin.jvm.functions.Function0!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public A2uiCoreSurfaceModel(String id, androidx.a2ui.model.catalog.A2uiCatalogDefinition catalog, androidx.a2ui.engine.platform.A2uiCoreDataModel dataModel, androidx.a2ui.engine.platform.A2uiCoreComponentRegistry componentRegistry, kotlin.jvm.functions.Function1<? super androidx.a2ui.model.protocol.A2uiUserAction,kotlin.Unit> onDispatchAction, kotlin.jvm.functions.Function1<? super androidx.a2ui.model.protocol.A2uiClientErrorMessage,kotlin.Unit> onDispatchError, optional java.util.Map<java.lang.String,? extends java.lang.Object?> theme, optional boolean shouldSendDataModel, optional kotlin.jvm.functions.Function0<java.lang.Long> timeProvider);
     method public void dispatchAction(String componentId, java.util.Map<java.lang.String,? extends java.lang.Object?> actionDefinition);
     method public void dispatchError(androidx.a2ui.model.protocol.A2uiException exception);
     method public void dispatchError(androidx.a2ui.model.protocol.A2uiException exception, optional String? componentId);
     method @BytecodeOnly public static void dispatchError$default(androidx.a2ui.engine.model.A2uiCoreSurfaceModel!, androidx.a2ui.model.protocol.A2uiException!, String!, int, Object!);
     method public Object? evaluatePayload(String componentId, androidx.a2ui.engine.model.A2uiCoreValueResolver valueResolver, androidx.a2ui.model.protocol.A2uiDataPath dataPath, Object? payload);
-    method @InaccessibleFromKotlin public androidx.a2ui.engine.catalog.A2uiCoreCatalog getCatalog();
+    method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiCatalogDefinition getCatalog();
     method @InaccessibleFromKotlin public androidx.a2ui.engine.platform.A2uiCoreComponentRegistry getComponentRegistry();
     method @InaccessibleFromKotlin public androidx.a2ui.engine.platform.A2uiCoreDataModel getDataModel();
     method @InaccessibleFromKotlin public String getId();
     method public <T> T getOrCreateFunctionScopedCache(String componentId, androidx.a2ui.model.catalog.A2uiFunctionDefinition functionDefinition, kotlin.jvm.functions.Function0<? extends T> factory);
     method @InaccessibleFromKotlin public java.util.Map<java.lang.String,java.lang.Object?> getTheme();
     method @InaccessibleFromKotlin public boolean shouldSendDataModel();
-    property public androidx.a2ui.engine.catalog.A2uiCoreCatalog catalog;
+    property public androidx.a2ui.model.catalog.A2uiCatalogDefinition catalog;
     property public androidx.a2ui.engine.platform.A2uiCoreComponentRegistry componentRegistry;
     property public androidx.a2ui.engine.platform.A2uiCoreDataModel dataModel;
     property public String id;
@@ -115,7 +74,7 @@ package androidx.a2ui.engine.processor {
 
   public final class A2uiCoreMessageProcessor implements androidx.a2ui.model.processor.A2uiMessageProcessor {
     ctor @BytecodeOnly public A2uiCoreMessageProcessor(java.util.List!, kotlin.jvm.functions.Function0!, kotlin.jvm.functions.Function0!, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor public A2uiCoreMessageProcessor(java.util.List<? extends androidx.a2ui.engine.catalog.A2uiCoreCatalog> catalogs, kotlin.jvm.functions.Function0<? extends androidx.a2ui.engine.platform.A2uiCoreDataModel> dataModelFactory, kotlin.jvm.functions.Function0<? extends androidx.a2ui.engine.platform.A2uiCoreComponentRegistry> componentRegistryFactory, optional java.util.List<? extends androidx.a2ui.model.processor.A2uiActionInterceptor> actionInterceptors);
+    ctor public A2uiCoreMessageProcessor(java.util.List<? extends androidx.a2ui.model.catalog.A2uiCatalogDefinition> catalogs, kotlin.jvm.functions.Function0<? extends androidx.a2ui.engine.platform.A2uiCoreDataModel> dataModelFactory, kotlin.jvm.functions.Function0<? extends androidx.a2ui.engine.platform.A2uiCoreComponentRegistry> componentRegistryFactory, optional java.util.List<? extends androidx.a2ui.model.processor.A2uiActionInterceptor> actionInterceptors);
     method public suspend Object? collectMessages(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.a2ui.model.processor.A2uiSurfaceModel>> getActiveSurfaces();
     method @InaccessibleFromKotlin public androidx.a2ui.model.protocol.A2uiClientCapabilities getClientCapabilities();
@@ -133,8 +92,8 @@ package androidx.a2ui.engine.schema {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class A2uiCoreSchemaValidator {
     ctor public A2uiCoreSchemaValidator();
-    ctor public A2uiCoreSchemaValidator(optional androidx.a2ui.engine.catalog.A2uiCoreCatalog? catalog);
-    ctor @BytecodeOnly public A2uiCoreSchemaValidator(androidx.a2ui.engine.catalog.A2uiCoreCatalog!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public A2uiCoreSchemaValidator(optional androidx.a2ui.model.catalog.A2uiCatalogDefinition? catalog);
+    ctor @BytecodeOnly public A2uiCoreSchemaValidator(androidx.a2ui.model.catalog.A2uiCatalogDefinition!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void validateSchema(Object? payload, androidx.a2ui.model.schema.A2uiSchema schema, optional String basePath);
     method @BytecodeOnly public static void validateSchema$default(androidx.a2ui.engine.schema.A2uiCoreSchemaValidator!, Object!, androidx.a2ui.model.schema.A2uiSchema!, String!, int, Object!);
   }

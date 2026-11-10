@@ -16,7 +16,7 @@
 
 package androidx.a2ui.engine.schema
 
-import androidx.a2ui.engine.catalog.A2uiCoreCatalog
+import androidx.a2ui.model.catalog.A2uiCatalogDefinition
 import androidx.a2ui.model.catalog.toSchema
 import androidx.a2ui.model.protocol.A2uiException
 import androidx.a2ui.model.schema.A2uiAnySchema
@@ -37,7 +37,7 @@ import androidx.annotation.RestrictTo
  * schemas *before* they are allowed into the reactive data models.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class A2uiCoreSchemaValidator(private val catalog: A2uiCoreCatalog? = null) {
+public class A2uiCoreSchemaValidator(private val catalog: A2uiCatalogDefinition? = null) {
 
     private val functionSchemas: Map<String, A2uiSchema> =
         catalog?.functions?.associate { func -> func.definition.name to func.definition.toSchema() }

@@ -16,11 +16,11 @@
 
 package androidx.a2ui.engine.model
 
-import androidx.a2ui.engine.catalog.A2uiCoreCatalog
-import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
-import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection
 import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
 import androidx.a2ui.engine.platform.A2uiCoreDataModel
+import androidx.a2ui.model.catalog.A2uiCatalogDefinition
+import androidx.a2ui.model.catalog.A2uiComponentDefinition
+import androidx.a2ui.model.catalog.A2uiComponentDefinitionCollection
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionCollection
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
@@ -576,7 +576,7 @@ class A2uiCoreSurfaceModelTest {
 
     private fun createTestSurface(
         id: String = SURFACE_ID_1,
-        catalog: A2uiCoreCatalog = TestCatalog(),
+        catalog: A2uiCatalogDefinition = TestCatalog(),
         theme: Map<String, Any?> = emptyMap(),
         shouldSendDataModel: Boolean = false,
         dataModel: A2uiCoreDataModel = TestDataModel(),
@@ -612,12 +612,12 @@ class A2uiCoreSurfaceModelTest {
         override val returnType: A2uiFunctionReturnType = A2uiFunctionReturnType.STRING
     }
 
-    private class TestCatalog(functions: List<A2uiFunction> = emptyList()) : A2uiCoreCatalog {
+    private class TestCatalog(functions: List<A2uiFunction> = emptyList()) : A2uiCatalogDefinition {
         override val id: String = "test_catalog"
-        override val componentDefinitions: A2uiCoreComponentDefinitionCollection =
-            A2uiCoreComponentDefinitionCollection(
+        override val componentDefinitions: A2uiComponentDefinitionCollection =
+            A2uiComponentDefinitionCollection(
                 listOf(
-                    object : A2uiCoreComponentDefinition {
+                    object : A2uiComponentDefinition {
                         override val name = "button"
                         override val description = "A test button"
                         override val propertySchema =

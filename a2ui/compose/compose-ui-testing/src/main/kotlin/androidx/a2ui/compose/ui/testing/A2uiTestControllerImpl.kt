@@ -24,7 +24,6 @@ import androidx.a2ui.compose.runtime.A2uiMessageProcessor
 import androidx.a2ui.compose.runtime.A2uiProperty
 import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.A2uiComponent
-import androidx.a2ui.engine.catalog.A2uiCoreCatalog
 import androidx.a2ui.engine.model.A2uiCoreSurfaceModel
 import androidx.a2ui.engine.schema.A2uiCoreSchemaValidator
 import androidx.a2ui.model.processor.A2uiActionInterceptor
@@ -144,18 +143,16 @@ internal class A2uiTestControllerImpl(
 
         val components = buildTestComponents(catalog, typeStubsMap, idStubs, syntheticTypesById)
 
-        require(catalog is A2uiCoreCatalog) {
-            "A2uiTestController requires an A2uiCoreCatalog implementation."
-        }
-        val coreCatalog = catalog
         testCatalog =
             A2uiCatalog(
                 catalogId = catalog.id,
                 components = components,
-                functions = coreCatalog.functions,
-                themeSchema = coreCatalog.themeSchema,
+                functions = catalog.functions,
+                themeSchema = catalog.themeSchema,
+                title = catalog.title,
+                description = catalog.description,
             )
-        schemaValidator = A2uiCoreSchemaValidator(testCatalog as A2uiCoreCatalog)
+        schemaValidator = A2uiCoreSchemaValidator(testCatalog)
 
         testInterceptor = A2uiActionInterceptor { request ->
             _dispatchedActions.add(request)
@@ -203,8 +200,7 @@ internal class A2uiTestControllerImpl(
     }
 
     override fun updateComponent(id: String, type: String, properties: Map<String, Any?>) {
-        val coreCatalog = testCatalog as A2uiCoreCatalog
-        val payload = validateAndCreatePayload(id, type, properties, coreCatalog)
+        val payload = validateAndCreatePayload(id, type, properties)
         knownComponentTypes[id] = type
         val message = A2uiUpdateComponentsMessage(TestSurfaceId, listOf(payload))
         if (!isProcessingStarted) {
@@ -362,17 +358,11 @@ internal class A2uiTestControllerImpl(
         }
 
         val payloads = ArrayList<A2uiComponentPayload>(initialComponents.size)
-        val coreCatalog = testCatalog as A2uiCoreCatalog
 
         for (i in initialComponents.indices) {
             val component = initialComponents[i]
             payloads.add(
-                validateAndCreatePayload(
-                    component.id,
-                    component.type,
-                    component.properties,
-                    coreCatalog,
-                )
+                validateAndCreatePayload(component.id, component.type, component.properties)
             )
         }
 
@@ -388,7 +378,6 @@ internal class A2uiTestControllerImpl(
         id: String,
         type: String,
         properties: Map<String, Any?>,
-        coreCatalog: A2uiCoreCatalog,
     ): A2uiComponentPayload {
         val actualType =
             if (id in syntheticTypesById) {
@@ -408,7 +397,7 @@ internal class A2uiTestControllerImpl(
             }
 
         val componentDefinition =
-            coreCatalog.componentDefinitions[actualType]
+            testCatalog.componentDefinitions[actualType]
                 ?: throw A2uiRuntimeException(
                     "Component type '$actualType' is not registered in the test catalog."
                 )

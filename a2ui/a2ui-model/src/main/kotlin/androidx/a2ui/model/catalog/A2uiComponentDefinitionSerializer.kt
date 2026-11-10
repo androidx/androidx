@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-@file:JvmName("A2uiCoreComponentDefinitionSerializerKt")
+@file:JvmName("A2uiComponentDefinitionSerializerKt")
 
-package androidx.a2ui.engine.catalog
+package androidx.a2ui.model.catalog
 
 import androidx.a2ui.model.schema.A2uiAnySchema
 import androidx.a2ui.model.schema.A2uiCompositeSchema
@@ -33,7 +33,7 @@ import androidx.a2ui.model.schema.A2uiStringSchema
  * @return the [A2uiSchema] representation of the component definition with discriminator
  */
 internal fun serializeComponentDefinitionToSchema(
-    componentDefinition: A2uiCoreComponentDefinition
+    componentDefinition: A2uiComponentDefinition
 ): A2uiSchema {
     val rawSchema = componentDefinition.propertySchema
     val componentName = componentDefinition.name

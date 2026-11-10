@@ -2,6 +2,46 @@
 // - surface=public
 package androidx.a2ui.model.catalog {
 
+  public interface A2uiCatalogDefinition {
+    method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiComponentDefinitionCollection getComponentDefinitions();
+    method @InaccessibleFromKotlin public default String? getDescription();
+    method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionCollection getFunctions();
+    method @InaccessibleFromKotlin public String getId();
+    method @InaccessibleFromKotlin public default androidx.a2ui.model.schema.A2uiSchema? getThemeSchema();
+    method @InaccessibleFromKotlin public default String? getTitle();
+    method @InaccessibleFromKotlin public default boolean isInline();
+    property public abstract androidx.a2ui.model.catalog.A2uiComponentDefinitionCollection componentDefinitions;
+    property public default String? description;
+    property public abstract androidx.a2ui.model.catalog.A2uiFunctionCollection functions;
+    property public abstract String id;
+    property public default boolean isInline;
+    property public default androidx.a2ui.model.schema.A2uiSchema? themeSchema;
+    property public default String? title;
+  }
+
+  public interface A2uiComponentDefinition {
+    method @InaccessibleFromKotlin public String getDescription();
+    method @InaccessibleFromKotlin public String getName();
+    method @InaccessibleFromKotlin public androidx.a2ui.model.schema.A2uiSchema getPropertySchema();
+    property public abstract String description;
+    property public abstract String name;
+    property public abstract androidx.a2ui.model.schema.A2uiSchema propertySchema;
+  }
+
+  public sealed nonexhaustive interface A2uiComponentDefinitionCollection extends java.util.List<androidx.a2ui.model.catalog.A2uiComponentDefinition> kotlin.jvm.internal.markers.KMappedMarker {
+    method public operator androidx.a2ui.model.catalog.A2uiComponentDefinition? get(String name);
+  }
+
+  public final class A2uiComponentDefinitionCollectionKt {
+    method public static androidx.a2ui.model.catalog.A2uiComponentDefinitionCollection A2uiComponentDefinitionCollection();
+    method public static androidx.a2ui.model.catalog.A2uiComponentDefinitionCollection A2uiComponentDefinitionCollection(optional java.util.List<? extends androidx.a2ui.model.catalog.A2uiComponentDefinition> definitions);
+    method @BytecodeOnly public static androidx.a2ui.model.catalog.A2uiComponentDefinitionCollection! A2uiComponentDefinitionCollection$default(java.util.List!, int, Object!);
+  }
+
+  public final class A2uiComponentDefinitionKt {
+    method public static androidx.a2ui.model.schema.A2uiSchema toSchema(androidx.a2ui.model.catalog.A2uiComponentDefinition);
+  }
+
   public interface A2uiFunction {
     method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();

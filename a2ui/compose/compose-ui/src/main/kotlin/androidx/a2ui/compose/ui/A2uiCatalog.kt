@@ -19,12 +19,10 @@ package androidx.a2ui.compose.ui
 import androidx.a2ui.compose.runtime.A2uiComponentModel
 import androidx.a2ui.compose.runtime.A2uiProperty
 import androidx.a2ui.compose.runtime.A2uiReadinessEvaluator
-import androidx.a2ui.compose.runtime.A2uiRuntimeCatalog
-import androidx.a2ui.engine.catalog.A2uiCoreCatalog
-import androidx.a2ui.engine.catalog.A2uiCoreCatalogSerializer
-import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
-import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection
-import androidx.a2ui.engine.catalog.obtainSerializer
+import androidx.a2ui.engine.catalog.A2uiCoreCatalogDefinitionSerializer
+import androidx.a2ui.model.catalog.A2uiCatalogDefinition
+import androidx.a2ui.model.catalog.A2uiComponentDefinition
+import androidx.a2ui.model.catalog.A2uiComponentDefinitionCollection
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionCollection
 import androidx.a2ui.model.protocol.A2uiInlineCatalog
@@ -37,44 +35,23 @@ import androidx.compose.runtime.Stable
  * A Jetpack Compose implementation of an A2UI component catalog, which defines which
  * [A2uiComponent]s and [A2uiFunction]s are available to the agent for a particular A2UI surface.
  *
+ * A catalog is an [A2uiCatalogDefinition] that also holds the Compose implementations of its
+ * [components].
+ *
  * To instantiate a new catalog, use the `A2uiCatalog` factory function. To process agent messages
  * for surfaces that use the catalog, pass it to
  * [androidx.a2ui.compose.runtime.A2uiMessageProcessor].
  */
 @Stable
-public sealed interface A2uiCatalog : A2uiRuntimeCatalog {
+public sealed interface A2uiCatalog : A2uiCatalogDefinition {
 
     /**
-     * The unique identifier for this catalog.
+     * The collection of [A2uiComponent] implementations registered in this catalog.
      *
-     * This ID is announced to the agent during the capability negotiation phase. It is recommended
-     * to use a URI format including a version number (e.g.,
-     * `"https://example.com/a2ui/catalog/v1"`) to ensure global uniqueness and facilitate protocol
-     * versioning.
+     * [componentDefinitions] describes each of these components, in the same order, by the schema
+     * that is advertised to the agent.
      */
-    public val id: String
-
-    /** The collection of [A2uiComponent] implementations registered in this catalog. */
     public val components: A2uiComponentCollection
-
-    /** The collection of [A2uiFunction] implementations registered in this catalog. */
-    public val functions: A2uiFunctionCollection
-
-    /**
-     * The optional JSON schema defining the dynamic theme overrides supported by this catalog.
-     *
-     * If provided, the agent can send theme properties conforming to this schema (e.g.,
-     * `"primaryColor"`) within the `createSurface` message to customize the catalog's visual
-     * appearance.
-     */
-    public val themeSchema: A2uiSchema?
-
-    /**
-     * Indicates whether this catalog's full JSON Schema should be serialized inline as part of the
-     * capabilities advertisement sent to the agent.
-     */
-    public val isInline: Boolean
-        get() = false
 }
 
 /**
@@ -89,6 +66,10 @@ public sealed interface A2uiCatalog : A2uiRuntimeCatalog {
  *   null.
  * @param isInline Indicates whether this catalog's full JSON Schema should be serialized inline.
  *   Defaults to false.
+ * @param title The optional title of this catalog, which is included in its JSON Schema. Defaults
+ *   to null.
+ * @param description The optional description of this catalog, which is included in its JSON
+ *   Schema. Defaults to null.
  * @return A fully initialized and validated [A2uiCatalog].
  * @throws IllegalArgumentException If duplicate component names or duplicate function names are
  *   detected.
@@ -99,16 +80,18 @@ public fun A2uiCatalog(
     functions: List<A2uiFunction> = emptyList(),
     themeSchema: A2uiSchema? = null,
     isInline: Boolean = false,
+    title: String? = null,
+    description: String? = null,
 ): A2uiCatalog {
     val componentCollection = A2uiComponentCollection(components)
     val functionCollection = A2uiFunctionCollection(functions)
 
     val componentDefinitions =
-        ArrayList<A2uiCoreComponentDefinition>(components.size).apply {
+        ArrayList<A2uiComponentDefinition>(components.size).apply {
             for (i in components.indices) {
                 val component = components[i]
                 add(
-                    A2uiCoreComponentDefinitionImpl(
+                    A2uiComponentDefinitionImpl(
                         name = component.name,
                         description = component.description,
                         properties = component.properties,
@@ -116,15 +99,17 @@ public fun A2uiCatalog(
                 )
             }
         }
-    val componentDefinitionCollection = A2uiCoreComponentDefinitionCollection(componentDefinitions)
+    val componentDefinitionCollection = A2uiComponentDefinitionCollection(componentDefinitions)
 
     return A2uiCatalogImpl(
-        catalogId,
-        themeSchema,
-        componentDefinitionCollection,
-        componentCollection,
-        functionCollection,
-        isInline,
+        id = catalogId,
+        title = title,
+        description = description,
+        themeSchema = themeSchema,
+        componentDefinitions = componentDefinitionCollection,
+        components = componentCollection,
+        functions = functionCollection,
+        isInline = isInline,
     )
 }
 
@@ -156,49 +141,45 @@ public fun A2uiCatalog.asReadinessEvaluator(): A2uiReadinessEvaluator {
  * Serializes this catalog to its JSON Schema string representation.
  *
  * @return the serialized catalog JSON Schema string
- * @throws IllegalArgumentException If this catalog does not support serialization.
  */
-public fun A2uiCatalog.toJsonSchemaString(): String {
-    val impl =
-        this as? A2uiCatalogImpl
-            ?: throw IllegalArgumentException("The catalog does not support serialization")
-    return impl.serializer.jsonSchemaString
-}
+public fun A2uiCatalog.toJsonSchemaString(): String =
+    when (this) {
+        is A2uiCatalogImpl -> serializer.jsonSchemaString
+    }
 
 /**
  * Serializes this catalog to its JSON Schema Map representation.
  *
  * @return the serialized catalog JSON Schema Map
- * @throws IllegalArgumentException If this catalog does not support serialization.
  */
-public fun A2uiCatalog.toJsonSchemaMap(): Map<String, Any?> {
-    val impl =
-        this as? A2uiCatalogImpl
-            ?: throw IllegalArgumentException("The catalog does not support serialization")
-    return impl.serializer.jsonSchemaMap
-}
+public fun A2uiCatalog.toJsonSchemaMap(): Map<String, Any?> =
+    when (this) {
+        is A2uiCatalogImpl -> serializer.jsonSchemaMap
+    }
 
 internal class A2uiCatalogImpl(
     override val id: String,
+    override val title: String?,
+    override val description: String?,
     override val themeSchema: A2uiSchema?,
-    override val componentDefinitions: A2uiCoreComponentDefinitionCollection,
+    override val componentDefinitions: A2uiComponentDefinitionCollection,
     override val components: A2uiComponentCollection,
     override val functions: A2uiFunctionCollection,
-    override val isInline: Boolean = false,
-) : A2uiCatalog, A2uiCoreCatalog, A2uiInlineCatalog {
-    val serializer: A2uiCoreCatalogSerializer by
-        lazy(LazyThreadSafetyMode.PUBLICATION) { obtainSerializer() }
+    override val isInline: Boolean,
+) : A2uiCatalog, A2uiInlineCatalog {
+    val serializer: A2uiCoreCatalogDefinitionSerializer by
+        lazy(LazyThreadSafetyMode.PUBLICATION) { A2uiCoreCatalogDefinitionSerializer(this) }
 
     override fun toJsonSchemaMap(): Map<String, Any?> = serializer.jsonSchemaMap
 
     override fun toJsonSchemaString(): String = serializer.jsonSchemaString
 }
 
-private class A2uiCoreComponentDefinitionImpl(
+private class A2uiComponentDefinitionImpl(
     override val name: String,
     override val description: String,
     properties: List<A2uiProperty<*>>,
-) : A2uiCoreComponentDefinition {
+) : A2uiComponentDefinition {
 
     override val propertySchema: A2uiSchema
 

@@ -16,9 +16,9 @@
 
 package androidx.a2ui.engine.schema
 
-import androidx.a2ui.engine.catalog.A2uiCoreCatalog
-import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
-import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection
+import androidx.a2ui.model.catalog.A2uiCatalogDefinition
+import androidx.a2ui.model.catalog.A2uiComponentDefinition
+import androidx.a2ui.model.catalog.A2uiComponentDefinitionCollection
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionCollection
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
@@ -842,7 +842,7 @@ class A2UiCoreSchemaValidatorTest {
 
     private fun createTestCatalog(
         functionsList: List<A2uiFunctionDefinition> = emptyList()
-    ): A2uiCoreCatalog {
+    ): A2uiCatalogDefinition {
         val wrappedFunctions = functionsList.map { def ->
             object : A2uiFunction {
                 override val definition = def
@@ -853,9 +853,9 @@ class A2UiCoreSchemaValidatorTest {
                 ) = null
             }
         }
-        return object : A2uiCoreCatalog {
+        return object : A2uiCatalogDefinition {
             override val id = "test"
-            override val componentDefinitions = A2uiCoreComponentDefinitionCollection()
+            override val componentDefinitions = A2uiComponentDefinitionCollection()
             override val functions = A2uiFunctionCollection(wrappedFunctions)
             override val themeSchema: A2uiSchema? = null
         }
@@ -864,7 +864,7 @@ class A2UiCoreSchemaValidatorTest {
     @Test
     fun validateSchema_refComponentInCatalog_succeeds() {
         val textComp =
-            object : A2uiCoreComponentDefinition {
+            object : A2uiComponentDefinition {
                 override val name: String = "Text"
                 override val description: String = "Text component"
                 override val propertySchema: A2uiSchema =
@@ -874,10 +874,10 @@ class A2UiCoreSchemaValidatorTest {
                     )
             }
         val catalog =
-            object : A2uiCoreCatalog {
+            object : A2uiCatalogDefinition {
                 override val id: String = "test"
                 override val componentDefinitions =
-                    A2uiCoreComponentDefinitionCollection(listOf(textComp))
+                    A2uiComponentDefinitionCollection(listOf(textComp))
                 override val functions = A2uiFunctionCollection(emptyList())
                 override val themeSchema: A2uiSchema? = null
             }
@@ -889,7 +889,7 @@ class A2UiCoreSchemaValidatorTest {
     @Test
     fun validateSchema_refComponentRelative_succeeds() {
         val textComp =
-            object : A2uiCoreComponentDefinition {
+            object : A2uiComponentDefinition {
                 override val name: String = "Text"
                 override val description: String = "Text component"
                 override val propertySchema: A2uiSchema =
@@ -899,10 +899,10 @@ class A2UiCoreSchemaValidatorTest {
                     )
             }
         val catalog =
-            object : A2uiCoreCatalog {
+            object : A2uiCatalogDefinition {
                 override val id: String = "test"
                 override val componentDefinitions =
-                    A2uiCoreComponentDefinitionCollection(listOf(textComp))
+                    A2uiComponentDefinitionCollection(listOf(textComp))
                 override val functions = A2uiFunctionCollection(emptyList())
                 override val themeSchema: A2uiSchema? = null
             }
@@ -914,7 +914,7 @@ class A2UiCoreSchemaValidatorTest {
     @Test
     fun validateSchema_refWithOtherNamespace_throwsValidationException() {
         val textComp =
-            object : A2uiCoreComponentDefinition {
+            object : A2uiComponentDefinition {
                 override val name: String = "Text"
                 override val description: String = "Text component"
                 override val propertySchema: A2uiSchema =
@@ -924,10 +924,10 @@ class A2UiCoreSchemaValidatorTest {
                     )
             }
         val catalog =
-            object : A2uiCoreCatalog {
+            object : A2uiCatalogDefinition {
                 override val id: String = "test"
                 override val componentDefinitions =
-                    A2uiCoreComponentDefinitionCollection(listOf(textComp))
+                    A2uiComponentDefinitionCollection(listOf(textComp))
                 override val functions = A2uiFunctionCollection(emptyList())
                 override val themeSchema: A2uiSchema? = null
             }

@@ -16,10 +16,10 @@
 
 package androidx.a2ui.compose.runtime
 
-import androidx.a2ui.engine.catalog.A2uiCoreCatalog
-import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection
 import androidx.a2ui.engine.model.A2uiCoreSurfaceModel
 import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
+import androidx.a2ui.model.catalog.A2uiCatalogDefinition
+import androidx.a2ui.model.catalog.A2uiComponentDefinitionCollection
 import androidx.a2ui.model.catalog.A2uiFunctionCollection
 import androidx.a2ui.model.processor.A2uiSurfaceModel
 import androidx.a2ui.model.protocol.A2uiComponentPayload
@@ -560,10 +560,10 @@ class A2uiComponentStateObservationTest {
         return A2uiCoreSurfaceModel(
             id = "TestSurface",
             catalog =
-                object : A2uiCoreCatalog {
+                object : A2uiCatalogDefinition {
                     override val id: String = "TestCatalog"
-                    override val componentDefinitions: A2uiCoreComponentDefinitionCollection =
-                        A2uiCoreComponentDefinitionCollection()
+                    override val componentDefinitions: A2uiComponentDefinitionCollection =
+                        A2uiComponentDefinitionCollection()
                     override val functions: A2uiFunctionCollection = A2uiFunctionCollection()
                     override val themeSchema: A2uiSchema? = null
                 },

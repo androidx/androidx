@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.a2ui.engine.catalog
+package androidx.a2ui.model.catalog
 
 import androidx.a2ui.model.schema.A2uiAnySchema
 import androidx.a2ui.model.schema.A2uiCompositeSchema
@@ -28,7 +28,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Test
 
-class A2uiCoreComponentDefinitionTest {
+class A2uiComponentDefinitionTest {
 
     @Test
     fun toSchema_withObjectSchema_injectsComponentDiscriminatorAndDescription() {
@@ -479,8 +479,8 @@ class A2uiCoreComponentDefinitionTest {
         propertySchema: A2uiSchema,
         name: String = TEST_NAME,
         description: String = TEST_DESCRIPTION,
-    ): A2uiCoreComponentDefinition =
-        object : A2uiCoreComponentDefinition {
+    ): A2uiComponentDefinition =
+        object : A2uiComponentDefinition {
             override val name: String = name
             override val description: String = description
             override val propertySchema: A2uiSchema = propertySchema
