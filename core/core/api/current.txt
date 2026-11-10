@@ -3999,6 +3999,7 @@ package androidx.core.view {
     method @Deprecated public static float getScaleY(android.view.View!);
     method public static int getScrollIndicators(android.view.View);
     method @UiThread public static CharSequence? getStateDescription(android.view.View);
+    method @UiThread public static CharSequence? getSupplementalDescription(android.view.View);
     method public static java.util.List<android.graphics.Rect!> getSystemGestureExclusionRects(android.view.View);
     method public static String? getTransitionName(android.view.View);
     method @Deprecated public static float getTranslationX(android.view.View!);
@@ -4099,6 +4100,7 @@ package androidx.core.view {
     method public static void setScrollIndicators(android.view.View, int);
     method public static void setScrollIndicators(android.view.View, int, int);
     method @UiThread public static void setStateDescription(android.view.View, CharSequence?);
+    method @UiThread public static void setSupplementalDescription(android.view.View, CharSequence?);
     method public static void setSystemGestureExclusionRects(android.view.View, java.util.List<android.graphics.Rect!>);
     method public static void setTooltipText(android.view.View, CharSequence?);
     method public static void setTransitionName(android.view.View, String?);
