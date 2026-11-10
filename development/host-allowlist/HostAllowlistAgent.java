@@ -21,7 +21,7 @@ import java.net.spi.InetAddressResolverProvider;
 import java.util.Set;
 import java.util.stream.Stream;
 
-/** Java agent that only lets the JVM resolve the hosts of the remote build cache and Develocity. */
+/** Java agent that only lets the JVM resolve the host names in ALLOWED. */
 public class HostAllowlistAgent extends InetAddressResolverProvider implements InetAddressResolver {
     private static final Set<String> ALLOWED =
             Set.of(
@@ -31,7 +31,8 @@ public class HostAllowlistAgent extends InetAddressResolverProvider implements I
                     "www.googleapis.com", // validating that token (gcpbuildcache's TokenInfo)
                     "metadata.google.internal", // build cache credentials on GCE machines
                     "androidx.develocity.cloud", // Develocity build scans
-                    "secretmanager.googleapis.com"); // Develocity access key
+                    "secretmanager.googleapis.com", // Develocity access key
+                    "update.code.visualstudio.com"); // latest VS Code version, for ./codew
     private static InetAddressResolver builtin;
     // This machine's own name (not "localhost"), which InetAddress.getLocalHost() resolves
     private static String hostName;

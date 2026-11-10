@@ -77,6 +77,7 @@ import com.google.devtools.ksp.gradle.KspGradleSubplugin
 import com.google.protobuf.gradle.ProtobufExtension
 import com.google.protobuf.gradle.ProtobufPlugin
 import java.io.File
+import java.lang.management.ManagementFactory
 import java.time.Duration
 import java.util.Locale
 import javax.inject.Inject
@@ -218,6 +219,7 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
             task.jvmArgs("--enable-native-access=ALL-UNNAMED")
             // Keep JDK 24+ sun.misc.Unsafe warnings (e.g. protobuf) out of the build log.
             task.systemProperty("sun.misc.unsafe.memory.access", "allow")
+            task.jvmArgumentProviders.add(HostAllowlistArgumentProvider())
         }
 
         project.configureTaskTimeouts()
@@ -1570,6 +1572,14 @@ private class JavaCompileArgumentProvider(
         }
         return args
     }
+}
+
+/** Gives host tests the host allowlist agent that gradlew loads into the Gradle daemon. */
+private class HostAllowlistArgumentProvider : CommandLineArgumentProvider {
+    override fun asArguments(): List<String> =
+        ManagementFactory.getRuntimeMXBean().inputArguments.filter {
+            it.startsWith("-javaagent:") && File(it).name.startsWith("host-allowlist-")
+        }
 }
 
 private fun Project.configureJavaCompilationWarnings(
