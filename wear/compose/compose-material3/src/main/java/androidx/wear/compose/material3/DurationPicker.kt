@@ -125,17 +125,31 @@ import kotlinx.coroutines.yield
  *
  * @sample androidx.wear.compose.material3.samples.DurationPickerHoursMinutesSecondsSample
  *
+ * ![DurationPickerHoursMinutesSecondsSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_DurationPickerHoursMinutesSecondsSample_CompositeImage.png)
+ *
  * Example of a [DurationPicker] with minutes and seconds:
  *
  * @sample androidx.wear.compose.material3.samples.DurationPickerMinutesSecondsSample
+ *
+ * ![DurationPickerMinutesSecondsSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_DurationPickerMinutesSecondsSample_CompositeImage.png)
  *
  * Example of a [DurationPicker] with hours and minutes:
  *
  * @sample androidx.wear.compose.material3.samples.DurationPickerHoursMinutesSample
  *
+ * ![DurationPickerHoursMinutesSample Composite
+ * Image](https://developer.android.com/wear/images/design/WearComposeM3_DurationPickerHoursMinutesSample_CompositeImage.png)
+ *
  * Example of a [DurationPicker] with a maximum duration exceeding 24 hours:
  *
  * @sample androidx.wear.compose.material3.samples.DurationPickerMaximumDurationSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_DurationPickerMaximumDurationSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param initialDuration The initial duration to be displayed in the DurationPicker. Must be
  *   non-negative and not exceed the limit for [durationPickerType]. Changing [initialDuration]
  *   after the first composition does not reset the picker. Changing [minValidDuration],
