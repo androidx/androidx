@@ -209,6 +209,7 @@ class AppFunctionMetadataTest {
                 scope = PROPERTY_VALUE_SCOPE_GLOBAL,
                 accessLevel = PROPERTY_VALUE_ACCESS_LEVEL_ANDROID_TRUSTED,
                 isCompatEnforcementEnabled = true,
+                behaviorHints = null,
             )
         assertThat(actualAppFunctionMetadataDocument).isEqualTo(expectedAppFunctionMetadataDocument)
     }
@@ -326,6 +327,7 @@ class AppFunctionMetadataTest {
         assertThat(stableMetadata.accessLevel)
             .isEqualTo(AppFunctionMetadata.ACCESS_LEVEL_ANDROID_TRUSTED)
         assertThat(stableMetadata.isCompatEnforcementEnabled).isFalse()
+        assertThat(stableMetadata.behaviorHints).isNull()
 
         // Experimental secondary constructor
         val experimentalMetadata =
@@ -341,5 +343,6 @@ class AppFunctionMetadataTest {
         assertThat(experimentalMetadata.accessLevel)
             .isEqualTo(AppFunctionMetadata.ACCESS_LEVEL_SELF)
         assertThat(experimentalMetadata.isCompatEnforcementEnabled).isFalse()
+        assertThat(experimentalMetadata.behaviorHints).isNull()
     }
 }

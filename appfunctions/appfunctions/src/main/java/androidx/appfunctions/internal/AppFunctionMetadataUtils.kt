@@ -58,6 +58,7 @@ internal object AppFunctionMetadataUtils {
                 accessLevel = compileTimeAppFunctionMetadata.accessLevel,
                 isCompatEnforcementEnabled =
                     compileTimeAppFunctionMetadata.isCompatEnforcementEnabled,
+                behaviorHints = compileTimeAppFunctionMetadata.behaviorHints,
             )
         }
 

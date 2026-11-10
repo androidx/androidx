@@ -26,6 +26,7 @@ import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.internal.consumeAll
 import androidx.appfunctions.metadata.AppFunctionAllOfTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionAppMetadata
+import androidx.appfunctions.metadata.AppFunctionBehaviorHintsMetadata
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionIntTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionMetadata
@@ -326,6 +327,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                     ),
                 description = "Test function without schema, enabled by default.",
                 scope = AppFunctionMetadata.SCOPE_GLOBAL,
+                behaviorHints = AppFunctionBehaviorHintsMetadata(),
             )
 
         val MEDIA_SCHEMA2_PRINT =

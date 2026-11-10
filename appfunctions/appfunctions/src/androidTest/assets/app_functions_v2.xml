@@ -25,6 +25,9 @@
             </valueType>
             <description>The function's response</description>
         </response>
+        <behaviorHints>
+            <id>unused</id>
+        </behaviorHints>
     </appfunction>
     <appfunction>
         <id>androidx.appfunctions.test#noSchema_disabledByDefault</id>
