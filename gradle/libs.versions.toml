@@ -278,7 +278,7 @@ playServicesBlockstore = {module = "com.google.android.gms:play-services-auth-bl
 playServicesCameraLowLightBoost = { module = "com.google.android.gms:play-services-camera-low-light-boost", version = "16.0.1-beta09" }
 playServicesDevicePerformance = { module = "com.google.android.gms:play-services-deviceperformance", version = "16.0.0" }
 playServicesFido = {module = "com.google.android.gms:play-services-fido", version = "21.3.0"}
-playServicesIdentityCredentials = {module = "com.google.android.gms:play-services-identity-credentials", version = "16.0.0-alpha12"}
+playServicesIdentityCredentials = {module = "com.google.android.gms:play-services-identity-credentials", version = "16.0.0-alpha13"}
 playServicesMlkitTextRecognition = { module = "com.google.android.gms:play-services-mlkit-text-recognition", version = "19.0.2" }
 playServicesWearable = { module = "com.google.android.gms:play-services-wearable", version = "20.0.1" }
 protobuf = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf" }

@@ -54,6 +54,11 @@ import com.google.android.gms.identitycredentials.GetCredentialTransferCapabilit
 import com.google.android.gms.identitycredentials.ImportCredentialsForDeviceSetupRequest
 import com.google.android.gms.identitycredentials.ImportCredentialsForDeviceSetupResponse
 import com.google.android.gms.identitycredentials.SignalCredentialStateRequest
+import com.google.android.gms.identitycredentials.provider.BatchCreateCredentialRequest
+import com.google.android.gms.identitycredentials.provider.BeginBatchCreateCredentialRequest
+import com.google.android.gms.identitycredentials.provider.BeginCreateCredentialRequest
+import com.google.android.gms.identitycredentials.provider.IBatchCreateCredentialCallbacks
+import com.google.android.gms.identitycredentials.provider.IBeginCreateCredentialCallbacks
 import com.google.android.gms.identitycredentials.provider.ICreateCredentialCallbacks
 import com.google.android.gms.identitycredentials.provider.ICredentialProviderService
 import com.google.android.gms.identitycredentials.provider.ICredentialTransferCapabilitiesCallbacks
@@ -305,6 +310,22 @@ public class DeviceSetupProviderPlayServices : DeviceSetupProvider {
             p0: SignalCredentialStateRequest,
             p1: CallingAppInfoParcelable,
             p2: ISignalCredentialStateCallbacks,
+        ) {}
+
+        override fun onBatchCreateCredentialRequest(
+            request: BatchCreateCredentialRequest,
+            callback: IBatchCreateCredentialCallbacks,
+        ) {}
+
+        override fun onBeginCreateCredentialRequest(
+            request: BeginCreateCredentialRequest,
+            callingAppInfo: CallingAppInfoParcelable,
+            callback: IBeginCreateCredentialCallbacks,
+        ) {}
+
+        override fun onBeginBatchCreateCredentialRequest(
+            request: BeginBatchCreateCredentialRequest,
+            callback: IBeginCreateCredentialCallbacks,
         ) {}
     }
 
