@@ -23,7 +23,13 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteTextUnit
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
+import androidx.compose.remote.creation.compose.text.RemoteFontStyle
+import androidx.compose.remote.creation.compose.text.RemoteFontVariation
+import androidx.compose.remote.creation.compose.text.RemoteFontWeight
+import androidx.compose.remote.creation.compose.text.RemoteTextAlign
+import androidx.compose.remote.creation.compose.text.RemoteTextOverflow
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
+import androidx.compose.remote.creation.compose.text.toRemoteFontVariationSettings
 import androidx.compose.remote.foundation.text.RemoteBasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -100,16 +106,49 @@ public fun RemoteText(
         modifier = modifier,
         color = color,
         fontSize = fontSize,
-        fontStyle = fontStyle,
-        fontWeight = fontWeight,
+        fontStyle = fontStyle?.toRemoteFontStyle(),
+        fontWeight = fontWeight?.toRemoteFontWeight(),
         fontFamily = fontFamily,
-        textAlign = textAlign,
-        overflow = overflow,
+        textAlign = textAlign?.toRemoteTextAlign(),
+        overflow = overflow.toRemoteTextOverflow(),
         maxLines = maxLines,
-        fontVariationSettings = fontVariationSettings,
+        fontVariationSettings = fontVariationSettings?.toRemote(),
         style = style,
     )
 }
+
+private fun FontStyle.toRemoteFontStyle(): RemoteFontStyle =
+    when (this) {
+        FontStyle.Italic -> RemoteFontStyle.Italic
+        else -> RemoteFontStyle.Normal
+    }
+
+private fun FontWeight.toRemoteFontWeight(): RemoteFontWeight = RemoteFontWeight(weight)
+
+private fun TextAlign.toRemoteTextAlign(): RemoteTextAlign =
+    when (this) {
+        TextAlign.Left -> RemoteTextAlign.Left
+        TextAlign.Right -> RemoteTextAlign.Right
+        TextAlign.Center -> RemoteTextAlign.Center
+        TextAlign.Justify -> RemoteTextAlign.Justify
+        TextAlign.Start -> RemoteTextAlign.Start
+        TextAlign.End -> RemoteTextAlign.End
+        else -> RemoteTextAlign.Unspecified
+    }
+
+private fun TextOverflow.toRemoteTextOverflow(): RemoteTextOverflow =
+    when (this) {
+        TextOverflow.Clip -> RemoteTextOverflow.Clip
+        TextOverflow.Visible -> RemoteTextOverflow.Visible
+        TextOverflow.Ellipsis -> RemoteTextOverflow.Ellipsis
+        TextOverflow.StartEllipsis -> RemoteTextOverflow.StartEllipsis
+        TextOverflow.MiddleEllipsis -> RemoteTextOverflow.MiddleEllipsis
+        else -> RemoteTextOverflow.Clip
+    }
+
+@Suppress("RestrictedApiAndroidX")
+private fun FontVariation.Settings.toRemote(): RemoteFontVariation.Settings =
+    toRemoteFontVariationSettings()
 
 /**
  * CompositionLocal containing the preferred [RemoteTextStyle] that will be used by [RemoteText]

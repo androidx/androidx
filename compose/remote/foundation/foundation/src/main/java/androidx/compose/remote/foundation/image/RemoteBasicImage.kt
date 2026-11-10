@@ -24,22 +24,19 @@ import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.DefaultAlpha
-import androidx.compose.ui.layout.ContentScale
 
 /**
  * Lays out and draws a given [RemoteImageBitmap] in a remote layout.
  *
  * This is the remote equivalent of [androidx.compose.foundation.Image]. Provide a localized
- * [contentDescription] (for example, via [androidx.compose.ui.res.stringResource]) whenever the
- * image conveys meaning; pass `null` only for purely decorative images so accessibility services
- * ignore them.
+ * [contentDescription] (for example, via `stringResource`) whenever the image conveys meaning; pass
+ * `null` only for purely decorative images so accessibility services ignore them.
  *
  * Example of a [RemoteBasicImage] cropped to fill its container:
  *
  * @sample androidx.compose.remote.foundation.samples.RemoteBasicImageSample
  *
- * Example of a [RemoteBasicImage] scaled with [ContentScale.Fit] inside its container:
+ * Example of a [RemoteBasicImage] scaled with [RemoteContentScale.Fit] inside its container:
  *
  * @sample androidx.compose.remote.foundation.samples.RemoteBasicImageFitSample
  * @param bitmap the [RemoteImageBitmap] to draw
@@ -48,9 +45,9 @@ import androidx.compose.ui.layout.ContentScale
  *   accessibility services
  * @param modifier the [RemoteModifier] applied to this layout node
  * @param contentScale rule applied to scale the image when its layout bounds differ from the
- *   intrinsic size of [bitmap]. Defaults to [ContentScale.Fit]
+ *   intrinsic size of [bitmap]. Defaults to [RemoteContentScale.Fit]
  * @param alpha opacity applied to [bitmap] when rendered, from `0.0f` (transparent) to `1.0f`
- *   (opaque). Defaults to [DefaultAlpha]
+ *   (opaque). Defaults to `1.0f`
  */
 @Composable
 @RemoteComposable
@@ -58,26 +55,14 @@ public fun RemoteBasicImage(
     bitmap: RemoteImageBitmap,
     contentDescription: RemoteString?,
     modifier: RemoteModifier = RemoteModifier,
-    contentScale: ContentScale = ContentScale.Fit,
-    alpha: RemoteFloat = DefaultAlpha.rf,
+    contentScale: RemoteContentScale = RemoteContentScale.Fit,
+    alpha: RemoteFloat = 1f.rf,
 ) {
     RemoteImage(
         bitmap = bitmap,
         contentDescription = contentDescription,
         modifier = modifier,
-        contentScale = contentScale.toRemoteContentScale(),
+        contentScale = contentScale,
         alpha = alpha,
     )
 }
-
-private fun ContentScale.toRemoteContentScale(): RemoteContentScale =
-    when (this) {
-        ContentScale.Crop -> RemoteContentScale.Crop
-        ContentScale.Fit -> RemoteContentScale.Fit
-        ContentScale.FillHeight -> RemoteContentScale.FillHeight
-        ContentScale.FillWidth -> RemoteContentScale.FillWidth
-        ContentScale.Inside -> RemoteContentScale.Inside
-        ContentScale.None -> RemoteContentScale.None
-        ContentScale.FillBounds -> RemoteContentScale.FillBounds
-        else -> RemoteContentScale.None
-    }
