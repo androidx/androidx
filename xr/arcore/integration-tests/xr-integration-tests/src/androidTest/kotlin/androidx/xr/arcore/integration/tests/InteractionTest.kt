@@ -23,49 +23,35 @@ import androidx.test.filters.LargeTest
 import androidx.test.rule.GrantPermissionRule
 import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.AnchorCreateSuccess
-import androidx.xr.arcore.AnchorRuntimeFailureException
-import androidx.xr.arcore.Anchorable
 import androidx.xr.arcore.ArDevice
 import androidx.xr.arcore.HitResult
 import androidx.xr.arcore.Plane
-import androidx.xr.arcore.PlaneLabel
-import androidx.xr.arcore.TrackingState
 import androidx.xr.arcore.hitTest
-import androidx.xr.arcore.perceptionState
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionConfigureSuccess
-import androidx.xr.runtime.SessionCreateApkRequired
-import androidx.xr.runtime.SessionCreateSuccess
-import androidx.xr.runtime.SessionCreateTimedOut
-import androidx.xr.runtime.SessionCreateUnknownError
-import androidx.xr.runtime.SessionCreateUnsupportedDevice
 import androidx.xr.runtime.math.Pose
-import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Ray
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.filterSupportedPermissions
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.abs
 import kotlin.math.sqrt
 import kotlin.test.assertFailsWith
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeoutOrNull
-import org.junit.Assume.assumeTrue
+import kotlinx.coroutines.flow.StateFlow
+import org.junit.AssumptionViolatedException
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * End-to-end XR device integration tests for JXR ARCore Interaction ([hitTest] and [Anchor]
- * placement at [HitResult.hitPose], OpenXR ray-plane intersection geometry, dynamic runtime
- * reconfiguration, and Activity recreation).
+ * End-to-end XR device integration tests for JXR ARCore Interaction ([hitTest] and single or
+ * multiple [Anchor] placement on tracked planes at [HitResult.hitPose], OpenXR ray-plane
+ * intersection geometry, dynamic runtime reconfiguration, and Activity recreation).
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -88,188 +74,164 @@ class InteractionTest {
             )
         )
 
-    private fun initSessionAndRunTest(
-        scenario: ActivityScenario<ComponentActivity>,
-        planeTrackingMode: PlaneTrackingMode = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-        testBody: suspend (Session) -> Unit,
-    ) {
-        scenario.onActivity { activity ->
-            runBlocking {
-                val result = Session.create(context = activity)
-                assumeTrue(
-                    "Skipping test: Missing or outdated APK '${(result as? SessionCreateApkRequired)?.requiredApk}'",
-                    result !is SessionCreateApkRequired,
-                )
-                assumeTrue(
-                    "Skipping test: Device does not support required XR features",
-                    result !is SessionCreateUnsupportedDevice,
-                )
-                check(result is SessionCreateSuccess) {
-                    when (result) {
-                        is SessionCreateUnknownError ->
-                            "SessionCreateUnknownError: ${result.errorMessage}"
-                        is SessionCreateTimedOut -> "SessionCreateTimedOut"
-                        else -> "Session.create failed with result: $result"
-                    }
-                }
-                val session = result.session
-                val config =
-                    Config.Builder()
-                        .setDeviceTracking(DeviceTrackingMode.SPATIAL)
-                        .setPlaneTracking(planeTrackingMode)
-                        .build()
-                val configResult = session.configure(config)
-                check(configResult is SessionConfigureSuccess) {
-                    "Failed to configure Session: $configResult"
-                }
+    private data class AnchorPair(val primary: Anchor, val secondary: Anchor)
 
-                val state =
-                    withTimeoutOrNull(5000L) { session.state.first { it.perceptionState != null } }
-                checkNotNull(state) { "Timed out waiting for perception state" }
+    private data class AnchorPairSpec(
+        val target: PlaneHitMatch,
+        val centerBeforeCreate: Pose,
+        val primaryLocalPose: Pose,
+        val secondaryLocalPose: Pose,
+    )
 
-                testBody(session)
+    private data class MultiAnchorPlaneResult(
+        val primaryTrackingState: Anchor.State,
+        val secondaryTrackingState: Anchor.State,
+        val expectedPrimaryWorldPose: Pose,
+        val expectedSecondaryWorldPose: Pose,
+    )
+
+    private fun createAnchorPair(
+        plane: Plane,
+        primaryLocalPose: Pose,
+        secondaryLocalPose: Pose,
+    ): AnchorPair {
+        val primaryResult = plane.createAnchor(primaryLocalPose)
+        check(primaryResult is AnchorCreateSuccess) {
+            "Expected AnchorCreateSuccess for primary anchor, got $primaryResult"
+        }
+        val primaryAnchor = primaryResult.anchor
+        try {
+            val secondaryResult = plane.createAnchor(secondaryLocalPose)
+            check(secondaryResult is AnchorCreateSuccess) {
+                "Expected AnchorCreateSuccess for secondary anchor, got $secondaryResult"
             }
+            return AnchorPair(primaryAnchor, secondaryResult.anchor)
+        } catch (t: Throwable) {
+            detachAnchorsCleanly(t, primaryAnchor)
+            throw t
         }
     }
 
-    private fun buildCandidateRaysForPlane(plane: Plane, deviceOrigin: Vector3): List<Ray> {
-        val centerPose = plane.state.value.centerPose
-        return buildList {
-            // 1. Cast ray from the AR device pose directly toward centerPose (matches real-world
-            // head/controller raycasting and avoids collinearity with the plane normal).
-            val deviceToPlane = centerPose.translation - deviceOrigin
-            if (deviceToPlane.length > 1e-3f) {
-                add(
-                    Ray(
-                        origin = deviceOrigin,
-                        direction = deviceToPlane.toNormalized(),
-                    )
-                )
-            }
-            // 2. Cast oblique ray from 0.5m along +Y normal and 0.25m along +X tangent into
-            // centerPose (avoids zero cross-product singularity when ray direction is strictly
-            // parallel to the plane normal).
-            val positiveObliqueOrigin =
-                centerPose.translation + centerPose.up * 0.5f + centerPose.right * 0.25f
-            add(
-                Ray(
-                    origin = positiveObliqueOrigin,
-                    direction = (centerPose.translation - positiveObliqueOrigin).toNormalized(),
-                )
-            )
-            // 3. Cast oblique ray from the opposite side of the plane normal into centerPose.
-            val negativeObliqueOrigin =
-                centerPose.translation - centerPose.up * 0.5f + centerPose.right * 0.25f
-            add(
-                Ray(
-                    origin = negativeObliqueOrigin,
-                    direction = (centerPose.translation - negativeObliqueOrigin).toNormalized(),
-                )
-            )
-        }
-    }
-
-    /**
-     * Executes [hitTest] while tolerating the transient race in `OpenXrPerceptionManager.hitTest`
-     * where `nativeHitTest` returns a newly discovered native trackable ID before the next
-     * `updatePlanes` / `PerceptionStateExtender.extend` tick has synced it into `trackablesMap`.
-     */
-    private fun safeHitTestWhileEnabled(session: Session, ray: Ray): List<HitResult> {
-        return try {
-            hitTest(session, ray)
-        } catch (e: IllegalStateException) {
-            if (e.message?.contains("Trackable not found") == true) {
-                emptyList()
-            } else {
-                throw e
-            }
-        } catch (e: IllegalArgumentException) {
-            if (e.message?.contains("No Active Anchorable found") == true) {
-                emptyList()
-            } else {
-                throw e
-            }
-        }
-    }
-
-    private suspend fun performHitTestAgainstTrackedPlanes(
+    private suspend fun findAnchorablePlaneTarget(
         session: Session,
-        timeoutMs: Long = 10000L,
-    ): Pair<Ray, List<HitResult>>? {
-        val planesFlow = Plane.subscribe(session)
-        return withTimeoutOrNull(timeoutMs) {
-            while (isActive) {
-                val deviceOrigin = ArDevice.getInstance(session).state.value.devicePose.translation
-                // Prefer planes with a known semantic label first (matching HitTestingSamples and
-                // AnchorRenderer), sorted nearest to the device origin.
-                val trackedPlanes =
-                    planesFlow.value
-                        .filter { it.state.value.trackingState == TrackingState.TRACKING }
-                        .sortedWith(
-                            compareBy<Plane> { it.state.value.label == PlaneLabel.UNKNOWN }
-                                .thenBy {
-                                    (it.state.value.centerPose.translation - deviceOrigin).length
-                                }
-                        )
+        planesFlow: StateFlow<Collection<Plane>>,
+    ): PlaneHitMatch =
+        findTrackedPlaneHit(session, planesFlow)
+            ?: throw AssumptionViolatedException(
+                "Skipping test: No hit results returned against tracked planes within timeout"
+            )
 
-                for (plane in trackedPlanes) {
-                    val candidateRays = buildCandidateRaysForPlane(plane, deviceOrigin)
-                    for (ray in candidateRays) {
-                        val hits = safeHitTestWhileEnabled(session, ray)
-                        val hasValidPlaneHit = hits.any { hit ->
-                            hit.trackable is Plane &&
-                                hit.hitPose.rotation.x.isFinite() &&
-                                hit.hitPose.rotation.y.isFinite() &&
-                                hit.hitPose.rotation.z.isFinite() &&
-                                hit.hitPose.rotation.w.isFinite()
-                        }
-                        if (hasValidPlaneHit) {
-                            return@withTimeoutOrNull Pair(ray, hits)
-                        }
-                    }
-                }
-                delay(100L)
+    private fun buildAnchorPairSpec(target: PlaneHitMatch): AnchorPairSpec {
+        val centerBeforeCreate = target.plane.state.value.centerPose
+        val primaryLocalPose = centerBeforeCreate.inverse.compose(target.hit.hitPose)
+        val secondaryLocalPose =
+            Pose(
+                primaryLocalPose.translation + Vector3(SECONDARY_ANCHOR_OFFSET_METERS, 0f, 0f),
+                primaryLocalPose.rotation,
+            )
+        return AnchorPairSpec(
+            target = target,
+            centerBeforeCreate = centerBeforeCreate,
+            primaryLocalPose = primaryLocalPose,
+            secondaryLocalPose = secondaryLocalPose,
+        )
+    }
+
+    private fun areAnchorEndpointsStable(
+        spec: AnchorPairSpec,
+        centerAfterTracking: Pose,
+    ): Boolean =
+        isPoseStable(centerAfterTracking, spec.centerBeforeCreate) &&
+            isPoseStable(
+                centerAfterTracking.compose(spec.primaryLocalPose),
+                spec.target.hit.hitPose,
+            ) &&
+            isPoseStable(
+                centerAfterTracking.compose(spec.secondaryLocalPose),
+                spec.centerBeforeCreate.compose(spec.secondaryLocalPose),
+            )
+
+    private suspend fun awaitStableAnchorPair(
+        spec: AnchorPairSpec,
+        anchorPair: AnchorPair,
+    ): MultiAnchorPlaneResult? =
+        withAnchorsDetached(anchorPair.primary, anchorPair.secondary) {
+            val primaryTrackingState = awaitTrackingAnchorState(anchorPair.primary)
+            val secondaryTrackingState = awaitTrackingAnchorState(anchorPair.secondary)
+            val centerAfterTracking = spec.target.plane.state.value.centerPose
+            if (areAnchorEndpointsStable(spec, centerAfterTracking)) {
+                MultiAnchorPlaneResult(
+                    primaryTrackingState = primaryTrackingState,
+                    secondaryTrackingState = secondaryTrackingState,
+                    expectedPrimaryWorldPose = spec.target.hit.hitPose,
+                    expectedSecondaryWorldPose =
+                        spec.centerBeforeCreate.compose(spec.secondaryLocalPose),
+                )
+            } else {
+                null
             }
-            null
+        }
+
+    private suspend fun tryCreateStableAnchorPair(spec: AnchorPairSpec): MultiAnchorPlaneResult? {
+        val anchorPair =
+            createAnchorPair(spec.target.plane, spec.primaryLocalPose, spec.secondaryLocalPose)
+        return awaitStableAnchorPair(spec, anchorPair)
+    }
+
+    private suspend fun createStableMultiAnchorTarget(session: Session): MultiAnchorPlaneResult {
+        val planesFlow = Plane.subscribe(session)
+        val initialTarget = findAnchorablePlaneTarget(session, planesFlow)
+        val arDevice = ArDevice.getInstance(session)
+        return runWithStabilizedPlaneHit(
+            initialTarget = initialTarget,
+            findTarget = { tryFindTrackedPlaneHit(session, planesFlow, arDevice) },
+        ) { stabilizedTarget ->
+            tryCreateStableAnchorPair(buildAnchorPairSpec(stabilizedTarget))
         }
     }
 
-    private fun assertValidQuaternion(q: Quaternion, epsilon: Float = 1e-3f) {
-        assertThat(q.x).isFinite()
-        assertThat(q.y).isFinite()
-        assertThat(q.z).isFinite()
-        assertThat(q.w).isFinite()
-        val norm = sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w)
-        assertThat(norm).isWithin(epsilon).of(1.0f)
-    }
+    private fun assertValidPlaneHitGeometry(ray: Ray, hitResult: HitResult) {
+        assertThat(hitResult.hitPose.translation.x).isFinite()
+        assertThat(hitResult.hitPose.translation.y).isFinite()
+        assertThat(hitResult.hitPose.translation.z).isFinite()
+        assertValidQuaternion(hitResult.hitPose.rotation)
 
-    private fun assertPoseEquals(actual: Pose, expected: Pose, epsilon: Float = 1e-2f) {
-        assertThat(actual.translation.x).isWithin(epsilon).of(expected.translation.x)
-        assertThat(actual.translation.y).isWithin(epsilon).of(expected.translation.y)
-        assertThat(actual.translation.z).isWithin(epsilon).of(expected.translation.z)
-        val dotProduct =
-            actual.rotation.x * expected.rotation.x +
-                actual.rotation.y * expected.rotation.y +
-                actual.rotation.z * expected.rotation.z +
-                actual.rotation.w * expected.rotation.w
-        assertThat(abs(dotProduct)).isWithin(epsilon).of(1.0f)
+        // Verify HitResult.hitPose lies on the cast ray at HitResult.distance from ray.origin
+        val expectedPositionOnRay = ray.origin + ray.direction.toNormalized() * hitResult.distance
+        assertThat((hitResult.hitPose.translation - expectedPositionOnRay).length)
+            .isLessThan(RAY_PROJECTION_EPSILON_METERS)
+        val expectedDistance = (hitResult.hitPose.translation - ray.origin).length
+        assertThat(hitResult.distance).isWithin(RAY_PROJECTION_EPSILON_METERS).of(expectedDistance)
+
+        // Plane-only config must return a Plane hitPose aligned and coplanar with centerPose
+        assertThat(hitResult.trackable).isInstanceOf(Plane::class.java)
+        val planeState = (hitResult.trackable as Plane).state.value
+        assertThat(hitResult.hitPose.up dot planeState.centerPose.up)
+            .isAtLeast(MIN_PLANE_NORMAL_ALIGNMENT_DOT)
+        val planeSurfaceOffset =
+            abs(
+                (hitResult.hitPose.translation - planeState.centerPose.translation) dot
+                    planeState.centerPose.up
+            )
+        assertThat(planeSurfaceOffset).isAtMost(MAX_PLANE_SURFACE_OFFSET_METERS)
     }
 
     @Test
     @XrDeviceTest
     fun hitTest_rayAgainstTrackedPlane_validatesHitResultGeometryAndSorting() {
         ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
-            initSessionAndRunTest(
+            initPlaneTrackingSessionAndRunTest(
                 scenario,
                 planeTrackingMode = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
             ) { session ->
-                val hitTestOutcome = performHitTestAgainstTrackedPlanes(session)
-                assumeTrue(
-                    "Skipping test: No hit results returned against environment planes within timeout",
-                    hitTestOutcome != null,
-                )
-
-                val (ray, hitResults) = checkNotNull(hitTestOutcome)
+                val matchedHit =
+                    findTrackedPlaneHit(session)
+                        ?: throw AssumptionViolatedException(
+                            "Skipping test: No hit results returned against environment planes " +
+                                "within timeout"
+                        )
+                val ray = matchedHit.ray
+                val hitResults = matchedHit.hitResults
                 assertThat(hitResults).isNotEmpty()
 
                 var previousDistance = 0f
@@ -279,18 +241,7 @@ class InteractionTest {
                     assertThat(hitResult.distance).isAtLeast(previousDistance)
                     previousDistance = hitResult.distance
 
-                    assertThat(hitResult.hitPose.translation.x).isFinite()
-                    assertThat(hitResult.hitPose.translation.y).isFinite()
-                    assertThat(hitResult.hitPose.translation.z).isFinite()
-                    assertValidQuaternion(hitResult.hitPose.rotation)
-
-                    // Verify HitResult.distance equals the 3D Euclidean distance from ray.origin
-                    // to hitResult.hitPose.translation
-                    val expectedDistance = (hitResult.hitPose.translation - ray.origin).length
-                    assertThat(hitResult.distance).isWithin(1e-3f).of(expectedDistance)
-
-                    // Hit trackable must be an Anchorable (such as a tracked Plane)
-                    assertThat(hitResult.trackable).isInstanceOf(Anchorable::class.java)
+                    assertValidPlaneHitGeometry(ray, hitResult)
                 }
             }
         }
@@ -300,92 +251,61 @@ class InteractionTest {
     @XrDeviceTest
     fun hitTest_createAnchorAtHitPose_tracksWorldPoseAndDetachesCleanly() {
         ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
-            initSessionAndRunTest(
+            initPlaneTrackingSessionAndRunTest(
                 scenario,
                 planeTrackingMode = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
             ) { session ->
-                val hitTestOutcome = performHitTestAgainstTrackedPlanes(session)
-                assumeTrue(
-                    "Skipping test: No hit results returned against environment planes within timeout",
-                    hitTestOutcome != null,
+                val hitMatch =
+                    findTrackedPlaneHit(session)
+                        ?: throw AssumptionViolatedException(
+                            "Skipping test: No hit results returned against environment planes " +
+                                "within timeout"
+                        )
+
+                val anchorResult = Anchor.create(session, hitMatch.hit.hitPose)
+                assertWithMessage(
+                        "Expected AnchorCreateSuccess at hitPose=${hitMatch.hit.hitPose}, " +
+                            "got $anchorResult"
+                    )
+                    .that(anchorResult)
+                    .isInstanceOf(AnchorCreateSuccess::class.java)
+                val anchor = (anchorResult as AnchorCreateSuccess).anchor
+                withAnchorsDetached(anchor) {
+                    val trackingAnchorState = awaitTrackingAnchorState(anchor)
+
+                    assertPoseEquals(trackingAnchorState.pose, hitMatch.hit.hitPose)
+                    assertThat(
+                            trackingAnchorState.pose.up dot hitMatch.plane.state.value.centerPose.up
+                        )
+                        .isAtLeast(MIN_PLANE_NORMAL_ALIGNMENT_DOT)
+                }
+            }
+        }
+    }
+
+    @Test
+    @XrDeviceTest
+    fun hitTest_multipleAnchorsOnTrackedPlane_trackIndependentWorldPoses() {
+        ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
+            initPlaneTrackingSessionAndRunTest(scenario) { session ->
+                val result = createStableMultiAnchorTarget(session)
+
+                assertPoseEquals(
+                    result.primaryTrackingState.pose,
+                    result.expectedPrimaryWorldPose,
                 )
-
-                val planesFlow = Plane.subscribe(session)
-                val deviceOrigin = ArDevice.getInstance(session).state.value.devicePose.translation
-                val candidateHits = buildList {
-                    addAll(checkNotNull(hitTestOutcome).second)
-                    val trackedPlanes =
-                        planesFlow.value
-                            .filter { it.state.value.trackingState == TrackingState.TRACKING }
-                            .sortedWith(
-                                compareBy<Plane> { it.state.value.label == PlaneLabel.UNKNOWN }
-                                    .thenBy {
-                                        (it.state.value.centerPose.translation - deviceOrigin)
-                                            .length
-                                    }
-                            )
-                    for (plane in trackedPlanes) {
-                        for (ray in buildCandidateRaysForPlane(plane, deviceOrigin)) {
-                            addAll(safeHitTestWhileEnabled(session, ray))
-                        }
-                    }
-                }
-
-                var createdAnchor: Anchor? = null
-                var targetPose: Pose? = null
-                var lastFailure: Throwable? = null
-
-                for (hit in candidateHits) {
-                    val poseToTry = hit.hitPose
-                    if (
-                        !poseToTry.rotation.x.isFinite() ||
-                            !poseToTry.rotation.y.isFinite() ||
-                            !poseToTry.rotation.z.isFinite() ||
-                            !poseToTry.rotation.w.isFinite()
-                    ) {
-                        continue
-                    }
-                    try {
-                        val result = Anchor.create(session, poseToTry)
-                        if (result is AnchorCreateSuccess) {
-                            createdAnchor = result.anchor
-                            targetPose = poseToTry
-                            break
-                        }
-                    } catch (e: AnchorRuntimeFailureException) {
-                        lastFailure = e
-                        try {
-                            val fallbackPose = Pose(poseToTry.translation, Quaternion.Identity)
-                            val fallbackResult = Anchor.create(session, fallbackPose)
-                            if (fallbackResult is AnchorCreateSuccess) {
-                                createdAnchor = fallbackResult.anchor
-                                targetPose = fallbackPose
-                                break
-                            }
-                        } catch (fallbackEx: AnchorRuntimeFailureException) {
-                            lastFailure = fallbackEx
-                        }
-                    }
-                }
-
-                checkNotNull(createdAnchor) {
-                    "Failed to create anchor at any hitPose among ${candidateHits.size} hits. " +
-                        "First hitPose=${candidateHits.firstOrNull()?.hitPose}, lastFailure=$lastFailure"
-                }
-
-                try {
-                    val trackingAnchorState =
-                        withTimeoutOrNull(5000L) {
-                            createdAnchor.state.first { it.trackingState == TrackingState.TRACKING }
-                        }
-                    checkNotNull(trackingAnchorState) {
-                        "Timed out waiting for hit-test anchor to enter TRACKING state"
-                    }
-
-                    assertPoseEquals(trackingAnchorState.pose, checkNotNull(targetPose))
-                } finally {
-                    createdAnchor.detach()
-                }
+                assertPoseEquals(
+                    result.secondaryTrackingState.pose,
+                    result.expectedSecondaryWorldPose,
+                )
+                assertThat(
+                        Vector3.distance(
+                            result.primaryTrackingState.pose.translation,
+                            result.secondaryTrackingState.pose.translation,
+                        )
+                    )
+                    .isWithin(2f * sqrt(3f) * POSE_EPSILON)
+                    .of(SECONDARY_ANCHOR_OFFSET_METERS)
             }
         }
     }
@@ -394,7 +314,7 @@ class InteractionTest {
     @XrDeviceTest
     fun hitTest_dynamicModeSwitching_throwsWhenPlaneTrackingDisabledAndRecovers() {
         ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
-            initSessionAndRunTest(
+            initPlaneTrackingSessionAndRunTest(
                 scenario,
                 planeTrackingMode = PlaneTrackingMode.DISABLED,
             ) { session ->
@@ -412,12 +332,14 @@ class InteractionTest {
                 assertThat(session.config.planeTracking)
                     .isEqualTo(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
 
-                val initialHitOutcome = performHitTestAgainstTrackedPlanes(session)
-                assumeTrue(
-                    "Skipping test: No hit results returned against environment planes within timeout",
-                    initialHitOutcome != null,
-                )
-                val validRay = checkNotNull(initialHitOutcome).first
+                val planesFlow = Plane.subscribe(session)
+                val initialHitMatch =
+                    findTrackedPlaneHit(session, planesFlow)
+                        ?: throw AssumptionViolatedException(
+                            "Skipping test: No hit results returned against environment planes " +
+                                "within timeout"
+                        )
+                val validRay = initialHitMatch.ray
 
                 // Dynamically disable plane tracking
                 val disableConfig =
@@ -436,12 +358,11 @@ class InteractionTest {
                 // Re-enabling plane tracking restores hitTest on the same session
                 val reEnableResult = session.configure(enableConfig)
                 assertThat(reEnableResult).isInstanceOf(SessionConfigureSuccess::class.java)
-                val recoveredHitOutcome = performHitTestAgainstTrackedPlanes(session)
-                assumeTrue(
-                    "Skipping test: No hit results returned after re-enabling within timeout",
-                    recoveredHitOutcome != null,
-                )
-                assertThat(checkNotNull(recoveredHitOutcome).second).isNotEmpty()
+                val recoveredHitMatch = findTrackedPlaneHit(session, planesFlow)
+
+                assertWithMessage("hitTest did not recover after re-enabling plane tracking")
+                    .that(recoveredHitMatch)
+                    .isNotNull()
             }
         }
     }
@@ -450,13 +371,11 @@ class InteractionTest {
     @XrDeviceTest
     fun hitTest_activityRecreation_reinitializesSessionAndHitTestPipeline() {
         ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
-            lateinit var initialSession: Session
-            initSessionAndRunTest(
+            initPlaneTrackingSessionAndRunTest(
                 scenario,
                 planeTrackingMode = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
             ) { session ->
-                initialSession = session
-                safeHitTestWhileEnabled(initialSession, Ray(Vector3.Zero, Vector3.Forward))
+                hitTest(session, Ray(Vector3.Zero, Vector3.Forward))
             }
 
             scenario.recreate()
@@ -464,13 +383,26 @@ class InteractionTest {
             // Upon activity recreation, the initial Activity and its attached Session are
             // destroyed, and a new Session is created and configured for the recreated
             // Activity.
-            initSessionAndRunTest(
+            initPlaneTrackingSessionAndRunTest(
                 scenario,
                 planeTrackingMode = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
             ) { newSession ->
-                assertThat(newSession).isNotSameInstanceAs(initialSession)
-                safeHitTestWhileEnabled(newSession, Ray(Vector3.Zero, Vector3.Forward))
+                val matchedHit =
+                    findTrackedPlaneHit(newSession)
+                        ?: throw AssumptionViolatedException(
+                            "Skipping test: No hit results returned against environment planes " +
+                                "after Activity recreation"
+                        )
+
+                assertValidPlaneHitGeometry(matchedHit.ray, matchedHit.hit)
             }
         }
+    }
+
+    private companion object {
+        const val SECONDARY_ANCHOR_OFFSET_METERS = 0.25f
+        const val MIN_PLANE_NORMAL_ALIGNMENT_DOT = 0.99f
+        const val RAY_PROJECTION_EPSILON_METERS = 1e-3f
+        const val MAX_PLANE_SURFACE_OFFSET_METERS = 2e-2f
     }
 }
