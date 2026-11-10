@@ -19,6 +19,8 @@ package androidx.glance.adaptive.samples
 import android.content.Context
 import androidx.glance.adaptive.appwidget.GlanceAdaptiveWidgetManager
 import androidx.glance.adaptive.appwidget.GlanceAdaptiveWidgetReceiver
+import androidx.glance.adaptive.core.slots.Ring
+import androidx.glance.adaptive.core.slots.TemplateText
 import androidx.glance.adaptive.core.templates.TrackTemplate
 
 /**
@@ -40,10 +42,10 @@ class TrackRemoteViewsWidgetReceiver : GlanceAdaptiveWidgetReceiver() {
 
         val SampleData =
             TrackTemplate(
-                title = "11,056",
-                subtitle = "Steps",
-                progress = 0.55f,
-                statusText = "55%",
+                leading = Ring(0.55f),
+                primary = TemplateText("11,056"),
+                secondary = TemplateText("Steps"),
+                supporting = listOf(TemplateText("55%")),
             )
     }
 }

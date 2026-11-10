@@ -29,6 +29,8 @@ import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
 import androidx.glance.adaptive.core.renderer.TemplateRenderer
 import androidx.glance.adaptive.core.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.selection.Dimensions
+import androidx.glance.adaptive.core.slots.Ring
+import androidx.glance.adaptive.core.slots.TemplateText
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 import androidx.glance.adaptive.core.templates.TrackTemplate
 import androidx.test.core.app.ApplicationProvider
@@ -64,7 +66,12 @@ class AppWidgetTemplateRegistryTest {
 
     @Test
     fun defaultTemplates_includeTrackTemplate() {
-        val template = TrackTemplate(title = "Morning Run", statusText = "5.2 km")
+        val template =
+            TrackTemplate(
+                leading = Ring(0.55f),
+                primary = TemplateText("Morning Run"),
+                supporting = listOf(TemplateText("5.2 km")),
+            )
         for (targetSurface in AppWidgetSurface.ALL) {
             val output =
                 AppWidgetTemplateRegistry.render(
@@ -302,7 +309,13 @@ class AppWidgetTemplateRegistryTest {
 
     @Test
     fun hasDroppedSlots_evaluatesBuiltInSelectorAndReturnsFalseForUnregisteredTemplates() {
-        val track = TrackTemplate(title = "7,922", subtitle = "steps", statusText = "Goal: 10,000")
+        val track =
+            TrackTemplate(
+                leading = Ring(0.55f),
+                primary = TemplateText("7,922"),
+                secondary = TemplateText("steps"),
+                supporting = listOf(TemplateText("Goal: 10,000")),
+            )
 
         assertThat(
                 AppWidgetTemplateRegistry.hasDroppedSlots(

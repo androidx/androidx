@@ -16,9 +16,17 @@
 
 package androidx.glance.adaptive.appwidget.screenshot
 
+import androidx.collection.floatListOf
+import androidx.collection.intListOf
 import androidx.glance.adaptive.appwidget.matrix.remoteviews.RemoteViewsMatrixRenderer
 import androidx.glance.adaptive.appwidget.templates.track.TrackMatrixSelector
+import androidx.glance.adaptive.appwidget.test.R as TestR
 import androidx.glance.adaptive.core.renderer.TemplateRenderer
+import androidx.glance.adaptive.core.slots.Badge
+import androidx.glance.adaptive.core.slots.ChartLabel
+import androidx.glance.adaptive.core.slots.Graph
+import androidx.glance.adaptive.core.slots.Ring
+import androidx.glance.adaptive.core.slots.TemplateText
 import androidx.glance.adaptive.core.templates.TrackTemplate
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -81,29 +89,53 @@ class TrackScreenshotTest(private val case: Case) {
             track(primary = "11,056", secondary = "Steps", progress = 0.55f, supporting = "55%")
 
         /**
-         * A Track payload, named by the design's slots. This is the only code that builds a
-         * [TrackTemplate], so the payloads can move to a richer Track API in one place.
-         *
-         * The current [TrackTemplate] carries only these four values. The ring's glyph, the hero
-         * graph, and the second and third supporting values come from the library's placeholder
-         * data.
+         * Builds a Track Steps payload using semantic slot components matching the design's
+         * goldens.
          *
          * @param primary The headline value.
          * @param secondary The label of the headline value.
-         * @param progress The ring's progress, or `null` for no ring.
+         * @param progress The ring's progress.
          * @param supporting The first supporting value.
          */
         private fun track(
             primary: String,
             secondary: String,
-            progress: Float?,
+            progress: Float,
             supporting: String,
         ): TrackTemplate =
             TrackTemplate(
-                title = primary,
-                subtitle = secondary,
-                progress = progress,
-                statusText = supporting,
+                leading =
+                    Ring(
+                        progress = progress,
+                        icon =
+                            TestR.drawable.glance_adaptive_appwidget_track_screenshot_steps_glyph,
+                    ),
+                primary = TemplateText(primary),
+                secondary = TemplateText(secondary),
+                hero =
+                    Graph(
+                        values =
+                            floatListOf(1_700f, 3_000f, 4_600f, 10_000f, 3_400f, 9_100f, 10_000f),
+                        labels = listOf("T", "F", "S", "S", "M", "T", "W"),
+                        goal = 10_000f,
+                        startLabel = ChartLabel("7 Day Avg"),
+                        endLabel = ChartLabel("13,843 steps"),
+                    ),
+                supporting =
+                    listOf(
+                        TemplateText(supporting),
+                        TemplateText("3,118 to go"),
+                        Badge(
+                            label = "Z2",
+                            outlineColor = 0xFFFFE347.toInt(),
+                            dotColors =
+                                intListOf(
+                                    0xFFFFA4A4.toInt(),
+                                    0xFFA0FF47.toInt(),
+                                    0xFF47A6FF.toInt(),
+                                ),
+                        ),
+                    ),
             )
 
         @JvmStatic

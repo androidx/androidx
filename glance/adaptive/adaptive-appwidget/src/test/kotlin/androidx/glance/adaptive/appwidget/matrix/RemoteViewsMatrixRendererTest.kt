@@ -38,6 +38,7 @@ import androidx.glance.adaptive.appwidget.components.dpToPx
 import androidx.glance.adaptive.appwidget.matrix.remoteviews.RemoteViewsMatrixRenderer
 import androidx.glance.adaptive.appwidget.renderer.RemoteViewsRenderOutput
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
+import androidx.glance.adaptive.appwidget.templates.track.TrackMatrixSelector
 import androidx.glance.adaptive.core.action.GlanceAdaptiveActionCallback
 import androidx.glance.adaptive.core.action.GlanceWidgetAction
 import androidx.glance.adaptive.core.selection.Dimensions
@@ -52,6 +53,7 @@ import androidx.glance.adaptive.core.slots.IconTile
 import androidx.glance.adaptive.core.slots.Ring
 import androidx.glance.adaptive.core.slots.TemplateText
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
+import androidx.glance.adaptive.core.templates.TrackTemplate
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -332,6 +334,75 @@ class RemoteViewsMatrixRendererTest {
                     .toString()
             )
             .isEqualTo("42")
+    }
+
+    @Test
+    fun trackTemplateSlots_renderEndToEndWithLockScreenPrivacyRedaction() {
+        val track =
+            TrackTemplate(
+                leading = Ring(progress = 0.55f, icon = android.R.drawable.ic_menu_compass),
+                primary = TemplateText(value = "11,056", sensitiveReplacement = "--"),
+                secondary = TemplateText("Steps"),
+                hero =
+                    Graph(
+                        values = floatListOf(0.65f, 1.0f, 0.80f),
+                        labels = listOf("M", "T", "W"),
+                        goal = 1.0f,
+                        startLabel = ChartLabel("7 Day Avg"),
+                        endLabel = ChartLabel("13,843", icon = android.R.drawable.ic_menu_compass),
+                    ),
+                supporting =
+                    listOf(
+                        TemplateText("55%"),
+                        TemplateText("3,118 to go"),
+                        Badge("Z2", outlineColor = 0xFFFFE347.toInt()),
+                    ),
+            )
+        val dimensions = Dimensions(348, 264)
+        val homeSurface = AppWidgetSurface.MOBILE_HOME_SCREEN.withDimensions(dimensions)
+        val homeRoot = render(TrackMatrixSelector.select(track, homeSurface), dimensions)
+
+        assertThat(
+                homeRoot
+                    .findViewById<TextView>(R.id.glance_adaptive_appwidget_remoteviews_primary)
+                    .text
+                    .toString()
+            )
+            .isEqualTo("11,056")
+        assertThat(secondary(homeRoot).text.toString()).isEqualTo("Steps")
+        assertThat(
+                homeRoot
+                    .findViewById<TextView>(
+                        R.id.glance_adaptive_appwidget_remoteviews_chart_caption_end
+                    )
+                    .text
+                    .toString()
+            )
+            .isEqualTo("13,843")
+        assertThat(
+                homeRoot
+                    .findViewById<TextView>(R.id.glance_adaptive_appwidget_remoteviews_badge_label)
+                    .text
+                    .toString()
+            )
+            .isEqualTo("Z2")
+
+        val lockSurface = AppWidgetSurface.MOBILE_LOCK_SCREEN.withDimensions(dimensions)
+        val lockRv =
+            RemoteViewsMatrixRenderer.renderRemoteViews(
+                context,
+                track,
+                TrackMatrixSelector.select(track, lockSurface),
+                lockSurface,
+            )
+        val lockRoot = lockRv.apply(context, FrameLayout(context))
+        assertThat(
+                lockRoot
+                    .findViewById<TextView>(R.id.glance_adaptive_appwidget_remoteviews_primary)
+                    .text
+                    .toString()
+            )
+            .isEqualTo("--")
     }
 
     @Test
@@ -874,8 +945,8 @@ class RemoteViewsMatrixRendererTest {
     }
 
     private companion object {
-        /** A glyph drawable of the library, declared at 32 dp. */
-        val GLYPH = R.drawable.glance_adaptive_appwidget_remoteviews_track_placeholder_steps_glyph
+        /** A framework drawable standing in for an app-provided glyph. */
+        const val GLYPH = android.R.drawable.ic_menu_compass
 
         const val RUN_URI = "app://run"
         val RUN = GlanceWidgetAction.LaunchDeeplink(RUN_URI)

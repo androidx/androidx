@@ -23,6 +23,8 @@ import android.content.Context
 import android.os.Bundle
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
 import androidx.glance.adaptive.core.selection.Dimensions
+import androidx.glance.adaptive.core.slots.Ring
+import androidx.glance.adaptive.core.slots.TemplateText
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 import androidx.glance.adaptive.core.templates.TrackTemplate
 import androidx.test.core.app.ApplicationProvider
@@ -185,10 +187,10 @@ class WidgetTelemetryHandlerTest {
         val fullTarget = RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(348, 264))
         val template =
             TrackTemplate(
-                title = "7,922",
-                subtitle = "steps",
-                progress = 0.8f,
-                statusText = "Goal: 10,000",
+                leading = Ring(0.8f),
+                primary = TemplateText("7,922"),
+                secondary = TemplateText("steps"),
+                supporting = listOf(TemplateText("Goal: 10,000")),
             )
 
         handler.ensureTelemetryOptions(
@@ -231,7 +233,11 @@ class WidgetTelemetryHandlerTest {
 
         handler.ensureTelemetryOptions(
             mapOf(compactTarget to listOf(712)),
-            TrackTemplate(title = "7,922", subtitle = "steps"),
+            TrackTemplate(
+                leading = Ring(0.8f),
+                primary = TemplateText("7,922"),
+                secondary = TemplateText("steps"),
+            ),
         )
 
         assertThat(
