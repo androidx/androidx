@@ -29,6 +29,7 @@ import androidx.collection.mutableIntSetOf
 import androidx.collection.mutableScatterMapOf
 import androidx.compose.runtime.Composer
 import androidx.compose.runtime.IntStack
+import androidx.compose.runtime.TestOnly
 import androidx.compose.runtime.composeRuntimeError
 import androidx.compose.runtime.debugRuntimeCheck
 import androidx.compose.runtime.runtimeCheck
@@ -292,7 +293,6 @@ internal class SlotTableAddressSpace(
     fun recordSourceInformation(
         parent: GroupAddress,
         sourceInformation: String?,
-        group: GroupAddress,
     ): LinkGroupSourceInformation {
         var sourceInformationMap = sourceInformationMap
         if (sourceInformationMap == null) {
@@ -306,7 +306,7 @@ internal class SlotTableAddressSpace(
                     // are not reflected in this group information so they need to be added now
                     // if they exist.
                     var child = groups.groupChild(parent)
-                    while (child != group && child != NULL_ADDRESS) {
+                    while (child != NULL_ADDRESS) {
                         it.reportGroup(anchorOfAddress(child))
                         child = groups.groupNext(child)
                     }
@@ -442,6 +442,8 @@ internal class SlotTableAddressSpace(
         runtimeCheck(address >= 0) { "Invalid anchor address $address" }
         return anchors.getOrPut(address) { LinkAnchor(address) }
     }
+
+    @TestOnly fun hasAnchorFor(address: GroupAddress): Boolean = anchors.containsKey(address)
 
     fun ownsAnchor(anchor: LinkAnchor) = anchors[anchor.address] === anchor
 
