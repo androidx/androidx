@@ -25,10 +25,12 @@ import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.ACTIVITY_SCOPE_DYNAMIC_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.ADD_FUNCTION_ID
+import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.BEHAVIOR_HINTS_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.CREATE_NOTE_DISABLED_BY_DEFAULT_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.CREATE_NOTE_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.DEPRECATED_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.DISABLED_BY_DEFAULT_FUNCTION_ID
+import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.DYNAMIC_BEHAVIOR_HINTS_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.ENABLED_BY_DEFAULT_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.GLOBAL_SCOPE_DYNAMIC_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.SELF_ACCESS_DISABLED_COMPAT_FUNCTION_ID
@@ -42,6 +44,7 @@ import androidx.appfunctions.integration.test.agent.TestUtil.doBlocking
 import androidx.appfunctions.integration.test.agent.TestUtil.grantAppFunctionAccess
 import androidx.appfunctions.integration.test.agent.TestUtil.revokeAppFunctionAccess
 import androidx.appfunctions.integration.test.agent.TestUtil.setAppFunctionStateRemoteAsync
+import androidx.appfunctions.metadata.AppFunctionBehaviorHintsMetadata
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_ACTIVITY
 import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_GLOBAL
@@ -378,11 +381,53 @@ class SearchAppFunctionsIntegrationTest {
         }
     }
 
+    @Test
+    fun searchAppFunctions_serviceFunctionWithBehaviorHints_returnsExpectedBehaviorHints() =
+        doBlocking {
+            assumeTrue(isDynamicIndexerAvailable(targetContext))
+            val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
+
+            val appFunctions = appFunctionManager.searchAppFunctions(searchFunctionSpec)
+
+            val metadata = appFunctions.find { it.id == BEHAVIOR_HINTS_FUNCTION_ID }
+            assertThat(metadata).isNotNull()
+            assertThat(metadata!!.behaviorHints)
+                .isEqualTo(
+                    AppFunctionBehaviorHintsMetadata(
+                        isReadOnly = true,
+                        isDestructive = true,
+                        isIdempotent = false,
+                        isOpenWorld = true,
+                    )
+                )
+        }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    @Test
+    fun searchAppFunctions_signatureFunctionWithBehaviorHints_returnsExpectedBehaviorHints() =
+        doBlocking {
+            val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
+
+            val appFunctions = appFunctionManager.searchAppFunctions(searchFunctionSpec)
+
+            val metadata = appFunctions.find { it.id == DYNAMIC_BEHAVIOR_HINTS_FUNCTION_ID }
+            assertThat(metadata).isNotNull()
+            assertThat(metadata!!.behaviorHints)
+                .isEqualTo(
+                    AppFunctionBehaviorHintsMetadata(
+                        isReadOnly = false,
+                        isDestructive = true,
+                        isIdempotent = true,
+                        isOpenWorld = false,
+                    )
+                )
+        }
+
     private suspend fun getTotalFunctionCountInPackage(): Int {
         return if (isDynamicIndexerAvailable(targetContext)) {
-            val baseFunctionCount = 24
+            val baseFunctionCount = 25
             val multiServiceFunctionCount = 6
-            val dynamicFunctionsCount = 9
+            val dynamicFunctionsCount = 10
             if (Build.VERSION.SDK_INT >= 37) {
                 baseFunctionCount + multiServiceFunctionCount + dynamicFunctionsCount
             } else {

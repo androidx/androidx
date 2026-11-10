@@ -326,4 +326,29 @@ class AppFunctionServiceEntryPointCompilerTest {
             expectedErrorMessage = "Unsupported access level: 999",
         )
     }
+
+    @Test
+    fun testAppFunctionBehaviorHints_valid_success() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("entrypoints/valid/BehaviorHintsEntryPoint.KT"),
+                processorOptions = emptyMap(),
+            )
+
+        compilationTestHelper.assertSuccessWithSourceContent(
+            report = report,
+            expectGeneratedSourceFileName = "MyBehaviorHintsService.kt",
+            goldenFileName = "entrypoints/MyBehaviorHintsService.KT",
+        )
+        compilationTestHelper.assertSuccessWithSourceContent(
+            report = report,
+            expectGeneratedSourceFileName = "\$BehaviorHintsEntryPoint_AppFunctionInventory.kt",
+            goldenFileName = "inventory/\$BehaviorHintsEntryPoint_AppFunctionInventory.KT",
+        )
+        compilationTestHelper.assertSuccessWithResourceContent(
+            report = report,
+            expectGeneratedResourceFileName = "my_behavior_hints_service.xml",
+            goldenFileName = "entrypoints/my_behavior_hints_service.xml",
+        )
+    }
 }

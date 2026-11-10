@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<appfunctions>
+    <appfunction>
+        <id>com.testdata.BehaviorHintsEntryPoint#readOnlyFunction</id>
+        <enabledByDefault>true</enabledByDefault>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>0</type>
+            </valueType>
+        </response>
+        <behaviorHints>
+            <id>unused</id>
+            <isReadOnly>true</isReadOnly>
+            <isDestructive>true</isDestructive>
+            <isIdempotent>false</isIdempotent>
+            <isOpenWorld>true</isOpenWorld>
+        </behaviorHints>
+        <functionId>com.testdata.BehaviorHintsEntryPoint#readOnlyFunction</functionId>
+    </appfunction>
+    <appfunction>
+        <id>com.testdata.BehaviorHintsEntryPoint#destructiveIdempotentFunction</id>
+        <enabledByDefault>true</enabledByDefault>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>0</type>
+            </valueType>
+        </response>
+        <behaviorHints>
+            <id>unused</id>
+            <isReadOnly>false</isReadOnly>
+            <isDestructive>true</isDestructive>
+            <isIdempotent>true</isIdempotent>
+            <isOpenWorld>false</isOpenWorld>
+        </behaviorHints>
+        <functionId>com.testdata.BehaviorHintsEntryPoint#destructiveIdempotentFunction</functionId>
+    </appfunction>
+</appfunctions>

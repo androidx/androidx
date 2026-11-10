@@ -72,6 +72,10 @@ internal object AppFunctionMetadataHelper {
             "$TARGET_APP_PACKAGE.BaseTestAppFunctionService#systemAccessFunction"
         const val SELF_ACCESS_DISABLED_COMPAT_FUNCTION_ID =
             "$TARGET_APP_PACKAGE.BaseTestAppFunctionService#selfAccessDisabledCompatFunction"
+        const val BEHAVIOR_HINTS_FUNCTION_ID =
+            "$TARGET_APP_PACKAGE.BaseTestAppFunctionService#behaviorHintsFunction"
+        const val DYNAMIC_BEHAVIOR_HINTS_FUNCTION_ID =
+            "$TARGET_APP_PACKAGE.DynamicBehaviorHintsSignature#executeWithBehaviorHints"
     }
 
     object Components {

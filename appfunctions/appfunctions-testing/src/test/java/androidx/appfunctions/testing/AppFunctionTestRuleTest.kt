@@ -28,6 +28,7 @@ import androidx.appfunctions.AppFunctionsChangeEvent
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.ExperimentalAppFunctionsApi
+import androidx.appfunctions.metadata.AppFunctionBehaviorHintsMetadata
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionLongTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_ACTIVITY
@@ -222,6 +223,44 @@ class AppFunctionTestRuleTest {
                     "androidx.appfunctions.testing.BaseTestAppFunctionService#createNote"
                 )
         }
+
+    @Test(timeout = 5000)
+    fun returnedAppFunctionManagerCompat_searchAppFunctions_returnCorrectHints() = runBlocking {
+        val results =
+            appFunctionManager.searchAppFunctions(
+                AppFunctionSearchSpec(
+                    functionNames =
+                        setOf(
+                            AppFunctionName(
+                                context.packageName,
+                                "androidx.appfunctions.testing.BaseTestAppFunctionService#createNote",
+                            ),
+                            AppFunctionName(
+                                context.packageName,
+                                "androidx.appfunctions.testing.BaseTestAppFunctionService#destructiveAndIdempotentFunction",
+                            ),
+                        )
+                )
+            )
+
+        val createNoteMetadata = results.single {
+            it.id == "androidx.appfunctions.testing.BaseTestAppFunctionService#createNote"
+        }
+        val destructiveAndIdempotentMetadata = results.single {
+            it.id ==
+                "androidx.appfunctions.testing.BaseTestAppFunctionService#destructiveAndIdempotentFunction"
+        }
+        assertThat(createNoteMetadata.behaviorHints).isNull()
+        assertThat(destructiveAndIdempotentMetadata.behaviorHints)
+            .isEqualTo(
+                AppFunctionBehaviorHintsMetadata(
+                    isReadOnly = false,
+                    isDestructive = true,
+                    isIdempotent = true,
+                    isOpenWorld = false,
+                )
+            )
+    }
 
     @Test(timeout = 5000)
     fun reloadAppFunctions_serviceDisabled_reflectsOnSearchResults() =
@@ -681,6 +720,6 @@ class AppFunctionTestRuleTest {
         // A value other than "13" so a reversed set/evaluate order is observable.
         const val SENTINEL_T_EXTENSION_PROPERTY = "0"
 
-        val TOTAL_FUNCTION_COUNT = 8
+        val TOTAL_FUNCTION_COUNT = 9
     }
 }

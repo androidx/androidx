@@ -33,6 +33,7 @@ data class CompileTimeAppFunctionMetadata(
     val scope: String? = null,
     val accessLevel: Int? = null,
     val isCompatEnforcementEnabled: Boolean? = null,
+    val behaviorHints: AppFunctionBehaviorHintsMetadata? = null,
 ) {
     fun toAppFunctionMetadataDocument(): AppFunctionMetadataDocument {
         return AppFunctionMetadataDocument(
@@ -48,6 +49,7 @@ data class CompileTimeAppFunctionMetadata(
             scope = scope,
             accessLevel = accessLevelToXmlValue(accessLevel),
             isCompatEnforcementEnabled = isCompatEnforcementEnabled,
+            behaviorHints = behaviorHints?.toAppFunctionBehaviorHintsMetadataDocument(),
         )
     }
 
@@ -76,4 +78,5 @@ data class AppFunctionMetadataDocument(
     val scope: String? = null,
     val accessLevel: String? = null,
     val isCompatEnforcementEnabled: Boolean? = null,
+    val behaviorHints: AppFunctionBehaviorHintsMetadataDocument? = null,
 )

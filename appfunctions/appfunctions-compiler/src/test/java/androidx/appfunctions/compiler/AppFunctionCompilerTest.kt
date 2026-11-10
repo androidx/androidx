@@ -77,6 +77,20 @@ class AppFunctionCompilerTest {
     }
 
     @Test
+    fun testAppFunctionSignature_withBehaviorHints_success() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("signatures/valid/BehaviorHintsSignature.KT")
+            )
+
+        compilationTestHelper.assertSuccessWithResourceContent(
+            report = report,
+            expectGeneratedResourceFileName = "app_level_app_functions.xml",
+            goldenFileName = "xml/behaviorHintsSignature_app_level_app_functions.xml",
+        )
+    }
+
+    @Test
     fun testAppFunctionSignature_withSerializable_success() {
         val report =
             compilationTestHelper.compileAll(
@@ -247,6 +261,21 @@ class AppFunctionCompilerTest {
         compilationTestHelper.assertErrorWithMessage(
             report = report,
             expectedErrorMessage = "appFunctionXmlFileName cannot be empty",
+        )
+    }
+
+    @Test
+    fun testAppFunctionSignature_behaviorHintsOnFunction_hasCompileError() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("signatures/invalid/BehaviorHintsOnSignatureFunction.KT")
+            )
+
+        compilationTestHelper.assertErrorWithMessage(
+            report = report,
+            expectedErrorMessage =
+                "@AppFunctionBehaviorHints must be applied to the @AppFunctionSignature " +
+                    "interface, not to its function",
         )
     }
 

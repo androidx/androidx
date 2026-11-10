@@ -121,6 +121,7 @@ internal class FakeAppFunctionReader(
                                     checkNotNull(packageToComponentsMetadataMap[packageName]),
                                 ),
                             scope = metadata.staticMetadata.scope,
+                            behaviorHints = metadata.staticMetadata.behaviorHints,
                         )
                     }
             }
@@ -282,6 +283,7 @@ internal data class AppFunctionStaticAndRuntimeMetadata(
             response = staticMetadata.response,
             packageMetadata = AppFunctionPackageMetadata(packageName, componentsMetadata),
             scope = staticMetadata.scope,
+            behaviorHints = staticMetadata.behaviorHints,
         )
 
     fun computeEffectivelyEnabled(): Boolean =

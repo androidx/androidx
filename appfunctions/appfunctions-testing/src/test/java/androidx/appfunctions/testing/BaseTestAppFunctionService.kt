@@ -19,6 +19,7 @@ package androidx.appfunctions.testing
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.appfunctions.AppFunctionBehaviorHints
 import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionInvalidArgumentException
 import androidx.appfunctions.AppFunctionSerializable
@@ -61,6 +62,14 @@ abstract class BaseTestAppFunctionService :
     override suspend fun createNote(parameters: CreateNoteParameters): CreateNoteResponse {
         return CreateNoteResponse(MyNote(id = "testId", title = parameters.title))
     }
+
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
+    @AppFunctionBehaviorHints(
+        isDestructive = true,
+        isIdempotent = true,
+        isOpenWorld = false,
+    )
+    fun destructiveAndIdempotentFunction() {}
 }
 
 @AppFunctionSerializable(isDescribedByKDoc = false)

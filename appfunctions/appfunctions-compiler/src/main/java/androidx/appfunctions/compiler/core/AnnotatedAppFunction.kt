@@ -22,6 +22,7 @@ import androidx.appfunctions.compiler.core.AppFunctionTypeReference.Companion.is
 import androidx.appfunctions.compiler.core.AppFunctionTypeReference.Companion.isSupportedType
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionAccessLevelAnnotation
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionAnnotation
+import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionBehaviorHintsAnnotation
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionSchemaDefinitionAnnotation
 import androidx.appfunctions.compiler.core.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionDataTypeMetadata
@@ -136,6 +137,7 @@ data class AnnotatedAppFunction(
             deprecation = appFunctionDeclaration.getDeprecationMetadata(),
             accessLevel = appFunctionAnnotationProperties.accessLevel,
             isCompatEnforcementEnabled = appFunctionAnnotationProperties.isCompatEnforcementEnabled,
+            behaviorHints = appFunctionAnnotationProperties.behaviorHints,
         )
     }
 
@@ -243,10 +245,15 @@ data class AnnotatedAppFunction(
             functionDeclaration.annotations.findAnnotation(
                 AppFunctionAccessLevelAnnotation.CLASS_NAME
             )
+        val behaviorHintsAnnotation =
+            functionDeclaration.annotations.findAnnotation(
+                AppFunctionBehaviorHintsAnnotation.CLASS_NAME
+            )
         return computeAppFunctionAnnotationProperties(
             appFunctionAnnotation = appFunctionAnnotation,
             schemaDefinitionAnnotation = schemaDefinitionAnnotation,
             accessLevelAnnotation = accessLevelAnnotation,
+            behaviorHintsAnnotation = behaviorHintsAnnotation,
         )
     }
 

@@ -34,9 +34,11 @@ import androidx.appfunctions.compiler.core.AppFunctionTypeReference.Companion.to
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionAccessLevelAnnotation
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionAccessLevelClass
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionAnnotation
+import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionBehaviorHintsAnnotation
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionSchemaDefinitionAnnotation
 import androidx.appfunctions.compiler.core.metadata.AppFunctionAllOfTypeMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionArrayTypeMetadata
+import androidx.appfunctions.compiler.core.metadata.AppFunctionBehaviorHintsMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionBooleanTypeMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionBytesTypeMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionDataTypeMetadata
@@ -82,6 +84,7 @@ class AppFunctionMetadataCreatorHelper(
         appFunctionAnnotation: KSAnnotation? = null,
         schemaDefinitionAnnotation: KSAnnotation? = null,
         accessLevelAnnotation: KSAnnotation? = null,
+        behaviorHintsAnnotation: KSAnnotation? = null,
     ): AppFunctionAnnotationProperties {
         val enabled =
             appFunctionAnnotation?.requirePropertyValueOfType(
@@ -132,6 +135,33 @@ class AppFunctionMetadataCreatorHelper(
                 AppFunctionAccessLevelAnnotation.PROPERTY_IS_COMPAT_ENFORCEMENT_ENABLED,
                 Boolean::class,
             )
+        val behaviorHints =
+            if (behaviorHintsAnnotation != null) {
+                AppFunctionBehaviorHintsMetadata(
+                    isReadOnly =
+                        behaviorHintsAnnotation.requirePropertyValueOfType(
+                            AppFunctionBehaviorHintsAnnotation.PROPERTY_IS_READ_ONLY,
+                            Boolean::class,
+                        ),
+                    isDestructive =
+                        behaviorHintsAnnotation.requirePropertyValueOfType(
+                            AppFunctionBehaviorHintsAnnotation.PROPERTY_IS_DESTRUCTIVE,
+                            Boolean::class,
+                        ),
+                    isIdempotent =
+                        behaviorHintsAnnotation.requirePropertyValueOfType(
+                            AppFunctionBehaviorHintsAnnotation.PROPERTY_IS_IDEMPOTENT,
+                            Boolean::class,
+                        ),
+                    isOpenWorld =
+                        behaviorHintsAnnotation.requirePropertyValueOfType(
+                            AppFunctionBehaviorHintsAnnotation.PROPERTY_IS_OPEN_WORLD,
+                            Boolean::class,
+                        ),
+                )
+            } else {
+                null
+            }
 
         return AppFunctionAnnotationProperties(
             enabled,
@@ -141,6 +171,7 @@ class AppFunctionMetadataCreatorHelper(
             schemaCategory,
             accessLevel,
             isCompatEnforcementEnabled,
+            behaviorHints,
         )
     }
 
@@ -952,6 +983,7 @@ class AppFunctionMetadataCreatorHelper(
         val schemaCategory: String?,
         val accessLevel: Int? = null,
         val isCompatEnforcementEnabled: Boolean? = null,
+        val behaviorHints: AppFunctionBehaviorHintsMetadata? = null,
     ) {
         /** Gets [AppFunctionSchemaMetadata] from [AppFunctionAnnotationProperties]. */
         fun getAppFunctionSchemaMetadata(): AppFunctionSchemaMetadata? {

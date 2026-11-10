@@ -17,6 +17,7 @@
 
 package androidx.appfunctions.integration.testapp
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
 import android.net.Uri
@@ -37,6 +38,7 @@ import androidx.appfunction.integration.test.sharedschema.ProxyTypesWrapper
 import androidx.appfunction.integration.test.sharedschema.ResourceFunctionResponse
 import androidx.appfunction.integration.test.sharedschema.UpdateNoteParams
 import androidx.appfunctions.AppFunctionAccessLevel
+import androidx.appfunctions.AppFunctionBehaviorHints
 import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionIntValueConstraint
 import androidx.appfunctions.AppFunctionInvalidArgumentException
@@ -355,4 +357,12 @@ abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppF
         isCompatEnforcementEnabled = false,
     )
     internal fun selfAccessDisabledCompatFunction(): String = "self_disabled_compat_success"
+
+    @SuppressLint("RestrictedApiAndroidX")
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
+    @AppFunctionBehaviorHints(
+        isReadOnly = true,
+        isOpenWorld = true,
+    )
+    internal fun behaviorHintsFunction(): String = "behavior_hints_success"
 }
