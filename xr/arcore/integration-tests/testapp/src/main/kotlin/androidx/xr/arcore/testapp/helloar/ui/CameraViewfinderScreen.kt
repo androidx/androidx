@@ -315,6 +315,23 @@ private fun TrackingModeSelector(
                 )
                 Text("Screen Aligned", color = Color.White, fontSize = 14.sp)
             }
+            Spacer(modifier = Modifier.width(16.dp))
+            Row(
+                modifier =
+                    Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                        .selectable(
+                            selected = alignment == SpatialAnnotationQuadAlignment.SURFACE,
+                            role = Role.RadioButton,
+                            onClick = { onAlignmentChange(SpatialAnnotationQuadAlignment.SURFACE) },
+                        ),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                RadioButton(
+                    selected = alignment == SpatialAnnotationQuadAlignment.SURFACE,
+                    onClick = null,
+                )
+                Text("Surface Aligned", color = Color.White, fontSize = 14.sp)
+            }
         }
         Spacer(modifier = Modifier.height(4.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
