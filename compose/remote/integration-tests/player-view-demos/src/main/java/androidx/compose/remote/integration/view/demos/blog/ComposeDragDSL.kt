@@ -49,11 +49,11 @@ fun dslDragCirclesDsl(): ByteArray {
                         32,
                         with(this@createRcBuffer) {
                             remoteText(" move (") +
-                                selected.genTextId(2, 0) +
+                                selected.format(2, 0) +
                                 " ) " +
-                                touchPosX().genTextId(8, 0) +
+                                touchPosX().format(8, 0) +
                                 " , " +
-                                touchPosY().genTextId(8, 0)
+                                touchPosY().format(8, 0)
                         },
                     )
                 }
@@ -103,9 +103,7 @@ fun dslDragCirclesDsl_old2(): ByteArray {
     val rad = 100f
 
     return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
-        beginGlobal()
-        val selected = (-100).rf.flush()
-        endGlobal()
+        val selected = global { (-100).rf.flush() }
 
         Box(
             modifier =

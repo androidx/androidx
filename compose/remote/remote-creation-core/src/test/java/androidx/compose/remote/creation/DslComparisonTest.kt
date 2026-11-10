@@ -65,7 +65,6 @@ class DslComparisonTest {
     fun testSimpleDocumentComparison() {
         val width = 400
         val height = 600
-        val contentDesc = "test"
 
         // 1. Create document using legacy API
         val legacyContext = RemoteComposeContext(width, height, "", testProfile)
@@ -325,10 +324,12 @@ class DslComparisonTest {
         // 1. Legacy
         val legacyContext = RemoteComposeContext(100, 100, "", testProfile)
         legacyContext.mRemoteWriter.root {
+            legacyContext.mRemoteWriter.startCanvas(RecordingModifier())
             legacyContext.mRemoteWriter.drawLine(0f, 0f, 100f, 100f)
             legacyContext.mRemoteWriter.drawOval(10f, 10f, 90f, 90f)
             legacyContext.mRemoteWriter.drawRoundRect(20f, 20f, 80f, 80f, 5f, 5f)
             legacyContext.mRemoteWriter.drawArc(0f, 0f, 100f, 100f, 0f, 90f)
+            legacyContext.mRemoteWriter.endCanvas()
         }
         val legacyBytes =
             legacyContext.mRemoteWriter.let { it.buffer().copyOfRange(0, it.bufferSize()) }
@@ -342,10 +343,12 @@ class DslComparisonTest {
                 RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, ""),
                 RemoteComposeWriter.hTag(Header.DOC_PROFILES, 0),
             ) {
-                drawLine(0f, 0f, 100f, 100f)
-                drawOval(10f, 10f, 90f, 90f)
-                drawRoundRect(20f, 20f, 80f, 80f, 5f, 5f)
-                drawArc(0f, 0f, 100f, 100f, 0f, 90f)
+                Canvas {
+                    drawLine(0f, 0f, 100f, 100f)
+                    drawOval(10f, 10f, 90f, 90f)
+                    drawRoundRect(20f, 20f, 80f, 80f, 5f, 5f)
+                    drawArc(0f, 0f, 100f, 100f, 0f, 90f)
+                }
             }
 
         assertThat(dslBytes).isEqualTo(legacyBytes)
@@ -375,10 +378,12 @@ class DslComparisonTest {
         // 1. Legacy
         val legacyContext = RemoteComposeContext(100, 100, "", testProfile)
         legacyContext.mRemoteWriter.root {
+            legacyContext.mRemoteWriter.startCanvas(RecordingModifier())
             legacyContext.mRemoteWriter.rcPaint
                 .setLinearGradient(0f, 0f, 100f, 100f, colorsArray, 0, positions, 0)
                 .commit()
             legacyContext.mRemoteWriter.drawRect(0f, 0f, 100f, 100f)
+            legacyContext.mRemoteWriter.endCanvas()
         }
         val legacyBytes =
             legacyContext.mRemoteWriter.let { it.buffer().copyOfRange(0, it.bufferSize()) }
@@ -392,8 +397,10 @@ class DslComparisonTest {
                 RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, ""),
                 RemoteComposeWriter.hTag(Header.DOC_PROFILES, 0),
             ) {
-                applyPaint { setLinearGradient(0f, 0f, 100f, 100f, colorsArray, 0, positions, 0) }
-                drawRect(0f, 0f, 100f, 100f)
+                Canvas {
+                    paint { linearGradient(0f, 0f, 100f, 100f, colorsArray, positions) }
+                    drawRect(0f, 0f, 100f, 100f)
+                }
             }
 
         assertThat(dslBytes).isEqualTo(legacyBytes)
@@ -409,10 +416,12 @@ class DslComparisonTest {
         // 1. Legacy
         val legacyContext = RemoteComposeContext(100, 100, "", testProfile)
         legacyContext.mRemoteWriter.root {
+            legacyContext.mRemoteWriter.startCanvas(RecordingModifier())
             legacyContext.mRemoteWriter.rcPaint
                 .setLinearGradient(0f, 0f, 0f, 100f, colorsArray, 1, null, 0)
                 .commit()
             legacyContext.mRemoteWriter.drawRect(0f, 0f, 100f, 100f)
+            legacyContext.mRemoteWriter.endCanvas()
         }
         val legacyBytes =
             legacyContext.mRemoteWriter.let { it.buffer().copyOfRange(0, it.bufferSize()) }
@@ -426,8 +435,12 @@ class DslComparisonTest {
                 RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, ""),
                 RemoteComposeWriter.hTag(Header.DOC_PROFILES, 0),
             ) {
-                applyPaint { setLinearGradient(0f, 0f, 0f, 100f, colorsArray, 1, null, 0) }
-                drawRect(0f, 0f, 100f, 100f)
+                Canvas {
+                    paint {
+                        linearGradient(0f, 0f, 0f, 100f, colorsArray, positions, colorMask = 1)
+                    }
+                    drawRect(0f, 0f, 100f, 100f)
+                }
             }
 
         assertThat(dslBytes).isEqualTo(legacyBytes)
@@ -445,9 +458,9 @@ class DslComparisonTest {
             )
         val compress = RemoteComposeWriter.hTag(Header.COMPRESS, Header.COMPRESSION_DEFLATE)
 
-        val plainBytes = createRcBuffer(profile, *tags) { drawLine(0f, 0f, 100f, 100f) }
+        val plainBytes = createRcBuffer(profile, *tags) { Canvas { drawLine(0f, 0f, 100f, 100f) } }
         val compressedBytes =
-            createRcBuffer(profile, *tags, compress) { drawLine(0f, 0f, 100f, 100f) }
+            createRcBuffer(profile, *tags, compress) { Canvas { drawLine(0f, 0f, 100f, 100f) } }
 
         assertThat(compressedBytes).isEqualTo(Header.compressDocument(plainBytes, plainBytes.size))
     }
@@ -458,16 +471,19 @@ class DslComparisonTest {
         val compress = RemoteComposeWriter.hTag(Header.COMPRESS, Header.COMPRESSION_DEFLATE)
 
         val plainBytes =
-            createRcBuffer(profile, experimental = true) { drawLine(0f, 0f, 100f, 100f) }
+            createRcBuffer(profile, experimental = true) { Canvas { drawLine(0f, 0f, 100f, 100f) } }
         val compressedBytes =
-            createRcBuffer(profile, experimental = true, compress) { drawLine(0f, 0f, 100f, 100f) }
+            createRcBuffer(profile, experimental = true, compress) {
+                Canvas { drawLine(0f, 0f, 100f, 100f) }
+            }
 
         assertThat(compressedBytes).isEqualTo(Header.compressDocument(plainBytes, plainBytes.size))
     }
 
     @Test
     fun testRcToStringDescribesCompressedDocumentByItsOperations() {
-        val plainBytes = createRcBuffer(RcProfile(testProfile)) { drawLine(0f, 0f, 100f, 100f) }
+        val plainBytes =
+            createRcBuffer(RcProfile(testProfile)) { Canvas { drawLine(0f, 0f, 100f, 100f) } }
         val compressedBytes = Header.compressDocument(plainBytes, plainBytes.size)
 
         assertThat(RcToString.toString(compressedBytes)).isEqualTo(RcToString.toString(plainBytes))

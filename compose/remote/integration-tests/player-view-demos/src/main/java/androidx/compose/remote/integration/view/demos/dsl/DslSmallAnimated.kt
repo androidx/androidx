@@ -37,9 +37,9 @@ fun smallAnimated(): ByteArray {
         val sec = continuousSeconds()
         val text = sec.format(2, 2, 0)
 
-        applyPaint {
-            setTextSize(120f)
-            setColor(Color.WHITE)
+        paint {
+            textSize(120f)
+            color(Color.WHITE)
         }
         drawTextAnchored(text, 0f, 0f, -1f, 1f, 0)
     }

@@ -19,9 +19,9 @@ package androidx.compose.remote.integration.view.demos.dsl
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.Modifier
+import androidx.compose.remote.creation.dsl.RcCanvasScope
 import androidx.compose.remote.creation.dsl.RcFloat
 import androidx.compose.remote.creation.dsl.RcProfile
-import androidx.compose.remote.creation.dsl.RcScope
 import androidx.compose.remote.creation.dsl.RcText
 import androidx.compose.remote.creation.dsl.background
 import androidx.compose.remote.creation.dsl.createRcBuffer
@@ -92,7 +92,7 @@ public fun dslSysVar(): ByteArray {
  * `lineOffset`. The label and value are merged into one text via [textMerge].
  */
 @Suppress("RestrictedApiAndroidX")
-private fun RcScope.printLine(
+private fun RcCanvasScope.printLine(
     x: RcFloat,
     y: RcFloat,
     lineOffset: RcFloat,

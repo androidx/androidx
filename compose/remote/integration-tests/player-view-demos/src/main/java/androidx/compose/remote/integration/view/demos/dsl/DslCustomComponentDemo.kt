@@ -66,7 +66,7 @@ public fun dslCustomComponentDemo(): ByteArray {
             vertical = RcColumnVerticalPositioning.Top,
         ) {
             // Title Header
-            val col = remoteColorExpression(255, (continuousSec() / 2f) % 1f, 0.8f, 1f)
+            val col = remoteColorExpression(255, (continuousSeconds() / 2f) % 1f, 0.8f, 1f)
 
             Text(
                 text = "Native Interoperability",
@@ -116,7 +116,7 @@ public fun dslCustomComponentDemo(): ByteArray {
                     color = 0xFF94A3B8.toInt(),
                     modifier = Modifier.width(300.rdp),
                 )
-                val col = remoteColorExpression(255, (continuousSec() / 2f) % 1f, 0.8f, 1f)
+                val col = remoteColorExpression(255, (continuousSeconds() / 2f) % 1f, 0.8f, 1f)
 
                 Custom(
                     config = "TextView",
@@ -144,7 +144,7 @@ public fun dslCustomComponentDemo(): ByteArray {
                     color = 0xFF94A3B8.toInt(),
                     modifier = Modifier.width(300.rdp),
                 )
-                val col = remoteColorExpression(255, (continuousSec() / 2f) % 1f, 0.8f, 1f)
+                val col = remoteColorExpression(255, (continuousSeconds() / 2f) % 1f, 0.8f, 1f)
                 println("custom .............. ")
                 Custom(
                     config = "TextView",
@@ -197,7 +197,7 @@ public fun dslCustomComponentDemo(): ByteArray {
             Spacer(Modifier.height(12.rdp))
             val sliderValText = createTextFromFloat(slider, 3, 0, 0)
             Text(
-                text = "Text Slider Value: " join slider.genTextId(3),
+                text = "Text Slider Value: " join slider.format(3),
                 fontWeight = RcFontWeight.Normal,
                 fontSize = 64.rsp,
                 color = 0xFFE2E8F0.toInt(),
@@ -216,7 +216,7 @@ public fun dslCustomComponentDemo(): ByteArray {
                     config = "TextView",
                     properties =
                         listOf(
-                            RcCustomProperty.text(SupportTextView.PROP_TEXT, sum.genTextId(3)),
+                            RcCustomProperty.text(SupportTextView.PROP_TEXT, sum.format(3)),
                             RcCustomProperty.color(
                                 SupportTextView.PROP_TEXT_COLOR,
                                 Color.rgb(248, 189, 56).rcColor(),

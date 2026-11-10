@@ -136,7 +136,7 @@ public fun dslDemoStockSparkline(): ByteArray {
                         padPre = RcTextFromFloatSpec.PadPre.None,
                     ),
                 )
-            val changeLabel = textMerge(textMerge(remoteText("▲ "), changeText), remoteText("%"))
+            val changeLabel = remoteText("▲ ") + changeText + "%"
             drawTextAnchored(changeLabel, density * 20f, h * 0.22f, (-1f).rf, 0f.rf, 0)
 
             paint {

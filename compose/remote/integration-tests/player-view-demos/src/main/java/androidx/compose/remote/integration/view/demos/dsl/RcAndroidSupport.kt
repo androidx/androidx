@@ -18,19 +18,13 @@ package androidx.compose.remote.integration.view.demos.dsl
 
 import android.graphics.*
 import androidx.compose.remote.creation.RcPaint
-import androidx.compose.remote.creation.dsl.RcPaintStyle
-import androidx.compose.remote.creation.dsl.RcStrokeCap
-import androidx.compose.remote.creation.dsl.RcStrokeJoin
-import androidx.compose.remote.creation.dsl.setStrokeCap
-import androidx.compose.remote.creation.dsl.setStrokeJoin
-import androidx.compose.remote.creation.dsl.setStyle
 
 @Suppress("RestrictedApiAndroidX")
 public fun RcPaint.setStyle(style: Paint.Style) {
     when (style) {
-        Paint.Style.FILL -> this.setStyle(RcPaintStyle.Fill)
-        Paint.Style.FILL_AND_STROKE -> this.setStyle(RcPaintStyle.FillAndStroke)
-        Paint.Style.STROKE -> this.setStyle(RcPaintStyle.Stroke)
+        Paint.Style.FILL -> this.setStyle(0)
+        Paint.Style.FILL_AND_STROKE -> this.setStyle(2)
+        Paint.Style.STROKE -> this.setStyle(1)
     }
 }
 
@@ -38,9 +32,9 @@ public fun RcPaint.setStyle(style: Paint.Style) {
 public fun RcPaint.setStrokeCap(cap: Paint.Cap) {
 
     when (cap) {
-        Paint.Cap.SQUARE -> this.setStrokeCap(RcStrokeCap.Square)
-        Paint.Cap.BUTT -> this.setStrokeCap(RcStrokeCap.Butt)
-        Paint.Cap.ROUND -> this.setStrokeCap(RcStrokeCap.Round)
+        Paint.Cap.SQUARE -> this.setStrokeCap(2)
+        Paint.Cap.BUTT -> this.setStrokeCap(0)
+        Paint.Cap.ROUND -> this.setStrokeCap(1)
     }
 }
 
@@ -48,8 +42,8 @@ public fun RcPaint.setStrokeCap(cap: Paint.Cap) {
 public fun RcPaint.setStrokeJoin(join: Paint.Join) {
 
     when (join) {
-        Paint.Join.ROUND -> this.setStrokeJoin(RcStrokeJoin.Round)
-        Paint.Join.BEVEL -> this.setStrokeJoin(RcStrokeJoin.Bevel)
-        Paint.Join.MITER -> this.setStrokeJoin(RcStrokeJoin.Miter)
+        Paint.Join.ROUND -> this.setStrokeJoin(1)
+        Paint.Join.BEVEL -> this.setStrokeJoin(2)
+        Paint.Join.MITER -> this.setStrokeJoin(0)
     }
 }

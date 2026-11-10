@@ -25,7 +25,6 @@ import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcPathType
 import androidx.compose.remote.creation.dsl.RcScope
 import androidx.compose.remote.creation.dsl.rcColor
-import androidx.compose.remote.creation.dsl.setStyle
 import androidx.compose.remote.integration.view.demos.examples.Plot
 import androidx.compose.remote.integration.view.demos.examples.XYGraphProperties
 import androidx.compose.remote.integration.view.demos.examples.rcPlotXY
@@ -108,10 +107,10 @@ class FunctionPlot(
 
     override fun plot(scope: RcCanvasScope, params: PlotParams) {
         scope.apply {
-            applyPaint {
-                setColor(params.prop.plotColor)
-                setStrokeWidth(2f)
-                setStyle(RcPaintStyle.Stroke)
+            paint {
+                color(params.prop.plotColor)
+                strokeWidth(2f)
+                style(RcPaintStyle.Stroke)
             }
             debug("params.scaleX", params.scaleX)
             debug("params.offsetX", params.offsetX)
@@ -161,10 +160,10 @@ class DataPlot(val data: RcFloat) : PlotBase {
                 path.lineTo(px.toFloat(), py.toFloat())
             }
 
-            applyPaint {
-                setColor(params.prop.plotColor)
-                setStyle(RcPaintStyle.Stroke)
-                setStrokeWidth(2f)
+            paint {
+                color(params.prop.plotColor)
+                style(RcPaintStyle.Stroke)
+                strokeWidth(2f)
             }
             drawPath(path.getPath())
         }
@@ -214,9 +213,9 @@ private fun RcCanvasScope.drawAxis(params: PlotParams) {
     params.scaleY = ((params.insertTop + params.insertBottom - h) / yRange).flush()
     params.offsetY = ((h - params.insertBottom) - (params.scaleY * params.dataYMin)).flush()
 
-    applyPaint {
-        setColor(params.prop.vAxisColor)
-        setStrokeWidth(params.prop.axisSize)
+    paint {
+        color(params.prop.vAxisColor)
+        strokeWidth(params.prop.axisSize)
     }
     drawLine(params.left + params.offsetX, params.top, params.left + params.offsetX, params.top + h)
     drawLine(params.left, params.top + params.offsetY, params.left + w, params.top + params.offsetY)

@@ -108,7 +108,7 @@ private fun RcScope.plainAndAntialiased(
 
 /** "plain" over the left column, "antialias" over the right, and a hairline between them. */
 @Suppress("RestrictedApiAndroidX")
-private fun RcScope.columnHeaders(y: Float) {
+private fun RcCanvasScope.columnHeaders(y: Float) {
     save()
     scale(componentWidth() / 400f, componentHeight() / 400f)
     paint {

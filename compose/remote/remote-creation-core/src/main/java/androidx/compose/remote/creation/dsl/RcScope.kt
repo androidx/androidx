@@ -160,46 +160,29 @@ public interface RcScope {
     /** Adds a Canvas component to the document. */
     public fun Canvas(modifier: Modifier = Modifier, content: RcCanvasScope.() -> Unit)
 
-    /** Executes a block with the current paint. */
-    public fun applyPaint(block: RcPaint.() -> Unit)
-
     /**
-     * Executes block with a typed RcPaintScope wrapping the current paint. Prefer this over
-     * applyPaint — uses typed value classes (`RcColor`, `RcPaintStyle`, `RcStrokeCap`,
-     * `RcBlendMode`, ...) instead of raw `Int` opcodes.
-     *
-     * Named differently from applyPaint because the JVM erases both method signatures to
-     * `(Lkotlin/jvm/functions/Function1;)V`; same-name overloads with different lambda receivers
-     * can't coexist on a Kotlin interface.
+     * Executes [block] with a typed [RcPaintScope] wrapping the current paint — uses typed value
+     * classes (`RcColor`, `RcPaintStyle`, `RcStrokeCap`, `RcBlendMode`, ...) instead of raw `Int`
+     * opcodes.
      */
     public fun paint(block: RcPaintScope.() -> Unit)
 
-    /** Executes a block within a global section. */
-    public fun Global(block: RcScope.() -> Unit)
+    /** Executes [block] within a global section. */
+    public fun <T> global(block: RcScope.() -> T): T
 
     /**
-     * Starts a global section. Prefer the block-form Global which guarantees a matched endGlobal
-     * call.
+     * Starts a global section. Prefer the block-form [global] which guarantees a matched
+     * [endGlobal] call, unless declarations inside the section need to remain accessible in the
+     * enclosing scope.
      */
     public fun beginGlobal()
 
     /**
-     * Ends a global section. Prefer the block-form Global which guarantees a matched beginGlobal
-     * call.
+     * Ends a global section. Prefer the block-form [global] which guarantees a matched
+     * [beginGlobal] call, unless declarations inside the section need to remain accessible in the
+     * enclosing scope.
      */
     public fun endGlobal()
-
-    /**
-     * Start a list of canvas operations. Prefer the block-form canvasOperations which guarantees a
-     * matched endCanvasOperations call.
-     */
-    public fun startCanvasOperations()
-
-    /**
-     * End a list of canvas operations. Prefer the block-form canvasOperations which guarantees a
-     * matched startCanvasOperations call.
-     */
-    public fun endCanvasOperations()
 
     /** In the context of a draw modifier, draw the component content */
     public fun drawComponentContent()
@@ -260,13 +243,11 @@ public interface RcScope {
     public fun textLookup(dataSetId: RcTextList, indexId: RcInteger): RcText
 
     /** Merges two remote text references. */
-    public fun textMerge(text1: RcText, text2: RcText): RcText
+    public operator fun RcText.plus(v: RcText): RcText
 
-    public operator fun RcText.plus(v: RcText): RcText = textMerge(this, v)
+    public infix fun String.join(v: RcText): RcText = remoteText(this) + v
 
-    public infix fun String.join(v: RcText): RcText = textMerge(remoteText(this), v)
-
-    public operator fun RcText.plus(v: String): RcText = textMerge(this, remoteText(v))
+    public operator fun RcText.plus(v: String): RcText = this + remoteText(v)
 
     /** Registers a color resource and returns its reference. */
     public fun remoteColor(color: Int): RcColor
@@ -326,6 +307,9 @@ public interface RcScope {
 
     /** Sets the name of a remote color in the buffer. */
     public fun RcColor.named(name: String): RcColor
+
+    /** Sets the name of a remote text in the buffer. */
+    public fun RcText.named(name: String): RcText
 
     /** Returns an RcFloat representing the current animation time. */
     public fun animationTime(): RcFloat
@@ -463,9 +447,6 @@ public interface RcScope {
     /** Returns the window's height as a remote float. */
     public fun windowHeight(): RcFloat
 
-    /** CONTINUOUS_SEC is seconds from midnight looping every hour 0-3600 */
-    public fun continuousSec(): RcFloat
-
     /** ID_OFFSET_TO_UTC is the offset from UTC in sec (typically / 3600f) */
     public fun utcOffset(): RcFloat
 
@@ -561,220 +542,6 @@ public interface RcScope {
         textAlign: RcTextAlign? = null,
     ): RcTextStyle = remoteTextStyle(fontSize, color.toInt(), fontWeight, textAlign)
 
-    /** Saves the current canvas state. */
-    public fun save()
-
-    /** Restores the previous canvas state. */
-    public fun restore()
-
-    /** Preconcat the current matrix with the specified scale. */
-    public fun scale(scaleX: Float, scaleY: Float)
-
-    /** Preconcat the current matrix with the specified scale. */
-    public fun scale(scaleX: Float, scaleY: Float, centerX: Float, centerY: Float)
-
-    /** Preconcat the current matrix with the specified scale. */
-    public fun scale(scaleX: RcFloat, scaleY: RcFloat)
-
-    /** Preconcat the current matrix with the specified scale. */
-    public fun scale(scaleX: RcFloat, scaleY: RcFloat, centerX: RcFloat, centerY: RcFloat)
-
-    /** Draws a rectangle. */
-    public fun drawRect(left: Float, top: Float, right: Float, bottom: Float)
-
-    /** Draws a rectangle using remote floats. */
-    public fun drawRect(left: RcFloat, top: RcFloat, right: RcFloat, bottom: RcFloat)
-
-    /** Draws a circle. */
-    public fun drawCircle(centerX: Float, centerY: Float, radius: Float)
-
-    /** Draws a circle using remote floats. */
-    public fun drawCircle(centerX: RcFloat, centerY: RcFloat, radius: RcFloat)
-
-    /** Draws a line. */
-    public fun drawLine(x1: Float, y1: Float, x2: Float, y2: Float)
-
-    /** Draws a line using remote floats. */
-    public fun drawLine(x1: RcFloat, y1: RcFloat, x2: RcFloat, y2: RcFloat)
-
-    /** Draws an arc. */
-    public fun drawArc(
-        left: Float,
-        top: Float,
-        right: Float,
-        bottom: Float,
-        startAngle: Float,
-        sweepAngle: Float,
-    )
-
-    /** Draws an arc using remote floats. */
-    public fun drawArc(
-        left: RcFloat,
-        top: RcFloat,
-        right: RcFloat,
-        bottom: RcFloat,
-        startAngle: RcFloat,
-        sweepAngle: RcFloat,
-    )
-
-    /** Draws a sector. */
-    public fun drawSector(
-        left: Float,
-        top: Float,
-        right: Float,
-        bottom: Float,
-        startAngle: Float,
-        sweepAngle: Float,
-    )
-
-    /** Draws a sector using remote floats. */
-    public fun drawSector(
-        left: RcFloat,
-        top: RcFloat,
-        right: RcFloat,
-        bottom: RcFloat,
-        startAngle: RcFloat,
-        sweepAngle: RcFloat,
-    )
-
-    /** Draws an oval. */
-    public fun drawOval(left: Float, top: Float, right: Float, bottom: Float)
-
-    /** Draws an oval using remote floats. */
-    public fun drawOval(left: RcFloat, top: RcFloat, right: RcFloat, bottom: RcFloat)
-
-    /** Draws a rounded rectangle. */
-    public fun drawRoundRect(
-        left: Float,
-        top: Float,
-        right: Float,
-        bottom: Float,
-        radiusX: Float,
-        radiusY: Float,
-    )
-
-    /** Draws a rounded rectangle using remote floats. */
-    public fun drawRoundRect(
-        left: RcFloat,
-        top: RcFloat,
-        right: RcFloat,
-        bottom: RcFloat,
-        radiusX: RcFloat,
-        radiusY: RcFloat,
-    )
-
-    /** Draws a path. */
-    public fun drawPath(path: RcPath)
-
-    /** Draws a path that interpolates between two other paths. */
-    public fun drawTweenPath(path1: RcPath, path2: RcPath, tween: Float, start: Float, stop: Float)
-
-    /** Draws a path that interpolates between two other paths using remote floats. */
-    public fun drawTweenPath(
-        path1: RcPath,
-        path2: RcPath,
-        tween: RcFloat,
-        start: RcFloat,
-        stop: RcFloat,
-    )
-
-    /** Draws a text with specified anchor/pan. */
-    public fun drawTextAnchored(
-        text: RcText,
-        x: Float,
-        y: Float,
-        panX: Float,
-        panY: Float,
-        flags: Int = 0,
-    )
-
-    /** Draws a text with specified anchor/pan using remote floats. */
-    public fun drawTextAnchored(
-        text: RcText,
-        x: RcFloat,
-        y: RcFloat,
-        panX: RcFloat,
-        panY: RcFloat,
-        flags: Int = 0,
-    )
-
-    /** Draws a text along a path. */
-    public fun drawTextOnPath(text: RcText, path: RcPath, hOffset: Float, vOffset: Float)
-
-    /** Draws a text along a path using remote floats. */
-    public fun drawTextOnPath(text: RcText, path: RcPath, hOffset: RcFloat, vOffset: RcFloat)
-
-    /** Draws a text on a circle. */
-    public fun drawTextOnCircle(
-        text: RcText,
-        centerX: Float,
-        centerY: Float,
-        radius: Float,
-        startAngle: Float,
-        warpRadiusOffset: Float = 0f,
-        alignment: DrawTextOnCircle.Alignment = DrawTextOnCircle.Alignment.START,
-        placement: DrawTextOnCircle.Placement = DrawTextOnCircle.Placement.OUTSIDE,
-    )
-
-    /** Draws a text on a circle using remote floats. */
-    public fun drawTextOnCircle(
-        text: RcText,
-        centerX: RcFloat,
-        centerY: RcFloat,
-        radius: RcFloat,
-        startAngle: RcFloat,
-        warpRadiusOffset: RcFloat = RcFloat(0f),
-        alignment: DrawTextOnCircle.Alignment = DrawTextOnCircle.Alignment.START,
-        placement: DrawTextOnCircle.Placement = DrawTextOnCircle.Placement.OUTSIDE,
-    )
-
-    /** Draws a bitmap at the specified coordinates. */
-    public fun drawBitmap(image: RcImage, left: Float, top: Float, right: Float, bottom: Float)
-
-    /** Draws a bitmap at the specified position. */
-    public fun drawBitmap(image: RcImage, left: Float, top: Float)
-
-    /** Draws a bitmap at the specified coordinates using remote floats. */
-    public fun drawBitmap(
-        image: RcImage,
-        left: RcFloat,
-        top: RcFloat,
-        right: RcFloat,
-        bottom: RcFloat,
-    )
-
-    /** Draws a scaled bitmap within source and destination rectangles. */
-    public fun drawScaledBitmap(
-        image: RcImage,
-        srcLeft: Float,
-        srcTop: Float,
-        srcRight: Float,
-        srcBottom: Float,
-        dstLeft: Float,
-        dstTop: Float,
-        dstRight: Float,
-        dstBottom: Float,
-        scaleType: RcContentScale = RcContentScale.None,
-        scaleFactor: Float = 1f,
-        contentDescription: String? = null,
-    )
-
-    /** Draws a scaled bitmap within source and destination rectangles using remote floats. */
-    public fun drawScaledBitmap(
-        image: RcImage,
-        srcLeft: RcFloat,
-        srcTop: RcFloat,
-        srcRight: RcFloat,
-        srcBottom: RcFloat,
-        dstLeft: RcFloat,
-        dstTop: RcFloat,
-        dstRight: RcFloat,
-        dstBottom: RcFloat,
-        scaleType: RcContentScale = RcContentScale.None,
-        scaleFactor: RcFloat = 1f.rf,
-        contentDescription: String? = null,
-    )
-
     /** Registers a new bitmap resource with the given dimensions. */
     public fun createBitmap(width: Int, height: Int): RcImage
 
@@ -806,22 +573,10 @@ public interface RcScope {
     )
 
     /**
-     * Registers and compiles a custom shader from a string definition, with optional uniform
-     * builder.
+     * Registers a custom shader and configures its uniforms via a typed [RcShaderScope]. Uniform
+     * setters are picked by value type (no reflection, no `Any`).
      */
-    public fun createShader(
-        shaderString: String,
-        block: (androidx.compose.remote.creation.RemoteComposeShader.() -> Unit)? = null,
-    ): RcShader
-
-    /**
-     * Registers a custom shader and configures its uniforms via a typed RcShaderScope. Prefer this
-     * over createShader — uniform setters are picked by value type (no reflection, no `Any`).
-     *
-     * Named differently from createShader for the same JVM-erasure reason as paint vs applyPaint
-     * above.
-     */
-    public fun shader(shaderString: String, block: RcShaderScope.() -> Unit): RcShader
+    public fun shader(shaderString: String, block: RcShaderScope.() -> Unit = {}): RcShader
 
     /** Adds a spacer component. */
     public fun Spacer(modifier: Modifier = Modifier)
@@ -883,10 +638,10 @@ public interface RcScope {
     public fun getColorAttribute(baseColor: RcColor, type: Short): RcFloat
 
     /** Returns a substring of the text. */
-    public fun RcText.substring(start: RcFloat, len: RcFloat): RcText
+    public fun RcText.substring(start: RcFloat, len: RcFloat = (-1f).rf): RcText
 
     /** Returns a substring of the text. */
-    public fun RcText.substring(start: Float, len: Float): RcText
+    public fun RcText.substring(start: Float, len: Float = -1f): RcText
 
     /** Measure bitmap font text dimensions. */
     public fun RcText.measure(
@@ -911,92 +666,11 @@ public interface RcScope {
         kerningTable: Map<String, Short>,
     ): RcBitmapFont
 
-    /** Draws a text run using a bitmap font. */
-    public fun drawText(
-        text: RcText,
-        font: RcBitmapFont,
-        start: Int,
-        end: Int,
-        x: Float,
-        y: Float,
-        glyphSpacing: Float,
-    )
-
-    /** Draws a text run using a bitmap font. */
-    public fun drawText(
-        text: RcText,
-        font: RcBitmapFont,
-        start: Int,
-        end: Int,
-        x: RcFloat,
-        y: RcFloat,
-        glyphSpacing: Float,
-    )
-
-    /** Draws a text run along a path using a bitmap font. */
-    public fun drawTextOnPath(
-        text: RcText,
-        font: RcBitmapFont,
-        path: RcPath,
-        start: Int,
-        end: Int,
-        yAdj: Float,
-        glyphSpacing: Float,
-    )
-
-    /** Draws a text run along a path using a bitmap font. */
-    public fun drawTextOnPath(
-        text: RcText,
-        font: RcBitmapFont,
-        path: RcPath,
-        start: Int,
-        end: Int,
-        yAdj: RcFloat,
-        glyphSpacing: Float,
-    )
-
-    /** Draws a text anchored using a bitmap font. */
-    public fun drawTextAnchored(
-        text: RcText,
-        font: RcBitmapFont,
-        start: Float,
-        end: Float,
-        x: Float,
-        y: Float,
-        panX: Float,
-        panY: Float,
-        glyphSpacing: Float,
-    )
-
-    /** Draws a text anchored using a bitmap font. */
-    public fun drawTextAnchored(
-        text: RcText,
-        font: RcBitmapFont,
-        start: RcFloat,
-        end: RcFloat,
-        x: RcFloat,
-        y: RcFloat,
-        panX: RcFloat,
-        panY: RcFloat,
-        glyphSpacing: Float,
-    )
-
     /** Interpolates between two paths. */
     public fun RcPath.tween(path2: RcPath, tween: Float): RcPath
 
     /** Interpolates between two paths using a remote float. */
     public fun RcPath.tween(path2: RcPath, tween: RcFloat): RcPath
-
-    /** Sets the name of a color variable. */
-    public fun RcColor.setName(name: String)
-
-    /** Sets the name of a text variable. */
-    public fun RcText.setName(name: String)
-
-    /** Sets the name of a float variable. */
-    public fun setFloatName(value: RcFloat, name: String)
-
-    public fun RcFloat.setName(name: String)
 
     /** Transforms the text. */
     public fun RcText.transform(start: RcFloat, len: RcFloat, operation: RcTextTransformOp): RcText
@@ -1007,20 +681,8 @@ public interface RcScope {
     /** Measure the text and return a measure as a float. */
     public fun textMeasure(text: RcText, mode: Int): RcFloat
 
-    /** Returns the length of the text. */
-    public fun textLength(text: RcText): RcFloat
-
     /** Creates a time attribute. */
     public fun timeAttribute(variable: RcInteger, type: Short, vararg args: Int): RcFloat
-
-    /** Pre-concat the current matrix with the specified skew. */
-    public fun skew(skewX: Float, skewY: Float)
-
-    /** Sets the Matrix relative to the path. */
-    public fun matrixFromPath(path: RcPath, fraction: Float, vOffset: Float, flags: Int)
-
-    /** Sets the Matrix relative to the path using remote floats. */
-    public fun matrixFromPath(path: RcPath, fraction: RcFloat, vOffset: RcFloat, flags: Int)
 
     /**
      * Adds a parametric 2D mesh whose vertices come from expressions over `(u, v)`, and returns a
@@ -1157,7 +819,7 @@ public interface RcScope {
      * ```
      *
      * Geometry only: uv is the identity mapping and there are no vertex colours, so colour comes
-     * from the paint, or from passing an image to [drawMesh2D].
+     * from the paint, or from passing an image to drawMesh2D.
      *
      * @param path the path to follow
      * @param segments roughly how many quads to divide the path into; at least 1
@@ -1243,84 +905,18 @@ public interface RcScope {
         positions: Array<RcFloat>? = null,
     ): RcMesh
 
-    /**
-     * Draws a mesh, positioned by the ordinary 2D canvas matrix.
-     *
-     * @param mesh the mesh to draw
-     * @param image the bitmap to sample through the mesh's uv, or null for an untextured mesh
-     * @param blend how vertex colour and texel combine; defaults to what [image] implies
-     */
-    public fun drawMesh2D(mesh: RcMesh, image: RcImage? = null, blend: RcMeshBlend? = null)
-
-    /**
-     * Multiplies the mesh's local frame at `(u, v)` into the current canvas matrix, so ordinary
-     * drawing can be placed onto a deformed surface.
-     *
-     * @param mesh the mesh to read the surface from
-     * @param u where in the domain to sample
-     * @param v where in the domain to sample
-     * @param apply how much of the local frame to apply
-     */
-    public fun matrixFromMesh2D(
-        mesh: RcMesh,
-        u: Float,
-        v: Float,
-        apply: RcMeshMatrix = RcMeshMatrix.Full,
-    )
-
-    /**
-     * Multiplies the mesh's local frame at `(u, v)` into the current canvas matrix, so ordinary
-     * drawing can be placed onto a deformed surface.
-     *
-     * This is the two-dimensional analogue of [matrixFromPath], and it is what stops meshes being a
-     * closed world: attach a label to a waving flag, put icons around a ring, run text along a path
-     * strip. The content is drawn with the commands that already exist and never learns a mesh was
-     * involved - the mesh only supplies the matrix.
-     *
-     * @param mesh the mesh to read the surface from
-     * @param u where in the domain to sample
-     * @param v where in the domain to sample
-     * @param apply how much of the local frame to apply
-     */
-    public fun matrixFromMesh2D(
-        mesh: RcMesh,
-        u: RcFloat,
-        v: RcFloat,
-        apply: RcMeshMatrix = RcMeshMatrix.Full,
-    )
-
     /** Adds a conditional block based on the comparison of two values. */
-    public fun conditionalOperations(
+    public fun <S : RcScope> S.conditionalOperations(
         type: Byte,
         a: RcFloat,
         b: RcFloat,
-        content: RcScope.() -> Unit,
+        content: S.() -> Unit,
     )
 
     /** Adds an elegant conditional block based on a type-safe RcCondition. */
-    public fun ifTrue(condition: RcCondition, block: RcScope.() -> Unit) {
+    public fun <S : RcScope> S.ifTrue(condition: RcCondition, block: S.() -> Unit) {
         conditionalOperations(condition.op.value, condition.a, condition.b, block)
     }
-
-    /** Loops from start to end with a specified step. */
-    public fun rcLoop(start: RcFloat, step: Float, end: RcFloat, block: RcScope.(RcFloat) -> Unit)
-
-    /**
-     * Converts this Float to an RcText using the specified formatting.
-     *
-     * @param whole the number of digits before the decimal point
-     * @param decimal the number of digits after the decimal point
-     * @param flags formatting flags (see Rc.TextFromFloat)
-     */
-    public fun Float.format(whole: Int, decimal: Int, flags: Int): RcText
-
-    /** Merges this RcText with other into a new RcText. */
-    public infix fun RcText.merge(other: RcText): RcText
-
-    /** Extracts a substring from this RcText starting at start for length characters. */
-    public fun RcText.subtext(start: RcFloat, length: RcFloat = (-1f).rf): RcText
-
-    public fun RcText.subtext(start: Float, length: Float = -1f): RcText
 
     /** Returns the length of this RcText as an RcFloat. */
     public val RcText.length: RcFloat
@@ -1373,7 +969,7 @@ public interface RcScope {
         id: RcFloat,
         restart: RcFloat?,
         expressions: Array<RcFloat>,
-        block: RcScope.() -> Unit,
+        block: RcCanvasScope.() -> Unit,
     )
 
     /** Add a particle - particle comparison */
@@ -1385,7 +981,7 @@ public interface RcScope {
         condition: RcFloat?,
         then1: Array<RcFloat>?,
         then2: Array<RcFloat>?,
-        block: RcScope.() -> Unit,
+        block: RcCanvasScope.() -> Unit,
     )
 
     /** Add a particle test */
@@ -1396,7 +992,7 @@ public interface RcScope {
         max: RcFloat,
         condition: RcFloat?,
         then: Array<RcFloat>?,
-        block: RcScope.() -> Unit,
+        block: RcCanvasScope.() -> Unit,
     )
 
     /**
@@ -1411,16 +1007,37 @@ public interface RcScope {
     public fun runAction(block: RcRunActionScope.() -> Unit)
 
     /** Conditionally skip a segment */
-    public fun skip(type: Short, value: Int, block: RcScope.() -> Unit)
+    public fun <S : RcScope> S.skip(type: Short, value: Int, block: S.() -> Unit)
 
-    /** Conditionally skip a segment, returning an offset token. */
-    public fun beginSkip(type: Short, value: Int): Int
+    /** Loops from [start] to [end] with a specified [step]. */
+    public fun <S : RcScope> S.rcLoop(
+        start: RcFloat,
+        step: Float,
+        end: RcFloat,
+        block: S.(RcFloat) -> Unit,
+    )
 
-    /** Concludes the skipped segment using the offset token. */
-    public fun endSkip(offset: Int)
+    /** Loops from [start] to [end] with a specified [step]. */
+    public fun <S : RcScope> S.rcLoop(
+        start: RcFloat,
+        step: RcFloat,
+        end: RcFloat,
+        block: S.(RcFloat) -> Unit,
+    )
+
+    /** Loops from [start] to [end] with a specified [step]. */
+    public fun <S : RcScope> S.loop(
+        start: RcFloat,
+        step: RcFloat,
+        end: RcFloat,
+        block: S.(RcFloat) -> Unit,
+    ): Unit = rcLoop(start, step, end, block)
 
     /** Returns an RcFloat representing the animation delta time. */
     public fun deltaTime(): RcFloat
+
+    /** Creates a new path starting at the specified position. */
+    public fun remotePath(x: Float, y: Float): RcDynamicPath
 
     public fun RcDynamicPath.lineTo(x: Float, y: Float)
 
@@ -1499,11 +1116,11 @@ public interface RcScope {
     // =================================================================================
 
     /** Conditionally execute content if `op(a, b)` holds on the player. */
-    public fun conditionalOperations(
+    public fun <S : RcScope> S.conditionalOperations(
         op: RcConditionOp,
         a: RcFloat,
         b: RcFloat,
-        content: RcScope.() -> Unit,
+        content: S.() -> Unit,
     ): Unit = conditionalOperations(op.value, a, b, content)
 
     /** Read a single attribute (HSV/RGBA component) of a color resource. */
@@ -1515,44 +1132,8 @@ public interface RcScope {
         timeAttribute(variable, attr.value, *args)
 
     /** Skip when the player matches kind against value. */
-    public fun skip(kind: RcSkipKind, value: Int, block: RcScope.() -> Unit): Unit =
+    public fun <S : RcScope> S.skip(kind: RcSkipKind, value: Int, block: S.() -> Unit): Unit =
         skip(kind.value, value, block)
-
-    /** drawTextAnchored with typed RcTextAnchorFlags. */
-    public fun drawTextAnchored(
-        text: RcText,
-        x: Float,
-        y: Float,
-        panX: Float,
-        panY: Float,
-        flags: RcTextAnchorFlags,
-    ): Unit = drawTextAnchored(text, x, y, panX, panY, flags.bits)
-
-    /** drawTextAnchored with typed RcTextAnchorFlags using remote floats. */
-    public fun drawTextAnchored(
-        text: RcText,
-        x: RcFloat,
-        y: RcFloat,
-        panX: RcFloat,
-        panY: RcFloat,
-        flags: RcTextAnchorFlags,
-    ): Unit = drawTextAnchored(text, x, y, panX, panY, flags.bits)
-
-    /** matrixFromPath with typed RcMatrixFromPathFlags. */
-    public fun matrixFromPath(
-        path: RcPath,
-        fraction: Float,
-        vOffset: Float,
-        flags: RcMatrixFromPathFlags,
-    ): Unit = matrixFromPath(path, fraction, vOffset, flags.bits)
-
-    /** matrixFromPath with typed RcMatrixFromPathFlags using remote floats. */
-    public fun matrixFromPath(
-        path: RcPath,
-        fraction: RcFloat,
-        vOffset: RcFloat,
-        flags: RcMatrixFromPathFlags,
-    ): Unit = matrixFromPath(path, fraction, vOffset, flags.bits)
 
     /** createTextFromFloat with a typed RcTextFromFloatSpec format. */
     public fun createTextFromFloat(
@@ -1682,79 +1263,14 @@ public interface RcScope {
             maxLines = maxLines,
         )
 
-    /** drawRect taking a typed RcRect. */
-    public fun drawRect(rect: RcRect): Unit = drawRect(rect.left, rect.top, rect.right, rect.bottom)
-
-    /** drawOval taking a typed RcRect. */
-    public fun drawOval(rect: RcRect): Unit = drawOval(rect.left, rect.top, rect.right, rect.bottom)
-
-    /** drawRoundRect taking a typed RcRect. */
-    public fun drawRoundRect(rect: RcRect, radiusX: Float, radiusY: Float): Unit =
-        drawRoundRect(
-            rect.left,
-            rect.top,
-            rect.right,
-            rect.bottom,
-            RcFloat(radiusX),
-            RcFloat(radiusY),
-        )
-
-    /** drawArc taking a typed RcRect. */
-    public fun drawArc(rect: RcRect, startAngle: Float, sweepAngle: Float): Unit =
-        drawArc(
-            rect.left,
-            rect.top,
-            rect.right,
-            rect.bottom,
-            RcFloat(startAngle),
-            RcFloat(sweepAngle),
-        )
-
-    /** drawSector taking a typed RcRect. */
-    public fun drawSector(rect: RcRect, startAngle: Float, sweepAngle: Float): Unit =
-        drawSector(
-            rect.left,
-            rect.top,
-            rect.right,
-            rect.bottom,
-            RcFloat(startAngle),
-            RcFloat(sweepAngle),
-        )
-
-    /** drawCircle taking a typed RcPoint center. */
-    public fun drawCircle(center: RcPoint, radius: Float): Unit =
-        drawCircle(center.x, center.y, RcFloat(radius))
-
-    /** drawLine taking typed RcPoint endpoints. */
-    public fun drawLine(from: RcPoint, to: RcPoint): Unit = drawLine(from.x, from.y, to.x, to.y)
-
-    /** drawBitmap taking a typed destination RcRect. */
-    public fun drawBitmap(image: RcImage, dst: RcRect): Unit =
-        drawBitmap(image, dst.left, dst.top, dst.right, dst.bottom)
-
     // =================================================================================
     // Begin/end-pair safety (item 7).
     // =================================================================================
 
-    /** Block-scoped wrapper for startCanvasOperations / endCanvasOperations. */
-    public fun canvasOperations(block: RcScope.() -> Unit) {
-        startCanvasOperations()
-        block()
-        endCanvasOperations()
-    }
+    /** Executes a block of raw canvas operations. */
+    public fun canvasOperations(block: RcCanvasScope.() -> Unit)
 
-    /**
-     * Begin a typed skip block; pair with endSkip using the returned token. Prefer the skip block
-     * form when the scoping is statically known; this form exists for the rare case where begin/end
-     * must be split.
-     */
-    public fun beginSkip(kind: RcSkipKind, value: Int): RcSkipToken =
-        RcSkipToken(beginSkip(kind.value, value))
-
-    /** Conclude a skip block opened by beginSkip using the typed token. */
-    public fun endSkip(token: RcSkipToken): Unit = endSkip(token.offset)
-
-    public fun RcFloats(variables: FloatArray): Array<RcFloat> {
+    public fun rcFloats(variables: FloatArray): Array<RcFloat> {
         return Array<RcFloat>(variables.size) { RcFloat(variables[it]) }
     }
 
@@ -1800,9 +1316,9 @@ public interface RcScope {
 /** Impulse container scope. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RcDslMarker
-public interface RcImpulseScope : RcScope {
+public interface RcImpulseScope : RcCanvasScope {
     /** Add an impulse process container */
-    public fun process(block: RcScope.() -> Unit)
+    public fun process(block: RcCanvasScope.() -> Unit)
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -1857,20 +1373,439 @@ public interface RcCanvasScope : RcScope {
     /** The current RcPaint object. */
     public val paint: RcPaint
 
+    /** Saves the current canvas state. */
+    public fun save()
+
+    /** Restores the previous canvas state. */
+    public fun restore()
+
     /** Executes a block within a save/restore pair. */
     public fun save(block: RcCanvasScope.() -> Unit)
+
+    /** Preconcat the current matrix with the specified scale. */
+    public fun scale(scaleX: Float, scaleY: Float)
+
+    /** Preconcat the current matrix with the specified scale. */
+    public fun scale(scaleX: Float, scaleY: Float, centerX: Float, centerY: Float)
+
+    /** Preconcat the current matrix with the specified scale. */
+    public fun scale(scaleX: RcFloat, scaleY: RcFloat)
+
+    /** Preconcat the current matrix with the specified scale. */
+    public fun scale(scaleX: RcFloat, scaleY: RcFloat, centerX: RcFloat, centerY: RcFloat)
+
+    /** Pre-concat the current matrix with the specified skew. */
+    public fun skew(skewX: Float, skewY: Float)
+
+    /** Sets the Matrix relative to the path. */
+    public fun matrixFromPath(path: RcPath, fraction: Float, vOffset: Float, flags: Int)
+
+    /** Sets the Matrix relative to the path using remote floats. */
+    public fun matrixFromPath(path: RcPath, fraction: RcFloat, vOffset: RcFloat, flags: Int)
+
+    /** matrixFromPath with typed RcMatrixFromPathFlags. */
+    public fun matrixFromPath(
+        path: RcPath,
+        fraction: Float,
+        vOffset: Float,
+        flags: RcMatrixFromPathFlags,
+    ): Unit = matrixFromPath(path, fraction, vOffset, flags.bits)
+
+    /** matrixFromPath with typed RcMatrixFromPathFlags using remote floats. */
+    public fun matrixFromPath(
+        path: RcPath,
+        fraction: RcFloat,
+        vOffset: RcFloat,
+        flags: RcMatrixFromPathFlags,
+    ): Unit = matrixFromPath(path, fraction, vOffset, flags.bits)
+
+    /** Draws a rectangle. */
+    public fun drawRect(left: Float, top: Float, right: Float, bottom: Float)
+
+    /** Draws a rectangle using remote floats. */
+    public fun drawRect(left: RcFloat, top: RcFloat, right: RcFloat, bottom: RcFloat)
+
+    /** drawRect taking a typed RcRect. */
+    public fun drawRect(rect: RcRect): Unit = drawRect(rect.left, rect.top, rect.right, rect.bottom)
+
+    /** Draws a circle. */
+    public fun drawCircle(centerX: Float, centerY: Float, radius: Float)
+
+    /** Draws a circle using remote floats. */
+    public fun drawCircle(centerX: RcFloat, centerY: RcFloat, radius: RcFloat)
+
+    /** drawCircle taking a typed RcPoint center. */
+    public fun drawCircle(center: RcPoint, radius: Float): Unit =
+        drawCircle(center.x, center.y, RcFloat(radius))
+
+    /** Draws a line. */
+    public fun drawLine(x1: Float, y1: Float, x2: Float, y2: Float)
+
+    /** Draws a line using remote floats. */
+    public fun drawLine(x1: RcFloat, y1: RcFloat, x2: RcFloat, y2: RcFloat)
+
+    /** drawLine taking typed RcPoint endpoints. */
+    public fun drawLine(from: RcPoint, to: RcPoint): Unit = drawLine(from.x, from.y, to.x, to.y)
+
+    /** Draws an arc. */
+    public fun drawArc(
+        left: Float,
+        top: Float,
+        right: Float,
+        bottom: Float,
+        startAngle: Float,
+        sweepAngle: Float,
+    )
+
+    /** Draws an arc using remote floats. */
+    public fun drawArc(
+        left: RcFloat,
+        top: RcFloat,
+        right: RcFloat,
+        bottom: RcFloat,
+        startAngle: RcFloat,
+        sweepAngle: RcFloat,
+    )
+
+    /** drawArc taking a typed RcRect. */
+    public fun drawArc(rect: RcRect, startAngle: Float, sweepAngle: Float): Unit =
+        drawArc(
+            rect.left,
+            rect.top,
+            rect.right,
+            rect.bottom,
+            RcFloat(startAngle),
+            RcFloat(sweepAngle),
+        )
+
+    /** Draws a sector. */
+    public fun drawSector(
+        left: Float,
+        top: Float,
+        right: Float,
+        bottom: Float,
+        startAngle: Float,
+        sweepAngle: Float,
+    )
+
+    /** Draws a sector using remote floats. */
+    public fun drawSector(
+        left: RcFloat,
+        top: RcFloat,
+        right: RcFloat,
+        bottom: RcFloat,
+        startAngle: RcFloat,
+        sweepAngle: RcFloat,
+    )
+
+    /** drawSector taking a typed RcRect. */
+    public fun drawSector(rect: RcRect, startAngle: Float, sweepAngle: Float): Unit =
+        drawSector(
+            rect.left,
+            rect.top,
+            rect.right,
+            rect.bottom,
+            RcFloat(startAngle),
+            RcFloat(sweepAngle),
+        )
+
+    /** Draws an oval. */
+    public fun drawOval(left: Float, top: Float, right: Float, bottom: Float)
+
+    /** Draws an oval using remote floats. */
+    public fun drawOval(left: RcFloat, top: RcFloat, right: RcFloat, bottom: RcFloat)
+
+    /** drawOval taking a typed RcRect. */
+    public fun drawOval(rect: RcRect): Unit = drawOval(rect.left, rect.top, rect.right, rect.bottom)
+
+    /** Draws a rounded rectangle. */
+    public fun drawRoundRect(
+        left: Float,
+        top: Float,
+        right: Float,
+        bottom: Float,
+        radiusX: Float,
+        radiusY: Float,
+    )
+
+    /** Draws a rounded rectangle using remote floats. */
+    public fun drawRoundRect(
+        left: RcFloat,
+        top: RcFloat,
+        right: RcFloat,
+        bottom: RcFloat,
+        radiusX: RcFloat,
+        radiusY: RcFloat,
+    )
+
+    /** drawRoundRect taking a typed RcRect. */
+    public fun drawRoundRect(rect: RcRect, radiusX: Float, radiusY: Float): Unit =
+        drawRoundRect(
+            rect.left,
+            rect.top,
+            rect.right,
+            rect.bottom,
+            RcFloat(radiusX),
+            RcFloat(radiusY),
+        )
+
+    /** Draws a path. */
+    public fun drawPath(path: RcPath)
+
+    /** Draws a path that interpolates between two other paths. */
+    public fun drawTweenPath(path1: RcPath, path2: RcPath, tween: Float, start: Float, stop: Float)
+
+    /** Draws a path that interpolates between two other paths using remote floats. */
+    public fun drawTweenPath(
+        path1: RcPath,
+        path2: RcPath,
+        tween: RcFloat,
+        start: RcFloat,
+        stop: RcFloat,
+    )
+
+    /** Draws a text with specified anchor/pan. */
+    public fun drawTextAnchored(
+        text: RcText,
+        x: Float,
+        y: Float,
+        panX: Float,
+        panY: Float,
+        flags: Int = 0,
+    )
+
+    /** Draws a text with specified anchor/pan using remote floats. */
+    public fun drawTextAnchored(
+        text: RcText,
+        x: RcFloat,
+        y: RcFloat,
+        panX: RcFloat,
+        panY: RcFloat,
+        flags: Int = 0,
+    )
+
+    /** drawTextAnchored with typed RcTextAnchorFlags. */
+    public fun drawTextAnchored(
+        text: RcText,
+        x: Float,
+        y: Float,
+        panX: Float,
+        panY: Float,
+        flags: RcTextAnchorFlags,
+    ): Unit = drawTextAnchored(text, x, y, panX, panY, flags.bits)
+
+    /** drawTextAnchored with typed RcTextAnchorFlags using remote floats. */
+    public fun drawTextAnchored(
+        text: RcText,
+        x: RcFloat,
+        y: RcFloat,
+        panX: RcFloat,
+        panY: RcFloat,
+        flags: RcTextAnchorFlags,
+    ): Unit = drawTextAnchored(text, x, y, panX, panY, flags.bits)
+
+    /** Draws a text along a path. */
+    public fun drawTextOnPath(text: RcText, path: RcPath, hOffset: Float, vOffset: Float)
+
+    /** Draws a text along a path using remote floats. */
+    public fun drawTextOnPath(text: RcText, path: RcPath, hOffset: RcFloat, vOffset: RcFloat)
+
+    /** Draws a text on a circle. */
+    public fun drawTextOnCircle(
+        text: RcText,
+        centerX: Float,
+        centerY: Float,
+        radius: Float,
+        startAngle: Float,
+        warpRadiusOffset: Float = 0f,
+        alignment: DrawTextOnCircle.Alignment = DrawTextOnCircle.Alignment.START,
+        placement: DrawTextOnCircle.Placement = DrawTextOnCircle.Placement.OUTSIDE,
+    )
+
+    /** Draws a text on a circle using remote floats. */
+    public fun drawTextOnCircle(
+        text: RcText,
+        centerX: RcFloat,
+        centerY: RcFloat,
+        radius: RcFloat,
+        startAngle: RcFloat,
+        warpRadiusOffset: RcFloat = RcFloat(0f),
+        alignment: DrawTextOnCircle.Alignment = DrawTextOnCircle.Alignment.START,
+        placement: DrawTextOnCircle.Placement = DrawTextOnCircle.Placement.OUTSIDE,
+    )
+
+    /** Draws a text run using a bitmap font. */
+    public fun drawText(
+        text: RcText,
+        font: RcBitmapFont,
+        start: Int,
+        end: Int,
+        x: Float,
+        y: Float,
+        glyphSpacing: Float,
+    )
+
+    /** Draws a text run using a bitmap font. */
+    public fun drawText(
+        text: RcText,
+        font: RcBitmapFont,
+        start: Int,
+        end: Int,
+        x: RcFloat,
+        y: RcFloat,
+        glyphSpacing: Float,
+    )
+
+    /** Draws a text run along a path using a bitmap font. */
+    public fun drawTextOnPath(
+        text: RcText,
+        font: RcBitmapFont,
+        path: RcPath,
+        start: Int,
+        end: Int,
+        yAdj: Float,
+        glyphSpacing: Float,
+    )
+
+    /** Draws a text run along a path using a bitmap font. */
+    public fun drawTextOnPath(
+        text: RcText,
+        font: RcBitmapFont,
+        path: RcPath,
+        start: Int,
+        end: Int,
+        yAdj: RcFloat,
+        glyphSpacing: Float,
+    )
+
+    /** Draws a text anchored using a bitmap font. */
+    public fun drawTextAnchored(
+        text: RcText,
+        font: RcBitmapFont,
+        start: Float,
+        end: Float,
+        x: Float,
+        y: Float,
+        panX: Float,
+        panY: Float,
+        glyphSpacing: Float,
+    )
+
+    /** Draws a text anchored using a bitmap font. */
+    public fun drawTextAnchored(
+        text: RcText,
+        font: RcBitmapFont,
+        start: RcFloat,
+        end: RcFloat,
+        x: RcFloat,
+        y: RcFloat,
+        panX: RcFloat,
+        panY: RcFloat,
+        glyphSpacing: Float,
+    )
+
+    /** Draws a bitmap at the specified coordinates. */
+    public fun drawBitmap(image: RcImage, left: Float, top: Float, right: Float, bottom: Float)
+
+    /** Draws a bitmap at the specified position. */
+    public fun drawBitmap(image: RcImage, left: Float, top: Float)
+
+    /** Draws a bitmap at the specified coordinates using remote floats. */
+    public fun drawBitmap(
+        image: RcImage,
+        left: RcFloat,
+        top: RcFloat,
+        right: RcFloat,
+        bottom: RcFloat,
+    )
+
+    /** drawBitmap taking a typed destination RcRect. */
+    public fun drawBitmap(image: RcImage, dst: RcRect): Unit =
+        drawBitmap(image, dst.left, dst.top, dst.right, dst.bottom)
+
+    /** Draws a scaled bitmap within source and destination rectangles. */
+    public fun drawScaledBitmap(
+        image: RcImage,
+        srcLeft: Float,
+        srcTop: Float,
+        srcRight: Float,
+        srcBottom: Float,
+        dstLeft: Float,
+        dstTop: Float,
+        dstRight: Float,
+        dstBottom: Float,
+        scaleType: RcContentScale = RcContentScale.None,
+        scaleFactor: Float = 1f,
+        contentDescription: String? = null,
+    )
+
+    /** Draws a scaled bitmap within source and destination rectangles using remote floats. */
+    public fun drawScaledBitmap(
+        image: RcImage,
+        srcLeft: RcFloat,
+        srcTop: RcFloat,
+        srcRight: RcFloat,
+        srcBottom: RcFloat,
+        dstLeft: RcFloat,
+        dstTop: RcFloat,
+        dstRight: RcFloat,
+        dstBottom: RcFloat,
+        scaleType: RcContentScale = RcContentScale.None,
+        scaleFactor: RcFloat = 1f.rf,
+        contentDescription: String? = null,
+    )
+
+    /**
+     * Draws a mesh, positioned by the ordinary 2D canvas matrix.
+     *
+     * @param mesh the mesh to draw
+     * @param image the bitmap to sample through the mesh's uv, or null for an untextured mesh
+     * @param blend how vertex colour and texel combine; defaults to what [image] implies
+     */
+    public fun drawMesh2D(mesh: RcMesh, image: RcImage? = null, blend: RcMeshBlend? = null)
+
+    /**
+     * Multiplies the mesh's local frame at `(u, v)` into the current canvas matrix, so ordinary
+     * drawing can be placed onto a deformed surface.
+     *
+     * @param mesh the mesh to read the surface from
+     * @param u where in the domain to sample
+     * @param v where in the domain to sample
+     * @param apply how much of the local frame to apply
+     */
+    public fun matrixFromMesh2D(
+        mesh: RcMesh,
+        u: Float,
+        v: Float,
+        apply: RcMeshMatrix = RcMeshMatrix.Full,
+    )
+
+    /**
+     * Multiplies the mesh's local frame at `(u, v)` into the current canvas matrix, so ordinary
+     * drawing can be placed onto a deformed surface.
+     *
+     * This is the two-dimensional analogue of [matrixFromPath], and it is what stops meshes being a
+     * closed world: attach a label to a waving flag, put icons around a ring, run text along a path
+     * strip. The content is drawn with the commands that already exist and never learns a mesh was
+     * involved - the mesh only supplies the matrix.
+     *
+     * @param mesh the mesh to read the surface from
+     * @param u where in the domain to sample
+     * @param v where in the domain to sample
+     * @param apply how much of the local frame to apply
+     */
+    public fun matrixFromMesh2D(
+        mesh: RcMesh,
+        u: RcFloat,
+        v: RcFloat,
+        apply: RcMeshMatrix = RcMeshMatrix.Full,
+    )
 
     /** Clips the current canvas to the specified rectangle. */
     public fun clipRect(left: Float, top: Float, right: Float, bottom: Float)
 
     /** Clips the current canvas to the specified rectangle using remote floats. */
     public fun clipRect(left: RcFloat, top: RcFloat, right: RcFloat, bottom: RcFloat)
-
-    /** Creates a new path starting at the specified position. */
-    public fun remotePath(x: Float, y: Float): RcDynamicPath
-
-    /** Creates a new path starting at the specified position and populates it. */
-    //    public fun remotePath(x: Float, y: Float, block: RcPathScope.() -> Unit): RcDynamicPath
 
     /** Preconcat the current matrix with the specified rotation in degrees. */
     public fun rotate(angle: Float)
@@ -1889,14 +1824,6 @@ public interface RcCanvasScope : RcScope {
 
     /** Preconcat the current matrix with the specified translation. */
     public fun translate(x: RcFloat, y: RcFloat)
-
-    /** Loops from start to end with a specified step. */
-    public fun loop(
-        start: RcFloat,
-        step: RcFloat,
-        end: RcFloat,
-        block: RcCanvasScope.(RcFloat) -> Unit,
-    )
 
     /** Clips the current canvas to the specified path. */
     public fun clipPath(path: RcPath)
@@ -2003,14 +1930,6 @@ public fun Modifier.toRecordingModifier(): RecordingModifier {
     foldIn(Unit) { _, element -> element.applyTo(recording) }
     return recording
 }
-
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RcScope.format(
-    value: Float,
-    whole: Int,
-    decimal: Int,
-    spec: RcTextFromFloatSpec,
-): RcText = value.format(whole, decimal, spec.bits)
 
 /** Scope to configure accessibility semantics on layouts. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

@@ -117,7 +117,7 @@ internal fun RcCanvasScope.touchCrosshair(
         drawRect(px, py - theme.labelSize * 0.5f, px + sw, py + theme.labelSize * 0.2f)
         val vText = createTextFromFloat(arrays[si][idx], 6, 1, spec)
         val nm = names[si]
-        val text = if (nm != null) textMerge(remoteText("$nm  "), vText) else vText
+        val text = if (nm != null) remoteText("$nm  ") + vText else vText
         paint {
             color(theme.labelColor)
             style(RcPaintStyle.Fill)

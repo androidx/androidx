@@ -22,6 +22,7 @@ import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.modifiers.RoundedRectShape
 import androidx.compose.remote.creation.profile.Profile
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -169,12 +170,12 @@ class RcScopeTest {
     @Test
     fun testDrawingAndPaint() {
         val writer = RemoteComposeWriter(testProfile)
-        val scope = RcScopeImpl(writer)
+        val scope = RcCanvasScopeImpl(writer)
 
         scope.apply {
-            applyPaint {
-                setColor(0xFFFF0000.toInt())
-                setStrokeWidth(2f)
+            paint {
+                color(0xFFFF0000.toInt())
+                strokeWidth(2f)
             }
             drawRect(0f, 0f, 100f, 100f)
             drawCircle(50f, 50f, 25f)
@@ -271,5 +272,38 @@ class RcScopeTest {
 
             setArrayValue(dynamicArray, 0.rf, 5.rf)
         }
+    }
+
+    @Test
+    fun testBeginEndGlobalMatchesScopedGlobal() {
+        val directBytes =
+            createRcBuffer(RcProfile(testProfile)) {
+                Box {
+                    beginGlobal()
+                    val firstColor = remoteNamedColor("color.first", 0xFFFF0000.toInt())
+                    val secondColor = remoteNamedColor("color.second", 0xFF00FF00.toInt())
+                    endGlobal()
+
+                    Text("First", color = firstColor)
+                    Text("Second", color = secondColor)
+                }
+            }
+
+        val scopedBytes =
+            createRcBuffer(RcProfile(testProfile)) {
+                Box {
+                    val (firstColor, secondColor) =
+                        global {
+                            val c1 = remoteNamedColor("color.first", 0xFFFF0000.toInt())
+                            val c2 = remoteNamedColor("color.second", 0xFF00FF00.toInt())
+                            c1 to c2
+                        }
+
+                    Text("First", color = firstColor)
+                    Text("Second", color = secondColor)
+                }
+            }
+
+        assertArrayEquals(scopedBytes, directBytes)
     }
 }

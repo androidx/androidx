@@ -109,10 +109,10 @@ public fun createRcBuffer(
 public fun createRawRcBuffer(
     profile: RcProfile,
     vararg tags: HTag,
-    content: RcScope.() -> Unit,
+    content: RcCanvasScope.() -> Unit,
 ): ByteArray =
-    createRcBufferInternal(profile, experimental = false, *tags) { _, scope ->
-        scope.content()
+    createRcBufferInternal(profile, experimental = false, *tags) { writer, _ ->
+        RcCanvasScopeImpl(writer).content()
     }
 
 /**
@@ -124,10 +124,10 @@ public fun createRawRcBuffer(
     profile: RcProfile,
     experimental: Boolean,
     vararg tags: HTag,
-    content: RcScope.() -> Unit,
+    content: RcCanvasScope.() -> Unit,
 ): ByteArray =
-    createRcBufferInternal(profile, experimental, *tags) { _, scope ->
-        scope.content()
+    createRcBufferInternal(profile, experimental, *tags) { writer, _ ->
+        RcCanvasScopeImpl(writer).content()
     }
 
 /**

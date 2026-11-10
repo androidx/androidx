@@ -63,7 +63,7 @@ class RcMeshTest {
     @Test
     fun expressionMeshReachesTheWire() {
         val writer = RemoteComposeWriter(testProfile)
-        val scope = RcScopeImpl(writer)
+        val scope = RcCanvasScopeImpl(writer)
 
         val mesh =
             scope.remoteMesh2D(RcMeshLayout.Grid, uCount = 24, vCount = 16) {
@@ -107,7 +107,7 @@ class RcMeshTest {
         // definition, which is what makes `layout: polar` useful without spending expressions on
         // cos and sin.
         val writer = RemoteComposeWriter(testProfile)
-        val scope = RcScopeImpl(writer)
+        val scope = RcCanvasScopeImpl(writer)
 
         val mesh = scope.remoteMesh2D(RcMeshLayout.Polar, uCount = 32, vCount = 4) {}
         scope.drawMesh2D(mesh)
@@ -122,7 +122,7 @@ class RcMeshTest {
     @Test
     fun literalMeshDefaultsToSequentialIndices() {
         val writer = RemoteComposeWriter(testProfile)
-        val scope = RcScopeImpl(writer)
+        val scope = RcCanvasScopeImpl(writer)
 
         // Three vertices and no index array means "draw them in order".
         val mesh = scope.remoteMesh2DValues(verts = floatArrayOf(0f, 0f, 10f, 0f, 0f, 10f))
@@ -135,7 +135,7 @@ class RcMeshTest {
     @Test
     fun matrixFromMeshIsWritten() {
         val writer = RemoteComposeWriter(testProfile)
-        val scope = RcScopeImpl(writer)
+        val scope = RcCanvasScopeImpl(writer)
 
         val ribbon =
             scope.remoteMesh2D(RcMeshLayout.PathStrip, uCount = 64, vCount = 2) {
@@ -153,7 +153,7 @@ class RcMeshTest {
     @Test
     fun halfFloatMeshUsesTheCompactWireType() {
         val writer = RemoteComposeWriter(testProfile)
-        val scope = RcScopeImpl(writer)
+        val scope = RcCanvasScopeImpl(writer)
 
         val mesh =
             scope.remoteMesh2DValues(
@@ -170,7 +170,7 @@ class RcMeshTest {
     @Test
     fun rgbHelperAndCustomTexUvAndTexturedBlendModesReachTheWire() {
         val writer = RemoteComposeWriter(testProfile)
-        val scope = RcScopeImpl(writer)
+        val scope = RcCanvasScopeImpl(writer)
 
         val image = scope.createBitmap(64, 64)
         val mesh =
@@ -201,7 +201,7 @@ class RcMeshTest {
     @Test
     fun literalMeshWithGridMetadataSupportsFullMatrixExtraction() {
         val writer = RemoteComposeWriter(testProfile)
-        val scope = RcScopeImpl(writer)
+        val scope = RcCanvasScopeImpl(writer)
 
         val carpet =
             scope.remoteMesh2DValues(
@@ -229,7 +229,7 @@ class RcMeshTest {
     @Test
     fun scopePairHelpersAndFloatMatrixOverloadReachTheWire() {
         val writer = RemoteComposeWriter(testProfile)
-        val scope = RcScopeImpl(writer)
+        val scope = RcCanvasScopeImpl(writer)
 
         val mesh =
             scope.remoteMesh2D(RcMeshLayout.Strip, uCount = 12, vCount = 2) {
@@ -258,7 +258,7 @@ class RcMeshTest {
     @Test
     fun pathSplineStripReachesTheWire() {
         val writer = RemoteComposeWriter(testProfile)
-        val scope = RcScopeImpl(writer)
+        val scope = RcCanvasScopeImpl(writer)
 
         // Three constants: pinched at both ends, fat in the middle.
         val ribbon =
@@ -287,7 +287,7 @@ class RcMeshTest {
     @Test
     fun pathSplineStripAcceptsRemoteFloatWidthsAndPositions() {
         val writer = RemoteComposeWriter(testProfile)
-        val scope = RcScopeImpl(writer)
+        val scope = RcCanvasScopeImpl(writer)
 
         // The overload that makes the profile animatable: each control point is a remote float, so
         // it resolves to a variable id the mesh then listens to.
@@ -311,7 +311,7 @@ class RcMeshTest {
     @Test
     fun pathSplineStripNeedsAtLeastOneWidth() {
         val writer = RemoteComposeWriter(testProfile)
-        val scope = RcScopeImpl(writer)
+        val scope = RcCanvasScopeImpl(writer)
         val path = scope.testPath()
 
         assertThrows(RuntimeException::class.java) {
@@ -322,7 +322,7 @@ class RcMeshTest {
     @Test
     fun roundStripReachesTheWireWithItsCapsOutsideTheSegmentBudget() {
         val writer = RemoteComposeWriter(testProfile)
-        val scope = RcScopeImpl(writer)
+        val scope = RcCanvasScopeImpl(writer)
 
         val ribbon =
             scope.remoteMesh2DRoundStrip(
@@ -351,7 +351,7 @@ class RcMeshTest {
     @Test
     fun roundStripAcceptsRemoteFloatWidthsAndPositions() {
         val writer = RemoteComposeWriter(testProfile)
-        val scope = RcScopeImpl(writer)
+        val scope = RcCanvasScopeImpl(writer)
 
         // Animatable control points drive the cap radius as well as the body width.
         val ribbon =
@@ -377,7 +377,7 @@ class RcMeshTest {
     @Test
     fun roundStripNeedsAtLeastOneWidth() {
         val writer = RemoteComposeWriter(testProfile)
-        val scope = RcScopeImpl(writer)
+        val scope = RcCanvasScopeImpl(writer)
         val path = scope.testPath()
 
         assertThrows(RuntimeException::class.java) {
@@ -402,7 +402,7 @@ class RcMeshTest {
     @Test
     fun antialiasedMeshReachesTheWireWithItsFlagAndWidth() {
         val writer = RemoteComposeWriter(testProfile)
-        val scope = RcScopeImpl(writer)
+        val scope = RcCanvasScopeImpl(writer)
 
         val mesh =
             scope.remoteMesh2DAntialias(
@@ -426,7 +426,7 @@ class RcMeshTest {
     @Test
     fun antialiasWidthThatIsAnExpressionIsWrittenAsAVariable() {
         val writer = RemoteComposeWriter(testProfile)
-        val scope = RcScopeImpl(writer)
+        val scope = RcCanvasScopeImpl(writer)
 
         // A unit mesh drawn under scale(w, w) wants a skirt 1 / w wide, which is only known on the
         // player, so the width goes out as the id of a variable holding it.
@@ -453,7 +453,7 @@ class RcMeshTest {
 
     private fun literalAntialiasedGrid(indices: IntArray?): AddMesh2D {
         val writer = RemoteComposeWriter(testProfile)
-        val scope = RcScopeImpl(writer)
+        val scope = RcCanvasScopeImpl(writer)
         scope.remoteMesh2DValuesAntialias(
             verts = gridVerts,
             colors = gridColors,
@@ -489,7 +489,7 @@ class RcMeshTest {
     @Test
     fun antialiasedLiteralMeshNeedsALayoutAndAColourForEveryVertex() {
         val writer = RemoteComposeWriter(testProfile)
-        val scope = RcScopeImpl(writer)
+        val scope = RcCanvasScopeImpl(writer)
 
         // A 2 by 2 grid accounts for four of the six vertices, so there is no telling where the
         // edge is.

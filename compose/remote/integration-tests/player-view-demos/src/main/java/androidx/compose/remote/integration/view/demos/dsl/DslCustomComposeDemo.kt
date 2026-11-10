@@ -164,7 +164,7 @@ public fun dslCustomComposeDemo(): ByteArray {
             Spacer(Modifier.height(12.rdp))
             val sliderValText = createTextFromFloat(slider, 3, 0, 0)
             Text(
-                text = "Slider Value: " join slider.genTextId(3),
+                text = "Slider Value: " join slider.format(3),
                 fontWeight = RcFontWeight.Bold,
                 fontSize = 64.rsp,
                 color = 0xFFF59E0B.toInt(),

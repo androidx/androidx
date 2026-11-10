@@ -19,6 +19,7 @@ package androidx.compose.remote.integration.view.demos.dsl.mesh2d
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.Modifier
+import androidx.compose.remote.creation.dsl.RcCanvasScope
 import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcPathType
 import androidx.compose.remote.creation.dsl.RcProfile
@@ -202,7 +203,7 @@ public fun dslMesh2DSplineBreathingRibbon(): ByteArray {
 
 /** A caption above one of the ribbons, in the same 400x400 design space. */
 @Suppress("RestrictedApiAndroidX")
-private fun RcScope.rowLabel(text: String, y: Float) {
+private fun RcCanvasScope.rowLabel(text: String, y: Float) {
     paint {
         style(RcPaintStyle.Fill)
         color(HINT)

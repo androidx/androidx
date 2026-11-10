@@ -20,14 +20,6 @@ package androidx.compose.remote.creation.dsl
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RemoteContext.FLOAT_ANIMATION_DELTA_TIME
 import androidx.compose.remote.core.RemoteContext.FLOAT_ANIMATION_TIME
-import androidx.compose.remote.core.RemoteContext.FLOAT_CALENDAR_MONTH
-import androidx.compose.remote.core.RemoteContext.FLOAT_CONTINUOUS_SEC
-import androidx.compose.remote.core.RemoteContext.FLOAT_DAY_OF_MONTH
-import androidx.compose.remote.core.RemoteContext.FLOAT_OFFSET_TO_UTC
-import androidx.compose.remote.core.RemoteContext.FLOAT_TIME_IN_HR
-import androidx.compose.remote.core.RemoteContext.FLOAT_TIME_IN_MIN
-import androidx.compose.remote.core.RemoteContext.FLOAT_TIME_IN_SEC
-import androidx.compose.remote.core.RemoteContext.FLOAT_WEEK_DAY
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.Rc
@@ -251,18 +243,6 @@ open public class RcFloat {
         wrap: Float = Float.NaN,
     ): RcFloat = anim(duration.id, curve.value, spec, initialValue, wrap)
 
-    public fun genTextId(
-        before: Int = 2,
-        after: Int = 1,
-        flags: Int = Rc.TextFromFloat.PAD_AFTER_ZERO,
-    ): RcText {
-        val w = writer
-        if (w == null) {
-            throw IllegalStateException("writer is null")
-        }
-        return RcText(w.createTextFromFloat(this.toFloat(), before, after, flags))
-    }
-
     /** Returns an [RcFloat] representing the absolute value of this expression. */
     public fun abs(): RcFloat = RcFloat(writer, floatArrayOf(*toArray(), Rc.FloatExpression.ABS))
 
@@ -290,10 +270,20 @@ open public class RcFloat {
      * @param decimal the number of digits after the decimal point
      * @param flags formatting flags (see [Rc.TextFromFloat])
      */
-    public fun format(whole: Int, decimal: Int, flags: Int = 0): RcText {
+    public fun format(whole: Int, decimal: Int = 0, flags: Int = 0): RcText {
         val w = writer ?: throw IllegalStateException("RcFloat must be associated with a writer")
         return RcText(w.createTextFromFloat(toFloat(), whole, decimal, flags))
     }
+
+    /**
+     * Converts this [RcFloat] to an [RcText] using the specified [RcTextFromFloatSpec] formatting.
+     *
+     * @param whole the number of digits before the decimal point
+     * @param decimal the number of digits after the decimal point
+     * @param spec typed formatting specification
+     */
+    public fun format(whole: Int, decimal: Int = 0, spec: RcTextFromFloatSpec): RcText =
+        format(whole, decimal, spec.bits)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -506,16 +496,13 @@ public fun cbrt(a: RcFloat): RcFloat {
     return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.CBRT))
 }
 
-/** if (c) b else c */
+/** Returns [ifTrue] when [condition] > 0, otherwise [ifFalse]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun ifThenElse(a: RcFloat, b: RcFloat, c: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, *b.array, *c.array, Rc.FloatExpression.IFELSE))
-}
-
-/** if (a) b else c */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun ifElse(a: RcFloat, b: RcFloat, c: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*c.array, *b.array, *a.array, Rc.FloatExpression.IFELSE))
+public fun ifElse(condition: RcFloat, ifTrue: RcFloat, ifFalse: RcFloat): RcFloat {
+    return RcFloat(
+        condition.writer ?: ifTrue.writer ?: ifFalse.writer,
+        floatArrayOf(*ifFalse.array, *ifTrue.array, *condition.array, Rc.FloatExpression.IFELSE),
+    )
 }
 
 /** convert radians to degrees */
@@ -635,15 +622,6 @@ public fun mad(a: RcFloat, b: RcFloat, c: RcFloat): RcFloat {
     )
 }
 
-/** parameters can be float or RcFloat. Coded this way to not require 8 versions returns a*b+c */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteComposeWriter.ifElse(a: RcFloat, b: RcFloat, c: RcFloat): RcFloat {
-    return RcFloat(
-        this,
-        floatArrayOf(*(toArray(c)), *(toArray(b)), *(toArray(a)), Rc.FloatExpression.IFELSE),
-    )
-}
-
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun toArray(a: RcFloat): FloatArray {
 
@@ -744,102 +722,6 @@ public fun arraySpline(a: RcFloat, pos: RcFloat): RcFloat {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun splineLoop(a: RcFloat, pos: RcFloat): RcFloat {
     return RcFloat(a.writer, floatArrayOf(*a.array, *pos.array, Rc.FloatExpression.A_SPLINE_LOOP))
-}
-
-/** hours run from Midnight=0 quantized to Hours 0-23 */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteComposeWriter.Hour(): RcFloat {
-    return RcFloat(this, FLOAT_TIME_IN_HR)
-}
-
-/** minutes run from Midnight=0 quantized to minutes 0..1439 */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteComposeWriter.Minutes(): RcFloat {
-    return RcFloat(this, FLOAT_TIME_IN_MIN)
-}
-
-/** seconds run from Midnight=0 quantized to seconds hour 0..3599 */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteComposeWriter.Seconds(): RcFloat {
-    return RcFloat(this, FLOAT_TIME_IN_SEC)
-}
-
-/** CONTINUOUS_SEC is seconds from midnight looping every hour 0-3600 */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteComposeWriter.ContinuousSec(): RcFloat {
-    return RcFloat(this, FLOAT_CONTINUOUS_SEC)
-}
-
-/** ID_OFFSET_TO_UTC is the offset from UTC in sec (typically / 3600f) */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteComposeWriter.UtcOffset(): RcFloat {
-    return RcFloat(this, FLOAT_OFFSET_TO_UTC)
-}
-
-/** DAY OF THE WEEK 1-7. 1 = Monday */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteComposeWriter.DayOfWeek(): RcFloat {
-    return RcFloat(this, FLOAT_WEEK_DAY)
-}
-
-/** Moth of Year quantized to MONTHS 1-12. 1 = January */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteComposeWriter.Month(): RcFloat {
-    return RcFloat(this, FLOAT_CALENDAR_MONTH)
-}
-
-/** DAY OF THE MONTH 1-31 */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteComposeWriter.DayOfMonth(): RcFloat {
-    return RcFloat(this, FLOAT_DAY_OF_MONTH)
-}
-
-/** Width */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteComposeWriter.ComponentWidth(): RcFloat {
-    return RcFloat(this, addComponentWidthValue())
-}
-
-/** Height */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteComposeWriter.ComponentHeight(): RcFloat {
-    return RcFloat(this, addComponentHeightValue())
-}
-
-/** Content Width */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteComposeWriter.ComponentContentWidth(): RcFloat {
-    return RcFloat(this, addComponentContentWidthValue())
-}
-
-/** Content Height */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteComposeWriter.ComponentContentHeight(): RcFloat {
-    return RcFloat(this, addComponentContentHeightValue())
-}
-
-/** X */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteComposeWriter.ComponentX(): RcFloat {
-    return RcFloat(this, addComponentXValue())
-}
-
-/** Y */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteComposeWriter.ComponentY(): RcFloat {
-    return RcFloat(this, addComponentYValue())
-}
-
-/** ROOT X */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteComposeWriter.ComponentRootX(): RcFloat {
-    return RcFloat(this, addComponentRootXValue())
-}
-
-/** ROOT Y */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteComposeWriter.ComponentRootY(): RcFloat {
-    return RcFloat(this, addComponentRootYValue())
 }
 
 /** generate random number */

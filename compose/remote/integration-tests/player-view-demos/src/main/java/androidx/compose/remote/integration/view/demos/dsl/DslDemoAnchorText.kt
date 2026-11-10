@@ -48,10 +48,10 @@ fun demoAnchorText(): ByteArray {
                 val l4 = h * 0.8f
                 val l5 = h * 0.9f
 
-                applyPaint { setColor(Color.WHITE) }
+                paint { color(Color.WHITE) }
                 drawRect(0f.rf, 0f.rf, w, h)
 
-                applyPaint { setColor(Color.RED) }
+                paint { color(Color.RED) }
                 drawLine(0f.rf, l1, w, l1)
                 drawLine(0f.rf, l2, w, l2)
                 drawLine(0f.rf, l3, w, l3)
@@ -75,9 +75,9 @@ fun demoAnchorText(): ByteArray {
                 val flag1 = Rc.TextAnchorMask.MEASURE_EVERY_TIME
                 val flag2 = Rc.TextAnchorMask.BASELINE_RELATIVE
 
-                applyPaint {
-                    setColor(Color.BLUE)
-                    setTextSize(64f)
+                paint {
+                    color(Color.BLUE)
+                    textSize(64f)
                 }
 
                 val strId = remoteText("flip plop")
