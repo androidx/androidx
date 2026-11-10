@@ -19,10 +19,14 @@ package androidx.compose.material3
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.tokens.NavigationBarTokens
@@ -660,6 +664,29 @@ class ShortNavigationBarTest {
             .onNodeWithTag("icon", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo((itemBounds.width - iconBounds.width) / 2)
             .assertTopPositionInRootIsEqualTo((itemBounds.height - iconBounds.height) / 2)
+    }
+
+    @Test
+    fun itemContent_withoutLabel_respectsMaxIntrinsicWidth() {
+        val iconSize = 24.dp
+        rule.setMaterialContent(lightColorScheme()) {
+            Row(modifier = Modifier.testTag("ROW_TAG").width(IntrinsicSize.Max)) {
+                ShortNavigationBarItem(
+                    modifier = Modifier.testTag("item"),
+                    icon = {
+                        Icon(Icons.Filled.Favorite, null, modifier = Modifier.size(iconSize))
+                    },
+                    label = null,
+                    selected = true,
+                    onClick = {},
+                )
+            }
+        }
+
+        val expectedWidth = iconSize + TopIconIndicatorHorizontalPadding * 2
+
+        rule.onNodeWithTag("ROW_TAG").assertWidthIsEqualTo(expectedWidth)
+        rule.onNodeWithTag("item").assertWidthIsEqualTo(expectedWidth)
     }
 }
 
