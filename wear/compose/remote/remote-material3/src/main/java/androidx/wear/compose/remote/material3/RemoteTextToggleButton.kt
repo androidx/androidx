@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
 package androidx.wear.compose.remote.material3
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.RemoteRole
-import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.modifier.defaultMinSize
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteCornerBasedShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
@@ -44,11 +41,12 @@ import androidx.compose.runtime.Stable
  * Wear Material [RemoteTextToggleButton] is a filled text toggle button which switches between
  * primary colors and tonal colors depending on [checked] value, and offers a single slot for text.
  *
- * Set the size of the [RemoteTextToggleButton] with [RemoteModifier.size] to one of the recommended
- * sizes in [RemoteTextToggleButtonDefaults] (for example [RemoteTextToggleButtonDefaults.Size]).
- * The recommended text styles for each corresponding size are
- * [RemoteTextToggleButtonDefaults.textStyle], [RemoteTextToggleButtonDefaults.largeTextStyle] and
- * [RemoteTextToggleButtonDefaults.extraLargeTextStyle].
+ * Set the size of the [RemoteTextToggleButton] with
+ * [RemoteModifier.size][androidx.compose.remote.creation.compose.modifier.size] to one of the
+ * recommended sizes in [RemoteTextToggleButtonDefaults] (for example
+ * [RemoteTextToggleButtonDefaults.Size]). The recommended text styles for each corresponding size
+ * are [RemoteTextToggleButtonDefaults.textStyle], [RemoteTextToggleButtonDefaults.largeTextStyle]
+ * and [RemoteTextToggleButtonDefaults.extraLargeTextStyle].
  *
  * [RemoteTextToggleButton] can be enabled or disabled. A disabled button will not respond to click
  * events. When enabled, the [onCheckedChange] action is triggered on click, and is typically used
@@ -70,8 +68,7 @@ import androidx.compose.runtime.Stable
  * @param onCheckedChange [RemoteAction] to be performed when this toggle button is clicked.
  * @param modifier Modifier to be applied to the toggle button.
  * @param enabled Controls the enabled state of the toggle button. When `false`, this toggle button
- *   will not be clickable. Note that only constant values are currently supported for [enabled] for
- *   click handling.
+ *   will not be clickable. It must be a constant value.
  * @param colors [RemoteTextToggleButtonColors] that will be used to resolve the container and
  *   content color for this toggle button.
  * @param shapes Defines the shapes for this toggle button in the checked and unchecked states, and
@@ -107,7 +104,11 @@ public fun RemoteTextToggleButton(
     val checkedProgress = animatedCheckedProgress(checked)
     RemoteRoundButton(
         onClick = onCheckedChange,
-        modifier = modifier.size(RemoteTextToggleButtonDefaults.Size),
+        modifier =
+            modifier.defaultMinSize(
+                minWidth = RemoteTextToggleButtonDefaults.Size,
+                minHeight = RemoteTextToggleButtonDefaults.Size,
+            ),
         backgroundColor =
             colors.containerColor(
                 enabled = enabled,
@@ -135,23 +136,22 @@ public fun RemoteTextToggleButton(
 }
 
 /** Contains the default values used by [RemoteTextToggleButton]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object RemoteTextToggleButtonDefaults {
     /** Recommended [RemoteShape] for [RemoteTextToggleButton]. */
-    public val shape: RemoteRoundedCornerShape
-        get() = RemoteCircleShape
+    public val shape: RemoteRoundedCornerShape = RemoteCircleShape
 
     /**
-     * Recommended checked [RemoteShape] for [RemoteTextToggleButton] when using [variantShapes].
+     * Recommended checked [RemoteShape] for [RemoteTextToggleButton] when using [variantShapes] or
+     * [variantAnimatedShapes].
      */
     public val checkedShape: RemoteCornerBasedShape
-        @Composable get() = RemoteMaterialTheme.shapes.medium
+        @Composable @RemoteComposable get() = RemoteMaterialTheme.shapes.medium
 
     /**
      * Recommended pressed [RemoteShape] for [RemoteTextToggleButton] when using [animatedShapes].
      */
     public val pressedShape: RemoteCornerBasedShape
-        @Composable get() = RemoteMaterialTheme.shapes.small
+        @Composable @RemoteComposable get() = RemoteMaterialTheme.shapes.small
 
     /** The default size applied for [RemoteTextToggleButton]. */
     public val Size: RemoteDp = 52.rdp
@@ -164,15 +164,15 @@ public object RemoteTextToggleButtonDefaults {
 
     /** The default text style applied for [RemoteTextToggleButton] of size [Size]. */
     public val textStyle: RemoteTextStyle
-        @Composable get() = RemoteMaterialTheme.typography.labelMedium
+        @Composable @RemoteComposable get() = RemoteMaterialTheme.typography.labelMedium
 
     /** The recommended text style for a [RemoteTextToggleButton] of size [LargeSize]. */
     public val largeTextStyle: RemoteTextStyle
-        @Composable get() = RemoteMaterialTheme.typography.labelMedium
+        @Composable @RemoteComposable get() = RemoteMaterialTheme.typography.labelMedium
 
     /** The recommended text style for a [RemoteTextToggleButton] of size [ExtraLargeSize]. */
     public val extraLargeTextStyle: RemoteTextStyle
-        @Composable get() = RemoteMaterialTheme.typography.labelLarge
+        @Composable @RemoteComposable get() = RemoteMaterialTheme.typography.labelLarge
 
     /**
      * Creates a [RemoteTextToggleButtonShapes] with a static [shape] that doesn't change between
@@ -180,7 +180,7 @@ public object RemoteTextToggleButtonDefaults {
      *
      * @return a [RemoteTextToggleButtonShapes] with the default static [shape]
      */
-    @Composable public fun shapes(): RemoteTextToggleButtonShapes = shapes(shape)
+    @Composable @RemoteComposable public fun shapes(): RemoteTextToggleButtonShapes = shapes(shape)
 
     /**
      * Creates a [RemoteTextToggleButtonShapes] with a static [shape] that doesn't change between
@@ -190,6 +190,7 @@ public object RemoteTextToggleButtonDefaults {
      * @return a [RemoteTextToggleButtonShapes] with the given static [shape]
      */
     @Composable
+    @RemoteComposable
     public fun shapes(shape: RemoteShape): RemoteTextToggleButtonShapes =
         RemoteTextToggleButtonShapes(uncheckedShape = shape)
 
@@ -205,6 +206,7 @@ public object RemoteTextToggleButtonDefaults {
      * @return a [RemoteTextToggleButtonShapes] with the configured unchecked and checked shapes
      */
     @Composable
+    @RemoteComposable
     public fun variantShapes(
         uncheckedShape: RemoteCornerBasedShape = shape,
         checkedShape: RemoteCornerBasedShape = this.checkedShape,
@@ -223,6 +225,7 @@ public object RemoteTextToggleButtonDefaults {
      * @return a [RemoteTextToggleButtonShapes] with the configured resting and pressed shapes
      */
     @Composable
+    @RemoteComposable
     public fun animatedShapes(
         shape: RemoteCornerBasedShape = this.shape,
         pressedShape: RemoteCornerBasedShape = this.pressedShape,
@@ -245,10 +248,11 @@ public object RemoteTextToggleButtonDefaults {
      *
      * @param uncheckedShape The shape of the toggle button when unchecked.
      * @param checkedShape The shape of the toggle button when checked.
-     * @return a [RemoteTextToggleButtonShapes] with the configured checked and pressed animated
+     * @return a [RemoteTextToggleButtonShapes] with the configured unchecked, checked and pressed
      *   shapes
      */
     @Composable
+    @RemoteComposable
     public fun variantAnimatedShapes(
         uncheckedShape: RemoteCornerBasedShape = shape,
         checkedShape: RemoteCornerBasedShape = this.checkedShape,
@@ -267,6 +271,7 @@ public object RemoteTextToggleButtonDefaults {
      * @return a [RemoteTextToggleButtonColors] with the default colors for [RemoteTextToggleButton]
      */
     @Composable
+    @RemoteComposable
     public fun colors(): RemoteTextToggleButtonColors =
         RemoteMaterialTheme.colorScheme.defaultTextToggleButtonColors
 
@@ -275,24 +280,26 @@ public object RemoteTextToggleButtonDefaults {
      * primary container when checked and a tonal container when unchecked.
      *
      * @param checkedContainerColor The container color of this toggle button when enabled and
-     *   checked.
-     * @param checkedContentColor The content color of this toggle button when enabled and checked.
+     *   checked, or `null` to use the theme default.
+     * @param checkedContentColor The content color of this toggle button when enabled and checked,
+     *   or `null` to use the theme default.
      * @param uncheckedContainerColor The container color of this toggle button when enabled and
-     *   unchecked.
+     *   unchecked, or `null` to use the theme default.
      * @param uncheckedContentColor The content color of this toggle button when enabled and
-     *   unchecked.
+     *   unchecked, or `null` to use the theme default.
      * @param disabledCheckedContainerColor The container color of this toggle button when checked
-     *   and not enabled.
+     *   and not enabled, or `null` to use the theme default.
      * @param disabledCheckedContentColor The content color of this toggle button when checked and
-     *   not enabled.
+     *   not enabled, or `null` to use the theme default.
      * @param disabledUncheckedContainerColor The container color of this toggle button when
-     *   unchecked and not enabled.
+     *   unchecked and not enabled, or `null` to use the theme default.
      * @param disabledUncheckedContentColor The content color of this toggle button when unchecked
-     *   and not enabled.
+     *   and not enabled, or `null` to use the theme default.
      * @return a [RemoteTextToggleButtonColors] with the configured colors for
      *   [RemoteTextToggleButton]
      */
     @Composable
+    @RemoteComposable
     public fun colors(
         checkedContainerColor: RemoteColor? = null,
         checkedContentColor: RemoteColor? = null,
@@ -322,6 +329,7 @@ public object RemoteTextToggleButtonDefaults {
 
     private val RemoteColorScheme.defaultTextToggleButtonColors: RemoteTextToggleButtonColors
         @Composable
+        @RemoteComposable
         get() =
             RemoteTextToggleButtonColors(
                 checkedContainerColor = primary,
@@ -357,7 +365,6 @@ public object RemoteTextToggleButtonDefaults {
  *   disabled and unchecked
  */
 @Immutable
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteTextToggleButtonColors(
     public val checkedContainerColor: RemoteColor,
     public val checkedContentColor: RemoteColor,
@@ -372,6 +379,19 @@ public class RemoteTextToggleButtonColors(
      * Returns a copy of this [RemoteTextToggleButtonColors] optionally overriding some of the
      * values.
      *
+     * @param checkedContainerColor Container or background color when the toggle button is checked
+     * @param checkedContentColor Color of the content (text) when the toggle button is checked
+     * @param uncheckedContainerColor Container or background color when the toggle button is
+     *   unchecked
+     * @param uncheckedContentColor Color of the content (text) when the toggle button is unchecked
+     * @param disabledCheckedContainerColor Container or background color when the toggle button is
+     *   disabled and checked
+     * @param disabledCheckedContentColor Color of content (text) when the toggle button is disabled
+     *   and checked
+     * @param disabledUncheckedContainerColor Container or background color when the toggle button
+     *   is disabled and unchecked
+     * @param disabledUncheckedContentColor Color of the content (text) when the toggle button is
+     *   disabled and unchecked
      * @return a copy of this [RemoteTextToggleButtonColors] with the specified values overridden
      */
     public fun copy(
@@ -495,7 +515,7 @@ public class RemoteTextToggleButtonColors(
  * @param uncheckedPressedShape The shape of the toggle button when unchecked and pressed.
  * @param checkedPressedShape The shape of the toggle button when checked and pressed.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Immutable
 public class RemoteTextToggleButtonShapes(
     public val uncheckedShape: RemoteShape,
     public val checkedShape: RemoteShape = uncheckedShape,
@@ -506,6 +526,10 @@ public class RemoteTextToggleButtonShapes(
      * Returns a copy of this [RemoteTextToggleButtonShapes] optionally overriding some of the
      * values.
      *
+     * @param uncheckedShape The shape of the toggle button when unchecked.
+     * @param checkedShape The shape of the toggle button when checked.
+     * @param uncheckedPressedShape The shape of the toggle button when unchecked and pressed.
+     * @param checkedPressedShape The shape of the toggle button when checked and pressed.
      * @return a copy of this [RemoteTextToggleButtonShapes] with the specified values overridden
      */
     public fun copy(
