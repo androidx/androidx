@@ -22,6 +22,10 @@ import android.graphics.Point
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.FrameTimingMetric
+import androidx.benchmark.macro.Metric
+import androidx.benchmark.macro.PowerCategory
+import androidx.benchmark.macro.PowerCategoryDisplayLevel
+import androidx.benchmark.macro.PowerMetric
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.TraceSectionMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
@@ -76,7 +80,7 @@ class WebSurfaceVsWebViewBenchmark {
                         "AndroidOwner:measureAndLayout",
                         TraceSectionMetric.Mode.Average,
                     ),
-                ),
+                ) + powerMetrics(),
             compilationMode = CompilationMode.DEFAULT,
             iterations = 5,
             startupMode = StartupMode.WARM,
@@ -116,4 +120,26 @@ class WebSurfaceVsWebViewBenchmark {
             check(device.swipe(segments, STEPS_PER_SWIPE)) { "Failed to inject scroll swipe" }
         }
     }
+
+    /**
+     * Average power drawn by each subsystem while scrolling, read from the device's power rails.
+     * Emulators don't have power rails, so this is skipped there.
+     */
+    private fun powerMetrics(): List<Metric> =
+        if (PowerMetric.deviceSupportsHighPrecisionTracking()) {
+            listOf(
+                PowerMetric(
+                    PowerMetric.Power(
+                        mapOf(
+                            PowerCategory.CPU to PowerCategoryDisplayLevel.TOTAL,
+                            PowerCategory.GPU to PowerCategoryDisplayLevel.TOTAL,
+                            PowerCategory.DISPLAY to PowerCategoryDisplayLevel.TOTAL,
+                            PowerCategory.MEMORY to PowerCategoryDisplayLevel.TOTAL,
+                        )
+                    )
+                )
+            )
+        } else {
+            emptyList()
+        }
 }
