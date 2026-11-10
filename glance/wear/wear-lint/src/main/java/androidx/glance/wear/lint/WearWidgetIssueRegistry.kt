@@ -37,6 +37,7 @@ class WearWidgetIssueRegistry : IssueRegistry() {
             WearWidgetProviderXmlDetector.XML_UNSUPPORTED_CONTAINER_TYPE_ISSUE,
             WearWidgetProviderXmlDetector.XML_UNRECOGNIZED_CONTAINER_TYPE_ISSUE,
             WearWidgetFontFamilyDetector.CUSTOM_FONT_FAMILY_ISSUE,
+            WearWidgetConfigActivityDetector.MISSING_PROVIDER_CONFIG_CATEGORY_ISSUE,
         )
 
     override val vendor =
