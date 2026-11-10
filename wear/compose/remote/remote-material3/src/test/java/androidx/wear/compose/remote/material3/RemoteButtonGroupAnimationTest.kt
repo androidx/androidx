@@ -32,7 +32,6 @@ import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.capture.CaptureUpdateThrottle
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.captureRemoteDocument
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -52,6 +51,7 @@ import androidx.compose.remote.player.compose.RcPlayerTestRule
 import androidx.compose.remote.player.compose.embedded.RcPlayer
 import androidx.compose.remote.testing.RecordedDocument
 import androidx.compose.remote.testing.RemoteBaseContentTestRule
+import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -68,12 +68,12 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.wear.compose.remote.material3.util.TestProfiles
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertThrows
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -86,11 +86,13 @@ import org.robolectric.annotation.Config
  */
 @OptIn(ExperimentalRemotePlayerApi::class)
 // Wide enough for the widest group, so the player doesn't clip it.
-@Config(sdk = [35], qualifiers = "w480dp-h480dp-mdpi")
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [35], qualifiers = "w480dp-h480dp-mdpi")
 class RemoteButtonGroupAnimationTest {
 
     @get:Rule val playerRule = RcPlayerTestRule()
+
+    @get:Rule val captureRule = RemoteCaptureTestRule()
 
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val zeroPadding = RemotePaddingValues(0.rdp)
@@ -681,23 +683,23 @@ class RemoteButtonGroupAnimationTest {
         val dynamicWeight = MutableRemoteFloat(1f)
         val dynamicMinWidth = MutableRemoteFloat(48f).asRemoteDp()
 
-        assertThrows(IllegalArgumentException::class.java) {
+        assertFailsWith<IllegalArgumentException> {
             capture { RemoteButtonGroup { TestButton("b0", RemoteModifier.weight(0f.rf)) } }
         }
-        assertThrows(IllegalArgumentException::class.java) {
+        assertFailsWith<IllegalArgumentException> {
             capture {
                 RemoteButtonGroup {
                     TestButton("b0", RemoteModifier.weight(Float.POSITIVE_INFINITY.rf))
                 }
             }
         }
-        assertThrows(IllegalArgumentException::class.java) {
+        assertFailsWith<IllegalArgumentException> {
             capture { RemoteButtonGroup { TestButton("b0", RemoteModifier.weight(dynamicWeight)) } }
         }
-        assertThrows(IllegalArgumentException::class.java) {
+        assertFailsWith<IllegalArgumentException> {
             capture { RemoteButtonGroup { TestButton("b0", RemoteModifier.minWidth(0.rdp)) } }
         }
-        assertThrows(IllegalArgumentException::class.java) {
+        assertFailsWith<IllegalArgumentException> {
             capture {
                 RemoteButtonGroup { TestButton("b0", RemoteModifier.minWidth(dynamicMinWidth)) }
             }
@@ -784,7 +786,7 @@ class RemoteButtonGroupAnimationTest {
     /** Captures [content] into a document, without playing it. */
     private fun capture(content: @Composable @RemoteComposable () -> Unit) {
         runBlocking {
-            captureSingleRemoteDocument(
+            captureRule.captureRecordedDocument(
                 context = context,
                 creationDisplayInfo =
                     RemoteCreationDisplayInfo(width = 308, height = 100, densityDpi = 160),

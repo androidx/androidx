@@ -27,7 +27,6 @@ import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.capture.Profile
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -57,6 +56,7 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.compose.RcPlayerTestRule
+import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -85,11 +85,13 @@ import org.robolectric.annotation.Config
  * Unit tests for [RemoteIconButton], [RemoteTextButton], [RemoteIconToggleButton], and
  * [RemoteTextToggleButton] pressed-shape animations driven through [RemoteRoundButton].
  */
-@Config(sdk = [35], qualifiers = "w200dp-h200dp-mdpi")
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [35], qualifiers = "w200dp-h200dp-mdpi")
 class RemoteRoundButtonPressAnimationTest {
 
     @get:Rule val playerRule = RcPlayerTestRule()
+
+    @get:Rule val captureRule = RemoteCaptureTestRule()
 
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val namedActions = mutableListOf<String>()
@@ -746,7 +748,7 @@ class RemoteRoundButtonPressAnimationTest {
         profile: Profile = Profile(),
         content: @Composable @RemoteComposable () -> Unit,
     ): ByteArray = runBlocking {
-        captureSingleRemoteDocument(
+        captureRule.captureRecordedDocument(
             context = context,
             creationDisplayInfo =
                 RemoteCreationDisplayInfo(

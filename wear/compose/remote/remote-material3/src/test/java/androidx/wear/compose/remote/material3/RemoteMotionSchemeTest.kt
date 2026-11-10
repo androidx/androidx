@@ -17,18 +17,16 @@
 package androidx.wear.compose.remote.material3
 
 import android.content.Context
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.RemoteAnimationSpec
 import androidx.compose.remote.creation.compose.state.remoteSpring
+import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.Composable
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.compose.remote.material3.samples.RemoteCheckboxButtonSample
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.assertArrayEquals
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertSame
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -37,33 +35,44 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
 class RemoteMotionSchemeTest {
+    @get:Rule val captureRule = RemoteCaptureTestRule()
+
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     @Test
     fun standard_scheme_matches_wear_motion_scheme() {
         val scheme = RemoteMotionScheme.standard()
 
-        assertEquals(remoteSpring(stiffness = 500f, dampingRatio = 1f), scheme.defaultSpatialSpec())
-        assertEquals(remoteSpring(stiffness = 1400f, dampingRatio = 1f), scheme.fastSpatialSpec())
-        assertEquals(remoteSpring(stiffness = 260f, dampingRatio = 1f), scheme.slowSpatialSpec())
-        assertEquals(remoteSpring(stiffness = 500f, dampingRatio = 1f), scheme.defaultEffectsSpec())
-        assertEquals(remoteSpring(stiffness = 1400f, dampingRatio = 1f), scheme.fastEffectsSpec())
-        assertEquals(remoteSpring(stiffness = 260f, dampingRatio = 1f), scheme.slowEffectsSpec())
+        assertThat(scheme.defaultSpatialSpec())
+            .isEqualTo(remoteSpring(stiffness = 500f, dampingRatio = 1f))
+        assertThat(scheme.fastSpatialSpec())
+            .isEqualTo(remoteSpring(stiffness = 1400f, dampingRatio = 1f))
+        assertThat(scheme.slowSpatialSpec())
+            .isEqualTo(remoteSpring(stiffness = 260f, dampingRatio = 1f))
+        assertThat(scheme.defaultEffectsSpec())
+            .isEqualTo(remoteSpring(stiffness = 500f, dampingRatio = 1f))
+        assertThat(scheme.fastEffectsSpec())
+            .isEqualTo(remoteSpring(stiffness = 1400f, dampingRatio = 1f))
+        assertThat(scheme.slowEffectsSpec())
+            .isEqualTo(remoteSpring(stiffness = 260f, dampingRatio = 1f))
     }
 
     @Test
     fun expressive_scheme_matches_wear_motion_scheme() {
         val scheme = RemoteMotionScheme.expressive()
 
-        assertEquals(
-            remoteSpring(stiffness = 350f, dampingRatio = 0.75f),
-            scheme.defaultSpatialSpec(),
-        )
-        assertEquals(remoteSpring(stiffness = 800f, dampingRatio = 0.7f), scheme.fastSpatialSpec())
-        assertEquals(remoteSpring(stiffness = 200f, dampingRatio = 0.8f), scheme.slowSpatialSpec())
-        assertEquals(remoteSpring(stiffness = 500f, dampingRatio = 1f), scheme.defaultEffectsSpec())
-        assertEquals(remoteSpring(stiffness = 1400f, dampingRatio = 1f), scheme.fastEffectsSpec())
-        assertEquals(remoteSpring(stiffness = 260f, dampingRatio = 1f), scheme.slowEffectsSpec())
+        assertThat(scheme.defaultSpatialSpec())
+            .isEqualTo(remoteSpring(stiffness = 350f, dampingRatio = 0.75f))
+        assertThat(scheme.fastSpatialSpec())
+            .isEqualTo(remoteSpring(stiffness = 800f, dampingRatio = 0.7f))
+        assertThat(scheme.slowSpatialSpec())
+            .isEqualTo(remoteSpring(stiffness = 200f, dampingRatio = 0.8f))
+        assertThat(scheme.defaultEffectsSpec())
+            .isEqualTo(remoteSpring(stiffness = 500f, dampingRatio = 1f))
+        assertThat(scheme.fastEffectsSpec())
+            .isEqualTo(remoteSpring(stiffness = 1400f, dampingRatio = 1f))
+        assertThat(scheme.slowEffectsSpec())
+            .isEqualTo(remoteSpring(stiffness = 260f, dampingRatio = 1f))
     }
 
     @Test
@@ -72,7 +81,7 @@ class RemoteMotionSchemeTest {
 
         capture { RemoteMaterialTheme { motionScheme = RemoteMaterialTheme.motionScheme } }
 
-        assertSame(RemoteMotionScheme.standard(), motionScheme)
+        assertThat(motionScheme).isSameInstanceAs(RemoteMotionScheme.standard())
     }
 
     @Test
@@ -85,7 +94,7 @@ class RemoteMotionSchemeTest {
             }
         }
 
-        assertSame(RemoteMotionScheme.expressive(), motionScheme)
+        assertThat(motionScheme).isSameInstanceAs(RemoteMotionScheme.expressive())
     }
 
     @Test
@@ -98,7 +107,7 @@ class RemoteMotionSchemeTest {
             }
         }
 
-        assertSame(RemoteMotionScheme.expressive(), motionScheme)
+        assertThat(motionScheme).isSameInstanceAs(RemoteMotionScheme.expressive())
     }
 
     @Test
@@ -118,12 +127,12 @@ class RemoteMotionSchemeTest {
             RemoteMaterialTheme(motionScheme = slowScheme) { RemoteCheckboxButtonSample() }
         }
 
-        assertArrayEquals(defaultDocument, standardDocument)
-        assertFalse(defaultDocument.contentEquals(slowDocument))
+        assertThat(standardDocument).isEqualTo(defaultDocument)
+        assertThat(slowDocument).isNotEqualTo(defaultDocument)
     }
 
     private fun capture(content: @Composable @RemoteComposable () -> Unit): ByteArray =
         runBlocking {
-            captureSingleRemoteDocument(context = context, content = content).bytes
+            captureRule.captureRecordedDocument(context = context, content = content).bytes
         }
 }

@@ -20,8 +20,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.ui.graphics.Color
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -31,25 +30,25 @@ class RemoteSwitchButtonColorsTest {
 
     @Test
     fun switchButtonDefaults_values() {
-        assertEquals(52.rdp.constantValue, RemoteSwitchButtonDefaults.Height.constantValue)
-        assertEquals(6.rdp.constantValue, RemoteSwitchButtonDefaults.IconSpacing.constantValue)
-        assertEquals(24.rdp.constantValue, RemoteSwitchButtonDefaults.IconSize.constantValue)
-        assertEquals(1.rdp.constantValue, RemoteSwitchButtonDefaults.LabelSpacerSize.constantValue)
-        assertEquals(32.rdp.constantValue, RemoteSwitchButtonDefaults.SwitchWidth.constantValue)
-        assertEquals(24.rdp.constantValue, RemoteSwitchButtonDefaults.SwitchHeight.constantValue)
-        assertEquals(2.rdp.constantValue, RemoteSwitchButtonDefaults.SwitchTrackWidth.constantValue)
-        assertEquals(
-            22.rdp.constantValue,
-            RemoteSwitchButtonDefaults.SwitchInnerHeight.constantValue,
-        )
-        assertEquals(
-            9.rdp.constantValue,
-            RemoteSwitchButtonDefaults.ThumbRadiusChecked.constantValue,
-        )
-        assertEquals(
-            6.rdp.constantValue,
-            RemoteSwitchButtonDefaults.ThumbRadiusUnchecked.constantValue,
-        )
+        assertThat(RemoteSwitchButtonDefaults.Height.constantValue).isEqualTo(52.rdp.constantValue)
+        assertThat(RemoteSwitchButtonDefaults.IconSpacing.constantValue)
+            .isEqualTo(6.rdp.constantValue)
+        assertThat(RemoteSwitchButtonDefaults.IconSize.constantValue)
+            .isEqualTo(24.rdp.constantValue)
+        assertThat(RemoteSwitchButtonDefaults.LabelSpacerSize.constantValue)
+            .isEqualTo(1.rdp.constantValue)
+        assertThat(RemoteSwitchButtonDefaults.SwitchWidth.constantValue)
+            .isEqualTo(32.rdp.constantValue)
+        assertThat(RemoteSwitchButtonDefaults.SwitchHeight.constantValue)
+            .isEqualTo(24.rdp.constantValue)
+        assertThat(RemoteSwitchButtonDefaults.SwitchTrackWidth.constantValue)
+            .isEqualTo(2.rdp.constantValue)
+        assertThat(RemoteSwitchButtonDefaults.SwitchInnerHeight.constantValue)
+            .isEqualTo(22.rdp.constantValue)
+        assertThat(RemoteSwitchButtonDefaults.ThumbRadiusChecked.constantValue)
+            .isEqualTo(9.rdp.constantValue)
+        assertThat(RemoteSwitchButtonDefaults.ThumbRadiusUnchecked.constantValue)
+            .isEqualTo(6.rdp.constantValue)
     }
 
     @Test
@@ -94,19 +93,19 @@ class RemoteSwitchButtonColorsTest {
 
         // Enabled + Checked
         val color1 = colors.containerColor(enabled = true.rb, checked = true.rb)
-        assertEquals(checkedContainer.constantValue, color1.constantValue)
+        assertThat(color1.constantValue).isEqualTo(checkedContainer.constantValue)
 
         // Enabled + Unchecked
         val color2 = colors.containerColor(enabled = true.rb, checked = false.rb)
-        assertEquals(uncheckedContainer.constantValue, color2.constantValue)
+        assertThat(color2.constantValue).isEqualTo(uncheckedContainer.constantValue)
 
         // Disabled + Checked
         val color3 = colors.containerColor(enabled = false.rb, checked = true.rb)
-        assertEquals(disabledCheckedContainer.constantValue, color3.constantValue)
+        assertThat(color3.constantValue).isEqualTo(disabledCheckedContainer.constantValue)
 
         // Disabled + Unchecked
         val color4 = colors.containerColor(enabled = false.rb, checked = false.rb)
-        assertEquals(disabledUncheckedContainer.constantValue, color4.constantValue)
+        assertThat(color4.constantValue).isEqualTo(disabledUncheckedContainer.constantValue)
     }
 
     @Test
@@ -145,10 +144,10 @@ class RemoteSwitchButtonColorsTest {
             )
 
         val colors2 = colors1.copy()
-        assertEquals(colors1, colors2)
-        assertEquals(colors1.hashCode(), colors2.hashCode())
+        assertThat(colors2).isEqualTo(colors1)
+        assertThat(colors2.hashCode()).isEqualTo(colors1.hashCode())
 
         val colors3 = colors1.copy(checkedContainerColor = RemoteColor(Color.Green))
-        assertNotEquals(colors1, colors3)
+        assertThat(colors3).isNotEqualTo(colors1)
     }
 }

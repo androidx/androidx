@@ -28,16 +28,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.assertThrows
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-@Config(sdk = [35], qualifiers = "w1000dp-h500dp")
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [35], qualifiers = "w1000dp-h500dp")
 class RemoteSegmentedCircularProgressIndicatorUnitTest {
 
     @get:Rule val captureRule = RemoteCaptureTestRule()
@@ -45,7 +45,7 @@ class RemoteSegmentedCircularProgressIndicatorUnitTest {
     @Test
     fun progress_segmentCountZero_throws() {
         val exception =
-            assertThrows(IllegalArgumentException::class.java) {
+            assertFailsWith<IllegalArgumentException> {
                 capture {
                     RemoteSegmentedCircularProgressIndicator(
                         segmentCount = 0.ri,
@@ -59,7 +59,7 @@ class RemoteSegmentedCircularProgressIndicatorUnitTest {
     @Test
     fun progress_segmentCountNegative_throws() {
         val exception =
-            assertThrows(IllegalArgumentException::class.java) {
+            assertFailsWith<IllegalArgumentException> {
                 capture {
                     RemoteSegmentedCircularProgressIndicator(
                         segmentCount = (-1).ri,
@@ -73,7 +73,7 @@ class RemoteSegmentedCircularProgressIndicatorUnitTest {
     @Test
     fun binary_segmentCountZero_throws() {
         val exception =
-            assertThrows(IllegalArgumentException::class.java) {
+            assertFailsWith<IllegalArgumentException> {
                 capture {
                     RemoteSegmentedCircularProgressIndicator(
                         segmentCount = 0.ri,
@@ -87,7 +87,7 @@ class RemoteSegmentedCircularProgressIndicatorUnitTest {
     @Test
     fun segmentCountNonConstant_throws() {
         val exception =
-            assertThrows(IllegalArgumentException::class.java) {
+            assertFailsWith<IllegalArgumentException> {
                 capture {
                     val dynamicCount = RemoteInt.createNamedRemoteInt("segments", 5)
                     RemoteSegmentedCircularProgressIndicator(

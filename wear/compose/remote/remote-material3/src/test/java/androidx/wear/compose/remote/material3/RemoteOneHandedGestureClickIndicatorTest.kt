@@ -29,7 +29,7 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
-import androidx.compose.remote.player.compose.embedded.RcPlayer
+import androidx.compose.remote.player.compose.RcPlayerTestRule
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -38,30 +38,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.compose.remote.material3.util.ComponentContainer
-import androidx.wear.compose.remote.material3.util.EnableEmbeddedPlayerRule
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
-@GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [35])
 class RemoteOneHandedGestureClickIndicatorTest {
 
-    @get:Rule(order = 0) val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
-    @get:Rule(order = 1) val composeTestRule = createComposeRule()
-    @get:Rule(order = 2) val captureRule = RemoteCaptureTestRule()
+    @get:Rule val playerRule = RcPlayerTestRule()
+
+    @get:Rule val captureRule = RemoteCaptureTestRule()
 
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val creationDisplayInfo =
@@ -130,22 +125,16 @@ class RemoteOneHandedGestureClickIndicatorTest {
     }
 
     private fun renderToBitmap(content: @Composable @RemoteComposable () -> Unit): Bitmap {
-        val document = runBlocking {
-            captureRule.captureDocument(
-                context = context,
-                creationDisplayInfo = creationDisplayInfo,
-                profile = RcPlatformProfiles.ANDROIDX,
-            ) {
-                ComponentContainer(content = content)
-            }
+        playerRule.setRemoteContent(
+            profile = RcPlatformProfiles.ANDROIDX,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            playComposableWrapper = { player ->
+                Box(modifier = Modifier.size(200.dp).testTag(PLAYER_TAG)) { player() }
+            },
+        ) {
+            ComponentContainer(content = content)
         }
-        composeTestRule.setContent {
-            Box(modifier = Modifier.size(200.dp).testTag(PLAYER_TAG)) {
-                RcPlayer(document = document)
-            }
-        }
-        composeTestRule.waitForIdle()
-        return composeTestRule.onNodeWithTag(PLAYER_TAG).captureToImage().asAndroidBitmap()
+        return playerRule.onNodeWithTag(PLAYER_TAG).captureToImage().asAndroidBitmap()
     }
 
     private fun Bitmap.hasBlueContent(): Boolean = hasColorMatching {

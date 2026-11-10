@@ -18,8 +18,7 @@ package androidx.wear.compose.remote.material3
 
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.ui.graphics.Color
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -29,15 +28,23 @@ class RemoteSliderTest {
 
     @Test
     fun defaultValues() {
-        assertEquals(52f, RemoteSliderDefaults.Height.value.constantValue, 0.001f)
-        assertEquals(48f, RemoteSliderDefaults.ControlSize.value.constantValue, 0.001f)
-        assertEquals(12f, RemoteSliderDefaults.BarHeight.value.constantValue, 0.001f)
-        assertEquals(12f, RemoteSliderDefaults.SelectedBarHeight.value.constantValue, 0.001f)
-        assertEquals(4f, RemoteSliderDefaults.UnselectedBarHeight.value.constantValue, 0.001f)
-        assertEquals(2f, RemoteSliderDefaults.BarSeparatorRadius.value.constantValue, 0.001f)
-        assertEquals(4f, RemoteSliderDefaults.SegmentBarPadding.value.constantValue, 0.001f)
-        assertEquals(24f, RemoteSliderDefaults.IconSize.value.constantValue, 0.001f)
-        assertEquals(8, RemoteSliderDefaults.MaxSegmentSteps)
+        assertThat(RemoteSliderDefaults.Height.value.constantValue).isWithin(0.001f).of(52f)
+        assertThat(RemoteSliderDefaults.ControlSize.value.constantValue).isWithin(0.001f).of(48f)
+        assertThat(RemoteSliderDefaults.BarHeight.value.constantValue).isWithin(0.001f).of(12f)
+        assertThat(RemoteSliderDefaults.SelectedBarHeight.value.constantValue)
+            .isWithin(0.001f)
+            .of(12f)
+        assertThat(RemoteSliderDefaults.UnselectedBarHeight.value.constantValue)
+            .isWithin(0.001f)
+            .of(4f)
+        assertThat(RemoteSliderDefaults.BarSeparatorRadius.value.constantValue)
+            .isWithin(0.001f)
+            .of(2f)
+        assertThat(RemoteSliderDefaults.SegmentBarPadding.value.constantValue)
+            .isWithin(0.001f)
+            .of(4f)
+        assertThat(RemoteSliderDefaults.IconSize.value.constantValue).isWithin(0.001f).of(24f)
+        assertThat(RemoteSliderDefaults.MaxSegmentSteps).isEqualTo(8)
     }
 
     @Test
@@ -61,12 +68,12 @@ class RemoteSliderTest {
         val newSelectedBarColor = RemoteColor(Color.Green)
         val copy = original.copy(selectedBarColor = newSelectedBarColor)
 
-        assertEquals(newSelectedBarColor, copy.selectedBarColor)
-        assertEquals(original.containerColor, copy.containerColor)
-        assertEquals(original.buttonIconColor, copy.buttonIconColor)
-        assertEquals(original.unselectedBarColor, copy.unselectedBarColor)
-        assertEquals(original.selectedBarSeparatorColor, copy.selectedBarSeparatorColor)
-        assertEquals(original.unselectedBarSeparatorColor, copy.unselectedBarSeparatorColor)
+        assertThat(copy.selectedBarColor).isEqualTo(newSelectedBarColor)
+        assertThat(copy.containerColor).isEqualTo(original.containerColor)
+        assertThat(copy.buttonIconColor).isEqualTo(original.buttonIconColor)
+        assertThat(copy.unselectedBarColor).isEqualTo(original.unselectedBarColor)
+        assertThat(copy.selectedBarSeparatorColor).isEqualTo(original.selectedBarSeparatorColor)
+        assertThat(copy.unselectedBarSeparatorColor).isEqualTo(original.unselectedBarSeparatorColor)
     }
 
     @Test
@@ -89,8 +96,8 @@ class RemoteSliderTest {
         val colors2 = colors1.copy()
         val colors3 = colors1.copy(selectedBarColor = RemoteColor(Color.Red))
 
-        assertEquals(colors1, colors2)
-        assertEquals(colors1.hashCode(), colors2.hashCode())
-        assertNotEquals(colors1, colors3)
+        assertThat(colors2).isEqualTo(colors1)
+        assertThat(colors2.hashCode()).isEqualTo(colors1.hashCode())
+        assertThat(colors3).isNotEqualTo(colors1)
     }
 }

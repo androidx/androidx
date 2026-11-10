@@ -62,8 +62,8 @@ import org.robolectric.annotation.Config
  * are chained (see b/563261712) and respect the outer dimension when rendered in [RcPlayer].
  */
 @OptIn(ExperimentalRemotePlayerApi::class)
-@Config(sdk = [35])
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [35])
 class RemoteModifierNonRepeatableModifiersTest {
 
     @get:Rule val playerRule = RcPlayerTestRule()

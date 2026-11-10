@@ -33,8 +33,8 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.player.compose.EnableEmbeddedPlayerRule
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
-import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
 import androidx.compose.remote.player.compose.embedded.RcPlayer
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.Composable
@@ -54,19 +54,18 @@ import androidx.wear.compose.remote.material3.util.TestProfiles
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.After
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.annotation.GraphicsMode
 
 @OptIn(ExperimentalRemotePlayerApi::class)
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
-@GraphicsMode(GraphicsMode.Mode.NATIVE)
 class RemoteMaterialThemeColorTest {
+
+    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
 
     @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
 
@@ -74,15 +73,9 @@ class RemoteMaterialThemeColorTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
-    @Before
-    fun setUp() {
-        RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = true
-    }
-
     @After
     fun tearDown() {
         RemoteMaterial3Flags.isThemedColorsEnabled = false
-        RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = false
     }
 
     @Test

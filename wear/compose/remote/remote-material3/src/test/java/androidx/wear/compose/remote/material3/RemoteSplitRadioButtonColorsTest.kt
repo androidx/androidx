@@ -20,8 +20,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.ui.graphics.Color
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -31,7 +30,8 @@ class RemoteSplitRadioButtonColorsTest {
 
     @Test
     fun splitRadioButtonDefaults_values() {
-        assertEquals(52.rdp.constantValue, RemoteSplitRadioButtonDefaults.Height.constantValue)
+        assertThat(RemoteSplitRadioButtonDefaults.Height.constantValue)
+            .isEqualTo(52.rdp.constantValue)
     }
 
     @Test
@@ -67,19 +67,19 @@ class RemoteSplitRadioButtonColorsTest {
 
         // Enabled + Selected
         val color1 = colors.containerColor(enabled = true.rb, selected = true.rb)
-        assertEquals(selectedContainer.constantValue, color1.constantValue)
+        assertThat(color1.constantValue).isEqualTo(selectedContainer.constantValue)
 
         // Enabled + Unselected
         val color2 = colors.containerColor(enabled = true.rb, selected = false.rb)
-        assertEquals(unselectedContainer.constantValue, color2.constantValue)
+        assertThat(color2.constantValue).isEqualTo(unselectedContainer.constantValue)
 
         // Disabled + Selected
         val color3 = colors.containerColor(enabled = false.rb, selected = true.rb)
-        assertEquals(disabledSelectedContainer.constantValue, color3.constantValue)
+        assertThat(color3.constantValue).isEqualTo(disabledSelectedContainer.constantValue)
 
         // Disabled + Unselected
         val color4 = colors.containerColor(enabled = false.rb, selected = false.rb)
-        assertEquals(disabledUnselectedContainer.constantValue, color4.constantValue)
+        assertThat(color4.constantValue).isEqualTo(disabledUnselectedContainer.constantValue)
     }
 
     @Test
@@ -109,10 +109,10 @@ class RemoteSplitRadioButtonColorsTest {
             )
 
         val colors2 = colors1.copy()
-        assertEquals(colors1, colors2)
-        assertEquals(colors1.hashCode(), colors2.hashCode())
+        assertThat(colors2).isEqualTo(colors1)
+        assertThat(colors2.hashCode()).isEqualTo(colors1.hashCode())
 
         val colors3 = colors1.copy(selectedContainerColor = RemoteColor(Color.Green))
-        assertNotEquals(colors1, colors3)
+        assertThat(colors3).isNotEqualTo(colors1)
     }
 }

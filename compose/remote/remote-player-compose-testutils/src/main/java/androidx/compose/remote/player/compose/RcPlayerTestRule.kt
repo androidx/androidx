@@ -29,6 +29,8 @@ import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.embedded.CustomPluginRegistry
 import androidx.compose.remote.player.compose.embedded.RcPlayer
+import androidx.compose.remote.player.compose.test.utils.ComposableWrapper
+import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.core.state.StateUpdater
 import androidx.compose.remote.testing.RecordedDocument
 import androidx.compose.remote.testing.RemoteBaseContentTestRule
@@ -74,6 +76,9 @@ class RcPlayerTestRule(val baseRule: RemoteBaseContentTestRule = RemoteBaseConte
     /**
      * Captures a remote document from [content] and sets it on [RcPlayer].
      *
+     * @param creationComposableWrapper Wraps the composition that captures the document, for
+     *   example to provide a different `LocalContext` or layout direction to the capture.
+     * @param playComposableWrapper Wraps the composition that hosts [RcPlayer].
      * @return The captured [CoreDocument].
      */
     fun setRemoteContent(
@@ -92,18 +97,18 @@ class RcPlayerTestRule(val baseRule: RemoteBaseContentTestRule = RemoteBaseConte
                         Size(100f * density, 100f * density)
                     },
             ),
-        playComposableWrapper: @Composable (composable: @Composable () -> Unit) -> Unit =
-            { content ->
-                Box(
-                    modifier =
-                        Modifier.size(
-                            remoteCreationDisplayInfo.widthDp,
-                            remoteCreationDisplayInfo.heightDp,
-                        )
-                ) {
-                    content()
-                }
-            },
+        creationComposableWrapper: ComposableWrapper = ComposableWrappers.noop,
+        playComposableWrapper: ComposableWrapper = { content ->
+            Box(
+                modifier =
+                    Modifier.size(
+                        remoteCreationDisplayInfo.widthDp,
+                        remoteCreationDisplayInfo.heightDp,
+                    )
+            ) {
+                content()
+            }
+        },
         content: @Composable @RemoteComposable () -> Unit,
     ): CoreDocument {
         var createdDocument: CoreDocument? = null
@@ -138,6 +143,7 @@ class RcPlayerTestRule(val baseRule: RemoteBaseContentTestRule = RemoteBaseConte
                     remoteCreationDisplayInfo.widthDp.value,
                     remoteCreationDisplayInfo.heightDp.value,
                 ),
+            creationComposableWrapper = creationComposableWrapper,
             playComposableWrapper = playComposableWrapper,
             onCoreDocumentCreated = { doc -> createdDocument = doc },
             composable = content,

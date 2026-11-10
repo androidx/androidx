@@ -22,8 +22,7 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,23 +30,28 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [Config.TARGET_SDK])
+@Config(sdk = [35])
 class RemoteCheckboxButtonColorsTest {
     @get:Rule val composeTestRule = createComposeRule()
 
     @Test
     fun checkboxButtonDefaults_values() {
-        assertEquals(52.rdp.constantValue, RemoteCheckboxButtonDefaults.Height.constantValue)
-        assertEquals(6.rdp.constantValue, RemoteCheckboxButtonDefaults.IconSpacing.constantValue)
-        assertEquals(24.rdp.constantValue, RemoteCheckboxButtonDefaults.IconSize.constantValue)
-        assertEquals(
-            1.rdp.constantValue,
-            RemoteCheckboxButtonDefaults.LabelSpacerSize.constantValue,
-        )
-        assertEquals(18.rdp.constantValue, RemoteCheckboxButtonDefaults.BoxSize.constantValue)
-        assertEquals(2.rdp.constantValue, RemoteCheckboxButtonDefaults.BoxStroke.constantValue)
-        assertEquals(2.rdp.constantValue, RemoteCheckboxButtonDefaults.BoxRadius.constantValue)
-        assertEquals(24.rdp.constantValue, RemoteCheckboxButtonDefaults.BoxOuterSize.constantValue)
+        assertThat(RemoteCheckboxButtonDefaults.Height.constantValue)
+            .isEqualTo(52.rdp.constantValue)
+        assertThat(RemoteCheckboxButtonDefaults.IconSpacing.constantValue)
+            .isEqualTo(6.rdp.constantValue)
+        assertThat(RemoteCheckboxButtonDefaults.IconSize.constantValue)
+            .isEqualTo(24.rdp.constantValue)
+        assertThat(RemoteCheckboxButtonDefaults.LabelSpacerSize.constantValue)
+            .isEqualTo(1.rdp.constantValue)
+        assertThat(RemoteCheckboxButtonDefaults.BoxSize.constantValue)
+            .isEqualTo(18.rdp.constantValue)
+        assertThat(RemoteCheckboxButtonDefaults.BoxStroke.constantValue)
+            .isEqualTo(2.rdp.constantValue)
+        assertThat(RemoteCheckboxButtonDefaults.BoxRadius.constantValue)
+            .isEqualTo(2.rdp.constantValue)
+        assertThat(RemoteCheckboxButtonDefaults.BoxOuterSize.constantValue)
+            .isEqualTo(24.rdp.constantValue)
     }
 
     @Test
@@ -85,19 +89,19 @@ class RemoteCheckboxButtonColorsTest {
 
         // Enabled + Checked
         val color1 = colors.containerColor(enabled = true.rb, checked = true.rb)
-        assertEquals(checkedContainer.constantValue, color1.constantValue)
+        assertThat(color1.constantValue).isEqualTo(checkedContainer.constantValue)
 
         // Enabled + Unchecked
         val color2 = colors.containerColor(enabled = true.rb, checked = false.rb)
-        assertEquals(uncheckedContainer.constantValue, color2.constantValue)
+        assertThat(color2.constantValue).isEqualTo(uncheckedContainer.constantValue)
 
         // Disabled + Checked
         val color3 = colors.containerColor(enabled = false.rb, checked = true.rb)
-        assertEquals(disabledCheckedContainer.constantValue, color3.constantValue)
+        assertThat(color3.constantValue).isEqualTo(disabledCheckedContainer.constantValue)
 
         // Disabled + Unchecked
         val color4 = colors.containerColor(enabled = false.rb, checked = false.rb)
-        assertEquals(disabledUncheckedContainer.constantValue, color4.constantValue)
+        assertThat(color4.constantValue).isEqualTo(disabledUncheckedContainer.constantValue)
     }
 
     @Test
@@ -129,11 +133,11 @@ class RemoteCheckboxButtonColorsTest {
             )
 
         val colors2 = colors1.copy()
-        assertEquals(colors1, colors2)
-        assertEquals(colors1.hashCode(), colors2.hashCode())
+        assertThat(colors2).isEqualTo(colors1)
+        assertThat(colors2.hashCode()).isEqualTo(colors1.hashCode())
 
         val colors3 = colors1.copy(checkedContainerColor = RemoteColor(Color.Green))
-        assertNotEquals(colors1, colors3)
+        assertThat(colors3).isNotEqualTo(colors1)
     }
 
     @Test
@@ -156,14 +160,10 @@ class RemoteCheckboxButtonColorsTest {
             }
         }
 
-        assertEquals(
-            expectedPrimaryContainer.constantValue,
-            colors.checkedCheckmarkColor.constantValue,
-        )
-        assertEquals(
-            splitColors.disabledCheckedCheckmarkColor.constantValue,
-            colors.disabledCheckedCheckmarkColor.constantValue,
-        )
+        assertThat(colors.checkedCheckmarkColor.constantValue)
+            .isEqualTo(expectedPrimaryContainer.constantValue)
+        assertThat(colors.disabledCheckedCheckmarkColor.constantValue)
+            .isEqualTo(splitColors.disabledCheckedCheckmarkColor.constantValue)
     }
 
     @Test
@@ -176,6 +176,6 @@ class RemoteCheckboxButtonColorsTest {
             }
         }
 
-        assertEquals(expectedOutline.constantValue, borderColor.constantValue)
+        assertThat(borderColor.constantValue).isEqualTo(expectedOutline.constantValue)
     }
 }

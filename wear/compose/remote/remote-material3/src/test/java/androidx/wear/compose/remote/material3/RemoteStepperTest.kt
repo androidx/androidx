@@ -22,31 +22,25 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.creation.compose.action.hostAction
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxHeight
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.player.compose.embedded.RcPlayer
+import androidx.compose.remote.player.compose.RcPlayerTestRule
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
-import androidx.wear.compose.remote.material3.util.EnableEmbeddedPlayerRule
-import java.io.ByteArrayInputStream
-import kotlinx.coroutines.runBlocking
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,20 +50,20 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
 class RemoteStepperTest {
-    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
-
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = RcPlayerTestRule()
 
     @Test
     fun defaultValues() {
-        assertEquals(24f, RemoteStepperDefaults.IconSize.value.constantValue, 0.001f)
-        assertEquals(60f, RemoteStepperDefaults.ButtonWidth.value.constantValue, 0.001f)
-        assertEquals(48f, RemoteStepperDefaults.ButtonHeight.value.constantValue, 0.001f)
-        assertEquals(8f, RemoteStepperDefaults.VerticalSpacing.value.constantValue, 0.001f)
-        assertEquals(0.35f, RemoteStepperDefaults.ButtonWeight, 0.001f)
-        assertEquals(0.3f, RemoteStepperDefaults.ContentWeight, 0.001f)
-        assertEquals(RemoteCircleShape, RemoteStepperDefaults.buttonShape)
-        assertEquals(RemoteCircleShape, RemoteStepperDefaults.StepperButtonShape)
+        assertThat(RemoteStepperDefaults.IconSize.value.constantValue).isWithin(0.001f).of(24f)
+        assertThat(RemoteStepperDefaults.ButtonWidth.value.constantValue).isWithin(0.001f).of(60f)
+        assertThat(RemoteStepperDefaults.ButtonHeight.value.constantValue).isWithin(0.001f).of(48f)
+        assertThat(RemoteStepperDefaults.VerticalSpacing.value.constantValue)
+            .isWithin(0.001f)
+            .of(8f)
+        assertThat(RemoteStepperDefaults.ButtonWeight).isWithin(0.001f).of(0.35f)
+        assertThat(RemoteStepperDefaults.ContentWeight).isWithin(0.001f).of(0.3f)
+        assertThat(RemoteStepperDefaults.buttonShape).isEqualTo(RemoteCircleShape)
+        assertThat(RemoteStepperDefaults.StepperButtonShape).isEqualTo(RemoteCircleShape)
     }
 
     @Test
@@ -87,12 +81,13 @@ class RemoteStepperTest {
         val newContentColor = RemoteColor(Color.Yellow)
         val copy = original.copy(contentColor = newContentColor)
 
-        assertEquals(newContentColor, copy.contentColor)
-        assertEquals(original.buttonContainerColor, copy.buttonContainerColor)
-        assertEquals(original.buttonIconColor, copy.buttonIconColor)
-        assertEquals(original.disabledContentColor, copy.disabledContentColor)
-        assertEquals(original.disabledButtonContainerColor, copy.disabledButtonContainerColor)
-        assertEquals(original.disabledButtonIconColor, copy.disabledButtonIconColor)
+        assertThat(copy.contentColor).isEqualTo(newContentColor)
+        assertThat(copy.buttonContainerColor).isEqualTo(original.buttonContainerColor)
+        assertThat(copy.buttonIconColor).isEqualTo(original.buttonIconColor)
+        assertThat(copy.disabledContentColor).isEqualTo(original.disabledContentColor)
+        assertThat(copy.disabledButtonContainerColor)
+            .isEqualTo(original.disabledButtonContainerColor)
+        assertThat(copy.disabledButtonIconColor).isEqualTo(original.disabledButtonIconColor)
     }
 
     @Test
@@ -109,9 +104,9 @@ class RemoteStepperTest {
         val colors2 = colors1.copy()
         val colors3 = colors1.copy(contentColor = RemoteColor(Color.Black))
 
-        assertEquals(colors1, colors2)
-        assertEquals(colors1.hashCode(), colors2.hashCode())
-        assertNotEquals(colors1, colors3)
+        assertThat(colors2).isEqualTo(colors1)
+        assertThat(colors2.hashCode()).isEqualTo(colors1.hashCode())
+        assertThat(colors3).isNotEqualTo(colors1)
     }
 
     // GSB is drawn over the host window and reports a top inset. It shrinks
@@ -120,14 +115,12 @@ class RemoteStepperTest {
     @Test
     @Config(qualifiers = "w225dp-h225dp-xhdpi")
     fun fillMaxHeight_fullScreenPlayerUnderGsb_usesWindowWidth() {
-        val document =
-            captureStepperDocument(
-                modifier = RemoteModifier.fillMaxHeight(),
-                screenHeightDp = GsbScreenHeightDp,
-            )
-
-        rule.setContent { Box(modifier = Modifier.size(225.dp)) { RcPlayer(document) } }
-        rule.waitForIdle()
+        setStepperContent(
+            modifier = RemoteModifier.fillMaxHeight(),
+            screenHeightDp = GsbScreenHeightDp,
+        ) { player ->
+            Box(modifier = Modifier.size(225.dp)) { player() }
+        }
 
         // 225dp * 5.2% = 11.7dp, rather than 195dp * 5.2% = 10.14dp from screenHeightDp.
         assertButtonPadding(stepperTop = 0f, stepperHeight = 225f, expectedPadding = 225f * 0.052f)
@@ -139,20 +132,14 @@ class RemoteStepperTest {
     @Config(qualifiers = "w225dp-h225dp-xhdpi")
     fun fillMaxHeight_playerInsetBelowGsb_usesWindowWidth() {
         val gsbInset = 225f - GsbScreenHeightDp
-        val document =
-            captureStepperDocument(
-                modifier = RemoteModifier.fillMaxHeight(),
-                screenHeightDp = GsbScreenHeightDp,
-            )
-
-        rule.setContent {
+        setStepperContent(
+            modifier = RemoteModifier.fillMaxHeight(),
+            screenHeightDp = GsbScreenHeightDp,
+        ) { player ->
             Box(modifier = Modifier.size(225.dp)) {
-                Box(modifier = Modifier.fillMaxSize().padding(top = gsbInset.dp)) {
-                    RcPlayer(document)
-                }
+                Box(modifier = Modifier.fillMaxSize().padding(top = gsbInset.dp)) { player() }
             }
         }
-        rule.waitForIdle()
 
         assertButtonPadding(
             stepperTop = gsbInset,
@@ -175,23 +162,36 @@ class RemoteStepperTest {
             rule.onNodeWithContentDescription("Increase").getUnclippedBoundsInRoot()
         val decreaseBounds =
             rule.onNodeWithContentDescription("Decrease").getUnclippedBoundsInRoot()
-        assertEquals(expectedPadding, increaseBounds.top.value - stepperTop, 0.5f)
-        assertEquals(
-            expectedPadding,
-            stepperTop + stepperHeight - decreaseBounds.bottom.value,
-            0.5f,
-        )
+        assertThat(increaseBounds.top.value - stepperTop).isWithin(0.5f).of(expectedPadding)
+        assertThat(stepperTop + stepperHeight - decreaseBounds.bottom.value)
+            .isWithin(0.5f)
+            .of(expectedPadding)
     }
 
     /**
-     * Captures a [RemoteStepper] document. If [screenHeightDp] is set, capture runs with a
-     * [Configuration] reporting that `screenHeightDp`, as when GSB is shown.
+     * Captures a [RemoteStepper] document with a [Configuration] reporting [screenHeightDp], as
+     * when GSB is shown, and plays it in the host layout given by [playComposableWrapper].
      */
-    private fun captureStepperDocument(
-        modifier: RemoteModifier = RemoteModifier,
-        screenHeightDp: Int? = null,
-    ): CoreDocument =
-        captureDocument(screenHeightDp) {
+    private fun setStepperContent(
+        modifier: RemoteModifier,
+        screenHeightDp: Int,
+        playComposableWrapper: @Composable (player: @Composable () -> Unit) -> Unit,
+    ) {
+        val appContext = ApplicationProvider.getApplicationContext<Context>()
+        val configuration =
+            Configuration(appContext.resources.configuration).apply {
+                this.screenHeightDp = screenHeightDp
+            }
+        val context = appContext.createConfigurationContext(configuration)
+        assertThat(context.resources.configuration.screenHeightDp).isEqualTo(screenHeightDp)
+
+        rule.setRemoteContent(
+            remoteCreationDisplayInfo = createCreationDisplayInfo(context),
+            creationComposableWrapper = { creation ->
+                CompositionLocalProvider(LocalContext provides context) { creation() }
+            },
+            playComposableWrapper = playComposableWrapper,
+        ) {
             RemoteStepper(
                 value = 5f.rf,
                 modifier = modifier,
@@ -205,32 +205,6 @@ class RemoteStepperTest {
                 },
             ) {
                 RemoteText("5".rs)
-            }
-        }
-
-    private fun captureDocument(
-        screenHeightDp: Int? = null,
-        content: @Composable @RemoteComposable () -> Unit,
-    ): CoreDocument = runBlocking {
-        val appContext = ApplicationProvider.getApplicationContext<Context>()
-        val context =
-            if (screenHeightDp == null) {
-                appContext
-            } else {
-                val configuration =
-                    Configuration(appContext.resources.configuration).apply {
-                        this.screenHeightDp = screenHeightDp
-                    }
-                appContext.createConfigurationContext(configuration)
-            }
-        assertEquals(
-            screenHeightDp ?: appContext.resources.configuration.screenHeightDp,
-            context.resources.configuration.screenHeightDp,
-        )
-        val bytes = captureSingleRemoteDocument(context = context, content = content).bytes
-        CoreDocument().apply {
-            ByteArrayInputStream(bytes).use {
-                initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
             }
         }
     }

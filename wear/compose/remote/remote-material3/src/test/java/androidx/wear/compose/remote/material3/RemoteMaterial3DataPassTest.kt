@@ -20,101 +20,83 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.RemoteComposeBuffer
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
+import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.compose.remote.material3.previews.RemoteEdgeButtonExtraSmall
 import androidx.wear.compose.remote.material3.previews.RemoteEdgeButtonLarge
 import androidx.wear.compose.remote.material3.previews.RemoteEdgeButtonMedium
 import androidx.wear.compose.remote.material3.previews.RemoteEdgeButtonSmall
-import java.io.ByteArrayInputStream
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-@OptIn(ExperimentalCoroutinesApi::class)
-@Config(sdk = [Config.TARGET_SDK])
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [35])
 class RemoteMaterial3DataPassTest {
+    @get:Rule val captureRule = RemoteCaptureTestRule()
+
     private val context: Context = ApplicationProvider.getApplicationContext()
 
-    private fun initDocument(bytes: ByteArray): CoreDocument {
-        val doc =
-            CoreDocument().apply {
-                ByteArrayInputStream(bytes).use {
-                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                }
-            }
+    private fun CoreDocument.runDataPass() {
         val remoteContext = AndroidRemoteContext()
         remoteContext.useCanvas(Canvas(Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)))
-        doc.initializeContext(remoteContext)
-        return doc
+        initializeContext(remoteContext)
     }
 
     @Test
-    fun remoteEdgeButton_initializeContext_doesNotCrashDuringDataPass() =
-        runTest(UnconfinedTestDispatcher()) {
-            val documentBytes =
-                captureSingleRemoteDocument(context) {
-                        RemoteEdgeButtonExtraSmall()
-                        RemoteEdgeButtonSmall()
-                        RemoteEdgeButtonMedium()
-                        RemoteEdgeButtonLarge()
-                    }
-                    .bytes
+    fun remoteEdgeButton_initializeContext_doesNotCrashDuringDataPass() = runTest {
+        val doc =
+            captureRule.captureDocument(context) {
+                RemoteEdgeButtonExtraSmall()
+                RemoteEdgeButtonSmall()
+                RemoteEdgeButtonMedium()
+                RemoteEdgeButtonLarge()
+            }
 
-            val doc = initDocument(documentBytes)
-            assertTrue(doc.docInfo.mNumberOfOps > 0)
-        }
+        doc.runDataPass()
+        assertThat(doc.docInfo.mNumberOfOps).isGreaterThan(0)
+    }
 
     @Test
-    fun remoteCurvedProgressIndicator_initializeContext_doesNotCrashDuringDataPass() =
-        runTest(UnconfinedTestDispatcher()) {
-            val documentBytes =
-                captureSingleRemoteDocument(context) {
-                        RemoteCurvedProgressIndicator(progress = 0.5f.rf)
-                    }
-                    .bytes
+    fun remoteCurvedProgressIndicator_initializeContext_doesNotCrashDuringDataPass() = runTest {
+        val doc =
+            captureRule.captureDocument(context) {
+                RemoteCurvedProgressIndicator(progress = 0.5f.rf)
+            }
 
-            val doc = initDocument(documentBytes)
-            assertTrue(doc.docInfo.mNumberOfOps > 0)
-        }
+        doc.runDataPass()
+        assertThat(doc.docInfo.mNumberOfOps).isGreaterThan(0)
+    }
 
     @Test
-    fun remotePageIndicator_initializeContext_doesNotCrashDuringDataPass() =
-        runTest(UnconfinedTestDispatcher()) {
-            val documentBytes =
-                captureSingleRemoteDocument(context) {
-                        RemoteHorizontalPageIndicator(
-                            state =
-                                DefaultRemotePageIndicatorState(pageCount = 5, selectedPage = 2.ri)
-                        )
-                    }
-                    .bytes
+    fun remotePageIndicator_initializeContext_doesNotCrashDuringDataPass() = runTest {
+        val doc =
+            captureRule.captureDocument(context) {
+                RemoteHorizontalPageIndicator(
+                    state = DefaultRemotePageIndicatorState(pageCount = 5, selectedPage = 2.ri)
+                )
+            }
 
-            val doc = initDocument(documentBytes)
-            assertTrue(doc.docInfo.mNumberOfOps > 0)
-        }
+        doc.runDataPass()
+        assertThat(doc.docInfo.mNumberOfOps).isGreaterThan(0)
+    }
 
     @Test
-    fun remoteStepper_initializeContext_doesNotCrashDuringDataPass() =
-        runTest(UnconfinedTestDispatcher()) {
-            val documentBytes =
-                captureSingleRemoteDocument(context) {
-                        RemoteStepper(value = 5f.rf) { RemoteText("5".rs) }
-                    }
-                    .bytes
+    fun remoteStepper_initializeContext_doesNotCrashDuringDataPass() = runTest {
+        val doc =
+            captureRule.captureDocument(context) {
+                RemoteStepper(value = 5f.rf) { RemoteText("5".rs) }
+            }
 
-            val doc = initDocument(documentBytes)
-            assertTrue(doc.docInfo.mNumberOfOps > 0)
-        }
+        doc.runDataPass()
+        assertThat(doc.docInfo.mNumberOfOps).isGreaterThan(0)
+    }
 }

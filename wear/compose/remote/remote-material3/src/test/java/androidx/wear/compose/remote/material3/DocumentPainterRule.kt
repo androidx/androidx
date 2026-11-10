@@ -22,11 +22,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteClock
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.heightDp
 import androidx.compose.remote.creation.compose.capture.widthDp
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.player.compose.EnableEmbeddedPlayerRule
 import androidx.compose.remote.player.compose.embedded.RcPlayer
 import androidx.compose.remote.player.compose.embedded.RcPlayerState
 import androidx.compose.remote.testing.RemoteCaptureTestRule
@@ -43,7 +43,6 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.core.app.ApplicationProvider
-import androidx.wear.compose.remote.material3.util.EnableEmbeddedPlayerRule
 import kotlinx.coroutines.runBlocking
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
@@ -113,7 +112,7 @@ class DocumentPainterRule(val canvasSize: Float = DefaultCanvasSize) : TestRule 
 
     /** Captures [content] into a serialized Remote Compose document byte array. */
     fun captureBytes(content: @Composable @RemoteComposable () -> Unit): ByteArray = runBlocking {
-        captureSingleRemoteDocument(context = context, content = content).bytes
+        captureRule.captureRecordedDocument(context = context, content = content).bytes
     }
 
     /** Captures [content] into a Remote Compose document, without rendering it. */
