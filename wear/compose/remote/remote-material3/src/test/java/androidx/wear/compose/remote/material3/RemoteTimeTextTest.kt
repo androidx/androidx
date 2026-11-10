@@ -22,7 +22,6 @@ import androidx.compose.remote.core.operations.DrawArc
 import androidx.compose.remote.core.operations.DrawTextOnCircle
 import androidx.compose.remote.core.operations.TextAttribute
 import androidx.compose.remote.core.operations.layout.Container
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
@@ -39,9 +38,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.compose.remote.material3.util.TestProfiles
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
@@ -49,48 +46,45 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-@OptIn(ExperimentalCoroutinesApi::class)
-@Config(sdk = [Config.TARGET_SDK])
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [35])
 class RemoteTimeTextTest {
     @get:Rule val captureRule = RemoteCaptureTestRule()
+
     @get:Rule val composeTestRule = createComposeRule()
 
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     @Test
-    fun timeOnly() =
-        runTest(UnconfinedTestDispatcher()) {
-            runDocumentTest {
-                RemoteTimeText(modifier = RemoteModifier.fillMaxSize(), time = "10:09".rs)
-            }
+    fun timeOnly() = runTest {
+        runDocumentTest {
+            RemoteTimeText(modifier = RemoteModifier.fillMaxSize(), time = "10:09".rs)
         }
+    }
 
     @Test
-    fun timeWithText() =
-        runTest(UnconfinedTestDispatcher()) {
-            runDocumentTest {
-                RemoteTimeText(
-                    modifier = RemoteModifier.fillMaxSize(),
-                    time = "10:09".rs,
-                    leadingText = "paused".rs,
-                    trailingText = "eta 13 min".rs,
-                )
-            }
+    fun timeWithText() = runTest {
+        runDocumentTest {
+            RemoteTimeText(
+                modifier = RemoteModifier.fillMaxSize(),
+                time = "10:09".rs,
+                leadingText = "paused".rs,
+                trailingText = "eta 13 min".rs,
+            )
         }
+    }
 
     @Test
-    fun withFontConfigured() =
-        runTest(UnconfinedTestDispatcher()) {
-            runDocumentTest {
-                RemoteTimeText(
-                    modifier = RemoteModifier.fillMaxSize(),
-                    time = "10:09".rs,
-                    fontSize = 15.rsp,
-                    fontFamily = RemoteFontFamily.SansSerif,
-                )
-            }
+    fun withFontConfigured() = runTest {
+        runDocumentTest {
+            RemoteTimeText(
+                modifier = RemoteModifier.fillMaxSize(),
+                time = "10:09".rs,
+                fontSize = 15.rsp,
+                fontFamily = RemoteFontFamily.SansSerif,
+            )
         }
+    }
 
     @Test
     fun background_isDrawnBehindTheText() {
@@ -157,9 +151,12 @@ class RemoteTimeTextTest {
 
     private suspend fun runDocumentTest(content: @Composable @RemoteComposable () -> Unit) {
         val bytes =
-            captureSingleRemoteDocument(context, profile = TestProfiles.androidNativeProfile) {
-                    content()
-                }
+            captureRule
+                .captureRecordedDocument(
+                    context = context,
+                    profile = TestProfiles.androidNativeProfile,
+                    content = content,
+                )
                 .bytes
         assertThat(bytes).isNotEmpty()
     }

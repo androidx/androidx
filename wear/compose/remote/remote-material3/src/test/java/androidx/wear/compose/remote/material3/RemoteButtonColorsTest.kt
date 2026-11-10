@@ -28,7 +28,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [Config.TARGET_SDK])
+@Config(sdk = [35])
 class RemoteButtonColorsTest {
     @get:Rule val composeTestRule = createComposeRule()
 

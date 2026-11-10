@@ -36,8 +36,8 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-@Config(sdk = [35], qualifiers = "w1000dp-h500dp")
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [35], qualifiers = "w1000dp-h500dp")
 class RemoteSegmentedCircularProgressIndicatorUnitTest {
 
     @get:Rule val captureRule = RemoteCaptureTestRule()

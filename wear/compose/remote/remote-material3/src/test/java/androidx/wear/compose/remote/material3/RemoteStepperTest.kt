@@ -23,9 +23,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.creation.compose.action.hostAction
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxHeight
@@ -33,18 +31,17 @@ import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.player.compose.RcPlayerTestRule
 import androidx.compose.remote.player.compose.embedded.RcPlayer
+import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
-import androidx.wear.compose.remote.material3.util.EnableEmbeddedPlayerRule
 import com.google.common.truth.Truth.assertThat
-import java.io.ByteArrayInputStream
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -55,9 +52,9 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
 class RemoteStepperTest {
-    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
+    @get:Rule val rule = RcPlayerTestRule()
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val captureRule = RemoteCaptureTestRule()
 
     @Test
     fun defaultValues() {
@@ -225,12 +222,7 @@ class RemoteStepperTest {
             }
         assertThat(context.resources.configuration.screenHeightDp)
             .isEqualTo(screenHeightDp ?: appContext.resources.configuration.screenHeightDp)
-        val bytes = captureSingleRemoteDocument(context = context, content = content).bytes
-        CoreDocument().apply {
-            ByteArrayInputStream(bytes).use {
-                initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-            }
-        }
+        captureRule.captureDocument(context = context, content = content)
     }
 
     private companion object {

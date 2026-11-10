@@ -17,33 +17,20 @@
 
 package androidx.wear.compose.remote.material3
 
-import android.content.Context
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
-import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.creation.compose.action.hostAction
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.player.compose.embedded.RcPlayer
+import androidx.compose.remote.player.compose.RcPlayerTestRule
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.unit.dp
-import androidx.test.core.app.ApplicationProvider
-import androidx.wear.compose.remote.material3.util.EnableEmbeddedPlayerRule
 import androidx.wear.compose.remote.material3.util.TestImageVectors
-import java.io.ByteArrayInputStream
-import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -53,9 +40,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
 class RemoteButtonA11yTest {
-    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
-
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = RcPlayerTestRule()
 
     @Test
     fun button_isFocusable() {
@@ -117,20 +102,7 @@ class RemoteButtonA11yTest {
     }
 
     private fun renderDocument(content: @Composable @RemoteComposable () -> Unit) {
-        runBlocking {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val documentBytes =
-                captureSingleRemoteDocument(context = context, content = content).bytes
-            val document =
-                CoreDocument().apply {
-                    ByteArrayInputStream(documentBytes).use {
-                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                    }
-                }
-            rule.setContent {
-                Box(modifier = Modifier.size(200.dp)) { RcPlayer(document = document) }
-            }
-            rule.mainClock.advanceTimeBy(100)
-        }
+        rule.setRemoteContent(content = content)
+        rule.mainClock.advanceTimeBy(100)
     }
 }

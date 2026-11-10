@@ -25,17 +25,16 @@ import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.player.compose.RcPlayerTestRule
 import androidx.compose.remote.player.compose.embedded.RcPlayer
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
-import androidx.wear.compose.remote.material3.util.EnableEmbeddedPlayerRule
 import androidx.wear.compose.remote.material3.util.TestProfiles
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -52,9 +51,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35], qualifiers = "w167dp-h167dp-xxhdpi")
 class RemoteEdgeButtonUnitTest {
-    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
-
-    @get:Rule val composeTestRule = createComposeRule()
+    @get:Rule val playerRule = RcPlayerTestRule()
 
     @get:Rule val captureRule = RemoteCaptureTestRule()
 
@@ -103,7 +100,7 @@ class RemoteEdgeButtonUnitTest {
             )
 
         val activeDocument = mutableStateOf<CoreDocument?>(null)
-        composeTestRule.setContent {
+        playerRule.setContent {
             val currentDoc = activeDocument.value
             Box(
                 modifier =
@@ -140,8 +137,8 @@ class RemoteEdgeButtonUnitTest {
                 }
 
             activeDocument.value = document
-            composeTestRule.waitForIdle()
-            composeTestRule.onNodeWithText(label).assertExists()
+            playerRule.waitForIdle()
+            playerRule.onNodeWithText(label).assertExists()
 
             val hierarchy = document.displayHierarchy()
             val expectedMaxWidthPx =

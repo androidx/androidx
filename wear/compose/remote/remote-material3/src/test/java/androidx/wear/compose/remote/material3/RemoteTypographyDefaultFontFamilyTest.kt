@@ -17,21 +17,13 @@
 
 package androidx.wear.compose.remote.material3
 
-import android.content.Context
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
-import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.RemoteComposeBuffer
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
-import androidx.compose.remote.player.compose.embedded.RcPlayer
+import androidx.compose.remote.player.compose.RcPlayerTestRule
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsActions
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
@@ -40,14 +32,9 @@ import androidx.compose.ui.text.font.DeviceFontFamilyName
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontListFontFamily
-import androidx.compose.ui.unit.dp
-import androidx.test.core.app.ApplicationProvider
 import androidx.wear.compose.material3.Typography
-import androidx.wear.compose.remote.material3.util.EnableEmbeddedPlayerRule
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import java.io.ByteArrayInputStream
-import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -57,9 +44,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
 class RemoteTypographyDefaultFontFamilyTest {
-    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
-
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = RcPlayerTestRule()
 
     @Test
     fun fromTypography_defaultFontFamily_appliedToAllStyles() {
@@ -131,17 +116,7 @@ class RemoteTypographyDefaultFontFamilyTest {
     }
 
     private fun renderInPlayer(content: @Composable @RemoteComposable () -> Unit) {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val document = runBlocking {
-            val bytes = captureSingleRemoteDocument(context = context, content = content).bytes
-            CoreDocument().apply {
-                ByteArrayInputStream(bytes).use {
-                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                }
-            }
-        }
-        rule.setContent { Box(modifier = Modifier.size(200.dp)) { RcPlayer(document = document) } }
-        rule.waitForIdle()
+        rule.setRemoteContent(content = content)
     }
 
     /** Returns the [FontFamily] the player's text layout used for the node showing [text]. */

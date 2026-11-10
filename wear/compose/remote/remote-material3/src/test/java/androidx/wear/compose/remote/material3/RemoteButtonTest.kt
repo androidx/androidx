@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.heightDp
+import androidx.compose.remote.creation.compose.capture.widthDp
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
@@ -31,7 +33,7 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.player.compose.embedded.RcPlayer
+import androidx.compose.remote.player.compose.RcPlayerTestRule
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
@@ -39,12 +41,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.compose.remote.material3.util.ComponentContainer
-import androidx.wear.compose.remote.material3.util.EnableEmbeddedPlayerRule
 import androidx.wear.compose.remote.material3.util.TestProfiles
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -59,9 +58,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
 class RemoteButtonTest {
-    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
-
-    @get:Rule val composeTestRule = createComposeRule()
+    @get:Rule val playerRule = RcPlayerTestRule()
 
     @get:Rule val captureRule = RemoteCaptureTestRule()
 
@@ -110,41 +107,39 @@ class RemoteButtonTest {
     }
 
     @Test
-    fun button_border_width_is_scaled_with_density() = runTest {
+    fun button_border_width_is_scaled_with_density() {
         val displayInfo = createCreationDisplayInfo(context, Size(500f, 500f))
         val density = displayInfo.density
-        val document =
-            captureRule.captureDocument(
-                context = context,
-                creationDisplayInfo = displayInfo,
-                profile = TestProfiles.wearWidgets,
-            ) {
-                ComponentContainer {
-                    RemoteButton(
-                        modifier = RemoteModifier.size(100.rdp, 50.rdp),
-                        onClick = testAction,
-                        border = RemoteBorderStroke(width = 8.rdp, color = Color.Red.rc),
-                        colors =
-                            RemoteButtonDefaults.buttonColors(
-                                containerColor = RemoteColor(Color.Black)
-                            ),
-                        shape = RemoteRectangleShape,
-                    ) {
-                        RemoteText("button".rs)
-                    }
+        playerRule.setRemoteContent(
+            profile = TestProfiles.wearWidgets,
+            remoteCreationDisplayInfo = displayInfo,
+            playComposableWrapper = { player ->
+                Box(
+                    modifier =
+                        Modifier.size(displayInfo.widthDp, displayInfo.heightDp)
+                            .testTag(ROOT_TEST_TAG)
+                ) {
+                    player()
+                }
+            },
+        ) {
+            ComponentContainer {
+                RemoteButton(
+                    modifier = RemoteModifier.size(100.rdp, 50.rdp),
+                    onClick = testAction,
+                    border = RemoteBorderStroke(width = 8.rdp, color = Color.Red.rc),
+                    colors =
+                        RemoteButtonDefaults.buttonColors(
+                            containerColor = RemoteColor(Color.Black)
+                        ),
+                    shape = RemoteRectangleShape,
+                ) {
+                    RemoteText("button".rs)
                 }
             }
-
-        composeTestRule.setContent {
-            val widthDp = (500f / density).dp
-            val heightDp = (500f / density).dp
-            Box(modifier = Modifier.size(widthDp, heightDp).testTag(ROOT_TEST_TAG)) {
-                RcPlayer(document = document)
-            }
         }
-        composeTestRule.waitForIdle()
 
-        val bitmap = composeTestRule.onNodeWithTag(ROOT_TEST_TAG).captureToImage().asAndroidBitmap()
+        val bitmap = playerRule.onNodeWithTag(ROOT_TEST_TAG).captureToImage().asAndroidBitmap()
 
         val y = bitmap.height / 2
         var redPixelsCount = 0

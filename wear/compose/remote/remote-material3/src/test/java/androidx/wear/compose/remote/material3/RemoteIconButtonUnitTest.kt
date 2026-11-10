@@ -60,8 +60,8 @@ import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLog
 
 @OptIn(ExperimentalRemotePlayerApi::class)
-@Config(sdk = [35])
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [35])
 class RemoteIconButtonUnitTest {
 
     @get:Rule val playerRule = RcPlayerTestRule()

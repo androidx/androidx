@@ -17,15 +17,16 @@
 package androidx.wear.compose.remote.material3
 
 import android.content.Context
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.RemoteAnimationSpec
 import androidx.compose.remote.creation.compose.state.remoteSpring
+import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.Composable
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.compose.remote.material3.samples.RemoteCheckboxButtonSample
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -34,6 +35,8 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
 class RemoteMotionSchemeTest {
+    @get:Rule val captureRule = RemoteCaptureTestRule()
+
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     @Test
@@ -130,6 +133,6 @@ class RemoteMotionSchemeTest {
 
     private fun capture(content: @Composable @RemoteComposable () -> Unit): ByteArray =
         runBlocking {
-            captureSingleRemoteDocument(context = context, content = content).bytes
+            captureRule.captureRecordedDocument(context = context, content = content).bytes
         }
 }
