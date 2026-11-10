@@ -50,14 +50,14 @@ internal interface GlanceAdaptiveAppWidgetDelegate : GlanceAdaptiveWidgetDelegat
      *
      * @param widgetName The developer-defined identifier of the widget definition.
      * @param widgetId The widget instance String identifier to assign to the pinned widget, or null
-     *   to use a generated one. It must not be blank.
+     *   to use the one in [options], or a generated one if there is none.
      * @param initialData The declarative template data payload to render as the preview shown while
      *   the launcher asks the user to confirm, if any.
      * @param options The configuration options to store in the options of the pinned widget.
      * @param successCallback The [PendingIntent] to send once the widget is pinned, if any.
      * @return true if the request was sent to the launcher, false otherwise.
-     * @throws IllegalArgumentException if [widgetId] is blank, or if [widgetName] cannot be
-     *   resolved, see [GlanceAdaptiveWidgetReceiver.widgetName].
+     * @throws IllegalArgumentException if [widgetName] cannot be resolved, see
+     *   [GlanceAdaptiveWidgetReceiver.widgetName].
      * @throws IllegalStateException if [widgetName] cannot be resolved, see
      *   [GlanceAdaptiveWidgetReceiver.widgetName].
      */
@@ -78,11 +78,11 @@ internal interface GlanceAdaptiveAppWidgetDelegate : GlanceAdaptiveWidgetDelegat
      * @param activity The configuration [Activity] started with
      *   [android.appwidget.AppWidgetManager.ACTION_APPWIDGET_CONFIGURE].
      * @param widgetId The widget instance String identifier to assign to the configured widget, or
-     *   null to keep the one already stored for the widget, or a generated one if there is none. It
-     *   must not be blank.
+     *   null to use the one in [options] or already stored for the widget, or a generated one if
+     *   there is none.
      * @param options The configuration options to store in the options of the configured widget.
      * @throws IllegalArgumentException if [activity]'s intent does not carry a valid
-     *   [android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID], or if [widgetId] is blank.
+     *   [android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID].
      */
     fun setConfigurationResult(activity: Activity, widgetId: String?, options: Bundle)
 }

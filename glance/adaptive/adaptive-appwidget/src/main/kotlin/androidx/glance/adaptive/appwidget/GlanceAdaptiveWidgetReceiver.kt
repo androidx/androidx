@@ -294,12 +294,8 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
         /**
          * Key for storing the widget instance identifier in the [AppWidgetManager] widget options
          * bundle.
-         *
-         * Callers set the identifier through the `widgetId` parameter of `requestPin` and
-         * `setConfigurationResult`, which always overwrite this key in the options they store.
-         * Otherwise, the library generates one for the placement.
          */
-        internal const val EXTRA_WIDGET_ID: String =
+        public const val EXTRA_WIDGET_ID: String =
             "androidx.glance.adaptive.appwidget.extra.WIDGET_ID"
     }
 }

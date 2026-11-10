@@ -74,7 +74,8 @@ public suspend fun GlanceAdaptiveWidgetManager.setPreview(
  * @param widgetName Developer widget definition String identifier matching
  *   [GlanceAdaptiveWidgetReceiver.widgetName].
  * @param widgetId Optional developer-assigned widget instance String identifier for the pinned
- *   widget. If omitted, a unique identifier is generated. It must not be blank.
+ *   widget. If omitted or blank, the [GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID] in [options] is
+ *   used, or a unique identifier is generated if there is none.
  * @param initialData Optional declarative template data payload implementing
  *   [GlanceAdaptiveTemplate] to render as the preview shown while the launcher asks the user to
  *   confirm. If omitted, the launcher shows the preview declared by the widget instead.
@@ -83,8 +84,8 @@ public suspend fun GlanceAdaptiveWidgetManager.setPreview(
  * @param successCallback Optional [PendingIntent] sent once the widget is pinned and [widgetId] and
  *   [options] are stored.
  * @return `true` if the request was sent to the launcher, `false` otherwise.
- * @throws IllegalArgumentException if [widgetId] is blank, or if [widgetName] cannot be resolved,
- *   see [GlanceAdaptiveWidgetReceiver.widgetName].
+ * @throws IllegalArgumentException if [widgetName] cannot be resolved, see
+ *   [GlanceAdaptiveWidgetReceiver.widgetName].
  * @throws IllegalStateException if the app has no foreground activity or foreground service, if
  *   this manager was not created for AppWidget hosts, or if [widgetName] cannot be resolved, see
  *   [GlanceAdaptiveWidgetReceiver.widgetName].
@@ -131,11 +132,11 @@ public suspend fun GlanceAdaptiveWidgetManager.requestPin(
  * @param activity Configuration [Activity] started with
  *   [android.appwidget.AppWidgetManager.ACTION_APPWIDGET_CONFIGURE].
  * @param widgetId Optional developer-assigned widget instance String identifier for the configured
- *   widget. If omitted, the one already stored for the widget is kept, or a unique identifier is
- *   generated if there is none. It must not be blank.
+ *   widget. If omitted or blank, the [GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID] in [options] or
+ *   already stored for the widget is used, or a unique identifier is generated if there is none.
  * @param options Optional configuration options to store in the options of the configured widget.
  * @throws IllegalArgumentException if [activity]'s intent does not carry a valid
- *   [android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID], or if [widgetId] is blank.
+ *   [android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID].
  * @throws IllegalStateException if this manager is not backed by an AppWidget delegate, for example
  *   if it was created for another surface.
  */

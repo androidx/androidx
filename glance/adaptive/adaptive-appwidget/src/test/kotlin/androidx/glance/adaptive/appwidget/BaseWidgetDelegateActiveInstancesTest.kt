@@ -58,24 +58,6 @@ class BaseWidgetDelegateActiveInstancesTest {
     }
 
     @Test
-    fun getActiveInstances_removesWidgetIdKeyFromReturnedOptions() = runTest {
-        rule.setupBoundWidget(
-            851,
-            TestReceiver::class.java.name,
-            widgetId = "widget_a",
-            extraOptions = Bundle().apply { putString("config_key", "config_value") },
-        )
-        rule.registerReceiverInManifest(TestReceiver::class.java.name)
-
-        val instance = rule.delegate().getActiveInstances("test_widget").single()
-
-        assertThat(instance.widgetId).isEqualTo("widget_a")
-        assertThat(instance.options.containsKey(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID))
-            .isFalse()
-        assertThat(instance.options.getString("config_key")).isEqualTo("config_value")
-    }
-
-    @Test
     fun getActiveInstances_returnsOneInstancePerWidgetId() = runTest {
         rule.setupBoundWidget(601, TestReceiver::class.java.name, widgetId = "instance_1")
         rule.setupBoundWidget(602, TestReceiver::class.java.name, widgetId = "instance_2")

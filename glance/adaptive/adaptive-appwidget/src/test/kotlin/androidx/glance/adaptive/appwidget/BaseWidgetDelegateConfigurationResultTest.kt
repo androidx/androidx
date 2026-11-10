@@ -157,7 +157,7 @@ class BaseWidgetDelegateConfigurationResultTest {
     }
 
     @Test
-    fun setConfigurationResult_withBlankWidgetId_throwsAndDoesNotSetResult() {
+    fun setConfigurationResult_withBlankWidgetId_generatesWidgetIdAndSetsResultOk() {
         rule.setupBoundWidget(703, TestReceiver::class.java.name)
         val activity =
             Robolectric.buildActivity(
@@ -167,23 +167,19 @@ class BaseWidgetDelegateConfigurationResultTest {
                 )
                 .get()
 
-        assertThrows(IllegalArgumentException::class.java) {
-            rule
-                .delegate()
-                .setConfigurationResult(
-                    activity = activity,
-                    widgetId = "   ",
-                    options = Bundle.EMPTY,
-                )
-        }
+        rule
+            .delegate()
+            .setConfigurationResult(activity = activity, widgetId = "   ", options = Bundle.EMPTY)
 
-        verify(rule.appWidgetManager, never()).updateAppWidgetOptions(eq(703), any())
-        assertThat(shadowOf(activity).resultCode).isEqualTo(Activity.RESULT_CANCELED)
+        val storedOptions = rule.appWidgetManager.getAppWidgetOptions(703)
+        val storedWidgetId = storedOptions.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID)
+        assertThat(storedWidgetId).isNotEmpty()
+        assertThat(storedWidgetId).isNotEqualTo("   ")
+        assertThat(shadowOf(activity).resultCode).isEqualTo(Activity.RESULT_OK)
     }
 
     @Test
-    fun setConfigurationResult_withWidgetIdKeyInOptions_storesWidgetIdArgument() {
-        // EXTRA_WIDGET_ID is internal: only the widgetId argument requests an identifier.
+    fun setConfigurationResult_withWidgetIdOnlyInOptions_storesIt() {
         rule.setupBoundWidget(704, TestReceiver::class.java.name)
         val activity =
             Robolectric.buildActivity(
@@ -199,20 +195,15 @@ class BaseWidgetDelegateConfigurationResultTest {
 
         rule
             .delegate()
-            .setConfigurationResult(
-                activity = activity,
-                widgetId = "from_argument",
-                options = options,
-            )
+            .setConfigurationResult(activity = activity, widgetId = null, options = options)
 
         val storedOptions = rule.appWidgetManager.getAppWidgetOptions(704)
         assertThat(storedOptions.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID))
-            .isEqualTo("from_argument")
-        assertThat(shadowOf(activity).resultCode).isEqualTo(Activity.RESULT_OK)
+            .isEqualTo("from_options")
     }
 
     @Test
-    fun setConfigurationResult_withoutWidgetIdAndWithWidgetIdKeyInOptions_ignoresItAndGeneratesWidgetId() {
+    fun setConfigurationResult_withWidgetIdInArgumentAndOptions_storesArgument() {
         rule.setupBoundWidget(705, TestReceiver::class.java.name)
         val activity =
             Robolectric.buildActivity(
@@ -228,15 +219,15 @@ class BaseWidgetDelegateConfigurationResultTest {
 
         rule
             .delegate()
-            .setConfigurationResult(activity = activity, widgetId = null, options = options)
+            .setConfigurationResult(
+                activity = activity,
+                widgetId = "from_argument",
+                options = options,
+            )
 
-        val storedWidgetId =
-            rule.appWidgetManager
-                .getAppWidgetOptions(705)
-                .getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID)
-        assertThat(storedWidgetId).isNotEmpty()
-        assertThat(storedWidgetId).isNotEqualTo("from_options")
-        assertThat(shadowOf(activity).resultCode).isEqualTo(Activity.RESULT_OK)
+        val storedOptions = rule.appWidgetManager.getAppWidgetOptions(705)
+        assertThat(storedOptions.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID))
+            .isEqualTo("from_argument")
     }
 
     @Test
