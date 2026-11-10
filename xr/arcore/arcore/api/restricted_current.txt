@@ -764,11 +764,13 @@ package androidx.xr.arcore {
     field public static final androidx.xr.arcore.SpatialAnnotationQuadAlignment.Companion Companion;
     field public static final androidx.xr.arcore.SpatialAnnotationQuadAlignment OBJECT;
     field public static final androidx.xr.arcore.SpatialAnnotationQuadAlignment SCREEN;
+    field public static final androidx.xr.arcore.SpatialAnnotationQuadAlignment SURFACE;
   }
 
   @SuppressCompatibility @androidx.xr.runtime.ExperimentalSpatialAnnotationsApi public static final class SpatialAnnotationQuadAlignment.Companion {
     property public androidx.xr.arcore.SpatialAnnotationQuadAlignment OBJECT;
     property public androidx.xr.arcore.SpatialAnnotationQuadAlignment SCREEN;
+    property public androidx.xr.arcore.SpatialAnnotationQuadAlignment SURFACE;
   }
 
   @SuppressCompatibility @androidx.xr.runtime.ExperimentalSpatialAnnotationsApi public final class SpatialAnnotationTrackingOptions {

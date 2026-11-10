@@ -20,17 +20,45 @@ import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.SpatialAnnotationQuadAlignment as RuntimeSpatialAnnotationQuadAlignment
 import androidx.xr.runtime.ExperimentalSpatialAnnotationsApi
 
-/** Enumeration of supported 3D quad alignment modes. */
+/**
+ * Alignment of the 3D quad produced for a tracked Spatial Annotation.
+ *
+ * The alignment determines which plane the quad lies in:
+ * - [SCREEN]: a plane facing the viewer, kept upright by gravity.
+ * - [OBJECT]: the object's plane as framed in the reference image.
+ * - [SURFACE]: the physical surface of a planar target.
+ */
 @ExperimentalSpatialAnnotationsApi
 public class SpatialAnnotationQuadAlignment internal constructor(internal val value: Int) {
     public companion object {
-        /** Upright HUD-style bounding box locked to world gravity, parallel to screen plane. */
+        /**
+         * Quad faces the viewer and stays upright relative to world gravity.
+         *
+         * The result is a regular, upright rectangle parallel to the screen, regardless of how the
+         * object is oriented.
+         */
         @JvmField
         public val SCREEN: SpatialAnnotationQuadAlignment = SpatialAnnotationQuadAlignment(0)
 
-        /** Skewed 3D quad glued directly to orientation and slope of physical object. */
+        /**
+         * Quad follows the object's perspective as framed in the reference image.
+         *
+         * The result is a skewed quadrilateral that matches how the object appeared when the
+         * reference image was captured. Unlike [SURFACE], it is not aligned to the object's
+         * physical surface.
+         */
         @JvmField
         public val OBJECT: SpatialAnnotationQuadAlignment = SpatialAnnotationQuadAlignment(1)
+
+        /**
+         * Quad lies flat against the physical surface of the tracked target.
+         *
+         * The result is coplanar with the target, as if stuck to it, regardless of the angle at
+         * which the reference image was captured. Intended for planar targets such as posters,
+         * screens, or labels.
+         */
+        @JvmField
+        public val SURFACE: SpatialAnnotationQuadAlignment = SpatialAnnotationQuadAlignment(2)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -45,6 +73,7 @@ public class SpatialAnnotationQuadAlignment internal constructor(internal val va
         when (value) {
             0 -> "SCREEN"
             1 -> "OBJECT"
+            2 -> "SURFACE"
             else -> "UNKNOWN($value)"
         }
 }
@@ -56,6 +85,7 @@ public fun SpatialAnnotationQuadAlignment.toRuntimeAlignment():
     when (this) {
         SpatialAnnotationQuadAlignment.SCREEN -> RuntimeSpatialAnnotationQuadAlignment.SCREEN
         SpatialAnnotationQuadAlignment.OBJECT -> RuntimeSpatialAnnotationQuadAlignment.OBJECT
+        SpatialAnnotationQuadAlignment.SURFACE -> RuntimeSpatialAnnotationQuadAlignment.SURFACE
         else -> throw IllegalArgumentException("Unknown alignment!")
     }
 
@@ -66,5 +96,6 @@ public fun RuntimeSpatialAnnotationQuadAlignment.toSpatialAnnotationQuadAlignmen
     when (this) {
         RuntimeSpatialAnnotationQuadAlignment.SCREEN -> SpatialAnnotationQuadAlignment.SCREEN
         RuntimeSpatialAnnotationQuadAlignment.OBJECT -> SpatialAnnotationQuadAlignment.OBJECT
+        RuntimeSpatialAnnotationQuadAlignment.SURFACE -> SpatialAnnotationQuadAlignment.SURFACE
         else -> throw IllegalArgumentException("Unknown alignment!")
     }

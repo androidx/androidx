@@ -346,6 +346,51 @@ class SpatialAnnotationTest {
         }
 
     @Test
+    fun startTracking_withSurfaceAlignment_exposesSurfaceQuadAlignment() =
+        runTest(testDispatcher) {
+            activityController.resume()
+            val id = SpatialAnnotationId.fromString("surface_annotation")
+            val options =
+                SpatialAnnotationTrackingOptions.Builder(
+                        ByteBuffer.allocateDirect(400),
+                        IntSize2d(10, 10),
+                        1000L,
+                        SpatialAnnotationQuadAlignment.SURFACE,
+                    )
+                    .setQuads(
+                        mapOf(
+                            id to
+                                Quad.fromCorners(
+                                    Vector2(-1f, 1f),
+                                    Vector2(1f, 1f),
+                                    Vector2(1f, -1f),
+                                    Vector2(-1f, -1f),
+                                )
+                        )
+                    )
+                    .build()
+            var underTest = emptyList<SpatialAnnotation>()
+            testScope.launch {
+                SpatialAnnotation.subscribe(session).collect { underTest = it.toList() }
+            }
+
+            SpatialAnnotation.startTracking(session, options)
+            advanceUntilIdle()
+
+            assertThat(underTest.single().quadAlignment)
+                .isEqualTo(SpatialAnnotationQuadAlignment.SURFACE)
+        }
+
+    @Test
+    fun surfaceQuadAlignment_toString_returnsSurface() {
+        val alignment = SpatialAnnotationQuadAlignment.SURFACE
+
+        val result = alignment.toString()
+
+        assertThat(result).isEqualTo("SURFACE")
+    }
+
+    @Test
     fun builder_nonDirectBuffer_throwsIllegalStateException() {
         val heapBuffer = ByteBuffer.allocate(100)
         val quadMap =

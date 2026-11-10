@@ -25,5 +25,7 @@ public class SpatialAnnotationQuadAlignment private constructor(public val value
         public val SCREEN: SpatialAnnotationQuadAlignment = SpatialAnnotationQuadAlignment(0)
         @JvmField
         public val OBJECT: SpatialAnnotationQuadAlignment = SpatialAnnotationQuadAlignment(1)
+        @JvmField
+        public val SURFACE: SpatialAnnotationQuadAlignment = SpatialAnnotationQuadAlignment(2)
     }
 }

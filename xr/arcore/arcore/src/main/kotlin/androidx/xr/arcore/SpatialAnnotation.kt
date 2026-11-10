@@ -19,7 +19,6 @@ package androidx.xr.arcore
 import androidx.xr.arcore.runtime.SpatialAnnotation as RuntimeSpatialAnnotation
 import androidx.xr.arcore.runtime.SpatialAnnotationId as RuntimeSpatialAnnotationId
 import androidx.xr.arcore.runtime.SpatialAnnotationImageFormat as RuntimeSpatialAnnotationImageFormat
-import androidx.xr.arcore.runtime.SpatialAnnotationQuadAlignment as RuntimeSpatialAnnotationQuadAlignment
 import androidx.xr.runtime.ExperimentalSpatialAnnotationsApi
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SpatialAnnotationTrackingMode
@@ -49,11 +48,7 @@ internal constructor(internal val runtimeSpatialAnnotation: RuntimeSpatialAnnota
         SpatialAnnotationId.fromString(runtimeSpatialAnnotation.id.toString())
 
     public val quadAlignment: SpatialAnnotationQuadAlignment? =
-        when (runtimeSpatialAnnotation.alignment?.value) {
-            0 -> SpatialAnnotationQuadAlignment.SCREEN
-            1 -> SpatialAnnotationQuadAlignment.OBJECT
-            else -> null
-        }
+        runtimeSpatialAnnotation.alignment?.toSpatialAnnotationQuadAlignment()
 
     public companion object {
 
@@ -126,14 +121,7 @@ internal constructor(internal val runtimeSpatialAnnotation: RuntimeSpatialAnnota
                     else -> throw IllegalArgumentException("Unknown format!")
                 }
 
-            val runtimeAlignment =
-                when (options.alignment) {
-                    SpatialAnnotationQuadAlignment.SCREEN ->
-                        RuntimeSpatialAnnotationQuadAlignment.SCREEN
-                    SpatialAnnotationQuadAlignment.OBJECT ->
-                        RuntimeSpatialAnnotationQuadAlignment.OBJECT
-                    else -> throw IllegalArgumentException("Unknown alignment!")
-                }
+            val runtimeAlignment = options.alignment.toRuntimeAlignment()
 
             extender.perceptionManager.startSpatialAnnotationTracking(
                 options.imageBuffer,
