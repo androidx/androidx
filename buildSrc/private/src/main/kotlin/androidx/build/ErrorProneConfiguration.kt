@@ -227,7 +227,7 @@ private fun JavaCompile.configureWithErrorProne() {
                     "-Xep:NotJavadoc:ERROR",
                     "-Xep:ExposedPrivateType:ERROR",
                     "-Xep:ListRemoveAmbiguous:ERROR",
-                    "-Xep:PreferThrowsTag:OFF",
+                    "-Xep:PreferThrowsTag:ERROR",
                     "-Xep:JavaTimeDefaultTimeZone:ERROR",
                     "-Xep:ParameterNotNullable:ERROR",
                     "-Xep:MissingOverride:ERROR",
