@@ -31,11 +31,11 @@ import androidx.wear.compose.remote.material3.previews.RemoteEdgeButtonExtraSmal
 import androidx.wear.compose.remote.material3.previews.RemoteEdgeButtonLarge
 import androidx.wear.compose.remote.material3.previews.RemoteEdgeButtonMedium
 import androidx.wear.compose.remote.material3.previews.RemoteEdgeButtonSmall
+import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayInputStream
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -73,7 +73,7 @@ class RemoteMaterial3DataPassTest {
                     .bytes
 
             val doc = initDocument(documentBytes)
-            assertTrue(doc.docInfo.mNumberOfOps > 0)
+            assertThat(doc.docInfo.mNumberOfOps).isGreaterThan(0)
         }
 
     @Test
@@ -86,7 +86,7 @@ class RemoteMaterial3DataPassTest {
                     .bytes
 
             val doc = initDocument(documentBytes)
-            assertTrue(doc.docInfo.mNumberOfOps > 0)
+            assertThat(doc.docInfo.mNumberOfOps).isGreaterThan(0)
         }
 
     @Test
@@ -102,7 +102,7 @@ class RemoteMaterial3DataPassTest {
                     .bytes
 
             val doc = initDocument(documentBytes)
-            assertTrue(doc.docInfo.mNumberOfOps > 0)
+            assertThat(doc.docInfo.mNumberOfOps).isGreaterThan(0)
         }
 
     @Test
@@ -115,6 +115,6 @@ class RemoteMaterial3DataPassTest {
                     .bytes
 
             val doc = initDocument(documentBytes)
-            assertTrue(doc.docInfo.mNumberOfOps > 0)
+            assertThat(doc.docInfo.mNumberOfOps).isGreaterThan(0)
         }
 }

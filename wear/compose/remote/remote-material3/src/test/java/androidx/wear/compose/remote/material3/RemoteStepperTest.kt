@@ -43,10 +43,9 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.compose.remote.material3.util.EnableEmbeddedPlayerRule
+import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayInputStream
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -62,14 +61,16 @@ class RemoteStepperTest {
 
     @Test
     fun defaultValues() {
-        assertEquals(24f, RemoteStepperDefaults.IconSize.value.constantValue, 0.001f)
-        assertEquals(60f, RemoteStepperDefaults.ButtonWidth.value.constantValue, 0.001f)
-        assertEquals(48f, RemoteStepperDefaults.ButtonHeight.value.constantValue, 0.001f)
-        assertEquals(8f, RemoteStepperDefaults.VerticalSpacing.value.constantValue, 0.001f)
-        assertEquals(0.35f, RemoteStepperDefaults.ButtonWeight, 0.001f)
-        assertEquals(0.3f, RemoteStepperDefaults.ContentWeight, 0.001f)
-        assertEquals(RemoteCircleShape, RemoteStepperDefaults.buttonShape)
-        assertEquals(RemoteCircleShape, RemoteStepperDefaults.StepperButtonShape)
+        assertThat(RemoteStepperDefaults.IconSize.value.constantValue).isWithin(0.001f).of(24f)
+        assertThat(RemoteStepperDefaults.ButtonWidth.value.constantValue).isWithin(0.001f).of(60f)
+        assertThat(RemoteStepperDefaults.ButtonHeight.value.constantValue).isWithin(0.001f).of(48f)
+        assertThat(RemoteStepperDefaults.VerticalSpacing.value.constantValue)
+            .isWithin(0.001f)
+            .of(8f)
+        assertThat(RemoteStepperDefaults.ButtonWeight).isWithin(0.001f).of(0.35f)
+        assertThat(RemoteStepperDefaults.ContentWeight).isWithin(0.001f).of(0.3f)
+        assertThat(RemoteStepperDefaults.buttonShape).isEqualTo(RemoteCircleShape)
+        assertThat(RemoteStepperDefaults.StepperButtonShape).isEqualTo(RemoteCircleShape)
     }
 
     @Test
@@ -87,12 +88,13 @@ class RemoteStepperTest {
         val newContentColor = RemoteColor(Color.Yellow)
         val copy = original.copy(contentColor = newContentColor)
 
-        assertEquals(newContentColor, copy.contentColor)
-        assertEquals(original.buttonContainerColor, copy.buttonContainerColor)
-        assertEquals(original.buttonIconColor, copy.buttonIconColor)
-        assertEquals(original.disabledContentColor, copy.disabledContentColor)
-        assertEquals(original.disabledButtonContainerColor, copy.disabledButtonContainerColor)
-        assertEquals(original.disabledButtonIconColor, copy.disabledButtonIconColor)
+        assertThat(copy.contentColor).isEqualTo(newContentColor)
+        assertThat(copy.buttonContainerColor).isEqualTo(original.buttonContainerColor)
+        assertThat(copy.buttonIconColor).isEqualTo(original.buttonIconColor)
+        assertThat(copy.disabledContentColor).isEqualTo(original.disabledContentColor)
+        assertThat(copy.disabledButtonContainerColor)
+            .isEqualTo(original.disabledButtonContainerColor)
+        assertThat(copy.disabledButtonIconColor).isEqualTo(original.disabledButtonIconColor)
     }
 
     @Test
@@ -109,9 +111,9 @@ class RemoteStepperTest {
         val colors2 = colors1.copy()
         val colors3 = colors1.copy(contentColor = RemoteColor(Color.Black))
 
-        assertEquals(colors1, colors2)
-        assertEquals(colors1.hashCode(), colors2.hashCode())
-        assertNotEquals(colors1, colors3)
+        assertThat(colors2).isEqualTo(colors1)
+        assertThat(colors2.hashCode()).isEqualTo(colors1.hashCode())
+        assertThat(colors3).isNotEqualTo(colors1)
     }
 
     // GSB is drawn over the host window and reports a top inset. It shrinks
@@ -175,12 +177,10 @@ class RemoteStepperTest {
             rule.onNodeWithContentDescription("Increase").getUnclippedBoundsInRoot()
         val decreaseBounds =
             rule.onNodeWithContentDescription("Decrease").getUnclippedBoundsInRoot()
-        assertEquals(expectedPadding, increaseBounds.top.value - stepperTop, 0.5f)
-        assertEquals(
-            expectedPadding,
-            stepperTop + stepperHeight - decreaseBounds.bottom.value,
-            0.5f,
-        )
+        assertThat(increaseBounds.top.value - stepperTop).isWithin(0.5f).of(expectedPadding)
+        assertThat(stepperTop + stepperHeight - decreaseBounds.bottom.value)
+            .isWithin(0.5f)
+            .of(expectedPadding)
     }
 
     /**
@@ -223,10 +223,8 @@ class RemoteStepperTest {
                     }
                 appContext.createConfigurationContext(configuration)
             }
-        assertEquals(
-            screenHeightDp ?: appContext.resources.configuration.screenHeightDp,
-            context.resources.configuration.screenHeightDp,
-        )
+        assertThat(context.resources.configuration.screenHeightDp)
+            .isEqualTo(screenHeightDp ?: appContext.resources.configuration.screenHeightDp)
         val bytes = captureSingleRemoteDocument(context = context, content = content).bytes
         CoreDocument().apply {
             ByteArrayInputStream(bytes).use {

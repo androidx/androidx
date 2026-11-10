@@ -41,8 +41,6 @@ import androidx.wear.compose.remote.material3.samples.RemoteSplitSwitchButtonSam
 import androidx.wear.compose.remote.material3.samples.RemoteSwitchButtonSample
 import androidx.wear.compose.remote.material3.util.TestImageVectors
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assert.assertArrayEquals
-import org.junit.Assert.assertFalse
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -69,11 +67,11 @@ class RemoteSelectionButtonAnimationTest {
                 RemoteMaterialTheme(motionScheme = SlowEffectsAsFastScheme) { sample() }
             }
 
-            assertArrayEquals(defaultDocument, standardDocument)
+            assertThat(standardDocument).isEqualTo(defaultDocument)
             // The selection control animates with the fast effects spec, and the container and
             // content colors with the slow effects spec.
-            assertFalse(defaultDocument.contentEquals(slowerControlDocument))
-            assertFalse(defaultDocument.contentEquals(fasterColorsDocument))
+            assertThat(slowerControlDocument).isNotEqualTo(defaultDocument)
+            assertThat(fasterColorsDocument).isNotEqualTo(defaultDocument)
         }
     }
 

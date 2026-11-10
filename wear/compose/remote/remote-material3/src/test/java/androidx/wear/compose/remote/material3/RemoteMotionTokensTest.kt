@@ -17,7 +17,7 @@
 package androidx.wear.compose.remote.material3
 
 import androidx.compose.remote.creation.compose.state.RemoteEasing
-import org.junit.Assert.assertEquals
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -27,54 +27,41 @@ class RemoteMotionTokensTest {
 
     @Test
     fun duration_tokens_match_wear_motion_tokens() {
-        assertEquals(50, RemoteMotionTokens.DurationShort1)
-        assertEquals(100, RemoteMotionTokens.DurationShort2)
-        assertEquals(150, RemoteMotionTokens.DurationShort3)
-        assertEquals(200, RemoteMotionTokens.DurationShort4)
-        assertEquals(250, RemoteMotionTokens.DurationMedium1)
-        assertEquals(300, RemoteMotionTokens.DurationMedium2)
-        assertEquals(350, RemoteMotionTokens.DurationMedium3)
-        assertEquals(400, RemoteMotionTokens.DurationMedium4)
-        assertEquals(450, RemoteMotionTokens.DurationLong1)
-        assertEquals(500, RemoteMotionTokens.DurationLong2)
-        assertEquals(550, RemoteMotionTokens.DurationLong3)
-        assertEquals(600, RemoteMotionTokens.DurationLong4)
-        assertEquals(700, RemoteMotionTokens.DurationExtraLong1)
-        assertEquals(800, RemoteMotionTokens.DurationExtraLong2)
-        assertEquals(900, RemoteMotionTokens.DurationExtraLong3)
-        assertEquals(1000, RemoteMotionTokens.DurationExtraLong4)
+        assertThat(RemoteMotionTokens.DurationShort1).isEqualTo(50)
+        assertThat(RemoteMotionTokens.DurationShort2).isEqualTo(100)
+        assertThat(RemoteMotionTokens.DurationShort3).isEqualTo(150)
+        assertThat(RemoteMotionTokens.DurationShort4).isEqualTo(200)
+        assertThat(RemoteMotionTokens.DurationMedium1).isEqualTo(250)
+        assertThat(RemoteMotionTokens.DurationMedium2).isEqualTo(300)
+        assertThat(RemoteMotionTokens.DurationMedium3).isEqualTo(350)
+        assertThat(RemoteMotionTokens.DurationMedium4).isEqualTo(400)
+        assertThat(RemoteMotionTokens.DurationLong1).isEqualTo(450)
+        assertThat(RemoteMotionTokens.DurationLong2).isEqualTo(500)
+        assertThat(RemoteMotionTokens.DurationLong3).isEqualTo(550)
+        assertThat(RemoteMotionTokens.DurationLong4).isEqualTo(600)
+        assertThat(RemoteMotionTokens.DurationExtraLong1).isEqualTo(700)
+        assertThat(RemoteMotionTokens.DurationExtraLong2).isEqualTo(800)
+        assertThat(RemoteMotionTokens.DurationExtraLong3).isEqualTo(900)
+        assertThat(RemoteMotionTokens.DurationExtraLong4).isEqualTo(1000)
     }
 
     @Test
     fun easing_tokens_match_wear_motion_tokens() {
-        assertEquals(
-            RemoteEasing.cubic(0.3f, 0.0f, 0.8f, 0.15f),
-            RemoteMotionTokens.EasingEmphasizedAccelerate,
-        )
-        assertEquals(
-            RemoteEasing.cubic(0.05f, 0.7f, 0.1f, 1.0f),
-            RemoteMotionTokens.EasingEmphasizedDecelerate,
-        )
-        assertEquals(
-            RemoteEasing.cubic(0.4f, 0.0f, 1.0f, 1.0f),
-            RemoteMotionTokens.EasingLegacyAccelerate,
-        )
-        assertEquals(
-            RemoteEasing.cubic(0.0f, 0.0f, 0.2f, 1.0f),
-            RemoteMotionTokens.EasingLegacyDecelerate,
-        )
-        assertEquals(
-            RemoteEasing.cubic(0.4f, 0.0f, 0.2f, 1.0f),
-            RemoteMotionTokens.EasingLegacyStandard,
-        )
-        assertEquals(RemoteEasing.cubic(0.2f, 0.0f, 0.0f, 1.0f), RemoteMotionTokens.EasingStandard)
-        assertEquals(
-            RemoteEasing.cubic(0.3f, 0.0f, 1.0f, 1.0f),
-            RemoteMotionTokens.EasingStandardAccelerate,
-        )
-        assertEquals(
-            RemoteEasing.cubic(0.0f, 0.0f, 0.0f, 1.0f),
-            RemoteMotionTokens.EasingStandardDecelerate,
-        )
+        assertThat(RemoteMotionTokens.EasingEmphasizedAccelerate)
+            .isEqualTo(RemoteEasing.cubic(0.3f, 0.0f, 0.8f, 0.15f))
+        assertThat(RemoteMotionTokens.EasingEmphasizedDecelerate)
+            .isEqualTo(RemoteEasing.cubic(0.05f, 0.7f, 0.1f, 1.0f))
+        assertThat(RemoteMotionTokens.EasingLegacyAccelerate)
+            .isEqualTo(RemoteEasing.cubic(0.4f, 0.0f, 1.0f, 1.0f))
+        assertThat(RemoteMotionTokens.EasingLegacyDecelerate)
+            .isEqualTo(RemoteEasing.cubic(0.0f, 0.0f, 0.2f, 1.0f))
+        assertThat(RemoteMotionTokens.EasingLegacyStandard)
+            .isEqualTo(RemoteEasing.cubic(0.4f, 0.0f, 0.2f, 1.0f))
+        assertThat(RemoteMotionTokens.EasingStandard)
+            .isEqualTo(RemoteEasing.cubic(0.2f, 0.0f, 0.0f, 1.0f))
+        assertThat(RemoteMotionTokens.EasingStandardAccelerate)
+            .isEqualTo(RemoteEasing.cubic(0.3f, 0.0f, 1.0f, 1.0f))
+        assertThat(RemoteMotionTokens.EasingStandardDecelerate)
+            .isEqualTo(RemoteEasing.cubic(0.0f, 0.0f, 0.0f, 1.0f))
     }
 }

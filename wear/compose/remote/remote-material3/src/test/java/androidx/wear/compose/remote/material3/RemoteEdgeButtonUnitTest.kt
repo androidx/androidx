@@ -41,6 +41,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.max
 import kotlin.math.sqrt
+import kotlin.test.assertNotNull
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
@@ -152,10 +153,8 @@ class RemoteEdgeButtonUnitTest {
             val rowDims =
                 Regex("""ROW\s+\[[^\]]+]\s*=\s*\[[^,]+,\s*[^,]+,\s*([\d.]+),\s*([\d.]+)]""")
                     .find(hierarchy)
-            assertWithMessage("Expected ROW bounds in hierarchy for $name:\n$hierarchy")
-                .that(rowDims)
-                .isNotNull()
-            val rowWidthPx = rowDims!!.groupValues[1].toFloat()
+            assertNotNull(rowDims, "Expected ROW bounds in hierarchy for $name:\n$hierarchy")
+            val rowWidthPx = rowDims.groupValues[1].toFloat()
             assertWithMessage("ROW width px for $name")
                 .that(rowWidthPx)
                 .isWithin(1.5f)
@@ -164,10 +163,11 @@ class RemoteEdgeButtonUnitTest {
             val coreTextDims =
                 Regex("""CORE_TEXT\s+\[[^\]]+]\s*=\s*\[[^,]+,\s*[^,]+,\s*([\d.]+),\s*([\d.]+)]""")
                     .find(hierarchy)
-            assertWithMessage("Expected CORE_TEXT bounds in hierarchy for $name:\n$hierarchy")
-                .that(coreTextDims)
-                .isNotNull()
-            val textWidthPx = coreTextDims!!.groupValues[1].toFloat()
+            assertNotNull(
+                coreTextDims,
+                "Expected CORE_TEXT bounds in hierarchy for $name:\n$hierarchy",
+            )
+            val textWidthPx = coreTextDims.groupValues[1].toFloat()
             val textHeightPx = coreTextDims.groupValues[2].toFloat()
             assertWithMessage("CORE_TEXT width px for $name")
                 .that(textWidthPx)

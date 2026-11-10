@@ -140,3 +140,10 @@ Available in `:compose:remote:remote-testing`:
 ### 2. Avoid Direct Usage of Restricted APIs in Tests
 - **Avoid using restricted APIs (`@RestrictTo`)**: Avoid using APIs annotated with `@RestrictTo` (e.g., `RestrictTo.Scope.LIBRARY_GROUP`) in test sources. Since tests are compiled as separate modules, they may reside outside the allowed scope of these restrictions, causing compilation failures on presubmit or buildbot. Always prefer public, unrestricted APIs.
   - *Example*: If you must create display info directly, ensure you use the public `createCreationDisplayInfo(context)` or `RemoteCreationDisplayInfo` constructors.
+
+### 3. Use Truth for Assertions
+- **Assert with Truth (`com.google.common.truth.Truth.assertThat`)**: Do NOT use the JUnit assertions in `org.junit.Assert` (`assertEquals`, `assertTrue`, `assertArrayEquals`, ...) or their `kotlin.test` equivalents in new or modified tests.
+  - Use `assertThat(actual).isEqualTo(expected)`, `assertThat(actual).isWithin(tolerance).of(expected)` for floating point values, and `assertWithMessage(...)` to add a failure message.
+- **In Kotlin, prefer these `kotlin.test` assertions**:
+  - `kotlin.test.assertFailsWith<T> { ... }` over `org.junit.Assert.assertThrows`.
+  - `kotlin.test.assertNotNull(value)` and `kotlin.test.assertIs<T>(value)` over the Truth `isNotNull()` and `isInstanceOf(...)`, as they smart cast the value for the rest of the test.

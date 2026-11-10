@@ -43,7 +43,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -162,6 +161,6 @@ class RemoteTimeTextTest {
                     content()
                 }
                 .bytes
-        assertTrue(bytes.isNotEmpty())
+        assertThat(bytes).isNotEmpty()
     }
 }

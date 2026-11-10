@@ -49,8 +49,6 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sin
-import org.junit.Assert.assertArrayEquals
-import org.junit.Assert.assertFalse
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -211,8 +209,8 @@ class RemoteProgressIndicatorAnimationTest {
             RemoteMaterialTheme(motionScheme = SlowEffectsScheme) { indicator() }
         }
 
-        assertArrayEquals(defaultDocument, standardDocument)
-        assertFalse(defaultDocument.contentEquals(otherDocument))
+        assertThat(standardDocument).isEqualTo(defaultDocument)
+        assertThat(otherDocument).isNotEqualTo(defaultDocument)
     }
 
     @Test
@@ -316,8 +314,8 @@ class RemoteProgressIndicatorAnimationTest {
                 RemoteMaterialTheme(motionScheme = FastEffectsScheme) { sample() }
             }
 
-            assertArrayEquals(defaultDocument, standardDocument)
-            assertFalse(defaultDocument.contentEquals(otherDocument))
+            assertThat(standardDocument).isEqualTo(defaultDocument)
+            assertThat(otherDocument).isNotEqualTo(defaultDocument)
         }
     }
 
@@ -330,7 +328,7 @@ class RemoteProgressIndicatorAnimationTest {
                     RemoteMaterialTheme(motionScheme = scheme) { sample() }
                 }
 
-                assertArrayEquals(defaultDocument, otherDocument)
+                assertThat(otherDocument).isEqualTo(defaultDocument)
             }
         }
     }

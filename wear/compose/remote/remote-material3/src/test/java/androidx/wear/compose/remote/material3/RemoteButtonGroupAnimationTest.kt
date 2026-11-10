@@ -68,12 +68,12 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.wear.compose.remote.material3.util.TestProfiles
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertThrows
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -681,23 +681,23 @@ class RemoteButtonGroupAnimationTest {
         val dynamicWeight = MutableRemoteFloat(1f)
         val dynamicMinWidth = MutableRemoteFloat(48f).asRemoteDp()
 
-        assertThrows(IllegalArgumentException::class.java) {
+        assertFailsWith<IllegalArgumentException> {
             capture { RemoteButtonGroup { TestButton("b0", RemoteModifier.weight(0f.rf)) } }
         }
-        assertThrows(IllegalArgumentException::class.java) {
+        assertFailsWith<IllegalArgumentException> {
             capture {
                 RemoteButtonGroup {
                     TestButton("b0", RemoteModifier.weight(Float.POSITIVE_INFINITY.rf))
                 }
             }
         }
-        assertThrows(IllegalArgumentException::class.java) {
+        assertFailsWith<IllegalArgumentException> {
             capture { RemoteButtonGroup { TestButton("b0", RemoteModifier.weight(dynamicWeight)) } }
         }
-        assertThrows(IllegalArgumentException::class.java) {
+        assertFailsWith<IllegalArgumentException> {
             capture { RemoteButtonGroup { TestButton("b0", RemoteModifier.minWidth(0.rdp)) } }
         }
-        assertThrows(IllegalArgumentException::class.java) {
+        assertFailsWith<IllegalArgumentException> {
             capture {
                 RemoteButtonGroup { TestButton("b0", RemoteModifier.minWidth(dynamicMinWidth)) }
             }

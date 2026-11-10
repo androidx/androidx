@@ -22,7 +22,7 @@ import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.Color
-import org.junit.Assert.assertEquals
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -49,31 +49,31 @@ class RemoteProgressIndicatorColorsTest {
 
     @Test
     fun resolves_enabled_when_constant_true() {
-        assertEquals(redBrush, colors.indicatorBrush(true.rb))
-        assertEquals(blueBrush, colors.trackBrush(true.rb))
-        assertEquals(greenBrush, colors.overflowTrackBrush(true.rb))
+        assertThat(colors.indicatorBrush(true.rb)).isEqualTo(redBrush)
+        assertThat(colors.trackBrush(true.rb)).isEqualTo(blueBrush)
+        assertThat(colors.overflowTrackBrush(true.rb)).isEqualTo(greenBrush)
     }
 
     @Test
     fun resolves_disabled_when_constant_false() {
-        assertEquals(grayBrush, colors.indicatorBrush(false.rb))
-        assertEquals(darkGrayBrush, colors.trackBrush(false.rb))
-        assertEquals(lightGrayBrush, colors.overflowTrackBrush(false.rb))
+        assertThat(colors.indicatorBrush(false.rb)).isEqualTo(grayBrush)
+        assertThat(colors.trackBrush(false.rb)).isEqualTo(darkGrayBrush)
+        assertThat(colors.overflowTrackBrush(false.rb)).isEqualTo(lightGrayBrush)
     }
 
     @Test
     fun resolves_enabled_brush_when_expression_provided() {
         val expressionBoolean = 1f.rf.isGreaterThan(0f.rf)
-        assertEquals(redBrush, colors.indicatorBrush(expressionBoolean))
-        assertEquals(blueBrush, colors.trackBrush(expressionBoolean))
-        assertEquals(greenBrush, colors.overflowTrackBrush(expressionBoolean))
+        assertThat(colors.indicatorBrush(expressionBoolean)).isEqualTo(redBrush)
+        assertThat(colors.trackBrush(expressionBoolean)).isEqualTo(blueBrush)
+        assertThat(colors.overflowTrackBrush(expressionBoolean)).isEqualTo(greenBrush)
     }
 
     @Test
     fun copy_preserves_values_when_no_arguments_passed() {
         val copied = colors.copy()
-        assertEquals(colors, copied)
-        assertEquals(colors.hashCode(), copied.hashCode())
+        assertThat(copied).isEqualTo(colors)
+        assertThat(copied.hashCode()).isEqualTo(colors.hashCode())
     }
 
     @Test
@@ -81,11 +81,11 @@ class RemoteProgressIndicatorColorsTest {
         val yellowBrush = RemoteBrush.solidColor(Color.Yellow.rc)
         val cyanBrush = RemoteBrush.solidColor(Color.Cyan.rc)
         val copied = colors.copy(indicatorBrush = yellowBrush, disabledTrackBrush = cyanBrush)
-        assertEquals(yellowBrush, copied.indicatorBrush)
-        assertEquals(blueBrush, copied.trackBrush)
-        assertEquals(greenBrush, copied.overflowTrackBrush)
-        assertEquals(grayBrush, copied.disabledIndicatorBrush)
-        assertEquals(cyanBrush, copied.disabledTrackBrush)
-        assertEquals(lightGrayBrush, copied.disabledOverflowTrackBrush)
+        assertThat(copied.indicatorBrush).isEqualTo(yellowBrush)
+        assertThat(copied.trackBrush).isEqualTo(blueBrush)
+        assertThat(copied.overflowTrackBrush).isEqualTo(greenBrush)
+        assertThat(copied.disabledIndicatorBrush).isEqualTo(grayBrush)
+        assertThat(copied.disabledTrackBrush).isEqualTo(cyanBrush)
+        assertThat(copied.disabledOverflowTrackBrush).isEqualTo(lightGrayBrush)
     }
 }

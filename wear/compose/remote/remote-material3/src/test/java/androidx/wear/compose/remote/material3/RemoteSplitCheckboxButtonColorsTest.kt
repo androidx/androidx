@@ -20,8 +20,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.ui.graphics.Color
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -31,7 +30,8 @@ class RemoteSplitCheckboxButtonColorsTest {
 
     @Test
     fun splitCheckboxButtonDefaults_values() {
-        assertEquals(52.rdp.constantValue, RemoteSplitCheckboxButtonDefaults.Height.constantValue)
+        assertThat(RemoteSplitCheckboxButtonDefaults.Height.constantValue)
+            .isEqualTo(52.rdp.constantValue)
     }
 
     @Test
@@ -69,19 +69,19 @@ class RemoteSplitCheckboxButtonColorsTest {
 
         // Enabled + Checked
         val color1 = colors.containerColor(enabled = true.rb, checked = true.rb)
-        assertEquals(checkedContainer.constantValue, color1.constantValue)
+        assertThat(color1.constantValue).isEqualTo(checkedContainer.constantValue)
 
         // Enabled + Unchecked
         val color2 = colors.containerColor(enabled = true.rb, checked = false.rb)
-        assertEquals(uncheckedContainer.constantValue, color2.constantValue)
+        assertThat(color2.constantValue).isEqualTo(uncheckedContainer.constantValue)
 
         // Disabled + Checked
         val color3 = colors.containerColor(enabled = false.rb, checked = true.rb)
-        assertEquals(disabledCheckedContainer.constantValue, color3.constantValue)
+        assertThat(color3.constantValue).isEqualTo(disabledCheckedContainer.constantValue)
 
         // Disabled + Unchecked
         val color4 = colors.containerColor(enabled = false.rb, checked = false.rb)
-        assertEquals(disabledUncheckedContainer.constantValue, color4.constantValue)
+        assertThat(color4.constantValue).isEqualTo(disabledUncheckedContainer.constantValue)
     }
 
     @Test
@@ -113,10 +113,10 @@ class RemoteSplitCheckboxButtonColorsTest {
             )
 
         val colors2 = colors1.copy()
-        assertEquals(colors1, colors2)
-        assertEquals(colors1.hashCode(), colors2.hashCode())
+        assertThat(colors2).isEqualTo(colors1)
+        assertThat(colors2.hashCode()).isEqualTo(colors1.hashCode())
 
         val colors3 = colors1.copy(checkedContainerColor = RemoteColor(Color.Green))
-        assertNotEquals(colors1, colors3)
+        assertThat(colors3).isNotEqualTo(colors1)
     }
 }
