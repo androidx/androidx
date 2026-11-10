@@ -97,6 +97,7 @@ import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testClipEntry
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.InputTextSuggestionState
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
@@ -112,6 +113,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.collapse
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.copyText
+import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.cutText
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.dismiss
@@ -180,6 +182,7 @@ import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_EXPAN
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_PASTE
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.RangeInfoCompat.RANGE_TYPE_FLOAT
+import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
@@ -2785,6 +2788,102 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                         contentDescription = null
                     }
                 )
+        }
+    }
+
+    @Test
+    fun nodeRemoval_prunesCustomActionsAndDrawingOrderMappings() {
+        // Arrange.
+        var showItem1 by mutableStateOf(true)
+        val rootAction = CustomAccessibilityAction("RootAction") { true }
+        val customAction1 = CustomAccessibilityAction("Action1") { true }
+        val customAction2 = CustomAccessibilityAction("Action2") { true }
+
+        rule.setContentWithAccessibilityEnabled {
+            Column(Modifier.size(100.dp).semantics { this.customActions = listOf(rootAction) }) {
+                if (showItem1) {
+                    Box(
+                        Modifier.size(10.dp).testTag("button1").semantics(mergeDescendants = true) {
+                            this.role = Role.Button
+                            this.customActions = listOf(customAction1)
+                        }
+                    ) {
+                        Box(Modifier.size(5.dp).semantics { contentDescription = "Label1" })
+                    }
+                }
+                Box(Modifier.size(10.dp).semantics { this.customActions = listOf(customAction2) })
+            }
+        }
+
+        val delegate = androidComposeView.composeAccessibilityDelegate
+        val hostId = AccessibilityNodeProviderCompat.HOST_VIEW_ID
+        val id1 = rule.onNodeWithTag("button1").semanticsId()
+        val fakeRoleNodeId1 = id1 + RoleFakeNodeIdOffset
+        val id2 =
+            rule
+                .onNode(
+                    SemanticsMatcher.expectValue(
+                        androidx.compose.ui.semantics.SemanticsActions.CustomActions,
+                        listOf(customAction2),
+                    )
+                )
+                .semanticsId()
+
+        // Populate root, parent, and child node infos to assign drawing orders (including fake
+        // role node) and custom action IDs.
+        rule.runOnIdle {
+            val hostInfo = androidComposeView.createAccessibilityNodeInfo(hostId)
+            val columnId =
+                rule
+                    .onNode(
+                        SemanticsMatcher.expectValue(
+                            androidx.compose.ui.semantics.SemanticsActions.CustomActions,
+                            listOf(rootAction),
+                        )
+                    )
+                    .semanticsId()
+            if (columnId != androidComposeView.semanticsOwner.rootInfo.semanticsId) {
+                androidComposeView.createAccessibilityNodeInfo(columnId)
+            }
+            assertThat(hostInfo).isNotNull()
+            androidComposeView.createAccessibilityNodeInfo(id1)
+            androidComposeView.createAccessibilityNodeInfo(id2)
+
+            // Also populate HOST_VIEW_ID custom actions if root has semantics, or columnId
+            assertThat(delegate.actionIdToLabel.containsKey(id1)).isTrue()
+            assertThat(delegate.labelToActionId.containsKey(id1)).isTrue()
+            assertThat(delegate.drawingOrder.containsKey(id1)).isTrue()
+            assertThat(delegate.drawingOrder.containsKey(fakeRoleNodeId1)).isTrue()
+
+            assertThat(delegate.actionIdToLabel.containsKey(id2)).isTrue()
+            assertThat(delegate.labelToActionId.containsKey(id2)).isTrue()
+            assertThat(delegate.drawingOrder.containsKey(id2)).isTrue()
+        }
+
+        // Act: Remove item 1 from the composition while retaining item 2.
+        rule.runOnIdle { showItem1 = false }
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+        // Assert: Ensure all three maps pruned item 1 (and its fake role child) while retaining
+        // item 2.
+        rule.runOnIdle {
+            assertThat(delegate.actionIdToLabel.containsKey(id1)).isFalse()
+            assertThat(delegate.labelToActionId.containsKey(id1)).isFalse()
+            assertThat(delegate.drawingOrder.containsKey(id1)).isFalse()
+            assertThat(delegate.drawingOrder.containsKey(fakeRoleNodeId1)).isFalse()
+
+            assertThat(delegate.actionIdToLabel.containsKey(id2)).isTrue()
+            assertThat(delegate.labelToActionId.containsKey(id2)).isTrue()
+            assertThat(delegate.drawingOrder.containsKey(id2)).isTrue()
+        }
+
+        // Act: Detaching the view clears remaining node mappings.
+        rule.runOnIdle { delegate.onViewDetachedFromWindow(androidComposeView) }
+
+        rule.runOnIdle {
+            assertThat(delegate.actionIdToLabel.isEmpty()).isTrue()
+            assertThat(delegate.labelToActionId.isEmpty()).isTrue()
+            assertThat(delegate.drawingOrder.isEmpty()).isTrue()
         }
     }
 

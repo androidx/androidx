@@ -50,10 +50,8 @@ import androidx.collection.MutableIntIntMap
 import androidx.collection.MutableIntObjectMap
 import androidx.collection.MutableIntSet
 import androidx.collection.MutableObjectIntMap
-import androidx.collection.SparseArrayCompat
 import androidx.collection.intListOf
 import androidx.collection.intObjectMapOf
-import androidx.collection.mutableIntIntMapOf
 import androidx.collection.mutableIntListOf
 import androidx.collection.mutableIntObjectMapOf
 import androidx.collection.mutableObjectIntMapOf
@@ -341,8 +339,10 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     // For actionIdToId and labelToActionId, the keys are the virtualViewIds. The value of
     // actionIdToLabel holds assigned custom action id to custom action label mapping. The
     // value of labelToActionId holds custom action label to assigned custom action id mapping.
-    private var actionIdToLabel = SparseArrayCompat<SparseArrayCompat<CharSequence>>()
-    private var labelToActionId = SparseArrayCompat<MutableObjectIntMap<CharSequence>>()
+    @VisibleForTesting
+    internal val actionIdToLabel = MutableIntObjectMap<MutableIntObjectMap<CharSequence>>(0)
+    @VisibleForTesting
+    internal val labelToActionId = MutableIntObjectMap<MutableObjectIntMap<CharSequence>>(0)
     private var accessibilityCursorPosition = AccessibilityCursorPositionUndefined
 
     // We hold this node id to reset the [accessibilityCursorPosition] to undefined when
@@ -410,7 +410,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     // A mapping from semantics node IDs to the local drawing order (among the children of a single
     // parent) of the corresponding layout nodes.
-    private val drawingOrder = mutableIntIntMapOf()
+    @VisibleForTesting internal val drawingOrder = MutableIntIntMap(0)
 
     init {
         // Remove callbacks that rely on view being attached to a window when we become
@@ -425,6 +425,9 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         //  detachment to see if handler? can be removed.
         handler?.removeCallbacks(semanticsChangeChecker)
         isHoveringInteropView = false
+        actionIdToLabel.clear()
+        labelToActionId.clear()
+        drawingOrder.clear()
     }
 
     /**
@@ -1104,7 +1107,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                             "${AccessibilityActionsResourceIds.size} custom actions for one widget"
                     )
                 }
-                val currentActionIdToLabel = SparseArrayCompat<CharSequence>()
+                val currentActionIdToLabel = MutableIntObjectMap<CharSequence>(customActions.size)
                 val currentLabelToActionId = mutableObjectIntMapOf<CharSequence>()
                 // If this virtual node had custom action id assignment before, we try to keep the
                 // id
@@ -2466,9 +2469,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         return text.subSequence(0, len) as T
     }
 
-    // TODO (in a separate cl): Called when the SemanticsNode with id semanticsNodeId disappears.
-    // fun clearNode(semanticsNodeId: Int) { // clear the actionIdToId and labelToActionId nodes }
-
     private val semanticsChangeChecker = Runnable {
         if (!view.isAttachedToWindow) {
             checkingForSemanticsChanges = false
@@ -2695,6 +2695,16 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     }
 
     private fun updateSemanticsNodesCopyAndPanes() {
+        // Prune custom action mappings for nodes no longer present in currentSemanticsNodes.
+        // actionIdToLabel and labelToActionId are always updated together, so they share keys.
+        actionIdToLabel.removeIf { virtualViewId, _ ->
+            val isStale = !currentSemanticsNodes.containsKey(virtualViewId)
+            if (isStale) labelToActionId.remove(virtualViewId)
+            isStale
+        }
+        // Prune drawing orders for nodes no longer present in currentSemanticsNodes.
+        drawingOrder.removeIf { id, _ -> !currentSemanticsNodes.containsKey(id) }
+
         // TODO(b/172606324): removed this compose specific fix when talkback has a proper solution.
         val toRemove = MutableIntSet()
         paneDisplayed.forEach { id ->
