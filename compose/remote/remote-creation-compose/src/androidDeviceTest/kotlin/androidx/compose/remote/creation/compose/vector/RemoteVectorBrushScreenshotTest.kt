@@ -33,6 +33,7 @@ import androidx.compose.remote.creation.compose.shaders.horizontalGradient
 import androidx.compose.remote.creation.compose.shaders.radialGradient
 import androidx.compose.remote.creation.compose.shaders.sweepGradient
 import androidx.compose.remote.creation.compose.shaders.verticalGradient
+import androidx.compose.remote.creation.compose.state.RemotePathFillType
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rememberNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.rf
@@ -77,6 +78,7 @@ class RemoteVectorBrushScreenshotTest {
                     tintColor = Color.Unspecified.rc,
                 )
                 .path(
+                    pathFillType = RemotePathFillType.NonZero,
                     fill = RemoteBrush.horizontalGradient(listOf(Color.Red.rc, Color.Blue.rc)),
                     stroke =
                         RemoteBrush.radialGradient(
@@ -114,6 +116,7 @@ class RemoteVectorBrushScreenshotTest {
                     tintColor = Color.Unspecified.rc,
                 )
                 .path(
+                    pathFillType = RemotePathFillType.NonZero,
                     fill = RemoteBrush.horizontalGradient(listOf(Color.Red.rc, Color.Blue.rc)),
                     fillAlpha = 0.5f.rf,
                     stroke = RemoteBrush.verticalGradient(listOf(Color.Black.rc, Color.Cyan.rc)),
@@ -155,7 +158,8 @@ class RemoteVectorBrushScreenshotTest {
                         tintColor = Color.Unspecified.rc,
                     )
                     .path(
-                        fill = RemoteBrush.sweepGradient(listOf(startColor, endColor, startColor))
+                        pathFillType = RemotePathFillType.NonZero,
+                        fill = RemoteBrush.sweepGradient(listOf(startColor, endColor, startColor)),
                     ) {
                         moveTo(2f.rf, 2f.rf)
                         lineTo(22f.rf, 2f.rf)

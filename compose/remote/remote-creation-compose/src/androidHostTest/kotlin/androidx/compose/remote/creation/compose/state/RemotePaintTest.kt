@@ -17,7 +17,6 @@ package androidx.compose.remote.creation.compose.state
 
 import androidx.compose.remote.creation.compose.shaders.RemoteLinearShader
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.test.filters.SdkSuppress
@@ -73,7 +72,7 @@ class RemotePaintTest {
     fun copyConstructorTest() {
         val remotePaint = RemotePaint()
         val remoteColor = RemoteColor(0xFFFF0000.toInt())
-        val remoteColorFilter = RemoteBlendModeColorFilter(remoteColor, BlendMode.Multiply)
+        val remoteColorFilter = RemoteBlendModeColorFilter(remoteColor, RemoteBlendMode.Multiply)
         remotePaint.color = remoteColor
         remotePaint.colorFilter = remoteColorFilter
 
@@ -134,7 +133,7 @@ class RemotePaintTest {
     fun remoteColorFilterTest() {
         val remotePaint = RemotePaint()
         val remoteColor = RemoteColor(0xFFFF0000.toInt())
-        val remoteColorFilter = RemoteBlendModeColorFilter(remoteColor, BlendMode.Multiply)
+        val remoteColorFilter = RemoteBlendModeColorFilter(remoteColor, RemoteBlendMode.Multiply)
         remotePaint.colorFilter = remoteColorFilter
         assertThat(remotePaint.colorFilter).isEqualTo(remoteColorFilter)
 
@@ -152,7 +151,7 @@ class RemotePaintTest {
                 blue = RemoteFloat(1f),
                 alpha = RemoteTimeVariables.continuousSeconds,
             )
-        val remoteColorFilter = RemoteBlendModeColorFilter(remoteColor, BlendMode.Multiply)
+        val remoteColorFilter = RemoteBlendModeColorFilter(remoteColor, RemoteBlendMode.Multiply)
         remotePaint.colorFilter = remoteColorFilter
         assertThat(remotePaint.colorFilter).isEqualTo(remoteColorFilter)
     }
@@ -208,7 +207,7 @@ class RemotePaintTest {
     fun compatAndroidRemotePaintColorFilterTest() {
         val paint = CompatAndroidRemotePaint()
         val color = Color.Red
-        val filter = RemoteBlendModeColorFilter(color.rc, BlendMode.SrcIn)
+        val filter = RemoteBlendModeColorFilter(color.rc, RemoteBlendMode.SrcIn)
         paint.remoteColorFilter = filter
         assertThat(paint.remoteColorFilter).isEqualTo(filter)
         assertThat(paint.colorFilter).isNotNull()
@@ -271,7 +270,7 @@ class RemotePaintTest {
         val compatPaint =
             CompatAndroidRemotePaint().apply {
                 remoteColor = Color.Green.rc
-                remoteColorFilter = RemoteBlendModeColorFilter(Color.Red.rc, BlendMode.SrcIn)
+                remoteColorFilter = RemoteBlendModeColorFilter(Color.Red.rc, RemoteBlendMode.SrcIn)
             }
         val remotePaint = compatPaint.asRemotePaint()
 

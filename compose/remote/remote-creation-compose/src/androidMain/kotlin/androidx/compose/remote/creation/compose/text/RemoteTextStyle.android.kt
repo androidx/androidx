@@ -19,7 +19,6 @@
 
 package androidx.compose.remote.creation.compose.text
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.toRemoteFontFamily
 import androidx.compose.remote.creation.compose.layout.toRemoteFontStyle
 import androidx.compose.remote.creation.compose.layout.toRemoteFontWeight
@@ -27,8 +26,6 @@ import androidx.compose.remote.creation.compose.layout.toRemoteHyphens
 import androidx.compose.remote.creation.compose.layout.toRemoteLineBreak
 import androidx.compose.remote.creation.compose.layout.toRemoteTextAlign
 import androidx.compose.remote.creation.compose.layout.toRemoteTextDecoration
-import androidx.compose.remote.creation.compose.state.RemoteColor
-import androidx.compose.remote.creation.compose.state.RemoteTextUnit
 import androidx.compose.remote.creation.compose.state.asRemoteTextUnit
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.util.fastFilter
@@ -47,45 +44,6 @@ import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
-
-/**
- * Creates a [RemoteTextStyle] with [FontVariation.Settings].
- *
- * Maintained for binary and source compatibility with existing callers.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteTextStyle(
-    color: RemoteColor? = null,
-    fontSize: RemoteTextUnit? = null,
-    fontWeight: RemoteFontWeight? = null,
-    fontStyle: RemoteFontStyle? = null,
-    fontFamily: RemoteFontFamily? = null,
-    letterSpacing: RemoteTextUnit? = null,
-    background: RemoteColor? = null,
-    textAlign: RemoteTextAlign = RemoteTextAlign.Unspecified,
-    lineHeight: RemoteTextUnit? = null,
-    textDecoration: RemoteTextDecoration? = null,
-    lineBreak: RemoteLineBreak = RemoteLineBreak.Unspecified,
-    hyphens: RemoteHyphens = RemoteHyphens.Unspecified,
-    fontFeatureSettings: String? = null,
-    fontVariationSettings: FontVariation.Settings?,
-): RemoteTextStyle =
-    RemoteTextStyle(
-        color = color,
-        fontSize = fontSize,
-        fontWeight = fontWeight,
-        fontStyle = fontStyle,
-        fontFamily = fontFamily,
-        letterSpacing = letterSpacing,
-        background = background,
-        textAlign = textAlign,
-        lineHeight = lineHeight,
-        textDecoration = textDecoration,
-        lineBreak = lineBreak,
-        hyphens = hyphens,
-        fontFeatureSettings = fontFeatureSettings,
-        fontVariationSettings = fontVariationSettings?.toRemoteFontVariationSettings(),
-    )
 
 /**
  * Creates a [RemoteTextStyle] from a [TextStyle].

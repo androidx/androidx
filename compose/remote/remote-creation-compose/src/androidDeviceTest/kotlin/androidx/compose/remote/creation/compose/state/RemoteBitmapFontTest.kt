@@ -33,11 +33,11 @@ import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.compose.test.utils.R
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.content.res.ResourcesCompat
 import androidx.test.core.app.ApplicationProvider
@@ -86,7 +86,7 @@ class RemoteBitmapFontTest {
         }
 
     private val creationState =
-        RemoteComposeCreationState(Size(WIDTH.toFloat(), HEIGHT.toFloat()), profile)
+        RemoteComposeCreationState(RemoteCreationDisplayInfo(WIDTH, HEIGHT, 160, 1f), null, profile)
 
     private val font = ResourcesCompat.getFont(context, R.font.karla_regular)!!
 

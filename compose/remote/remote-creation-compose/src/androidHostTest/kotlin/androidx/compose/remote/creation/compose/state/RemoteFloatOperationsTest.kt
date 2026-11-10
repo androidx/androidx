@@ -19,11 +19,9 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
-import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.createTestCreationState
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
-import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
-import androidx.compose.ui.geometry.Size
 import com.google.common.truth.Truth.assertThat
 import java.lang.Float.floatToRawIntBits
 import java.util.Random
@@ -279,7 +277,7 @@ class RemoteFloatOperationsTest {
             AndroidRemoteContext().apply {
                 useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
             }
-        val creationState = RemoteComposeCreationState(AndroidxRcPlatformServices(), Size(1f, 1f))
+        val creationState = createTestCreationState()
         val seed = 12345f
 
         // Seed PRNG via lower-level floatExpression API with RAND_SEED
@@ -305,7 +303,7 @@ class RemoteFloatOperationsTest {
             AndroidRemoteContext().apply {
                 useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
             }
-        val creationState = RemoteComposeCreationState(AndroidxRcPlatformServices(), Size(1f, 1f))
+        val creationState = createTestCreationState()
         val seed = 67890f
         val from = 10f
         val to = 50f

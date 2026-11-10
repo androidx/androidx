@@ -44,7 +44,7 @@ class CompatAndroidRemotePaintTest {
         val remoteColorFilter =
             RemoteBlendModeColorFilter(
                 Color.Green.rc,
-                androidx.compose.ui.graphics.BlendMode.SrcOver,
+                RemoteBlendMode.SrcOver,
             )
         original.remoteColorFilter = remoteColorFilter
         val sweepGradient = RemoteBrush.sweepGradient(listOf(Color.Red.rc, Color.Blue.rc))
@@ -82,8 +82,7 @@ class CompatAndroidRemotePaintTest {
     fun remoteColorFilterTest() {
         val paint = CompatAndroidRemotePaint()
         val remoteColor = Color.Green.rc
-        val remoteColorFilter =
-            RemoteBlendModeColorFilter(remoteColor, androidx.compose.ui.graphics.BlendMode.SrcOver)
+        val remoteColorFilter = RemoteBlendModeColorFilter(remoteColor, RemoteBlendMode.SrcOver)
         paint.remoteColorFilter = remoteColorFilter
 
         assertThat(paint.remoteColorFilter).isEqualTo(remoteColorFilter)
@@ -95,8 +94,7 @@ class CompatAndroidRemotePaintTest {
     @Test
     fun setColorFilterClearsRemoteColorFilterTest() {
         val paint = CompatAndroidRemotePaint()
-        paint.remoteColorFilter =
-            RemoteBlendModeColorFilter(Color.Red.rc, androidx.compose.ui.graphics.BlendMode.SrcOver)
+        paint.remoteColorFilter = RemoteBlendModeColorFilter(Color.Red.rc, RemoteBlendMode.SrcOver)
         paint.colorFilter =
             android.graphics.PorterDuffColorFilter(
                 android.graphics.Color.BLUE,
@@ -130,8 +128,7 @@ class CompatAndroidRemotePaintTest {
     fun remoteColorFilterExpressionPreservedInRemotePaintTest() {
         val paint = CompatAndroidRemotePaint()
         val namedColor = createNamedRemoteColor("myColor", Color.Green)
-        val namedFilter =
-            RemoteBlendModeColorFilter(namedColor, androidx.compose.ui.graphics.BlendMode.SrcIn)
+        val namedFilter = RemoteBlendModeColorFilter(namedColor, RemoteBlendMode.SrcIn)
         paint.remoteColorFilter = namedFilter
 
         val remotePaint = paint.asRemotePaint()
