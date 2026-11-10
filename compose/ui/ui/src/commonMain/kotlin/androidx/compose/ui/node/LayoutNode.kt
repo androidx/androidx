@@ -111,6 +111,10 @@ internal class LayoutNode(
     internal var rectListIndex: Int = NotFound
     // Params managed by RectManager end.
 
+    // Has one bit turned on for each DepthSortedSet this node is in. Only DepthSortedSet changes
+    // it. This lets DepthSortedSet.contains() check a bit instead of searching.
+    internal var depthSortedSetMembership: Int = 0
+
     override var compositeKeyHash: Int = 0
 
     internal var isVirtualLookaheadRoot: Boolean = false
