@@ -1,0 +1,32 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, linuxArm64, linuxX64, macosArm64, tvosArm64, tvosSimulatorArm64, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.appstate.statestore:statestore-datastore>
+abstract interface <#A: kotlin/Any?> androidx.appstate.datastore/PersistToDataStore { // androidx.appstate.datastore/PersistToDataStore|null[0]
+    abstract val name // androidx.appstate.datastore/PersistToDataStore.name|{}name[0]
+        abstract fun <get-name>(): kotlin/String // androidx.appstate.datastore/PersistToDataStore.name.<get-name>|<get-name>(){}[0]
+    abstract val serializer // androidx.appstate.datastore/PersistToDataStore.serializer|{}serializer[0]
+        abstract fun <get-serializer>(): kotlinx.serialization/KSerializer<#A> // androidx.appstate.datastore/PersistToDataStore.serializer.<get-serializer>|<get-serializer>(){}[0]
+}
+
+abstract class androidx.appstate.datastore/StateStorePreferences // androidx.appstate.datastore/StateStorePreferences|null[0]
+
+final object androidx.appstate.datastore/StateStoreSerializer : androidx.datastore.core.okio/OkioSerializer<androidx.appstate.datastore/StateStorePreferences> { // androidx.appstate.datastore/StateStoreSerializer|null[0]
+    final val defaultValue // androidx.appstate.datastore/StateStoreSerializer.defaultValue|{}defaultValue[0]
+        final fun <get-defaultValue>(): androidx.appstate.datastore/StateStorePreferences // androidx.appstate.datastore/StateStoreSerializer.defaultValue.<get-defaultValue>|<get-defaultValue>(){}[0]
+
+    final suspend fun readFrom(okio/BufferedSource): androidx.appstate.datastore/StateStorePreferences // androidx.appstate.datastore/StateStoreSerializer.readFrom|readFrom(okio.BufferedSource){}[0]
+    final suspend fun writeTo(androidx.appstate.datastore/StateStorePreferences, okio/BufferedSink) // androidx.appstate.datastore/StateStoreSerializer.writeTo|writeTo(androidx.appstate.datastore.StateStorePreferences;okio.BufferedSink){}[0]
+}
+
+final val androidx.appstate.datastore/androidx_appstate_datastore_StateStorePreferences$stableprop // androidx.appstate.datastore/androidx_appstate_datastore_StateStorePreferences$stableprop|#static{}androidx_appstate_datastore_StateStorePreferences$stableprop[0]
+final val androidx.appstate.datastore/androidx_appstate_datastore_StateStoreSerializer$stableprop // androidx.appstate.datastore/androidx_appstate_datastore_StateStoreSerializer$stableprop|#static{}androidx_appstate_datastore_StateStoreSerializer$stableprop[0]
+
+final fun androidx.appstate.datastore/androidx_appstate_datastore_StateStorePreferences$stableprop_getter(): kotlin/Int // androidx.appstate.datastore/androidx_appstate_datastore_StateStorePreferences$stableprop_getter|androidx_appstate_datastore_StateStorePreferences$stableprop_getter(){}[0]
+final fun androidx.appstate.datastore/androidx_appstate_datastore_StateStoreSerializer$stableprop_getter(): kotlin/Int // androidx.appstate.datastore/androidx_appstate_datastore_StateStoreSerializer$stableprop_getter|androidx_appstate_datastore_StateStoreSerializer$stableprop_getter(){}[0]
+final suspend fun (androidx.appstate.statestore/StateStore).androidx.appstate.datastore/syncToDataStore(androidx.datastore.core/DataStore<androidx.appstate.datastore/StateStorePreferences>) // androidx.appstate.datastore/syncToDataStore|syncToDataStore@androidx.appstate.statestore.StateStore(androidx.datastore.core.DataStore<androidx.appstate.datastore.StateStorePreferences>){}[0]
+final suspend fun (androidx.appstate.statestore/StateStore).androidx.appstate.datastore/syncToDataStore(kotlin/String, kotlinx.coroutines/CoroutineScope) // androidx.appstate.datastore/syncToDataStore|syncToDataStore@androidx.appstate.statestore.StateStore(kotlin.String;kotlinx.coroutines.CoroutineScope){}[0]

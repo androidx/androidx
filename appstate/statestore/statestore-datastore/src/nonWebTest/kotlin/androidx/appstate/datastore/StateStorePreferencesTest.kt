@@ -42,6 +42,7 @@ class StateStorePreferencesTest {
     @AfterTest
     fun tearDown() {
         Dispatchers.resetMain()
+        FileSystem.SYSTEM.delete(testFile, mustExist = false)
     }
 
     @Serializable

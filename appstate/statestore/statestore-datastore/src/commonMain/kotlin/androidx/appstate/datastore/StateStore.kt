@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+@file:JvmName("StateStoreKt")
+@file:JvmMultifileClass
+
 package androidx.appstate.datastore
 
 import androidx.appstate.statestore.StateStore
@@ -25,35 +28,11 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.datastore.core.DataStore
-import androidx.datastore.core.DataStoreFactory
-import androidx.datastore.core.okio.OkioStorage
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.KSerializer
-import okio.FileSystem
-import okio.Path.Companion.toPath
-
-/**
- * Tracks changes to [StateStore] and persists keys implementing [PersistToDataStore] to a
- * [DataStore] backed by a file.
- *
- * Keys must implement [PersistToDataStore] to be saved.
- *
- * @sample androidx.appstate.datastore.samples.SyncStateStoreDataStorePathSample
- * @param path the file path to save and restore state from
- * @param coroutineScope the [CoroutineScope] used for the [DataStore]
- */
-@Suppress("PairedRegistration")
-public suspend fun StateStore.syncToDataStore(path: String, coroutineScope: CoroutineScope) {
-    val dataStore =
-        DataStoreFactory.create(
-            storage = OkioStorage(FileSystem.SYSTEM, StateStoreSerializer) { path.toPath() },
-            scope = coroutineScope,
-        )
-    syncToDataStore(dataStore)
-}
 
 /**
  * Tracks changes to [StateStore] and syncs keys implementing [PersistToDataStore] to [DataStore].
@@ -116,7 +95,7 @@ private fun <T> StateStore.SyncKey(
 
     LaunchedEffect(value, restored.value) {
         if (restored.value && value != null && value != lastSynced.value) {
-            withContext(Dispatchers.IO) {
+            withContext(ioDispatcher) {
                 dataStore.edit { settings ->
                     settings.preferencesMap[name] = encodeValue(serializer, value, name)
                     lastSynced.value = value

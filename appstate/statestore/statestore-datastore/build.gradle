@@ -18,6 +18,15 @@ androidXMultiplatform {
         }
     }
 
+    desktop()
+    linux()
+    mac()
+    ios()
+    tvos()
+    watchos()
+    js()
+    wasmJs()
+
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
@@ -25,7 +34,7 @@ androidXMultiplatform {
             api(project(":appstate:statestore:statestore"))
             api(project(":appstate:transform:transform"))
             api("androidx.datastore:datastore-core:1.3.0")
-            api("androidx.datastore:datastore-preferences-core:1.3.0")
+            api("androidx.datastore:datastore-core-okio:1.3.0")
             api(libs.kotlinSerializationJson)
             api(libs.kotlinCoroutinesCore)
         }
@@ -34,8 +43,28 @@ androidXMultiplatform {
             implementation(libs.kotlinTest)
             implementation(libs.kotlinCoroutinesTest)
             implementation(project(":kruth:kruth"))
-            implementation("androidx.datastore:datastore-core-okio:1.3.0")
             implementation(libs.okio)
+        }
+
+        // The file-backed overload of syncToDataStore needs okio's FileSystem.SYSTEM, which web
+        // targets do not have.
+        nonWebMain {
+            dependsOn(commonMain)
+        }
+        androidMain.dependsOn(nonWebMain)
+        desktopMain.dependsOn(nonWebMain)
+        nativeMain.dependsOn(nonWebMain)
+
+        nonWebTest {
+            dependsOn(commonTest)
+        }
+        androidHostTest.dependsOn(nonWebTest)
+        androidDeviceTest.dependsOn(nonWebTest)
+        desktopTest.dependsOn(nonWebTest)
+        nativeTest.dependsOn(nonWebTest)
+
+        desktopTest.dependencies {
+            implementation(libs.kotlinTestJunit)
         }
 
         androidDeviceTest.dependencies {
