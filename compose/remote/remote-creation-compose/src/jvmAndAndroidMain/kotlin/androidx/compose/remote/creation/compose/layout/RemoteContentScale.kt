@@ -16,13 +16,11 @@
 
 package androidx.compose.remote.creation.compose.layout
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.utilities.ImageScaling
 import androidx.compose.runtime.Immutable
 import kotlin.jvm.JvmInline
 
 /** Scaling rule used when drawing content into a destination rectangle. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
 @JvmInline
 public value class RemoteContentScale internal constructor(internal val value: Int) {
