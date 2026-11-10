@@ -141,7 +141,7 @@ public fun collect(
                     " invokes the target app, and runs a non-trivial amount of code"
             }
 
-            var loadOrder: String? = null
+            var loadOrder: File? = null
             if (finalMaxLoadOrderIterations > 0) {
                 loadOrder =
                     scope.buildNativeLoadOrder(
@@ -183,7 +183,7 @@ private fun buildMacrobenchmarkScope(packageName: String): MacrobenchmarkScope {
 /** Reports the results after having collected baseline profiles. */
 private fun reportResults(
     profile: String,
-    loadOrder: String?,
+    loadOrder: File?,
     uniqueFilePrefix: String,
     startTime: Long,
     includeInStartupProfile: Boolean,
@@ -212,11 +212,13 @@ private fun reportResults(
     if (loadOrder != null) {
         val fileName = "$uniqueFilePrefix-load-order.txt"
         val tsFileName = "$uniqueFilePrefix-load-order-${Outputs.dateToFileName()}.txt"
-        Outputs.writeFile(fileName) { it.writeText(loadOrder) }
+        Outputs.writeFile(fileName) {
+            Shell.cp(from = loadOrder.absolutePath, to = it.absolutePath)
+        }
         val tsAbsolutePath =
             Outputs.writeFile(tsFileName) {
                 Log.d(TAG, "Pull Load order with: `adb pull \"${it.absolutePath}\" .`")
-                it.writeText(loadOrder)
+                Shell.cp(from = loadOrder.absolutePath, to = it.absolutePath)
             }
         loadOrderFiles += tsAbsolutePath
     }

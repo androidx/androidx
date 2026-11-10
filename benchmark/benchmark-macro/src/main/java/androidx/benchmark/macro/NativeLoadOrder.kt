@@ -19,6 +19,7 @@ package androidx.benchmark.macro
 import android.os.Build
 import android.os.SystemClock
 import android.util.Log
+import androidx.benchmark.Arguments
 import androidx.benchmark.Outputs
 import androidx.benchmark.PropOverride
 import androidx.benchmark.Shell
@@ -33,7 +34,7 @@ internal fun MacrobenchmarkScope.buildNativeLoadOrder(
     maxLoadOrderIterations: Int,
     profileBlock: MacrobenchmarkScope.() -> Unit,
     restrictToDataDirectory: Boolean = true,
-): String? {
+): File? {
     if (Build.VERSION.SDK_INT < 31) return null
     val mode =
         CompilationMode.Partial(
@@ -75,11 +76,11 @@ internal fun MacrobenchmarkScope.buildNativeLoadOrder(
     return extractNativeLoadOrder(packageName, results, restrictToDataDirectory)
 }
 
-private fun extractNativeLoadOrder(
+internal fun extractNativeLoadOrder(
     packageName: String,
     results: List<File>,
     restrictToDataDirectory: Boolean = true,
-): String {
+): File {
     val entryMap = mutableMapOf<String, Sequence<LoadOrderEntry>>()
     TraceProcessor.runServer {
         results.forEach { result ->
@@ -93,31 +94,36 @@ private fun extractNativeLoadOrder(
             }
         }
     }
-    val builder = StringBuilder()
-    // Unicode record separator
-    val separator = "\u001E"
-    var iteration = 0
-    entryMap.forEach { (_, entries) ->
-        entries.forEach { entry ->
-            val file = entry.file.substringAfterLast("/").substringAfterLast("!")
-            // Format is: iteration | so_name | build_id | rel_pc | so_symbol_name
-            // The name tells you the iteration
-            builder
-                .append(iteration)
-                .append(separator)
-                .append(file)
-                .append(separator)
-                .append(entry.buildId)
-                .append(separator)
-                .append(entry.relPc)
-                .append(separator)
-                .append(entry.name)
-                .append(separator)
-                .append("\n")
+    val output = "nativeLoadOrder-${Outputs.dateToFileName()}.txt"
+    val path =
+        Outputs.writeFile(output) { outputFile ->
+            outputFile.bufferedWriter().use { writer ->
+                // Unicode record separator
+                val separator = "\u001E"
+                var iteration = 0
+                entryMap.forEach { (_, entries) ->
+                    entries.forEach { entry ->
+                        val file = entry.file.substringAfterLast("/").substringAfterLast("!")
+                        // Format is: iteration | so_name | build_id | rel_pc | so_symbol_name
+                        // The name tells you the iteration
+                        writer
+                            .append(iteration.toString())
+                            .append(separator)
+                            .append(file)
+                            .append(separator)
+                            .append(entry.buildId)
+                            .append(separator)
+                            .append(entry.relPc.toString())
+                            .append(separator)
+                            .append(entry.name)
+                            .append(separator)
+                            .append("\n")
+                    }
+                    iteration += 1
+                }
+            }
         }
-        iteration += 1
-    }
-    return builder.toString()
+    return File(path)
 }
 
 internal class NativeFileLoadOrder(
@@ -144,7 +150,7 @@ internal class NativeFileLoadOrder(
             exec simpleperf record \
               --app $packageName \
               -e page-faults \
-              -c 10 \
+              -c ${Arguments.loadOrderSampleFreq} \
               -g \
               -o $outputPath >/dev/null
             """

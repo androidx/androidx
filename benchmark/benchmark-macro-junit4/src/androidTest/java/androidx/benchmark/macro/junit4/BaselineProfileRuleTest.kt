@@ -31,7 +31,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
-import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -43,14 +42,6 @@ class BaselineProfileRuleTest {
 
     /** Handle to service running in separate process, does nothing unless connect is called */
     private val trivialServiceHandle = TrivialServiceHandle()
-
-    @Before
-    fun setup() {
-        // Mokey devices seem to behave differently (b/319515652) and the generated profile
-        // doesn't output the class symbol line. This makes the test fail. While we investigate
-        // the scope of the failure, suppress the test on this device
-        // assumeFalse(isMokeyDevice())
-    }
 
     @After
     fun teardown() {
@@ -247,6 +238,10 @@ class BaselineProfileRuleTest {
             /* message = */ "Load order files should exist",
             /* condition = */ result.loadOrderFiles.isNotEmpty(),
         )
+        assertTrue(
+            /* message = */ "Load order files should exist on disk",
+            /* condition = */ result.loadOrderFiles.all { File(it).exists() },
+        )
     }
 
     companion object {
@@ -282,6 +277,4 @@ class BaselineProfileRuleTest {
             )
         }
     }
-
-    private fun isMokeyDevice() = Build.DEVICE.contains("mokey")
 }

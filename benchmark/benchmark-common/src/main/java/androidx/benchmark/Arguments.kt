@@ -20,7 +20,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.benchmark.Arguments.startupInsightsHelpUrlBaseOverride
 import androidx.test.platform.app.InstrumentationRegistry
 
 /** This allows tests to override arguments from code */
@@ -83,6 +82,16 @@ public object Arguments {
     public val skipBenchmarksOnEmulator: Boolean
     public val saveProfileWaitMillis: Long
     public val killExistingPerfettoRecordings: Boolean
+
+    /**
+     * Event sample period (`-c` option in `simpleperf record`) used when capturing native library
+     * load order via `page-faults` events.
+     *
+     * Specifies that one sample is recorded every [loadOrderSampleFreq] `page-faults` events. Lower
+     * values increase sampling fidelity at the cost of larger trace files and higher overhead.
+     * Defaults to `10`.
+     */
+    public val loadOrderSampleFreq: Int
 
     // internal properties are microbenchmark only
     internal val outputEnable: Boolean
@@ -351,6 +360,9 @@ public object Arguments {
                 // below is a temporary workaround for compat, see b/399818365
                 ?: arguments.getString("killExistingPerfettoRecordings")?.toBoolean()
                 ?: true
+
+        loadOrderSampleFreq =
+            arguments.getBenchmarkArgument("loadOrder.sampleFreq")?.ifBlank { null }?.toInt() ?: 10
 
         if (arguments.getString("orchestratorService") != null) {
             InstrumentationResults.scheduleIdeWarningOnNextReport(
