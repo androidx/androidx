@@ -282,7 +282,7 @@ class WebSurfaceTest {
         composeTestRule.runOnIdle {
             Choreographer.getInstance().postFrameCallback {
                 listState.dispatchRawDelta(5f)
-                (bridge as View).scrollTo(0, 1000)
+                (bridge as View).scrollTo(0, with(composeTestRule.density) { 1000.dp.roundToPx() })
                 frameLatch.countDown()
             }
         }
