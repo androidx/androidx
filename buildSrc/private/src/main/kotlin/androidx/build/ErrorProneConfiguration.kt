@@ -222,12 +222,12 @@ private fun JavaCompile.configureWithErrorProne() {
 
                     // Disable checks which are already enforced by lint.
                     "-Xep:PrivateConstructorForUtilityClass:OFF",
-                    "-Xep:NotJavadoc:ERROR",
-                    "-Xep:ExposedPrivateType:ERROR",
-                    "-Xep:ListRemoveAmbiguous:OFF",
-                    "-Xep:PreferThrowsTag:OFF",
 
                     // Enforce the following checks.
+                    "-Xep:NotJavadoc:ERROR",
+                    "-Xep:ExposedPrivateType:ERROR",
+                    "-Xep:ListRemoveAmbiguous:ERROR",
+                    "-Xep:PreferThrowsTag:OFF",
                     "-Xep:JavaTimeDefaultTimeZone:ERROR",
                     "-Xep:ParameterNotNullable:ERROR",
                     "-Xep:MissingOverride:ERROR",
@@ -242,6 +242,8 @@ private fun JavaCompile.configureWithErrorProne() {
                     "-Xep:JavaLangClash:ERROR",
                     "-Xep:TypeParameterUnusedInFormals:ERROR",
                     // "-Xep:StringSplitter:ERROR", // disabled with upgrade to 2.14.0
+                    // ReferenceEquality check is disabled because in the vast majority of cases,
+                    // usage of reference equality is intended
                     "-Xep:ReferenceEquality:OFF",
                     "-Xep:AssertionFailureIgnored:ERROR",
                     "-Xep:UnnecessaryParentheses:ERROR",

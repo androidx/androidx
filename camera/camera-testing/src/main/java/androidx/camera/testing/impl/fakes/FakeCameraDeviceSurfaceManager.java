@@ -196,6 +196,7 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
     /**
      * Checks if the app combination in covered by the given valid combination.
      */
+    @SuppressWarnings("ListRemoveAmbiguous")
     private boolean isComboSupported(@NonNull List<Integer> appCombo,
             @NonNull List<Integer> validCombo) {
         List<Integer> combo = new ArrayList<>(validCombo);

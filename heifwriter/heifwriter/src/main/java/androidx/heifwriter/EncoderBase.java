@@ -796,7 +796,7 @@ public class EncoderBase implements AutoCloseable,
      *
      * Must be called on the handler looper that also handles the MediaCodec callback.
      */
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @SuppressWarnings({"WeakerAccess", "ListRemoveAmbiguous"}) /* synthetic access */
     void maybeCopyOneTileYUV() {
         ByteBuffer currentBuffer;
         while ((currentBuffer = getCurrentBuffer()) != null && !mCodecInputBuffers.isEmpty()) {

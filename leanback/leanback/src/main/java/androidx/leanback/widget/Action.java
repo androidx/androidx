@@ -152,6 +152,7 @@ public class Action {
     /**
      * Removes a keycode used to invoke this Action.
      */
+    @SuppressWarnings("ListRemoveAmbiguous")
     public final void removeKeyCode(int keyCode) {
         mKeyCodes.remove(keyCode);
     }

@@ -745,6 +745,7 @@ public abstract class PaintContext {
      *
      * @return true if a clip rect was pushed when this offscreen target was entered
      */
+    @SuppressWarnings("ListRemoveAmbiguous")
     public boolean popOffscreenTarget() {
         mOffscreenComponent =
                 mOffscreenCompStack.isEmpty()
