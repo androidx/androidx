@@ -25,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.kruth.assertThat
+import androidx.kruth.assertThrows
 import androidx.savedstate.SavedStateRegistry
 import kotlin.test.Test
 import kotlinx.coroutines.CoroutineStart
@@ -34,6 +35,56 @@ import kotlinx.coroutines.launch
 @IgnoreAndroidHostTest
 @OptIn(ExperimentalCoroutinesApi::class)
 class TransformScopeTest {
+
+    @Test
+    fun testRunnableTransformScope() = transformTest {
+        val runnableScope = RunnableTransformScope()
+        val transformScope: TransformScope = runnableScope
+        var sourceState by mutableStateOf(5)
+        val state = transformScope.launchTransform(initialState = 0) { sourceState }
+        // Before run() is called, the initial state is retained.
+        assertThat(state.value).isEqualTo(0)
+
+        val job =
+            backgroundScope.launch(testDispatcher, start = CoroutineStart.UNDISPATCHED) {
+                runnableScope.run()
+            }
+        assertThat(state.value).isEqualTo(5)
+
+        sourceState = 10
+        advance()
+        assertThat(state.value).isEqualTo(10)
+        job.cancel()
+    }
+
+    @Test
+    fun testRunnableTransformScopeThrowsWhenRunCalledWhileActive() = transformTest {
+        val runnableScope = RunnableTransformScope()
+        var sourceState by mutableStateOf(1)
+        val state = runnableScope.launchTransform(initialState = 0) { sourceState }
+
+        val job1 =
+            backgroundScope.launch(testDispatcher, start = CoroutineStart.UNDISPATCHED) {
+                runnableScope.run()
+            }
+        assertThat(state.value).isEqualTo(1)
+
+        assertThrows<IllegalStateException> { runnableScope.run() }
+            .hasMessageThat()
+            .contains("RunnableTransformScope is already running")
+
+        // Once the first run() call completes, run() can be called again.
+        job1.cancel()
+        advance()
+
+        sourceState = 2
+        val job2 =
+            backgroundScope.launch(testDispatcher, start = CoroutineStart.UNDISPATCHED) {
+                runnableScope.run()
+            }
+        assertThat(state.value).isEqualTo(2)
+        job2.cancel()
+    }
 
     @Test
     fun testTransformScopeWithCoroutineContext() = transformTest {

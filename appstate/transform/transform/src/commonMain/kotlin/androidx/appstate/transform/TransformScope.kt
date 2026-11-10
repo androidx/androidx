@@ -28,14 +28,15 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
 
-/** Creates a [TransformScope]. */
-public fun TransformScope(): TransformScope = TransformScopeImpl()
-
 /**
- * A scope that manages a shared headless [Composition] for running one or more state
- * transformations created via [launchTransform].
+ * A scope for launching state transformations via [launchTransform].
+ *
+ * Pass a [TransformScope] to components that only need to launch transformations without managing
+ * the underlying [Composition] lifecycle. To create a scope and run its transformations, use
+ * [RunnableTransformScope] and call [RunnableTransformScope.run].
  */
 public interface TransformScope {
 
@@ -54,9 +55,10 @@ public interface TransformScope {
      * provide their own [SavedStateContainer], such as one obtained from
      * `SavedStateHandle.getOrCreateContainer`:
      * ```kotlin
-     * class MyViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
-     *     private val transformScope = TransformScope()
-     *
+     * class MyViewModel(
+     *     transformScope: TransformScope,
+     *     savedStateHandle: SavedStateHandle,
+     * ) : ViewModel() {
      *     val uiState: DisposableState<Int> = transformScope.launchTransform(
      *         initialState = 0,
      *         container = savedStateHandle.getOrCreateContainer("myTransform"),
@@ -88,9 +90,22 @@ public interface TransformScope {
     ): DisposableState<T>
 }
 
-internal class TransformScopeImpl : TransformScope {
+/**
+ * A [TransformScope] that manages a shared headless [Composition] and requires calling [run] to
+ * execute state transformations created via [launchTransform].
+ *
+ * Create a [RunnableTransformScope], launch [run] in a coroutine, and pass it down as a
+ * [TransformScope] to components that only need to call [launchTransform]:
+ * ```kotlin
+ * val transformScope = RunnableTransformScope()
+ * scope.launch { transformScope.run() }
+ * val viewModel = MyViewModel(transformScope = transformScope)
+ * ```
+ */
+public class RunnableTransformScope : TransformScope {
 
     private val transformations = mutableStateListOf<Transformation<*>>()
+    private val mutex = Mutex()
 
     override fun <T> launchTransform(
         initialState: T,
@@ -110,37 +125,44 @@ internal class TransformScopeImpl : TransformScope {
     /**
      * Starts the [TransformScope] and begins the process of updating the present state
      * transformations.
+     *
+     * @throws IllegalStateException if [run] is already active on this [RunnableTransformScope].
      */
-    internal suspend fun run() {
-        val context = currentCoroutineContext()
-        val clock = context[MonotonicFrameClock] ?: HeadlessTransformClock()
-        GlobalSnapshotManager.ensureStarted(context.minusKey(Job))
-        val recomposer = Recomposer(context)
-        val composition = Composition(UnitApplier, recomposer)
+    public suspend fun run() {
+        check(mutex.tryLock()) { "RunnableTransformScope is already running" }
         try {
-            withContext(clock) {
-                if (clock is HeadlessTransformClock) {
+            val context = currentCoroutineContext()
+            val clock = context[MonotonicFrameClock] ?: HeadlessTransformClock()
+            GlobalSnapshotManager.ensureStarted(context.minusKey(Job))
+            val recomposer = Recomposer(context)
+            val composition = Composition(UnitApplier, recomposer)
+            try {
+                withContext(clock) {
+                    if (clock is HeadlessTransformClock) {
+                        launch(start = CoroutineStart.UNDISPATCHED) {
+                            clock.runClock()
+                        }
+                    }
                     launch(start = CoroutineStart.UNDISPATCHED) {
-                        clock.runClock()
+                        recomposer.runRecomposeAndApplyChanges()
+                    }
+                    composition.setContent {
+                        // order matters here so doing a loop that preserves it
+                        for (i in transformations.indices) {
+                            val transform = transformations[i]
+                            key(transform.key) { transform() }
+                        }
                     }
                 }
-                launch(start = CoroutineStart.UNDISPATCHED) {
-                    recomposer.runRecomposeAndApplyChanges()
+            } finally {
+                composition.dispose()
+                if (clock is HeadlessTransformClock) {
+                    clock.cancel()
                 }
-                composition.setContent {
-                    // order matters here so doing a loop that preserves it
-                    for (i in transformations.indices) {
-                        val transform = transformations[i]
-                        key(transform.key) { transform() }
-                    }
-                }
+                recomposer.close()
             }
         } finally {
-            composition.dispose()
-            if (clock is HeadlessTransformClock) {
-                clock.cancel()
-            }
-            recomposer.close()
+            mutex.unlock()
         }
     }
 }
