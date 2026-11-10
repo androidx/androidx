@@ -22,7 +22,7 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.work.WorkManager.Companion.getInstance
 import androidx.work.WorkManager.Companion.initialize
-import androidx.work.impl.WorkManagerImpl
+import androidx.work.impl.WorkManagerWrapper
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.UUID
 import kotlinx.coroutines.flow.Flow
@@ -133,6 +133,8 @@ public abstract class WorkManager internal constructor() {
         /**
          * Retrieves the `default` singleton instance of [WorkManager].
          *
+         * Note that this method succeeding does not imply [isInitialized] returns `true`.
+         *
          * @return The singleton instance of [WorkManager]; this may be `null` in unusual
          *   circumstances where you have disabled automatic initialization and have failed to
          *   manually call [initialize].
@@ -148,7 +150,8 @@ public abstract class WorkManager internal constructor() {
         )
         @JvmStatic
         public open fun getInstance(): WorkManager {
-            @Suppress("DEPRECATION") val workManager: WorkManager? = WorkManagerImpl.getInstance()
+            @Suppress("DEPRECATION")
+            val workManager: WorkManager? = WorkManagerWrapper.getInstance()
             checkNotNull(workManager) {
                 "WorkManager is not initialized properly.  The most " +
                     "likely cause is that you disabled WorkManagerInitializer in your manifest " +
@@ -161,18 +164,22 @@ public abstract class WorkManager internal constructor() {
         /**
          * Retrieves the `default` singleton instance of [WorkManager].
          *
-         * @param context A [Context] for on-demand initialization.
+         * @param context A [Context] for on-demand initialization. If initialization is deferred
+         *   while the user is locked (Direct Boot), the context from the first call is used when
+         *   initializing on a subsequent call.
          * @return The singleton instance of [WorkManager]; this may be `null` in unusual
          *   circumstances where you have disabled automatic initialization and have failed to
          *   manually call [initialize].
-         * @throws IllegalStateException If WorkManager is not initialized properly
+         * @throws IllegalStateException If WorkManager is not initialized properly. While the user
+         *   is locked (Direct Boot), initialization is deferred and this method does not throw; a
+         *   subsequent API call may throw instead.
          */
         // `open` modifier was added to avoid errors in WorkManagerImpl:
         // "WorkManagerImpl cannot override <X> in WorkManager", even though methods are static
         @Suppress("NON_FINAL_MEMBER_IN_OBJECT")
         @JvmStatic
         public open fun getInstance(context: Context): WorkManager {
-            return WorkManagerImpl.getInstance(context)
+            return WorkManagerWrapper.getInstance(context)
         }
 
         /**
@@ -184,8 +191,9 @@ public abstract class WorkManager internal constructor() {
          *   method **must** be invoked in one of these two places or you risk getting a
          *   `NullPointerException` in [getInstance].
          *
-         * This method throws an [IllegalStateException] when attempting to initialize in direct
-         * boot mode.
+         * Initializing while the user is locked (in direct boot mode) results in an asynchronous
+         * [IllegalStateException] delivered to [Configuration.initializationExceptionHandler] (or
+         * thrown on the task thread if none is set).
          *
          * This method throws an exception if it is called multiple times.
          *
@@ -200,7 +208,7 @@ public abstract class WorkManager internal constructor() {
         @Suppress("NON_FINAL_MEMBER_IN_OBJECT")
         @JvmStatic
         public open fun initialize(context: Context, configuration: Configuration) {
-            WorkManagerImpl.initialize(context, configuration)
+            WorkManagerWrapper.initialize(context, configuration)
         }
 
         /**
@@ -210,7 +218,7 @@ public abstract class WorkManager internal constructor() {
          */
         @Suppress("NON_FINAL_MEMBER_IN_OBJECT")
         @JvmStatic
-        public open fun isInitialized(): Boolean = WorkManagerImpl.isInitialized()
+        public open fun isInitialized(): Boolean = WorkManagerWrapper.isInitialized()
     }
 
     /** The [Configuration] instance that [WorkManager] was initialized with. */
