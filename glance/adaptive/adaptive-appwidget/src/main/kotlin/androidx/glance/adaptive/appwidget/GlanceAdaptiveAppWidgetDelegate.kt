@@ -17,7 +17,6 @@
 package androidx.glance.adaptive.appwidget
 
 import android.app.Activity
-import android.app.PendingIntent
 import android.os.Bundle
 import androidx.glance.adaptive.core.GlanceAdaptiveWidgetDelegate
 import androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager
@@ -29,8 +28,8 @@ import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
  *
  * Callers reach these operations through extension functions on [GlanceAdaptiveWidgetManager]
  * declared in this artifact, so only modules depending on it can call them. Every AppWidget
- * delegate must implement this interface: for any other delegate, the extensions are no-ops, except
- * `setConfigurationResult`, which throws.
+ * delegate must implement this interface. How each extension behaves for any other delegate is
+ * documented on the extension.
  */
 internal interface GlanceAdaptiveAppWidgetDelegate : GlanceAdaptiveWidgetDelegate {
     /**
@@ -54,10 +53,10 @@ internal interface GlanceAdaptiveAppWidgetDelegate : GlanceAdaptiveWidgetDelegat
      * @param initialData The declarative template data payload to render as the preview shown while
      *   the launcher asks the user to confirm, if any.
      * @param options The configuration options to store in the options of the pinned widget.
-     * @param successCallback The [PendingIntent] to send once the widget is pinned, if any.
-     * @return true if the request was sent to the launcher, false otherwise.
-     * @throws IllegalArgumentException if [widgetId] is blank, or if [widgetName] cannot be
-     *   resolved, see [GlanceAdaptiveWidgetReceiver.widgetName].
+     * @return true if the request was handed to the launcher, false otherwise.
+     * @throws IllegalArgumentException if [widgetId] is blank, if [widgetName] cannot be resolved
+     *   (see [GlanceAdaptiveWidgetReceiver.widgetName]), or if its provider cannot be placed on the
+     *   home screen.
      * @throws IllegalStateException if [widgetName] cannot be resolved, see
      *   [GlanceAdaptiveWidgetReceiver.widgetName].
      */
@@ -66,7 +65,6 @@ internal interface GlanceAdaptiveAppWidgetDelegate : GlanceAdaptiveWidgetDelegat
         widgetId: String?,
         initialData: GlanceAdaptiveTemplate?,
         options: Bundle,
-        successCallback: PendingIntent?,
     ): Boolean
 
     /**
