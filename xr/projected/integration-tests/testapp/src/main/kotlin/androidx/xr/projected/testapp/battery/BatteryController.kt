@@ -67,14 +67,14 @@ class BatteryController(
         scope.launch {
             try {
                 cleanupDeviceController()
-                val controller = ProjectedDeviceController.create(context)
+                val controller = ProjectedDeviceController.create(context, scope.coroutineContext)
                 deviceController = controller
 
                 val listener: (BatteryState) -> Unit = { state ->
                     viewModel.setBatteryState(state.batteryLevel, state.isCharging)
                 }
                 batteryListener = listener
-                controller.addBatteryStateChangedListener(scope.coroutineContext, listener)
+                controller.addBatteryStateChangedListener(listener)
             } catch (e: Exception) {
                 Log.e(TAG, "Error initializing ProjectedDeviceController", e)
                 viewModel.setStatusMessage("Failed to start device controller: ${e.message}")
