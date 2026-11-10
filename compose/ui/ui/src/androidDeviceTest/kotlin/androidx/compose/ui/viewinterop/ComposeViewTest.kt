@@ -80,6 +80,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.setPadding
 import androidx.lifecycle.Lifecycle
 import androidx.test.espresso.Espresso
+import androidx.test.espresso.IdlingPolicies
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -826,6 +827,155 @@ class ComposeViewTest {
         val androidComposeViewContext = composeView.getChildAt(0) as AndroidComposeView
         assertNotEquals(originalComposeViewContext, androidComposeViewContext.composeViewContext)
         assertNotEquals(originalCompositionContext, androidComposeViewContext.compositionContext)
+    }
+
+    @Test
+    fun nestedComposeViewWithAndroidView_repositionedDuringOnLayout_becomesIdle() {
+        var innerPositionInWindow = Offset.Unspecified
+        rule.setContent {
+            AndroidView(
+                factory = { context ->
+                    FrameLayout(context).apply {
+                        addView(
+                            ComposeView(context).apply {
+                                setContent {
+                                    Row {
+                                        AndroidView(
+                                            factory = { View(it) },
+                                            modifier =
+                                                Modifier.size(50.dp).onGloballyPositioned {
+                                                    innerPositionInWindow =
+                                                        it.boundsInWindow().topLeft
+                                                },
+                                        )
+                                    }
+                                }
+                            },
+                            ViewGroup.LayoutParams(
+                                ViewGroup.LayoutParams.WRAP_CONTENT,
+                                ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ),
+                        )
+                    }
+                }
+            )
+        }
+
+        val initialPosition = rule.runOnIdle { innerPositionInWindow }
+
+        val prevPolicy = IdlingPolicies.getDynamicIdlingResourceErrorPolicy()
+        IdlingPolicies.setIdlingResourceTimeout(2, TimeUnit.SECONDS)
+        try {
+            rule.runOnUiThread {
+                fun forceLayoutRecursive(view: View) {
+                    view.forceLayout()
+                    if (view is ViewGroup) {
+                        for (i in 0 until view.childCount) {
+                            forceLayoutRecursive(view.getChildAt(i))
+                        }
+                    }
+                }
+                // Shift screen/window position of an ancestor above the outer ComposeView while
+                // forcing a layout pass down the hierarchy (matching ViewRootImpl traversal when
+                // window position changes).
+                val activityContent = rule.activity.findViewById<View>(android.R.id.content)
+                activityContent.translationX = 20f
+                forceLayoutRecursive(activityContent)
+                activityContent.requestLayout()
+            }
+
+            rule.runOnIdle {
+                assertEquals(initialPosition.x + 20f, innerPositionInWindow.x, 1f)
+            }
+        } finally {
+            IdlingPolicies.setIdlingResourceTimeout(
+                prevPolicy.idleTimeout,
+                prevPolicy.idleTimeoutUnit,
+            )
+        }
+    }
+
+    @Test
+    fun nestedComposeView_interopViewRequestsLayoutInOnGloballyPositionedDuringOnLayout_becomesIdle() {
+        lateinit var innerView: View
+        lateinit var nestedComposeView: ComposeView
+        var requestInnerLayoutOnPositionChange = false
+        var desiredSize = 40
+        rule.setContent {
+            AndroidView(
+                factory = { context ->
+                    FrameLayout(context).apply {
+                        nestedComposeView =
+                            ComposeView(context).apply {
+                                setContent {
+                                    Row(
+                                        Modifier.onGloballyPositioned {
+                                            if (requestInnerLayoutOnPositionChange) {
+                                                requestInnerLayoutOnPositionChange = false
+                                                desiredSize = 60
+                                                innerView.requestLayout()
+                                            }
+                                        }
+                                    ) {
+                                        AndroidView(
+                                            factory = {
+                                                object : View(it) {
+                                                        override fun onMeasure(
+                                                            widthMeasureSpec: Int,
+                                                            heightMeasureSpec: Int,
+                                                        ) {
+                                                            setMeasuredDimension(
+                                                                desiredSize,
+                                                                desiredSize,
+                                                            )
+                                                        }
+                                                    }
+                                                    .also { v -> innerView = v }
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        addView(
+                            nestedComposeView,
+                            ViewGroup.LayoutParams(
+                                ViewGroup.LayoutParams.WRAP_CONTENT,
+                                ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ),
+                        )
+                    }
+                }
+            )
+        }
+
+        rule.runOnIdle { assertEquals(40, innerView.width) }
+
+        val prevPolicy = IdlingPolicies.getDynamicIdlingResourceErrorPolicy()
+        IdlingPolicies.setIdlingResourceTimeout(2, TimeUnit.SECONDS)
+        try {
+            rule.runOnUiThread {
+                requestInnerLayoutOnPositionChange = true
+                val activityContent = rule.activity.findViewById<View>(android.R.id.content)
+                activityContent.translationX = 20f
+                // Force layout down to nestedComposeView's AndroidComposeView, but NOT innerView,
+                // so innerView.requestLayout() inside onGloballyPositioned triggers
+                // scheduleMeasureAndLayout while AndroidComposeView is finishing onLayout.
+                var v: View? = nestedComposeView.getChildAt(0)
+                while (v != null && v !== activityContent) {
+                    v.forceLayout()
+                    v = v.parent as? View
+                }
+                activityContent.forceLayout()
+                activityContent.requestLayout()
+            }
+
+            rule.runOnIdle { assertEquals(60, innerView.width) }
+        } finally {
+            IdlingPolicies.setIdlingResourceTimeout(
+                prevPolicy.idleTimeout,
+                prevPolicy.idleTimeoutUnit,
+            )
+        }
     }
 }
 

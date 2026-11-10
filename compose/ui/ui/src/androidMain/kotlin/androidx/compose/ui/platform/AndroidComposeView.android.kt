@@ -2251,6 +2251,14 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                 // layout state, which otherwise might cause further requestLayout()s to be blocked.
                 trace("AndroidOwner:viewLayout") { androidViewsHandler.layout(0, 0, r - l, b - t) }
             }
+            // View.layout() only clears isLayoutRequested after onLayout() returns, so any
+            // remeasure or relayout requested after measureAndLayout() above (e.g. by a changed
+            // global position in updatePositionCacheAndDispatch() or by onGloballyPositioned
+            // callbacks) was dropped by scheduleMeasureAndLayout(). Invalidate so that it is
+            // handled in dispatchDraw().
+            if (measureAndLayoutDelegate.hasPendingMeasureOrLayout) {
+                invalidate()
+            }
         }
     }
 
