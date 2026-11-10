@@ -42,6 +42,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.math.roundToInt
@@ -176,6 +178,10 @@ internal fun Modifier.scroll(op: ScrollModifierOperation): Modifier {
             .verticalScroll(scrollState, flingBehavior = flingBehavior)
     } else {
         this.nestedScroll(consumeScrollOnAxis)
-            .horizontalScroll(scrollState, flingBehavior = flingBehavior)
+            .horizontalScroll(
+                scrollState,
+                flingBehavior = flingBehavior,
+                reverseScrolling = LocalLayoutDirection.current == LayoutDirection.Rtl,
+            )
     }
 }

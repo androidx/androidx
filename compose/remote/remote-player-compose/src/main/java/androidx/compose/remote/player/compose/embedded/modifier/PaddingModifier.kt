@@ -16,7 +16,7 @@
 
 package androidx.compose.remote.player.compose.embedded.modifier
 
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.remote.core.operations.layout.modifiers.PaddingModifierOperation
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.doc.rawDimensionDp
@@ -34,10 +34,10 @@ internal fun Modifier.padding(op: PaddingModifierOperation): Modifier {
     val right = rememberRemoteFloatAsState(op.rawRight).value
     val bottom = rememberRemoteFloatAsState(op.rawBottom).value
 
-    return this.padding(
-        start = rawDimensionDp(left, behavior, density),
+    return this.absolutePadding(
+        left = rawDimensionDp(left, behavior, density),
         top = rawDimensionDp(top, behavior, density),
-        end = rawDimensionDp(right, behavior, density),
+        right = rawDimensionDp(right, behavior, density),
         bottom = rawDimensionDp(bottom, behavior, density),
     )
 }

@@ -186,7 +186,7 @@ class RcPlayerTextPropertiesTest {
     }
 
     @Test
-    fun testTextAlignJustifyWithoutJustificationModeMapsToStart() {
+    fun testTextAlignJustifyWithoutJustificationModeMapsToLeft() {
         var currentDocument by
             mutableStateOf(
                 coreTextDocument(
@@ -199,7 +199,7 @@ class RcPlayerTextPropertiesTest {
         rule.waitForIdle()
 
         assertThat(rule.textLayoutResultOf("Justify Mode Test").layoutInput.style.textAlign)
-            .isEqualTo(TextAlign.Start)
+            .isEqualTo(TextAlign.Left)
 
         currentDocument =
             coreTextDocument(

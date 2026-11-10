@@ -91,6 +91,7 @@ import androidx.compose.remote.player.compose.embedded.state.MaybeVariableFloat
 import androidx.compose.remote.player.compose.embedded.state.anyScalarReference
 import androidx.compose.remote.player.compose.embedded.state.forEachScalarReference
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
+import androidx.compose.remote.player.core.platform.BitmapLoader
 import androidx.compose.ui.util.fastForEach
 import androidx.tracing.trace
 
@@ -680,16 +681,19 @@ internal fun mapEasing(type: Int): ComposeEasing {
 internal fun initializePlayerRemoteContext(
     document: CoreDocument,
     preprocessed: DocumentPreprocessResult,
+    bitmapLoader: BitmapLoader? = null,
 ): AndroidRemoteContext =
     trace("RcPlayer:initializeRemoteContext") {
-        initializePlayerRemoteContextImpl(document, preprocessed)
+        initializePlayerRemoteContextImpl(document, preprocessed, bitmapLoader)
     }
 
 private fun initializePlayerRemoteContextImpl(
     document: CoreDocument,
     preprocessed: DocumentPreprocessResult,
+    bitmapLoader: BitmapLoader? = null,
 ): AndroidRemoteContext {
     val ctx = AndroidRemoteContext(document.clock)
+    bitmapLoader?.let(ctx::setBitmapLoader)
     ctx.useChoreographer = true
     val touchVersion = document.featureIntValue(Header.FEATURE_TOUCH_VERSION)
     if (touchVersion != -1) {

@@ -22,6 +22,7 @@ import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.Limits
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.Header
@@ -33,6 +34,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.contentDescription
+import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.visibility
@@ -41,6 +43,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloatArray.Companion.createNamedRemoteFloatArray
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteState
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
@@ -51,6 +54,7 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.modifiers.RecordingModifier
+import androidx.compose.remote.player.core.platform.BitmapLoader
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -69,6 +73,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -443,6 +448,84 @@ class RcPlayerStateTest {
         val bitmap = rule.renderState(state)
 
         assertRed(bitmap, 75, 50)
+    }
+
+    @Test
+    fun bitmapLoaderPassedToState_loadsNamedUrlBitmapOnInit() {
+        val url = "https://example.com/red_avatar.png"
+        val pngBytes =
+            ByteArrayOutputStream().use { out ->
+                Bitmap.createBitmap(16, 16, Bitmap.Config.ARGB_8888)
+                    .apply { eraseColor(AndroidColor.RED) }
+                    .compress(Bitmap.CompressFormat.PNG, 100, out)
+                out.toByteArray()
+            }
+        val requestedUrls = mutableListOf<String>()
+        val loader = BitmapLoader { requestedUrl ->
+            requestedUrls.add(requestedUrl)
+            ByteArrayInputStream(pngBytes)
+        }
+
+        val previousUrlsEnabled = Limits.ENABLE_IMAGE_URLS
+        Limits.ENABLE_IMAGE_URLS = true
+        try {
+            val document = createDocument {
+                val remoteImage = remember { createNamedRemoteImageBitmap("avatar", url, 16, 16) }
+                RemoteImage(
+                    bitmap = remoteImage,
+                    contentDescription = "avatar".rs,
+                    modifier = RemoteModifier.fillMaxSize(),
+                )
+            }
+
+            val state = RcPlayerState(document, bitmapLoader = loader)
+            assertThat(requestedUrls).containsExactly(url)
+            assertThat(state.bitmapState("avatar").value).isNotNull()
+
+            val bitmap = rule.renderState(state)
+            assertRed(bitmap, 50, 50)
+        } finally {
+            Limits.ENABLE_IMAGE_URLS = previousUrlsEnabled
+        }
+    }
+
+    @Test
+    fun rememberRcPlayerStateWithBitmapLoader_rendersUrlBitmap() {
+        val url = "https://example.com/blue_avatar.png"
+        val pngBytes =
+            ByteArrayOutputStream().use { out ->
+                Bitmap.createBitmap(16, 16, Bitmap.Config.ARGB_8888)
+                    .apply { eraseColor(AndroidColor.BLUE) }
+                    .compress(Bitmap.CompressFormat.PNG, 100, out)
+                out.toByteArray()
+            }
+        val loader = BitmapLoader { ByteArrayInputStream(pngBytes) }
+
+        val previousUrlsEnabled = Limits.ENABLE_IMAGE_URLS
+        Limits.ENABLE_IMAGE_URLS = true
+        try {
+            val document = createDocument {
+                val remoteImage = remember { createNamedRemoteImageBitmap("avatar", url, 16, 16) }
+                RemoteImage(
+                    bitmap = remoteImage,
+                    contentDescription = "avatar".rs,
+                    modifier = RemoteModifier.fillMaxSize(),
+                )
+            }
+
+            rule.setContent {
+                CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                    val state = rememberRcPlayerState(document, bitmapLoader = loader)
+                    Box(modifier = Modifier.size(100.dp)) { RcPlayer(state = state) }
+                }
+            }
+            val bitmap = rule.captureRootBitmap()
+            val center = Color(bitmap.getPixel(50, 50))
+            assertThat(center.blue).isGreaterThan(0.9f)
+            assertThat(center.red).isLessThan(0.1f)
+        } finally {
+            Limits.ENABLE_IMAGE_URLS = previousUrlsEnabled
+        }
     }
 
     private fun RcPlayerTestRule.renderState(state: RcPlayerState): Bitmap {

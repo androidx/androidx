@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.player.compose.embedded
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color as AndroidColor
 import android.graphics.Matrix as AndroidMatrix
@@ -28,6 +29,8 @@ import androidx.compose.remote.core.operations.layout.LoopOperation
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.RemotePath
+import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -41,6 +44,7 @@ import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.border
 import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.drawWithContent
+import androidx.compose.remote.creation.compose.modifier.graphicsLayer
 import androidx.compose.remote.creation.compose.modifier.horizontalScroll
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
@@ -64,14 +68,20 @@ import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -826,6 +836,173 @@ class RcPlayerPixelTest {
         rule.waitForIdle()
 
         val bitmap = rule.onNodeWithTag("player").captureToImage().asAndroidBitmap()
+        val center = Color(bitmap.getPixel(50, 50))
+        assertThat(center.blue).isGreaterThan(0.8f)
+        assertThat(center.red).isLessThan(0.2f)
+    }
+
+    private fun renderAtUnitDensity(
+        widthDp: Int = 100,
+        heightDp: Int = 100,
+        hostLayoutDirection: LayoutDirection = LayoutDirection.Ltr,
+        content: @Composable @RemoteComposable () -> Unit,
+    ): Bitmap {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val captured = runBlocking {
+            captureSingleRemoteDocument(
+                creationDisplayInfo =
+                    createRemoteCreationDisplayInfo(
+                        context,
+                        Size(widthDp.toFloat(), heightDp.toFloat()),
+                    ),
+                context = context,
+                content = content,
+            )
+        }
+        val document =
+            CoreDocument(RemoteClock.SYSTEM).apply {
+                ByteArrayInputStream(captured.bytes).use {
+                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                }
+            }
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalDensity provides Density(1f),
+                LocalLayoutDirection provides hostLayoutDirection,
+            ) {
+                Box(modifier = Modifier.size(widthDp.dp, heightDp.dp).testTag("player")) {
+                    RcPlayer(document = document)
+                }
+            }
+        }
+        rule.waitForIdle()
+        return rule.onNodeWithTag("player").captureToImage().asAndroidBitmap()
+    }
+
+    @Test
+    fun paddingBeforeDrawWithContent_doesNotDoubleTranslateCanvas() {
+        val bitmap =
+            renderAtUnitDensity(widthDp = 60, heightDp = 60) {
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.size(60.rdp)
+                            .background(Color.White.rc)
+                            .padding(20.rdp)
+                            .drawWithContent {
+                                val paint = RemotePaint().apply { color = RemoteColor(Color.Blue) }
+                                drawRect(paint = paint)
+                                drawContent()
+                            }
+                ) {
+                    RemoteBox(modifier = RemoteModifier.size(10.rdp).background(Color.Red.rc))
+                }
+            }
+
+        // Padding margin (0..20, 0..20) stays WHITE.
+        val outerPaddingPixel = Color(bitmap.getPixel(10, 10))
+        assertThat(outerPaddingPixel.red).isGreaterThan(0.9f)
+        assertThat(outerPaddingPixel.green).isGreaterThan(0.9f)
+        assertThat(outerPaddingPixel.blue).isGreaterThan(0.9f)
+
+        // Child at (20, 20)..(30, 30) receives drawContent() translated by padding -> RED.
+        val childPixel = Color(bitmap.getPixel(25, 25))
+        assertThat(childPixel.red).isGreaterThan(0.9f)
+        assertThat(childPixel.blue).isLessThan(0.1f)
+
+        // Content area (30..40, 30..40) outside the 10dp child is painted BLUE by drawWithContent
+        // (would be WHITE if preceding padding double-translated drawRect to 40..60).
+        val contentAreaPixel = Color(bitmap.getPixel(35, 35))
+        assertThat(contentAreaPixel.blue).isGreaterThan(0.9f)
+        assertThat(contentAreaPixel.red).isLessThan(0.1f)
+    }
+
+    @Test
+    fun graphicsLayerThenPaddingWithDrawWithContent_preservesModifierOrder() {
+        val bitmap =
+            renderAtUnitDensity(widthDp = 80, heightDp = 60) {
+                RemoteBox(
+                    modifier = RemoteModifier.size(80.rdp, 60.rdp).background(Color.Black.rc)
+                ) {
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.size(40.rdp)
+                                .graphicsLayer { translationX = 20f.rf }
+                                .padding(10.rdp)
+                                .drawWithContent {
+                                    val paint =
+                                        RemotePaint().apply { color = RemoteColor(Color.Blue) }
+                                    drawRect(paint = paint)
+                                    drawContent()
+                                }
+                    ) {
+                        RemoteBox(modifier = RemoteModifier.size(5.rdp).background(Color.Red.rc))
+                    }
+                }
+            }
+
+        // Before translated box (x < 20): BLACK background.
+        val beforeTranslatedBox = Color(bitmap.getPixel(10, 20))
+        assertThat(beforeTranslatedBox.red).isLessThan(0.1f)
+        assertThat(beforeTranslatedBox.green).isLessThan(0.1f)
+        assertThat(beforeTranslatedBox.blue).isLessThan(0.1f)
+
+        // Inside translated padded child (x=20+10..35, y=10..15): RED.
+        val translatedChildPixel = Color(bitmap.getPixel(32, 12))
+        assertThat(translatedChildPixel.red).isGreaterThan(0.9f)
+        assertThat(translatedChildPixel.blue).isLessThan(0.1f)
+
+        // Inside translated drawWithContent area outside child (x=20+10+5..40, y=22): BLUE.
+        val translatedDrawWithContentPixel = Color(bitmap.getPixel(45, 22))
+        assertThat(translatedDrawWithContentPixel.blue).isGreaterThan(0.9f)
+        assertThat(translatedDrawWithContentPixel.red).isLessThan(0.1f)
+    }
+
+    @Test
+    fun localLayoutDirectionRtl_doesNotDoubleMirrorDocument() {
+        val bitmap =
+            renderAtUnitDensity(
+                widthDp = 60,
+                heightDp = 20,
+                hostLayoutDirection = LayoutDirection.Rtl,
+            ) {
+                RemoteRow(
+                    modifier = RemoteModifier.size(60.rdp, 20.rdp).background(Color.Black.rc)
+                ) {
+                    RemoteBox(modifier = RemoteModifier.size(20.rdp).background(Color.Red.rc))
+                    RemoteBox(modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc))
+                }
+            }
+
+        val leftPixel = Color(bitmap.getPixel(10, 10))
+        assertThat(leftPixel.red).isGreaterThan(0.9f)
+        assertThat(leftPixel.blue).isLessThan(0.1f)
+
+        val middlePixel = Color(bitmap.getPixel(30, 10))
+        assertThat(middlePixel.blue).isGreaterThan(0.9f)
+        assertThat(middlePixel.red).isLessThan(0.1f)
+
+        val rightPixel = Color(bitmap.getPixel(50, 10))
+        assertThat(rightPixel.red).isLessThan(0.1f)
+        assertThat(rightPixel.green).isLessThan(0.1f)
+        assertThat(rightPixel.blue).isLessThan(0.1f)
+    }
+
+    @Test
+    fun horizontalScroll_hostRtl_doesNotReverseScrollDirection() {
+        val bitmap =
+            renderAtUnitDensity(
+                widthDp = 100,
+                heightDp = 100,
+                hostLayoutDirection = LayoutDirection.Rtl,
+            ) {
+                val scrollState = remember { RemoteScrollState(position = 100f, notches = 2) }
+                RemoteRow(modifier = RemoteModifier.size(100.rdp).horizontalScroll(scrollState)) {
+                    RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Red.rc))
+                    RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Blue.rc))
+                    RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Green.rc))
+                }
+            }
+
         val center = Color(bitmap.getPixel(50, 50))
         assertThat(center.blue).isGreaterThan(0.8f)
         assertThat(center.red).isLessThan(0.2f)

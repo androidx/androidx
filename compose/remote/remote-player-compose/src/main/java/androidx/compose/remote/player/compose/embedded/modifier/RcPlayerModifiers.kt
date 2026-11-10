@@ -48,15 +48,21 @@ import androidx.compose.remote.core.operations.layout.modifiers.WidthModifierOpe
 import androidx.compose.remote.core.operations.layout.modifiers.ZIndexModifierOperation
 import androidx.compose.remote.core.semantics.CoreSemantics
 import androidx.compose.remote.player.compose.embedded.CustomComposablePlugin
+import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.LocalGraphContext
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
 import androidx.compose.remote.player.compose.embedded.components.visible
+import androidx.compose.remote.player.compose.embedded.doc.rawDimensionPx
+import androidx.compose.remote.player.compose.embedded.draw.LazyGraphicsLayer
 import androidx.compose.remote.player.compose.embedded.draw.executeOperations
 import androidx.compose.remote.player.compose.embedded.draw.rememberLazyGraphicsLayer
 import androidx.compose.remote.player.compose.embedded.inspectable.rcModifierInspector
+import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.util.fastForEach
 
@@ -87,17 +93,24 @@ internal fun ComponentModifiers.toModifier(
     // that subsequent clip operations are hoisted before drawWithContent without bypassing
     // preceding padding.
     var drawContentProcessed = false
+    var graphicsLayerProcessed = false
     var clickProcessed = ignoreClicks
     var touchProcessed = false
     // Collect the gesture operations in one pass so they can be coalesced into a single click
     // modifier and a single touch action modifier.
+    val graphicsLayerOps = ArrayList<GraphicsLayerModifierOperation>()
+    val precedingPaddingOps = ArrayList<PaddingModifierOperation>()
     val clickOps = ArrayList<ClickModifierOperation>()
     val multiClickOps = ArrayList<MultiClickModifier>()
     val touchDownOps = ArrayList<TouchDownModifierOperation>()
     val touchUpOps = ArrayList<TouchUpModifierOperation>()
     val touchCancelOps = ArrayList<TouchCancelModifierOperation>()
+    var seenDrawContent = false
     list.fastForEach {
         when (it) {
+            is GraphicsLayerModifierOperation -> graphicsLayerOps.add(it)
+            is PaddingModifierOperation -> if (!seenDrawContent) precedingPaddingOps.add(it)
+            is DrawContentOperation -> seenDrawContent = true
             is ClickModifierOperation -> clickOps.add(it)
             is MultiClickModifier -> multiClickOps.add(it)
             is TouchDownModifierOperation -> touchDownOps.add(it)
@@ -105,12 +118,42 @@ internal fun ComponentModifiers.toModifier(
             is TouchCancelModifierOperation -> touchCancelOps.add(it)
         }
     }
+    var precedingPaddingLeftPx = 0f
+    var precedingPaddingTopPx = 0f
+    if (drawOpsList != null && precedingPaddingOps.isNotEmpty()) {
+        val density = LocalDensity.current.density
+        val behavior = LocalCoreDocument.current.densityBehavior
+        precedingPaddingOps.fastForEach { p ->
+            precedingPaddingLeftPx +=
+                rawDimensionPx(rememberRemoteFloatAsState(p.rawLeft).value, behavior, density)
+            precedingPaddingTopPx +=
+                rawDimensionPx(rememberRemoteFloatAsState(p.rawTop).value, behavior, density)
+        }
+    }
     val hasClickModifier = !ignoreClicks && (clickOps.isNotEmpty() || multiClickOps.isNotEmpty())
     // A custom plugin that handles clicks itself (ignoreClicks) consumes the release in its own
     // content, which must not turn the component's TouchUp into TouchCancel.
     val hasClickHandler = hasClickModifier || ignoreClicks
     list.fastForEach { op ->
-        modifier = modifier.rcModifierInspector(op)
+        if (
+            drawOpsList == null &&
+                !graphicsLayerProcessed &&
+                graphicsLayerOps.isNotEmpty() &&
+                (op is GraphicsLayerModifierOperation ||
+                    op is BackgroundModifierOperation ||
+                    op is BorderModifierOperation ||
+                    op is ClipRectModifierOperation ||
+                    op is RoundedClipRectModifierOperation ||
+                    op is DrawContentOperation)
+        ) {
+            graphicsLayerProcessed = true
+            graphicsLayerOps.fastForEach { glOp ->
+                modifier = modifier.rcModifierInspector(glOp).graphicsLayer(glOp)
+            }
+        }
+        if (drawOpsList != null || op !is GraphicsLayerModifierOperation) {
+            modifier = modifier.rcModifierInspector(op)
+        }
         modifier =
             when (op) {
                 is PaddingModifierOperation -> modifier.padding(op)
@@ -123,7 +166,8 @@ internal fun ComponentModifiers.toModifier(
                 is RoundedClipRectModifierOperation ->
                     modifier.roundedClipRect(op, drawContentProcessed)
                 is ZIndexModifierOperation -> modifier.zIndex(op)
-                is GraphicsLayerModifierOperation -> modifier.graphicsLayer(op)
+                is GraphicsLayerModifierOperation ->
+                    if (drawOpsList == null) modifier else modifier.graphicsLayer(op)
                 is RippleModifierOperation -> modifier.ripple(op, hasClickModifier)
                 is ScrollModifierOperation -> modifier.scroll(op)
                 is WidthInModifierOperation -> modifier.widthIn(op)
@@ -176,19 +220,12 @@ internal fun ComponentModifiers.toModifier(
                     if (!drawContentProcessed) {
                         drawContentProcessed = true
                         if (drawOpsList != null) {
-                            val textMeasurer = rememberTextMeasurer()
-                            val remoteContext = LocalRemoteContext.current
-                            val graph = LocalGraphContext.current
-                            modifier.drawWithContent {
-                                executeOperations(
-                                    operations = drawOpsList,
-                                    remoteContext = remoteContext,
-                                    textMeasurer = textMeasurer,
-                                    onDrawContent = { drawContent() },
-                                    graph = graph,
-                                    contentLayer = contentLayer,
-                                )
-                            }
+                            modifier.attachDrawWithContent(
+                                drawOpsList = drawOpsList,
+                                contentLayer = contentLayer,
+                                precedingPaddingLeftPx = precedingPaddingLeftPx,
+                                precedingPaddingTopPx = precedingPaddingTopPx,
+                            )
                         } else {
                             modifier
                         }
@@ -213,10 +250,48 @@ internal fun ComponentModifiers.toModifier(
             }
     }
     if (drawOpsList != null && !drawContentProcessed) {
-        val textMeasurer = rememberTextMeasurer()
-        val remoteContext = LocalRemoteContext.current
-        val graph = LocalGraphContext.current
-        modifier = modifier.drawWithContent {
+        modifier =
+            modifier.attachDrawWithContent(
+                drawOpsList = drawOpsList,
+                contentLayer = contentLayer,
+                precedingPaddingLeftPx = precedingPaddingLeftPx,
+                precedingPaddingTopPx = precedingPaddingTopPx,
+            )
+    }
+    return modifier
+}
+
+@Composable
+private fun Modifier.attachDrawWithContent(
+    drawOpsList: List<Operation>,
+    contentLayer: LazyGraphicsLayer?,
+    precedingPaddingLeftPx: Float,
+    precedingPaddingTopPx: Float,
+): Modifier {
+    val textMeasurer = rememberTextMeasurer()
+    val remoteContext = LocalRemoteContext.current
+    val graph = LocalGraphContext.current
+    return this.drawWithContent {
+        if (precedingPaddingLeftPx != 0f || precedingPaddingTopPx != 0f) {
+            // RemoteComposeNode pre-translates CanvasOperations by the padding before the
+            // outermost drawWithContent (and reverses it around drawContent()). Cancel Compose
+            // Modifier.padding's translation before running CanvasOperations so padding is not
+            // applied twice.
+            translate(-precedingPaddingLeftPx, -precedingPaddingTopPx) {
+                executeOperations(
+                    operations = drawOpsList,
+                    remoteContext = remoteContext,
+                    textMeasurer = textMeasurer,
+                    onDrawContent = {
+                        translate(precedingPaddingLeftPx, precedingPaddingTopPx) {
+                            this@drawWithContent.drawContent()
+                        }
+                    },
+                    graph = graph,
+                    contentLayer = contentLayer,
+                )
+            }
+        } else {
             executeOperations(
                 operations = drawOpsList,
                 remoteContext = remoteContext,
@@ -227,5 +302,4 @@ internal fun ComponentModifiers.toModifier(
             )
         }
     }
-    return modifier
 }

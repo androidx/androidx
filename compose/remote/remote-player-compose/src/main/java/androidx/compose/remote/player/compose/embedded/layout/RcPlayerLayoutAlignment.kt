@@ -18,8 +18,9 @@ package androidx.compose.remote.player.compose.embedded.layout
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.remote.player.compose.embedded.doc.rawDimensionDp
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.BiasAlignment
+import androidx.compose.ui.BiasAbsoluteAlignment
 
 /*
  * Shared mapping from RemoteCompose layout positioning to Compose Alignment/Arrangement.
@@ -43,8 +44,9 @@ private const val SPACE_AROUND = 8
 
 /**
  * The 2D [Alignment] for a Box/FitBox `contentAlignment` from its horizontal + vertical
- * positioning. Expressed as a [BiasAlignment] (bias -1 = start/top, 0 = center, +1 = end/bottom),
- * which is exactly what the named `Alignment.TopStart`/`Center`/… constants are.
+ * positioning. Expressed as a [BiasAbsoluteAlignment] (bias -1 = left/top, 0 = center, +1 =
+ * right/bottom) so a host RTL [androidx.compose.ui.unit.LayoutDirection] does not mirror physical
+ * wire positioning.
  */
 internal fun boxContentAlignment(horizontal: Int, vertical: Int): Alignment {
     val horizontalBias =
@@ -59,15 +61,15 @@ internal fun boxContentAlignment(horizontal: Int, vertical: Int): Alignment {
             BOTTOM -> 1f
             else -> -1f
         }
-    return BiasAlignment(horizontalBias, verticalBias)
+    return BiasAbsoluteAlignment(horizontalBias, verticalBias)
 }
 
 /** A Column's cross-axis ([Alignment.Horizontal]) from its horizontal positioning. */
 internal fun columnHorizontalAlignment(positioning: Int): Alignment.Horizontal =
     when (positioning) {
         CENTER -> Alignment.CenterHorizontally
-        END -> Alignment.End
-        else -> Alignment.Start
+        END -> AbsoluteAlignment.Right
+        else -> AbsoluteAlignment.Left
     }
 
 /** A Row's cross-axis ([Alignment.Vertical]) from its vertical positioning. */
@@ -117,12 +119,16 @@ internal fun rowHorizontalArrangement(
     val gap = rawDimensionDp(spacedBy, behavior, density)
     return when (positioning) {
         CENTER ->
-            if (spacedBy > 0f) Arrangement.spacedBy(gap, Alignment.CenterHorizontally)
-            else Arrangement.Center
-        END -> if (spacedBy > 0f) Arrangement.spacedBy(gap, Alignment.End) else Arrangement.End
-        SPACE_BETWEEN -> Arrangement.SpaceBetween
-        SPACE_EVENLY -> Arrangement.SpaceEvenly
-        SPACE_AROUND -> Arrangement.SpaceAround
-        else -> if (spacedBy > 0f) Arrangement.spacedBy(gap) else Arrangement.Start
+            if (spacedBy > 0f) Arrangement.Absolute.spacedBy(gap, Alignment.CenterHorizontally)
+            else Arrangement.Absolute.Center
+        END ->
+            if (spacedBy > 0f) Arrangement.Absolute.spacedBy(gap, AbsoluteAlignment.Right)
+            else Arrangement.Absolute.Right
+        SPACE_BETWEEN -> Arrangement.Absolute.SpaceBetween
+        SPACE_EVENLY -> Arrangement.Absolute.SpaceEvenly
+        SPACE_AROUND -> Arrangement.Absolute.SpaceAround
+        else ->
+            if (spacedBy > 0f) Arrangement.Absolute.spacedBy(gap, AbsoluteAlignment.Left)
+            else Arrangement.Absolute.Left
     }
 }

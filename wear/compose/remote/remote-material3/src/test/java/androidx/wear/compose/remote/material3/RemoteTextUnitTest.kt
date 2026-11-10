@@ -165,12 +165,12 @@ class RemoteTextUnitTest {
         assertThat(primaryOnlyInput.maxLines).isEqualTo(3)
 
         val primaryWithSecondaryInput = fetchTextLayoutInput("Primary With Secondary")
-        assertThat(primaryWithSecondaryInput.style.textAlign).isEqualTo(TextAlign.Start)
+        assertThat(primaryWithSecondaryInput.style.textAlign).isEqualTo(TextAlign.Left)
         assertThat(primaryWithSecondaryInput.overflow).isEqualTo(TextOverflow.Ellipsis)
         assertThat(primaryWithSecondaryInput.maxLines).isEqualTo(3)
 
         val secondaryInput = fetchTextLayoutInput("Secondary")
-        assertThat(secondaryInput.style.textAlign).isEqualTo(TextAlign.Start)
+        assertThat(secondaryInput.style.textAlign).isEqualTo(TextAlign.Left)
         assertThat(secondaryInput.overflow).isEqualTo(TextOverflow.Ellipsis)
         assertThat(secondaryInput.maxLines).isEqualTo(2)
     }
@@ -222,7 +222,7 @@ class RemoteTextUnitTest {
         assertThat(compactNoIconInput.maxLines).isEqualTo(1)
 
         val compactWithIconInput = fetchTextLayoutInput("Compact With Icon")
-        assertThat(compactWithIconInput.style.textAlign).isEqualTo(TextAlign.Start)
+        assertThat(compactWithIconInput.style.textAlign).isEqualTo(TextAlign.Left)
         assertThat(compactWithIconInput.overflow).isEqualTo(TextOverflow.Ellipsis)
         assertThat(compactWithIconInput.maxLines).isEqualTo(1)
     }
@@ -251,7 +251,7 @@ class RemoteTextUnitTest {
         playerRule.onNodeWithText(label).assertExists()
 
         val layoutInput = fetchTextLayoutInput(label)
-        assertThat(layoutInput.style.textAlign).isEqualTo(TextAlign.End)
+        assertThat(layoutInput.style.textAlign).isEqualTo(TextAlign.Right)
         assertThat(layoutInput.overflow).isEqualTo(TextOverflow.Ellipsis)
         assertThat(layoutInput.maxLines).isEqualTo(2)
     }

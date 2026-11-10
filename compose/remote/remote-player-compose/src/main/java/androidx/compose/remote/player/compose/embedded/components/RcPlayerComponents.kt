@@ -66,7 +66,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -215,7 +215,7 @@ internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifi
                     // Allow StateLayout to adopt its active child's measured dimensions rather than
                     // expanding to incoming minimum parent constraints.
                     if (component is StateLayout) {
-                        Modifier.wrapContentSize(Alignment.TopStart)
+                        Modifier.wrapContentSize(AbsoluteAlignment.TopLeft)
                     } else {
                         Modifier
                     }
