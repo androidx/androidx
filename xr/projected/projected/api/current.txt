@@ -11,20 +11,25 @@ package androidx.xr.projected {
   }
 
   @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public final class ProjectedActivityCompat implements java.lang.AutoCloseable {
+    method public void addProjectedInputEventListener(kotlin.jvm.functions.Function1<? super androidx.xr.projected.ProjectedInputEvent,kotlin.Unit> listener);
     method public void clearActivityAsInputReceiver();
     method public void close();
     method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static suspend Object? create(android.app.Activity activity, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedActivityCompat>);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static suspend Object? create(android.app.Activity activity, optional kotlin.coroutines.CoroutineContext coroutineContext, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedActivityCompat>);
     method @Deprecated public static suspend Object? create(android.content.Context context, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedActivityCompat>);
-    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.Flow<androidx.xr.projected.ProjectedInputEvent> getProjectedInputEvents();
+    method @InaccessibleFromKotlin @Deprecated public kotlinx.coroutines.flow.Flow<androidx.xr.projected.ProjectedInputEvent> getProjectedInputEvents();
+    method public void removeProjectedInputEventListener(kotlin.jvm.functions.Function1<? super androidx.xr.projected.ProjectedInputEvent,kotlin.Unit> listener);
     method @RequiresApi(android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM) @WorkerThread public static void requestPermissions(android.app.Activity activity, String[] permissions, @IntRange(from=0L) int requestCode);
     method public void setActivityAsInputReceiver(android.app.PendingIntent intent);
-    property public kotlinx.coroutines.flow.Flow<androidx.xr.projected.ProjectedInputEvent> projectedInputEvents;
+    property @Deprecated public kotlinx.coroutines.flow.Flow<androidx.xr.projected.ProjectedInputEvent> projectedInputEvents;
     field public static final androidx.xr.projected.ProjectedActivityCompat.Companion Companion;
   }
 
   @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public static final class ProjectedActivityCompat.Companion {
     method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public suspend Object? create(android.app.Activity activity, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedActivityCompat>);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public suspend Object? create(android.app.Activity activity, optional kotlin.coroutines.CoroutineContext coroutineContext, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedActivityCompat>);
     method @Deprecated public suspend Object? create(android.content.Context context, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedActivityCompat>);
+    method @BytecodeOnly @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static Object! create$default(androidx.xr.projected.ProjectedActivityCompat.Companion!, android.app.Activity!, kotlin.coroutines.CoroutineContext!, kotlin.coroutines.Continuation!, int, Object!);
     method @RequiresApi(android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM) @WorkerThread public void requestPermissions(android.app.Activity activity, String[] permissions, @IntRange(from=0L) int requestCode);
   }
 

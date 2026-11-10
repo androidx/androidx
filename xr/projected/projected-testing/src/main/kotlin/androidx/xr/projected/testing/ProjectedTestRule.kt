@@ -59,14 +59,13 @@ import androidx.xr.projected.platform.ProjectedDeviceState
 import androidx.xr.projected.platform.ProjectedInputEvent
 import androidx.xr.projected.platform.ProjectedPermissionRequestState
 import java.util.Collections
+import java.util.concurrent.CopyOnWriteArrayList
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
-import org.mockito.ArgumentCaptor
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.doAnswer
-import org.mockito.kotlin.firstValue
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -253,8 +252,21 @@ public class ProjectedTestRule : TestRule {
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private val batteryStateListeners =
         Collections.synchronizedList(mutableListOf<IBatteryStateListener>())
+    private val projectedInputEventListeners = CopyOnWriteArrayList<IProjectedInputEventListener>()
     private val mockProjectedService: IProjectedService =
         mock<IProjectedService> {
+            on { registerProjectedInputEventListener(any()) } doAnswer
+                { invocation ->
+                    val listener = invocation.arguments[0] as IProjectedInputEventListener
+                    projectedInputEventListeners.add(listener)
+                    null
+                }
+            on { unregisterProjectedInputEventListener(any()) } doAnswer
+                { invocation ->
+                    val listener = invocation.arguments[0] as IProjectedInputEventListener
+                    projectedInputEventListeners.remove(listener)
+                    null
+                }
             on { addWindowFlags(any()) } doAnswer
                 { invocation ->
                     val flag = invocation.arguments[0] as Int
@@ -329,6 +341,7 @@ public class ProjectedTestRule : TestRule {
                     setOutputDevices(listOf(OUTPUT_PROJECTED_AUDIO_DEVICE_INFO))
                 }
                 batteryStateListeners.clear()
+                projectedInputEventListeners.clear()
                 registeredInputReceiver = null
                 try {
                     base?.evaluate()
@@ -339,17 +352,13 @@ public class ProjectedTestRule : TestRule {
         }
 
     /**
-     * Emits a [ProjectedInputEvent] with the given [ProjectedInputAction] to
-     * [androidx.xr.projected.ProjectedActivityCompat.projectedInputEvents].
+     * Sends a [androidx.xr.projected.ProjectedInputEvent] with the given [ProjectedInputAction] to
+     * all listeners added using
+     * [androidx.xr.projected.ProjectedActivityCompat.addProjectedInputEventListener].
      */
     public fun sendProjectedInputEvent(projectedInputAction: ProjectedInputAction) {
-        val inputEventListenerCaptor =
-            ArgumentCaptor.forClass(IProjectedInputEventListener::class.java)
-        verify(mockProjectedService)
-            .registerProjectedInputEventListener(inputEventListenerCaptor.capture())
-        inputEventListenerCaptor.firstValue.onProjectedInputEvent(
-            ProjectedInputEvent().apply { action = projectedInputAction.code }
-        )
+        val inputEvent = ProjectedInputEvent().apply { action = projectedInputAction.code }
+        projectedInputEventListeners.forEach { it.onProjectedInputEvent(inputEvent) }
     }
 
     /**

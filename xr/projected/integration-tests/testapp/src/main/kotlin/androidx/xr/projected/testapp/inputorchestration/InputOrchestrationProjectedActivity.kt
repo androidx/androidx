@@ -61,10 +61,13 @@ class InputOrchestrationProjectedActivity : ComponentActivity() {
         lifecycleScope.launch {
             try {
                 val activityCompat =
-                    ProjectedActivityCompat.create(this@InputOrchestrationProjectedActivity)
+                    ProjectedActivityCompat.create(
+                        this@InputOrchestrationProjectedActivity,
+                        coroutineContext,
+                    )
                 projectedActivityCompat = activityCompat
                 handleIntent(intent)
-                activityCompat.projectedInputEvents.collect { playEarconTapSound() }
+                activityCompat.addProjectedInputEventListener { playEarconTapSound() }
             } catch (e: Exception) {
                 Log.e(TAG, "Error initializing ProjectedActivityCompat", e)
             }
