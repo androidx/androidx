@@ -23,7 +23,7 @@ import androidx.glance.adaptive.appwidget.R
 import androidx.glance.adaptive.appwidget.components.density
 import androidx.glance.adaptive.appwidget.components.setMaxSize
 import androidx.glance.adaptive.appwidget.components.toPx
-import androidx.glance.adaptive.appwidget.matrix.Icon
+import androidx.glance.adaptive.core.slots.Icon
 
 /**
  * Draws the icon for the leading slot, [size] across, tinted with the primary color.

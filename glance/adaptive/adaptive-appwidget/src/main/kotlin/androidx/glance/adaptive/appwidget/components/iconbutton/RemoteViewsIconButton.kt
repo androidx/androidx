@@ -24,7 +24,7 @@ import androidx.glance.adaptive.appwidget.components.density
 import androidx.glance.adaptive.appwidget.components.setMaxSize
 import androidx.glance.adaptive.appwidget.components.tappableStableId
 import androidx.glance.adaptive.appwidget.components.toPx
-import androidx.glance.adaptive.appwidget.matrix.IconButton
+import androidx.glance.adaptive.core.slots.IconButton
 
 /**
  * Draws the icon button as a circle [diameter] across, with its glyph [glyphSize] across at the

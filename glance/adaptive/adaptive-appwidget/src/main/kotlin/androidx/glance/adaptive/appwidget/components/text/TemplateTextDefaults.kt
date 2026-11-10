@@ -17,7 +17,7 @@ package androidx.glance.adaptive.appwidget.components.text
 
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
-import androidx.glance.adaptive.appwidget.matrix.TemplateText
+import androidx.glance.adaptive.core.slots.TemplateText
 
 /** Design values of the [TemplateText] component that every backend draws it with. */
 internal object TemplateTextDefaults {

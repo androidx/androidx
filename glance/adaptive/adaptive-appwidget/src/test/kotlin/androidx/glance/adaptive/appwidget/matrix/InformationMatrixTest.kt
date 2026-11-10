@@ -24,6 +24,13 @@ import androidx.glance.adaptive.core.selection.Dimensions
 import androidx.glance.adaptive.core.selection.HeightTier
 import androidx.glance.adaptive.core.selection.SizeTiers
 import androidx.glance.adaptive.core.selection.WidthTier
+import androidx.glance.adaptive.core.slots.ContainedRing
+import androidx.glance.adaptive.core.slots.Icon
+import androidx.glance.adaptive.core.slots.IconButton
+import androidx.glance.adaptive.core.slots.IconGrid
+import androidx.glance.adaptive.core.slots.IconTile
+import androidx.glance.adaptive.core.slots.Ring
+import androidx.glance.adaptive.core.slots.TemplateText
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Test

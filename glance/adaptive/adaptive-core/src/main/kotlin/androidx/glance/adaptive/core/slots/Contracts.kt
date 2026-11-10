@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.adaptive.appwidget.matrix
+package androidx.glance.adaptive.core.slots
 
 import androidx.annotation.RestrictTo
 

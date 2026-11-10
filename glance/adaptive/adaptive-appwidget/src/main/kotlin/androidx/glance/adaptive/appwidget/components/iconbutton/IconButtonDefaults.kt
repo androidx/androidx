@@ -18,7 +18,7 @@ package androidx.glance.adaptive.appwidget.components.iconbutton
 
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.glance.adaptive.appwidget.matrix.IconButton
+import androidx.glance.adaptive.core.slots.IconButton
 
 /** Design values of the [IconButton] component that every backend draws it with. */
 internal object IconButtonDefaults {

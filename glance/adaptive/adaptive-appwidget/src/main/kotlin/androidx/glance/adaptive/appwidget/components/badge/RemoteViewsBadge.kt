@@ -23,7 +23,7 @@ import androidx.glance.adaptive.appwidget.components.addChild
 import androidx.glance.adaptive.appwidget.components.density
 import androidx.glance.adaptive.appwidget.components.setText
 import androidx.glance.adaptive.appwidget.components.toPx
-import androidx.glance.adaptive.appwidget.matrix.Badge
+import androidx.glance.adaptive.core.slots.Badge
 
 /**
  * Draws the badge for an action slot — the [RemoteViews] counterpart of the Glance

@@ -26,7 +26,7 @@ import androidx.glance.adaptive.appwidget.components.setHorizontalItemSpacing
 import androidx.glance.adaptive.appwidget.components.setOptionalText
 import androidx.glance.adaptive.appwidget.components.setText
 import androidx.glance.adaptive.appwidget.components.visibility
-import androidx.glance.adaptive.appwidget.matrix.Graph
+import androidx.glance.adaptive.core.slots.Graph
 
 /**
  * Draws the graph for the hero slot — the [RemoteViews] counterpart of the Glance `BarChartBlock`.

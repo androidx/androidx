@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.glance.adaptive.appwidget.matrix.IconGrid
+import androidx.glance.adaptive.core.slots.IconGrid
 
 /**
  * Design values of the [IconGrid] component that every backend draws it with.
