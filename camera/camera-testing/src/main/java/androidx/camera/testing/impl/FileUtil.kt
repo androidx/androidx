@@ -412,12 +412,11 @@ public object FileUtil {
     @JvmStatic
     public fun getAbsolutePathFromUri(resolver: ContentResolver, contentUri: Uri): String? {
         // MediaStore.Video.Media.DATA was deprecated in API level 29.
-        val column = MediaStore.Video.Media.DATA
+        @Suppress("DEPRECATION") val column = MediaStore.Video.Media.DATA
         try {
-            resolver.query(contentUri, arrayOf(column), null, null, null)!!.use { cursor ->
+            return resolver.query(contentUri, arrayOf(column), null, null, null)?.use { cursor ->
                 val columnIndex = cursor.getColumnIndexOrThrow(column)
-                cursor.moveToFirst()
-                return cursor.getString(columnIndex)
+                if (cursor.moveToFirst()) cursor.getString(columnIndex) else null
             }
         } catch (e: RuntimeException) {
             Log.e(

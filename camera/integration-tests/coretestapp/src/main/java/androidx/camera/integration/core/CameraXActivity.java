@@ -37,7 +37,6 @@ import static androidx.camera.core.ImageCapture.getImageCaptureCapabilities;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
 import static androidx.camera.testing.impl.FileUtil.canDeviceWriteToMediaStore;
 import static androidx.camera.testing.impl.FileUtil.createFolder;
-import static androidx.camera.testing.impl.FileUtil.createParentFolder;
 import static androidx.camera.testing.impl.FileUtil.generateVideoFileOutputOptions;
 import static androidx.camera.testing.impl.FileUtil.generateVideoMediaStoreOptions;
 import static androidx.camera.testing.impl.FileUtil.getAbsolutePathFromUri;
@@ -1023,6 +1022,9 @@ public class CameraXActivity extends AppCompatActivity {
                             + finalize.getCause();
                     Log.e(TAG, errMsg, finalize.getCause());
                     Toast.makeText(CameraXActivity.this, errMsg, Toast.LENGTH_LONG).show();
+                    // Decrement mVideoSavedIdlingLatch so that the tests fail with the recording
+                    // error message ASAP instead of waiting for the latch to time out.
+                    mVideoSavedIdlingLatch.countDown();
             }
             mRecordUi.setState(RecordUi.State.IDLE);
         }
@@ -2290,13 +2292,11 @@ public class CameraXActivity extends AppCompatActivity {
         }
     }
 
-    /** Checks the folder existence by how the video file be created. */
+    @SuppressLint("RestrictedApiAndroidX")
     private void createDefaultVideoFolderIfNotExist() {
-        String videoFilePath =
-                getAbsolutePathFromUri(getApplicationContext().getContentResolver(),
-                        MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
-        if (videoFilePath == null || !createParentFolder(videoFilePath)) {
-            Log.e(TAG, "Failed to create parent directory for: " + videoFilePath);
+        File videoFolder = getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
+        if (!createFolder(videoFolder)) {
+            Log.e(TAG, "Failed to create directory: " + videoFolder);
         }
     }
 
