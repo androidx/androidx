@@ -167,14 +167,15 @@ public class Graph(
  * the design, the first dot goes before the pill and the remaining ones after it.
  *
  * @property label Text inside the pill.
- * @property outlineColor ARGB color of the pill's outline.
+ * @property outlineColor Optional ARGB color of the pill's outline; when `null`, host renderers
+ *   apply the active surface theme's accent color.
  * @property dotColors ARGB colors of the status dots, leading to trailing. May be empty.
  * @throws IllegalArgumentException if [label] is blank.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Badge(
     public val label: String,
-    @ColorInt public val outlineColor: Int,
+    @param:ColorInt @get:ColorInt public val outlineColor: Int? = null,
     public val dotColors: IntList = emptyIntList(),
 ) : ActionComponent {
     init {

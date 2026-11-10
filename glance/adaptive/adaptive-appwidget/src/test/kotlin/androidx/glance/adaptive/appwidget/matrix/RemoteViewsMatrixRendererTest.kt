@@ -18,6 +18,8 @@ package androidx.glance.adaptive.appwidget.matrix
 
 import android.app.Application
 import android.content.Context
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -700,6 +702,39 @@ class RemoteViewsMatrixRendererTest {
         assertThat(tile(row, 0).contentDescription.toString()).isEqualTo("Call")
     }
 
+    @Test
+    fun badge_withDefaultOutlineColor_rendersWithSystemThemeOutline() {
+        val root =
+            render(
+                MatrixCardContent(
+                    primary = TemplateText("11,056"),
+                    actions = listOf(Badge("Z2")),
+                ),
+                Dimensions(348, 132),
+            )
+
+        val badgeLabel =
+            root.findViewById<TextView>(R.id.glance_adaptive_appwidget_remoteviews_badge_label)
+        assertThat(badgeLabel.text.toString()).isEqualTo("Z2")
+        val tertiary = context.getColor(R.color.glance_adaptive_appwidget_remoteviews_tertiary)
+        assertThat(badgeOutline(root).colorFilter).isEqualTo(outlineFilter(tertiary))
+    }
+
+    @Test
+    fun badge_withOutlineColor_rendersWithThatOutline() {
+        val yellow = 0xFFFFE347.toInt()
+        val root =
+            render(
+                MatrixCardContent(
+                    primary = TemplateText("11,056"),
+                    actions = listOf(Badge("Z2", outlineColor = yellow)),
+                ),
+                Dimensions(348, 132),
+            )
+
+        assertThat(badgeOutline(root).colorFilter).isEqualTo(outlineFilter(yellow))
+    }
+
     /** A card with every slot filled. */
     private fun fullCard() =
         MatrixCardContent(
@@ -717,6 +752,12 @@ class RemoteViewsMatrixRendererTest {
 
     private fun actionRow(root: View): ViewGroup =
         root.findViewById(R.id.glance_adaptive_appwidget_remoteviews_slot_supporting)
+
+    private fun badgeOutline(root: View): ImageView =
+        root.findViewById(R.id.glance_adaptive_appwidget_remoteviews_badge_outline)
+
+    /** The filter `ImageView.setColorFilter(color)` sets. */
+    private fun outlineFilter(color: Int) = PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP)
 
     private fun iconButton(root: View): View =
         root.findViewById(R.id.glance_adaptive_appwidget_remoteviews_icon_button)
