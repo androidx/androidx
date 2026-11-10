@@ -24,7 +24,7 @@ androidComponents { beforeVariants(selector().all()) { enabled = buildType == "r
 
 android {
     namespace = "androidx.xr.glimmer.macrobenchmark.target"
-    compileSdk { version = release(37) { minorApiLevel = 1 } }
+    compileSdk { version = release(37) { minorApiLevel = 2 } }
     defaultConfig {
         // TODO(b/567875413): Lower minSdk once initial focus is assigned with
         //  isInitialFocusOnFocusableAvailable on Sargo (API 30/31) devices.
