@@ -17,12 +17,20 @@
 package androidx.wear.compose.remote.material3
 
 import android.content.Context
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
+import androidx.compose.remote.player.view.RemoteComposePlayer
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performTouchInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -38,6 +46,7 @@ import androidx.wear.compose.remote.material3.previews.RemoteIconToggleButtonVar
 import androidx.wear.compose.remote.material3.util.ComponentContainer
 import androidx.wear.compose.remote.material3.util.PathClip
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
+import androidx.wear.compose.remote.material3.util.TestImageVectors
 import androidx.wear.compose.remote.material3.util.withPathClip
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
@@ -97,6 +106,36 @@ class RemoteIconToggleButtonTest {
     @Test
     fun icon_toggle_button_extra_large() = screenshotTest { RemoteIconToggleButtonExtraLarge() }
 
+    @Test
+    fun icon_toggle_button_animated_shapes_pressed() = pressedScreenshotTest {
+        RemoteIconToggleButton(
+            checked = false.rb,
+            onCheckedChange = RemoteAction.None,
+            shapes = RemoteIconToggleButtonDefaults.animatedShapes(),
+        ) {
+            RemoteIcon(
+                imageVector = TestImageVectors.VolumeUp,
+                contentDescription = null,
+                modifier = RemoteModifier.size(RemoteIconToggleButtonDefaults.DefaultIconSize),
+            )
+        }
+    }
+
+    @Test
+    fun icon_toggle_button_variant_animated_checked_pressed() = pressedScreenshotTest {
+        RemoteIconToggleButton(
+            checked = true.rb,
+            onCheckedChange = RemoteAction.None,
+            shapes = RemoteIconToggleButtonDefaults.variantAnimatedShapes(),
+        ) {
+            RemoteIcon(
+                imageVector = TestImageVectors.VolumeUp,
+                contentDescription = null,
+                modifier = RemoteModifier.size(RemoteIconToggleButtonDefaults.DefaultIconSize),
+            )
+        }
+    }
+
     private fun screenshotTest(
         profile: Profile = RcPlatformProfiles.ANDROIDX,
         content: @Composable () -> Unit,
@@ -107,5 +146,29 @@ class RemoteIconToggleButtonTest {
         ) {
             ComponentContainer { content() }
         }
+    }
+
+    private fun pressedScreenshotTest(content: @Composable @RemoteComposable () -> Unit) {
+        lateinit var player: RemoteComposePlayer
+        remoteComposeTestRule.setContent(
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            update = { player = it },
+        ) {
+            ComponentContainer { content() }
+        }
+        val root =
+            remoteComposeTestRule.composeTestRule.onNodeWithTag(
+                RemoteScreenshotTestRule.ROOT_TEST_TAG
+            )
+        root.performTouchInput { down(center) }
+        remoteComposeTestRule.composeTestRule.waitUntil(PressAnimationTimeoutMillis) {
+            player.document.document.needsRepaint() < 0
+        }
+        remoteComposeTestRule.verifyScreenshot()
+        root.performTouchInput { up() }
+    }
+
+    private companion object {
+        const val PressAnimationTimeoutMillis = 5_000L
     }
 }

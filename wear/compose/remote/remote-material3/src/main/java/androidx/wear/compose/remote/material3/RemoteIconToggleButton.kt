@@ -95,10 +95,9 @@ public fun RemoteIconToggleButton(
     border: RemoteBorderStroke? = null,
     content: @Composable @RemoteComposable () -> Unit,
 ) {
-    val animatedShape =
-        animatedToggleButtonShape(
+    val (shape, pressedShape) =
+        resolveToggleButtonShapes(
             checked = checked,
-            enabled = enabled,
             uncheckedShape = shapes.uncheckedShape,
             checkedShape = shapes.checkedShape,
             uncheckedPressedShape = shapes.uncheckedPressedShape,
@@ -107,7 +106,7 @@ public fun RemoteIconToggleButton(
     val checkedProgress = animatedCheckedProgress(checked)
     RemoteRoundButton(
         onClick = onCheckedChange,
-        modifier = modifier.size(RemoteIconToggleButtonDefaults.Size).then(animatedShape.modifier),
+        modifier = modifier.size(RemoteIconToggleButtonDefaults.Size),
         backgroundColor =
             colors.containerColor(
                 enabled = enabled,
@@ -116,7 +115,10 @@ public fun RemoteIconToggleButton(
             ),
         enabled = enabled,
         border = border,
-        shape = animatedShape.shape,
+        shape = shape,
+        pressedShape = pressedShape,
+        pressAnimationSpec = RemoteMaterialTheme.motionScheme.fastEffectsSpec(),
+        releaseAnimationSpec = RemoteMaterialTheme.motionScheme.defaultSpatialSpec(),
         role = RemoteRole.Checkbox,
         content =
             provideScopeContent(
@@ -225,21 +227,11 @@ public object RemoteIconToggleButtonDefaults {
         RemoteIconToggleButtonShapes(uncheckedShape = shape)
 
     /**
-     * Creates a [RemoteIconToggleButtonShapes] where the toggle button changes from [shape] to
-     * [checkedShape] when checked.
-     *
-     * @return a [RemoteIconToggleButtonShapes] with the default unchecked and checked shapes
-     */
-    @Composable
-    public fun variantShapes(): RemoteIconToggleButtonShapes =
-        RemoteIconToggleButtonShapes(uncheckedShape = shape, checkedShape = checkedShape)
-
-    /**
      * Creates a [RemoteIconToggleButtonShapes] where the toggle button changes from
      * [uncheckedShape] to [checkedShape] when checked.
      *
      * The shape is selected at playback time when [RemoteIconToggleButton]'s `checked` is not a
-     * constant, which requires both shapes to be [RemoteCornerBasedShape]s.
+     * constant, which requires both shapes to be [RemoteRoundedCornerShape]s.
      *
      * @param uncheckedShape The shape of the toggle button when unchecked.
      * @param checkedShape The shape of the toggle button when checked.
@@ -247,28 +239,16 @@ public object RemoteIconToggleButtonDefaults {
      */
     @Composable
     public fun variantShapes(
-        uncheckedShape: RemoteCornerBasedShape? = null,
-        checkedShape: RemoteCornerBasedShape? = null,
+        uncheckedShape: RemoteCornerBasedShape = shape,
+        checkedShape: RemoteCornerBasedShape = this.checkedShape,
     ): RemoteIconToggleButtonShapes =
-        RemoteIconToggleButtonShapes(
-            uncheckedShape = uncheckedShape ?: shape,
-            checkedShape = checkedShape ?: this.checkedShape,
-        )
+        RemoteIconToggleButtonShapes(uncheckedShape = uncheckedShape, checkedShape = checkedShape)
 
     /**
      * Creates a [RemoteIconToggleButtonShapes] with a static [shape] that animates to
      * [pressedShape] when pressed.
      *
-     * @return a [RemoteIconToggleButtonShapes] with the default resting and pressed shapes
-     */
-    @Composable
-    public fun animatedShapes(): RemoteIconToggleButtonShapes = animatedShapes(shape = null)
-
-    /**
-     * Creates a [RemoteIconToggleButtonShapes] with a static [shape] that animates to
-     * [pressedShape] when pressed.
-     *
-     * The press animation requires both shapes to be [RemoteCornerBasedShape]s. It is driven by
+     * The press animation requires both shapes to be [RemoteRoundedCornerShape]s. It is driven by
      * touch events on the player, and is not shown by players that don't dispatch them.
      *
      * @param shape The shape of the toggle button when not pressed.
@@ -277,36 +257,24 @@ public object RemoteIconToggleButtonDefaults {
      */
     @Composable
     public fun animatedShapes(
-        shape: RemoteCornerBasedShape? = null,
-        pressedShape: RemoteCornerBasedShape? = null,
-    ): RemoteIconToggleButtonShapes {
-        val restingShape = shape ?: this.shape
-        val pressed = pressedShape ?: this.pressedShape
-        return RemoteIconToggleButtonShapes(
-            uncheckedShape = restingShape,
-            checkedShape = restingShape,
-            uncheckedPressedShape = pressed,
-            checkedPressedShape = pressed,
+        shape: RemoteCornerBasedShape = this.shape,
+        pressedShape: RemoteCornerBasedShape = this.pressedShape,
+    ): RemoteIconToggleButtonShapes =
+        RemoteIconToggleButtonShapes(
+            uncheckedShape = shape,
+            checkedShape = shape,
+            uncheckedPressedShape = pressedShape,
+            checkedPressedShape = pressedShape,
         )
-    }
-
-    /**
-     * Creates a [RemoteIconToggleButtonShapes] where the toggle button changes from [shape] to
-     * [checkedShape] when checked, and animates to a shape with smaller corners when pressed.
-     *
-     * @return a [RemoteIconToggleButtonShapes] with the default checked and pressed animated shapes
-     */
-    @Composable
-    public fun variantAnimatedShapes(): RemoteIconToggleButtonShapes =
-        variantAnimatedShapes(uncheckedShape = null)
 
     /**
      * Creates a [RemoteIconToggleButtonShapes] where the toggle button changes from
      * [uncheckedShape] to [checkedShape] when checked, and animates to a shape with smaller corners
      * when pressed.
      *
-     * The press animation is driven by touch events on the player, and is not shown by players that
-     * don't dispatch them.
+     * Dynamic shape selection and the press animation require both shapes to be
+     * [RemoteRoundedCornerShape]s. The press animation is driven by touch events on the player, and
+     * is not shown by players that don't dispatch them.
      *
      * @param uncheckedShape The shape of the toggle button when unchecked.
      * @param checkedShape The shape of the toggle button when checked.
@@ -315,18 +283,15 @@ public object RemoteIconToggleButtonDefaults {
      */
     @Composable
     public fun variantAnimatedShapes(
-        uncheckedShape: RemoteCornerBasedShape? = null,
-        checkedShape: RemoteCornerBasedShape? = null,
-    ): RemoteIconToggleButtonShapes {
-        val unchecked = uncheckedShape ?: shape
-        val checked = checkedShape ?: this.checkedShape
-        return RemoteIconToggleButtonShapes(
-            uncheckedShape = unchecked,
-            checkedShape = checked,
-            uncheckedPressedShape = unchecked.scaleCorners(PressedShapeCornerSizeFraction),
-            checkedPressedShape = checked.scaleCorners(PressedShapeCornerSizeFraction),
+        uncheckedShape: RemoteCornerBasedShape = shape,
+        checkedShape: RemoteCornerBasedShape = this.checkedShape,
+    ): RemoteIconToggleButtonShapes =
+        RemoteIconToggleButtonShapes(
+            uncheckedShape = uncheckedShape,
+            checkedShape = checkedShape,
+            uncheckedPressedShape = uncheckedShape.scaleCorners(PressedShapeCornerSizeFraction),
+            checkedPressedShape = checkedShape.scaleCorners(PressedShapeCornerSizeFraction),
         )
-    }
 
     /**
      * Creates a [RemoteIconToggleButtonColors] for a [RemoteIconToggleButton] - by default, a
@@ -550,13 +515,13 @@ public class RemoteIconToggleButtonColors(
  * while pressed.
  *
  * When the `checked` state of [RemoteIconToggleButton] is not a constant, a change of shape between
- * [uncheckedShape] and [checkedShape] is only supported when both are [RemoteCornerBasedShape]s;
+ * [uncheckedShape] and [checkedShape] is only supported when both are [RemoteRoundedCornerShape]s;
  * otherwise [uncheckedShape] is used.
  *
  * When the pressed shapes differ from the resting shapes, [RemoteIconToggleButton] animates to
  * [uncheckedPressedShape] or [checkedPressedShape] while it is pressed. The press animation
- * requires all the shapes to be [RemoteCornerBasedShape]s and the toggle button to be enabled with
- * a constant value.
+ * requires all the shapes to be [RemoteRoundedCornerShape]s and the toggle button to be enabled
+ * with a constant value.
  *
  * @param uncheckedShape The shape of the toggle button when unchecked.
  * @param checkedShape The shape of the toggle button when checked.

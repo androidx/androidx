@@ -18,7 +18,11 @@ package androidx.wear.compose.remote.material3.samples
 
 import android.content.Context
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
+import androidx.compose.remote.player.view.RemoteComposePlayer
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performTouchInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -58,5 +62,42 @@ class RemoteTextButtonSampleTest {
         ) {
             ComponentContainer { RemoteTextButtonSimpleSample() }
         }
+    }
+
+    @Test
+    fun remoteTextButtonWithCornerAnimationSampleTest() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = RcPlatformProfiles.ANDROIDX,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteTextButtonWithCornerAnimationSample() }
+        }
+    }
+
+    @Test
+    fun remoteTextButtonWithCornerAnimationSamplePressedTest() {
+        lateinit var player: RemoteComposePlayer
+        remoteComposeTestRule.setContent(
+            profile = RcPlatformProfiles.ANDROIDX,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            update = { player = it },
+        ) {
+            ComponentContainer { RemoteTextButtonWithCornerAnimationSample() }
+        }
+        val root =
+            remoteComposeTestRule.composeTestRule.onNodeWithTag(
+                RemoteScreenshotTestRule.ROOT_TEST_TAG
+            )
+
+        root.performTouchInput { down(center) }
+        remoteComposeTestRule.composeTestRule.waitUntil(PressAnimationTimeoutMillis) {
+            player.document.document.needsRepaint() < 0
+        }
+        remoteComposeTestRule.verifyScreenshot()
+        root.performTouchInput { up() }
+    }
+
+    private companion object {
+        const val PressAnimationTimeoutMillis = 5_000L
     }
 }

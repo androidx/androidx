@@ -45,6 +45,7 @@ import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
 import androidx.compose.remote.player.compose.embedded.RcPlayer
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
+import androidx.compose.remote.player.view.RemoteComposePlayer
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,6 +56,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
@@ -261,6 +263,40 @@ class RemoteIconButtonTest {
         }
     }
 
+    @Test
+    fun remote_icon_button_animated_shapes_pressed() {
+        lateinit var player: RemoteComposePlayer
+        remoteComposeTestRule.setContent(
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            update = { player = it },
+        ) {
+            ComponentContainer {
+                RemoteIconButton(
+                    testAction,
+                    enabled = true.rb,
+                    shapes = RemoteIconButtonDefaults.animatedShapes(),
+                    colors = RemoteIconButtonDefaults.filledTonalIconButtonColors(),
+                ) {
+                    RemoteIcon(
+                        imageVector = TestImageVectors.VolumeUp,
+                        contentDescription = null,
+                        modifier = RemoteModifier.size(RemoteIconButtonDefaults.DefaultIconSize),
+                    )
+                }
+            }
+        }
+        val root =
+            remoteComposeTestRule.composeTestRule.onNodeWithTag(
+                RemoteScreenshotTestRule.ROOT_TEST_TAG
+            )
+        root.performTouchInput { down(center) }
+        remoteComposeTestRule.composeTestRule.waitUntil(PressAnimationTimeoutMillis) {
+            player.document.document.needsRepaint() < 0
+        }
+        remoteComposeTestRule.verifyScreenshot()
+        root.performTouchInput { up() }
+    }
+
     @Ignore("b/556172440 - Enable once corner equality and embedded player icon mask fixes land")
     @OptIn(ExperimentalRemotePlayerApi::class)
     @Test
@@ -351,6 +387,10 @@ class RemoteIconButtonTest {
         } finally {
             RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = false
         }
+    }
+
+    private companion object {
+        const val PressAnimationTimeoutMillis = 5_000L
     }
 }
 

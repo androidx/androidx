@@ -18,6 +18,7 @@ package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.remote.creation.compose.action.hostAction
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rs
@@ -39,6 +40,26 @@ fun RemoteIconButtonSimpleSample(modifier: RemoteModifier = RemoteModifier) {
         onClick = hostAction("volume_up".rs),
         modifier = modifier,
         colors = RemoteIconButtonDefaults.filledTonalIconButtonColors(),
+    ) {
+        RemoteIcon(
+            imageVector = TestImageVectors.VolumeUp,
+            contentDescription = null,
+            modifier = RemoteModifier.size(RemoteIconButtonDefaults.DefaultIconSize),
+        )
+    }
+}
+
+@Sampled
+@RemoteComposable
+@Composable
+@WearPreviewDevices
+@PreviewWrapper(RemoteComponentPreviewWrapper::class)
+fun RemoteIconButtonWithCornerAnimationSample(modifier: RemoteModifier = RemoteModifier) {
+    RemoteIconButton(
+        onClick = hostAction("volume_up".rs),
+        modifier = modifier,
+        shapes = RemoteIconButtonDefaults.animatedShapes(),
+        colors = RemoteIconButtonDefaults.filledIconButtonColors(),
     ) {
         RemoteIcon(
             imageVector = TestImageVectors.VolumeUp,

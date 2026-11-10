@@ -20,13 +20,17 @@ import android.content.Context
 import androidx.collection.buildObjectIntMap
 import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
+import androidx.compose.remote.player.view.RemoteComposePlayer
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performTouchInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -144,7 +148,38 @@ class RemoteTextButtonTest {
         }
     }
 
+    @Test
+    fun remote_text_button_animated_shapes_pressed() {
+        lateinit var player: RemoteComposePlayer
+        remoteComposeTestRule.setContent(
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            update = { player = it },
+        ) {
+            ComponentContainer {
+                RemoteTextButton(
+                    testAction,
+                    enabled = true.rb,
+                    shapes = RemoteTextButtonDefaults.animatedShapes(),
+                    colors = RemoteTextButtonDefaults.filledTonalTextButtonColors(),
+                ) {
+                    RemoteText("ABC".rs)
+                }
+            }
+        }
+        val root =
+            remoteComposeTestRule.composeTestRule.onNodeWithTag(
+                RemoteScreenshotTestRule.ROOT_TEST_TAG
+            )
+        root.performTouchInput { down(center) }
+        remoteComposeTestRule.composeTestRule.waitUntil(PressAnimationTimeoutMillis) {
+            player.document.document.needsRepaint() < 0
+        }
+        remoteComposeTestRule.verifyScreenshot()
+        root.performTouchInput { up() }
+    }
+
     private companion object {
+        const val PressAnimationTimeoutMillis = 5_000L
         private val testAction = hostAction("testAction".rs, 1.rf)
     }
 }

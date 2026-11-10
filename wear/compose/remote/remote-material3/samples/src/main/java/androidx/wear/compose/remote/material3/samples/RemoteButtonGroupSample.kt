@@ -51,7 +51,7 @@ fun RemoteButtonGroupThreeButtonSample(modifier: RemoteModifier = RemoteModifier
                 onClick = hostAction("button_click".rs),
                 modifier = RemoteModifier.weight(1f.rf),
                 colors = RemoteIconButtonDefaults.filledIconButtonColors(),
-                shape = RemoteButtonDefaults.shape,
+                shapes = RemoteIconButtonDefaults.shapes(RemoteButtonDefaults.shape),
             ) {
                 RemoteIcon(imageVector = icon.toRemoteImageVector(), contentDescription = null)
             }
@@ -77,7 +77,7 @@ fun RemoteButtonGroupAnimatedSample(modifier: RemoteModifier = RemoteModifier) {
                 onClick = hostAction("button_click".rs),
                 modifier = RemoteModifier.weight(weight).animateWidth(),
                 colors = RemoteIconButtonDefaults.filledIconButtonColors(),
-                shape = RemoteButtonDefaults.shape,
+                shapes = RemoteIconButtonDefaults.shapes(RemoteButtonDefaults.shape),
             ) {
                 RemoteIcon(imageVector = icon.toRemoteImageVector(), contentDescription = null)
             }

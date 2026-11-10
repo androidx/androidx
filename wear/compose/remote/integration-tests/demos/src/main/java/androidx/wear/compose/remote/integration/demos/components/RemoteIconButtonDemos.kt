@@ -31,6 +31,7 @@ import androidx.wear.compose.material3.lazy.transformedHeight
 import androidx.wear.compose.remote.material3.previews.RemoteIconButtonEnabled
 import androidx.wear.compose.remote.material3.previews.RemoteIconButtonOutlined
 import androidx.wear.compose.remote.material3.previews.RemoteIconButtonTonal
+import androidx.wear.compose.remote.material3.samples.RemoteIconButtonWithCornerAnimationSample
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 
 @Composable
@@ -60,6 +61,7 @@ fun RemoteIconButtonDemos(modifier: Modifier = Modifier) {
             remoteDemoItem("Default") { RemoteIconButtonEnabled() }
             remoteDemoItem("Tonal") { RemoteIconButtonTonal() }
             remoteDemoItem("Outlined") { RemoteIconButtonOutlined() }
+            remoteDemoItem("Corner Animation") { RemoteIconButtonWithCornerAnimationSample() }
         }
     }
 }
