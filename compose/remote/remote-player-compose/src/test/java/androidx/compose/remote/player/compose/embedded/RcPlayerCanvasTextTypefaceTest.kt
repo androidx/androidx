@@ -34,9 +34,11 @@ import androidx.compose.remote.core.operations.paint.PaintPathEffects
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteText
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
+import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
@@ -56,7 +58,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.LoadedFontFamily
 import androidx.compose.ui.unit.Density
@@ -432,7 +433,9 @@ class RcPlayerCanvasTextTypefaceTest {
                             fontSize = 18.rsp,
                             fontFeatureSettings = "tnum",
                             fontVariationSettings =
-                                FontVariation.Settings(FontVariation.weight(500)),
+                                RemoteFontVariation.Settings(
+                                    RemoteFontVariation.Setting("wght", 500f.rf)
+                                ),
                         ),
                 )
                 RemoteText(
@@ -442,7 +445,9 @@ class RcPlayerCanvasTextTypefaceTest {
                             fontSize = 18.rsp,
                             fontFeatureSettings = "pnum",
                             fontVariationSettings =
-                                FontVariation.Settings(FontVariation.width(110f)),
+                                RemoteFontVariation.Settings(
+                                    RemoteFontVariation.Setting("wdth", 110f.rf)
+                                ),
                         ),
                 )
             }
@@ -538,7 +543,10 @@ class RcPlayerCanvasTextTypefaceTest {
                     RemoteTextStyle(
                         fontFamily = RemoteFontFamily.Named("google:Roboto Flex"),
                         fontSize = 18.rsp,
-                        fontVariationSettings = FontVariation.Settings(FontVariation.weight(500)),
+                        fontVariationSettings =
+                            RemoteFontVariation.Settings(
+                                RemoteFontVariation.Setting("wght", 500f.rf)
+                            ),
                     ),
             )
         }
@@ -598,7 +606,9 @@ class RcPlayerCanvasTextTypefaceTest {
                                 fontFamily = RemoteFontFamily.Named("google:Roboto Flex"),
                                 fontSize = 16.rsp,
                                 fontVariationSettings =
-                                    FontVariation.Settings(FontVariation.weight(500)),
+                                    RemoteFontVariation.Settings(
+                                        RemoteFontVariation.Setting("wght", 500f.rf)
+                                    ),
                             ),
                     )
                 }
@@ -714,9 +724,9 @@ class RcPlayerCanvasTextTypefaceTest {
                         fontFamily = RemoteFontFamily.Named("google:Roboto Flex"),
                         fontSize = 18.rsp,
                         fontVariationSettings =
-                            FontVariation.Settings(
-                                FontVariation.weight(500),
-                                FontVariation.width(120f),
+                            RemoteFontVariation.Settings(
+                                RemoteFontVariation.Setting("wght", 500f.rf),
+                                RemoteFontVariation.Setting("wdth", 120f.rf),
                             ),
                     ),
             )

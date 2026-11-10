@@ -167,7 +167,10 @@ class RemoteImageVectorTest {
                             RemotePathNode.Close,
                         )
                 ) {
-                    path(fill = RemoteBrush.solidColor(Color.Red.rc)) {
+                    path(
+                        fill = RemoteBrush.solidColor(Color.Red.rc),
+                        pathFillType = RemotePathFillType.NonZero,
+                    ) {
                         moveTo(0f.rf, 0f.rf)
                         lineTo(24f.rf, 24f.rf)
                     }
@@ -185,7 +188,10 @@ class RemoteImageVectorTest {
                     viewportHeight = 24f.rf,
                     tintColor = RemoteColor(Color.Black),
                 )
-                .path(fill = RemoteBrush.solidColor(Color.Red.rc)) {
+                .path(
+                    pathFillType = RemotePathFillType.NonZero,
+                    fill = RemoteBrush.solidColor(Color.Red.rc),
+                ) {
                     moveTo(0f.rf, 0f.rf)
                     lineTo(24f.rf, 24f.rf)
                 }
@@ -215,6 +221,7 @@ class RemoteImageVectorTest {
                     stroke = strokeBrush,
                     strokeAlpha = 0.8f.rf,
                     strokeLineWidth = 2f.rf,
+                    pathFillType = RemotePathFillType.NonZero,
                 ) {
                     moveTo(0f.rf, 0f.rf)
                     lineTo(24f.rf, 24f.rf)
@@ -223,6 +230,7 @@ class RemoteImageVectorTest {
                     name = "secondary_path",
                     fill = sweepBrush,
                     stroke = horizontalBrush,
+                    pathFillType = RemotePathFillType.NonZero,
                 ) {
                     moveTo(2f.rf, 2f.rf)
                     lineTo(22f.rf, 22f.rf)

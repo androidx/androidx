@@ -21,13 +21,11 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles.PROFILE_ANDROIDX
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.TextTransform
-import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.createTestCreationState
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
-import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
-import androidx.compose.ui.geometry.Size
 import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
 import java.text.DecimalFormat
@@ -44,13 +42,7 @@ class RemoteStringTest {
         AndroidRemoteContext().apply {
             useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
         }
-    val creationState =
-        RemoteComposeCreationState(
-            AndroidxRcPlatformServices(),
-            Size(1f, 1f),
-            CoreDocument.DOCUMENT_API_LEVEL,
-            PROFILE_ANDROIDX,
-        )
+    val creationState = createTestCreationState(profiles = PROFILE_ANDROIDX)
     val namedRemoteFloat = createNamedRemoteFloat("testFloat", 12.0f)
     val namedRemoteInt = createNamedRemoteInt("testInt", 12)
 

@@ -22,8 +22,6 @@ import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.unit.LayoutDirection
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -82,45 +80,6 @@ class RemoteComposeCaptureStateTest {
                 writer = writer,
             )
         assertThat(state3.document).isSameInstanceAs(writer)
-    }
-
-    @Test
-    fun androidConstructors_and_factories() {
-        val stateSize = RemoteComposeCaptureState(platform, Size(200f, 300f))
-        assertThat(stateSize.creationDisplayInfo.width).isEqualTo(200)
-        assertThat(stateSize.creationDisplayInfo.height).isEqualTo(300)
-
-        val stateProfiles =
-            RemoteComposeCaptureState(
-                platform,
-                Size(120f, 140f),
-                CoreDocument.DOCUMENT_API_LEVEL,
-                0,
-            )
-        assertThat(stateProfiles.creationDisplayInfo.width).isEqualTo(120)
-        assertThat(stateProfiles.creationDisplayInfo.height).isEqualTo(140)
-
-        val stateProfileAndSize = RemoteComposeCaptureState(Size(50f, 60f), profile)
-        assertThat(stateProfileAndSize.creationDisplayInfo.width).isEqualTo(50)
-        assertThat(stateProfileAndSize.creationDisplayInfo.height).isEqualTo(60)
-
-        val stateLayoutDirection =
-            RemoteComposeCaptureState(
-                creationDisplayInfo = displayInfo,
-                profile = profile,
-                writerCallback = null,
-                layoutDirection = LayoutDirection.Rtl,
-            )
-        assertThat(stateLayoutDirection.layoutDirection).isEqualTo(RemoteLayoutDirection.Rtl)
-
-        val stateCreationFactories =
-            RemoteComposeCreationState(
-                creationDisplayInfo = displayInfo,
-                profile = profile,
-                writerEvents = null,
-                layoutDirection = LayoutDirection.Ltr,
-            )
-        assertThat(stateCreationFactories.layoutDirection).isEqualTo(RemoteLayoutDirection.Ltr)
     }
 
     @Test

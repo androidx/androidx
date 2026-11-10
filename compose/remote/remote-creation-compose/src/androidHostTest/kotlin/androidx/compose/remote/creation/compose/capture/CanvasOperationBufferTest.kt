@@ -22,7 +22,6 @@ import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.cacheKey
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.ui.geometry.Size
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,6 +31,11 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
 class CanvasOperationBufferTest {
+
+    private fun createCreationState(
+        platform: RcPlatformServices = RcPlatformServices.None
+    ): RemoteComposeCaptureState =
+        createTestCreationState(width = 100, height = 100, platform = platform)
 
     @Test(timeout = 5000)
     fun testPropagateSpanWithDeepDAG() {
@@ -48,7 +52,7 @@ class CanvasOperationBufferTest {
         buffer.addRoots(op2, x)
 
         val platform = RcPlatformServices.None
-        val creationState = RemoteComposeCreationState(platform, Size(100f, 100f))
+        val creationState = createCreationState(platform)
 
         try {
             buffer.flush(creationState)
@@ -80,7 +84,7 @@ class CanvasOperationBufferTest {
         assertThat(op2.deps).containsExactly(op1)
 
         val platform = RcPlatformServices.None
-        val creationState = RemoteComposeCreationState(platform, Size(100f, 100f))
+        val creationState = createCreationState(platform)
         buffer.flush(creationState)
     }
 
@@ -108,7 +112,7 @@ class CanvasOperationBufferTest {
                 "Span(depth=0, ops=[SaveRestore(children=[Transform(Translate), DrawConditionally(true)])], child=Span(depth=1, ops=[Draw]))"
             )
 
-        val creationState = RemoteComposeCreationState(RcPlatformServices.None, Size(100f, 100f))
+        val creationState = createCreationState()
         buffer.flush(creationState)
         assertThat(buffer.toString()).isEqualTo("CanvasOperationBuffer(empty)")
     }
@@ -179,8 +183,7 @@ class CanvasOperationBufferTest {
         // Case 1: Record exp1 before exp2 -> exp1 must receive a lower variable ID
         run {
             val buffer = CanvasOperationBuffer()
-            val creationState =
-                RemoteComposeCreationState(RcPlatformServices.None, Size(100f, 100f))
+            val creationState = createCreationState()
 
             val op1 = buffer.recordRenderingOp(CanvasOp.Draw {})
             buffer.addRoots(op1, exp1, exp2)
@@ -200,8 +203,7 @@ class CanvasOperationBufferTest {
         // Case 2: Record exp2 before exp1 -> exp2 must receive a lower variable ID
         run {
             val buffer = CanvasOperationBuffer()
-            val creationState =
-                RemoteComposeCreationState(RcPlatformServices.None, Size(100f, 100f))
+            val creationState = createCreationState()
 
             val op1 = buffer.recordRenderingOp(CanvasOp.Draw {})
             buffer.addRoots(op1, exp2, exp1)

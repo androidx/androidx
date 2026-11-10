@@ -16,9 +16,9 @@
 
 package androidx.compose.remote.creation.compose.vector
 
-import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.capture.TransparentArgb
+import androidx.compose.remote.creation.compose.capture.createTestCreationState
 import androidx.compose.remote.creation.compose.capture.path
 import androidx.compose.remote.creation.compose.capture.toRemoteImageVector
 import androidx.compose.remote.creation.compose.layout.BlackArgb
@@ -33,8 +33,6 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePathFillType
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -89,7 +87,10 @@ class RemoteVectorPainterTest {
                     tintColor = RemoteColor(Color.Black),
                     name = "RemoteIcon20",
                 )
-                .path(fill = RemoteBrush.solidColor(Color.Black.rc)) {
+                .path(
+                    pathFillType = RemotePathFillType.NonZero,
+                    fill = RemoteBrush.solidColor(Color.Black.rc),
+                ) {
                     moveTo(0f.rf, 0f.rf)
                     lineTo(20f.rf, 20f.rf)
                 }
@@ -158,7 +159,7 @@ class RemoteVectorPainterTest {
                     name = "TestVector",
                 )
                 .path(
-                    pathFillType = PathFillType.EvenOdd,
+                    pathFillType = RemotePathFillType.EvenOdd,
                     fill = RemoteBrush.solidColor(Color.Red.rc),
                     fillAlpha = 0.5f.rf,
                 ) {
@@ -167,8 +168,7 @@ class RemoteVectorPainterTest {
                 }
                 .build()
 
-        val size = Size(24f, 24f)
-        val creationState = RemoteComposeCreationState(AndroidxRcPlatformServices(), size)
+        val creationState = createTestCreationState(width = 24, height = 24)
         val remoteCanvas = RemoteCanvas(creationState)
 
         // Draw procedurally using the new RemoteImageVector.draw extension
@@ -187,6 +187,7 @@ class RemoteVectorPainterTest {
                     name = "GradientVector",
                 )
                 .path(
+                    pathFillType = RemotePathFillType.NonZero,
                     fill = fillGradient,
                     fillAlpha = 0.5f.rf,
                     stroke = strokeGradient,
@@ -206,7 +207,7 @@ class RemoteVectorPainterTest {
         assertThat(pathComponent.fill).isEqualTo(fillGradient)
         assertThat(pathComponent.stroke).isEqualTo(strokeGradient)
 
-        val creationState = RemoteComposeCreationState(AndroidxRcPlatformServices(), Size(48f, 48f))
+        val creationState = createTestCreationState(width = 48, height = 48)
         val remoteCanvas = RemoteCanvas(creationState)
         remoteImageVector.draw(remoteCanvas)
     }

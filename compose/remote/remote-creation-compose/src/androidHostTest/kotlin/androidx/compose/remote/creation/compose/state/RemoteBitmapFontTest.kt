@@ -20,12 +20,10 @@ import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles.PROFILE_ANDROIDX
 import androidx.compose.remote.core.operations.BitmapFontData
-import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.createTestCreationState
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
-import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.remote.testing.LimitsRule
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.google.common.truth.Truth.assertThat
@@ -47,13 +45,7 @@ class RemoteBitmapFontTest {
             useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
         }
 
-    val creationState =
-        RemoteComposeCreationState(
-            AndroidxRcPlatformServices(),
-            Size(1f, 1f),
-            CoreDocument.DOCUMENT_API_LEVEL,
-            PROFILE_ANDROIDX,
-        )
+    val creationState = createTestCreationState(profiles = PROFILE_ANDROIDX)
 
     val bitmapFont =
         RemoteBitmapFont(
@@ -312,13 +304,7 @@ class RemoteBitmapFontTest {
         assertThat(context.getInteger(widthId)).isEqualTo(16 + 15 + 24)
 
         limitsRule.setEnableImageUrls(true)
-        val urlState =
-            RemoteComposeCreationState(
-                AndroidxRcPlatformServices(),
-                Size(1f, 1f),
-                CoreDocument.DOCUMENT_API_LEVEL,
-                PROFILE_ANDROIDX,
-            )
+        val urlState = createTestCreationState(profiles = PROFILE_ANDROIDX)
         val urlFontId =
             RemoteBitmapFont(
                     listOf(
@@ -352,20 +338,8 @@ class RemoteBitmapFontTest {
         assertThat(explicitGlyph.height).isEqualTo(28.toShort())
         assertThat(explicitGlyph.bitmap).isSameInstanceAs(remoteImage)
 
-        val expectedState =
-            RemoteComposeCreationState(
-                AndroidxRcPlatformServices(),
-                Size(1f, 1f),
-                CoreDocument.DOCUMENT_API_LEVEL,
-                PROFILE_ANDROIDX,
-            )
-        val actualState =
-            RemoteComposeCreationState(
-                AndroidxRcPlatformServices(),
-                Size(1f, 1f),
-                CoreDocument.DOCUMENT_API_LEVEL,
-                PROFILE_ANDROIDX,
-            )
+        val expectedState = createTestCreationState(profiles = PROFILE_ANDROIDX)
+        val actualState = createTestCreationState(profiles = PROFILE_ANDROIDX)
 
         val expectedFontId =
             expectedState.document.addBitmapFont(

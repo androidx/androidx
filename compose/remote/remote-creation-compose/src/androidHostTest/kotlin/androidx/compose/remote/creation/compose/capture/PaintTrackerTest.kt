@@ -49,7 +49,6 @@ import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.compose.text.RemoteTypeface.Companion.create
 import androidx.compose.remote.creation.compose.text.toRemoteFontVariationSettings
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -75,12 +74,7 @@ class PaintTrackerTest {
 
     @Before
     fun setUp() {
-        val size = Size(500f, 500f)
-        creationState =
-            RemoteComposeCreationState(
-                androidx.compose.remote.creation.platform.AndroidxRcPlatformServices(),
-                size,
-            )
+        creationState = createTestCreationState(width = 500, height = 500)
         tracker = PaintTracker()
         remoteContext = AndroidRemoteContext()
         remoteContext.useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
@@ -426,11 +420,13 @@ class PaintTrackerTest {
     @Test
     fun testFontVariationSettingsSync_WithoutCoreText_FallbackToWeight400() {
         val stateWithoutCoreText =
-            RemoteComposeCreationState(
-                Size(500f, 500f),
-                createProfile(
-                    supportedOperations = intSetOf(Operations.HEADER, Operations.DATA_TEXT)
-                ),
+            createTestCreationState(
+                width = 500,
+                height = 500,
+                profile =
+                    createProfile(
+                        supportedOperations = intSetOf(Operations.HEADER, Operations.DATA_TEXT)
+                    ),
             )
         val paint = RemotePaint { fontVariationSettings = null }
         val bundle = PaintBundle()
@@ -453,11 +449,13 @@ class PaintTrackerTest {
     @Test
     fun testFontVariationSettingsSync_WithoutCoreText_FallbackToWeight400NotResentForEqualWeight() {
         val stateWithoutCoreText =
-            RemoteComposeCreationState(
-                Size(500f, 500f),
-                createProfile(
-                    supportedOperations = intSetOf(Operations.HEADER, Operations.DATA_TEXT)
-                ),
+            createTestCreationState(
+                width = 500,
+                height = 500,
+                profile =
+                    createProfile(
+                        supportedOperations = intSetOf(Operations.HEADER, Operations.DATA_TEXT)
+                    ),
             )
         tracker.updateWithPaint(
             RemotePaint { fontVariationSettings = null },
@@ -478,11 +476,13 @@ class PaintTrackerTest {
     @Test
     fun testFontVariationSettingsSync_WithoutCoreText_PreservesTypefaceWeight() {
         val stateWithoutCoreText =
-            RemoteComposeCreationState(
-                Size(500f, 500f),
-                createProfile(
-                    supportedOperations = intSetOf(Operations.HEADER, Operations.DATA_TEXT)
-                ),
+            createTestCreationState(
+                width = 500,
+                height = 500,
+                profile =
+                    createProfile(
+                        supportedOperations = intSetOf(Operations.HEADER, Operations.DATA_TEXT)
+                    ),
             )
         val paint = RemotePaint {
             typeface = RemoteTypeface.Named("RobotoFlex", weight = 700, isItalic = false)
@@ -508,12 +508,14 @@ class PaintTrackerTest {
     @Test
     fun testFontVariationSettingsSync_WithCoreText_SendsEmptyAxis() {
         val stateWithCoreText =
-            RemoteComposeCreationState(
-                Size(500f, 500f),
-                createProfile(
-                    supportedOperations =
-                        intSetOf(Operations.HEADER, Operations.DATA_TEXT, Operations.CORE_TEXT)
-                ),
+            createTestCreationState(
+                width = 500,
+                height = 500,
+                profile =
+                    createProfile(
+                        supportedOperations =
+                            intSetOf(Operations.HEADER, Operations.DATA_TEXT, Operations.CORE_TEXT)
+                    ),
             )
         val settings = RemoteFontVariation.Settings(RemoteFontVariation.Setting("wght", 500f.rf))
         val paintWithSettings = RemotePaint { fontVariationSettings = settings }
