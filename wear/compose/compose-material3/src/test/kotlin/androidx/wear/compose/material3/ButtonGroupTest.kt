@@ -100,6 +100,28 @@ class ButtonGroupTest {
         )
     }
 
+    @Test
+    fun ZeroAvailableWidth() {
+        // When availableWidth is smaller than minSpaceNeeded, computeWidths resets each item's
+        // minWidth to 0 so the items fit within the available space without going negative.
+        checkResult(
+            listOf(0, 0, 0),
+            computeWidths(listOf(40f to 1f, 40f to 1f, 40f to 1f), 20, 0),
+        )
+    }
+
+    @Test
+    fun AvailableWidthSmallerThanSpacing() {
+        // When total spacing exceeds availableWidth, computeWidths resets each item's minWidth to
+        // 0 and clamps distributableWidth to 0 (avoiding negative initial widths that would leave
+        // unpaid owedWidth and fail the post-loop require check when floating-point weight
+        // subtraction leaves a residual >= 1e-4f).
+        checkResult(
+            listOf(0, 0, 0),
+            computeWidths(listOf(40f to 10000f, 40f to 0.1f, 40f to 0.1f), 20, 10),
+        )
+    }
+
     private fun checkResult(expected: List<Int>, actual: IntArray) {
         assertEquals(expected.size, actual.size)
         for (i in expected.indices) {

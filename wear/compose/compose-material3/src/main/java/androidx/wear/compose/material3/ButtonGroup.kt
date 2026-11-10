@@ -154,7 +154,8 @@ public fun ButtonGroup(
         val widths =
             computeWidths(configs.map { it.minWidth.toPx() to it.weight }, spacingPx, width)
 
-        // Add animated grow/shrink
+        // Add animated grow/shrink.
+        // computeWidths guarantees non-negative widths; the clamps below rely on it.
         if (measurables.size > 1) {
             for (index in measurables.indices) {
                 val value = animatedSizes[index] * expandAmountPx
@@ -163,16 +164,19 @@ public fun ButtonGroup(
                 if (index in 1 until measurables.lastIndex) {
                     // index is in the middle. Ensure we keep the size of the middle item with
                     // the same parity, so its content remains in place.
-                    growth = (value / 2).roundToInt() * 2
+                    val maxHalfGrowth = minOf(widths[index - 1], widths[index + 1])
+                    growth =
+                        (value / 2).roundToInt().coerceIn(-widths[index] / 2, maxHalfGrowth) * 2
                     widths[index - 1] -= growth / 2
                     widths[index + 1] -= growth / 2
                 } else {
-                    growth = value.roundToInt()
                     if (index == 0) {
                         // index == 0, and we know there are at least 2 items.
+                        growth = value.roundToInt().coerceIn(-widths[0], widths[1])
                         widths[1] -= growth
                     } else {
                         // index == measurables.lastIndex, and we know there are at least 2 items.
+                        growth = value.roundToInt().coerceIn(-widths[index], widths[index - 1])
                         widths[index - 1] -= growth
                     }
                 }
@@ -531,9 +535,10 @@ internal fun computeWidths(
     // TODO: should we really handle the totalWeight <= 0 case? If so, we need to leave items
     // at their minWidth and center the whole thing?
     if (totalWeight > 0) {
+        val distributableWidth = (availableWidth - totalSpacing).coerceAtLeast(0)
         for (ix in helper.indices) {
             // Initial distribution ignores minWidth.
-            helper[ix].width = (availableWidth - totalSpacing) * helper[ix].weight / totalWeight
+            helper[ix].width = distributableWidth * helper[ix].weight / totalWeight
         }
     }
 
