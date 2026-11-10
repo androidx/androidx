@@ -91,23 +91,30 @@ private constructor(
      * @param imageSize the 2D pixel dimensions of the image buffer
      * @param timestampNanos the system timestamp in nanoseconds correlating to the camera frame,
      *   using the [System.nanoTime] clock base
+     * @param alignment the physical alignment behavior of the resulting 3D quad
      */
-    public class Builder(imageBuffer: ByteBuffer, imageSize: IntSize2d, timestampNanos: Long) {
+    public class Builder(
+        imageBuffer: ByteBuffer,
+        imageSize: IntSize2d,
+        timestampNanos: Long,
+        alignment: SpatialAnnotationQuadAlignment,
+    ) {
         private var imageBuffer: ByteBuffer = imageBuffer
         private var imageSize: IntSize2d = imageSize
         private var timestampNanos: Long = timestampNanos
+        private var alignment: SpatialAnnotationQuadAlignment = alignment
         private var rowStride: Int? = null
         private var quads: Map<SpatialAnnotationId, Quad> = emptyMap()
         private var format: SpatialAnnotationImageFormat = SpatialAnnotationImageFormat.RGBA
-        private var alignment: SpatialAnnotationQuadAlignment =
-            SpatialAnnotationQuadAlignment.SCREEN
 
         /** Sets the raw image byte buffer from the camera frame. */
+        @Deprecated("Set imageBuffer in constructor.")
         public fun setImageBuffer(imageBuffer: ByteBuffer): Builder = apply {
             this.imageBuffer = imageBuffer
         }
 
         /** Sets the 2D pixel dimensions of the image buffer. */
+        @Deprecated("Set imageSize in constructor.")
         public fun setImageSize(imageSize: IntSize2d): Builder = apply {
             this.imageSize = imageSize
         }
@@ -121,6 +128,7 @@ private constructor(
          * Sets the system timestamp in nanoseconds correlating to the camera frame, using the
          * [System.nanoTime] clock base.
          */
+        @Deprecated("Set timestampNanos in constructor.")
         public fun setTimestampNanos(timestampNanos: Long): Builder = apply {
             this.timestampNanos = timestampNanos
         }
@@ -135,7 +143,8 @@ private constructor(
             this.format = format
         }
 
-        /** Sets the physical alignment behavior of the resulting 3D quad. Defaults to SCREEN. */
+        /** Sets the physical alignment behavior of the resulting 3D quad. */
+        @Deprecated("Set alignment in constructor.")
         public fun setAlignment(alignment: SpatialAnnotationQuadAlignment): Builder = apply {
             this.alignment = alignment
         }

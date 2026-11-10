@@ -330,16 +330,17 @@ class SpatialAnnotationTest {
                         fakeBuffer,
                         IntSize2d(640, 480),
                         123456789L,
+                        SpatialAnnotationQuadAlignment.OBJECT,
                     )
                     .setRowStride(2560)
                     .setFormat(SpatialAnnotationImageFormat.GRAYSCALE)
-                    .setAlignment(SpatialAnnotationQuadAlignment.OBJECT)
                     .setQuads(quadMap)
                     .build()
 
             assertThat(options.imageBuffer).isEqualTo(fakeBuffer)
             assertThat(options.imageSize.width).isEqualTo(640)
             assertThat(options.format).isEqualTo(SpatialAnnotationImageFormat.GRAYSCALE)
+            assertThat(options.alignment).isEqualTo(SpatialAnnotationQuadAlignment.OBJECT)
             assertThat(options.quads.keys.single())
                 .isEqualTo(SpatialAnnotationId.fromString("teapot"))
         }
@@ -360,7 +361,12 @@ class SpatialAnnotationTest {
 
         val exception =
             assertFailsWith<IllegalStateException> {
-                SpatialAnnotationTrackingOptions.Builder(heapBuffer, IntSize2d(10, 10), 1000L)
+                SpatialAnnotationTrackingOptions.Builder(
+                        heapBuffer,
+                        IntSize2d(10, 10),
+                        1000L,
+                        SpatialAnnotationQuadAlignment.SCREEN,
+                    )
                     .setQuads(quadMap)
                     .build()
             }
@@ -385,7 +391,12 @@ class SpatialAnnotationTest {
 
         val exception =
             assertFailsWith<IllegalStateException> {
-                SpatialAnnotationTrackingOptions.Builder(directBuffer, IntSize2d(10, 10), 1000L)
+                SpatialAnnotationTrackingOptions.Builder(
+                        directBuffer,
+                        IntSize2d(10, 10),
+                        1000L,
+                        SpatialAnnotationQuadAlignment.SCREEN,
+                    )
                     .setQuads(quadMap)
                     .build()
             }
@@ -407,10 +418,14 @@ class SpatialAnnotationTest {
                     Vector2(-1f, -1f),
                 )
             val options =
-                SpatialAnnotationTrackingOptions.Builder(fakeBuffer, IntSize2d(10, 10), 1000L)
+                SpatialAnnotationTrackingOptions.Builder(
+                        fakeBuffer,
+                        IntSize2d(10, 10),
+                        1000L,
+                        SpatialAnnotationQuadAlignment.OBJECT,
+                    )
                     .setRowStride(40)
                     .setFormat(SpatialAnnotationImageFormat.RGBA)
-                    .setAlignment(SpatialAnnotationQuadAlignment.OBJECT)
                     .setQuads(mapOf(id to quad))
                     .build()
 
