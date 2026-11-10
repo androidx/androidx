@@ -38,6 +38,7 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.arch.core.util.Function;
 import androidx.lifecycle.LiveData;
 import androidx.work.Configuration;
@@ -116,16 +117,31 @@ public class WorkManagerImpl extends WorkManager {
     private final CoroutineScope mWorkManagerScope;
     private static WorkManagerImpl sDelegatedInstance = null;
     private static WorkManagerImpl sDefaultInstance = null;
-    private static final Object sLock = new Object();
+    static final Object sLock = new Object();
 
     /**
      * @param delegate The delegate for {@link WorkManagerImpl} for testing; {@code null} to use the
      *                 default instance
      */
+    @SuppressWarnings("deprecation")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static void setDelegate(@Nullable WorkManagerImpl delegate) {
         synchronized (sLock) {
             sDelegatedInstance = delegate;
+            WorkManagerWrapper.onDelegateChanged(getInstance());
+        }
+    }
+
+    /**
+     * Resets singleton instances for testing purposes.
+     */
+    @VisibleForTesting
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static void resetInstanceForTesting() {
+        synchronized (sLock) {
+            sDefaultInstance = null;
+            sDelegatedInstance = null;
+            WorkManagerWrapper.onDelegateChanged(null);
         }
     }
 
@@ -214,6 +230,7 @@ public class WorkManagerImpl extends WorkManager {
                     sDefaultInstance = createWorkManager(context, configuration);
                 }
                 sDelegatedInstance = sDefaultInstance;
+                WorkManagerWrapper.onDefaultInitialized(sDefaultInstance);
             }
         }
     }
