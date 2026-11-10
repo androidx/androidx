@@ -199,6 +199,7 @@ internal sealed class AlignmentLines(val alignmentLinesOwner: AlignmentLinesOwne
         if (usedByModifierLayout) {
             alignmentLinesOwner.requestLayout()
         }
+        if (parent.alignmentLines.dirty) return
         parent.alignmentLines.onAlignmentsChanged()
     }
 
