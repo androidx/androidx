@@ -16,9 +16,10 @@
   -->
 <!--
   Bar chart slot component: a row of bar columns that fills the hero slot's height, then an optional
-  description row.
+  description row with start and end labels (each optionally preceded by a tinted icon).
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
@@ -40,6 +41,18 @@
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
+        <ImageView
+            android:id="@+id/glance_adaptive_appwidget_remoteviews_chart_caption_start_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
+            android:adjustViewBounds="true"
+            android:importantForAccessibility="no"
+            android:scaleType="fitCenter"
+            android:tint="@color/glance_adaptive_appwidget_remoteviews_primary"
+            android:visibility="gone"
+            tools:ignore="UseAppTint" />
+
         <TextView
             android:id="@+id/glance_adaptive_appwidget_remoteviews_chart_caption_start"
             style="@style/GlanceAdaptiveAppwidgetRemoteviews.Text"
@@ -48,14 +61,33 @@
             android:textAppearance="@style/GlanceAdaptiveAppwidgetRemoteviews.TextAppearance.Medium"
             android:textColor="@color/glance_adaptive_appwidget_remoteviews_primary" />
 
-        <TextView
-            android:id="@+id/glance_adaptive_appwidget_remoteviews_chart_caption_end"
-            style="@style/GlanceAdaptiveAppwidgetRemoteviews.Text"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="end"
-            android:textAppearance="@style/GlanceAdaptiveAppwidgetRemoteviews.TextAppearance.Medium"
-            android:textColor="@color/glance_adaptive_appwidget_remoteviews_primary" />
+            android:gravity="end|center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/glance_adaptive_appwidget_remoteviews_chart_caption_end_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:adjustViewBounds="true"
+                android:importantForAccessibility="no"
+                android:scaleType="fitCenter"
+                android:tint="@color/glance_adaptive_appwidget_remoteviews_primary"
+                android:visibility="gone"
+                tools:ignore="UseAppTint" />
+
+            <TextView
+                android:id="@+id/glance_adaptive_appwidget_remoteviews_chart_caption_end"
+                style="@style/GlanceAdaptiveAppwidgetRemoteviews.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:textAppearance="@style/GlanceAdaptiveAppwidgetRemoteviews.TextAppearance.Medium"
+                android:textColor="@color/glance_adaptive_appwidget_remoteviews_primary" />
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

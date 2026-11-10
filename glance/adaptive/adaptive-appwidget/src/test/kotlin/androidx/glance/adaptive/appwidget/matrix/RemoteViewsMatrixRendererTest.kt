@@ -42,6 +42,7 @@ import androidx.glance.adaptive.core.action.GlanceAdaptiveActionCallback
 import androidx.glance.adaptive.core.action.GlanceWidgetAction
 import androidx.glance.adaptive.core.selection.Dimensions
 import androidx.glance.adaptive.core.slots.Badge
+import androidx.glance.adaptive.core.slots.ChartLabel
 import androidx.glance.adaptive.core.slots.ContainedRing
 import androidx.glance.adaptive.core.slots.Graph
 import androidx.glance.adaptive.core.slots.Icon
@@ -101,6 +102,85 @@ class RemoteViewsMatrixRendererTest {
                 assertThat(barWidths.max() - barWidths.min()).isAtMost(1)
             }
         }
+    }
+
+    @Test
+    fun graph_rendersStartAndEndLabelsWithOptionalIcon() {
+        val captioned =
+            Graph(
+                values = floatListOf(0.4f, 0.95f),
+                labels = listOf("T", "W"),
+                goal = 1.0f,
+                emphasized = booleanArrayOf(true, false),
+                startLabel = ChartLabel("7 Day Avg"),
+                endLabel = ChartLabel("13,843", icon = GLYPH),
+            )
+        val root =
+            render(
+                MatrixCardContent(primary = TemplateText("11,056"), hero = captioned),
+                Dimensions(348, 264),
+            )
+
+        val startText =
+            root.findViewById<TextView>(
+                R.id.glance_adaptive_appwidget_remoteviews_chart_caption_start
+            )
+        val startIcon =
+            root.findViewById<ImageView>(
+                R.id.glance_adaptive_appwidget_remoteviews_chart_caption_start_icon
+            )
+        val endText =
+            root.findViewById<TextView>(
+                R.id.glance_adaptive_appwidget_remoteviews_chart_caption_end
+            )
+        val endIcon =
+            root.findViewById<ImageView>(
+                R.id.glance_adaptive_appwidget_remoteviews_chart_caption_end_icon
+            )
+
+        assertThat(startText.text.toString()).isEqualTo("7 Day Avg")
+        assertThat(startIcon.visibility).isEqualTo(View.GONE)
+        assertThat(endText.text.toString()).isEqualTo("13,843")
+        assertThat(endIcon.visibility).isEqualTo(View.VISIBLE)
+
+        // Neither bar reaches the goal, so only the explicit flag can tell them apart.
+        val barsRow = root.findViewById<ViewGroup>(R.id.glance_adaptive_appwidget_remoteviews_bars)
+        val barTints =
+            (0 until barsRow.childCount).map { i ->
+                barsRow
+                    .getChildAt(i)
+                    .findViewById<View>(R.id.glance_adaptive_appwidget_remoteviews_bar_fill)
+                    .backgroundTintList
+                    ?.defaultColor
+            }
+        assertThat(barTints[0]).isNotNull()
+        assertThat(barTints[0]).isNotEqualTo(barTints[1])
+    }
+
+    @Test
+    fun graph_rendersEndLabelAlone() {
+        val root =
+            render(
+                MatrixCardContent(
+                    primary = TemplateText("11,056"),
+                    hero =
+                        Graph(values = floatListOf(0.4f, 0.95f), endLabel = ChartLabel("13,843")),
+                ),
+                Dimensions(348, 264),
+            )
+
+        val startText =
+            root.findViewById<TextView>(
+                R.id.glance_adaptive_appwidget_remoteviews_chart_caption_start
+            )
+        val endText =
+            root.findViewById<TextView>(
+                R.id.glance_adaptive_appwidget_remoteviews_chart_caption_end
+            )
+
+        assertThat(startText.visibility).isEqualTo(View.GONE)
+        assertThat(endText.visibility).isEqualTo(View.VISIBLE)
+        assertThat(endText.text.toString()).isEqualTo("13,843")
     }
 
     @Test

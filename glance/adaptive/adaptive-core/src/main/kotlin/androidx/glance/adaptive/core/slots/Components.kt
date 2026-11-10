@@ -92,29 +92,53 @@ public class Ring(
 }
 
 /**
+ * Caption displayed beneath a [Graph] in its description row, with an optional leading [icon].
+ *
+ * @property text Caption text (for example, `"7 Day Avg"` or `"13,843"`).
+ * @property icon Optional drawable resource displayed immediately before [text].
+ * @throws IllegalArgumentException if [text] is blank.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class ChartLabel(
+    public val text: String,
+    @param:DrawableRes @get:DrawableRes public val icon: Int? = null,
+) {
+    init {
+        require(text.isNotBlank()) { "Chart label must not be blank." }
+    }
+}
+
+/**
  * Bar or dot graph — the design's `ContentBlock_chart` / `Progress.BarChart`. Fits the hero slot.
  *
  * Expands to fill the height of the hero slot: the bars take whatever vertical space the labels and
  * the optional description leave.
  *
- * A value's bar is drawn as a fraction of the goal, or of the largest value when that is larger,
- * and takes the accent color once it reaches the goal.
+ * A value's bar is drawn as a fraction of the goal, or of the largest value when that is larger.
+ * Accent emphasis is controlled per bar via [emphasized] when provided, or falls back to reaching
+ * [goal].
  *
  * @property values The values to chart, one bar per value, leading to trailing.
  * @property labels One label per value, drawn under the bars, or empty for none.
  * @property goal The value a full bar stands for, or `null` to scale to the largest value.
+ * @property emphasized Optional per-bar emphasis flags matching [values] length. When `null`, a bar
+ *   is emphasized once its value reaches [goal]. Ignored when [dotted]. Must not be modified once
+ *   passed in.
  * @property dotted Whether to draw dots instead of bars, for counting discrete items.
- * @property description Leading and trailing captions beneath the bars, or `null` for none.
+ * @property startLabel Optional leading caption in the description row beneath the bars.
+ * @property endLabel Optional trailing caption in the description row beneath the bars.
  * @throws IllegalArgumentException if there are fewer than 2 values, a value is negative or not
- *   finite, the labels do not match the values, or [goal] is not positive.
+ *   finite, [labels] or [emphasized] does not match [values] size, or [goal] is not positive.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Graph(
     public val values: FloatList,
     public val labels: List<String> = emptyList(),
     public val goal: Float? = null,
+    public val emphasized: BooleanArray? = null,
     public val dotted: Boolean = false,
-    public val description: Pair<String, String>? = null,
+    public val startLabel: ChartLabel? = null,
+    public val endLabel: ChartLabel? = null,
 ) : HeroComponent {
     init {
         require(values.size >= MIN_GRAPH_VALUES) {
@@ -129,6 +153,9 @@ public class Graph(
         require(labels.isEmpty() || labels.size == values.size) {
             "A graph needs one label per value or none, had ${labels.size} for ${values.size}."
         }
+        require(emphasized == null || emphasized.size == values.size) {
+            "A graph needs one emphasis flag per value or none, had ${emphasized?.size} for ${values.size}."
+        }
         require(goal == null || (goal.isFinite() && goal > 0f)) {
             "A graph goal must be positive, was $goal."
         }
@@ -136,6 +163,10 @@ public class Graph(
 
     override val capabilities: Set<Capability>
         get() = GraphCapabilities
+
+    /** Whether either [startLabel] or [endLabel] is present. */
+    public val hasDescription: Boolean
+        get() = startLabel != null || endLabel != null
 
     /** Value a full bar stands for: the goal, or the largest value when that is larger. */
     private val scale: Float = run {
@@ -147,6 +178,9 @@ public class Graph(
     /** Height of the bar at [index] as a fraction of a full bar, in `[0.0, 1.0]`. */
     public fun fractionAt(index: Int): Float =
         if (scale > 0f) (values[index] / scale).coerceIn(0f, 1f) else 0f
+
+    /** Whether the bar at [index] takes the emphasized accent color. */
+    public fun isEmphasizedAt(index: Int): Boolean = emphasized?.get(index) ?: meetsGoalAt(index)
 
     /** Whether the value at [index] reached [goal], and so takes the accent color. */
     public fun meetsGoalAt(index: Int): Boolean = goal != null && values[index] >= goal
@@ -160,6 +194,22 @@ public class Graph(
 
     /** The label under the bar at [index], or `null` when the graph has no labels. */
     public fun labelAt(index: Int): String? = labels.getOrNull(index)
+
+    /** Returns a copy of this [Graph] without [startLabel] or [endLabel], or `this` if absent. */
+    public fun withoutDescription(): Graph =
+        if (!hasDescription) {
+            this
+        } else {
+            Graph(
+                values = values,
+                labels = labels,
+                goal = goal,
+                emphasized = emphasized,
+                dotted = dotted,
+                startLabel = null,
+                endLabel = null,
+            )
+        }
 }
 
 /**

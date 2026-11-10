@@ -32,6 +32,9 @@ internal object GraphDefaults {
     /** Type size of the description captions. */
     val CaptionTextSize: TextUnit = 12.sp
 
+    /** Largest edge length of an optional icon preceding a description caption. */
+    val CaptionIconSize: Dp = 14.dp
+
     /**
      * Floor on a bar's height fraction, so a zero value still reads as a bar rather than as missing
      * data, and `1f / fillFraction` is always a finite weight sum.
