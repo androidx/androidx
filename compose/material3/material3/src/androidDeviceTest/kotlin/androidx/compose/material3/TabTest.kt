@@ -38,6 +38,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.IntrinsicMeasurable
+import androidx.compose.ui.layout.IntrinsicMeasureScope
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -64,6 +74,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onParent
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -1037,4 +1048,182 @@ class TabTest {
         val tabRowBounds = rule.onNodeWithTag("tabRow").getUnclippedBoundsInRoot()
         tabRowBounds.height.assertIsEqualTo(0.dp)
     }
+
+    @Test
+    fun scrollableTabRow_measuresEachTabOncePerLayoutPass() {
+        val tabMeasureCounts = IntArray(3)
+        var selectedIndex by mutableStateOf(0)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            PrimaryScrollableTabRow(selectedTabIndex = selectedIndex) {
+                repeat(3) { index ->
+                    Tab(
+                        modifier = MeasureCountModifier { tabMeasureCounts[index]++ },
+                        selected = selectedIndex == index,
+                        onClick = { selectedIndex = index },
+                        text = { Text("Tab ${index + 1}") },
+                    )
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(tabMeasureCounts.toList()).containsExactly(1, 1, 1)
+
+        selectedIndex = 1
+        rule.waitForIdle()
+        // Each tab should be measured at most once more when selection changes (never twice per
+        // layout pass due to post-measure maxIntrinsicWidth queries).
+        assertThat(tabMeasureCounts[0]).isAtMost(2)
+        assertThat(tabMeasureCounts[1]).isAtMost(2)
+        assertThat(tabMeasureCounts[2]).isAtMost(2)
+    }
+
+    @Test
+    fun tab_intrinsicsDoNotMeasureChildren() {
+        var textMeasureCount = 0
+        var iconMeasureCount = 0
+        var minIntrinsicW = 0
+        var maxIntrinsicW = 0
+        var minIntrinsicH = 0
+        var maxIntrinsicH = 0
+        var childMeasuresDuringIntrinsics = -1
+
+        rule.setMaterialContent(lightColorScheme()) {
+            Layout(
+                content = {
+                    Tab(
+                        selected = true,
+                        onClick = {},
+                        text = {
+                            Layout(
+                                measurePolicy =
+                                    object : MeasurePolicy {
+                                        override fun MeasureScope.measure(
+                                            measurables: List<Measurable>,
+                                            constraints: Constraints,
+                                        ): MeasureResult {
+                                            textMeasureCount++
+                                            return layout(80, 20) {}
+                                        }
+
+                                        override fun IntrinsicMeasureScope.minIntrinsicWidth(
+                                            measurables: List<IntrinsicMeasurable>,
+                                            height: Int,
+                                        ): Int = 60
+
+                                        override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                                            measurables: List<IntrinsicMeasurable>,
+                                            height: Int,
+                                        ): Int = 80
+
+                                        override fun IntrinsicMeasureScope.minIntrinsicHeight(
+                                            measurables: List<IntrinsicMeasurable>,
+                                            width: Int,
+                                        ): Int = 18
+
+                                        override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+                                            measurables: List<IntrinsicMeasurable>,
+                                            width: Int,
+                                        ): Int = 20
+                                    }
+                            )
+                        },
+                        icon = {
+                            Layout(
+                                measurePolicy =
+                                    object : MeasurePolicy {
+                                        override fun MeasureScope.measure(
+                                            measurables: List<Measurable>,
+                                            constraints: Constraints,
+                                        ): MeasureResult {
+                                            iconMeasureCount++
+                                            return layout(24, 24) {}
+                                        }
+
+                                        override fun IntrinsicMeasureScope.minIntrinsicWidth(
+                                            measurables: List<IntrinsicMeasurable>,
+                                            height: Int,
+                                        ): Int = 24
+
+                                        override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                                            measurables: List<IntrinsicMeasurable>,
+                                            height: Int,
+                                        ): Int = 24
+
+                                        override fun IntrinsicMeasureScope.minIntrinsicHeight(
+                                            measurables: List<IntrinsicMeasurable>,
+                                            width: Int,
+                                        ): Int = 24
+
+                                        override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+                                            measurables: List<IntrinsicMeasurable>,
+                                            width: Int,
+                                        ): Int = 24
+                                    }
+                            )
+                        },
+                    )
+                }
+            ) { measurables, constraints ->
+                val tabMeasurable = measurables.first()
+                val measuresBeforeIntrinsics = textMeasureCount + iconMeasureCount
+                minIntrinsicW = tabMeasurable.minIntrinsicWidth(Constraints.Infinity)
+                maxIntrinsicW = tabMeasurable.maxIntrinsicWidth(Constraints.Infinity)
+                minIntrinsicH = tabMeasurable.minIntrinsicHeight(Constraints.Infinity)
+                maxIntrinsicH = tabMeasurable.maxIntrinsicHeight(Constraints.Infinity)
+                childMeasuresDuringIntrinsics =
+                    (textMeasureCount + iconMeasureCount) - measuresBeforeIntrinsics
+                val placeable = tabMeasurable.measure(constraints)
+                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(childMeasuresDuringIntrinsics).isEqualTo(0)
+        assertThat(textMeasureCount).isAtLeast(1)
+        assertThat(iconMeasureCount).isAtLeast(1)
+        assertThat(maxIntrinsicW).isGreaterThan(minIntrinsicW)
+        assertThat(maxIntrinsicH).isAtLeast(minIntrinsicH)
+    }
+}
+
+private data class MeasureCountModifier(val onMeasure: () -> Unit) :
+    ModifierNodeElement<MeasureCountNode>() {
+    override fun create(): MeasureCountNode = MeasureCountNode(onMeasure)
+
+    override fun update(node: MeasureCountNode) {
+        node.onMeasure = onMeasure
+    }
+}
+
+private class MeasureCountNode(var onMeasure: () -> Unit) : LayoutModifierNode, Modifier.Node() {
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints,
+    ): MeasureResult {
+        onMeasure()
+        val placeable = measurable.measure(constraints)
+        return layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+    }
+
+    override fun IntrinsicMeasureScope.minIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: Int,
+    ): Int = measurable.minIntrinsicWidth(height)
+
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: Int,
+    ): Int = measurable.maxIntrinsicWidth(height)
+
+    override fun IntrinsicMeasureScope.minIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: Int,
+    ): Int = measurable.minIntrinsicHeight(width)
+
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: Int,
+    ): Int = measurable.maxIntrinsicHeight(width)
 }
