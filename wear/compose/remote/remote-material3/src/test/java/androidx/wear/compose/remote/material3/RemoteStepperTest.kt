@@ -22,9 +22,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.action.hostAction
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxHeight
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
@@ -32,17 +31,16 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.RcPlayerTestRule
-import androidx.compose.remote.player.compose.embedded.RcPlayer
-import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -53,8 +51,6 @@ import org.robolectric.annotation.Config
 @Config(sdk = [35])
 class RemoteStepperTest {
     @get:Rule val rule = RcPlayerTestRule()
-
-    @get:Rule val captureRule = RemoteCaptureTestRule()
 
     @Test
     fun defaultValues() {
@@ -119,14 +115,12 @@ class RemoteStepperTest {
     @Test
     @Config(qualifiers = "w225dp-h225dp-xhdpi")
     fun fillMaxHeight_fullScreenPlayerUnderGsb_usesWindowWidth() {
-        val document =
-            captureStepperDocument(
-                modifier = RemoteModifier.fillMaxHeight(),
-                screenHeightDp = GsbScreenHeightDp,
-            )
-
-        rule.setContent { Box(modifier = Modifier.size(225.dp)) { RcPlayer(document) } }
-        rule.waitForIdle()
+        setStepperContent(
+            modifier = RemoteModifier.fillMaxHeight(),
+            screenHeightDp = GsbScreenHeightDp,
+        ) { player ->
+            Box(modifier = Modifier.size(225.dp)) { player() }
+        }
 
         // 225dp * 5.2% = 11.7dp, rather than 195dp * 5.2% = 10.14dp from screenHeightDp.
         assertButtonPadding(stepperTop = 0f, stepperHeight = 225f, expectedPadding = 225f * 0.052f)
@@ -138,20 +132,14 @@ class RemoteStepperTest {
     @Config(qualifiers = "w225dp-h225dp-xhdpi")
     fun fillMaxHeight_playerInsetBelowGsb_usesWindowWidth() {
         val gsbInset = 225f - GsbScreenHeightDp
-        val document =
-            captureStepperDocument(
-                modifier = RemoteModifier.fillMaxHeight(),
-                screenHeightDp = GsbScreenHeightDp,
-            )
-
-        rule.setContent {
+        setStepperContent(
+            modifier = RemoteModifier.fillMaxHeight(),
+            screenHeightDp = GsbScreenHeightDp,
+        ) { player ->
             Box(modifier = Modifier.size(225.dp)) {
-                Box(modifier = Modifier.fillMaxSize().padding(top = gsbInset.dp)) {
-                    RcPlayer(document)
-                }
+                Box(modifier = Modifier.fillMaxSize().padding(top = gsbInset.dp)) { player() }
             }
         }
-        rule.waitForIdle()
 
         assertButtonPadding(
             stepperTop = gsbInset,
@@ -181,14 +169,29 @@ class RemoteStepperTest {
     }
 
     /**
-     * Captures a [RemoteStepper] document. If [screenHeightDp] is set, capture runs with a
-     * [Configuration] reporting that `screenHeightDp`, as when GSB is shown.
+     * Captures a [RemoteStepper] document with a [Configuration] reporting [screenHeightDp], as
+     * when GSB is shown, and plays it in the host layout given by [playComposableWrapper].
      */
-    private fun captureStepperDocument(
-        modifier: RemoteModifier = RemoteModifier,
-        screenHeightDp: Int? = null,
-    ): CoreDocument =
-        captureDocument(screenHeightDp) {
+    private fun setStepperContent(
+        modifier: RemoteModifier,
+        screenHeightDp: Int,
+        playComposableWrapper: @Composable (player: @Composable () -> Unit) -> Unit,
+    ) {
+        val appContext = ApplicationProvider.getApplicationContext<Context>()
+        val configuration =
+            Configuration(appContext.resources.configuration).apply {
+                this.screenHeightDp = screenHeightDp
+            }
+        val context = appContext.createConfigurationContext(configuration)
+        assertThat(context.resources.configuration.screenHeightDp).isEqualTo(screenHeightDp)
+
+        rule.setRemoteContent(
+            remoteCreationDisplayInfo = createCreationDisplayInfo(context),
+            creationComposableWrapper = { creation ->
+                CompositionLocalProvider(LocalContext provides context) { creation() }
+            },
+            playComposableWrapper = playComposableWrapper,
+        ) {
             RemoteStepper(
                 value = 5f.rf,
                 modifier = modifier,
@@ -204,25 +207,6 @@ class RemoteStepperTest {
                 RemoteText("5".rs)
             }
         }
-
-    private fun captureDocument(
-        screenHeightDp: Int? = null,
-        content: @Composable @RemoteComposable () -> Unit,
-    ): CoreDocument = runBlocking {
-        val appContext = ApplicationProvider.getApplicationContext<Context>()
-        val context =
-            if (screenHeightDp == null) {
-                appContext
-            } else {
-                val configuration =
-                    Configuration(appContext.resources.configuration).apply {
-                        this.screenHeightDp = screenHeightDp
-                    }
-                appContext.createConfigurationContext(configuration)
-            }
-        assertThat(context.resources.configuration.screenHeightDp)
-            .isEqualTo(screenHeightDp ?: appContext.resources.configuration.screenHeightDp)
-        captureRule.captureDocument(context = context, content = content)
     }
 
     private companion object {
