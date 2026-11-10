@@ -452,7 +452,8 @@ internal class SharedBoundsNode(entry: SharedElementEntry) :
         return sharedElementEntry.isEnabled &&
             sharedElement.foundMatch &&
             (sharedElement.scope.isTransitionActive ||
-                sharedElementEntry.target != sharedElementEntry.renderTarget)
+                sharedElementEntry.isDeferredEntering() ||
+                sharedElementEntry.isDeferredExiting())
     }
 
     private val isSeeking: Boolean
