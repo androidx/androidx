@@ -26,7 +26,6 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.collection.MutableIntList
 import androidx.collection.MutableObjectIntMap
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurfaceDetector
@@ -142,6 +141,9 @@ internal class BaseWidgetDelegate(
      * are skipped: they cannot be targeted by [pushUpdate], so reporting them would describe an
      * instance the caller has no way to address.
      *
+     * The returned options do not contain [GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID], which is
+     * library-internal: the identifier is returned as [WidgetInstanceInfo.widgetId] instead.
+     *
      * @param widgetName Developer widget definition String identifier matching
      *   [GlanceAdaptiveWidgetReceiver.widgetName].
      * @return Active instances for [widgetName], or an empty list if none are placed.
@@ -174,7 +176,14 @@ internal class BaseWidgetDelegate(
                         it.isNotBlank()
                     } ?: continue
                 val surface = AppWidgetSurfaceDetector.fromAppWidgetOptions(options)
-                val accumulator = accumulators.getOrPut(widgetId) { InstanceAccumulator(options) }
+                val accumulator =
+                    accumulators.getOrPut(widgetId) {
+                        InstanceAccumulator(
+                            Bundle(options).apply {
+                                remove(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID)
+                            }
+                        )
+                    }
                 accumulator.placementsPerSurface[surface] =
                     accumulator.placementsPerSurface.getOrDefault(surface, 0) + 1
             }
@@ -273,26 +282,31 @@ internal class BaseWidgetDelegate(
         }
 
     /**
-     * Requests that the launcher pin the receiver declaring [widgetName], if it can be placed on
-     * the home screen.
+     * Requests that the launcher pin the receiver declaring [widgetName] to the home screen.
      *
      * Mirrors `GlanceAppWidgetManager.requestPinGlanceAppWidget`, apart from [widgetId] and
      * [options]. [AppWidgetManager.requestPinAppWidget] only hands its extras to the launcher, so
      * they cannot reach the pinned widget that way. When either is set, the request is instead sent
-     * with a success callback handled by [RequestPinCallbackReceiver], which stores them in the
-     * options of the pinned widget and then sends [successCallback].
+     * with a callback handled by [RequestPinCallbackReceiver], which stores them in the options of
+     * the pinned widget. A widgetId is generated here if only [options] are set, so that the
+     * callback always stores an explicit widgetId.
+     *
+     * There is no success or failure callback: once pinned, the widget is updated through
+     * [GlanceAdaptiveWidgetReceiver] like a widget placed from the picker, and the platform reports
+     * nothing if the user dismisses the request.
      *
      * @param widgetName Developer widget definition String identifier matching
      *   [GlanceAdaptiveWidgetReceiver.widgetName].
-     * @param widgetId Widget instance String identifier to assign to the pinned widget. If null or
-     *   blank, the one in [options] is used, or one is generated if there is none.
+     * @param widgetId Widget instance String identifier to assign to the pinned widget. If null,
+     *   one is generated.
      * @param initialData Declarative template data payload implementing [GlanceAdaptiveTemplate] to
      *   render as the preview shown while the launcher asks the user to confirm, if any.
      * @param options Configuration options to store in the options of the pinned widget.
-     * @param successCallback [PendingIntent] to send once the widget is pinned, if any.
-     * @return true if the request was sent to the launcher, false otherwise.
-     * @throws IllegalArgumentException if [widgetName] cannot be resolved, see
-     *   [GlanceAdaptiveWidgetReceiver.widgetName].
+     * @return true if the request was handed to the launcher, false if pinning is not supported or
+     *   the launcher refused the request.
+     * @throws IllegalArgumentException if [widgetId] is blank, if [widgetName] cannot be resolved
+     *   (see [GlanceAdaptiveWidgetReceiver.widgetName]), or if its provider cannot be placed on the
+     *   home screen.
      * @throws IllegalStateException if [widgetName] cannot be resolved.
      */
     override suspend fun requestPin(
@@ -300,21 +314,26 @@ internal class BaseWidgetDelegate(
         widgetId: String?,
         initialData: GlanceAdaptiveTemplate?,
         options: Bundle,
-        successCallback: PendingIntent?,
     ): Boolean =
         withContext(Dispatchers.IO) {
-            // Resolved before the API level and launcher checks, so that developer errors fail on
+            // Validated before the API level and launcher checks, so that developer errors fail on
             // every device.
+            val requestedWidgetId = requireValidRequestedWidgetId(widgetId)
             val componentName = repository.resolveReceiverComponent(widgetName)
+            // A disabled receiver is not an installed provider, so it cannot be pinned.
+            val providerInfo = findInstalledProvider(componentName) ?: return@withContext false
+            // The platform rejects pin requests for providers that cannot be placed on the home
+            // screen, so this developer error is reported here, on every API level.
+            require(providerInfo.isHomeScreenProvider) {
+                "widgetName $widgetName cannot be pinned: ${componentName.className} does not " +
+                    "declare the home_screen widgetCategory"
+            }
             // Early return on API < 26: AppWidgetManager.requestPinAppWidget is not supported.
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
                 return@withContext false
             }
             if (!appWidgetManager.isRequestPinAppWidgetSupported) return@withContext false
 
-            val providerInfo =
-                findInstalledProvider(componentName)?.takeIf { it.isHomeScreenProvider }
-                    ?: return@withContext false
             val extras =
                 Bundle().apply {
                     if (initialData != null) {
@@ -330,7 +349,7 @@ internal class BaseWidgetDelegate(
             appWidgetManager.requestPinAppWidget(
                 providerInfo.provider,
                 extras,
-                pinSuccessCallback(widgetId, options, successCallback),
+                pinCallback(requestedWidgetId, options),
             )
         }
 
@@ -352,12 +371,11 @@ internal class BaseWidgetDelegate(
      *
      * @param activity Configuration [Activity] started with
      *   [AppWidgetManager.ACTION_APPWIDGET_CONFIGURE].
-     * @param widgetId Widget instance String identifier to assign to the configured widget. If null
-     *   or blank, the one in [options] or already stored for the widget is used, or one is
-     *   generated if there is none.
+     * @param widgetId Widget instance String identifier to assign to the configured widget. If
+     *   null, the one already stored for the widget is kept, or one is generated if there is none.
      * @param options Configuration options to store in the options of the configured widget.
      * @throws IllegalArgumentException if [activity]'s intent does not carry a valid
-     *   [AppWidgetManager.EXTRA_APPWIDGET_ID].
+     *   [AppWidgetManager.EXTRA_APPWIDGET_ID], or if [widgetId] is blank.
      */
     override fun setConfigurationResult(activity: Activity, widgetId: String?, options: Bundle) {
         val appWidgetId =
@@ -371,7 +389,7 @@ internal class BaseWidgetDelegate(
         }
 
         val requestedWidgetId =
-            resolveRequestedWidgetId(widgetId, options)
+            requireValidRequestedWidgetId(widgetId)
                 ?: appWidgetManager
                     .getAppWidgetOptions(appWidgetId)
                     ?.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID)
@@ -388,47 +406,44 @@ internal class BaseWidgetDelegate(
     }
 
     /**
-     * Returns the success callback of a pin request: [successCallback] itself if there is nothing
-     * to store, or otherwise one that first stores [widgetId] and [options] in the options of the
-     * pinned widget.
+     * Returns the callback of a pin request, which stores [requestedWidgetId] and [options] in the
+     * options of the pinned widget, or null if there is nothing to store.
      */
-    private fun pinSuccessCallback(
-        widgetId: String?,
-        options: Bundle,
-        successCallback: PendingIntent?,
-    ): PendingIntent? {
-        val requestedWidgetId = resolveRequestedWidgetId(widgetId, options)
+    private fun pinCallback(requestedWidgetId: String?, options: Bundle): PendingIntent? {
         if (requestedWidgetId == null && options.isEmpty) {
-            // A default widgetId is still generated later by GlanceAdaptiveWidgetReceiver once the
-            // widget is placed, so there is nothing to store here.
-            return successCallback
+            // Nothing to store: the widget keeps the widgetId that GlanceAdaptiveWidgetReceiver
+            // generates once it is placed. Otherwise, the widgetId is generated now, see
+            // optionsWithWidgetId.
+            return null
         }
-
-        return RequestPinCallbackReceiver.createSuccessCallback(
+        return RequestPinCallbackReceiver.createCallback(
             context = context,
             options = optionsWithWidgetId(requestedWidgetId, options),
-            successCallback = successCallback,
         )
     }
 
     /**
-     * Resolves the requested widget identifier from [widgetId] or [options], treating a blank
-     * identifier as absent, as [GlanceAdaptiveWidgetReceiver] does.
+     * Validates the widget instance identifier requested through [widgetId] by [requestPin] and
+     * [setConfigurationResult]. `null` means that none is requested, while a blank identifier can
+     * never be assigned, so it can only be a caller bug.
+     *
+     * @return [widgetId], or null if none is requested.
+     * @throws IllegalArgumentException if [widgetId] is blank.
      */
-    private fun resolveRequestedWidgetId(widgetId: String?, options: Bundle): String? =
-        widgetId?.takeIf { it.isNotBlank() }
-            ?: options.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID)?.takeIf {
-                it.isNotBlank()
-            }
+    private fun requireValidRequestedWidgetId(widgetId: String?): String? {
+        require(widgetId == null || widgetId.isNotBlank()) {
+            "widgetId must not be blank. Pass null to keep the current one or to generate one."
+        }
+        return widgetId
+    }
 
     /**
      * Returns a copy of [options] with [GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID] set to
      * [requestedWidgetId], or a newly generated identifier if [requestedWidgetId] is null.
      *
-     * The identifier is generated now if not requested, rather than by the receiver once the widget
-     * is placed: the receiver updates a placed widget again when its identifier changes, but not
-     * when only other options do, so this makes sure the widget is updated with [options] even if
-     * it was first updated before they were stored.
+     * The identifier is generated now rather than left to the receiver once the widget is placed,
+     * so that the stored options always carry an explicit final widgetId and never depend on a
+     * fallback one the receiver may already have assigned.
      */
     private fun optionsWithWidgetId(requestedWidgetId: String?, options: Bundle): Bundle =
         Bundle(options).apply {
@@ -442,13 +457,17 @@ internal class BaseWidgetDelegate(
      * Returns the installed [AppWidgetProviderInfo] of the receiver [componentName], or null if it
      * is not an installed AppWidget provider, for example because it is disabled.
      */
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun findInstalledProvider(componentName: ComponentName): AppWidgetProviderInfo? {
         val installedProviders =
-            appWidgetManager.getInstalledProvidersForPackage(
-                /* packageName= */ context.packageName,
-                /* profile= */ null,
-            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                appWidgetManager.getInstalledProvidersForPackage(
+                    /* packageName= */ context.packageName,
+                    /* profile= */ null,
+                )
+            } else {
+                // getInstalledProvidersForPackage is only available from API 26.
+                appWidgetManager.installedProviders
+            }
         for (idx in installedProviders.indices) {
             val info = installedProviders[idx]
             if (info.provider == componentName) return info

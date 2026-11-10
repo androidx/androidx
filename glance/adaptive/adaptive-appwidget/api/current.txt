@@ -4,8 +4,8 @@ package androidx.glance.adaptive.appwidget {
 
   public final class GlanceAdaptiveAppWidgetManagerKt {
     method public static androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager GlanceAdaptiveWidgetManager(android.content.Context context);
-    method public static suspend Object? requestPin(androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager, String widgetName, optional String? widgetId, optional androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate? initialData, optional android.os.Bundle options, optional android.app.PendingIntent? successCallback, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
-    method @BytecodeOnly public static Object! requestPin$default(androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager!, String!, String!, androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate!, android.os.Bundle!, android.app.PendingIntent!, kotlin.coroutines.Continuation!, int, Object!);
+    method public static suspend Object? requestPin(androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager, String widgetName, optional String? widgetId, optional androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate? initialData, optional android.os.Bundle options, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method @BytecodeOnly public static Object! requestPin$default(androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager!, String!, String!, androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate!, android.os.Bundle!, kotlin.coroutines.Continuation!, int, Object!);
     method public static suspend Object? setPreview(androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager, String widgetName, androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate previewData, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
@@ -18,12 +18,10 @@ package androidx.glance.adaptive.appwidget {
     property public abstract String widgetName;
     field public static final String ACTION_DEBUG_UPDATE = "androidx.glance.adaptive.appwidget.action.DEBUG_UPDATE";
     field public static final androidx.glance.adaptive.appwidget.GlanceAdaptiveWidgetReceiver.Companion Companion;
-    field public static final String EXTRA_WIDGET_ID = "androidx.glance.adaptive.appwidget.extra.WIDGET_ID";
   }
 
   public static final class GlanceAdaptiveWidgetReceiver.Companion {
     property public static String ACTION_DEBUG_UPDATE;
-    property public static String EXTRA_WIDGET_ID;
   }
 
 }

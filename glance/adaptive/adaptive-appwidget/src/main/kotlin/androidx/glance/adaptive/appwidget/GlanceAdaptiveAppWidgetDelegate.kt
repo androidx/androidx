@@ -17,7 +17,6 @@
 package androidx.glance.adaptive.appwidget
 
 import android.app.Activity
-import android.app.PendingIntent
 import android.os.Bundle
 import androidx.glance.adaptive.core.GlanceAdaptiveWidgetDelegate
 import androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager
@@ -29,8 +28,8 @@ import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
  *
  * Callers reach these operations through extension functions on [GlanceAdaptiveWidgetManager]
  * declared in this artifact, so only modules depending on it can call them. Every AppWidget
- * delegate must implement this interface: for any other delegate, the extensions are no-ops, except
- * `setConfigurationResult`, which throws.
+ * delegate must implement this interface. How each extension behaves for any other delegate is
+ * documented on the extension.
  */
 internal interface GlanceAdaptiveAppWidgetDelegate : GlanceAdaptiveWidgetDelegate {
     /**
@@ -50,14 +49,14 @@ internal interface GlanceAdaptiveAppWidgetDelegate : GlanceAdaptiveWidgetDelegat
      *
      * @param widgetName The developer-defined identifier of the widget definition.
      * @param widgetId The widget instance String identifier to assign to the pinned widget, or null
-     *   to use the one in [options], or a generated one if there is none.
+     *   to use a generated one. It must not be blank.
      * @param initialData The declarative template data payload to render as the preview shown while
      *   the launcher asks the user to confirm, if any.
      * @param options The configuration options to store in the options of the pinned widget.
-     * @param successCallback The [PendingIntent] to send once the widget is pinned, if any.
-     * @return true if the request was sent to the launcher, false otherwise.
-     * @throws IllegalArgumentException if [widgetName] cannot be resolved, see
-     *   [GlanceAdaptiveWidgetReceiver.widgetName].
+     * @return true if the request was handed to the launcher, false otherwise.
+     * @throws IllegalArgumentException if [widgetId] is blank, if [widgetName] cannot be resolved
+     *   (see [GlanceAdaptiveWidgetReceiver.widgetName]), or if its provider cannot be placed on the
+     *   home screen.
      * @throws IllegalStateException if [widgetName] cannot be resolved, see
      *   [GlanceAdaptiveWidgetReceiver.widgetName].
      */
@@ -66,7 +65,6 @@ internal interface GlanceAdaptiveAppWidgetDelegate : GlanceAdaptiveWidgetDelegat
         widgetId: String?,
         initialData: GlanceAdaptiveTemplate?,
         options: Bundle,
-        successCallback: PendingIntent?,
     ): Boolean
 
     /**
@@ -78,11 +76,11 @@ internal interface GlanceAdaptiveAppWidgetDelegate : GlanceAdaptiveWidgetDelegat
      * @param activity The configuration [Activity] started with
      *   [android.appwidget.AppWidgetManager.ACTION_APPWIDGET_CONFIGURE].
      * @param widgetId The widget instance String identifier to assign to the configured widget, or
-     *   null to use the one in [options] or already stored for the widget, or a generated one if
-     *   there is none.
+     *   null to keep the one already stored for the widget, or a generated one if there is none. It
+     *   must not be blank.
      * @param options The configuration options to store in the options of the configured widget.
      * @throws IllegalArgumentException if [activity]'s intent does not carry a valid
-     *   [android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID].
+     *   [android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID], or if [widgetId] is blank.
      */
     fun setConfigurationResult(activity: Activity, widgetId: String?, options: Bundle)
 }
