@@ -16,9 +16,11 @@
 
 package androidx.wear.compose.material3.macrobenchmark
 
+import android.os.Build
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.material3.macrobenchmark.common.RotaryScrollBenchmark
 import androidx.wear.compose.material3.macrobenchmark.common.hasRotaryInputDevice
 import org.junit.Assume
@@ -36,7 +38,9 @@ class RotaryScrollBenchmarkTest(compilationMode: CompilationMode) :
         actionSuffix = "ROTARY_SCROLL_ACTIVITY",
     ) {
 
+    // Skip API 31 and 32 due to libhwui JankTracker crash (b/200492526).
     @Test
+    @SdkSuppress(excludedSdks = [Build.VERSION_CODES.S, Build.VERSION_CODES.S_V2])
     override fun start() {
         Assume.assumeTrue(hasRotaryInputDevice())
         super.start()

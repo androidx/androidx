@@ -17,12 +17,14 @@
 package androidx.wear.compose.material3.macrobenchmark
 
 import android.content.Intent
+import android.os.Build
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.FrameTimingGfxInfoMetric
 import androidx.benchmark.macro.MemoryUsageMetric
 import androidx.benchmark.macro.Metric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
+import androidx.test.filters.SdkSuppress
 import androidx.testutils.createCompilationParams
 import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScreen
 import org.junit.After
@@ -53,7 +55,12 @@ abstract class BenchmarkTestBase(
         enableChargingExperience()
     }
 
+    // Skip API 31 and 32 due to libhwui JankTracker crash (b/200492526, b/489246290, b/581394447).
+    // Note: Method-level @SdkSuppress shadows class-level @SdkSuppress (and is not inherited when
+    // start() is overridden), so subclasses needing a custom @SdkSuppress or overriding start()
+    // must annotate their overridden start().
     @Test
+    @SdkSuppress(excludedSdks = [Build.VERSION_CODES.S, Build.VERSION_CODES.S_V2])
     open fun start() {
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
