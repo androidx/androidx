@@ -168,14 +168,14 @@ class BaseWidgetDelegateRequestPinTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun requestPin_withBlankWidgetIdAndNoOptions_passesSuccessCallbackThrough() = runTest {
+    fun requestPin_withBlankWidgetId_throwsBeforeRequestingPin() = runTest {
         enablePinning()
         rule.registerReceiverInManifest(TestReceiver::class.java.name)
-        val successCallback = mutableSuccessCallback()
 
-        assertThat(requestPin(widgetId = " ", successCallback = successCallback)).isTrue()
+        val error = runCatching { requestPin(widgetId = "") }.exceptionOrNull()
 
-        verify(rule.appWidgetManager).requestPinAppWidget(any(), anyOrNull(), eq(successCallback))
+        assertThat(error).isInstanceOf(IllegalArgumentException::class.java)
+        verify(rule.appWidgetManager, never()).requestPinAppWidget(any(), anyOrNull(), anyOrNull())
     }
 
     @Test
@@ -232,7 +232,8 @@ class BaseWidgetDelegateRequestPinTest {
     }
 
     @Test
-    fun requestPin_withWidgetIdOnlyInOptions_storesIt() = runTest {
+    fun requestPin_withWidgetIdKeyInOptions_ignoresItAndGeneratesWidgetId() = runTest {
+        // EXTRA_WIDGET_ID is internal: only the widgetId argument requests an identifier.
         enablePinning()
         rule.registerReceiverInManifest(TestReceiver::class.java.name)
         val options =
@@ -243,14 +244,17 @@ class BaseWidgetDelegateRequestPinTest {
         assertThat(requestPin(options = options)).isTrue()
         shadowOf(Looper.getMainLooper()).idle()
 
-        val storedOptions =
-            AppWidgetManager.getInstance(rule.context).getAppWidgetOptions(pinnedAppWidgetId())
-        assertThat(storedOptions.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID))
-            .isEqualTo("from_options")
+        val storedWidgetId =
+            AppWidgetManager.getInstance(rule.context)
+                .getAppWidgetOptions(pinnedAppWidgetId())
+                .getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID)
+        assertThat(storedWidgetId).isNotEmpty()
+        assertThat(storedWidgetId).isNotEqualTo("from_options")
     }
 
     @Test
-    fun requestPin_withWidgetIdInArgumentAndOptions_storesArgument() = runTest {
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun requestPin_withWidgetIdArgumentAndWidgetIdKeyInOptions_storesWidgetIdArgument() = runTest {
         enablePinning()
         rule.registerReceiverInManifest(TestReceiver::class.java.name)
         val options =
