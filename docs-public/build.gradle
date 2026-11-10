@@ -542,12 +542,3 @@ dependencies {
     docs("androidx.xr.scenecore:scenecore-testing:1.1.0-alpha01")
     stubs(libs.androidExtensionsXr)
 }
-
-afterEvaluate {
-    tasks["docs"].doFirst {
-        println("docs-public:docs starting")
-    }
-    tasks["docs"].doLast {
-        println("docs-public:docs completing")
-    }
-}
