@@ -80,6 +80,34 @@ class ComponentsTest {
     }
 
     @Test
+    fun graph_supportsExplicitEmphasisAndChartLabels() {
+        assertThrows(IllegalArgumentException::class.java) { ChartLabel(" ") }
+        assertThrows(IllegalArgumentException::class.java) {
+            Graph(floatListOf(0.4f, 0.8f), emphasized = booleanArrayOf(true))
+        }
+
+        val graph =
+            Graph(
+                values = floatListOf(0.4f, 1.0f),
+                goal = 1.0f,
+                emphasized = booleanArrayOf(true, false),
+                startLabel = ChartLabel("7 Day Avg"),
+                endLabel = ChartLabel("13,843", icon = 99),
+            )
+        assertThat(graph.isEmphasizedAt(0)).isTrue()
+        assertThat(graph.isEmphasizedAt(1)).isFalse()
+        assertThat(graph.hasDescription).isTrue()
+        assertThat(graph.withoutDescription().hasDescription).isFalse()
+
+        // Without explicit flags, a bar is emphasized once it reaches the goal.
+        val byGoal = Graph(floatListOf(0.4f, 1.0f), goal = 1.0f, endLabel = ChartLabel("13,843"))
+        assertThat(byGoal.isEmphasizedAt(0)).isFalse()
+        assertThat(byGoal.isEmphasizedAt(1)).isTrue()
+        // One label alone is enough for a description.
+        assertThat(byGoal.hasDescription).isTrue()
+    }
+
+    @Test
     fun graph_needsOneLabelPerValueOrNone() {
         val error =
             assertThrows(IllegalArgumentException::class.java) {

@@ -17,15 +17,19 @@
 package androidx.glance.adaptive.appwidget.components.graph
 
 import android.content.Context
+import android.view.View
 import android.widget.RemoteViews
+import androidx.annotation.IdRes
 import androidx.compose.ui.unit.Dp
 import androidx.glance.adaptive.appwidget.R
 import androidx.glance.adaptive.appwidget.components.addChild
 import androidx.glance.adaptive.appwidget.components.density
 import androidx.glance.adaptive.appwidget.components.setHorizontalItemSpacing
+import androidx.glance.adaptive.appwidget.components.setMaxSize
 import androidx.glance.adaptive.appwidget.components.setOptionalText
-import androidx.glance.adaptive.appwidget.components.setText
+import androidx.glance.adaptive.appwidget.components.toPx
 import androidx.glance.adaptive.appwidget.components.visibility
+import androidx.glance.adaptive.core.slots.ChartLabel
 import androidx.glance.adaptive.core.slots.Graph
 
 /**
@@ -54,24 +58,43 @@ internal fun Graph.buildRemoteViews(context: Context, barSpacing: Dp): RemoteVie
         )
     }
 
-    val description = description
     views.setViewVisibility(
         R.id.glance_adaptive_appwidget_remoteviews_chart_description,
-        visibility(description != null),
+        visibility(hasDescription),
     )
-    if (description != null) {
-        views.setText(
-            R.id.glance_adaptive_appwidget_remoteviews_chart_caption_start,
-            description.first,
-            GraphDefaults.CaptionTextSize.value,
+    if (hasDescription) {
+        val iconPx = GraphDefaults.CaptionIconSize.toPx(context.density)
+        views.bindCaption(
+            textId = R.id.glance_adaptive_appwidget_remoteviews_chart_caption_start,
+            iconId = R.id.glance_adaptive_appwidget_remoteviews_chart_caption_start_icon,
+            label = startLabel,
+            iconSizePx = iconPx,
         )
-        views.setText(
-            R.id.glance_adaptive_appwidget_remoteviews_chart_caption_end,
-            description.second,
-            GraphDefaults.CaptionTextSize.value,
+        views.bindCaption(
+            textId = R.id.glance_adaptive_appwidget_remoteviews_chart_caption_end,
+            iconId = R.id.glance_adaptive_appwidget_remoteviews_chart_caption_end_icon,
+            label = endLabel,
+            iconSizePx = iconPx,
         )
     }
     return views
+}
+
+private fun RemoteViews.bindCaption(
+    @IdRes textId: Int,
+    @IdRes iconId: Int,
+    label: ChartLabel?,
+    iconSizePx: Int,
+) {
+    setOptionalText(textId, label?.text, GraphDefaults.CaptionTextSize.value)
+    val iconRes = label?.icon
+    if (iconRes == null) {
+        setViewVisibility(iconId, View.GONE)
+    } else {
+        setViewVisibility(iconId, View.VISIBLE)
+        setImageViewResource(iconId, iconRes)
+        setMaxSize(iconId, iconSizePx)
+    }
 }
 
 /**
@@ -93,7 +116,7 @@ private fun Graph.column(
             dotted && isDotFilledAt(index) ->
                 R.layout.glance_adaptive_appwidget_remoteviews_dot_column_emphasized
             dotted -> R.layout.glance_adaptive_appwidget_remoteviews_dot_column_muted
-            meetsGoalAt(index) ->
+            isEmphasizedAt(index) ->
                 R.layout.glance_adaptive_appwidget_remoteviews_bar_column_emphasized
             else -> R.layout.glance_adaptive_appwidget_remoteviews_bar_column_muted
         }

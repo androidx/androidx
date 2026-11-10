@@ -20,6 +20,7 @@ import androidx.collection.floatListOf
 import androidx.collection.intListOf
 import androidx.glance.adaptive.appwidget.R
 import androidx.glance.adaptive.core.slots.Badge
+import androidx.glance.adaptive.core.slots.ChartLabel
 import androidx.glance.adaptive.core.slots.Graph
 import androidx.glance.adaptive.core.slots.TemplateText
 import androidx.glance.adaptive.core.templates.TrackTemplate
@@ -73,6 +74,7 @@ internal object TrackPlaceholderData {
             values = GraphValues,
             labels = GraphLabels,
             goal = GRAPH_GOAL,
-            description = description,
+            startLabel = description?.let { ChartLabel(it.first) },
+            endLabel = description?.let { ChartLabel(it.second) },
         )
 }
