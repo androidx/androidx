@@ -118,4 +118,31 @@ public object RemoteFontVariation {
             append("])")
         }
     }
+
+    /**
+     * Creates a font weight (`wght`) variation [Setting].
+     *
+     * @param weight The font weight value, typically in `1f..1000f` (such as `400.rf` for normal or
+     *   `700.rf` for bold), or a dynamic [RemoteFloat] expression.
+     * @return A [Setting] for the `wght` OpenType variation axis.
+     */
+    public fun weight(weight: RemoteFloat): Setting = Setting("wght", weight)
+
+    /**
+     * Creates a font width (`wdth`) variation [Setting].
+     *
+     * @param width The font width percentage value, typically `> 0f` (such as `100f.rf` for normal
+     *   width), or a dynamic [RemoteFloat] expression.
+     * @return A [Setting] for the `wdth` OpenType variation axis.
+     */
+    public fun width(width: RemoteFloat): Setting = Setting("wdth", width)
+
+    /**
+     * Creates a font slant (`slnt`) variation [Setting].
+     *
+     * @param slant The font slant angle in degrees, typically in `-90f..90f` (`0f.rf` is upright),
+     *   or a dynamic [RemoteFloat] expression.
+     * @return A [Setting] for the `slnt` OpenType variation axis.
+     */
+    public fun slant(slant: RemoteFloat): Setting = Setting("slnt", slant)
 }

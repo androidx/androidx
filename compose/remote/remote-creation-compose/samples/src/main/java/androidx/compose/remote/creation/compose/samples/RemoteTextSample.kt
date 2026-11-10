@@ -79,8 +79,8 @@ fun RemoteTextFontFamilySample() {
             fontFamily = RemoteFontFamily.Named("device:roboto-flex"),
             fontVariationSettings =
                 RemoteFontVariation.Settings(
-                    RemoteFontVariation.Setting("wght", 300f.rf),
-                    RemoteFontVariation.Setting("wdth", 70f.rf),
+                    RemoteFontVariation.weight(300.rf),
+                    RemoteFontVariation.width(70f.rf),
                 ),
         )
     }

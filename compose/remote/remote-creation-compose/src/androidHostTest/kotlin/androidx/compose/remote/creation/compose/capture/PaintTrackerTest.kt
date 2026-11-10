@@ -326,8 +326,8 @@ class PaintTrackerTest {
     fun testFontVariationSettingsSync() {
         val settings =
             RemoteFontVariation.Settings(
-                RemoteFontVariation.Setting("wght", 500f.rf),
-                RemoteFontVariation.Setting("wdth", 100f.rf),
+                RemoteFontVariation.weight(500.rf),
+                RemoteFontVariation.width(100f.rf),
             )
         val paint = RemotePaint { fontVariationSettings = settings }
         val bundle = PaintBundle()
@@ -393,7 +393,7 @@ class PaintTrackerTest {
 
     @Test
     fun testFontFeatureAndVariationSettingsCombinedSync() {
-        val settings = RemoteFontVariation.Settings(RemoteFontVariation.Setting("wght", 600f.rf))
+        val settings = RemoteFontVariation.Settings(RemoteFontVariation.weight(600.rf))
         val paint = RemotePaint {
             fontFeatureSettings = "tnum"
             fontVariationSettings = settings
@@ -465,8 +465,7 @@ class PaintTrackerTest {
         tracker.reset(force = false)
 
         val paint = RemotePaint {
-            fontVariationSettings =
-                RemoteFontVariation.Settings(RemoteFontVariation.Setting("wght", 400f.rf))
+            fontVariationSettings = RemoteFontVariation.Settings(RemoteFontVariation.weight(400.rf))
         }
         tracker.updateWithPaint(paint, PaintBundle(), stateWithoutCoreText)
 
@@ -517,7 +516,7 @@ class PaintTrackerTest {
                             intSetOf(Operations.HEADER, Operations.DATA_TEXT, Operations.CORE_TEXT)
                     ),
             )
-        val settings = RemoteFontVariation.Settings(RemoteFontVariation.Setting("wght", 500f.rf))
+        val settings = RemoteFontVariation.Settings(RemoteFontVariation.weight(500.rf))
         val paintWithSettings = RemotePaint { fontVariationSettings = settings }
         val wghtId = stateWithCoreText.document.addText("wght")
         remoteContext.loadText(wghtId, "wght")
@@ -544,7 +543,7 @@ class PaintTrackerTest {
         remoteContext.loadText(wghtId, "wght")
         val negativeZeroPaint = RemotePaint {
             fontVariationSettings =
-                RemoteFontVariation.Settings(RemoteFontVariation.Setting("wght", (-0f).rf))
+                RemoteFontVariation.Settings(RemoteFontVariation.weight((-0f).rf))
         }
         val bundle = PaintBundle()
         tracker.updateWithPaint(negativeZeroPaint, bundle, creationState)
@@ -555,8 +554,7 @@ class PaintTrackerTest {
 
         tracker.reset(force = false)
         val zeroPaint = RemotePaint {
-            fontVariationSettings =
-                RemoteFontVariation.Settings(RemoteFontVariation.Setting("wght", 0f.rf))
+            fontVariationSettings = RemoteFontVariation.Settings(RemoteFontVariation.weight(0f.rf))
         }
         tracker.updateWithPaint(zeroPaint, PaintBundle(), creationState)
 
@@ -569,8 +567,8 @@ class PaintTrackerTest {
         val paint = RemotePaint {
             fontVariationSettings =
                 RemoteFontVariation.Settings(
-                    RemoteFontVariation.Setting("wdth", 100f.rf),
-                    RemoteFontVariation.Setting("wght", 700f.rf),
+                    RemoteFontVariation.width(100f.rf),
+                    RemoteFontVariation.weight(700.rf),
                 )
             fontFeatureSettings = "'wght' 300, tnum"
         }
@@ -602,8 +600,7 @@ class PaintTrackerTest {
         remoteContext.loadText(wghtId, "wght")
         remoteContext.loadText(tnumId, "tnum")
         val withVariations = RemotePaint {
-            fontVariationSettings =
-                RemoteFontVariation.Settings(RemoteFontVariation.Setting("wght", 400f.rf))
+            fontVariationSettings = RemoteFontVariation.Settings(RemoteFontVariation.weight(400.rf))
             fontFeatureSettings = "'tnum' 0, 'tnum' 1"
         }
         val bundle = PaintBundle()
@@ -685,8 +682,8 @@ class PaintTrackerTest {
 
         val settings =
             RemoteFontVariation.Settings(
-                RemoteFontVariation.Setting("wght", 500f.rf),
-                RemoteFontVariation.Setting("wdth", 100f.rf),
+                RemoteFontVariation.weight(500.rf),
+                RemoteFontVariation.width(100f.rf),
             )
         val paint = RemotePaint { fontVariationSettings = settings }
         val bundle = PaintBundle()

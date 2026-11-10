@@ -83,14 +83,14 @@ class RemoteCanvasScreenshotTest {
                 color = Color.White.rc
                 textSize = 30f.rf
                 fontVariationSettings =
-                    RemoteFontVariation.Settings(RemoteFontVariation.Setting("wght", 100f.rf))
+                    RemoteFontVariation.Settings(RemoteFontVariation.weight(100.rf))
             }
             val paintW900 = RemotePaint {
                 typeface = RemoteTypeface.Named("RobotoFlex")
                 color = Color.White.rc
                 textSize = 30f.rf
                 fontVariationSettings =
-                    RemoteFontVariation.Settings(RemoteFontVariation.Setting("wght", 900f.rf))
+                    RemoteFontVariation.Settings(RemoteFontVariation.weight(900.rf))
             }
 
             val text = "Hello Font!".rs

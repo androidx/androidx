@@ -140,8 +140,8 @@ class RemoteCanvasTest {
 
         val settings =
             RemoteFontVariation.Settings(
-                RemoteFontVariation.Setting("wght", 500f.rf),
-                RemoteFontVariation.Setting("wdth", 100f.rf),
+                RemoteFontVariation.weight(500.rf),
+                RemoteFontVariation.width(100f.rf),
             )
         val paint = RemotePaint { fontVariationSettings = settings }
 

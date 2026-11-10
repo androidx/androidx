@@ -128,13 +128,7 @@ class RemoteTextStyleTest {
                     FontFamily(
                         Font(
                             DeviceFontFamilyName("roboto-flex"),
-                            variationSettings =
-                                FontVariation.Settings(
-                                    FontVariation.Setting(
-                                        "wdth",
-                                        110f,
-                                    )
-                                ),
+                            variationSettings = FontVariation.Settings(FontVariation.width(110f)),
                         )
                     ),
             )
@@ -252,10 +246,7 @@ class RemoteTextStyleTest {
                 DeviceFontFamilyName("roboto-flex"),
                 weight = FontWeight(450),
                 variationSettings =
-                    FontVariation.Settings(
-                        FontVariation.Setting("wdth", 110f),
-                        FontVariation.Setting("wght", 450f),
-                    ),
+                    FontVariation.Settings(FontVariation.width(110f), FontVariation.weight(450)),
             )
         val fontFamily = FontFamily(fontWithoutSettings, fontWithSettings)
 
@@ -376,8 +367,8 @@ class RemoteTextStyleTest {
 
     @Test
     fun copy_clears_nullable_properties_and_handles_fontVariationSettings() {
-        val initialSettings = FontVariation.Settings(FontVariation.weight(400))
-        val overrideSettings = FontVariation.Settings(FontVariation.weight(700))
+        val initialSettings = RemoteFontVariation.Settings(RemoteFontVariation.weight(400.rf))
+        val overrideSettings = RemoteFontVariation.Settings(RemoteFontVariation.weight(700.rf))
         val style =
             RemoteTextStyle(
                 color = Color.Red.rc,
@@ -393,7 +384,7 @@ class RemoteTextStyleTest {
                 lineBreak = RemoteLineBreak.Heading,
                 hyphens = RemoteHyphens.Auto,
                 fontFeatureSettings = "tnum",
-                fontVariationSettings = initialSettings.toRemoteFontVariationSettings(),
+                fontVariationSettings = initialSettings,
             )
 
         // Preserves fontVariationSettings when not specified, and clears nullable properties when
@@ -413,8 +404,7 @@ class RemoteTextStyleTest {
         assertThat(cleared.textDecoration).isNull()
         assertThat(cleared.lineBreak).isEqualTo(RemoteLineBreak.Unspecified)
         assertThat(cleared.hyphens).isEqualTo(RemoteHyphens.Unspecified)
-        assertThat(cleared.fontVariationSettings)
-            .isEqualTo(initialSettings.toRemoteFontVariationSettings())
+        assertThat(cleared.fontVariationSettings).isEqualTo(initialSettings)
 
         // Overrides fontVariationSettings while clearing
         // nullable properties.
@@ -426,7 +416,7 @@ class RemoteTextStyleTest {
                 textDecoration = null,
                 lineBreak = RemoteLineBreak.Unspecified,
                 hyphens = RemoteHyphens.Unspecified,
-                fontVariationSettings = overrideSettings.toRemoteFontVariationSettings(),
+                fontVariationSettings = overrideSettings,
             )
         assertThat(overridden.fontWeight).isNull()
         assertThat(overridden.fontStyle).isNull()
@@ -434,8 +424,7 @@ class RemoteTextStyleTest {
         assertThat(overridden.textDecoration).isNull()
         assertThat(overridden.lineBreak).isEqualTo(RemoteLineBreak.Unspecified)
         assertThat(overridden.hyphens).isEqualTo(RemoteHyphens.Unspecified)
-        assertThat(overridden.fontVariationSettings)
-            .isEqualTo(overrideSettings.toRemoteFontVariationSettings())
+        assertThat(overridden.fontVariationSettings).isEqualTo(overrideSettings)
 
         // Clears fontVariationSettings when explicitly passed null.
         val clearedVariation = style.copy(fontVariationSettings = null)
@@ -445,28 +434,26 @@ class RemoteTextStyleTest {
 
     @Test
     fun merge_preserves_and_overrides_fontVariationSettings() {
-        val initialSettings = FontVariation.Settings(FontVariation.weight(400))
-        val overrideSettings = FontVariation.Settings(FontVariation.weight(700))
+        val initialSettings = RemoteFontVariation.Settings(RemoteFontVariation.weight(400.rf))
+        val overrideSettings = RemoteFontVariation.Settings(RemoteFontVariation.weight(700.rf))
         val style =
             RemoteTextStyle(
                 fontWeight = RemoteFontWeight.Normal,
-                fontVariationSettings = initialSettings.toRemoteFontVariationSettings(),
+                fontVariationSettings = initialSettings,
             )
 
         val preserved =
             style.merge(fontWeight = RemoteFontWeight.Bold, fontVariationSettings = null)
         assertThat(preserved.fontWeight).isEqualTo(RemoteFontWeight.Bold)
-        assertThat(preserved.fontVariationSettings)
-            .isEqualTo(initialSettings.toRemoteFontVariationSettings())
+        assertThat(preserved.fontVariationSettings).isEqualTo(initialSettings)
 
         val overridden =
             style.merge(
                 fontWeight = RemoteFontWeight.Bold,
-                fontVariationSettings = overrideSettings.toRemoteFontVariationSettings(),
+                fontVariationSettings = overrideSettings,
             )
         assertThat(overridden.fontWeight).isEqualTo(RemoteFontWeight.Bold)
-        assertThat(overridden.fontVariationSettings)
-            .isEqualTo(overrideSettings.toRemoteFontVariationSettings())
+        assertThat(overridden.fontVariationSettings).isEqualTo(overrideSettings)
     }
 
     @Test
@@ -475,8 +462,7 @@ class RemoteTextStyleTest {
             RemoteTextStyle(
                 fontFeatureSettings = "tnum",
                 fontVariationSettings =
-                    FontVariation.Settings(FontVariation.weight(700))
-                        .toRemoteFontVariationSettings(),
+                    RemoteFontVariation.Settings(RemoteFontVariation.weight(700.rf)),
             )
 
         assertThat(style.fontFeatureSettings).isEqualTo("tnum")
@@ -491,7 +477,7 @@ class RemoteTextStyleTest {
             combineFontSettings(
                 fontFeatureSettings = "tnum, zero",
                 fontVariationSettings =
-                    RemoteFontVariation.Settings(RemoteFontVariation.Setting("wght", 700.rf)),
+                    RemoteFontVariation.Settings(RemoteFontVariation.weight(700.rf)),
             )
 
         assertThat(combined).isNotNull()
@@ -517,7 +503,7 @@ class RemoteTextStyleTest {
 
     @Test
     fun combineFontSettings_nullOrEmpty_returnsOriginalOrNull() {
-        val settings = RemoteFontVariation.Settings(RemoteFontVariation.Setting("wght", 400.rf))
+        val settings = RemoteFontVariation.Settings(RemoteFontVariation.weight(400.rf))
         assertThat(combineFontSettings(null, settings)).isSameInstanceAs(settings)
         assertThat(combineFontSettings("", settings)).isSameInstanceAs(settings)
         assertThat(combineFontSettings(null, null)).isNull()
@@ -536,8 +522,8 @@ class RemoteTextStyleTest {
         assertThat(style.fontVariationSettings)
             .isEqualTo(
                 RemoteFontVariation.Settings(
-                    RemoteFontVariation.Setting("wght", 700.rf),
-                    RemoteFontVariation.Setting("wdth", 80f.rf),
+                    RemoteFontVariation.weight(700.rf),
+                    RemoteFontVariation.width(80f.rf),
                 )
             )
         assertThat(RemoteTextStyle().fontVariationSettings).isNull()

@@ -433,9 +433,7 @@ class RcPlayerCanvasTextTypefaceTest {
                             fontSize = 18.rsp,
                             fontFeatureSettings = "tnum",
                             fontVariationSettings =
-                                RemoteFontVariation.Settings(
-                                    RemoteFontVariation.Setting("wght", 500f.rf)
-                                ),
+                                RemoteFontVariation.Settings(RemoteFontVariation.weight(500.rf)),
                         ),
                 )
                 RemoteText(
@@ -445,9 +443,7 @@ class RcPlayerCanvasTextTypefaceTest {
                             fontSize = 18.rsp,
                             fontFeatureSettings = "pnum",
                             fontVariationSettings =
-                                RemoteFontVariation.Settings(
-                                    RemoteFontVariation.Setting("wdth", 110f.rf)
-                                ),
+                                RemoteFontVariation.Settings(RemoteFontVariation.width(110f.rf)),
                         ),
                 )
             }
@@ -544,9 +540,7 @@ class RcPlayerCanvasTextTypefaceTest {
                         fontFamily = RemoteFontFamily.Named("google:Roboto Flex"),
                         fontSize = 18.rsp,
                         fontVariationSettings =
-                            RemoteFontVariation.Settings(
-                                RemoteFontVariation.Setting("wght", 500f.rf)
-                            ),
+                            RemoteFontVariation.Settings(RemoteFontVariation.weight(500.rf)),
                     ),
             )
         }
@@ -607,7 +601,7 @@ class RcPlayerCanvasTextTypefaceTest {
                                 fontSize = 16.rsp,
                                 fontVariationSettings =
                                     RemoteFontVariation.Settings(
-                                        RemoteFontVariation.Setting("wght", 500f.rf)
+                                        RemoteFontVariation.weight(500.rf)
                                     ),
                             ),
                     )
@@ -725,8 +719,8 @@ class RcPlayerCanvasTextTypefaceTest {
                         fontSize = 18.rsp,
                         fontVariationSettings =
                             RemoteFontVariation.Settings(
-                                RemoteFontVariation.Setting("wght", 500f.rf),
-                                RemoteFontVariation.Setting("wdth", 120f.rf),
+                                RemoteFontVariation.weight(500.rf),
+                                RemoteFontVariation.width(120f.rf),
                             ),
                     ),
             )
