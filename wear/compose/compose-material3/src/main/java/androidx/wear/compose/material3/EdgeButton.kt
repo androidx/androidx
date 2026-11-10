@@ -181,6 +181,14 @@ public fun EdgeButton(
 
     val contentColor = colors.contentColor(enabled = enabled)
 
+    val hasInsetFocusRing = LocalRippleThemeConfiguration.current.insetFocusRing != null
+    val actualInteractionSource =
+        if (hasInsetFocusRing) {
+            interactionSource ?: remember { MutableInteractionSource() }
+        } else {
+            interactionSource
+        }
+
     CompositionLocalProvider(LocalContentColor provides contentColor) {
         Row(
             horizontalArrangement = Arrangement.Center,
@@ -224,6 +232,7 @@ public fun EdgeButton(
                                 )
                                 .coerceIn(0f, 1f)
                     }
+                    .insetFocusRing(interactionSource = actualInteractionSource, shape = shape)
                     .then(
                         // BorderModifier
                         if (border != null) Modifier.border(border = border, shape = shape)
@@ -268,8 +277,8 @@ public fun EdgeButton(
                         enabled = enabled,
                         onClick = onClick,
                         role = Role.Button,
-                        indication = ripple(),
-                        interactionSource = interactionSource,
+                        indication = ripple(enableFocusIndication = !hasInsetFocusRing),
+                        interactionSource = actualInteractionSource,
                     )
                     .sizeAndOffset(containerShapeHelper)
                     .scaleAndAlignContent(buttonSize)

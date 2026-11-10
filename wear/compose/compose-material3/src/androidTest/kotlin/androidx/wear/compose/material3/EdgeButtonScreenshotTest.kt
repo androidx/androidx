@@ -16,6 +16,8 @@
 
 package androidx.wear.compose.material3
 
+import androidx.compose.foundation.interaction.FocusInteraction
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -176,18 +178,40 @@ class EdgeButtonScreenshotTest {
         BasicEdgeButton(buttonSize = EdgeButtonSize.Large, text = LONG_TEXT)
     }
 
+    @Test
+    fun edge_button_inset_focus_ring() {
+        val interactionSource = MutableInteractionSource()
+        verifyScreenshot(
+            performActions = {
+                rule.runOnIdle { interactionSource.tryEmit(FocusInteraction.Focus()) }
+            }
+        ) {
+            CompositionLocalProvider(
+                LocalRippleThemeConfiguration provides
+                    RippleDefaults.InsetFocusRingThemeConfiguration
+            ) {
+                BasicEdgeButton(
+                    buttonSize = EdgeButtonSize.Medium,
+                    interactionSource = interactionSource,
+                )
+            }
+        }
+    }
+
     @Composable
     private fun BasicEdgeButton(
         buttonSize: EdgeButtonSize,
         constrainedHeight: Dp? = null,
         enabled: Boolean = true,
         text: String = "Text",
+        interactionSource: MutableInteractionSource? = null,
     ) {
         Box(Modifier.fillMaxSize()) {
             EdgeButton(
                 onClick = { /* Do something */ },
                 enabled = enabled,
                 buttonSize = buttonSize,
+                interactionSource = interactionSource,
                 modifier =
                     Modifier.align(Alignment.BottomEnd)
                         .testTag(TEST_TAG)

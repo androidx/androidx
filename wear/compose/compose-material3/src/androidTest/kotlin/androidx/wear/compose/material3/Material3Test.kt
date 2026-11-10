@@ -45,6 +45,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertContainsColor
+import androidx.compose.testutils.assertPixelColor
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -381,32 +382,44 @@ private fun ComposeContentTestRule.assertFocusRingDrawn(node: SemanticsNodeInter
     val centerX = pixelMap.width / 2
     val centerY = pixelMap.height / 2
 
+    fun Color.isCloseTo(expected: Color): Boolean =
+        abs(red - expected.red) < 0.02f &&
+            abs(green - expected.green) < 0.02f &&
+            abs(blue - expected.blue) < 0.02f &&
+            abs(alpha - expected.alpha) < 0.02f
+
+    // Find the outer edge on each side (left, right, top, bottom) along the center lines by
+    // walking inward from the bitmap boundary until the first solid FocusRingOuterTestColor pixel
+    // (skipping any anti-aliased outer fringe pixels on curved or sloped edges).
+    val leftEdgeOutsideColor = pixelMap[0, centerY]
+    val leftEdgePx = (0..centerX).first { pixelMap[it, centerY].isCloseTo(FocusRingOuterTestColor) }
+    val rightEdgeOutsideColor = pixelMap[pixelMap.width - 1, centerY]
+    val rightEdgePx =
+        (pixelMap.width - 1 downTo centerX).first {
+            pixelMap[it, centerY].isCloseTo(FocusRingOuterTestColor)
+        }
+    val topEdgePx = (0..centerY).first { pixelMap[centerX, it].isCloseTo(FocusRingOuterTestColor) }
+    val bottomEdgePx =
+        (pixelMap.height - 1 downTo centerY).first {
+            pixelMap[centerX, it].isCloseTo(FocusRingOuterTestColor)
+        }
+
     // For each edge (left, right, top, bottom), take a middle point and make sure that both the
     // outer stroke and inner stroke have their expected focus ring colors.
-    Assert.assertEquals(FocusRingOuterTestColor, pixelMap[outerStrokeOffsetPx, centerY])
-    Assert.assertEquals(
-        FocusRingOuterTestColor,
-        pixelMap[pixelMap.width - 1 - outerStrokeOffsetPx, centerY],
-    )
-    Assert.assertEquals(FocusRingOuterTestColor, pixelMap[centerX, outerStrokeOffsetPx])
-    Assert.assertEquals(
-        FocusRingOuterTestColor,
-        pixelMap[centerX, pixelMap.height - 1 - outerStrokeOffsetPx],
-    )
-    Assert.assertEquals(FocusRingInnerTestColor, pixelMap[innerStrokeOffsetPx, centerY])
-    Assert.assertEquals(
-        FocusRingInnerTestColor,
-        pixelMap[pixelMap.width - 1 - innerStrokeOffsetPx, centerY],
-    )
-    Assert.assertEquals(FocusRingInnerTestColor, pixelMap[centerX, innerStrokeOffsetPx])
-    Assert.assertEquals(
-        FocusRingInnerTestColor,
-        pixelMap[centerX, pixelMap.height - 1 - innerStrokeOffsetPx],
-    )
+    pixelMap.assertPixelColor(FocusRingOuterTestColor, leftEdgePx + outerStrokeOffsetPx, centerY)
+    pixelMap.assertPixelColor(FocusRingOuterTestColor, rightEdgePx - outerStrokeOffsetPx, centerY)
+    pixelMap.assertPixelColor(FocusRingOuterTestColor, centerX, topEdgePx + outerStrokeOffsetPx)
+    pixelMap.assertPixelColor(FocusRingOuterTestColor, centerX, bottomEdgePx - outerStrokeOffsetPx)
+    pixelMap.assertPixelColor(FocusRingInnerTestColor, leftEdgePx + innerStrokeOffsetPx, centerY)
+    pixelMap.assertPixelColor(FocusRingInnerTestColor, rightEdgePx - innerStrokeOffsetPx, centerY)
+    pixelMap.assertPixelColor(FocusRingInnerTestColor, centerX, topEdgePx + innerStrokeOffsetPx)
+    pixelMap.assertPixelColor(FocusRingInnerTestColor, centerX, bottomEdgePx - innerStrokeOffsetPx)
 
-    // Assuming rounded components (as is usually the case in Wear), where (0, 0) lies outside the
-    // component: Walk inward from both the top-left (0, 0) and top-right (width - 1, 0) corners
-    // along the 45° diagonal.
+    // Find the component's tight visual bounding box [minX..maxX, topEdgePx..bottomEdgePx]
+    // (for tapered shapes like EdgeButton, the widest X near the top is wider than leftEdgePx at
+    // centerY). For rounded or curved components (including EdgeButton which hugs the curvature of
+    // the screen), the 4 corners of this bounding box lie outside the component: walk inward from
+    // each of the 4 bounding-box corners along the 45° diagonal.
     // The first pixel along the diagonal whose color differs from the corner pixel is the outer
     // edge where the component's corner begins (for sharp 0.dp corners, such as Slider's inner
     // button corners, the corner pixel itself is already the outer stroke color).
@@ -417,69 +430,81 @@ private fun ComposeContentTestRule.assertFocusRingDrawn(node: SemanticsNodeInter
     // 2. Both the outer and inner focus ring strokes are drawn to their full thickness around the
     //    corner rather than being clipped thin or cut off (which would happen if the focus ring
     //    were rectangular or had a smaller corner radius than the component).
-    val diagonalLimit = minOf(centerX, centerY)
-    val leftOutsideColor = pixelMap[0, 0]
-    val leftCornerStartPx =
-        if (leftOutsideColor == FocusRingOuterTestColor) {
-            0
-        } else {
-            (0..diagonalLimit).first { pixelMap[it, it] != leftOutsideColor }
+    val minX =
+        (0..centerX).first { x ->
+            (topEdgePx..bottomEdgePx).any { y -> pixelMap[x, y] != leftEdgeOutsideColor }
         }
-    val rightOutsideColor = pixelMap[pixelMap.width - 1, 0]
-    val rightCornerStartPx =
-        if (rightOutsideColor == FocusRingOuterTestColor) {
+    val maxX =
+        (pixelMap.width - 1 downTo centerX).first { x ->
+            (topEdgePx..bottomEdgePx).any { y -> pixelMap[x, y] != rightEdgeOutsideColor }
+        }
+    val diagonalLimit = minOf(centerX - minX, bottomEdgePx - topEdgePx)
+    fun findCornerStartOffset(startX: Int, startY: Int, stepX: Int, stepY: Int): Int {
+        val outsideColor = pixelMap[startX, startY]
+        return if (outsideColor.isCloseTo(FocusRingOuterTestColor)) {
             0
         } else {
             (0..diagonalLimit).first {
-                pixelMap[pixelMap.width - 1 - it, it] != rightOutsideColor
+                !pixelMap[startX + it * stepX, startY + it * stepY].isCloseTo(outsideColor)
             }
         }
+    }
+    val topLeftCornerStartPx = findCornerStartOffset(minX, topEdgePx, 1, 1)
+    val bottomLeftCornerStartPx = findCornerStartOffset(minX, bottomEdgePx, 1, -1)
+    val topRightCornerStartPx = findCornerStartOffset(maxX, topEdgePx, -1, 1)
+    val bottomRightCornerStartPx = findCornerStartOffset(maxX, bottomEdgePx, -1, -1)
     // Project the radial stroke sample offsets onto the 45° diagonal (dx = dy = r / sqrt(2)).
     val cornerOuterOffsetPx =
         with(density) { (FocusRingOuterStrokeSampleOffset / sqrt(2f)).roundToPx() }
     val cornerInnerOffsetPx =
         with(density) { (FocusRingInnerStrokeSampleOffset / sqrt(2f)).roundToPx() }
-    val leftCornerOuterSamplePx = leftCornerStartPx + cornerOuterOffsetPx
-    val leftCornerInnerSamplePx = leftCornerStartPx + cornerInnerOffsetPx
-    val rightCornerOuterSamplePx = rightCornerStartPx + cornerOuterOffsetPx
-    val rightCornerInnerSamplePx = rightCornerStartPx + cornerInnerOffsetPx
-    Assert.assertEquals(
+    val topLeftOuterOffset = topLeftCornerStartPx + cornerOuterOffsetPx
+    val topLeftInnerOffset = topLeftCornerStartPx + cornerInnerOffsetPx
+    val bottomLeftOuterOffset = bottomLeftCornerStartPx + cornerOuterOffsetPx
+    val bottomLeftInnerOffset = bottomLeftCornerStartPx + cornerInnerOffsetPx
+    val topRightOuterOffset = topRightCornerStartPx + cornerOuterOffsetPx
+    val topRightInnerOffset = topRightCornerStartPx + cornerInnerOffsetPx
+    val bottomRightOuterOffset = bottomRightCornerStartPx + cornerOuterOffsetPx
+    val bottomRightInnerOffset = bottomRightCornerStartPx + cornerInnerOffsetPx
+    pixelMap.assertPixelColor(
         FocusRingOuterTestColor,
-        pixelMap[leftCornerOuterSamplePx, leftCornerOuterSamplePx],
+        minX + topLeftOuterOffset,
+        topEdgePx + topLeftOuterOffset,
     )
-    Assert.assertEquals(
+    pixelMap.assertPixelColor(
         FocusRingOuterTestColor,
-        pixelMap[leftCornerOuterSamplePx, pixelMap.height - 1 - leftCornerOuterSamplePx],
+        minX + bottomLeftOuterOffset,
+        bottomEdgePx - bottomLeftOuterOffset,
     )
-    Assert.assertEquals(
+    pixelMap.assertPixelColor(
         FocusRingOuterTestColor,
-        pixelMap[pixelMap.width - 1 - rightCornerOuterSamplePx, rightCornerOuterSamplePx],
+        maxX - topRightOuterOffset,
+        topEdgePx + topRightOuterOffset,
     )
-    Assert.assertEquals(
+    pixelMap.assertPixelColor(
         FocusRingOuterTestColor,
-        pixelMap[
-            pixelMap.width - 1 - rightCornerOuterSamplePx,
-            pixelMap.height - 1 - rightCornerOuterSamplePx,
-        ],
+        maxX - bottomRightOuterOffset,
+        bottomEdgePx - bottomRightOuterOffset,
     )
-    Assert.assertEquals(
+    pixelMap.assertPixelColor(
         FocusRingInnerTestColor,
-        pixelMap[leftCornerInnerSamplePx, leftCornerInnerSamplePx],
+        minX + topLeftInnerOffset,
+        topEdgePx + topLeftInnerOffset,
     )
-    Assert.assertEquals(
+    pixelMap.assertPixelColor(
         FocusRingInnerTestColor,
-        pixelMap[leftCornerInnerSamplePx, pixelMap.height - 1 - leftCornerInnerSamplePx],
+        minX + bottomLeftInnerOffset,
+        bottomEdgePx - bottomLeftInnerOffset,
     )
-    Assert.assertEquals(
+    pixelMap.assertPixelColor(
         FocusRingInnerTestColor,
-        pixelMap[pixelMap.width - 1 - rightCornerInnerSamplePx, rightCornerInnerSamplePx],
+        maxX - topRightInnerOffset,
+        topEdgePx + topRightInnerOffset,
     )
-    Assert.assertEquals(
+    pixelMap.assertPixelColor(
         FocusRingInnerTestColor,
-        pixelMap[
-            pixelMap.width - 1 - rightCornerInnerSamplePx,
-            pixelMap.height - 1 - rightCornerInnerSamplePx,
-        ],
+        maxX - bottomRightInnerOffset,
+        bottomEdgePx - bottomRightInnerOffset,
     )
 }
 
