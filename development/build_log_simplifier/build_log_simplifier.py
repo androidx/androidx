@@ -29,6 +29,9 @@ parser.add_argument("--validate", action="store_true", help="Validate that no un
 parser.add_argument("--update", action="store_true", help="Update our list of recognized messages to include all messages from the given log")
 parser.add_argument("--gc", action="store_true", help="When generating a new exemptions file, exclude any exemptions that were not found in the given log. Only relevant with --update or --validate")
 parser.add_argument("log_path", help="Filepath of log(s) to process", nargs="+")
+parser.add_argument("--override_exemptions_path", help="Filepath of exemptions to use instead of `messages.ignore`")
+parser.add_argument("--override_exemptions_flake_path", help="Filepath of exemptions to use instead of `messages-flakes.ignore`")
+parser.add_argument("--exclude_failure_instructions", action="store_true", help="When specified, instructions to reproduce and suppress failures are not printed.")
 
 # a regexes_matcher can quickly identify which of a set of regexes matches a given text
 class regexes_matcher(object):
@@ -492,6 +495,8 @@ def remove_unmatched_exemptions(messages, config_lines):
 
 # opens a file and reads the lines in it
 def readlines(path):
+    if not path:
+        return []
     infile = open(path)
     lines = infile.readlines()
     infile.close()
@@ -515,8 +520,15 @@ def main():
         lines = normalize_paths(lines)
         all_lines += lines
     # load configuration
-    flake_exemption_regexes = readlines(get_flake_exemptions_path())
-    deterministic_exemption_regexes = readlines(get_deterministic_exemptions_path())
+    if arguments.override_exemptions_path:
+        deterministic_exemptions_path = arguments.override_exemptions_path
+        flake_exemptions_path = arguments.override_exemptions_flake_path
+    else:
+        deterministic_exemptions_path = get_deterministic_exemptions_path()
+        flake_exemptions_path = get_flake_exemptions_path()
+
+    flake_exemption_regexes = readlines(flake_exemptions_path)
+    deterministic_exemption_regexes = readlines(deterministic_exemptions_path)
     exemption_regexes = flake_exemption_regexes + deterministic_exemption_regexes
     # load configuration
     # remove lines we're not interested in
@@ -533,7 +545,7 @@ def main():
     # process results
     if update:
         if arguments.gc or len(interesting_lines) != 0:
-            update_path = get_deterministic_exemptions_path()
+            update_path = deterministic_exemptions_path
             # filter out any inconsistently observed messages so we don't try to exempt them twice
             all_lines = remove_by_regexes(all_lines, flake_exemption_regexes, validate)
             # update the deterministic exemptions file based on the result
@@ -549,15 +561,16 @@ def main():
             print("The new output:")
             print("  " + "  ".join(interesting_lines))
             print("")
-            print("To reproduce this failure:")
-            print("  Try $ ./gradlew -Pandroidx.validateNoUnrecognizedMessages --rerun-tasks " + " ".join(extract_task_names(interesting_lines)))
-            print("")
-            print("Instructions:")
-            print("  If you can fix these messages, do so.")
-            print("  If you cannot fix these messages, you may suppress them.")
-            print("    To automatically suppress new output from build server builds, run development/build_log_simplifier/update.sh")
-            print("  See also https://android.googlesource.com/platform/frameworks/support/+/androidx-main/development/build_log_simplifier/VALIDATION_FAILURE.md")
-            print("")
+            if not arguments.exclude_failure_instructions:
+                print("To reproduce this failure:")
+                print("  Try $ ./gradlew -Pandroidx.validateNoUnrecognizedMessages --rerun-tasks " + " ".join(extract_task_names(interesting_lines)))
+                print("")
+                print("Instructions:")
+                print("  If you can fix these messages, do so.")
+                print("  If you cannot fix these messages, you may suppress them.")
+                print("    To automatically suppress new output from build server builds, run development/build_log_simplifier/update.sh")
+                print("  See also https://android.googlesource.com/platform/frameworks/support/+/androidx-main/development/build_log_simplifier/VALIDATION_FAILURE.md")
+                print("")
             new_exemptions_path = log_paths[0] + ".ignore"
             # filter out any inconsistently observed messages so we don't try to exempt them twice
             all_lines = remove_by_regexes(all_lines, flake_exemption_regexes, validate)
@@ -566,7 +579,7 @@ def main():
             writelines(new_exemptions_path, suggested)
             print("Files:")
             print("  Full Log                   : " + ",".join(log_paths))
-            print("  Baseline                   : " + get_deterministic_exemptions_path())
+            print("  Baseline                   : " + deterministic_exemptions_path)
             print("  Autogenerated new baseline : " + new_exemptions_path)
             exit(1)
     else:
