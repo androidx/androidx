@@ -126,7 +126,9 @@ object DelegatingTestRegistrar {
     private fun K2JVMCompilerArguments.addDelegatingTestRegistrars() {
         pluginClasspaths =
             buildList {
-                addAll(pluginClasspaths)
+                // Keep the null check for binary compatibility with Kotlin < 2.4, where
+                // CommonCompilerArguments.pluginClasspaths defaults to null.
+                @Suppress("UNNECESSARY_SAFE_CALL") pluginClasspaths?.let { addAll(it) }
                 add(k2ResourcePathForSelfClassLoader)
             }
                 .toTypedArray()
