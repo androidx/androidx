@@ -176,9 +176,7 @@ internal class PaintTracker {
                 targetFontVariationSettings
             } else {
                 targetFontVariationSettings
-                    ?: RemoteFontVariation.Settings(
-                        RemoteFontVariation.Setting("wght", targetWeight.rf)
-                    )
+                    ?: RemoteFontVariation.Settings(RemoteFontVariation.weight(targetWeight.rf))
             }
         updateIfChanged(settingsToUse, fontVariationSettings) {
             fontVariationSettings = settingsToUse

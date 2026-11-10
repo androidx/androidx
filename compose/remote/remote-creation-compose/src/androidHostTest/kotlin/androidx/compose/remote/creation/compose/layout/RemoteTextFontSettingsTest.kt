@@ -24,7 +24,9 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.managers.CoreText
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTextAlign
 import androidx.compose.remote.creation.compose.text.RemoteTextOverflow
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
@@ -137,8 +139,10 @@ class RemoteTextFontSettingsTest {
             RemoteText(
                 "Text".rs,
                 fontVariationSettings =
-                    FontVariation.Settings(FontVariation.weight(300), FontVariation.width(70f))
-                        .toRemoteFontVariationSettings(),
+                    RemoteFontVariation.Settings(
+                        RemoteFontVariation.weight(300.rf),
+                        RemoteFontVariation.width(70f.rf),
+                    ),
             )
         }
 
@@ -153,12 +157,12 @@ class RemoteTextFontSettingsTest {
                 style =
                     RemoteTextStyle(
                         fontVariationSettings =
-                            FontVariation.Settings(FontVariation.Setting("ROND", 100f))
-                                .toRemoteFontVariationSettings()
+                            RemoteFontVariation.Settings(
+                                RemoteFontVariation.Setting("ROND", 100f.rf)
+                            )
                     ),
                 fontVariationSettings =
-                    FontVariation.Settings(FontVariation.weight(500))
-                        .toRemoteFontVariationSettings(),
+                    RemoteFontVariation.Settings(RemoteFontVariation.weight(500.rf)),
             )
         }
 
@@ -173,11 +177,10 @@ class RemoteTextFontSettingsTest {
                 style =
                     RemoteTextStyle(
                         fontVariationSettings =
-                            FontVariation.Settings(
-                                    FontVariation.width(100f),
-                                    FontVariation.weight(700),
-                                )
-                                .toRemoteFontVariationSettings()
+                            RemoteFontVariation.Settings(
+                                RemoteFontVariation.width(100f.rf),
+                                RemoteFontVariation.weight(700.rf),
+                            )
                     ),
                 fontFeatureSettings = "'wght' 300, tnum",
             )
@@ -192,8 +195,7 @@ class RemoteTextFontSettingsTest {
             RemoteText(
                 "Text".rs,
                 fontVariationSettings =
-                    FontVariation.Settings(FontVariation.Setting("slnt", -0f))
-                        .toRemoteFontVariationSettings(),
+                    RemoteFontVariation.Settings(RemoteFontVariation.slant((-0f).rf)),
             )
         }
 

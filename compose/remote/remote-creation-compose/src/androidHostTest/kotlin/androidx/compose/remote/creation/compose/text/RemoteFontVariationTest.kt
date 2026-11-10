@@ -54,17 +54,20 @@ class RemoteFontVariationTest {
 
     @Test
     fun setting_equalsComparesAxisNameAndValue() {
-        assertThat(Setting("wght", 400f.rf)).isEqualTo(Setting("wght", 400.rf))
-        assertThat(Setting("wght", 400f.rf).hashCode())
-            .isEqualTo(Setting("wght", 400.rf).hashCode())
-        assertThat(Setting("wght", 400f.rf)).isNotEqualTo(Setting("wght", 500f.rf))
-        assertThat(Setting("wght", 400f.rf)).isNotEqualTo(Setting("wdth", 400f.rf))
+        assertThat(RemoteFontVariation.weight(400f.rf))
+            .isEqualTo(RemoteFontVariation.weight(400.rf))
+        assertThat(RemoteFontVariation.weight(400f.rf).hashCode())
+            .isEqualTo(RemoteFontVariation.weight(400.rf).hashCode())
+        assertThat(RemoteFontVariation.weight(400f.rf))
+            .isNotEqualTo(RemoteFontVariation.weight(500f.rf))
+        assertThat(RemoteFontVariation.weight(400f.rf))
+            .isNotEqualTo(RemoteFontVariation.width(400f.rf))
     }
 
     @Test
     fun setting_negativeZeroEqualsZeroAndIsKept() {
-        val negativeZero = Setting("slnt", (-0f).rf)
-        val zero = Setting("slnt", 0f.rf)
+        val negativeZero = RemoteFontVariation.slant((-0f).rf)
+        val zero = RemoteFontVariation.slant(0f.rf)
 
         assertThat(negativeZero).isEqualTo(zero)
         assertThat(negativeZero.hashCode()).isEqualTo(zero.hashCode())
@@ -73,20 +76,56 @@ class RemoteFontVariationTest {
 
     @Test
     fun setting_equalsComparesDynamicValuesStructurally() {
-        val weight = Setting("wght", RemoteFloat.createNamedRemoteFloat("weight", 400f))
-        val sameWeight = Setting("wght", RemoteFloat.createNamedRemoteFloat("weight", 400f))
+        val weight = RemoteFontVariation.weight(RemoteFloat.createNamedRemoteFloat("weight", 400f))
+        val sameWeight =
+            RemoteFontVariation.weight(RemoteFloat.createNamedRemoteFloat("weight", 400f))
 
         assertThat(weight).isEqualTo(sameWeight)
         assertThat(weight.hashCode()).isEqualTo(sameWeight.hashCode())
         assertThat(weight)
-            .isNotEqualTo(Setting("wght", RemoteFloat.createNamedRemoteFloat("other", 400f)))
-        assertThat(weight).isNotEqualTo(Setting("wght", 400f.rf))
+            .isNotEqualTo(
+                RemoteFontVariation.weight(RemoteFloat.createNamedRemoteFloat("other", 400f))
+            )
+        assertThat(weight).isNotEqualTo(RemoteFontVariation.weight(400f.rf))
+    }
+
+    @Test
+    fun weight_createsWghtSetting() {
+        val constantWeight = RemoteFontVariation.weight(500.rf)
+        assertThat(constantWeight).isEqualTo(Setting("wght", 500f.rf))
+
+        val namedWeight = RemoteFloat.createNamedRemoteFloat("weight", 600f)
+        val weightSetting = RemoteFontVariation.weight(namedWeight)
+        assertThat(weightSetting.axisName).isEqualTo("wght")
+        assertThat(weightSetting.value).isSameInstanceAs(namedWeight)
+    }
+
+    @Test
+    fun width_createsWdthSetting() {
+        val constantWidth = RemoteFontVariation.width(80f.rf)
+        assertThat(constantWidth).isEqualTo(Setting("wdth", 80f.rf))
+
+        val namedWidth = RemoteFloat.createNamedRemoteFloat("width", 110f)
+        val widthSetting = RemoteFontVariation.width(namedWidth)
+        assertThat(widthSetting.axisName).isEqualTo("wdth")
+        assertThat(widthSetting.value).isSameInstanceAs(namedWidth)
+    }
+
+    @Test
+    fun slant_createsSlntSetting() {
+        val constantSlant = RemoteFontVariation.slant((-10f).rf)
+        assertThat(constantSlant).isEqualTo(Setting("slnt", (-10f).rf))
+
+        val namedSlant = RemoteFloat.createNamedRemoteFloat("slant", -8f)
+        val slantSetting = RemoteFontVariation.slant(namedSlant)
+        assertThat(slantSetting.axisName).isEqualTo("slnt")
+        assertThat(slantSetting.value).isSameInstanceAs(namedSlant)
     }
 
     @Test
     fun settings_keepsOrder() {
-        val weight = Setting("wght", 700f.rf)
-        val width = Setting("wdth", 80f.rf)
+        val weight = RemoteFontVariation.weight(700.rf)
+        val width = RemoteFontVariation.width(80f.rf)
 
         assertThat(Settings(weight, width).settings).containsExactly(weight, width).inOrder()
         assertThat(Settings(listOf(width, weight)).settings)
@@ -98,20 +137,28 @@ class RemoteFontVariationTest {
     @Test
     fun settings_requiresUniqueAxisNames() {
         assertFailsWith<IllegalArgumentException> {
-            Settings(Setting("wght", 400f.rf), Setting("wdth", 80f.rf), Setting("wght", 700f.rf))
+            Settings(
+                RemoteFontVariation.weight(400.rf),
+                RemoteFontVariation.width(80f.rf),
+                RemoteFontVariation.weight(700.rf),
+            )
         }
     }
 
     @Test
     fun settings_equalsComparesSettingsInOrder() {
-        val settings = Settings(Setting("wght", 700f.rf), Setting("wdth", 80f.rf))
-        val sameSettings = Settings(Setting("wght", 700f.rf), Setting("wdth", 80f.rf))
+        val settings =
+            Settings(RemoteFontVariation.weight(700.rf), RemoteFontVariation.width(80f.rf))
+        val sameSettings =
+            Settings(RemoteFontVariation.weight(700.rf), RemoteFontVariation.width(80f.rf))
 
         assertThat(settings).isEqualTo(sameSettings)
         assertThat(settings.hashCode()).isEqualTo(sameSettings.hashCode())
         assertThat(settings)
-            .isNotEqualTo(Settings(Setting("wdth", 80f.rf), Setting("wght", 700f.rf)))
-        assertThat(settings).isNotEqualTo(Settings(Setting("wght", 700f.rf)))
+            .isNotEqualTo(
+                Settings(RemoteFontVariation.width(80f.rf), RemoteFontVariation.weight(700.rf))
+            )
+        assertThat(settings).isNotEqualTo(Settings(RemoteFontVariation.weight(700.rf)))
         assertThat(settings.toString())
             .isEqualTo(
                 "RemoteFontVariation.Settings(settings=[" +
@@ -126,6 +173,7 @@ class RemoteFontVariationTest {
             FontVariation.Settings(
                     FontVariation.weight(300),
                     FontVariation.width(70f),
+                    FontVariation.slant(-10f),
                     FontVariation.Setting("ROND", 100f),
                 )
                 .toRemoteFontVariationSettings()
@@ -133,8 +181,9 @@ class RemoteFontVariationTest {
         assertThat(settings)
             .isEqualTo(
                 Settings(
-                    Setting("wght", 300f.rf),
-                    Setting("wdth", 70f.rf),
+                    RemoteFontVariation.weight(300.rf),
+                    RemoteFontVariation.width(70f.rf),
+                    RemoteFontVariation.slant((-10f).rf),
                     Setting("ROND", 100f.rf),
                 )
             )
@@ -144,11 +193,12 @@ class RemoteFontVariationTest {
     @Test
     fun toRemoteFontVariationSettings_keepsNegativeZero() {
         val setting =
-            FontVariation.Settings(FontVariation.Setting("slnt", -0f))
+            FontVariation.Settings(FontVariation.slant(-0f))
                 .toRemoteFontVariationSettings()
                 .settings
                 .single()
 
+        assertThat(setting).isEqualTo(RemoteFontVariation.slant((-0f).rf))
         assertThat(setting.value.constantValue.toRawBits()).isEqualTo((-0f).toRawBits())
     }
 

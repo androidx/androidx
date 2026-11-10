@@ -117,7 +117,7 @@ class RemoteBasicComponentsTest {
                 RemoteBasicText(
                     text = "Styled Text".rs,
                     fontVariationSettings =
-                        RemoteFontVariation.Settings(RemoteFontVariation.Setting("wght", 700f.rf)),
+                        RemoteFontVariation.Settings(RemoteFontVariation.weight(700.rf)),
                 )
             }
 

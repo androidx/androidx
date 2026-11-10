@@ -39,7 +39,6 @@ import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
-import androidx.compose.remote.creation.compose.text.toRemoteFontVariationSettings
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.R
@@ -49,7 +48,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.text.font.FontVariation
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -105,11 +103,10 @@ class RcPlayerFontSettingsScreenshotTest {
                         fontSize = 18.rsp,
                         fontFamily = robotoFlex,
                         fontVariationSettings =
-                            FontVariation.Settings(
-                                    FontVariation.weight(100),
-                                    FontVariation.width(25f),
-                                )
-                                .toRemoteFontVariationSettings(),
+                            RemoteFontVariation.Settings(
+                                RemoteFontVariation.weight(100.rf),
+                                RemoteFontVariation.width(25f.rf),
+                            ),
                     )
                 }
                 RemoteBox(
@@ -121,11 +118,10 @@ class RcPlayerFontSettingsScreenshotTest {
                         fontSize = 18.rsp,
                         fontFamily = robotoFlex,
                         fontVariationSettings =
-                            FontVariation.Settings(
-                                    FontVariation.weight(400),
-                                    FontVariation.width(100f),
-                                )
-                                .toRemoteFontVariationSettings(),
+                            RemoteFontVariation.Settings(
+                                RemoteFontVariation.weight(400.rf),
+                                RemoteFontVariation.width(100f.rf),
+                            ),
                     )
                 }
                 RemoteBox(
@@ -137,12 +133,11 @@ class RcPlayerFontSettingsScreenshotTest {
                         fontSize = 18.rsp,
                         fontFamily = robotoFlex,
                         fontVariationSettings =
-                            FontVariation.Settings(
-                                    FontVariation.weight(900),
-                                    FontVariation.width(151f),
-                                    FontVariation.slant(-10f),
-                                )
-                                .toRemoteFontVariationSettings(),
+                            RemoteFontVariation.Settings(
+                                RemoteFontVariation.weight(900.rf),
+                                RemoteFontVariation.width(151f.rf),
+                                RemoteFontVariation.slant((-10f).rf),
+                            ),
                     )
                 }
             }
@@ -199,8 +194,8 @@ class RcPlayerFontSettingsScreenshotTest {
                     textSize = textSizePx
                     fontVariationSettings =
                         RemoteFontVariation.Settings(
-                            RemoteFontVariation.Setting("wght", 100f.rf),
-                            RemoteFontVariation.Setting("wdth", 25f.rf),
+                            RemoteFontVariation.weight(100.rf),
+                            RemoteFontVariation.width(25f.rf),
                         )
                 }
                 val paintRegular = RemotePaint {
@@ -209,8 +204,8 @@ class RcPlayerFontSettingsScreenshotTest {
                     textSize = textSizePx
                     fontVariationSettings =
                         RemoteFontVariation.Settings(
-                            RemoteFontVariation.Setting("wght", 400f.rf),
-                            RemoteFontVariation.Setting("wdth", 100f.rf),
+                            RemoteFontVariation.weight(400.rf),
+                            RemoteFontVariation.width(100f.rf),
                         )
                 }
                 val paintBlackExpandedSlanted = RemotePaint {
@@ -219,9 +214,9 @@ class RcPlayerFontSettingsScreenshotTest {
                     textSize = textSizePx
                     fontVariationSettings =
                         RemoteFontVariation.Settings(
-                            RemoteFontVariation.Setting("wght", 900f.rf),
-                            RemoteFontVariation.Setting("wdth", 151f.rf),
-                            RemoteFontVariation.Setting("slnt", (-10f).rf),
+                            RemoteFontVariation.weight(900.rf),
+                            RemoteFontVariation.width(151f.rf),
+                            RemoteFontVariation.slant((-10f).rf),
                         )
                 }
 

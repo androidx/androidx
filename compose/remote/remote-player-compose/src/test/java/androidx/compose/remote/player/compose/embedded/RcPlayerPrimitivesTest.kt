@@ -116,7 +116,6 @@ import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTextDecoration
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
-import androidx.compose.remote.creation.compose.text.toRemoteFontVariationSettings
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
@@ -132,7 +131,6 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.compose.remote.material3.RemoteButton
@@ -209,8 +207,7 @@ class RcPlayerPrimitivesTest {
         rule.setRemoteContent {
             val style = RemoteTextStyle(textDecoration = RemoteTextDecoration.Underline)
             val fontVariationSettings =
-                FontVariation.Settings(FontVariation.Setting("wdth", 100f))
-                    .toRemoteFontVariationSettings()
+                RemoteFontVariation.Settings(RemoteFontVariation.width(100f.rf))
             RemoteText(
                 text = "Decorated Var Text".rs,
                 style = style,
@@ -1921,9 +1918,7 @@ class RcPlayerPrimitivesTest {
                 val paint =
                     RemotePaint().apply {
                         fontVariationSettings =
-                            RemoteFontVariation.Settings(
-                                RemoteFontVariation.Setting("wdth", 100f.rf)
-                            )
+                            RemoteFontVariation.Settings(RemoteFontVariation.width(100f.rf))
                     }
                 drawText("Var Text".rs, 0f.rf, 0f.rf, paint)
             }
