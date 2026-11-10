@@ -29,9 +29,6 @@ import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso
-import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.filters.LargeTest
 import androidx.test.rule.GrantPermissionRule
 import androidx.testutils.withActivity
@@ -109,7 +106,7 @@ class BasicUITest(private val implName: String) {
 
             // Click to disable the imageAnalysis use case.
             if (scenario.withActivity { imageAnalysis != null }) {
-                Espresso.onView(withId(R.id.AnalysisToggle)).perform(ViewActions.click())
+                scenario.clickView(R.id.AnalysisToggle)
 
                 // Wait for Preview start to ensure the UseCase is bound to the camera.
                 scenario.waitForViewfinderIdle()
@@ -117,7 +114,7 @@ class BasicUITest(private val implName: String) {
 
             if (scenario.withActivity { imageAnalysis == null }) {
                 // Act. ImageAnalysis is null(disable), do click to enable use imageAnalysis case.
-                Espresso.onView(withId(R.id.AnalysisToggle)).perform(ViewActions.click())
+                scenario.clickView(R.id.AnalysisToggle)
 
                 // Assert. Verify the ImageAnalysis is processing output.
                 scenario.waitForImageAnalysisIdle()
@@ -133,7 +130,7 @@ class BasicUITest(private val implName: String) {
             scenario.waitForViewfinderIdle()
             // Click to disable the preview use case.
             if (scenario.withActivity { preview != null }) {
-                Espresso.onView(withId(R.id.PreviewToggle)).perform(ViewActions.click())
+                scenario.clickView(R.id.PreviewToggle)
 
                 // Try to take a Picture to ensure the UseCase is bound to the camera.
                 scenario.takePictureAndWaitForImageSavedIdle()
@@ -141,7 +138,7 @@ class BasicUITest(private val implName: String) {
 
             if (scenario.withActivity { preview == null }) {
                 // Act. Preview is null(disable), do click to enable preview use case.
-                Espresso.onView(withId(R.id.PreviewToggle)).perform(ViewActions.click())
+                scenario.clickView(R.id.PreviewToggle)
 
                 // Assert. Verify the Preview is processing output.
                 scenario.waitForViewfinderIdle()

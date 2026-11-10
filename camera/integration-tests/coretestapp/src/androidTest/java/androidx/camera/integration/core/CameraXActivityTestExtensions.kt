@@ -19,6 +19,7 @@ package androidx.camera.integration.core
 import android.view.SurfaceView
 import android.view.TextureView
 import android.view.View
+import android.widget.Checkable
 import androidx.camera.integration.core.util.StressTestUtil.VIDEO_CAPTURE_AUTO_STOP_LENGTH_MS
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
@@ -176,7 +177,7 @@ internal fun ActivityScenario<CameraXActivity>.clickView(viewId: Int) {
     onActivity { activity ->
         val view = activity.findViewById<View>(viewId)
         assertWithMessage("View $viewId not found").that(view).isNotNull()
-        if (!view!!.performClick()) {
+        if (!view!!.performClick() && view !is Checkable) {
             throw RuntimeException("Failed to click view $viewId")
         }
     }

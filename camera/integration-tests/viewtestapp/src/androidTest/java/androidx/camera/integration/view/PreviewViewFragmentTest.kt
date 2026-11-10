@@ -18,6 +18,7 @@ package androidx.camera.integration.view
 import android.Manifest
 import android.content.Context
 import android.view.View
+import android.widget.Checkable
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
@@ -31,9 +32,6 @@ import androidx.fragment.app.FragmentFactory
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso
-import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
@@ -130,7 +128,7 @@ class PreviewViewFragmentTest(
         assertPreviewUpdating(scenario!!)
 
         // Toggle camera
-        Espresso.onView(ViewMatchers.withId(R.id.toggle_camera)).perform(ViewActions.click())
+        clickView(R.id.toggle_camera)
 
         // Stop the fragment
         scenario!!.moveToState(Lifecycle.State.CREATED)
@@ -147,10 +145,10 @@ class PreviewViewFragmentTest(
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
 
         // Toggle camera. This is to toggle the camera from back to front.
-        Espresso.onView(ViewMatchers.withId(R.id.toggle_camera)).perform(ViewActions.click())
+        clickView(R.id.toggle_camera)
 
         // Toggle camera twice. This is to toggle the camera from front to back.
-        Espresso.onView(ViewMatchers.withId(R.id.toggle_camera)).perform(ViewActions.click())
+        clickView(R.id.toggle_camera)
 
         // Stop the fragment
         scenario!!.moveToState(Lifecycle.State.CREATED)
@@ -165,7 +163,7 @@ class PreviewViewFragmentTest(
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
         assertPreviewUpdating(scenario!!)
         for (i in 0..10) {
-            Espresso.onView(ViewMatchers.withId(R.id.toggle_camera)).perform(ViewActions.click())
+            clickView(R.id.toggle_camera)
         }
         assertPreviewUpdating(scenario!!)
     }
@@ -175,7 +173,7 @@ class PreviewViewFragmentTest(
         assertPreviewUpdating(scenario!!)
 
         // Toggle visibility to unbind preview
-        Espresso.onView(ViewMatchers.withId(R.id.toggle_visibility)).perform(ViewActions.click())
+        clickView(R.id.toggle_visibility)
         assertPreviewNotUpdating(scenario!!)
     }
 
@@ -184,9 +182,9 @@ class PreviewViewFragmentTest(
         assertPreviewUpdating(scenario!!)
 
         // Toggle visibility to unbind preview
-        Espresso.onView(ViewMatchers.withId(R.id.toggle_visibility)).perform(ViewActions.click())
+        clickView(R.id.toggle_visibility)
         // Toggle visibility to bind new preview
-        Espresso.onView(ViewMatchers.withId(R.id.toggle_visibility)).perform(ViewActions.click())
+        clickView(R.id.toggle_visibility)
         assertPreviewUpdating(scenario!!)
     }
 
@@ -268,6 +266,17 @@ class PreviewViewFragmentTest(
             )
         }
         return previewView.get()
+    }
+
+    private fun clickView(viewId: Int) {
+        scenario!!.onFragment { fragment ->
+            val view = fragment.requireActivity().findViewById<View>(viewId)
+            Truth.assertWithMessage("View $viewId not found").that(view).isNotNull()
+            if (!view!!.performClick() && view !is Checkable) {
+                throw RuntimeException("Failed to click view $viewId")
+            }
+        }
+        instrumentation.waitForIdleSync()
     }
 
     companion object {
