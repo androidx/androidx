@@ -789,15 +789,15 @@ package androidx.xr.arcore {
   }
 
   @SuppressCompatibility @androidx.xr.runtime.ExperimentalSpatialAnnotationsApi public static final class SpatialAnnotationTrackingOptions.Builder {
-    ctor public SpatialAnnotationTrackingOptions.Builder(java.nio.ByteBuffer imageBuffer, androidx.xr.runtime.math.IntSize2d imageSize, long timestampNanos);
+    ctor public SpatialAnnotationTrackingOptions.Builder(java.nio.ByteBuffer imageBuffer, androidx.xr.runtime.math.IntSize2d imageSize, long timestampNanos, androidx.xr.arcore.SpatialAnnotationQuadAlignment alignment);
     method public androidx.xr.arcore.SpatialAnnotationTrackingOptions build();
-    method public androidx.xr.arcore.SpatialAnnotationTrackingOptions.Builder setAlignment(androidx.xr.arcore.SpatialAnnotationQuadAlignment alignment);
+    method @Deprecated public androidx.xr.arcore.SpatialAnnotationTrackingOptions.Builder setAlignment(androidx.xr.arcore.SpatialAnnotationQuadAlignment alignment);
     method public androidx.xr.arcore.SpatialAnnotationTrackingOptions.Builder setFormat(androidx.xr.arcore.SpatialAnnotationImageFormat format);
-    method public androidx.xr.arcore.SpatialAnnotationTrackingOptions.Builder setImageBuffer(java.nio.ByteBuffer imageBuffer);
-    method public androidx.xr.arcore.SpatialAnnotationTrackingOptions.Builder setImageSize(androidx.xr.runtime.math.IntSize2d imageSize);
+    method @Deprecated public androidx.xr.arcore.SpatialAnnotationTrackingOptions.Builder setImageBuffer(java.nio.ByteBuffer imageBuffer);
+    method @Deprecated public androidx.xr.arcore.SpatialAnnotationTrackingOptions.Builder setImageSize(androidx.xr.runtime.math.IntSize2d imageSize);
     method public androidx.xr.arcore.SpatialAnnotationTrackingOptions.Builder setQuads(java.util.Map<androidx.xr.arcore.SpatialAnnotationId,androidx.xr.runtime.math.Quad> quads);
     method public androidx.xr.arcore.SpatialAnnotationTrackingOptions.Builder setRowStride(int rowStride);
-    method public androidx.xr.arcore.SpatialAnnotationTrackingOptions.Builder setTimestampNanos(long timestampNanos);
+    method @Deprecated public androidx.xr.arcore.SpatialAnnotationTrackingOptions.Builder setTimestampNanos(long timestampNanos);
   }
 
   @Deprecated @SuppressCompatibility @androidx.xr.arcore.ExperimentalGesturesApi public final class Tilt {

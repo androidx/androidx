@@ -367,9 +367,9 @@ class HelloArSpatialAnnotationActivity : ComponentActivity() {
                             snapshot.buffer,
                             IntSize2d(snapshot.width, snapshot.height),
                             snapshot.timestampNs,
+                            config.alignment,
                         )
                         .setFormat(SpatialAnnotationImageFormat.GRAYSCALE)
-                        .setAlignment(config.alignment)
                         .setQuads(mapOf(SpatialAnnotationId.fromString("target-1") to quad))
                         .build()
 
