@@ -16,13 +16,11 @@
 
 package androidx.compose.remote.creation.compose.text
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.runtime.Immutable
 import kotlin.jvm.JvmInline
 
 /** How visual text overflow should be handled in Remote Compose. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
 @JvmInline
 public value class RemoteTextOverflow internal constructor(internal val value: Int) {
