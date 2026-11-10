@@ -139,7 +139,8 @@ data class AnnotatedAppFunctionSignature(
             )
         val annotationProperties =
             metadataCreatorHelper.computeAppFunctionAnnotationProperties(
-                accessLevelAnnotation = findAccessLevelAnnotation()
+                accessLevelAnnotation = findAccessLevelAnnotation(),
+                behaviorHintsAnnotation = findBehaviorHintsAnnotation(),
             )
         return CompileTimeAppFunctionMetadata(
             id = getAppFunctionIdentifier(functionDeclaration),
@@ -157,6 +158,7 @@ data class AnnotatedAppFunctionSignature(
             scope = scope,
             accessLevel = annotationProperties.accessLevel,
             isCompatEnforcementEnabled = annotationProperties.isCompatEnforcementEnabled,
+            behaviorHints = annotationProperties.behaviorHints,
         )
     }
 
@@ -229,6 +231,20 @@ data class AnnotatedAppFunctionSignature(
                 appFunctionDeclaration,
             )
         }
+
+        if (
+            appFunctionDeclaration.annotations.findAnnotation(
+                IntrospectionHelper.AppFunctionBehaviorHintsAnnotation.CLASS_NAME
+            ) != null
+        ) {
+            throw ProcessingException(
+                "@${IntrospectionHelper.AppFunctionBehaviorHintsAnnotation.CLASS_NAME.simpleName} " +
+                    "must be applied to the " +
+                    "@${IntrospectionHelper.AppFunctionSignatureAnnotation.CLASS_NAME.simpleName} " +
+                    "interface, not to its function",
+                appFunctionDeclaration,
+            )
+        }
         return this
     }
 
@@ -259,6 +275,12 @@ data class AnnotatedAppFunctionSignature(
     private fun findAccessLevelAnnotation(): KSAnnotation? {
         return classDeclaration.annotations.findAnnotation(
             IntrospectionHelper.AppFunctionAccessLevelAnnotation.CLASS_NAME
+        )
+    }
+
+    private fun findBehaviorHintsAnnotation(): KSAnnotation? {
+        return classDeclaration.annotations.findAnnotation(
+            IntrospectionHelper.AppFunctionBehaviorHintsAnnotation.CLASS_NAME
         )
     }
 }

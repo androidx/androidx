@@ -18,7 +18,9 @@
 
 package androidx.appfunctions.integration.testapp
 
+import android.annotation.SuppressLint
 import androidx.appfunctions.AppFunctionAccessLevel
+import androidx.appfunctions.AppFunctionBehaviorHints
 import androidx.appfunctions.AppFunctionSerializable
 import androidx.appfunctions.AppFunctionSignature
 import androidx.appfunctions.ExperimentalAppFunctionsApi
@@ -131,4 +133,19 @@ fun interface DynamicSelfAccessDisabledCompatSignature {
 )
 fun interface DynamicSystemAccessSignature {
     suspend fun executeSystem(): String
+}
+
+@SuppressLint("RestrictedApiAndroidX")
+@AppFunctionSignature(
+    scope = AppFunctionMetadata.SCOPE_GLOBAL,
+    appFunctionXmlFileName = "dynamic_signature_definitions",
+    isDescribedByKDoc = false,
+)
+@AppFunctionBehaviorHints(
+    isDestructive = true,
+    isIdempotent = true,
+    isOpenWorld = false,
+)
+fun interface DynamicBehaviorHintsSignature {
+    suspend fun executeWithBehaviorHints(): String
 }

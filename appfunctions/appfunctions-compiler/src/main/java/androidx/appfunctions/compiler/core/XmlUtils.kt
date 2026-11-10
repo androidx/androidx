@@ -16,6 +16,7 @@
 
 package androidx.appfunctions.compiler.core
 
+import androidx.appfunctions.compiler.core.metadata.AppFunctionBehaviorHintsMetadataDocument
 import androidx.appfunctions.compiler.core.metadata.AppFunctionComponentsMetadataDocument
 import androidx.appfunctions.compiler.core.metadata.AppFunctionDataTypeMetadataDocument
 import androidx.appfunctions.compiler.core.metadata.AppFunctionDeprecationMetadataDocument
@@ -79,6 +80,10 @@ internal fun AppFunctionMetadataDocument.toXmlElement(doc: Document, elementName
                     isCompatEnforcementEnabled.toString(),
                 )
             )
+        }
+
+        if (behaviorHints != null) {
+            appendChild(behaviorHints.toXmlElement(doc, "behaviorHints"))
         }
     }
 
@@ -199,5 +204,18 @@ private fun AppFunctionDeprecationMetadataDocument.toXmlElement(
     return doc.createElement(elementName).apply {
         appendChild(doc.createElementWithTextNode("id", id))
         appendChild(doc.createElementWithTextNode("message", message))
+    }
+}
+
+private fun AppFunctionBehaviorHintsMetadataDocument.toXmlElement(
+    doc: Document,
+    elementName: String,
+): Element {
+    return doc.createElement(elementName).apply {
+        appendChild(doc.createElementWithTextNode("id", id))
+        appendChild(doc.createElementWithTextNode("isReadOnly", isReadOnly.toString()))
+        appendChild(doc.createElementWithTextNode("isDestructive", isDestructive.toString()))
+        appendChild(doc.createElementWithTextNode("isIdempotent", isIdempotent.toString()))
+        appendChild(doc.createElementWithTextNode("isOpenWorld", isOpenWorld.toString()))
     }
 }

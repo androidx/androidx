@@ -64,6 +64,14 @@ object IntrospectionHelper {
         const val PROPERTY_IS_COMPAT_ENFORCEMENT_ENABLED = "isCompatEnforcementEnabled"
     }
 
+    object AppFunctionBehaviorHintsAnnotation {
+        val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionBehaviorHints")
+        const val PROPERTY_IS_READ_ONLY = "isReadOnly"
+        const val PROPERTY_IS_DESTRUCTIVE = "isDestructive"
+        const val PROPERTY_IS_IDEMPOTENT = "isIdempotent"
+        const val PROPERTY_IS_OPEN_WORLD = "isOpenWorld"
+    }
+
     object AppFunctionInstructionAnnotation {
         val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionInstruction")
         const val PROPERTY_INSTRUCTION = "instruction"
@@ -204,6 +212,15 @@ object IntrospectionHelper {
         ClassName(APP_FUNCTIONS_METADATA_PACKAGE_NAME, "AppFunctionDataTypeMetadata")
     val APP_FUNCTION_DEPRECATION_METADATA_CLASS =
         ClassName(APP_FUNCTIONS_METADATA_PACKAGE_NAME, "AppFunctionDeprecationMetadata")
+
+    object AppFunctionBehaviorHintsMetadataClass {
+        val CLASS_NAME =
+            ClassName(APP_FUNCTIONS_METADATA_PACKAGE_NAME, "AppFunctionBehaviorHintsMetadata")
+        const val PROPERTY_IS_READ_ONLY = "isReadOnly"
+        const val PROPERTY_IS_DESTRUCTIVE = "isDestructive"
+        const val PROPERTY_IS_IDEMPOTENT = "isIdempotent"
+        const val PROPERTY_IS_OPEN_WORLD = "isOpenWorld"
+    }
 
     // Primitive Types
     val APP_FUNCTION_UNIT_TYPE_METADATA_CLASS =

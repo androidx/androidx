@@ -90,6 +90,14 @@
         <xs:element name="message" cardinality="2" type="xs:string" />
     </xs:documentType>
 
+    <!-- Definition for AppFunctionBehaviorHintsMetadataDocument -->
+    <xs:documentType name="AppFunctionBehaviorHintsMetadataDocument">
+        <xs:element name="isReadOnly" cardinality="2" type="xs:boolean" />
+        <xs:element name="isDestructive" cardinality="2" type="xs:boolean" />
+        <xs:element name="isIdempotent" cardinality="2" type="xs:boolean" />
+        <xs:element name="isOpenWorld" cardinality="2" type="xs:boolean" />
+    </xs:documentType>
+
     <!-- Definition for AppFunctionComponentMetadataDocument -->
     <xs:documentType name="AppFunctionComponentMetadataDocument">
         <xs:element name="dataTypes" cardinality="1"
@@ -131,5 +139,7 @@
         <xs:element name="accessLevel" cardinality="2" indexingType="1" tokenizerType="2"
             type="xs:string" />
         <xs:element name="isCompatEnforcementEnabled" cardinality="2" type="xs:boolean" />
+        <xs:element name="behaviorHints" cardinality="2"
+            type="appfn:AppFunctionBehaviorHintsMetadataDocument" />
     </xs:documentType>
 </xs:schema>

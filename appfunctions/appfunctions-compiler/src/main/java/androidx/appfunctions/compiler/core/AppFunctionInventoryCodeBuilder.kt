@@ -18,6 +18,7 @@ package androidx.appfunctions.compiler.core
 
 import androidx.appfunctions.compiler.core.metadata.AppFunctionAllOfTypeMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionArrayTypeMetadata
+import androidx.appfunctions.compiler.core.metadata.AppFunctionBehaviorHintsMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionBooleanTypeMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionBytesTypeMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionComponentsMetadata
@@ -39,6 +40,7 @@ import androidx.appfunctions.compiler.core.metadata.AppFunctionStringTypeMetadat
 import androidx.appfunctions.compiler.core.metadata.AppFunctionUnitTypeMetadata
 import androidx.appfunctions.compiler.core.metadata.CompileTimeAppFunctionMetadata
 import androidx.appfunctions.compiler.processors.AppFunctionInventoryProcessor.Companion.APP_FUNCTION_METADATA_PROPERTY_NAME
+import androidx.appfunctions.compiler.processors.AppFunctionInventoryProcessor.Companion.BEHAVIOR_HINTS_METADATA_PROPERTY_NAME
 import androidx.appfunctions.compiler.processors.AppFunctionInventoryProcessor.Companion.DEPRECATION_METADATA_PROPERTY_NAME
 import androidx.appfunctions.compiler.processors.AppFunctionInventoryProcessor.Companion.FUNCTION_ID_TO_METADATA_MAP_PROPERTY_NAME
 import androidx.appfunctions.compiler.processors.AppFunctionInventoryProcessor.Companion.INVENTORY_COMPONENTS_METADATA_PROPERTY_NAME
@@ -97,6 +99,10 @@ class AppFunctionInventoryCodeBuilder(private val inventoryClassBuilder: TypeSpe
                 functionMetadataObjectClassBuilder,
                 functionMetadata.deprecation,
             )
+            addBehaviorHintsMetadataPropertyForFunction(
+                functionMetadataObjectClassBuilder,
+                functionMetadata.behaviorHints,
+            )
             addPropertyForAppFunctionMetadata(functionMetadataObjectClassBuilder, functionMetadata)
             inventoryClassBuilder.addType(functionMetadataObjectClassBuilder.build())
         }
@@ -146,6 +152,9 @@ class AppFunctionInventoryCodeBuilder(private val inventoryClassBuilder: TypeSpe
                                 "isCompatEnforcementEnabled = %L,\n",
                                 functionMetadata.isCompatEnforcementEnabled,
                             )
+                        }
+                        if (functionMetadata.behaviorHints != null) {
+                            add("behaviorHints = %L,\n", BEHAVIOR_HINTS_METADATA_PROPERTY_NAME)
                         }
                         unindent()
                         unindent()
@@ -1255,6 +1264,56 @@ class AppFunctionInventoryCodeBuilder(private val inventoryClassBuilder: TypeSpe
                             "%T(message= %S)",
                             IntrospectionHelper.APP_FUNCTION_DEPRECATION_METADATA_CLASS,
                             deprecationMetadata.message,
+                        )
+                    }
+                )
+                .build()
+        )
+    }
+
+    private fun addBehaviorHintsMetadataPropertyForFunction(
+        functionMetadataObjectClassBuilder: TypeSpec.Builder,
+        behaviorHintsMetadata: AppFunctionBehaviorHintsMetadata?,
+    ) {
+        if (behaviorHintsMetadata == null) return
+        functionMetadataObjectClassBuilder.addProperty(
+            PropertySpec.builder(
+                    BEHAVIOR_HINTS_METADATA_PROPERTY_NAME,
+                    IntrospectionHelper.AppFunctionBehaviorHintsMetadataClass.CLASS_NAME.copy(
+                        nullable = true
+                    ),
+                )
+                .addModifiers(KModifier.PRIVATE)
+                .initializer(
+                    buildCodeBlock {
+                        addNamed(
+                            "%behavior_hints_class:T(" +
+                                "%is_read_only_param:L = %is_read_only:L, " +
+                                "%is_destructive_param:L = %is_destructive:L, " +
+                                "%is_idempotent_param:L = %is_idempotent:L, " +
+                                "%is_open_world_param:L = %is_open_world:L" +
+                                ")\n",
+                            mapOf(
+                                "behavior_hints_class" to
+                                    IntrospectionHelper.AppFunctionBehaviorHintsMetadataClass
+                                        .CLASS_NAME,
+                                "is_read_only_param" to
+                                    IntrospectionHelper.AppFunctionBehaviorHintsMetadataClass
+                                        .PROPERTY_IS_READ_ONLY,
+                                "is_read_only" to behaviorHintsMetadata.isReadOnly,
+                                "is_destructive_param" to
+                                    IntrospectionHelper.AppFunctionBehaviorHintsMetadataClass
+                                        .PROPERTY_IS_DESTRUCTIVE,
+                                "is_destructive" to behaviorHintsMetadata.isDestructive,
+                                "is_idempotent_param" to
+                                    IntrospectionHelper.AppFunctionBehaviorHintsMetadataClass
+                                        .PROPERTY_IS_IDEMPOTENT,
+                                "is_idempotent" to behaviorHintsMetadata.isIdempotent,
+                                "is_open_world_param" to
+                                    IntrospectionHelper.AppFunctionBehaviorHintsMetadataClass
+                                        .PROPERTY_IS_OPEN_WORLD,
+                                "is_open_world" to behaviorHintsMetadata.isOpenWorld,
+                            ),
                         )
                     }
                 )

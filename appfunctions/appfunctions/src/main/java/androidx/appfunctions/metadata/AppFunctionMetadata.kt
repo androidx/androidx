@@ -117,6 +117,12 @@ constructor(
     @property:ExperimentalAppFunctionsApi
     @Suppress("ExperimentalPropertyAnnotation")
     public val isCompatEnforcementEnabled: Boolean = false,
+    /**
+     * Advisory hints about the runtime behavior of this app function, or `null` if no behavior
+     * hints were declared.
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val behaviorHints: AppFunctionBehaviorHintsMetadata? = null,
 ) {
     @JvmOverloads
     public constructor(
@@ -194,6 +200,58 @@ constructor(
         /** Whether access level enforcement is enabled on older platform versions. */
         isCompatEnforcementEnabled: Boolean = false,
     ) : this(
+        name = name,
+        schema = schema,
+        parameters = parameters,
+        response = response,
+        packageMetadata = packageMetadata,
+        description = description,
+        deprecation = deprecation,
+        scope = scope,
+        accessLevel = accessLevel,
+        isCompatEnforcementEnabled = isCompatEnforcementEnabled,
+        behaviorHints = null,
+    )
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public constructor(
+        /** The qualified name of the app function. */
+        name: AppFunctionName,
+        /** The identifying metadata for a pre-defined schema which this app function implements. */
+        schema: AppFunctionSchemaMetadata?,
+        /** The parameters of the app function. */
+        parameters: List<AppFunctionParameterMetadata>,
+        /** The response of the app function. */
+        response: AppFunctionResponseMetadata,
+        /** The [AppFunctionPackageMetadata] of the enclosing package. */
+        packageMetadata: AppFunctionPackageMetadata,
+        /** A description of the app function and its intended use. */
+        description: String = "",
+        /**
+         * Deprecation details about the function, if the app function is deprecated. This will be
+         * `null` if the function is not deprecated.
+         */
+        deprecation: AppFunctionDeprecationMetadata? = null,
+        /**
+         * The scope of the app function.
+         *
+         * The scope determines the function's lifecycle and uniqueness rules. Depending on the
+         * scope, there could be at most one or multiple functions registered in the system with the
+         * same [AppFunctionName].
+         *
+         * See [SCOPE_GLOBAL] and [SCOPE_ACTIVITY] for more details on each scope.
+         */
+        @AppFunctionScope scope: Int = SCOPE_GLOBAL,
+        /** The minimum access level required to invoke the app function. */
+        @AccessLevel accessLevel: Int = ACCESS_LEVEL_ANDROID_TRUSTED,
+        /** Whether access level enforcement is enabled on older platform versions. */
+        isCompatEnforcementEnabled: Boolean = false,
+        /**
+         * Advisory hints about the runtime behavior of this app function, or `null` if no behavior
+         * hints were declared.
+         */
+        behaviorHints: AppFunctionBehaviorHintsMetadata? = null,
+    ) : this(
         id = name.functionIdentifier,
         packageName = name.packageName,
         // TODO(b/500667251): remove isEnabled property. AppFunctionMetadata should now contain
@@ -211,6 +269,7 @@ constructor(
         scope = scope,
         accessLevel = accessLevel,
         isCompatEnforcementEnabled = isCompatEnforcementEnabled,
+        behaviorHints = behaviorHints,
     )
 
     override fun equals(other: Any?): Boolean {
@@ -233,6 +292,7 @@ constructor(
         if (scope != other.scope) return false
         if (accessLevel != other.accessLevel) return false
         if (isCompatEnforcementEnabled != other.isCompatEnforcementEnabled) return false
+        if (behaviorHints != other.behaviorHints) return false
 
         return true
     }
@@ -253,6 +313,7 @@ constructor(
             scope,
             accessLevel,
             isCompatEnforcementEnabled,
+            behaviorHints,
         )
     }
 
@@ -271,7 +332,8 @@ constructor(
         append("name=$name, ")
         append("scope=$scope, ")
         append("accessLevel=$accessLevel, ")
-        append("isCompatEnforcementEnabled=$isCompatEnforcementEnabled")
+        append("isCompatEnforcementEnabled=$isCompatEnforcementEnabled, ")
+        append("behaviorHints=$behaviorHints")
         append(")")
     }
 
@@ -290,6 +352,7 @@ constructor(
         scope: Int = this.scope,
         accessLevel: Int = this.accessLevel,
         isCompatEnforcementEnabled: Boolean = this.isCompatEnforcementEnabled,
+        behaviorHints: AppFunctionBehaviorHintsMetadata? = this.behaviorHints,
     ): AppFunctionMetadata {
         return AppFunctionMetadata(
             id = id,
@@ -306,6 +369,7 @@ constructor(
             scope = scope,
             accessLevel = accessLevel,
             isCompatEnforcementEnabled = isCompatEnforcementEnabled,
+            behaviorHints = behaviorHints,
         )
     }
 
@@ -500,6 +564,7 @@ constructor(
                 ) ?: return null
 
             val deprecationMetadata = getAppFunctionDeprecationMetadata(staticMetadataDocument)
+            val behaviorHintsMetadata = getAppFunctionBehaviorHintsMetadata(staticMetadataDocument)
 
             return AppFunctionMetadata(
                 name = appFunctionName,
@@ -513,6 +578,7 @@ constructor(
                 accessLevel = accessLevelXmlValueToAccessLevel(staticMetadataDocument.accessLevel),
                 isCompatEnforcementEnabled =
                     staticMetadataDocument.isCompatEnforcementEnabled ?: false,
+                behaviorHints = behaviorHintsMetadata,
             )
         }
 
@@ -555,6 +621,12 @@ constructor(
             appFunctionMetadataDocument: AppFunctionMetadataDocument
         ): AppFunctionDeprecationMetadata? {
             return appFunctionMetadataDocument.deprecation?.toAppFunctionDeprecationMetadata()
+        }
+
+        private fun getAppFunctionBehaviorHintsMetadata(
+            appFunctionMetadataDocument: AppFunctionMetadataDocument
+        ): AppFunctionBehaviorHintsMetadata? {
+            return appFunctionMetadataDocument.behaviorHints?.toAppFunctionBehaviorHintsMetadata()
         }
 
         internal fun isAppFunctionMetadataDocumentFromDynamicIndexer(
@@ -655,6 +727,11 @@ public data class CompileTimeAppFunctionMetadata(
     @get:AccessLevel public val accessLevel: Int = ACCESS_LEVEL_ANDROID_TRUSTED,
     /** Whether access level enforcement is enabled on older platform versions. */
     public val isCompatEnforcementEnabled: Boolean = true,
+    /**
+     * Advisory hints about the runtime behavior of the AppFunction, or `null` if no behavior hints
+     * were declared.
+     */
+    public val behaviorHints: AppFunctionBehaviorHintsMetadata? = null,
 ) {
 
     internal fun copy(
@@ -669,6 +746,7 @@ public data class CompileTimeAppFunctionMetadata(
         @AppFunctionScope scope: Int? = SCOPE_GLOBAL,
         @AccessLevel accessLevel: Int? = null,
         isCompatEnforcementEnabled: Boolean? = null,
+        behaviorHints: AppFunctionBehaviorHintsMetadata? = null,
     ): CompileTimeAppFunctionMetadata {
         return CompileTimeAppFunctionMetadata(
             id = id ?: this.id,
@@ -683,6 +761,7 @@ public data class CompileTimeAppFunctionMetadata(
             accessLevel = accessLevel ?: this.accessLevel,
             isCompatEnforcementEnabled =
                 isCompatEnforcementEnabled ?: this.isCompatEnforcementEnabled,
+            behaviorHints = behaviorHints ?: this.behaviorHints,
         )
     }
 
@@ -705,6 +784,7 @@ public data class CompileTimeAppFunctionMetadata(
             scope = scopeToScopeXmlValue(scope),
             accessLevel = accessLevelToAccessLevelXmlValue(accessLevel),
             isCompatEnforcementEnabled = isCompatEnforcementEnabled,
+            behaviorHints = behaviorHints?.toAppFunctionBehaviorHintsMetadataDocument(),
         )
     }
 }
@@ -747,6 +827,8 @@ internal data class AppFunctionMetadataDocument(
     /** Whether access level enforcement is enabled on older platform versions. */
     @Document.BooleanProperty(name = PROPERTY_ENABLE_COMPAT_ENFORCEMENT)
     val isCompatEnforcementEnabled: Boolean? = null,
+    /** Advisory hints about the runtime behavior of the AppFunction. */
+    @Document.DocumentProperty val behaviorHints: AppFunctionBehaviorHintsMetadataDocument? = null,
 ) {
     companion object {
         const val SCHEMA_TYPE = "AppFunctionStaticMetadata"
