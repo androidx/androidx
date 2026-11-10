@@ -21,15 +21,24 @@ import androidx.benchmark.macro.CompilationMode
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.material3.macrobenchmark.common.AnimatedTextBenchmark
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
 class AnimatedTextBenchmarkTest(compilationMode: CompilationMode) :
     BenchmarkTestBase(
         compilationMode = compilationMode,
         macrobenchmarkScreen = AnimatedTextBenchmark,
         actionSuffix = "ANIMATED_TEXT_ACTIVITY",
-    )
+    ) {
+    // Override start() so BenchmarkTestBase.start()'s method-level @SdkSuppress doesn't shadow
+    // minSdkVersion = TIRAMISU (AnimatedText requires API 31+, and API 31/32 are skipped due to
+    // libhwui JankTracker crash in b/200492526).
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    override fun start() {
+        super.start()
+    }
+}
