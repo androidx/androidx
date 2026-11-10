@@ -34,7 +34,7 @@ import androidx.glance.adaptive.core.action.GlanceWidgetAction
  */
 
 /** Fewest values a [Graph] draws: a single value has no history to show. */
-private const val MIN_GRAPH_VALUES = 2
+internal const val MIN_GRAPH_VALUES = 2
 
 private val TextCapabilities = setOf(Capability.Text)
 private val ActionCapabilities = setOf(Capability.Action)
