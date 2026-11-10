@@ -285,8 +285,8 @@ private fun CenterCrosshairCell() {
 }
 
 /**
- * Edge case 5: Nested offsets distinguishing parent-relative `(x, y)` from root-relative `(rootX,
- * rootY)` inside a grid cell.
+ * Edge case 5: Nested offsets distinguishing parent-relative `positionInParent` from root-relative
+ * `positionInRoot` inside a grid cell.
  */
 @Composable
 @RemoteComposable
@@ -311,14 +311,16 @@ private fun LocalVsRootCoordsCell() {
                         .border(1.rdp, Color(0xFF1B5E20).rc)
             ) {
                 val target = remoteComponent()
+                val pos = target.positionInParent
+                val root = target.positionInRoot
                 RemoteColumn(modifier = RemoteModifier.padding(2.rdp)) {
                     RemoteText(
-                        "xy:".rs + dpStr(target.x) + ",".rs + dpStr(target.y),
+                        "xy:".rs + dpStr(pos.x) + ",".rs + dpStr(pos.y),
                         fontSize = 7.rsp,
                         color = Color(0xFF1B1B1B).rc,
                     )
                     RemoteText(
-                        "rt:".rs + dpStr(target.rootX) + ",".rs + dpStr(target.rootY),
+                        "rt:".rs + dpStr(root.x) + ",".rs + dpStr(root.y),
                         fontSize = 7.rsp,
                         color = Color(0xFF0D47A1).rc,
                     )

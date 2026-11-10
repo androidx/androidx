@@ -396,22 +396,6 @@ package androidx.compose.remote.creation.compose.layout {
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface RemoteLayoutScopeMarker {
   }
 
-  @androidx.compose.runtime.Immutable public final class RemoteOffset {
-    ctor public RemoteOffset(androidx.compose.remote.creation.compose.state.RemoteFloat x, androidx.compose.remote.creation.compose.state.RemoteFloat y);
-    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getMinDimension();
-    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getX();
-    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getY();
-    property public androidx.compose.remote.creation.compose.state.RemoteFloat minDimension;
-    property public androidx.compose.remote.creation.compose.state.RemoteFloat x;
-    property public androidx.compose.remote.creation.compose.state.RemoteFloat y;
-    field public static final androidx.compose.remote.creation.compose.layout.RemoteOffset.Companion Companion;
-  }
-
-  public static final class RemoteOffset.Companion {
-    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteOffset getZero();
-    property public androidx.compose.remote.creation.compose.layout.RemoteOffset Zero;
-  }
-
   @androidx.compose.runtime.Immutable public final class RemotePaddingValues {
     ctor public RemotePaddingValues();
     ctor public RemotePaddingValues(androidx.compose.remote.creation.compose.state.RemoteDp all);

@@ -26,11 +26,31 @@ package androidx.compose.remote.creation.compose.layout {
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getCenterX();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getCenterY();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getHeight();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteOffset getPositionInParent();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteOffset getPositionInRoot();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getWidth();
     property public androidx.compose.remote.creation.compose.state.RemoteFloat centerX;
     property public androidx.compose.remote.creation.compose.state.RemoteFloat centerY;
     property public androidx.compose.remote.creation.compose.state.RemoteFloat height;
+    property public androidx.compose.remote.creation.compose.layout.RemoteOffset positionInParent;
+    property public androidx.compose.remote.creation.compose.layout.RemoteOffset positionInRoot;
     property public androidx.compose.remote.creation.compose.state.RemoteFloat width;
+  }
+
+  @androidx.compose.runtime.Immutable public final class RemoteOffset {
+    ctor public RemoteOffset(androidx.compose.remote.creation.compose.state.RemoteFloat x, androidx.compose.remote.creation.compose.state.RemoteFloat y);
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getMinDimension();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getX();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getY();
+    property public androidx.compose.remote.creation.compose.state.RemoteFloat minDimension;
+    property public androidx.compose.remote.creation.compose.state.RemoteFloat x;
+    property public androidx.compose.remote.creation.compose.state.RemoteFloat y;
+    field public static final androidx.compose.remote.creation.compose.layout.RemoteOffset.Companion Companion;
+  }
+
+  public static final class RemoteOffset.Companion {
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteOffset getZero();
+    property public androidx.compose.remote.creation.compose.layout.RemoteOffset Zero;
   }
 
 }

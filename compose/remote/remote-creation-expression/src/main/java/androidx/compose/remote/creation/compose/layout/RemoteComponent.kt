@@ -56,25 +56,16 @@ public class RemoteComponent private constructor(private val context: RemoteFloa
     public val centerY: RemoteFloat
         get() = context.componentCenterY()
 
-    /** Horizontal offset of this component relative to its parent in pixels. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val x: RemoteFloat
-        get() = context.componentX()
+    /**
+     * Position of this component's top-left corner relative to its parent in pixels, or `(0, 0)`
+     * for the root component.
+     */
+    public val positionInParent: RemoteOffset
+        get() = RemoteOffset(context.componentX(), context.componentY())
 
-    /** Vertical offset of this component relative to its parent in pixels. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val y: RemoteFloat
-        get() = context.componentY()
-
-    /** Horizontal offset of this component relative to the root in pixels. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val rootX: RemoteFloat
-        get() = context.componentRootX()
-
-    /** Vertical offset of this component relative to the root in pixels. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val rootY: RemoteFloat
-        get() = context.componentRootY()
+    /** Position of this component's top-left corner relative to the root in pixels. */
+    public val positionInRoot: RemoteOffset
+        get() = RemoteOffset(context.componentRootX(), context.componentRootY())
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

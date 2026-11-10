@@ -270,13 +270,15 @@ class RemoteExpressionJvmTest {
         assertThat(centerComponent.centerY.hasConstantValue).isFalse()
         assertThat(centerToken.isRequested(RemoteComponentToken.PROP_HEIGHT)).isTrue()
 
-        assertThat(component.x.hasConstantValue).isFalse()
+        val posInParent = component.positionInParent
+        assertThat(posInParent.x.hasConstantValue).isFalse()
         assertThat(token.isRequested(RemoteComponentToken.PROP_X)).isTrue()
-        assertThat(component.y.hasConstantValue).isFalse()
+        assertThat(posInParent.y.hasConstantValue).isFalse()
         assertThat(token.isRequested(RemoteComponentToken.PROP_Y)).isTrue()
-        assertThat(component.rootX.hasConstantValue).isFalse()
+        val posInRoot = component.positionInRoot
+        assertThat(posInRoot.x.hasConstantValue).isFalse()
         assertThat(token.isRequested(RemoteComponentToken.PROP_ROOT_X)).isTrue()
-        assertThat(component.rootY.hasConstantValue).isFalse()
+        assertThat(posInRoot.y.hasConstantValue).isFalse()
         assertThat(token.isRequested(RemoteComponentToken.PROP_ROOT_Y)).isTrue()
 
         assertThat(component).isEqualTo(RemoteComponent(token))

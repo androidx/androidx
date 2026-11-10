@@ -220,15 +220,17 @@ class RemoteComponentEmbeddedPlayerTest {
                                 .semantics { contentDescription = "ScopedDescendantBox".rs }
                     ) {
                         val shifted = remoteComponent()
+                        val pos = shifted.positionInParent
+                        val root = shifted.positionInRoot
                         RemoteText(
                             "pos=".rs +
-                                dpLabel(shifted.x) +
+                                dpLabel(pos.x) +
                                 ",".rs +
-                                dpLabel(shifted.y) +
+                                dpLabel(pos.y) +
                                 " root=".rs +
-                                dpLabel(shifted.rootX) +
+                                dpLabel(root.x) +
                                 ",".rs +
-                                dpLabel(shifted.rootY)
+                                dpLabel(root.y)
                         )
                     }
                 }

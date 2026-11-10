@@ -24,7 +24,7 @@ import androidx.compose.runtime.Immutable
  * An immutable 2D floating-point offset that can be used to represent a point or a vector in a
  * remote UI context.
  *
- * This class is similar to [androidx.compose.ui.geometry.Offset], but uses [RemoteFloat] for its
+ * This class is similar to `androidx.compose.ui.geometry.Offset`, but uses [RemoteFloat] for its
  * coordinates to support remote state synchronization.
  *
  * @property x The horizontal displacement.
