@@ -117,11 +117,6 @@ w: file://\$SUPPORT/compose/foundation/foundation/src/androidDeviceTest/kotlin/a
 w: file://\$SUPPORT/compose/ui/ui/src/androidDeviceTest/kotlin/androidx/compose/ui/window/PopupTestUtils\.kt:[0-9]+:[0-9]+ 'getter for windowLayoutParams: EspressoOptional<WindowManager\.LayoutParams!>!' is deprecated\. Deprecated in Java
 # b/271306193 remove after aosp/2589888 :emoji:emoji:spdxSbomForRelease
 spdx sboms require a version but project: noto\-emoji\-compat\-flatbuffers has no specified version
-# temporary diagnostic for b/307738543
-docs-public:docs starting
-docs-public:docs completing
-docs-tip-of-tree:docs starting
-docs-tip-of-tree:docs completing
 # > Configure project :androidx-demos
 The current default is 'false'\.
 # Building XCFrameworks (b/260140834) and iOS benchmark invocation

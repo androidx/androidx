@@ -456,11 +456,3 @@ dependencies {
     docs(project(":xr:scenecore:scenecore-testing"))
     stubs(libs.androidExtensionsXr)
 }
-afterEvaluate {
-  tasks["docs"].doFirst {
-    println("docs-tip-of-tree:docs starting")
-  }
-  tasks["docs"].doLast {
-    println("docs-tip-of-tree:docs completing")
-  }
-}
