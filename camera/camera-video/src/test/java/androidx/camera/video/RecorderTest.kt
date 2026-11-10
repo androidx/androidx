@@ -80,11 +80,16 @@ import androidx.camera.video.internal.encoder.FakeEncodedData
 import androidx.camera.video.internal.encoder.InvalidConfigException
 import androidx.camera.video.internal.muxer.MuxerException
 import androidx.camera.video.internal.muxer.MuxerFactory
+import androidx.camera.video.internal.utils.FakeMediaContentProvider
+import androidx.camera.video.internal.utils.FakeMediaContentProvider.Companion.AUTHORITY
+import androidx.camera.video.internal.utils.FakeMediaContentProvider.Companion.COLLECTION_URI
+import androidx.camera.video.internal.utils.FakeMediaContentProvider.Companion.ENTRY_URI
 import androidx.camera.video.internal.utils.StorageUtil.NO_SPACE_LEFT_MESSAGE
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.util.concurrent.CountDownLatch
@@ -100,6 +105,7 @@ import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.argThat
 import org.mockito.Mockito.inOrder
 import org.mockito.Mockito.mock
+import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
@@ -438,6 +444,151 @@ class RecorderTest {
         val recording = createRecording(recorder = recorder)
 
         recording.start().sendFrames(1).verifyFinalize(error = ERROR_INVALID_OUTPUT_OPTIONS)
+    }
+
+    @Test
+    fun mediaStoreOutput_recordsToInsertedEntry() {
+        val provider = setUpFakeMediaContentProvider(File(temporaryFolder.root, "video.mp4"))
+
+        val result =
+            createRecording(outputOptions = createMediaStoreOutputOptions())
+                .startAndVerify()
+                .sendFrames()
+                .stopAndVerify()
+
+        assertThat(result.uri).isEqualTo(ENTRY_URI)
+        assertThat(provider.deletedUris).isEmpty()
+    }
+
+    @Config(minSdk = 26)
+    @Test
+    fun mediaStoreOutput_parentFolderMissing_recreatesParentFolderAndRecords() {
+        val file = File(temporaryFolder.root, "Movies/video.mp4")
+        val provider = setUpFakeMediaContentProvider(file)
+
+        val result =
+            createRecording(outputOptions = createMediaStoreOutputOptions())
+                .startAndVerify()
+                .sendFrames()
+                .stopAndVerify()
+
+        assertThat(result.uri).isEqualTo(ENTRY_URI)
+        assertThat(file.exists()).isTrue()
+        assertThat(provider.openFileCount).isEqualTo(2)
+        assertThat(provider.deletedUris).isEmpty()
+    }
+
+    @Config(minSdk = 26)
+    @Test
+    fun mediaStoreOutput_parentFolderMissingAndRetryFails_deletesEntryAndReceivesError() {
+        val file = File(temporaryFolder.root, "Movies/video.mp4")
+        val provider = setUpFakeMediaContentProvider(file)
+        provider.openFileHandler = { _, _ -> throw FileNotFoundException("ENOENT") }
+
+        val result = startMediaStoreRecordingAndVerifyInvalidOutputOptions()
+
+        assertThat(result.uri).isEqualTo(Uri.EMPTY)
+        assertThat(requireNotNull(file.parentFile).isDirectory).isTrue()
+        assertThat(provider.openFileCount).isEqualTo(2)
+        assertThat(provider.deletedUris).containsExactly(ENTRY_URI)
+    }
+
+    @Config(minSdk = 26)
+    @Test
+    fun mediaStoreOutput_parentFolderExistsAndOpenFails_deletesEntryWithoutRetry() {
+        val provider = setUpFakeMediaContentProvider(File(temporaryFolder.root, "video.mp4"))
+        provider.openFileHandler = { _, _ -> throw FileNotFoundException("EACCES") }
+
+        val result = startMediaStoreRecordingAndVerifyInvalidOutputOptions()
+
+        assertThat(result.uri).isEqualTo(Uri.EMPTY)
+        assertThat(provider.openFileCount).isEqualTo(1)
+        assertThat(provider.deletedUris).containsExactly(ENTRY_URI)
+    }
+
+    @Config(minSdk = 26)
+    @Test
+    fun mediaStoreOutput_parentFolderCannotBeCreated_deletesEntryWithoutRetry() {
+        val regularFile = temporaryFolder.newFile("not_a_folder")
+        val provider = setUpFakeMediaContentProvider(File(regularFile, "Movies/video.mp4"))
+
+        val result = startMediaStoreRecordingAndVerifyInvalidOutputOptions()
+
+        assertThat(result.uri).isEqualTo(Uri.EMPTY)
+        assertThat(provider.openFileCount).isEqualTo(1)
+        assertThat(provider.deletedUris).containsExactly(ENTRY_URI)
+    }
+
+    @Config(minSdk = 26)
+    @Test
+    fun mediaStoreOutput_openFileThrowsRuntimeException_deletesEntryAndReceivesError() {
+        val provider = setUpFakeMediaContentProvider(File(temporaryFolder.root, "video.mp4"))
+        provider.openFileHandler = { _, _ -> throw SecurityException("Failure on purpose") }
+
+        val result = startMediaStoreRecordingAndVerifyInvalidOutputOptions()
+
+        assertThat(result.uri).isEqualTo(Uri.EMPTY)
+        assertThat(provider.deletedUris).containsExactly(ENTRY_URI)
+    }
+
+    @Config(minSdk = 26)
+    @Test
+    fun mediaStoreOutput_nullFileDescriptor_deletesEntryAndReceivesError() {
+        val provider = setUpFakeMediaContentProvider(File(temporaryFolder.root, "video.mp4"))
+        provider.openFileHandler = { _, _ -> null }
+
+        val result = startMediaStoreRecordingAndVerifyInvalidOutputOptions()
+
+        assertThat(result.uri).isEqualTo(Uri.EMPTY)
+        assertThat(provider.deletedUris).containsExactly(ENTRY_URI)
+    }
+
+    @Config(minSdk = 26)
+    @Test
+    fun mediaStoreOutput_muxerFailsToSetOutput_closesFileDescriptorAndDeletesEntry() {
+        val provider = setUpFakeMediaContentProvider(File(temporaryFolder.root, "video.mp4"))
+        var outputFileDescriptor: ParcelFileDescriptor? = null
+        val muxerFactory = MuxerFactory {
+            object : NoOpMuxer() {
+                override fun setOutput(parcelFileDescriptor: ParcelFileDescriptor, format: Int) {
+                    outputFileDescriptor = parcelFileDescriptor
+                    throw IllegalStateException("Failure on purpose")
+                }
+            }
+        }
+
+        val result =
+            startMediaStoreRecordingAndVerifyInvalidOutputOptions(
+                recorder = createRecorder(muxerFactory = muxerFactory)
+            )
+
+        assertThat(result.uri).isEqualTo(Uri.EMPTY)
+        assertThat(requireNotNull(outputFileDescriptor).fileDescriptor.valid()).isFalse()
+        assertThat(provider.deletedUris).containsExactly(ENTRY_URI)
+    }
+
+    @Config(minSdk = 26)
+    @Test
+    fun mediaStoreOutput_deleteEntryFails_stillReceivesError() {
+        val provider = setUpFakeMediaContentProvider(File(temporaryFolder.root, "video.mp4"))
+        provider.openFileHandler = { _, _ -> throw FileNotFoundException("EACCES") }
+        provider.deleteException = IllegalStateException("Failure on purpose")
+
+        val result = startMediaStoreRecordingAndVerifyInvalidOutputOptions()
+
+        assertThat(result.uri).isEqualTo(Uri.EMPTY)
+        assertThat(provider.deletedUris).containsExactly(ENTRY_URI)
+    }
+
+    @Config(maxSdk = 25)
+    @Test
+    fun mediaStoreOutput_pathUnavailableBeforeApi26_deletesEntryAndReceivesError() {
+        val provider = setUpFakeMediaContentProvider(dataPath = null)
+
+        val result = startMediaStoreRecordingAndVerifyInvalidOutputOptions()
+
+        assertThat(result.uri).isEqualTo(Uri.EMPTY)
+        assertThat(provider.deletedUris).containsExactly(ENTRY_URI)
     }
 
     @Test
@@ -2083,6 +2234,22 @@ class RecorderTest {
                 durationLimitMillis?.let { setDurationLimitMillis(it) }
             }
             .build()
+
+    private fun setUpFakeMediaContentProvider(dataPath: File?): FakeMediaContentProvider =
+        Robolectric.setupContentProvider(FakeMediaContentProvider::class.java, AUTHORITY).apply {
+            this.dataPath = dataPath?.absolutePath
+        }
+
+    private fun createMediaStoreOutputOptions(): MediaStoreOutputOptions =
+        MediaStoreOutputOptions.Builder(context.contentResolver, COLLECTION_URI).build()
+
+    private fun startMediaStoreRecordingAndVerifyInvalidOutputOptions(
+        recorder: Recorder = createRecorder()
+    ): Recording.RecordingResult =
+        createRecording(recorder = recorder, outputOptions = createMediaStoreOutputOptions())
+            .start()
+            .sendFrames()
+            .verifyFinalize(error = ERROR_INVALID_OUTPUT_OPTIONS)
 
     /**
      * Creates a video [EncoderFactory] that records every encoder that has been started into

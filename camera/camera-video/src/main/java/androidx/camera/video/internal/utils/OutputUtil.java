@@ -19,6 +19,8 @@ package androidx.camera.video.internal.utils;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 
 import androidx.camera.core.Logger;
 
@@ -26,6 +28,8 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * Utility class for output related operations.
@@ -50,7 +54,9 @@ public final class OutputUtil {
             }
 
             columnIndex = cursor.getColumnIndexOrThrow(mediaStoreColumn);
-            cursor.moveToFirst();
+            if (!cursor.moveToFirst()) {
+                return null;
+            }
             return cursor.getString(columnIndex);
         } catch (RuntimeException e) {
             Logger.e(TAG, String.format(
@@ -77,5 +83,52 @@ public final class OutputUtil {
             return false;
         }
         return parentFile.exists() ? parentFile.isDirectory() : parentFile.mkdirs();
+    }
+
+    /**
+     * Opens a {@link ParcelFileDescriptor} for a MediaStore URI.
+     *
+     * <p>If the target parent folder doesn't exist, this attempts to recreate it and retry.
+     */
+    public static @NonNull ParcelFileDescriptor openMediaStoreFileDescriptor(
+            @NonNull ContentResolver resolver, @NonNull Uri outputUri) throws IOException {
+        ParcelFileDescriptor parcelFileDescriptor;
+        try {
+            parcelFileDescriptor = resolver.openFileDescriptor(outputUri, "rw");
+        } catch (FileNotFoundException e) {
+            @SuppressWarnings("deprecation")
+            String path = getAbsolutePathFromUri(
+                    resolver, outputUri, MediaStore.MediaColumns.DATA);
+            if (path == null) {
+                throw e;
+            }
+            File file = new File(path);
+            File parentFolder = file.getParentFile();
+            if (parentFolder == null || parentFolder.exists()
+                    || !createParentFolder(file)) {
+                throw e;
+            }
+            Logger.w(TAG, "Re-created missing folder " + parentFolder + " for " + outputUri, e);
+            try {
+                parcelFileDescriptor = resolver.openFileDescriptor(outputUri, "rw");
+            } catch (FileNotFoundException retryException) {
+                retryException.addSuppressed(e);
+                throw retryException;
+            }
+        }
+        if (parcelFileDescriptor == null) {
+            throw new IOException("Unable to open file descriptor from uri " + outputUri);
+        }
+        return parcelFileDescriptor;
+    }
+
+    /** Deletes a MediaStore entry without throwing exceptions on failure. */
+    public static void deleteMediaStoreEntryQuietly(@NonNull ContentResolver resolver,
+            @NonNull Uri outputUri) {
+        try {
+            resolver.delete(outputUri, null, null);
+        } catch (RuntimeException e) {
+            Logger.w(TAG, "Unable to delete MediaStore entry " + outputUri, e);
+        }
     }
 }
