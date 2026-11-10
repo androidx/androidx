@@ -122,7 +122,12 @@ class ComponentsTest {
 
     @Test
     fun badge_rejectsBlankLabel() {
-        assertThrows(IllegalArgumentException::class.java) { Badge(label = "", outlineColor = 0) }
+        assertThrows(IllegalArgumentException::class.java) { Badge(label = "") }
+    }
+
+    @Test
+    fun badge_defaultsOutlineColorToNull() {
+        assertThat(Badge(label = "Z2").outlineColor).isNull()
     }
 
     @Test

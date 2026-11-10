@@ -17,7 +17,11 @@
 package androidx.glance.adaptive.appwidget.components.badge
 
 import android.content.Context
+import android.os.Build
 import android.widget.RemoteViews
+import androidx.annotation.ColorRes
+import androidx.annotation.IdRes
+import androidx.annotation.RequiresApi
 import androidx.glance.adaptive.appwidget.R
 import androidx.glance.adaptive.appwidget.components.addChild
 import androidx.glance.adaptive.appwidget.components.density
@@ -44,11 +48,16 @@ internal fun Badge.buildRemoteViews(context: Context): RemoteViews {
     views.setText(labelId, label, BadgeDefaults.LabelTextSize.value)
     val horizontal = BadgeDefaults.HorizontalPadding.toPx(density)
     views.setViewPadding(labelId, horizontal, 0, horizontal, 0)
-    views.setInt(
-        R.id.glance_adaptive_appwidget_remoteviews_badge_outline,
-        "setColorFilter",
-        outlineColor,
-    )
+    val outlineId = R.id.glance_adaptive_appwidget_remoteviews_badge_outline
+    val defaultOutline = R.color.glance_adaptive_appwidget_remoteviews_tertiary
+    val outline = outlineColor
+    when {
+        outline != null -> views.setInt(outlineId, "setColorFilter", outline)
+        // From API 31 the host resolves the color, so the outline follows theme changes.
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
+            BadgeApi31Impl.setColorFilter(views, outlineId, defaultOutline)
+        else -> views.setInt(outlineId, "setColorFilter", context.getColor(defaultOutline))
+    }
 
     val leadingId = R.id.glance_adaptive_appwidget_remoteviews_badge_leading_dots
     val trailingId = R.id.glance_adaptive_appwidget_remoteviews_badge_trailing_dots
@@ -73,4 +82,11 @@ internal fun Badge.buildRemoteViews(context: Context): RemoteViews {
         views.addChild(if (leading) leadingId else trailingId, dot, stableId = index)
     }
     return views
+}
+
+@RequiresApi(Build.VERSION_CODES.S)
+private object BadgeApi31Impl {
+    fun setColorFilter(rv: RemoteViews, @IdRes viewId: Int, @ColorRes color: Int) {
+        rv.setColor(viewId, "setColorFilter", color)
+    }
 }
