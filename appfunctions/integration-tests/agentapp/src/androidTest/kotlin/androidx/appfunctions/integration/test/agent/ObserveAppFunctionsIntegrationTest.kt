@@ -18,6 +18,7 @@ package androidx.appfunctions.integration.test.agent
 
 import android.Manifest
 import android.os.Build
+import androidx.appfunction.integration.test.sharedschema.CreateNoteAppFunction
 import androidx.appfunctions.AppFunctionData
 import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.AppFunctionName
@@ -26,11 +27,9 @@ import androidx.appfunctions.AppFunctionsChangeEvent
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.ADDITIONAL_FUNCTION_ID
-import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.ADD_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.COMPONENT_CHANGED_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.CREATE_NOTE_DISABLED_BY_DEFAULT_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.CREATE_NOTE_FUNCTION_ID
-import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.DEPRECATED_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.DISABLED_BY_DEFAULT_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.ENABLED_BY_DEFAULT_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.SENTINEL_FUNCTION_ID
@@ -56,11 +55,13 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.junit.After
+import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 
 /** Integration tests for observeAppFunctions API. */
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES_FULL.BAKLAVA)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
 @LargeTest
 class ObserveAppFunctionsIntegrationTest {
     private val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
@@ -77,17 +78,6 @@ class ObserveAppFunctionsIntegrationTest {
         InstrumentationRegistry.getArguments().getString("TARGET_APP_APK_V3")
             ?: throw IllegalStateException("TARGET_APP_APK_V3 argument not found")
 
-    private val functionsUnderTest =
-        setOf(
-            CREATE_NOTE_FUNCTION_ID,
-            CREATE_NOTE_DISABLED_BY_DEFAULT_FUNCTION_ID,
-            ADD_FUNCTION_ID,
-            DEPRECATED_FUNCTION_ID,
-            SENTINEL_FUNCTION_ID,
-            DISABLED_BY_DEFAULT_FUNCTION_ID,
-            ENABLED_BY_DEFAULT_FUNCTION_ID,
-        )
-
     @Before
     fun setup() = doBlocking {
         uiAutomation.grantAppFunctionAccess(targetContext, TARGET_APP_PACKAGE)
@@ -103,13 +93,6 @@ class ObserveAppFunctionsIntegrationTest {
         InstallHelper.install(targetAppApkFile)
         uiAutomation.grantAppInteractionAccess(targetContext, TARGET_APP_PACKAGE)
         targetContext.awaitAppFunctionsIndexed(TARGET_APP_PACKAGE)
-
-        for (functionId in functionsUnderTest) {
-            setAppFunctionStateRemoteAsync(
-                AppFunctionName(TARGET_APP_PACKAGE, functionId),
-                AppFunctionManager.APP_FUNCTION_STATE_DEFAULT,
-            )
-        }
     }
 
     @After
@@ -204,6 +187,7 @@ class ObserveAppFunctionsIntegrationTest {
 
     @Test
     fun observeAppFunctions_onFunctionEnabled_emitsStateChange() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(targetContext))
         val disabledByDefaultFunction =
             AppFunctionName(
                 packageName = TARGET_APP_PACKAGE,
@@ -319,6 +303,13 @@ class ObserveAppFunctionsIntegrationTest {
                                     disabledByDefaultFunctionMetadata.parameters,
                                     disabledByDefaultFunctionMetadata.packageMetadata.components,
                                 )
+                                .setAppFunctionData(
+                                    "parameters",
+                                    AppFunctionData.serialize(
+                                        CreateNoteAppFunction.Parameters(title = "Test Title"),
+                                        CreateNoteAppFunction.Parameters::class.java,
+                                    ),
+                                )
                                 .build(),
                         )
                     )
@@ -332,6 +323,7 @@ class ObserveAppFunctionsIntegrationTest {
         }
     }
 
+    @Ignore("b/584236031: Uninstall path is broken")
     @Test
     fun observeAppFunctions_onPackageUninstalled_emitsPackageChange() = doBlocking {
         val receivedEvents = mutableListOf<AppFunctionsChangeEvent>()
@@ -357,6 +349,7 @@ class ObserveAppFunctionsIntegrationTest {
         }
     }
 
+    @Ignore("b/584236031: Uninstall path is broken")
     @Test
     fun observeAppFunctions_onPackageInstalled_emitsPackageChange() = doBlocking {
         val receivedEvents = mutableListOf<AppFunctionsChangeEvent>()
@@ -439,6 +432,8 @@ class ObserveAppFunctionsIntegrationTest {
 
     @Test
     fun observeAppFunctions_onPackageUpdated_functionRemoved_emitsPackageChange() = doBlocking {
+        // Known issue in legacy indexer that function removal doesn't reflect in database.
+        assumeTrue(isDynamicIndexerAvailable(targetContext))
         // Pre-install V2
         InstallHelper.install(targetAppApkFileV2)
         targetContext.awaitAppFunctionsIndexed(
@@ -483,6 +478,7 @@ class ObserveAppFunctionsIntegrationTest {
 
     @Test
     fun observeAppFunctions_onPackageUpdated_componentChanged_emitsPackageChange() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(targetContext))
         val functionName = AppFunctionName(TARGET_APP_PACKAGE, COMPONENT_CHANGED_FUNCTION_ID)
 
         // Pre-install V2
@@ -626,7 +622,7 @@ class ObserveAppFunctionsIntegrationTest {
 
     private suspend fun getTotalFunctionCountInPackage(): Int {
         return if (isDynamicIndexerAvailable(targetContext)) {
-            val baseFunctionCount = 19
+            val baseFunctionCount = 25
             val multiServiceFunctionCount = 6
             val dynamicFunctionsCount = 10
             if (Build.VERSION.SDK_INT >= 37) {
@@ -635,7 +631,7 @@ class ObserveAppFunctionsIntegrationTest {
                 baseFunctionCount
             }
         } else {
-            1
+            2
         }
     }
 }

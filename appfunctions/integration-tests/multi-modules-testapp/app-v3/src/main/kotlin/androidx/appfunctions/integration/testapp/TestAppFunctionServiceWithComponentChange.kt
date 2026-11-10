@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,16 @@
 
 package androidx.appfunctions.integration.testapp
 
-import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
 import android.net.Uri
 import android.os.PatternMatcher
 import androidx.annotation.RequiresApi
+import androidx.appfunction.integration.test.sharedschema.AdditionalSchemaAppFunction
 import androidx.appfunction.integration.test.sharedschema.AppFunctionNote
 import androidx.appfunction.integration.test.sharedschema.ClassWithOptionalValues
 import androidx.appfunction.integration.test.sharedschema.CreateNoteAppFunction
+import androidx.appfunction.integration.test.sharedschema.CreateNoteDisabledAppFunction
 import androidx.appfunction.integration.test.sharedschema.CreateNoteParams
 import androidx.appfunction.integration.test.sharedschema.FilesData
 import androidx.appfunction.integration.test.sharedschema.IntEnumSerializable
@@ -38,11 +39,11 @@ import androidx.appfunction.integration.test.sharedschema.ProxyTypesWrapper
 import androidx.appfunction.integration.test.sharedschema.ResourceFunctionResponse
 import androidx.appfunction.integration.test.sharedschema.UpdateNoteParams
 import androidx.appfunctions.AppFunctionAccessLevel
-import androidx.appfunctions.AppFunctionBehaviorHints
 import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionIntValueConstraint
 import androidx.appfunctions.AppFunctionInvalidArgumentException
 import androidx.appfunctions.AppFunctionPatternMatcher
+import androidx.appfunctions.AppFunctionSerializable
 import androidx.appfunctions.AppFunctionService
 import androidx.appfunctions.AppFunctionServiceEntryPoint
 import androidx.appfunctions.AppFunctionStringValueConstraint
@@ -59,7 +60,11 @@ import kotlinx.coroutines.delay
     serviceName = "TestAppFunctionService",
     appFunctionXmlFileName = "test_app_function_service",
 )
-abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppFunction {
+abstract class BaseTestAppFunctionService :
+    AppFunctionService(),
+    CreateNoteAppFunction,
+    CreateNoteDisabledAppFunction,
+    AdditionalSchemaAppFunction {
     /**
      * Returns the sum of the given two numbers.
      *
@@ -299,7 +304,7 @@ abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppF
     }
 
     @AppFunctionDeclaration(isDescribedByKDoc = false, isEnabled = false)
-    internal suspend fun createNoteDisabled(
+    override suspend fun createNoteDisabled(
         parameters: CreateNoteAppFunction.Parameters,
         tag: String?,
     ): CreateNoteAppFunction.Response {
@@ -358,11 +363,12 @@ abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppF
     )
     internal fun selfAccessDisabledCompatFunction(): String = "self_disabled_compat_success"
 
-    @SuppressLint("RestrictedApiAndroidX")
     @AppFunctionDeclaration(isDescribedByKDoc = false)
-    @AppFunctionBehaviorHints(
-        isReadOnly = true,
-        isOpenWorld = true,
-    )
-    internal fun behaviorHintsFunction(): String = "behavior_hints_success"
+    override fun additionalFunction(): String = "new function"
+
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
+    fun componentChangeFunction(param: ComponentChangeSerializable): String = param.prop2
 }
+
+@AppFunctionSerializable(isDescribedByKDoc = false)
+data class ComponentChangeSerializable(val prop1: String, val prop2: String)

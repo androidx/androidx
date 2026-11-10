@@ -30,8 +30,13 @@ class AppFunctionStateReceiver : BroadcastReceiver() {
             val state =
                 intent.getIntExtra(EXTRA_STATE, AppFunctionManager.APP_FUNCTION_STATE_DEFAULT)
             val manager = AppFunctionManager.getInstance(context) ?: return
+            val pendingResult = goAsync()
             CoroutineScope(Dispatchers.Main).launch {
-                manager.setAppFunctionEnabled(functionId, state)
+                try {
+                    manager.setAppFunctionEnabled(functionId, state)
+                } finally {
+                    pendingResult.finish()
+                }
             }
         }
     }
