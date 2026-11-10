@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.foundation.ClickableNode
 import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
@@ -23,7 +24,6 @@ import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -41,11 +41,13 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.ParentDataModifier
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.ParentDataModifierNode
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.UriHandler
-import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.semantics.SemanticsProperties.LinkTestMarker
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
@@ -53,11 +55,13 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastRoundToInt
+import kotlin.math.max
 import kotlin.math.min
 
 internal typealias LinkRange = AnnotatedString.Range<LinkAnnotation>
@@ -105,37 +109,108 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
     val shouldMeasureLinks: () -> Boolean
         get() = { text == textLayoutResult?.layoutInput?.text }
 
-    /**
-     * Causes the modified element to be measured with fixed constraints equal to the bounds of the
-     * text range and placed over that range of text.
-     */
-    private fun Modifier.textRange(link: LinkRange): Modifier {
-        return this.then(
-            TextRangeLayoutModifier {
-                val layoutResult =
-                    textLayoutResult
-                        ?: return@TextRangeLayoutModifier layout(0, 0) { IntOffset.Zero }
-                val updatedRange =
-                    calculateVisibleLinkRange(link, layoutResult)
-                        ?: return@TextRangeLayoutModifier layout(0, 0) { IntOffset.Zero }
-                val bounds =
+    @OptIn(ExperimentalFoundationApi::class)
+    private fun createRangeMeasurePolicy(link: LinkRange): TextRangeScopeMeasurePolicy {
+        return TextRangeScopeMeasurePolicy {
+            val layoutResult =
+                textLayoutResult
+                    ?: return@TextRangeScopeMeasurePolicy layout(0, 0) { IntOffset.Zero }
+            val updatedRange =
+                calculateVisibleLinkRange(link, layoutResult)
+                    ?: return@TextRangeScopeMeasurePolicy layout(0, 0) { IntOffset.Zero }
+
+            // There's nothing to measure when the link text is empty or when the link is
+            // entirely cut off by the maxLines of the text.
+            if (updatedRange.start >= updatedRange.end) {
+                return@TextRangeScopeMeasurePolicy layout(0, 0) { IntOffset.Zero }
+            }
+
+            val bounds =
+                if (
+                    ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled &&
+                        isSingleLine(updatedRange, layoutResult)
+                ) {
+                    getSingleLineBounds(updatedRange, layoutResult)
+                } else {
                     layoutResult
                         .getPathForRange(updatedRange.start, updatedRange.end)
                         .getBounds()
                         .roundToIntRect()
-                layout(bounds.width, bounds.height) { bounds.topLeft }
-            }
+                }
+            layout(bounds.width, bounds.height) { bounds.topLeft }
+        }
+    }
+
+    /**
+     * Causes the modified element to be measured with fixed constraints equal to the bounds of the
+     * text range and placed over that range of text.
+     */
+    @OptIn(ExperimentalFoundationApi::class)
+    private fun Modifier.textRange(link: LinkRange): Modifier {
+        return this.then(TextRangeLayoutModifier(createRangeMeasurePolicy(link)))
+    }
+
+    /** Returns whether [range] is laid out on a single line. */
+    private fun isSingleLine(range: LinkRange, layoutResult: TextLayoutResult): Boolean =
+        layoutResult.lineCount == 1 ||
+            layoutResult.getLineForOffset(range.start) ==
+                layoutResult.getLineForOffset(range.end - 1)
+
+    /**
+     * Returns whether all characters of [range] resolve to the same bidi direction. Only then is
+     * [range] displayed as a single run of characters in its logical order, or exactly its reverse,
+     * so that its first and its last characters are its visual extremes. In mixed bidi text the
+     * visually leftmost or rightmost character of a range can be in the middle of the range, and
+     * other text can be displayed in between its characters.
+     */
+    private fun isSingleBidiDirection(range: LinkRange, layoutResult: TextLayoutResult): Boolean {
+        val direction = layoutResult.getBidiRunDirection(range.start)
+        for (offset in range.start + 1 until range.end) {
+            if (layoutResult.getBidiRunDirection(offset) != direction) return false
+        }
+        return true
+    }
+
+    /**
+     * Returns the rounded bounds of [range] laid out on a single line without allocating a [Path].
+     * The vertical bounds are the line's top and bottom. The horizontal bounds are the union of the
+     * bounding boxes of the range's visually extreme characters. When all characters of [range]
+     * resolve to the same bidi direction, these are its first and its last characters; otherwise
+     * any character can be one, so all of them are unioned.
+     */
+    private fun getSingleLineBounds(range: LinkRange, layoutResult: TextLayoutResult): IntRect {
+        val line = layoutResult.getLineForOffset(range.start)
+        val firstCharBox = layoutResult.getBoundingBox(range.start)
+        var left = firstCharBox.left
+        var right = firstCharBox.right
+        val lastOffset = range.end - 1
+        var offset = if (isSingleBidiDirection(range, layoutResult)) lastOffset else range.start + 1
+        while (offset <= lastOffset) {
+            val charBox = layoutResult.getBoundingBox(offset)
+            left = min(left, charBox.left)
+            right = max(right, charBox.right)
+            offset++
+        }
+        return IntRect(
+            left = left.fastRoundToInt(),
+            top = layoutResult.getLineTop(line).fastRoundToInt(),
+            right = right.fastRoundToInt(),
+            bottom = layoutResult.getLineBottom(line).fastRoundToInt(),
         )
     }
 
     /**
      * Clips the Box representing the link to the path of the text range corresponding to that link
      */
+    @OptIn(ExperimentalFoundationApi::class)
     private fun Modifier.clipLink(link: LinkRange): Modifier =
         this.graphicsLayer {
-            shapeForRange(link)?.let { linkShape ->
+            val linkShape = shapeForRange(link)
+            if (linkShape != null) {
                 shape = linkShape
                 clip = true
+            } else if (ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled) {
+                clip = false
             }
         }
 
@@ -152,12 +227,30 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
             }
         }
 
+    @OptIn(ExperimentalFoundationApi::class)
     private fun pathForRangeInRangeCoordinates(link: LinkRange): Path? {
         return if (!shouldMeasureLinks()) null
         else {
             textLayoutResult?.let {
                 val range = calculateVisibleLinkRange(link, it) ?: return null
+                // A link displayed as a single rectangle doesn't need to be clipped: the Box
+                // representing it is measured to exactly that rectangle.
+                if (
+                    range.start >= range.end ||
+                        (ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled &&
+                            isSingleLine(range, it) &&
+                            isSingleBidiDirection(range, it))
+                ) {
+                    return null
+                }
                 val path = it.getPathForRange(range.start, range.end)
+                if (ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled) {
+                    // The Box representing the link is measured to the bounds of this path and
+                    // placed at their top left corner, which isn't necessarily at the first or the
+                    // last character of the link, e.g. in mixed bidi text or centered text.
+                    path.translate(-path.getBounds().topLeft)
+                    return path
+                }
 
                 val firstCharBoundingBox = it.getBoundingBox(range.start)
                 val lastCharBoundingBox = it.getBoundingBox(range.end - 1)
@@ -222,48 +315,57 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
         val links = text.getLinkAnnotations(0, text.length)
         links.fastForEach { range ->
             if (range.start != range.end) {
-                val interactionSource = remember { MutableInteractionSource() }
+                val shouldTrackInteractions =
+                    if (ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled) {
+                        range.item.styles.hasStatefulStyles()
+                    } else {
+                        !range.item.styles.isNullOrEmpty()
+                    }
+                val interactionSource =
+                    if (
+                        !ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled ||
+                            shouldTrackInteractions
+                    ) {
+                        remember { MutableInteractionSource() }
+                    } else {
+                        null
+                    }
 
-                val boxContent =
-                    @Composable {
-                        Box(
-                            Modifier.clipLink(range)
-                                .semantics {
-                                    // adding this to identify links in tests, see
-                                    // performFirstLinkClick
-                                    this[LinkTestMarker] = Unit
-                                }
-                                .textRange(range)
-                                .hoverable(interactionSource)
-                                .pointerHoverIcon(PointerIcon.Hand)
-                                .combinedClickable(
-                                    indication = null,
+                if (ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled) {
+                    Box(
+                        Modifier.clipLink(range)
+                            .pointerHoverIcon(PointerIcon.Hand)
+                            .then(
+                                TextLinkElement(
+                                    measurePolicy = createRangeMeasurePolicy(range),
                                     interactionSource = interactionSource,
                                     onClick = { handleLink(range.item, uriHandler) },
                                 )
-                        )
-                    }
-
-                // disable minimum touch target for clipping-to-path to correctly handle the
-                // multi-line links clicking
-                if (ComposeFoundationFlags.isLinkMinimumTouchTargetSizeZeroEnabled) {
-                    val viewConfiguration = LocalViewConfiguration.current
-                    val zeroMinTouchTargetViewConfiguration =
-                        remember(viewConfiguration) {
-                            object : ViewConfiguration by viewConfiguration {
-                                override val minimumTouchTargetSize: DpSize
-                                    get() = DpSize.Zero
-                            }
-                        }
-                    CompositionLocalProvider(
-                        LocalViewConfiguration provides zeroMinTouchTargetViewConfiguration,
-                        content = boxContent,
+                            )
                     )
                 } else {
-                    boxContent()
+                    Box(
+                        Modifier.clipLink(range)
+                            .semantics {
+                                // adding this to identify links in tests, see
+                                // performFirstLinkClick
+                                this[LinkTestMarker] = Unit
+                            }
+                            .textRange(range)
+                            .then(
+                                if (interactionSource != null) Modifier.hoverable(interactionSource)
+                                else Modifier
+                            )
+                            .pointerHoverIcon(PointerIcon.Hand)
+                            .combinedClickable(
+                                indication = null,
+                                interactionSource = interactionSource,
+                                onClick = { handleLink(range.item, uriHandler) },
+                            )
+                    )
                 }
 
-                if (!range.item.styles.isNullOrEmpty()) {
+                if (shouldTrackInteractions && interactionSource != null) {
                     // the interaction source is not hoisted, we create and remember it in the
                     // code above. Therefore there's no need to pass it as a key to the remember and
                     // a
@@ -326,12 +428,16 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
     }
 
     /** Returns [text] with additional styles from [LinkAnnotation] based on link's state */
+    @OptIn(ExperimentalFoundationApi::class)
     internal fun applyAnnotators(): AnnotatedString {
         val styledText =
             if (annotators.isEmpty()) text
             else {
                 val scope = TextAnnotatorScope(text)
                 annotators.toList().fastForEach { it.invoke(scope) }
+                if (ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled) {
+                    scope.applyStyleReplacements()
+                }
                 scope.styledText
             }
         text = styledText
@@ -353,6 +459,10 @@ private fun TextLinkStyles?.isNullOrEmpty(): Boolean {
         (style == null && focusedStyle == null && hoveredStyle == null && pressedStyle == null)
 }
 
+private fun TextLinkStyles?.hasStatefulStyles(): Boolean {
+    return this != null && (focusedStyle != null || hoveredStyle != null || pressedStyle != null)
+}
+
 /** Interface holding the width, height and positioning logic. */
 internal class TextRangeLayoutMeasureResult
 internal constructor(val width: Int, val height: Int, val place: () -> IntOffset)
@@ -371,18 +481,33 @@ internal fun interface TextRangeScopeMeasurePolicy {
     fun TextRangeLayoutMeasureScope.measure(): TextRangeLayoutMeasureResult
 }
 
-internal class TextRangeLayoutModifier(val measurePolicy: TextRangeScopeMeasurePolicy) :
-    ParentDataModifier {
+/**
+ * Parent data of a layout node representing a text range, e.g. a link. The text's measure policy
+ * measures and places such a node according to [measurePolicy].
+ */
+internal interface TextRangeLayoutParentData {
+    val measurePolicy: TextRangeScopeMeasurePolicy
+}
+
+internal class TextRangeLayoutModifier(override var measurePolicy: TextRangeScopeMeasurePolicy) :
+    ParentDataModifier, TextRangeLayoutParentData {
     override fun Density.modifyParentData(parentData: Any?) = this@TextRangeLayoutModifier
 }
 
 /**
  * Provides methods to update styles of the text inside a [TextLinkScope.StyleAnnotation] function.
  */
+@OptIn(ExperimentalFoundationApi::class)
 private class TextAnnotatorScope(private val initialText: AnnotatedString) {
     var styledText = initialText
+    private val styleReplacements = HashMap<AnnotatedString.Range<LinkAnnotation>, SpanStyle?>()
 
     fun replaceStyle(linkRange: AnnotatedString.Range<LinkAnnotation>, newStyle: SpanStyle?) {
+        if (ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled) {
+            styleReplacements[linkRange] = newStyle
+            return
+        }
+
         var linkFound = false
         styledText = initialText.mapAnnotations {
             // if we found a link annotation on previous iteration, we need to update the
@@ -404,4 +529,118 @@ private class TextAnnotatorScope(private val initialText: AnnotatedString) {
             annotation
         }
     }
+
+    fun applyStyleReplacements() {
+        if (styleReplacements.isEmpty()) return
+        var activeLinkRange: AnnotatedString.Range<LinkAnnotation>? = null
+        styledText = initialText.mapAnnotations {
+            val annotation =
+                if (
+                    activeLinkRange != null &&
+                        it.item is SpanStyle &&
+                        it.start == activeLinkRange?.start &&
+                        it.end == activeLinkRange?.end &&
+                        styleReplacements.containsKey(activeLinkRange)
+                ) {
+                    val newStyle = styleReplacements[activeLinkRange]
+                    AnnotatedString.Range(newStyle ?: SpanStyle(), it.start, it.end)
+                } else {
+                    it
+                }
+            activeLinkRange =
+                if (it.item is LinkAnnotation) {
+                    @Suppress("UNCHECKED_CAST")
+                    it as AnnotatedString.Range<LinkAnnotation>
+                } else {
+                    null
+                }
+            annotation
+        }
+    }
+}
+
+private class TextLinkElement(
+    val measurePolicy: TextRangeScopeMeasurePolicy,
+    val interactionSource: MutableInteractionSource?,
+    val onClick: () -> Unit,
+) : ModifierNodeElement<TextLinkNode>() {
+    override fun create(): TextLinkNode =
+        TextLinkNode(
+            measurePolicy = measurePolicy,
+            interactionSource = interactionSource,
+            onClick = onClick,
+        )
+
+    override fun update(node: TextLinkNode) {
+        node.updateLink(
+            measurePolicy = measurePolicy,
+            interactionSource = interactionSource,
+            onClick = onClick,
+        )
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "textLink"
+        properties["interactionSource"] = interactionSource
+        properties["onClick"] = onClick
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is TextLinkElement) return false
+
+        if (measurePolicy != other.measurePolicy) return false
+        if (interactionSource != other.interactionSource) return false
+        if (onClick !== other.onClick) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = measurePolicy.hashCode()
+        result = 31 * result + (interactionSource?.hashCode() ?: 0)
+        result = 31 * result + onClick.hashCode()
+        return result
+    }
+}
+
+private class TextLinkNode(
+    override var measurePolicy: TextRangeScopeMeasurePolicy,
+    interactionSource: MutableInteractionSource?,
+    onClick: () -> Unit,
+) :
+    ClickableNode(
+        interactionSource = interactionSource,
+        indicationNodeFactory = null,
+        useLocalIndication = false,
+        enabled = true,
+        onClickLabel = null,
+        role = null,
+        onClick = onClick,
+    ),
+    ParentDataModifierNode,
+    TextRangeLayoutParentData {
+
+    fun updateLink(
+        measurePolicy: TextRangeScopeMeasurePolicy,
+        interactionSource: MutableInteractionSource?,
+        onClick: () -> Unit,
+    ) {
+        this.measurePolicy = measurePolicy
+        update(
+            interactionSource = interactionSource,
+            indicationNodeFactory = null,
+            useLocalIndication = false,
+            enabled = true,
+            onClickLabel = null,
+            role = null,
+            onClick = onClick,
+        )
+    }
+
+    override fun SemanticsPropertyReceiver.applyAdditionalSemantics() {
+        this[LinkTestMarker] = Unit
+    }
+
+    override fun Density.modifyParentData(parentData: Any?) = this@TextLinkNode
 }

@@ -729,7 +729,7 @@ private class TextMeasurePolicy(
     ): MeasureResult {
         // inline content
         val inlineContentMeasurables = measurables.fastFilter {
-            it.parentData !is TextRangeLayoutModifier
+            it.parentData !is TextRangeLayoutParentData
         }
         val inlineContentToPlace =
             placements()?.fastMapIndexedNotNull { index, rect ->
@@ -749,7 +749,7 @@ private class TextMeasurePolicy(
             }
 
         // links
-        val linksMeasurables = measurables.fastFilter { it.parentData is TextRangeLayoutModifier }
+        val linksMeasurables = measurables.fastFilter { it.parentData is TextRangeLayoutParentData }
         val linksToPlace =
             measureWithTextRangeMeasureConstraints(
                 measurables = linksMeasurables,
@@ -795,7 +795,7 @@ private fun measureWithTextRangeMeasureConstraints(
         val textRangeLayoutMeasureScope = TextRangeLayoutMeasureScope()
         measurables.fastMapIndexedNotNull { _, measurable ->
             val rangeMeasurePolicy =
-                (measurable.parentData as TextRangeLayoutModifier).measurePolicy
+                (measurable.parentData as TextRangeLayoutParentData).measurePolicy
             val rangeMeasureResult =
                 with(rangeMeasurePolicy) { textRangeLayoutMeasureScope.measure() }
             val placeable =
