@@ -118,6 +118,40 @@ class PreviewTransformationTest {
     }
 
     @Test
+    fun surfaceViewContentRotation_withoutCameraTransform_isRemainingRotation() {
+        setTransformationInfoForContentRotation(hasCameraTransform = false)
+
+        assertThat(mPreviewTransform.surfaceViewContentRotationDegrees).isEqualTo(90)
+    }
+
+    @Test
+    fun surfaceViewContentRotation_withCameraTransform_isZero() {
+        setTransformationInfoForContentRotation(hasCameraTransform = true)
+
+        assertThat(mPreviewTransform.surfaceViewContentRotationDegrees).isEqualTo(0)
+    }
+
+    @Test
+    fun surfaceViewContentRotation_withoutTransformationInfo_isZero() {
+        assertThat(mPreviewTransform.surfaceViewContentRotationDegrees).isEqualTo(0)
+    }
+
+    private fun setTransformationInfoForContentRotation(hasCameraTransform: Boolean) {
+        mPreviewTransform.setTransformationInfo(
+            SurfaceRequest.TransformationInfo.of(
+                Rect(0, 0, SURFACE_SIZE.width, SURFACE_SIZE.height),
+                90,
+                ROTATION_0,
+                hasCameraTransform,
+                /*sensorToBufferTransform=*/ Matrix(),
+                /*mirroring=*/ false,
+            ),
+            SURFACE_SIZE,
+            BACK_CAMERA,
+        )
+    }
+
+    @Test
     fun getSensorToViewTransformWithBackCamera_returnConcatenatedTransform() {
         getSensorToViewTransform_returnConcatenatedTransform(BACK_CAMERA)
     }

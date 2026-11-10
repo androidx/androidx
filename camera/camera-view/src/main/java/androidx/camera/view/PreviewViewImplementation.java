@@ -55,6 +55,11 @@ abstract class PreviewViewImplementation {
         mPreviewTransform = previewTransform;
     }
 
+    /** Returns the transformation applied to the preview. */
+    @NonNull PreviewTransformation getPreviewTransform() {
+        return mPreviewTransform;
+    }
+
     /**
      * Starts to execute the {@link SurfaceRequest} by providing a Surface.
      *

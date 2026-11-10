@@ -738,6 +738,12 @@ public final class PreviewView extends FrameLayout {
             // Extensions session of the camera.
             return true;
         }
+        if (!SurfaceViewImplementation.canRotateContent() && !hasCameraTransform(surfaceRequest)) {
+            // The SurfaceView can't apply the remaining rotation of a stream without the camera
+            // transform, e.g. after a Preview target rotation change. The decision only depends
+            // on the stream, so it doesn't change with the rotation.
+            return true;
+        }
         switch (implementationMode) {
             case COMPATIBLE:
                 return true;
@@ -747,6 +753,19 @@ public final class PreviewView extends FrameLayout {
                 throw new IllegalArgumentException(
                         "Invalid implementation mode: " + implementationMode);
         }
+    }
+
+    /**
+     * Returns whether the stream of the {@link SurfaceRequest} has the camera transform.
+     *
+     * <p>A stream produced by surface processing, e.g. a {@code CameraEffect} or stream sharing,
+     * has no camera transform, so {@link PreviewView} applies its remaining rotation. Assumes the
+     * camera transform if the {@link SurfaceRequest.TransformationInfo} is not available yet.
+     */
+    static boolean hasCameraTransform(@NonNull SurfaceRequest surfaceRequest) {
+        SurfaceRequest.TransformationInfo transformationInfo =
+                surfaceRequest.getTransformationInfo();
+        return transformationInfo == null || transformationInfo.hasCameraTransform();
     }
 
     // Synthetic access
@@ -816,7 +835,9 @@ public final class PreviewView extends FrameLayout {
          * lower, the camera hardware support level is
          * {@link CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY},
          * {@link Preview#getTargetRotation()} is different from {@link PreviewView}'s display
-         * rotation, or Extensions are enabled on API level 33 or lower.
+         * rotation, Extensions are enabled on API level 33 or lower, or, on API level 28 or
+         * lower, a {@link androidx.camera.core.CameraEffect} is applied to the preview or the
+         * preview shares a stream with other use cases.
          *
          * <p>Do not use this mode if {@link Preview.Builder#setTargetRotation(int)} is set
          * to a value different than the display's rotation, because {@link SurfaceView} does not

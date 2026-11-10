@@ -639,6 +639,16 @@ public final class SurfaceRequest {
     }
 
     /**
+     * Returns the latest {@link TransformationInfo}, or {@code null} if it's not available yet.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @Nullable TransformationInfo getTransformationInfo() {
+        synchronized (mLock) {
+            return mTransformationInfo;
+        }
+    }
+
+    /**
      * Sets a listener to receive updates on transformation info.
      *
      * <p> Sets a listener to receive the transformation info associated with this

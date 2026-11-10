@@ -16,9 +16,22 @@
 package androidx.camera.view
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.view.Surface
+import androidx.camera.core.Camera
+import androidx.camera.core.CameraEffect.PREVIEW
+import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.DynamicRange
 import androidx.camera.core.Preview
+import androidx.camera.core.UseCaseGroup
+import androidx.camera.core.impl.CameraCaptureCallback
+import androidx.camera.core.impl.CameraCaptureResult
+import androidx.camera.core.impl.CameraInfoInternal
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.core.processing.DefaultSurfaceProcessor
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
@@ -26,12 +39,16 @@ import androidx.camera.testing.impl.ParameterizedTestConfigUtil
 import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.testing.impl.fakes.FakeActivity
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.fakes.FakeSurfaceEffect
 import androidx.camera.testing.impl.testrule.CameraTestActivityScenarioRule
+import androidx.camera.video.Recorder
+import androidx.camera.video.VideoCapture
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
@@ -135,6 +152,115 @@ class PreviewViewBitmapTest(private val implName: String, private val cameraConf
             val bitmap = previewView.bitmap
             Truth.assertThat(bitmap).isNotNull()
         }
+    }
+
+    @Test
+    fun bitmapHasContent_whenPreviewWithEffectIsDisplaying_surfaceView() =
+        assertBitmapHasContentWithProcessing(PreviewView.ImplementationMode.PERFORMANCE, PREVIEW)
+
+    @Test
+    fun bitmapHasContent_whenPreviewWithEffectIsDisplaying_textureView() =
+        assertBitmapHasContentWithProcessing(PreviewView.ImplementationMode.COMPATIBLE, PREVIEW)
+
+    @Test
+    fun bitmapHasContent_whenSharedPreviewIsDisplaying_surfaceView() =
+        assertBitmapHasContentWithProcessing(
+            PreviewView.ImplementationMode.PERFORMANCE,
+            PREVIEW or VIDEO_CAPTURE,
+        )
+
+    /**
+     * Asserts that the bitmap has the preview content for a stream without the camera transform,
+     * e.g. with an effect or stream sharing, including after the target rotation changes.
+     */
+    private fun assertBitmapHasContentWithProcessing(
+        mode: PreviewView.ImplementationMode,
+        effectTargets: Int,
+    ) {
+        // Arrange.
+        val previewView = setUpPreviewView(mode)
+        val preview = Preview.Builder().setTargetRotation(Surface.ROTATION_0).build()
+        val processor = DefaultSurfaceProcessor.Factory.newInstance(DynamicRange.SDR)
+        try {
+            val useCaseGroup =
+                UseCaseGroup.Builder()
+                    .addUseCase(preview)
+                    .addEffect(FakeSurfaceEffect(effectTargets, processor))
+                    .apply {
+                        if (effectTargets and VIDEO_CAPTURE != 0) {
+                            addUseCase(VideoCapture.withOutput(Recorder.Builder().build()))
+                        }
+                    }
+                    .build()
+            lateinit var camera: Camera
+            runOnMainThread {
+                val lifecycleOwner = FakeLifecycleOwner()
+                lifecycleOwner.startAndResume()
+                preview.setSurfaceProvider(previewView.surfaceProvider)
+                camera =
+                    checkNotNull(cameraProvider)
+                        .bindToLifecycle(lifecycleOwner, cameraSelector, useCaseGroup)
+            }
+            waitForPreviewToStart(previewView)
+
+            for (targetRotation in listOf(Surface.ROTATION_0, Surface.ROTATION_90)) {
+                // Act.
+                runOnMainThread { preview.targetRotation = targetRotation }
+                InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+                waitForNextFrames(camera.cameraInfo as CameraInfoInternal, frameCount = 10)
+
+                // Assert.
+                runOnMainThread {
+                    val bitmap = previewView.bitmap
+                    Truth.assertThat(bitmap).isNotNull()
+                    val nonNullBitmap = checkNotNull(bitmap)
+                    try {
+                        Truth.assertThat(nonNullBitmap.width).isEqualTo(previewView.width)
+                        Truth.assertThat(nonNullBitmap.height).isEqualTo(previewView.height)
+                        Truth.assertThat(hasContent(nonNullBitmap)).isTrue()
+                    } finally {
+                        nonNullBitmap.recycle()
+                    }
+                }
+            }
+        } finally {
+            try {
+                runOnMainThread { cameraProvider?.unbindAll() }
+            } finally {
+                processor.release()
+            }
+        }
+    }
+
+    private fun waitForNextFrames(cameraInfo: CameraInfoInternal, frameCount: Int) {
+        val latch = CountDownLatch(frameCount)
+        val callback =
+            object : CameraCaptureCallback() {
+                override fun onCaptureCompleted(
+                    captureConfigId: Int,
+                    result: CameraCaptureResult,
+                ) {
+                    latch.countDown()
+                }
+            }
+        cameraInfo.addSessionCaptureCallback(CameraXExecutors.directExecutor(), callback)
+        try {
+            Truth.assertThat(latch.await(10, TimeUnit.SECONDS)).isTrue()
+        } finally {
+            cameraInfo.removeSessionCaptureCallback(callback)
+        }
+    }
+
+    /**
+     * Returns whether the center of the bitmap has rendered opaque pixels, i.e. isn't an empty
+     * transparent bitmap from a failed `PixelCopy` or unrendered region.
+     */
+    private fun hasContent(bitmap: Bitmap): Boolean {
+        val width = bitmap.width / 2
+        val height = bitmap.height / 2
+        val pixels = IntArray(width * height)
+        bitmap.getPixels(pixels, 0, width, width / 2, height / 2, width, height)
+        return pixels.isNotEmpty() && pixels.all { Color.alpha(it) == 0xFF }
     }
 
     @Test
