@@ -707,7 +707,7 @@ internal class SpatialInteractionScopeImpl(
         }
 }
 
-private fun calculateWindowBoundsOffset(node: SpatialNode, bounds: Rect): Vector3 =
+internal fun calculateWindowBoundsOffset(node: SpatialNode, bounds: Rect): Vector3 =
     calculateWindowPixelOffset(
         node = node,
         pixelX = (bounds.left + bounds.right) / 2.0f,
@@ -742,7 +742,7 @@ private fun calculateWindowPixelOffset(
  * @param offset Translation offset in meters applied relative to the aligned point in node-local
  *   coordinates.
  */
-private fun calculateAlignedPoint(
+internal fun calculateAlignedPoint(
     node: SpatialNode,
     alignment: SpatialAlignment = SpatialAlignment.Center,
     offset: Vector3 = Vector3.Zero,
