@@ -19,7 +19,9 @@ package androidx.xr.arcore
 import androidx.activity.ComponentActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.arcore.testing.ArCoreTestRule
+import androidx.xr.arcore.testing.TestAugmentedObject
 import androidx.xr.arcore.testing.TestPlane
+import androidx.xr.runtime.AugmentedObjectCategory
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
@@ -119,5 +121,76 @@ class InteractionTest {
             session.configure(Config.Builder().setPlaneTracking(PlaneTrackingMode.DISABLED).build())
 
             assertFailsWith<IllegalStateException> { hitTest(session, Ray()) }
+        }
+
+    @Test
+    fun hitTest_unsyncedRuntimeTrackables_skipsUnsyncedTrackables() =
+        runTest(testDispatcher) {
+            val devicePose = Pose()
+            val syncedHitPose = Pose(Vector3(0f, 0f, -1f), Quaternion.Identity)
+            val unsyncedHitPose = Pose(Vector3(0f, 0f, -2f), Quaternion.Identity)
+            val syncedTestPlane =
+                TestPlane(PlaneType.VERTICAL, PlaneLabel.WALL).apply { centerPose = syncedHitPose }
+            val unsyncedTestPlane =
+                TestPlane(PlaneType.VERTICAL, PlaneLabel.WALL).apply {
+                    centerPose = unsyncedHitPose
+                }
+            arCoreTestRule.deviceTester.pose = devicePose
+            arCoreTestRule.addTrackables(syncedTestPlane, unsyncedTestPlane)
+            var foundPlanes = emptyList<Plane>()
+            testScope.launch { Plane.subscribe(session).collect { foundPlanes = it.toList() } }
+            advanceUntilIdle()
+            check(foundPlanes.size == 2) {
+                "Expected 2 subscribed planes before syncing, got ${foundPlanes.size}"
+            }
+            val syncedPlane = foundPlanes.first { it.state.value.centerPose == syncedHitPose }
+            val perceptionStateExtender =
+                session.stateExtenders.filterIsInstance<PerceptionStateExtender>().first()
+            perceptionStateExtender.xrResourcesManager.syncTrackables(
+                listOf(syncedPlane.runtimePlane)
+            )
+            val ray = Ray(origin = devicePose.translation, direction = devicePose.forward)
+
+            val hitResults = hitTest(session, ray)
+
+            val hitResult = hitResults.single()
+            assertThat(hitResult.distance).isEqualTo(1f)
+            assertThat(hitResult.hitPose).isEqualTo(syncedHitPose)
+            assertThat(hitResult.trackable).isEqualTo(syncedPlane)
+        }
+
+    @Test
+    fun hitTest_nonAnchorableTrackable_returnsHitResult() =
+        runTest(testDispatcher) {
+            session.configure(
+                Config.Builder()
+                    .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+                    .setAugmentedObjectCategories(setOf(AugmentedObjectCategory.KEYBOARD))
+                    .build()
+            )
+            val devicePose = Pose()
+            val objectPose = Pose(Vector3(0f, 0f, -0.5f), Quaternion.Identity)
+            val testObject =
+                TestAugmentedObject(AugmentedObjectCategory.KEYBOARD).apply {
+                    centerPose = objectPose
+                }
+            arCoreTestRule.deviceTester.pose = devicePose
+            arCoreTestRule.addTrackables(testObject)
+            var foundObjects = emptyList<AugmentedObject>()
+            testScope.launch {
+                AugmentedObject.subscribe(session).collect { foundObjects = it.toList() }
+            }
+            advanceUntilIdle()
+            check(foundObjects.size == 1) {
+                "Expected 1 subscribed AugmentedObject before hitTest, got ${foundObjects.size}"
+            }
+            val ray = Ray(origin = devicePose.translation, direction = devicePose.forward)
+
+            val hitResults = hitTest(session, ray)
+
+            val hitResult = hitResults.single()
+            assertThat(hitResult.distance).isEqualTo(0.5f)
+            assertThat(hitResult.hitPose).isEqualTo(objectPose)
+            assertThat(hitResult.trackable).isEqualTo(foundObjects.single())
         }
 }

@@ -27,11 +27,12 @@ import androidx.xr.runtime.math.Ray
  *
  * A hit-test is a method of calculating the intersection of a ray with objects tracked by the
  * session. Conducting a hit-test results in a list of hit objects, in other words, a hit-test does
- * not stop at the first object hit.
+ * not stop at the first object hit. Hits on trackables that are not yet known to the session are
+ * omitted.
  *
  * @param session the [Session] to perform the hit-test in
  * @param ray the [Ray] to use for the hit-test
- * @return a list of [HitResult] objects, sorted by distance from the origin of the ray, nearest to
+ * @return a list of [HitResult] objects sorted by distance from the origin of the ray, nearest to
  *   farthest
  * @throws [IllegalStateException] if [Session.config] is set to [PlaneTrackingMode.DISABLED]
  * @sample androidx.xr.arcore.samples.callHitTest
@@ -46,11 +47,8 @@ public fun hitTest(session: Session, ray: Ray): List<HitResult> {
         "Config.PlaneTrackingMode is set to DISABLED."
     }
     val trackableMap = perceptionStateExtender.xrResourcesManager.trackablesMap
-    return perceptionManager.hitTest(ray).map {
-        val anchorable =
-            requireNotNull(trackableMap[it.trackable] as? Anchorable<Trackable.State>) {
-                "No Active Anchorable found for the given hit result."
-            }
-        HitResult(it.distance, it.hitPose, anchorable)
+    return perceptionManager.hitTest(ray).mapNotNull {
+        val trackable = trackableMap[it.trackable] ?: return@mapNotNull null
+        HitResult(it.distance, it.hitPose, trackable)
     }
 }

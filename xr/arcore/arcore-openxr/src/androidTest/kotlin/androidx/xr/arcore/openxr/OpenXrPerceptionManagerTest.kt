@@ -50,7 +50,6 @@ import com.google.common.truth.Truth.assertThat
 import java.nio.ByteBuffer
 import java.nio.FloatBuffer
 import java.util.UUID
-import kotlin.test.assertFailsWith
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -448,14 +447,12 @@ class OpenXrPerceptionManagerTest {
     }
 
     @Test
-    fun hitTest_planeTrackingDisabled_throwsIllegalStateException() = initOpenXrRuntimeAndRunTest {
+    fun hitTest_planeTrackingDisabled_returnsEmptyList() = initOpenXrRuntimeAndRunTest {
         openXrRuntime.configure(Config(planeTracking = PlaneTrackingMode.DISABLED))
         underTest.updatePlanes(XR_TIME)
         underTest.update(XR_TIME)
 
-        assertFailsWith<IllegalStateException> {
-            underTest.hitTest(Ray(Vector3(4f, 3f, 2f), Vector3(2f, 1f, 0f)))
-        }
+        assertThat(underTest.hitTest(Ray(Vector3(4f, 3f, 2f), Vector3(2f, 1f, 0f)))).isEmpty()
     }
 
     @Test

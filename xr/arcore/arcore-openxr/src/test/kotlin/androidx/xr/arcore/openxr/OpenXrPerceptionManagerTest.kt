@@ -17,13 +17,18 @@
 package androidx.xr.arcore.openxr
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.xr.arcore.runtime.Plane
 import androidx.xr.arcore.runtime.SpatialAnnotationId
 import androidx.xr.arcore.runtime.SpatialAnnotationImageFormat
 import androidx.xr.arcore.runtime.SpatialAnnotationQuadAlignment
 import androidx.xr.runtime.ExperimentalSpatialAnnotationsApi
 import androidx.xr.runtime.math.IntSize2d
+import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quad
+import androidx.xr.runtime.math.Quaternion
+import androidx.xr.runtime.math.Ray
 import androidx.xr.runtime.math.Vector2
+import androidx.xr.runtime.math.Vector3
 import com.google.common.truth.Truth.assertThat
 import java.nio.ByteBuffer
 import kotlin.test.assertFailsWith
@@ -46,7 +51,22 @@ class OpenXrPerceptionManagerTest {
     class ShadowOpenXrPerceptionManager {
         companion object {
             var mockedStartHandles: LongArray? = null
+            internal var mockedHitData: Array<HitData> = emptyArray()
             val stoppedHandleBatches = mutableListOf<LongArray>()
+
+            @Implementation
+            @JvmStatic
+            @JvmName("nativeHitTest")
+            internal fun nativeHitTest(
+                maxResults: Int,
+                originX: Float,
+                originY: Float,
+                originZ: Float,
+                directionX: Float,
+                directionY: Float,
+                directionZ: Float,
+                timestampNs: Long,
+            ): Array<HitData> = mockedHitData
 
             @Implementation
             @JvmStatic
@@ -80,6 +100,7 @@ class OpenXrPerceptionManagerTest {
     @Before
     fun setUp() {
         ShadowOpenXrPerceptionManager.mockedStartHandles = null
+        ShadowOpenXrPerceptionManager.mockedHitData = emptyArray()
         ShadowOpenXrPerceptionManager.stoppedHandleBatches.clear()
         timeSource = OpenXrTimeSource()
         underTest = OpenXrPerceptionManager(timeSource)
@@ -397,5 +418,25 @@ class OpenXrPerceptionManagerTest {
             .isEqualTo("Failed to start spatial annotation tracking.")
         assertThat(underTest.xrResources.annotationConfigs).isEmpty()
         assertThat(ShadowOpenXrPerceptionManager.stoppedHandleBatches).isEmpty()
+    }
+
+    @Test
+    fun hitTest_unsyncedNativeTrackables_skipsUnsyncedAndReturnsSyncedHitResult() {
+        val syncedPlaneId = 101L
+        val unsyncedTrackableId = 999L
+        val syncedPlane =
+            OpenXrPlane(syncedPlaneId, Plane.Type.VERTICAL, timeSource, underTest.xrResources)
+        underTest.xrResources.addTrackable(syncedPlaneId, syncedPlane)
+        val unsyncedPose = Pose(Vector3(0f, 0f, -1f), Quaternion.Identity)
+        val syncedPose = Pose(Vector3(0f, 0f, -2f), Quaternion.Identity)
+        ShadowOpenXrPerceptionManager.mockedHitData =
+            arrayOf(HitData(unsyncedPose, unsyncedTrackableId), HitData(syncedPose, syncedPlaneId))
+
+        val results = underTest.hitTest(Ray(Vector3.Zero, Vector3.Forward))
+
+        val hitResult = results.single()
+        assertThat(hitResult.distance).isEqualTo(2f)
+        assertThat(hitResult.hitPose).isEqualTo(syncedPose)
+        assertThat(hitResult.trackable).isEqualTo(syncedPlane)
     }
 }
