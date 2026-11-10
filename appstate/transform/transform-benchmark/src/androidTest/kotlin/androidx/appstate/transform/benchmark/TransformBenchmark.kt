@@ -16,6 +16,7 @@
 
 package androidx.appstate.transform.benchmark
 
+import androidx.appstate.transform.RunnableTransformScope
 import androidx.appstate.transform.transform
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
@@ -25,7 +26,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -40,6 +43,8 @@ import org.junit.runner.RunWith
  * 4. Transactional atomicity and diamond DAG propagation ($A \to B, C \to D$).
  * 5. Memoization during high-frequency mutations.
  * 6. Burst mutation conflation throughput.
+ * 7. Shared [RunnableTransformScope] setup overhead, chained propagation, and selective fan-out.
+ * 8. Nested `@Composable` [transform] setup overhead and chained propagation.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 @LargeTest
@@ -78,6 +83,23 @@ class TransformBenchmark {
                     transform(0, backgroundScope, dispatcher = testDispatcher) {
                         inputs.sumOf { it.intValue }
                     }
+                BlackHole.consume(state.value)
+            }
+        }
+    }
+
+    /**
+     * ─── 1b. BASELINE UNIT INSTANTIATION / SETUP OVERHEAD ────────────────────────────────────────
+     *
+     * WHY THIS IS IMPORTANT: Evaluates the pure framework floor of instantiating a single reactive
+     * transformation pipeline that performs no calculations or state reads (`{ Unit }`), isolating
+     * headless composition, recomposer, and frame clock setup from state subscription work.
+     */
+    @Test
+    fun benchmarkTransformUnitSetupOverhead() {
+        benchmarkRule.measureRepeated {
+            runTest {
+                val state = transform(Unit, backgroundScope, dispatcher = testDispatcher) { Unit }
                 BlackHole.consume(state.value)
             }
         }
@@ -341,6 +363,222 @@ class TransformBenchmark {
             }
             runRecomposition()
             BlackHole.consume(output.value)
+        }
+    }
+
+    /**
+     * ─── 7. SHARED TRANSFORM SCOPE: SETUP OVERHEAD ───────────────────────────────────────────────
+     *
+     * WHY THIS IS IMPORTANT: Evaluates the cold-start cost of instantiating multiple
+     * transformations that share a single [RunnableTransformScope] via
+     * [RunnableTransformScope.launchTransform] and starting [RunnableTransformScope.run].
+     *
+     * GENERAL SUBSYSTEMS & AREAS INVOLVED:
+     * - Initial State Evaluation: Computing initial values for each launched transformation.
+     * - Shared Composition Lifecycle: Combining multiple transformations into a single headless
+     *   composition and recomposer loop.
+     */
+    @Test
+    fun benchmarkSharedTransformScopeSetupOverhead() {
+        val numTransforms = 10
+        val numInputsPerTransform = 20
+        benchmarkRule.measureRepeated {
+            runTest {
+                val inputs = runWithMeasurementDisabled {
+                    List(numTransforms) { List(numInputsPerTransform) { mutableIntStateOf(0) } }
+                }
+                val transformScope = RunnableTransformScope()
+                val states = inputs.map { group ->
+                    transformScope.launchTransform(0) { group.sumOf { it.intValue } }
+                }
+                backgroundScope.launch(testDispatcher, start = CoroutineStart.UNDISPATCHED) {
+                    transformScope.run()
+                }
+                BlackHole.consume(states.sumOf { it.value })
+            }
+        }
+    }
+
+    /**
+     * ─── 7b. SHARED TRANSFORM SCOPE: BASELINE UNIT SETUP OVERHEAD ────────────────────────────────
+     *
+     * WHY THIS IS IMPORTANT: Evaluates the pure framework floor of instantiating 10 transformations
+     * that return [Unit] without reading any state and share a single [RunnableTransformScope] via
+     * [RunnableTransformScope.launchTransform], isolating per-transformation composition overhead
+     * from upstream state read subscriptions.
+     */
+    @Test
+    fun benchmarkSharedTransformScopeUnitSetupOverhead() {
+        val numTransforms = 10
+        benchmarkRule.measureRepeated {
+            runTest {
+                val transformScope = RunnableTransformScope()
+                val states = List(numTransforms) { transformScope.launchTransform(Unit) { Unit } }
+                backgroundScope.launch(testDispatcher, start = CoroutineStart.UNDISPATCHED) {
+                    transformScope.run()
+                }
+                states.forEach { BlackHole.consume(it.value) }
+            }
+        }
+    }
+
+    /**
+     * ─── 8. SHARED TRANSFORM SCOPE: CHAINED TRANSFORMS ───────────────────────────────────────────
+     *
+     * WHY THIS IS IMPORTANT: Evaluates a 10-stage sequential reactive pipeline where all 10
+     * transformations are launched into a SINGLE shared [RunnableTransformScope] via
+     * [RunnableTransformScope.launchTransform], sharing one headless composition, recomposer, and
+     * frame clock.
+     *
+     * GENERAL SUBSYSTEMS & AREAS INVOLVED:
+     * - Shared Composition Recomposition: Propagating state updates across keyed transformation
+     *   groups within a single composition.
+     * - Single Recomposer & Frame Clock: Avoiding multi-recomposer coroutine and clock overhead.
+     */
+    @Test
+    fun benchmarkSharedTransformScopeChained() = runTest {
+        val transformScope = RunnableTransformScope()
+        val rootState = mutableIntStateOf(0)
+        var current: State<Int> = rootState
+        val chain = mutableListOf<State<Int>>()
+        repeat(10) {
+            val prev = current
+            current = transformScope.launchTransform(0) { prev.value + 1 }
+            chain.add(current)
+        }
+        val outputState = current
+        backgroundScope.launch(testDispatcher, start = CoroutineStart.UNDISPATCHED) {
+            transformScope.run()
+        }
+
+        // Correctness verification
+        rootState.intValue = 10
+        runRecomposition()
+        assertEquals(20, outputState.value)
+        rootState.intValue = 0
+        runRecomposition()
+        assertEquals(10, outputState.value)
+
+        var counter = 0
+        benchmarkRule.measureRepeated {
+            rootState.intValue = ++counter
+            runRecomposition()
+            BlackHole.consume(outputState.value)
+        }
+    }
+
+    /**
+     * ─── 9. SHARED TRANSFORM SCOPE: SELECTIVE RECOMPOSITION (FAN-OUT) ────────────────────────────
+     *
+     * WHY THIS IS IMPORTANT: Evaluates 10 independent transformations sharing a single
+     * [RunnableTransformScope] when only one transformation's upstream input state changes per
+     * frame, verifying that the shared composition selectively recomposes only the invalidated
+     * transformation while skipping the other 9.
+     *
+     * GENERAL SUBSYSTEMS & AREAS INVOLVED:
+     * - Per-Transformation Recompose Scopes: Isolating invalidations to the affected transformation
+     *   within the shared composition.
+     * - Slot Table Skipping: Skipping unchanged sibling transformations in the shared composition.
+     */
+    @Test
+    fun benchmarkSharedTransformScopeSelectiveRecomposition() = runTest {
+        val numTransforms = 10
+        val inputs = List(numTransforms) { mutableIntStateOf(0) }
+        val transformScope = RunnableTransformScope()
+        val outputs = inputs.map { input ->
+            transformScope.launchTransform(0) { input.intValue + 1 }
+        }
+        backgroundScope.launch(testDispatcher, start = CoroutineStart.UNDISPATCHED) {
+            transformScope.run()
+        }
+
+        inputs[0].intValue = 10
+        runRecomposition()
+        assertEquals(11, outputs[0].value)
+        inputs[0].intValue = 0
+        runRecomposition()
+        assertEquals(1, outputs[0].value)
+
+        var counter = 0
+        benchmarkRule.measureRepeated {
+            val index = counter % numTransforms
+            inputs[index].intValue = ++counter
+            runRecomposition()
+            BlackHole.consume(outputs[index].value)
+        }
+    }
+
+    /**
+     * ─── 10. NESTED TRANSFORMS: SETUP OVERHEAD ───────────────────────────────────────────────────
+     *
+     * WHY THIS IS IMPORTANT: Evaluates the cold-start cost of an outer [transform] that
+     * instantiates 10 nested `@Composable` [transform] calls inside its composition block.
+     *
+     * GENERAL SUBSYSTEMS & AREAS INVOLVED:
+     * - Nested Headless Compositions: Creating and remembering child transformations tied to the
+     *   parent composition's coroutine scope and frame clock.
+     */
+    @Test
+    fun benchmarkNestedTransformsSetupOverhead() {
+        val numNested = 10
+        benchmarkRule.measureRepeated {
+            runTest {
+                val rootState = runWithMeasurementDisabled { mutableIntStateOf(1) }
+                val dispatcher = testDispatcher
+                val outputState =
+                    transform(0, backgroundScope, dispatcher = dispatcher) {
+                        var current: State<Int> = rootState
+                        repeat(numNested) {
+                            val prev = current
+                            current = transform(0, dispatcher = dispatcher) { prev.value + 1 }
+                        }
+                        current.value
+                    }
+                runRecomposition()
+                BlackHole.consume(outputState.value)
+            }
+        }
+    }
+
+    /**
+     * ─── 11. NESTED TRANSFORMS: CHAINED PROPAGATION ──────────────────────────────────────────────
+     *
+     * WHY THIS IS IMPORTANT: Evaluates steady-state recomposition propagation through a 10-stage
+     * chain of nested `@Composable` [transform] calls inside an outer [transform].
+     *
+     * GENERAL SUBSYSTEMS & AREAS INVOLVED:
+     * - Hierarchical Frame Clock & Recomposer Coordination: Propagating frames and snapshot
+     *   invalidations from the outer composition's broadcast frame clock through nested child
+     *   transformations.
+     */
+    @Test
+    fun benchmarkNestedChainedTransforms() = runTest {
+        val rootState = mutableIntStateOf(0)
+        val dispatcher = testDispatcher
+        val outputState =
+            transform(0, backgroundScope, dispatcher = dispatcher) {
+                var current: State<Int> = rootState
+                repeat(10) {
+                    val prev = current
+                    current = transform(0, dispatcher = dispatcher) { prev.value + 1 }
+                }
+                current.value
+            }
+        runRecomposition()
+
+        // Correctness verification
+        rootState.intValue = 10
+        runRecomposition()
+        assertEquals(20, outputState.value)
+        rootState.intValue = 0
+        runRecomposition()
+        assertEquals(10, outputState.value)
+
+        var counter = 0
+        benchmarkRule.measureRepeated {
+            rootState.intValue = ++counter
+            runRecomposition()
+            BlackHole.consume(outputState.value)
         }
     }
 }
