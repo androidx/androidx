@@ -107,13 +107,22 @@ private constructor(
         private var quads: Map<SpatialAnnotationId, Quad> = emptyMap()
         private var format: SpatialAnnotationImageFormat = SpatialAnnotationImageFormat.RGBA
 
-        /** Sets the raw image byte buffer from the camera frame. */
+        /**
+         * Sets the raw image byte buffer from the camera frame.
+         *
+         * @param imageBuffer the raw image byte buffer, must be a direct [ByteBuffer] with position
+         *   0
+         */
         @Deprecated("Set imageBuffer in constructor.")
         public fun setImageBuffer(imageBuffer: ByteBuffer): Builder = apply {
             this.imageBuffer = imageBuffer
         }
 
-        /** Sets the 2D pixel dimensions of the image buffer. */
+        /**
+         * Sets the 2D pixel dimensions of the image buffer.
+         *
+         * @param imageSize the width and height of the image in pixels, both must be positive
+         */
         @Deprecated("Set imageSize in constructor.")
         public fun setImageSize(imageSize: IntSize2d): Builder = apply {
             this.imageSize = imageSize
@@ -121,29 +130,50 @@ private constructor(
 
         // TODO(b/542273862): Understand how developers interact with rowStride and the
         // requirements.
-        /** Sets the row stride (bytes per row) of the image buffer. */
+        /**
+         * Sets the row stride (bytes per row) of the image buffer.
+         *
+         * @param rowStride the number of bytes per row, must be at least the image width times the
+         *   bytes per pixel of the [SpatialAnnotationImageFormat]. If not set, defaults to the
+         *   tightly packed row size
+         */
         public fun setRowStride(rowStride: Int): Builder = apply { this.rowStride = rowStride }
 
         /**
          * Sets the system timestamp in nanoseconds correlating to the camera frame, using the
          * [System.nanoTime] clock base.
+         *
+         * @param timestampNanos the capture timestamp of the camera frame in nanoseconds
          */
         @Deprecated("Set timestampNanos in constructor.")
         public fun setTimestampNanos(timestampNanos: Long): Builder = apply {
             this.timestampNanos = timestampNanos
         }
 
-        /** Sets the bounding quadrilaterals mapped to their unique tracking IDs. */
+        /**
+         * Sets the bounding quadrilaterals mapped to their unique tracking IDs.
+         *
+         * @param quads a map of [SpatialAnnotationId]s to bounding [Quad]s in image pixel
+         *   coordinates, must not be empty
+         */
         public fun setQuads(quads: Map<SpatialAnnotationId, Quad>): Builder = apply {
             this.quads = quads.toMap()
         }
 
-        /** Sets the pixel format encoding. Defaults to RGBA. */
+        /**
+         * Sets the pixel format encoding. Defaults to [SpatialAnnotationImageFormat.RGBA].
+         *
+         * @param format the [SpatialAnnotationImageFormat] of the image buffer
+         */
         public fun setFormat(format: SpatialAnnotationImageFormat): Builder = apply {
             this.format = format
         }
 
-        /** Sets the physical alignment behavior of the resulting 3D quad. */
+        /**
+         * Sets the physical alignment behavior of the resulting 3D quad.
+         *
+         * @param alignment the [SpatialAnnotationQuadAlignment] to apply to the tracked quads
+         */
         @Deprecated("Set alignment in constructor.")
         public fun setAlignment(alignment: SpatialAnnotationQuadAlignment): Builder = apply {
             this.alignment = alignment
