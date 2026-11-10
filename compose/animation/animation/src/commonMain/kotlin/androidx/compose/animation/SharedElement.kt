@@ -148,6 +148,18 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
         private set
 
     /**
+     * Returns the incoming entry during the deferred phase of a
+     * [DeferredTransition][androidx.compose.animation.core.DeferredTransition], or `null` if none
+     * exists.
+     *
+     * When an incoming match exists during deferral, rendering hands off to it. If there is no
+     * incoming match (e.g., deferring to an unmatched state while a transition is in flight), the
+     * current [SharedElementEntry.target] entry keeps rendering.
+     */
+    internal val pendingTargetEntry: SharedElementEntry?
+        get() = enabledEntries.fastFirstOrNull { it.pendingTarget == true }
+
+    /**
      * This is queried by developers for active match. We need to therefore return the possibility
      * of active match as soon as possible by peeking into deferred request if needed. This allows
      * callers to set up animations in composition based on the returned value.

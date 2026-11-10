@@ -56,6 +56,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -2416,5 +2417,83 @@ class DeferredSharedElementTest {
         assertEquals(60f, boundsInRoot.left, 1f)
         assertEquals(80f, boundsInRoot.top, 1f)
         assertEquals(20f, boundsInRoot.width, 1f)
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun testSharedElement_interruptedDeferralToUnmatchedState_remainsVisible() {
+        var deferredState: DeferredTransitionState<String>? = null
+
+        rule.setContent {
+            val px100 = with(LocalDensity.current) { 100.toDp() }
+            val px200 = with(LocalDensity.current) { 200.toDp() }
+            val px300 = with(LocalDensity.current) { 300.toDp() }
+
+            SharedTransitionLayout(Modifier.size(px300).testTag("scope").background(Color.White)) {
+                val state = remember { DeferredTransitionState("A") }
+                deferredState = state
+                val transition = rememberDeferredTransition(state)
+                transition.DeferredAnimatedContent(
+                    transitionSpec = { fadeIn(tween(1000)) togetherWith fadeOut(tween(1000)) }
+                ) { target ->
+                    Box(Modifier.fillMaxSize()) {
+                        // C has no matching shared element.
+                        if (target != "C") {
+                            val offsetDp = if (target == "B") px200 else 0.dp
+                            Box(
+                                Modifier.offset(offsetDp, offsetDp)
+                                    .sharedElement(
+                                        rememberSharedContentState("shared"),
+                                        animatedVisibilityScope = this@DeferredAnimatedContent,
+                                    )
+                                    .size(px100)
+                                    .background(Color.Red)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertEquals(IntRect(0, 0, 100, 100), getBounds())
+
+        try {
+            rule.mainClock.autoAdvance = false
+            rule.runOnIdle { deferredState?.animateTo("B") }
+            rule.mainClock.advanceTimeBy(100)
+            rule.waitForIdle()
+            val boundsMidFlight = getBounds()
+            assertTrue(
+                "Expected $boundsMidFlight to be in flight between A and B",
+                boundsMidFlight.left in 1..199,
+            )
+
+            // Deferring to C (no matching shared element) while A -> B is in flight must keep the
+            // outgoing B entry rendering and continuing its bounds animation toward B rather than
+            // disappearing or snapping to its final position.
+            rule.runOnIdle { deferredState?.defer("C") }
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
+            val boundsDuringDefer = getBounds()
+            assertTrue(
+                "Expected $boundsDuringDefer to remain visible and mid-flight from $boundsMidFlight",
+                boundsDuringDefer != IntRect.Zero &&
+                    boundsDuringDefer.left in boundsMidFlight.left..199,
+            )
+
+            rule.mainClock.advanceTimeBy(100)
+            rule.waitForIdle()
+            val boundsLaterInDefer = getBounds()
+            assertTrue(
+                "Expected $boundsLaterInDefer to continue animating toward B from $boundsDuringDefer",
+                boundsLaterInDefer.left > boundsDuringDefer.left &&
+                    boundsLaterInDefer.top > boundsDuringDefer.top,
+            )
+        } finally {
+            rule.mainClock.autoAdvance = true
+        }
+        rule.runOnIdle { deferredState?.animateTo("B") }
+        rule.waitForIdle()
+        assertEquals(IntRect(200, 200, 300, 300), getBounds())
     }
 }
