@@ -142,6 +142,9 @@ internal class BaseWidgetDelegate(
      * are skipped: they cannot be targeted by [pushUpdate], so reporting them would describe an
      * instance the caller has no way to address.
      *
+     * The returned options do not contain [GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID], which is
+     * library-internal: the identifier is returned as [WidgetInstanceInfo.widgetId] instead.
+     *
      * @param widgetName Developer widget definition String identifier matching
      *   [GlanceAdaptiveWidgetReceiver.widgetName].
      * @return Active instances for [widgetName], or an empty list if none are placed.
@@ -174,7 +177,14 @@ internal class BaseWidgetDelegate(
                         it.isNotBlank()
                     } ?: continue
                 val surface = AppWidgetSurfaceDetector.fromAppWidgetOptions(options)
-                val accumulator = accumulators.getOrPut(widgetId) { InstanceAccumulator(options) }
+                val accumulator =
+                    accumulators.getOrPut(widgetId) {
+                        InstanceAccumulator(
+                            Bundle(options).apply {
+                                remove(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID)
+                            }
+                        )
+                    }
                 accumulator.placementsPerSurface[surface] =
                     accumulator.placementsPerSurface.getOrDefault(surface, 0) + 1
             }
@@ -284,15 +294,15 @@ internal class BaseWidgetDelegate(
      *
      * @param widgetName Developer widget definition String identifier matching
      *   [GlanceAdaptiveWidgetReceiver.widgetName].
-     * @param widgetId Widget instance String identifier to assign to the pinned widget. If null or
-     *   blank, the one in [options] is used, or one is generated if there is none.
+     * @param widgetId Widget instance String identifier to assign to the pinned widget. If null,
+     *   one is generated.
      * @param initialData Declarative template data payload implementing [GlanceAdaptiveTemplate] to
      *   render as the preview shown while the launcher asks the user to confirm, if any.
      * @param options Configuration options to store in the options of the pinned widget.
      * @param successCallback [PendingIntent] to send once the widget is pinned, if any.
      * @return true if the request was sent to the launcher, false otherwise.
-     * @throws IllegalArgumentException if [widgetName] cannot be resolved, see
-     *   [GlanceAdaptiveWidgetReceiver.widgetName].
+     * @throws IllegalArgumentException if [widgetId] is blank, or if [widgetName] cannot be
+     *   resolved, see [GlanceAdaptiveWidgetReceiver.widgetName].
      * @throws IllegalStateException if [widgetName] cannot be resolved.
      */
     override suspend fun requestPin(
@@ -303,8 +313,9 @@ internal class BaseWidgetDelegate(
         successCallback: PendingIntent?,
     ): Boolean =
         withContext(Dispatchers.IO) {
-            // Resolved before the API level and launcher checks, so that developer errors fail on
+            // Validated before the API level and launcher checks, so that developer errors fail on
             // every device.
+            val requestedWidgetId = requireValidRequestedWidgetId(widgetId)
             val componentName = repository.resolveReceiverComponent(widgetName)
             // Early return on API < 26: AppWidgetManager.requestPinAppWidget is not supported.
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
@@ -330,7 +341,7 @@ internal class BaseWidgetDelegate(
             appWidgetManager.requestPinAppWidget(
                 providerInfo.provider,
                 extras,
-                pinSuccessCallback(widgetId, options, successCallback),
+                pinSuccessCallback(requestedWidgetId, options, successCallback),
             )
         }
 
@@ -352,12 +363,11 @@ internal class BaseWidgetDelegate(
      *
      * @param activity Configuration [Activity] started with
      *   [AppWidgetManager.ACTION_APPWIDGET_CONFIGURE].
-     * @param widgetId Widget instance String identifier to assign to the configured widget. If null
-     *   or blank, the one in [options] or already stored for the widget is used, or one is
-     *   generated if there is none.
+     * @param widgetId Widget instance String identifier to assign to the configured widget. If
+     *   null, the one already stored for the widget is kept, or one is generated if there is none.
      * @param options Configuration options to store in the options of the configured widget.
      * @throws IllegalArgumentException if [activity]'s intent does not carry a valid
-     *   [AppWidgetManager.EXTRA_APPWIDGET_ID].
+     *   [AppWidgetManager.EXTRA_APPWIDGET_ID], or if [widgetId] is blank.
      */
     override fun setConfigurationResult(activity: Activity, widgetId: String?, options: Bundle) {
         val appWidgetId =
@@ -371,7 +381,7 @@ internal class BaseWidgetDelegate(
         }
 
         val requestedWidgetId =
-            resolveRequestedWidgetId(widgetId, options)
+            requireValidRequestedWidgetId(widgetId)
                 ?: appWidgetManager
                     .getAppWidgetOptions(appWidgetId)
                     ?.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID)
@@ -389,15 +399,14 @@ internal class BaseWidgetDelegate(
 
     /**
      * Returns the success callback of a pin request: [successCallback] itself if there is nothing
-     * to store, or otherwise one that first stores [widgetId] and [options] in the options of the
-     * pinned widget.
+     * to store, or otherwise one that first stores [requestedWidgetId] and [options] in the options
+     * of the pinned widget.
      */
     private fun pinSuccessCallback(
-        widgetId: String?,
+        requestedWidgetId: String?,
         options: Bundle,
         successCallback: PendingIntent?,
     ): PendingIntent? {
-        val requestedWidgetId = resolveRequestedWidgetId(widgetId, options)
         if (requestedWidgetId == null && options.isEmpty) {
             // A default widgetId is still generated later by GlanceAdaptiveWidgetReceiver once the
             // widget is placed, so there is nothing to store here.
@@ -412,14 +421,19 @@ internal class BaseWidgetDelegate(
     }
 
     /**
-     * Resolves the requested widget identifier from [widgetId] or [options], treating a blank
-     * identifier as absent, as [GlanceAdaptiveWidgetReceiver] does.
+     * Validates the widget instance identifier requested through [widgetId] by [requestPin] and
+     * [setConfigurationResult]. `null` means that none is requested, while a blank identifier can
+     * never be assigned, so it can only be a caller bug.
+     *
+     * @return [widgetId], or null if none is requested.
+     * @throws IllegalArgumentException if [widgetId] is blank.
      */
-    private fun resolveRequestedWidgetId(widgetId: String?, options: Bundle): String? =
-        widgetId?.takeIf { it.isNotBlank() }
-            ?: options.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID)?.takeIf {
-                it.isNotBlank()
-            }
+    private fun requireValidRequestedWidgetId(widgetId: String?): String? {
+        require(widgetId == null || widgetId.isNotBlank()) {
+            "widgetId must not be blank. Pass null to keep the current one or to generate one."
+        }
+        return widgetId
+    }
 
     /**
      * Returns a copy of [options] with [GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID] set to
