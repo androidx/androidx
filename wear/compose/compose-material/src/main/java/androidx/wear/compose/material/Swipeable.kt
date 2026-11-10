@@ -26,7 +26,6 @@ import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -38,12 +37,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.SemanticsModifierNode
+import androidx.compose.ui.node.invalidateSemantics
+import androidx.compose.ui.node.requireDensity
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.semantics.ScrollAxisRange
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.verticalScrollAxisRange
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -59,6 +60,7 @@ import kotlin.math.abs
 import kotlin.math.sign
 import kotlin.math.sin
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.take
@@ -535,96 +537,233 @@ public fun <T> Modifier.swipeable(
     thresholds: (from: T, to: T) -> ThresholdConfig = { _, _ -> FractionalThreshold(0.5f) },
     resistance: ResistanceConfig? = resistanceConfig(anchors.keys),
     velocityThreshold: Dp = VelocityThreshold,
-): Modifier =
-    composed(
-        inspectorInfo =
-            debugInspectorInfo {
-                name = "swipeable"
-                properties["state"] = state
-                properties["anchors"] = anchors
-                properties["orientation"] = orientation
-                properties["enabled"] = enabled
-                properties["reverseDirection"] = reverseDirection
-                properties["interactionSource"] = interactionSource
-                properties["thresholds"] = thresholds
-                properties["resistance"] = resistance
-                properties["velocityThreshold"] = velocityThreshold
-            }
-    ) {
-        require(anchors.isNotEmpty()) { "You must have at least one anchor." }
-        require(anchors.values.distinct().count() == anchors.size) {
-            "You cannot have two anchors mapped to the same state."
-        }
-        val density = LocalDensity.current
-        state.ensureInit(anchors)
-        LaunchedEffect(anchors, state) {
-            val oldAnchors = state.anchors
-            state.anchors = anchors
-            state.resistance = resistance
-            state.thresholds = { a, b ->
-                val from = anchors.getValue(a)
-                val to = anchors.getValue(b)
-                with(thresholds(from, to)) { density.computeThreshold(a, b) }
-            }
-            with(density) { state.velocityThreshold = velocityThreshold.toPx() }
-            state.processNewAnchors(oldAnchors, anchors)
-        }
-
-        // Swipeables publish scroll range semantics so they look like they can scroll between
-        // values
-        // of 0 and 1, inclusive, so that AndroidComposeView can report a value from its canScroll
-        // methods that correctly tells the system's ScrollDismissLayout whether it should intercept
-        // touch values (see b/199908428). This logic is *not* duplicated in the non-Wear swipeable
-        // because it's a bit of a hack to fix navigation in WearOS. Once swipeable implements
-        // proper
-        // nested scrolling, and the two swipeable implementations are merged, this fake scrolling
-        // stuff
-        // should be gone anyway. Also note that the regular Android swipe-to-go-back gesture works
-        // very
-        // differently than the wear gesture so we don't need this workaround to support it.
-        // TODO(b/201009199): Modifier.swipeable should coordinate with the nested scrolling system.
-        val semantics =
-            if (!enabled) Modifier
-            else
-                Modifier.semantics {
-                    // Set a fake scroll range axis so that the AndroidComposeView can correctly
-                    // report whether
-                    // scrolling is supported via canScroll{Horizontally,Vertically}.
-                    val range =
-                        ScrollAxisRange(
-                            value = {
-                                // Avoid dividing by 0.
-                                if (state.minBound == state.maxBound) {
-                                    0f
-                                } else {
-                                    val clampedOffset =
-                                        state.offset.value.coerceIn(state.minBound, state.maxBound)
-                                    // [0f, 1f] representing the fraction between the swipe bounds.
-                                    // Return the remaining fraction available to swipe.
-                                    (state.maxBound - clampedOffset) /
-                                        (state.maxBound - state.minBound)
-                                }
-                            },
-                            maxValue = { 1f },
-                            reverseScrolling = reverseDirection,
-                        )
-                    when (orientation) {
-                        Orientation.Horizontal -> horizontalScrollAxisRange = range
-                        Orientation.Vertical -> verticalScrollAxisRange = range
-                    }
-                }
-
-        Modifier.then(semantics)
-            .draggable(
+): Modifier {
+    require(anchors.isNotEmpty()) { "You must have at least one anchor." }
+    require(anchors.values.distinct().count() == anchors.size) {
+        "You cannot have two anchors mapped to the same state."
+    }
+    state.ensureInit(anchors)
+    return this.then(
+            SwipeableElement(
+                state = state,
+                anchors = anchors,
                 orientation = orientation,
                 enabled = enabled,
                 reverseDirection = reverseDirection,
                 interactionSource = interactionSource,
-                startDragImmediately = state.isAnimationRunning,
-                onDragStopped = { velocity -> launch { state.performFling(velocity) } },
-                state = state.draggableState,
+                thresholds = thresholds,
+                resistance = resistance,
+                velocityThreshold = velocityThreshold,
             )
+        )
+        .draggable(
+            orientation = orientation,
+            enabled = enabled,
+            reverseDirection = reverseDirection,
+            interactionSource = interactionSource,
+            startDragImmediately = state.isAnimationRunning,
+            onDragStopped = { velocity -> launch { state.performFling(velocity) } },
+            state = state.draggableState,
+        )
+}
+
+@Suppress("PrimitiveInCollection")
+@OptIn(ExperimentalWearMaterialApi::class)
+private class SwipeableElement<T>(
+    private val state: SwipeableState<T>,
+    private val anchors: Map<Float, T>,
+    private val orientation: Orientation,
+    private val enabled: Boolean,
+    private val reverseDirection: Boolean,
+    private val interactionSource: MutableInteractionSource?,
+    private val thresholds: (from: T, to: T) -> ThresholdConfig,
+    private val resistance: ResistanceConfig?,
+    private val velocityThreshold: Dp,
+) : ModifierNodeElement<SwipeableNode<T>>() {
+    override fun create(): SwipeableNode<T> =
+        SwipeableNode(
+            state = state,
+            anchors = anchors,
+            orientation = orientation,
+            enabled = enabled,
+            reverseDirection = reverseDirection,
+            thresholds = thresholds,
+            resistance = resistance,
+            velocityThreshold = velocityThreshold,
+        )
+
+    override fun update(node: SwipeableNode<T>) {
+        node.update(
+            state = state,
+            anchors = anchors,
+            orientation = orientation,
+            enabled = enabled,
+            reverseDirection = reverseDirection,
+            thresholds = thresholds,
+            resistance = resistance,
+            velocityThreshold = velocityThreshold,
+        )
     }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "swipeable"
+        properties["state"] = state
+        properties["anchors"] = anchors
+        properties["orientation"] = orientation
+        properties["enabled"] = enabled
+        properties["reverseDirection"] = reverseDirection
+        properties["interactionSource"] = interactionSource
+        properties["thresholds"] = thresholds
+        properties["resistance"] = resistance
+        properties["velocityThreshold"] = velocityThreshold
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SwipeableElement<*>) return false
+        if (state != other.state) return false
+        if (anchors != other.anchors) return false
+        if (orientation != other.orientation) return false
+        if (enabled != other.enabled) return false
+        if (reverseDirection != other.reverseDirection) return false
+        if (interactionSource != other.interactionSource) return false
+        if (thresholds !== other.thresholds) return false
+        if (resistance != other.resistance) return false
+        if (velocityThreshold != other.velocityThreshold) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = state.hashCode()
+        result = 31 * result + anchors.hashCode()
+        result = 31 * result + orientation.hashCode()
+        result = 31 * result + enabled.hashCode()
+        result = 31 * result + reverseDirection.hashCode()
+        result = 31 * result + (interactionSource?.hashCode() ?: 0)
+        result = 31 * result + thresholds.hashCode()
+        result = 31 * result + (resistance?.hashCode() ?: 0)
+        result = 31 * result + velocityThreshold.hashCode()
+        return result
+    }
+}
+
+@Suppress("PrimitiveInCollection")
+@OptIn(ExperimentalWearMaterialApi::class)
+private class SwipeableNode<T>(
+    private var state: SwipeableState<T>,
+    private var anchors: Map<Float, T>,
+    private var orientation: Orientation,
+    private var enabled: Boolean,
+    private var reverseDirection: Boolean,
+    private var thresholds: (from: T, to: T) -> ThresholdConfig,
+    private var resistance: ResistanceConfig?,
+    private var velocityThreshold: Dp,
+) : Modifier.Node(), SemanticsModifierNode {
+    override val shouldAutoInvalidate: Boolean = false
+
+    private var anchorsJob: Job? = null
+
+    override fun onAttach() {
+        updateState()
+    }
+
+    override fun onDetach() {
+        anchorsJob?.cancel()
+        anchorsJob = null
+    }
+
+    fun update(
+        state: SwipeableState<T>,
+        anchors: Map<Float, T>,
+        orientation: Orientation,
+        enabled: Boolean,
+        reverseDirection: Boolean,
+        thresholds: (from: T, to: T) -> ThresholdConfig,
+        resistance: ResistanceConfig?,
+        velocityThreshold: Dp,
+    ) {
+        val anchorsOrStateChanged = this.state != state || this.anchors != anchors
+        val semanticsChanged =
+            this.state != state ||
+                this.orientation != orientation ||
+                this.enabled != enabled ||
+                this.reverseDirection != reverseDirection
+        this.state = state
+        this.anchors = anchors
+        this.orientation = orientation
+        this.enabled = enabled
+        this.reverseDirection = reverseDirection
+        this.thresholds = thresholds
+        this.resistance = resistance
+        this.velocityThreshold = velocityThreshold
+        if (!isAttached) return
+        if (anchorsOrStateChanged) {
+            updateState()
+        }
+        if (semanticsChanged) {
+            invalidateSemantics()
+        }
+    }
+
+    private fun updateState() {
+        val currentState = state
+        val currentAnchors = anchors
+        val currentResistance = resistance
+        val currentThresholds = thresholds
+        val currentVelocityThreshold = velocityThreshold
+        anchorsJob?.cancel()
+        anchorsJob = coroutineScope.launch {
+            val density = requireDensity()
+            val oldAnchors = currentState.anchors
+            currentState.anchors = currentAnchors
+            currentState.resistance = currentResistance
+            currentState.thresholds = { a, b ->
+                val from = currentAnchors.getValue(a)
+                val to = currentAnchors.getValue(b)
+                with(currentThresholds(from, to)) { density.computeThreshold(a, b) }
+            }
+            with(density) { currentState.velocityThreshold = currentVelocityThreshold.toPx() }
+            currentState.processNewAnchors(oldAnchors, currentAnchors)
+        }
+    }
+
+    // Swipeables publish scroll range semantics so they look like they can scroll between
+    // values of 0 and 1, inclusive, so that AndroidComposeView can report a value from its
+    // canScroll methods that correctly tells the system's ScrollDismissLayout whether it should
+    // intercept touch values (see b/199908428). This logic is *not* duplicated in the non-Wear
+    // swipeable because it's a bit of a hack to fix navigation in WearOS. Once swipeable
+    // implements proper nested scrolling, and the two swipeable implementations are merged,
+    // this fake scrolling stuff should be gone anyway. Also note that the regular Android
+    // swipe-to-go-back gesture works very differently than the wear gesture so we don't need
+    // this workaround to support it.
+    // TODO(b/201009199): Modifier.swipeable should coordinate with the nested scrolling system.
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        if (!enabled) return
+        // Set a fake scroll range axis so that the AndroidComposeView can correctly
+        // report whether scrolling is supported via canScroll{Horizontally,Vertically}.
+        val range =
+            ScrollAxisRange(
+                value = {
+                    // Avoid dividing by 0.
+                    if (state.minBound == state.maxBound) {
+                        0f
+                    } else {
+                        val clampedOffset =
+                            state.offset.value.coerceIn(state.minBound, state.maxBound)
+                        // [0f, 1f] representing the fraction between the swipe bounds.
+                        // Return the remaining fraction available to swipe.
+                        (state.maxBound - clampedOffset) / (state.maxBound - state.minBound)
+                    }
+                },
+                maxValue = { 1f },
+                reverseScrolling = reverseDirection,
+            )
+        when (orientation) {
+            Orientation.Horizontal -> horizontalScrollAxisRange = range
+            Orientation.Vertical -> verticalScrollAxisRange = range
+        }
+    }
+}
 
 /**
  * Interface to compute a threshold between two anchors/states in a [swipeable].
