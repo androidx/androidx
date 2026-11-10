@@ -27,6 +27,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
+import androidx.work.WorkManager
 import androidx.work.impl.WorkContinuationImpl
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.model.WorkSpec
@@ -61,7 +62,7 @@ class WorkManagerInspector(connection: Connection, environment: InspectorEnviron
         workManager =
             environment.artTooling().findInstances(Application::class.java).first().let {
                 application ->
-                WorkManagerImpl.getInstance(application)
+                WorkManager.getInstance(application) as WorkManagerImpl
             }
 
         mainHandler.post { lifecycleRegistry.currentState = Lifecycle.State.STARTED }
