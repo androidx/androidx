@@ -128,7 +128,14 @@ internal object MatrixDefaults {
  *
  * The archetype a matrix selector hands to a matrix renderer.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public sealed interface MatrixContent
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public sealed interface MatrixContent {
+    /**
+     * Whether any non-blank optional template slot was omitted from this matrix content due to
+     * responsive container size compaction.
+     */
+    public val hasDroppedSlots: Boolean
+}
 
 /**
  * The main card: header, hero and action slots, top to bottom.
@@ -180,6 +187,7 @@ internal class MatrixCardContent(
     val cornerRadius: Dp? = null,
     val leadingSize: Dp? = null,
     val primaryTextSize: TextUnit? = null,
+    override val hasDroppedSlots: Boolean = false,
 ) : MatrixContent {
     init {
         require(leadingSize == null || leadingSize.value >= 0f) {
@@ -198,8 +206,12 @@ internal class MatrixCardContent(
  * The bulb: a single component that is the whole widget, centered in a circle, with no card.
  *
  * @property component Component for the bulb slot.
+ * @property hasDroppedSlots Whether optional template slots were omitted to fit the bulb.
  */
-internal class MatrixBulbContent(val component: BulbComponent) : MatrixContent
+internal class MatrixBulbContent(
+    val component: BulbComponent,
+    override val hasDroppedSlots: Boolean = false,
+) : MatrixContent
 
 /**
  * A [MatrixCardContent] laid out for its container: every size and text a backend needs to draw it.

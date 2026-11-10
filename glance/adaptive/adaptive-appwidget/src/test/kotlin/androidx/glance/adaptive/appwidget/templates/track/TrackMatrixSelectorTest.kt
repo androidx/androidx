@@ -143,6 +143,77 @@ class TrackMatrixSelectorTest {
         assertThat((low.leading as Ring).progress).isEqualTo(0f)
     }
 
+    @Test
+    fun hasDroppedSlots_whenOptionalSlotsAbsentOrBlank_isAlwaysFalse() {
+        val absent = TrackTemplate(title = "7,922", progress = 0.8f)
+        val blank = TrackTemplate(title = "7,922", subtitle = "  ", statusText = "")
+
+        for (width in WidthTier.entries) {
+            for (height in HeightTier.entries) {
+                assertThat(select(width, height, absent).hasDroppedSlots).isFalse()
+                assertThat(select(width, height, blank).hasDroppedSlots).isFalse()
+            }
+        }
+    }
+
+    @Test
+    fun hasDroppedSlots_whenSubtitlePresent_isTrueWhereSecondaryIsHidden() {
+        val template = TrackTemplate(title = "7,922", subtitle = "steps")
+
+        for (width in WidthTier.entries) {
+            for (height in HeightTier.entries) {
+                val expectedDropped =
+                    when (width) {
+                        WidthTier.W1 -> height < HeightTier.H3
+                        WidthTier.W2 -> true
+                        WidthTier.W3,
+                        WidthTier.W4 -> false
+                    }
+                assertThat(select(width, height, template).hasDroppedSlots)
+                    .isEqualTo(expectedDropped)
+            }
+        }
+    }
+
+    @Test
+    fun hasDroppedSlots_whenStatusTextPresent_isTrueWhereSupportingIsHidden() {
+        val template = TrackTemplate(title = "7,922", statusText = "340 kcal")
+
+        for (width in WidthTier.entries) {
+            for (height in HeightTier.entries) {
+                val expectedDropped =
+                    when (width) {
+                        WidthTier.W1 -> height < HeightTier.H4
+                        WidthTier.W2,
+                        WidthTier.W3,
+                        WidthTier.W4 -> height < HeightTier.H2
+                    }
+                assertThat(select(width, height, template).hasDroppedSlots)
+                    .isEqualTo(expectedDropped)
+            }
+        }
+    }
+
+    @Test
+    fun hasDroppedSlots_whenBothOptionalSlotsPresent_isFalseOnlyWhereBothFit() {
+        val template =
+            TrackTemplate(
+                title = "7,922",
+                subtitle = "steps",
+                progress = 0.8f,
+                statusText = "Goal: 10,000",
+            )
+
+        for (width in WidthTier.entries) {
+            for (height in HeightTier.entries) {
+                val bothFit =
+                    (width == WidthTier.W1 && height == HeightTier.H4) ||
+                        (width >= WidthTier.W3 && height >= HeightTier.H2)
+                assertThat(select(width, height, template).hasDroppedSlots).isEqualTo(!bothFit)
+            }
+        }
+    }
+
     private fun card(
         width: WidthTier,
         height: HeightTier,
