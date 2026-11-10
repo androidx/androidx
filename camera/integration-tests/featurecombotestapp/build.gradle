@@ -50,6 +50,13 @@ dependencies {
     implementation(project(":camera:camera-lifecycle"))
     implementation(project(":camera:camera-view"))
     implementation(project(":camera:featurecombinationquery:featurecombinationquery-play-services"))
+    // camera-testing added as 'implementation' dependency to include EmptyActivity (used by
+    // WakelockEmptyActivityRule) in the target APK.
+    implementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in androidx.test dependencies
+        exclude(group: "androidx.test")
+        exclude(group: "androidx.test.espresso", module: "espresso-core")
+    }
 
     // Testing framework
     androidTestImplementation(libs.testCore)
