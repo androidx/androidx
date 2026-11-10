@@ -95,3 +95,24 @@ internal fun <T> runOnUiThreadWithTimeout(timeoutMs: Long = 2000L, action: () ->
 internal fun isOnUiThread(): Boolean {
     return Looper.myLooper() == Looper.getMainLooper()
 }
+
+internal const val WindowFocusTimeoutMillis = 5_000L
+
+/**
+ * Polls [condition] on the UI thread every 10 ms until it's true or [timeoutMillis] passes. Unlike
+ * waitUntil, this doesn't advance the main test clock. Returns whether [condition] became true;
+ * returns false right away on Robolectric or when called on the UI thread.
+ */
+@Suppress("BanThreadSleep")
+internal fun pollOnUiThread(
+    timeoutMillis: Long = WindowFocusTimeoutMillis,
+    condition: () -> Boolean,
+): Boolean {
+    if (HasRobolectricFingerprint || isOnUiThread()) return false
+    val deadlineNanos = System.nanoTime() + timeoutMillis * NanoSecondsPerMilliSecond
+    while (!runOnUiThread(condition)) {
+        if (System.nanoTime() > deadlineNanos) return false
+        Thread.sleep(10)
+    }
+    return true
+}

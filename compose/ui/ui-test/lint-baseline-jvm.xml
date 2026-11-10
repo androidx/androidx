@@ -58,15 +58,6 @@
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="    val rootWithActivityFocus = roots.firstOrNull { it.hasFocusAndWindowFocus }"
-        errorLine2="                                      ~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/test/Actions.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
         errorLine1="    nodes.forEach {"
         errorLine2="          ~~~~~~~">
         <location
