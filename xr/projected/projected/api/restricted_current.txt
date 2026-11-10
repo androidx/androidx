@@ -65,18 +65,23 @@ package androidx.xr.projected {
 
   public final class ProjectedDisplayController implements java.lang.AutoCloseable {
     method @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public void addLayoutParamsFlags(int flags);
-    method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.N) @androidx.xr.projected.experimental.ExperimentalProjectedApi public void addPresentationModeChangedListener(optional java.util.concurrent.Executor executor, java.util.function.Consumer<androidx.xr.projected.ProjectedDisplayController.PresentationModeFlags> listener);
-    method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.N) @androidx.xr.projected.experimental.ExperimentalProjectedApi public void addPresentationModeChangedListener(java.util.function.Consumer<androidx.xr.projected.ProjectedDisplayController.PresentationModeFlags> listener);
-    method @BytecodeOnly @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.N) @androidx.xr.projected.experimental.ExperimentalProjectedApi public static void addPresentationModeChangedListener$default(androidx.xr.projected.ProjectedDisplayController!, java.util.concurrent.Executor!, java.util.function.Consumer!, int, Object!);
+    method @Deprecated @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public void addPresentationModeChangedListener(optional java.util.concurrent.Executor executor, java.util.function.Consumer<androidx.xr.projected.ProjectedDisplayController.PresentationModeFlags> listener);
+    method @Deprecated @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public void addPresentationModeChangedListener(java.util.function.Consumer<androidx.xr.projected.ProjectedDisplayController.PresentationModeFlags> listener);
+    method @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public void addPresentationModeChangedListener(kotlin.jvm.functions.Function1<? super androidx.xr.projected.ProjectedDisplayController.PresentationModeFlags,kotlin.Unit> listener);
+    method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public static void addPresentationModeChangedListener$default(androidx.xr.projected.ProjectedDisplayController!, java.util.concurrent.Executor!, java.util.function.Consumer!, int, Object!);
     method public void close();
     method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) @androidx.xr.projected.experimental.ExperimentalProjectedApi public static suspend Object? create(android.app.Activity activity, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedDisplayController>);
+    method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) @androidx.xr.projected.experimental.ExperimentalProjectedApi public static suspend Object? create(android.app.Activity activity, optional kotlin.coroutines.CoroutineContext coroutineContext, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedDisplayController>);
     method @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public void removeLayoutParamsFlags(int flags);
-    method @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public void removePresentationModeChangedListener(java.util.function.Consumer<androidx.xr.projected.ProjectedDisplayController.PresentationModeFlags> listener);
+    method @Deprecated @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public void removePresentationModeChangedListener(java.util.function.Consumer<androidx.xr.projected.ProjectedDisplayController.PresentationModeFlags> listener);
+    method @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public void removePresentationModeChangedListener(kotlin.jvm.functions.Function1<? super androidx.xr.projected.ProjectedDisplayController.PresentationModeFlags,kotlin.Unit> listener);
     field public static final androidx.xr.projected.ProjectedDisplayController.Companion Companion;
   }
 
   public static final class ProjectedDisplayController.Companion {
     method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) @androidx.xr.projected.experimental.ExperimentalProjectedApi public suspend Object? create(android.app.Activity activity, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedDisplayController>);
+    method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) @androidx.xr.projected.experimental.ExperimentalProjectedApi public suspend Object? create(android.app.Activity activity, optional kotlin.coroutines.CoroutineContext coroutineContext, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedDisplayController>);
+    method @BytecodeOnly @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) @androidx.xr.projected.experimental.ExperimentalProjectedApi public static Object! create$default(androidx.xr.projected.ProjectedDisplayController.Companion!, android.app.Activity!, kotlin.coroutines.CoroutineContext!, kotlin.coroutines.Continuation!, int, Object!);
   }
 
   @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public static final class ProjectedDisplayController.PresentationMode {

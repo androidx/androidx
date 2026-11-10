@@ -31,13 +31,13 @@ import androidx.xr.projected.ProjectedDisplayController.PresentationModeFlags
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
 import androidx.xr.projected.testing.ProjectedTestRule
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executor
 import java.util.function.Consumer
 import kotlin.test.assertFailsWith
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertThrows
 import org.junit.Rule
 import org.junit.Test
@@ -132,12 +132,9 @@ class ProjectedDisplayControllerTest {
             assertThat(shadowOf(context).boundServiceConnections).isEmpty()
         }
 
-    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalProjectedApi::class)
     @Test
     fun addPresentationModeChangedListener_receivesUpdates() =
         projectedTestRule.launchTestProjectedDeviceActivity { projectedDeviceActivity ->
-            val dispatcher = UnconfinedTestDispatcher()
-            Dispatchers.setMain(dispatcher)
             runBlocking {
                 projectedDisplayController =
                     ProjectedDisplayController.create(projectedDeviceActivity)
@@ -160,30 +157,46 @@ class ProjectedDisplayControllerTest {
             }
         }
 
-    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalProjectedApi::class)
+    @Test
+    fun addPresentationModeChangedListener_invokesListenerOnCoroutineContextDispatcher() =
+        projectedTestRule.launchTestProjectedDeviceActivity { projectedDeviceActivity ->
+            val dispatcher = StandardTestDispatcher()
+            runBlocking {
+                projectedDisplayController =
+                    ProjectedDisplayController.create(projectedDeviceActivity, dispatcher)
+                var presentationModes: PresentationModeFlags? = null
+
+                projectedDisplayController.addPresentationModeChangedListener { updatedModes ->
+                    presentationModes = updatedModes
+                }
+                projectedTestRule.presentationModeFlags = setOf(PresentationMode.VISUALS_ON)
+                check(presentationModes == null)
+                dispatcher.scheduler.advanceUntilIdle()
+
+                assertThat(presentationModes?.hasPresentationMode(PresentationMode.VISUALS_ON))
+                    .isTrue()
+            }
+        }
+
     @Test
     fun addMultipleEngagementModeChangedListener_receivesUpdates() {
         projectedTestRule.launchTestProjectedDeviceActivity { projectedDeviceActivity ->
-            val dispatcher = UnconfinedTestDispatcher()
-            Dispatchers.setMain(dispatcher)
             runBlocking {
                 projectedDisplayController =
                     ProjectedDisplayController.create(projectedDeviceActivity)
 
                 var presentationModes1: PresentationModeFlags? = null
                 var callCount1 = 0
-                val listener1 =
-                    Consumer<PresentationModeFlags> { updatedModes ->
-                        presentationModes1 = updatedModes
-                        ++callCount1
-                    }
+                val listener1: (PresentationModeFlags) -> Unit = { updatedModes ->
+                    presentationModes1 = updatedModes
+                    ++callCount1
+                }
                 var presentationModes2: PresentationModeFlags? = null
                 var callCount2 = 0
-                val listener2 =
-                    Consumer<PresentationModeFlags> { updatedModes ->
-                        presentationModes2 = updatedModes
-                        ++callCount2
-                    }
+                val listener2: (PresentationModeFlags) -> Unit = { updatedModes ->
+                    presentationModes2 = updatedModes
+                    ++callCount2
+                }
                 projectedDisplayController.addPresentationModeChangedListener(listener = listener1)
                 projectedDisplayController.addPresentationModeChangedListener(listener = listener2)
 
@@ -227,6 +240,162 @@ class ProjectedDisplayControllerTest {
             }
         }
     }
+
+    @Test
+    fun addPresentationModeChangedListener_sameListenerAddedTwice_receivesUpdatesOnce() =
+        projectedTestRule.launchTestProjectedDeviceActivity { projectedDeviceActivity ->
+            runBlocking {
+                projectedDisplayController =
+                    ProjectedDisplayController.create(projectedDeviceActivity)
+                var callCount = 0
+                val listener: (PresentationModeFlags) -> Unit = { callCount++ }
+                projectedDisplayController.addPresentationModeChangedListener(listener)
+                projectedDisplayController.addPresentationModeChangedListener(listener)
+
+                projectedTestRule.presentationModeFlags = setOf(PresentationMode.VISUALS_ON)
+                projectedDisplayController.removePresentationModeChangedListener(listener)
+                projectedTestRule.presentationModeFlags = setOf(PresentationMode.AUDIO_ON)
+
+                assertThat(callCount).isEqualTo(1)
+            }
+        }
+
+    @Test
+    fun removePresentationModeChangedListener_updateAlreadyQueued_doesNotInvokeListener() =
+        projectedTestRule.launchTestProjectedDeviceActivity { projectedDeviceActivity ->
+            val dispatcher = StandardTestDispatcher()
+            runBlocking {
+                projectedDisplayController =
+                    ProjectedDisplayController.create(projectedDeviceActivity, dispatcher)
+                var callCount = 0
+                val listener: (PresentationModeFlags) -> Unit = { callCount++ }
+                projectedDisplayController.addPresentationModeChangedListener(listener)
+                projectedTestRule.presentationModeFlags = setOf(PresentationMode.VISUALS_ON)
+
+                projectedDisplayController.removePresentationModeChangedListener(listener)
+                dispatcher.scheduler.advanceUntilIdle()
+
+                assertThat(callCount).isEqualTo(0)
+            }
+        }
+
+    @Test
+    fun close_removesPresentationModeListenersAndUnbindsService() =
+        projectedTestRule.launchTestProjectedDeviceActivity { projectedDeviceActivity ->
+            runBlocking {
+                projectedDisplayController =
+                    ProjectedDisplayController.create(projectedDeviceActivity)
+                var callCount = 0
+                projectedDisplayController.addPresentationModeChangedListener { callCount++ }
+                projectedTestRule.presentationModeFlags = setOf(PresentationMode.VISUALS_ON)
+                check(callCount == 1)
+
+                projectedDisplayController.close()
+                projectedTestRule.presentationModeFlags = setOf(PresentationMode.AUDIO_ON)
+
+                assertThat(callCount).isEqualTo(1)
+                assertThat(shadowOf(context).boundServiceConnections).isEmpty()
+            }
+        }
+
+    @Test
+    fun addPresentationModeChangedListener_contextJobCancelled_stillInvokesListener() =
+        projectedTestRule.launchTestProjectedDeviceActivity { projectedDeviceActivity ->
+            runBlocking {
+                val cancelledJob = Job().apply { cancel() }
+                projectedDisplayController =
+                    ProjectedDisplayController.create(projectedDeviceActivity, cancelledJob)
+                var presentationModes: PresentationModeFlags? = null
+
+                projectedDisplayController.addPresentationModeChangedListener { updatedModes ->
+                    presentationModes = updatedModes
+                }
+                projectedTestRule.presentationModeFlags = setOf(PresentationMode.VISUALS_ON)
+
+                assertThat(presentationModes?.hasPresentationMode(PresentationMode.VISUALS_ON))
+                    .isTrue()
+            }
+        }
+
+    @Test
+    fun addPresentationModeChangedListener_listenerThrows_stillReceivesUpdates() =
+        projectedTestRule.launchTestProjectedDeviceActivity { projectedDeviceActivity ->
+            runBlocking {
+                val exceptions = mutableListOf<Throwable>()
+                val exceptionHandler = CoroutineExceptionHandler { _, e -> exceptions.add(e) }
+                projectedDisplayController =
+                    ProjectedDisplayController.create(projectedDeviceActivity, exceptionHandler)
+                var callCount = 0
+                projectedDisplayController.addPresentationModeChangedListener {
+                    callCount++
+                    throw IllegalStateException("Listener failed")
+                }
+
+                projectedTestRule.presentationModeFlags = setOf(PresentationMode.VISUALS_ON)
+                projectedTestRule.presentationModeFlags = setOf(PresentationMode.AUDIO_ON)
+
+                assertThat(callCount).isEqualTo(2)
+                assertThat(exceptions).hasSize(2)
+            }
+        }
+
+    @Suppress("DEPRECATION") // Tests the deprecated Consumer-based listener APIs.
+    @Test
+    fun addPresentationModeChangedListener_consumerThrowsOnCurrentState_canBeAddedAgain() =
+        projectedTestRule.launchTestProjectedDeviceActivity { projectedDeviceActivity ->
+            runBlocking {
+                projectedDisplayController =
+                    ProjectedDisplayController.create(projectedDeviceActivity)
+                // Once there's a current state, a newly added listener receives it right away.
+                projectedDisplayController.addPresentationModeChangedListener {}
+                projectedTestRule.presentationModeFlags = setOf(PresentationMode.VISUALS_ON)
+                var shouldThrow = true
+                var callCount = 0
+                val listener =
+                    Consumer<PresentationModeFlags> {
+                        if (shouldThrow) throw IllegalStateException("Listener failed")
+                        callCount++
+                    }
+                val directExecutor = Executor(Runnable::run)
+                assertFailsWith<IllegalStateException> {
+                    projectedDisplayController.addPresentationModeChangedListener(
+                        directExecutor,
+                        listener,
+                    )
+                }
+                shouldThrow = false
+
+                projectedDisplayController.addPresentationModeChangedListener(
+                    directExecutor,
+                    listener,
+                )
+
+                assertThat(callCount).isEqualTo(1)
+            }
+        }
+
+    @Suppress("DEPRECATION") // Tests the deprecated Consumer-based listener APIs.
+    @Test
+    fun addPresentationModeChangedListener_withConsumer_receivesUpdatesUntilRemoved() =
+        projectedTestRule.launchTestProjectedDeviceActivity { projectedDeviceActivity ->
+            runBlocking {
+                projectedDisplayController =
+                    ProjectedDisplayController.create(projectedDeviceActivity)
+                var callCount = 0
+                val listener = Consumer<PresentationModeFlags> { callCount++ }
+                projectedDisplayController.addPresentationModeChangedListener(
+                    Executor(Runnable::run),
+                    listener,
+                )
+                projectedTestRule.presentationModeFlags = setOf(PresentationMode.VISUALS_ON)
+                check(callCount == 1)
+
+                projectedDisplayController.removePresentationModeChangedListener(listener)
+                projectedTestRule.presentationModeFlags = setOf(PresentationMode.AUDIO_ON)
+
+                assertThat(callCount).isEqualTo(1)
+            }
+        }
 
     private fun launchTestActivity(block: (Activity) -> Unit) {
         shadowOf(context.packageManager)

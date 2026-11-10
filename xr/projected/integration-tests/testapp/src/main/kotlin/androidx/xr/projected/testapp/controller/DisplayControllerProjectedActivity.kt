@@ -70,7 +70,10 @@ class DisplayControllerProjectedActivity : ComponentActivity() {
         lifecycleScope.launch {
             try {
                 val controller =
-                    ProjectedDisplayController.create(this@DisplayControllerProjectedActivity)
+                    ProjectedDisplayController.create(
+                        this@DisplayControllerProjectedActivity,
+                        coroutineContext,
+                    )
                 projectedDisplayController = controller
                 updateKeepScreenOn(viewModel.keepScreenOn.value)
                 controller.addPresentationModeChangedListener { flags ->

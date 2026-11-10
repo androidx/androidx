@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+// ConcurrentHashMap is safe for our minSdk 24. The lint check guards against a Lollipop bug.
+@file:Suppress("BanConcurrentHashMap")
+
 package androidx.xr.projected
 
 import android.app.Activity
@@ -30,11 +33,19 @@ import androidx.xr.projected.binding.ProjectedServiceConnection
 import androidx.xr.projected.binding.ProjectedServiceConnection.ProjectedIntentAction.Companion.ACTION_BIND
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
 import androidx.xr.projected.platform.IProjectedService
-import java.util.Collections
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executor
 import java.util.function.Consumer
+import kotlin.coroutines.ContinuationInterceptor
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 /**
  * Controller for the Projected device display.
@@ -46,19 +57,20 @@ private constructor(
     private val connection: ProjectedServiceConnection,
     private val projectedService: IProjectedService,
     private val engagementModeClient: EngagementModeClient,
+    private val coroutineContext: CoroutineContext,
 ) : AutoCloseable {
 
-    /**
-     * Map to convert the provided listener to the one passed to the [EngagementModeClient]. This
-     * should be accessed through the synchronizedPresentationListeners.
-     */
-    @ExperimentalProjectedApi
-    private val presentationModeListeners =
-        mutableMapOf<Consumer<PresentationModeFlags>, Consumer<Int>>()
+    /** Map to convert the provided listener to the one passed to the [EngagementModeClient]. */
+    private val presentationModeListeners = ConcurrentHashMap<Any, Consumer<Int>>()
 
-    @ExperimentalProjectedApi
-    private val synchronizedPresentationListeners =
-        Collections.synchronizedMap(presentationModeListeners)
+    // Runs listeners in the context passed to create. Its SupervisorJob replaces any Job passed
+    // in, so listeners stop only when they're removed or close() is called.
+    private val coroutineScope = CoroutineScope(coroutineContext + SupervisorJob())
+
+    // Without a dispatcher, listeners run directly on the thread that delivers each update.
+    private val listenerStart =
+        if (coroutineContext[ContinuationInterceptor] == null) CoroutineStart.UNDISPATCHED
+        else CoroutineStart.DEFAULT
 
     /**
      * Convenience function to set the flag bits as as per the
@@ -168,40 +180,114 @@ private constructor(
      *
      * The PresentationMode represents how a content is being presented to a projected application
      * (e.g. are visuals on). The callback will be called with the current state as soon as it is
-     * available. A listener cannot be added a second time without first being removed.
+     * available. Adding a listener that is already registered has no effect.
+     *
+     * The [listener] runs on the dispatcher of the `coroutineContext` passed to [create], or on the
+     * thread that delivers the update if that context has no dispatcher. It stops receiving updates
+     * when it's removed with [removePresentationModeChangedListener] or when [close] is called.
+     *
+     * Kotlin lambdas resolve to this overload rather than to the deprecated overload that takes a
+     * [Consumer], which runs listeners on the main thread by default. If [listener] updates UI or
+     * other main-thread state, pass a main-thread dispatcher, such as `Dispatchers.Main`, to
+     * [create].
+     *
+     * @param listener that receives [PresentationModeFlags] updates
      */
     @ExperimentalProjectedApi
+    public fun addPresentationModeChangedListener(listener: (PresentationModeFlags) -> Unit) {
+        addPresentationModeListener(listener, listener) {
+            coroutineScope.launch(start = listenerStart) { it() }
+        }
+    }
+
+    // TODO(b/575981151): Remove once all clients have been migrated.
+    /**
+     * Adds a callback to listen for updates to the PresentationModeFlags.
+     *
+     * The PresentationMode represents how a content is being presented to a projected application
+     * (e.g. are visuals on). The callback will be called with the current state as soon as it is
+     * available. Adding a listener that is already registered has no effect.
+     */
+    @Deprecated("Use the overload that takes a lambda, and pass a CoroutineContext to create().")
+    @ExperimentalProjectedApi
     @JvmOverloads
-    @RequiresApi(Build.VERSION_CODES.N)
     public fun addPresentationModeChangedListener(
         executor: Executor = Dispatchers.Main.asExecutor(),
         listener: Consumer<PresentationModeFlags>,
     ) {
-        val convertedListener = Consumer { PresentationModes: Int ->
-            listener.accept(convertToPresentationModeFlags(PresentationModes))
-        }
-        synchronizedPresentationListeners[listener] = convertedListener
-        engagementModeClient.addUpdateCallback(executor, convertedListener)
+        addPresentationModeListener(listener, listener::accept) { executor.execute(it) }
     }
 
     /**
      * Remove a listener to stop consuming [PresentationModeFlags] values. If the listener has
      * already been removed then this is a no-op.
+     *
+     * @param listener previously passed to [addPresentationModeChangedListener]
      */
     @ExperimentalProjectedApi
+    public fun removePresentationModeChangedListener(listener: (PresentationModeFlags) -> Unit) {
+        removePresentationModeListener(listener)
+    }
+
+    // TODO(b/575981151): Remove once all clients have been migrated.
+    /**
+     * Remove a listener to stop consuming [PresentationModeFlags] values. If the listener has
+     * already been removed then this is a no-op.
+     */
+    @Deprecated("Use the overload that takes a lambda.")
+    @ExperimentalProjectedApi
     public fun removePresentationModeChangedListener(listener: Consumer<PresentationModeFlags>) {
-        this.synchronizedPresentationListeners.remove(listener)?.let { convertedListener ->
+        removePresentationModeListener(listener)
+    }
+
+    @ExperimentalProjectedApi
+    private fun addPresentationModeListener(
+        key: Any,
+        listener: (PresentationModeFlags) -> Unit,
+        dispatch: (() -> Unit) -> Unit,
+    ) {
+        val convertedListener =
+            object : Consumer<Int> {
+                override fun accept(engagementModes: Int) {
+                    dispatch {
+                        // Skip updates that were still queued when the listener was removed.
+                        if (presentationModeListeners[key] === this) {
+                            listener(convertToPresentationModeFlags(engagementModes))
+                        }
+                    }
+                }
+            }
+        if (presentationModeListeners.putIfAbsent(key, convertedListener) != null) return
+        try {
+            // Deliver updates directly, since dispatch picks the thread the listener runs on.
+            engagementModeClient.addUpdateCallback(Executor(Runnable::run), convertedListener)
+        } catch (e: Throwable) {
+            presentationModeListeners.remove(key, convertedListener)
+            engagementModeClient.removeUpdateCallback(convertedListener)
+            throw e
+        }
+        // If the listener was removed during registration, make sure the client drops it too.
+        if (presentationModeListeners[key] !== convertedListener) {
+            engagementModeClient.removeUpdateCallback(convertedListener)
+        }
+    }
+
+    private fun removePresentationModeListener(key: Any) {
+        presentationModeListeners.remove(key)?.let { convertedListener ->
             engagementModeClient.removeUpdateCallback(convertedListener)
         }
     }
 
     /**
-     * Disconnects from the service providing features for Projected devices. Methods from the
-     * [ProjectedDisplayController] shouldn't be called after this.
+     * Removes all presentation mode listeners and disconnects from the service providing features
+     * for Projected devices. Methods from the [ProjectedDisplayController] shouldn't be called
+     * after this.
      *
      * This method should be called in [android.app.Activity.onDestroy].
      */
     override fun close() {
+        presentationModeListeners.keys.forEach { removePresentationModeListener(it) }
+        coroutineScope.cancel()
         connection.disconnect()
     }
 
@@ -223,15 +309,23 @@ private constructor(
          * [ProjectedDisplayController] when the connection is established.
          *
          * @param activity The [Activity] running on a Projected device.
+         * @param coroutineContext context whose dispatcher runs the listeners of the returned
+         *   instance (any [kotlinx.coroutines.Job] in this context is ignored and does not
+         *   unregister listeners); without a dispatcher, listeners run on the thread that delivers
+         *   each update
          * @throws IllegalStateException if the projected service is not found or binding is not
          *   permitted
          * @throws IllegalArgumentException if provided Activity is not running on a Projected
          *   device.
          */
         @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        @JvmOverloads
         @JvmStatic
         @ExperimentalProjectedApi
-        public suspend fun create(activity: Activity): ProjectedDisplayController {
+        public suspend fun create(
+            activity: Activity,
+            coroutineContext: CoroutineContext = EmptyCoroutineContext,
+        ): ProjectedDisplayController {
             require(
                 ProjectedContext.isProjectedDeviceContext(activity),
                 { "Provided Activity is not running on a Projected device." },
@@ -242,6 +336,7 @@ private constructor(
                 serviceConnection,
                 projectedService = serviceConnection.connect(),
                 EngagementModeClient(activity, Handler.createAsync(Looper.getMainLooper())),
+                coroutineContext,
             )
         }
     }
