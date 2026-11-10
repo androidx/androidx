@@ -67,6 +67,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.layout.RemoteText
+import androidx.compose.remote.creation.compose.layout.remoteComponent
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.RemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.background
@@ -91,7 +92,6 @@ import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteEasing
 import androidx.compose.remote.creation.compose.state.RemoteFloat
-import androidx.compose.remote.creation.compose.state.RemoteFloatExpression
 import androidx.compose.remote.creation.compose.state.abs
 import androidx.compose.remote.creation.compose.state.acos
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
@@ -1415,13 +1415,12 @@ class RcPlayerInteractivityTest {
     fun rootPointerEvents_driveRootLevelTouchExpression() {
         val playerWidthPx = with(rule.density) { 100.dp.toPx() }
         rule.setRemoteContent {
-            val creationState = LocalRemoteComposeCreationState.current
             // Touch X as a percentage of the player width. The 0.25 offset keeps the value off an
             // integer boundary so toRemoteInt is stable whether it truncates or rounds.
             val touchPercent = remember {
-                RemoteFloatExpression {
+                RemoteFloat {
                     val touchId =
-                        creationState.document.addTouch(
+                        document.addTouch(
                             -1f,
                             -1f,
                             100f,
@@ -2364,31 +2363,7 @@ class RcPlayerInteractivityTest {
                 Box(modifier = Modifier.size(300.dp)) { content() }
             }
         ) {
-            val creationState = LocalRemoteComposeCreationState.current
-            val touchFraction = remember {
-                RemoteFloatExpression {
-                    val doc = creationState.document
-                    val rootX = doc.addComponentRootXValue()
-                    val width = doc.addComponentWidthValue()
-                    val touchId =
-                        doc.addTouch(
-                            -1f,
-                            0f,
-                            1f,
-                            TouchExpression.STOP_ABSOLUTE_POS,
-                            0f,
-                            0,
-                            null,
-                            null,
-                            RemoteContext.FLOAT_TOUCH_POS_X,
-                            rootX,
-                            AnimatedFloatExpression.SUB,
-                            width,
-                            AnimatedFloatExpression.DIV,
-                        )
-                    RemoteFloat(touchId)
-                }
-            }
+            lateinit var touchFraction: RemoteFloat
             RemoteColumn(modifier = RemoteModifier.size(300.rdp)) {
                 RemoteRow(modifier = RemoteModifier.size(300.rdp, 100.rdp)) {
                     // 50dp left offset so DirectTouchBox has rootX = 50
@@ -2399,6 +2374,31 @@ class RcPlayerInteractivityTest {
                                 contentDescription = "DirectTouchBox".rs
                             }
                     ) {
+                        val component = remoteComponent()
+                        touchFraction = remember {
+                            RemoteFloat {
+                                val rootX =
+                                    component.positionInRoot.x.getFloatIdForCreationState(this)
+                                val width = component.width.getFloatIdForCreationState(this)
+                                val touchId =
+                                    document.addTouch(
+                                        -1f,
+                                        0f,
+                                        1f,
+                                        TouchExpression.STOP_ABSOLUTE_POS,
+                                        0f,
+                                        0,
+                                        null,
+                                        null,
+                                        RemoteContext.FLOAT_TOUCH_POS_X,
+                                        rootX,
+                                        AnimatedFloatExpression.SUB,
+                                        width,
+                                        AnimatedFloatExpression.DIV,
+                                    )
+                                RemoteFloat(touchId)
+                            }
+                        }
                         Hoist(touchFraction)
                     }
                 }
@@ -2435,31 +2435,7 @@ class RcPlayerInteractivityTest {
                 Box(modifier = Modifier.size(300.dp)) { content() }
             }
         ) {
-            val creationState = LocalRemoteComposeCreationState.current
-            val touchFraction = remember {
-                RemoteFloatExpression {
-                    val doc = creationState.document
-                    val rootX = doc.addComponentRootXValue()
-                    val width = doc.addComponentWidthValue()
-                    val touchId =
-                        doc.addTouch(
-                            -1f,
-                            0f,
-                            1f,
-                            TouchExpression.STOP_ABSOLUTE_POS,
-                            0f,
-                            0,
-                            null,
-                            null,
-                            RemoteContext.FLOAT_TOUCH_POS_X,
-                            rootX,
-                            AnimatedFloatExpression.SUB,
-                            width,
-                            AnimatedFloatExpression.DIV,
-                        )
-                    RemoteFloat(touchId)
-                }
-            }
+            lateinit var touchFraction: RemoteFloat
             RemoteColumn(modifier = RemoteModifier.size(300.rdp)) {
                 RemoteRow(modifier = RemoteModifier.size(300.rdp, 100.rdp)) {
                     RemoteBox(modifier = RemoteModifier.size(50.rdp, 100.rdp))
@@ -2472,6 +2448,31 @@ class RcPlayerInteractivityTest {
                                 .semantics { contentDescription = "PaddedTouchBox".rs }
                                 .padding(start = 40.rdp)
                     ) {
+                        val component = remoteComponent()
+                        touchFraction = remember {
+                            RemoteFloat {
+                                val rootX =
+                                    component.positionInRoot.x.getFloatIdForCreationState(this)
+                                val width = component.width.getFloatIdForCreationState(this)
+                                val touchId =
+                                    document.addTouch(
+                                        -1f,
+                                        0f,
+                                        1f,
+                                        TouchExpression.STOP_ABSOLUTE_POS,
+                                        0f,
+                                        0,
+                                        null,
+                                        null,
+                                        RemoteContext.FLOAT_TOUCH_POS_X,
+                                        rootX,
+                                        AnimatedFloatExpression.SUB,
+                                        width,
+                                        AnimatedFloatExpression.DIV,
+                                    )
+                                RemoteFloat(touchId)
+                            }
+                        }
                         Hoist(touchFraction)
                     }
                 }
@@ -2828,10 +2829,9 @@ class RcPlayerInteractivityTest {
                 captureSingleRemoteDocument(context = context) {
                     val creationState = LocalRemoteComposeCreationState.current
                     val directVal = remember {
-                        RemoteFloatExpression {
-                            val doc = creationState.document
+                        RemoteFloat {
                             val touchId =
-                                doc.addTouch(
+                                document.addTouch(
                                     0f,
                                     0f,
                                     200f,
@@ -3029,11 +3029,10 @@ class RcPlayerInteractivityTest {
             val context = ApplicationProvider.getApplicationContext<Context>()
             val capturedDocument =
                 captureSingleRemoteDocument(context = context) {
-                    val creationState = LocalRemoteComposeCreationState.current
                     val directVal = remember {
-                        RemoteFloatExpression {
+                        RemoteFloat {
                             val touchId =
-                                creationState.document.addTouch(
+                                document.addTouch(
                                     0f,
                                     0f,
                                     200f,

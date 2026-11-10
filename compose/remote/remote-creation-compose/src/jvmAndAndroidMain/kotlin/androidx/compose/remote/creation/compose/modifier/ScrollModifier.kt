@@ -66,7 +66,9 @@ constructor(
      *   continuous scrolling.
      */
     @RememberInComposition
-    public constructor(@IntRange(from = 0) notches: Int = 0) : this(MutableRemoteFloat(), notches)
+    public constructor(
+        @IntRange(from = 0) notches: Int = 0
+    ) : this(MutableRemoteFloat.createReserved(), notches)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

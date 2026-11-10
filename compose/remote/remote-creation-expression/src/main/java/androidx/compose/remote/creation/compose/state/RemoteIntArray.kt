@@ -23,8 +23,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 /** Represents an array of remote integers. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteIntArray
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public constructor(
+internal constructor(
     public override val constantValueOrNull: List<RemoteInt>?,
     cacheKey: RemoteStateCacheKey,
 ) : BaseRemoteState<List<RemoteInt>>(cacheKey) {
@@ -67,7 +66,7 @@ public constructor(
         },
     }
 
-    override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
+    internal override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
         // If this instance represents an existing allocated ID (e.g. a formal parameter in a
         // pattern definition), return that ID directly instead of writing to the document.
         if (cacheKey is RemoteStateIdKey) {
@@ -91,7 +90,7 @@ public constructor(
         if (constArray != null && constIndex != null) {
             return constArray[constIndex]
         }
-        return RemoteIntExpression(
+        return RemoteInt(
             constantValueOrNull = null,
             cacheKey = RemoteOperationCacheKey.create(OperationKey.Get, this, v),
         ) { creationState ->
@@ -115,7 +114,7 @@ public constructor(
         if (constArray != null && constIndex != null) {
             return constArray[constIndex.toInt()]
         }
-        return RemoteIntExpression(
+        return RemoteInt(
             constantValueOrNull = null,
             cacheKey = RemoteOperationCacheKey.create(OperationKey.Get, this, v),
         ) { creationState ->
@@ -127,5 +126,11 @@ public constructor(
                 )
             longArrayOf(resultId.toLong() + 0x100000000L)
         }
+    }
+
+    public companion object {
+        /** Creates a [RemoteIntArray] referencing a remote ID. */
+        public fun createForId(id: Int): RemoteIntArray =
+            RemoteIntArray(constantValueOrNull = null, cacheKey = RemoteStateIdKey(id))
     }
 }

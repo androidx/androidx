@@ -22,8 +22,6 @@ import androidx.compose.remote.core.operations.TextAttribute
 import androidx.compose.remote.creation.compose.capture.LocalRemoteDensity
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.state.RemoteFloat
-import androidx.compose.remote.creation.compose.state.RemoteFloatExpression
-import androidx.compose.remote.creation.compose.state.RemoteStateInstanceKey
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteTextUnit
 import androidx.compose.remote.creation.compose.state.rf
@@ -210,13 +208,9 @@ public class RemoteTextMeasurer(internal val density: RemoteDensity) {
         val resolvedFontSize = fontSize ?: style.fontSize ?: DefaultFontSize
         val textSize = resolvedFontSize.toPx(density)
 
-        return RemoteFloatExpression(
-            constantValueOrNull = null,
-            cacheKey = RemoteStateInstanceKey(),
-        ) { creationState ->
-            val doc = creationState.document
-            val textSizePxId = textSize.getFloatIdForCreationState(creationState)
-            doc.rcPaint
+        return RemoteFloat {
+            val textSizePxId = textSize.getFloatIdForCreationState(this)
+            document.rcPaint
                 .setTextSize(textSizePxId)
                 .setTypeface(
                     0,
@@ -228,9 +222,9 @@ public class RemoteTextMeasurer(internal val density: RemoteDensity) {
                 )
                 .commit()
 
-            floatArrayOf(
-                doc.textAttribute(
-                    text.getIdForCreationState(creationState),
+            RemoteFloat(
+                document.textAttribute(
+                    text.getIdForCreationState(this),
                     attributeType,
                 )
             )

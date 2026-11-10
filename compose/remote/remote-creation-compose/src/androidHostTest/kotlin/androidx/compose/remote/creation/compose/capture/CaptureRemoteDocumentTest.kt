@@ -20,15 +20,18 @@ package androidx.compose.remote.creation.compose.capture
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.os.Bundle
 import android.os.Looper
 import android.os.Parcel
+import android.view.MotionEvent
 import android.view.View
 import androidx.collection.buildIntSet
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operations
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RemoteComposeBuffer
+import androidx.compose.remote.core.operations.TextMerge
 import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
@@ -44,11 +47,13 @@ import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.RemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxHeight
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.height
+import androidx.compose.remote.creation.compose.modifier.horizontalScroll
 import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
@@ -2043,6 +2048,77 @@ class CaptureRemoteDocumentTest {
         assertEquals(2.0f, remoteDensity.density.constantValue, 0f)
         assertEquals(1.25f, remoteDensity.fontScale.constantValue, 0f)
     }
+
+    @Test
+    fun horizontalScrollWithPosition_updatesPositionTextAfterTouchScroll() =
+        runTest(UnconfinedTestDispatcher()) {
+            val colors =
+                listOf(Color(0xFFE0E0E0), Color(0xFFBDBDBD), Color(0xFF9E9E9E), Color(0xFF757575))
+            val captured =
+                captureSingleRemoteDocument(
+                    creationDisplayInfo = RemoteCreationDisplayInfo(400, 400, 160, 1.0f),
+                    profile = RcPlatformProfiles.ANDROIDX,
+                ) {
+                    val scrollState = remember { RemoteScrollState() }
+                    RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
+                        RemoteRow(
+                            modifier =
+                                RemoteModifier.horizontalScroll(scrollState)
+                                    .fillMaxWidth()
+                                    .weight(1f.rf)
+                        ) {
+                            repeat(4) { index ->
+                                val color = colors[index % colors.size].rc
+                                RemoteBox(
+                                    modifier =
+                                        RemoteModifier.fillMaxHeight()
+                                            .width(200.rdp)
+                                            .background(color)
+                                ) {
+                                    RemoteText("Item #$index".rs, color = Color.White.rc)
+                                }
+                            }
+                        }
+                        val hasScrolled = scrollState.positionState.isGreaterThan(100f.rf)
+                        RemoteText(
+                            text = "Position: ".rs + hasScrolled.select("Scrolled".rs, "Static".rs),
+                            color = Color.Black.rc,
+                        )
+                    }
+                }
+            val player = RemoteComposePlayer(context)
+            player.setDocument(RemoteDocument(captured))
+            player.setUseChoreographer(false)
+            player.measure(
+                View.MeasureSpec.makeMeasureSpec(400, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(400, View.MeasureSpec.EXACTLY),
+            )
+            player.layout(0, 0, 400, 400)
+            val canvas = Canvas(Bitmap.createBitmap(400, 400, Bitmap.Config.ARGB_8888))
+            player.draw(canvas)
+
+            val doc = player.document.document
+            val col =
+                doc.rootLayoutComponent!!.list.first { it is LayoutComponent } as LayoutComponent
+            val textMerge = col.list.filterIsInstance<TextMerge>().single()
+            assertEquals("Position: Static", doc.remoteComposeState.getFromId(textMerge.mTextId))
+
+            var t = 1000L
+            player.dispatchTouchEvent(
+                MotionEvent.obtain(t, t, MotionEvent.ACTION_DOWN, 300f, 200f, 0)
+            )
+            t += 16
+            player.dispatchTouchEvent(
+                MotionEvent.obtain(t, t, MotionEvent.ACTION_MOVE, 100f, 200f, 0)
+            )
+            t += 16
+            player.dispatchTouchEvent(
+                MotionEvent.obtain(t, t, MotionEvent.ACTION_UP, 100f, 200f, 0)
+            )
+            repeat(5) { player.draw(canvas) }
+
+            assertEquals("Position: Scrolled", doc.remoteComposeState.getFromId(textMerge.mTextId))
+        }
 }
 
 private const val CLAIMING_THREAD = "CaptureRemoteDocumentTest-claimer"

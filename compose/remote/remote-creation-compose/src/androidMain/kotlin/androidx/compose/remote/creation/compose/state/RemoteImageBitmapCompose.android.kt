@@ -31,24 +31,14 @@ import androidx.compose.ui.graphics.asAndroidBitmap
  * @param value The [ImageBitmap] value.
  * @return A [RemoteImageBitmap] representing the provided bitmap.
  */
-public operator fun RemoteImageBitmap.Companion.invoke(value: ImageBitmap): RemoteImageBitmap {
-    return MutableRemoteImageBitmap(
+public fun RemoteImageBitmap(value: ImageBitmap): RemoteImageBitmap =
+    MutableRemoteImageBitmap(
         constantValueOrNull = value,
         cacheKey = RemoteConstantCacheKey(value),
         idProvider = { creationState ->
             creationState.document.addBitmap(value.asAndroidBitmap())
         },
     )
-}
-
-/**
- * Creates a [RemoteImageBitmap] instance from a [ImageBitmap] value.
- *
- * @param value The [ImageBitmap] value.
- * @return A [RemoteImageBitmap] representing the provided bitmap.
- */
-public fun RemoteImageBitmap(value: ImageBitmap): RemoteImageBitmap =
-    RemoteImageBitmap.Companion.invoke(value)
 
 /**
  * Creates a named [RemoteImageBitmap] with an initial value.
@@ -143,19 +133,6 @@ public fun MutableRemoteImageBitmap(initialValue: ImageBitmap): MutableRemoteIma
             creationState.document.addBitmap(initialValue.asAndroidBitmap())
         },
     )
-
-/**
- * Creates a new mutable state (allocates an ID).
- *
- * @param initialValue The initial value for the state.
- * @return A new [MutableRemoteImageBitmap] instance.
- */
-@RememberInComposition
-public operator fun MutableRemoteImageBitmap.Companion.invoke(
-    initialValue: ImageBitmap
-): MutableRemoteImageBitmap {
-    return MutableRemoteImageBitmap(initialValue)
-}
 
 /**
  * Factory for mutable remote bitmap state.

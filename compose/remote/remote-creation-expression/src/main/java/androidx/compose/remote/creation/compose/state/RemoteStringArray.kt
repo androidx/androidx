@@ -23,8 +23,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 /** Represents an array of remote strings. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteStringArray
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public constructor(
+internal constructor(
     public override val constantValueOrNull: List<RemoteString>?,
     cacheKey: RemoteStateCacheKey,
 ) : BaseRemoteState<List<RemoteString>>(cacheKey) {
@@ -59,7 +58,7 @@ public constructor(
         },
     }
 
-    override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
+    internal override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
         // If this instance represents an existing allocated ID (e.g. a formal parameter in a
         // pattern definition), return that ID directly instead of writing to the document.
         if (cacheKey is RemoteStateIdKey) {
@@ -86,6 +85,12 @@ public constructor(
             cacheKey = RemoteOperationCacheKey.create(OperationKey.Get, this, v),
             lazyRemoteString = StringArrayDerefImpl(this, v),
         )
+    }
+
+    public companion object {
+        /** Creates a [RemoteStringArray] referencing a remote ID. */
+        public fun createForId(id: Int): RemoteStringArray =
+            RemoteStringArray(constantValueOrNull = null, cacheKey = RemoteStateIdKey(id))
     }
 }
 

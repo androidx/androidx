@@ -20,7 +20,6 @@ import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.capture.RemoteDocumentScope
 import androidx.compose.remote.creation.compose.state.RemoteComponentCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteFloat
-import androidx.compose.remote.creation.compose.state.RemoteFloatExpression
 
 /** Exposes component-relative [RemoteFloat] bounds for remote float expressions. */
 internal class RemoteFloatContext
@@ -60,7 +59,7 @@ private constructor(
         type: String,
     ): RemoteFloat {
         capturedToken.markRequested(propIndex)
-        return RemoteFloatExpression(
+        return RemoteFloat(
             constantValueOrNull = null,
             cacheKey = RemoteComponentCacheKey(capturedToken, type),
             arrayProvider = { creationState ->
@@ -77,7 +76,7 @@ private constructor(
         }
         val doc = requireDocument("width")
         val value = doc.addComponentWidthValue()
-        return RemoteFloatExpression(
+        return RemoteFloat(
             constantValueOrNull = null,
             cacheKey = RemoteComponentCacheKey(doc.buffer.lastComponentId, "width"),
             arrayProvider = { _ -> floatArrayOf(value) },
@@ -92,7 +91,7 @@ private constructor(
         }
         val doc = requireDocument("height")
         val value = doc.addComponentHeightValue()
-        return RemoteFloatExpression(
+        return RemoteFloat(
             constantValueOrNull = null,
             cacheKey = RemoteComponentCacheKey(doc.buffer.lastComponentId, "height"),
             arrayProvider = { _ -> floatArrayOf(value) },
@@ -108,7 +107,7 @@ private constructor(
         val capturedToken = activeToken()
         if (capturedToken != null) {
             capturedToken.markRequested(RemoteComponentToken.PROP_WIDTH)
-            return RemoteFloatExpression(
+            return RemoteFloat(
                 constantValueOrNull = null,
                 cacheKey = RemoteComponentCacheKey(capturedToken, "centerX"),
                 arrayProvider = { creationState ->
@@ -130,7 +129,7 @@ private constructor(
         val doc = requireDocument("centerX")
         val componentWidthValue = doc.addComponentWidthValue()
         val value = doc.floatExpression(componentWidthValue, 2f, AnimatedFloatExpression.DIV)
-        return RemoteFloatExpression(
+        return RemoteFloat(
             constantValueOrNull = null,
             cacheKey = RemoteComponentCacheKey(doc.buffer.lastComponentId, "centerX"),
             arrayProvider = { _ -> floatArrayOf(value) },
@@ -146,7 +145,7 @@ private constructor(
         val capturedToken = activeToken()
         if (capturedToken != null) {
             capturedToken.markRequested(RemoteComponentToken.PROP_HEIGHT)
-            return RemoteFloatExpression(
+            return RemoteFloat(
                 constantValueOrNull = null,
                 cacheKey = RemoteComponentCacheKey(capturedToken, "centerY"),
                 arrayProvider = { creationState ->
@@ -168,7 +167,7 @@ private constructor(
         val doc = requireDocument("centerY")
         val componentHeightValue = doc.addComponentHeightValue()
         val value = doc.floatExpression(componentHeightValue, 2f, AnimatedFloatExpression.DIV)
-        return RemoteFloatExpression(
+        return RemoteFloat(
             constantValueOrNull = null,
             cacheKey = RemoteComponentCacheKey(doc.buffer.lastComponentId, "centerY"),
             arrayProvider = { _ -> floatArrayOf(value) },
@@ -183,7 +182,7 @@ private constructor(
         }
         val doc = requireDocument("x")
         val value = doc.addComponentXValue()
-        return RemoteFloatExpression(
+        return RemoteFloat(
             constantValueOrNull = null,
             cacheKey = RemoteComponentCacheKey(doc.buffer.lastComponentId, "x"),
             arrayProvider = { _ -> floatArrayOf(value) },
@@ -198,7 +197,7 @@ private constructor(
         }
         val doc = requireDocument("y")
         val value = doc.addComponentYValue()
-        return RemoteFloatExpression(
+        return RemoteFloat(
             constantValueOrNull = null,
             cacheKey = RemoteComponentCacheKey(doc.buffer.lastComponentId, "y"),
             arrayProvider = { _ -> floatArrayOf(value) },
@@ -213,7 +212,7 @@ private constructor(
         }
         val doc = requireDocument("rootX")
         val value = doc.addComponentRootXValue()
-        return RemoteFloatExpression(
+        return RemoteFloat(
             constantValueOrNull = null,
             cacheKey = RemoteComponentCacheKey(doc.buffer.lastComponentId, "rootX"),
             arrayProvider = { _ -> floatArrayOf(value) },
@@ -228,7 +227,7 @@ private constructor(
         }
         val doc = requireDocument("rootY")
         val value = doc.addComponentRootYValue()
-        return RemoteFloatExpression(
+        return RemoteFloat(
             constantValueOrNull = null,
             cacheKey = RemoteComponentCacheKey(doc.buffer.lastComponentId, "rootY"),
             arrayProvider = { _ -> floatArrayOf(value) },

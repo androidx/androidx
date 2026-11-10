@@ -22,7 +22,6 @@ package androidx.compose.remote.creation.compose.text
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteConstantCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteFloat
-import androidx.compose.remote.creation.compose.state.RemoteFloatExpression
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.unit.Density
@@ -55,8 +54,8 @@ public fun FontVariation.Settings.toRemoteFontVariationSettings(
  */
 private fun FontVariation.Setting.toRemoteVariationValue(density: Density?): RemoteFloat =
     if (density == null && needsDensity) {
-        RemoteFloatExpression(constantValueOrNull = null, cacheKey = RemoteConstantCacheKey(this)) {
-            floatArrayOf(toVariationValue(null))
+        RemoteFloat(cacheKey = RemoteConstantCacheKey(this)) {
+            toVariationValue(null).rf
         }
     } else {
         toVariationValue(density).rf

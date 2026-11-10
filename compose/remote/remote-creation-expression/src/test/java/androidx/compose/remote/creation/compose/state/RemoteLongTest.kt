@@ -15,27 +15,19 @@
  */
 package androidx.compose.remote.creation.compose.state
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.VariableSupport
-import androidx.compose.remote.creation.compose.capture.createTestCreationState
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteLong.Companion.createNamedRemoteLong
-import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
+import org.junit.runners.JUnit4
 
-@RunWith(RobolectricTestRunner::class)
-@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
+@RunWith(JUnit4::class)
 class RemoteLongTest {
-    val context =
-        AndroidRemoteContext().apply {
-            useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
-        }
-    val creationState = createTestCreationState()
+    private val context = TestRemoteContext()
+    private val creationState = testCreationState()
 
     @Test
     fun namedRemoteLong_initialValue() {

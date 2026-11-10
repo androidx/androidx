@@ -30,16 +30,23 @@ import kotlin.enums.enumEntries
  * [RemoteEnum] internally stores its state as a [RemoteInt], using the Enum ordinal.
  *
  * @param T The enum type.
- * @param intValue The [RemoteInt] representing the enum ordinal.
- * @param enumEntries The [EnumEntries] containing all values of the enum.
+ * @property enumEntries The [EnumEntries] containing all values of the enum.
  */
 @Stable
 public open class RemoteEnum<T : Enum<T>>
-public constructor(
+/**
+ * Constructs a [RemoteEnum] instance.
+ *
+ * @param intValue The [RemoteInt] representing the enum ordinal.
+ * @param enumEntries The [EnumEntries] containing all values of the enum.
+ * @param cacheKey The [RemoteStateCacheKey] identifying this state.
+ */
+internal constructor(
     internal val intValue: RemoteInt,
     /** All entries of the enum type [T]. */
     public val enumEntries: EnumEntries<T>,
-) : BaseRemoteState<T>(RemoteStateInstanceKey()) {
+    cacheKey: RemoteStateCacheKey,
+) : BaseRemoteState<T>(cacheKey) {
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public override val cacheKey: RemoteStateCacheKey
         get() = constantValueOrNull?.let { RemoteConstantCacheKey(it) } ?: intValue.cacheKey
@@ -55,8 +62,7 @@ public constructor(
     override val asEncoded: RemoteInt
         get() = intValue
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
+    internal override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         intValue.writeToDocument(creationState)
 
     internal enum class OperationKey : RemoteOperation {
@@ -84,16 +90,6 @@ public constructor(
             }
         }
     }
-
-    /**
-     * Constructor for creating a [RemoteEnum] instance from a standard [Enum].
-     *
-     * It converts the standard enum value into a [RemoteInt] using the Enum ordinal.
-     *
-     * @param value The standard enum value to convert.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public constructor(value: T, enumEntries: EnumEntries<T>) : this(value.ordinal.ri, enumEntries)
 
     /**
      * Converts this [RemoteEnum] to its underlying [RemoteInt] representation, using the Enum
@@ -175,15 +171,6 @@ public constructor(
 
     public companion object {
         /**
-         * Creates a [RemoteEnum] from a literal constant.
-         *
-         * @param value The constant [Enum] value.
-         * @return A [RemoteEnum] representing the constant enum.
-         */
-        public inline operator fun <reified T : Enum<T>> invoke(value: T): RemoteEnum<T> =
-            RemoteEnum(value = value, enumEntries())
-
-        /**
          * Creates a [RemoteEnum] referencing a remote ID.
          *
          * @param id The remote ID (stored as a [RemoteInt]).
@@ -219,25 +206,46 @@ public constructor(
 }
 
 /**
+ * Creates a [RemoteEnum] backed by [intValue] and [enumEntries].
+ *
+ * @param T The enum type.
+ * @param intValue The [RemoteInt] representing the enum ordinal.
+ * @param enumEntries The [EnumEntries] containing all values of the enum.
+ * @return A [RemoteEnum] wrapping the given [RemoteInt].
+ */
+public fun <T : Enum<T>> RemoteEnum(
+    intValue: RemoteInt,
+    enumEntries: EnumEntries<T>,
+): RemoteEnum<T> = RemoteEnum(intValue, enumEntries, RemoteStateInstanceKey())
+
+/**
+ * Creates a [RemoteEnum] from a literal constant.
+ *
+ * @param T The enum type.
+ * @param value The constant [Enum] value.
+ * @return A [RemoteEnum] representing the constant enum.
+ */
+public inline fun <reified T : Enum<T>> RemoteEnum(value: T): RemoteEnum<T> =
+    RemoteEnum(value.ordinal.ri, enumEntries())
+
+/**
  * A mutable implementation of [RemoteEnum].
  *
  * @param T The enum type.
  */
 public class MutableRemoteEnum<T : Enum<T>>
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RememberInComposition
-public constructor(public val remoteInt: MutableRemoteInt, enumEntries: EnumEntries<T>) :
-    RemoteEnum<T>(remoteInt, enumEntries), MutableRemoteState<T> {
+internal constructor(
+    public val remoteInt: MutableRemoteInt,
+    enumEntries: EnumEntries<T>,
+    cacheKey: RemoteStateCacheKey,
+) : RemoteEnum<T>(remoteInt, enumEntries, cacheKey), MutableRemoteState<T> {
 
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override val asEncodedMutable: MutableRemoteInt
         get() = intValue as MutableRemoteInt
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
-        intValue.writeToDocument(creationState)
-
-    public companion object {
+    internal companion object {
         /**
          * Creates a [MutableRemoteEnum] for a given ID.
          *
@@ -248,17 +256,30 @@ public constructor(public val remoteInt: MutableRemoteInt, enumEntries: EnumEntr
             id: Long
         ): MutableRemoteEnum<T> =
             MutableRemoteEnum(MutableRemoteInt.createMutableForId(id), enumEntries())
-
-        /**
-         * Creates a [MutableRemoteEnum] with an initial value.
-         *
-         * @param initialValue The initial value for this mutable enum.
-         * @return A [MutableRemoteEnum] instance.
-         */
-        @RememberInComposition
-        public inline operator fun <reified T : Enum<T>> invoke(
-            initialValue: T
-        ): MutableRemoteEnum<T> =
-            MutableRemoteEnum(MutableRemoteInt(initialValue.ordinal), enumEntries())
     }
 }
+
+/**
+ * Creates a [MutableRemoteEnum] backed by [remoteInt] and [enumEntries].
+ *
+ * @param T The enum type.
+ * @param remoteInt The [MutableRemoteInt] representing the mutable enum ordinal.
+ * @param enumEntries The [EnumEntries] containing all values of the enum.
+ * @return A [MutableRemoteEnum] wrapping the given [MutableRemoteInt].
+ */
+@RememberInComposition
+public fun <T : Enum<T>> MutableRemoteEnum(
+    remoteInt: MutableRemoteInt,
+    enumEntries: EnumEntries<T>,
+): MutableRemoteEnum<T> = MutableRemoteEnum(remoteInt, enumEntries, RemoteStateInstanceKey())
+
+/**
+ * Creates a [MutableRemoteEnum] with an initial value.
+ *
+ * @param T The enum type.
+ * @param initialValue The initial value for this mutable enum.
+ * @return A [MutableRemoteEnum] instance.
+ */
+@RememberInComposition
+public inline fun <reified T : Enum<T>> MutableRemoteEnum(initialValue: T): MutableRemoteEnum<T> =
+    MutableRemoteEnum(MutableRemoteInt(initialValue.ordinal), enumEntries())

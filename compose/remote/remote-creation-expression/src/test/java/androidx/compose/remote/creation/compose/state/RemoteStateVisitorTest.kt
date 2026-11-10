@@ -17,8 +17,6 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.compose.remote.core.operations.Utils
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -187,7 +185,7 @@ class RemoteStateVisitorTest {
 
         val replaced = dpVal.replaceNamedVariables(mapOf(namedDp to 20.rdp))
         assertThat(replaced.hasConstantValue).isTrue()
-        assertThat(replaced.asDp).isEqualTo(25.dp)
+        assertThat(replaced.constantValue).isEqualTo(25f)
     }
 
     @Test
@@ -203,15 +201,16 @@ class RemoteStateVisitorTest {
     @Test
     fun testRemoteColorReplacement() {
         val isWarning = RemoteBoolean.createNamedRemoteBoolean("is_warning", false)
-        val color = isWarning.select(Color.Red.rc, Color.Green.rc)
+        val color =
+            isWarning.select(RemoteColor(0xFFFF0000.toInt()), RemoteColor(0xFF00FF00.toInt()))
 
         val replacedWarning = color.replaceNamedVariables(mapOf(isWarning to true.rb))
         assertThat(replacedWarning.hasConstantValue).isTrue()
-        assertThat(replacedWarning.asConstantColor()).isEqualTo(Color.Red)
+        assertThat(replacedWarning.constantValue).isEqualTo(0xFFFF0000.toInt())
 
         val replacedNormal = color.replaceNamedVariables(mapOf(isWarning to false.rb))
         assertThat(replacedNormal.hasConstantValue).isTrue()
-        assertThat(replacedNormal.asConstantColor()).isEqualTo(Color.Green)
+        assertThat(replacedNormal.constantValue).isEqualTo(0xFF00FF00.toInt())
     }
 
     @Test
@@ -327,14 +326,14 @@ class RemoteStateVisitorTest {
     fun testAnimatedRemoteFloat_preservesAnimationWhenVariablesReplaced() {
         val namedInput = RemoteFloat.createNamedRemoteFloat("progress_val", 0f)
         val animSpec = floatArrayOf(0f, 1f, 2f)
-        val animated = AnimatedRemoteFloat(namedInput, animSpec)
+        val animated = animatedRemoteFloat(namedInput, animSpec)
 
         val replaced = animated.replaceNamedVariables(mapOf(namedInput to 5f.rf))
-        assertThat(replaced).isInstanceOf(AnimatedRemoteFloat::class.java)
-        val replacedAnim = replaced as AnimatedRemoteFloat
-        assertThat(replacedAnim.input.hasConstantValue).isTrue()
-        assertThat(replacedAnim.input.constantValue).isEqualTo(5f)
-        assertThat(replacedAnim.anim).isEqualTo(animSpec)
+        assertThat(replaced).isInstanceOf(RemoteFloat::class.java)
+        val key = replaced.cacheKey as RemoteOperationCacheKey
+        assertThat(key.op).isEqualTo(RemoteFloat.OperationKey.Anim)
+        assertThat(key.args[0]).isEqualTo(RemoteConstantCacheKey(5f))
+        assertThat(key.args[1]).isEqualTo(FloatArrayCacheKey(animSpec))
     }
 
     @Test
@@ -342,7 +341,7 @@ class RemoteStateVisitorTest {
         val namedInput = RemoteFloat.createNamedRemoteFloat("progress_val", 0f)
         val unrelated = RemoteFloat.createNamedRemoteFloat("unrelated", 10f)
         val animSpec = floatArrayOf(0f, 1f, 2f)
-        val animated = AnimatedRemoteFloat(namedInput, animSpec)
+        val animated = animatedRemoteFloat(namedInput, animSpec)
 
         val unchanged = animated.replaceNamedVariables(emptyMap())
         assertThat(unchanged).isSameInstanceAs(animated)
@@ -400,7 +399,7 @@ class RemoteStateVisitorTest {
         // 1. Replace only 'from' with a RemoteColor
         val resultFrom = tweenColor.transform { node ->
             if (node.constantValueOrNull == 0xFFFF0000.toInt()) {
-                Color.Blue.rc
+                RemoteColor(0xFF0000FF.toInt())
             } else {
                 null
             }
@@ -410,7 +409,7 @@ class RemoteStateVisitorTest {
         // 2. Replace only 'to' with a RemoteColor
         val resultTo = tweenColor.transform { node ->
             if (node.constantValueOrNull == 0xFF00FF00.toInt()) {
-                Color.Yellow.rc
+                RemoteColor(0xFFFFFF00.toInt())
             } else {
                 null
             }
@@ -420,7 +419,7 @@ class RemoteStateVisitorTest {
         // 3. Replace progress and evaluate
         val evaluated = resultFrom.replaceNamedVariables(mapOf(tweenProgress to 0f.rf))
         assertThat(evaluated.hasConstantValue).isTrue()
-        assertThat(evaluated.asConstantColor()).isEqualTo(Color.Blue)
+        assertThat(evaluated.constantValue).isEqualTo(0xFF0000FF.toInt())
     }
 
     @Test
@@ -529,10 +528,11 @@ class RemoteStateVisitorTest {
 
     @Test
     fun testColorComponent_reconstruction() {
-        val namedColor = RemoteColor.createNamedRemoteColor("color", Color.Red.rc)
+        val namedColor = RemoteColor.createNamedRemoteColor("color", 0xFFFF0000.toInt())
         val alpha = namedColor.alpha
 
-        val replaced = alpha.replaceNamedVariables(mapOf(namedColor to Color.Blue.rc))
+        val replaced =
+            alpha.replaceNamedVariables(mapOf(namedColor to RemoteColor(0xFF0000FF.toInt())))
         assertThat(replaced.hasConstantValue).isTrue()
         assertThat(replaced.constantValue).isEqualTo(1.0f)
     }
@@ -582,8 +582,7 @@ class RemoteStateVisitorTest {
         val remoteEnum = RemoteEnum(namedInt, entries)
         val str = remoteEnum.toRemoteString()
 
-        val replaced =
-            str.replaceNamedVariables(mapOf(remoteEnum to RemoteEnum(TestEnum.Second, entries)))
+        val replaced = str.replaceNamedVariables(mapOf(remoteEnum to RemoteEnum(TestEnum.Second)))
         assertThat(replaced.hasConstantValue).isTrue()
         assertThat(replaced.constantValue).isEqualTo("Second")
     }
@@ -638,7 +637,7 @@ class RemoteStateVisitorTest {
     @Test
     fun testContextVariable_inExpression_transform() {
         val time =
-            RemoteFloatExpression(constantValueOrNull = null, cacheKey = RemoteStateIdKey(100)) {
+            RemoteFloat(constantValueOrNull = null, cacheKey = RemoteStateIdKey(100)) {
                 floatArrayOf(Utils.asNan(100))
             }
         val offset = RemoteFloat.createNamedRemoteFloat("offset", 5f)
@@ -651,7 +650,7 @@ class RemoteStateVisitorTest {
     @Test
     fun testComponentVariable_inExpression_transform() {
         val compWidth =
-            RemoteFloatExpression(
+            RemoteFloat(
                 constantValueOrNull = null,
                 cacheKey = RemoteComponentCacheKey(1, "width"),
             ) {
@@ -667,7 +666,7 @@ class RemoteStateVisitorTest {
     @Test
     fun testInstanceKey_inExpression_transform() {
         val customKeyFloat =
-            RemoteFloatExpression(constantValueOrNull = null, cacheKey = RemoteStateInstanceKey()) {
+            RemoteFloat(constantValueOrNull = null, cacheKey = RemoteStateInstanceKey()) {
                 floatArrayOf(1f)
             }
         val scale = RemoteFloat.createNamedRemoteFloat("scale", 2f)
@@ -679,8 +678,7 @@ class RemoteStateVisitorTest {
 
     @Test
     fun testEnumConstant_inExpression_transform() {
-        val entries = kotlin.enums.enumEntries<TestEnum>()
-        val enumState = RemoteEnum(TestEnum.First, entries)
+        val enumState = RemoteEnum(TestEnum.First)
         val str = enumState.toRemoteString()
         val suffix = RemoteString.createNamedRemoteString("suffix", "!")
         val expr = str + suffix

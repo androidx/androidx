@@ -15,29 +15,18 @@
  */
 package androidx.compose.remote.creation.compose.state
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.creation.compose.capture.createTestCreationState
 import androidx.compose.remote.creation.compose.state.RemoteEnum.Companion.createNamedRemoteEnum
 import androidx.compose.remote.creation.compose.state.RemoteState.Domain
-import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import com.google.common.truth.Truth.assertThat
 import kotlin.enums.enumEntries
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
+import org.junit.runners.JUnit4
 
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [Config.TARGET_SDK])
+@RunWith(JUnit4::class)
 class RemoteEnumTest {
-    val context =
-        AndroidRemoteContext().apply {
-            useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
-        }
-
-    val creationState = createTestCreationState()
+    val context = TestRemoteContext()
+    val creationState = testCreationState()
 
     private enum class Checked {
         Off,
@@ -135,11 +124,5 @@ class RemoteEnumTest {
             .isEqualTo("user:chk == 1 ? 20 : (user:chk == 0 ? 10 : -1)")
     }
 
-    private fun makeAndPaintCoreDocument() =
-        CoreDocument().apply {
-            val buffer = creationState.document.buffer
-            buffer.buffer.index = 0
-            initFromBuffer(buffer)
-            paint(context, 0)
-        }
+    private fun makeAndPaintCoreDocument() = context.loadDocument(creationState)
 }

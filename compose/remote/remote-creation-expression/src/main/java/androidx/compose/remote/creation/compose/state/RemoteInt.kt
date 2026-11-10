@@ -54,20 +54,38 @@ private const val OP_XOR = 0x100000000L + IntegerExpressionEvaluator.I_XOR
 private const val MAX_SAFE_LONG_ARRAY = 30
 
 /**
- * Abstract base class for all remote integer representations.
+ * Read-only supertype for all remote integer representations.
  *
- * `RemoteInt` represents an integer value that can be a constant, a named variable, or a dynamic
- * expression (e.g., a bitwise OR).
+ * [RemoteInt] represents a 32-bit signed integer value that may be a constant, a named variable, or
+ * a dynamic expression (such as an arithmetic or bitwise operation). For writable integer
+ * variables, see [MutableRemoteInt].
+ *
+ * Operations on [RemoteInt] are evaluated dynamically on the remote player at runtime unless all
+ * inputs are known constants, in which case constant folding evaluates the result immediately at
+ * creation time (see [RemoteState]).
  */
 @Stable
-public abstract class RemoteInt
+public open class RemoteInt
 internal constructor(
     @get:Suppress("AutoBoxing") public override val constantValueOrNull: Int?,
     cacheKey: RemoteStateCacheKey,
     /** Provides the RPN [LongArray] expression for the given [RemoteComposeCreationState]. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val arrayProvider: (creationState: RemoteComposeCreationState) -> LongArray,
+    internal val arrayProvider: (creationState: RemoteComposeCreationState) -> LongArray,
 ) : BaseRemoteState<Int>(cacheKey) {
+
+    internal override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
+        val array = arrayForCreationState(creationState)
+
+        // in case we have a single element array, check if the element is an id or not;
+        // if it is an existing id, just return this one, no need to create a new one...
+        if (array.size == 1 && array[0] > 0x100000000L) {
+            return Utils.idFromLong(array[0]).toInt()
+        }
+        return creationState.getOrPutIntExpressionId(array) {
+            Utils.idFromLong(creationState.document.integerExpression(*array)).toInt()
+        }
+    }
+
     internal enum class OperationKey(
         override val precedence: Int = 100,
         internal val symbol: String? = null,
@@ -203,14 +221,13 @@ internal constructor(
      *
      * @param creationState state tracking written variable IDs
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun hasBeenWrittenToDoc(creationState: RemoteComposeCreationState): Boolean =
+    internal fun hasBeenWrittenToDoc(creationState: RemoteComposeCreationState): Boolean =
         creationState.remoteVariableToId.contains(cacheKey)
 
     /**
-     * Converts this [RemoteInt] to a [RemoteFloat]. If the [RemoteInt] is a literal, it\'s directly
-     * converted to a float. Otherwise, a [RemoteFloatExpression] is created that references the
-     * remote float ID of this integer.
+     * Converts this [RemoteInt] to a [RemoteFloat]. If the [RemoteInt] is a literal, it's directly
+     * converted to a float. Otherwise, a [RemoteFloat] is created that references the remote float
+     * ID of this integer.
      *
      * @return A [RemoteFloat] representing this integer as a float.
      */
@@ -218,7 +235,7 @@ internal constructor(
         constantValueOrNull?.let {
             return RemoteFloat(it.toFloat())
         }
-        return RemoteFloatExpression(
+        return RemoteFloat(
             constantValueOrNull = null,
             cacheKey = RemoteOperationCacheKey.create(OperationKey.ToFloat, this),
         ) { creationState ->
@@ -226,9 +243,9 @@ internal constructor(
             if (key is RemoteOperationCacheKey && key.op == RemoteFloat.OperationKey.ToInt) {
                 // Force conversion from float to int with a no-op expression so that truncation
                 // occurs as expected for a float->int->float round trip. Directly instantiating
-                // [RemoteIntExpression] skips the peephole optimizer.
+                // [RemoteInt] skips the peephole optimizer.
                 val temp =
-                    RemoteIntExpression(
+                    RemoteInt(
                         constantValueOrNull = null,
                         cacheKey = RemoteOperationCacheKey.create(OperationKey.Add, this, 0),
                     ) { cs ->
@@ -270,7 +287,7 @@ internal constructor(
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun createReference(): RemoteInt {
-        return RemoteIntExpression(
+        return RemoteInt(
             constantValueOrNull = constantValueOrNull,
             cacheKey = RemoteOperationCacheKey.create(OperationKey.Reference, this),
             arrayProvider = { creationState ->
@@ -291,7 +308,7 @@ internal constructor(
         constantValueOrNull?.let {
             return RemoteInt(directEval(it))
         }
-        return RemoteIntExpression(
+        return RemoteInt(
             constantValueOrNull = null,
             cacheKey = RemoteOperationCacheKey.create(op, this),
         ) { creationState ->
@@ -464,20 +481,6 @@ internal constructor(
 
     public companion object {
         /**
-         * Creates a [RemoteInt] from a literal constant [Int] value.
-         *
-         * @param value The constant [Int] value.
-         * @return A [RemoteInt] representing the constant integer.
-         */
-        public operator fun invoke(value: Int): RemoteInt {
-            return RemoteIntExpression(
-                value,
-                cacheKey = RemoteConstantCacheKey(value),
-                { longArrayOf(value.toLong()) },
-            )
-        }
-
-        /**
          * Creates a [RemoteInt] referencing a remote ID.
          *
          * @param v The remote ID.
@@ -486,7 +489,7 @@ internal constructor(
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun createForId(v: Long): RemoteInt {
-            return RemoteIntExpression(
+            return RemoteInt(
                 constantValueOrNull = null,
                 cacheKey = RemoteStateIdKey(v.toInt()),
                 arrayProvider = { _ -> longArrayOf(v) },
@@ -520,8 +523,7 @@ internal constructor(
          * @param v The [Long] value representing a remote integer (could be a literal or an ID).
          * @return `true` if the value is constant, `false` otherwise.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun isConstant(v: Long): Boolean {
+        internal fun isConstant(v: Long): Boolean {
             if (isLiteral(v)) {
                 return true
             }
@@ -539,14 +541,6 @@ internal constructor(
         }
 
         /**
-         * Creates a [RemoteInt] instance from a [Long] value, which could be a literal or an ID.
-         * The `hasConstantValue` is determined by calling [isConstant].
-         *
-         * @param value The constant [Long] value.
-         * @return A [RemoteIntExpression] representing the constant integer.
-         */
-
-        /**
          * Creates a named [RemoteInt] with an initial value. Named remote ints can be set via
          * AndroidRemoteContext.setNamedInt.
          *
@@ -561,7 +555,7 @@ internal constructor(
             defaultValue: Int,
             domain: RemoteState.Domain = RemoteState.Domain.User,
         ): RemoteInt {
-            return RemoteIntExpression(
+            return RemoteInt(
                 constantValueOrNull = null,
                 cacheKey = RemoteNamedCacheKey(domain, name),
             ) { creationState ->
@@ -571,9 +565,11 @@ internal constructor(
     }
 
     /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if [other] is equal to this [RemoteInt].
+     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this [RemoteInt]
+     * is equal to the evaluated value of [other].
      *
      * @param other The [RemoteInt] to compare with.
+     * @return A [RemoteBoolean] representing `this == other`.
      */
     public fun isEqualTo(other: RemoteInt): RemoteBoolean =
         comparisonOp(
@@ -587,10 +583,11 @@ internal constructor(
         }
 
     /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if [other] is not equal to this
-     * [RemoteInt].
+     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this [RemoteInt]
+     * is not equal to the evaluated value of [other].
      *
      * @param other The [RemoteInt] to compare with.
+     * @return A [RemoteBoolean] representing `this != other`.
      */
     public fun isNotEqualTo(other: RemoteInt): RemoteBoolean =
         comparisonOp(
@@ -604,9 +601,11 @@ internal constructor(
         }
 
     /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if this [RemoteInt] is less than [other].
+     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this [RemoteInt]
+     * is less than the evaluated value of [other].
      *
      * @param other The [RemoteInt] to compare with.
+     * @return A [RemoteBoolean] representing `this < other`.
      */
     public fun isLessThan(other: RemoteInt): RemoteBoolean =
         comparisonOp(
@@ -620,10 +619,11 @@ internal constructor(
         }
 
     /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if this [RemoteInt] is less than or equal
-     * to [other].
+     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this [RemoteInt]
+     * is less than or equal to the evaluated value of [other].
      *
      * @param other The [RemoteInt] to compare with.
+     * @return A [RemoteBoolean] representing `this <= other`.
      */
     public fun isLessThanOrEqualTo(other: RemoteInt): RemoteBoolean =
         comparisonOp(
@@ -637,10 +637,11 @@ internal constructor(
         }
 
     /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if this [RemoteInt] is greater than
-     * [other].
+     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this [RemoteInt]
+     * is greater than the evaluated value of [other].
      *
      * @param other The [RemoteInt] to compare with.
+     * @return A [RemoteBoolean] representing `this > other`.
      */
     public fun isGreaterThan(other: RemoteInt): RemoteBoolean =
         comparisonOp(
@@ -654,10 +655,11 @@ internal constructor(
         }
 
     /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if this [RemoteInt] is greater than or
-     * equal to [other].
+     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this [RemoteInt]
+     * is greater than or equal to the evaluated value of [other].
      *
      * @param other The [RemoteInt] to compare with.
+     * @return A [RemoteBoolean] representing `this >= other`.
      */
     public fun isGreaterThanOrEqualTo(other: RemoteInt): RemoteBoolean =
         comparisonOp(
@@ -726,8 +728,7 @@ internal constructor(
  * [extras]. Inlining is preferred as long as the resulting array length is less than
  * [MAX_SAFE_LONG_ARRAY].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun combineToLongArray(
+internal fun combineToLongArray(
     creationState: RemoteComposeCreationState,
     remoteInts: Array<RemoteInt>,
     vararg extras: Long,
@@ -815,7 +816,7 @@ internal fun binaryOp(
         }
     }
 
-    return RemoteIntExpression(
+    return RemoteInt(
         constantValueOrNull = null,
         cacheKey = RemoteOperationCacheKey.create(op, a, b),
     ) { creationState ->
@@ -922,7 +923,7 @@ internal fun binaryOp(
         return RemoteInt(directEval(aConst, bConst))
     }
 
-    return RemoteIntExpression(
+    return RemoteInt(
         constantValueOrNull = null,
         cacheKey = RemoteOperationCacheKey.create(op, a, b),
     ) { creationState ->
@@ -955,7 +956,7 @@ internal fun comparisonOp(
     }
 
     return RemoteBoolean(
-        RemoteIntExpression(
+        RemoteInt(
             constantValueOrNull = null,
             cacheKey = RemoteOperationCacheKey.create(op, a, b),
         ) { creationState ->
@@ -1035,7 +1036,7 @@ public fun clamp(min: RemoteInt, max: RemoteInt, value: RemoteInt): RemoteInt {
         }
     }
 
-    return RemoteIntExpression(
+    return RemoteInt(
         constantValueOrNull = null,
         cacheKey = RemoteOperationCacheKey.create(OperationKey.Clamp, min, max, value),
     ) { creationState ->
@@ -1078,40 +1079,14 @@ internal constructor(
         idProvider = { _ -> id },
     )
 
-    /**
-     * Creates a [MutableRemoteInt] initialized with [initialValue].
-     *
-     * @param initialValue The initial [Int] value.
-     */
-    @RememberInComposition
-    public constructor(
-        initialValue: Int
-    ) : this(
-        constantValueOrNull = null,
-        cacheKey = RemoteStateInstanceKey(),
-        idProvider = { creationState -> creationState.document.addInteger(initialValue) },
-    )
-
-    public companion object {
-        /**
-         * Creates a new mutable state (allocates an ID).
-         *
-         * @param initialValue The initial value for the state.
-         * @return A new [MutableRemoteInt] instance.
-         */
-        @RememberInComposition
-        public operator fun invoke(initialValue: Int): MutableRemoteInt {
-            return MutableRemoteInt(initialValue)
-        }
-
+    internal companion object {
         /**
          * Maps an existing mutable ID to a state instance.
          *
          * @param id The existing mutable ID.
          * @return A [MutableRemoteInt] instance mapping to the ID.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun createMutableForId(id: Long): MutableRemoteInt =
+        internal fun createMutableForId(id: Long): MutableRemoteInt =
             MutableRemoteInt(
                 constantValueOrNull = null,
                 cacheKey = RemoteStateIdKey(id.toInt()),
@@ -1119,10 +1094,36 @@ internal constructor(
             )
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
+    internal override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         Utils.idFromLong(idProvider(creationState)).toInt()
 }
+
+/**
+ * Creates a [RemoteInt] from a literal constant [Int] [value].
+ *
+ * @param value The constant [Int] value.
+ * @return A [RemoteInt] representing the constant integer.
+ */
+public fun RemoteInt(value: Int): RemoteInt =
+    RemoteInt(
+        constantValueOrNull = value,
+        cacheKey = RemoteConstantCacheKey(value),
+        arrayProvider = { longArrayOf(value.toLong()) },
+    )
+
+/**
+ * Creates a [MutableRemoteInt] initialized with [initialValue].
+ *
+ * @param initialValue The initial [Int] value.
+ * @return A [MutableRemoteInt] initialized with [initialValue].
+ */
+@RememberInComposition
+public fun MutableRemoteInt(initialValue: Int): MutableRemoteInt =
+    MutableRemoteInt(
+        constantValueOrNull = null,
+        cacheKey = RemoteStateInstanceKey(),
+        idProvider = { creationState -> creationState.document.addInteger(initialValue) },
+    )
 
 /**
  * Returns [ifTrue] if [a] < [b], otherwise returns [ifFalse].
@@ -1276,37 +1277,6 @@ public fun selectIfGe(
     )
 }
 
-/**
- * An implementation of [RemoteInt] that represents an integer expression.
- *
- * @param arrayProvider A lambda that provides the [LongArray] representing the expression.
- * @property constantValueOrNull The constant [Int] value, or `null` if this expression is dynamic.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public open class RemoteIntExpression
-@RememberInComposition
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public constructor(
-    public override val constantValueOrNull: Int?,
-    cacheKey: RemoteStateCacheKey,
-    arrayProvider: (creationState: RemoteComposeCreationState) -> LongArray,
-) : RemoteInt(constantValueOrNull, cacheKey, arrayProvider) {
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
-        val array = arrayForCreationState(creationState)
-
-        // in case we have a single element array, check if the element is an id or not;
-        // if it is an existing id, just return this one, no need to create a new one...
-        if (array.size == 1 && array[0] > 0x100000000L) {
-            return Utils.idFromLong(array[0]).toInt()
-        }
-        return creationState.getOrPutIntExpressionId(array) {
-            Utils.idFromLong(creationState.document.integerExpression(*array)).toInt()
-        }
-    }
-}
-
 /** Comparison operators for evaluating [RemoteInt] select conditions. */
 internal enum class IntComparisonOp {
     LT,
@@ -1425,7 +1395,7 @@ internal class RemoteIntSelect(
     val ifFalse: RemoteInt,
     cacheKey: RemoteStateCacheKey,
 ) :
-    RemoteIntExpression(
+    RemoteInt(
         constantValueOrNull = null,
         cacheKey = cacheKey,
         arrayProvider = { creationState ->

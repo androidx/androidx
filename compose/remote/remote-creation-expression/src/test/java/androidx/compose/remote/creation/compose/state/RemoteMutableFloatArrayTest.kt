@@ -16,38 +16,27 @@
 
 package androidx.compose.remote.creation.compose.state
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.core.RcProfiles
-import androidx.compose.remote.core.RcProfiles.PROFILE_ANDROIDX
 import androidx.compose.remote.core.RecordingRemoteComposeBuffer
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.ConditionalOperations
 import androidx.compose.remote.core.operations.Header
+import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.RemoteComposeWriter
-import androidx.compose.remote.creation.compose.capture.RemoteComposeCaptureState
-import androidx.compose.remote.creation.compose.capture.createTestCreationState
+import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
-import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
-import androidx.compose.remote.player.core.platform.AndroidRemoteContext
-import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
+import org.junit.runners.JUnit4
 
-@SdkSuppress(minSdkVersion = 29)
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [Config.TARGET_SDK])
+@RunWith(JUnit4::class)
 class RemoteMutableFloatArrayTest {
-    val context =
-        AndroidRemoteContext().apply {
-            useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
-        }
-    val creationState = createTestCreationState(profiles = PROFILE_ANDROIDX)
+    val context = TestRemoteContext()
+    val creationState = testCreationState(profiles = RcProfiles.PROFILE_ANDROIDX)
 
     @Test
     fun arraySet_once_constIndex() {
@@ -113,13 +102,13 @@ class RemoteMutableFloatArrayTest {
 
     @Test
     fun writeToRemoteComposeCreationState_inside_conditional() {
-        val platform = AndroidxRcPlatformServices()
+        val platform = RcPlatformServices.None
         val recordingBuffer = RecordingRemoteComposeBuffer()
         val profile =
             Profile(CoreDocument.DOCUMENT_API_LEVEL, RcProfiles.PROFILE_ANDROIDX, platform) {
                 creationDisplayInfo,
                 profile,
-                callback ->
+                _ ->
                 TestRemoteComposeWriter(
                     profile,
                     recordingBuffer,
@@ -128,7 +117,8 @@ class RemoteMutableFloatArrayTest {
                     RemoteComposeWriter.hTag(Header.DOC_PROFILES, RcProfiles.PROFILE_ANDROIDX),
                 )
             }
-        val creationState = createTestCreationState(width = 100, height = 100, profile = profile)
+        val creationState =
+            testCreationState(document = profile.create(CreationDisplayInfo(100, 100, 160), null))
         creationState.document.conditionalOperations(ConditionalOperations.TYPE_EQ, 0f, 0f)
         val remoteFloatArray = RemoteMutableFloatArray(4)
         val index = createNamedRemoteInt("testInt", 2)
@@ -225,14 +215,8 @@ class RemoteMutableFloatArrayTest {
         assertThat(result.toDebugString()).isEqualTo("mutableFloatArray(size=4)[user:i]")
     }
 
-    private fun makeAndPaintCoreDocument(cs: RemoteComposeCaptureState = creationState) =
-        CoreDocument().apply {
-            val buffer = cs.document.buffer
-            buffer.buffer.index = 0
-            initFromBuffer(buffer)
-            initializeContext(context)
-            paint(context, 0)
-        }
+    private fun makeAndPaintCoreDocument(cs: RemoteComposeCreationState = creationState) =
+        context.loadDocument(cs)
 }
 
 private class TestRemoteComposeWriter(

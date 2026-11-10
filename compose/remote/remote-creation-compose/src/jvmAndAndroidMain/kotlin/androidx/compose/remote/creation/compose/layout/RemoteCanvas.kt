@@ -44,7 +44,6 @@ import androidx.compose.remote.creation.compose.state.RemoteIntArray
 import androidx.compose.remote.creation.compose.state.RemoteLong
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemotePathFillType
-import androidx.compose.remote.creation.compose.state.RemoteStateIdKey
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteStringArray
@@ -912,7 +911,7 @@ public class RemoteCanvas(
         step: RemoteFloat,
         body: (index: RemoteFloat) -> Unit,
     ) {
-        val loopVariable = MutableRemoteFloat()
+        val loopVariable = MutableRemoteFloat.createReserved()
         val childSpan = buffer.recordInChildSpan { body(loopVariable) }
 
         val op =
@@ -937,7 +936,7 @@ public class RemoteCanvas(
      * @param body Code that generates draw calls to run in a loop.
      */
     public fun loop(from: Int, until: RemoteInt, body: (index: RemoteInt) -> Unit) {
-        val loopVariable = MutableRemoteFloat()
+        val loopVariable = MutableRemoteFloat.createReserved()
         val childSpan = buffer.recordInChildSpan { body(loopVariable.toRemoteInt()) }
 
         val op =
@@ -960,9 +959,9 @@ public class RemoteCanvas(
             is RemoteBoolean -> RemoteBoolean.createForId(id)
             is RemoteImageBitmap -> RemoteImageBitmap.createForId(id)
             is RemoteLong -> RemoteLong.createForId(id)
-            is RemoteFloatArray -> RemoteFloatArray(null, RemoteStateIdKey(id))
-            is RemoteStringArray -> RemoteStringArray(null, RemoteStateIdKey(id))
-            is RemoteIntArray -> RemoteIntArray(null, RemoteStateIdKey(id))
+            is RemoteFloatArray -> RemoteFloatArray.createForId(id)
+            is RemoteStringArray -> RemoteStringArray.createForId(id)
+            is RemoteIntArray -> RemoteIntArray.createForId(id)
             else -> throw IllegalArgumentException("Unsupported arg type: ${actualArg?.javaClass}")
         }
     }

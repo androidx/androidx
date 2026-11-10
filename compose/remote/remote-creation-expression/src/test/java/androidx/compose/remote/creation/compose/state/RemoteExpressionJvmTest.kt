@@ -111,24 +111,6 @@ class RemoteExpressionJvmTest {
     }
 
     @Test
-    fun testRemoteColorInvoke_rgbaFloats() {
-        // Positional RGBA order: red, green, blue, alpha
-        val colorWithAlpha = RemoteColor(1f, 0f, 0f, 0.5f)
-        assertThat(colorWithAlpha.red.constantValue).isWithin(0.01f).of(1.0f)
-        assertThat(colorWithAlpha.green.constantValue).isWithin(0.01f).of(0.0f)
-        assertThat(colorWithAlpha.blue.constantValue).isWithin(0.01f).of(0.0f)
-        assertThat(colorWithAlpha.alpha.constantValue).isWithin(0.01f).of(0.5f)
-
-        // Default alpha = 1f
-        val opaqueColor = RemoteColor(0f, 1f, 0f)
-        assertThat(opaqueColor.red.constantValue).isWithin(0.01f).of(0.0f)
-        assertThat(opaqueColor.green.constantValue).isWithin(0.01f).of(1.0f)
-        assertThat(opaqueColor.blue.constantValue).isWithin(0.01f).of(0.0f)
-        assertThat(opaqueColor.alpha.constantValue).isWithin(0.01f).of(1.0f)
-        assertThat(opaqueColor.constantValue).isEqualTo(0xFF00FF00.toInt())
-    }
-
-    @Test
     fun testRemoteColorInvoke_rgbaRemoteFloats() {
         val color = RemoteColor(0f.rf, 0f.rf, 1f.rf, 0.8f.rf)
         assertThat(color.red.constantValue).isWithin(0.01f).of(0.0f)
@@ -345,5 +327,49 @@ class RemoteExpressionJvmTest {
         val namedVars = operations.filterIsInstance<NamedVariable>()
         assertThat(namedVars.any { it.mVarId == id1 && it.mVarName == "USER:color1" }).isTrue()
         assertThat(namedVars.any { it.mVarId == id2 && it.mVarName == "USER:color2" }).isTrue()
+    }
+
+    @Test
+    fun testCreation_mutableForId_isStandardized() {
+        val state = RemoteComposeCreationState()
+        assertThat(MutableRemoteInt.createMutableForId(42L).writeToDocument(state)).isEqualTo(42)
+        assertThat(MutableRemoteLong.createMutableForId(42).writeToDocument(state)).isEqualTo(42)
+        assertThat(MutableRemoteBoolean.createMutableForId(42L).writeToDocument(state))
+            .isEqualTo(42)
+        assertThat(MutableRemoteString.createMutableForId(42).writeToDocument(state)).isEqualTo(42)
+        assertThat(MutableRemoteFloat.createMutableForId(1f).hasConstantValue).isFalse()
+    }
+
+    @Test
+    fun testRemoteLong_lowHigh_and_fromLowHigh() {
+        val long1 = RemoteLong(0x123456789ABCDEFL)
+        assertThat(long1.low.constantValueOrNull).isEqualTo(0x89ABCDEF.toInt())
+        assertThat(long1.high.constantValueOrNull).isEqualTo(0x01234567)
+
+        val long2 = RemoteLong(0x11111111111111L)
+        val sumDynamic = RemoteLong(long1.low, long1.high) + RemoteLong(long2.low, long2.high)
+        assertThat(sumDynamic.constantValueOrNull).isEqualTo(0x123456789ABCDEFL + 0x11111111111111L)
+
+        val carry1 = RemoteLong(0x10000000FFFFFFFFL)
+        val carry2 = RemoteLong(0x0000000000000001L)
+        val sumCarry = RemoteLong(carry1.low, carry1.high) + RemoteLong(carry2.low, carry2.high)
+        assertThat(sumCarry.constantValueOrNull)
+            .isEqualTo(0x10000000FFFFFFFFL + 0x0000000000000001L)
+
+        val diffDynamic = RemoteLong(long1.low, long1.high) - RemoteLong(long2.low, long2.high)
+        assertThat(diffDynamic.constantValueOrNull)
+            .isEqualTo(0x123456789ABCDEFL - 0x11111111111111L)
+
+        val borrow1 = RemoteLong(0x1000000100000000L)
+        val borrow2 = RemoteLong(0x0000000000000001L)
+        val diffBorrow =
+            RemoteLong(borrow1.low, borrow1.high) - RemoteLong(borrow2.low, borrow2.high)
+        assertThat(diffBorrow.constantValueOrNull)
+            .isEqualTo(0x1000000100000000L - 0x0000000000000001L)
+
+        val continuousSecFloat = RemoteTimeVariables.continuousSeconds
+        val longExpr = RemoteLong.fromLowHigh(continuousSecFloat.toRemoteInt(), 0.ri)
+        assertThat(longExpr.toDebugString())
+            .isEqualTo("fromLowHigh(context:continuous_sec.toRemoteInt(), 0)")
     }
 }

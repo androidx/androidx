@@ -36,32 +36,21 @@ public enum class RemoteTextUnitType {
  */
 @Stable
 public class RemoteTextUnit
-public constructor(
+internal constructor(
     public val value: RemoteFloat,
-    public val type: RemoteTextUnitType = RemoteTextUnitType.Sp,
-) : BaseRemoteState<Float>(RemoteStateInstanceKey()) {
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public override val cacheKey: RemoteStateCacheKey
-        get() = RemoteOperationCacheKey.create(OperationKey.Sp, value, type)
-
-    /**
-     * Creates a [RemoteTextUnit] with the given literal [Float] [value] and [type].
-     *
-     * @param value The literal float value.
-     * @param type The [RemoteTextUnitType]. Defaults to [RemoteTextUnitType.Sp].
-     */
-    public constructor(
-        value: Float,
-        type: RemoteTextUnitType = RemoteTextUnitType.Sp,
-    ) : this(value.rf, type)
+    public val type: RemoteTextUnitType,
+    cacheKey: RemoteStateCacheKey,
+) : BaseRemoteState<Float>(cacheKey) {
 
     internal enum class OperationKey : RemoteOperation {
         Sp,
+        DpToSp,
         ToPx;
 
         override fun toDebugString(args: List<RemoteStateCacheKey>): String {
             return when (this) {
                 Sp -> "${args[0].toOperandString(100)}.sp"
+                DpToSp -> "${args[0].toDebugString()}.dpToSp()"
                 ToPx -> "${args[0].toOperandString(100)}.toPx()"
             }
         }
@@ -71,8 +60,7 @@ public constructor(
     override val constantValueOrNull: Float?
         get() = value.constantValueOrNull
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
+    internal override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
         return toPx(creationState.remoteDensity).writeToDocument(creationState)
     }
 
@@ -80,6 +68,7 @@ public constructor(
      * Converts this [RemoteTextUnit] to pixels using the provided [density].
      *
      * @param density The [RemoteDensity] used to convert this [RemoteTextUnit] to pixels.
+     * @return A [RemoteFloat] representing this text size in pixels.
      */
     public fun toPx(density: RemoteDensity): RemoteFloat {
         checkTextUnit()
@@ -92,7 +81,7 @@ public constructor(
             return dp * density.density
         }
 
-        return RemoteFloatExpression(
+        return RemoteFloat(
             constantValueOrNull = null,
             cacheKey =
                 RemoteOperationCacheKey.create(
@@ -108,10 +97,14 @@ public constructor(
         }
     }
 
-    /** Converts this [RemoteTextUnit] to pixels using the screen's density. */
+    /**
+     * Converts this [RemoteTextUnit] to pixels using the current [RemoteDensity].
+     *
+     * @return A [RemoteFloat] representing this text size in pixels.
+     */
     public fun toPx(): RemoteFloat {
         checkTextUnit()
-        return RemoteFloatExpression(
+        return RemoteFloat(
             constantValueOrNull = null,
             cacheKey = RemoteOperationCacheKey.create(OperationKey.ToPx, value, type),
         ) { creationState ->
@@ -124,6 +117,35 @@ public constructor(
     private fun checkTextUnit() =
         check(type == RemoteTextUnitType.Sp) { "Only Sp is supported for conversion to pixels" }
 }
+
+/**
+ * Creates a [RemoteTextUnit] backed by a [RemoteFloat].
+ *
+ * @param value The [RemoteFloat] that holds the scalar value.
+ * @param type The [RemoteTextUnitType]. Defaults to [RemoteTextUnitType.Sp].
+ * @return A [RemoteTextUnit] wrapping the given [RemoteFloat].
+ */
+public fun RemoteTextUnit(
+    value: RemoteFloat,
+    type: RemoteTextUnitType = RemoteTextUnitType.Sp,
+): RemoteTextUnit =
+    RemoteTextUnit(
+        value = value,
+        type = type,
+        cacheKey = RemoteOperationCacheKey.create(RemoteTextUnit.OperationKey.Sp, value, type),
+    )
+
+/**
+ * Creates a [RemoteTextUnit] with the given literal [Float] [value] and [type].
+ *
+ * @param value The literal float value.
+ * @param type The [RemoteTextUnitType]. Defaults to [RemoteTextUnitType.Sp].
+ * @return A [RemoteTextUnit] representing the constant text unit.
+ */
+public fun RemoteTextUnit(
+    value: Float,
+    type: RemoteTextUnitType = RemoteTextUnitType.Sp,
+): RemoteTextUnit = RemoteTextUnit(value.rf, type)
 
 /** Extension property to convert an [Int] to a [RemoteTextUnit] in Sp. */
 public val Int.rsp: RemoteTextUnit
@@ -142,3 +164,21 @@ public val Float.rsp: RemoteTextUnit
  */
 public val RemoteFloat.rsp: RemoteTextUnit
     get() = RemoteTextUnit(this, RemoteTextUnitType.Sp)
+
+/**
+ * Converts this [RemoteDp] to a [RemoteTextUnit] in Sp.
+ *
+ * @return A [RemoteTextUnit] in Sp converted from this [RemoteDp].
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteDp.toRsp(): RemoteTextUnit =
+    RemoteTextUnit(
+        value =
+            RemoteFloat(
+                constantValueOrNull = null,
+                cacheKey = RemoteOperationCacheKey.create(OperationKey.DpToSp, value),
+            ) { creationState ->
+                (value / creationState.remoteDensity.fontScale).arrayForCreationState(creationState)
+            },
+        type = RemoteTextUnitType.Sp,
+    )

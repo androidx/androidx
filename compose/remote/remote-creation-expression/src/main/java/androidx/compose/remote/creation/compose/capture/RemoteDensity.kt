@@ -38,6 +38,7 @@ public class RemoteDensity(
      * Converts a [RemoteDp] to pixels using this [RemoteDensity].
      *
      * @param dp The [RemoteDp] value to convert.
+     * @return A [RemoteFloat] representing [dp] in pixels.
      */
     public fun toPx(dp: RemoteDp): RemoteFloat = dp.toPx(this)
 
@@ -45,6 +46,7 @@ public class RemoteDensity(
      * Converts a [RemoteTextUnit] to pixels using this [RemoteDensity].
      *
      * @param textUnit The [RemoteTextUnit] value to convert.
+     * @return A [RemoteFloat] representing [textUnit] in pixels.
      */
     public fun toPx(textUnit: RemoteTextUnit): RemoteFloat = textUnit.toPx(this)
 

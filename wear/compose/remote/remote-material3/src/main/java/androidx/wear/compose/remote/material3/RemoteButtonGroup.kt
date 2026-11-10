@@ -39,7 +39,6 @@ import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteAnimationSpec
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
-import androidx.compose.remote.creation.compose.state.RemoteFloatExpression
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.asRemoteDp
 import androidx.compose.remote.creation.compose.state.max
@@ -291,12 +290,12 @@ private class RemoteButtonGroupScopeImpl(
     // every item's width depends on the full sibling list (`items.size`, `weights`, `minWidths`,
     // and `pressedProgress`es). Without restricted APIs (`RemoteModifier.foldIn` /
     // `RemoteModifier.Element`), we key on the `RemoteModifier` instance returned by scope
-    // modifiers and use `RemoteFloatExpression` to forward-reference `resolvedWidths`, which
+    // modifiers and use `RemoteFloat` to forward-reference `resolvedWidths`, which
     // lazily calls `computeWidths()` once when the row's children are written to the document.
     // TODO: Expose a parent-data / custom layout API in remote-creation-compose so scope modifiers
     // can attach item metadata and the parent layout can resolve child widths directly without
-    // `RemoteFloatExpression` or `itemsByModifier`.
-    @Suppress("RestrictedApiAndroidX") // RemoteFloatExpression
+    // `RemoteFloat` or `itemsByModifier`.
+    @Suppress("RestrictedApiAndroidX") // RemoteFloat(RemoteComposeCreationState.() -> RemoteFloat)
     private fun getOrCreateItem(modifier: RemoteModifier): Pair<ButtonGroupItem, RemoteModifier> {
         val existing = itemsByModifier[modifier]
         if (existing != null) {
@@ -304,7 +303,7 @@ private class RemoteButtonGroupScopeImpl(
         }
         val index = items.size
         val item = ButtonGroupItem()
-        val width = RemoteFloatExpression { resolvedWidths[index] }
+        val width = RemoteFloat { resolvedWidths[index] }
         val resultModifier =
             modifier.width(width.asRemoteDp()).let {
                 // Players animate size changes of components by default, which would smooth the

@@ -15,23 +15,17 @@
  */
 package androidx.compose.remote.creation.compose.state
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
-import androidx.compose.remote.creation.compose.capture.createTestCreationState
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
-import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import com.google.common.truth.Truth.assertThat
 import java.lang.Float.floatToRawIntBits
 import java.util.Random
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
+import org.junit.runners.JUnit4
 
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [Config.TARGET_SDK])
+@RunWith(JUnit4::class)
 class RemoteFloatOperationsTest {
 
     @Test
@@ -273,11 +267,8 @@ class RemoteFloatOperationsTest {
 
     @Test
     fun rand_evalWithSeed() {
-        val context =
-            AndroidRemoteContext().apply {
-                useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
-            }
-        val creationState = createTestCreationState()
+        val context = TestRemoteContext()
+        val creationState = testCreationState()
         val seed = 12345f
 
         // Seed PRNG via lower-level floatExpression API with RAND_SEED
@@ -299,11 +290,8 @@ class RemoteFloatOperationsTest {
 
     @Test
     fun randRange_evalWithSeed() {
-        val context =
-            AndroidRemoteContext().apply {
-                useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
-            }
-        val creationState = createTestCreationState()
+        val context = TestRemoteContext()
+        val creationState = testCreationState()
         val seed = 67890f
         val from = 10f
         val to = 50f
