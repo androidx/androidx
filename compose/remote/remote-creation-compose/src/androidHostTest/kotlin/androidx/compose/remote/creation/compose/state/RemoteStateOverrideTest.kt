@@ -107,7 +107,9 @@ class RemoteStateOverrideTest {
                 creationDisplayInfo = displayInfo,
                 context = applicationContext,
             ) {
-                val myColor = remember { createNamedRemoteColor("myColor", Color.Red) }
+                val myColor = remember {
+                    RemoteColor.createNamedRemoteColor("myColor", Color.Red.rc)
+                }
                 RemoteBox(modifier = RemoteModifier.size(10.rdp).background(myColor))
             }
 

@@ -32,6 +32,7 @@ import androidx.compose.remote.creation.compose.capture.LocalRemoteLayoutDirecti
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
+import androidx.compose.remote.creation.compose.capture.toRemoteImageVector
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -80,6 +81,8 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.state.withGlobalScope
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
+import androidx.compose.remote.creation.compose.text.RemoteFontStyle
+import androidx.compose.remote.creation.compose.text.RemoteFontWeight
 import androidx.compose.remote.creation.compose.vector.painterRemoteVector
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.player.view.RemoteComposePlayer
@@ -92,8 +95,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -507,7 +508,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                         .padding(4.rdp),
                     white,
                     18.rsp,
-                    fontStyle = FontStyle.Italic,
+                    fontStyle = RemoteFontStyle.Italic,
                 )
                 RemoteText(
                     text,
@@ -517,7 +518,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                         .padding(4.rdp),
                     white,
                     18.rsp,
-                    fontWeight = FontWeight.ExtraLight,
+                    fontWeight = RemoteFontWeight.ExtraLight,
                 )
                 RemoteText(
                     text,
@@ -527,7 +528,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                         .padding(4.rdp),
                     white,
                     18.rsp,
-                    fontWeight = FontWeight.Black,
+                    fontWeight = RemoteFontWeight.Black,
                 )
                 RemoteText(
                     text,
@@ -936,7 +937,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
         size: RemoteDp = 32.rdp,
         tint: Color = Color.White,
     ) {
-        val painter = painterRemoteVector(image = icon, tintColor = tint.rc)
+        val painter = painterRemoteVector(vector = icon.toRemoteImageVector(), tintColor = tint.rc)
         RemoteCanvas(modifier = modifier.size(size)) { with(painter) { onDraw() } }
     }
 

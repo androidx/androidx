@@ -55,6 +55,7 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rsp
+import androidx.compose.remote.creation.compose.text.RemoteFontWeight
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -69,7 +70,6 @@ import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
@@ -295,7 +295,7 @@ class RcPlayerInspectorTest {
                     text = greeting,
                     color = Color.Red.rc,
                     fontSize = 18.rsp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = RemoteFontWeight.Bold,
                     maxLines = 2,
                     modifier =
                         RemoteModifier.width(textWidth.asRemoteDp())

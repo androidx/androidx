@@ -83,7 +83,7 @@ class NamedVariableDiscardedTest {
             remoteCaptureRule.captureDocument(context) {
                 RemoteBox {
                     val namedColor = remember {
-                        createNamedRemoteColor("testColor", Color.Red)
+                        RemoteColor.createNamedRemoteColor("testColor", Color.Red.rc)
                     }
                     RemoteBox(modifier = RemoteModifier.size(10.rdp).background(namedColor))
                 }
@@ -99,7 +99,7 @@ class NamedVariableDiscardedTest {
             remoteCaptureRule.captureDocument(context) {
                 RemoteBox {
                     val namedColor = remember {
-                        createNamedRemoteColor("testColor", Color.Red)
+                        RemoteColor.createNamedRemoteColor("testColor", Color.Red.rc)
                     }
                         .withGlobalScope()
                     RemoteBox(modifier = RemoteModifier.size(10.rdp).background(namedColor))

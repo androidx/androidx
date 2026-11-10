@@ -27,6 +27,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteContentScale
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
@@ -38,6 +39,7 @@ import androidx.compose.remote.creation.compose.shaders.image
 import androidx.compose.remote.creation.compose.shaders.linearGradient
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createRotationAround
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.state.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
@@ -48,10 +50,8 @@ import androidx.compose.remote.player.compose.test.utils.RemoteEmbeddedScreensho
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.layout.ContentScale
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -87,11 +87,13 @@ class RcPlayerShaderMatrixScreenshotTest {
             val tests =
                 listOf<Pair<String, @RemoteComposable @Composable () -> Unit>>(
                     "ContentScale.Crop" to
-                        @RemoteComposable @Composable { ImageBrushCell(ContentScale.Crop) },
+                        @RemoteComposable @Composable { ImageBrushCell(RemoteContentScale.Crop) },
                     "ContentScale.Fit" to
-                        @RemoteComposable @Composable { ImageBrushCell(ContentScale.Fit) },
+                        @RemoteComposable @Composable { ImageBrushCell(RemoteContentScale.Fit) },
                     "ContentScale.FillBounds" to
-                        @RemoteComposable @Composable { ImageBrushCell(ContentScale.FillBounds) },
+                        @RemoteComposable @Composable {
+                            ImageBrushCell(RemoteContentScale.FillBounds)
+                        },
                     "Crop + 0.35 alpha" to @RemoteComposable @Composable { DimmedCropBrushCell() },
                     "MatrixExpr rot 45" to
                         @RemoteComposable @Composable { RotatedGradientMatrixCell() },
@@ -104,17 +106,17 @@ class RcPlayerShaderMatrixScreenshotTest {
 
     @Composable
     @RemoteComposable
-    private fun ImageBrushCell(contentScale: ContentScale) {
+    private fun ImageBrushCell(contentScale: RemoteContentScale) {
         val banner = remember {
-            createNamedRemoteImageBitmap("banner_${contentScale.GetLabel()}") {
+            createNamedRemoteImageBitmap("banner_${contentScale.getLabel()}") {
                 createTargetBannerBitmap().asImageBitmap()
             }
         }
         val brush =
             RemoteBrush.image(
                 image = banner,
-                tileModeX = TileMode.Decal,
-                tileModeY = TileMode.Decal,
+                tileModeX = RemoteTileMode.Decal,
+                tileModeY = RemoteTileMode.Decal,
                 contentScale = contentScale,
             )
         RemoteBox(
@@ -144,9 +146,9 @@ class RcPlayerShaderMatrixScreenshotTest {
                             with(
                                 RemoteBrush.image(
                                     image = banner,
-                                    tileModeX = TileMode.Decal,
-                                    tileModeY = TileMode.Decal,
-                                    contentScale = ContentScale.Crop,
+                                    tileModeX = RemoteTileMode.Decal,
+                                    tileModeY = RemoteTileMode.Decal,
+                                    contentScale = RemoteContentScale.Crop,
                                 )
                             ) {
                                 applyTo(this@RemotePaint, size)
@@ -222,11 +224,11 @@ class RcPlayerShaderMatrixScreenshotTest {
     private companion object {
         private const val TILE_MODE_REPEATED: Short = 1
 
-        fun ContentScale.GetLabel(): String =
+        fun RemoteContentScale.getLabel(): String =
             when (this) {
-                ContentScale.Crop -> "crop"
-                ContentScale.Fit -> "fit"
-                ContentScale.FillBounds -> "fill_bounds"
+                RemoteContentScale.Crop -> "crop"
+                RemoteContentScale.Fit -> "fit"
+                RemoteContentScale.FillBounds -> "fill_bounds"
                 else -> "other"
             }
 

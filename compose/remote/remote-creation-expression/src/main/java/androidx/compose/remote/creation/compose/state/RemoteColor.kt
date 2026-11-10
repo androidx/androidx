@@ -439,6 +439,44 @@ public constructor(
         }
 
         /**
+         * Creates a named [RemoteColor] with an initial [defaultValue].
+         *
+         * Named remote colors can be overridden by [name] at playback time.
+         *
+         * @param name unique name identifying this state within its [domain]
+         * @param defaultValue initial [RemoteColor] constant or expression
+         * @param domain domain for the named state, defaulting to [RemoteState.Domain.User]
+         * @return a named [RemoteColor] initialized to [defaultValue]
+         */
+        @JvmStatic
+        public fun createNamedRemoteColor(
+            name: String,
+            defaultValue: RemoteColor,
+            domain: RemoteState.Domain = RemoteState.Domain.User,
+        ): RemoteColor {
+            return RemoteColor(
+                constantValueOrNull = null,
+                cacheKey = RemoteNamedCacheKey(domain, name),
+                red = null,
+                green = null,
+                blue = null,
+                alpha = null,
+                idProvider = { creationState ->
+                    val constValue = defaultValue.constantValueOrNull
+                    if (constValue != null) {
+                        creationState.document.addNamedColor(domain.prefixed(name), constValue)
+                    } else {
+                        val baseId = defaultValue.getIdForCreationState(creationState).toShort()
+                        val colorId =
+                            creationState.document.addColorExpression(baseId, baseId, 0f).toInt()
+                        creationState.document.setColorName(colorId, domain.prefixed(name))
+                        colorId
+                    }
+                },
+            )
+        }
+
+        /**
          * Creates a [RemoteColor] from remote [hue], [saturation], and [value] (brightness)
          * components. The resulting color is expressed as a [RemoteColor] expression that combines
          * these inputs.

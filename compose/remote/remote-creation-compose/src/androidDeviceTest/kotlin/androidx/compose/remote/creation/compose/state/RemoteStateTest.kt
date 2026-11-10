@@ -31,6 +31,7 @@ import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocum
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteText
+import androidx.compose.remote.creation.compose.state.RemoteColor.Companion.createNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteLong.Companion.createNamedRemoteLong
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
@@ -78,9 +79,9 @@ class RemoteStateTest {
     fun cachesRemoteColor() = runTest {
         withContext(Dispatchers.Main) {
             captureSingleRemoteDocument(context) {
-                val blue = remember { createNamedRemoteColor("blue", Color.Blue) }
-                val red = remember { createNamedRemoteColor("red", Color.Red) }
-                val blue2 = remember { createNamedRemoteColor("blue", Color.Blue) }
+                val blue = remember { createNamedRemoteColor("blue", Color.Blue.rc) }
+                val red = remember { createNamedRemoteColor("red", Color.Red.rc) }
+                val blue2 = remember { createNamedRemoteColor("blue", Color.Blue.rc) }
 
                 AssertSameSameDifferent(blue, blue2, red)
             }
@@ -106,7 +107,10 @@ class RemoteStateTest {
                     }
                 }
                 val blue2 = remember {
-                    createNamedRemoteImageBitmap("blue", url = "https://example.org/favicon.ico")
+                    RemoteImageBitmap.createNamedRemoteImageBitmap(
+                        "blue",
+                        url = "https://example.org/favicon.ico",
+                    )
                 }
 
                 AssertSameSameDifferent(blue, blue2, red)

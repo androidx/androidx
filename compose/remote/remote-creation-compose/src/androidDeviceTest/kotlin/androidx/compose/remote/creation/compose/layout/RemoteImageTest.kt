@@ -40,7 +40,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -92,7 +91,7 @@ class RemoteImageTest {
                 avatarImage,
                 contentDescription = "background".rs,
                 modifier = RemoteModifier.size(size.rdp),
-                contentScale = ContentScale.Fit,
+                contentScale = RemoteContentScale.Fit,
                 alpha = DefaultAlpha.rf,
             )
         }
@@ -116,7 +115,7 @@ class RemoteImageTest {
                 bitmap = backgroundImage,
                 contentDescription = "background".rs,
                 modifier = RemoteModifier.size(size.rdp),
-                contentScale = ContentScale.Fit,
+                contentScale = RemoteContentScale.Fit,
                 alpha = 0.6f.rf,
             )
         }
@@ -132,7 +131,7 @@ class RemoteImageTest {
             bitmapLoader = bitmapLoader,
         ) {
             val dummyImage = remember {
-                createNamedRemoteImageBitmap(
+                RemoteImageBitmap.createNamedRemoteImageBitmap(
                     name = "dummy",
                     url = "android.resource://androidx.compose.remote.foundation/drawable/dummy",
                 )
@@ -141,7 +140,7 @@ class RemoteImageTest {
                 dummyImage,
                 contentDescription = "background".rs,
                 modifier = RemoteModifier.size(size.rdp),
-                contentScale = ContentScale.Fit,
+                contentScale = RemoteContentScale.Fit,
                 alpha = DefaultAlpha.rf,
             )
         }
@@ -160,7 +159,7 @@ class RemoteImageTest {
                 bitmap = backgroundImage.asImageBitmap().rb,
                 contentDescription = "background".rs,
                 modifier = RemoteModifier.size(size.rdp),
-                contentScale = ContentScale.Fit,
+                contentScale = RemoteContentScale.Fit,
                 alpha = 0.6f.rf,
             )
         }
@@ -179,7 +178,7 @@ class RemoteImageTest {
                 bitmapLoader = bitmapLoader,
             ) {
                 val dummyImage = remember {
-                    createNamedRemoteImageBitmap(
+                    RemoteImageBitmap.createNamedRemoteImageBitmap(
                         name = "dummy",
                         url =
                             "android.resource://androidx.compose.remote.foundation/drawable/dummy",
@@ -189,7 +188,7 @@ class RemoteImageTest {
                     dummyImage,
                     contentDescription = "background".rs,
                     modifier = RemoteModifier.size(size.rdp),
-                    contentScale = ContentScale.Fit,
+                    contentScale = RemoteContentScale.Fit,
                     alpha = DefaultAlpha.rf,
                 )
             }
@@ -214,7 +213,7 @@ class RemoteImageTest {
                 dummyImage,
                 contentDescription = "background".rs,
                 modifier = RemoteModifier.size(size.rdp),
-                contentScale = ContentScale.Fit,
+                contentScale = RemoteContentScale.Fit,
                 alpha = DefaultAlpha.rf,
             )
         }
@@ -234,7 +233,7 @@ class RemoteImageTest {
                 bitmap = bitmap,
                 contentDescription = "background".rs,
                 modifier = RemoteModifier.size(size.rdp),
-                contentScale = ContentScale.Fit,
+                contentScale = RemoteContentScale.Fit,
                 alpha = 0.6f.rf,
             )
         }

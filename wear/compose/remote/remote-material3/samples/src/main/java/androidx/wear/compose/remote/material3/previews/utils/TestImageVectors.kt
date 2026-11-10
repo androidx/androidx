@@ -18,10 +18,12 @@ package androidx.wear.compose.remote.material3.previews.utils
 
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.capture.path
+import androidx.compose.remote.creation.compose.shaders.RemoteBrush
+import androidx.compose.remote.creation.compose.shaders.solidColor
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 
 object TestImageVectors {
     val VolumeUp =
@@ -32,7 +34,7 @@ object TestImageVectors {
                 name = "Volume up",
                 autoMirror = true,
             )
-            .path(fill = SolidColor(Color.Companion.Black)) {
+            .path(fill = RemoteBrush.solidColor(Color.Companion.Black.rc)) {
                 moveTo(3.0f.rf, 9.0f.rf)
                 verticalLineToRelative(6.0f.rf)
                 horizontalLineToRelative(4.0f.rf)

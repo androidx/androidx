@@ -49,14 +49,14 @@ import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
+import androidx.compose.remote.creation.compose.text.RemoteFontStyle
+import androidx.compose.remote.creation.compose.text.RemoteFontWeight
 import androidx.compose.remote.player.compose.embedded.integration.previews.ExperimentalRemoteContentPreview
 import androidx.compose.remote.player.compose.embedded.integration.previews.utils.PlayerImpl
 import androidx.compose.remote.player.compose.embedded.integration.previews.utils.PlayerImplPreviewParameterProvider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 
@@ -189,8 +189,8 @@ private fun RcTextStyledPreview(
                 text = "Styled".rs,
                 color = Color(0xFF6200EE).rc,
                 fontSize = 30.rsp,
-                fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Bold,
+                fontStyle = RemoteFontStyle.Italic,
+                fontWeight = RemoteFontWeight.Bold,
             )
         }
     }

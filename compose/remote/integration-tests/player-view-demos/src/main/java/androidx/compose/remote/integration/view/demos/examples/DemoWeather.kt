@@ -46,6 +46,7 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
+import androidx.compose.remote.creation.compose.text.RemoteFontWeight
 import androidx.compose.remote.integration.view.demos.R
 import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
@@ -54,7 +55,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalResources
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 
 @RemoteComposable
@@ -105,7 +105,11 @@ fun WeatherDemo() {
                         horizontalAlignment = RemoteAlignment.CenterHorizontally,
                     ) {
                         RemoteText("Rio de Janeiro".rs)
-                        RemoteText("100º".rs, fontSize = 26.rsp, fontWeight = FontWeight.Medium)
+                        RemoteText(
+                            "100º".rs,
+                            fontSize = 26.rsp,
+                            fontWeight = RemoteFontWeight.Medium,
+                        )
                         RemoteImage(
                             image.rb,
                             "".rs,
@@ -155,7 +159,7 @@ fun WeatherBox() {
         verticalArrangement = RemoteArrangement.Center,
     ) {
         RemoteText("Rio de Janeiro".rs)
-        RemoteText("100º".rs, fontSize = 38.rsp, fontWeight = FontWeight.Medium)
+        RemoteText("100º".rs, fontSize = 38.rsp, fontWeight = RemoteFontWeight.Medium)
         RemoteText("High: 62º - Low: 54º".rs, fontSize = 10.rsp)
     }
 }
@@ -216,7 +220,7 @@ fun Weather(temperature: String, hour: String, resource: Int) {
     RemoteColumn(RemoteModifier.padding(16.rdp)) {
         RemoteText(
             temperature.rs,
-            fontWeight = FontWeight.SemiBold,
+            fontWeight = RemoteFontWeight.SemiBold,
             modifier = RemoteModifier.padding(bottom = 4.rdp),
         )
         RemoteImage(image.rb, "".rs, RemoteModifier.size(24.rdp))

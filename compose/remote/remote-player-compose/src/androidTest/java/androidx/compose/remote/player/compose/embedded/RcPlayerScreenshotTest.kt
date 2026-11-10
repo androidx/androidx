@@ -34,6 +34,7 @@ import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.capture.path
 import androidx.compose.remote.creation.compose.capture.rememberRemoteDocument
+import androidx.compose.remote.creation.compose.capture.toRemoteImageVector
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -333,6 +334,7 @@ class RcPlayerScreenshotTest {
                     val painter =
                         painterRemoteVector(
                             ImageVector.vectorResource(R.drawable.vector_icon_clip_path_1)
+                                .toRemoteImageVector()
                         )
                     RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                         with(painter) { onDraw() }
@@ -361,6 +363,7 @@ class RcPlayerScreenshotTest {
                     val painter =
                         painterRemoteVector(
                             ImageVector.vectorResource(R.drawable.vector_icon_clip_path_1)
+                                .toRemoteImageVector()
                         )
                     RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                         with(painter) { onDraw() }
@@ -432,7 +435,8 @@ class RcPlayerScreenshotTest {
     private fun ComparisonRow(resId: Int) {
         val docAndroidx =
             rememberRemoteDocument(profile = RcPlatformProfiles.ANDROIDX) {
-                val painter = painterRemoteVector(ImageVector.vectorResource(resId))
+                val painter =
+                    painterRemoteVector(ImageVector.vectorResource(resId).toRemoteImageVector())
                 RemoteCanvas(modifier = RemoteModifier.size(80.rdp)) {
                     with(painter) { onDraw() }
                 }
@@ -440,7 +444,8 @@ class RcPlayerScreenshotTest {
 
         val docWithoutClipPath =
             rememberRemoteDocument(profile = profileWithoutClipPath) {
-                val painter = painterRemoteVector(ImageVector.vectorResource(resId))
+                val painter =
+                    painterRemoteVector(ImageVector.vectorResource(resId).toRemoteImageVector())
                 RemoteCanvas(modifier = RemoteModifier.size(80.rdp)) {
                     with(painter) { onDraw() }
                 }

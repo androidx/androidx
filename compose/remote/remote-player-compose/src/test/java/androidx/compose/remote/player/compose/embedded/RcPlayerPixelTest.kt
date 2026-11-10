@@ -31,6 +31,7 @@ import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteContentScale
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -64,7 +65,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onNodeWithTag
@@ -733,7 +733,12 @@ class RcPlayerPixelTest {
                 modifier =
                     RemoteModifier.size(100.rdp).background(Color.Black.rc).drawWithContent {
                         val imgPaint = RemotePaint {
-                            with(RemoteBrush.image(remoteImage, contentScale = ContentScale.Crop)) {
+                            with(
+                                RemoteBrush.image(
+                                    remoteImage,
+                                    contentScale = RemoteContentScale.Crop,
+                                )
+                            ) {
                                 applyTo(this@RemotePaint, size)
                             }
                             color = color.copy(alpha = 0.25f.rf)

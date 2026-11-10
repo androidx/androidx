@@ -117,7 +117,7 @@ class CompatAndroidRemotePaintTest {
     @Test
     fun remoteColorExpressionPreservedInRemotePaintTest() {
         val paint = CompatAndroidRemotePaint()
-        val namedColor = createNamedRemoteColor("myColor", Color.Red)
+        val namedColor = RemoteColor.createNamedRemoteColor("myColor", Color.Red.rc)
         paint.remoteColor = namedColor
 
         val remotePaint = paint.asRemotePaint()
@@ -127,7 +127,7 @@ class CompatAndroidRemotePaintTest {
     @Test
     fun remoteColorFilterExpressionPreservedInRemotePaintTest() {
         val paint = CompatAndroidRemotePaint()
-        val namedColor = createNamedRemoteColor("myColor", Color.Green)
+        val namedColor = RemoteColor.createNamedRemoteColor("myColor", Color.Green.rc)
         val namedFilter = RemoteBlendModeColorFilter(namedColor, RemoteBlendMode.SrcIn)
         paint.remoteColorFilter = namedFilter
 

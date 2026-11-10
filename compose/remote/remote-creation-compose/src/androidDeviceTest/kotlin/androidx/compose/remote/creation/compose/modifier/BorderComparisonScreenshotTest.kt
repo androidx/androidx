@@ -45,6 +45,7 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
+import androidx.compose.remote.creation.compose.text.RemoteFontWeight
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -154,7 +155,7 @@ class BorderComparisonScreenshotTest {
                 ) {
                     RemoteText(
                         text = "Remote".rs,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = RemoteFontWeight.Bold,
                         fontSize = 14.rsp,
                         color = Color.Black.rc,
                     )

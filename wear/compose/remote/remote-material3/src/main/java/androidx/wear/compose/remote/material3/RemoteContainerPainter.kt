@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.remote.material3
 
+import androidx.compose.remote.creation.compose.layout.RemoteContentScale
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.painter.RemotePainter
@@ -93,7 +94,7 @@ internal class ShapedBitmapPainter(
 ) : RemotePainter() {
     override fun RemoteDrawScope.onDraw() {
         val paint = RemotePaint {
-            with(RemoteBrush.image(image, contentScale = contentScale)) {
+            with(RemoteBrush.image(image, contentScale = contentScale.toRemoteContentScale())) {
                 applyTo(this@RemotePaint, size)
             }
             color = color.copy(alpha = color.alpha * this@ShapedBitmapPainter.alpha)
@@ -137,3 +138,15 @@ private class DefaultDisabledRemoteContainerPainter(
         with(painter) { draw(alpha = alpha) }
     }
 }
+
+private fun ContentScale.toRemoteContentScale(): RemoteContentScale =
+    when (this) {
+        ContentScale.Crop -> RemoteContentScale.Crop
+        ContentScale.Fit -> RemoteContentScale.Fit
+        ContentScale.FillHeight -> RemoteContentScale.FillHeight
+        ContentScale.FillWidth -> RemoteContentScale.FillWidth
+        ContentScale.Inside -> RemoteContentScale.Inside
+        ContentScale.None -> RemoteContentScale.None
+        ContentScale.FillBounds -> RemoteContentScale.FillBounds
+        else -> RemoteContentScale.None
+    }

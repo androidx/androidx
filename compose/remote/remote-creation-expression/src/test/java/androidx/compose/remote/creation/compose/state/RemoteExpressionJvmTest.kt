@@ -16,6 +16,11 @@
 
 package androidx.compose.remote.creation.compose.state
 
+import androidx.compose.remote.core.Operation
+import androidx.compose.remote.core.RcPlatformServices
+import androidx.compose.remote.core.operations.ColorExpression
+import androidx.compose.remote.core.operations.NamedVariable
+import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteComponent
 import androidx.compose.remote.creation.compose.layout.RemoteComponentToken
@@ -277,5 +282,66 @@ class RemoteExpressionJvmTest {
         assertThat(component).isEqualTo(RemoteComponent(token))
         assertThat(component.hashCode()).isEqualTo(RemoteComponent(token).hashCode())
         assertThat(component).isNotEqualTo(centerComponent)
+    }
+
+    @Test
+    fun testCreateNamedRemoteColor_constantValueParity() {
+        val creationState =
+            RemoteComposeCreationState().apply {
+                document = RemoteComposeWriter(RcPlatformServices.None)
+            }
+        val constantColor = 0xFFFF0000.toInt().rc
+        val namedColor = RemoteColor.createNamedRemoteColor("primary", constantColor)
+        val id = namedColor.getIdForCreationState(creationState)
+
+        val directNamedColor = RemoteColor.createNamedRemoteColor("primary_int", 0xFFFF0000.toInt())
+        val directId = directNamedColor.getIdForCreationState(creationState)
+
+        assertThat(namedColor.constantValueOrNull).isNull()
+        assertThat(directNamedColor.constantValueOrNull).isNull()
+
+        val buffer = creationState.document.buffer
+        buffer.buffer.index = 0
+        val operations = ArrayList<Operation>()
+        buffer.inflateFromBuffer(operations)
+
+        val namedVars = operations.filterIsInstance<NamedVariable>()
+        assertThat(namedVars.any { it.mVarId == id && it.mVarName == "USER:primary" }).isTrue()
+        assertThat(namedVars.any { it.mVarId == directId && it.mVarName == "USER:primary_int" })
+            .isTrue()
+    }
+
+    @Test
+    fun testCreateNamedRemoteColor_dynamicExpressionUniqueness() {
+        val creationState =
+            RemoteComposeCreationState().apply {
+                document = RemoteComposeWriter(RcPlatformServices.None)
+            }
+        val dynamicExpr =
+            RemoteColor.rgb(
+                red = RemoteFloat.createNamedRemoteFloat("r", 0.5f),
+                green = 0.5f.rf,
+                blue = 0.5f.rf,
+            )
+        val namedColor1 = RemoteColor.createNamedRemoteColor("color1", dynamicExpr)
+        val namedColor2 = RemoteColor.createNamedRemoteColor("color2", dynamicExpr)
+
+        val id1 = namedColor1.getIdForCreationState(creationState)
+        val id2 = namedColor2.getIdForCreationState(creationState)
+
+        assertThat(id1).isNotEqualTo(id2)
+
+        val buffer = creationState.document.buffer
+        buffer.buffer.index = 0
+        val operations = ArrayList<Operation>()
+        buffer.inflateFromBuffer(operations)
+
+        val colorExpressions = operations.filterIsInstance<ColorExpression>()
+        assertThat(colorExpressions.any { it.mId == id1 }).isTrue()
+        assertThat(colorExpressions.any { it.mId == id2 }).isTrue()
+
+        val namedVars = operations.filterIsInstance<NamedVariable>()
+        assertThat(namedVars.any { it.mVarId == id1 && it.mVarName == "USER:color1" }).isTrue()
+        assertThat(namedVars.any { it.mVarId == id2 && it.mVarName == "USER:color2" }).isTrue()
     }
 }

@@ -34,6 +34,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
+import androidx.compose.remote.creation.compose.text.RemoteTextAlign
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
@@ -43,7 +44,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.text.style.TextAlign
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -212,7 +212,7 @@ class RemoteColorSchemeScreenshotTest {
                     text = "${expected.hex}\n${expected.source}".rs,
                     color = RemoteColor(Color.White),
                     fontSize = 6.rsp,
-                    textAlign = TextAlign.Center,
+                    textAlign = RemoteTextAlign.Center,
                 )
             }
         }

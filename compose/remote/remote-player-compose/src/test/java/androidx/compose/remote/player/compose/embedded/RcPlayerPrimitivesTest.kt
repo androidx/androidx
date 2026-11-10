@@ -102,7 +102,6 @@ import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
 import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
-import androidx.compose.remote.creation.compose.state.createNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.deltaFromReferenceInSeconds
 import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.rb
@@ -117,6 +116,7 @@ import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTextDecoration
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
+import androidx.compose.remote.creation.compose.text.toRemoteFontVariationSettings
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
@@ -208,7 +208,9 @@ class RcPlayerPrimitivesTest {
     fun testRemoteTextWithFontVariationAndDecoration() {
         rule.setRemoteContent {
             val style = RemoteTextStyle(textDecoration = RemoteTextDecoration.Underline)
-            val fontVariationSettings = FontVariation.Settings(FontVariation.Setting("wdth", 100f))
+            val fontVariationSettings =
+                FontVariation.Settings(FontVariation.Setting("wdth", 100f))
+                    .toRemoteFontVariationSettings()
             RemoteText(
                 text = "Decorated Var Text".rs,
                 style = style,
@@ -244,9 +246,9 @@ class RcPlayerPrimitivesTest {
     fun testNamedColors() {
         rule.setRemoteContent(modifier = Modifier.size(100.dp).testTag("playerRoot")) {
             val color =
-                createNamedRemoteColor(
+                RemoteColor.createNamedRemoteColor(
                     "TestColor",
-                    Color.Green,
+                    Color.Green.rc,
                 )
             RemoteBox(modifier = RemoteModifier.size(100.rdp).background(color))
         }
@@ -1416,9 +1418,9 @@ class RcPlayerPrimitivesTest {
     fun testRemoteIconTint() {
         rule.setRemoteContent(modifier = Modifier.size(100.dp).testTag("iconTintParent")) {
             val tintVar = remember {
-                createNamedRemoteColor(
+                RemoteColor.createNamedRemoteColor(
                     "tint",
-                    Color(0xFFFF0000),
+                    Color(0xFFFF0000).rc,
                 )
             }
             val imageVector =
@@ -1720,9 +1722,9 @@ class RcPlayerPrimitivesTest {
     fun testColorId() {
         rule.setRemoteContent(modifier = Modifier.size(100.dp).testTag("colorIdParent")) {
             val namedColor = remember {
-                createNamedRemoteColor(
+                RemoteColor.createNamedRemoteColor(
                     "myColor",
-                    Color.Red,
+                    Color.Red.rc,
                 )
             }
             RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
@@ -1756,7 +1758,7 @@ class RcPlayerPrimitivesTest {
                         context = context,
                         content = {
                             val namedColor = remember {
-                                createNamedRemoteColor("myColor", Color.Red)
+                                RemoteColor.createNamedRemoteColor("myColor", Color.Red.rc)
                             }
                             RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                                 val paint = RemotePaint().apply { color = namedColor }
@@ -1799,9 +1801,9 @@ class RcPlayerPrimitivesTest {
     fun testColorFilterId() {
         rule.setRemoteContent(modifier = Modifier.size(100.dp).testTag("colorFilterIdParent")) {
             val namedColor = remember {
-                createNamedRemoteColor(
+                RemoteColor.createNamedRemoteColor(
                     "myColor",
-                    Color.Red,
+                    Color.Red.rc,
                 )
             }
             val colorFilter = RemoteBlendModeColorFilter(namedColor, RemoteBlendMode.SrcOver)

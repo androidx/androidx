@@ -129,20 +129,6 @@ public fun createNamedRemoteImageBitmap(
 ): RemoteImageBitmap = RemoteImageBitmap.createNamedRemoteImageBitmap(name, domain, value)
 
 /**
- * Creates a named [RemoteImageBitmap] identified by its [url].
- *
- * @param name A unique name to identify this state within its [domain].
- * @param url The URL where the bitmap can be fetched.
- * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
- * @return A [RemoteImageBitmap] representing the named bitmap.
- */
-public fun createNamedRemoteImageBitmap(
-    name: String,
-    url: String,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
-): RemoteImageBitmap = RemoteImageBitmap.createNamedRemoteImageBitmap(name, url, domain)
-
-/**
  * Creates a [MutableRemoteImageBitmap] with an [initialValue].
  *
  * @param initialValue The initial [ImageBitmap] value.
@@ -184,24 +170,12 @@ public fun rememberMutableRemoteImageBitmap(initialValue: ImageBitmap): MutableR
 }
 
 /**
- * Remembers a remote bitmap from a URL.
+ * Remembers a named [RemoteImageBitmap] initialized by [value].
  *
- * @param url The URL of the image.
- * @return A [RemoteImageBitmap] representing the image from the URL.
- */
-@RemoteComposable
-@Composable
-public fun rememberRemoteImageBitmap(url: String): RemoteImageBitmap {
-    return remember(url) { RemoteImageBitmap(url) }
-}
-
-/**
- * Remembers a named remote bitmap expression.
- *
- * @param name The unique name for this remote bitmap.
- * @param domain The domain of the named bitmap (defaults to [RemoteState.Domain.User]).
- * @param value A lambda that provides the [RemoteImageBitmap] expression.
- * @return A [RemoteImageBitmap] representing the named remote bitmap expression.
+ * @param name unique name identifying this state within its [domain]
+ * @param domain domain for the named state, defaulting to [RemoteState.Domain.User]
+ * @param value lambda providing the initial [ImageBitmap] value
+ * @return [RemoteImageBitmap] bound to the named bitmap state
  */
 @RemoteComposable
 @Composable
@@ -213,21 +187,6 @@ public fun rememberNamedRemoteImageBitmap(
     return remember(name, domain) {
         RemoteImageBitmap.createNamedRemoteImageBitmap(name = name, domain = domain, value = value)
     }
-}
-
-/**
- * A Composable function to remember and provide a **named** remote bitmap from a URL.
- *
- * @return a [RemoteImageBitmap] representing the named bitmap loaded from [url]
- */
-@RemoteComposable
-@Composable
-public fun rememberNamedRemoteImageBitmap(
-    name: String,
-    url: String,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
-): RemoteImageBitmap {
-    return remember(name, domain) { createNamedRemoteImageBitmap(name, url, domain) }
 }
 
 /** Extension property to convert a [ImageBitmap] to a [RemoteImageBitmap]. */

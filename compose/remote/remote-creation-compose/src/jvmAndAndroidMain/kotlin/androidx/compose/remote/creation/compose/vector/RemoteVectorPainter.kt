@@ -15,7 +15,6 @@
  */
 
 @file:JvmName("RemoteVectorPainterKt")
-@file:JvmMultifileClass
 
 package androidx.compose.remote.creation.compose.vector
 

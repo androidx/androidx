@@ -20,8 +20,8 @@ import androidx.annotation.ColorRes
 import androidx.compose.remote.creation.compose.capture.currentProfileSupportsThemedColors
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.RemoteColor
-import androidx.compose.remote.creation.compose.state.createNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.createThemedRemoteColor
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
@@ -56,7 +56,7 @@ internal enum class RemoteColorSource {
     /** Returns the [RemoteColor] for [role], using [fallback] when it can't be resolved. */
     fun resolve(role: RemoteColorRole, fallback: Color): RemoteColor =
         when (this) {
-            Named -> createNamedRemoteColor(role.name, fallback)
+            Named -> RemoteColor.createNamedRemoteColor(role.name, fallback.rc)
             Themed ->
                 RemoteColor.createThemedRemoteColor(
                     lightColorRes = role.lightToken,

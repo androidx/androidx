@@ -21,6 +21,8 @@ import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.capture.path
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.shaders.RemoteBrush
+import androidx.compose.remote.creation.compose.shaders.solidColor
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
@@ -30,7 +32,6 @@ import androidx.compose.remote.foundation.icon.RemoteBasicIcon
 import androidx.compose.remote.tooling.preview.RemotePreviewWrapper
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewWrapper
 
@@ -46,7 +47,7 @@ fun RemoteBasicIconSample() {
                 tintColor = RemoteColor(Color.White),
                 name = "Sample Icon",
             )
-            .path(fill = SolidColor(Color.White)) {
+            .path(fill = RemoteBrush.solidColor(Color.White.rc)) {
                 moveTo(4.0f.rf, 4.0f.rf)
                 lineTo(20.0f.rf, 4.0f.rf)
                 lineTo(20.0f.rf, 20.0f.rf)

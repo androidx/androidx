@@ -26,11 +26,11 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
+import androidx.compose.remote.creation.compose.text.RemoteFontStyle
+import androidx.compose.remote.creation.compose.text.RemoteFontVariation
+import androidx.compose.remote.creation.compose.text.RemoteFontWeight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontVariation
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewWrapper
 
@@ -59,8 +59,8 @@ fun RemoteTextDynamicFontSizeSample() {
 fun RemoteTextStylingSample() {
     RemoteText(
         text = "Bold & Italic".rs,
-        fontWeight = FontWeight.Bold,
-        fontStyle = FontStyle.Italic,
+        fontWeight = RemoteFontWeight.Bold,
+        fontStyle = RemoteFontStyle.Italic,
     )
 }
 
@@ -73,12 +73,15 @@ fun RemoteTextFontFamilySample() {
         RemoteText(text = "Serif".rs, fontFamily = RemoteFontFamily.Serif)
         RemoteText(text = "Sans Serif".rs, fontFamily = RemoteFontFamily.SansSerif)
         RemoteText(text = "Monospace".rs, fontFamily = RemoteFontFamily.Monospace)
-        RemoteText(text = "ExtraBold".rs, fontWeight = FontWeight.ExtraBold)
+        RemoteText(text = "ExtraBold".rs, fontWeight = RemoteFontWeight.ExtraBold)
         RemoteText(
             text = "Named Flex Font with Variations".rs,
             fontFamily = RemoteFontFamily.Named("device:roboto-flex"),
             fontVariationSettings =
-                FontVariation.Settings(FontVariation.weight(300), FontVariation.width(70f)),
+                RemoteFontVariation.Settings(
+                    RemoteFontVariation.Setting("wght", 300f.rf),
+                    RemoteFontVariation.Setting("wdth", 70f.rf),
+                ),
         )
     }
 }

@@ -35,8 +35,8 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.RemoteColor
-import androidx.compose.remote.creation.compose.state.createNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.createThemedRemoteColor
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.CompositionLocalProvider
@@ -238,7 +238,7 @@ class RcColorThemePlayerTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val document = runBlocking {
             captureRule.captureDocument(context = context) {
-                val accent = remember { createNamedRemoteColor("accent", Color.Red) }
+                val accent = remember { RemoteColor.createNamedRemoteColor("accent", Color.Red.rc) }
                 RemoteBox(modifier = RemoteModifier.size(50.rdp).background(accent))
             }
         }

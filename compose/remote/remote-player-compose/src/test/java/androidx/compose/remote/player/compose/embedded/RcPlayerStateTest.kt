@@ -37,14 +37,15 @@ import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.visibility
 import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloatArray.Companion.createNamedRemoteFloatArray
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteState
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.creation.compose.state.asRemoteDp
-import androidx.compose.remote.creation.compose.state.createNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.createNamedRemoteImageBitmap
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
@@ -97,7 +98,7 @@ class RcPlayerStateTest {
             val count = remember { createNamedRemoteInt("count", 10) }
             val flag = remember { createNamedRemoteBoolean("flag", false) }
             val title = remember { createNamedRemoteString("title", "Initial Title") }
-            val color = remember { createNamedRemoteColor("accent", Color.Red) }
+            val color = remember { RemoteColor.createNamedRemoteColor("accent", Color.Red.rc) }
 
             val widthDp = progress.asRemoteDp()
             val heightDp = count.toRemoteFloat().asRemoteDp()
