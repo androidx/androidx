@@ -103,6 +103,24 @@ val boxScreenshotRegistry: Map<String, @Composable () -> Unit> =
         "DatePickerFutureOnlySample" to { DatePickerFutureOnlySample() },
         "DatePickerSample" to { DatePickerSample() },
         "DatePickerYearMonthDaySample" to { DatePickerYearMonthDaySample() },
+        "DurationPickerHoursMinutesSample" to
+            {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    DurationPickerHoursMinutesSample()
+                }
+            },
+        "DurationPickerHoursMinutesSecondsSample" to
+            {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    DurationPickerHoursMinutesSecondsSample()
+                }
+            },
+        "DurationPickerMinutesSecondsSample" to
+            {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    DurationPickerMinutesSecondsSample()
+                }
+            },
         "PickerGroupSample" to { PickerGroupSample() },
         "SimplePicker" to { SimplePicker() },
         "StepperSample" to { StepperSample() },

@@ -407,6 +407,30 @@ SWIPE_TO_REVEAL_NO_PARTIAL_REVEAL_HANDLER = GestureHandler(
 )
 
 
+# ------------------------------------------------------------------------------
+# Pickers
+# ------------------------------------------------------------------------------
+
+def execute_duration_picker_maximum_duration(sample_name: str = "") -> None:
+    """Rotates the crown 9 detents to move hours 36 -> 45, lets the out-of-range minutes (45)
+    auto-scroll to the 30 minute maximum, then confirms to show the selected duration."""
+    rotary_steps = "for i in 1 2 3 4 5 6 7 8 9; do input rotaryencoder scroll --axis SCROLL,-1; sleep 0.2; done"
+    time.sleep(0.5)
+    utils.run_adb_shell_clock_synced(rotary_steps)
+    time.sleep(3.0)
+    utils.perform_synced_tap(CENTER_X, 0.86)
+    # The 480x480 emulator renders the post-confirm screen noticeably later than the 454x454 one.
+    time.sleep(4.0)
+
+
+DURATION_PICKER_MAXIMUM_DURATION_HANDLER = GestureHandler(
+    name="duration_picker_maximum_duration",
+    action=execute_duration_picker_maximum_duration,
+    triggers_on_load=False,
+    description="Executing DurationPicker maximum duration rotary choreography...",
+)
+
+
 # ==============================================================================
 # SECTION 3: Direct Sample-to-Gesture Dictionary Map (Single Source of Truth)
 # ==============================================================================
@@ -476,6 +500,9 @@ SAMPLE_GESTURES_MAP: Dict[str, GestureHandler] = {
     "VerticalPagerScaffoldWithLowSensitivitySample": VERTICAL_PAGER_HANDLER,
     "ScaffoldWithTLCEdgeButtonSample": SCAFFOLD_SCROLL_HANDLER,
     "ScrollAwaySample": SCAFFOLD_SCROLL_HANDLER,
+
+    # --- Pickers ---
+    "DurationPickerMaximumDurationSample": DURATION_PICKER_MAXIMUM_DURATION_HANDLER,
 
     # --- One-Handed Gestures (Single Flick) ---
     "OneHandedGestureButtonSample": OHG_SINGLE_FLICK_HANDLER,

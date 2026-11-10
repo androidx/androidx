@@ -17,6 +17,7 @@
 package androidx.wear.compose.integration.media
 
 // Wildcard import to import many Wear Compose M3 samples without adding bulk.
+import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -161,6 +162,14 @@ val videoRegistry: Map<String, @Composable () -> Unit> =
             },
         "ScaffoldWithTLCEdgeButtonSample" to { ScaffoldWithTLCEdgeButtonSample() },
         "ScrollAwaySample" to { ScrollAwaySample() },
+
+        // --- Pickers ---
+        "DurationPickerMaximumDurationSample" to
+            {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    DurationPickerMaximumDurationSample()
+                }
+            },
 
         // --- Confirmation Dialogs ---
         "ConfirmationDialogSample" to
