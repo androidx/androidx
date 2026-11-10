@@ -94,7 +94,7 @@ public class MediaRouteButton extends View {
 
     static final SparseArray<Drawable.ConstantState> sRemoteIndicatorCache =
             new SparseArray<>(2);
-    RemoteIndicatorLoader mRemoteIndicatorLoader;
+    private RemoteIndicatorLoader mRemoteIndicatorLoader;
     private Drawable mRemoteIndicator;
     // The resource id to be lazily loaded, 0 if it doesn't need to be loaded.
     private int mRemoteIndicatorResIdToLoad;

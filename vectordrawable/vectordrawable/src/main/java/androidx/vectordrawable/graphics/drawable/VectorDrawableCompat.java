@@ -320,7 +320,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         mVectorState = new VectorDrawableCompatState();
     }
 
-    VectorDrawableCompat(@NonNull VectorDrawableCompatState state) {
+    private VectorDrawableCompat(@NonNull VectorDrawableCompatState state) {
         mVectorState = state;
         mTintFilter = updateTintFilter(mTintFilter, state.mTint, state.mTintMode);
     }

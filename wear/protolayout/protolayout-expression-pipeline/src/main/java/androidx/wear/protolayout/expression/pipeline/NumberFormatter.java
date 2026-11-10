@@ -39,7 +39,7 @@ import org.jspecify.annotations.NonNull;
 /** Utility to number formatting. */
 class NumberFormatter {
 
-    Formatter mFormatter;
+    private Formatter mFormatter;
     private static final String TAG = "NumberFormatter";
     private static final int DEFAULT_MIN_INTEGER_DIGITS = 1;
     private static final int DEFAULT_MAX_FRACTION_DIGITS = 3;

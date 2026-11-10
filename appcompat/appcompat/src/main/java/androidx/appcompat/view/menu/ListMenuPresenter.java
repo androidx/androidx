@@ -54,7 +54,7 @@ public class ListMenuPresenter implements MenuPresenter, AdapterView.OnItemClick
     int mItemLayoutRes;
 
     private Callback mCallback;
-    MenuAdapter mAdapter;
+    private MenuAdapter mAdapter;
 
     private int mId;
 

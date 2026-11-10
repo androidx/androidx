@@ -47,7 +47,8 @@ public class ProtoLayoutDiffer {
     public static final @NonNull String ROOT_NODE_ID = NODE_ID_PREFIX + "1";
 
     // This must match {@code Fingerprint.DISCARDED_VALUE}
-    @VisibleForTesting static final int DISCARDED_FINGERPRINT_VALUE = -1;
+    @VisibleForTesting
+    static final int DISCARDED_FINGERPRINT_VALUE = -1;
 
     /**
      * If true, an element addition or removal forces its parent (and siblings of the changed node)
@@ -73,7 +74,8 @@ public class ProtoLayoutDiffer {
         CHANGE_IN_CHILDREN
     }
 
-    static final class InconsistentFingerprintException extends Exception {}
+    static final class InconsistentFingerprintException extends Exception {
+    }
 
     /** A node in a layout tree. */
     private static final class TreeNode {
@@ -118,7 +120,8 @@ public class ProtoLayoutDiffer {
         private final @NonNull TreeNode mTreeNode;
         private final @NonNull NodeChangeType mNodeChangeType;
 
-        TreeNodeWithChange(@NonNull TreeNode treeNode, @NonNull NodeChangeType nodeChangeType) {
+        private TreeNodeWithChange(@NonNull TreeNode treeNode,
+                @NonNull NodeChangeType nodeChangeType) {
             this.mTreeNode = treeNode;
             this.mNodeChangeType = nodeChangeType;
         }
@@ -197,15 +200,16 @@ public class ProtoLayoutDiffer {
         }
     }
 
-    private ProtoLayoutDiffer() {}
+    private ProtoLayoutDiffer() {
+    }
 
     /**
      * Create an ID for a layout element, based on its position. This can be stored as a tag in the
      * corresponding View and later used with findViewWithTag() to replace changed elements.
      *
      * @param parentPosId Position-based ID of the parent node.
-     * @param childIndex Index of this child node. For the first child, use {@link
-     *     #FIRST_CHILD_INDEX}, and increment by one for each.
+     * @param childIndex  Index of this child node. For the first child, use {@link
+     *                    #FIRST_CHILD_INDEX}, and increment by one for each.
      */
     @SuppressLint("DefaultLocale")
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -236,7 +240,7 @@ public class ProtoLayoutDiffer {
      * Given a position ID for a node and a position ID for a potential parent node, returns if the
      * node is actually a descendant of that parent node.
      *
-     * @param posId Position ID of the potential descendant node.
+     * @param posId       Position ID of the potential descendant node.
      * @param parentPosId Position ID of the potential parent node.
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -250,9 +254,9 @@ public class ProtoLayoutDiffer {
      * Compute the diff from a previous layout tree to a new one.
      *
      * @param prevTreeFingerprint Fingerprint for the previous layout tree.
-     * @param layout The new layout.
+     * @param layout              The new layout.
      * @return The layout diff or null if the diff cannot be computed, which means the whole layout
-     *     should be refreshed.
+     * should be refreshed.
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static @Nullable LayoutDiff getDiff(

@@ -82,7 +82,7 @@ final class CloseGuardHelper {
     }
 
     @RequiresApi(30)
-    static final class CloseGuardApi30Impl implements CloseGuardImpl {
+    private static final class CloseGuardApi30Impl implements CloseGuardImpl {
         private final CloseGuard mPlatformImpl = new CloseGuard();
 
         @Override
@@ -101,7 +101,7 @@ final class CloseGuardHelper {
         }
     }
 
-    static final class CloseGuardNoOpImpl implements CloseGuardImpl {
+    private static final class CloseGuardNoOpImpl implements CloseGuardImpl {
         @Override
         public void open(@NonNull String closeMethodName) {
             Preconditions.checkNotNull(closeMethodName, "CloseMethodName must not be null.");

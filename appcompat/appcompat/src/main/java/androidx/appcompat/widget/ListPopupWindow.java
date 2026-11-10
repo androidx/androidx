@@ -141,7 +141,7 @@ public class ListPopupWindow implements ShowableListMenu {
     private AdapterView.OnItemClickListener mItemClickListener;
     private OnItemSelectedListener mItemSelectedListener;
 
-    final ResizePopupRunnable mResizePopupRunnable = new ResizePopupRunnable();
+    private final ResizePopupRunnable mResizePopupRunnable = new ResizePopupRunnable();
     private final PopupTouchInterceptor mTouchInterceptor = new PopupTouchInterceptor();
     private final PopupScrollListener mScrollListener = new PopupScrollListener();
     private final ListSelectorHider mHideSelector = new ListSelectorHider();

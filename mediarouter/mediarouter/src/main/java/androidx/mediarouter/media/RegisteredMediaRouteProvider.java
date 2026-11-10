@@ -90,7 +90,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     private final ComponentName mComponentName;
-    final PrivateHandler mPrivateHandler;
+    private final PrivateHandler mPrivateHandler;
     private final ArrayList<ControllerConnection> mControllerConnections = new ArrayList<>();
 
     private boolean mStarted;
@@ -338,7 +338,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         return null;
     }
 
-    void onConnectionReady(Connection connection) {
+    private void onConnectionReady(Connection connection) {
         if (mActiveConnection == connection) {
             mConnectionReady = true;
             attachControllersToConnection();
@@ -350,7 +350,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         }
     }
 
-    void onConnectionDied(Connection connection) {
+    private void onConnectionDied(Connection connection) {
         if (mActiveConnection == connection) {
             if (DEBUG) {
                 Log.d(TAG, this + ": Service connection died");
@@ -359,7 +359,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         }
     }
 
-    void onConnectionError(Connection connection, String error) {
+    private void onConnectionError(Connection connection, String error) {
         if (mActiveConnection == connection) {
             if (DEBUG) {
                 Log.d(TAG, this + ": Service connection error - " + error);
@@ -368,7 +368,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         }
     }
 
-    void onConnectionDescriptorChanged(Connection connection,
+    private void onConnectionDescriptorChanged(Connection connection,
             MediaRouteProviderDescriptor descriptor) {
         if (mActiveConnection == connection) {
             if (DEBUG) {
@@ -378,7 +378,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         }
     }
 
-    void onDynamicRouteDescriptorChanged(Connection connection, int controllerId,
+    private void onDynamicRouteDescriptorChanged(Connection connection, int controllerId,
             MediaRouteDescriptor groupRouteDescriptor,
             List<DynamicRouteDescriptor> descriptors) {
         if (mActiveConnection == connection) {
@@ -393,7 +393,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         }
     }
 
-    void onConnectionControllerReleasedByProvider(Connection connection, int controllerId) {
+    private void onConnectionControllerReleasedByProvider(Connection connection, int controllerId) {
         if (mActiveConnection == connection) {
             ControllerConnection controller = findControllerById(controllerId);
             if (mControllerCallback != null && controller instanceof RouteController) {
@@ -446,6 +446,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
 
     interface ControllerConnection {
         int getControllerId();
+        @SuppressWarnings("ExposedPrivateType")
         void attachConnection(Connection connection);
         void detachConnection();
     }

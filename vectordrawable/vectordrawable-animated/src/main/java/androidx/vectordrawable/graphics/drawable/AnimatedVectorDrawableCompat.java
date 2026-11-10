@@ -160,6 +160,7 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon
 
     private ArgbEvaluator mArgbEvaluator = null;
 
+    @SuppressWarnings("ExposedPrivateType")
     AnimatedVectorDrawableDelegateState mCachedConstantStateDelegate;
 
     // Use internal listener to support AVDC's callback.

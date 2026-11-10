@@ -87,7 +87,7 @@ public final class CallbackToFutureAdapter {
     public static <T> @NonNull ListenableFuture<T> getFuture(@NonNull Resolver<T> callback) {
         Completer<T> completer = new Completer<>();
         SafeFuture<T> safeFuture = new SafeFuture<>(completer);
-        completer.future = safeFuture;
+        completer.mFuture = safeFuture;
         // Set something as the tag, so that we can hopefully identify the call site from the
         // toString()
         // of the future. Retaining the instance could potentially cause a leak (if it's an inner
@@ -219,7 +219,7 @@ public final class CallbackToFutureAdapter {
         // synthetic access
         Object tag;
         // synthetic access
-        SafeFuture<T> future;
+        private SafeFuture<T> mFuture;
         private ResolvableFuture<Void> cancellationFuture = ResolvableFuture.create();
 
         /**
@@ -243,7 +243,7 @@ public final class CallbackToFutureAdapter {
          */
         public boolean set(T value) {
             attemptedSetting = true;
-            SafeFuture<T> localFuture = future;
+            SafeFuture<T> localFuture = mFuture;
             boolean wasSet = localFuture != null && localFuture.set(value);
             if (wasSet) {
                 setCompletedNormally();
@@ -263,7 +263,7 @@ public final class CallbackToFutureAdapter {
          */
         public boolean setException(@NonNull Throwable t) {
             attemptedSetting = true;
-            SafeFuture<T> localFuture = future;
+            SafeFuture<T> localFuture = mFuture;
             boolean wasSet = localFuture != null && localFuture.setException(t);
             if (wasSet) {
                 setCompletedNormally();
@@ -281,7 +281,7 @@ public final class CallbackToFutureAdapter {
          */
         public boolean setCancelled() {
             attemptedSetting = true;
-            SafeFuture<T> localFuture = future;
+            SafeFuture<T> localFuture = mFuture;
             boolean wasSet = localFuture != null && localFuture.cancelWithoutNotifyingCompleter(
                     true);
             if (wasSet) {
@@ -309,7 +309,7 @@ public final class CallbackToFutureAdapter {
 
         void fireCancellationListeners() {
             tag = null;
-            future = null;
+            mFuture = null;
             cancellationFuture.set(null);
         }
 
@@ -318,7 +318,7 @@ public final class CallbackToFutureAdapter {
             // retains
             // the completer object
             tag = null;
-            future = null;
+            mFuture = null;
             cancellationFuture = null;
         }
 
@@ -328,7 +328,7 @@ public final class CallbackToFutureAdapter {
         @SuppressWarnings({"deprecation", "removal"}) // b/316642623
         @Override
         protected void finalize() {
-            SafeFuture<T> localFuture = future;
+            SafeFuture<T> localFuture = mFuture;
             // Complete the future with an error before any cancellation listeners try to set the
             // future.
             // Also avoid allocating the exception if we know we won't actually be able to set it.

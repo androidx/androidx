@@ -72,7 +72,7 @@ public class SlidingPaneLayoutActivity extends ComponentActivity {
     SlidingPaneLayout mSlidingLayout;
     TextView mContent;
 
-    ActionBarHelper mActionBar;
+    private ActionBarHelper mActionBar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

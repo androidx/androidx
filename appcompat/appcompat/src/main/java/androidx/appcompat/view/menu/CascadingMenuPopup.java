@@ -92,7 +92,7 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
      * List of open menus. The first item is the root menu and each
      * subsequent item is a direct submenu of the previous item.
      */
-    final List<CascadingMenuInfo> mShowingMenus = new ArrayList<>();
+    private final List<CascadingMenuInfo> mShowingMenus = new ArrayList<>();
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final OnGlobalLayoutListener mGlobalLayoutListener = new OnGlobalLayoutListener() {

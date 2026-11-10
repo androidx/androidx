@@ -65,6 +65,7 @@ public final class MessagePortInternal {
     // Local binder stub that receives calls from the remote process.
     // Responsible for receiving messages from the remote port.
     @NonNull
+    @SuppressWarnings("ExposedPrivateType")
     public final MessagePortIpcClient mLocalIMessagePort;
     // Remote binder proxy to send messages to the other process.
     // Dictates the state of the message port. If null port is closed, if otherwise port is open.

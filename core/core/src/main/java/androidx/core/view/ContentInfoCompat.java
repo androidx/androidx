@@ -141,7 +141,7 @@ public final class ContentInfoCompat {
 
     private final @NonNull Compat mCompat;
 
-    ContentInfoCompat(@NonNull Compat compat) {
+    private ContentInfoCompat(@NonNull Compat compat) {
         mCompat = compat;
     }
 

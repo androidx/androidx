@@ -250,5 +250,5 @@ final class DetailsBackgroundVideoHelper {
         }
     }
 
-    PlaybackControlStateCallback mControlStateCallback = new PlaybackControlStateCallback();
+    private PlaybackControlStateCallback mControlStateCallback = new PlaybackControlStateCallback();
 }

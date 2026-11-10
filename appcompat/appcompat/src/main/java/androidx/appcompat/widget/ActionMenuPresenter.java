@@ -57,7 +57,7 @@ class ActionMenuPresenter extends BaseMenuPresenter
 
     private static final String TAG = "ActionMenuPresenter";
 
-    OverflowMenuButton mOverflowButton;
+    private OverflowMenuButton mOverflowButton;
     private Drawable mPendingOverflowIcon;
     private boolean mPendingOverflowIconSet;
     private boolean mReserveOverflow;
@@ -75,13 +75,13 @@ class ActionMenuPresenter extends BaseMenuPresenter
     // Group IDs that have been added as actions - used temporarily, allocated here for reuse.
     private final SparseBooleanArray mActionButtonGroups = new SparseBooleanArray();
 
-    OverflowPopup mOverflowPopup;
-    ActionButtonSubmenu mActionButtonPopup;
+    private OverflowPopup mOverflowPopup;
+    private ActionButtonSubmenu mActionButtonPopup;
 
-    OpenOverflowRunnable mPostedOpenRunnable;
+    private OpenOverflowRunnable mPostedOpenRunnable;
     private ActionMenuPopupCallback mPopupCallback;
 
-    final PopupPresenterCallback mPopupPresenterCallback = new PopupPresenterCallback();
+    private final PopupPresenterCallback mPopupPresenterCallback = new PopupPresenterCallback();
     int mOpenSubMenuId;
 
     public ActionMenuPresenter(Context context) {

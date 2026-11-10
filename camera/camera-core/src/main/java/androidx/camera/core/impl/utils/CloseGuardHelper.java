@@ -81,7 +81,7 @@ public final class CloseGuardHelper {
     }
 
     @RequiresApi(30)
-    static final class CloseGuardApi30Impl implements CloseGuardImpl {
+    private static final class CloseGuardApi30Impl implements CloseGuardImpl {
 
         private final CloseGuard mPlatformImpl = new CloseGuard();
 
@@ -101,7 +101,7 @@ public final class CloseGuardHelper {
         }
     }
 
-    static final class CloseGuardNoOpImpl implements CloseGuardImpl {
+    private static final class CloseGuardNoOpImpl implements CloseGuardImpl {
 
         @Override
         public void open(@NonNull String closeMethodName) {

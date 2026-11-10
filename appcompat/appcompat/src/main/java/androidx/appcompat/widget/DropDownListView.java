@@ -113,7 +113,7 @@ class DropDownListView extends ListView {
      * Runnable posted when we are awaiting hover event resolution. When set,
      * drawable state changes are postponed.
      */
-    ResolveHoverRunnable mResolveHoverRunnable;
+    private ResolveHoverRunnable mResolveHoverRunnable;
 
     /**
      * <p>Creates a new list view wrapper.</p>

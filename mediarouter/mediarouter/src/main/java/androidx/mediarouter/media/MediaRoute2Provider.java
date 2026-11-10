@@ -75,7 +75,7 @@ class MediaRoute2Provider extends MediaRouteProvider
 
     final MediaRouter2 mMediaRouter2;
     final Callback mCallback;
-    final Map<MediaRouter2.RoutingController, GroupRouteController> mControllerMap =
+    private final Map<MediaRouter2.RoutingController, GroupRouteController> mControllerMap =
             new ArrayMap<>();
     private final MediaRouter2.RouteCallback mRouteCallback;
     private final MediaRouter2.TransferCallback mTransferCallback = new TransferCallback();

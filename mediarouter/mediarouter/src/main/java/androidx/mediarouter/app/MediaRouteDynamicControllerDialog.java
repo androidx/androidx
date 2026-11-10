@@ -159,12 +159,12 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
     };
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     RecyclerView mRecyclerView;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @SuppressWarnings({"WeakerAccess", "ExposedPrivateType"}) /* synthetic access */
     RecyclerAdapter mAdapter;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @SuppressWarnings({"WeakerAccess", "ExposedPrivateType"}) /* synthetic access */
     VolumeChangeListener mVolumeChangeListener;
 
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @SuppressWarnings({"WeakerAccess", "ExposedPrivateType"}) /* synthetic access */
     Map<String, MediaRouteVolumeSliderHolder> mVolumeSliderHolderMap;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     MediaRouter.RouteInfo mRouteForVolumeUpdatingByUser;
@@ -191,12 +191,12 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     MediaControllerCompat mMediaController;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @SuppressWarnings({"WeakerAccess", "ExposedPrivateType"}) /* synthetic access */
     MediaControllerCallback mControllerCallback;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     MediaDescriptionCompat mDescription;
 
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @SuppressWarnings({"WeakerAccess", "ExposedPrivateType"}) /* synthetic access */
     FetchArtTask mFetchArtTask;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     Bitmap mArtIconBitmap;

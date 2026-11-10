@@ -106,6 +106,7 @@ public class FragmentTransitionUsage extends TransitionUsageBase {
     /**
      * A {@link Fragment} with red and yellow squares.
      */
+    @SuppressWarnings("ExposedPrivateType")
     public static class FirstFragment extends TransitionFragment {
 
         @Override
@@ -134,6 +135,7 @@ public class FragmentTransitionUsage extends TransitionUsageBase {
     /**
      * A {@link Fragment} with red and blue squares.
      */
+    @SuppressWarnings("ExposedPrivateType")
     public static class SecondFragment extends TransitionFragment {
 
         @Override

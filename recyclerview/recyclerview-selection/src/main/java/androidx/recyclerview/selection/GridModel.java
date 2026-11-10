@@ -603,7 +603,7 @@ final class GridModel<K> {
         }
     }
 
-    RelativePoint createRelativePoint(Point point) {
+    private RelativePoint createRelativePoint(Point point) {
         // mColumnBounds and mRowBounds is empty when there are no items in the view.
         // Clients have to verify items exist before calling this method.
         checkState(!mColumnBounds.isEmpty(), "Column bounds not established.");

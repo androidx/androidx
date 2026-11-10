@@ -223,7 +223,7 @@ private fun JavaCompile.configureWithErrorProne() {
                     // Disable checks which are already enforced by lint.
                     "-Xep:PrivateConstructorForUtilityClass:OFF",
                     "-Xep:NotJavadoc:ERROR",
-                    "-Xep:ExposedPrivateType:OFF",
+                    "-Xep:ExposedPrivateType:ERROR",
                     "-Xep:ListRemoveAmbiguous:OFF",
                     "-Xep:PreferThrowsTag:OFF",
 

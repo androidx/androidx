@@ -39,7 +39,7 @@ public class ArcCurveFit extends CurveFit {
     private static final int UP_ARC = 5;
 
     private final double[] mTime;
-    Arc[] mArcs;
+    private Arc[] mArcs;
     private boolean mExtrapolate = true;
 
     @Override

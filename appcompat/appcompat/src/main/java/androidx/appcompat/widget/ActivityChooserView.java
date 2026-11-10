@@ -82,7 +82,7 @@ public class ActivityChooserView extends ViewGroup implements
     /**
      * An adapter for displaying the activities in an {@link android.widget.AdapterView}.
      */
-    final ActivityChooserViewAdapter mAdapter;
+    private final ActivityChooserViewAdapter mAdapter;
 
     /**
      * Implementation of various interfaces to avoid publishing them in the APIs.

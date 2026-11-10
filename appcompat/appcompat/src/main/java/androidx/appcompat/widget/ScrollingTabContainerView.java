@@ -290,7 +290,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
         }
     }
 
-    TabView createTabView(ActionBar.Tab tab, boolean forAdapter) {
+    private TabView createTabView(ActionBar.Tab tab, boolean forAdapter) {
         final TabView tabView = new TabView(getContext(), tab, forAdapter);
         if (forAdapter) {
             tabView.setBackgroundDrawable(null);

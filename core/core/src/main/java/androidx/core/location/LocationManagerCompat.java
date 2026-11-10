@@ -209,7 +209,7 @@ public final class LocationManagerCompat {
     }
 
     @GuardedBy("sLocationListeners")
-    static final WeakHashMap<LocationListenerKey, WeakReference<LocationListenerTransport>>
+    private static final WeakHashMap<LocationListenerKey, WeakReference<LocationListenerTransport>>
             sLocationListeners = new WeakHashMap<>();
 
     /**
@@ -255,7 +255,7 @@ public final class LocationManagerCompat {
 
     @GuardedBy("sLocationListeners")
     @RequiresPermission(anyOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
-    static void registerLocationListenerTransport(LocationManager locationManager,
+    private static void registerLocationListenerTransport(LocationManager locationManager,
             LocationListenerTransport transport) {
         WeakReference<LocationListenerTransport> oldRef =
                 sLocationListeners.put(transport.getKey(), new WeakReference<>(transport));
@@ -1276,7 +1276,7 @@ public final class LocationManagerCompat {
         @SuppressLint("BanUncheckedReflection")
         @SuppressWarnings("JavaReflectionMemberAccess")
         @RequiresPermission(anyOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
-        static boolean tryRequestLocationUpdates(LocationManager locationManager,
+        private static boolean tryRequestLocationUpdates(LocationManager locationManager,
                 String provider, LocationRequestCompat locationRequest,
                 LocationListenerTransport transport) {
             // Satisfy reflection lint check

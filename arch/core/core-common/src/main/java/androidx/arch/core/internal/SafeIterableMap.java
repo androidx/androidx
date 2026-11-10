@@ -279,7 +279,7 @@ public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
         abstract Entry<K, V> backward(Entry<K, V> entry);
     }
 
-    static class AscendingIterator<K, V> extends ListIterator<K, V> {
+    private static class AscendingIterator<K, V> extends ListIterator<K, V> {
         AscendingIterator(Entry<K, V> start, Entry<K, V> expectedEnd) {
             super(start, expectedEnd);
         }

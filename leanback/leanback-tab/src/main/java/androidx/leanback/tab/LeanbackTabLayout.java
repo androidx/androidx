@@ -54,7 +54,7 @@ import java.util.ArrayList;
 public class LeanbackTabLayout extends TabLayout {
 
     ViewPager mViewPager;
-    final AdapterDataSetObserver mAdapterDataSetObserver =
+    private final AdapterDataSetObserver mAdapterDataSetObserver =
             new AdapterDataSetObserver(this);
 
     /**

@@ -309,11 +309,11 @@ class NodeInfo implements TreeNode {
 
     static class ResolvedAvd {
         final @NonNull AnimatedVectorDrawable mDrawable;
-        final @NonNull QuotaReleasingAnimationCallback mCallback;
+        private final @NonNull QuotaReleasingAnimationCallback mCallback;
         final @NonNull Trigger mTrigger;
         boolean mPlayedAtLeastOnce;
 
-        ResolvedAvd(
+        private ResolvedAvd(
                 @NonNull AnimatedVectorDrawable drawable,
                 @NonNull Trigger trigger,
                 @NonNull QuotaReleasingAnimationCallback callback) {

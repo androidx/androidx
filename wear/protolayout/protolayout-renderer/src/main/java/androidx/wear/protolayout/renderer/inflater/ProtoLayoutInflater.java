@@ -405,12 +405,12 @@ public final class ProtoLayoutInflater {
 
     /** A mutation that can be applied to a {@link ViewGroup}, using {@link #applyMutation}. */
     public static final class ViewGroupMutation {
-        final List<InflatedView> mInflatedViews;
+        private final List<InflatedView> mInflatedViews;
         final RenderedMetadata mRenderedMetadataAfterMutation;
         final NodeFingerprint mPreMutationRootNodeFingerprint;
         final Optional<PipelineMaker> mPipelineMaker;
 
-        ViewGroupMutation(
+        private ViewGroupMutation(
                 List<InflatedView> inflatedViews,
                 RenderedMetadata renderedMetadataAfterMutation,
                 NodeFingerprint preMutationRootNodeFingerprint,

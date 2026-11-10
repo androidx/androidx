@@ -290,7 +290,7 @@ public class BiometricManager {
             mStringsCompat = null;
         }
 
-        Strings(@NonNull StringsCompat stringsCompat) {
+        private Strings(@NonNull StringsCompat stringsCompat) {
             mStrings = null;
             mStringsCompat = stringsCompat;
         }

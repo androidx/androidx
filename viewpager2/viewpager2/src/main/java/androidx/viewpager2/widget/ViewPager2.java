@@ -158,7 +158,7 @@ public final class ViewPager2 extends ViewGroup {
     private boolean mSavedItemAnimatorPresent = false;
     private boolean mUserInputEnabled = true;
     private @OffscreenPageLimit int mOffscreenPageLimit = OFFSCREEN_PAGE_LIMIT_DEFAULT;
-    AccessibilityProvider mAccessibilityProvider; // to avoid creation of a synthetic accessor
+    private AccessibilityProvider mAccessibilityProvider; // to avoid creation of synthetic accessor
 
     public ViewPager2(@NonNull Context context) {
         super(context);
@@ -1309,7 +1309,7 @@ public final class ViewPager2 extends ViewGroup {
         }
     }
 
-    class BasicAccessibilityProvider extends AccessibilityProvider {
+    private class BasicAccessibilityProvider extends AccessibilityProvider {
         @Override
         public boolean handlesLmPerformAccessibilityAction(int action) {
             return (action == AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD
@@ -1349,7 +1349,7 @@ public final class ViewPager2 extends ViewGroup {
         }
     }
 
-    class PageAwareAccessibilityProvider extends AccessibilityProvider {
+    private class PageAwareAccessibilityProvider extends AccessibilityProvider {
         private final AccessibilityViewCommand mActionPageForward =
                 new AccessibilityViewCommand() {
                     @Override

@@ -36,6 +36,7 @@ public class PagedRowPresenter extends ListRowPresenter {
     private LifecycleOwner mLifecycleOwner;
     private ListRow mRow;
     @Override
+    @SuppressWarnings("ExposedPrivateType")
     protected LiveDataRowPresenterViewHolder createRowViewHolder(ViewGroup parent) {
         ListRowPresenter.ViewHolder listRowPresenterViewHolder =
                 (ListRowPresenter.ViewHolder) super.createRowViewHolder(parent);

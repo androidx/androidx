@@ -122,7 +122,7 @@ public class EncoderBase implements AutoCloseable,
     private final boolean mCopyTiles;
 
     // Helper for tracking EOS when surface is used
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @SuppressWarnings({"WeakerAccess", "ExposedPrivateType"}) /* synthetic access */
         SurfaceEOSTracker mEOSTracker;
 
     // Below variables are to handle GL copy from client's surface

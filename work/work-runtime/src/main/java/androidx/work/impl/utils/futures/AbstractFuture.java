@@ -78,7 +78,7 @@ public abstract class AbstractFuture<V> implements ListenableFuture<V> {
     // blocking. This value is what AbstractQueuedSynchronizer uses.
     private static final long SPIN_THRESHOLD_NANOS = 1000L;
 
-    @SuppressWarnings("WeakerAccess") // Avoiding synthetic accessor.
+    @SuppressWarnings({"WeakerAccess", "ExposedPrivateType"}) // Avoiding synthetic accessor.
     static final AtomicHelper ATOMIC_HELPER;
 
     static {
@@ -301,11 +301,11 @@ public abstract class AbstractFuture<V> implements ListenableFuture<V> {
     volatile @Nullable Object value;
 
     /** All listeners. */
-    @SuppressWarnings("WeakerAccess") // Avoiding synthetic accessor.
+    @SuppressWarnings({"WeakerAccess", "ExposedPrivateType"}) // Avoiding synthetic accessor.
     volatile @Nullable Listener listeners;
 
     /** All waiting threads. */
-    @SuppressWarnings("WeakerAccess") // Avoiding synthetic accessor.
+    @SuppressWarnings({"WeakerAccess", "ExposedPrivateType"}) // Avoiding synthetic accessor.
     volatile @Nullable Waiter waiters;
 
     /** Constructor for use by subclasses. */

@@ -177,7 +177,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
     SearchableInfo mSearchable;
     private Bundle mAppSearchData;
 
-    static final PreQAutoCompleteTextViewReflector PRE_API_29_HIDDEN_METHOD_INVOKER =
+    private static final PreQAutoCompleteTextViewReflector PRE_API_29_HIDDEN_METHOD_INVOKER =
             (Build.VERSION.SDK_INT < 29) ? new PreQAutoCompleteTextViewReflector() : null;
 
     private final Runnable mUpdateDrawableStateRunnable = new Runnable() {
