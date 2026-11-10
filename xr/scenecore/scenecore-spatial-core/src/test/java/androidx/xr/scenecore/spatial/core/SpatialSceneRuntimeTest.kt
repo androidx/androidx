@@ -75,6 +75,7 @@ import com.android.extensions.xr.space.PerceivedResolution
 import com.android.extensions.xr.space.ShadowSpatialCapabilities
 import com.android.extensions.xr.space.ShadowSpatialState
 import com.android.extensions.xr.space.SpatialCapabilities
+import com.android.extensions.xr.space.SpatialState
 import com.android.extensions.xr.space.VisibilityState
 import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
@@ -155,6 +156,42 @@ class SpatialSceneRuntimeTest {
         return SpatialSceneRuntime.create(activity!!, fakeExecutor, xrExtensions, sceneNodeRegistry)
     }
 
+    /**
+     * Runs [block] while the fake XrExtensions delivers [spatialState] from within
+     * `XrExtensions.setSpatialStateCallback()`, before the registering call returns.
+     *
+     * On device, XrExtensions posts the first [SpatialState] to the main thread as soon as the
+     * callback is registered, so the callback can run before [SpatialSceneRuntime.create] returns
+     * when the runtime is created off the main thread. The fake XrExtensions has no hook for this,
+     * so its callback registry is temporarily wrapped to deliver [spatialState] on registration.
+     */
+    private fun <T> withSpatialStateDeliveredOnCallbackRegistration(
+        spatialState: SpatialState,
+        block: () -> T,
+    ): T {
+        val fakeExtensions = xrExtensions.underlyingObject
+        val callbacksField =
+            fakeExtensions.javaClass.getDeclaredField("mSpatialStateCallbacks").apply {
+                isAccessible = true
+            }
+        @Suppress("UNCHECKED_CAST")
+        val callbacks = callbacksField.get(fakeExtensions) as MutableMap<Activity, Any>
+        callbacksField.set(
+            fakeExtensions,
+            object : MutableMap<Activity, Any> by callbacks {
+                override fun put(key: Activity, value: Any): Any? =
+                    callbacks.put(key, value).also {
+                        ShadowXrExtensions.extract(xrExtensions).sendSpatialState(key, spatialState)
+                    }
+            },
+        )
+        try {
+            return block()
+        } finally {
+            callbacksField.set(fakeExtensions, callbacks)
+        }
+    }
+
     @Test
     fun sceneRuntime_setUpSceneRootAndTaskLeashNodes() {
         val rootNode: Node = testRuntime.sceneRootNode
@@ -180,6 +217,21 @@ class SpatialSceneRuntimeTest {
         assertThat(activitySpaceImpl).isNotNull()
         // Verify that there is an underlying extension node.
         assertThat(activitySpaceImpl.getNode()).isNotNull()
+    }
+
+    @Test
+    fun create_spatialStateDeliveredOnCallbackRegistration_appliesStateWithoutCrashing() {
+        testRuntime.destroy()
+        val spatialState = ShadowSpatialState.create()
+        ShadowSpatialState.extract(spatialState)
+            .setEnvironmentVisibilityState(
+                ShadowEnvironmentVisibilityState.create(EnvironmentVisibilityState.APP_VISIBLE)
+            )
+
+        testRuntime =
+            withSpatialStateDeliveredOnCallbackRegistration(spatialState) { createRuntime() }
+
+        assertThat(testRuntime.spatialEnvironment.isPreferredSpatialEnvironmentActive).isTrue()
     }
 
     @Test
