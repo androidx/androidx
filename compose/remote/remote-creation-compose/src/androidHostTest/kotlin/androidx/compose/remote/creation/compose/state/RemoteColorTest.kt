@@ -478,9 +478,9 @@ class RemoteColorTest {
 
     @Test
     fun remoteColorIsCached() {
-        val red = createNamedRemoteColor("red", Color.Red)
-        val red2 = createNamedRemoteColor("red", Color.Red)
-        val green = createNamedRemoteColor("green", Color.Green)
+        val red = RemoteColor.createNamedRemoteColor("red", Color.Red.rc)
+        val red2 = RemoteColor.createNamedRemoteColor("red", Color.Red.rc)
+        val green = RemoteColor.createNamedRemoteColor("green", Color.Green.rc)
 
         val redId = red.getIdForCreationState(creationState)
         val red2Id = red2.getIdForCreationState(creationState)
@@ -521,7 +521,8 @@ class RemoteColorTest {
                 creationDisplayInfo = displayInfo,
                 context = applicationContext,
             ) {
-                val color = createNamedRemoteColor("A", Color.Red).copy(alpha = 0.4f.rf)
+                val color =
+                    RemoteColor.createNamedRemoteColor("A", Color.Red.rc).copy(alpha = 0.4f.rf)
                 RemoteBox(modifier = RemoteModifier.background(color))
             }
 
@@ -541,7 +542,7 @@ class RemoteColorTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context = androidContext) {
                 val namedColor = remember {
-                    createNamedRemoteColor(colorName, Color.Red)
+                    RemoteColor.createNamedRemoteColor(colorName, Color.Red.rc)
                 }
 
                 val copy = namedColor.copy(alpha = 0f.rf)
@@ -560,7 +561,7 @@ class RemoteColorTest {
 
     @Test
     fun toDebugString_variable() {
-        val c = createNamedRemoteColor("col", Color.Red)
+        val c = RemoteColor.createNamedRemoteColor("col", Color.Red.rc)
         assertThat(c.toDebugString()).isEqualTo("user:col")
     }
 
@@ -588,7 +589,7 @@ class RemoteColorTest {
 
     @Test
     fun times_white_elided() {
-        val color = createNamedRemoteColor("color", Color.Red)
+        val color = RemoteColor.createNamedRemoteColor("color", Color.Red.rc)
         val white = RemoteColor(Color.White)
 
         assertThat(color * white).isSameInstanceAs(color)
@@ -597,7 +598,7 @@ class RemoteColorTest {
 
     @Test
     fun times_transparent_elided() {
-        val color = createNamedRemoteColor("color", Color.Red)
+        val color = RemoteColor.createNamedRemoteColor("color", Color.Red.rc)
         val transparent = RemoteColor(Color.Transparent)
 
         assertThat(color * transparent).isSameInstanceAs(transparent)
@@ -631,7 +632,7 @@ class RemoteColorTest {
 
     @Test
     fun tween_same_from_to_elided() {
-        val color = createNamedRemoteColor("color", Color.Red)
+        val color = RemoteColor.createNamedRemoteColor("color", Color.Red.rc)
         val tweenFactor = 0.5f.rf
 
         val tweened = lerp(color, color, tweenFactor)
@@ -647,11 +648,51 @@ class RemoteColorTest {
         assertThat(tweened.asConstantColorOrNull()).isEqualTo(Color.Red)
     }
 
+    @Test
+    fun playbackEvaluation_namedColorOverrides_constantAndDynamic() {
+        val constNamed = RemoteColor.createNamedRemoteColor("constColor", Color.Red.rc)
+        val dynamicRed = createNamedRemoteFloat("dynRed", 0.2f)
+        val dynamicBase = RemoteColor.rgb(dynamicRed, 0.4f.rf, 0.6f.rf, 1f.rf)
+        assertThat(dynamicBase.hasConstantValue).isFalse()
+
+        val dynamicNamed1 = RemoteColor.createNamedRemoteColor("dynColor1", dynamicBase)
+        val dynamicNamed2 = RemoteColor.createNamedRemoteColor("dynColor2", dynamicBase)
+
+        val constId = constNamed.getIdForCreationState(creationState)
+        val dyn1Id = dynamicNamed1.getIdForCreationState(creationState)
+        val dyn2Id = dynamicNamed2.getIdForCreationState(creationState)
+
+        val doc = makeAndPaintCoreDocument()
+
+        val initialDynColorInt = Utils.toARGB(1f, 0.2f, 0.4f, 0.6f)
+        assertThat(context.getColor(constId)).isEqualTo(Color.Red.toArgb())
+        assertThat(context.getColor(dyn1Id)).isEqualTo(initialDynColorInt)
+        assertThat(context.getColor(dyn2Id)).isEqualTo(initialDynColorInt)
+
+        val overrideConst = AndroidColor.BLUE
+        context.setNamedColorOverride("USER:constColor", overrideConst)
+        doc.paint(context, 0)
+        assertThat(context.getColor(constId)).isEqualTo(overrideConst)
+        assertThat(context.getColor(dyn1Id)).isEqualTo(initialDynColorInt)
+        assertThat(context.getColor(dyn2Id)).isEqualTo(initialDynColorInt)
+
+        val overrideDyn1 = AndroidColor.YELLOW
+        context.setNamedColorOverride("USER:dynColor1", overrideDyn1)
+        context.setNamedFloatOverride("USER:dynRed", 0.8f)
+        doc.paint(context, 0)
+
+        val updatedDynColorInt = Utils.toARGB(1f, 0.8f, 0.4f, 0.6f)
+        assertThat(context.getColor(constId)).isEqualTo(overrideConst)
+        assertThat(context.getColor(dyn1Id)).isEqualTo(overrideDyn1)
+        assertThat(context.getColor(dyn2Id)).isEqualTo(updatedDynColorInt)
+    }
+
     private fun makeAndPaintCoreDocument() =
         CoreDocument().apply {
             val buffer = creationState.document.buffer
             buffer.buffer.index = 0
             initFromBuffer(buffer)
+            initializeContext(context)
             paint(context, 0)
         }
 }

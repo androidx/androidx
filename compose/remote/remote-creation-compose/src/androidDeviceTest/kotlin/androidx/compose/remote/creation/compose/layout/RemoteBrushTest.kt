@@ -43,6 +43,7 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createTranslateXy
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteState
+import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.state.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
@@ -52,9 +53,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -267,42 +266,42 @@ class RemoteBrushTest {
 
     @Test
     fun bitmapBrushContentScaleFitTest() {
-        remoteComposeTestRule.runScreenshotTest { BitmapBrushBox(ContentScale.Fit) }
+        remoteComposeTestRule.runScreenshotTest { BitmapBrushBox(RemoteContentScale.Fit) }
     }
 
     @Test
     fun bitmapBrushContentScaleCropTest() {
-        remoteComposeTestRule.runScreenshotTest { BitmapBrushBox(ContentScale.Crop) }
+        remoteComposeTestRule.runScreenshotTest { BitmapBrushBox(RemoteContentScale.Crop) }
     }
 
     @Test
     fun bitmapBrushContentScaleFillBoundsTest() {
-        remoteComposeTestRule.runScreenshotTest { BitmapBrushBox(ContentScale.FillBounds) }
+        remoteComposeTestRule.runScreenshotTest { BitmapBrushBox(RemoteContentScale.FillBounds) }
     }
 
     @Test
     fun bitmapBrushContentScaleFillWidthTest() {
-        remoteComposeTestRule.runScreenshotTest { BitmapBrushBox(ContentScale.FillWidth) }
+        remoteComposeTestRule.runScreenshotTest { BitmapBrushBox(RemoteContentScale.FillWidth) }
     }
 
     @Test
     fun bitmapBrushContentScaleFillHeightTest() {
-        remoteComposeTestRule.runScreenshotTest { BitmapBrushBox(ContentScale.FillHeight) }
+        remoteComposeTestRule.runScreenshotTest { BitmapBrushBox(RemoteContentScale.FillHeight) }
     }
 
     @Test
     fun bitmapBrushContentScaleInsideTest() {
-        remoteComposeTestRule.runScreenshotTest { BitmapBrushBox(ContentScale.Inside) }
+        remoteComposeTestRule.runScreenshotTest { BitmapBrushBox(RemoteContentScale.Inside) }
     }
 
     @Test
     fun bitmapBrushContentScaleNoneTest() {
-        remoteComposeTestRule.runScreenshotTest { BitmapBrushBox(ContentScale.None) }
+        remoteComposeTestRule.runScreenshotTest { BitmapBrushBox(RemoteContentScale.None) }
     }
 
     @Composable
     @RemoteComposable
-    private fun BitmapBrushBox(contentScale: ContentScale) {
+    private fun BitmapBrushBox(contentScale: RemoteContentScale) {
         val backgroundImage = remember {
             createNamedRemoteImageBitmap(name = "background") {
                 createImage(300, 400).asImageBitmap()
@@ -311,8 +310,8 @@ class RemoteBrushTest {
         val backgroundBrush =
             RemoteBrush.image(
                 image = backgroundImage,
-                tileModeX = TileMode.Decal,
-                tileModeY = TileMode.Decal,
+                tileModeX = RemoteTileMode.Decal,
+                tileModeY = RemoteTileMode.Decal,
                 contentScale = contentScale,
             )
         RemoteBox(modifier = RemoteModifier.fillMaxSize().background(backgroundBrush))

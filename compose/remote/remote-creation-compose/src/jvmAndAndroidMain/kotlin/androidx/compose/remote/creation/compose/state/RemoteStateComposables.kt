@@ -167,6 +167,85 @@ public fun rememberNamedRemoteFloat(
 }
 
 // ==============================================================================================
+// RemoteColor Composables
+// ==============================================================================================
+
+/**
+ * Remembers a named [RemoteColor] initialized with [defaultValue].
+ *
+ * @param name unique name identifying this state within its [domain]
+ * @param defaultValue initial [RemoteColor] constant or expression
+ * @param domain domain for the named state, defaulting to [RemoteState.Domain.User]
+ * @return [RemoteColor] bound to the named color state
+ */
+@Composable
+@RemoteComposable
+public fun rememberNamedRemoteColor(
+    name: String,
+    defaultValue: RemoteColor,
+    domain: RemoteState.Domain = RemoteState.Domain.User,
+): RemoteColor =
+    remember(name, domain) { RemoteColor.createNamedRemoteColor(name, defaultValue, domain) }
+
+// ==============================================================================================
+// RemoteDp Composables
+// ==============================================================================================
+
+/**
+ * Remembers a named [RemoteDp] initialized with [defaultValue].
+ *
+ * @param name unique name identifying this state within its [domain]
+ * @param defaultValue initial [RemoteDp] constant or expression
+ * @param domain domain for the named state, defaulting to [RemoteState.Domain.User]
+ * @return [RemoteDp] bound to the named Dp state
+ */
+@Composable
+@RemoteComposable
+public fun rememberNamedRemoteDp(
+    name: String,
+    defaultValue: RemoteDp,
+    domain: RemoteState.Domain = RemoteState.Domain.User,
+): RemoteDp {
+    return remember(name, domain) { RemoteDp.createNamedRemoteDp(name, domain) { defaultValue } }
+}
+
+// ==============================================================================================
+// RemoteImageBitmap Composables
+// ==============================================================================================
+
+/**
+ * Remembers a [RemoteImageBitmap] loaded from [url].
+ *
+ * @param url URL where the bitmap can be fetched
+ * @return [RemoteImageBitmap] representing the image at [url]
+ */
+@RemoteComposable
+@Composable
+public fun rememberRemoteImageBitmap(url: String): RemoteImageBitmap {
+    return remember(url) { RemoteImageBitmap(url) }
+}
+
+/**
+ * Remembers a named [RemoteImageBitmap] loaded from [url].
+ *
+ * @param name unique name identifying this state within its [domain]
+ * @param url URL where the bitmap can be fetched
+ * @param domain domain for the named state, defaulting to [RemoteState.Domain.User]
+ * @return [RemoteImageBitmap] bound to the named bitmap state loaded from [url]
+ */
+@RemoteComposable
+@Composable
+public fun rememberNamedRemoteImageBitmap(
+    name: String,
+    url: String,
+    domain: RemoteState.Domain = RemoteState.Domain.User,
+): RemoteImageBitmap {
+    return remember(name, domain) {
+        RemoteImageBitmap.createNamedRemoteImageBitmap(name, url, domain)
+    }
+}
+
+// ==============================================================================================
 // RemoteInt Composables
 // ==============================================================================================
 

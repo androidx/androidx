@@ -15,12 +15,10 @@
  */
 
 @file:JvmName("RemoteTextKt")
-@file:JvmMultifileClass
 
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.IntRange
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.LocalFontWeightAdjustment
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
@@ -80,9 +78,6 @@ import androidx.compose.runtime.Composable
  * @param fontVariationSettings font variation settings to be applied to the text
  * @param style [RemoteTextStyle] to be applied to the text
  */
-// TODO: Remove @RestrictTo and restore default overflow = RemoteTextOverflow.Clip once
-// RemoteText.android.kt is removed.
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 @RemoteComposable
 public fun RemoteText(
@@ -94,7 +89,7 @@ public fun RemoteText(
     fontWeight: RemoteFontWeight? = null,
     fontFamily: RemoteFontFamily? = null,
     textAlign: RemoteTextAlign? = null,
-    overflow: RemoteTextOverflow,
+    overflow: RemoteTextOverflow = RemoteTextOverflow.Clip,
     @IntRange(from = 1) maxLines: Int = Int.MAX_VALUE,
     fontFeatureSettings: String? = null,
     fontVariationSettings: RemoteFontVariation.Settings? = null,

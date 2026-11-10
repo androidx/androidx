@@ -23,8 +23,12 @@ import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.capture.path
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.shaders.RemoteBrush
+import androidx.compose.remote.creation.compose.shaders.solidColor
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
+import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
 import androidx.compose.remote.creation.compose.state.clamp
 import androidx.compose.remote.creation.compose.state.cubicEasing
 import androidx.compose.remote.creation.compose.state.rc
@@ -34,9 +38,6 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
 import androidx.wear.compose.remote.material3.LocalRemoteContentColor
 import androidx.wear.compose.remote.material3.RemoteIcon
 
@@ -240,7 +241,7 @@ private object Tokens {
     const val ContentDescription = "Double pinch to act"
 
     /** The stroke is drawn white and recoloured by the icon tint, as vector assets are. */
-    val StrokeBrush = SolidColor(Color.White)
+    val StrokeBrush = RemoteBrush.solidColor(Color.White.rc)
 }
 
 /**
@@ -263,8 +264,8 @@ private fun primaryGestureImageVector(stage: RemoteFloat): RemoteImageVector {
             name = "handBody",
             stroke = Tokens.StrokeBrush,
             strokeLineWidth = Tokens.StrokeWidth.rf,
-            strokeLineCap = StrokeCap.Round,
-            strokeLineJoin = StrokeJoin.Round,
+            strokeLineCap = RemoteStrokeCap.Round,
+            strokeLineJoin = RemoteStrokeJoin.Round,
         ) {
             moveTo(s.x(-2.00f, -1.60f, -1.91f), s.y(-4.58f, -4.28f, -4.51f))
             cubicTo(
@@ -385,8 +386,8 @@ private fun primaryGestureImageVector(stage: RemoteFloat): RemoteImageVector {
             name = "knuckle",
             stroke = Tokens.StrokeBrush,
             strokeLineWidth = Tokens.StrokeWidth.rf,
-            strokeLineCap = StrokeCap.Round,
-            strokeLineJoin = StrokeJoin.Round,
+            strokeLineCap = RemoteStrokeCap.Round,
+            strokeLineJoin = RemoteStrokeJoin.Round,
         ) {
             moveTo(s.x(-5.12f, -4.47f, -4.97f), s.y(-7.51f, -7.01f, -7.40f))
             cubicTo(
@@ -403,8 +404,8 @@ private fun primaryGestureImageVector(stage: RemoteFloat): RemoteImageVector {
             name = "lowerWrist",
             stroke = Tokens.StrokeBrush,
             strokeLineWidth = Tokens.StrokeWidth.rf,
-            strokeLineCap = StrokeCap.Round,
-            strokeLineJoin = StrokeJoin.Round,
+            strokeLineCap = RemoteStrokeCap.Round,
+            strokeLineJoin = RemoteStrokeJoin.Round,
         ) {
             moveTo(s.x(0.99f, 1.89f, 1.19f), s.y(-12.01f, -10.86f, -11.74f))
             cubicTo(

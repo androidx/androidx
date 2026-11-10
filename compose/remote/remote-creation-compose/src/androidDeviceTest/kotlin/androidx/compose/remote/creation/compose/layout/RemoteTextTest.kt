@@ -27,6 +27,7 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.test.R.string.long_text_punctuation
+import androidx.compose.remote.creation.compose.text.RemoteTextAlign
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.remote.player.compose.test.utils.plus
@@ -37,7 +38,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -103,7 +103,7 @@ class RemoteTextTest {
                     text = text,
                     color = Color.White.rc,
                     fontSize = 14.rsp,
-                    textAlign = TextAlign.End,
+                    textAlign = RemoteTextAlign.End,
                 )
             }
         }

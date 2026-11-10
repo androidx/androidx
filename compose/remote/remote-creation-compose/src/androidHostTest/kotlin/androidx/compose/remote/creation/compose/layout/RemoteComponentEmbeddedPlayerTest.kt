@@ -83,7 +83,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
@@ -504,7 +503,7 @@ class RemoteComponentEmbeddedPlayerTest {
                             .clip(RemoteCircleShape)
                             .clickable(eagerRecordOwnSizeAction())
                             .semantics { contentDescription = "ScopedModifierImage".rs },
-                    contentScale = ContentScale.Fit,
+                    contentScale = RemoteContentScale.Fit,
                 )
                 RemoteCanvas(
                     modifier =
@@ -588,7 +587,7 @@ class RemoteComponentEmbeddedPlayerTest {
                         RemoteModifier.size(50.rdp, 22.rdp)
                             .clickable(deferredRecordOwnSizeAction())
                             .semantics { contentDescription = "ClickImage".rs },
-                    contentScale = ContentScale.Fit,
+                    contentScale = RemoteContentScale.Fit,
                 )
                 RemoteCanvas(
                     modifier =

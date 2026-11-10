@@ -16,6 +16,7 @@
 package androidx.compose.remote.foundation.image
 
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteContentScale
 import androidx.compose.remote.creation.compose.layout.RemoteImage
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.state.RemoteFloat
@@ -64,7 +65,19 @@ public fun RemoteBasicImage(
         bitmap = bitmap,
         contentDescription = contentDescription,
         modifier = modifier,
-        contentScale = contentScale,
+        contentScale = contentScale.toRemoteContentScale(),
         alpha = alpha,
     )
 }
+
+private fun ContentScale.toRemoteContentScale(): RemoteContentScale =
+    when (this) {
+        ContentScale.Crop -> RemoteContentScale.Crop
+        ContentScale.Fit -> RemoteContentScale.Fit
+        ContentScale.FillHeight -> RemoteContentScale.FillHeight
+        ContentScale.FillWidth -> RemoteContentScale.FillWidth
+        ContentScale.Inside -> RemoteContentScale.Inside
+        ContentScale.None -> RemoteContentScale.None
+        ContentScale.FillBounds -> RemoteContentScale.FillBounds
+        else -> RemoteContentScale.None
+    }

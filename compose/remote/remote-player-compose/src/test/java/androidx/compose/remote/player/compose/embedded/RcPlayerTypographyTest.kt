@@ -26,6 +26,7 @@ import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.creation.compose.text.toRemoteFontVariationSettings
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
@@ -93,9 +94,10 @@ class RcPlayerTypographyTest {
                 "Hi".rs,
                 fontVariationSettings =
                     FontVariation.Settings(
-                        FontVariation.weight(600),
-                        FontVariation.Setting("wdth", 80f),
-                    ),
+                            FontVariation.weight(600),
+                            FontVariation.Setting("wdth", 80f),
+                        )
+                        .toRemoteFontVariationSettings(),
             )
         }
 
@@ -185,7 +187,8 @@ class RcPlayerTypographyTest {
                     RemoteText(
                         "T$i".rs,
                         fontVariationSettings =
-                            FontVariation.Settings(FontVariation.weight(100 + i * 10)),
+                            FontVariation.Settings(FontVariation.weight(100 + i * 10))
+                                .toRemoteFontVariationSettings(),
                     )
                 }
             }
@@ -217,7 +220,8 @@ class RcPlayerTypographyTest {
                     RemoteText(
                         "T$i".rs,
                         fontVariationSettings =
-                            FontVariation.Settings(FontVariation.weight(100 + i * 10)),
+                            FontVariation.Settings(FontVariation.weight(100 + i * 10))
+                                .toRemoteFontVariationSettings(),
                     )
                 }
             }
@@ -233,7 +237,9 @@ class RcPlayerTypographyTest {
 
     @Test
     fun identicalVariationSettingsShareFontFamily() {
-        val settings = FontVariation.Settings(FontVariation.weight(600), FontVariation.width(80f))
+        val settings =
+            FontVariation.Settings(FontVariation.weight(600), FontVariation.width(80f))
+                .toRemoteFontVariationSettings()
         rule.setRemoteContent {
             RemoteColumn {
                 RemoteText("A".rs, fontVariationSettings = settings)

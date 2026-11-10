@@ -25,7 +25,7 @@ import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCaptureState
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
-import androidx.compose.remote.creation.compose.state.createNamedRemoteColor
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.util.TestRemoteComposeBuffer
 import androidx.compose.remote.creation.profile.Profile
@@ -105,7 +105,7 @@ class BackgroundModifierTest {
     @Test
     fun testDynamicNamedRemoteColorBackground() {
         // Named color represents a dynamic theme token
-        val color = createNamedRemoteColor("color.primary", Color.Green)
+        val color = RemoteColor.createNamedRemoteColor("color.primary", Color.Green.rc)
         val modifier = RemoteModifier.background(color)
         val recordingModifier = creationState.toRecordingModifier(modifier)
 

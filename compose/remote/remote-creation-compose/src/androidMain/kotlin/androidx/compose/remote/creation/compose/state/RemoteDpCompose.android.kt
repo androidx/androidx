@@ -18,10 +18,6 @@
 
 package androidx.compose.remote.creation.compose.state
 
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.state.RemoteDp.Companion.createNamedRemoteDp
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
@@ -33,41 +29,6 @@ import androidx.compose.ui.unit.isSpecified
  * @return A [RemoteDp] representing the constant Dp.
  */
 public fun RemoteDp(value: Dp): RemoteDp = value.asRdp()
-
-/**
- * Creates a named [RemoteDp] with an initial value.
- *
- * Named remote Dps can be set via AndroidRemoteContext.setNamedFloat.
- *
- * @param name A unique name to identify this state within its [domain].
- * @param defaultValue The initial [Dp] value for the named remote Dp.
- * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
- * @return A [RemoteDp] representing the named Dp.
- */
-public fun RemoteDp.Companion.createNamedRemoteDp(
-    name: String,
-    defaultValue: Dp,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
-): RemoteDp {
-    check(defaultValue.isSpecified) { "Dp conversion not possible for unspecified Dp" }
-    return createNamedRemoteDp(name, defaultValue.value, domain)
-}
-
-/**
- * Creates a named [RemoteDp] with an initial value.
- *
- * Named remote Dps can be set via AndroidRemoteContext.setNamedFloat.
- *
- * @param name A unique name to identify this state within its [domain].
- * @param defaultValue The initial [Dp] value for the named remote Dp.
- * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
- * @return A [RemoteDp] representing the named Dp.
- */
-public fun createNamedRemoteDp(
-    name: String,
-    defaultValue: Dp,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
-): RemoteDp = RemoteDp.createNamedRemoteDp(name, defaultValue, domain)
 
 /** Extension property to get the [Dp] value of this [RemoteDp], or null if dynamic. */
 public val RemoteDp.asDpOrNull: Dp?
@@ -90,21 +51,3 @@ public fun Dp.asRdp(): RemoteDp {
 /** Extension property to convert a [Dp] to a [RemoteDp]. */
 public val Dp.rdp: RemoteDp
     get() = asRdp()
-
-/**
- * Remembers a named remote Dp expression.
- *
- * @param name The unique name for this remote Dp.
- * @param domain The domain of the named Dp (defaults to [RemoteState.Domain.User]).
- * @param value A lambda that provides the [RemoteDp] expression.
- * @return A [RemoteDp] representing the named remote Dp expression.
- */
-@Composable
-@RemoteComposable
-public fun rememberNamedRemoteDp(
-    name: String,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
-    value: () -> RemoteDp,
-): RemoteDp {
-    return remember(name, domain) { createNamedRemoteDp(name, domain, value) }
-}

@@ -15,7 +15,6 @@
  */
 
 @file:JvmName("RemoteImageBrushKt")
-@file:JvmMultifileClass
 
 package androidx.compose.remote.creation.compose.shaders
 
@@ -132,12 +131,10 @@ internal data class RemoteImageBrush(
  *   [RemoteContentScale.None]
  * @return a [RemoteShaderBrush] that draws [image] as a texture
  */
-// TODO: Make public and restore default tileModeX, tileModeY, and contentScale once
-// RemoteImageBrush.android.kt is removed.
 @Stable
-internal fun RemoteBrush.Companion.image(
+public fun RemoteBrush.Companion.image(
     image: RemoteImageBitmap,
-    tileModeX: RemoteTileMode,
-    tileModeY: RemoteTileMode,
-    contentScale: RemoteContentScale,
+    tileModeX: RemoteTileMode = RemoteTileMode.Clamp,
+    tileModeY: RemoteTileMode = RemoteTileMode.Clamp,
+    contentScale: RemoteContentScale = RemoteContentScale.None,
 ): RemoteShaderBrush = RemoteImageBrush(image, tileModeX, tileModeY, contentScale)

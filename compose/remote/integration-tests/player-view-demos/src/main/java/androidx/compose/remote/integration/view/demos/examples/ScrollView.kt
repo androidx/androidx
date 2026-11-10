@@ -48,13 +48,13 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
+import androidx.compose.remote.creation.compose.text.RemoteFontWeight
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.compose.text.RemoteTypeface.Companion.create
 import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 
 @Suppress("RestrictedApiAndroidX") // Referring to drawAnchoredText
@@ -106,7 +106,7 @@ fun CanvasCalendarMonth(modifier: RemoteModifier = RemoteModifier, month: Int = 
         RemoteText(
             monthNames[month].rs,
             fontFamily = RemoteFontFamily.Serif,
-            fontWeight = FontWeight.Bold,
+            fontWeight = RemoteFontWeight.Bold,
             fontSize = 32.rsp,
             modifier = RemoteModifier.padding(bottom = 24.rdp),
         )

@@ -173,7 +173,7 @@ class RemoteStateCreationTest {
     fun rememberNamedRemoteDp_isTracked() = runTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
-                val namedDp = remember { createNamedRemoteDp("testDp") { 10.rdp } }
+                val namedDp = rememberNamedRemoteDp("testDp", 10.rdp)
                 RemoteBox(modifier = RemoteModifier.padding(namedDp.value))
             }
         assertThat(coreDoc.getNamedVariables(NamedVariable.FLOAT_TYPE))
@@ -186,7 +186,7 @@ class RemoteStateCreationTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 val namedColor = remember {
-                    createNamedRemoteColor("testColor", Color.Magenta)
+                    RemoteColor.createNamedRemoteColor("testColor", Color.Magenta.rc)
                 }
                     .withGlobalScope()
                 RemoteBox(modifier = RemoteModifier.size(10.rdp).background(namedColor))
@@ -203,7 +203,7 @@ class RemoteStateCreationTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 val namedBitmap = remember {
-                    createNamedRemoteImageBitmap(
+                    RemoteImageBitmap.createNamedRemoteImageBitmap(
                         name = "testBitmapUrl",
                         url =
                             "android.resource://androidx.compose.remote.foundation/drawable/dummy",
@@ -277,7 +277,10 @@ class RemoteStateCreationTest {
         val prevDoc =
             remoteCaptureRule.captureDocument(context) {
                 val namedBitmap = remember {
-                    createNamedRemoteImageBitmap(name = "testBitmapUrl", url = url)
+                    RemoteImageBitmap.createNamedRemoteImageBitmap(
+                        name = "testBitmapUrl",
+                        url = url,
+                    )
                 }
                 RemoteBox(
                     modifier =
@@ -288,7 +291,10 @@ class RemoteStateCreationTest {
         val newDoc =
             remoteCaptureRule.captureDocument(context) {
                 val namedBitmap = remember {
-                    createNamedRemoteImageBitmap(name = "testBitmapUrl", url = url)
+                    RemoteImageBitmap.createNamedRemoteImageBitmap(
+                        name = "testBitmapUrl",
+                        url = url,
+                    )
                 }
                 RemoteBox(
                     modifier =
@@ -348,13 +354,22 @@ class RemoteStateCreationTest {
             remoteCaptureRule.captureDocument(context) {
                 val creationState = LocalRemoteComposeCreationState.current
                 val bitmap1 = remember {
-                    createNamedRemoteImageBitmap(name = "sharedBitmap", url = "url1")
+                    RemoteImageBitmap.createNamedRemoteImageBitmap(
+                        name = "sharedBitmap",
+                        url = "url1",
+                    )
                 }
                 val bitmap2 = remember {
-                    createNamedRemoteImageBitmap(name = "sharedBitmap", url = "url1")
+                    RemoteImageBitmap.createNamedRemoteImageBitmap(
+                        name = "sharedBitmap",
+                        url = "url1",
+                    )
                 }
                 val bitmap3 = remember {
-                    createNamedRemoteImageBitmap(name = "otherBitmap", url = "url2")
+                    RemoteImageBitmap.createNamedRemoteImageBitmap(
+                        name = "otherBitmap",
+                        url = "url2",
+                    )
                 }
 
                 id1 = bitmap1.getIdForCreationState(creationState)
@@ -479,8 +494,9 @@ class RemoteStateCreationTest {
             createNamedRemoteLong("l", defaultValue = 1L).writeToDocument(state)
             createNamedRemoteBoolean("b", defaultValue = true).writeToDocument(state)
             createNamedRemoteString("s", defaultValue = "h").writeToDocument(state)
-            createNamedRemoteColor("c", defaultValue = Color.Red).writeToDocument(state)
-            createNamedRemoteDp("d", defaultValue = 1.dp).writeToDocument(state)
+            RemoteColor.createNamedRemoteColor("c", defaultValue = Color.Red.rc)
+                .writeToDocument(state)
+            createNamedRemoteDp("d", defaultValue = 1f).writeToDocument(state)
         }
     }
 
@@ -526,8 +542,8 @@ class RemoteStateCreationTest {
 
             // Taking expression values
             rememberNamedRemoteFloat("f", 1f.rf).writeToDocument(state)
-            rememberNamedRemoteColor("c", Color.Red).writeToDocument(state)
-            rememberNamedRemoteDp("d") { 1.rdp }.writeToDocument(state)
+            rememberNamedRemoteColor("c", Color.Red.rc).writeToDocument(state)
+            rememberNamedRemoteDp("d", 1.rdp).writeToDocument(state)
 
             // Taking primitive values
             rememberNamedRemoteLong("l", 1L).writeToDocument(state)

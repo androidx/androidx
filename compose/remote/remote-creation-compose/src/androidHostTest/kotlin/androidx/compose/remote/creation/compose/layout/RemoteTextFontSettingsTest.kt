@@ -137,7 +137,8 @@ class RemoteTextFontSettingsTest {
             RemoteText(
                 "Text".rs,
                 fontVariationSettings =
-                    FontVariation.Settings(FontVariation.weight(300), FontVariation.width(70f)),
+                    FontVariation.Settings(FontVariation.weight(300), FontVariation.width(70f))
+                        .toRemoteFontVariationSettings(),
             )
         }
 
@@ -155,7 +156,9 @@ class RemoteTextFontSettingsTest {
                             FontVariation.Settings(FontVariation.Setting("ROND", 100f))
                                 .toRemoteFontVariationSettings()
                     ),
-                fontVariationSettings = FontVariation.Settings(FontVariation.weight(500)),
+                fontVariationSettings =
+                    FontVariation.Settings(FontVariation.weight(500))
+                        .toRemoteFontVariationSettings(),
             )
         }
 
@@ -188,7 +191,9 @@ class RemoteTextFontSettingsTest {
         val axes = captureTextAxes {
             RemoteText(
                 "Text".rs,
-                fontVariationSettings = FontVariation.Settings(FontVariation.Setting("slnt", -0f)),
+                fontVariationSettings =
+                    FontVariation.Settings(FontVariation.Setting("slnt", -0f))
+                        .toRemoteFontVariationSettings(),
             )
         }
 
@@ -203,7 +208,8 @@ class RemoteTextFontSettingsTest {
                     RemoteText(
                         "Text".rs,
                         fontVariationSettings =
-                            FontVariation.Settings(FontVariation.opticalSizing(16.sp)),
+                            FontVariation.Settings(FontVariation.opticalSizing(16.sp))
+                                .toRemoteFontVariationSettings(),
                     )
                 }
             }
@@ -217,7 +223,9 @@ class RemoteTextFontSettingsTest {
             RemoteText(
                 "Text".rs,
                 fontFeatureSettings = "'opsz' 12",
-                fontVariationSettings = FontVariation.Settings(FontVariation.opticalSizing(16.sp)),
+                fontVariationSettings =
+                    FontVariation.Settings(FontVariation.opticalSizing(16.sp))
+                        .toRemoteFontVariationSettings(),
             )
         }
 

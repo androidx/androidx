@@ -182,7 +182,7 @@ class RemoteStateVisitorTest {
 
     @Test
     fun testRemoteDpReplacement() {
-        val namedDp = RemoteDp.createNamedRemoteDp("padding_val", 10.dp)
+        val namedDp = RemoteDp.createNamedRemoteDp("padding_val", 10f)
         val dpVal = namedDp + 5.rdp
 
         val replaced = dpVal.replaceNamedVariables(mapOf(namedDp to 20.rdp))
@@ -529,7 +529,7 @@ class RemoteStateVisitorTest {
 
     @Test
     fun testColorComponent_reconstruction() {
-        val namedColor = createNamedRemoteColor("color", Color.Red)
+        val namedColor = RemoteColor.createNamedRemoteColor("color", Color.Red.rc)
         val alpha = namedColor.alpha
 
         val replaced = alpha.replaceNamedVariables(mapOf(namedColor to Color.Blue.rc))

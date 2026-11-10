@@ -37,14 +37,12 @@ import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextOverflow
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -67,6 +65,8 @@ class DrawHelpersTest {
         assertEquals(2, RemoteStrokeJoin.Bevel.value)
         assertEquals(PaintBundle.STYLE_FILL, RemotePaintingStyle.Fill.value)
         assertEquals(PaintBundle.STYLE_STROKE, RemotePaintingStyle.Stroke.value)
+        assertEquals(TextLayout.OVERFLOW_CLIP, RemoteTextOverflow.Clip.value)
+        assertEquals(TextLayout.OVERFLOW_ELLIPSIS, RemoteTextOverflow.Ellipsis.value)
     }
 
     @Test
@@ -76,8 +76,6 @@ class DrawHelpersTest {
         assertEquals(RemoteBlendMode.Clear, BlendMode.Clear.toRemoteBlendMode())
         assertEquals(BlendMode.Clear, RemoteBlendMode.Clear.toComposeBlendMode())
 
-        assertEquals(RemoteTileMode.Mirror, TileMode.Mirror.toRemoteTileMode())
-        assertEquals(RemotePaintingStyle.Fill, PaintingStyle.Fill.toRemotePaintingStyle())
         assertEquals(PaintingStyle.Stroke, RemotePaintingStyle.Stroke.toComposePaintingStyle())
         assertEquals(RemotePathFillType.NonZero, PathFillType.NonZero.toRemotePathFillType())
         assertEquals(RemotePathFillType.EvenOdd, PathFillType.EvenOdd.toRemotePathFillType())
@@ -103,11 +101,6 @@ class DrawHelpersTest {
         assertEquals(PaintBundle.BLEND_MODE_SRC_OVER, BlendMode.SrcOver.toRemoteBlendMode().value)
         assertEquals(TextLayout.TEXT_ALIGN_CENTER, TextAlign.Center.toRemoteTextAlign().value)
         assertEquals(RemoteTextAlign.Left, TextAlign.Unspecified.toRemoteTextAlign())
-        assertEquals(
-            TextLayout.OVERFLOW_ELLIPSIS,
-            TextOverflow.Ellipsis.toRemoteTextOverflow().value,
-        )
-        assertEquals(RemoteTextOverflow.Clip, TextOverflow.Clip.toRemoteTextOverflow())
         assertEquals(1, FontStyle.Italic.toRemoteFontStyle().value)
         assertEquals(CoreText.BREAK_STRATEGY_BALANCED, LineBreak.Heading.toRemoteLineBreak().value)
         assertEquals(RemoteLineBreak.Simple, LineBreak.Unspecified.toRemoteLineBreak())

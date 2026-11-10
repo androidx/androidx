@@ -59,10 +59,10 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
+import androidx.compose.remote.creation.compose.text.RemoteFontWeight
+import androidx.compose.remote.creation.compose.text.RemoteTextAlign
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import java.util.Calendar
 
 /** Custom RemoteShader implementation to support AGSL in high-level DSL. */
@@ -157,8 +157,8 @@ fun AiAgent(currentTimeSeconds: Float = 1000f, animate: Boolean = true) {
                             text = "edsger-saga-6-7, v0.42.0-nightly.git.487fb21".rs,
                             fontSize = size,
                             color = Color.Gray.rc,
-                            fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.End,
+                            fontWeight = RemoteFontWeight.Bold,
+                            textAlign = RemoteTextAlign.End,
                             maxLines = 1,
                         )
                     }
@@ -193,8 +193,9 @@ private fun ChatBubble(message: ChatMessage, alpha: RemoteFloat, animate: Boolea
                         text = message.text.rs,
                         fontSize = size,
                         color = Color.White.rc,
-                        fontWeight = FontWeight.Medium,
-                        textAlign = if (message.isAi) TextAlign.End else TextAlign.Start,
+                        fontWeight = RemoteFontWeight.Medium,
+                        textAlign =
+                            if (message.isAi) RemoteTextAlign.End else RemoteTextAlign.Start,
                     )
                 }
             }

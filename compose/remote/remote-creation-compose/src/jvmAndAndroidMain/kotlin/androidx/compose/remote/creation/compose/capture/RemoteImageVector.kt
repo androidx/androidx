@@ -605,9 +605,6 @@ public fun RemoteImageVector.Builder.group(
  * @param pathBuilder [RemotePathScope] lambda for drawing commands in this path
  * @return this [RemoteImageVector.Builder] instance for chaining calls
  */
-// TODO: Remove @RestrictTo and restore default pathFillType = DefaultFillType once
-// RemoteImageVector.android.kt path overload is removed.
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteImageVector.Builder.path(
     name: String = DefaultPathName,
     fill: RemoteBrush? = null,
@@ -618,7 +615,7 @@ public fun RemoteImageVector.Builder.path(
     strokeLineCap: RemoteStrokeCap = DefaultStrokeLineCap,
     strokeLineJoin: RemoteStrokeJoin = DefaultStrokeLineJoin,
     strokeLineMiter: RemoteFloat = DefaultStrokeLineMiter,
-    pathFillType: RemotePathFillType,
+    pathFillType: RemotePathFillType = DefaultFillType,
     pathBuilder: RemotePathScope.() -> Unit,
 ): RemoteImageVector.Builder =
     addPath(

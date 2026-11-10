@@ -39,6 +39,7 @@ import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
+import androidx.compose.remote.creation.compose.text.toRemoteFontVariationSettings
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.R
@@ -105,9 +106,10 @@ class RcPlayerFontSettingsScreenshotTest {
                         fontFamily = robotoFlex,
                         fontVariationSettings =
                             FontVariation.Settings(
-                                FontVariation.weight(100),
-                                FontVariation.width(25f),
-                            ),
+                                    FontVariation.weight(100),
+                                    FontVariation.width(25f),
+                                )
+                                .toRemoteFontVariationSettings(),
                     )
                 }
                 RemoteBox(
@@ -120,9 +122,10 @@ class RcPlayerFontSettingsScreenshotTest {
                         fontFamily = robotoFlex,
                         fontVariationSettings =
                             FontVariation.Settings(
-                                FontVariation.weight(400),
-                                FontVariation.width(100f),
-                            ),
+                                    FontVariation.weight(400),
+                                    FontVariation.width(100f),
+                                )
+                                .toRemoteFontVariationSettings(),
                     )
                 }
                 RemoteBox(
@@ -135,10 +138,11 @@ class RcPlayerFontSettingsScreenshotTest {
                         fontFamily = robotoFlex,
                         fontVariationSettings =
                             FontVariation.Settings(
-                                FontVariation.weight(900),
-                                FontVariation.width(151f),
-                                FontVariation.slant(-10f),
-                            ),
+                                    FontVariation.weight(900),
+                                    FontVariation.width(151f),
+                                    FontVariation.slant(-10f),
+                                )
+                                .toRemoteFontVariationSettings(),
                     )
                 }
             }

@@ -71,7 +71,7 @@ class RemoteVectorPainterTest {
                 )
                 .build()
 
-        val painter = painterRemoteVector(imageVector)
+        val painter = painterRemoteVector(imageVector.toRemoteImageVector())
         val intrinsicSize = requireNotNull(painter.intrinsicSize)
 
         assertThat(intrinsicSize.width.constantValueOrNull).isEqualTo(18f)
@@ -134,11 +134,12 @@ class RemoteVectorPainterTest {
                 )
                 .build()
 
-        val painter = painterRemoteVector(imageVector) as RemoteVectorPainter
+        val remoteImageVector = imageVector.toRemoteImageVector()
+        val painter = painterRemoteVector(remoteImageVector) as RemoteVectorPainter
         val rootGroup = painter.vector.root
         assertThat(rootGroup.numChildren).isEqualTo(2)
 
-        val group = RemoteGroupComponent().createGroupComponent(imageVector.root)
+        val group = RemoteGroupComponent().createGroupComponent(remoteImageVector.root)
         assertThat(group.numChildren).isEqualTo(2)
         val solidComponent = group[0] as RemotePathComponent
         assertThat(solidComponent.pathFillType).isEqualTo(RemotePathFillType.EvenOdd)

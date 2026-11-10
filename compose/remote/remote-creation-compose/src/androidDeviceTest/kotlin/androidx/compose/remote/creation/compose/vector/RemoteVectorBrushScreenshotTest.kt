@@ -149,8 +149,8 @@ class RemoteVectorBrushScreenshotTest {
             remoteCreationDisplayInfo = createCreationDisplayInfo(context, Size(96f, 96f)),
             playComposableWrapper = whiteBackground,
         ) {
-            val startColor = rememberNamedRemoteColor("vectorStart", Color.Green)
-            val endColor = rememberNamedRemoteColor("vectorEnd", Color.Magenta)
+            val startColor = rememberNamedRemoteColor("vectorStart", Color.Green.rc)
+            val endColor = rememberNamedRemoteColor("vectorEnd", Color.Magenta.rc)
             val dynamicVector =
                 RemoteImageVector.Builder(
                         viewportWidth = 24f.rf,

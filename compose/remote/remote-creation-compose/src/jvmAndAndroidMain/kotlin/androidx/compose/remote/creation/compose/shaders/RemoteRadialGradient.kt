@@ -15,11 +15,9 @@
  */
 
 @file:JvmName("RemoteRadialGradientKt")
-@file:JvmMultifileClass
 
 package androidx.compose.remote.creation.compose.shaders
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
@@ -57,15 +55,12 @@ import androidx.compose.runtime.Stable
  * @param tileMode determines how the shader fills regions outside its bounds
  * @return a [RemoteShaderBrush] that draws a radial gradient with the given [colorStops]
  */
-// TODO: Remove @RestrictTo and restore default tileMode = RemoteTileMode.Clamp once
-// RemoteRadialGradient.android.kt is removed.
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable
 public fun RemoteBrush.Companion.radialGradient(
     vararg colorStops: Pair<RemoteFloat, RemoteColor>,
     center: RemoteOffset? = null,
     radius: RemoteFloat? = null,
-    tileMode: RemoteTileMode,
+    tileMode: RemoteTileMode = RemoteTileMode.Clamp,
 ): RemoteShaderBrush =
     RemoteRadialGradient(
         colors = List(colorStops.size) { i -> colorStops[i].second },
@@ -96,15 +91,12 @@ public fun RemoteBrush.Companion.radialGradient(
  * @param tileMode determines how the shader fills regions outside its bounds
  * @return a [RemoteShaderBrush] that draws a radial gradient across the given [colors]
  */
-// TODO: Remove @RestrictTo and restore default tileMode = RemoteTileMode.Clamp once
-// RemoteRadialGradient.android.kt is removed.
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable
 public fun RemoteBrush.Companion.radialGradient(
     colors: List<RemoteColor>,
     center: RemoteOffset? = null,
     radius: RemoteFloat? = null,
-    tileMode: RemoteTileMode,
+    tileMode: RemoteTileMode = RemoteTileMode.Clamp,
 ): RemoteShaderBrush =
     RemoteRadialGradient(
         colors = colors,

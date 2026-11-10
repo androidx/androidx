@@ -60,6 +60,8 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
+import androidx.compose.remote.creation.compose.text.RemoteFontWeight
+import androidx.compose.remote.creation.compose.text.RemoteTextAlign
 import androidx.compose.remote.integration.view.demos.R
 import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
@@ -68,8 +70,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalResources
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 
 /**
@@ -382,8 +382,8 @@ private fun DogeFullScreenList(
                         text = "Doge Calendar".rs,
                         fontSize = size,
                         color = Color.White.rc,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center,
+                        fontWeight = RemoteFontWeight.Bold,
+                        textAlign = RemoteTextAlign.Center,
                         maxLines = 1,
                     )
                 }
@@ -518,7 +518,7 @@ private fun DogeListItemRow(
                         text = "${entry.time}  •  ${entry.title}".rs,
                         fontSize = size,
                         color = Color.White.rc,
-                        fontWeight = FontWeight.Medium,
+                        fontWeight = RemoteFontWeight.Medium,
                         maxLines = 1,
                     )
                 }
@@ -556,8 +556,8 @@ private fun DogeExpandedSlot(
                     text = "${entry.time}  •  ${entry.title}".rs,
                     fontSize = size,
                     color = Color(0xFFF3D27A).rc,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
+                    fontWeight = RemoteFontWeight.Bold,
+                    textAlign = RemoteTextAlign.Center,
                     maxLines = 1,
                 )
             }
@@ -586,8 +586,8 @@ private fun DogeExpandedSlot(
                         text = entry.task.rs,
                         fontSize = size,
                         color = Color.White.rc,
-                        fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center,
+                        fontWeight = RemoteFontWeight.Medium,
+                        textAlign = RemoteTextAlign.Center,
                         maxLines = 4,
                     )
                 }

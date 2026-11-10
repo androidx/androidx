@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 @file:JvmName("RemoteImageKt")
-@file:JvmMultifileClass
 
 package androidx.compose.remote.creation.compose.layout
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
@@ -67,16 +65,13 @@ internal class RemoteImageNode : RemoteComposeNode() {
  * @param contentScale rule to apply to scale the image when its size does not match layout size
  * @param alpha opacity to be applied to [bitmap] when rendered, defaulting to `1.0f`
  */
-// TODO: Remove @RestrictTo and restore default contentScale = RemoteContentScale.Fit once
-// RemoteImage.android.kt is removed.
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 @RemoteComposable
 public fun RemoteImage(
     bitmap: RemoteImageBitmap,
     contentDescription: RemoteString?,
     modifier: RemoteModifier = RemoteModifier,
-    contentScale: RemoteContentScale,
+    contentScale: RemoteContentScale = RemoteContentScale.Fit,
     alpha: RemoteFloat = 1f.rf,
 ) {
     RemoteComposeNode(

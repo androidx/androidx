@@ -20,8 +20,8 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.asConstantColor
-import androidx.compose.remote.creation.compose.state.createNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
@@ -88,7 +88,7 @@ class ColorUtilsTest {
 
     @Test
     fun setLuminance_namedColor_isEvaluatedByPlayer() {
-        val named = createNamedRemoteColor("test.color", Color.White)
+        val named = RemoteColor.createNamedRemoteColor("test.color", Color.White.rc)
         assertThat(named.setLuminance(80f).constantValueOrNull).isNull()
 
         val painter = painterRule.paintDocument {

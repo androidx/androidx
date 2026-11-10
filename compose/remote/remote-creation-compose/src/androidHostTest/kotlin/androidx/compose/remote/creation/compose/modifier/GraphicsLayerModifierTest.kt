@@ -187,4 +187,41 @@ class GraphicsLayerModifierTest {
         assertThat(op.values[GraphicsLayerModifierOperation.BLUR_TILE_MODE].intValue)
             .isEqualTo(GraphicsLayerModifierOperation.TILE_MODE_MIRROR)
     }
+
+    @Test
+    fun defaultRectangleShape_encodesShapeRectWithoutRadius() {
+        val (op, attrs, _) = recordAndEvaluate { RemoteModifier.graphicsLayer() }
+        val values = op.values
+
+        assertThat(attrs[GraphicsLayerModifierOperation.SHAPE])
+            .isEqualTo(GraphicsLayerModifierOperation.SHAPE_RECT)
+        assertThat(attrs).doesNotContainKey(GraphicsLayerModifierOperation.SHAPE_RADIUS)
+        assertThat(values[GraphicsLayerModifierOperation.SHAPE].intValue)
+            .isEqualTo(GraphicsLayerModifierOperation.SHAPE_RECT)
+        assertThat(values[GraphicsLayerModifierOperation.SHAPE_RADIUS].needsToWrite()).isFalse()
+    }
+
+    @Test
+    fun graphicsLayerScopeLambda_defaultShape_encodesShapeRect() {
+        val (op, _, _) = recordAndEvaluate { RemoteModifier.graphicsLayer {} }
+
+        assertThat(op.values[GraphicsLayerModifierOperation.SHAPE].intValue)
+            .isEqualTo(GraphicsLayerModifierOperation.SHAPE_RECT)
+    }
+
+    @Test
+    fun graphicsLayerScopeLambda_roundedCornerShape_propagatesShapeAndAlpha() {
+        val (op, _, _) =
+            recordAndEvaluate {
+                RemoteModifier.graphicsLayer {
+                    alpha = 0.5f.rf
+                    shape = RemoteRoundedCornerShape(40f.rf)
+                }
+            }
+
+        assertThat(op.values[GraphicsLayerModifierOperation.SHAPE].intValue)
+            .isEqualTo(GraphicsLayerModifierOperation.SHAPE_ROUND_RECT)
+        assertThat(op.values[GraphicsLayerModifierOperation.SHAPE_RADIUS].value).isEqualTo(40f)
+        assertThat(op.values[GraphicsLayerModifierOperation.ALPHA].value).isEqualTo(0.5f)
+    }
 }

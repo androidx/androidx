@@ -20,10 +20,7 @@ import androidx.compose.remote.core.operations.utilities.ImageScaling
 import androidx.compose.remote.creation.compose.painter.RemoteColorPainter
 import androidx.compose.remote.creation.compose.painter.painterRemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteColor
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.ScaleFactor
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,26 +38,6 @@ class RemoteContentScaleTest {
         assertThat(RemoteContentScale.Inside.value).isEqualTo(ImageScaling.SCALE_INSIDE)
         assertThat(RemoteContentScale.None.value).isEqualTo(ImageScaling.SCALE_NONE)
         assertThat(RemoteContentScale.FillBounds.value).isEqualTo(ImageScaling.SCALE_FILL_BOUNDS)
-    }
-
-    @Test
-    fun contentScale_convertsToRemoteContentScale() {
-        assertThat(ContentScale.Crop.toRemoteContentScale()).isEqualTo(RemoteContentScale.Crop)
-        assertThat(ContentScale.Fit.toRemoteContentScale()).isEqualTo(RemoteContentScale.Fit)
-        assertThat(ContentScale.FillHeight.toRemoteContentScale())
-            .isEqualTo(RemoteContentScale.FillHeight)
-        assertThat(ContentScale.FillWidth.toRemoteContentScale())
-            .isEqualTo(RemoteContentScale.FillWidth)
-        assertThat(ContentScale.Inside.toRemoteContentScale()).isEqualTo(RemoteContentScale.Inside)
-        assertThat(ContentScale.None.toRemoteContentScale()).isEqualTo(RemoteContentScale.None)
-        assertThat(ContentScale.FillBounds.toRemoteContentScale())
-            .isEqualTo(RemoteContentScale.FillBounds)
-
-        val customContentScale =
-            object : ContentScale {
-                override fun computeScaleFactor(srcSize: Size, dstSize: Size) = ScaleFactor(1f, 1f)
-            }
-        assertThat(customContentScale.toRemoteContentScale()).isEqualTo(RemoteContentScale.None)
     }
 
     @Test
