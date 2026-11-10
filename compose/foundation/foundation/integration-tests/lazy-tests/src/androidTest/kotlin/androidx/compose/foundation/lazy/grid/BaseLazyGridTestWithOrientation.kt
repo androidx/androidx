@@ -49,9 +49,6 @@ open class BaseLazyGridTestWithOrientation(orientation: Orientation) :
             IntOffset(packInts(mainAxis, crossAxis))
         }
 
-    val IntOffset.mainAxis: Int
-        get() = if (vertical) y else x
-
     fun LazyGridState.scrollBy(offset: Dp) {
         runBlocking(Dispatchers.Main + AutoTestFrameClock()) {
             animateScrollBy(with(rule.density) { offset.roundToPx().toFloat() }, snap())
