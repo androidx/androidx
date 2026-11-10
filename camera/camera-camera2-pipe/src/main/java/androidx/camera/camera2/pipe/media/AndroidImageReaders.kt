@@ -25,7 +25,6 @@ import android.os.Build
 import android.os.Handler
 import android.view.Surface
 import androidx.annotation.RequiresApi
-import androidx.camera.camera2.pipe.CameraOnActiveOutputSurfacesListener
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.OutputStream
@@ -425,7 +424,7 @@ public class AndroidMultiResolutionImageReader(
                 Api37Compat.setOnActiveOutputSurfacesListener(
                     multiResolutionImageReader,
                     executor,
-                    androidMultiResolutionImageReader,
+                    androidMultiResolutionImageReader::onActiveOutputSurfaces,
                 )
             }
 

@@ -46,7 +46,6 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.availableVideoStabilizationModes
-import androidx.camera.camera2.pipe.CameraOnActiveOutputSurfacesListener
 import java.util.concurrent.Executor
 
 @RequiresApi(26)
@@ -618,11 +617,8 @@ internal object Api37Compat {
     fun setOnActiveOutputSurfacesListener(
         multiResolutionImageReader: MultiResolutionImageReader,
         executor: Executor,
-        listener: CameraOnActiveOutputSurfacesListener,
+        listener: MultiResolutionImageReader.OnActiveOutputSurfacesListener,
     ) {
-        multiResolutionImageReader.setOnActiveOutputSurfacesListener(
-            executor,
-            listener::onActiveOutputSurfaces,
-        )
+        multiResolutionImageReader.setOnActiveOutputSurfacesListener(executor, listener)
     }
 }
