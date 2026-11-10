@@ -273,6 +273,171 @@ class ButtonGroupTest {
         rule.onNodeWithTag("${TEST_TAG}1").assertWidthIsEqualTo(75.dp)
     }
 
+    @Test
+    fun content_padding_exceeding_width_clamps_item_widths_to_zero() {
+        val interactionSource = MutableInteractionSource()
+        rule.setContentWithTheme {
+            ButtonGroup(
+                modifier = Modifier.size(100.dp),
+                contentPadding = PaddingValues(horizontal = 100.dp),
+                spacing = 0.dp,
+            ) {
+                Box(Modifier.animateWidth(interactionSource).testTag("${TEST_TAG}0"))
+                Box(Modifier.testTag("${TEST_TAG}1"))
+                Box(Modifier.testTag("${TEST_TAG}2"))
+            }
+        }
+
+        rule.onNodeWithTag("${TEST_TAG}0").assertWidthIsEqualTo(0.dp)
+        rule.onNodeWithTag("${TEST_TAG}1").assertWidthIsEqualTo(0.dp)
+        rule.onNodeWithTag("${TEST_TAG}2").assertWidthIsEqualTo(0.dp)
+
+        val press = PressInteraction.Press(Offset.Zero)
+        interactionSource.tryEmit(press)
+        rule.onNodeWithTag("${TEST_TAG}0").assertWidthIsEqualTo(0.dp)
+        rule.onNodeWithTag("${TEST_TAG}1").assertWidthIsEqualTo(0.dp)
+        rule.onNodeWithTag("${TEST_TAG}2").assertWidthIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun spacing_exceeding_width_clamps_item_widths_to_zero() {
+        val interactionSource = MutableInteractionSource()
+        rule.setContentWithTheme {
+            ButtonGroup(
+                modifier = Modifier.size(10.dp),
+                contentPadding = PaddingValues(0.dp),
+                spacing = 10.dp,
+            ) {
+                // Extreme weights leave a float residual > 1e-4f in computeWidths'
+                // remainingWeight, which trips its require check without the clamp.
+                Box(Modifier.weight(10000f).animateWidth(interactionSource).testTag("${TEST_TAG}0"))
+                Box(Modifier.weight(0.1f).testTag("${TEST_TAG}1"))
+                Box(Modifier.weight(0.1f).testTag("${TEST_TAG}2"))
+            }
+        }
+
+        rule.onNodeWithTag("${TEST_TAG}0").assertWidthIsEqualTo(0.dp)
+        rule.onNodeWithTag("${TEST_TAG}1").assertWidthIsEqualTo(0.dp)
+        rule.onNodeWithTag("${TEST_TAG}2").assertWidthIsEqualTo(0.dp)
+
+        val press = PressInteraction.Press(Offset.Zero)
+        interactionSource.tryEmit(press)
+        rule.onNodeWithTag("${TEST_TAG}0").assertWidthIsEqualTo(0.dp)
+        rule.onNodeWithTag("${TEST_TAG}1").assertWidthIsEqualTo(0.dp)
+        rule.onNodeWithTag("${TEST_TAG}2").assertWidthIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun expansion_width_larger_than_neighbor_clamps_to_zero() {
+        val interactionSources = List(3) { MutableInteractionSource() }
+        val weights = listOf(1f, 1f, 2f)
+
+        rule.setContentWithTheme {
+            ButtonGroup(
+                modifier = Modifier.size(160.dp),
+                contentPadding = PaddingValues(0.dp),
+                spacing = 0.dp,
+                expansionWidth = 100.dp,
+            ) {
+                repeat(3) { index ->
+                    Box(
+                        Modifier.minWidth(24.dp)
+                            .weight(weights[index])
+                            .animateWidth(interactionSources[index])
+                            .testTag("$TEST_TAG$index")
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithTag("${TEST_TAG}0").assertWidthIsEqualTo(40.dp)
+        rule.onNodeWithTag("${TEST_TAG}1").assertWidthIsEqualTo(40.dp)
+        rule.onNodeWithTag("${TEST_TAG}2").assertWidthIsEqualTo(80.dp)
+
+        // Pressing the first item clamps its expansion to neighbor 1's width (40.dp).
+        val press0 = PressInteraction.Press(Offset.Zero)
+        interactionSources[0].tryEmit(press0)
+        rule.onNodeWithTag("${TEST_TAG}0").assertWidthIsEqualTo(80.dp)
+        rule.onNodeWithTag("${TEST_TAG}1").assertWidthIsEqualTo(0.dp)
+        rule.onNodeWithTag("${TEST_TAG}2").assertWidthIsEqualTo(80.dp)
+
+        interactionSources[0].tryEmit(PressInteraction.Release(press0))
+        rule.onNodeWithTag("${TEST_TAG}0").assertWidthIsEqualTo(40.dp)
+        rule.onNodeWithTag("${TEST_TAG}1").assertWidthIsEqualTo(40.dp)
+        rule.onNodeWithTag("${TEST_TAG}2").assertWidthIsEqualTo(80.dp)
+
+        // Pressing the middle item clamps its expansion on each side to min(40.dp, 80.dp) = 40.dp.
+        val press1 = PressInteraction.Press(Offset.Zero)
+        interactionSources[1].tryEmit(press1)
+        rule.onNodeWithTag("${TEST_TAG}0").assertWidthIsEqualTo(0.dp)
+        rule.onNodeWithTag("${TEST_TAG}1").assertWidthIsEqualTo(120.dp)
+        rule.onNodeWithTag("${TEST_TAG}2").assertWidthIsEqualTo(40.dp)
+
+        interactionSources[1].tryEmit(PressInteraction.Release(press1))
+        rule.onNodeWithTag("${TEST_TAG}0").assertWidthIsEqualTo(40.dp)
+        rule.onNodeWithTag("${TEST_TAG}1").assertWidthIsEqualTo(40.dp)
+        rule.onNodeWithTag("${TEST_TAG}2").assertWidthIsEqualTo(80.dp)
+
+        // Pressing the last item clamps its expansion to neighbor 1's width (40.dp).
+        val press2 = PressInteraction.Press(Offset.Zero)
+        interactionSources[2].tryEmit(press2)
+        rule.onNodeWithTag("${TEST_TAG}0").assertWidthIsEqualTo(40.dp)
+        rule.onNodeWithTag("${TEST_TAG}1").assertWidthIsEqualTo(0.dp)
+        rule.onNodeWithTag("${TEST_TAG}2").assertWidthIsEqualTo(120.dp)
+
+        interactionSources[2].tryEmit(PressInteraction.Release(press2))
+        rule.onNodeWithTag("${TEST_TAG}0").assertWidthIsEqualTo(40.dp)
+        rule.onNodeWithTag("${TEST_TAG}1").assertWidthIsEqualTo(40.dp)
+        rule.onNodeWithTag("${TEST_TAG}2").assertWidthIsEqualTo(80.dp)
+    }
+
+    @Test
+    fun pressing_two_adjacent_items_clamps_widths_and_preserves_total_width() {
+        val interactionSources = List(3) { MutableInteractionSource() }
+        val weights = listOf(1f, 1f, 2f)
+
+        rule.setContentWithTheme {
+            ButtonGroup(
+                modifier = Modifier.size(160.dp),
+                contentPadding = PaddingValues(0.dp),
+                spacing = 0.dp,
+                expansionWidth = 100.dp,
+            ) {
+                repeat(3) { index ->
+                    Box(
+                        Modifier.minWidth(24.dp)
+                            .weight(weights[index])
+                            .animateWidth(interactionSources[index])
+                            .testTag("$TEST_TAG$index")
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithTag("${TEST_TAG}0").assertWidthIsEqualTo(40.dp)
+        rule.onNodeWithTag("${TEST_TAG}1").assertWidthIsEqualTo(40.dp)
+        rule.onNodeWithTag("${TEST_TAG}2").assertWidthIsEqualTo(80.dp)
+
+        // Pressing two adjacent items (0 and 1) before releasing either keeps all widths >= 0 and
+        // preserves the total width (160.dp): item 0 first grows to 80.dp (shrinking item 1 to
+        // 0.dp), then item 1 runs later in the loop and grows by 100.dp, taking 50.dp back from
+        // pressed item 0 (80.dp -> 30.dp, below its 40.dp rest width, which is expected for this
+        // extreme expansionWidth) and 50.dp from item 2 (80.dp -> 30.dp).
+        val simultaneousPress0 = PressInteraction.Press(Offset.Zero)
+        val simultaneousPress1 = PressInteraction.Press(Offset.Zero)
+        interactionSources[0].tryEmit(simultaneousPress0)
+        interactionSources[1].tryEmit(simultaneousPress1)
+        rule.onNodeWithTag("${TEST_TAG}0").assertWidthIsEqualTo(30.dp)
+        rule.onNodeWithTag("${TEST_TAG}1").assertWidthIsEqualTo(100.dp)
+        rule.onNodeWithTag("${TEST_TAG}2").assertWidthIsEqualTo(30.dp)
+
+        interactionSources[0].tryEmit(PressInteraction.Release(simultaneousPress0))
+        interactionSources[1].tryEmit(PressInteraction.Release(simultaneousPress1))
+        rule.onNodeWithTag("${TEST_TAG}0").assertWidthIsEqualTo(40.dp)
+        rule.onNodeWithTag("${TEST_TAG}1").assertWidthIsEqualTo(40.dp)
+        rule.onNodeWithTag("${TEST_TAG}2").assertWidthIsEqualTo(80.dp)
+    }
+
     private fun SemanticsNodeInteraction.getXRange() =
         fetchSemanticsNode("Failed to retrieve bounds of the node.").let { node ->
             node.positionInRoot.x to node.positionInRoot.x + node.size.width
