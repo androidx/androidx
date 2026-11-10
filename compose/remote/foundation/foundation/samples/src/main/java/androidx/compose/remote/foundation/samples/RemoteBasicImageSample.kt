@@ -17,6 +17,7 @@
 package androidx.compose.remote.foundation.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.remote.creation.compose.layout.RemoteContentScale
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.size
@@ -33,7 +34,6 @@ import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewWrapper
 
@@ -54,7 +54,7 @@ fun RemoteBasicImageSample() {
         bitmap = remoteBitmap,
         contentDescription = "Sample Image".rs,
         modifier = RemoteModifier.size(100.rdp),
-        contentScale = ContentScale.Crop,
+        contentScale = RemoteContentScale.Crop,
     )
 }
 
@@ -75,6 +75,6 @@ fun RemoteBasicImageFitSample() {
         bitmap = remoteBitmap,
         contentDescription = "Sample Image Fit".rs,
         modifier = RemoteModifier.size(100.rdp).background(Color.LightGray.rc),
-        contentScale = ContentScale.Fit,
+        contentScale = RemoteContentScale.Fit,
     )
 }

@@ -22,12 +22,12 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
+import androidx.compose.remote.creation.compose.text.RemoteFontStyle
+import androidx.compose.remote.creation.compose.text.RemoteFontWeight
 import androidx.compose.remote.foundation.text.RemoteBasicText
 import androidx.compose.remote.tooling.preview.RemotePreviewWrapper
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewWrapper
 
@@ -49,13 +49,13 @@ fun RemoteBasicTextStylingSample() {
             text = "Bold Text".rs,
             color = Color.Black.rc,
             fontSize = 18.rsp,
-            fontWeight = FontWeight.Bold,
+            fontWeight = RemoteFontWeight.Bold,
         )
         RemoteBasicText(
             text = "Italic Text".rs,
             color = Color.Gray.rc,
             fontSize = 14.rsp,
-            fontStyle = FontStyle.Italic,
+            fontStyle = RemoteFontStyle.Italic,
         )
     }
 }

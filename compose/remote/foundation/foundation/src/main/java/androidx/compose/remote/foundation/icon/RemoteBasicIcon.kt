@@ -34,7 +34,6 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.vector.painterRemoteVector
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 
 /**
  * Displays a vector icon from a [RemoteImageVector] in a remote layout.
@@ -42,12 +41,11 @@ import androidx.compose.ui.graphics.Color
  * Sizes the icon to [imageVector]'s intrinsic dimensions, or `24.dp` when unspecified. Unlike
  * Material icon components (such as [androidx.wear.compose.remote.material3.RemoteIcon]) that read
  * a theme content color, [RemoteBasicIcon] is a design-system-agnostic building block that defaults
- * [tint] to [Color.White].
+ * [tint] to opaque white (`0xFFFFFFFF`).
  *
- * Provide a localized [contentDescription] (for example, via
- * [androidx.compose.ui.res.stringResource]) whenever the icon conveys meaning or represents an
- * action. Pass `null` only for purely decorative icons, which omits the accessibility content
- * description so accessibility services ignore it.
+ * Provide a localized [contentDescription] (for example, via `stringResource`) whenever the icon
+ * conveys meaning or represents an action. Pass `null` only for purely decorative icons, which
+ * omits the accessibility content description so accessibility services ignore it.
  *
  * Example of a tinted [RemoteBasicIcon]:
  *
@@ -57,9 +55,9 @@ import androidx.compose.ui.graphics.Color
  *   `null` if the icon is purely decorative and has no accessibility description
  * @param modifier the [RemoteModifier] applied to this icon
  * @param tint color applied to [imageVector] using a color filter with the vector's tint blend mode
- *   ([androidx.compose.ui.graphics.BlendMode.SrcIn] by default, which replaces the icon's RGB
- *   colors with [tint] while preserving alpha rather than multiplying RGBA). Defaults to
- *   [Color.White]
+ *   ([androidx.compose.remote.creation.compose.state.RemoteBlendMode.SrcIn] by default, which
+ *   replaces the icon's RGB colors with [tint] while preserving alpha rather than multiplying
+ *   RGBA). Defaults to opaque white (`0xFFFFFFFF`)
  */
 @RemoteComposable
 @Composable
@@ -67,7 +65,7 @@ public fun RemoteBasicIcon(
     imageVector: RemoteImageVector,
     contentDescription: RemoteString?,
     modifier: RemoteModifier = RemoteModifier,
-    tint: RemoteColor = Color.White.rc,
+    tint: RemoteColor = 0xFFFFFFFF.toInt().rc,
 ) {
     val painter = painterRemoteVector(imageVector, tint)
     RemoteBox(
