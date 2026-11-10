@@ -33,12 +33,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsEnabled
@@ -346,6 +354,154 @@ class CheckboxButtonTest {
             .onNodeWithTag(TEST_TAG)
             .onChildAt(0)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+    }
+
+    @Test
+    fun split_button_propagates_custom_actions_to_clickable_row() {
+        var customActionClicked = false
+        val customActions =
+            listOf(
+                CustomAccessibilityAction("Delete") {
+                    customActionClicked = true
+                    true
+                }
+            )
+        rule.setContentWithTheme {
+            SplitCheckboxButtonWithDefaults(
+                modifier =
+                    Modifier.testTag(TEST_TAG).semantics { this.customActions = customActions }
+            )
+        }
+
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.CustomActions))
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .onChildAt(0)
+            .assert(SemanticsMatcher.expectValue(SemanticsActions.CustomActions, customActions))
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .onChildAt(1)
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.CustomActions))
+
+        val actions =
+            rule
+                .onNodeWithTag(TEST_TAG)
+                .onChildAt(0)
+                .fetchSemanticsNode()
+                .config[SemanticsActions.CustomActions]
+        Assert.assertTrue(actions[0].action())
+        Assert.assertTrue(customActionClicked)
+    }
+
+    @Test
+    fun split_button_semantics_state_change_does_not_recompose() {
+        var compositionCount = 0
+        val actionLabel = mutableStateOf("Delete")
+        rule.setContentWithTheme {
+            SplitCheckboxButtonWithDefaults(
+                modifier =
+                    Modifier.testTag(TEST_TAG).semantics {
+                        customActions =
+                            listOf(CustomAccessibilityAction(actionLabel.value) { true })
+                    },
+                label = {
+                    compositionCount++
+                    Text("Primary")
+                },
+            )
+        }
+
+        Assert.assertEquals(1, compositionCount)
+        Assert.assertEquals(
+            "Delete",
+            rule
+                .onNodeWithTag(TEST_TAG)
+                .onChildAt(0)
+                .fetchSemanticsNode()
+                .config[SemanticsActions.CustomActions][0]
+                .label,
+        )
+
+        rule.runOnIdle { actionLabel.value = "Archive" }
+
+        Assert.assertEquals(
+            "Archive",
+            rule
+                .onNodeWithTag(TEST_TAG)
+                .onChildAt(0)
+                .fetchSemanticsNode()
+                .config[SemanticsActions.CustomActions][0]
+                .label,
+        )
+        Assert.assertEquals(1, compositionCount)
+    }
+
+    @Test
+    fun split_button_keeps_other_semantics_on_outer_node() {
+        val customActions = listOf(CustomAccessibilityAction("Delete") { true })
+        rule.setContentWithTheme {
+            SplitCheckboxButtonWithDefaults(
+                modifier =
+                    Modifier.testTag(TEST_TAG).semantics {
+                        contentDescription = "Custom content description"
+                        stateDescription = "Custom state description"
+                        heading()
+                        this.customActions = customActions
+                    }
+            )
+        }
+
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .assertContentDescriptionEquals("Custom content description")
+            .assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.StateDescription,
+                    "Custom state description",
+                )
+            )
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.CustomActions))
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .onChildAt(0)
+            .assert(SemanticsMatcher.expectValue(SemanticsActions.CustomActions, customActions))
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.StateDescription))
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Heading))
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .onChildAt(1)
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.CustomActions))
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Heading))
+    }
+
+    @Test
+    fun split_button_clear_and_set_semantics_keeps_custom_actions_on_outer_node() {
+        val customActions = listOf(CustomAccessibilityAction("Delete") { true })
+        rule.setContentWithTheme {
+            SplitCheckboxButtonWithDefaults(
+                modifier =
+                    Modifier.testTag(TEST_TAG).clearAndSetSemantics {
+                        contentDescription = "Cleared description"
+                        this.customActions = customActions
+                    }
+            )
+        }
+
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .assertContentDescriptionEquals("Cleared description")
+            .assert(SemanticsMatcher.expectValue(SemanticsActions.CustomActions, customActions))
+        rule
+            .onNodeWithTag(TEST_TAG, useUnmergedTree = true)
+            .onChildAt(0)
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.CustomActions))
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
     }
 
     @Test
