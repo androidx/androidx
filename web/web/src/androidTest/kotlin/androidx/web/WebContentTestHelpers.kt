@@ -101,3 +101,22 @@ internal class OnPageFinishedClient(private val onPageFinished: () -> Unit) : We
 internal class TestObject {
     @JavascriptInterface fun someMethod() = "injected_success"
 }
+
+/** Combine 2 AutoCloseable in one scope function. */
+internal inline fun <T1 : AutoCloseable, T2 : AutoCloseable, R> using(
+    c1: T1,
+    c2: T2,
+    block: (T1, T2) -> R,
+) = c1.use { i1 -> c2.use { i2 -> block(i1, i2) } }
+
+/** Combine 3 AutoCloseable in one scope function. */
+internal inline fun <T1 : AutoCloseable, T2 : AutoCloseable, T3 : AutoCloseable, R> using(
+    c1: T1,
+    c2: T2,
+    c3: T3,
+    block: (T1, T2, T3) -> R,
+) = using(c1, c2) { i1, i2 -> c3.use { i3 -> block(i1, i2, i3) } }
+
+/** Launch an ActivityScenario for the type parameter Activity. */
+internal inline fun <reified A : Activity> launch(): ActivityScenario<A> =
+    ActivityScenario.launch(A::class.java)
