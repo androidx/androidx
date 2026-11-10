@@ -2256,7 +2256,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
      * @param event The hover event to dispatch to the virtual view hierarchy.
      * @return Whether the hover event was handled.
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     internal fun dispatchHoverEvent(event: MotionEvent): Boolean {
         if (!isTouchExplorationEnabled) {
             isHoveringInteropView = false
@@ -2279,7 +2278,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 // hover asynchronously (such as WebView) take accessibility focus away from the
                 // Compose node under the finger.
                 val handled =
-                    if (!AndroidComposeUiFlags.isInteropHoverZOrderEnabled || hitInteropView) {
+                    if (hitInteropView) {
                         isHoveringInteropView = hitInteropView
                         view.androidViewsHandler?.dispatchGenericMotionEvent(event) ?: false
                     } else {
@@ -2302,7 +2301,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                         updateHoveredVirtualView(InvalidId)
                         true
                     }
-                    !AndroidComposeUiFlags.isInteropHoverZOrderEnabled || wasHoveringInterop -> {
+                    wasHoveringInterop -> {
                         view.androidViewsHandler?.dispatchGenericMotionEvent(event) ?: false
                     }
                     else -> false
@@ -2361,7 +2360,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     internal fun hitTestSemanticsAt(x: Float, y: Float): Int =
         hitTestSemanticsAndInteropAt(x, y).virtualViewId
 
-    @OptIn(ExperimentalComposeUiApi::class)
     private fun hitTestSemanticsAndInteropAt(x: Float, y: Float): SemanticsHitTestResult {
         view.measureAndLayout()
 
@@ -2378,10 +2376,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         for (i in hitSemanticsEntities.lastIndex downTo 0) {
             val layoutNode = hitSemanticsEntities[i].requireLayoutNode()
             val androidView = view.androidViewsHandler?.layoutNodeToHolder[layoutNode]
-
-            if (!AndroidComposeUiFlags.isInteropHoverZOrderEnabled && androidView != null) {
-                return SemanticsHitTestResult(InvalidId, isInteropHit = true)
-            }
 
             if (!layoutNode.nodes.has(Nodes.Semantics)) {
                 continue

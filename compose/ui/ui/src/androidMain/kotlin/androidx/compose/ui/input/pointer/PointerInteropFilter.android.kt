@@ -209,7 +209,6 @@ public class RequestDisallowInterceptTouchEvent : (Boolean) -> Unit {
  * Similar to the 2 argument overload of [pointerInteropFilter], but connects directly to an
  * [AndroidViewHolder] for more seamless interop with Android.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 internal fun Modifier.pointerInteropFilter(view: AndroidViewHolder): Modifier {
     val filter = PointerInteropFilter()
     filter.onTouchEvent = { motionEvent ->
@@ -233,10 +232,7 @@ internal fun Modifier.pointerInteropFilter(view: AndroidViewHolder): Modifier {
                 // and blocks hover when covered by Compose semantics nodes. Returning false here
                 // avoids bypassing non-pointer-input Compose semantics overlays (e.g. Text) and
                 // prevents duplicate hover dispatches to uncovered interop views.
-                if (
-                    AndroidComposeUiFlags.isInteropHoverZOrderEnabled &&
-                        owner?.isTouchExplorationEnabled == true
-                ) {
+                if (owner?.isTouchExplorationEnabled == true) {
                     false
                 } else {
                     view.dispatchGenericMotionEvent(motionEvent)
