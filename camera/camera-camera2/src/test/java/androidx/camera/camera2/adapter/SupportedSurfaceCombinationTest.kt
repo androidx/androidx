@@ -4834,6 +4834,98 @@ class SupportedSurfaceCombinationTest {
             .isTrue()
     }
 
+    @Config(minSdk = 36)
+    @Test
+    fun checkSupported_hlg10UhdWithVideoStabilizationOnS26_unsupportedEvenIfFcqReportsSupported() {
+        setS26Device()
+
+        assertThat(checkHlg10WithVideoStabilizationSupported(ConfigSize.UHD)).isFalse()
+    }
+
+    @Config(minSdk = 36)
+    @Test
+    fun checkSupported_hlg10S1440pWithVideoStabilizationOnS26_supported() {
+        setS26Device()
+
+        assertThat(checkHlg10WithVideoStabilizationSupported(ConfigSize.S1440P_16_9)).isTrue()
+    }
+
+    @Config(minSdk = 36)
+    @Test
+    fun checkSupported_sdrUhdWithVideoStabilizationOnS26_supported() {
+        setS26Device()
+
+        assertThat(
+                checkHlg10WithVideoStabilizationSupported(
+                    ConfigSize.UHD,
+                    dynamicRange = DynamicRange.SDR,
+                )
+            )
+            .isTrue()
+    }
+
+    @Config(minSdk = 36)
+    @Test
+    fun checkSupported_hlg10UhdWithoutVideoStabilizationOnS26_supported() {
+        setS26Device()
+
+        assertThat(
+                checkHlg10WithVideoStabilizationSupported(
+                    ConfigSize.UHD,
+                    videoStabilization = VideoStabilization.UNSPECIFIED,
+                )
+            )
+            .isTrue()
+    }
+
+    @Config(minSdk = 36)
+    @Test
+    fun checkSupported_hlg10UhdWithVideoStabilizationOnUnaffectedDevice_supported() {
+        // Galaxy Z Fold8, not affected.
+        ShadowBuild.setBrand("samsung")
+        ShadowBuild.setManufacturer("samsung")
+        ShadowBuild.setDevice("h8q")
+
+        assertThat(checkHlg10WithVideoStabilizationSupported(ConfigSize.UHD)).isTrue()
+    }
+
+    private fun setS26Device() {
+        ShadowBuild.setBrand("samsung")
+        ShadowBuild.setManufacturer("samsung")
+        ShadowBuild.setDevice("m1q")
+    }
+
+    private fun checkHlg10WithVideoStabilizationSupported(
+        videoConfigSize: ConfigSize,
+        dynamicRange: DynamicRange = HLG_10_BIT,
+        videoStabilization: VideoStabilization = VideoStabilization.ON,
+    ): Boolean {
+        setupCamera(sessionConfigQueryVersion = Build.VERSION_CODES.BAKLAVA)
+        val supportedSurfaceCombination =
+            SupportedSurfaceCombination(
+                context,
+                fakeCameraMetadata,
+                mockEncoderProfilesAdapter,
+                fakeFeatureCombinationQuery.apply { isSupported = true },
+            )
+        val surfaceConfigList =
+            listOf(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.S1080P_16_9),
+                SurfaceConfig.create(ConfigType.PRIV, videoConfigSize),
+            )
+
+        return supportedSurfaceCombination.checkSupported(
+            createFeatureSettings(
+                requiresFeatureComboQuery = true,
+                videoStabilization = videoStabilization,
+            ),
+            surfaceConfigList,
+            surfaceConfigList.associateWith { dynamicRange },
+            surfaceConfigList.toUseCaseConfigs(),
+            (0 until surfaceConfigList.size).toList(),
+        )
+    }
+
     @Test
     fun checkSupported_nonQueryableSurfaceConfig_featureCombinationQueryNotInvoked() {
         // Arrange: Setup resources with a FeatureCombinationQuery impl. tracking isSupported calls
