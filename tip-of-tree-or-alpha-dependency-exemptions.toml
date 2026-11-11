@@ -283,6 +283,18 @@ reason = "b/TODO - <reason>"
 
 [[exemption]]
 library = "androidx.glance.adaptive:adaptive-wear"
+dependsOn = "androidx.compose.remote:remote-creation-compose"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/544632510 - Remote Compose has no beta release yet and adaptive-wear is developed against its unreleased APIs."
+
+[[exemption]]
+library = "androidx.glance.adaptive:adaptive-wear"
+dependsOn = "androidx.glance.wear:wear"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/544632510 - Glance Wear has no beta release yet and adaptive-wear uses GlanceWearWidget, GlanceWearWidgetService, and WearWidgetDocument."
+
+[[exemption]]
+library = "androidx.glance.adaptive:adaptive-wear"
 dependsOn = "androidx.glance.wear:wear-core"
 validThroughLibraryVersion = "1.0.0-beta01"
 reason = "b/TODO - <reason>"
