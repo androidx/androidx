@@ -45,6 +45,7 @@ androidx {
     type = SoftwareType.TEST_APPLICATION
     inceptionYear = "2026"
     description = "Integration tests app for JXR SceneCore."
+    addGoldenImageAssets()
 }
 
 dependencies {
@@ -78,9 +79,12 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.testUiautomator)
+    androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(project(":xr:testutils"))
 
     androidTestUtil(libs.testOrchestrator)
 }
 
 ApkCopyHelperKt.setupAppApkCopy(project, "release")
+
+apply from: "$rootDir/xr/testutils/xr-device-tests.gradle"
