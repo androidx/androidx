@@ -41,7 +41,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.material3.MaterialTheme.LocalMaterialTheme
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.draggableAnchors
 import androidx.compose.material3.internal.getString
@@ -182,66 +181,6 @@ public fun WideNavigationRail(
         windowInsets = windowInsets,
         arrangement = arrangement,
         contentPadding = contentPadding,
-        collapsedRailWidth = CollapsedRailWidth,
-        expandedRailMinWidth = ExpandedRailMinWidth,
-        expandedRailMaxWidth = ExpandedRailMaxWidth,
-        content = content,
-    )
-}
-
-// Note that we cannot name this function as WideNavigationRail as it will cause overload resolution
-// ambiguity. We will come back to this problem when we need to publish it.
-@Composable
-internal fun StyleableWideNavigationRail(
-    modifier: Modifier = Modifier,
-    state: WideNavigationRailState = rememberWideNavigationRailState(),
-    header: @Composable (() -> Unit)? = null,
-    windowInsets: WindowInsets? = null,
-    arrangement: Arrangement.Vertical? = null,
-    style: NavigationRailStyle? = null,
-    content: @Composable () -> Unit,
-) {
-    val localTheme = LocalMaterialTheme.current
-    val styleScope =
-        NavigationRailStyleScope(
-            localTheme,
-            mediaQueryInfo(),
-            ComponentState.expanded(state.targetValue.isExpanded),
-        )
-    with(style ?: localTheme.componentProperties.navigationRailProperties.style) {
-        styleScope.applyStyle()
-    }
-    val arrangement =
-        arrangement ?: localTheme.componentProperties.navigationRailProperties.arrangement
-    val themeWindowInsets = localTheme.componentProperties.navigationRailProperties.windowInsets
-    val windowInsets =
-        windowInsets
-            ?: if (themeWindowInsets == WindowInsets.Unspecified) {
-                WideNavigationRailDefaults.windowInsets
-            } else {
-                themeWindowInsets
-            }
-
-    WideNavigationRailLayout(
-        modifier = modifier,
-        isModal = false,
-        expanded = state.targetValue.isExpanded,
-        containerColor = styleScope.containerColor,
-        contentColor = contentColorFor(styleScope.containerColor),
-        shape = styleScope.shape,
-        header = header,
-        windowInsets = windowInsets,
-        arrangement = arrangement,
-        contentPadding =
-            PaddingValues(
-                start = styleScope.contentPaddingStart,
-                top = styleScope.contentPaddingTop,
-                end = styleScope.contentPaddingEnd,
-                bottom = styleScope.contentPaddingBottom,
-            ),
-        collapsedRailWidth = styleScope.collapsedContainerWidth,
-        expandedRailMinWidth = styleScope.expandedContainerMinWidth,
-        expandedRailMaxWidth = styleScope.expandedContainerMaxWidth,
         content = content,
     )
 }
@@ -320,9 +259,6 @@ private fun WideNavigationRailLayout(
     windowInsets: WindowInsets,
     arrangement: Arrangement.Vertical,
     contentPadding: PaddingValues,
-    collapsedRailWidth: Dp,
-    expandedRailMinWidth: Dp,
-    expandedRailMaxWidth: Dp,
     content: @Composable () -> Unit,
 ) {
     var currentWidth by remember { mutableIntStateOf(0) }
@@ -339,12 +275,12 @@ private fun WideNavigationRailLayout(
     val modalAnimationSpec = MotionSchemeKeyTokens.FastSpatial.value<Dp>()
     val minWidth by
         animateDpAsState(
-            targetValue = if (!expanded) collapsedRailWidth else expandedRailMinWidth,
+            targetValue = if (!expanded) CollapsedRailWidth else ExpandedRailMinWidth,
             animationSpec = if (!isModal) animationSpec else modalAnimationSpec,
         )
     val widthFullRange by
         animateDpAsState(
-            targetValue = if (!expanded) collapsedRailWidth else expandedRailMaxWidth,
+            targetValue = if (!expanded) CollapsedRailWidth else ExpandedRailMaxWidth,
             animationSpec = if (!isModal) animationSpec else modalAnimationSpec,
         )
     val itemVerticalSpacedBy by
@@ -368,7 +304,7 @@ private fun WideNavigationRailLayout(
             modifier =
                 Modifier.fillMaxHeight()
                     .windowInsetsPadding(windowInsets)
-                    .widthIn(max = expandedRailMaxWidth)
+                    .widthIn(max = ExpandedRailMaxWidth)
                     .padding(contentPadding)
                     .selectableGroup()
                     .semantics { isTraversalGroup = true },
@@ -635,86 +571,6 @@ public fun ModalWideNavigationRail(
 }
 
 @Composable
-internal fun StyleableModalWideNavigationRail(
-    modifier: Modifier = Modifier,
-    state: WideNavigationRailState = rememberWideNavigationRailState(),
-    hideOnCollapse: Boolean = false,
-    header: @Composable (() -> Unit)? = null,
-    windowInsets: WindowInsets? = null,
-    arrangement: Arrangement.Vertical? = null,
-    expandedProperties: ModalWideNavigationRailProperties? = null,
-    style: NavigationRailStyle? = null,
-    content: @Composable () -> Unit,
-) {
-    val positionProgress =
-        animateFloatAsState(
-            targetValue = if (!state.targetValue.isExpanded) 0f else 1f,
-            // TODO: Load the motionScheme tokens from the component tokens file.
-            animationSpec = MotionSchemeKeyTokens.DefaultEffects.value(),
-        )
-    val isCollapsed: Boolean by remember { derivedStateOf { positionProgress.value == 0f } }
-    val modalExpanded: Boolean by remember { derivedStateOf { positionProgress.value >= 0.3f } }
-
-    val localTheme = LocalMaterialTheme.current
-    val styleScope =
-        NavigationRailStyleScope(
-            localTheme,
-            mediaQueryInfo(),
-            // Ideally we'd pass state.isAnimating here, but that returns true on the last frame of
-            // the animation (position progress = 0 or = 1) which causes visual issues to how the
-            // rail should look like.
-            ComponentState.expanded(!isCollapsed),
-        )
-    with(style ?: localTheme.componentProperties.modalNavigationRailProperties.style) {
-        styleScope.applyStyle()
-    }
-    val arrangement =
-        arrangement ?: localTheme.componentProperties.modalNavigationRailProperties.arrangement
-    val themeWindowInsets =
-        localTheme.componentProperties.modalNavigationRailProperties.windowInsets
-    val windowInsets =
-        windowInsets
-            ?: if (themeWindowInsets == WindowInsets.Unspecified) {
-                WideNavigationRailDefaults.windowInsets
-            } else {
-                themeWindowInsets
-            }
-    val expandedProperties =
-        expandedProperties
-            ?: localTheme.componentProperties.modalNavigationRailProperties.expandedProperties
-
-    ModalWideNavigationRailImpl(
-        modifier = modifier,
-        state = state,
-        isCollapsed = isCollapsed,
-        modalExpanded = modalExpanded,
-        hideOnCollapse = hideOnCollapse,
-        collapsedShape = styleScope.shape,
-        expandedShape = styleScope.shape,
-        containerColor = styleScope.containerColor,
-        contentColor = styleScope.contentColor,
-        modalContainerColor = styleScope.containerColor,
-        modalContentColor = styleScope.contentColor,
-        scrimColor = styleScope.modalScrimColor,
-        header = header,
-        // Instead of expandedHeaderTopPadding, the same effect can be achieved by setting the
-        // content padding for the expanded state via styles.
-        expandedHeaderTopPadding = 0.dp,
-        windowInsets = windowInsets,
-        arrangement = arrangement,
-        expandedProperties = expandedProperties,
-        contentPadding =
-            PaddingValues(
-                start = styleScope.contentPaddingStart,
-                top = styleScope.contentPaddingTop,
-                end = styleScope.contentPaddingEnd,
-                bottom = styleScope.contentPaddingBottom,
-            ),
-        content = content,
-    )
-}
-
-@Composable
 private fun ModalWideNavigationRailImpl(
     modifier: Modifier,
     state: WideNavigationRailState,
@@ -776,9 +632,6 @@ private fun ModalWideNavigationRailImpl(
             windowInsets = windowInsets,
             arrangement = arrangement,
             contentPadding = contentPadding,
-            collapsedRailWidth = CollapsedRailWidth,
-            expandedRailMinWidth = ExpandedRailMinWidth,
-            expandedRailMaxWidth = ExpandedRailMaxWidth,
             content = {
                 // Only display content if it's collapsed, so that it doesn't affect this
                 // collapsed rail or the screen layout.
@@ -1033,84 +886,6 @@ public fun WideNavigationRailItem(
             colors.textColor(selected, enabled, iconPosition == NavigationItemIconPosition.Top),
         iconColor = colors.iconColor(selected, enabled),
         indicatorColor = colors.selectedIndicatorColor,
-        modifier = modifier,
-        enabled = enabled,
-        label = label,
-        iconPosition = iconPosition,
-        interactionSource = interactionSource,
-    )
-}
-
-@Composable
-internal fun StyleableWideNavigationRailItem(
-    selected: Boolean,
-    onClick: () -> Unit,
-    icon: @Composable () -> Unit,
-    label: @Composable (() -> Unit)?,
-    railExpanded: Boolean,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    iconPosition: NavigationItemIconPosition =
-        WideNavigationRailItemDefaults.iconPositionFor(railExpanded),
-    interactionSource: MutableInteractionSource? = null,
-    style: NavigationRailItemStyle? = null,
-) {
-    @Suppress("NAME_SHADOWING")
-    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
-    val localTheme = LocalMaterialTheme.current
-    val isIconPositionTop = iconPosition == NavigationItemIconPosition.Top
-    val styleScope =
-        NavigationRailItemStyleScope(
-            localTheme,
-            mediaQueryInfo(),
-            ComponentState.selected(selected).enabled(enabled).orientation(isIconPositionTop),
-        )
-    with(style ?: localTheme.componentProperties.navigationRailItemProperties.style) {
-        styleScope.applyStyle()
-    }
-    val verticalItemStyle =
-        NavigationRailItemStyleScope(
-            localTheme,
-            mediaQueryInfo(),
-            ComponentState.selected(selected).enabled(enabled).orientation(true),
-        )
-    with(style ?: localTheme.componentProperties.navigationRailItemProperties.style) {
-        verticalItemStyle.applyStyle()
-    }
-    val horizontalItemStyle =
-        NavigationRailItemStyleScope(
-            localTheme,
-            mediaQueryInfo(),
-            ComponentState.selected(selected).enabled(enabled).orientation(false),
-        )
-    with(style ?: localTheme.componentProperties.navigationRailItemProperties.style) {
-        horizontalItemStyle.applyStyle()
-    }
-    val indicatorPadding =
-        getIndicatorPadding(localTheme, railExpanded, verticalItemStyle, horizontalItemStyle)
-
-    AnimatedNavigationItem(
-        selected = selected,
-        onClick = onClick,
-        icon = icon,
-        indicatorShape = NavigationRailBaselineItemTokens.ActiveIndicatorShape.value,
-        topIconIndicatorWidth = NavigationRailVerticalItemTokens.ActiveIndicatorWidth,
-        topIconLabelTextStyle = styleScope.textStyle,
-        startIconLabelTextStyle = styleScope.textStyle,
-        indicatorPadding = indicatorPadding,
-        topIconIndicatorToLabelVerticalPadding = NavigationRailVerticalItemTokens.IconLabelSpace,
-        noLabelIndicatorPadding = PaddingValues(WNRItemNoLabelIndicatorPadding),
-        startIconToLabelHorizontalPadding = NavigationRailHorizontalItemTokens.IconLabelSpace,
-        contentPadding =
-            PaddingValues(
-                start = styleScope.contentPaddingStart,
-                top = styleScope.contentPaddingTop,
-                end = styleScope.contentPaddingEnd,
-                bottom = styleScope.contentPaddingBottom,
-            ),
-        textColor = styleScope.textColor,
-        iconColor = styleScope.iconColor,
-        indicatorColor = styleScope.indicatorColor,
         modifier = modifier,
         enabled = enabled,
         label = label,
@@ -1645,9 +1420,6 @@ private fun ModalWideNavigationRailContent(
             arrangement = arrangement,
             isModal = true,
             contentPadding = contentPadding,
-            collapsedRailWidth = CollapsedRailWidth,
-            expandedRailMinWidth = ExpandedRailMinWidth,
-            expandedRailMaxWidth = ExpandedRailMaxWidth,
             content = content,
         )
     }
@@ -1675,32 +1447,6 @@ private fun GraphicsLayerScope.calculatePredictiveBackScaleY(progress: Float): F
     } else {
         1f - lerp(0f, min(PredictiveBackMaxScaleYDistance.toPx(), height), progress) / height
     }
-}
-
-@Composable
-private fun getIndicatorPadding(
-    localTheme: MaterialTheme.Values,
-    railExpanded: Boolean,
-    verticalItemStyle: NavigationRailItemStyleScope,
-    horizontalItemStyle: NavigationRailItemStyleScope,
-): PaddingValues {
-    return WideNavigationRailItemDefaults.indicatorPadding(
-        railExpanded = railExpanded,
-        collapsedPadding =
-            PaddingValues(
-                verticalItemStyle.indicatorPaddingStart,
-                verticalItemStyle.indicatorPaddingTop,
-                verticalItemStyle.indicatorPaddingEnd,
-                verticalItemStyle.indicatorPaddingBottom,
-            ),
-        expandedPadding =
-            PaddingValues(
-                horizontalItemStyle.indicatorPaddingStart,
-                horizontalItemStyle.indicatorPaddingTop,
-                horizontalItemStyle.indicatorPaddingEnd,
-                horizontalItemStyle.indicatorPaddingBottom,
-            ),
-    )
 }
 
 /*@VisibleForTesting*/
