@@ -24,16 +24,20 @@ import androidx.credentials.lint.RestoreCredentialConstants.CLASS_GET_RESTORE_CR
 import androidx.credentials.lint.RestoreCredentialConstants.CLASS_PUBLIC_KEY_CREDENTIAL
 import androidx.credentials.lint.RestoreCredentialConstants.CLASS_RESTORE_CREDENTIAL
 import androidx.credentials.lint.RestoreCredentialConstants.RESTORE_CREDENTIALS_GUIDE_URL
+import androidx.credentials.lint.RestoreCredentialConstants.isDescendantOf
 import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
+import com.android.tools.lint.detector.api.LintFix
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
+import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiField
+import com.intellij.psi.PsiParameter
 import com.intellij.psi.PsiVariable
 import org.jetbrains.uast.UBinaryExpression
 import org.jetbrains.uast.UBinaryExpressionWithType
@@ -41,10 +45,14 @@ import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UDeclarationsExpression
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UExpression
+import org.jetbrains.uast.ULambdaExpression
 import org.jetbrains.uast.UMethod
+import org.jetbrains.uast.UNamedExpression
 import org.jetbrains.uast.UObjectLiteralExpression
+import org.jetbrains.uast.UParameter
 import org.jetbrains.uast.UQualifiedReferenceExpression
 import org.jetbrains.uast.UReferenceExpression
+import org.jetbrains.uast.UReturnExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.USwitchClauseExpression
 import org.jetbrains.uast.USwitchExpression
@@ -52,6 +60,8 @@ import org.jetbrains.uast.UTypeReferenceExpression
 import org.jetbrains.uast.UVariable
 import org.jetbrains.uast.getParentOfType
 import org.jetbrains.uast.skipParenthesizedExprDown
+import org.jetbrains.uast.skipParenthesizedExprUp
+import org.jetbrains.uast.toUElement
 import org.jetbrains.uast.toUElementOfType
 import org.jetbrains.uast.visitor.AbstractUastVisitor
 
@@ -82,9 +92,10 @@ class RestoreCredentialInvalidCastDetector : Detector(), SourceCodeScanner {
                     if (isCredentialExpression(context, node.operand)) {
                         node.operand
                     } else {
-                        node
-                            .getParentOfType<USwitchClauseExpression>(true)
-                            ?.getParentOfType<USwitchExpression>(true)
+                        val clause = node.getParentOfType<USwitchClauseExpression>(true) ?: return
+                        if (clause.caseValues.none { node.isDescendantOf(it) }) return
+                        clause
+                            .getParentOfType<USwitchExpression>(true)
                             ?.let(::extractSwitchSubject)
                             ?.takeIf { isCredentialExpression(context, it) } ?: return
                     }
@@ -158,15 +169,7 @@ class RestoreCredentialInvalidCastDetector : Detector(), SourceCodeScanner {
         typeRef: UTypeReferenceExpression,
     ) {
         val location = context.getLocation(typeRef)
-        val fix =
-            fix()
-                .name("Replace 'PublicKeyCredential' with 'RestoreCredential'")
-                .replace()
-                .range(location)
-                .with(CLASS_RESTORE_CREDENTIAL)
-                .shortenNames()
-                .reformat(true)
-                .build()
+        val fix = buildTypeTargetQuickFix(context, scopeNode, typeRef, location)
 
         context.report(
             ISSUE,
@@ -176,6 +179,72 @@ class RestoreCredentialInvalidCastDetector : Detector(), SourceCodeScanner {
                 "(causes `ClassCastException` or failed type check at runtime). Use `RestoreCredential` instead.",
             fix,
         )
+    }
+
+    private fun buildTypeTargetQuickFix(
+        context: JavaContext,
+        scopeNode: UElement,
+        typeRef: UTypeReferenceExpression,
+        location: com.android.tools.lint.detector.api.Location,
+    ): LintFix? {
+        val castReplaceFix =
+            fix()
+                .replace()
+                .range(location)
+                .with(CLASS_RESTORE_CREDENTIAL)
+                .shortenNames()
+                .reformat(true)
+                .build()
+
+        if (scopeNode is UBinaryExpressionWithType) {
+            val parent = skipParenthesizedExprUp(scopeNode.uastParent)
+            if (parent is UVariable) {
+                val varTypeRef = parent.typeReference
+                val varTypePsi = varTypeRef?.sourcePsi
+                if (varTypeRef != null && varTypePsi != null) {
+                    val varTypeClass = context.evaluator.getTypeClass(varTypeRef.type)
+                    if (
+                        varTypeClass != null &&
+                            context.evaluator.inheritsFrom(
+                                varTypeClass,
+                                CLASS_PUBLIC_KEY_CREDENTIAL,
+                                false,
+                            ) &&
+                            varTypePsi.textRange != typeRef.sourcePsi?.textRange
+                    ) {
+                        val varTypeFix =
+                            fix()
+                                .replace()
+                                .range(context.getLocation(varTypeRef))
+                                .with(CLASS_RESTORE_CREDENTIAL)
+                                .shortenNames()
+                                .reformat(true)
+                                .build()
+                        return fix()
+                            .name("Replace 'PublicKeyCredential' with 'RestoreCredential'")
+                            .composite(varTypeFix, castReplaceFix)
+                    }
+                }
+            } else if (parent is UReturnExpression) {
+                val enclosingMethod = scopeNode.getParentOfType<UMethod>(true)
+                val returnTypeClass =
+                    enclosingMethod?.returnType?.let { context.evaluator.getTypeClass(it) }
+                if (
+                    returnTypeClass != null &&
+                        context.evaluator.inheritsFrom(
+                            returnTypeClass,
+                            CLASS_PUBLIC_KEY_CREDENTIAL,
+                            false,
+                        )
+                ) {
+                    return null
+                }
+            }
+        }
+
+        return fix()
+            .name("Replace 'PublicKeyCredential' with 'RestoreCredential'")
+            .composite(castReplaceFix)
     }
 
     private fun extractSwitchSubject(switchExpr: USwitchExpression): UExpression? {
@@ -236,6 +305,7 @@ class RestoreCredentialInvalidCastDetector : Detector(), SourceCodeScanner {
     private enum class Provenance {
         RESTORE_ONLY,
         PASSKEY_PRESENT,
+        OPAQUE_CALL,
         UNKNOWN,
     }
 
@@ -248,7 +318,8 @@ class RestoreCredentialInvalidCastDetector : Detector(), SourceCodeScanner {
         // `response.credential`.
         when (traceDirectCredentialProvenance(context, credentialExpr)) {
             Provenance.RESTORE_ONLY -> return true
-            Provenance.PASSKEY_PRESENT -> return false
+            Provenance.PASSKEY_PRESENT,
+            Provenance.OPAQUE_CALL -> return false
             Provenance.UNKNOWN -> {}
         }
 
@@ -279,10 +350,12 @@ class RestoreCredentialInvalidCastDetector : Detector(), SourceCodeScanner {
         }
 
         // 3. Enclosing method scope: flag if the method uses GetRestoreCredentialOption without
-        // GetPublicKeyCredentialOption, unless the method already explicitly handles
-        // RestoreCredential (e.g., dispatching over a try/catch fallback response).
+        // GetPublicKeyCredentialOption, unless the credential traces back to a method/lambda
+        // parameter or the method already explicitly handles RestoreCredential (e.g., dispatching
+        // over a try/catch fallback response).
         // Do not fall back to enclosingClass, as ViewModels and shared helpers often accept
         // GetCredentialResponse parameters whose interactive requests were built in another class.
+        if (tracesToParameter(context, credentialExpr)) return false
         val enclosingMethod = site.getParentOfType<UMethod>(true)
         if (enclosingMethod != null) {
             if (scopeExplicitlyHandlesRestoreCredential(context, enclosingMethod)) {
@@ -295,6 +368,132 @@ class RestoreCredentialInvalidCastDetector : Detector(), SourceCodeScanner {
         }
 
         return false
+    }
+
+    private fun tracesToParameter(context: JavaContext, credentialExpr: UExpression): Boolean {
+        val unwrappedCred = RestoreCredentialConstants.unwrapVariableInitializer(credentialExpr)
+        if (isExternalParameterReference(context, unwrappedCred)) return true
+        val receiver =
+            when (unwrappedCred) {
+                is UQualifiedReferenceExpression -> unwrappedCred.receiver
+                is UCallExpression -> unwrappedCred.receiver
+                else -> null
+            } ?: return false
+        val unwrappedReceiver = RestoreCredentialConstants.unwrapVariableInitializer(receiver)
+        if (isExternalParameterReference(context, unwrappedReceiver)) return true
+        val nestedReceiver =
+            when (unwrappedReceiver) {
+                is UQualifiedReferenceExpression -> unwrappedReceiver.receiver
+                is UCallExpression -> unwrappedReceiver.receiver
+                else -> null
+            } ?: return false
+        return isExternalParameterReference(
+            context,
+            RestoreCredentialConstants.unwrapVariableInitializer(nestedReceiver),
+        )
+    }
+
+    private fun isExternalParameterReference(context: JavaContext, expr: UExpression): Boolean {
+        val ref = expr.skipParenthesizedExprDown() as? UReferenceExpression ?: return false
+        val resolved = ref.resolve()
+        val owningLambda = findOwningLambda(ref, resolved)
+        if (owningLambda != null) {
+            return findGetCredentialCallInLambdaReceiver(context, owningLambda) == null
+        }
+        return resolved is PsiParameter || resolved.toUElement() is UParameter
+    }
+
+    private fun findOwningLambda(
+        ref: UReferenceExpression,
+        resolved: PsiElement?,
+    ): ULambdaExpression? {
+        val simpleId = (ref as? USimpleNameReferenceExpression)?.identifier
+        var current: UElement? = ref.uastParent
+        while (current != null && current !is UMethod) {
+            if (current is ULambdaExpression) {
+                if (simpleId == "it" && current.valueParameters.isEmpty()) {
+                    return current
+                }
+                val matchesParam =
+                    current.valueParameters.any {
+                        (resolved != null && it.javaPsi == resolved) ||
+                            (simpleId != null && it.name == simpleId)
+                    } ||
+                        current.parameters.any {
+                            (resolved != null && it.javaPsi == resolved) ||
+                                (simpleId != null && it.name == simpleId)
+                        }
+                if (matchesParam) {
+                    return current
+                }
+            }
+            current = current.uastParent
+        }
+        return null
+    }
+
+    private fun findGetCredentialCallInLambdaReceiver(
+        context: JavaContext,
+        lambda: ULambdaExpression,
+    ): UCallExpression? {
+        val parentCall = lambda.getParentOfType<UCallExpression>(true) ?: return null
+        val isLambdaArg =
+            parentCall.valueArguments.any { arg ->
+                ((arg as? UNamedExpression)?.expression ?: arg).skipParenthesizedExprDown() ==
+                    lambda
+            }
+        if (!isLambdaArg) return null
+        val receiver =
+            parentCall.receiver
+                ?: (parentCall.uastParent as? UQualifiedReferenceExpression)
+                    ?.takeIf { it.selector == parentCall }
+                    ?.receiver
+                ?: return null
+        return findGetCredentialCallInSubtree(context, receiver)
+    }
+
+    private fun findGetCredentialCallInSubtree(
+        context: JavaContext,
+        root: UElement?,
+        maxDepth: Int = 2,
+    ): UCallExpression? {
+        if (root == null || maxDepth < 0) return null
+        var found: UCallExpression? = null
+        root.accept(
+            object : AbstractUastVisitor() {
+                override fun visitElement(node: UElement): Boolean {
+                    if (found != null) return true
+                    if (
+                        node is UCallExpression &&
+                            node.methodName in RestoreCredentialConstants.GET_CREDENTIAL_METHODS
+                    ) {
+                        val resolved = node.resolve()
+                        if (
+                            resolved != null &&
+                                context.evaluator.isMemberInClass(
+                                    resolved,
+                                    CLASS_CREDENTIAL_MANAGER,
+                                )
+                        ) {
+                            found = node
+                            return true
+                        }
+                    }
+                    if (maxDepth > 0 && node is USimpleNameReferenceExpression) {
+                        val init =
+                            (node.resolve() as? PsiVariable)
+                                ?.toUElementOfType<UVariable>()
+                                ?.uastInitializer
+                        if (init != null) {
+                            found = findGetCredentialCallInSubtree(context, init, maxDepth - 1)
+                            if (found != null) return true
+                        }
+                    }
+                    return false
+                }
+            }
+        )
+        return found
     }
 
     private fun scopeExplicitlyHandlesRestoreCredential(
@@ -409,6 +608,10 @@ class RestoreCredentialInvalidCastDetector : Detector(), SourceCodeScanner {
                 is UCallExpression -> unwrappedResp
                 is UQualifiedReferenceExpression ->
                     unwrappedResp.selector.skipParenthesizedExprDown() as? UCallExpression
+                is UReferenceExpression ->
+                    findOwningLambda(unwrappedResp, unwrappedResp.resolve())?.let {
+                        findGetCredentialCallInLambdaReceiver(context, it)
+                    }
                 else -> null
             } ?: return Provenance.UNKNOWN
 
@@ -428,7 +631,10 @@ class RestoreCredentialInvalidCastDetector : Detector(), SourceCodeScanner {
                 "request",
                 1,
             ) ?: return Provenance.UNKNOWN
-        return classifyRequestOptions(context, requestArg)
+        return when (val classified = classifyRequestOptions(context, requestArg)) {
+            Provenance.UNKNOWN -> Provenance.OPAQUE_CALL
+            else -> classified
+        }
     }
 
     private fun classifyRequestOptions(context: JavaContext, requestExpr: UExpression): Provenance {

@@ -308,4 +308,75 @@ class RestoreCredentialManifestBackupDetectorTest : LintDetectorTest() {
             .run()
             .expectClean()
     }
+
+    @Test
+    fun multiManifestOverlayAndInheritedOnRestoreFinished_reportsNoFindings() {
+        lint()
+            .files(
+                xml(
+                        "src/main/AndroidManifest.xml",
+                        """
+                <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+                    package="com.example">
+                    <application
+                        android:allowBackup="true"
+                        android:fullBackupOnly="true"
+                        android:backupAgent=".InheritedBackupAgent" />
+                </manifest>
+                """,
+                    )
+                    .indented(),
+                xml(
+                        "src/debug/AndroidManifest.xml",
+                        """
+                <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+                    package="com.example">
+                    <application android:usesCleartextTraffic="true" />
+                </manifest>
+                """,
+                    )
+                    .indented(),
+                *CREDENTIALS_STUBS,
+                COROUTINES_STUB,
+                kotlin(
+                        """
+                package com.example
+
+                import android.app.backup.BackupAgent
+                import android.app.backup.BackupDataInput
+                import android.app.backup.BackupDataOutput
+                import android.os.ParcelFileDescriptor
+                import androidx.credentials.CredentialManager
+                import androidx.credentials.GetCredentialRequest
+                import androidx.credentials.GetRestoreCredentialOption
+                import kotlinx.coroutines.runBlocking
+
+                abstract class BaseRestoreBackupAgent : BackupAgent() {
+                    override fun onBackup(
+                        oldState: ParcelFileDescriptor?,
+                        data: BackupDataOutput?,
+                        newState: ParcelFileDescriptor?,
+                    ) {}
+
+                    override fun onRestore(
+                        data: BackupDataInput?,
+                        appVersionCode: Int,
+                        newState: ParcelFileDescriptor?,
+                    ) {}
+
+                    override fun onRestoreFinished() {
+                        val manager = CredentialManager.create(this)
+                        val request = GetCredentialRequest(listOf(GetRestoreCredentialOption("{}")))
+                        runBlocking { manager.getCredential(this@BaseRestoreBackupAgent, request) }
+                    }
+                }
+
+                class InheritedBackupAgent : BaseRestoreBackupAgent()
+                """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expectClean()
+    }
 }

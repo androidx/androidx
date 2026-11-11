@@ -147,4 +147,41 @@ class RestoreCredentialLogoutClearDetectorTest : LintDetectorTest() {
             .run()
             .expectClean()
     }
+
+    @Test
+    fun createRestoreCredentialWithoutAnyClearCredentialState_warnsAtCreationSite() {
+        lint()
+            .files(
+                *CREDENTIALS_STUBS,
+                kotlin(
+                        "src/com/example/SignInManager.kt",
+                        """
+                package com.example
+
+                import android.content.Context
+                import androidx.credentials.CreateRestoreCredentialRequest
+                import androidx.credentials.CredentialManager
+
+                suspend fun persistRestoreKey(context: Context, json: String) {
+                    CredentialManager.create(context)
+                        .createCredential(
+                            context,
+                            CreateRestoreCredentialRequest(json, isCloudBackupEnabled = false),
+                        )
+                }
+                """,
+                    )
+                    .indented(),
+            )
+            .run()
+            .expect(
+                """
+                src/com/example/SignInManager.kt:11: Warning: App creates a RestoreCredential but never calls CredentialManager.clearCredentialState(ClearCredentialStateRequest(TYPE_CLEAR_RESTORE_CREDENTIAL)) on sign-out, which leaves the restore key active after logout [RestoreCredentialMissingLogoutClear]
+                            CreateRestoreCredentialRequest(json, isCloudBackupEnabled = false),
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                0 errors, 1 warnings
+                """
+                    .trimIndent()
+            )
+    }
 }

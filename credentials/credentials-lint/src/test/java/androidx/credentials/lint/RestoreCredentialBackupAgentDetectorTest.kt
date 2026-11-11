@@ -373,4 +373,118 @@ class RestoreCredentialBackupAgentDetectorTest : LintDetectorTest() {
             .run()
             .expectClean()
     }
+
+    @Test
+    fun directBackupAgentSubclassOnRestore_keepsEmptyOnRestoreStubAndAddsOnRestoreFinished() {
+        lint()
+            .files(
+                *CREDENTIALS_STUBS,
+                COROUTINES_STUB,
+                kotlin(
+                        """
+                package com.example
+
+                import android.app.backup.BackupAgent
+                import android.app.backup.BackupDataInput
+                import android.app.backup.BackupDataOutput
+                import android.os.ParcelFileDescriptor
+                import androidx.credentials.CredentialManager
+                import androidx.credentials.GetCredentialRequest
+                import androidx.credentials.GetRestoreCredentialOption
+                import kotlinx.coroutines.runBlocking
+
+                class DirectBackupAgent : BackupAgent() {
+                    override fun onBackup(
+                        oldState: ParcelFileDescriptor?,
+                        data: BackupDataOutput?,
+                        newState: ParcelFileDescriptor?,
+                    ) {}
+
+                    override fun onRestore(
+                        data: BackupDataInput?,
+                        appVersionCode: Int,
+                        newState: ParcelFileDescriptor?,
+                    ) {
+                        val manager = CredentialManager.create(this)
+                        val request = GetCredentialRequest(listOf(GetRestoreCredentialOption("{}")))
+                        runBlocking { manager.getCredential(this@DirectBackupAgent, request) }
+                    }
+                }
+                """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expectErrorCount(1)
+            .expectFixDiffs(
+                """
+                Fix for src/com/example/DirectBackupAgent.kt line 26: Move restore credential retrieval to onRestoreFinished():
+                @@ -23 +23,3 @@
+                -    ) {
+                +    ) {}
+                +
+                +    override fun onRestoreFinished() {
+                """
+                    .trimIndent()
+            )
+    }
+
+    @Test
+    fun launchWithDispatcher_preservesCoroutineContextInQuickFix() {
+        lint()
+            .files(
+                *CREDENTIALS_STUBS,
+                COROUTINES_STUB,
+                kotlin(
+                        """
+                package com.example
+
+                import android.app.backup.BackupAgent
+                import android.app.backup.BackupDataInput
+                import android.app.backup.BackupDataOutput
+                import android.os.ParcelFileDescriptor
+                import androidx.credentials.CredentialManager
+                import androidx.credentials.GetCredentialRequest
+                import androidx.credentials.GetRestoreCredentialOption
+                import kotlinx.coroutines.CoroutineScope
+                import kotlinx.coroutines.Dispatchers
+                import kotlinx.coroutines.launch
+
+                class DispatcherLaunchBackupAgent : BackupAgent() {
+                    override fun onBackup(
+                        oldState: ParcelFileDescriptor?,
+                        data: BackupDataOutput?,
+                        newState: ParcelFileDescriptor?,
+                    ) {}
+
+                    override fun onRestore(
+                        data: BackupDataInput?,
+                        appVersionCode: Int,
+                        newState: ParcelFileDescriptor?,
+                    ) {}
+
+                    override fun onRestoreFinished() {
+                        val manager = CredentialManager.create(this)
+                        val request = GetCredentialRequest(listOf(GetRestoreCredentialOption("{}")))
+                        CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
+                            manager.getCredential(this@DispatcherLaunchBackupAgent, request)
+                        }
+                    }
+                }
+                """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expectErrorCount(1)
+            .expectFixDiffs(
+                """
+                Fix for src/com/example/DispatcherLaunchBackupAgent.kt line 31: Replace 'CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO)' with 'runBlocking':
+                @@ -30 +30 @@
+                -        CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
+                +        kotlinx.coroutines.runBlocking(Dispatchers.IO) {
+                """
+                    .trimIndent()
+            )
+    }
 }

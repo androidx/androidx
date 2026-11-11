@@ -234,6 +234,7 @@ internal val COROUTINES_STUB: TestFile =
         package kotlinx.coroutines
 
         import kotlin.coroutines.CoroutineContext
+        import kotlin.coroutines.EmptyCoroutineContext
 
         interface CoroutineScope {
             val coroutineContext: CoroutineContext
@@ -257,14 +258,20 @@ internal val COROUTINES_STUB: TestFile =
             suspend fun await(): T = throw UnsupportedOperationException()
         }
 
-        fun CoroutineScope.launch(block: suspend CoroutineScope.() -> Unit): Job =
-            throw UnsupportedOperationException()
+        fun CoroutineScope.launch(
+            context: CoroutineContext = EmptyCoroutineContext,
+            block: suspend CoroutineScope.() -> Unit,
+        ): Job = throw UnsupportedOperationException()
 
-        fun <T> CoroutineScope.async(block: suspend CoroutineScope.() -> T): Deferred<T> =
-            throw UnsupportedOperationException()
+        fun <T> CoroutineScope.async(
+            context: CoroutineContext = EmptyCoroutineContext,
+            block: suspend CoroutineScope.() -> T,
+        ): Deferred<T> = throw UnsupportedOperationException()
 
-        fun <T> runBlocking(block: suspend CoroutineScope.() -> T): T =
-            throw UnsupportedOperationException()
+        fun <T> runBlocking(
+            context: CoroutineContext = EmptyCoroutineContext,
+            block: suspend CoroutineScope.() -> T,
+        ): T = throw UnsupportedOperationException()
 
         suspend fun <T> withContext(
             context: CoroutineContext,

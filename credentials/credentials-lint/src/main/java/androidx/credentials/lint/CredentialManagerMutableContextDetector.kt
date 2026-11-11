@@ -41,8 +41,9 @@ class CredentialManagerMutableContextDetector : Detector(), SourceCodeScanner {
         listOf("getCredential", "getCredentialAsync", "createCredential", "createCredentialAsync")
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
-        // Only target androidx.credentials.CredentialManager
-        if (!context.evaluator.isMemberInClass(method, CLASS_CREDENTIAL_MANAGER)) {
+        // Only target androidx.credentials.CredentialManager (and its implementations)
+        val containingClass = method.containingClass ?: return
+        if (!context.evaluator.inheritsFrom(containingClass, CLASS_CREDENTIAL_MANAGER, false)) {
             return
         }
 
