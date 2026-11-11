@@ -234,8 +234,8 @@ open public class RFloat : Number {
     }
 
     public fun genTextId(
-        before: Int = 2,
-        after: Int = 1,
+        before: Short = 2,
+        after: Short = 1,
         flags: Int = Rc.TextFromFloat.PAD_AFTER_ZERO,
     ): Int {
         val w = writer

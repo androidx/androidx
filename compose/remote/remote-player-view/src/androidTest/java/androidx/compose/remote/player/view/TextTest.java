@@ -202,7 +202,7 @@ public class TextTest {
                     float fid = rdoc.addFloatConstant(200);
                     int text = rdoc.textCreateId(str);
                     float len = rdoc.textLength(text);
-                    int lenText = rdoc.createTextFromFloat(len, 2, 0, 0);
+                    int lenText = rdoc.createTextFromFloat(len, (short) 2, (short) 0, 0);
                     rdoc.drawTextAnchored(text, cx, cy, 0, 0, 0);
                     rdoc.drawTextAnchored(lenText, cx, 0, 0, 1, 0);
                 };

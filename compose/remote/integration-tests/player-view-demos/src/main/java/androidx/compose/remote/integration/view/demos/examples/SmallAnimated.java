@@ -44,7 +44,7 @@ public class SmallAnimated {
     public static @NonNull RemoteComposeWriter small() {
         RemoteComposeWriterAndroid rc = new RemoteComposeWriterAndroid(500, 500, "sd", 7,
                 PROFILE_ANDROIDX, sPlatform);
-        int id = rc.createTextFromFloat(Rc.Time.CONTINUOUS_SEC, 2, 2, 0);
+        int id = rc.createTextFromFloat(Rc.Time.CONTINUOUS_SEC, (short) 2, (short) 2, 0);
         rc.getPainter().setTextSize(120f).commit();
         rc.drawTextAnchored(id, 0, 0, -1, 1, 0);
         return rc;

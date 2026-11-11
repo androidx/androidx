@@ -205,7 +205,7 @@ public class DataTest {
                                             Float.floatToRawIntBits(arrayId) & 0x7FFFFF));
                     float ans1 = rdoc.floatExpression(2, 2, MUL);
                     float ans2 = rdoc.floatExpression(arrayId, 2, 2, MUL, A_DEREF); // id[2*2]
-                    int tid = rdoc.createTextFromFloat(ans2, 2, 3, 0);
+                    int tid = rdoc.createTextFromFloat(ans2, (short) 2, (short) 3, 0);
                     rdoc.getPainter().setColor(0x550000ff).commit();
                     rdoc.drawTextAnchored(tid, tw / 2, th / 2, 0, 0, 0);
                     rdoc.drawOval(0, fid, tw, th);
@@ -271,7 +271,7 @@ public class DataTest {
                                             Float.floatToRawIntBits(arrayId) & 0x7FFFFF));
                     float ans1 = rdoc.floatExpression(2, 2, MUL);
                     float ans2 = rdoc.floatExpression(2, 2, MUL, arrayId, A_AVG); // id[2*2]
-                    int tid = rdoc.createTextFromFloat(ans2, 2, 3, 0);
+                    int tid = rdoc.createTextFromFloat(ans2, (short) 2, (short) 3, 0);
                     rdoc.getPainter().setColor(0x550000ff).commit();
                     rdoc.drawTextAnchored(tid, tw / 2, th / 2, 0, 0, 0);
                     rdoc.drawOval(0, fid, tw, th);
@@ -339,7 +339,7 @@ public class DataTest {
                     float ans1 = rdoc.floatExpression(2, 2, MUL);
                     float ans2 = rdoc.floatExpression(2, 2, MUL, arrayId, A_AVG); // id[2*2]
                     ansId[0] = Utils.idFromNan(ans2);
-                    int tid = rdoc.createTextFromFloat(ans2, 2, 3, 0);
+                    int tid = rdoc.createTextFromFloat(ans2, (short) 2, (short) 3, 0);
                     rdoc.getPainter().setColor(0x550000ff).commit();
                     rdoc.drawTextAnchored(tid, tw / 2, th / 2, 0, 0, 0);
                     rdoc.drawOval(0, fid, tw, th);
@@ -409,7 +409,7 @@ public class DataTest {
                                             Float.floatToRawIntBits(arrayId) & 0x7FFFFF));
                     float ans1 = rdoc.floatExpression(2, 2, MUL);
 
-                    int tid = rdoc.createTextFromFloat(1234, 2, 3, 0);
+                    int tid = rdoc.createTextFromFloat(1234, (short) 2, (short) 3, 0);
                     rdoc.getPainter().setColor(0x550000ff).commit();
                     rdoc.drawTextAnchored(tid, tw / 2, th / 2, 0, 0, 0);
                     rdoc.drawOval(0, fid, tw, th);
@@ -529,7 +529,7 @@ public class DataTest {
                 rdoc -> {
                     float variable = rdoc.addFloatConstant(n);
                     float exp = rdoc.floatExpression(0, variable, MAX, 1, MIN);
-                    int text = rdoc.createTextFromFloat(variable, 2, 0, 0);
+                    int text = rdoc.createTextFromFloat(variable, (short) 2, (short) 0, 0);
                     float arrayId = rdoc.addStringList(rdoc.textCreateId("--"), text);
                     int id = rdoc.textLookup(arrayId, exp);
                     rdoc.getPainter().setColor(0x550000ff).commit();

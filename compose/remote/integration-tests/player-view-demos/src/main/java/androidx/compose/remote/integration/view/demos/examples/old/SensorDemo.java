@@ -228,7 +228,7 @@ public class SensorDemo {
 
             rcDoc.getPainter().setColor(Color.CYAN).setStyle(Paint.Style.FILL).setTextSize(
                     64).commit();
-            int lightNumber = rcDoc.createTextFromFloat(lightBar, 4, 2, 0);
+            int lightNumber = rcDoc.createTextFromFloat(lightBar, (short) 4, (short) 2, 0);
             rcDoc.drawTextAnchored(lightNumber, cx, cy, 0, 0, 0);
 
             rcDoc.endCanvas();
@@ -283,7 +283,7 @@ public class SensorDemo {
             rcDoc.endBox();
             rcDoc.getPainter().setColor(Color.CYAN).setStyle(Paint.Style.FILL).setTextSize(
                     64).commit();
-            int lightNumber = rcDoc.createTextFromFloat(angle, 4, 2, 0);
+            int lightNumber = rcDoc.createTextFromFloat(angle, (short) 4, (short) 2, 0);
             rcDoc.drawTextAnchored(lightNumber, cx, cy, 0, 0, 0);
         });
         return rcDoc;

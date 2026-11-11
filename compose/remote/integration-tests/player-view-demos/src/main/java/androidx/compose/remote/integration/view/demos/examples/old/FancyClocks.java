@@ -275,7 +275,7 @@ public class FancyClocks {
             float offsetY = rc.floatExpression(polarRadius, sinAng, MUL, centerY, ADD);
 
             float hr = rc.floatExpression(second, 15, DIV, 3, ADD, 4, MOD, 1, ADD, 3, MUL, ROUND);
-            int tid = rc.createTextFromFloat(hr, 2, 0, 0);
+            int tid = rc.createTextFromFloat(hr, (short) 2, (short) 0, 0);
 
             rc.drawTextAnchored(tid, offsetX, offsetY, 0, 0, 0);
         });
@@ -427,7 +427,7 @@ public class FancyClocks {
                         centerY, ADD);
                 float hr = rc.floatExpression(second, 15, DIV, 3, ADD, 4, MOD, 1, ADD, 3, MUL,
                         ROUND);
-                int tid = rc.createTextFromFloat(hr, 2, 0, 0);
+                int tid = rc.createTextFromFloat(hr, (short) 2, (short) 0, 0);
                 rc.drawTextAnchored(tid, txtOffsetX, txtOffsetY, 0, 0, 0);
             }
             rc.endConditionalOperations();

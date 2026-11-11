@@ -223,8 +223,8 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
                 ToRemoteInt -> (args[0] as RemoteFloat).toRemoteInt()
                 ToRemoteString ->
                     (args[0] as RemoteFloat).toRemoteStringOptions(
-                        (args.getOrNull(1) as? RemoteInt)?.constantValueOrNull ?: 0,
-                        (args.getOrNull(2) as? RemoteInt)?.constantValueOrNull ?: 0,
+                        ((args.getOrNull(1) as? RemoteInt)?.constantValueOrNull ?: 0).toShort(),
+                        ((args.getOrNull(2) as? RemoteInt)?.constantValueOrNull ?: 0).toShort(),
                         (args.getOrNull(3) as? RemoteInt)?.constantValueOrNull ?: 0,
                     )
                 CompareEQ -> (args[0] as RemoteFloat).isEqualTo(args[1] as RemoteFloat)
@@ -346,8 +346,8 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
     /**
      * Formats this [RemoteFloat] as a [RemoteString] with integer padding options.
      *
-     * @param before maximum digits before the decimal point
-     * @param after maximum digits after the decimal point
+     * @param before maximum digits before the decimal point (stored as a short on the wire)
+     * @param after maximum digits after the decimal point (stored as a short on the wire)
      * @param flags formatting flags from [androidx.compose.remote.core.operations.TextFromFloat]
      * @param minimumIntegerDigits minimum integer digits before padding
      * @param formatWidth total target padded width, or `0` if unset
@@ -356,8 +356,8 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toRemoteStringWithPadding(
-        before: Int,
-        after: Int,
+        before: Short,
+        after: Short,
         flags: Int,
         minimumIntegerDigits: Int = 0,
         formatWidth: Int = 0,
@@ -368,7 +368,7 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
             val padWidth = if (formatWidth > 0) formatWidth else minimumIntegerDigits
 
             // Support scenarios where max digits was not restricted (before == 255)
-            if (before == 255) {
+            if (before.toInt() == 255) {
                 val flagsWithoutPrePadding = flags and PAD_PRE_ZERO.inv()
                 val flagsPreNone = flagsWithoutPrePadding or PAD_PRE_NONE
                 val unpadded = toRemoteStringOptions(before, after, flagsPreNone)
@@ -383,9 +383,10 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
 
                 val isNegative = this.isLessThan(0f.rf)
                 val absValue = isNegative.select(-this, this)
+                val paddedBefore = padWidth.coerceIn(0, Short.MAX_VALUE.toInt()).toShort()
 
                 return (absValue.isLessThan(threshold.rf)).select(
-                    toRemoteStringOptions(padWidth, after, flagsPadded),
+                    toRemoteStringOptions(paddedBefore, after, flagsPadded),
                     unpadded,
                 )
             }
@@ -397,13 +398,13 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
     /**
      * Formats this [RemoteFloat] as a [RemoteString] with explicit digit counts and [flags].
      *
-     * @param before digits before the decimal point
-     * @param after digits after the decimal point
+     * @param before digits before the decimal point (stored as a short on the wire)
+     * @param after digits after the decimal point (stored as a short on the wire)
      * @param flags formatting flags from [androidx.compose.remote.core.operations.TextFromFloat]
      * @return formatted [RemoteString]
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun toRemoteStringOptions(before: Int, after: Int, flags: Int): RemoteString {
+    public fun toRemoteStringOptions(before: Short, after: Short, flags: Int): RemoteString {
         constantValueOrNull?.let {
             return RemoteString(floatToString(it, before = before, after = after, flags = flags))
         }
@@ -433,8 +434,8 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
                     ): Set<String> {
                         val preFlags = flags and PAD_PRE_ZERO
                         val afterFlags = flags and PAD_AFTER_ZERO
-                        if (after == 0) {
-                            if (before == 1 || preFlags != PAD_PRE_SPACE) {
+                        if (after.toInt() == 0) {
+                            if (before.toInt() == 1 || preFlags != PAD_PRE_SPACE) {
                                 return setOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
                             } else {
                                 return setOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", " ")
@@ -443,7 +444,7 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
 
                         // If flags is non-zero then we may pad with a space.
                         if (
-                            (before == 1 && after == 1) ||
+                            (before.toInt() == 1 && after.toInt() == 1) ||
                                 (preFlags != PAD_PRE_SPACE && afterFlags != PAD_AFTER_SPACE)
                         ) {
                             return setOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".")
@@ -938,11 +939,11 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
     }
 }
 
-internal fun floatToString(v: Float, before: Int, after: Int, flags: Int) =
+internal fun floatToString(v: Float, before: Short, after: Short, flags: Int) =
     StringUtils.floatToString(
         v,
-        before,
-        after,
+        before.toInt(),
+        after.toInt(),
         when (flags and 12) {
             PAD_PRE_SPACE -> ' '
             PAD_PRE_NONE -> 0.toChar()

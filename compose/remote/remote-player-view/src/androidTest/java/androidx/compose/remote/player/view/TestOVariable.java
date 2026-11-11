@@ -174,7 +174,8 @@ public class TestOVariable {
                     long id2 = rdoc.integerExpression(4, 5, 7, IntegerExpressionEvaluator.I_ADD);
                     long id3 = rdoc.integerExpression(5, 7, L_ADD, id, L_ADD);
                     rdoc.getPainter().setColor(0x550000ff).commit();
-                    int txtId = rdoc.createTextFromFloat(rdoc.asFloatId(id2), 2, 0, 0);
+                    int txtId =
+                            rdoc.createTextFromFloat(rdoc.asFloatId(id2), (short) 2, (short) 0, 0);
                     rdoc.drawTextRun(txtId, 0, -1, 300, 300, 0, 1, false);
                     rdoc.drawOval(0, fid, rdoc.asFloatId(id), th);
                 };

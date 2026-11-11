@@ -103,7 +103,8 @@ public class DemoFlick {
                     // rc.addDebugMessage(">>>>> [" + Utils.idFromNan(pos) + "]", pos);
 
                     rc.getPainter().setColor(Color.GREEN).setTextSize(64f).commit();
-                    rc.drawTextAnchored(rc.createTextFromFloat(yPos, 3, 1, 0), 0, 0, -1, 1, 0);
+                    rc.drawTextAnchored(
+                            rc.createTextFromFloat(yPos, (short) 3, (short) 1, 0), 0, 0, -1, 1, 0);
 
                     rc.drawCircle(cx, yPos, 20);
                     rc.endCanvas();

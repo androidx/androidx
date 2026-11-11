@@ -191,9 +191,14 @@ public class DemoUtils {
 
     static void drawTimeHr(RemoteComposeWriter rc, String pre, float cx, float cy, float panX,
             float panY, float hr) {
-        int hrDigits = rc.createTextFromFloat(hr, 2, 0, TextFromFloat.PAD_PRE_SPACE);
-        int minDigits = rc.createTextFromFloat(rc.floatExpression(hr, 1, MOD, 60, MUL), 2, 0,
-                TextFromFloat.PAD_PRE_ZERO);
+        int hrDigits =
+                rc.createTextFromFloat(hr, (short) 2, (short) 0, TextFromFloat.PAD_PRE_SPACE);
+        int minDigits =
+                rc.createTextFromFloat(
+                        rc.floatExpression(hr, 1, MOD, 60, MUL),
+                        (short) 2,
+                        (short) 0,
+                        TextFromFloat.PAD_PRE_ZERO);
 
         int timeText = rc.textMerge(rc.textMerge(hrDigits, rc.addText(":")), minDigits);
         if (pre != null) {

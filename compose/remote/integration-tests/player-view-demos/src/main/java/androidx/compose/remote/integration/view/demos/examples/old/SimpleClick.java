@@ -100,7 +100,7 @@ public class SimpleClick {
         int nowId = rc.addTimeLong(docCreationTime);
         float time = rc.timeAttribute(nowId, TimeAttribute.TIME_FROM_LOAD_SEC);
         float val = rc.floatExpression(time, -1, MUL);
-        int id = rc.createTextFromFloat(val, 1, 3, TextFromFloat.PAD_AFTER_ZERO);
+        int id = rc.createTextFromFloat(val, (short) 1, (short) 3, TextFromFloat.PAD_AFTER_ZERO);
 
         rc.drawTextAnchored("round trip:", x + w / 2, y + h / 2, 0, 0, 0);
         rc.drawTextAnchored(id, x + w / 2, y + h / 2, 0, 2, 0);

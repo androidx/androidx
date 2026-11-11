@@ -208,7 +208,7 @@ public class BasicProceduralDemos {
         rcDoc.drawOval(0, 0, RemoteContext.FLOAT_WINDOW_WIDTH, RemoteContext.FLOAT_WINDOW_HEIGHT);
         rcDoc.restore();
         float count = rcDoc.floatExpression(99f, RemoteContext.FLOAT_TIME_IN_SEC, 100, MOD, SUB);
-        int textId = rcDoc.createTextFromFloat(count, 3, 0, PAD_AFTER_ZERO);
+        int textId = rcDoc.createTextFromFloat(count, (short) 3, (short) 0, PAD_AFTER_ZERO);
         float textWidth = rcDoc.textMeasure(textId, 0);
         float textHeight = rcDoc.textMeasure(textId, 1);
         float left = rcDoc.floatExpression(cx, textWidth, 2, DIV, SUB);
@@ -245,7 +245,7 @@ public class BasicProceduralDemos {
         rcDoc.drawOval(0, 0, RemoteContext.FLOAT_WINDOW_WIDTH, RemoteContext.FLOAT_WINDOW_HEIGHT);
         rcDoc.restore();
         rcDoc.getPainter().setColor(Color.BLACK).setTextSize(32).commit();
-        int id = rcDoc.createTextFromFloat(RemoteContext.FLOAT_API_LEVEL, 2, 2, 0);
+        int id = rcDoc.createTextFromFloat(RemoteContext.FLOAT_API_LEVEL, (short) 2, (short) 2, 0);
         rcDoc.drawTextAnchored("Version", cx, cy, 0, -2, 0);
         rcDoc.drawTextAnchored(id, cx, cy, 0, 2, 0);
         return rcDoc;

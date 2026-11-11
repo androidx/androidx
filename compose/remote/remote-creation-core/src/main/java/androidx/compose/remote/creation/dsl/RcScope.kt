@@ -292,10 +292,10 @@ public interface RcScope {
     public fun remoteColorExpression(alpha: Int, hue: Float, sat: Float, value: Float): RcColor
 
     /** Creates a text resource from a float value with formatting. */
-    public fun createTextFromFloat(value: Float, whole: Int, decimal: Int, flags: Int): RcText
+    public fun createTextFromFloat(value: Float, whole: Short, decimal: Short, flags: Int): RcText
 
     /** Creates a text resource from a remote float with formatting. */
-    public fun createTextFromFloat(value: RcFloat, whole: Int, decimal: Int, flags: Int): RcText
+    public fun createTextFromFloat(value: RcFloat, whole: Short, decimal: Short, flags: Int): RcText
 
     /** Registers a float array and returns its reference. */
     public fun remoteFloatArray(array: FloatArray): RcFloat
@@ -1139,16 +1139,16 @@ public interface RcScope {
     /** createTextFromFloat with a typed RcTextFromFloatSpec format. */
     public fun createTextFromFloat(
         value: Float,
-        whole: Int,
-        decimal: Int,
+        whole: Short,
+        decimal: Short,
         spec: RcTextFromFloatSpec,
     ): RcText = createTextFromFloat(value, whole, decimal, spec.bits)
 
     /** createTextFromFloat with a typed RcTextFromFloatSpec format using a remote float. */
     public fun createTextFromFloat(
         value: RcFloat,
-        whole: Int,
-        decimal: Int,
+        whole: Short,
+        decimal: Short,
         spec: RcTextFromFloatSpec,
     ): RcText = createTextFromFloat(value, whole, decimal, spec.bits)
 

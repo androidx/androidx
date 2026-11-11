@@ -1151,7 +1151,7 @@ public open class RemoteComposeContext {
         return mRemoteWriter.textLookup(arrayId, indexId)
     }
 
-    public fun createTextFromFloat(value: Float, before: Int, after: Int, flags: Int): Int {
+    public fun createTextFromFloat(value: Float, before: Short, after: Short, flags: Int): Int {
         return mRemoteWriter.createTextFromFloat(value, before, after, flags)
     }
 

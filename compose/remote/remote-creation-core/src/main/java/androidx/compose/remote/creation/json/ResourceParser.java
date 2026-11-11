@@ -328,8 +328,8 @@ class ResourceParser {
                         }
                         if (vo.has("type") && vo.getString("type").equals("textFromFloat")) {
                             float val = mParser.parseFloat(vo.get("value"));
-                            int after = vo.optInt("after", 3);
-                            int before = vo.optInt("before", 0);
+                            short after = RemoteComposeJsonParser.parseDigits(vo, "after", 3);
+                            short before = RemoteComposeJsonParser.parseDigits(vo, "before", 0);
                             int flags = vo.optInt("flags", 0);
                             int textId = mWriter.createTextFromFloat(val, before, after, flags);
                             mParser.mVariables.put(name, (float) textId);

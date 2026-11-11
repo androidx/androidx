@@ -3495,18 +3495,18 @@ public class RemoteComposeWriter {
      * Convert a float to a string for drawing
      *
      * @param value  The value to convert (typically a Nan ID)
-     * @param before digits before the decimal point
-     * @param after  digits after the decimal point
+     * @param before digits before the decimal point (the wire format stores this as a short)
+     * @param after  digits after the decimal point (the wire format stores this as a short)
      * @param flags  configure the behaviour using PAD_PRE_* and PAD_AFTER* flags
      * @return id of string
      */
-    public int createTextFromFloat(float value, int before, int after, int flags) {
+    public int createTextFromFloat(float value, short before, short after, int flags) {
         String placeHolder =
                 Utils.floatToString(value) + "(" + before + "," + after + "," + flags + ")";
         int id = mState.dataGetId(placeHolder);
         if (id == -1) {
             id = mState.cacheData(placeHolder);
-            return mBuffer.createTextFromFloat(id, value, (short) before, (short) after, flags);
+            return mBuffer.createTextFromFloat(id, value, before, after, flags);
         }
         return id;
     }
