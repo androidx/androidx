@@ -77,7 +77,9 @@ public class PerfettoCaptureWrapper {
         capture?.apply {
             Log.d(LOG_TAG, "Recording perfetto trace")
             if (tracingLibraryConfig != null) {
-                val inProcessTracingMode = tracingLibraryConfig.inProcessTracingMode
+                val inProcessTracingMode =
+                    tracingLibraryConfig.inProcessTracingConfig?.inProcessTracingMode
+                        ?: InProcessTracingMode.Disable
                 // In-process tracing
                 if (inProcessTracingMode != InProcessTracingMode.Disable) {
                     val response = startInProcessTracing(tracingLibraryConfig)
@@ -147,7 +149,10 @@ public class PerfettoCaptureWrapper {
         return inMemoryTrace("start in-process tracing") {
             val isAlive = Shell.isPackageAlive(packageName = config.targetPackage)
             val connectedProfiler = ConnectedProfilerTracing(targetPackage = config.targetPackage)
-            val result = connectedProfiler.enable()
+            val result =
+                connectedProfiler.enable(
+                    categories = config.inProcessTracingConfig?.enabledCategories
+                )
             // If the process was not already alive when we attempted to start in-process tracing
             // Make sure we kill the target process to maintain the target process state.
             if (!isAlive) {

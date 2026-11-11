@@ -19,7 +19,6 @@ package androidx.compose.integration.macrobenchmark
 import android.content.Intent
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.ExperimentalBenchmarkConfigApi
-import androidx.benchmark.InProcessTracingMode
 import androidx.benchmark.Outputs
 import androidx.benchmark.ShellFile
 import androidx.benchmark.macro.ExperimentalMetricApi
@@ -90,7 +89,10 @@ class CompositionTracingBenchmark {
         val config =
             PerfettoCapture.TracingLibraryConfig(
                 targetPackage = packageName,
-                inProcessTracingMode = InProcessTracingMode.Require,
+                inProcessTracingConfig =
+                    PerfettoCapture.InProcessTracingConfig(
+                        enabledCategories = arrayOf("androidx.compose")
+                    ),
             )
         val start = wrapper.startInProcessTracing(config = config)
         assertTrue("Unable to start in-process tracing for $packageName", start.isSuccess())

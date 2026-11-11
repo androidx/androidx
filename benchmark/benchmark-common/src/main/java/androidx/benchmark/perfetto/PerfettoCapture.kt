@@ -245,12 +245,43 @@ public class PerfettoCapture(
         )
     }
 
+    /** Additional optional configuration when enabling `in-process-tracing`. */
+    public class InProcessTracingConfig(
+        /** The in-process tracing mode for the target process. */
+        public val inProcessTracingMode: InProcessTracingMode = InProcessTracingMode.UseIfAvailable,
+        /** The array of tracing categories to enable. When `empty` all categories are enabled. */
+        public val enabledCategories: Array<String> = emptyArray(),
+    ) {
+
+        override fun toString(): String {
+            return "InProcessTracingConfig(enabledCategories=${enabledCategories.contentToString()})"
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as InProcessTracingConfig
+
+            if (inProcessTracingMode != other.inProcessTracingMode) return false
+            if (!enabledCategories.contentEquals(other.enabledCategories)) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = inProcessTracingMode.hashCode()
+            result = 31 * result + enabledCategories.contentHashCode()
+            return result
+        }
+    }
+
     public class TracingLibraryConfig(
         public val targetPackage: String,
         public val processState: InitialProcessState = InitialProcessState.Unknown,
         public val enablePerfettoSdk: Boolean = false,
-        public val inProcessTracingMode: InProcessTracingMode = InProcessTracingMode.Disable,
         public val provideBinariesIfMissing: Boolean = true,
+        public val inProcessTracingConfig: InProcessTracingConfig? = null,
     ) {
         /** State of process before tracing begins. */
         public enum class InitialProcessState {

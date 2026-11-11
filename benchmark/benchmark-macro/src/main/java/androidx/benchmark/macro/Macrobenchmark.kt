@@ -30,7 +30,6 @@ import androidx.benchmark.DeviceInfo
 import androidx.benchmark.DeviceMirroring
 import androidx.benchmark.ExperimentalBenchmarkConfigApi
 import androidx.benchmark.ExperimentalConfig
-import androidx.benchmark.InProcessTracingMode
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.Profiler
 import androidx.benchmark.ResultWriter
@@ -41,6 +40,7 @@ import androidx.benchmark.createInsightSummaries
 import androidx.benchmark.inMemoryTrace
 import androidx.benchmark.json.BenchmarkData
 import androidx.benchmark.macro.MacrobenchmarkScope.KillMode
+import androidx.benchmark.perfetto.PerfettoCapture
 import androidx.benchmark.perfetto.PerfettoCapture.TracingLibraryConfig
 import androidx.benchmark.perfetto.PerfettoCapture.TracingLibraryConfig.InitialProcessState
 import androidx.benchmark.runServer
@@ -450,7 +450,7 @@ public fun macrobenchmarkWithStartupMode(
     val tracingLibraryConfig =
         TracingLibraryConfig(
             targetPackage = packageName,
-            inProcessTracingMode = InProcessTracingMode.UseIfAvailable,
+            inProcessTracingConfig = PerfettoCapture.InProcessTracingConfig(),
             processState =
                 when (startupMode) {
                     null -> InitialProcessState.Unknown

@@ -21,15 +21,34 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED
 import android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+import androidx.annotation.VisibleForTesting
+import androidx.collection.mutableScatterSetOf
 
 /** Manages enabling and disabling of in-process tracing for profiling and benchmarking tools. */
 internal object ConnectedProfilerTracing {
+
     /** This is the global flag that controls if in-process tracing is enabled. */
     // We are updating isTracingEnabled from multiple threads. So this needs to be marked volatile.
     @Volatile private var isTracingEnabled: Boolean = false
 
+    /** Set to `true` iff explicit categories have been enabled. */
+    @Volatile private var hasExplicitCategories: Boolean = false
+
+    /** The global set of enabled categories. */
+    @Volatile private var enabledCategories = mutableScatterSetOf<String>()
+
+    private val lock = Any()
+
     internal fun initialize(context: Context) {
-        isTracingEnabled = isReceiverEnabled(context)
+        synchronized(lock) {
+            isTracingEnabled = isReceiverEnabled(context)
+            val config = context.traceConfiguration()
+            if (isTracingEnabled && config.exists() && config.canRead()) {
+                val categories = context.traceConfiguration().loadConfig()
+                enabledCategories = categories
+            }
+            hasExplicitCategories = enabledCategories.isNotEmpty()
+        }
     }
 
     @Suppress("NOTHING_TO_INLINE")
@@ -37,21 +56,50 @@ internal object ConnectedProfilerTracing {
         return isTracingEnabled
     }
 
-    // No locks necessary for enable / disable. These methods are always called from the main
-    // thread.
+    /**
+     * Returns `true` if the specified [category] is enabled. This method is lock-free and extremely
+     * low overhead. When all categories are enabled, it does not read the [enabledCategories]
+     * volatile.
+     */
+    @Suppress("NOTHING_TO_INLINE")
+    internal inline fun isCategoryEnabled(category: String): Boolean {
+        return if (!hasExplicitCategories) {
+            isTracingEnabled
+        } else {
+            isTracingEnabled && enabledCategories.contains(category)
+        }
+    }
 
-    internal fun enableTracing(context: Context) {
-        isTracingEnabled = true
-        setTracingState(context = context, state = COMPONENT_ENABLED_STATE_ENABLED)
+    internal fun enableTracing(context: Context, categories: Array<String>? = null) {
+        synchronized(lock) {
+            if (categories.isNullOrEmpty()) {
+                hasExplicitCategories = false
+                context.traceConfiguration().delete()
+            } else {
+                hasExplicitCategories = true
+                val enabledCategories = mutableScatterSetOf<String>()
+                categories.forEach { enabledCategories += it }
+                this.enabledCategories = enabledCategories
+                context.traceConfiguration().saveConfig(categories)
+            }
+            isTracingEnabled = true
+            setTracingState(context = context, state = COMPONENT_ENABLED_STATE_ENABLED)
+        }
     }
 
     internal fun disableTracing(context: Context) {
-        isTracingEnabled = false
-        setTracingState(context = context, state = COMPONENT_ENABLED_STATE_DISABLED)
+        synchronized(lock) {
+            isTracingEnabled = false
+            hasExplicitCategories = false
+            enabledCategories = mutableScatterSetOf()
+            context.traceConfiguration().delete()
+            setTracingState(context = context, state = COMPONENT_ENABLED_STATE_DISABLED)
+        }
     }
 
     // Internal utilities
-    private fun setTracingState(context: Context, state: Int) {
+    @VisibleForTesting
+    internal fun setTracingState(context: Context, state: Int) {
         val applicationContext = context.applicationContext
         val component = enableTracingComponent(applicationContext)
         applicationContext.packageManager.setComponentEnabledSetting(

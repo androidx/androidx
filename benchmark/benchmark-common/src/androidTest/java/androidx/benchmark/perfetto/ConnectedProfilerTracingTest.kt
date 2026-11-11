@@ -46,6 +46,13 @@ class ConnectedProfilerTracingTest {
     }
 
     @Test
+    fun testEnableWithCategories() {
+        val response = connectedTracing.enable(categories = arrayOf("androidx.compose", "main"))
+        assertTrue(response.isSuccess())
+        assertFalse(response.isFailure())
+    }
+
+    @Test
     fun testDisable() {
         val response = connectedTracing.disable()
         assertTrue(response.isSuccess())

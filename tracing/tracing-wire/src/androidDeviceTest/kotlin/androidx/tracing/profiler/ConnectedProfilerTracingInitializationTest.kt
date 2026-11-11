@@ -16,6 +16,7 @@
 
 package androidx.tracing.profiler
 
+import android.content.pm.PackageManager
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.Tracer
@@ -37,6 +38,7 @@ class ConnectedProfilerTracingInitializationTest {
     fun reset() {
         // Resets the tracer
         Tracer.resetGlobalTracer()
+        ConnectedProfilerTracing.disableTracing(context)
     }
 
     @Test
@@ -72,5 +74,33 @@ class ConnectedProfilerTracingInitializationTest {
         // Disable
         ConnectedProfilerTracing.disableTracing(context)
         assertFalse(ConnectedProfilerTracing.readAfterInitialize())
+    }
+
+    @Test
+    fun testEnableDriverWithCategories() {
+        // Default state is disabled.
+        ConnectedProfilerTracing.initialize(context)
+        assertFalse(ConnectedProfilerTracing.readAfterInitialize())
+        // Enable
+        ConnectedProfilerTracing.enableTracing(context, categories = arrayOf("androidx.compose"))
+        assertTrue(ConnectedProfilerTracing.readAfterInitialize())
+        assertFalse(ConnectedProfilerTracing.isCategoryEnabled("main"))
+        assertTrue(ConnectedProfilerTracing.isCategoryEnabled("androidx.compose"))
+    }
+
+    @Test
+    fun restoreTracingState() {
+        val categories = arrayOf("androidx.compose", "androidx.compose.runtime")
+        val config = context.traceConfiguration()
+        config.delete()
+        config.saveConfig(categories)
+        ConnectedProfilerTracing.setTracingState(
+            context,
+            PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+        )
+        ConnectedProfilerTracing.initialize(context)
+        assertTrue(ConnectedProfilerTracing.readAfterInitialize())
+        assertTrue(ConnectedProfilerTracing.isCategoryEnabled("androidx.compose"))
+        assertTrue(ConnectedProfilerTracing.isCategoryEnabled("androidx.compose.runtime"))
     }
 }

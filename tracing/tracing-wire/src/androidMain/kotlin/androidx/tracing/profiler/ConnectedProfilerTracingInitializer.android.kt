@@ -54,7 +54,9 @@ public class ConnectedProfilerTracingInitializer : Initializer<AbstractTraceDriv
                     TraceDriver(
                         context = context,
                         sink = sink,
-                        isCategoryEnabled = { ConnectedProfilerTracing.readAfterInitialize() },
+                        isCategoryEnabled = { category ->
+                            ConnectedProfilerTracing.isCategoryEnabled(category)
+                        },
                     )
                 driver
             }

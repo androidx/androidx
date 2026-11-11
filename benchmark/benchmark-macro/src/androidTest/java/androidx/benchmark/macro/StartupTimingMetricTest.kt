@@ -22,8 +22,8 @@ import android.os.Build.VERSION.SDK_INT
 import androidx.annotation.RequiresApi
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.DeviceInfo.isEmulator
-import androidx.benchmark.InProcessTracingMode
 import androidx.benchmark.Outputs
+import androidx.benchmark.perfetto.PerfettoCapture
 import androidx.benchmark.perfetto.PerfettoCapture.TracingLibraryConfig
 import androidx.benchmark.perfetto.PerfettoCapture.TracingLibraryConfig.InitialProcessState
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
@@ -333,7 +333,7 @@ internal fun measureStartup(
                     TracingLibraryConfig(
                         targetPackage = packageName,
                         processState = InitialProcessState.Unknown,
-                        inProcessTracingMode = InProcessTracingMode.UseIfAvailable,
+                        inProcessTracingConfig = PerfettoCapture.InProcessTracingConfig(),
                     ),
                 block = measureBlock,
             )!!

@@ -41,9 +41,11 @@ public data class Response(
 @RestrictTo(Scope.LIBRARY_GROUP)
 public class ConnectedProfilerTracing(private val targetPackage: String) {
     /** Enables in-process tracing on the target package. */
-    public fun enable(): Response {
+    @JvmOverloads
+    public fun enable(categories: Array<String>? = null): Response {
         Log.d(BenchmarkState.TAG, "Enabling in-process tracing")
-        val response = sendBroadcast(ACTION_START)
+        val extras = extraCategories(categories)
+        val response = sendBroadcast(ACTION_START, extras)
         return if (response.isFailure()) {
             // The only reason why this can fail is that we failed to deliver the broadcast.
             // The app probably does not have the BroadcastReceiver. So, make that
@@ -72,9 +74,10 @@ public class ConnectedProfilerTracing(private val targetPackage: String) {
         return sendBroadcast(ACTION_FLUSH_TRACES_GET_PATH)
     }
 
-    internal fun sendBroadcast(action: String): Response {
+    internal fun sendBroadcast(action: String, extras: String = ""): Response {
         return runCatching {
-            val command = "-a $action $targetPackage/$RECEIVER_NAME"
+            val extra = if (extras.isNotEmpty()) " $extras" else ""
+            val command = "-a $action$extra $targetPackage/$RECEIVER_NAME"
             val output = Shell.amBroadcast(command)
             return parseResponse(output)
         }
@@ -85,6 +88,13 @@ public class ConnectedProfilerTracing(private val targetPackage: String) {
         val code = response.first ?: RESPONSE_CODE_FAILED
         val data = response.second
         return Response(code = code, data = data)
+    }
+
+    private fun extraCategories(categories: Array<String>?): String {
+        return when {
+            categories.isNullOrEmpty() -> ""
+            else -> "--esa $EXTRA_ENABLED_CATEGORIES ${categories.joinToString(",")}"
+        }
     }
 
     public companion object {
@@ -100,6 +110,9 @@ public class ConnectedProfilerTracing(private val targetPackage: String) {
 
         // Stops a tracing session.
         internal const val ACTION_STOP = "androidx.tracing.profiler.action.STOP"
+
+        // Extra for enabled categories.
+        internal const val EXTRA_ENABLED_CATEGORIES = "EXTRA_ENABLED_CATEGORIES"
 
         // Response codes
         internal const val RESPONSE_CODE_FAILED = 0
