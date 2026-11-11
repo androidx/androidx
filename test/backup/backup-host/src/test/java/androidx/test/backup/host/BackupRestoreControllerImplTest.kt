@@ -652,14 +652,7 @@ class BackupRestoreControllerImplTest {
 
         controller.performRestore(localArchive())
 
-        assertEquals(
-            listOf(
-                "bmgr list transports",
-                "bmgr transport '$LOCAL_TRANSPORT'",
-                "bmgr restore 1 $PACKAGE",
-            ),
-            device.commands,
-        )
+        assertEquals(listOf("dumpsys backup", "bmgr restore 1 $PACKAGE"), device.commands)
     }
 
     @Test
@@ -1073,7 +1066,7 @@ class BackupRestoreControllerImplTest {
     @Test
     fun performBackupThrowsAndStopsTheAppWhenTheBackupTimesOut() {
         onHealthyDevice()
-        device.hangOn { it == "bmgr backupnow $PACKAGE" }
+        device.hangOn { it == "bmgr backupnow @pm@ $PACKAGE" }
 
         val e =
             assertFailsWith<IOException> {
@@ -1122,7 +1115,7 @@ class BackupRestoreControllerImplTest {
         val stageCommands =
             listOf(
                     BackupRestoreController.ACTION_POPULATE_STORAGE,
-                    "bmgr backupnow $PACKAGE",
+                    "bmgr backupnow @pm@ $PACKAGE",
                     "pm clear",
                     "bmgr restore",
                     BackupRestoreController.ACTION_ASSERT_STORAGE,
@@ -1177,7 +1170,7 @@ class BackupRestoreControllerImplTest {
             }
         val backup = device.commands.indexOfFirst { it.startsWith("bmgr") }
         assertEquals(
-            listOf("dumpsys package $PACKAGE"),
+            listOf("dumpsys package $PACKAGE", "dumpsys backup"),
             device.commands.subList(seed + 1, backup),
         )
     }
@@ -1216,11 +1209,15 @@ class BackupRestoreControllerImplTest {
     fun flowClassifiesAFailureToSelectTheLocalTransportForTheRestoreAsABmgrFailure() {
         var transportSelections = 0
         onHealthyDevice { command ->
-            // The backup selects the local transport first; the restore's selection fails.
-            if (command == "bmgr transport '$LOCAL_TRANSPORT'" && ++transportSelections == 2) {
-                shellOutput("Unknown transport '$LOCAL_TRANSPORT' specified; no changes made.\n")
-            } else {
-                null
+            when {
+                command == "dumpsys backup" ->
+                    shellOutput(backupDump(enabled = true, GMS_TRANSPORT))
+                // The backup selects the local transport first; the restore's selection fails.
+                command == "bmgr transport '$LOCAL_TRANSPORT'" && ++transportSelections == 2 ->
+                    shellOutput(
+                        "Unknown transport '$LOCAL_TRANSPORT' specified; no changes made.\n"
+                    )
+                else -> null
             }
         }
 
@@ -1252,9 +1249,10 @@ class BackupRestoreControllerImplTest {
     @Test
     fun flowClassifiesAPackageThatIsNotBackedUpAsABackupFailure() {
         onHealthyDevice { command ->
-            if (command == "bmgr backupnow $PACKAGE") {
+            if (command == "bmgr backupnow @pm@ $PACKAGE") {
                 shellOutput(
-                    "Running incremental backup for 1 requested packages.\n" +
+                    "Running incremental backup for 2 requested packages.\n" +
+                        "Package @pm@ with result: Success\n" +
                         "Package $PACKAGE with result: Backup is not allowed\n" +
                         "Backup finished with result: Success\n"
                 )
@@ -1273,10 +1271,13 @@ class BackupRestoreControllerImplTest {
     @Test
     fun flowClassifiesAnUnknownLocalTransportAsABmgrFailure() {
         onHealthyDevice { command ->
-            if (command == "bmgr transport '$LOCAL_TRANSPORT'") {
-                shellOutput("Unknown transport '$LOCAL_TRANSPORT' specified; no changes made.\n")
-            } else {
-                null
+            when (command) {
+                "dumpsys backup" -> shellOutput(backupDump(enabled = true, GMS_TRANSPORT))
+                "bmgr transport '$LOCAL_TRANSPORT'" ->
+                    shellOutput(
+                        "Unknown transport '$LOCAL_TRANSPORT' specified; no changes made.\n"
+                    )
+                else -> null
             }
         }
 
@@ -1437,7 +1438,7 @@ class BackupRestoreControllerImplTest {
 
         val populate = device.commands.indexOfFirst { it.contains(CUSTOM_POPULATE) }
         val verify = device.commands.indexOfFirst { it.contains(CUSTOM_VERIFY) }
-        assertTrue(populate < device.commands.indexOf("bmgr backupnow $PACKAGE"))
+        assertTrue(populate < device.commands.indexOf("bmgr backupnow @pm@ $PACKAGE"))
         assertTrue(verify > device.commands.indexOfFirst { it.startsWith("bmgr restore") })
         assertTrue(device.commands[populate].contains("-e rp_id 'example.com'"))
         assertTrue(device.commands[verify].contains("-e rp_id 'example.com'"))
@@ -1703,7 +1704,8 @@ class BackupRestoreControllerImplTest {
                     command.startsWith("pm clear") -> shellOutput("Success\n")
                     command == "dumpsys package $PACKAGE" ->
                         shellOutput(packageDump(PACKAGE, stopped = false))
-                    command == "bmgr list transports" -> shellOutput("  * $LOCAL_TRANSPORT\n")
+                    command == "dumpsys backup" ->
+                        shellOutput(backupDump(enabled = true, LOCAL_TRANSPORT))
                     else -> null
                 }
         }

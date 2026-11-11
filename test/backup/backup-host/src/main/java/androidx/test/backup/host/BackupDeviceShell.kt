@@ -286,6 +286,43 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, val serialN
     }
 
     /**
+     * Returns the state of the backup manager for user 0, or null if the backup manager does not
+     * report it in the form that is expected of it.
+     */
+    suspend fun backupManagerState(): BackupManagerState? {
+        // The backup manager dumps user 0 first, with the lines below. For every other user, the
+        // first line and the line above the transports start with `User <id>:`. The transports end
+        // at the next line that is not indented, and the selected one is marked:
+        //
+        //   Backup Manager is enabled / setup complete / not pending init
+        //   ...
+        //   Available transports:
+        //       com.google.android.gms/.backup.BackupTransportService
+        //          destination: Need to set the backup account
+        //     * com.android.localtransport/.LocalTransport
+        //          destination: Backing up to debug-only private cache
+        //   Transport clients created: 2
+        val lines = exec("dumpsys backup").stdout.lines()
+        val enabled =
+            BACKUP_ENABLED_LINE.matchEntire(lines.first())?.groupValues?.get(1) ?: return null
+        val selectedTransport =
+            lines
+                .dropWhile { it != "Available transports:" }
+                .drop(1)
+                .takeWhile { it.startsWith(" ") }
+                .firstNotNullOfOrNull { SELECTED_TRANSPORT_LINE.matchEntire(it) }
+                ?.groupValues
+                ?.get(1) ?: return null
+        return BackupManagerState(enabled == "enabled", selectedTransport)
+    }
+
+    /**
+     * Whether backup is enabled for user 0, and the name of the backup transport that is selected
+     * for it.
+     */
+    data class BackupManagerState(val isEnabled: Boolean, val selectedTransport: String)
+
+    /**
      * Clears the data of [packageName].
      *
      * @throws IOException if the package manager does not report success
@@ -453,6 +490,16 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, val serialN
          */
         private val USER_0_STATE_LINE =
             Regex("""    User 0: (?:\S+ )*stopped=(true|false)(?: \S+)*""")
+
+        /** The first line of `dumpsys backup`, which tells whether backup is enabled for user 0. */
+        private val BACKUP_ENABLED_LINE =
+            Regex(
+                "Backup Manager is (enabled|disabled) / (?:not )?setup complete / " +
+                    "(?:not )?pending init"
+            )
+
+        /** The line of the selected transport among the transports of `dumpsys backup`. */
+        private val SELECTED_TRANSPORT_LINE = Regex("""  \* (\S+)""")
 
         /**
          * Returns whether a package manager command succeeded: it exited with 0 and printed a

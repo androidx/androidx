@@ -559,6 +559,98 @@ class BackupDeviceShellTest {
     }
 
     @Test
+    fun backupManagerStateTellsWhetherBackupIsEnabledAndTheSelectedTransport() = runBlocking {
+        device.onShell { shellOutput(backupDump(enabled = true, GMS_TRANSPORT)) }
+        assertEquals(
+            BackupDeviceShell.BackupManagerState(isEnabled = true, GMS_TRANSPORT),
+            shell.backupManagerState(),
+        )
+
+        device.onShell { shellOutput(backupDump(enabled = false, LOCAL_TRANSPORT)) }
+        assertEquals(
+            BackupDeviceShell.BackupManagerState(isEnabled = false, LOCAL_TRANSPORT),
+            shell.backupManagerState(),
+        )
+        assertEquals(listOf("dumpsys backup", "dumpsys backup"), device.commands)
+    }
+
+    @Test
+    fun backupManagerStateReadsTheDumpOfEverySupportedAndroidVersion() = runBlocking {
+        val android14 = backupDump(enabled = true, GMS_TRANSPORT)
+        val dumps =
+            listOf(
+                // Android 12 and 13 don't tell whether the framework schedules backups.
+                android14.replace("Framework scheduling is enabled\n", ""),
+                android14,
+                // Android 14 QPR3 and higher end the state of a user with its monitor events.
+                android14 + "NO BACKUP MANAGER MONITOR EVENTS\n",
+            )
+        for (dump in dumps) {
+            device.onShell { shellOutput(dump) }
+
+            assertEquals(
+                BackupDeviceShell.BackupManagerState(isEnabled = true, GMS_TRANSPORT),
+                shell.backupManagerState(),
+                dump,
+            )
+        }
+    }
+
+    /** The state of user 0 comes first, and the lines of other users start with `User <id>:`. */
+    @Test
+    fun backupManagerStateIsTheOneOfUser0() = runBlocking {
+        val user10 = forUser10(backupDump(enabled = false, LOCAL_TRANSPORT))
+
+        device.onShell { shellOutput(backupDump(enabled = true, GMS_TRANSPORT) + user10) }
+        assertEquals(
+            BackupDeviceShell.BackupManagerState(isEnabled = true, GMS_TRANSPORT),
+            shell.backupManagerState(),
+        )
+
+        device.onShell {
+            shellOutput(backupDump(enabled = true, selectedTransport = null) + user10)
+        }
+        assertNull(shell.backupManagerState())
+    }
+
+    @Test
+    fun backupManagerStateIsNullForADumpThatDoesNotReadAsExpected() = runBlocking {
+        val dump = backupDump(enabled = true, GMS_TRANSPORT)
+        val noneSelected = backupDump(enabled = true, selectedTransport = null)
+        val unexpected =
+            listOf(
+                "",
+                "Can't find service: backup\n",
+                // Backup is not active.
+                "Inactive\n",
+                // No state of user 0.
+                forUser10(dump),
+                // Not a state that is known.
+                dump.replace("Backup Manager is enabled", "Backup Manager is paused"),
+                // Another line before the state.
+                "\n" + dump,
+                // No transports.
+                dump.replace("Available transports:", "Transports:"),
+                // Only the transports of another user.
+                dump.replace("Available transports:", "Transports:") + forUser10(dump),
+                noneSelected,
+                // A transport that is marked, but not among the available transports.
+                noneSelected.replace(
+                    "    $GMS_TRANSPORT\nAvailable",
+                    "  * $GMS_TRANSPORT\nAvailable",
+                ),
+                noneSelected.replace("Pending init: 0\n", "Pending init: 1\n  * $GMS_TRANSPORT\n"),
+                // A selected transport whose name is not one word.
+                dump.replace("  * $GMS_TRANSPORT", "  * Google Play services"),
+            )
+        for (output in unexpected) {
+            device.onShell { shellOutput(output) }
+
+            assertNull(shell.backupManagerState(), output)
+        }
+    }
+
+    @Test
     fun clearPackageDataSucceedsWhenPmClearReportsSuccess() = runBlocking {
         device.onShell { shellOutput("Success\n") }
 
@@ -987,6 +1079,19 @@ class BackupDeviceShellTest {
             stringExtras = emptyMap(),
         )
     }
+
+    /**
+     * Returns [dump], which `dumpsys backup` prints for user 0, as it prints the state of user 10.
+     */
+    private fun forUser10(dump: String): String =
+        dump.replace(
+            Regex(
+                "(?m)^(?=Backup Manager is |Transport whitelist:|Available transports:|" +
+                    "Pending |Ancestral|Current: |Participants:|Ever backed up: |" +
+                    "Full backup queue:)"
+            ),
+            "User 10:",
+        )
 
     /**
      * Returns a shell handler for a device with `pm unstop`, whose `dumpsys package` prints

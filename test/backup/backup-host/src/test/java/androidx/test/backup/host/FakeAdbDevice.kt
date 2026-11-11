@@ -67,6 +67,9 @@ internal const val FAKE_SERIAL = "fake-serial"
 /** Name of the device's local backup transport, as `bmgr list transports` prints it. */
 internal const val LOCAL_TRANSPORT = "com.android.localtransport/.LocalTransport"
 
+/** Name of the backup transport of Google Play services, as `bmgr list transports` prints it. */
+internal const val GMS_TRANSPORT = "com.google.android.gms/.backup.BackupTransportService"
+
 /** Returns a [ShellCommandOutput] for a stubbed shell command. */
 internal fun shellOutput(stdout: String = "", stderr: String = "", exitCode: Int = 0) =
     ShellCommandOutput(stdout, stderr, exitCode)
@@ -128,8 +131,9 @@ internal fun bmgrSuccessOutput(command: String): ShellCommandOutput? {
             "enable" -> "Backup Manager now enabled\n"
             "transport" -> "Selected transport ${arg(1)} (formerly ${arg(1)})\n"
             "backupnow" ->
-                "Running incremental backup for 1 requested packages.\n" +
+                "Running incremental backup for ${args.size - 1} requested packages.\n" +
                     "Package ${arg(1)} with result: Success\n" +
+                    args.drop(2).joinToString("") { "Package $it with result: Success\n" } +
                     "Backup finished with result: Success\n"
             "restore" ->
                 "Scheduling restore: Local disk image\n" +
@@ -140,6 +144,47 @@ internal fun bmgrSuccessOutput(command: String): ShellCommandOutput? {
             else -> return null
         }
     return shellOutput(stdout)
+}
+
+/**
+ * Returns what `dumpsys backup` prints on a device with the local transport and the one of Google
+ * Play services, in the form of an API 34 device. For user 0, backup is enabled or not as [enabled]
+ * says, and [selectedTransport] is the selected transport, or none is if it is null.
+ */
+internal fun backupDump(enabled: Boolean, selectedTransport: String?): String {
+    fun transport(name: String, destination: String) =
+        (if (name == selectedTransport) "  * " else "    ") +
+            "$name\n" +
+            "       destination: $destination\n" +
+            "       intent: null\n" +
+            "       @pm@ - 153 state bytes\n"
+    return "Backup Manager is ${if (enabled) "enabled" else "disabled"} / setup complete / " +
+        "not pending init\n" +
+        "Auto-restore is enabled\n" +
+        "No backups running\n" +
+        "Framework scheduling is enabled\n" +
+        "Last backup pass started: 1700000000000 (now = 1700000100000)\n" +
+        "  next scheduled: 1700014400000\n" +
+        "Transport whitelist:\n" +
+        "    $LOCAL_TRANSPORT\n" +
+        "    $GMS_TRANSPORT\n" +
+        "Available transports:\n" +
+        transport(LOCAL_TRANSPORT, "Backing up to debug-only private cache") +
+        transport(GMS_TRANSPORT, "Need to set the backup account") +
+        "Transport clients created: 4\n" +
+        "Current transport clients: 0\n" +
+        "Pending init: 0\n" +
+        "Ancestral: 0\n" +
+        "Current:   1\n" +
+        "Participants:\n" +
+        "  uid: 10190\n" +
+        "    com.example.app\n" +
+        "Ancestral packages: none\n" +
+        "Ever backed up: 1\n" +
+        "    com.example.app\n" +
+        "Pending key/value backup: 0\n" +
+        "Full backup queue:1\n" +
+        "    0 : com.example.app\n"
 }
 
 /**
