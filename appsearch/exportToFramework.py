@@ -167,6 +167,7 @@ class ExportToFramework:
                     'androidx.appsearch.localstorage.',
                     'com.android.server.appsearch.external.localstorage.')
             .replace('androidx.appsearch.flags.FlaggedApi', 'android.annotation.FlaggedApi')
+            .replace('androidx.appsearch.flags.RequiresFlag', 'android.annotation.RequiresFlag')
             .replace('androidx.appsearch.flags.Flags', 'com.android.appsearch.flags.Flags')
             .replace(
                     'androidx.appsearch.annotation.CurrentTimeMillis',

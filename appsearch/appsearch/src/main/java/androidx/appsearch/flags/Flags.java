@@ -328,6 +328,13 @@ public final class Flags {
     public static final String FLAG_ENABLE_UPGRADABLE_LOCK_AND_TWO_STAGE_OPTIMIZE =
             FLAG_PREFIX + "enable_upgradable_lock_and_two_stage_optimize";
 
+    /**
+     * Caches verified PackageIdentifier signing certificates in VisibilityCheckerImpl and SHA-256
+     * digests in PackageManagerUtil.
+     */
+    public static final String FLAG_ENABLE_PACKAGE_SIGNING_CERTIFICATE_CACHE =
+            FLAG_PREFIX + "enable_package_signing_certificate_cache";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
