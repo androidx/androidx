@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("ANNOTATION_ARGUMENT_MUST_BE_CONST")
-
 package androidx.kruth
 
 import com.google.common.collect.ImmutableTable
