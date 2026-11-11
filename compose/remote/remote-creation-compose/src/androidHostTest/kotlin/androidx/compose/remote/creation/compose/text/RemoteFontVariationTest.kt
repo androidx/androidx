@@ -123,6 +123,30 @@ class RemoteFontVariationTest {
     }
 
     @Test
+    fun opticalSizing_createsOpszSetting() {
+        val constantOpticalSize = RemoteFontVariation.opticalSizing(16f.rf)
+        assertThat(constantOpticalSize.axisName).isEqualTo("opsz")
+        assertThat(constantOpticalSize.value.constantValue).isEqualTo(16f)
+        assertThat(constantOpticalSize).isEqualTo(Setting("opsz", 16f.rf))
+
+        val namedOpticalSize = RemoteFloat.createNamedRemoteFloat("opticalSize", 20f)
+        val opticalSizingSetting = RemoteFontVariation.opticalSizing(namedOpticalSize)
+        assertThat(opticalSizingSetting.axisName).isEqualTo("opsz")
+        assertThat(opticalSizingSetting.value).isSameInstanceAs(namedOpticalSize)
+    }
+
+    @Test
+    fun grade_createsGradSetting() {
+        val constantGrade = RemoteFontVariation.grade(150.rf)
+        assertThat(constantGrade).isEqualTo(Setting("GRAD", 150f.rf))
+
+        val namedGrade = RemoteFloat.createNamedRemoteFloat("grade", -200f)
+        val gradeSetting = RemoteFontVariation.grade(namedGrade)
+        assertThat(gradeSetting.axisName).isEqualTo("GRAD")
+        assertThat(gradeSetting.value).isSameInstanceAs(namedGrade)
+    }
+
+    @Test
     fun settings_keepsOrder() {
         val weight = RemoteFontVariation.weight(700.rf)
         val width = RemoteFontVariation.width(80f.rf)
@@ -174,6 +198,7 @@ class RemoteFontVariationTest {
                     FontVariation.weight(300),
                     FontVariation.width(70f),
                     FontVariation.slant(-10f),
+                    FontVariation.grade(150),
                     FontVariation.Setting("ROND", 100f),
                 )
                 .toRemoteFontVariationSettings()
@@ -184,6 +209,7 @@ class RemoteFontVariationTest {
                     RemoteFontVariation.weight(300.rf),
                     RemoteFontVariation.width(70f.rf),
                     RemoteFontVariation.slant((-10f).rf),
+                    RemoteFontVariation.grade(150.rf),
                     Setting("ROND", 100f.rf),
                 )
             )
@@ -207,7 +233,7 @@ class RemoteFontVariationTest {
         val settings = FontVariation.Settings(FontVariation.opticalSizing(16.sp))
 
         assertThat(settings.toRemoteFontVariationSettings(Density(density = 2f, fontScale = 1.5f)))
-            .isEqualTo(Settings(Setting("opsz", 24f.rf)))
+            .isEqualTo(Settings(RemoteFontVariation.opticalSizing(24f.rf)))
     }
 
     @Test
@@ -225,7 +251,7 @@ class RemoteFontVariationTest {
         val setting = settings.settings.single()
         assertThat(setting.axisName).isEqualTo("opsz")
         assertThat(setting.value.hasConstantValue).isFalse()
-        assertThat(setting).isNotEqualTo(Setting("opsz", 16f.rf))
+        assertThat(setting).isNotEqualTo(RemoteFontVariation.opticalSizing(16f.rf))
         assertThat(settings).isEqualTo(sameSettings)
         assertThat(settings.hashCode()).isEqualTo(sameSettings.hashCode())
         assertThat(settings).isNotEqualTo(otherSettings)

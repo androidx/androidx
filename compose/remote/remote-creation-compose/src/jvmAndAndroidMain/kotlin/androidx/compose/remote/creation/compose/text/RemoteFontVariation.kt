@@ -145,4 +145,22 @@ public object RemoteFontVariation {
      * @return A [Setting] for the `slnt` OpenType variation axis.
      */
     public fun slant(slant: RemoteFloat): Setting = Setting("slnt", slant)
+
+    /**
+     * Creates a font optical size (`opsz`) variation [Setting].
+     *
+     * @param opticalSize The optical size value, typically in sp (such as `16f.rf`), or a dynamic
+     *   [RemoteFloat] expression.
+     * @return A [Setting] for the `opsz` OpenType variation axis.
+     */
+    public fun opticalSizing(opticalSize: RemoteFloat): Setting = Setting("opsz", opticalSize)
+
+    /**
+     * Creates a font grade (`GRAD`) variation [Setting].
+     *
+     * @param grade The font grade value, typically in `-1000f..1000f` (such as `0.rf`), or a
+     *   dynamic [RemoteFloat] expression.
+     * @return A [Setting] for the `GRAD` OpenType variation axis.
+     */
+    public fun grade(grade: RemoteFloat): Setting = Setting("GRAD", grade)
 }
