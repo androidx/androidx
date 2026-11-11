@@ -56,4 +56,5 @@
     <item name="consume_window_insets_tag" type="id" />
     <item name="auto_clear_focus_behavior_tag" type="id" />
     <item name="androidx_compose_ui_view_compose_view_context" type="id" />
+    <item name="compose_scroll_capture_in_progress" type="id" />
 </resources>

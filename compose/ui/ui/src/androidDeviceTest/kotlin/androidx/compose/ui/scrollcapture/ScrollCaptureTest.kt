@@ -18,6 +18,7 @@ package androidx.compose.ui.scrollcapture
 
 import android.content.Context
 import android.graphics.Rect
+import android.widget.FrameLayout
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -35,8 +36,10 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.AbstractComposeView
+import androidx.compose.ui.platform.ExperimentalComposeUiHostApi
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalScrollCaptureInProgress
+import androidx.compose.ui.platform.isComposeScrollCaptureInProgress
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -547,6 +550,42 @@ class ScrollCaptureTest {
         rule.awaitIdle()
         assertThat(isScrollCaptureInProgressValue).isFalse()
     }
+
+    @OptIn(ExperimentalComposeUiHostApi::class)
+    @Test
+    fun isComposeScrollCaptureInProgress_onNonComposeAncestor_setsLocalInNestedComposeView() =
+        captureTester.runTest {
+            var isScrollCaptureInProgressValue = false
+            lateinit var host: FrameLayout
+
+            class ChildComposeView(context: Context) : AbstractComposeView(context) {
+                @Composable
+                override fun Content() {
+                    isScrollCaptureInProgressValue = LocalScrollCaptureInProgress.current
+                }
+            }
+            captureTester.setContent {
+                AndroidView({ context ->
+                    FrameLayout(context).also {
+                        host = it
+                        it.addView(ChildComposeView(context))
+                    }
+                })
+            }
+
+            rule.awaitIdle()
+            assertThat(host.isComposeScrollCaptureInProgress).isFalse()
+            assertThat(isScrollCaptureInProgressValue).isFalse()
+
+            rule.runOnUiThread { host.isComposeScrollCaptureInProgress = true }
+            rule.awaitIdle()
+            assertThat(host.isComposeScrollCaptureInProgress).isTrue()
+            assertThat(isScrollCaptureInProgressValue).isTrue()
+
+            rule.runOnUiThread { host.isComposeScrollCaptureInProgress = false }
+            rule.awaitIdle()
+            assertThat(isScrollCaptureInProgressValue).isFalse()
+        }
 
     /** A component that publishes all the right semantics to be considered a scrollable. */
     @Composable
