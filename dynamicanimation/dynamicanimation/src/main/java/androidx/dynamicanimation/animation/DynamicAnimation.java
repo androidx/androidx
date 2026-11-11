@@ -677,6 +677,9 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
         }
         long deltaT = frameTime - mLastFrameTime;
         mLastFrameTime = frameTime;
+        if (deltaT < 0) {
+            deltaT = 0;
+        }
         float durationScale = getAnimationHandler().getDurationScale();
         deltaT = durationScale == 0.0f ? Integer.MAX_VALUE : (long) (deltaT / durationScale);
         boolean finished = updateValueAndVelocity(deltaT);

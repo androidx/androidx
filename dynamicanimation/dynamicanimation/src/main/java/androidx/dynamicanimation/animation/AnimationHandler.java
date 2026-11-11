@@ -67,7 +67,12 @@ public class AnimationHandler {
          * Notifies all the on-going animations of the new frame.
          */
         void dispatchAnimationFrame() {
-            mCurrentFrameTime = AnimationUtils.currentAnimationTimeMillis();
+            if (mScheduler instanceof FrameCallbackScheduler16
+                    && ((FrameCallbackScheduler16) mScheduler).hasFrameTime()) {
+                mCurrentFrameTime = ((FrameCallbackScheduler16) mScheduler).getFrameTimeMillis();
+            } else {
+                mCurrentFrameTime = AnimationUtils.currentAnimationTimeMillis();
+            }
             AnimationHandler.this.doAnimationFrame(mCurrentFrameTime);
             if (mAnimationCallbacks.size() > 0) {
                 mScheduler.postFrameCallback(mRunnable);
@@ -227,12 +232,35 @@ public class AnimationHandler {
      */
     static final class FrameCallbackScheduler16 implements FrameCallbackScheduler {
 
+        private static final long NANOS_PER_MS = 1_000_000L;
+
         private final Choreographer mChoreographer = Choreographer.getInstance();
         private final Looper mLooper = Looper.myLooper();
+        private boolean mHasFrameTime;
+        private long mFrameTimeMillis;
 
         @Override
         public void postFrameCallback(@NonNull Runnable frameCallback) {
-            mChoreographer.postFrameCallback(time -> frameCallback.run());
+            mChoreographer.postFrameCallback(frameTimeNanos -> {
+                final boolean previousHasFrameTime = mHasFrameTime;
+                final long previousFrameTimeMillis = mFrameTimeMillis;
+                mHasFrameTime = true;
+                mFrameTimeMillis = frameTimeNanos / NANOS_PER_MS;
+                try {
+                    frameCallback.run();
+                } finally {
+                    mHasFrameTime = previousHasFrameTime;
+                    mFrameTimeMillis = previousFrameTimeMillis;
+                }
+            });
+        }
+
+        boolean hasFrameTime() {
+            return mHasFrameTime;
+        }
+
+        long getFrameTimeMillis() {
+            return mFrameTimeMillis;
         }
 
         @Override
