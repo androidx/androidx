@@ -60,17 +60,23 @@ public object GlanceWearProfiles {
     /** A profile for Wear Widgets, based on the allowed operations for widgets. */
     public val wearWidgets: Profile by
         lazy(mode = LazyThreadSafetyMode.PUBLICATION) {
-            createWearWidgetsProfile(supportedOperations = null)
+            createWearWidgetsProfileFromOperations(supportedOperations = null)
         }
 
     /**
      * Creates a [Profile] for Wear Widgets using the host-supported operations from [params].
      *
+     * If `params` is null, only the safe fallback operations are used, that are guaranteed to be
+     * supported by all hosts.
+     *
      * @param params the [WearWidgetParams] for the widget request
      * @return a [Profile] configured for the host's supported operations
      */
-    public fun createWearWidgetsProfile(params: WearWidgetParams): Profile =
-        createWearWidgetsProfile(params.rendererVersion.supportedOperations)
+    public fun createWearWidgetsProfile(params: WearWidgetParams?): Profile =
+        createWearWidgetsProfileFromOperations(
+            params?.rendererVersion?.supportedOperations
+                ?: RendererVersion.SAFE_FALLBACK_SUPPORTED_OPERATIONS
+        )
 
     /**
      * Creates a Profile for Wear Widgets, based on the allowed operations for widgets using only
@@ -82,7 +88,9 @@ public object GlanceWearProfiles {
      *   allowed operations can be used.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun createWearWidgetsProfile(supportedOperations: IntSet? = null): Profile {
+    public fun createWearWidgetsProfileFromOperations(
+        supportedOperations: IntSet? = null
+    ): Profile {
         val operationsToUse =
             if (supportedOperations != null && supportedOperations.isNotEmpty()) {
                 buildIntSet {

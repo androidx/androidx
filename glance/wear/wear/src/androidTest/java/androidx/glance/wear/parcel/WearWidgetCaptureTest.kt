@@ -220,7 +220,7 @@ class WearWidgetCaptureTest {
     fun pendingIntentCollection() = runTest {
         val creationDisplayInfo =
             RemoteCreationDisplayInfo(400, 400, context.resources.configuration.densityDpi)
-        val profile = GlanceWearProfiles.createWearWidgetsProfile()
+        val profile = GlanceWearProfiles.createWearWidgetsProfileFromOperations()
         val result =
             captureSingleRemoteDocument(
                 creationDisplayInfo = creationDisplayInfo,

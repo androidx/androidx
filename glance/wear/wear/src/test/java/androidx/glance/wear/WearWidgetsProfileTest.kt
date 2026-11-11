@@ -69,7 +69,7 @@ class WearWidgetsProfileTest {
 
     @Test
     fun testRequiredOperations() {
-        val profile = GlanceWearProfiles.createWearWidgetsProfile()
+        val profile = GlanceWearProfiles.createWearWidgetsProfileFromOperations()
         val operations = profile.supportedOperations
         val exclusions =
             setOf(
@@ -116,10 +116,10 @@ class WearWidgetsProfileTest {
 
         assertThat(RendererVersion.SAFE_FALLBACK_SUPPORTED_OPERATIONS.mapToList { it })
             .containsAtLeastElementsIn(touchOperations)
-        assertThat(GlanceWearProfiles.createWearWidgetsProfile().supportedOperations)
+        assertThat(GlanceWearProfiles.createWearWidgetsProfileFromOperations().supportedOperations)
             .containsAtLeastElementsIn(touchOperations)
         assertThat(
-                GlanceWearProfiles.createWearWidgetsProfile(
+                GlanceWearProfiles.createWearWidgetsProfileFromOperations(
                         RendererVersion.SAFE_FALLBACK_SUPPORTED_OPERATIONS
                     )
                     .supportedOperations
@@ -127,7 +127,9 @@ class WearWidgetsProfileTest {
             .containsAtLeastElementsIn(touchOperations)
         // Hosts that report supported operations without them don't get them.
         assertThat(
-                GlanceWearProfiles.createWearWidgetsProfile(intSetOf(HEADER, MODIFIER_CLICK))
+                GlanceWearProfiles.createWearWidgetsProfileFromOperations(
+                        intSetOf(HEADER, MODIFIER_CLICK)
+                    )
                     .supportedOperations
                     .intersect(touchOperations.toSet())
             )
@@ -136,7 +138,7 @@ class WearWidgetsProfileTest {
 
     @Test
     fun testSafeFallbackOperations() {
-        val profile = GlanceWearProfiles.createWearWidgetsProfile()
+        val profile = GlanceWearProfiles.createWearWidgetsProfileFromOperations()
         val operations = profile.supportedOperations
         val post160Operations =
             listOf(
@@ -162,7 +164,7 @@ class WearWidgetsProfileTest {
         assertThat(RendererVersion.SAFE_FALLBACK_SUPPORTED_OPERATIONS.mapToList { it })
             .containsNoneIn(post160Operations)
         assertThat(
-                GlanceWearProfiles.createWearWidgetsProfile(
+                GlanceWearProfiles.createWearWidgetsProfileFromOperations(
                         RendererVersion.SAFE_FALLBACK_SUPPORTED_OPERATIONS
                     )
                     .supportedOperations
@@ -193,5 +195,15 @@ class WearWidgetsProfileTest {
         val profile = GlanceWearProfiles.createWearWidgetsProfile(params)
 
         assertThat(profile.supportedOperations).containsExactly(LAYOUT_BOX)
+    }
+
+    @Test
+    fun createWearWidgetsProfile_withNullParams_usesSafeFallbackOperations() {
+        val profile = GlanceWearProfiles.createWearWidgetsProfile(null)
+
+        assertThat(profile.supportedOperations)
+            .containsExactlyElementsIn(
+                RendererVersion.SAFE_FALLBACK_SUPPORTED_OPERATIONS.mapToList { it }
+            )
     }
 }

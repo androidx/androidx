@@ -82,7 +82,9 @@ public fun WearWidgetPreview(
         }
     val profile =
         remember(activeRendererVersion) {
-            GlanceWearProfiles.createWearWidgetsProfile(activeRendererVersion.supportedOperations)
+            GlanceWearProfiles.createWearWidgetsProfileFromOperations(
+                activeRendererVersion.supportedOperations
+            )
         }
 
     RemoteDocumentPreview(
