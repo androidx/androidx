@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@file:JvmName("RcDocCreatorKt")
+
 package androidx.compose.remote.creation.dsl
 
 import androidx.annotation.RestrictTo
@@ -78,7 +81,10 @@ private fun createRcBufferInternal(
     return writer.encodeToByteArray()
 }
 
-/** Top-level builder for creating a serialized RemoteCompose document. It will also create root */
+/**
+ * Creates a serialized RemoteCompose document wrapped in a root layout container for the given
+ * [profile].
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun createRcBuffer(
     profile: RcProfile,
@@ -90,8 +96,8 @@ public fun createRcBuffer(
     }
 
 /**
- * Top-level builder for creating a serialized RemoteCompose document with an explicit
- * [experimental] flag. It will also create root.
+ * Creates a serialized RemoteCompose document wrapped in a root layout container for the given
+ * [profile], with an explicit [experimental] flag.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun createRcBuffer(
@@ -104,7 +110,10 @@ public fun createRcBuffer(
         writer.root { scope.content() }
     }
 
-/** Top-level builder for creating a serialized RemoteCompose document. without creating root */
+/**
+ * Creates a serialized RemoteCompose document for the given [profile] without wrapping [content] in
+ * a root layout container.
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun createRawRcBuffer(
     profile: RcProfile,
@@ -116,8 +125,8 @@ public fun createRawRcBuffer(
     }
 
 /**
- * Top-level builder for creating a serialized RemoteCompose document with an explicit
- * [experimental] flag, without creating root.
+ * Creates a serialized RemoteCompose document for the given [profile] with an explicit
+ * [experimental] flag, without wrapping [content] in a root layout container.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun createRawRcBuffer(
@@ -131,16 +140,15 @@ public fun createRawRcBuffer(
     }
 
 /**
- * A bridge to connect to a writer in a canvas This can be used to bridge Frontend code to the new
- * DSL
+ * Executes [RcCanvasScope] drawing commands against an existing [writer], bridging Compose frontend
+ * canvas blocks to the procedural DSL.
  *
- * ### Example:
  * ```
- *   RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
- *      RcCanvas(remoteComposeCreationState.document) {
- *         //dsl code
- *       }
- *    }
+ * RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
+ *     RcCanvas(remoteComposeCreationState.document) {
+ *         // DSL drawing commands
+ *     }
+ * }
  * ```
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

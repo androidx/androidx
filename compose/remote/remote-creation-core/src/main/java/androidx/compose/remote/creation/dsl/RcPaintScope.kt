@@ -29,8 +29,8 @@ import androidx.compose.remote.creation.RcPaint
  * for a more idiomatic Kotlin DSL feel.
  *
  * ```
- * applyPaint {
- *     color(RcColor.of(0xFFAA0000))
+ * paint {
+ *     color(0xFFAA0000.rcColor())
  *     style(RcPaintStyle.Stroke)
  *     strokeWidth(4f)
  *     strokeCap(RcStrokeCap.Round)
@@ -135,7 +135,7 @@ public interface RcPaintScope {
 
     // ---- Shaders ----
 
-    /** Sets the active shader by [RcShader] reference (returned from `createShader`). */
+    /** Sets the active shader by [RcShader] reference (returned from [RcScope.shader]). */
     public fun shader(value: RcShader)
 
     /** Clears the active shader from the paint. */
@@ -166,7 +166,10 @@ public interface RcPaintScope {
     /**
      * Linear gradient between two endpoints.
      *
-     * @param startX,startY,endX,endY the gradient line endpoints
+     * @param startX x-coordinate for the start of the gradient line
+     * @param startY y-coordinate for the start of the gradient line
+     * @param endX x-coordinate for the end of the gradient line
+     * @param endY y-coordinate for the end of the gradient line
      * @param colors sRGB stops along the line
      * @param positions optional per-stop position in `[0, 1]`; `null` distributes evenly
      * @param tileMode behavior outside the gradient line

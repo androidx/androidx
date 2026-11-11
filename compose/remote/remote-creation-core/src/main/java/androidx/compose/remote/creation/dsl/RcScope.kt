@@ -15,6 +15,7 @@
  */
 
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@file:JvmName("RcScopeKt")
 
 package androidx.compose.remote.creation.dsl
 
@@ -389,14 +390,14 @@ public interface RcScope {
     public fun arrayAvg(a: RcFloat): RcFloat
 
     /**
-     * Adds a XY path expression and returns its reference.
+     * Adds a Cartesian parametric `(x(t), y(t))` path expression and returns its reference.
      *
-     * @param expressionX the expression for the radius
-     * @param expressionY the expression for the radius
-     * @param start the start angle
-     * @param end the end angle
-     * @param count the number of points
-     * @param type the path type (see Rc.PathExpression)
+     * @param expressionX the expression for the x-coordinate `x(t)`
+     * @param expressionY the expression for the y-coordinate `y(t)`
+     * @param start the start value of parameter `t`
+     * @param end the end value of parameter `t`
+     * @param count the number of sampled points along `t`
+     * @param type the path interpolation type
      */
     public fun remoteXYPath(
         expressionX: RcFloat,
@@ -450,7 +451,7 @@ public interface RcScope {
     /** ID_OFFSET_TO_UTC is the offset from UTC in sec (typically / 3600f) */
     public fun utcOffset(): RcFloat
 
-    /** Moth of Year quantized to MONTHS 1-12. 1 = January */
+    /** Month of year quantized to months 1–12 (`1` = January). */
     public fun month(): RcFloat
 
     // sensors
@@ -694,7 +695,7 @@ public interface RcScope {
      * ```
      * val flag = remoteMesh2D(RcMeshLayout.Grid, uCount = 24, vCount = 16) {
      *     x = u * 300f
-     *     y = v * 200f + sin(u * 6f + continuousSec()) * 18f
+     *     y = v * 200f + sin(u * 6f + continuousSeconds()) * 18f
      * }
      * drawMesh2D(flag, image = banner)
      * ```
@@ -1302,10 +1303,7 @@ public interface RcScope {
 
     public val var1: RcFloat
 
-    /**
-     * This is a collection of utilities that make RcFloat class and allows kotlin float expressions
-     * to be converted to RemoteCompose RPM expressions
-     */
+    /** Creates an [RcFloat] from raw RPN expression [elements]. */
     public fun rf(vararg elements: Float): RcFloat
 
     public fun rf(v: Number): RcFloat
@@ -1894,10 +1892,11 @@ public interface RcCanvasScope : RcScope {
         )
 
     /**
-     * addTouch with **reactive** min]/[max bounds and an RcFloat touch input expression. The
-     * expression (typically built from touchPosX]/[touchPosY, e.g. `touchPosX() * componentWidth()
-     * / windowWidth()`) is evaluated each event to produce the value, which is then clamped to
-     * `[min, max]`. Both bounds may be live expressions (e.g. plot edges).
+     * Adds a touch handler with **reactive** [min] and [max] bounds and an [RcFloat] touch input
+     * [expression]. The expression (typically built from [touchPosX] and [touchPosY], e.g.
+     * `touchPosX() * componentWidth() / windowWidth()`) is evaluated on each event to produce the
+     * value, which is then clamped to `[min, max]`. Both bounds may be live expressions (e.g. plot
+     * edges).
      */
     public fun addTouch(
         defaultValue: Float,

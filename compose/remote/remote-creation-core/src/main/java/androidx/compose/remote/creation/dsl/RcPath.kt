@@ -15,6 +15,7 @@
  */
 
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@file:JvmName("RcPathKt")
 
 package androidx.compose.remote.creation.dsl
 
@@ -60,6 +61,7 @@ public enum class RcPathFillType(internal val value: Int) {
 /**
  * Adds an arc to the [androidx.compose.remote.core.RemotePathBase] using bounding box and angles.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun androidx.compose.remote.core.RemotePathBase.arcTo(
     left: Float,
     top: Float,
@@ -76,6 +78,7 @@ public fun androidx.compose.remote.core.RemotePathBase.arcTo(
  * Adds an elliptical arc to the [androidx.compose.remote.core.RemotePathBase] using SVG endpoint
  * syntax.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun androidx.compose.remote.core.RemotePathBase.arcTo(
     rx: Float,
     ry: Float,

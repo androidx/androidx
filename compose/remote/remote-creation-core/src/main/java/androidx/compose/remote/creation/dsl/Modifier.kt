@@ -15,6 +15,7 @@
  */
 
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@file:JvmName("ModifierKt")
 
 package androidx.compose.remote.creation.dsl
 
@@ -407,8 +408,9 @@ public fun Modifier.ripple(): Modifier = then(RippleModifierElement)
 
 /**
  * Allows injecting custom canvas drawing operations before or after the element's children. The
- * block receiver is [RcCanvasScope], providing drawing functions (drawCircle, drawRect, etc.) and a
- * way to explicitly render the layout children via [drawComponentContent()].
+ * block receiver is [RcCanvasScope], providing drawing functions ([RcCanvasScope.drawCircle],
+ * [RcCanvasScope.drawRect], etc.) and a way to explicitly render the layout children via
+ * [RcScope.drawComponentContent].
  */
 public fun Modifier.drawWithContent(block: RcCanvasScope.() -> Unit): Modifier =
     then(DrawWithContentModifierElement(block))

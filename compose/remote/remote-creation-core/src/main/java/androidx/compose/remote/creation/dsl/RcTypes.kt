@@ -15,6 +15,7 @@
  */
 
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@file:JvmName("RcTypesKt")
 
 package androidx.compose.remote.creation.dsl
 
@@ -60,8 +61,8 @@ public value class RcSoundExpression internal constructor(internal val id: Int)
 /**
  * Synthesis type for a [RcScope.soundExpression].
  *
- * Values mirror the NaN-encoded type constants in {@code SoundExpression.java} but the wire format
- * is owned by remote-core, so this value class is platform-independent.
+ * Values mirror the NaN-encoded type constants in `SoundExpression.java` but the wire format is
+ * owned by remote-core, so this value class is platform-independent.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
@@ -146,8 +147,8 @@ public fun arraySpline(array: RcFloat, position: Float): RcFloat =
 /**
  * The current touch X position, as an [RcFloat] expression. This is in window/event pixels; scale
  * it into your drawing space (e.g. `touchPosX() * componentWidth() / windowWidth()`) when the
- * document is rendered at a different size than the window. Use it as the touch input expression
- * of.
+ * document is rendered at a different size than the window. Use it as the touch input expression of
+ * [RcCanvasScope.addTouch].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun touchPosX(): RcFloat = RcFloat(null, floatArrayOf(Rc.Touch.POSITION_X))
@@ -327,26 +328,35 @@ public value class RcPx(public val value: Float)
 public value class RcSp(public val value: Float)
 
 /** Extension properties for unit-safe dimension creation. */
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public val Int.rdp: RcDp
     get() = RcDp(this.toFloat())
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public val Float.rdp: RcDp
     get() = RcDp(this)
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public val Double.rdp: RcDp
     get() = RcDp(this.toFloat())
 
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public val Int.rpx: RcPx
     get() = RcPx(this.toFloat())
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public val Float.rpx: RcPx
     get() = RcPx(this)
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public val Double.rpx: RcPx
     get() = RcPx(this.toFloat())
 
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @get:JvmName("getRsp")
 public val Int.rsp: RcSp
     get() = RcSp(this.toFloat())
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @get:JvmName("getRsp")
 public val Float.rsp: RcSp
     get() = RcSp(this)
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @get:JvmName("getRsp")
 public val Double.rsp: RcSp
     get() = RcSp(this.toFloat())
@@ -871,7 +881,7 @@ public value class RcHaptic internal constructor(internal val value: Int) {
 }
 
 /**
- * Bit-flag set for RcScope.drawTextAnchored `flags`. Independent flags — combine with [or].
+ * Bit-flag set for [RcCanvasScope.drawTextAnchored] `flags`. Independent flags — combine with [or].
  *
  * ```
  * drawTextAnchored(text, x, y, panX, panY,
@@ -907,7 +917,7 @@ public value class RcTextAnchorFlags internal constructor(internal val bits: Int
 }
 
 /**
- * Bit-flag set for RcScope.matrixFromPath `flags`. Independent flags — combine with [or].
+ * Bit-flag set for [RcCanvasScope.matrixFromPath] `flags`. Independent flags — combine with [or].
  *
  * Maps directly to the SkPathMeasure flags used by the player.
  */
@@ -947,7 +957,7 @@ public value class RcMatrixFromPathFlags internal constructor(internal val bits:
  * `or` of arbitrary constants would silently corrupt the sub-field encoding.
  *
  * ```
- * Float.format(whole = 4, decimal = 2,
+ * value.format(whole = 4, decimal = 2,
  *     spec = RcTextFromFloatSpec.of(
  *         padPre = RcTextFromFloatSpec.PadPre.Zero,
  *         grouping = RcTextFromFloatSpec.Grouping.By3,

@@ -15,6 +15,7 @@
  */
 
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@file:JvmName("RcPositioningKt")
 
 package androidx.compose.remote.creation.dsl
 
