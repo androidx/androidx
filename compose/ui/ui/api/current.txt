@@ -82,6 +82,7 @@ package androidx.compose.ui {
     property public boolean isPointerInteropFilterNodeEnabled;
     property public boolean isScrollAccessibilityFocusEventEnabled;
     property public boolean isShowOnScreenContentPaddingEnabled;
+    property public boolean isSkipRedundantRestartInputOnInitialFocusEnabled;
     property public boolean isViewBasedSemanticsHandlerEnabled;
     field public static final androidx.compose.ui.AndroidComposeUiFlags INSTANCE;
     field public static boolean isAlwaysScrollDuringScrollCaptureEnabled;
@@ -94,6 +95,7 @@ package androidx.compose.ui {
     field public static boolean isPointerInteropFilterNodeEnabled;
     field public static boolean isScrollAccessibilityFocusEventEnabled;
     field public static boolean isShowOnScreenContentPaddingEnabled;
+    field public static boolean isSkipRedundantRestartInputOnInitialFocusEnabled;
     field public static boolean isViewBasedSemanticsHandlerEnabled;
   }
 

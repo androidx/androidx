@@ -57,6 +57,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
+import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
@@ -79,6 +80,11 @@ class PlatformTextInputViewIntegrationTest {
     private fun expect(value: Int) {
         assertThat(expected).isEqualTo(value)
         expected++
+    }
+
+    @After
+    fun tearDown() {
+        platformTextInputServiceInterceptor = { it }
     }
 
     @Test
@@ -750,6 +756,137 @@ class PlatformTextInputViewIntegrationTest {
         assertThat(inputMethodManager.hideKeyboardCalls).isEqualTo(0)
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Suppress("DEPRECATION")
+    @Test
+    fun startInputMethod_whenInputConnectionCreatedDuringIsActive_doesNotCallRestartInput() {
+        assumeTrue(AndroidComposeUiFlags.isSkipRedundantRestartInputOnInitialFocusEnabled)
+        val inputMethodManager = TestInputMethodManager()
+        platformTextInputServiceInterceptor = { original ->
+            val origAndroid = original as TextInputServiceAndroid
+            TextInputServiceAndroid(
+                view = origAndroid.view,
+                rootPositionCalculator = FakeMatrixPositionCalculator,
+                inputMethodManager = inputMethodManager,
+                afterFrameCommandExecutor = origAndroid.afterFrameCommandExecutor,
+                nextFrameCommandExecutor = origAndroid.nextFrameCommandExecutor,
+            )
+        }
+        setupContent()
+        var ic: InputConnection? = null
+        var createConnectionCalls = 0
+        // Simulate InputMethodManager.isActive() creating the InputConnection when the view
+        // first gains focus.
+        inputMethodManager.onIsActive = { ic = hostView.onCreateInputConnection(EditorInfo()) }
+        inputMethodManager.onRestartInput = { hostView.onCreateInputConnection(EditorInfo()) }
+
+        val sessionJob = coroutineScope.launch {
+            node1.establishTextInputSession {
+                startInputMethod(
+                    object : TestInputMethodRequest(view) {
+                        override fun createInputConnection(
+                            outAttributes: EditorInfo
+                        ): InputConnection {
+                            createConnectionCalls++
+                            return BaseInputConnection(view, true)
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(ic).isNotNull()
+            assertThat(inputMethodManager.isActiveCalls).isEqualTo(1)
+            assertThat(createConnectionCalls).isEqualTo(1)
+            assertThat(inputMethodManager.restartCalls).isEqualTo(0)
+            assertThat(inputMethodManager.showKeyboardCalls).isEqualTo(1)
+            sessionJob.cancel()
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Suppress("DEPRECATION")
+    @Test
+    fun startInputMethod_whenSwitchingSessionsOnAlreadyFocusedView_callsRestartInput() {
+        assumeTrue(AndroidComposeUiFlags.isSkipRedundantRestartInputOnInitialFocusEnabled)
+        val inputMethodManager = TestInputMethodManager()
+        platformTextInputServiceInterceptor = { original ->
+            val origAndroid = original as TextInputServiceAndroid
+            TextInputServiceAndroid(
+                view = origAndroid.view,
+                rootPositionCalculator = FakeMatrixPositionCalculator,
+                inputMethodManager = inputMethodManager,
+                afterFrameCommandExecutor = origAndroid.afterFrameCommandExecutor,
+                nextFrameCommandExecutor = origAndroid.nextFrameCommandExecutor,
+            )
+        }
+        setupContent()
+        var ic1: InputConnection? = null
+        var ic2: InputConnection? = null
+        var node1CreateConnectionCalls = 0
+        var node2CreateConnectionCalls = 0
+
+        // Session 1 (initial focus on AndroidComposeView):
+        // IMM.isActive() synchronously creates InputConnection #1.
+        inputMethodManager.onIsActive = { ic1 = hostView.onCreateInputConnection(EditorInfo()) }
+        inputMethodManager.onRestartInput = { ic2 = hostView.onCreateInputConnection(EditorInfo()) }
+
+        val session1Job = coroutineScope.launch {
+            node1.establishTextInputSession {
+                startInputMethod(
+                    object : TestInputMethodRequest(view) {
+                        override fun createInputConnection(
+                            outAttributes: EditorInfo
+                        ): InputConnection {
+                            node1CreateConnectionCalls++
+                            return BaseInputConnection(view, true)
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(ic1).isNotNull()
+            assertThat(node1CreateConnectionCalls).isEqualTo(1)
+            assertThat(inputMethodManager.isActiveCalls).isEqualTo(1)
+            assertThat(inputMethodManager.restartCalls).isEqualTo(0)
+            assertThat(inputMethodManager.showKeyboardCalls).isEqualTo(1)
+        }
+
+        // Session 2 (switching focus from TextField A to TextField B inside the same
+        // already-focused AndroidComposeView):
+        // IMM.isActive() does not create a new InputConnection because the view is already
+        // focused, so restartInput() must be called to create InputConnection #2 for node2.
+        inputMethodManager.onIsActive = null
+        session1Job.cancel()
+        val session2Job = coroutineScope.launch {
+            node2.establishTextInputSession {
+                startInputMethod(
+                    object : TestInputMethodRequest(view) {
+                        override fun createInputConnection(
+                            outAttributes: EditorInfo
+                        ): InputConnection {
+                            node2CreateConnectionCalls++
+                            return BaseInputConnection(view, true)
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(inputMethodManager.isActiveCalls).isEqualTo(2)
+            assertThat(inputMethodManager.restartCalls).isEqualTo(1)
+            assertThat(node2CreateConnectionCalls).isEqualTo(1)
+            assertThat(ic2).isNotNull()
+            assertThat(ic2).isNotSameInstanceAs(ic1)
+            assertThat(inputMethodManager.showKeyboardCalls).isEqualTo(2)
+            session2Job.cancel()
+        }
+    }
+
     private fun setupContent() {
         rule.setContent {
             hostView = LocalView.current as AndroidComposeView
@@ -826,20 +963,29 @@ private object FakeMatrixPositionCalculator : MatrixPositionCalculator {
 
 @Suppress("DEPRECATION")
 private class TestInputMethodManager : InputMethodManager {
+    var isActiveCalls = 0
     var restartCalls = 0
     var showKeyboardCalls = 0
     var hideKeyboardCalls = 0
+    var onIsActive: (() -> Unit)? = null
+    var onRestartInput: (() -> Unit)? = null
 
     fun reset() {
+        isActiveCalls = 0
         restartCalls = 0
         showKeyboardCalls = 0
         hideKeyboardCalls = 0
     }
 
-    override fun isActive(): Boolean = true
+    override fun isActive(): Boolean {
+        isActiveCalls++
+        onIsActive?.invoke()
+        return true
+    }
 
     override fun restartInput() {
         restartCalls++
+        onRestartInput?.invoke()
     }
 
     override fun showSoftInput() {

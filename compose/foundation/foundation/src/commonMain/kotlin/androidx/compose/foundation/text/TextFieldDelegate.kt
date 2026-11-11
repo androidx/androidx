@@ -39,6 +39,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.EditProcessor
+import androidx.compose.ui.text.input.FinishComposingTextCommand
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.OffsetMapping
@@ -53,6 +54,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.util.fastAll
 import kotlin.jvm.JvmStatic
 import kotlin.math.max
 import kotlin.math.min
@@ -306,6 +308,12 @@ internal class TextFieldDelegate {
             onValueChange: (TextFieldValue) -> Unit,
             session: TextInputSession?,
         ) {
+            if (
+                editProcessor.toTextFieldValue().composition == null &&
+                    ops.fastAll { it is FinishComposingTextCommand }
+            ) {
+                return
+            }
             val newValue = editProcessor.apply(ops)
 
             // Android: Some IME calls getTextBeforeCursor API just after the setComposingText. The

@@ -20,7 +20,9 @@ package androidx.compose.ui.text.input
 
 import android.view.View
 import android.view.inputmethod.CursorAnchorInfo
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.ExtractedText
+import android.view.inputmethod.InputConnection
 import androidx.compose.ui.AndroidComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import com.google.common.truth.Truth.assertThat
@@ -97,6 +99,72 @@ class TextInputServiceAndroidCommandDebouncingTest {
         scope.advanceUntilIdle()
 
         assertThat(inputMethodManager.restartCalls).isEqualTo(1)
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun startInput_doesNotCallRestartInput_whenInputConnectionCreatedDuringIsActive() {
+        assumeTrue(AndroidComposeUiFlags.isSkipRedundantRestartInputOnInitialFocusEnabled)
+        var createdInputConnections = 0
+        var ic1: InputConnection? = null
+        inputMethodManager.onIsActive = {
+            createdInputConnections++
+            ic1 = service.createInputConnection(EditorInfo())
+        }
+        inputMethodManager.onRestartInput = {
+            createdInputConnections++
+            service.createInputConnection(EditorInfo())
+        }
+        service.startInputForTest()
+        scope.advanceUntilIdle()
+
+        assertThat(ic1).isNotNull()
+        assertThat(inputMethodManager.isActiveCalls).isEqualTo(1)
+        assertThat(createdInputConnections).isEqualTo(1)
+        assertThat(inputMethodManager.restartCalls).isEqualTo(0)
+        assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(1)
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun startInput_doesNotCallRestartInput_whenInputConnectionCreatedBeforeProcessingCommands() {
+        assumeTrue(AndroidComposeUiFlags.isSkipRedundantRestartInputOnInitialFocusEnabled)
+        service.startInputForTest()
+        service.createInputConnection(EditorInfo())
+        scope.advanceUntilIdle()
+
+        assertThat(inputMethodManager.isActiveCalls).isEqualTo(1)
+        assertThat(inputMethodManager.restartCalls).isEqualTo(0)
+        assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(1)
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun subsequentStartInput_callsRestartInput_afterPreviousSessionCreatedInputConnection() {
+        assumeTrue(AndroidComposeUiFlags.isSkipRedundantRestartInputOnInitialFocusEnabled)
+        var ic1: InputConnection? = null
+        var ic2: InputConnection? = null
+        // Session 1 (initial focus on AndroidComposeView):
+        // IMM.isActive() synchronously creates InputConnection #1.
+        inputMethodManager.onIsActive = { ic1 = service.createInputConnection(EditorInfo()) }
+        inputMethodManager.onRestartInput = { ic2 = service.createInputConnection(EditorInfo()) }
+        service.startInputForTest()
+        scope.advanceUntilIdle()
+        assertThat(ic1).isNotNull()
+        assertThat(inputMethodManager.isActiveCalls).isEqualTo(1)
+        assertThat(inputMethodManager.restartCalls).isEqualTo(0)
+
+        // Session 2 (switching from TextField A to TextField B inside the same already-focused
+        // AndroidComposeView):
+        // IMM.isActive() does not create a new InputConnection because the view is already
+        // focused, so restartInput() must be called to create InputConnection #2.
+        inputMethodManager.onIsActive = null
+        service.startInputForTest()
+        scope.advanceUntilIdle()
+        assertThat(inputMethodManager.isActiveCalls).isEqualTo(2)
+        assertThat(inputMethodManager.restartCalls).isEqualTo(1)
+        assertThat(ic2).isNotNull()
+        assertThat(ic2).isNotSameInstanceAs(ic1)
     }
 
     @Test
@@ -433,14 +501,22 @@ class TextInputServiceAndroidCommandDebouncingTest {
     }
 
     private class TestInputMethodManager : InputMethodManager {
+        var isActiveCalls = 0
         var restartCalls = 0
         var showSoftInputCalls = 0
         var hideSoftInputCalls = 0
+        var onIsActive: (() -> Unit)? = null
+        var onRestartInput: (() -> Unit)? = null
 
-        override fun isActive(): Boolean = true
+        override fun isActive(): Boolean {
+            isActiveCalls++
+            onIsActive?.invoke()
+            return true
+        }
 
         override fun restartInput() {
             restartCalls++
+            onRestartInput?.invoke()
         }
 
         override fun showSoftInput() {

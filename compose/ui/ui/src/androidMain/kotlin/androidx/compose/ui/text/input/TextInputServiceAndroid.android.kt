@@ -86,6 +86,12 @@ internal class TextInputServiceAndroid(
     private var editorHasFocus = false
 
     /**
+     * True if [View.onCreateInputConnection] has already created an [InputConnection] for the
+     * current input session since the last [startInput] call.
+     */
+    private var inputConnectionCreatedForCurrentSession = false
+
+    /**
      * The following three observers are set when the editable composable has initiated the input
      * session
      */
@@ -147,6 +153,7 @@ internal class TextInputServiceAndroid(
         if (!editorHasFocus) {
             return null
         }
+        onInputConnectionCreated()
 
         outAttrs.update(imeOptions, state)
         outAttrs.updateWithEmojiCompat()
@@ -204,6 +211,14 @@ internal class TextInputServiceAndroid(
             }
     }
 
+    /**
+     * Marks that [View.onCreateInputConnection] has created an [InputConnection] for the current
+     * input session.
+     */
+    internal fun onInputConnectionCreated() {
+        inputConnectionCreatedForCurrentSession = true
+    }
+
     /** Returns true if some editable component is focused. */
     fun isEditorFocused(): Boolean = editorHasFocus
 
@@ -218,6 +233,7 @@ internal class TextInputServiceAndroid(
         }
 
         editorHasFocus = true
+        inputConnectionCreatedForCurrentSession = false
         state = value
         this.imeOptions = imeOptions
         this.onEditCommand = onEditCommand
@@ -235,6 +251,7 @@ internal class TextInputServiceAndroid(
 
         // Don't set editorHasFocus or any of the other properties used to support the legacy text
         // input system.
+        inputConnectionCreatedForCurrentSession = false
 
         // Don't actually send the command to the IME yet, it may be overruled by a subsequent call
         // to stopInput.
@@ -245,6 +262,7 @@ internal class TextInputServiceAndroid(
         if (DEBUG) Log.d(TAG, "$DEBUG_CLASS.stopInput")
 
         editorHasFocus = false
+        inputConnectionCreatedForCurrentSession = false
         onEditCommand = {}
         onImeActionPerformed = {}
         focusedRect = null
@@ -390,7 +408,26 @@ internal class TextInputServiceAndroid(
         // If the keyboard visibility was changed before closing the connection, we need to
         // perform that operation before closing the connection so it doesn't no-op.
         if (startInput == true) {
-            restartInputImmediately()
+            @OptIn(ExperimentalComposeUiApi::class)
+            if (AndroidComposeUiFlags.isSkipRedundantRestartInputOnInitialFocusEnabled) {
+                // When this view first gains focus, calling InputMethodManager.isActive(view)
+                // triggers Android's InputMethodManager to check view focus and start input on
+                // this view. That synchronously invokes View.onCreateInputConnection() ->
+                // onInputConnectionCreated() before isActive() returns, setting
+                // inputConnectionCreatedForCurrentSession = true.
+                //
+                // When this view was already focused (for example, when focus moves from one
+                // Compose text field to another inside the same AndroidComposeView), isActive()
+                // does not create a new InputConnection, so inputConnectionCreatedForCurrentSession
+                // remains false and restartInputImmediately() is called below to start the new
+                // session.
+                inputMethodManager.isActive()
+                if (!inputConnectionCreatedForCurrentSession) {
+                    restartInputImmediately()
+                }
+            } else {
+                restartInputImmediately()
+            }
         }
         showKeyboard?.also(::setKeyboardVisibleImmediately)
         if (startInput == false) {
