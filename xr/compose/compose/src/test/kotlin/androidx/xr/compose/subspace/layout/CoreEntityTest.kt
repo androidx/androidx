@@ -438,6 +438,136 @@ class CoreEntityTest {
         assertThat(coreModelEntity.scale).isEqualTo(currentScale)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun coreModelEntity_scaleAndSizeBeforeAttachEntity_preservesCombinedScale() = runTest {
+        val session = composeTestRule.configureFakeSession()
+        val coreModelEntity = CoreModelEntity(session.scene.virtualPixelDensity)
+
+        // Setting size before attachEntity queues gltfUniformScale computation; setting scale after
+        // must not enqueue a stale userScale write that overwrites combined scale upon attachment.
+        coreModelEntity.size = IntVolumeSize(400, 400, 400)
+        coreModelEntity.scale = 0.5f
+
+        @Suppress("NewApi")
+        val gltfModel = GltfModel.create(session, java.nio.file.Paths.get("test.glb"))
+        val gltfEntity = GltfModelEntity.create(session, gltfModel)
+        coreModelEntity.attachEntity(gltfEntity)
+
+        // modelSize is 2000x2000x2000px, gltfUniformScale = 400/2000 = 0.2f, combined = 0.5 * 0.2.
+        assertThat(coreModelEntity.scale).isWithin(1e-5f).of(0.1f)
+        assertThat(gltfEntity.getScale()).isWithin(1e-5f).of(0.1f)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun coreEntity_childParentedBeforeAttachEntity_reparentsChildWhenEntityAttaches() = runTest {
+        val session = composeTestRule.configureFakeSession()
+        val coreModelEntity = CoreModelEntity(session.scene.virtualPixelDensity)
+        val panelEntity =
+            PanelEntity.create(
+                assertNotNull(session),
+                View(composeTestRule.activity),
+                IntSize2d(100, 200),
+                "ChildPanel",
+            )
+        val initialParent = panelEntity.parent
+        val corePanelEntity = CorePanelEntity(session.scene.virtualPixelDensity, panelEntity)
+
+        corePanelEntity.parent = coreModelEntity
+        assertThat(panelEntity.parent).isEqualTo(initialParent)
+
+        @Suppress("NewApi")
+        val gltfModel = GltfModel.create(session, java.nio.file.Paths.get("test.glb"))
+        val gltfEntity = GltfModelEntity.create(session, gltfModel)
+        coreModelEntity.attachEntity(gltfEntity)
+
+        assertThat(panelEntity.parent).isEqualTo(gltfEntity)
+
+        corePanelEntity.parent = null
+        assertThat(panelEntity.parent).isEqualTo(initialParent)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun coreEntity_replaceAttachedEntity_reparentsChildren() = runTest {
+        val session = composeTestRule.configureFakeSession()
+        val coreModelEntity = CoreModelEntity(session.scene.virtualPixelDensity)
+        @Suppress("NewApi")
+        val gltfModel = GltfModel.create(session, java.nio.file.Paths.get("test.glb"))
+        val gltfEntity1 = GltfModelEntity.create(session, gltfModel)
+        val gltfEntity2 = GltfModelEntity.create(session, gltfModel)
+        coreModelEntity.attachEntity(gltfEntity1)
+
+        val panelEntity =
+            PanelEntity.create(
+                assertNotNull(session),
+                View(composeTestRule.activity),
+                IntSize2d(100, 200),
+                "ChildPanel",
+            )
+        val initialParent = panelEntity.parent
+        val corePanelEntity = CorePanelEntity(session.scene.virtualPixelDensity, panelEntity)
+
+        corePanelEntity.parent = coreModelEntity
+        assertThat(panelEntity.parent).isEqualTo(gltfEntity1)
+
+        coreModelEntity.attachEntity(gltfEntity2)
+        assertThat(panelEntity.parent).isEqualTo(gltfEntity2)
+        assertThat(gltfEntity1.parent).isNull()
+
+        corePanelEntity.parent = null
+        assertThat(panelEntity.parent).isEqualTo(initialParent)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun coreEntity_reparentedBeforeAttach_ignoresStaleQueuedParent() = runTest {
+        val session = composeTestRule.configureFakeSession()
+        val parent1 = CoreModelEntity(session.scene.virtualPixelDensity)
+        val parent2 = CoreModelEntity(session.scene.virtualPixelDensity)
+        val child = CoreModelEntity(session.scene.virtualPixelDensity)
+
+        child.parent = parent1
+        child.parent = parent2
+
+        @Suppress("NewApi")
+        val gltfModel = GltfModel.create(session, java.nio.file.Paths.get("test.glb"))
+        val parentEntity1 = GltfModelEntity.create(session, gltfModel)
+        val parentEntity2 = GltfModelEntity.create(session, gltfModel)
+        val childEntity = GltfModelEntity.create(session, gltfModel)
+        val initialChildParent = childEntity.parent
+
+        parent1.attachEntity(parentEntity1)
+        child.attachEntity(childEntity)
+        assertThat(childEntity.parent).isEqualTo(initialChildParent)
+
+        parent2.attachEntity(parentEntity2)
+        assertThat(childEntity.parent).isEqualTo(parentEntity2)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun coreEntity_parentDisposedBeforeChildAttaches_doesNotAttachToDisposedEntity() = runTest {
+        val session = composeTestRule.configureFakeSession()
+        val parent = CoreModelEntity(session.scene.virtualPixelDensity)
+        val child = CoreModelEntity(session.scene.virtualPixelDensity)
+
+        child.parent = parent
+
+        @Suppress("NewApi")
+        val gltfModel = GltfModel.create(session, java.nio.file.Paths.get("test.glb"))
+        val parentEntity = GltfModelEntity.create(session, gltfModel)
+        val childEntity = GltfModelEntity.create(session, gltfModel)
+        val initialChildParent = childEntity.parent
+
+        parent.attachEntity(parentEntity)
+        parent.dispose()
+        child.attachEntity(childEntity)
+
+        assertThat(childEntity.parent).isEqualTo(initialChildParent)
+    }
+
     @Test
     fun alpha_setAlpha_updatesEntityAlpha() {
         val session = composeTestRule.configureFakeSession()
