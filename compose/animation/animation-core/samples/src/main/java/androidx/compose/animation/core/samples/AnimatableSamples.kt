@@ -52,7 +52,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -117,10 +116,11 @@ fun AnimatableDecayAndAnimateToSample() {
      * In this example, we create a swipe-to-dismiss modifier that dismisses the child via a
      * vertical swipe-up.
      */
-    fun Modifier.swipeToDismiss(): Modifier = composed {
+    @Composable
+    fun Modifier.swipeToDismiss(): Modifier {
         // Creates a Float type `Animatable` and `remember`s it
         val animatedOffsetY = remember { Animatable(0f) }
-        this.pointerInput(Unit) {
+        return this.pointerInput(Unit) {
                 coroutineScope {
                     while (true) {
                         val pointerId = awaitPointerEventScope { awaitFirstDown().id }
@@ -210,7 +210,8 @@ fun AnimatableAnimationResultSample() {
 
 @Sampled
 fun AnimatableFadeIn() {
-    fun Modifier.fadeIn(): Modifier = composed {
+    @Composable
+    fun Modifier.fadeIn(): Modifier {
         // Creates an `Animatable` and remembers it.
         val alphaAnimation = remember { Animatable(0f) }
         // Launches a coroutine for the animation when entering the composition.
@@ -225,7 +226,8 @@ fun AnimatableFadeIn() {
                 animationSpec = tween(500),
             )
         }
-        this.graphicsLayer(alpha = alphaAnimation.value)
+        // Reads the animated value in the draw phase to avoid recomposing on every frame.
+        return this.graphicsLayer { alpha = alphaAnimation.value }
     }
 }
 
