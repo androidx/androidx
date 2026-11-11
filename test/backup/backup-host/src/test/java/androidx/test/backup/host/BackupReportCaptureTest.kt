@@ -509,8 +509,8 @@ class BackupReportCaptureTest {
         val callout = assertNotNull(record.callout)
         assertEquals("STEP_FAILURE", callout.kind)
         assertEquals(2, callout.failedStep)
-        assertEquals("Step failed at step 2 \u00b7 Backup", callout.title)
-        assertTrue(failure.suppressed.any { "Failed at step 2 (Backup)" in it.toString() })
+        assertEquals("Step failed at Backup", callout.title)
+        assertTrue(failure.suppressed.any { "Failed at Backup" in it.toString() })
     }
 
     @Test
@@ -641,7 +641,7 @@ class BackupReportCaptureTest {
             val callout1 = assertNotNull(record1.callout)
             assertEquals("ASSERTION_FAILURE", callout1.kind)
             assertEquals(7, callout1.failedStep)
-            assertEquals("Assertion failed at step 7 \u00b7 Verify", callout1.title)
+            assertEquals("Assertion failed at Verify", callout1.title)
             assertEquals(
                 "data_extraction_rules.xml excludes domain=\"sharedpref\" " +
                     "path=\"user_session.xml\" for <device-transfer>.",
@@ -653,8 +653,7 @@ class BackupReportCaptureTest {
             val suppressedMessages = failure1!!.suppressed.map { it.toString() }
             assertTrue(
                 suppressedMessages.any {
-                    "Failed at step 7 (Verify). Likely cause: data_extraction_rules.xml excludes" in
-                        it
+                    "Failed at Verify. Likely cause: data_extraction_rules.xml excludes" in it
                 }
             )
             assertEquals(2, suppressedMessages.count { it.startsWith("Device logs saved to ") })
