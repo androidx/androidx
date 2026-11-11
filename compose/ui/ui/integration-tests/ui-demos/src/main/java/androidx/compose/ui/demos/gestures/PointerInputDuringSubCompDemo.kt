@@ -32,7 +32,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -82,12 +81,12 @@ fun PointerInputDuringSubComp() {
     }
 }
 
-fun Modifier.pointerCounterGestureFilter(onPointerCountChanged: (Int) -> Unit): Modifier =
-    composed {
-        val filter = remember { PointerCounterGestureFilter() }
-        filter.onPointerCountChanged = onPointerCountChanged
-        PointerInputModifierImpl(filter)
-    }
+@Composable
+fun Modifier.pointerCounterGestureFilter(onPointerCountChanged: (Int) -> Unit): Modifier {
+    val filter = remember { PointerCounterGestureFilter() }
+    filter.onPointerCountChanged = onPointerCountChanged
+    return this.then(PointerInputModifierImpl(filter))
+}
 
 internal class PointerInputModifierImpl(override val pointerInputFilter: PointerInputFilter) :
     PointerInputModifier

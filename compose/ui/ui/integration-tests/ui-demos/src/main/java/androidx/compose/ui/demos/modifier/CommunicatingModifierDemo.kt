@@ -32,7 +32,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.graphics.Color.Companion.Red
@@ -48,10 +47,11 @@ val ModifierLocalColor = modifierLocalOf { "Unspecified" }
 fun CommunicatingModifierDemo() {
     val scaffoldState = rememberScaffoldState()
 
-    fun Modifier.clickToRead() = composed {
+    @Composable
+    fun Modifier.clickToRead(): Modifier {
         var name by remember { mutableStateOf("Unknown") }
         val coroutineScope = rememberCoroutineScope()
-        Modifier.modifierLocalConsumer { name = ModifierLocalColor.current }
+        return this.modifierLocalConsumer { name = ModifierLocalColor.current }
             .clickable {
                 coroutineScope.launch {
                     scaffoldState.snackbarHostState.showSnackbar(

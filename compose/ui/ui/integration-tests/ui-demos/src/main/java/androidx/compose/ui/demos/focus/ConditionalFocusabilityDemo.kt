@@ -31,7 +31,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
@@ -119,9 +118,10 @@ fun ConditionalFocusabilityDemo() {
     }
 }
 
-private fun Modifier.focusAwareBackground() = composed {
+@Composable
+private fun Modifier.focusAwareBackground(): Modifier {
     var color by remember { mutableStateOf(Gray) }
-    Modifier.padding(10.dp).size(150.dp, 50.dp).background(color).onFocusChanged {
+    return this.padding(10.dp).size(150.dp, 50.dp).background(color).onFocusChanged {
         color = if (it.isFocused) Red else Gray
     }
 }
