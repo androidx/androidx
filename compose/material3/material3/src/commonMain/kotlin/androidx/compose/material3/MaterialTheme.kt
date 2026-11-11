@@ -86,6 +86,7 @@ public fun MaterialTheme(
  * @param motionScheme A complete definition of the Material Motion scheme for this hierarchy
  * @param shapes A set of corner shapes to be used as this hierarchy's shape system
  * @param typography A set of text styles to be used as this hierarchy's typography system
+ * @param content The content inheriting this theme
  */
 @Composable
 public fun MaterialTheme(

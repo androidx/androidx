@@ -310,6 +310,7 @@ public object TextFieldDefaults {
      * @param interactionSource the [InteractionSource] of this text field. Used to determine if the
      *   text field is in focus or not.
      * @param colors [TextFieldColors] used to resolve colors of the text field.
+     * @param shape shape of the [OutlinedTextField]'s border.
      * @param focusedBorderThickness thickness of the [OutlinedTextField]'s border when it is in
      *   focused state.
      * @param unfocusedBorderThickness thickness of the [OutlinedTextField]'s border when it is not
