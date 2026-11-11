@@ -25,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.util.fastForEach
 import androidx.xr.compose.subspace.ActionQueue
 import androidx.xr.compose.subspace.SceneCoreEntitySizeAdapter
 import androidx.xr.compose.subspace.SpatialPanelDefaults
@@ -166,12 +167,32 @@ internal sealed class CoreEntity(val pixelDensity: PixelDensity, initialEntity: 
      */
     private val originalParent: Entity? = entity?.parent
 
+    /**
+     * Compose-level [CoreEntity] children whose [parent] is set to this entity.
+     *
+     * Tracked separately from SceneCore's `Entity.children` so that when [attachEntity] attaches or
+     * replaces the underlying SceneCore [Entity], Compose children whose [parent] still points here
+     * are reparented onto the new [Entity].
+     */
+    private val children = mutableSetOf<CoreEntity>()
+
     open var parent: CoreEntity? = null
         set(value) {
+            field?.children?.remove(this)
             field = value
+            value?.children?.add(this)
             // When the Compose-level parent is set to null, restore the original parent
-            // (saved during the initial creation)
-            entityActionQueue.executeWhenAvailable { it.parent = value?.entity ?: originalParent }
+            // (saved during the initial creation). Check `this.parent === value` in case
+            // `parent` changes again before `this.entity` is attached.
+            entityActionQueue.executeWhenAvailable {
+                if (this.parent === value) {
+                    if (value == null) {
+                        it.parent = originalParent
+                    } else if (value.entity != null) {
+                        it.parent = value.entity
+                    }
+                }
+            }
         }
 
     open var contentDescription: String?
@@ -211,6 +232,8 @@ internal sealed class CoreEntity(val pixelDensity: PixelDensity, initialEntity: 
     }
 
     open fun dispose() {
+        parent?.children?.remove(this)
+        children.clear()
         entityActionQueue.clear()
         entityActionQueue.value?.let { it.parent = null }
         entityActionQueue.value = null
@@ -242,6 +265,13 @@ internal sealed class CoreEntity(val pixelDensity: PixelDensity, initialEntity: 
     fun attachEntity(entity: Entity) {
         entityActionQueue.value?.parent = null
         entityActionQueue.value = entity
+        children.toList().fastForEach { child ->
+            child.entityActionQueue.executeWhenAvailable {
+                if (child.parent === this && this.entity === entity) {
+                    it.parent = entity
+                }
+            }
+        }
     }
 
     override fun toString(): String = "CoreEntity(entity=$entity)"
@@ -626,9 +656,13 @@ internal class CoreModelEntity(pixelDensity: PixelDensity) : CoreEntity(pixelDen
      */
     private var userScale: Float? = null
 
+    /** Combined scale factor of [userScale] and [gltfUniformScale]. */
+    private val combinedScale: Float
+        get() = (userScale ?: 1f) * gltfUniformScale
+
     /** Sets the user-defined scale factor and applies it to the [GltfModelEntity]. */
     override var scale: Float
-        get() = super.scale
+        get() = combinedScale
         set(value) {
             // CoreEntityAccumulator calls coreEntity.scale = it when modifiers (e.g. .scale(),
             // .movable())  are applied during recomposition. Overriding scale intercepts those
@@ -676,10 +710,7 @@ internal class CoreModelEntity(pixelDensity: PixelDensity) : CoreEntity(pixelDen
      * [GltfModelEntity] scale in SceneCore.
      */
     private fun syncCoreEntityCombinedScale() {
-        super.scale =
-            userScale?.let {
-                it * gltfUniformScale
-            } ?: gltfUniformScale
+        onEntity { super.scale = combinedScale }
     }
 
     private fun onEntity(action: GltfModelEntity.() -> Unit) {
