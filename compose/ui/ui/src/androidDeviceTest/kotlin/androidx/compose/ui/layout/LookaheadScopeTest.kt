@@ -91,7 +91,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -390,27 +389,7 @@ class LookaheadScopeTest {
         }
     }
 
-    private fun Modifier.animateSize(): Modifier = composed {
-        var anim: Animatable<IntSize, AnimationVector2D>? by remember { mutableStateOf(null) }
-        val scope = rememberCoroutineScope()
-        this.approachLayout({ lookaheadSize ->
-            val animation = anim ?: Animatable(lookaheadSize, IntSize.VectorConverter)
-            anim = animation
-            animation.targetValue != lookaheadSize || animation.isRunning
-        }) { measurable, _ ->
-            anim =
-                anim?.apply {
-                    scope.launch {
-                        if (lookaheadSize != targetValue) {
-                            animateTo(lookaheadSize, tween(200))
-                        }
-                    }
-                } ?: Animatable(lookaheadSize, IntSize.VectorConverter)
-            val (width, height) = anim!!.value
-            val placeable = measurable.measure(Constraints.fixed(width, height))
-            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
-        }
-    }
+    private fun Modifier.animateSize(): Modifier = this then AnimateSizeElement
 
     @Test
     fun nestedLookaheadScopeTest() {
@@ -4218,3 +4197,35 @@ private data class TestIntermediateElement(var intermediateNode: TestApproachLay
 }
 
 abstract class TestApproachLayoutModifierNode : Modifier.Node(), ApproachLayoutModifierNode
+
+private data object AnimateSizeElement : ModifierNodeElement<AnimateSizeNode>() {
+    override fun create(): AnimateSizeNode = AnimateSizeNode()
+
+    override fun update(node: AnimateSizeNode) {}
+}
+
+private class AnimateSizeNode : Modifier.Node(), ApproachLayoutModifierNode {
+    private var anim: Animatable<IntSize, AnimationVector2D>? = null
+
+    override fun isMeasurementApproachInProgress(lookaheadSize: IntSize): Boolean {
+        val animation = anim ?: Animatable(lookaheadSize, IntSize.VectorConverter)
+        anim = animation
+        return animation.targetValue != lookaheadSize || animation.isRunning
+    }
+
+    override fun ApproachMeasureScope.approachMeasure(
+        measurable: Measurable,
+        constraints: Constraints,
+    ): MeasureResult {
+        val animation =
+            anim?.apply {
+                if (lookaheadSize != targetValue) {
+                    coroutineScope.launch { animateTo(lookaheadSize, tween(200)) }
+                }
+            } ?: Animatable(lookaheadSize, IntSize.VectorConverter)
+        anim = animation
+        val (width, height) = animation.value
+        val placeable = measurable.measure(Constraints.fixed(width, height))
+        return layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+    }
+}
