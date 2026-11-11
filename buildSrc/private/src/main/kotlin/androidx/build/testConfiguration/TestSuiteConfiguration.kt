@@ -160,7 +160,6 @@ internal fun AndroidXExtension.defaultDeviceTestTags(): Provider<List<String>> {
         when {
             project.path.startsWith(":compose:") -> listOf("compose")
             project.path.startsWith(":wear:watchface") -> listOf("wear_optin")
-            project.path.startsWith(":xr:") -> listOf("xr_optin")
             else -> listOf()
         }
     return deviceTests.enableAlsoRunningOnPhysicalDevices.zip(

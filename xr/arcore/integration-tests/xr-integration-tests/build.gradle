@@ -44,6 +44,7 @@ androidx {
     description =
         "Automated instrumented integration tests for JXR ARCore to run in CI and on " +
             "emulators/devices."
+    additionalDeviceTestTags.add("xr_optin")
 }
 
 dependencies {

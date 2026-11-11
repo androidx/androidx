@@ -114,5 +114,6 @@ androidx {
     deviceTests {
         maxShardCount = 1
     }
+    additionalDeviceTestTags.add("xr_optin")
 }
 
