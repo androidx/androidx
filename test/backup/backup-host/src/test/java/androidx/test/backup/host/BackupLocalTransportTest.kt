@@ -16,6 +16,7 @@
 
 package androidx.test.backup.host
 
+import com.android.adblib.ShellCommandOutput
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
@@ -33,6 +34,7 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.measureTime
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.Rule
 import org.junit.Test
@@ -48,13 +50,7 @@ class BackupLocalTransportTest {
 
     @Test
     fun backupRunsOnTheLocalTransportThenSelectsTheOriginalOneAgain() = runBlocking {
-        device.onShell { command ->
-            when (command) {
-                "dumpsys package $PACKAGE" -> shellOutput(packageDump(PACKAGE, stopped = false))
-                "bmgr list transports" -> shellOutput(TRANSPORTS_WITH_GMS_SELECTED)
-                else -> null
-            }
-        }
+        onDevice(GMS_SELECTED)
         val archive = archive()
 
         transport.backup(archive)
@@ -62,11 +58,9 @@ class BackupLocalTransportTest {
         assertEquals(
             listOf(
                 "dumpsys package $PACKAGE",
-                "bmgr enable true",
-                "bmgr list transports",
+                "dumpsys backup",
                 "bmgr transport '$LOCAL_TRANSPORT'",
-                "bmgr backupnow @pm@",
-                "bmgr backupnow $PACKAGE",
+                "bmgr backupnow @pm@ $PACKAGE",
                 "bmgr transport '$GMS_TRANSPORT'",
             ),
             device.commands,
@@ -198,14 +192,67 @@ class BackupLocalTransportTest {
         transport.backup(archive())
 
         assertEquals(
-            listOf("dumpsys package $PACKAGE", "pm unstop $PACKAGE", "bmgr enable true"),
+            listOf("dumpsys package $PACKAGE", "pm unstop $PACKAGE", "dumpsys backup"),
             device.commands.take(3),
         )
     }
 
     @Test
     fun backupKeepsTheLocalTransportWhenItWasAlreadySelected() = runBlocking {
-        device.onShell { command ->
+        onDevice(LOCAL_SELECTED)
+
+        transport.backup(archive())
+
+        assertEquals(
+            listOf("dumpsys package $PACKAGE", "dumpsys backup", "bmgr backupnow @pm@ $PACKAGE"),
+            device.commands,
+        )
+    }
+
+    @Test
+    fun backupEnablesTheBackupManagerWhenItIsDisabled() = runBlocking {
+        onDevice(backupDump(enabled = false, LOCAL_TRANSPORT))
+
+        transport.backup(archive())
+
+        assertEquals(
+            listOf(
+                "dumpsys package $PACKAGE",
+                "dumpsys backup",
+                "bmgr enable true",
+                "bmgr backupnow @pm@ $PACKAGE",
+            ),
+            device.commands,
+        )
+    }
+
+    /** Without a state that reads as expected, `bmgr` enables backup and tells the transport. */
+    @Test
+    fun backupAsksBmgrWhenTheStateOfTheBackupManagerDoesNotRead() = runBlocking {
+        onDevice(backupDump = "") { command ->
+            if (command == "bmgr list transports") shellOutput(TRANSPORTS_WITH_GMS_SELECTED)
+            else null
+        }
+
+        transport.backup(archive())
+
+        assertEquals(
+            listOf(
+                "dumpsys package $PACKAGE",
+                "dumpsys backup",
+                "bmgr enable true",
+                "bmgr list transports",
+                "bmgr transport '$LOCAL_TRANSPORT'",
+                "bmgr backupnow @pm@ $PACKAGE",
+                "bmgr transport '$GMS_TRANSPORT'",
+            ),
+            device.commands,
+        )
+    }
+
+    @Test
+    fun backupKeepsTheLocalTransportThatBmgrMarksSelected() = runBlocking {
+        onDevice(backupDump = "") { command ->
             if (command == "bmgr list transports") shellOutput(TRANSPORTS_WITH_LOCAL_SELECTED)
             else null
         }
@@ -213,25 +260,44 @@ class BackupLocalTransportTest {
         transport.backup(archive())
 
         assertEquals(
-            listOf("bmgr transport '$LOCAL_TRANSPORT'"),
-            device.commands.filter { it.startsWith("bmgr transport") },
+            listOf(
+                "dumpsys package $PACKAGE",
+                "dumpsys backup",
+                "bmgr enable true",
+                "bmgr list transports",
+                "bmgr backupnow @pm@ $PACKAGE",
+            ),
+            device.commands,
         )
     }
 
+    /** A dump without a selected transport does not read as expected, so `bmgr` is asked. */
     @Test
     fun backupAssumesTheGmsTransportWhenNoneIsMarkedSelected() = runBlocking {
-        device.onShell { command ->
+        onDevice(backupDump(enabled = true, selectedTransport = null)) { command ->
             if (command == "bmgr list transports") shellOutput("    $LOCAL_TRANSPORT\n") else null
         }
 
         transport.backup(archive())
 
-        assertEquals("bmgr transport '$GMS_TRANSPORT'", device.commands.last())
+        assertEquals(
+            listOf(
+                "dumpsys package $PACKAGE",
+                "dumpsys backup",
+                "bmgr enable true",
+                "bmgr list transports",
+                "bmgr transport '$LOCAL_TRANSPORT'",
+                "bmgr backupnow @pm@ $PACKAGE",
+                "bmgr transport '$GMS_TRANSPORT'",
+            ),
+            device.commands,
+        )
     }
 
+    /** Android 12 to 14 dump `Inactive` when backup is not active, which `bmgr` reports too. */
     @Test
     fun backupThrowsWhenTheBackupManagerCannotBeEnabled() {
-        device.onShell { command ->
+        onDevice(backupDump = "Inactive\n") { command ->
             if (command == "bmgr enable true") {
                 shellOutput(stderr = "Error: Backup Manager is not activated for user 0\n")
             } else {
@@ -253,14 +319,11 @@ class BackupLocalTransportTest {
 
     @Test
     fun backupThrowsWhenTheLocalTransportCannotBeSelected() {
-        device.onShell { command ->
-            when (command) {
-                "bmgr list transports" -> shellOutput(TRANSPORTS_WITH_GMS_SELECTED)
-                "bmgr transport '$LOCAL_TRANSPORT'" ->
-                    shellOutput(
-                        "Unknown transport '$LOCAL_TRANSPORT' specified; no changes made.\n"
-                    )
-                else -> null
+        onDevice(GMS_SELECTED) { command ->
+            if (command == "bmgr transport '$LOCAL_TRANSPORT'") {
+                shellOutput("Unknown transport '$LOCAL_TRANSPORT' specified; no changes made.\n")
+            } else {
+                null
             }
         }
 
@@ -281,12 +344,12 @@ class BackupLocalTransportTest {
     @Test
     fun backupThrowsWhenThePackageIsNotBackedUp() {
         val output =
-            "Running incremental backup for 1 requested packages.\n" +
+            "Running incremental backup for 2 requested packages.\n" +
                 "Package @pm@ with result: Success\n" +
                 "Package $PACKAGE with result: Backup is not allowed\n" +
                 "Backup finished with result: Success\n"
-        device.onShell { command ->
-            if (command == "bmgr backupnow $PACKAGE") shellOutput(output) else null
+        onDevice(GMS_SELECTED) { command ->
+            if (command == "bmgr backupnow @pm@ $PACKAGE") shellOutput(output) else null
         }
         val archive = archive()
 
@@ -299,34 +362,70 @@ class BackupLocalTransportTest {
         assertEquals("bmgr transport '$GMS_TRANSPORT'", device.commands.last())
     }
 
+    /** A restore checks the app against the package metadata, so its backup must succeed too. */
+    @Test
+    fun backupThrowsWhenThePackageMetadataIsNotBackedUp() {
+        val output =
+            "Running incremental backup for 2 requested packages.\n" +
+                "Package @pm@ with result: Transport error\n" +
+                "Package $PACKAGE with result: Success\n" +
+                "Backup finished with result: Success\n"
+        onDevice(GMS_SELECTED) { command ->
+            if (command == "bmgr backupnow @pm@ $PACKAGE") shellOutput(output) else null
+        }
+
+        val e =
+            assertFailsWith<BackupRestoreException> { runBlocking { transport.backup(archive()) } }
+
+        assertEquals("Local backup of $PACKAGE failed: ${output.trim()}", e.message)
+        assertEquals(BackupErrorCode.BACKUP_FAILED, e.errorCode)
+    }
+
     @Test
     fun backupThrowsWhenTheBackupPassFails() {
-        device.onShell { command ->
-            if (command == "bmgr backupnow $PACKAGE") {
-                shellOutput(
-                    "Running incremental backup for 1 requested packages.\n" +
-                        "Package $PACKAGE with result: Success\n" +
-                        "Backup finished with result: Backup cancelled\n"
-                )
-            } else {
-                null
-            }
+        val output =
+            "Running incremental backup for 2 requested packages.\n" +
+                "Package @pm@ with result: Success\n" +
+                "Package $PACKAGE with result: Success\n" +
+                "Backup finished with result: Backup cancelled\n" +
+                "Backups can be cancelled if a backup is already running, check backup dumpsys\n"
+        onDevice(GMS_SELECTED) { command ->
+            if (command == "bmgr backupnow @pm@ $PACKAGE") shellOutput(output) else null
         }
 
         val e = assertFailsWith<IOException> { runBlocking { transport.backup(archive()) } }
 
-        assertTrue(e.message!!.startsWith("Local backup of $PACKAGE failed: "), e.message)
-        assertTrue(e.message!!.contains("Backup finished with result: Backup cancelled"), e.message)
+        assertEquals("Local backup of $PACKAGE failed: ${output.trim()}", e.message)
+    }
+
+    /** `bmgr` takes its time to exit after the line that ends its work. */
+    @Test
+    fun backupDoesNotWaitForBmgrToExit() = runBlocking {
+        onDevice(backupDump(enabled = false, GMS_TRANSPORT))
+        device.lingerOn { it.startsWith("bmgr") }
+
+        withTimeout(10.seconds) { transport.backup(archive()) }
+
+        assertEquals(
+            listOf(
+                "dumpsys package $PACKAGE",
+                "dumpsys backup",
+                "bmgr enable true",
+                "bmgr transport '$LOCAL_TRANSPORT'",
+                "bmgr backupnow @pm@ $PACKAGE",
+                "bmgr transport '$GMS_TRANSPORT'",
+            ),
+            device.commands,
+        )
+        assertEquals(emptyList(), device.runningCommands)
     }
 
     @Test
     fun backupSelectsTheOriginalTransportAgainWhenItFails() {
-        device.onShell { command ->
-            when (command) {
-                "bmgr list transports" -> shellOutput(TRANSPORTS_WITH_GMS_SELECTED)
-                "bmgr backupnow $PACKAGE" -> throw IOException("bmgr backupnow failed")
-                else -> null
-            }
+        onDevice(GMS_SELECTED) { command ->
+            if (command == "bmgr backupnow @pm@ $PACKAGE")
+                throw IOException("bmgr backupnow failed")
+            else null
         }
 
         assertFailsWith<IOException> { runBlocking { transport.backup(archive()) } }
@@ -336,12 +435,11 @@ class BackupLocalTransportTest {
     /** A backup that leaves the local transport selected would change later backups. */
     @Test
     fun backupThrowsWhenTheOriginalTransportCannotBeSelectedAgain() {
-        device.onShell { command ->
-            when (command) {
-                "bmgr list transports" -> shellOutput(TRANSPORTS_WITH_GMS_SELECTED)
-                "bmgr transport '$GMS_TRANSPORT'" ->
-                    shellOutput("Unknown transport '$GMS_TRANSPORT' specified; no changes made.\n")
-                else -> null
+        onDevice(GMS_SELECTED) { command ->
+            if (command == "bmgr transport '$GMS_TRANSPORT'") {
+                shellOutput("Unknown transport '$GMS_TRANSPORT' specified; no changes made.\n")
+            } else {
+                null
             }
         }
 
@@ -356,12 +454,9 @@ class BackupLocalTransportTest {
 
     @Test
     fun restoreSelectsTheOriginalTransportAgainWhenItFails() {
-        device.onShell { command ->
-            when (command) {
-                "bmgr list transports" -> shellOutput(TRANSPORTS_WITH_GMS_SELECTED)
-                "bmgr restore 1 $PACKAGE" -> throw IOException("bmgr restore failed")
-                else -> null
-            }
+        onDevice(GMS_SELECTED) { command ->
+            if (command == "bmgr restore 1 $PACKAGE") throw IOException("bmgr restore failed")
+            else null
         }
 
         assertFailsWith<IOException> { runBlocking { transport.restore() } }
@@ -370,12 +465,11 @@ class BackupLocalTransportTest {
 
     @Test
     fun restoreThrowsWhenTheLocalTransportHasNoBackup() {
-        device.onShell { command ->
-            when (command) {
-                "bmgr list transports" -> shellOutput(TRANSPORTS_WITH_GMS_SELECTED)
-                "bmgr restore 1 $PACKAGE" ->
-                    shellOutput("No available restore sets; no restore performed\ndone\n")
-                else -> null
+        onDevice(GMS_SELECTED) { command ->
+            if (command == "bmgr restore 1 $PACKAGE") {
+                shellOutput("No available restore sets; no restore performed\ndone\n")
+            } else {
+                null
             }
         }
 
@@ -395,17 +489,16 @@ class BackupLocalTransportTest {
 
     @Test
     fun restoreThrowsWhenTheRestoreFails() {
-        device.onShell { command ->
-            when (command) {
-                "bmgr list transports" -> shellOutput(TRANSPORTS_WITH_GMS_SELECTED)
-                "bmgr restore 1 $PACKAGE" ->
-                    shellOutput(
-                        "Scheduling restore: Local disk image\n" +
-                            "restoreStarting: 1 packages\n" +
-                            "restoreFinished: -1000\n" +
-                            "done\n"
-                    )
-                else -> null
+        onDevice(GMS_SELECTED) { command ->
+            if (command == "bmgr restore 1 $PACKAGE") {
+                shellOutput(
+                    "Scheduling restore: Local disk image\n" +
+                        "restoreStarting: 1 packages\n" +
+                        "restoreFinished: -1000\n" +
+                        "done\n"
+                )
+            } else {
+                null
             }
         }
 
@@ -421,10 +514,7 @@ class BackupLocalTransportTest {
      */
     @Test
     fun restoreStopsWaitingForAnUnresponsiveTransportReselection() = runBlocking {
-        device.onShell { command ->
-            if (command == "bmgr list transports") shellOutput(TRANSPORTS_WITH_GMS_SELECTED)
-            else null
-        }
+        onDevice(GMS_SELECTED)
         device.hangOn {
             it == "bmgr restore 1 $PACKAGE" || it == "bmgr transport '$GMS_TRANSPORT'"
         }
@@ -446,7 +536,75 @@ class BackupLocalTransportTest {
     /** `bmgr restore` waits for the restore to finish, so nothing runs after it but cleanup. */
     @Test
     fun restoreRunsOnTheLocalTransportThenSelectsTheOriginalOneAgain() = runBlocking {
-        device.onShell { command ->
+        onDevice(GMS_SELECTED)
+
+        transport.restore()
+
+        assertEquals(
+            listOf(
+                "dumpsys backup",
+                "bmgr transport '$LOCAL_TRANSPORT'",
+                "bmgr restore 1 $PACKAGE",
+                "bmgr transport '$GMS_TRANSPORT'",
+            ),
+            device.commands,
+        )
+    }
+
+    /** `bmgr` takes its time to exit after the line that ends its work. */
+    @Test
+    fun restoreDoesNotWaitForBmgrToExit() = runBlocking {
+        onDevice(GMS_SELECTED)
+        device.lingerOn { it.startsWith("bmgr") }
+
+        withTimeout(10.seconds) { transport.restore() }
+
+        assertEquals(
+            listOf(
+                "dumpsys backup",
+                "bmgr transport '$LOCAL_TRANSPORT'",
+                "bmgr restore 1 $PACKAGE",
+                "bmgr transport '$GMS_TRANSPORT'",
+            ),
+            device.commands,
+        )
+        assertEquals(emptyList(), device.runningCommands)
+    }
+
+    /** `bmgr` ends the restore session after it has printed the result, and then prints `done`. */
+    @Test
+    fun restoreWaitsForBmgrToEndTheRestoreSession() = runBlocking {
+        onDevice(LOCAL_SELECTED) { command ->
+            if (command == "bmgr restore 1 $PACKAGE") {
+                shellOutput(
+                    "Scheduling restore: Local disk image\n" +
+                        "restoreStarting: 1 packages\n" +
+                        "onUpdate: 0 = $PACKAGE\n" +
+                        "restoreFinished: 0\n"
+                )
+            } else {
+                null
+            }
+        }
+        device.lingerOn { it == "bmgr restore 1 $PACKAGE" }
+
+        assertNull(withTimeoutOrNull(300.milliseconds) { transport.restore() })
+        assertEquals(emptyList(), device.runningCommands)
+    }
+
+    @Test
+    fun restoreKeepsTheLocalTransportWhenItWasAlreadySelected() = runBlocking {
+        onDevice(LOCAL_SELECTED)
+
+        transport.restore()
+
+        assertEquals(listOf("dumpsys backup", "bmgr restore 1 $PACKAGE"), device.commands)
+    }
+
+    /** Without a state that reads as expected, `bmgr` tells the selected transport. */
+    @Test
+    fun restoreAsksBmgrWhenTheStateOfTheBackupManagerDoesNotRead() = runBlocking {
+        onDevice(backupDump = "") { command ->
             if (command == "bmgr list transports") shellOutput(TRANSPORTS_WITH_GMS_SELECTED)
             else null
         }
@@ -455,6 +613,7 @@ class BackupLocalTransportTest {
 
         assertEquals(
             listOf(
+                "dumpsys backup",
                 "bmgr list transports",
                 "bmgr transport '$LOCAL_TRANSPORT'",
                 "bmgr restore 1 $PACKAGE",
@@ -462,6 +621,24 @@ class BackupLocalTransportTest {
             ),
             device.commands,
         )
+    }
+
+    /**
+     * Answers shell commands as a device on which the app is not stopped and `dumpsys backup`
+     * prints [backupDump], except where [override] returns an output or throws.
+     */
+    private fun onDevice(
+        backupDump: String,
+        override: (String) -> ShellCommandOutput? = { null },
+    ) {
+        device.onShell { command ->
+            override(command)
+                ?: when (command) {
+                    "dumpsys package $PACKAGE" -> shellOutput(packageDump(PACKAGE, stopped = false))
+                    "dumpsys backup" -> shellOutput(backupDump)
+                    else -> null
+                }
+        }
     }
 
     private fun archive() = tempFolder.root.resolve("backup_local_device.zip")
@@ -485,7 +662,12 @@ class BackupLocalTransportTest {
 
     private companion object {
         const val PACKAGE = "com.example.app"
-        const val GMS_TRANSPORT = "com.google.android.gms/.backup.BackupTransportService"
+
+        /** What `dumpsys backup` prints with backup enabled and the given transport selected. */
+        val GMS_SELECTED = backupDump(enabled = true, GMS_TRANSPORT)
+        val LOCAL_SELECTED = backupDump(enabled = true, LOCAL_TRANSPORT)
+
+        /** What `bmgr list transports` prints with the given transport selected. */
         const val TRANSPORTS_WITH_GMS_SELECTED = "    $LOCAL_TRANSPORT\n  * $GMS_TRANSPORT\n"
         const val TRANSPORTS_WITH_LOCAL_SELECTED = "  * $LOCAL_TRANSPORT\n    $GMS_TRANSPORT\n"
     }

@@ -46,15 +46,31 @@ internal class BackupLocalTransport(
     suspend fun backup(archive: File) {
         logger.info("Executing robust local transport backup simulation...")
         shell.unstopPackage(applicationId)
-        bmgr(
-            "enable true",
-            BackupErrorCode.BMGR_INIT_FAILED,
-            "Failed to enable the backup manager with bmgr",
-            "Backup Manager now enabled",
-        )
-        withLocalTransport {
-            backUpNow(PACKAGE_MANAGER_SENTINEL)
-            backUpNow(applicationId)
+        val state = shell.backupManagerState()
+        if (state?.isEnabled != true) {
+            bmgr(
+                "enable true",
+                Regex("Backup Manager now enabled"),
+                BackupErrorCode.BMGR_INIT_FAILED,
+                "Failed to enable the backup manager with bmgr",
+                "Backup Manager now enabled",
+            )
+        }
+        withLocalTransport(state) {
+            // One pass backs up the package metadata and then the app.
+            bmgr(
+                "backupnow $PACKAGE_MANAGER_SENTINEL " +
+                    BackupDeviceShell.quoteIfNeeded(applicationId),
+                // A pass that does not succeed can print a hint after its result.
+                Regex("Backup finished with result: Success"),
+                BackupErrorCode.BACKUP_FAILED,
+                "Local backup of $applicationId failed",
+                // The pass reports success even when it skips a package, e.g. if it doesn't allow
+                // backups, so the result of each package is checked as well.
+                "Package $PACKAGE_MANAGER_SENTINEL with result: Success",
+                "Package $applicationId with result: Success",
+                "Backup finished with result: Success",
+            )
         }
         ZipOutputStream(archive.outputStream()).use { zip ->
             zip.putNextEntry(ZipEntry(MARKER_ENTRY))
@@ -89,10 +105,11 @@ internal class BackupLocalTransport(
             )
         }
         logger.info("Executing robust local transport restore simulation...")
-        withLocalTransport {
+        withLocalTransport(shell.backupManagerState()) {
             // bmgr reports the result only when the restore has finished.
             bmgr(
                 "restore 1 ${BackupDeviceShell.quoteIfNeeded(applicationId)}",
+                Regex("done"),
                 BackupErrorCode.RESTORE_FAILED,
                 "Local restore of $applicationId failed",
                 "restoreFinished: 0",
@@ -100,23 +117,11 @@ internal class BackupLocalTransport(
         }
     }
 
-    /** Backs up [packageName] now, and throws unless both the package and the pass succeed. */
-    private suspend fun backUpNow(packageName: String) {
-        bmgr(
-            "backupnow ${BackupDeviceShell.quoteIfNeeded(packageName)}",
-            BackupErrorCode.BACKUP_FAILED,
-            "Local backup of $packageName failed",
-            // The pass reports success even when it skips the package, e.g. if it doesn't allow
-            // backups, so the result of the package is checked as well.
-            "Package $packageName with result: Success",
-            "Backup finished with result: Success",
-        )
-    }
-
     /** Selects [transport] as the backup transport of the device. */
     private suspend fun selectTransport(transport: String) {
         bmgr(
             "transport ${BackupDeviceShell.quote(transport)}",
+            Regex("""Selected transport .* \(formerly .*\)"""),
             BackupErrorCode.BMGR_INIT_FAILED,
             "Failed to select backup transport $transport",
             "Selected transport $transport",
@@ -127,15 +132,19 @@ internal class BackupLocalTransport(
      * Runs `bmgr` with [arguments], and throws a [BackupRestoreException] with [errorCode] and
      * [failureMessage] unless its output contains every one of [expected].
      *
-     * bmgr reports failures only in its output: its exit code is 0 either way.
+     * bmgr reports failures only in its output: its exit code is 0 either way. It prints [lastLine]
+     * when it has done what it was asked to, and its exit after that is not waited for.
      */
     private suspend fun bmgr(
         arguments: String,
+        lastLine: Regex,
         errorCode: BackupErrorCode,
         failureMessage: String,
         vararg expected: String,
     ) {
-        val output = shell.exec("bmgr $arguments")
+        // A command that asks bmgr for monitor events could not end on its last line, since
+        // another thread prints the events, which may follow that line.
+        val output = shell.exec("bmgr $arguments", lastLine)
         if (!expected.all { output.stdout.contains(it) }) {
             throw BackupRestoreException(
                 errorCode,
@@ -148,20 +157,30 @@ internal class BackupLocalTransport(
      * Runs [block] with the local transport selected, then selects the original one again, even
      * when [block] fails or is cancelled. Selecting it again is bounded by
      * [reselectTransportTimeout], so an unresponsive device cannot block the caller.
+     *
+     * The original transport is the selected one of [state], or the one that `bmgr` marks as
+     * selected when [state] is null. When it is the local transport, none is selected.
      */
-    private suspend fun withLocalTransport(block: suspend () -> Unit) {
+    private suspend fun withLocalTransport(
+        state: BackupDeviceShell.BackupManagerState?,
+        block: suspend () -> Unit,
+    ) {
         val originalTransport =
-            shell
-                .exec("bmgr list transports")
-                .stdout
-                .lineSequence()
-                .firstOrNull { it.trim().startsWith("*") }
-                ?.replace("*", "")
-                ?.trim() ?: DEFAULT_TRANSPORT
+            state?.selectedTransport
+                ?: shell
+                    .exec("bmgr list transports")
+                    .stdout
+                    .lineSequence()
+                    .firstOrNull { it.trim().startsWith("*") }
+                    ?.replace("*", "")
+                    ?.trim()
+                ?: DEFAULT_TRANSPORT
+        if (originalTransport == LOCAL_TRANSPORT) {
+            block()
+            return
+        }
         withCleanup(
-            cleanup = {
-                if (originalTransport != LOCAL_TRANSPORT) selectTransport(originalTransport)
-            },
+            cleanup = { selectTransport(originalTransport) },
             cleanupTimeout = reselectTransportTimeout,
         ) {
             selectTransport(LOCAL_TRANSPORT)
