@@ -1359,6 +1359,8 @@ package androidx.compose.remote.creation.compose.text {
   }
 
   public final class RemoteFontVariation {
+    method public androidx.compose.remote.creation.compose.text.RemoteFontVariation.Setting grade(androidx.compose.remote.creation.compose.state.RemoteFloat grade);
+    method public androidx.compose.remote.creation.compose.text.RemoteFontVariation.Setting opticalSizing(androidx.compose.remote.creation.compose.state.RemoteFloat opticalSize);
     method public androidx.compose.remote.creation.compose.text.RemoteFontVariation.Setting slant(androidx.compose.remote.creation.compose.state.RemoteFloat slant);
     method public androidx.compose.remote.creation.compose.text.RemoteFontVariation.Setting weight(androidx.compose.remote.creation.compose.state.RemoteFloat weight);
     method public androidx.compose.remote.creation.compose.text.RemoteFontVariation.Setting width(androidx.compose.remote.creation.compose.state.RemoteFloat width);
