@@ -21,7 +21,7 @@ import android.os.Bundle;
 /**
   * The raw contents of a widget. This includes the serialized RC document.
   */
-@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)")
 parcelable WearWidgetRawContentParcel {
     // The protobuf payload for [androidx.glance.wear.proto.WearWidgetRawContentProto].
     byte[] payload;

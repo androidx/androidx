@@ -18,7 +18,7 @@ package androidx.glance.wear.parcel;
 /**
   * Callback used to inform the host that an execution has completed.
   */
-@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)")
 interface IExecutionCallback {
 
     /**

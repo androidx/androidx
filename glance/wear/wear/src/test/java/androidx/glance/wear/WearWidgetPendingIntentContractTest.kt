@@ -116,8 +116,6 @@ class WearWidgetPendingIntentContractTest {
         assertThat(actions.pendingIntents.keySet()).containsExactly("0")
     }
 
-    // pendingIntentAction extras are restricted until the follow-up that makes them public.
-    @Suppress("RestrictedApiAndroidX")
     @Test
     fun pendingIntentActionWithExtras_keepsContract() = runTest {
         val pendingIntent = testPendingIntent(requestCode = 1)

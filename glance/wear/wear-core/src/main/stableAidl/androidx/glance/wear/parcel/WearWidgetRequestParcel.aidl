@@ -19,7 +19,7 @@ package androidx.glance.wear.parcel;
 /**
   * Data for a Widget request.
   */
-@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)")
 parcelable WearWidgetRequestParcel {
     byte[] payload;
 }

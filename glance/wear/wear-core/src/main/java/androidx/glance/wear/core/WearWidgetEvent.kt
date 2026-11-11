@@ -38,7 +38,7 @@ public interface WearWidgetEvent
  *   the widget was no longer visible.
  */
 public class WearWidgetVisibleEvent
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 constructor(
     public val instanceId: WidgetInstanceId,
     public val startTime: Instant,
@@ -76,7 +76,7 @@ constructor(
 }
 
 /** A batch of [WearWidgetEvent]s. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WearWidgetEventBatch(public val events: List<WearWidgetEvent>) {
 
     /** Convert this request to [WearWidgetEventBatchParcel]. */
