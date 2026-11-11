@@ -1057,8 +1057,10 @@ class WebSurfaceTest {
         // The request only lasts for that gesture, so the list takes the next drag.
         surface.performTouchInput { swipeUp() }
 
-        composeTestRule.waitUntil(TIMEOUT_MS) {
-            listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0
+        composeTestRule.runOnIdle {
+            assertTrue(
+                listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0
+            )
         }
     }
 
@@ -1153,8 +1155,10 @@ class WebSurfaceTest {
         // drag from a WebView, and the page gets a cancel.
         composeTestRule.onNodeWithTag("surface").performTouchInput { swipeUp() }
 
-        composeTestRule.waitUntil(TIMEOUT_MS) {
-            listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0
+        composeTestRule.runOnIdle {
+            assertTrue(
+                listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0
+            )
         }
         assertEquals("0", bridge.evaluateJs("Math.round(window.scrollY)"))
     }
