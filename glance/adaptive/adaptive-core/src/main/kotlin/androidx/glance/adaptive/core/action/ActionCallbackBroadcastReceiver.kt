@@ -24,15 +24,25 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import kotlin.coroutines.CoroutineContext
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 // Tag length must not exceed 23 characters for pre-API 24 log compatibility.
 private const val TAG = "GlanceActionReceiver"
+
+/**
+ * How long [GlanceAdaptiveActionCallback.onAction] may run. The platform gives a broadcast 10
+ * seconds to finish, even with [BroadcastReceiver.goAsync], before reporting the app as not
+ * responding, and part of that time is already spent before the callback starts.
+ */
+internal val OnActionTimeout: Duration = 9.seconds
 
 /**
  * Dispatches [GlanceWidgetAction.Callback] broadcast triggers to the target
@@ -70,7 +80,7 @@ internal class ActionCallbackBroadcastReceiver(
 
         // goAsync logs any failure, including a missing class or constructor, and always finishes
         // the broadcast.
-        goAsync {
+        goAsync(callbackClassName) {
             val clazz = Class.forName(callbackClassName, false, context.classLoader)
             if (!GlanceAdaptiveActionCallback::class.java.isAssignableFrom(clazz)) {
                 Log.e(
@@ -92,13 +102,25 @@ internal class ActionCallbackBroadcastReceiver(
         }
     }
 
-    private fun goAsync(block: suspend CoroutineScope.() -> Unit) {
+    /**
+     * Runs [block] for [callbackClassName] in a scope with the lifetime of the broadcast,
+     * cancelling it after [OnActionTimeout] so that the broadcast always finishes in time.
+     */
+    private fun goAsync(callbackClassName: String, block: suspend CoroutineScope.() -> Unit) {
         val parentScope = CoroutineScope(coroutineContext + Job())
         val pendingResult = goAsync()
 
         parentScope.launch {
             try {
-                block()
+                // Returns null only for this timeout: a timeout of the callback's own withTimeout
+                // propagates unchanged, like any other CancellationException.
+                if (withTimeoutOrNull(OnActionTimeout) { block() } == null) {
+                    Log.e(
+                        TAG,
+                        "Action callback $callbackClassName did not complete within " +
+                            "$OnActionTimeout and was cancelled to finish the broadcast",
+                    )
+                }
             } catch (e: CancellationException) {
                 // Regular cancellation, do not log as failure.
             } catch (e: Throwable) {
