@@ -19,16 +19,21 @@ package androidx.xr.compose.integration.tests
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.os.Looper
+import android.view.Choreographer
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.SpaceRequestResult
 import androidx.xr.compose.platform.requestFullSpace
 import androidx.xr.compose.spatial.Subspace
+import androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi
 import androidx.xr.compose.subspace.SpatialBoxScope
+import androidx.xr.compose.subspace.SpatialGltfModelState
+import androidx.xr.compose.subspace.SpatialGltfModelStatus
 import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.layout.SubspaceLayoutCoordinates
 import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
@@ -39,6 +44,7 @@ import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.Entity
+import androidx.xr.scenecore.ImageBasedLightingAsset
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.SpatialCapability
 import androidx.xr.scenecore.SpatialEnvironment
@@ -52,13 +58,17 @@ import androidx.xr.testutils.detectBackgroundColor
 import androidx.xr.testutils.findForegroundBounds
 import androidx.xr.testutils.toPixelArray
 import androidx.xr.testutils.toSoftwareBitmap
+import java.nio.file.Paths
+import kotlin.coroutines.resume
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
 import org.junit.AssumptionViolatedException
 
 /**
@@ -66,6 +76,12 @@ import org.junit.AssumptionViolatedException
  * [XrScreenshotTestRule].
  */
 internal const val GOLDEN_PATH = "xr/compose/integration-tests/xr-integration-tests"
+
+/**
+ * Studio lighting IBL asset relative to `assets/` providing even 360-degree lighting on glTF models
+ * without adding distracting skybox scenery when used with `geometry = null`.
+ */
+internal const val STUDIO_LIGHTING_IBL_ASSET_PATH = "skyboxes/studio_lighting_ibl.zip"
 
 private val SCENE_POLL_TIMEOUT = 10.seconds
 private const val PASSTHROUGH_OPACITY_TOLERANCE = 0.01f
@@ -87,8 +103,12 @@ private val anySubspaceNode = SubspaceSemanticsMatcher("anySubspaceNode") { true
 /**
  * Transitions [AndroidComposeTestRule.activity] to Full Space Mode, configures a deterministic
  * spatial environment background (`preferredPassthroughOpacity = passthroughOpacity` and
- * `preferredSpatialEnvironment = preferredEnvironment`), composes [content] inside a top-level
- * [Subspace], and waits for the spatial environment and passthrough preferences to settle.
+ * `preferredSpatialEnvironment`), composes [content] inside a top-level [Subspace], and waits for
+ * the spatial environment and passthrough preferences to settle.
+ *
+ * When [preferredEnvironment] is `null` and [defaultIblAssetPath] is non-null, loads the
+ * even-lighting studio IBL asset ([STUDIO_LIGHTING_IBL_ASSET_PATH]) with `geometry = null` so GLTF
+ * models are evenly illuminated without altering the black background void.
  *
  * The spatial environment preferences are restored when the content is disposed.
  *
@@ -99,7 +119,8 @@ private val anySubspaceNode = SubspaceSemanticsMatcher("anySubspaceNode") { true
  */
 internal fun AndroidComposeTestRule<*, out ComponentActivity>.setXrScreenshotContent(
     passthroughOpacity: Float = 0.0f,
-    preferredEnvironment: SpatialEnvironmentPreference? = SpatialEnvironmentPreference(null, null),
+    preferredEnvironment: SpatialEnvironmentPreference? = null,
+    defaultIblAssetPath: String? = STUDIO_LIGHTING_IBL_ASSET_PATH,
     content: @Composable @SubspaceComposable SpatialBoxScope.() -> Unit,
 ) {
     require(passthroughOpacity in 0f..1f) {
@@ -116,17 +137,48 @@ internal fun AndroidComposeTestRule<*, out ComponentActivity>.setXrScreenshotCon
         else -> throw AssertionError("Unexpected SpaceRequestResult: $spaceResult")
     }
     var activeSession: Session? = null
+    var environmentApplied = false
     setContent {
         val session = LocalSession.current
-        DisposableEffect(session, passthroughOpacity, preferredEnvironment) {
+        val coroutineScope = rememberCoroutineScope()
+        DisposableEffect(session, passthroughOpacity, preferredEnvironment, defaultIblAssetPath) {
             activeSession = session
-            if (session != null) {
-                val env = session.scene.spatialEnvironment
-                env.preferredPassthroughOpacity = passthroughOpacity
-                env.preferredSpatialEnvironment = preferredEnvironment
-            }
+            var ownedIblAsset: ImageBasedLightingAsset? = null
+            var disposed = false
+            val loadJob =
+                if (session != null) {
+                    val env = session.scene.spatialEnvironment
+                    env.preferredPassthroughOpacity = passthroughOpacity
+                    if (preferredEnvironment != null || defaultIblAssetPath == null) {
+                        env.preferredSpatialEnvironment =
+                            preferredEnvironment ?: SpatialEnvironmentPreference(null, null)
+                        environmentApplied = true
+                        null
+                    } else {
+                        coroutineScope.launch {
+                            val loaded =
+                                ImageBasedLightingAsset.createFromZip(
+                                    session,
+                                    Paths.get(defaultIblAssetPath),
+                                )
+                            if (disposed) {
+                                loaded.close()
+                                return@launch
+                            }
+                            ownedIblAsset = loaded
+                            env.preferredSpatialEnvironment =
+                                SpatialEnvironmentPreference(loaded, null)
+                            environmentApplied = true
+                        }
+                    }
+                } else {
+                    null
+                }
             onDispose {
+                disposed = true
+                loadJob?.cancel()
                 activeSession = null
+                environmentApplied = false
                 if (session != null) {
                     runCatching {
                         val env = session.scene.spatialEnvironment
@@ -134,6 +186,7 @@ internal fun AndroidComposeTestRule<*, out ComponentActivity>.setXrScreenshotCon
                             SpatialEnvironment.NO_PASSTHROUGH_OPACITY_PREFERENCE
                         env.preferredSpatialEnvironment = null
                     }
+                    runCatching { ownedIblAsset?.close() }
                 }
             }
         }
@@ -144,7 +197,7 @@ internal fun AndroidComposeTestRule<*, out ComponentActivity>.setXrScreenshotCon
             "Full Space Mode, hermetic environment active, and passthrough opacity settled",
         timeoutMillis = SCENE_POLL_TIMEOUT.inWholeMilliseconds,
     ) {
-        runOnUiThread { activeSession?.isEnvironmentSettled() == true }
+        runOnUiThread { environmentApplied && activeSession?.isEnvironmentSettled() == true }
     }
     waitForIdle()
 }
@@ -205,6 +258,65 @@ internal fun SubspaceSemanticsNodeInteraction.captureToBitmap(padding: Int = 0):
     val task = awaitSettledSpatialTask(findSubspaceRoot(initialNode))
     val settledNode = fetchSemanticsNode("Failed to fetch Subspace node for captureToBitmap")
     return captureAndCropToComposeNode(settledNode, task, padding)
+}
+
+/**
+ * Waits for every provided [SpatialGltfModelState] to finish loading and asserts that none entered
+ * [SpatialGltfModelStatus.Failed], failing immediately with the underlying exception on load error.
+ * Also awaits a few compositor VSync frames so asynchronous Impress/SplitEngine skinning and node
+ * or material updates flush before screenshot capture.
+ */
+@OptIn(ExperimentalSpatialGltfModelApi::class)
+internal fun AndroidComposeTestRule<*, out ComponentActivity>.waitForGltfModelToLoad(
+    modelState: SpatialGltfModelState,
+    vararg additionalModelStates: SpatialGltfModelState,
+    timeoutMillis: Long = SCENE_POLL_TIMEOUT.inWholeMilliseconds,
+) {
+    val modelStates = listOf(modelState, *additionalModelStates)
+    waitUntil(
+        conditionDescription = "All SpatialGltfModelState instances finish loading without errors",
+        timeoutMillis = timeoutMillis,
+    ) {
+        modelStates.any { it.status is SpatialGltfModelStatus.Failed } ||
+            modelStates.all { it.status !is SpatialGltfModelStatus.Loading }
+    }
+    assertSpatialGltfModelsLoaded(*modelStates.toTypedArray())
+    waitForIdle()
+    runBlocking(Dispatchers.Main) {
+        val choreographer = Choreographer.getInstance()
+        repeat(18) {
+            suspendCancellableCoroutine<Unit> { continuation ->
+                val callback = Choreographer.FrameCallback {
+                    if (continuation.isActive) {
+                        continuation.resume(Unit)
+                    }
+                }
+                choreographer.postFrameCallback(callback)
+                continuation.invokeOnCancellation { choreographer.removeFrameCallback(callback) }
+            }
+        }
+    }
+}
+
+/**
+ * Asserts synchronously that all provided [SpatialGltfModelState] instances have reached
+ * [SpatialGltfModelStatus.Loaded] with no errors.
+ */
+@OptIn(ExperimentalSpatialGltfModelApi::class)
+internal fun assertSpatialGltfModelsLoaded(vararg modelStates: SpatialGltfModelState) {
+    for (modelState in modelStates) {
+        when (val status = modelState.status) {
+            is SpatialGltfModelStatus.Loaded -> Unit
+            is SpatialGltfModelStatus.Failed ->
+                throw AssertionError(
+                    "SpatialGltfModel failed to load: ${status.exception.message ?: status.exception}",
+                    status.exception,
+                )
+            SpatialGltfModelStatus.Loading ->
+                throw AssertionError("SpatialGltfModel is still loading and not ready for capture")
+            else -> throw AssertionError("Unexpected SpatialGltfModelStatus: $status")
+        }
+    }
 }
 
 /**
@@ -423,28 +535,37 @@ private fun cropToComposeNode(
         validCount++
     }
 
-    val targetBox =
-        computeProjectedBounds(semanticsInfo)
-            ?: run {
-                val descendantVisuals =
-                    collectNodes(semanticsInfo).filter {
-                        it !== semanticsInfo && it.size.width > 0 && it.size.height > 0
-                    }
-                var tMinX = Float.POSITIVE_INFINITY
-                var tMinY = Float.POSITIVE_INFINITY
-                var tMaxX = Float.NEGATIVE_INFINITY
-                var tMaxY = Float.NEGATIVE_INFINITY
-                var count = 0
-                for (dn in descendantVisuals) {
-                    val b = computeProjectedBounds(dn) ?: continue
-                    if (b[0] < tMinX) tMinX = b[0]
-                    if (b[1] < tMinY) tMinY = b[1]
-                    if (b[2] > tMaxX) tMaxX = b[2]
-                    if (b[3] > tMaxY) tMaxY = b[3]
-                    count++
+    val targetSubtreeIds = collectNodes(semanticsInfo).mapTo(mutableSetOf()) { it.semanticsId }
+    val targetNodes =
+        allRenderedNodes
+            .filter { it.semanticsId in targetSubtreeIds }
+            .ifEmpty {
+                collectNodes(semanticsInfo).filter {
+                    it !== semanticsInfo && it.size.width > 0 && it.size.height > 0
                 }
-                if (count > 0) floatArrayOf(tMinX, tMinY, tMaxX, tMaxY) else null
             }
+    val targetBox = run {
+        var tMinX = Float.POSITIVE_INFINITY
+        var tMinY = Float.POSITIVE_INFINITY
+        var tMaxX = Float.NEGATIVE_INFINITY
+        var tMaxY = Float.NEGATIVE_INFINITY
+        var count = 0
+        fun includeNode(node: SubspaceSemanticsInfo) {
+            val b = computeProjectedBounds(node) ?: return
+            if (b[0] < tMinX) tMinX = b[0]
+            if (b[1] < tMinY) tMinY = b[1]
+            if (b[2] > tMaxX) tMaxX = b[2]
+            if (b[3] > tMaxY) tMaxY = b[3]
+            count++
+        }
+        includeNode(semanticsInfo)
+        for (tn in targetNodes) {
+            if (tn !== semanticsInfo) {
+                includeNode(tn)
+            }
+        }
+        if (count > 0) floatArrayOf(tMinX, tMinY, tMaxX, tMaxY) else null
+    }
 
     val isFull =
         targetBox == null ||
