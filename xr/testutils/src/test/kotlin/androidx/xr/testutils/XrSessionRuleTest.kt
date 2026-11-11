@@ -26,23 +26,13 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.manifest.FEATURE_XR_API_SPATIAL
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.concurrent.thread
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
-import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertSame
-import kotlin.test.assertTrue
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.AssumptionViolatedException
@@ -94,13 +84,12 @@ class XrSessionRuleTest {
     }
 
     @Suppress("DEPRECATION")
-    private fun createFakeRule(
-        cleanupTimeout: Duration = 10.seconds
-    ): Triple<
-        XrSessionRule<TrackingActivityRule, CustomTestActivity>,
-        CustomTestActivity,
-        Session,
-    > {
+    private fun createFakeRule():
+        Triple<
+            XrSessionRule<TrackingActivityRule, CustomTestActivity>,
+            CustomTestActivity,
+            Session,
+        > {
         val (activity, session) =
             runBlocking(Dispatchers.Main.immediate) {
                 val builtActivity =
@@ -118,7 +107,6 @@ class XrSessionRuleTest {
         val rule =
             XrSessionRule(
                 activityRule = trackingRule,
-                cleanupTimeout = cleanupTimeout,
                 sessionFactory = { SessionCreateSuccess(session) },
                 activityProvider = { it.getActivity() },
             )
@@ -160,21 +148,6 @@ class XrSessionRuleTest {
     }
 
     @Test
-    fun constructor_rejectsNonPositiveCleanupTimeout() {
-        val activity =
-            runBlocking(Dispatchers.Main.immediate) {
-                Robolectric.buildActivity(CustomTestActivity::class.java).setup().get()
-            }
-        val trackingRule = TrackingActivityRule(activity)
-        assertFailsWith<IllegalArgumentException> {
-            XrSessionRule(trackingRule, cleanupTimeout = Duration.ZERO) { it.getActivity() }
-        }
-        assertFailsWith<IllegalArgumentException> {
-            XrSessionRule(trackingRule, cleanupTimeout = (-1).milliseconds) { it.getActivity() }
-        }
-    }
-
-    @Test
     fun apply_skipsWhenXrFeatureMissingBeforeApplyingActivityRule() {
         setXrSystemFeature(false)
         val activity =
@@ -194,7 +167,7 @@ class XrSessionRuleTest {
     }
 
     @Test
-    fun accessorsAndCleanupsOutsideRunningTest_throwIllegalStateException() {
+    fun accessorsOutsideRunningTest_throwIllegalStateException() {
         setXrSystemFeature(true)
         val (rule, expectedActivity, expectedSession) = createFakeRule()
 
@@ -207,33 +180,21 @@ class XrSessionRuleTest {
             assertFailsWith<IllegalStateException> { rule.session }.message,
         )
         assertEquals(
-            "XrSessionRule.manage is only available while a test is running.",
-            assertFailsWith<IllegalStateException> { rule.manage(AutoCloseable {}) }.message,
-        )
-        assertEquals(
-            "XrSessionRule.onCleanup is only available while a test is running.",
-            assertFailsWith<IllegalStateException> { rule.onCleanup {} }.message,
-        )
-        assertEquals(
             "XrSessionRule.onMainThread is only available while a test is running.",
             assertFailsWith<IllegalStateException> { rule.onMainThread {} }.message,
         )
+        assertFailsWith<IllegalStateException> { rule.captureToBitmap() }
 
-        val resourceClosed = AtomicBoolean(false)
         rule.evaluateRule {
             assertSame(expectedActivity, rule.activity)
             assertSame(expectedSession, rule.session)
-            val resource = AutoCloseable { resourceClosed.set(true) }
-            assertSame(resource, rule.manage(resource))
         }
-        assertTrue(resourceClosed.get())
 
         // After evaluation finishes, all active-test guards throw again.
         assertFailsWith<IllegalStateException> { rule.activity }
         assertFailsWith<IllegalStateException> { rule.session }
-        assertFailsWith<IllegalStateException> { rule.manage(AutoCloseable {}) }
-        assertFailsWith<IllegalStateException> { rule.onCleanup {} }
         assertFailsWith<IllegalStateException> { rule.onMainThread {} }
+        assertFailsWith<IllegalStateException> { rule.captureToBitmap() }
     }
 
     @Test
@@ -269,165 +230,31 @@ class XrSessionRuleTest {
     fun onMainThread_providesScopeReceiverOnMainLooper() {
         setXrSystemFeature(true)
         val (rule, expectedActivity, expectedSession) = createFakeRule()
-        val closedOnMainLooper = AtomicBoolean(false)
 
         rule.evaluateRule {
             val returned = rule.onMainThread {
                 assertSame(Looper.getMainLooper(), Looper.myLooper())
                 assertSame(expectedActivity, activity)
                 assertSame(expectedSession, session)
-                manage(
-                    AutoCloseable {
-                        closedOnMainLooper.set(Looper.myLooper() == Looper.getMainLooper())
-                    }
-                )
                 "done"
             }
             assertEquals("done", returned)
         }
-
-        assertTrue(closedOnMainLooper.get())
     }
 
     @Test
-    fun cleanups_interleavedManageAndOnCleanupWithKeys_runInStrictLifoOrder() {
+    fun apply_whenTestBodyThrows_rethrowsAndClearsActiveState() {
         setXrSystemFeature(true)
         val (rule, _, _) = createFakeRule()
-        val events = mutableListOf<String>()
-        val dedupKey = Any()
-
-        rule.evaluateRule {
-            rule.onCleanup(key = dedupKey) {
-                assertSame(Looper.getMainLooper(), Looper.myLooper())
-                events += "1-keyedCleanup"
-            }
-            rule.onMainThread {
-                manage(
-                    AutoCloseable {
-                        assertSame(Looper.getMainLooper(), Looper.myLooper())
-                        events += "2-manageA"
-                    }
-                )
-                onCleanup { events += "3-cleanupB" }
-                // Duplicate key registration must be a no-op and preserve the original LIFO slot.
-                onCleanup(key = dedupKey) { events += "duplicate-should-not-run" }
-                manage(AutoCloseable { events += "4-manageC" })
-            }
-            rule.onCleanup { events += "5-cleanupD" }
-        }
-
-        assertEquals(
-            listOf("5-cleanupD", "4-manageC", "3-cleanupB", "2-manageA", "1-keyedCleanup"),
-            events,
-        )
-    }
-
-    @Test
-    fun tearDown_whenTestBodySucceedsAndCleanupsFail_runsAllCleanupsAndThrowsFirstFailure() {
-        setXrSystemFeature(true)
-        val (rule, _, _) = createFakeRule()
-        val events = mutableListOf<String>()
 
         val thrown =
-            assertFailsWith<XrSessionRule.CleanupException> {
-                rule.evaluateRule {
-                    rule.onCleanup { events += "1-cleanup-ok" }
-                    rule.onCleanup {
-                        events += "2-cleanup-throws"
-                        throw IllegalStateException("cleanup-2 boom")
-                    }
-                    rule.manage(
-                        object : AutoCloseable {
-                            override fun close() {
-                                events += "3-close-throws"
-                                throw IllegalArgumentException("close-3 boom")
-                            }
-
-                            override fun toString(): String = "TestResource"
-                        }
-                    )
-                }
-            }
-
-        assertEquals(listOf("3-close-throws", "2-cleanup-throws", "1-cleanup-ok"), events)
-        assertTrue(thrown.message.orEmpty().contains("close TestResource"))
-        assertEquals("close-3 boom", thrown.cause?.message)
-        assertEquals(1, thrown.suppressed.size)
-        assertTrue(thrown.suppressed[0].message.orEmpty().contains("onCleanup #1"))
-        assertEquals("cleanup-2 boom", thrown.suppressed[0].cause?.message)
-    }
-
-    @Test
-    fun tearDown_whenTestBodyThrowsAndCleanupsFail_attachesSuppressedToPrimaryFailure() {
-        setXrSystemFeature(true)
-        val (rule, _, _) = createFakeRule()
-        val events = mutableListOf<String>()
-
-        val primary =
             assertFailsWith<AssertionError> {
-                rule.evaluateRule {
-                    rule.onCleanup { events += "1-cleanup-ok" }
-                    rule.onCleanup {
-                        events += "2-cleanup-throws"
-                        throw IllegalStateException("cleanup-2 boom")
-                    }
-                    rule.manage(
-                        object : AutoCloseable {
-                            override fun close() {
-                                events += "3-close-throws"
-                                throw IllegalArgumentException("close-3 boom")
-                            }
-
-                            override fun toString(): String = "TestResource"
-                        }
-                    )
-                    throw AssertionError("primary body failure")
-                }
+                rule.evaluateRule { throw AssertionError("primary body failure") }
             }
 
-        assertEquals("primary body failure", primary.message)
-        assertEquals(listOf("3-close-throws", "2-cleanup-throws", "1-cleanup-ok"), events)
-        assertEquals(2, primary.suppressed.size)
-        assertTrue(primary.suppressed[0].message.orEmpty().contains("close TestResource"))
-        assertEquals("close-3 boom", primary.suppressed[0].cause?.message)
-        assertTrue(primary.suppressed[1].message.orEmpty().contains("onCleanup #1"))
-        assertEquals("cleanup-2 boom", primary.suppressed[1].cause?.message)
-    }
-
-    @Test
-    fun tearDown_cleanupTimeout_cancelsHungCleanupAndRunsRemainingCleanups() {
-        setXrSystemFeature(true)
-        val (rule, _, _) = createFakeRule(cleanupTimeout = 50.milliseconds)
-        val events = mutableListOf<String>()
-        val hungCleanupStarted = CountDownLatch(1)
-        val clockAdvancer = thread {
-            if (hungCleanupStarted.await(5, TimeUnit.SECONDS)) {
-                // Robolectric's paused clock does not advance Handler.postDelayed timers on its
-                // own; advance the main looper clock so withTimeout(50.milliseconds) fires.
-                Shadows.shadowOf(Looper.getMainLooper()).idleFor(100, TimeUnit.MILLISECONDS)
-            }
-        }
-
-        val thrown =
-            try {
-                assertFailsWith<XrSessionRule.CleanupException> {
-                    rule.evaluateRule {
-                        rule.onCleanup { events += "after-timeout" }
-                        rule.onCleanup(key = "hungCleanup") {
-                            events += "timed-out-item"
-                            hungCleanupStarted.countDown()
-                            CompletableDeferred<Unit>().await()
-                        }
-                        rule.manage(AutoCloseable { events += "before-timeout" })
-                    }
-                }
-            } finally {
-                hungCleanupStarted.countDown()
-                clockAdvancer.join(5000)
-            }
-
-        assertEquals(listOf("before-timeout", "timed-out-item", "after-timeout"), events)
-        assertTrue(thrown.message.orEmpty().contains("onCleanup (hungCleanup)"))
-        assertIs<TimeoutCancellationException>(thrown.cause)
+        assertEquals("primary body failure", thrown.message)
+        assertFailsWith<IllegalStateException> { rule.activity }
+        assertFailsWith<IllegalStateException> { rule.session }
+        assertFailsWith<IllegalStateException> { rule.onMainThread {} }
     }
 }
