@@ -239,13 +239,26 @@ internal class StateReadHandler(
                 cache.clear()
             }
             super.changeCollectionMode(includeRecomposeCounts, keepRecomposeCounts)
+            var anchorsToObserve = emptySet<Any>()
             val newObservingStateReads =
                 includeRecomposeCounts &&
                     when (settings.methodCase) {
-                        MethodCase.BY_ID -> settings.byId.composableToObserveList.isNotEmpty()
+                        MethodCase.BY_ID -> {
+                            anchorsToObserve =
+                                settings.byId.composableToObserveList.mapNotNullTo(HashSet()) {
+                                    anchorMap[it]
+                                }
+                            anchorsToObserve.isNotEmpty()
+                        }
                         MethodCase.ALL -> true
                         else -> false
                     }
+            if (anchorsToObserve != anchorsObserved) {
+                anchorsObserved = anchorsToObserve
+                if (anchorsToObserve.isNotEmpty()) {
+                    cache.removeAllExcept(anchorsToObserve)
+                }
+            }
             val includeParameterChanges =
                 newObservingStateReads &&
                     when (settings.methodCase) {
@@ -262,18 +275,6 @@ internal class StateReadHandler(
             } else if (newObservingStateReads) {
                 // Parameter changes may be turned on or off while observing state reads.
                 trackParameterChanges(includeParameterChanges)
-            }
-            if (!newObservingStateReads || settings.methodCase == MethodCase.ALL) {
-                anchorsObserved = emptySet()
-            } else {
-                val anchorsToObserve =
-                    settings.byId.composableToObserveList.mapNotNullTo(HashSet()) {
-                        anchorMap[it]
-                    }
-                if (anchorsToObserve != anchorsObserved) {
-                    anchorsObserved = anchorsToObserve
-                    cache.removeAllExcept(anchorsToObserve)
-                }
             }
             cache.maxStateReads =
                 when (settings.methodCase) {

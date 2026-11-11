@@ -293,6 +293,16 @@ class StateReadHandlerThreadingTest {
                 assertWithMessage("unobserved reads")
                     .that(handler.getReadsAndRemove(hashUnobserved, 1, 2, true))
                     .isEmpty()
+
+                // Observing by ID with an unknown anchor ID must stop observing instead of falling
+                // back to observing all composables (b/571066385):
+                observeById(-1)
+                composition.recompose(count, recompositions = 1) {
+                    recorder.lastValue("unobserved")
+                }
+                assertWithMessage("item2 reads when BY_ID has only unknown IDs")
+                    .that(handler.getReadsAndRemove(hash2, 1, 3, true))
+                    .isEmpty()
             }
     }
 
