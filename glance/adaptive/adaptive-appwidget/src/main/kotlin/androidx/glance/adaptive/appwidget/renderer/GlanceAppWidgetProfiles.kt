@@ -16,7 +16,7 @@
 
 package androidx.glance.adaptive.appwidget.renderer
 
-import androidx.compose.remote.creation.compose.capture.createProfile
+import androidx.compose.remote.creation.compose.capture.Profile as createProfile
 import androidx.compose.remote.creation.profile.Profile
 
 /** Defines RemoteCompose [Profile]s for Glance Adaptive AppWidgets. */

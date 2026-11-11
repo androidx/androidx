@@ -30,13 +30,15 @@ plugins {
 
 dependencies {
     api(project(":glance:adaptive:adaptive-core"))
-    api("androidx.compose.remote:remote-creation-compose:1.0.0-alpha20")
-    implementation("androidx.compose.remote:remote-creation:1.0.0-alpha20")
+    implementation(project(":compose:remote:remote-creation-compose"))
     api("androidx.annotation:annotation:1.8.1")
     api("androidx.compose.runtime:runtime:1.12.0")
     implementation("androidx.collection:collection:1.4.2")
     implementation(libs.kotlinCoroutinesCore)
 
+    testImplementation(project(":compose:remote:remote-core"))
+    testImplementation(project(":compose:remote:remote-player-core"))
+    testImplementation(project(":compose:remote:remote-player-view"))
     testImplementation(libs.testCore)
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
