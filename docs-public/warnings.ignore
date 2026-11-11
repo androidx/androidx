@@ -73,6 +73,7 @@ WARN: Couldn't resolve JavaDoc link 'SESSION_ENDED_WITH_REASON_STOPPED' in file:
 WARN: Couldn't resolve JavaDoc link 'EnhancementSession' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/media[0-9]+/effect/playservices/EnhancementSessionDecorator\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'EnhancementClient' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/media[0-9]+/effect/playservices/EnhancementSessionManager\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'EnhancementSession' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/media[0-9]+/effect/playservices/EnhancementSessionManager\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'getSurface' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/media[0-9]+/transformer/HardwareBufferFrameReader\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link '.*' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/android\/.*
 WARN: `EmulatorControllerGrpc\.EmulatorControllerBlockingStub` is unresolved in androidx\.test\.espresso\.device\.controller\.emulator\/EmulatorController\/\/#\/PointingToDeclaration\/
 WARN: `EmulatorControllerGrpc\.EmulatorControllerBlockingStub` is unresolved in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/espresso\/device\/controller\/emulator\/EmulatorController\.kt:[0-9]+:[0-9]+
