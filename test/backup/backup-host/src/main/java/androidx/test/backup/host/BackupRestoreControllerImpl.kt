@@ -546,7 +546,7 @@ internal class BackupRestoreControllerImpl(
             stepNameProvider = { "Restore" },
             callLabel = "performRestore(backupFile)",
         ) {
-            withinTimeout(timeout) { restore(backupFile, timeout) }
+            withinTimeout(timeout) { restore(backupFile) }
                 ?: throw BackupRestoreException(
                     BackupErrorCode.RESTORE_POLL_TIMEOUT,
                     "Restore timed out after ${timeout.toKotlinDuration()}",
@@ -554,12 +554,12 @@ internal class BackupRestoreControllerImpl(
             this
         }
 
-    private suspend fun restore(backupFile: Path, timeout: Duration) {
+    private suspend fun restore(backupFile: Path) {
         val localBackup = BackupLocalTransport.localBackupOf(backupFile)
         if (localBackup != null) {
             val activeCapture = ActiveCaptureContext.current()
             activeCapture?.markRestoreStarted(serialNumber, BackupTransportMode.LOCAL)
-            localTransport.restore(backupFile, localBackup, timeout.toKotlinDuration())
+            localTransport.restore(backupFile, localBackup)
             activeCapture?.markRestoreCompleted()
             return
         }

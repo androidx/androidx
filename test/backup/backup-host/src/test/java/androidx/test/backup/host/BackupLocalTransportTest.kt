@@ -29,9 +29,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.measureTime
 import kotlinx.coroutines.runBlocking
@@ -153,7 +151,6 @@ class BackupLocalTransportTest {
                     transport.restore(
                         archive().toPath(),
                         BackupLocalTransport.LocalBackup("com.example.other", FAKE_SERIAL),
-                        1.minutes,
                     )
                 }
             }
@@ -174,7 +171,6 @@ class BackupLocalTransportTest {
                     transport.restore(
                         archive().toPath(),
                         BackupLocalTransport.LocalBackup(PACKAGE, "emulator-5556"),
-                        1.minutes,
                     )
                 }
             }
@@ -359,7 +355,7 @@ class BackupLocalTransportTest {
             }
         }
 
-        assertFailsWith<IOException> { runBlocking { transport.restore(1.minutes) } }
+        assertFailsWith<IOException> { runBlocking { transport.restore() } }
         assertEquals("bmgr transport '$GMS_TRANSPORT'", device.commands.last())
     }
 
@@ -374,8 +370,7 @@ class BackupLocalTransportTest {
             }
         }
 
-        val e =
-            assertFailsWith<BackupRestoreException> { runBlocking { transport.restore(1.minutes) } }
+        val e = assertFailsWith<BackupRestoreException> { runBlocking { transport.restore() } }
 
         assertEquals(
             "Local restore of $PACKAGE failed: " +
@@ -383,8 +378,10 @@ class BackupLocalTransportTest {
             e.message,
         )
         assertEquals(BackupErrorCode.RESTORE_FAILED, e.errorCode)
-        assertTrue(device.commands.none { it == "bmgr run" }, "${device.commands}")
-        assertEquals("bmgr transport '$GMS_TRANSPORT'", device.commands.last())
+        assertEquals(
+            listOf("bmgr restore 1 $PACKAGE", "bmgr transport '$GMS_TRANSPORT'"),
+            device.commands.takeLast(2),
+        )
     }
 
     @Test
@@ -403,7 +400,7 @@ class BackupLocalTransportTest {
             }
         }
 
-        val e = assertFailsWith<IOException> { runBlocking { transport.restore(1.minutes) } }
+        val e = assertFailsWith<IOException> { runBlocking { transport.restore() } }
 
         assertTrue(e.message!!.startsWith("Local restore of $PACKAGE failed: "), e.message)
         assertTrue(e.message!!.contains("restoreFinished: -1000"), e.message)
@@ -419,7 +416,9 @@ class BackupLocalTransportTest {
             if (command == "bmgr list transports") shellOutput(TRANSPORTS_WITH_GMS_SELECTED)
             else null
         }
-        device.hangOn { it == "bmgr run" || it == "bmgr transport '$GMS_TRANSPORT'" }
+        device.hangOn {
+            it == "bmgr restore 1 $PACKAGE" || it == "bmgr transport '$GMS_TRANSPORT'"
+        }
         val boundedTransport =
             BackupLocalTransport(
                 BackupDeviceShell(device.session, FAKE_SERIAL),
@@ -428,65 +427,31 @@ class BackupLocalTransportTest {
             )
 
         val elapsed = measureTime {
-            assertNull(withTimeoutOrNull(300.milliseconds) { boundedTransport.restore(1.minutes) })
+            assertNull(withTimeoutOrNull(300.milliseconds) { boundedTransport.restore() })
         }
 
         assertTrue(elapsed < 2.seconds, "Restore took $elapsed")
         assertEquals("bmgr transport '$GMS_TRANSPORT'", device.commands.last())
     }
 
-    /**
-     * A restore that ends before the first check is never seen. With a short timeout, restore stops
-     * looking for it after half the timeout, so that it still completes within the timeout.
-     */
+    /** `bmgr restore` waits for the restore to finish, so nothing runs after it but cleanup. */
     @Test
-    fun restoreLooksForTheRestorePassForHalfOfAShortTimeout() = runBlocking {
+    fun restoreRunsOnTheLocalTransportThenSelectsTheOriginalOneAgain() = runBlocking {
         device.onShell { command ->
             if (command == "bmgr list transports") shellOutput(TRANSPORTS_WITH_GMS_SELECTED)
             else null
         }
 
-        val elapsed = measureTime { transport.restore(1.seconds) }
+        transport.restore()
 
-        assertTrue(elapsed < 1.seconds, "Restore took $elapsed")
-        assertEquals("bmgr transport '$GMS_TRANSPORT'", device.commands.last())
-    }
-
-    /**
-     * Restore waits for the restore pass to be registered and then to end. An idle session reads
-     * `Restore session: null`, which must not count as a restore in progress.
-     */
-    @Test
-    fun restoreWaitsForTheRestorePassToEnd() = runBlocking {
-        var dumpsysCount = 0
-        device.onShell { command ->
-            when (command) {
-                "bmgr list transports" -> shellOutput(TRANSPORTS_WITH_GMS_SELECTED)
-                "dumpsys backup" ->
-                    when (++dumpsysCount) {
-                        2 ->
-                            shellOutput(
-                                "Restore session: com.android.server.backup.RestoreSession@123\n" +
-                                    "Restore in progress: true\n"
-                            )
-                        else -> shellOutput("Restore session: null\nRestore in progress: false\n")
-                    }
-                else -> null
-            }
-        }
-
-        transport.restore(1.minutes)
-
-        assertEquals(3, dumpsysCount)
         assertEquals(
             listOf(
                 "bmgr list transports",
                 "bmgr transport '$LOCAL_TRANSPORT'",
                 "bmgr restore 1 $PACKAGE",
-                "bmgr run",
                 "bmgr transport '$GMS_TRANSPORT'",
             ),
-            device.commands.filter { it != "dumpsys backup" },
+            device.commands,
         )
     }
 
@@ -505,9 +470,9 @@ class BackupLocalTransportTest {
         return file
     }
 
-    /** Restores the LOCAL backup of [PACKAGE] made on this test's device within [timeout]. */
-    private suspend fun BackupLocalTransport.restore(timeout: Duration) =
-        restore(archive().toPath(), BackupLocalTransport.LocalBackup(PACKAGE, FAKE_SERIAL), timeout)
+    /** Restores the LOCAL backup of [PACKAGE] made on this test's device. */
+    private suspend fun BackupLocalTransport.restore() =
+        restore(archive().toPath(), BackupLocalTransport.LocalBackup(PACKAGE, FAKE_SERIAL))
 
     private companion object {
         const val PACKAGE = "com.example.app"

@@ -652,7 +652,14 @@ class BackupRestoreControllerImplTest {
 
         controller.performRestore(localArchive())
 
-        assertTrue(device.commands.contains("bmgr restore 1 $PACKAGE"), "${device.commands}")
+        assertEquals(
+            listOf(
+                "bmgr list transports",
+                "bmgr transport '$LOCAL_TRANSPORT'",
+                "bmgr restore 1 $PACKAGE",
+            ),
+            device.commands,
+        )
     }
 
     @Test
@@ -1070,7 +1077,7 @@ class BackupRestoreControllerImplTest {
     @Test
     fun performRestoreThrowsAndStopsTheAppWhenTheRestoreTimesOut() {
         onHealthyDevice()
-        device.hangOn { it == "bmgr run" }
+        device.hangOn { it == "bmgr restore 1 $PACKAGE" }
         val archive = localArchive()
 
         val e =
@@ -1081,44 +1088,6 @@ class BackupRestoreControllerImplTest {
         assertEquals("Restore timed out after 200ms", e.message)
         assertEquals(BackupErrorCode.RESTORE_POLL_TIMEOUT, e.errorCode)
         assertEquals("am force-stop $PACKAGE", device.commands.last())
-    }
-
-    @Test
-    fun performRestoreWaitsForTheRestorePassUntilItsTimeout() {
-        var restoreProgressChecks = 0
-        onHealthyDevice { command ->
-            if (command == "dumpsys backup") {
-                restoreProgressChecks++
-                shellOutput("Restore in progress: true\n")
-            } else {
-                null
-            }
-        }
-        val archive = localArchive()
-
-        val e =
-            assertFailsWith<IOException> {
-                runBlocking { controller.performRestore(archive, Duration.ofSeconds(1)) }
-            }
-
-        assertEquals("Restore timed out after 1s", e.message)
-        assertTrue(restoreProgressChecks > 1, "Checks: $restoreProgressChecks")
-    }
-
-    /**
-     * A local restore that ends before its first progress check is never seen in progress. It must
-     * still succeed within a timeout shorter than the usual window for detecting the restore pass.
-     */
-    @Test
-    fun performRestoreCompletesAnUnseenLocalRestoreWithinAShortTimeout() = runBlocking {
-        onHealthyDevice { command ->
-            if (command == "dumpsys backup") shellOutput("Restore in progress: false\n") else null
-        }
-        val archive = localArchive()
-
-        controller.performRestore(archive, Duration.ofSeconds(1))
-
-        assertTrue(device.commands.none { it.startsWith("am force-stop") }, "${device.commands}")
     }
 
     @Test
@@ -1330,23 +1299,6 @@ class BackupRestoreControllerImplTest {
 
         assertFailure(BackupExecutionStage.BACKUP, BackupErrorCode.BACKUP_FAILED)
         assertTrue(device.commands.none { it.startsWith("pm clear") }, "${device.commands}")
-    }
-
-    @Test
-    fun flowClassifiesAFailureWhileWaitingForTheLocalRestoreAsARestoreFailure() {
-        onHealthyDevice { command ->
-            if (command == "dumpsys backup") {
-                throw IOException("RESTORE POLLING TIMED OUT WAITING FOR COMPLETION")
-            } else {
-                null
-            }
-        }
-
-        assertFailsWith<IOException> {
-            runBlocking { controller.runBackupRestoreFlow(PREFERENCE, outputDir(), LOCAL) }
-        }
-
-        assertFailure(BackupExecutionStage.RESTORE, BackupErrorCode.RESTORE_FAILED)
     }
 
     /** The message of this backup service error names neither GmsCore nor the Play Store. */
@@ -1718,20 +1670,12 @@ class BackupRestoreControllerImplTest {
      * succeeds, except where [override] returns an output or throws.
      */
     private fun onHealthyDevice(override: (String) -> ShellCommandOutput? = { null }) {
-        var restoreProgressChecks = 0
         device.onShell { command ->
             override(command)
                 ?: when {
                     command.startsWith("am instrument") -> shellOutput(runnerStdout("{}"))
                     command.startsWith("pm clear") -> shellOutput("Success\n")
                     command == "bmgr list transports" -> shellOutput("  * $LOCAL_TRANSPORT\n")
-                    // The restore pass is reported as registered once and then as ended.
-                    command == "dumpsys backup" ->
-                        if (++restoreProgressChecks == 1) {
-                            shellOutput("Restore in progress: true\n")
-                        } else {
-                            shellOutput("Restore in progress: false\n")
-                        }
                     else -> null
                 }
         }
