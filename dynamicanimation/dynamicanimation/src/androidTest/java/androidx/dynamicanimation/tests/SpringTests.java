@@ -34,6 +34,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 import android.os.Build;
+import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -989,6 +990,61 @@ public class SpringTests {
         expectedAnim.setScheduler(new MyAnimationFrameCallbackScheduler());
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            expectedAnim.setStartValue(0f).start();
+            expectedAnim.getAnimationHandler().mDurationScale = 1.0f;
+            actualAnim.setStartValue(0f).start();
+            actualAnim.getAnimationHandler().mDurationScale = 1.0f;
+        });
+
+        assertTrue(latch.await(1000, TimeUnit.MILLISECONDS));
+        assertTrue(actualHolder.getValue() > 0f);
+        assertEquals(expectedHolder.getValue(), actualHolder.getValue(), 0f);
+    }
+
+    /**
+     * Verifies that the default Choreographer-backed AnimationHandler advances frames using the
+     * Choreographer VSYNC timestamp rather than wall-clock SystemClock.uptimeMillis().
+     */
+    @Test
+    public void testDefaultAnimationHandlerUsesChoreographerFrameTime()
+            throws InterruptedException {
+        final FloatValueHolder actualHolder = new FloatValueHolder(0f);
+        final FloatValueHolder expectedHolder = new FloatValueHolder(0f);
+        final SpringAnimation actualAnim = new SpringAnimation(actualHolder).setSpring(
+                new SpringForce(1000f).setStiffness(SpringForce.STIFFNESS_VERY_LOW));
+        final SpringAnimation expectedAnim = new SpringAnimation(expectedHolder).setSpring(
+                new SpringForce(1000f).setStiffness(SpringForce.STIFFNESS_VERY_LOW));
+        expectedAnim.setScheduler(new MyAnimationFrameCallbackScheduler());
+        final CountDownLatch latch = new CountDownLatch(1);
+        final int[] frameCount = new int[1];
+
+        final Choreographer.FrameCallback observerCallback = new Choreographer.FrameCallback() {
+            @Override
+            public void doFrame(long frameTimeNanos) {
+                long frameTimeMillis = frameTimeNanos / 1_000_000L;
+                frameCount[0]++;
+                if (frameCount[0] == 2) {
+                    long startUptime = SystemClock.uptimeMillis();
+                    while (SystemClock.uptimeMillis() - startUptime < 20) {
+                        // Busy-wait so SystemClock.uptimeMillis() diverges from frameTimeMillis.
+                    }
+                }
+                expectedAnim.doAnimationFrame(frameTimeMillis);
+                if (frameCount[0] < 2) {
+                    Choreographer.getInstance().postFrameCallback(this);
+                } else {
+                    // Post verification after all current-frame callbacks have completed.
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        actualAnim.cancel();
+                        expectedAnim.cancel();
+                        latch.countDown();
+                    });
+                }
+            }
+        };
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            Choreographer.getInstance().postFrameCallback(observerCallback);
             expectedAnim.setStartValue(0f).start();
             expectedAnim.getAnimationHandler().mDurationScale = 1.0f;
             actualAnim.setStartValue(0f).start();

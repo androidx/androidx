@@ -23,6 +23,10 @@ dependencies {
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.dexmakerMockito)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testExtJunit)
 }
 
 androidx {
@@ -30,6 +34,7 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Physics-based animation in support library, where the animations are driven by physics force. You can use this Animation library to create smooth and realistic animations."
+    enableRobolectric()
 }
 
 android {
