@@ -438,9 +438,8 @@ internal fun BasicTextField(
             .scrollable(
                 state = scrollState,
                 orientation = orientation,
-                // Disable scrolling when textField is disabled or another dragging gesture is
-                // taking place
-                enabled = enabled && dragInputType == InputType.None,
+                // Disable scroll only for touch; allow mouse-wheel scrolling while selecting
+                enabled = enabled && (dragInputType != InputType.Touch),
                 reverseDirection =
                     ScrollableDefaults.reverseDirection(
                         layoutDirection = layoutDirection,
