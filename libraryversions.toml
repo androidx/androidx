@@ -7,7 +7,9 @@ ANNOTATION_KEEP = "1.0.0-alpha02"
 APPCOMPAT = "1.8.0-rc01"
 APPFUNCTIONS = "1.1.0-alpha01"
 APPSEARCH = "1.2.0-beta01"
-APPSTATE = "1.0.0-alpha03"
+APPSTATE_DATAFLOW = "1.0.0-alpha01"
+APPSTATE_STATESTORE = "1.0.0-alpha03"
+APPSTATE_TRANSFORM = "1.0.0-alpha03"
 ARCH_CORE = "2.3.0-alpha01"
 ASYNCLAYOUTINFLATER = "1.1.0"
 AUTOFILL = "1.4.0-alpha01"
@@ -202,9 +204,9 @@ ANNOTATION_KEEP = { group = "androidx.annotation.keep", atomicGroupVersion = "ve
 APPCOMPAT = { group = "androidx.appcompat", atomicGroupVersion = "versions.APPCOMPAT" }
 APPFUNCTIONS = { group = "androidx.appfunctions", atomicGroupVersion = "versions.APPFUNCTIONS" }
 APPSEARCH = { group = "androidx.appsearch", atomicGroupVersion = "versions.APPSEARCH" }
-APPSTATE_DATAFLOW = { group = "androidx.appstate.dataflow", atomicGroupVersion = "versions.APPSTATE" }
-APPSTATE_STATESTORE = { group = "androidx.appstate.statestore", atomicGroupVersion = "versions.APPSTATE" }
-APPSTATE_TRANSFORM = { group = "androidx.appstate.transform", atomicGroupVersion = "versions.APPSTATE" }
+APPSTATE_DATAFLOW = { group = "androidx.appstate.dataflow", atomicGroupVersion = "versions.APPSTATE_DATAFLOW" }
+APPSTATE_STATESTORE = { group = "androidx.appstate.statestore", atomicGroupVersion = "versions.APPSTATE_STATESTORE" }
+APPSTATE_TRANSFORM = { group = "androidx.appstate.transform", atomicGroupVersion = "versions.APPSTATE_TRANSFORM" }
 ARCH_CORE = { group = "androidx.arch.core", atomicGroupVersion = "versions.ARCH_CORE" }
 ASYNCLAYOUTINFLATER = { group = "androidx.asynclayoutinflater", atomicGroupVersion = "versions.ASYNCLAYOUTINFLATER" }
 AUTOFILL = { group = "androidx.autofill", atomicGroupVersion = "versions.AUTOFILL" }
