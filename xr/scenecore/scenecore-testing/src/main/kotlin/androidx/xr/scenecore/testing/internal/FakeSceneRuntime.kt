@@ -454,6 +454,8 @@ internal class FakeSceneRuntime(val executor: Executor? = null) :
         return resizableComponent
     }
 
+    override fun createRotatableComponent(): FakeRotatableComponent = FakeRotatableComponent()
+
     @Suppress("ExecutorRegistration")
     override fun createPointerCaptureComponent(
         executor: Executor,

@@ -461,6 +461,17 @@ public interface SceneRuntime : JxrRuntime {
     ): ResizableComponent
 
     /**
+     * Create an instance of [RotatableComponent]. This component allows the user to rotate the
+     * entity by grabbing and dragging it.
+     *
+     * The rotation gesture is interpreted by the rendering runtime and the resulting rotation is
+     * applied to the entity by the component. Supported on [GltfEntity] and [MeshEntity].
+     *
+     * @return [RotatableComponent] instance.
+     */
+    public fun createRotatableComponent(): RotatableComponent
+
+    /**
      * Create an instance of {@link PointerCaptureComponent}. This component allows the user to
      * capture and redirect to itself all input that would be received by entities other than the
      * Entity it is attached to and that entity's children.

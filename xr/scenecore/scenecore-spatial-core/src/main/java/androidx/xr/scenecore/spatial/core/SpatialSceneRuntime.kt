@@ -60,6 +60,7 @@ import androidx.xr.scenecore.runtime.PointerCaptureComponent
 import androidx.xr.scenecore.runtime.PositionalAudioComponent
 import androidx.xr.scenecore.runtime.RenderingEntityFactory
 import androidx.xr.scenecore.runtime.ResizableComponent
+import androidx.xr.scenecore.runtime.RotatableComponent
 import androidx.xr.scenecore.runtime.ScenePose
 import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.runtime.SoundEffectPool
@@ -790,6 +791,10 @@ private constructor(
             minimumSize,
             maximumSize,
         )
+    }
+
+    override fun createRotatableComponent(): RotatableComponent {
+        return RotatableComponentImpl(scheduledExecutorService)
     }
 
     // Suppress warnings for factory function

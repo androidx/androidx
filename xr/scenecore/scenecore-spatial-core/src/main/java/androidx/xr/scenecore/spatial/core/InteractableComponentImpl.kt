@@ -43,9 +43,9 @@ internal class InteractableComponentImpl(val executor: Executor, val consumer: I
 
     override fun onDetach(entity: Entity) {
         when (entity) {
-            is GltfEntity -> entity.setColliderEnabled(false)
+            is GltfEntity,
+            is MeshEntity -> disableGeometryColliderIfUnused(entity, excludingComponent = this)
             is SurfaceEntityImpl -> entity.setColliderEnabled(false)
-            is MeshEntity -> entity.setColliderEnabled(false)
         }
         entity.removeInputEventListener(consumer)
         this.entity = null
