@@ -48,6 +48,10 @@ androidXMultiplatform {
             api("androidx.annotation:annotation:1.9.1")
         }
 
+        jvmMain.dependencies {
+            compileOnly(libs.intellijAnnotations)
+        }
+
         commonTest.dependencies {
             implementation(project(":kruth:kruth"))
             implementation(libs.kotlinTest)
