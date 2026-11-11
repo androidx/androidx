@@ -297,7 +297,7 @@ public class MultiClickModifier extends PaintOperation
         }
         for (Operation o : mList) {
             if (o instanceof ActionOperation) {
-                ((ActionOperation) o).runAction(context, document, component, x, y);
+                ((ActionOperation) o).runAction(context, document);
             }
         }
     }

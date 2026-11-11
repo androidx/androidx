@@ -25,7 +25,6 @@ import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.core.operations.Utils
-import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.core.testing.HeadlessRemoteContext
 import androidx.compose.remote.core.testing.SoftwareRasterPaintContext
@@ -97,7 +96,6 @@ class RunActionOperationTest {
     fun `paint is a no-op when document is null`() {
         // Arrange.
         val context = TestRemoteContext().apply { returnNullDocument = true }
-        context.mLastComponent = Component(1, 0f, 0f, 100f, 100f, null)
         context.loadInteger(10, 1)
         val paintContext = SoftwareRasterPaintContext(context, 64, 64)
         val runAction =
@@ -108,6 +106,23 @@ class RunActionOperationTest {
 
         // Assert.
         assertThat(context.getInteger(10)).isEqualTo(1)
+    }
+
+    @Test
+    fun `paint runs child ActionOperations when mLastComponent is null`() {
+        // Arrange.
+        val context = TestRemoteContext().apply { mLastComponent = null }
+        context.setDocument(CoreDocument())
+        context.loadInteger(10, 1)
+        val paintContext = SoftwareRasterPaintContext(context, 64, 64)
+        val runAction =
+            RunActionOperation().apply { list.add(ValueIntegerChangeActionOperation(10, 99)) }
+
+        // Act.
+        runAction.paint(paintContext)
+
+        // Assert.
+        assertThat(context.getInteger(10)).isEqualTo(99)
     }
 
     @Test

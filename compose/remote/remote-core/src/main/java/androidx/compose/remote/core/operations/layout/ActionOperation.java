@@ -39,14 +39,6 @@ public interface ActionOperation extends Serializable {
      *
      * @param context remote context
      * @param document document
-     * @param component component
-     * @param x the x location of the action
-     * @param y the y location of the action
      */
-    void runAction(
-            @NonNull RemoteContext context,
-            @NonNull CoreDocument document,
-            @NonNull Component component,
-            float x,
-            float y);
+    void runAction(@NonNull RemoteContext context, @NonNull CoreDocument document);
 }

@@ -26,7 +26,6 @@ import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.operations.ComponentData;
 import androidx.compose.remote.core.operations.layout.ActionOperation;
-import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.layout.Container;
 import androidx.compose.remote.core.serialize.MapSerializer;
 
@@ -80,8 +79,7 @@ public class RunActionOperation extends PaintOperation implements Container, Com
     @Override
     public void paint(@NonNull PaintContext context) {
         CoreDocument document = context.getContext().getDocument();
-        Component component = context.getContext().mLastComponent;
-        if (document == null || component == null) {
+        if (document == null) {
             return;
         }
         for (Operation op : getList()) {
@@ -97,7 +95,7 @@ public class RunActionOperation extends PaintOperation implements Container, Com
 
             if (op instanceof ActionOperation) {
                 ActionOperation actionOperation = (ActionOperation) op;
-                actionOperation.runAction(context.getContext(), document, component, 0f, 0f);
+                actionOperation.runAction(context.getContext(), document);
             }
         }
     }

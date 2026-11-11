@@ -26,7 +26,6 @@ import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.RemoteComposeState;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.IntegerExpression;
-import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator;
 
 import org.junit.Test;
@@ -87,17 +86,15 @@ public class ValueIntegerExpressionChangeActionOperationTest {
                 new ValueIntegerExpressionChangeActionOperation(
                         targetId + 0x100000000L, exprId + 0x100000000L);
 
-        Component comp = mock(Component.class);
-
         assertEquals(0, state.getInteger(targetId));
 
-        op.runAction(context, document, comp, 0f, 0f);
+        op.runAction(context, document);
         assertEquals(1, state.getInteger(targetId));
 
-        op.runAction(context, document, comp, 0f, 0f);
+        op.runAction(context, document);
         assertEquals(2, state.getInteger(targetId));
 
-        op.runAction(context, document, comp, 0f, 0f);
+        op.runAction(context, document);
         assertEquals(3, state.getInteger(targetId));
     }
 }

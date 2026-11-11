@@ -40,8 +40,6 @@ public abstract class ListActionsOperation extends PaintOperation
     protected float mWidth = 0;
     protected float mHeight = 0;
 
-    private final float[] mLocationInWindow = new float[2];
-
     public ListActionsOperation(@NonNull String operationName) {
         mOperationName = operationName;
     }
@@ -132,13 +130,10 @@ public abstract class ListActionsOperation extends PaintOperation
             if (!force && !component.contains(context, x, y)) {
                 return false;
             }
-            mLocationInWindow[0] = 0f;
-            mLocationInWindow[1] = 0f;
-            component.getLocationInWindow(context, mLocationInWindow);
         }
         for (Operation o : mList) {
             if (o instanceof ActionOperation) {
-                ((ActionOperation) o).runAction(context, document, component, x, y);
+                ((ActionOperation) o).runAction(context, document);
             }
         }
         return true;

@@ -27,7 +27,6 @@ import androidx.compose.remote.core.events.Event;
 import androidx.compose.remote.core.events.EventHandler;
 import androidx.compose.remote.core.events.EventManager;
 import androidx.compose.remote.core.operations.layout.ActionOperation;
-import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.layout.Container;
 
 import org.jspecify.annotations.NonNull;
@@ -113,10 +112,8 @@ public class EventActionOperation extends Operation implements EventHandler, Con
         }
         if (condition) {
             for (Operation operation : mOperations) {
-                Component component = context.mLastComponent;
-                if (operation instanceof ActionOperation && component != null) {
-                    // TODO(b/556845784): Component, X and Y are not used by runAction.
-                    ((ActionOperation) operation).runAction(context, document, component, 0, 0);
+                if (operation instanceof ActionOperation) {
+                    ((ActionOperation) operation).runAction(context, document);
                 }
             }
             return mFlags;
