@@ -36,11 +36,18 @@ import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withTimeout
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
@@ -715,6 +722,42 @@ class GlanceAdaptiveWidgetReceiverTest {
         }
     }
 
+    /**
+     * Suspends in onUpdate(Context) until cancelled, on a dispatcher of [scheduler], so that tests
+     * control the time it runs for. With an [ownTimeout], it waits inside its own `withTimeout`, as
+     * a developer's code may.
+     */
+    private class HangingReceiver(
+        scheduler: TestCoroutineScheduler,
+        private val ownTimeout: Duration? = null,
+    ) : GlanceAdaptiveWidgetReceiver() {
+        override val widgetName: String = "hanging_widget"
+
+        val uncaughtExceptions = mutableListOf<Throwable>()
+        var cancelled = false
+
+        override val coroutineContext: CoroutineContext =
+            StandardTestDispatcher(scheduler) +
+                CoroutineExceptionHandler { _, exception -> uncaughtExceptions += exception }
+
+        fun isBroadcastFinished(): Boolean =
+            Shadow.extract<ShadowBroadcastPendingResult>(shadowOf(this).originalPendingResult)
+                .future
+                .isDone
+
+        override suspend fun onUpdate(context: Context) {
+            try {
+                if (ownTimeout != null) {
+                    withTimeout(ownTimeout) { awaitCancellation() }
+                } else {
+                    awaitCancellation()
+                }
+            } finally {
+                cancelled = true
+            }
+        }
+    }
+
     @Test
     fun onReceive_whenOverriddenOnUpdateThrows_propagatesException() {
         val context = ApplicationProvider.getApplicationContext<Context>()
@@ -752,7 +795,10 @@ class GlanceAdaptiveWidgetReceiverTest {
 
         sendUpdateBroadcast(receiver)
 
-        assertThat(receiver.uncaughtExceptions).containsExactly(failure)
+        // The exception crosses the scope of the timeout, so the coroutines debug mode of tests may
+        // rethrow a copy with a recovered stack trace, whose cause is the original.
+        val uncaught = receiver.uncaughtExceptions.single()
+        assertThat(uncaught.cause ?: uncaught).isSameInstanceAs(failure)
         assertThat(receiver.broadcastFinishedWhenUncaught).isTrue()
         assertThat(ShadowLog.getLogsForTag("GlanceAdaptiveReceiver")).isEmpty()
     }
@@ -765,6 +811,43 @@ class GlanceAdaptiveWidgetReceiverTest {
 
         assertThat(receiver.uncaughtExceptions).isEmpty()
         assertThat(receiver.isBroadcastFinished()).isTrue()
+        assertThat(ShadowLog.getLogsForTag("GlanceAdaptiveReceiver")).isEmpty()
+    }
+
+    @Test
+    fun onUpdate_whenSuspendOnUpdateExceedsTimeout_cancelsItLogsErrorAndFinishesBroadcast() {
+        val scheduler = TestCoroutineScheduler()
+        val receiver = HangingReceiver(scheduler)
+
+        sendUpdateBroadcast(receiver)
+        scheduler.advanceTimeBy(OnUpdateTimeout - 1.milliseconds)
+
+        assertThat(receiver.cancelled).isFalse()
+        assertThat(receiver.isBroadcastFinished()).isFalse()
+
+        scheduler.advanceTimeBy(1.milliseconds)
+        scheduler.runCurrent()
+
+        assertThat(receiver.cancelled).isTrue()
+        assertThat(receiver.isBroadcastFinished()).isTrue()
+        assertThat(receiver.uncaughtExceptions).isEmpty()
+        val errors = receiverErrorLogs()
+        assertThat(errors).hasSize(1)
+        assertThat(errors[0].msg).contains("did not complete within $OnUpdateTimeout")
+    }
+
+    @Test
+    fun onUpdate_whenSuspendOnUpdateThrowsItsOwnTimeout_doesNotReportLibraryTimeout() {
+        val scheduler = TestCoroutineScheduler()
+        val receiver = HangingReceiver(scheduler, ownTimeout = 1.seconds)
+
+        sendUpdateBroadcast(receiver)
+        // Past the library's timeout too, which must not fire once onUpdate(Context) ended.
+        scheduler.advanceUntilIdle()
+
+        assertThat(receiver.cancelled).isTrue()
+        assertThat(receiver.isBroadcastFinished()).isTrue()
+        assertThat(receiver.uncaughtExceptions).isEmpty()
         assertThat(ShadowLog.getLogsForTag("GlanceAdaptiveReceiver")).isEmpty()
     }
 
