@@ -37,9 +37,13 @@ import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalScrollCaptureInProgress
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.ScrollAxisRange
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.scrollByOffset
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.verticalScrollAxisRange
@@ -205,6 +209,50 @@ class ScrollCaptureTest {
 
         val targets = captureTester.findCaptureTargets()
         assertThat(targets).isEmpty()
+    }
+
+    @Test
+    fun search_doesNotFindTarget_whenUnderClearAndSetSemantics() = captureTester.runTest {
+        captureTester.setContent {
+            Box(Modifier.clearAndSetSemantics {}) { TestVerticalScrollable(size = 10) }
+        }
+
+        val targets = captureTester.findCaptureTargets()
+        assertThat(targets).isEmpty()
+    }
+
+    @Test
+    fun search_findsTarget_whenSiblingOfClearAndSetSemantics() = captureTester.runTest {
+        captureTester.setContent {
+            Column {
+                Box(Modifier.clearAndSetSemantics {}) { TestVerticalScrollable(size = 20) }
+                TestVerticalScrollable(size = 10)
+            }
+        }
+
+        val targets = captureTester.findCaptureTargets()
+        assertThat(targets).hasSize(1)
+        assertThat(targets.single().localVisibleRect.height()).isEqualTo(10)
+    }
+
+    @Test
+    fun search_findsTarget_underMergingNodeWithSyntheticChildren() = captureTester.runTest {
+        // A merging node with a content description and a role gets synthetic accessibility
+        // children, which have no layout of their own.
+        captureTester.setContent {
+            Box(
+                Modifier.semantics(mergeDescendants = true) {
+                    contentDescription = "container"
+                    role = Role.Button
+                }
+            ) {
+                TestVerticalScrollable(size = 10)
+            }
+        }
+
+        val targets = captureTester.findCaptureTargets()
+        assertThat(targets).hasSize(1)
+        assertThat(targets.single().localVisibleRect.height()).isEqualTo(10)
     }
 
     @Test
