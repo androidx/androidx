@@ -224,9 +224,9 @@ open class FeatureGroupTestBase(
 
     @After
     fun tearDown() {
-        if (::cameraProvider.isInitialized) {
-            cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
-        }
+        // Clear the configuration even if setUp() failed before cameraProvider was assigned, e.g.
+        // when ProcessCameraProvider.getInstance() timed out after configureInstance().
+        ProcessCameraProvider.clearConfiguration()
     }
 
     @SuppressLint("NewApi")
