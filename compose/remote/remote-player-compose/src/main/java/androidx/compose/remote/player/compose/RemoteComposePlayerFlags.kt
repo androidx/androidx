@@ -64,11 +64,10 @@ public object RemoteComposePlayerFlags {
     public var shouldPlayerWrapContentSize: Boolean = false
 
     /**
-     * Whether the embedded Compose-native player ([RcPlayer]) is enabled and used as the default
-     * player in [RemoteDocumentPlayer].
+     * Whether the embedded Compose-native player ([RcPlayer]) is enabled.
      *
-     * When false, [RcPlayer] fails immediately with an [IllegalStateException], and
-     * [RemoteDocumentPlayer] uses the View-based player.
+     * When false, [RcPlayer] fails immediately with an [IllegalStateException]. This flag does not
+     * affect [RemoteDocumentPlayer], which always uses the View-based player.
      */
     // TODO(b/543837906): Clean up after embedded player migration
     @field:Suppress("MutableBareField")

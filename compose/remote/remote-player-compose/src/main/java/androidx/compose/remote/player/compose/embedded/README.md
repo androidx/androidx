@@ -53,9 +53,9 @@ Drawing operations (like `DrawRect`, `DrawCircle`) are executed inside `Modifier
 
 ## Implementation Progress
 
-See [`STATUS.md`](STATUS.md) for the current branch state, [`operation_coverage.md`](operation_coverage.md)
-for the exhaustive per-operation matrix, and [`HISTORY.md`](HISTORY.md) for design decisions and
-root-cause history. In brief: containers (Box/Column/Row), Text, State, Image, the common modifiers,
-reactive state, all scalar expression operators, and most canvas draw ops (shapes, bitmaps, paths,
-matrices, gradients, canvas text, clipping, offscreen `DRAW_TO_BITMAP`) render; the long tail of
-partial/degraded features is enumerated in `operation_coverage.md`.
+See [`EMBEDDED_PLAYER.md`](../../../../../../../../../doc/EMBEDDED_PLAYER.md) for the full design document,
+including the per-operation support matrix (section 4.4). In brief: containers (Box/Column/Row),
+Text, State, Image, the common modifiers, reactive state, all scalar expression operators, and most
+canvas draw ops (shapes, bitmaps, paths, matrices, gradients, canvas text, clipping, offscreen
+`DRAW_TO_BITMAP`) render; optional operation groups (matrices, particles, meshes, sound, sensors)
+are provided by `RcPlayerFeature`s.
