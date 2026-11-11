@@ -25,22 +25,16 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateResult
 import androidx.xr.runtime.SessionCreateSuccess
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
 import org.junit.Assume
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
-/** Default per-item timeout applied to suspending cleanups during [XrSessionRule] teardown. */
-private val DEFAULT_CLEANUP_TIMEOUT = 10.seconds
-
 /**
- * Provides the active [Session], [ComponentActivity], and LIFO cleanup registration inside
- * [XrSessionRule.onMainThread] and directly on [XrSessionRule].
+ * Exposes the active [Session] and [ComponentActivity] inside [XrSessionRule.onMainThread] and on
+ * [XrSessionRule].
  */
 public interface XrSessionScope<out T : ComponentActivity> {
     /** The launched [T] activity instance for the active test. */
@@ -48,34 +42,6 @@ public interface XrSessionScope<out T : ComponentActivity> {
 
     /** The initialized [Session] for the active test. */
     public val session: Session
-
-    /**
-     * Registers [resource] to close on the Android main thread during LIFO teardown and returns it.
-     *
-     * * Register dependencies before the objects that use them (matching nested `use {}` blocks) so
-     *   dependents clean up first.
-     * * Must only be called while a test is running.
-     *
-     * @param resource [AutoCloseable] resource to close during teardown
-     * @return [resource] for inline assignment
-     * @throws IllegalStateException if called when no test is running
-     */
-    public fun <C : AutoCloseable> manage(resource: C): C
-
-    /**
-     * Registers [action] to run on the Android main thread during LIFO teardown.
-     *
-     * * Cleanups registered via [manage] and [onCleanup] share a single LIFO stack and run in
-     *   strict reverse registration order.
-     * * If [key] is non-null and a cleanup with the same [key] has already been registered for the
-     *   current test, this call is a no-op.
-     * * Must only be called while a test is running.
-     *
-     * @param key optional deduplication key scoped to the current test
-     * @param action suspending cleanup lambda run on the main thread during teardown
-     * @throws IllegalStateException if called when no test is running
-     */
-    public fun onCleanup(key: Any? = null, action: suspend () -> Unit)
 }
 
 /**
@@ -123,30 +89,28 @@ private fun <T : ComponentActivity> getActivityFromTestRule(rule: ActivityScenar
 }
 
 /**
- * Coordinates an [activityRule], initializes an XR [Session], and runs serial
- * instrumentation-thread test helpers.
+ * Coordinates an [activityRule], creates an XR [Session], and runs instrumentation-thread test
+ * helpers.
  *
  * * Modeled after Compose's `AndroidComposeTestRule<R, A>`: swap in a custom [T] via
- *   [createAndroidXrSessionRule], run main-thread XR work via [onMainThread], register LIFO
- *   cleanups via [manage] and [onCleanup], poll asynchronous conditions via [waitUntil], and
- *   capture stabilized 3D compositor bitmaps via [captureToBitmap].
- * * Domain-specific helpers (such as SceneCore's `scene`, space mode transitions, `Entity`
- *   management, and `SpatialEnvironment` waits) belong in extension functions on [XrSessionScope]
- *   or [XrSessionRule] in those feature modules so `:xr:testutils` stays layered strictly on
- *   `:xr:runtime:runtime`.
+ *   [createAndroidXrSessionRule], run main-thread XR work via [onMainThread], poll asynchronous
+ *   conditions via [waitUntil], and capture stabilized 3D compositor bitmaps via [captureToBitmap].
+ * * Domain-specific helpers (such as space mode transitions and `SpatialEnvironment` waits) belong
+ *   in extension functions on [XrSessionScope] or [XrSessionRule] in those feature modules so
+ *   `:xr:testutils` depends only on `:xr:runtime:runtime`.
+ * * Destroying [activity] in [activityRule] triggers [Session] and runtime teardown at the end of
+ *   each test.
  * * On devices without the XR spatial feature, skips tests via [Assume.assumeTrue] before launching
  *   [activityRule], keeping rule declaration order independent when paired with
  *   [XrScreenshotTestRule].
  *
  * @param activityRule test rule that launches and tears down [T] (typically an
  *   [ActivityScenarioRule])
- * @param cleanupTimeout maximum duration each suspending cleanup item may take before cancellation
  * @param activityProvider retrieves the launched [T] instance from [activityRule]
  */
 public class XrSessionRule<R : TestRule, T : ComponentActivity>
 internal constructor(
     public val activityRule: R,
-    private val cleanupTimeout: Duration,
     private val sessionFactory: suspend (T) -> SessionCreateResult,
     private val activityProvider: (R) -> T,
 ) : TestRule, XrSessionScope<T> {
@@ -156,43 +120,21 @@ internal constructor(
      *
      * @param activityRule test rule that launches and tears down [T] (typically an
      *   [ActivityScenarioRule])
-     * @param cleanupTimeout maximum duration each suspending cleanup item may take before
-     *   cancellation
      * @param activityProvider retrieves the launched [T] instance from [activityRule]
-     * @throws IllegalArgumentException if [cleanupTimeout] is not positive
      */
     public constructor(
         activityRule: R,
-        cleanupTimeout: Duration = DEFAULT_CLEANUP_TIMEOUT,
         activityProvider: (R) -> T,
     ) : this(
         activityRule = activityRule,
-        cleanupTimeout = cleanupTimeout,
         sessionFactory = { launchedActivity -> Session.create(context = launchedActivity) },
         activityProvider = activityProvider,
     )
-
-    init {
-        require(cleanupTimeout.isPositive()) {
-            "cleanupTimeout must be positive, was $cleanupTimeout"
-        }
-    }
-
-    /**
-     * Wraps an exception or timeout thrown by an individual [manage] or [onCleanup] item during
-     * [XrSessionRule] teardown.
-     */
-    public class CleanupException internal constructor(message: String, cause: Throwable) :
-        RuntimeException(message, cause)
-
-    private class CleanupItem(val label: String, val action: suspend () -> Unit)
 
     private val lock = Any()
     private var isTestRunning: Boolean = false
     private var activityOrNull: T? = null
     private var sessionOrNull: Session? = null
-    private val cleanups = ArrayDeque<CleanupItem>()
-    private val registeredKeys = LinkedHashSet<Any>()
 
     /** The launched [T] activity instance for the active test. */
     override val activity: T
@@ -223,8 +165,6 @@ internal constructor(
                     check(!isTestRunning) {
                         "XrSessionRule cannot evaluate concurrent or nested tests."
                     }
-                    cleanups.clear()
-                    registeredKeys.clear()
                 }
 
                 val sessionStatement =
@@ -249,42 +189,14 @@ internal constructor(
                                 isTestRunning = true
                             }
 
-                            var primaryFailure: Throwable? = null
-                            val cleanupFailures = mutableListOf<Throwable>()
                             try {
                                 base.evaluate()
-                            } catch (t: Throwable) {
-                                primaryFailure = t
                             } finally {
-                                try {
-                                    tearDown(cleanupFailures)
-                                } catch (t: Throwable) {
-                                    cleanupFailures.add(t)
-                                } finally {
-                                    synchronized(lock) {
-                                        isTestRunning = false
-                                        activityOrNull = null
-                                        sessionOrNull = null
-                                        cleanups.clear()
-                                        registeredKeys.clear()
-                                    }
+                                synchronized(lock) {
+                                    isTestRunning = false
+                                    activityOrNull = null
+                                    sessionOrNull = null
                                 }
-                            }
-
-                            if (primaryFailure != null) {
-                                for (failure in cleanupFailures) {
-                                    if (primaryFailure !== failure) {
-                                        primaryFailure.addSuppressed(failure)
-                                    }
-                                }
-                                throw primaryFailure
-                            }
-                            if (cleanupFailures.isNotEmpty()) {
-                                val first = cleanupFailures.first()
-                                for (failure in cleanupFailures.drop(1)) {
-                                    first.addSuppressed(failure)
-                                }
-                                throw first
                             }
                         }
                     }
@@ -293,29 +205,6 @@ internal constructor(
             }
         }
 
-    override fun <C : AutoCloseable> manage(resource: C): C {
-        synchronized(lock) {
-            check(isTestRunning) {
-                "XrSessionRule.manage is only available while a test is running."
-            }
-            cleanups.addLast(CleanupItem(label = "close $resource") { resource.close() })
-        }
-        return resource
-    }
-
-    override fun onCleanup(key: Any?, action: suspend () -> Unit) {
-        synchronized(lock) {
-            check(isTestRunning) {
-                "XrSessionRule.onCleanup is only available while a test is running."
-            }
-            if (key != null && !registeredKeys.add(key)) {
-                return
-            }
-            val label = if (key != null) "onCleanup ($key)" else "onCleanup #${cleanups.size}"
-            cleanups.addLast(CleanupItem(label = label, action = action))
-        }
-    }
-
     /**
      * Runs [block] on the Android main thread with this [XrSessionScope] as receiver and blocks the
      * instrumentation thread until it completes.
@@ -323,7 +212,7 @@ internal constructor(
      * * Dispatches via `Dispatchers.Main.immediate` rather than blocking the main [Looper]
      *   synchronously, supporting both regular main-thread calls and `@MainThread suspend` XR APIs
      *   without deadlocking main-Looper callbacks.
-     * * Exposes [activity], [session], [manage], and [onCleanup] directly on the receiver scope.
+     * * Exposes [activity] and [session] directly on the receiver scope.
      * * Must be called from the instrumentation thread while a test is running.
      *
      * @param block suspending main-thread lambda invoked on this [XrSessionScope]
@@ -345,9 +234,8 @@ internal constructor(
     /**
      * Captures the settled 3D compositor viewport as a software [Bitmap.Config.ARGB_8888] [Bitmap].
      *
-     * * Waits for active window transitions on [activity] to settle, captures a stabilized
-     *   compositor frame, and registers the returned [Bitmap] with [manage] for recycling on
-     *   teardown.
+     * * Waits for active window transitions on [activity] to settle and captures a stabilized
+     *   compositor frame.
      * * Call [waitUntil] (or scene-inspection helpers such as
      *   [SpatialSceneHelper.waitForSpatialScene]) beforehand to await asynchronous scene or
      *   environment state.
@@ -357,8 +245,8 @@ internal constructor(
      * @param padding extra padding in pixels preserved around cropped foreground bounds when
      *   [cropBounds] is `null` and [autoCrop] is `true`
      * @param autoCrop whether to crop out non-content background when [cropBounds] is `null`
-     * @return software-backed [Bitmap.Config.ARGB_8888] [Bitmap] owned and auto-recycled by this
-     *   rule
+     * @return software-backed [Bitmap.Config.ARGB_8888] [Bitmap] owned by the caller (call
+     *   [Bitmap.recycle] if releasing eagerly)
      * @throws IllegalArgumentException if [padding] is negative
      * @throws IllegalStateException if called from the main thread or when no test is running
      * @throws AssertionError if the scene or compositor frame fails to settle within timeout
@@ -380,41 +268,10 @@ internal constructor(
             requireFullSpace = false,
             timeout = DEFAULT_WAIT_TIMEOUT,
         )
-        val bitmap =
-            SpatialSceneHelper.captureSceneToBitmap(
-                cropBounds = cropBounds,
-                padding = padding,
-                autoCrop = autoCrop,
-            )
-        manage(
-            object : AutoCloseable {
-                override fun close() {
-                    if (!bitmap.isRecycled) {
-                        bitmap.recycle()
-                    }
-                }
-
-                override fun toString(): String =
-                    "captured Bitmap (${bitmap.width}x${bitmap.height})"
-            }
+        return SpatialSceneHelper.captureSceneToBitmap(
+            cropBounds = cropBounds,
+            padding = padding,
+            autoCrop = autoCrop,
         )
-        return bitmap
-    }
-
-    private fun tearDown(cleanupFailures: MutableList<Throwable>) {
-        runBlocking(Dispatchers.Main.immediate) {
-            while (true) {
-                val item = synchronized(lock) { cleanups.removeLastOrNull() } ?: break
-                try {
-                    withTimeout(cleanupTimeout) { item.action() }
-                } catch (t: Throwable) {
-                    val detail = t.message?.let { ": $it" } ?: ""
-                    cleanupFailures.add(
-                        CleanupException("Cleanup '${item.label}' failed$detail", t)
-                    )
-                }
-            }
-        }
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
     }
 }
