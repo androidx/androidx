@@ -223,14 +223,23 @@ internal sealed class ContainerParseBlock(id: Long) : ParseBlock(id) {
     }
 
     /**
-     * Appends [child] as the new active child when building a block tree (for example, a new
-     * container with its first child), and adds its lines to this container's line count.
+     * Sets [child] as the first and active child of this newly started, still empty container, and
+     * takes its lines as this container's line count. [child] must already hold its first line (a
+     * container child must have its own first child).
+     *
+     * Block starts must not call this: a block start returns an empty container, and
+     * [ParseContext.startBlock] opens the first child on the rest of the line. Later children are
+     * added by [processLine].
      */
-    fun addChild(child: ParseBlock) {
+    fun initFirstChild(child: ParseBlock) {
+        check(_children.isEmpty() && verifiedLineCount == 0) {
+            "initFirstChild called on a container that is not empty"
+        }
+        check(child.lineCount > 0) { "The first child must hold its first line" }
         child.parent = this
         _children.add(child)
-        activeChildIndex = _children.size - 1
-        verifiedLineCount += child.lineCount
+        activeChildIndex = 0
+        verifiedLineCount = child.lineCount
     }
 
     /**
