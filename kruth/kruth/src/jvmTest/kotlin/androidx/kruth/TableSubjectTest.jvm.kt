@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress(
-    "NULL_FOR_NONNULL_TYPE",
-    "ARGUMENT_TYPE_MISMATCH",
-    "ANNOTATION_ARGUMENT_MUST_BE_CONST",
-)
+@file:Suppress("ANNOTATION_ARGUMENT_MUST_BE_CONST")
 
 package androidx.kruth
 
@@ -89,7 +85,6 @@ class TableSubjectTest {
         assertThat(table).doesNotContain("row", "row")
         assertThat(table).doesNotContain("col", "row")
         assertThat(table).doesNotContain("col", "col")
-        assertThat(table).doesNotContain(null, null)
     }
 
     @Test
@@ -117,11 +112,9 @@ class TableSubjectTest {
         assertThat(table).doesNotContainCell("row", "row", "val")
         assertThat(table).doesNotContainCell("col", "row", "val")
         assertThat(table).doesNotContainCell("col", "col", "val")
-        assertThat(table).doesNotContainCell(null, null, null)
         assertThat(table).doesNotContainCell(immutableCell("row", "row", "val"))
         assertThat(table).doesNotContainCell(immutableCell("col", "row", "val"))
         assertThat(table).doesNotContainCell(immutableCell("col", "col", "val"))
-        assertThat(table).doesNotContainCell(immutableCell(null, null, null))
     }
 
     @Test

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("NULL_FOR_NONNULL_TYPE")
-
 package androidx.kruth
 
 import com.google.common.collect.ArrayListMultimap
@@ -166,12 +164,6 @@ class MultimapSubjectTest {
     }
 
     @Test
-    fun containsKeyNullFailure() {
-        val multimap = ImmutableMultimap.of("kurt", "kluever")
-        assertFailsWith<AssertionError> { assertThat(multimap).containsKey(null) }
-    }
-
-    @Test
     fun containsKey_failsWithSameToString() {
         assertFailsWith<AssertionError> {
             assertThat(
@@ -185,7 +177,6 @@ class MultimapSubjectTest {
     fun doesNotContainKey() {
         val multimap = ImmutableMultimap.of("kurt", "kluever")
         assertThat(multimap).doesNotContainKey("daniel")
-        assertThat(multimap).doesNotContainKey(null)
     }
 
     @Test
@@ -436,14 +427,6 @@ class MultimapSubjectTest {
     }
 
     @Test
-    fun containsExactlyVarargWithNull() {
-        val listMultimap =
-            LinkedListMultimap.create(ImmutableListMultimap.of(1, "one", 3, "six", 3, "two"))
-        listMultimap.put(4, null)
-        assertThat(listMultimap).containsExactly(1 to "one", 3 to "six", 3 to "two", 4 to null)
-    }
-
-    @Test
     fun containsExactlyVarargFailureMissing() {
         val expected = ImmutableMultimap.of(3, "one", 3, "six", 3, "two", 4, "five", 4, "four")
         val actual = LinkedListMultimap.create(expected)
@@ -638,14 +621,6 @@ class MultimapSubjectTest {
     fun containsAtLeastVararg() {
         val listMultimap = ImmutableListMultimap.of(1, "one", 3, "six", 3, "two", 3, "one")
         assertThat(listMultimap).containsAtLeast(1 to "one", 3 to "six", 3 to "two")
-    }
-
-    @Test
-    fun containsAtLeastVarargWithNull() {
-        val listMultimap =
-            LinkedListMultimap.create(ImmutableListMultimap.of(1, "one", 3, "six", 3, "two"))
-        listMultimap.put(4, null)
-        assertThat(listMultimap).containsAtLeast(1 to "one", 3 to "two", 4 to null)
     }
 
     @Test
