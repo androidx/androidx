@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.triStateToggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme.LocalMaterialTheme
 import androidx.compose.material3.tokens.CheckboxTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.runtime.Composable
@@ -278,68 +277,6 @@ public fun TriStateCheckbox(
     )
 }
 
-// TODO (conradchen): add screenshot tests
-// Note that we cannot name this function as Checkbox as it will cause overload resolution
-// ambiguity. We will come back to this problem when we need to publish it.
-@Composable
-internal fun StyleableCheckbox(
-    checked: Boolean,
-    onCheckedChange: ((Boolean) -> Unit)?,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    style: CheckboxStyle? = null,
-    interactionSource: MutableInteractionSource? = null,
-) =
-    StyleableTriStateCheckbox(
-        state = ToggleableState(checked),
-        onClick = wrapOnCheckedChange(checked, onCheckedChange),
-        modifier = modifier,
-        enabled = enabled,
-        style = style,
-        interactionSource = interactionSource,
-    )
-
-// TODO (conradchen): add screenshot tests
-// Note that we cannot name this function as TriStateCheckbox as it will cause overload resolution
-// ambiguity. We will come back to this problem when we need to publish it.
-@Composable
-internal fun StyleableTriStateCheckbox(
-    state: ToggleableState,
-    onClick: (() -> Unit)?,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    style: CheckboxStyle? = null,
-    interactionSource: MutableInteractionSource? = null,
-) {
-    val localTheme = LocalMaterialTheme.current
-    val scope =
-        CheckboxStyleScope(
-                theme = localTheme,
-                mediaQueryInfo = mediaQueryInfo(),
-                state =
-                    ComponentState.enabled(enabled)
-                        .checked(state == ToggleableState.On)
-                        .indeterminate(state == ToggleableState.Indeterminate),
-            )
-            .resolve(style ?: localTheme.componentProperties.checkboxProperties.style)
-    CheckboxImpl(
-        enabled = enabled,
-        state = state,
-        modifier = modifier,
-        checkmarkColor = scope.checkmarkColor,
-        borderColor = scope.backgroundColor,
-        boxColor = scope.backgroundColor,
-        rippleColor = scope.rippleColor,
-        checkmarkStroke = scope.checkmarkStroke,
-        outlineStroke = scope.borderStroke,
-        containerSize = scope.size,
-        cornerSize = scope.cornerSize,
-        padding = Dp.Unspecified,
-        onClick = onClick,
-        interactionSource = interactionSource,
-    )
-}
-
 /** Defaults used in [Checkbox] and [TriStateCheckbox]. */
 public object CheckboxDefaults {
     /**
@@ -521,7 +458,6 @@ private fun CheckboxImpl(
             } else {
                 CheckboxSize
             },
-        cornerSize = RadiusSize,
         padding =
             if (isCheckboxStylingFixEnabled) {
                 Dp.Unspecified
@@ -546,7 +482,6 @@ private fun CheckboxImpl(
     checkmarkStroke: Stroke?,
     outlineStroke: Stroke?,
     containerSize: Dp,
-    cornerSize: Dp,
     padding: Dp,
     onClick: (() -> Unit)?,
     interactionSource: MutableInteractionSource?,
@@ -659,7 +594,7 @@ private fun CheckboxImpl(
         drawBox(
             boxColor = animatedBoxColor,
             borderColor = animatedBorderColor,
-            radius = cornerSize.toPx(),
+            radius = RadiusSize.toPx(),
             stroke = outlineStroke ?: Stroke(width = strokeWidthPx),
         )
         drawCheck(
