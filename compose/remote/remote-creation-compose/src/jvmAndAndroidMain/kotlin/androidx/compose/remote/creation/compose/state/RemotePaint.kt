@@ -16,7 +16,6 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.creation.compose.layout.BlackArgb
 import androidx.compose.remote.creation.compose.shaders.RemoteShader
 import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
@@ -110,7 +109,7 @@ internal class StandardRemotePaint() : RemotePaint {
     public override var shader: RemoteShader? = null
     public override var textSize: RemoteFloat = 12f.rf
     public override var typeface: RemoteTypeface? = RemoteTypeface.Default
-    public override var color: RemoteColor = RemoteColor(BlackArgb)
+    public override var color: RemoteColor = RemoteColor.Black
     public override var colorFilter: RemoteColorFilter? = null
     public override var fontFeatureSettings: String? = null
     public override var fontVariationSettings: RemoteFontVariation.Settings? = null

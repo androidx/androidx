@@ -356,6 +356,42 @@ public constructor(
                 ?: colorComponent(ColorAttribute.COLOR_BRIGHTNESS)
 
     public companion object {
+        /** Black color (`0xFF000000`). */
+        @Stable public val Black: RemoteColor = BlackArgb.rc
+
+        /** Dark gray color (`0xFF444444`). */
+        @Stable public val DarkGray: RemoteColor = 0xFF444444.rc
+
+        /** Gray color (`0xFF888888`). */
+        @Stable public val Gray: RemoteColor = 0xFF888888.rc
+
+        /** Light gray color (`0xFFCCCCCC`). */
+        @Stable public val LightGray: RemoteColor = 0xFFCCCCCC.rc
+
+        /** White color (`0xFFFFFFFF`). */
+        @Stable public val White: RemoteColor = WhiteArgb.rc
+
+        /** Red color (`0xFFFF0000`). */
+        @Stable public val Red: RemoteColor = 0xFFFF0000.rc
+
+        /** Green color (`0xFF00FF00`). */
+        @Stable public val Green: RemoteColor = 0xFF00FF00.rc
+
+        /** Blue color (`0xFF0000FF`). */
+        @Stable public val Blue: RemoteColor = 0xFF0000FF.rc
+
+        /** Yellow color (`0xFFFFFF00`). */
+        @Stable public val Yellow: RemoteColor = 0xFFFFFF00.rc
+
+        /** Cyan color (`0xFF00FFFF`). */
+        @Stable public val Cyan: RemoteColor = 0xFF00FFFF.rc
+
+        /** Magenta color (`0xFFFF00FF`). */
+        @Stable public val Magenta: RemoteColor = 0xFFFF00FF.rc
+
+        /** Transparent color (`0x00000000`). */
+        @Stable public val Transparent: RemoteColor = TransparentArgb.rc
+
         /**
          * Creates a [RemoteColor] from a literal ARGB integer value.
          *
@@ -724,6 +760,15 @@ public fun lerp(from: RemoteColor, to: RemoteColor, fraction: RemoteFloat): Remo
 /** Extension property to convert an ARGB [Int] to a [RemoteColor]. */
 public val @receiver:ColorInt Int.rc: RemoteColor
     get() = RemoteColor(this)
+
+/**
+ * Extension property to convert a 32-bit ARGB [Long] literal to a [RemoteColor].
+ *
+ * This is useful for specifying colors with alpha greater than 0x80 in numeric form without using
+ * [Long.toInt]: `val color = 0xFFFFEE70.rc`.
+ */
+public val Long.rc: RemoteColor
+    get() = RemoteColor(this.toInt())
 
 /**
  * Composites this color on top of [background] using the Porter-Duff 'source over' mode.
