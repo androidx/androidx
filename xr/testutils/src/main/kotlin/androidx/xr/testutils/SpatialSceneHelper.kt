@@ -691,8 +691,7 @@ constructor(
             root.findNode { node ->
                 node.name.contains("transition snapshot", ignoreCase = true) ||
                     (node.name == "Scrim" && node.isVisible && node.scrimTargetAlpha > 0.01f) ||
-                    ((node.name == "MIRROR_TOAST_AREA" || node.name.startsWith("Toast#")) &&
-                        node.isVisible)
+                    node.isVisibleToastOverlay
             } != null
         }
 
@@ -1583,6 +1582,46 @@ constructor(
                 return p.isVisible
             }
             return true
+        }
+
+    private val hasOwnRenderedSurface: Boolean
+        get() {
+            if (bufferSize != null) return true
+            val meters = attributes["root2DSurfaceBoundsInMeters"]
+            if (meters != null && meters.size >= 2 && meters[0] > 0f && meters[1] > 0f) {
+                return true
+            }
+            val pixels = attributes["root2DSurfaceBoundsInPixels"]
+            if (pixels != null && pixels.size >= 2 && pixels[0] > 0f && pixels[1] > 0f) {
+                return true
+            }
+            return false
+        }
+
+    /**
+     * True if this node represents a toast overlay that can actually render onto the display.
+     * Pre-allocated `MIRROR_TOAST_AREA` containers (for example on Moohan where the container node
+     * stays `visible on both` with `buffer=null` and `ImpNodeIsActive=false` while empty) are
+     * ignored unless they or a visible active descendant have an active toast node or rendered
+     * surface.
+     */
+    internal val isVisibleToastOverlay: Boolean
+        get() {
+            if (!isVisible) return false
+            if (name.startsWith("Toast#")) {
+                return properties["ImpNodeIsActive"] != "false"
+            }
+            if (name == "MIRROR_TOAST_AREA") {
+                if (properties["ImpNodeIsActive"] != "false" && hasOwnRenderedSurface) {
+                    return true
+                }
+                return getDescendants().any { child ->
+                    child.isVisible &&
+                        child.properties["ImpNodeIsActive"] != "false" &&
+                        (child.name.startsWith("Toast#") || child.hasOwnRenderedSurface)
+                }
+            }
+            return false
         }
 
     /**

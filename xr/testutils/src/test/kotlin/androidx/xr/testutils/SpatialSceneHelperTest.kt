@@ -2138,4 +2138,81 @@ class SpatialSceneHelperTest {
         assertFalse(hiddenToastScene.hasActiveTransition)
         assertTrue(assertNotNull(hiddenToastScene.findTaskById(100)).isSettled())
     }
+
+    @Test
+    fun spatialScene_hasActiveTransition_ignoresEmptyOrInactiveMirrorToastAreaContainers() {
+        val moohanIdleMirrorToastDump =
+            """
+            Node Root (stateIndex=0) id=1:
+              Node MIRROR_TOAST_AREA (stateIndex=0, z=0) id=14:
+              visible on both (requested-vis=show) (stereo-override=no override) buffer=null isSysUi=true isAndroid2d=true drawOrderGroup=<order=300>
+              ImpNodeIsActive=false ImpNodeIsEnabled=false
+              Node space-root-task-100 (stateIndex=0) id=100:
+                Node space-transform-spatial-101 (stateIndex=0) id=101:
+            """
+                .trimIndent()
+        val moohanIdleScene = SpatialSceneHelper.parseSpatialScene(moohanIdleMirrorToastDump)
+        assertFalse(moohanIdleScene.hasActiveTransition)
+        assertTrue(assertNotNull(moohanIdleScene.findTaskById(100)).isSettled())
+
+        val emptyWrapperToastAreaDump =
+            """
+            Node Root (stateIndex=0) id=1:
+              Node MIRROR_TOAST_AREA (stateIndex=0) id=19:
+              visible on both (requested-vis=show) buffer=null isSysUi=true isAndroid2d=true
+                Node space-transform-MIRROR_TOAST_AREA (stateIndex=0) id=20:
+                visible on both (requested-vis=show) isSysUi=true
+                  Node window-MIRROR_TOAST_AREA (stateIndex=0) id=21:
+                  visible on both (requested-vis=show) buffer=null isSysUi=true isAndroid2d=true
+              Node space-root-task-100 (stateIndex=0) id=100:
+                Node space-transform-spatial-101 (stateIndex=0) id=101:
+            """
+                .trimIndent()
+        val emptyWrapperScene = SpatialSceneHelper.parseSpatialScene(emptyWrapperToastAreaDump)
+        assertFalse(emptyWrapperScene.hasActiveTransition)
+        assertTrue(assertNotNull(emptyWrapperScene.findTaskById(100)).isSettled())
+
+        val inactiveToastChildDump =
+            """
+            Node Root (stateIndex=0) id=1:
+              Node MIRROR_TOAST_AREA (stateIndex=0) id=19:
+              visible on both (requested-vis=show) buffer=null isSysUi=true isAndroid2d=true
+              ImpNodeIsActive=false ImpNodeIsEnabled=false
+                Node space-transform-MIRROR_TOAST_AREA (stateIndex=0) id=20:
+                visible on both (requested-vis=show) isSysUi=true
+                  Node window-MIRROR_TOAST_AREA (stateIndex=0) id=21:
+                  visible on both (requested-vis=show) isSysUi=true isAndroid2d=true
+                    Node Toast#318 (stateIndex=0) id=22:
+                    visible on both (requested-vis=show) isSysUi=false isAndroid2d=true buffer=320x64
+                    ImpNodeIsActive=false ImpNodeIsEnabled=false
+              Node space-root-task-100 (stateIndex=0) id=100:
+                Node space-transform-spatial-101 (stateIndex=0) id=101:
+            """
+                .trimIndent()
+        val inactiveToastScene = SpatialSceneHelper.parseSpatialScene(inactiveToastChildDump)
+        assertFalse(inactiveToastScene.hasActiveTransition)
+        assertTrue(assertNotNull(inactiveToastScene.findTaskById(100)).isSettled())
+
+        val activeSurfaceOverlayUnderToastAreaDump =
+            """
+            Node Root (stateIndex=0) id=1:
+              Node MIRROR_TOAST_AREA (stateIndex=0) id=19:
+              visible on both (requested-vis=show) buffer=null isSysUi=true isAndroid2d=true
+              ImpNodeIsActive=false ImpNodeIsEnabled=false
+                Node space-transform-MIRROR_TOAST_AREA (stateIndex=0) id=20:
+                visible on both (requested-vis=show) isSysUi=true
+                  Node window-MIRROR_TOAST_AREA (stateIndex=0) id=21:
+                  visible on both (requested-vis=show) isSysUi=true isAndroid2d=true
+                    Node ToastSurface (stateIndex=0) id=22:
+                    visible on both (requested-vis=show) isSysUi=false isAndroid2d=true buffer=320x64
+                    ImpNodeIsActive=true ImpNodeIsEnabled=true
+              Node space-root-task-100 (stateIndex=0) id=100:
+                Node space-transform-spatial-101 (stateIndex=0) id=101:
+            """
+                .trimIndent()
+        val activeSurfaceScene =
+            SpatialSceneHelper.parseSpatialScene(activeSurfaceOverlayUnderToastAreaDump)
+        assertTrue(activeSurfaceScene.hasActiveTransition)
+        assertFalse(assertNotNull(activeSurfaceScene.findTaskById(100)).isSettled())
+    }
 }
