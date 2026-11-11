@@ -25,10 +25,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.actions.ScrollToTest.ExpectedAlignment.Bottom
@@ -278,21 +276,19 @@ class ScrollToTest(private val config: TestConfig) {
 
     private fun DpRect.toPx(): Rect = with(rule.density) { toRect() }
 
-    private fun rowModifier(scrollState: ScrollState): Modifier = Modifier.composed {
-        with(LocalDensity.current) {
+    private fun rowModifier(scrollState: ScrollState): Modifier =
+        with(rule.density) {
             Modifier.testTag(containerTag)
                 .requiredSize(config.viewportSizePx.toDp(), itemSizePx.toDp())
                 .horizontalScroll(scrollState, reverseScrolling = config.reverseScrolling)
         }
-    }
 
-    private fun columnModifier(scrollState: ScrollState): Modifier = Modifier.composed {
-        with(LocalDensity.current) {
+    private fun columnModifier(scrollState: ScrollState): Modifier =
+        with(rule.density) {
             Modifier.testTag(containerTag)
                 .requiredSize(itemSizePx.toDp(), config.viewportSizePx.toDp())
                 .verticalScroll(scrollState, reverseScrolling = config.reverseScrolling)
         }
-    }
 
     @Composable
     private fun Boxes() {

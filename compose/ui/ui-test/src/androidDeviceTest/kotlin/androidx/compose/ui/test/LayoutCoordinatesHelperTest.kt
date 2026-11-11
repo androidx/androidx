@@ -33,12 +33,9 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
@@ -55,6 +52,9 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.node.LayoutAwareModifierNode
+import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.unit.Constraints
@@ -225,44 +225,12 @@ class LayoutCoordinatesHelperTest {
     private fun Modifier.animatePlacement(
         targetOffset: MutableState<Offset>,
         alignment: () -> Alignment,
-    ): Modifier = composed {
-        val scope = rememberCoroutineScope()
-        var animatable by remember { mutableStateOf<Animatable<Offset, AnimationVector2D>?>(null) }
+    ): Modifier =
         this.layout { measurable, constraints ->
                 val placeable = measurable.measure(constraints)
                 layout(placeable.width, placeable.height) { placeable.place(0, 0) }
             }
-            .onPlaced { coordinates ->
-                targetOffset.value = coordinates.positionInParent()
-                assertEquals(calculateExpectedIntOffset(alignment()), targetOffset.value)
-                // Animate to the new target offset when alignment changes.
-                val anim =
-                    animatable
-                        ?: Animatable(targetOffset.value, Offset.VectorConverter).also {
-                            animatable = it
-                        }
-                if (anim.targetValue != targetOffset.value) {
-                    scope.launch {
-                        anim.animateTo(
-                            targetOffset.value,
-                            spring(stiffness = Spring.StiffnessMediumLow),
-                        )
-                    }
-                }
-            }
-            .layout { measurable, constraints ->
-                val placeable = measurable.measure(constraints)
-                layout(placeable.width, placeable.height) {
-                    placeable.place(
-                        animatable?.let { (it.value - targetOffset.value).round() }
-                            ?: IntOffset.Zero
-                    )
-                }
-            }
-    }
-
-    private fun calculateExpectedIntOffset(alignment: Alignment) =
-        alignment.align(IntSize(20, 20), IntSize(200, 200), LayoutDirection.Ltr).toOffset()
+            .then(AnimatePlacementElement(targetOffset, alignment))
 
     @Test
     fun onPlacedModifierWithLayoutModifier() {
@@ -406,4 +374,52 @@ class LayoutCoordinatesHelperTest {
 
     private fun LayoutCoordinates.placementInParent() =
         parentCoordinates!!.localPositionOf(this, Offset.Zero).round()
+}
+
+private fun calculateExpectedIntOffset(alignment: Alignment) =
+    alignment.align(IntSize(20, 20), IntSize(200, 200), LayoutDirection.Ltr).toOffset()
+
+private data class AnimatePlacementElement(
+    val targetOffset: MutableState<Offset>,
+    val alignment: () -> Alignment,
+) : ModifierNodeElement<AnimatePlacementNode>() {
+    override fun create() = AnimatePlacementNode(targetOffset, alignment)
+
+    override fun update(node: AnimatePlacementNode) {
+        node.targetOffset = targetOffset
+        node.alignment = alignment
+    }
+}
+
+private class AnimatePlacementNode(
+    var targetOffset: MutableState<Offset>,
+    var alignment: () -> Alignment,
+) : LayoutModifierNode, LayoutAwareModifierNode, Modifier.Node() {
+    private var animatable: Animatable<Offset, AnimationVector2D>? = null
+
+    override fun onPlaced(coordinates: LayoutCoordinates) {
+        targetOffset.value = coordinates.positionInParent()
+        assertEquals(calculateExpectedIntOffset(alignment()), targetOffset.value)
+        // Animate to the new target offset when alignment changes.
+        val anim =
+            animatable
+                ?: Animatable(targetOffset.value, Offset.VectorConverter).also { animatable = it }
+        if (anim.targetValue != targetOffset.value) {
+            coroutineScope.launch {
+                anim.animateTo(targetOffset.value, spring(stiffness = Spring.StiffnessMediumLow))
+            }
+        }
+    }
+
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints,
+    ): MeasureResult {
+        val placeable = measurable.measure(constraints)
+        return layout(placeable.width, placeable.height) {
+            placeable.place(
+                animatable?.let { (it.value - targetOffset.value).round() } ?: IntOffset.Zero
+            )
+        }
+    }
 }

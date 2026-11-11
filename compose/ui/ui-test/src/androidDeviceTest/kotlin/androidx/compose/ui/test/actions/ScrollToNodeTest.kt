@@ -30,14 +30,12 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.expectError
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.scrollBy
@@ -273,8 +271,8 @@ class ScrollToNodeTest(private val config: TestConfig) {
 
     private fun DpRect.toPx(): Rect = with(rule.density) { toRect() }
 
-    private fun rowModifier(): Modifier = Modifier.composed {
-        with(LocalDensity.current) {
+    private fun rowModifier(): Modifier =
+        with(rule.density) {
             Modifier.testTag(containerTag)
                 .then(
                     if (config.hasNestedScrollConsumer)
@@ -283,10 +281,9 @@ class ScrollToNodeTest(private val config: TestConfig) {
                 )
                 .requiredSize(config.viewportSizePx.toDp(), itemSizePx.toDp())
         }
-    }
 
-    private fun columnModifier(): Modifier = Modifier.composed {
-        with(LocalDensity.current) {
+    private fun columnModifier(): Modifier =
+        with(rule.density) {
             Modifier.testTag(containerTag)
                 .then(
                     if (config.hasNestedScrollConsumer)
@@ -295,7 +292,6 @@ class ScrollToNodeTest(private val config: TestConfig) {
                 )
                 .requiredSize(itemSizePx.toDp(), config.viewportSizePx.toDp())
         }
-    }
 
     private fun LazyListScope.Boxes() {
         items(itemsAround) { ClickableTestBox(color = if (it % 2 == 0) Color.Blue else Color.Red) }
