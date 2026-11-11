@@ -87,6 +87,23 @@ public abstract class PaintContext {
     public void setCustomSupport(@NonNull CustomContext customSupport) {
     }
 
+    private @Nullable TextInputSupport mTextInputSupport = null;
+
+    /**
+     * Installs the host support used to edit strings declared editable by a text input layout.
+     * Without one, text input layouts behave like boxes.
+     *
+     * @param textInputSupport the support, or null to remove it
+     */
+    public void setTextInputSupport(@Nullable TextInputSupport textInputSupport) {
+        mTextInputSupport = textInputSupport;
+    }
+
+    /** Returns the installed text input support, or null if the player does not support it. */
+    public @Nullable TextInputSupport getTextInputSupport() {
+        return mTextInputSupport;
+    }
+
     public @NonNull RemoteClock getClock() {
         return mContext.getClock();
     }

@@ -139,6 +139,7 @@ import androidx.compose.remote.core.operations.layout.managers.ImageLayout;
 import androidx.compose.remote.core.operations.layout.managers.RcDocLayout;
 import androidx.compose.remote.core.operations.layout.managers.RowLayout;
 import androidx.compose.remote.core.operations.layout.managers.StateLayout;
+import androidx.compose.remote.core.operations.layout.managers.TextInputLayout;
 import androidx.compose.remote.core.operations.layout.managers.TextLayout;
 import androidx.compose.remote.core.operations.layout.managers.TextStyle;
 import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation;
@@ -2046,6 +2047,47 @@ public class RemoteComposeBuffer {
     public void addBoxStart(int componentId, int animationId, int horizontal, int vertical) {
         mLastComponentId = getComponentId(componentId);
         BoxLayout.apply(mBuffer, mLastComponentId, animationId, horizontal, vertical);
+    }
+
+    /**
+     * Add a text input layout start tag: a box whose content displays the string {@code textId},
+     * which the user can edit through a host editor.
+     *
+     * @param componentId component id
+     * @param animationId animation id
+     * @param textId id of the edited string
+     * @param keyboardType keyboard type ({@code TextInputLayout.KEYBOARD_*})
+     * @param imeAction IME action ({@code TextInputLayout.IME_ACTION_*})
+     * @param inputFlags bitmask of {@code TextInputLayout.FLAG_*}
+     * @param maxLength maximum text length, 0 for unlimited
+     * @param filter input filter ({@code TextInputLayout.FILTER_*})
+     * @param hintId id of the hint string, 0 for none
+     * @param contentType content type ({@code TextInputLayout.CONTENT_TYPE_*})
+     */
+    public void addTextInputLayoutStart(
+            int componentId,
+            int animationId,
+            int textId,
+            int keyboardType,
+            int imeAction,
+            int inputFlags,
+            int maxLength,
+            int filter,
+            int hintId,
+            int contentType) {
+        mLastComponentId = getComponentId(componentId);
+        TextInputLayout.apply(
+                mBuffer,
+                mLastComponentId,
+                animationId,
+                textId,
+                keyboardType,
+                imeAction,
+                inputFlags,
+                maxLength,
+                filter,
+                hintId,
+                contentType);
     }
 
     /**

@@ -129,6 +129,7 @@ import androidx.compose.remote.core.operations.layout.managers.ImageLayout;
 import androidx.compose.remote.core.operations.layout.managers.RcDocLayout;
 import androidx.compose.remote.core.operations.layout.managers.RowLayout;
 import androidx.compose.remote.core.operations.layout.managers.StateLayout;
+import androidx.compose.remote.core.operations.layout.managers.TextInputLayout;
 import androidx.compose.remote.core.operations.layout.managers.TextLayout;
 import androidx.compose.remote.core.operations.layout.managers.TextStyle;
 import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation;
@@ -1082,6 +1083,34 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
     public void addBoxStart(int componentId, int animationId, int horizontal, int vertical) {
         mLastComponentId = getComponentId(componentId);
         addOperation(new BoxLayout(null, mLastComponentId, animationId, horizontal, vertical));
+    }
+
+    @Override
+    public void addTextInputLayoutStart(
+            int componentId,
+            int animationId,
+            int textId,
+            int keyboardType,
+            int imeAction,
+            int inputFlags,
+            int maxLength,
+            int filter,
+            int hintId,
+            int contentType) {
+        mLastComponentId = getComponentId(componentId);
+        addOperation(
+                new TextInputLayout(
+                        null,
+                        mLastComponentId,
+                        animationId,
+                        textId,
+                        keyboardType,
+                        imeAction,
+                        inputFlags,
+                        maxLength,
+                        filter,
+                        hintId,
+                        contentType));
     }
 
     @Override

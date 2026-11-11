@@ -105,6 +105,7 @@ import androidx.compose.remote.core.Operations.LAYOUT_ROOT
 import androidx.compose.remote.core.Operations.LAYOUT_ROW
 import androidx.compose.remote.core.Operations.LAYOUT_STATE
 import androidx.compose.remote.core.Operations.LAYOUT_TEXT
+import androidx.compose.remote.core.Operations.LAYOUT_TEXT_INPUT
 import androidx.compose.remote.core.Operations.LOOP_START
 import androidx.compose.remote.core.Operations.MACRO_ARGUMENT
 import androidx.compose.remote.core.Operations.MACRO_BLOCK
@@ -318,6 +319,7 @@ import androidx.compose.remote.core.operations.layout.managers.ImageLayout
 import androidx.compose.remote.core.operations.layout.managers.RcDocLayout
 import androidx.compose.remote.core.operations.layout.managers.RowLayout
 import androidx.compose.remote.core.operations.layout.managers.StateLayout
+import androidx.compose.remote.core.operations.layout.managers.TextInputLayout
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.core.operations.layout.managers.TextStyle
 import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation
@@ -988,6 +990,7 @@ class OperationsProfilesTest {
                     MODIFIER_MULTI_CLICK to MultiClickModifier::class.java,
                     LAYOUT_CUSTOM to Custom::class.java,
                     MODIFIER_EVENT_HANDLER to EventHandlerModifierOperation::class.java,
+                    LAYOUT_TEXT_INPUT to TextInputLayout::class.java,
                     DATA_BITMAP to BitmapData::class.java,
                     DATA_TEXT to TextData::class.java,
                     ROOT_CONTENT_DESCRIPTION to RootContentDescription::class.java,
@@ -1329,6 +1332,7 @@ class OperationsProfilesTest {
                     MODIFIER_MULTI_CLICK to MultiClickModifier::class.java,
                     LAYOUT_CUSTOM to Custom::class.java,
                     MODIFIER_EVENT_HANDLER to EventHandlerModifierOperation::class.java,
+                    LAYOUT_TEXT_INPUT to TextInputLayout::class.java,
                     DATA_BITMAP to BitmapData::class.java,
                     DATA_TEXT to TextData::class.java,
                     ROOT_CONTENT_DESCRIPTION to RootContentDescription::class.java,

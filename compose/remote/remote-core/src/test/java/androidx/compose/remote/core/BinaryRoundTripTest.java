@@ -123,6 +123,7 @@ import androidx.compose.remote.core.operations.layout.managers.FlowLayout;
 import androidx.compose.remote.core.operations.layout.managers.ImageLayout;
 import androidx.compose.remote.core.operations.layout.managers.RowLayout;
 import androidx.compose.remote.core.operations.layout.managers.StateLayout;
+import androidx.compose.remote.core.operations.layout.managers.TextInputLayout;
 import androidx.compose.remote.core.operations.layout.managers.TextLayout;
 import androidx.compose.remote.core.operations.layout.managers.TextStyle;
 import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation;
@@ -315,6 +316,7 @@ public class BinaryRoundTripTest {
         originalOps.add(new AlignByModifierOperation(8f, (short) 0));
         originalOps.add(new ScrollModifierOperation(1, 0f, 100f, 0f));
         originalOps.add(new MarqueeModifierOperation(1, 1, 1, 1, 1, 1));
+        originalOps.add(new TextInputLayout(null, 16, -1, 42, 3, 7, 1, 10, 1, 43, 4));
         originalOps.add(new ClickModifierOperation());
         originalOps.add(new DrawContentOperation());
         originalOps.add(new ClipRectModifierOperation());
