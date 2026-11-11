@@ -300,6 +300,12 @@ validThroughLibraryVersion = "1.0.0"
 reason = "b/567567898 - released together by the same team with Remote Compose as libraries are intentionally using unreleased APIs."
 
 [[exemption]]
+library = "androidx.glance.wear:wear"
+dependsOn = "androidx.compose.remote:remote-creation-expression"
+validThroughLibraryVersion = "1.0.0"
+reason = "b/567567898 - released together by the same team with Remote Compose as libraries are intentionally using unreleased APIs."
+
+[[exemption]]
 library = "androidx.glance.wear:wear-tooling-preview"
 dependsOn = "androidx.compose.remote:remote-player-core"
 validThroughLibraryVersion = "1.0.0"

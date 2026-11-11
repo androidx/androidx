@@ -38,6 +38,7 @@ dependencies {
     api("androidx.lifecycle:lifecycle-service:2.9.2")
     api(project(":compose:remote:remote-creation-compose"))
     api(project(":compose:remote:remote-creation-core"))
+    api(project(":compose:remote:remote-creation-expression"))
     api("androidx.compose.runtime:runtime:$composeVersion")
     api(project(":glance:wear:wear-core"))
 
