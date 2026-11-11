@@ -384,8 +384,7 @@ class RemoteComposeBufferTest {
         assertThat(buffer.getBuffer().mValidOperations[Operations.DRAW_RECT]).isFalse()
 
         // Map should be set for reading
-        assertThat(buffer.mMap).isSameInstanceAs(customMap)
-        assertThat(buffer.mIsCustomMap).isTrue()
+        assertThat(buffer.companionOperations).isSameInstanceAs(customMap)
     }
 
     @Test
@@ -397,13 +396,13 @@ class RemoteComposeBufferTest {
 
         assertThat(buffer.getBuffer().mValidOperations[Operations.DRAW_RECT]).isTrue()
         assertThat(buffer.getBuffer().mValidOperations[Operations.DRAW_LINE]).isTrue()
-        assertThat(buffer.mMap.get(Operations.CORE_TEXT)).isNotNull()
-        assertThat(buffer.mMap.get(Operations.DRAW_RECT)).isNotNull()
+        val companionOperations = buffer.companionOperations!!
+        assertThat(companionOperations.get(Operations.CORE_TEXT)).isNotNull()
+        assertThat(companionOperations.get(Operations.DRAW_RECT)).isNotNull()
 
         // DRAW_OVAL should be false because it is not in explicit supported operations
         assertThat(buffer.getBuffer().mValidOperations[Operations.DRAW_OVAL]).isFalse()
-        assertThat(buffer.mMap.get(Operations.DRAW_OVAL)).isNull()
-        assertThat(buffer.mIsCustomMap).isTrue()
+        assertThat(companionOperations.get(Operations.DRAW_OVAL)).isNull()
     }
 
     @Test

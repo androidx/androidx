@@ -218,23 +218,29 @@ public class RemoteComposeBuffer {
     protected int mApiLevel = CoreDocument.DOCUMENT_API_LEVEL;
     private final Stack<Integer> mPatternDefineOffsets = new Stack<>();
     protected int mProfileMask = 0;
-    protected boolean mIsCustomMap = false;
 
-    Operations.UniqueIntMap<CompanionOperation> mMap = new Operations.UniqueIntMap<>();
+    /**
+     * Explicit set of opcodes installed through {@link #setVersion(int, int, Set)}, or null when
+     * the operations are derived from the api level and profiles.
+     */
+    private @Nullable Set<@NonNull Integer> mSupportedOperations;
 
-    public RemoteComposeBuffer() {
-        mMap = Operations.getOperations(mApiLevel, mProfileMask);
-    }
+    /**
+     * Explicit companion operations, i.e. the {@code read} entry points used to inflate, installed
+     * through {@link #setVersion(int, int, Operations.UniqueIntMap)}, or null when they are looked
+     * up in {@link Operations}.
+     */
+    private Operations.@Nullable UniqueIntMap<CompanionOperation> mCustomCompanionOperations;
+
+    public RemoteComposeBuffer() {}
 
     public RemoteComposeBuffer(int apiLevel) {
         mApiLevel = apiLevel;
-        mMap = Operations.getOperations(mApiLevel, mProfileMask);
     }
 
     /** Apply profile directly */
     public void setProfileMask(int mask) {
         mProfileMask = mask;
-        mMap = Operations.getOperations(mApiLevel, mProfileMask);
     }
 
     /**
@@ -1056,13 +1062,14 @@ public class RemoteComposeBuffer {
                 // Invalid API level (or invalid Header)
                 return;
             }
-            // Read the api and profile from the document and use that unless it's previously been
-            // specifically overridden.
-            if (!mIsCustomMap) {
+            // The document's api level and profiles apply, unless an explicit set of operations
+            // was installed through setVersion.
+            if (mSupportedOperations == null && mCustomCompanionOperations == null) {
                 setVersion(mApiLevel, profiles, (Set<Integer>) null);
             }
         }
-        if (mMap == null) {
+        Operations.UniqueIntMap<CompanionOperation> companionOperations = getCompanionOperations();
+        if (companionOperations == null) {
             // Invalid operations map
             return;
         }
@@ -1070,12 +1077,27 @@ public class RemoteComposeBuffer {
         WireBuffer wrapped = ctx.wrap(mBuffer);
         while (wrapped.available()) {
             int opId = wrapped.readByte() & 0xFF;
-            CompanionOperation companion = mMap.get(opId);
+            CompanionOperation companion = companionOperations.get(opId);
             if (companion == null) {
                 throw new RuntimeException("Unknown operation encountered " + opId);
             }
             companion.read(wrapped, operations);
         }
+    }
+
+    /**
+     * Returns the companion operations used to inflate this buffer, by opcode: the explicit ones
+     * if any were installed, else those of the explicit set of opcodes if one was installed, else
+     * those of the current api level and profiles.
+     */
+    Operations.@Nullable UniqueIntMap<CompanionOperation> getCompanionOperations() {
+        if (mCustomCompanionOperations != null) {
+            return mCustomCompanionOperations;
+        }
+        if (mSupportedOperations != null) {
+            return Operations.getOperations(mApiLevel, mSupportedOperations);
+        }
+        return Operations.getOperations(mApiLevel, mProfileMask);
     }
 
     /**
@@ -2960,6 +2982,9 @@ public class RemoteComposeBuffer {
     /**
      * Set current version of the buffer.
      *
+     * <p>Only the opcodes allowed by the version may be written afterward, and only they are
+     * recognized when inflating.
+     *
      * @param documentApiLevel the API level of the document
      * @param profileMask the profile mask used
      * @param supportedOperations the set of allowed operation IDs. If null, operations known for
@@ -2971,39 +2996,9 @@ public class RemoteComposeBuffer {
             @Nullable Set<@NonNull Integer> supportedOperations) {
         mApiLevel = documentApiLevel;
         mProfileMask = profileMask;
-        if (supportedOperations != null) {
-            // When explicit supported operations are provided, look up companion operation
-            // readers for each opcode across registered operations and build a custom map.
-            Operations.UniqueIntMap<CompanionOperation> allOps =
-                    Operations.getAllKnownOperations(documentApiLevel);
-            Operations.UniqueIntMap<CompanionOperation> filteredMap =
-                    new Operations.UniqueIntMap<>();
-            if (allOps != null) {
-                for (Integer opId : supportedOperations) {
-                    if (opId != null) {
-                        int opcode = opId;
-                        CompanionOperation companion = allOps.get(opcode);
-                        if (companion != null) {
-                            filteredMap.put(opcode, companion);
-                        }
-                    }
-                }
-            }
-            mMap = filteredMap;
-            mIsCustomMap = true;
-            mBuffer.setValidOperations(supportedOperations);
-        } else {
-            // Default behavior: look up operation companion readers defined for profile bitmask.
-            Operations.UniqueIntMap<CompanionOperation> map =
-                    Operations.getOperations(documentApiLevel, profileMask);
-            if (map != null) {
-                mMap = map;
-                supportedOperations = map.keySet();
-            }
-            if (supportedOperations != null) {
-                mBuffer.setValidOperations(supportedOperations);
-            }
-        }
+        mSupportedOperations = supportedOperations;
+        mCustomCompanionOperations = null;
+        updateValidOperations();
     }
 
     /**
@@ -3021,9 +3016,26 @@ public class RemoteComposeBuffer {
             Operations.@NonNull UniqueIntMap<CompanionOperation> customMap) {
         mApiLevel = documentApiLevel;
         mProfileMask = profileMask;
-        mMap = customMap;
-        mIsCustomMap = true;
-        mBuffer.setValidOperations(customMap.keySet());
+        mSupportedOperations = null;
+        mCustomCompanionOperations = customMap;
+        updateValidOperations();
+    }
+
+    /** Restricts the opcodes that may be written to those of the current version. */
+    private void updateValidOperations() {
+        Set<Integer> valid;
+        if (mCustomCompanionOperations != null) {
+            valid = mCustomCompanionOperations.keySet();
+        } else if (mSupportedOperations != null) {
+            valid = mSupportedOperations;
+        } else {
+            Operations.UniqueIntMap<CompanionOperation> map =
+                    Operations.getOperations(mApiLevel, mProfileMask);
+            valid = map != null ? map.keySet() : null;
+        }
+        if (valid != null) {
+            mBuffer.setValidOperations(valid);
+        }
     }
 
     /**
