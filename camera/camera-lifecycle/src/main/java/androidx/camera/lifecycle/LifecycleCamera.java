@@ -124,12 +124,7 @@ public final class LifecycleCamera implements LifecycleObserver, Camera {
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     public void onDestroy(@NonNull LifecycleOwner lifecycleOwner) {
-        synchronized (mLock) {
-            mCameraUseCaseAdapter.removeUseCases(mCameraUseCaseAdapter.getUseCases());
-            mCameraUseCaseAdapter.setEffects(Collections.emptyList());
-            mCameraUseCaseAdapter.setSessionInteropConfig(null);
-            mBoundSessionConfig = null;
-        }
+        unbindAll();
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
