@@ -52,6 +52,9 @@ dependencies {
         implementation("org.apache.httpcomponents:httpclient:4.5.14") {
             because("b/562679762 - upgrading to fix vulns")
         }
+        implementation(libs.guava) {
+            because("b/584450147 - upgrading to fix vulns")
+        }
     }
 }
 
