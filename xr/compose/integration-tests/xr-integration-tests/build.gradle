@@ -44,6 +44,7 @@ androidx {
     inceptionYear = "2026"
     description = "Integration tests app for JXR Compose."
     addGoldenImageAssets()
+    additionalDeviceTestTags.add("xr_optin")
 }
 
 dependencies {
