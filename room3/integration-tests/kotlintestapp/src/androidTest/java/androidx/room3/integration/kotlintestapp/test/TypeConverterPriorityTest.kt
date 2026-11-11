@@ -75,6 +75,20 @@ class TypeConverterPriorityTest {
         assertThat(all[0].data).isEqualTo(listOf("d", "e", "f"))
     }
 
+    @Test
+    fun testConverterCoalesce() {
+        db.getDao().insert(TestEntity("1", listOf("a", "b", "c")))
+
+        db.getDao().updateWithCoalesce("1", listOf("d", "e", "f"))
+        assertThat(db.getDao().getAll().single().data).isEqualTo(listOf("d", "e", "f"))
+
+        db.getDao().updateWithCoalesce("1", null)
+        assertThat(db.getDao().getAll().single().data).isEqualTo(listOf("d", "e", "f"))
+
+        db.getDao().updateWithCoalesce("1", emptyList())
+        assertThat(db.getDao().getAll().single().data).isEmpty()
+    }
+
     @Database(entities = [TestEntity::class], version = 1, exportSchema = false)
     @ColumnTypeConverters(Converters::class)
     abstract class TestDatabase : RoomDatabase() {
@@ -91,6 +105,9 @@ class TypeConverterPriorityTest {
 
         @Query("UPDATE TestEntity SET data = :csv WHERE id = :id")
         fun update(id: String, csv: List<String>)
+
+        @Query("UPDATE TestEntity SET data = COALESCE(:csv, data) WHERE id = :id")
+        fun updateWithCoalesce(id: String, csv: List<String>?)
     }
 
     @Entity data class TestEntity(@PrimaryKey val id: String, val data: List<String>)
@@ -105,7 +122,7 @@ class TypeConverterPriorityTest {
         @JvmStatic
         @ColumnTypeConverter
         fun toData(string: String): List<String> {
-            return string.split(",")
+            return if (string.isEmpty()) emptyList() else string.split(",")
         }
     }
 }
