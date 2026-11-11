@@ -38,6 +38,12 @@ androidx {
 
 android {
     namespace = "androidx.collection.benchmark"
+    buildTypes.release {
+        androidTest {
+            testProguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
+            enableMinification = true
+        }
+    }
 }
 
 dependencies {
