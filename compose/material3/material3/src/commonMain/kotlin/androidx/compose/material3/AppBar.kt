@@ -880,22 +880,27 @@ public fun LargeFlexibleTopAppBar(
  * the navigation and actions.
  *
  * By default, the two-rows top app bar will apply the [MediumFlexibleTopAppBar] text styles to the
- * expanded and collapsed titles. You may override that by applying your own style to the
- * Composition passed into those collapsed and expanded title slots.
+ * expanded and collapsed titles and subtitles. You may override that by applying your own style to
+ * the content you provide in the [title] and [subtitle] slots.
  *
  * A two-rows top app bar that uses a [scrollBehavior] to customize its nested scrolling behavior
  * when working in conjunction with scrolling content looks like:
  *
  * @sample androidx.compose.material3.samples.CustomTwoRowsTopAppBar
  * @param title a lambda for providing a title to be displayed in the top app bar in collapsed and
- *   expanded states. By default a small-app-bar [TextStyle] is applied to the Composition, and you
- *   may override it by wrapping your provided component with a composition local. Note that unlike
- *   the large or medium top app bars, the `TwoRowsTopAppBar` does not append bottom padding to the
- *   expanded title Composable by default. Padding should be applied directly to the provided
- *   expanded title, or to the [subtitle] that appears below it.
+ *   expanded states. By default, the [MediumFlexibleTopAppBar] title [TextStyle]s are applied to
+ *   the Composition (a medium-flexible-app-bar style when `expanded` is `true`, and a small-app-bar
+ *   style when `expanded` is `false`), and you may override them on the provided component or by
+ *   wrapping it with a composition local. Note that unlike the large or medium top app bars, the
+ *   `TwoRowsTopAppBar` does not append bottom padding to the expanded title Composable by default.
+ *   Padding should be applied directly to the provided expanded title, or to the [subtitle] that
+ *   appears below it.
  * @param modifier the [Modifier] to be applied to this top app bar
  * @param subtitle a lambda for providing an optional subtitle to be displayed in the top app bar in
- *   collapsed and expanded states.
+ *   collapsed and expanded states. By default, the [MediumFlexibleTopAppBar] subtitle [TextStyle]s
+ *   are applied to the Composition (a medium-flexible-app-bar style when `expanded` is `true`, and
+ *   a small-app-bar style when `expanded` is `false`), and you may override them on the provided
+ *   component or by wrapping it with a composition local.
  * @param navigationIcon the navigation icon displayed at the start of the top app bar. This should
  *   typically be an [IconButton] or [IconToggleButton].
  * @param actions the actions displayed at the end of the top app bar. This should typically be
