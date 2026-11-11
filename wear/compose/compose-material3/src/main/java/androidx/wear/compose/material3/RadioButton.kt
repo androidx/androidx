@@ -277,7 +277,8 @@ public fun RadioButton(
  *   component
  * @param onContainerClick Click listener called when the user clicks the main body of the button,
  *   the area containing the labels.
- * @param modifier Modifier to be applied to the button.
+ * @param modifier Modifier to be applied to the button. Any custom accessibility actions will be
+ *   applied to the main body of the [SplitRadioButton].
  * @param enabled Controls the enabled state of the button. When `false`, this button will not be
  *   clickable.
  * @param shape Defines the button's shape. It is strongly recommended to use the default as this
@@ -322,12 +323,13 @@ public fun SplitRadioButton(
 ) {
     val containerColorState = colors.containerColor(enabled, selected)
     val contentColor = colors.contentColor(enabled = enabled, selected = selected).value
+    val (outerModifier, customActionsModifier) = modifier.extractCustomActions()
 
     CompositionLocalProvider(LocalContentColor provides contentColor) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier =
-                modifier
+                outerModifier
                     .defaultMinSize(minHeight = MIN_HEIGHT)
                     .height(IntrinsicSize.Min)
                     .width(IntrinsicSize.Max)
@@ -341,7 +343,8 @@ public fun SplitRadioButton(
             val startSectionShape = shape.startSection()
             Row(
                 modifier =
-                    Modifier.clickable(
+                    customActionsModifier
+                        .clickable(
                             enabled = enabled,
                             onClick = onContainerClick,
                             indication =

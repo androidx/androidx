@@ -293,7 +293,8 @@ public fun SwitchButton(
  *   component.
  * @param onContainerClick Click listener called when the user clicks the main body of the button,
  *   the area behind the labels.
- * @param modifier Modifier to be applied to the button.
+ * @param modifier Modifier to be applied to the button. Any custom accessibility actions will be
+ *   applied to the main body of the [SplitSwitchButton].
  * @param enabled Controls the enabled state of the button. When `false`, this button will not be
  *   clickable.
  * @param shape Defines the button's shape. It is strongly recommended to use the default as this
@@ -344,12 +345,13 @@ public fun SplitSwitchButton(
             getString(Strings.OffStateDescription)
         }
     val contentColor = colors.contentColor(enabled = enabled, checked = checked).value
+    val (outerModifier, customActionsModifier) = modifier.extractCustomActions()
 
     CompositionLocalProvider(LocalContentColor provides contentColor) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier =
-                modifier
+                outerModifier
                     .defaultMinSize(minHeight = MIN_HEIGHT)
                     .height(IntrinsicSize.Min)
                     .width(IntrinsicSize.Max)
@@ -363,7 +365,8 @@ public fun SplitSwitchButton(
             val startSectionShape = shape.startSection()
             Row(
                 modifier =
-                    Modifier.clickable(
+                    customActionsModifier
+                        .clickable(
                             enabled = enabled,
                             onClick = onContainerClick,
                             indication =

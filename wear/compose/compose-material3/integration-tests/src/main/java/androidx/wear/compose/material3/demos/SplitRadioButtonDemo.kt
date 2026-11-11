@@ -21,28 +21,48 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.items
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.LocalTextConfiguration
 import androidx.wear.compose.material3.RadioButtonDefaults
+import androidx.wear.compose.material3.RevealValue
 import androidx.wear.compose.material3.SplitRadioButton
+import androidx.wear.compose.material3.SwipeToReveal
 import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.rememberRevealState
+import kotlinx.coroutines.launch
 
 @Composable
 fun SplitRadioButtonDemo() {
+    val slcState = rememberScalingLazyListState()
+    val coroutineScope = rememberCoroutineScope()
     var selectedRadioIndex by remember { mutableIntStateOf(0) }
     var selectedMultiLineRadioIndex by remember { mutableIntStateOf(0) }
     var selectedCustomShapeIndex by remember { mutableIntStateOf(0) }
+    val swipeToRevealItems = remember { mutableStateListOf("Item 1", "Item 2", "Item 3") }
+    var selectedSwipeToRevealItem by remember { mutableStateOf("Item 1") }
 
-    ScalingLazyDemo {
+    ScalingLazyDemo(state = slcState) {
         item { ListHeader { Text("Split Radio Button") } }
         item {
             DemoSplitRadioButton(enabled = true, (selectedRadioIndex == 0)) {
@@ -141,6 +161,49 @@ fun SplitRadioButtonDemo() {
                 shape = CircleShape,
             )
         }
+        item { ListHeader { Text("Swipe to Reveal") } }
+        items(items = swipeToRevealItems, key = { it }) { label ->
+            val revealState = rememberRevealState()
+
+            LaunchedEffect(slcState.isScrollInProgress) {
+                if (
+                    slcState.isScrollInProgress && revealState.currentValue != RevealValue.Covered
+                ) {
+                    coroutineScope.launch {
+                        revealState.animateTo(targetValue = RevealValue.Covered)
+                    }
+                }
+            }
+
+            SwipeToReveal(
+                revealState = revealState,
+                primaryAction = {
+                    PrimaryActionButton(
+                        onClick = { swipeToRevealItems.remove(label) },
+                        icon = { Icon(Icons.Outlined.Delete, contentDescription = "Delete") },
+                        text = { Text("Delete") },
+                    )
+                },
+                onSwipePrimaryAction = { swipeToRevealItems.remove(label) },
+            ) {
+                DemoSplitRadioButton(
+                    enabled = true,
+                    selected = selectedSwipeToRevealItem == label,
+                    onSelected = { selectedSwipeToRevealItem = label },
+                    primary = label,
+                    modifier =
+                        Modifier.semantics {
+                            customActions =
+                                listOf(
+                                    CustomAccessibilityAction("Delete") {
+                                        swipeToRevealItems.remove(label)
+                                        true
+                                    }
+                                )
+                        },
+                )
+            }
+        }
     }
 }
 
@@ -148,6 +211,7 @@ fun SplitRadioButtonDemo() {
 private fun DemoSplitRadioButton(
     enabled: Boolean,
     selected: Boolean,
+    modifier: Modifier = Modifier,
     primary: String = "Primary label",
     primaryMaxLines: Int? = null,
     secondary: String? = null,
@@ -156,7 +220,7 @@ private fun DemoSplitRadioButton(
 ) {
     val context = LocalContext.current
     SplitRadioButton(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         shape = shape,
         label = {
             Text(

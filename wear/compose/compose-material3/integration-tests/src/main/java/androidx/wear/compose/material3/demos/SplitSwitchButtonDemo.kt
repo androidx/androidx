@@ -21,24 +21,43 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.items
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.LocalTextConfiguration
+import androidx.wear.compose.material3.RevealValue
 import androidx.wear.compose.material3.SplitSwitchButton
+import androidx.wear.compose.material3.SwipeToReveal
 import androidx.wear.compose.material3.SwitchButtonDefaults
 import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.rememberRevealState
+import kotlinx.coroutines.launch
 
 @Composable
 fun SplitSwitchButtonDemo() {
-    ScalingLazyDemo() {
+    val slcState = rememberScalingLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+    val swipeToRevealItems = remember { mutableStateListOf("Item 1", "Item 2", "Item 3") }
+
+    ScalingLazyDemo(state = slcState) {
         item { ListHeader { Text("Switch") } }
         item { DemoSplitSwitchButton(enabled = true, initiallyChecked = true) }
         item { DemoSplitSwitchButton(enabled = true, initiallyChecked = false) }
@@ -122,6 +141,48 @@ fun SplitSwitchButtonDemo() {
                 shape = CircleShape,
             )
         }
+        item { ListHeader { Text("Swipe to Reveal") } }
+        items(items = swipeToRevealItems, key = { it }) { label ->
+            val revealState = rememberRevealState()
+
+            LaunchedEffect(slcState.isScrollInProgress) {
+                if (
+                    slcState.isScrollInProgress && revealState.currentValue != RevealValue.Covered
+                ) {
+                    coroutineScope.launch {
+                        revealState.animateTo(targetValue = RevealValue.Covered)
+                    }
+                }
+            }
+
+            SwipeToReveal(
+                revealState = revealState,
+                primaryAction = {
+                    PrimaryActionButton(
+                        onClick = { swipeToRevealItems.remove(label) },
+                        icon = { Icon(Icons.Outlined.Delete, contentDescription = "Delete") },
+                        text = { Text("Delete") },
+                    )
+                },
+                onSwipePrimaryAction = { swipeToRevealItems.remove(label) },
+            ) {
+                DemoSplitSwitchButton(
+                    enabled = true,
+                    initiallyChecked = true,
+                    primary = label,
+                    modifier =
+                        Modifier.semantics {
+                            customActions =
+                                listOf(
+                                    CustomAccessibilityAction("Delete") {
+                                        swipeToRevealItems.remove(label)
+                                        true
+                                    }
+                                )
+                        },
+                )
+            }
+        }
     }
 }
 
@@ -129,6 +190,7 @@ fun SplitSwitchButtonDemo() {
 private fun DemoSplitSwitchButton(
     enabled: Boolean,
     initiallyChecked: Boolean,
+    modifier: Modifier = Modifier,
     primary: String = "Primary label",
     primaryMaxLines: Int? = null,
     secondary: String? = null,
@@ -137,7 +199,7 @@ private fun DemoSplitSwitchButton(
     var checked by remember { mutableStateOf(initiallyChecked) }
     val context = LocalContext.current
     SplitSwitchButton(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         shape = shape,
         label = {
             Text(
