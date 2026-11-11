@@ -32,7 +32,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.focus.FocusRequester.Companion.Cancel
 import androidx.compose.ui.focus.FocusRequester.Companion.Default
 import androidx.compose.ui.focus.focusProperties
@@ -75,9 +74,10 @@ fun CancelFocusDemo() {
     }
 }
 
-private fun Modifier.focusableWithBorder() = composed {
+@Composable
+private fun Modifier.focusableWithBorder(): Modifier {
     var color by remember { mutableStateOf(Black) }
-    Modifier.size(50.dp)
+    return this.size(50.dp)
         .border(1.dp, color)
         .onFocusChanged { color = if (it.isFocused) Red else Black }
         .focusable()

@@ -30,7 +30,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -52,9 +51,10 @@ fun OneDimensionalFocusSearchDemo() {
     }
 }
 
-private fun Modifier.focusableWithBorder() = composed {
+@Composable
+private fun Modifier.focusableWithBorder(): Modifier {
     var borderColor by remember { mutableStateOf(Color.Black) }
-    Modifier.onFocusChanged { borderColor = if (it.isFocused) Color.Red else Color.Black }
+    return this.onFocusChanged { borderColor = if (it.isFocused) Color.Red else Color.Black }
         .border(5.dp, borderColor)
         .focusable()
 }
