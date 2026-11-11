@@ -22,6 +22,30 @@ configs: {
 }
 
 configs: {
+  id: "android-compose-internal-performance-review"
+  display_name: "Jetpack Compose Performance Internal Review"
+  description: "Check this changelist against Jetpack Compose performance optimizations for AndroidX framework code. Check for layout coordinate and transformation caching, synthetic composition overhead, lazy property initialization, primitive and value class boxing, and allocation-free collections and iteration."
+  skills: ".agents/skills/android-jetpack-compose-performance-internal"
+  include_filters: {
+    path_regex: ".*\\.kt$"
+  }
+  automatic: false
+}
+
+configs: {
+  id: "android-compose-internal-performance-review-auto"
+  display_name: "Jetpack Compose Performance Internal Review (Automatic)"
+  description: "Check this changelist against Jetpack Compose performance optimizations for AndroidX framework code. Check for layout coordinate and transformation caching, synthetic composition overhead, lazy property initialization, primitive and value class boxing, and allocation-free collections and iteration."
+  skills: ".agents/skills/android-jetpack-compose-performance-internal"
+  include_filters: {
+    path_regex: ".*\\.kt$"
+  }
+  automatic: true
+  mdb_groups: "mdb/android-toolkit-team"
+  mdb_groups: "mdb/material-android-dev"
+}
+
+configs: {
   id: "androidx-api-review"
   display_name: "AndroidX API Review"
   description: "Reviews public and restricted API changes against AndroidX and Jetpack Compose API design guidelines."
