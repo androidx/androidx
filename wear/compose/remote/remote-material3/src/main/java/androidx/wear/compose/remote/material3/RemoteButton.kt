@@ -64,6 +64,8 @@ import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.text.RemoteTextAlign
+import androidx.compose.remote.creation.compose.text.RemoteTextOverflow
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -71,11 +73,8 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.material3.ButtonDefaults.scrimGradientEndColor
 import androidx.wear.compose.material3.ButtonDefaults.scrimGradientStartColor
-import androidx.wear.compose.material3.TextConfiguration
 import androidx.wear.compose.remote.material3.RemoteButtonDefaults.buttonColors
 import androidx.wear.compose.remote.material3.RemoteButtonDefaults.defaultButtonWithContainerPainterColors
 
@@ -277,9 +276,9 @@ public fun RemoteButton(
                 contentColor = colors.secondaryContentColor(enabled),
                 textStyle = RemoteMaterialTheme.typography.labelSmall,
                 textConfiguration =
-                    TextConfiguration(
-                        textAlign = TextAlign.Start,
-                        overflow = TextOverflow.Ellipsis,
+                    RemoteTextConfiguration(
+                        textAlign = RemoteTextAlign.Start,
+                        overflow = RemoteTextOverflow.Ellipsis,
                         maxLines = 2,
                     ),
                 content = secondaryLabel,
@@ -298,11 +297,11 @@ public fun RemoteButton(
                 contentColor = colors.contentColor(enabled),
                 textStyle = RemoteMaterialTheme.typography.labelMedium,
                 textConfiguration =
-                    TextConfiguration(
+                    RemoteTextConfiguration(
                         textAlign =
-                            if (icon != null || secondaryLabel != null) TextAlign.Start
-                            else TextAlign.Center,
-                        overflow = TextOverflow.Ellipsis,
+                            if (icon != null || secondaryLabel != null) RemoteTextAlign.Start
+                            else RemoteTextAlign.Center,
+                        overflow = RemoteTextOverflow.Ellipsis,
                         maxLines = 3,
                     ),
                 content = label,
@@ -424,10 +423,11 @@ public fun RemoteCompactButton(
                             contentColor = colors.contentColor(enabled),
                             textStyle = RemoteMaterialTheme.typography.labelSmall,
                             textConfiguration =
-                                TextConfiguration(
+                                RemoteTextConfiguration(
                                     textAlign =
-                                        if (icon != null) TextAlign.Start else TextAlign.Center,
-                                    overflow = TextOverflow.Ellipsis,
+                                        if (icon != null) RemoteTextAlign.Start
+                                        else RemoteTextAlign.Center,
+                                    overflow = RemoteTextOverflow.Ellipsis,
                                     maxLines = 1,
                                 ),
                             content = label,

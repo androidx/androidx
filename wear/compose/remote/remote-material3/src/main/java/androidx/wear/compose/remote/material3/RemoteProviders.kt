@@ -20,8 +20,6 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.wear.compose.material3.LocalTextConfiguration
-import androidx.wear.compose.material3.TextConfiguration
 
 internal fun provideScopeContent(
     contentColor: RemoteColor,
@@ -58,13 +56,13 @@ internal fun <T> provideScopeContent(
 internal fun <T> provideScopeContent(
     contentColor: RemoteColor,
     textStyle: RemoteTextStyle,
-    textConfiguration: TextConfiguration,
+    textConfiguration: RemoteTextConfiguration,
     content: (@Composable T.() -> Unit),
 ): (@Composable T.() -> Unit) = {
     CompositionLocalProvider(
         LocalRemoteContentColor provides contentColor,
         LocalRemoteTextStyle provides textStyle,
-        LocalTextConfiguration provides textConfiguration,
+        LocalRemoteTextConfiguration provides textConfiguration,
     ) {
         content()
     }
@@ -73,14 +71,14 @@ internal fun <T> provideScopeContent(
 internal fun <T> provideNullableScopeContent(
     contentColor: RemoteColor,
     textStyle: RemoteTextStyle,
-    textConfiguration: TextConfiguration,
+    textConfiguration: RemoteTextConfiguration,
     content: (@Composable T.() -> Unit)?,
 ): (@Composable T.() -> Unit)? = content?.let {
     {
         CompositionLocalProvider(
             LocalRemoteContentColor provides contentColor,
             LocalRemoteTextStyle provides textStyle,
-            LocalTextConfiguration provides textConfiguration,
+            LocalRemoteTextConfiguration provides textConfiguration,
         ) {
             content()
         }

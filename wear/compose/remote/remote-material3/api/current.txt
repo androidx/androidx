@@ -1248,9 +1248,32 @@ package androidx.wear.compose.remote.material3 {
     property public androidx.compose.remote.creation.compose.shapes.RemoteShape shape;
   }
 
+  @androidx.compose.runtime.Immutable public final class RemoteTextConfiguration {
+    ctor @KotlinOnly public RemoteTextConfiguration(androidx.compose.remote.creation.compose.text.RemoteTextAlign? textAlign, androidx.compose.remote.creation.compose.text.RemoteTextOverflow overflow, int maxLines);
+    ctor @BytecodeOnly public RemoteTextConfiguration(androidx.compose.remote.creation.compose.text.RemoteTextAlign!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public int getMaxLines();
+    method @BytecodeOnly public int getOverflow-W-PLe1g();
+    method @BytecodeOnly public androidx.compose.remote.creation.compose.text.RemoteTextAlign? getTextAlign-BjsDkGs();
+    property public int maxLines;
+    property public androidx.compose.remote.creation.compose.text.RemoteTextOverflow overflow;
+    property public androidx.compose.remote.creation.compose.text.RemoteTextAlign? textAlign;
+  }
+
+  public final class RemoteTextConfigurationDefaults {
+    method @InaccessibleFromKotlin public int getMaxLines();
+    method @BytecodeOnly public int getOverflow-W-PLe1g();
+    method @BytecodeOnly public androidx.compose.remote.creation.compose.text.RemoteTextAlign? getTextAlign-BjsDkGs();
+    property public int MaxLines;
+    property public androidx.compose.remote.creation.compose.text.RemoteTextOverflow Overflow;
+    property public androidx.compose.remote.creation.compose.text.RemoteTextAlign? TextAlign;
+    field public static final androidx.wear.compose.remote.material3.RemoteTextConfigurationDefaults INSTANCE;
+  }
+
   public final class RemoteTextKt {
-    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteText(androidx.compose.remote.creation.compose.state.RemoteString text, optional androidx.compose.remote.creation.compose.modifier.RemoteModifier modifier, optional androidx.compose.remote.creation.compose.state.RemoteColor? color, optional androidx.compose.remote.creation.compose.state.RemoteTextUnit? fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.remote.creation.compose.text.RemoteFontFamily? fontFamily, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional androidx.compose.ui.text.style.TextOverflow overflow, optional int maxLines, optional androidx.compose.ui.text.font.FontVariation.Settings? fontVariationSettings, optional androidx.compose.remote.creation.compose.text.RemoteTextStyle style);
-    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteText-yT6CtNU(androidx.compose.remote.creation.compose.state.RemoteString, androidx.compose.remote.creation.compose.modifier.RemoteModifier?, androidx.compose.remote.creation.compose.state.RemoteColor?, androidx.compose.remote.creation.compose.state.RemoteTextUnit?, androidx.compose.ui.text.font.FontStyle?, androidx.compose.ui.text.font.FontWeight?, androidx.compose.remote.creation.compose.text.RemoteFontFamily?, androidx.compose.ui.text.style.TextAlign?, int, int, androidx.compose.ui.text.font.FontVariation.Settings?, androidx.compose.remote.creation.compose.text.RemoteTextStyle?, androidx.compose.runtime.Composer?, int, int, int);
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteText(androidx.compose.remote.creation.compose.state.RemoteString text, optional androidx.compose.remote.creation.compose.modifier.RemoteModifier modifier, optional androidx.compose.remote.creation.compose.state.RemoteColor? color, optional androidx.compose.remote.creation.compose.state.RemoteTextUnit? fontSize, optional androidx.compose.remote.creation.compose.text.RemoteFontStyle? fontStyle, optional androidx.compose.remote.creation.compose.text.RemoteFontWeight? fontWeight, optional androidx.compose.remote.creation.compose.text.RemoteFontFamily? fontFamily, optional androidx.compose.remote.creation.compose.text.RemoteTextAlign? textAlign, optional androidx.compose.remote.creation.compose.text.RemoteTextOverflow overflow, optional int maxLines, optional androidx.compose.remote.creation.compose.text.RemoteFontVariation.Settings? fontVariationSettings, optional androidx.compose.remote.creation.compose.text.RemoteTextStyle style);
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteText-9WxCQ6Y(androidx.compose.remote.creation.compose.state.RemoteString, androidx.compose.remote.creation.compose.modifier.RemoteModifier?, androidx.compose.remote.creation.compose.state.RemoteColor?, androidx.compose.remote.creation.compose.state.RemoteTextUnit?, androidx.compose.remote.creation.compose.text.RemoteFontStyle?, androidx.compose.remote.creation.compose.text.RemoteFontWeight?, androidx.compose.remote.creation.compose.text.RemoteFontFamily?, androidx.compose.remote.creation.compose.text.RemoteTextAlign?, int, int, androidx.compose.remote.creation.compose.text.RemoteFontVariation.Settings?, androidx.compose.remote.creation.compose.text.RemoteTextStyle?, androidx.compose.runtime.Composer?, int, int, int);
+    method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.wear.compose.remote.material3.RemoteTextConfiguration> getLocalRemoteTextConfiguration();
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.wear.compose.remote.material3.RemoteTextConfiguration> LocalRemoteTextConfiguration;
   }
 
   @androidx.compose.runtime.Immutable public final class RemoteTextToggleButtonColors {

@@ -24,14 +24,15 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
+import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.unit.sp
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -123,13 +124,13 @@ class RemoteTypographyTest {
                         RemoteText(
                             "RobotoFlex".rs,
                             fontVariationSettings =
-                                FontVariation.Settings(FontVariation.weight(100)),
+                                RemoteFontVariation.Settings(RemoteFontVariation.weight(100.rf)),
                         )
                         RemoteText("RobotoFlex".rs)
                         RemoteText(
                             "RobotoFlex".rs,
                             fontVariationSettings =
-                                FontVariation.Settings(FontVariation.weight(900)),
+                                RemoteFontVariation.Settings(RemoteFontVariation.weight(900.rf)),
                         )
                     }
                 }

@@ -36,13 +36,13 @@ import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.text.RemoteTextAlign
 import androidx.compose.remote.creation.compose.text.RemoteTimeDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.text.style.TextAlign
-import androidx.wear.compose.material3.LocalTextConfiguration
 import androidx.wear.compose.remote.integration.demos.bookends.BookendsSpec
 import androidx.wear.compose.remote.integration.demos.bookends.BookendsSpec.toWire
+import androidx.wear.compose.remote.material3.LocalRemoteTextConfiguration
 import androidx.wear.compose.remote.material3.RemoteButton as RemoteMaterial3Button
 import androidx.wear.compose.remote.material3.RemoteSwitchButton as RemoteMaterial3SwitchButton
 import androidx.wear.compose.remote.material3.RemoteText as RemoteMaterial3Text
@@ -363,11 +363,11 @@ fun RemoteText(
     text: RemoteString,
     modifier: RemoteModifier = RemoteModifier,
     color: RemoteColor? = null,
-    textAlign: TextAlign? = null,
+    textAlign: RemoteTextAlign? = null,
     maxLines: Int = Int.MAX_VALUE,
 ) {
     if (LocalBookendsImplementation.current == BookendsImplementation.RemoteMaterial3) {
-        val textConfiguration = LocalTextConfiguration.current
+        val textConfiguration = LocalRemoteTextConfiguration.current
         RemoteMaterial3Text(
             text = text,
             modifier = modifier,

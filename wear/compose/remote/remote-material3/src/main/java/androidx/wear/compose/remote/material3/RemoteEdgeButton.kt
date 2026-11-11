@@ -55,11 +55,10 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.sqrt
 import androidx.compose.remote.creation.compose.state.toRemoteDp
+import androidx.compose.remote.creation.compose.text.RemoteTextAlign
+import androidx.compose.remote.creation.compose.text.RemoteTextOverflow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.wear.compose.material3.TextConfiguration
 
 /**
  * Wear Material 3 [RemoteEdgeButton] that offers a single slot to take any content.
@@ -169,9 +168,9 @@ public fun RemoteEdgeButton(
                     contentColor = colors.contentColor(enabled = enabled),
                     textStyle = RemoteMaterialTheme.typography.labelMedium,
                     textConfiguration =
-                        TextConfiguration(
-                            textAlign = TextAlign.Center,
-                            overflow = TextOverflow.Ellipsis,
+                        RemoteTextConfiguration(
+                            textAlign = RemoteTextAlign.Center,
+                            overflow = RemoteTextOverflow.Ellipsis,
                             maxLines = buttonSize.maxLines(),
                         ),
                     content = content,

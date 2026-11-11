@@ -39,6 +39,7 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
+import androidx.compose.remote.creation.compose.text.RemoteTextAlign
 import androidx.compose.remote.player.compose.EnableEmbeddedPlayerRule
 import androidx.compose.remote.player.compose.embedded.RcPlayer
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
@@ -50,7 +51,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.wear.compose.material3.MaterialTheme
@@ -218,17 +218,17 @@ abstract class BookendsScreenshotTest(private val implementation: BookendsImplem
                 RemoteText(
                     "Start".rs,
                     modifier = RemoteModifier.fillMaxWidth(),
-                    textAlign = TextAlign.Start,
+                    textAlign = RemoteTextAlign.Start,
                 )
                 RemoteText(
                     "Center".rs,
                     modifier = RemoteModifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
+                    textAlign = RemoteTextAlign.Center,
                 )
                 RemoteText(
                     "End".rs,
                     modifier = RemoteModifier.fillMaxWidth(),
-                    textAlign = TextAlign.End,
+                    textAlign = RemoteTextAlign.End,
                 )
                 RemoteText("Colored".rs, color = RemoteColor(Color.Cyan))
                 RemoteText(

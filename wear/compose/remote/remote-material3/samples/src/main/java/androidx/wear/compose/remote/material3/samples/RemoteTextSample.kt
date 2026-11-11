@@ -19,9 +19,9 @@ package androidx.wear.compose.remote.material3.samples
 import androidx.annotation.Sampled
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.creation.compose.text.RemoteTextAlign
+import androidx.compose.remote.creation.compose.text.RemoteTextOverflow
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewWrapper
 import androidx.wear.compose.remote.material3.RemoteMaterialTheme
 import androidx.wear.compose.remote.material3.RemoteText
@@ -38,8 +38,8 @@ fun RemoteTextSample(modifier: RemoteModifier = RemoteModifier) {
         modifier = modifier,
         color = RemoteMaterialTheme.colorScheme.primary,
         style = RemoteMaterialTheme.typography.titleMedium,
-        textAlign = TextAlign.Center,
+        textAlign = RemoteTextAlign.Center,
         maxLines = 2,
-        overflow = TextOverflow.Ellipsis,
+        overflow = RemoteTextOverflow.Ellipsis,
     )
 }

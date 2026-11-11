@@ -23,11 +23,12 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.glance.wear.AssociateWithGlanceWearWidget
@@ -78,7 +79,8 @@ private fun HelloWidgetContent(@ContainerInfo.ContainerType containerType: Int) 
                         else -> stringResource(R.string.hello)
                     }.rs,
                 style = RemoteMaterialTheme.typography.displayMedium,
-                fontVariationSettings = FontVariation.Settings(FontVariation.Setting("ROND", 100f)),
+                fontVariationSettings =
+                    RemoteFontVariation.Settings(RemoteFontVariation.Setting("ROND", 100f.rf)),
             )
         }
     }
