@@ -143,6 +143,46 @@ internal fun bmgrSuccessOutput(command: String): ShellCommandOutput? {
 }
 
 /**
+ * Returns what `dumpsys package` prints for the installed app [packageName], in the form of an API
+ * 34 device. For user 0, the app is in the stopped state or not as [stopped] says.
+ */
+internal fun packageDump(packageName: String, stopped: Boolean): String {
+    val codePath = "/data/app/~~L_no4vk9HaTF2FdNk0W9TA==/$packageName-U-qJtSkwMYR1ilsn6EHImQ=="
+    return "Key Set Manager:\n" +
+        "  [$packageName]\n" +
+        "      Signing KeySets: 37\n" +
+        "\n" +
+        "Packages:\n" +
+        "  Package [$packageName] (9a8b7c6):\n" +
+        "    appId=10190\n" +
+        "    pkg=Package{d3f4a5b $packageName}\n" +
+        "    codePath=$codePath\n" +
+        "    versionCode=1 minSdk=23 targetSdk=34\n" +
+        "    flags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]\n" +
+        "    install permissions:\n" +
+        "      android.permission.INTERNET: granted=true\n" +
+        "    User 0: ceDataInode=131450 installed=true hidden=false suspended=false " +
+        "distractionFlags=0 stopped=$stopped notLaunched=false enabled=0 instant=false " +
+        "virtual=false\n" +
+        "      installReason=0\n" +
+        "      firstInstallTime=2026-01-01 00:00:00\n" +
+        "      uninstallReason=0\n" +
+        "      gids=[3003]\n" +
+        "      runtime permissions:\n" +
+        "\n" +
+        "Queries:\n" +
+        "  system apps queryable: false\n" +
+        "  queryable via interaction:\n" +
+        "    User 0:\n" +
+        "      com.android.shell:\n" +
+        "        $packageName\n" +
+        "\n" +
+        "Dexopt state:\n" +
+        "  [$packageName]\n" +
+        "    path: $codePath/base.apk\n"
+}
+
+/**
  * A mocked [AdbSession] connected to one device, which records the shell commands and file
  * transfers issued through it.
  *

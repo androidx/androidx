@@ -214,16 +214,24 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, val serialN
         exec("getprop ${quoteIfNeeded(name)}").stdout.trim().ifEmpty { null }
 
     /**
-     * Takes [packageName] out of the stopped state (`FLAG_STOPPED`).
+     * Takes [packageName] out of the stopped state (`FLAG_STOPPED`), if it is in it.
      *
-     * Freshly installed or cleared packages are stopped, and `BackupManagerService` skips stopped
-     * packages. A broadcast with `--include-stopped-packages` wakes packages that have receivers or
-     * services without touching the UI. Newer Android versions only unstop activity-based apps on
-     * an explicit activity start, so the launcher activity, if any, is also started and then sent
-     * to the background once it has had time to initialize.
+     * Freshly installed, cleared or force-stopped packages are stopped, and `BackupManagerService`
+     * skips stopped packages. `pm unstop` takes a package out of the state on the Android versions
+     * that have it. On the others, a broadcast with `--include-stopped-packages` wakes packages
+     * that have receivers or services without touching the UI. Some of those versions only unstop
+     * activity-based apps on an explicit activity start, so the launcher activity, if any, is also
+     * started and then sent to the background once it has had time to initialize.
      */
     suspend fun unstopPackage(packageName: String) {
+        if (isPackageStopped(packageName) == false) return
         val pkg = quoteIfNeeded(packageName)
+        val unstopped =
+            exec("pm unstop $pkg").stdout.lineSequence().any {
+                it.trim() == "Package $packageName new stopped state: false"
+            }
+        if (unstopped) return
+
         exec("am broadcast -a $ACTION_MAIN -p $pkg --include-stopped-packages")
 
         val launcher = resolveLauncherActivity(packageName)
@@ -236,6 +244,39 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, val serialN
         exec("am start -W -n ${quote(launcher)}")
         delay(ACTIVITY_SETTLE_DELAY_MS)
         pressHome()
+    }
+
+    /**
+     * Returns whether [packageName] is in the stopped state for user 0, or null if the package
+     * manager does not report the state in the form that is expected of it.
+     */
+    private suspend fun isPackageStopped(packageName: String): Boolean? {
+        // The package manager dumps the installed package first under `Packages:`, with the state
+        // for each user on a line of its own:
+        //
+        //   Packages:
+        //     Package [com.example.app] (9a8b7c6):
+        //       appId=10190
+        //       ...
+        //       User 0: ceDataInode=131450 installed=true ... stopped=false notLaunched=false ...
+        //
+        // Every line of the entry is empty or indented deeper than its first one. Later sections,
+        // such as the one of a system package that an update replaced, have `User 0:` lines of
+        // their own.
+        val entry =
+            exec("dumpsys package ${quoteIfNeeded(packageName)}")
+                .stdout
+                .lines()
+                .dropWhile { it != "Packages:" }
+                .drop(1)
+        if (entry.firstOrNull()?.startsWith("  Package [$packageName] (") != true) return null
+        return entry
+            .drop(1)
+            .takeWhile { it.isEmpty() || it.startsWith("    ") }
+            .firstNotNullOfOrNull { USER_0_STATE_LINE.matchEntire(it) }
+            ?.groupValues
+            ?.get(1)
+            ?.toBooleanStrict()
     }
 
     /** Force-stops [packageName]. */
@@ -405,6 +446,13 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, val serialN
          */
         private val INSTRUMENTATION_LINE =
             Regex("""instrumentation:([^/\s]+)/(\S+) \(target=([^)\s]+)\)""")
+
+        /**
+         * The line of a package entry of `dumpsys package` with the state of the package for user
+         * 0: `User 0:`, then fields such as `stopped=true`, each after one space.
+         */
+        private val USER_0_STATE_LINE =
+            Regex("""    User 0: (?:\S+ )*stopped=(true|false)(?: \S+)*""")
 
         /**
          * Returns whether a package manager command succeeded: it exited with 0 and printed a

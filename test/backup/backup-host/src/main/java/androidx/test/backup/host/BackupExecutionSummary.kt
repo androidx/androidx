@@ -72,7 +72,7 @@ internal enum class BackupExecutionStage {
     /** Seeding initial test data into the application sandbox. */
     SEEDING,
 
-    /** Force-stopping the app and generating the backup payload via BMGR. */
+    /** Generating the backup payload via BMGR. */
     BACKUP,
 
     /** Clearing application sandbox data to simulate a clean restore environment. */

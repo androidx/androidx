@@ -206,8 +206,6 @@ internal class BackupRestoreControllerImpl(
                 val backupFile =
                     runStage(1) {
                         capture?.markBackupStarted(serialNumber, mode)
-                        // Stopping the app flushes its pending writes to disk before the backup.
-                        stopApp()
                         logger.info("Performing backup via performBackup ($mode)...")
                         performBackup(mode, outputDir)
                     }
