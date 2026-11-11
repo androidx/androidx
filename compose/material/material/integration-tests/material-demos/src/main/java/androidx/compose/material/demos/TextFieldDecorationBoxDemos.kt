@@ -52,7 +52,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -201,11 +200,12 @@ private fun IndicatorLineTextField(type: IndicatorType) {
 
 private const val ExpectedInputLength = 8
 
+@Composable
 private fun Modifier.progressIndicatorLine(
     text: String,
     interactionSource: InteractionSource,
     enabled: Boolean,
-): Modifier = composed {
+): Modifier {
     val animationDuration = 150
     val focused by interactionSource.collectIsFocusedAsState()
 
@@ -223,7 +223,7 @@ private fun Modifier.progressIndicatorLine(
         MaterialTheme.colors.onSurface.copy(alpha = TextFieldDefaults.UnfocusedIndicatorLineOpacity)
     val progressColor = MaterialTheme.colors.primary.copy(alpha = ContentAlpha.high)
 
-    drawWithContent {
+    return this.drawWithContent {
         drawContent()
         val strokeWidth = animatedHeight.value.value * density
         val y = size.height - strokeWidth / 2
@@ -235,12 +235,13 @@ private fun Modifier.progressIndicatorLine(
     }
 }
 
+@Composable
 private fun Modifier.animatedIndicator(
     interactionSource: InteractionSource,
     enabled: Boolean,
     isError: Boolean,
     colors: TextFieldColors,
-): Modifier = composed {
+): Modifier {
     val animationDuration = 150
     val focused by interactionSource.collectIsFocusedAsState()
     // height of line
@@ -261,7 +262,7 @@ private fun Modifier.animatedIndicator(
         }
 
     val color = colors.indicatorColor(enabled, isError, interactionSource)
-    drawWithContent {
+    return this.drawWithContent {
         drawContent()
         val strokeWidth = animatedHeight.value.value * density
         val y = size.height - strokeWidth / 2
@@ -272,10 +273,11 @@ private fun Modifier.animatedIndicator(
     }
 }
 
+@Composable
 private fun Modifier.animatedGradient(
     interactionSource: InteractionSource,
     enabled: Boolean,
-): Modifier = composed {
+): Modifier {
     val animationDuration = 150
     val unfocusedColor =
         MaterialTheme.colors.onSurface.copy(alpha = TextFieldDefaults.UnfocusedIndicatorLineOpacity)
@@ -311,7 +313,7 @@ private fun Modifier.animatedGradient(
             }
         }
 
-    drawWithContent {
+    return this.drawWithContent {
         drawContent()
 
         val strokeWidth = animatedHeight.value.value * density
