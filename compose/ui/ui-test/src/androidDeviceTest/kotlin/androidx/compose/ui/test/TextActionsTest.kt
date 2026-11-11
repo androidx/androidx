@@ -32,10 +32,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.testutils.expectError
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.InterceptPlatformTextInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.insertTextAtCursor
 import androidx.compose.ui.semantics.isEditable
@@ -57,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.awaitCancellation
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -69,6 +72,12 @@ class TextActionsTest {
 
     @get:Rule val rule = createComposeRule()
 
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Composable
+    private fun DisablePlatformTextInput(content: @Composable () -> Unit) {
+        InterceptPlatformTextInput(interceptor = { _, _ -> awaitCancellation() }, content = content)
+    }
+
     @Composable
     fun TextFieldUi(
         imeAction: ImeAction = ImeAction.Default,
@@ -78,18 +87,20 @@ class TextActionsTest {
         textCallback: (String) -> Unit = {},
     ) {
         val state = remember { mutableStateOf("") }
-        BasicTextField(
-            modifier = Modifier.testTag(fieldTag).border(0.dp, Color.Black),
-            value = state.value,
-            keyboardOptions = KeyboardOptions(imeAction = imeAction),
-            keyboardActions = keyboardActions,
-            enabled = enabled,
-            readOnly = readOnly,
-            onValueChange = {
-                state.value = it
-                textCallback(it)
-            },
-        )
+        DisablePlatformTextInput {
+            BasicTextField(
+                modifier = Modifier.testTag(fieldTag).border(0.dp, Color.Black),
+                value = state.value,
+                keyboardOptions = KeyboardOptions(imeAction = imeAction),
+                keyboardActions = keyboardActions,
+                enabled = enabled,
+                readOnly = readOnly,
+                onValueChange = {
+                    state.value = it
+                    textCallback(it)
+                },
+            )
+        }
     }
 
     @Test
@@ -350,20 +361,24 @@ class TextActionsTest {
     ) {
         val tfv = remember { mutableStateOf(TextFieldValue("text text text")) }
         val focusRequester = remember { FocusRequester() }
-        BasicTextField(
-            modifier =
-                Modifier.testTag(fieldTag).border(0.dp, Color.Black).focusRequester(focusRequester),
-            value = tfv.value,
-            enabled = enabled,
-            readOnly = readOnly,
-            visualTransformation = visualTransformation,
-            onValueChange = {
-                tfv.value = it
-                textCallback(it.selection)
-            },
-        )
+        DisablePlatformTextInput {
+            BasicTextField(
+                modifier =
+                    Modifier.testTag(fieldTag)
+                        .border(0.dp, Color.Black)
+                        .focusRequester(focusRequester),
+                value = tfv.value,
+                enabled = enabled,
+                readOnly = readOnly,
+                visualTransformation = visualTransformation,
+                onValueChange = {
+                    tfv.value = it
+                    textCallback(it.selection)
+                },
+            )
 
-        LaunchedEffect(Unit) { focusRequester.requestFocus() }
+            LaunchedEffect(Unit) { focusRequester.requestFocus() }
+        }
     }
 
     @Test
@@ -449,15 +464,17 @@ class TextActionsTest {
         textCallback: (TextRange) -> Unit = {},
     ) {
         val tfs = rememberTextFieldState("text text text")
-        BasicTextField(
-            modifier = Modifier.testTag(fieldTag).border(0.dp, Color.Black),
-            state = tfs,
-            enabled = enabled,
-            readOnly = readOnly,
-            outputTransformation = outputTransformation,
-        )
+        DisablePlatformTextInput {
+            BasicTextField(
+                modifier = Modifier.testTag(fieldTag).border(0.dp, Color.Black),
+                state = tfs,
+                enabled = enabled,
+                readOnly = readOnly,
+                outputTransformation = outputTransformation,
+            )
 
-        LaunchedEffect(Unit) { snapshotFlow { tfs.selection }.collect { textCallback(it) } }
+            LaunchedEffect(Unit) { snapshotFlow { tfs.selection }.collect { textCallback(it) } }
+        }
     }
 
     @Test
