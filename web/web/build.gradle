@@ -60,7 +60,8 @@ android {
         )
     }
     namespace = "androidx.web"
-    compileSdk { version = release(37) }
+    // Match webkit's compileSdk of 33 to minimize requirements for embedding apps.
+    compileSdk { version = release(33) }
 }
 
 androidComponents {
