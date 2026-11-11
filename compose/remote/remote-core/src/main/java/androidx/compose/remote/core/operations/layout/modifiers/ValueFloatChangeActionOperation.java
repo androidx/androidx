@@ -26,7 +26,6 @@ import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.operations.layout.ActionOperation;
-import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.SerializeTags;
@@ -82,12 +81,7 @@ public class ValueFloatChangeActionOperation extends Operation implements Action
     }
 
     @Override
-    public void runAction(
-            @NonNull RemoteContext context,
-            @NonNull CoreDocument document,
-            @NonNull Component component,
-            float x,
-            float y) {
+    public void runAction(@NonNull RemoteContext context, @NonNull CoreDocument document) {
         context.overrideFloat(mTargetValueId, mValue);
     }
 

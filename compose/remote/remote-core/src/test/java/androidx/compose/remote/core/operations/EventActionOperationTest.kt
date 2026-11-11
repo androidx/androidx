@@ -21,7 +21,6 @@ import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.events.Event
 import androidx.compose.remote.core.events.EventManager
-import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.core.operations.layout.modifiers.ValueFloatChangeActionOperation
 import androidx.compose.remote.core.operations.utilities.ArrayAccess
 import androidx.compose.remote.core.operations.utilities.DataMap
@@ -412,7 +411,6 @@ class EventActionOperationTest {
     fun `onEvent runs action when condition is true and returns flag value`() {
         // Arrange.
         val remoteContext = TestRemoteContext()
-        remoteContext.mLastComponent = BoxLayout(null, 0, 0, 0f, 0f, 0f, 0f, 0, 0)
         remoteContext.loadFloat(DATA_ID_1, 10f)
         val eventAction =
             EventActionOperation(
@@ -445,7 +443,6 @@ class EventActionOperationTest {
     fun `onEvent runs all actions in container when condition is true`() {
         // Arrange.
         val remoteContext = TestRemoteContext()
-        remoteContext.mLastComponent = BoxLayout(null, 0, 0, 0f, 0f, 0f, 0f, 0, 0)
         remoteContext.loadFloat(DATA_ID_1, 10f)
         remoteContext.loadFloat(DATA_ID_2, 10f)
         remoteContext.loadFloat(DATA_ID_4, 10f)
@@ -486,7 +483,6 @@ class EventActionOperationTest {
     fun `onEvent ignores non action operations`() {
         // Arrange.
         val remoteContext = TestRemoteContext()
-        remoteContext.mLastComponent = BoxLayout(null, 0, 0, 0f, 0f, 0f, 0f, 0, 0)
         remoteContext.loadFloat(DATA_ID_1, 10f)
         remoteContext.loadFloat(DATA_ID_2, 10f)
         val eventAction =
@@ -527,7 +523,6 @@ class EventActionOperationTest {
     fun `onEvent ignores nested Event Action Operations`() {
         // Arrange.
         val remoteContext = TestRemoteContext()
-        remoteContext.mLastComponent = BoxLayout(null, 0, 0, 0f, 0f, 0f, 0f, 0, 0)
         remoteContext.loadFloat(DATA_ID_1, 10f)
         remoteContext.loadFloat(DATA_ID_2, 10f)
         val eventAction =
@@ -621,7 +616,6 @@ class EventActionOperationTest {
     fun `onEvent treats any non-zero float condition as true`() {
         // Arrange.
         val remoteContext = TestRemoteContext()
-        remoteContext.mLastComponent = BoxLayout(null, 0, 0, 0f, 0f, 0f, 0f, 0, 0)
         remoteContext.loadFloat(DATA_ID_1, 10f)
         val eventAction =
             EventActionOperation(
@@ -630,6 +624,34 @@ class EventActionOperationTest {
                 /* flags = */ ROUTER_FLAGS,
                 /* dataIds = */ null,
                 /* condition = */ floatArrayOf(2.5f),
+            )
+        eventAction.list.add(ValueFloatChangeActionOperation(DATA_ID_1, 20f))
+
+        // Act.
+        val result =
+            eventAction.onEvent(
+                remoteContext,
+                CoreDocument(),
+                Event(/* type= */ EVENT_TYPE_1, /* metadata= */ FILTER_1, /* data= */ null),
+            )
+
+        // Assert.
+        assertThat(remoteContext.getFloat(DATA_ID_1)).isEqualTo(20f)
+        assertThat(result).isEqualTo(ROUTER_FLAGS)
+    }
+
+    @Test
+    fun `onEvent runs action when mLastComponent is null`() {
+        // Arrange.
+        val remoteContext = TestRemoteContext().apply { mLastComponent = null }
+        remoteContext.loadFloat(DATA_ID_1, 10f)
+        val eventAction =
+            EventActionOperation(
+                /* type = */ EVENT_TYPE_1,
+                /* filter = */ FILTER_1,
+                /* flags = */ ROUTER_FLAGS,
+                /* dataIds = */ null,
+                /* condition = */ floatArrayOf(TRUE),
             )
         eventAction.list.add(ValueFloatChangeActionOperation(DATA_ID_1, 20f))
 

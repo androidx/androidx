@@ -16,20 +16,15 @@
 
 package androidx.compose.remote.core.operations.layout.modifiers;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.WireBuffer;
-import androidx.compose.remote.core.operations.layout.ActionOperation;
+import androidx.compose.remote.core.operations.layout.ClickHandler;
 import androidx.compose.remote.core.operations.layout.Component;
-import androidx.compose.remote.core.operations.layout.ListActionsOperation;
-import androidx.compose.remote.core.operations.layout.MultiClickModifier;
-import androidx.compose.remote.core.operations.layout.TouchCancelModifierOperation;
-import androidx.compose.remote.core.operations.layout.TouchDownModifierOperation;
-import androidx.compose.remote.core.operations.layout.TouchUpModifierOperation;
+import androidx.compose.remote.core.operations.layout.TouchHandler;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.testing.HeadlessRemoteContext;
@@ -55,26 +50,98 @@ public class ComponentModifiersPaddingOffsetTest {
     private static final float TOUCH_X = 50f;
     private static final float TOUCH_Y = 60f;
 
-    /**
-     * Records the coordinates it is invoked with. Extends {@link Operation} because click and touch
-     * modifiers keep their actions in an {@code ArrayList<Operation>} and dispatch to the ones that
-     * implement {@link ActionOperation}.
-     */
-    private static final class RecordingAction extends Operation implements ActionOperation {
+    /** Minimal stub modifier that records the coordinates dispatched for a target gesture. */
+    private static final class RecordingModifier extends Operation
+            implements ModifierOperation, ClickHandler, TouchHandler {
+        private final Gesture mTargetGesture;
         int mCount = 0;
         float mX = Float.NaN;
         float mY = Float.NaN;
 
+        RecordingModifier(Gesture targetGesture) {
+            mTargetGesture = targetGesture;
+        }
+
+        private boolean record(Gesture gesture, float x, float y) {
+            if (mTargetGesture != gesture) {
+                return false;
+            }
+            mCount++;
+            mX = x;
+            mY = y;
+            return true;
+        }
+
         @Override
-        public void runAction(
+        public boolean onClick(
                 @NonNull RemoteContext context,
                 @NonNull CoreDocument document,
                 @NonNull Component component,
                 float x,
                 float y) {
-            mCount++;
-            mX = x;
-            mY = y;
+            return record(Gesture.CLICK, x, y);
+        }
+
+        @Override
+        public boolean onLongPress(
+                @NonNull RemoteContext context,
+                @NonNull CoreDocument document,
+                @NonNull Component component,
+                float x,
+                float y) {
+            return record(Gesture.LONG_PRESS, x, y);
+        }
+
+        @Override
+        public boolean onDoubleClick(
+                @NonNull RemoteContext context,
+                @NonNull CoreDocument document,
+                @NonNull Component component,
+                float x,
+                float y) {
+            return record(Gesture.DOUBLE_CLICK, x, y);
+        }
+
+        @Override
+        public boolean onTouchDown(
+                @NonNull RemoteContext context,
+                @NonNull CoreDocument document,
+                @NonNull Component component,
+                float x,
+                float y) {
+            return record(Gesture.TOUCH_DOWN, x, y);
+        }
+
+        @Override
+        public boolean onTouchUp(
+                @NonNull RemoteContext context,
+                @NonNull CoreDocument document,
+                @NonNull Component component,
+                float x,
+                float y,
+                float dx,
+                float dy) {
+            return record(Gesture.TOUCH_UP, x, y);
+        }
+
+        @Override
+        public boolean onTouchDrag(
+                @NonNull RemoteContext context,
+                @NonNull CoreDocument document,
+                @NonNull Component component,
+                float x,
+                float y) {
+            return record(Gesture.TOUCH_DRAG, x, y);
+        }
+
+        @Override
+        public boolean onTouchCancel(
+                @NonNull RemoteContext context,
+                @NonNull CoreDocument document,
+                @NonNull Component component,
+                float x,
+                float y) {
+            return record(Gesture.TOUCH_CANCEL, x, y);
         }
 
         @Override
@@ -92,7 +159,7 @@ public class ComponentModifiersPaddingOffsetTest {
         @NonNull
         @Override
         public String deepToString(@NonNull String indent) {
-            return indent + "RecordingAction";
+            return indent + "RecordingModifier";
         }
     }
 
@@ -107,18 +174,6 @@ public class ComponentModifiersPaddingOffsetTest {
         mComponent = new Component(1, 0f, 0f, 200f, 200f, null);
     }
 
-    private static MultiClickModifier clickModifier(int clickType, RecordingAction action) {
-        MultiClickModifier modifier = new MultiClickModifier(clickType);
-        modifier.mList.add(action);
-        return modifier;
-    }
-
-    private static <T extends ListActionsOperation> T withAction(
-            T modifier, RecordingAction action) {
-        modifier.mList.add(action);
-        return modifier;
-    }
-
     private static ComponentModifiers paddingThen(ModifierOperation handler) {
         ComponentModifiers modifiers = new ComponentModifiers();
         modifiers.add(new PaddingModifierOperation(PADDING_LEFT, PADDING_TOP, 0f, 0f));
@@ -126,16 +181,16 @@ public class ComponentModifiersPaddingOffsetTest {
         return modifiers;
     }
 
-    private static void assertOffsetApplied(RecordingAction action) {
-        assertEquals(1, action.mCount);
-        assertEquals(TOUCH_X - PADDING_LEFT, action.mX, EPSILON);
-        assertEquals(TOUCH_Y - PADDING_TOP, action.mY, EPSILON);
+    private static void assertOffsetApplied(RecordingModifier handler) {
+        assertThat(handler.mCount).isEqualTo(1);
+        assertThat(handler.mX).isWithin(EPSILON).of(TOUCH_X - PADDING_LEFT);
+        assertThat(handler.mY).isWithin(EPSILON).of(TOUCH_Y - PADDING_TOP);
     }
 
-    private static void assertNoOffset(RecordingAction action) {
-        assertEquals(1, action.mCount);
-        assertEquals(TOUCH_X, action.mX, EPSILON);
-        assertEquals(TOUCH_Y, action.mY, EPSILON);
+    private static void assertNoOffset(RecordingModifier handler) {
+        assertThat(handler.mCount).isEqualTo(1);
+        assertThat(handler.mX).isWithin(EPSILON).of(TOUCH_X);
+        assertThat(handler.mY).isWithin(EPSILON).of(TOUCH_Y);
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -144,35 +199,34 @@ public class ComponentModifiersPaddingOffsetTest {
 
     @Test
     public void onClick_subtractsPrecedingPadding() {
-        RecordingAction action = new RecordingAction();
-        ComponentModifiers modifiers =
-                paddingThen(clickModifier(MultiClickModifier.CLICK_TYPE_SINGLE, action));
+        RecordingModifier handler = new RecordingModifier(Gesture.CLICK);
+        ComponentModifiers modifiers = paddingThen(handler);
 
-        assertTrue(modifiers.onClick(mContext, mDocument, mComponent, TOUCH_X, TOUCH_Y));
+        assertThat(modifiers.onClick(mContext, mDocument, mComponent, TOUCH_X, TOUCH_Y)).isTrue();
 
-        assertOffsetApplied(action);
+        assertOffsetApplied(handler);
     }
 
     @Test
     public void onLongPress_subtractsPrecedingPadding() {
-        RecordingAction action = new RecordingAction();
-        ComponentModifiers modifiers =
-                paddingThen(clickModifier(MultiClickModifier.CLICK_TYPE_LONG, action));
+        RecordingModifier handler = new RecordingModifier(Gesture.LONG_PRESS);
+        ComponentModifiers modifiers = paddingThen(handler);
 
-        assertTrue(modifiers.onLongPress(mContext, mDocument, mComponent, TOUCH_X, TOUCH_Y));
+        assertThat(modifiers.onLongPress(mContext, mDocument, mComponent, TOUCH_X, TOUCH_Y))
+                .isTrue();
 
-        assertOffsetApplied(action);
+        assertOffsetApplied(handler);
     }
 
     @Test
     public void onDoubleClick_subtractsPrecedingPadding() {
-        RecordingAction action = new RecordingAction();
-        ComponentModifiers modifiers =
-                paddingThen(clickModifier(MultiClickModifier.CLICK_TYPE_DOUBLE, action));
+        RecordingModifier handler = new RecordingModifier(Gesture.DOUBLE_CLICK);
+        ComponentModifiers modifiers = paddingThen(handler);
 
-        assertTrue(modifiers.onDoubleClick(mContext, mDocument, mComponent, TOUCH_X, TOUCH_Y));
+        assertThat(modifiers.onDoubleClick(mContext, mDocument, mComponent, TOUCH_X, TOUCH_Y))
+                .isTrue();
 
-        assertOffsetApplied(action);
+        assertOffsetApplied(handler);
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -181,35 +235,37 @@ public class ComponentModifiersPaddingOffsetTest {
 
     @Test
     public void onTouchDown_subtractsPrecedingPadding() {
-        RecordingAction action = new RecordingAction();
-        ComponentModifiers modifiers =
-                paddingThen(withAction(new TouchDownModifierOperation(), action));
+        RecordingModifier handler = new RecordingModifier(Gesture.TOUCH_DOWN);
+        ComponentModifiers modifiers = paddingThen(handler);
 
-        assertTrue(modifiers.onTouchDown(mContext, mDocument, mComponent, TOUCH_X, TOUCH_Y));
+        assertThat(modifiers.onTouchDown(mContext, mDocument, mComponent, TOUCH_X, TOUCH_Y))
+                .isTrue();
 
-        assertOffsetApplied(action);
+        assertOffsetApplied(handler);
     }
 
     @Test
     public void onTouchUp_subtractsPrecedingPadding() {
-        RecordingAction action = new RecordingAction();
-        ComponentModifiers modifiers =
-                paddingThen(withAction(new TouchUpModifierOperation(), action));
+        RecordingModifier handler = new RecordingModifier(Gesture.TOUCH_UP);
+        ComponentModifiers modifiers = paddingThen(handler);
 
-        assertTrue(modifiers.onTouchUp(mContext, mDocument, mComponent, TOUCH_X, TOUCH_Y, 0f, 0f));
+        assertThat(
+                        modifiers.onTouchUp(
+                                mContext, mDocument, mComponent, TOUCH_X, TOUCH_Y, 0f, 0f))
+                .isTrue();
 
-        assertOffsetApplied(action);
+        assertOffsetApplied(handler);
     }
 
     @Test
     public void onTouchCancel_subtractsPrecedingPadding() {
-        RecordingAction action = new RecordingAction();
-        ComponentModifiers modifiers =
-                paddingThen(withAction(new TouchCancelModifierOperation(), action));
+        RecordingModifier handler = new RecordingModifier(Gesture.TOUCH_CANCEL);
+        ComponentModifiers modifiers = paddingThen(handler);
 
-        assertTrue(modifiers.onTouchCancel(mContext, mDocument, mComponent, TOUCH_X, TOUCH_Y));
+        assertThat(modifiers.onTouchCancel(mContext, mDocument, mComponent, TOUCH_X, TOUCH_Y))
+                .isTrue();
 
-        assertOffsetApplied(action);
+        assertOffsetApplied(handler);
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -218,13 +274,13 @@ public class ComponentModifiersPaddingOffsetTest {
 
     @Test
     public void paddingAfterHandler_isNotSubtracted() {
-        RecordingAction longPress = new RecordingAction();
-        RecordingAction doubleClick = new RecordingAction();
-        RecordingAction cancel = new RecordingAction();
+        RecordingModifier longPress = new RecordingModifier(Gesture.LONG_PRESS);
+        RecordingModifier doubleClick = new RecordingModifier(Gesture.DOUBLE_CLICK);
+        RecordingModifier cancel = new RecordingModifier(Gesture.TOUCH_CANCEL);
         ComponentModifiers modifiers = new ComponentModifiers();
-        modifiers.add(clickModifier(MultiClickModifier.CLICK_TYPE_LONG, longPress));
-        modifiers.add(clickModifier(MultiClickModifier.CLICK_TYPE_DOUBLE, doubleClick));
-        modifiers.add(withAction(new TouchCancelModifierOperation(), cancel));
+        modifiers.add(longPress);
+        modifiers.add(doubleClick);
+        modifiers.add(cancel);
         modifiers.add(new PaddingModifierOperation(PADDING_LEFT, PADDING_TOP, 0f, 0f));
 
         modifiers.onLongPress(mContext, mDocument, mComponent, TOUCH_X, TOUCH_Y);
@@ -238,39 +294,53 @@ public class ComponentModifiersPaddingOffsetTest {
 
     @Test
     public void multiplePrecedingPaddings_accumulate() {
-        RecordingAction longPress = new RecordingAction();
-        RecordingAction click = new RecordingAction();
+        RecordingModifier longPress = new RecordingModifier(Gesture.LONG_PRESS);
+        RecordingModifier click = new RecordingModifier(Gesture.CLICK);
         ComponentModifiers modifiers = new ComponentModifiers();
         modifiers.add(new PaddingModifierOperation(PADDING_LEFT, PADDING_TOP, 0f, 0f));
         modifiers.add(new PaddingModifierOperation(5f, 7f, 0f, 0f));
-        modifiers.add(clickModifier(MultiClickModifier.CLICK_TYPE_LONG, longPress));
-        modifiers.add(clickModifier(MultiClickModifier.CLICK_TYPE_SINGLE, click));
+        modifiers.add(longPress);
+        modifiers.add(click);
 
         modifiers.onLongPress(mContext, mDocument, mComponent, TOUCH_X, TOUCH_Y);
         modifiers.onClick(mContext, mDocument, mComponent, TOUCH_X, TOUCH_Y);
 
         // Long press and click sit behind the same paddings, so they must see the same point.
-        assertEquals(TOUCH_X - PADDING_LEFT - 5f, longPress.mX, EPSILON);
-        assertEquals(TOUCH_Y - PADDING_TOP - 7f, longPress.mY, EPSILON);
-        assertEquals(click.mX, longPress.mX, EPSILON);
-        assertEquals(click.mY, longPress.mY, EPSILON);
+        assertThat(longPress.mCount).isEqualTo(1);
+        assertThat(click.mCount).isEqualTo(1);
+        assertThat(longPress.mX).isWithin(EPSILON).of(TOUCH_X - PADDING_LEFT - 5f);
+        assertThat(longPress.mY).isWithin(EPSILON).of(TOUCH_Y - PADDING_TOP - 7f);
+        assertThat(click.mX).isWithin(EPSILON).of(longPress.mX);
+        assertThat(click.mY).isWithin(EPSILON).of(longPress.mY);
     }
 
     @Test
     public void handlersBetweenPaddings_seeOnlyEarlierPaddings() {
-        RecordingAction first = new RecordingAction();
-        RecordingAction second = new RecordingAction();
+        RecordingModifier first = new RecordingModifier(Gesture.DOUBLE_CLICK);
+        RecordingModifier second = new RecordingModifier(Gesture.DOUBLE_CLICK);
         ComponentModifiers modifiers = new ComponentModifiers();
         modifiers.add(new PaddingModifierOperation(PADDING_LEFT, PADDING_TOP, 0f, 0f));
-        modifiers.add(clickModifier(MultiClickModifier.CLICK_TYPE_DOUBLE, first));
+        modifiers.add(first);
         modifiers.add(new PaddingModifierOperation(5f, 7f, 0f, 0f));
-        modifiers.add(clickModifier(MultiClickModifier.CLICK_TYPE_DOUBLE, second));
+        modifiers.add(second);
 
         modifiers.onDoubleClick(mContext, mDocument, mComponent, TOUCH_X, TOUCH_Y);
 
-        assertEquals(TOUCH_X - PADDING_LEFT, first.mX, EPSILON);
-        assertEquals(TOUCH_Y - PADDING_TOP, first.mY, EPSILON);
-        assertEquals(TOUCH_X - PADDING_LEFT - 5f, second.mX, EPSILON);
-        assertEquals(TOUCH_Y - PADDING_TOP - 7f, second.mY, EPSILON);
+        assertThat(first.mCount).isEqualTo(1);
+        assertThat(second.mCount).isEqualTo(1);
+        assertThat(first.mX).isWithin(EPSILON).of(TOUCH_X - PADDING_LEFT);
+        assertThat(first.mY).isWithin(EPSILON).of(TOUCH_Y - PADDING_TOP);
+        assertThat(second.mX).isWithin(EPSILON).of(TOUCH_X - PADDING_LEFT - 5f);
+        assertThat(second.mY).isWithin(EPSILON).of(TOUCH_Y - PADDING_TOP - 7f);
+    }
+
+    private enum Gesture {
+        CLICK,
+        LONG_PRESS,
+        DOUBLE_CLICK,
+        TOUCH_DOWN,
+        TOUCH_UP,
+        TOUCH_CANCEL,
+        TOUCH_DRAG,
     }
 }
