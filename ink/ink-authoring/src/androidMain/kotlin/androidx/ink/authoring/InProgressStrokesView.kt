@@ -487,7 +487,6 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
     }
 
     /** Cancel all in-progress strokes for the specified device ID. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public fun cancelUnfinishedStrokes(deviceId: Int) {
         inProgressShapesView.cancelUnfinishedShapes(deviceId)
     }
@@ -496,7 +495,6 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
     public fun hasUnfinishedStrokes(): Boolean = inProgressShapesView.hasUnfinishedShapes()
 
     /** Returns true if there are any in-progress strokes for the specified device ID. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public fun hasUnfinishedStrokes(deviceId: Int): Boolean =
         inProgressShapesView.hasUnfinishedShapes(deviceId)
 
