@@ -17,6 +17,7 @@
 package androidx.xr.scenecore.testing.internal
 
 import androidx.xr.runtime.math.BoundingBox
+import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.GeometryAffordanceState
 import androidx.xr.scenecore.runtime.GltfAnimationFeature
@@ -45,6 +46,8 @@ internal open class FakeGltfEntity(
     override var affordanceState: GeometryAffordanceState = GeometryAffordanceState.NONE
 
     override var recommendedAffordanceScale: Vector3 = getScale()
+
+    override var recommendedAffordanceRotation: Quaternion = Quaternion.Identity
 
     /**
      * Adds a node to the list of nodes in this fake glTF entity.

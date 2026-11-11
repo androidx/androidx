@@ -17,6 +17,7 @@
 package androidx.xr.scenecore.spatial.core
 
 import android.app.Activity
+import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.MaterialResource
 import androidx.xr.scenecore.runtime.MeshFeature
@@ -137,6 +138,11 @@ class MeshEntityImplTest : AndroidXrEntityImplTest() {
 
         assertThat(meshEntityImpl.recommendedAffordanceScale).isEqualTo(recommendedScale)
         assertThat(meshEntityImpl.getScale()).isEqualTo(entityScale)
+    }
+
+    @Test
+    fun recommendedAffordanceRotation_defaultsToIdentity() {
+        assertThat(meshEntityImpl.recommendedAffordanceRotation).isEqualTo(Quaternion.Identity)
     }
 
     companion object {

@@ -18,6 +18,7 @@ package androidx.xr.scenecore.spatial.core
 
 import android.content.Context
 import androidx.xr.runtime.math.Matrix4
+import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.GeometryAffordanceState
@@ -43,9 +44,11 @@ internal class MeshEntityImpl(
     override val meshBoundingBox: androidx.xr.runtime.math.BoundingBox
         get() = meshFeature.meshBoundingBox
 
-    override var affordanceState: GeometryAffordanceState = GeometryAffordanceState.NONE
+    @Volatile override var affordanceState: GeometryAffordanceState = GeometryAffordanceState.NONE
 
-    override var recommendedAffordanceScale: Vector3 = getScale()
+    @Volatile override var recommendedAffordanceScale: Vector3 = getScale()
+
+    @Volatile override var recommendedAffordanceRotation: Quaternion = Quaternion.Identity
 
     override fun setMaterial(material: MaterialResource, subsetIndex: Int) {
         meshFeature.setMaterial(material, subsetIndex)

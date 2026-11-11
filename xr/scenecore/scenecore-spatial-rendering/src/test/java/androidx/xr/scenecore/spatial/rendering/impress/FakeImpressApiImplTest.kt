@@ -19,6 +19,7 @@ package androidx.xr.scenecore.spatial.rendering.impress
 import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.runtime.testing.math.assertRotation
 import androidx.xr.scenecore.runtime.KhronosPbrMaterialSpec
 import androidx.xr.scenecore.runtime.TextureSampler
 import androidx.xr.scenecore.spatial.rendering.impress.FakeImpressApiImpl.StereoSurfaceEntityData
@@ -1357,5 +1358,23 @@ class FakeImpressApiImplTest {
         assertThrows(IllegalArgumentException::class.java) {
             fakeImpressApi.getRecommendedAffordanceTransform(invalidNode)
         }
+    }
+
+    @Test
+    fun getRecommendedAffordanceTransform_preservesNonIdentityRotation() {
+        val node = fakeImpressApi.createImpressNode()
+        val expectedRotation = Quaternion.fromAxisAngle(Vector3.Up, 60f)
+        val expectedTransform =
+            Matrix4.fromTrs(
+                Vector3(1f, 2f, 3f),
+                expectedRotation,
+                Vector3(2f, 2f, 2f),
+            )
+        val nodeData = fakeImpressApi.getImpressNodes().keys.first { it.entityId == node.handle }
+        nodeData.recommendedAffordanceTransform = expectedTransform
+
+        val actualTransform = fakeImpressApi.getRecommendedAffordanceTransform(node)
+        assertThat(actualTransform).isEqualTo(expectedTransform)
+        assertRotation(actualTransform.rotation, expectedRotation)
     }
 }

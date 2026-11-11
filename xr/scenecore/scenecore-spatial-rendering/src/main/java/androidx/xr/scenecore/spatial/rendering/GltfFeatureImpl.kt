@@ -188,6 +188,7 @@ internal class GltfFeatureImpl(
                     entity.affordanceState = GeometryAffordanceState.fromInt(state)
                     val transform = impressApi.getRecommendedAffordanceTransform(modelImpressNode)
                     entity.recommendedAffordanceScale = transform.scale
+                    entity.recommendedAffordanceRotation = transform.rotation
                     (entity as AndroidXrEntity).handleInputEvent(inputEvent)
                 }
             }

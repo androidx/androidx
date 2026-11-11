@@ -18,6 +18,7 @@ package androidx.xr.scenecore.spatial.core
 import android.app.Activity
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.GltfFeature
 import androidx.xr.scenecore.runtime.GltfModelNodeFeature
@@ -198,6 +199,12 @@ class GltfEntityImplTest : AndroidXrEntityImplTest() {
 
         Truth.assertThat(gltfEntityImpl.recommendedAffordanceScale).isEqualTo(recommendedScale)
         Truth.assertThat(gltfEntityImpl.getScale()).isEqualTo(entityScale)
+    }
+
+    @Test
+    fun recommendedAffordanceRotation_defaultsToIdentity() {
+        Truth.assertThat(gltfEntityImpl.recommendedAffordanceRotation)
+            .isEqualTo(Quaternion.Identity)
     }
 
     companion object {

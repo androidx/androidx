@@ -18,6 +18,7 @@ package androidx.xr.scenecore.runtime
 
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.BoundingBox
+import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import java.util.function.Consumer
 
@@ -33,6 +34,17 @@ public interface GltfEntity : Entity {
 
     /** The recommended affordance scale based on user interaction. */
     public var recommendedAffordanceScale: Vector3
+
+    /**
+     * The recommended affordance rotation based on user interaction.
+     *
+     * This is the rotation the rendering runtime's rotation gesture recommends for the entity,
+     * expressed in the runtime's world space (the platform reference space in which the entity's
+     * subspace transform is reported), not in the entity's parent space. While no rotation gesture
+     * is in progress it tracks the entity's current world rotation; it is only meaningful while the
+     * [ReformAffordanceFlag.ROTATABLE] affordance is enabled.
+     */
+    public var recommendedAffordanceRotation: Quaternion
 
     /**
      * Retrieves the axis-aligned bounding box (AABB) of an instanced glTF model in meters in the

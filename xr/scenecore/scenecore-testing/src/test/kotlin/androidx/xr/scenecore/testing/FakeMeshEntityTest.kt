@@ -20,6 +20,7 @@ package androidx.xr.scenecore.testing
 
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.Matrix4
+import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.NodeHolder
 import androidx.xr.scenecore.runtime.ReformAffordanceFlag
@@ -104,5 +105,15 @@ class FakeMeshEntityTest {
 
         assertThat(entityWithoutExecutor.reformAffordanceEnabled).isFalse()
         assertThat(ReformAffordanceFlag.anySet(entityWithoutExecutor.reformFlag)).isFalse()
+    }
+
+    @Test
+    fun recommendedAffordanceRotation_defaultsToIdentityAndUpdates() {
+        assertThat(underTest.recommendedAffordanceRotation).isEqualTo(Quaternion.Identity)
+
+        val expectedRotation = Quaternion.fromAxisAngle(Vector3.Up, 90f)
+        underTest.recommendedAffordanceRotation = expectedRotation
+
+        assertThat(underTest.recommendedAffordanceRotation).isEqualTo(expectedRotation)
     }
 }
