@@ -1777,10 +1777,10 @@ private object RemeasureImpl : ResizeMode
 public object SharedTransitionDefaults {
 
     /** Default enter transition used in [SharedTransitionScope.sharedBounds]. */
-    internal val EnterTransition: EnterTransition = fadeIn()
+    public val EnterTransition: EnterTransition = fadeIn()
 
     /** Default exit transition used in [SharedTransitionScope.sharedBounds]. */
-    internal val ExitTransition: ExitTransition = fadeOut()
+    public val ExitTransition: ExitTransition = fadeOut()
 
     /**
      * Default bounds transform used in [SharedTransitionScope.sharedBounds]. This default lambda
@@ -1789,7 +1789,7 @@ public object SharedTransitionDefaults {
     public val BoundsTransform: BoundsTransform = BoundsTransform { _, _ -> DefaultSpring }
 
     /** Default resize mode used in [SharedTransitionScope.sharedBounds]. */
-    internal val ResizeMode: ResizeMode = ScaleToBoundsImpl(ContentScale.FillWidth, Center)
+    public val ResizeMode: ResizeMode = ScaleToBoundsImpl(ContentScale.FillWidth, Center)
 
     /**
      * Default SharedContentConfig used in [SharedTransitionScope.rememberSharedContentState]. This

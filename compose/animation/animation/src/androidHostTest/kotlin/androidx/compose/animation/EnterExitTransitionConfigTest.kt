@@ -219,4 +219,48 @@ class EnterExitTransitionConfigTest {
         val transform2 = ContentTransform(enter, exit)
         assertSame(transform1.sizeTransform, transform2.sizeTransform)
     }
+
+    @Test
+    fun testAnimatedContentDefaults() {
+        val contentTransform = AnimatedContentDefaults.ContentTransform
+        val enter = contentTransform.targetContentEnter
+        assertNotNull(enter.config.fade)
+        assertEquals(0f, enter.config.fade!!.alpha)
+        assertEquals(tween<Float>(220, delayMillis = 90), enter.config.fade!!.animationSpec)
+
+        assertNotNull(enter.config.scale)
+        assertEquals(0.92f, enter.config.scale!!.scale)
+        assertEquals(tween<Float>(220, delayMillis = 90), enter.config.scale!!.animationSpec)
+
+        val exit = contentTransform.initialContentExit
+        assertNotNull(exit.config.fade)
+        assertEquals(0f, exit.config.fade!!.alpha)
+        assertEquals(tween<Float>(90), exit.config.fade!!.animationSpec)
+
+        val sizeTransform = AnimatedContentDefaults.SizeTransform
+        assertNotNull(sizeTransform)
+        assertSame(sizeTransform, contentTransform.sizeTransform)
+
+        val sizeSpec = AnimatedContentDefaults.SizeAnimationSpec
+        assertNotNull(sizeSpec)
+        assertSame(sizeSpec, sizeTransform.createAnimationSpec(IntSize.Zero, IntSize(100, 100)))
+
+        // Verify default ContentTransform constructor uses AnimatedContentDefaults.SizeTransform
+        val customTransform = ContentTransform(enter, exit)
+        assertSame(sizeTransform, customTransform.sizeTransform)
+    }
+
+    @Test
+    fun testSharedTransitionDefaults() {
+        val enter = SharedTransitionDefaults.EnterTransition
+        assertNotNull(enter.config.fade)
+        assertEquals(0f, enter.config.fade!!.alpha)
+
+        val exit = SharedTransitionDefaults.ExitTransition
+        assertNotNull(exit.config.fade)
+        assertEquals(0f, exit.config.fade!!.alpha)
+
+        val resizeMode = SharedTransitionDefaults.ResizeMode
+        assertNotNull(resizeMode)
+    }
 }

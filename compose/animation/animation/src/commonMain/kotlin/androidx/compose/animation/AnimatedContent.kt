@@ -288,19 +288,19 @@ public infix fun EnterTransition.togetherWith(exit: ExitTransition): ContentTran
     ContentTransform(this, exit)
 
 /** Contains default values used throughout [AnimatedContent]. */
-internal object AnimatedContentDefaults {
+public object AnimatedContentDefaults {
     /** Default animation spec used for size animation in [SizeTransform]. */
-    internal val SizeAnimationSpec: FiniteAnimationSpec<IntSize> =
+    public val SizeAnimationSpec: FiniteAnimationSpec<IntSize> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
             visibilityThreshold = IntSize.VisibilityThreshold,
         )
 
     /** Default [SizeTransform] used in [ContentTransform]. */
-    internal val SizeTransform: SizeTransform = SizeTransform()
+    public val SizeTransform: SizeTransform = SizeTransform()
 
     /** Default [ContentTransform] used in [AnimatedContent] if none is specified. */
-    internal val ContentTransform: ContentTransform =
+    public val ContentTransform: ContentTransform =
         (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
                 scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)))
             .togetherWith(fadeOut(animationSpec = tween(90)))
