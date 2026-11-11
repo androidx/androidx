@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.inspection.inspector
 
+import androidx.annotation.GuardedBy
 import androidx.compose.ui.inspection.util.isPrimitiveClass
 import androidx.compose.ui.tooling.data.ParameterInformation
 import androidx.compose.ui.tooling.data.UiToolingDataApi
@@ -26,14 +27,16 @@ import androidx.compose.ui.tooling.data.UiToolingDataApi
  * For example: an androidx.compose.ui.graphics.Color instance is often represented by a long
  */
 internal class InlineClassConverter {
-    // Map from inline type name to inline class and conversion lambda
-    private val typeMap = mutableMapOf<String, (Any) -> Any>()
+    private val lock = Any()
+    // Map from inline type name to inline class and conversion lambda.
+    // This class is used from the composition threads and the inspector threads.
+    @GuardedBy("lock") private val typeMap = mutableMapOf<String, (Any) -> Any>()
     // Return value used in functions
     private val notInlineType: (Any) -> Any = { it }
 
     /** Clear any cached data. */
     fun clear() {
-        typeMap.clear()
+        synchronized(lock) { typeMap.clear() }
     }
 
     /**
@@ -55,7 +58,9 @@ internal class InlineClassConverter {
     }
 
     private fun typeMapperFor(typeName: String): (Any) -> (Any) =
-        typeMap.getOrPut(typeName) { loadTypeMapper(typeName.replace('.', '/')) }
+        synchronized(lock) {
+            typeMap.getOrPut(typeName) { loadTypeMapper(typeName.replace('.', '/')) }
+        }
 
     private fun loadTypeMapper(className: String): (Any) -> Any {
         val javaClass = loadClassOrNull(className) ?: return notInlineType

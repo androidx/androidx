@@ -22,6 +22,7 @@
         <activity android:name="androidx.compose.ui.inspection.test.testdata.LazyColumnTestActivity" />
         <activity android:name="androidx.compose.ui.inspection.test.testdata.NavigationDrawerTestActivity" />
         <activity android:name="androidx.compose.ui.inspection.test.testdata.OverlappingTestActivity" />
+        <activity android:name="androidx.compose.ui.inspection.test.testdata.ParameterChangeTestActivity" />
         <activity android:name="androidx.compose.ui.inspection.test.testdata.ParametersTestActivity" />
         <activity android:name="androidx.compose.ui.inspection.test.testdata.RippleTestActivity" />
         <activity android:name="androidx.compose.ui.inspection.test.testdata.RecompositionTestActivity" />

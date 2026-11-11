@@ -36,7 +36,6 @@ import androidx.compose.ui.test.performClick
 import androidx.inspection.testing.InspectorTester
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ComposableNode
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetAllParametersResponse
@@ -586,7 +585,6 @@ class RecompositionTest {
         assertThat(reads.readCount).isEqualTo(0)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun stateReadsById(): Unit = runBlocking {
         inspectorTester.sendCommand(
@@ -889,6 +887,145 @@ class RecompositionTest {
                     trace(TRACE_ANOTHER_ITEM)
                     folding(UNFOLDED_TRACE_ANOTHER_ITEM)
                 }
+            }
+        }
+    }
+
+    @Test
+    fun testEmptyStateReadsWithoutParameterChanges(): Unit = runBlocking {
+        inspectorTester.sendCommand(
+            GetUpdateSettingsCommand(
+                includeRecomposeCounts = true,
+                keepRecomposeCounts = false,
+                stateReadKind = StateReadSettings.Kind.ALL,
+            )
+        )
+
+        val rootId = WindowInspector.getGlobalWindowViews().map { it.uniqueDrawingId }.single()
+        val composables =
+            inspectorTester
+                .sendCommand(GetComposablesCommand(rootId, skipSystemComposables = false))
+                .getComposablesResponse
+        val parameters =
+            inspectorTester
+                .sendCommand(GetAllParametersCommand(rootId, skipSystemComposables = false))
+                .getAllParametersResponse
+        val nodes = Nodes(composables, parameters)
+
+        rule.onNodeWithText("Click row 1").performClick()
+        rule.onNodeWithText("Click row 1").performClick()
+        rule.onNodeWithText("Click row 1").performClick()
+        rule.onNodeWithText("Click row 1").performClick()
+        rule.onNodeWithText("Click row 1").performClick()
+        rule.waitForIdle()
+
+        val reads =
+            inspectorTester.getStateReads(
+                anchorHash = nodes.anotherItem1.anchorHash,
+                recompositionNumberStart = 1,
+                recompositionNumberEnd = 5,
+                includeExtra = true,
+            )
+
+        // Recompositions without state reads are returned without state reads, such that the
+        // client can tell them apart from recompositions that have not happened yet:
+        validate(reads, nodes.anotherItem1.anchorHash) {
+            recomposition(1) {
+                read {
+                    value(Type.INT32, 1)
+                    trace(TRACE_ANOTHER_ITEM)
+                    folding(UNFOLDED_TRACE_ANOTHER_ITEM)
+                }
+            }
+            recomposition(2) {}
+            recomposition(3) {
+                read {
+                    value(Type.INT32, 3)
+                    trace(TRACE_ANOTHER_ITEM)
+                    folding(UNFOLDED_TRACE_ANOTHER_ITEM)
+                }
+            }
+            recomposition(4) {}
+            recomposition(5) {
+                read {
+                    value(Type.INT32, 5)
+                    trace(TRACE_ANOTHER_ITEM)
+                    folding(UNFOLDED_TRACE_ANOTHER_ITEM)
+                }
+            }
+        }
+
+        // The same recompositions are not returned again:
+        val readsAgain =
+            inspectorTester.getStateReads(
+                anchorHash = nodes.anotherItem1.anchorHash,
+                recompositionNumberStart = 1,
+                recompositionNumberEnd = 5,
+                includeExtra = true,
+            )
+        assertThat(readsAgain.readCount).isEqualTo(0)
+    }
+
+    @Test
+    fun testEmptyStateReadsWithMaxReads(): Unit = runBlocking {
+        val rootId = WindowInspector.getGlobalWindowViews().map { it.uniqueDrawingId }.single()
+        val composable =
+            inspectorTester
+                .sendCommand(GetComposablesCommand(rootId, skipSystemComposables = false))
+                .getComposablesResponse
+        val parameters =
+            inspectorTester
+                .sendCommand(GetAllParametersCommand(rootId, skipSystemComposables = false))
+                .getAllParametersResponse
+        val nodes = Nodes(composable, parameters)
+
+        // Start observing text1
+        inspectorTester.sendCommand(
+            GetUpdateSettingsCommand(
+                includeRecomposeCounts = true,
+                includeParameterChanges = true,
+                keepRecomposeCounts = true,
+                stateReadKind = StateReadSettings.Kind.BY_ID,
+                composableToObserve = listOf(nodes.text1.anchorHash),
+                maxStateReads = 5,
+            )
+        )
+
+        // Perform 5 clicks:
+        rule.onNodeWithText("Click row 1").performClick()
+        rule.onNodeWithText("Click row 1").performClick()
+        rule.onNodeWithText("Click row 1").performClick()
+        rule.onNodeWithText("Click row 1").performClick()
+        rule.onNodeWithText("Click row 1").performClick()
+
+        // The next 2 clicks will cause recomposition data to be silently discarded from the cache:
+        rule.onNodeWithText("Click row 1").performClick()
+        rule.onNodeWithText("Click row 1").performClick()
+        rule.waitForIdle()
+
+        val reads =
+            inspectorTester.getStateReads(
+                anchorHash = nodes.text1.anchorHash,
+                recompositionNumberStart = 1,
+                recompositionNumberEnd = 10,
+                includeExtra = true,
+            )
+
+        validate(reads, nodes.text1.anchorHash) {
+            recomposition(3) {
+                parameterChange("text", Type.STRING, "Row 1 click count: 3, abcdef")
+            }
+            recomposition(4) {
+                parameterChange("text", Type.STRING, "Row 1 click count: 4, abcdef")
+            }
+            recomposition(5) {
+                parameterChange("text", Type.STRING, "Row 1 click count: 5, abcdef")
+            }
+            recomposition(6) {
+                parameterChange("text", Type.STRING, "Row 1 click count: 6, abcdef")
+            }
+            recomposition(7) {
+                parameterChange("text", Type.STRING, "Row 1 click count: 7, abcdef")
             }
         }
     }
