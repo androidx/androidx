@@ -16,8 +16,6 @@
 
 package androidx.compose.remote.integration.view.demos.dsl
 
-import androidx.compose.remote.core.operations.Header
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.*
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 
@@ -39,9 +37,9 @@ public fun dslDemoPressureGauge(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        RemoteComposeWriter.hTag(Header.DOC_WIDTH, 500),
-        RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 500),
-        RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Pressure Gauge"),
+        RcHeaderTag.docWidth(500),
+        RcHeaderTag.docHeight(500),
+        RcHeaderTag.contentDescription("Pressure Gauge"),
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFF4A6DA7.toInt())) {
             val w = componentWidth()
@@ -112,7 +110,7 @@ public fun dslDemoPressureGauge(): ByteArray {
 
             // Draw the indicator needle.
             paint {
-                raw.setShader(0)
+                clearShader()
                 color(0xFFFFFFFF.toInt())
                 style(RcPaintStyle.Stroke)
                 strokeWidth((density * 8f).toFloat())
@@ -125,7 +123,7 @@ public fun dslDemoPressureGauge(): ByteArray {
 
             // Pressure-text style.
             paint {
-                raw.setShader(0)
+                clearShader()
                 textSize((density * 64f).toFloat())
                 color(0xFFFFFFFF.toInt())
                 style(RcPaintStyle.Fill)

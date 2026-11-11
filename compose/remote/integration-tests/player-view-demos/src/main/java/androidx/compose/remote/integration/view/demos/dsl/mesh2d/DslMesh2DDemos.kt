@@ -16,10 +16,9 @@
 
 package androidx.compose.remote.integration.view.demos.dsl.mesh2d
 
-import androidx.compose.remote.core.operations.Header
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcCanvasScope
+import androidx.compose.remote.creation.dsl.RcHeaderTag
 import androidx.compose.remote.creation.dsl.RcMeshLayout
 import androidx.compose.remote.creation.dsl.RcMeshMatrix
 import androidx.compose.remote.creation.dsl.RcPaintStyle
@@ -80,9 +79,9 @@ public fun dslMesh2DWavingFlag(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
-        RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
-        RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Mesh2D waving flag"),
+        RcHeaderTag.docWidth(400),
+        RcHeaderTag.docHeight(400),
+        RcHeaderTag.contentDescription("Mesh2D waving flag"),
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFF0B1020.toInt())) {
             val w = componentWidth()
@@ -144,9 +143,9 @@ public fun dslMesh2DRoseField(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
-        RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
-        RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Mesh2D rose field"),
+        RcHeaderTag.docWidth(400),
+        RcHeaderTag.docHeight(400),
+        RcHeaderTag.contentDescription("Mesh2D rose field"),
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFF08060F.toInt())) {
             val cx = componentWidth() / 2f
@@ -190,9 +189,9 @@ public fun dslMesh2DCometTrail(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
-        RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
-        RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Mesh2D comet trail"),
+        RcHeaderTag.docWidth(400),
+        RcHeaderTag.docHeight(400),
+        RcHeaderTag.contentDescription("Mesh2D comet trail"),
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFF05060D.toInt())) {
             val w = componentWidth()
@@ -250,9 +249,9 @@ public fun dslMesh2DRingGauge(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
-        RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
-        RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Mesh2D ring gauge"),
+        RcHeaderTag.docWidth(400),
+        RcHeaderTag.docHeight(400),
+        RcHeaderTag.contentDescription("Mesh2D ring gauge"),
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFF0A0F1C.toInt())) {
             val cx = componentWidth() / 2f
@@ -325,9 +324,9 @@ public fun dslMesh2DRippleField(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
-        RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
-        RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Mesh2D ripple field"),
+        RcHeaderTag.docWidth(400),
+        RcHeaderTag.docHeight(400),
+        RcHeaderTag.contentDescription("Mesh2D ripple field"),
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFF04070E.toInt())) {
             val w = componentWidth()

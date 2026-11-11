@@ -33,7 +33,6 @@ import androidx.compose.remote.creation.dsl.minus
 import androidx.compose.remote.creation.dsl.onClick
 import androidx.compose.remote.creation.dsl.smoothStep
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
-import androidx.compose.remote.integration.view.demos.dsl.RcPathData
 
 /**
  * A Flappy Droid style interaction experiment using a particle system of one. The Android mascot
@@ -136,40 +135,29 @@ fun dslGameFlappyDroid(): ByteArray {
                     // =========== Create Paths ==========
                     val flameOrange =
                         this@Canvas.remotePathData(
-                            RcPathData(
-                                "M -78,700 A 78 78 0 0 1 78,700 C 78,790 22,855 0,905 C -22,855 -78,790 -78,700 Z"
-                            )
+                            "M -78,700 A 78 78 0 0 1 78,700 C 78,790 22,855 0,905 C -22,855 -78,790 -78,700 Z"
                         )
                     val flameYellow =
                         this@Canvas.remotePathData(
-                            RcPathData(
-                                "M -46,712 A 46 46 0 0 1 46,712 C 46,772 14,820 0,855 C -14,820 -46,772 -46,712 Z"
-                            )
+                            "M -46,712 A 46 46 0 0 1 46,712 C 46,772 14,820 0,855 C -14,820 -46,772 -46,712 Z"
                         )
                     val rocketBody =
                         this@Canvas.remotePathData(
-                            RcPathData(
-                                "M 0,0 C -54,54 -124,158 -124,248 L -124,615 L 124,615 L 124,248 C 124,158 54,54 0,0 Z"
-                            )
+                            "M 0,0 C -54,54 -124,158 -124,248 L -124,615 L 124,615 L 124,248 C 124,158 54,54 0,0 Z"
                         )
                     val rocketShade =
                         this@Canvas.remotePathData(
-                            RcPathData("M 0,0 C 54,54 124,158 124,248 L 124,615 L 0,615 Z")
+                            "M 0,0 C 54,54 124,158 124,248 L 124,615 L 0,615 Z"
                         )
                     val rocketNozzle =
                         this@Canvas.remotePathData(
-                            RcPathData(
-                                "M -124,598 L 124,598 L 124,658 Q 124,690 92,690 L -92,690 Q -124,690 -124,658 Z"
-                            )
+                            "M -124,598 L 124,598 L 124,658 Q 124,690 92,690 L -92,690 Q -124,690 -124,658 Z"
                         )
                     val droidTorso =
                         this@Canvas.remotePathData(
-                            RcPathData(
-                                "M -290,34 L 290,34 L 290,322 Q 290,370 242,370 L -242,370 Q -290,370 -290,322 Z"
-                            )
+                            "M -290,34 L 290,34 L 290,322 Q 290,370 242,370 L -242,370 Q -290,370 -290,322 Z"
                         )
-                    val droidHead =
-                        this@Canvas.remotePathData(RcPathData("M -290,0 A 290 290 0 0 1 290,0 Z"))
+                    val droidHead = this@Canvas.remotePathData("M -290,0 A 290 290 0 0 1 290,0 Z")
                     // =========== Create Paths ==========
 
                     val ps = createParticles(variables, arrayOf(h / 2f, 0f.rf), 1)

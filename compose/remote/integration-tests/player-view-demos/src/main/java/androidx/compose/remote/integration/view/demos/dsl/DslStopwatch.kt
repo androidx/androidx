@@ -16,11 +16,8 @@
 
 package androidx.compose.remote.integration.view.demos.dsl
 
-import android.graphics.Paint
 import androidx.compose.remote.core.operations.Header
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.*
-import androidx.compose.remote.creation.modifiers.RoundedRectShape
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 
 @Suppress("RestrictedApiAndroidX")
@@ -28,7 +25,7 @@ public fun dslStopwatchDemo(): ByteArray {
     return createRawRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        RemoteComposeWriter.hTag(Header.FEATURE_MEASURE_VERSION, 2),
+        RcHeaderTag.raw(Header.FEATURE_MEASURE_VERSION, 2),
     ) {
         val len = 5f
         val lapTimes = remoteDynamicFloatArray(len)
@@ -76,7 +73,7 @@ public fun dslStopwatchDemo(): ByteArray {
                         // Glowing teal active border
                         paint {
                             color(0xFF0D9488.toInt())
-                            raw.setStyle(Paint.Style.STROKE)
+                            style(RcPaintStyle.Stroke)
                             strokeWidth(8f)
                         }
                         drawCircle(cx.toFloat(), cy.toFloat(), radius.toFloat())
@@ -85,7 +82,7 @@ public fun dslStopwatchDemo(): ByteArray {
                         paint {
                             color(0xFFFFFFFF.toInt())
                             textSize(64f)
-                            raw.setStyle(Paint.Style.FILL)
+                            style(RcPaintStyle.Fill)
 
                             strokeWidth(0f)
                         }
@@ -106,7 +103,7 @@ public fun dslStopwatchDemo(): ByteArray {
                     Box(
                         modifier =
                             Modifier.background(0xFF059669.toInt()) // Emerald Green
-                                .clip(RoundedRectShape(16f, 16f, 16f, 16f))
+                                .clip(RcShape.roundedCorner(16f))
                                 .padding(20f, 12f, 20f, 12f)
                                 .onClick {
                                     setValue(start, 1f)
@@ -120,7 +117,7 @@ public fun dslStopwatchDemo(): ByteArray {
                     Box(
                         modifier =
                             Modifier.background(0xFFDC2626.toInt()) // Crimson Red
-                                .clip(RoundedRectShape(16f, 16f, 16f, 16f))
+                                .clip(RcShape.roundedCorner(16f))
                                 .padding(20f, 12f, 20f, 12f)
                                 .onClick { setValue(start, 0f) }
                     ) {
@@ -132,7 +129,7 @@ public fun dslStopwatchDemo(): ByteArray {
                     Box(
                         modifier =
                             Modifier.background(0xFF0891B2.toInt()) // Cyan
-                                .clip(RoundedRectShape(16f, 16f, 16f, 16f))
+                                .clip(RcShape.roundedCorner(16f))
                                 .padding(20f, 12f, 20f, 12f)
                                 .onClick { setValue(lapCount, (lapCount + 1f) % len) }
                     ) {
@@ -148,7 +145,7 @@ public fun dslStopwatchDemo(): ByteArray {
                         Modifier.fillParentMaxWidth(0.9f)
                             .fillMaxHeight()
                             .background(0x15FFFFFF)
-                            .clip(RoundedRectShape(16f, 16f, 16f, 16f))
+                            .clip(RcShape.roundedCorner(16f))
                             .border(1f, 16f, 0x33FFFFFF.rcColor(), RcBorderShape.RoundedRectangle)
                             .verticalScroll()
                 ) {

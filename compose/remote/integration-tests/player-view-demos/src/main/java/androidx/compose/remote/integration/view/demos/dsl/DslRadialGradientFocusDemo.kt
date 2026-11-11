@@ -16,11 +16,10 @@
 
 package androidx.compose.remote.integration.view.demos.dsl
 
-import androidx.compose.remote.core.operations.Header
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcFontType
 import androidx.compose.remote.creation.dsl.RcFontWeight
+import androidx.compose.remote.creation.dsl.RcHeaderTag
 import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcTileMode
@@ -67,9 +66,9 @@ public fun dslRadialGradientFocusDemo(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
-        RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
-        RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Radial Gradient Focus"),
+        RcHeaderTag.docWidth(400),
+        RcHeaderTag.docHeight(400),
+        RcHeaderTag.contentDescription("Radial Gradient Focus"),
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFF0B0B10.toInt())) {
             val w = componentWidth()
@@ -170,7 +169,7 @@ public fun dslRadialGradientFocusDemo(): ByteArray {
 
                 // Drop the gradient before painting the caption, otherwise the text is shaded too.
                 paint {
-                    raw.setShader(0)
+                    clearShader()
                     color(0xFFE8E8F0.toInt())
                     style(RcPaintStyle.Fill)
                     textSize(labelSize)

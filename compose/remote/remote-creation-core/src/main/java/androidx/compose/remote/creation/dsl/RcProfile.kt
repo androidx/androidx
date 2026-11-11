@@ -31,6 +31,6 @@ import androidx.compose.remote.creation.profile.Profile
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RcProfile(public val profile: Profile, public val experimental: Boolean = false) {
     /** The platform services implementation associated with this profile. */
-    public val platform: RcPlatformServices
+    internal val platform: RcPlatformServices
         get() = profile.platform
 }

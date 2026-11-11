@@ -19,7 +19,6 @@
 package androidx.compose.remote.creation.dsl
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.core.RemoteContext.FLOAT_ACCELERATION_X
 import androidx.compose.remote.core.RemoteContext.FLOAT_ACCELERATION_Y
 import androidx.compose.remote.core.RemoteContext.FLOAT_ACCELERATION_Z
@@ -33,9 +32,7 @@ import androidx.compose.remote.core.RemoteContext.FLOAT_MAGNETIC_X
 import androidx.compose.remote.core.RemoteContext.FLOAT_MAGNETIC_Y
 import androidx.compose.remote.core.RemoteContext.FLOAT_MAGNETIC_Z
 import androidx.compose.remote.core.RemoteContext.FLOAT_OFFSET_TO_UTC
-import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.DrawMesh2D
-import androidx.compose.remote.core.operations.DrawTextOnCircle
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.managers.Custom
 import androidx.compose.remote.core.operations.utilities.Mesh2DGenerator
@@ -320,15 +317,17 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         return RcFloat(writer, writer.bitmapTextMeasure(text.id, this.id, type.value, glyphSpacing))
     }
 
-    override fun createBitmapFont(glyphs: Array<BitmapFontData.Glyph>): RcBitmapFont {
-        return RcBitmapFont(writer.addBitmapFont(glyphs))
+    override fun createBitmapFont(glyphs: Array<RcBitmapFontGlyph>): RcBitmapFont {
+        return RcBitmapFont(writer.addBitmapFont(Array(glyphs.size) { glyphs[it].glyph }))
     }
 
     override fun createBitmapFont(
-        glyphs: Array<BitmapFontData.Glyph>,
+        glyphs: Array<RcBitmapFontGlyph>,
         kerningTable: Map<String, Short>,
     ): RcBitmapFont {
-        return RcBitmapFont(writer.addBitmapFont(glyphs, kerningTable))
+        return RcBitmapFont(
+            writer.addBitmapFont(Array(glyphs.size) { glyphs[it].glyph }, kerningTable)
+        )
     }
 
     override fun Text(
@@ -821,8 +820,7 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
     override fun remoteBoolean(value: Boolean): RcInteger =
         RcInteger(writer.addBoolean(value).toLong(), writer)
 
-    override fun remotePathData(path: RcPlatformServices.RcPathArrayCreator): RcPath =
-        RcPath(writer.addPathData(path))
+    override fun remotePathData(path: RcPathData): RcPath = RcPath(writer.addPathData(path.base))
 
     //  override fun remotePathString(path: String): RcPath = RcPath(writer.addPathString(path),
     // writer)
@@ -1669,7 +1667,7 @@ internal open class RcCanvasScopeImpl(writer: RemoteComposeWriter) :
     override val height: RcFloat
         get() = RcFloat(writer, writer.addComponentHeightValue())
 
-    override val paint: RcPaint
+    internal val paint: RcPaint
         get() = writer.rcPaint
 
     override fun save() {
@@ -1941,8 +1939,8 @@ internal open class RcCanvasScopeImpl(writer: RemoteComposeWriter) :
         radius: Float,
         startAngle: Float,
         warpRadiusOffset: Float,
-        alignment: DrawTextOnCircle.Alignment,
-        placement: DrawTextOnCircle.Placement,
+        alignment: RcCircleTextAlignment,
+        placement: RcCircleTextPlacement,
     ) {
         writer.drawTextOnCircle(
             text.id,
@@ -1951,8 +1949,8 @@ internal open class RcCanvasScopeImpl(writer: RemoteComposeWriter) :
             radius,
             startAngle,
             warpRadiusOffset,
-            alignment,
-            placement,
+            alignment.toCore(),
+            placement.toCore(),
         )
     }
 
@@ -1963,8 +1961,8 @@ internal open class RcCanvasScopeImpl(writer: RemoteComposeWriter) :
         radius: RcFloat,
         startAngle: RcFloat,
         warpRadiusOffset: RcFloat,
-        alignment: DrawTextOnCircle.Alignment,
-        placement: DrawTextOnCircle.Placement,
+        alignment: RcCircleTextAlignment,
+        placement: RcCircleTextPlacement,
     ) {
         writer.drawTextOnCircle(
             text.id,
@@ -1973,8 +1971,8 @@ internal open class RcCanvasScopeImpl(writer: RemoteComposeWriter) :
             radius.withWriter(writer).toFloat(),
             startAngle.withWriter(writer).toFloat(),
             warpRadiusOffset.withWriter(writer).toFloat(),
-            alignment,
-            placement,
+            alignment.toCore(),
+            placement.toCore(),
         )
     }
 
@@ -2310,8 +2308,8 @@ internal class RcSemanticsScopeImpl(val writer: RemoteComposeWriter) : RcSemanti
         contentDescriptionId = text.id
     }
 
-    override fun role(role: AccessibleComponent.Role) {
-        roleOrdinal = role.ordinal.toByte()
+    override fun role(role: RcRole) {
+        roleOrdinal = role.value.toByte()
     }
 
     override fun text(text: String) {
@@ -2330,8 +2328,8 @@ internal class RcSemanticsScopeImpl(val writer: RemoteComposeWriter) : RcSemanti
         stateDescriptionId = text.id
     }
 
-    override fun mode(mode: AccessibleComponent.Mode) {
-        modeOrdinal = mode.ordinal
+    override fun mode(mode: RcSemanticsMode) {
+        modeOrdinal = mode.value
     }
 
     override fun enabled(value: Boolean) {

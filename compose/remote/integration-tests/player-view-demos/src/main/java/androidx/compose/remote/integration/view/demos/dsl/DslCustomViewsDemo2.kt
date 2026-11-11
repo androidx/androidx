@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.dsl.RcFontWeight
 import androidx.compose.remote.creation.dsl.RcHorizontalPositioning
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcScope
+import androidx.compose.remote.creation.dsl.RcShape
 import androidx.compose.remote.creation.dsl.RcText
 import androidx.compose.remote.creation.dsl.RcTextAlign
 import androidx.compose.remote.creation.dsl.RcVerticalPositioning
@@ -39,7 +40,6 @@ import androidx.compose.remote.creation.dsl.rcColor
 import androidx.compose.remote.creation.dsl.rdp
 import androidx.compose.remote.creation.dsl.rsp
 import androidx.compose.remote.creation.dsl.width
-import androidx.compose.remote.creation.modifiers.RoundedRectShape
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.integration.view.demos.customviews.SupportEditText
 import androidx.compose.remote.integration.view.demos.customviews.SupportProgressBar
@@ -92,7 +92,7 @@ public fun dslCustomViewsDemo(): ByteArray {
                 Canvas(
                     Modifier.width(200.rdp)
                         .height(100.rdp)
-                        .clip(RoundedRectShape(32f, 32f, 32f, 32f))
+                        .clip(RcShape.roundedCorner(32f))
                         .background(Color.GREEN)
                 ) {
                     paint { textSize(48f) }
@@ -170,8 +170,7 @@ private fun RcScope.textView1(timeCount: RcText) {
                     Color.rgb(30, 41, 59).rcColor(),
                 ),
             ),
-        modifier =
-            Modifier.fillMaxWidth().height(120.rdp).clip(RoundedRectShape(32f, 32f, 32f, 32f)),
+        modifier = Modifier.fillMaxWidth().height(120.rdp).clip(RcShape.roundedCorner(32f)),
     )
 }
 

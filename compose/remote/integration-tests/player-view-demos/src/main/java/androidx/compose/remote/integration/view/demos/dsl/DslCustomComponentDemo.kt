@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.dsl.RcCustomProperty
 import androidx.compose.remote.creation.dsl.RcFontWeight
 import androidx.compose.remote.creation.dsl.RcHorizontalPositioning
 import androidx.compose.remote.creation.dsl.RcProfile
+import androidx.compose.remote.creation.dsl.RcShape
 import androidx.compose.remote.creation.dsl.RcTextAlign
 import androidx.compose.remote.creation.dsl.RcVerticalPositioning
 import androidx.compose.remote.creation.dsl.background
@@ -36,7 +37,6 @@ import androidx.compose.remote.creation.dsl.rcColor
 import androidx.compose.remote.creation.dsl.rdp
 import androidx.compose.remote.creation.dsl.rsp
 import androidx.compose.remote.creation.dsl.width
-import androidx.compose.remote.creation.modifiers.RoundedRectShape
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.integration.view.demos.customviews.SupportProgressBar
 import androidx.compose.remote.integration.view.demos.customviews.SupportTextView
@@ -100,7 +100,7 @@ public fun dslCustomComponentDemo(): ByteArray {
                 Canvas(
                     Modifier.width(200.rdp)
                         .height(100.rdp)
-                        .clip(RoundedRectShape(32f, 32f, 32f, 32f))
+                        .clip(RcShape.roundedCorner(32f))
                         .background(col)
                 ) {
                     paint { textSize(48f) }
@@ -131,9 +131,7 @@ public fun dslCustomComponentDemo(): ByteArray {
                             RcCustomProperty.color(SupportTextView.PROP_BACKGROUND_COLOR, col),
                         ),
                     modifier =
-                        Modifier.fillMaxWidth()
-                            .height(160.rdp)
-                            .clip(RoundedRectShape(32f, 32f, 32f, 32f)),
+                        Modifier.fillMaxWidth().height(160.rdp).clip(RcShape.roundedCorner(32f)),
                 )
             }
             Row(Modifier.padding(8f), vertical = RcVerticalPositioning.Center) {

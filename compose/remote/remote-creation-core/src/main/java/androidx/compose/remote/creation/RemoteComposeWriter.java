@@ -2101,7 +2101,7 @@ public class RemoteComposeWriter {
     }
 
     public int addPathData(RcPlatformServices.@NonNull RcPathArrayCreator path) {
-        float[] pathData = mPlatform.pathToFloatArray(path);
+        float[] pathData = path.createFloatArray();
         int id = mState.cacheData(path);
         if (pathData == null) {
             throw new IllegalArgumentException("Invalid path data");

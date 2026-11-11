@@ -16,11 +16,10 @@
 
 package androidx.compose.remote.integration.view.demos.dsl
 
-import androidx.compose.remote.core.operations.Header
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcFontType
 import androidx.compose.remote.creation.dsl.RcFontWeight
+import androidx.compose.remote.creation.dsl.RcHeaderTag
 import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcTextFromFloatSpec
@@ -50,9 +49,9 @@ public fun dslDemoHydrationWave(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
-        RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 450),
-        RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Hydration Progress Wave"),
+        RcHeaderTag.docWidth(400),
+        RcHeaderTag.docHeight(450),
+        RcHeaderTag.contentDescription("Hydration Progress Wave"),
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFF0F172A.toInt())) {
             val w = componentWidth()
@@ -134,7 +133,7 @@ public fun dslDemoHydrationWave(): ByteArray {
                 )
                 drawPath(wavePath.getPath())
             }
-            paint { raw.setShader(0) }
+            paint { clearShader() }
 
             // Cup count display.
             paint {

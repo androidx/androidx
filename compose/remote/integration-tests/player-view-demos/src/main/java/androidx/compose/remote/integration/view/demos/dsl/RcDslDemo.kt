@@ -16,11 +16,10 @@
 
 package androidx.compose.remote.integration.view.demos.dsl
 
-import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.operations.Header
-import androidx.compose.remote.creation.RemoteComposeWriter.HTag
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcColorValue
+import androidx.compose.remote.creation.dsl.RcDensityBehavior
+import androidx.compose.remote.creation.dsl.RcHeaderTag
 import androidx.compose.remote.creation.dsl.RcHorizontalPositioning
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcStrokeCap
@@ -53,7 +52,7 @@ fun dslDemo(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        HTag(Header.DOC_DENSITY_BEHAVIOR, CoreDocument.DENSITY_BEHAVIOR_DP),
+        RcHeaderTag.densityBehavior(RcDensityBehavior.Dp),
     ) {
         val count = remoteNamedFloat("count", 0f)
         val textVar = remoteNamedText("message", "Click me!")
@@ -91,7 +90,7 @@ fun dslDemo(): ByteArray {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val w = width
                 val h = height
-                paint.setColor(0xFFFF0000.toInt()).commit()
+                paint { color(0xFFFF0000.toInt()) }
                 drawLine(0.rf, 0.rf, w, h)
                 drawLine(0.rf, h, w, 0.rf)
                 drawCircle(w / 2f, h / 2f, (w / 4f))

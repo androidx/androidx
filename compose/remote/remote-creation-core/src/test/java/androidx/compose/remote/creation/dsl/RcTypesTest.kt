@@ -113,6 +113,7 @@ class RcTypesTest {
 
     @Test
     fun testHandlesAndFactories() {
+        assertEquals(0, RcColor.None.id)
         assertEquals(0, RcShader.None.id)
         assertEquals(42, RcComponentId.of(42).id)
 
@@ -120,5 +121,14 @@ class RcTypesTest {
         assertEquals(99, macroArg.asText().id)
         assertEquals(99, macroArg.asColor().id)
         assertEquals(99, macroArg.asImage().id)
+
+        val shape =
+            RcShape.roundedCorner(topStart = 1f, topEnd = 2f, bottomEnd = 3f, bottomStart = 4f)
+        val legacy =
+            shape.legacyShape as androidx.compose.remote.creation.modifiers.RoundedRectShape
+        assertEquals(1f, legacy.topStart, 0f)
+        assertEquals(2f, legacy.topEnd, 0f)
+        assertEquals(4f, legacy.bottomStart, 0f)
+        assertEquals(3f, legacy.bottomEnd, 0f)
     }
 }

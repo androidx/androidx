@@ -21,8 +21,6 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Typeface
-import androidx.compose.remote.core.operations.Header
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcCanvasScope
 import androidx.compose.remote.creation.dsl.RcColorValue
@@ -31,12 +29,14 @@ import androidx.compose.remote.creation.dsl.RcDrawOnBitmapMode
 import androidx.compose.remote.creation.dsl.RcFloat
 import androidx.compose.remote.creation.dsl.RcFontType
 import androidx.compose.remote.creation.dsl.RcFontWeight
+import androidx.compose.remote.creation.dsl.RcHeaderTag
 import androidx.compose.remote.creation.dsl.RcImage
 import androidx.compose.remote.creation.dsl.RcMeshLayout
 import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcPathType
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcRowScope
+import androidx.compose.remote.creation.dsl.RcShape
 import androidx.compose.remote.creation.dsl.RcStrokeCap
 import androidx.compose.remote.creation.dsl.RcText
 import androidx.compose.remote.creation.dsl.background
@@ -55,9 +55,7 @@ import androidx.compose.remote.creation.dsl.sqrt
 import androidx.compose.remote.creation.dsl.square
 import androidx.compose.remote.creation.dsl.times
 import androidx.compose.remote.creation.dsl.verticalWeight
-import androidx.compose.remote.creation.modifiers.RectShape
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
-import androidx.compose.remote.integration.view.demos.dsl.RcPathData
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.tooling.preview.RemoteDocumentPreview
 import androidx.compose.runtime.Composable
@@ -86,9 +84,9 @@ public fun dslCanvasOperations(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        RemoteComposeWriter.hTag(Header.DOC_WIDTH, 800),
-        RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 1200),
-        RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Canvas Operations"),
+        RcHeaderTag.docWidth(800),
+        RcHeaderTag.docHeight(1200),
+        RcHeaderTag.contentDescription("Canvas Operations"),
     ) {
         Column(modifier = Modifier.fillMaxSize().background(PAGE_BG)) {
             Row(modifier = Modifier.fillMaxSize().verticalWeight(1f)) {
@@ -115,7 +113,7 @@ private fun RcRowScope.panel(content: RcCanvasScope.() -> Unit) {
             Modifier.fillMaxSize()
                 .horizontalWeight(1f)
                 .padding(6f)
-                .clip(RectShape(0f, 0f, 0f, 0f))
+                .clip(RcShape.Rectangle)
                 .background(PANEL_BG),
         content = content,
     )
@@ -379,7 +377,12 @@ private fun RcCanvasScope.pathsPanel() {
 /** The four content-scale modes, one per quadrant, clockwise from top-left. */
 @Suppress("RestrictedApiAndroidX")
 private val QUADRANT_SCALES =
-    listOf(RcContentScale.Fit, RcContentScale.Crop, RcContentScale.None, RcContentScale.FillBounds)
+    listOf(
+        RcContentScale.Fit to "Fit",
+        RcContentScale.Crop to "Crop",
+        RcContentScale.None to "None",
+        RcContentScale.FillBounds to "FillBounds",
+    )
 
 /**
  * One 16:9 image drawn into four rectangles that keep changing shape.
@@ -442,9 +445,9 @@ private fun RcCanvasScope.imagesPanel() {
             tp,
             rt,
             b,
-            QUADRANT_SCALES[i],
+            QUADRANT_SCALES[i].first,
         )
-        caption(QUADRANT_SCALES[i].name, l + 6f, tp + 6f, 0xFFFFFFFF.toInt())
+        caption(QUADRANT_SCALES[i].second, l + 6f, tp + 6f, 0xFFFFFFFF.toInt())
         restore()
     }
 
@@ -855,7 +858,7 @@ private fun RcCanvasScope.bitmapFontsPanel() {
             .toTypedArray()
     val font = createBitmapFont(glyphs)
     val digits = remoteText(PI_DIGITS)
-    val spiral = remotePathData(RcPathData(spiralSvg(SPIRAL_OUTER, 16f, 5.5f)))
+    val spiral = remotePathData(spiralSvg(SPIRAL_OUTER, 16f, 5.5f))
 
     val w = componentWidth()
     val h = componentHeight()

@@ -20,11 +20,6 @@
 package androidx.compose.remote.creation.dsl
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.RcPlatformServices
-import androidx.compose.remote.core.operations.BitmapFontData
-import androidx.compose.remote.core.operations.DrawTextOnCircle
-import androidx.compose.remote.core.semantics.AccessibleComponent
-import androidx.compose.remote.creation.RcPaint
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 
 /** Root scope for building RemoteCompose documents. */
@@ -32,7 +27,7 @@ import androidx.compose.remote.creation.modifiers.RecordingModifier
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RcDslMarker
-public interface RcScope {
+public sealed interface RcScope {
 
     /** Adds a Box layout to the document. */
     public fun Box(
@@ -522,10 +517,18 @@ public interface RcScope {
     public fun remoteBoolean(value: Boolean): RcInteger
 
     /** Registers a path data resource and returns its reference. */
-    public fun remotePathData(path: RcPlatformServices.RcPathArrayCreator): RcPath
+    public fun remotePathData(path: RcPathData): RcPath
 
-    /** Registers a path string resource and returns its reference. */
-    //    public fun remotePathString(path: String): RcPath
+    /**
+     * Parses an Android Vector Drawable (AVD) `android:pathData` string, registers the resulting
+     * path data, and returns its reference.
+     */
+    public fun remotePathData(avdPathData: String): RcPath =
+        remotePathData(parseAvdPathData(avdPathData))
+
+    /** Builds path data via [block], registers it, and returns its reference. */
+    public fun remotePathData(block: RcPathData.() -> Unit): RcPath =
+        remotePathData(RcPathData().apply(block))
 
     /** Registers a text style resource and returns its reference. */
     public fun remoteTextStyle(
@@ -659,11 +662,11 @@ public interface RcScope {
     ): RcFloat
 
     /** Registers a bitmap font and returns its reference. */
-    public fun createBitmapFont(glyphs: Array<BitmapFontData.Glyph>): RcBitmapFont
+    public fun createBitmapFont(glyphs: Array<RcBitmapFontGlyph>): RcBitmapFont
 
     /** Registers a bitmap font with kerning table and returns its reference. */
     public fun createBitmapFont(
-        glyphs: Array<BitmapFontData.Glyph>,
+        glyphs: Array<RcBitmapFontGlyph>,
         kerningTable: Map<String, Short>,
     ): RcBitmapFont
 
@@ -1314,62 +1317,60 @@ public interface RcScope {
 /** Impulse container scope. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RcDslMarker
-public interface RcImpulseScope : RcCanvasScope {
+public sealed interface RcImpulseScope : RcCanvasScope {
     /** Add an impulse process container */
     public fun process(block: RcCanvasScope.() -> Unit)
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RcDslMarker
-public interface RcBoxScope : RcScope {
+public sealed interface RcBoxScope : RcScope {
     /** Matches child size to the parent Box. */
     public fun Modifier.matchParentSize(): Modifier = fillMaxSize()
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RcDslMarker
-public interface RcColumnScope : RcScope {
+public sealed interface RcColumnScope : RcScope {
     /** Sets the vertical weight of the component within a Column. */
     public fun Modifier.weight(weight: Float): Modifier
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RcDslMarker
-public interface RcRowScope : RcScope {
+public sealed interface RcRowScope : RcScope {
     /** Sets the horizontal weight of the component within a Row. */
     public fun Modifier.weight(weight: Float): Modifier
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RcDslMarker
-public interface RcFlowScope : RcScope {
+public sealed interface RcFlowScope : RcScope {
     /** Sets the horizontal weight of the component within a Row. */
     public fun Modifier.weight(weight: Float): Modifier
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RcDslMarker
-public interface RcCollapsibleColumnScope : RcScope {
+public sealed interface RcCollapsibleColumnScope : RcScope {
     /** Sets the vertical weight of the component within a CollapsibleColumn. */
     public fun Modifier.weight(weight: Float): Modifier
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RcDslMarker
-public interface RcCollapsibleRowScope : RcScope {
+public sealed interface RcCollapsibleRowScope : RcScope {
     /** Sets the horizontal weight of the component within a CollapsibleRow. */
     public fun Modifier.weight(weight: Float): Modifier
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RcDslMarker
-public interface RcCanvasScope : RcScope {
+public sealed interface RcCanvasScope : RcScope {
     /** Returns the width of the canvas as a remote float. */
     public val width: RcFloat
     /** Returns the height of the canvas as a remote float. */
     public val height: RcFloat
-    /** The current RcPaint object. */
-    public val paint: RcPaint
 
     /** Saves the current canvas state. */
     public fun save()
@@ -1616,8 +1617,8 @@ public interface RcCanvasScope : RcScope {
         radius: Float,
         startAngle: Float,
         warpRadiusOffset: Float = 0f,
-        alignment: DrawTextOnCircle.Alignment = DrawTextOnCircle.Alignment.START,
-        placement: DrawTextOnCircle.Placement = DrawTextOnCircle.Placement.OUTSIDE,
+        alignment: RcCircleTextAlignment = RcCircleTextAlignment.Start,
+        placement: RcCircleTextPlacement = RcCircleTextPlacement.Outside,
     )
 
     /** Draws a text on a circle using remote floats. */
@@ -1628,8 +1629,8 @@ public interface RcCanvasScope : RcScope {
         radius: RcFloat,
         startAngle: RcFloat,
         warpRadiusOffset: RcFloat = RcFloat(0f),
-        alignment: DrawTextOnCircle.Alignment = DrawTextOnCircle.Alignment.START,
-        placement: DrawTextOnCircle.Placement = DrawTextOnCircle.Placement.OUTSIDE,
+        alignment: RcCircleTextAlignment = RcCircleTextAlignment.Start,
+        placement: RcCircleTextPlacement = RcCircleTextPlacement.Outside,
     )
 
     /** Draws a text run using a bitmap font. */
@@ -1923,25 +1924,24 @@ public interface RcCanvasScope : RcScope {
 }
 
 /** Internal helper to convert the new Modifier chain to the legacy RecordingModifier. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun Modifier.toRecordingModifier(): RecordingModifier {
+internal fun Modifier.toRecordingModifier(): RecordingModifier {
     val recording = RecordingModifier()
-    foldIn(Unit) { _, element -> element.applyTo(recording) }
+    foldIn(Unit) { _, element -> (element as? RecordingModifierElement)?.applyTo(recording) }
     return recording
 }
 
 /** Scope to configure accessibility semantics on layouts. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RcDslMarker
-public interface RcSemanticsScope {
+public sealed interface RcSemanticsScope {
     /** Sets the content description text. */
     public fun contentDescription(text: String)
 
     /** Sets the content description using a remote string reference. */
     public fun contentDescription(text: RcText)
 
-    /** Sets the accessibility role (BUTTON, CHECKBOX, IMAGE, etc.). */
-    public fun role(role: AccessibleComponent.Role)
+    /** Sets the accessibility role ([RcRole.Button], [RcRole.Checkbox], [RcRole.Image], etc.). */
+    public fun role(role: RcRole)
 
     /** Sets the component text content. */
     public fun text(text: String)
@@ -1955,8 +1955,11 @@ public interface RcSemanticsScope {
     /** Sets the state description using a remote string reference. */
     public fun stateDescription(text: RcText)
 
-    /** Sets the merge mode (SET, CLEAR_AND_SET, MERGE). */
-    public fun mode(mode: AccessibleComponent.Mode)
+    /**
+     * Sets the merge mode ([RcSemanticsMode.Set], [RcSemanticsMode.ClearAndSet],
+     * [RcSemanticsMode.Merge]).
+     */
+    public fun mode(mode: RcSemanticsMode)
 
     /** Sets whether the component is enabled. */
     public fun enabled(value: Boolean)
@@ -1968,7 +1971,7 @@ public interface RcSemanticsScope {
 /** Scope for custom layout and measurement computations on the player. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RcDslMarker
-public interface RcLayoutScope {
+public sealed interface RcLayoutScope {
     /** Read/write X position of the component. */
     public var x: RcFloat
 

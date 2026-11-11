@@ -16,9 +16,9 @@
 
 package androidx.compose.remote.integration.view.demos.dsl
 
-import android.graphics.Paint
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcConditionOp
+import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcSoundType
 import androidx.compose.remote.creation.dsl.RcWaveform
@@ -56,7 +56,7 @@ fun dslMetronomeDemo(): ByteArray {
             paint {
                 color(0xFF4CAF50.toInt())
                 strokeWidth(6f)
-                raw.setStyle(Paint.Style.STROKE)
+                style(RcPaintStyle.Stroke)
             }
             drawLine(cx - 120f, lineY, cx + 120f, lineY)
 
@@ -66,7 +66,7 @@ fun dslMetronomeDemo(): ByteArray {
                 paint {
                     color(0xFFFF0000.toInt())
                     strokeWidth(20f)
-                    raw.setStyle(Paint.Style.STROKE)
+                    style(RcPaintStyle.Stroke)
                 }
                 drawLine(cx - 120f, lineY, cx + 120f, lineY)
                 //                performHaptic(RcHaptic.LongPress)
@@ -76,7 +76,7 @@ fun dslMetronomeDemo(): ByteArray {
             // Ball
             paint {
                 color(0xFF2196F3.toInt())
-                raw.setStyle(Paint.Style.FILL)
+                style(RcPaintStyle.Fill)
             }
             drawCircle(cx, ballY, 24f.rf)
         }

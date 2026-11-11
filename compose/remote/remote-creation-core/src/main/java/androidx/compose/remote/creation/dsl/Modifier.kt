@@ -45,9 +45,6 @@ public interface Modifier {
 
     /** A single element within a [Modifier] chain. */
     public interface Element : Modifier {
-        /** Applies this modifier element to the legacy [RecordingModifier]. */
-        public fun applyTo(modifier: RecordingModifier)
-
         override fun <R> foldIn(initial: R, operation: (R, Element) -> R): R =
             operation(initial, this)
     }
@@ -58,6 +55,11 @@ public interface Modifier {
 
         override fun <R> foldIn(initial: R, operation: (R, Element) -> R): R = initial
     }
+}
+
+/** Internal element contract that bridges a DSL [Modifier.Element] to [RecordingModifier]. */
+internal interface RecordingModifierElement : Modifier.Element {
+    fun applyTo(modifier: RecordingModifier)
 }
 
 /** Internal implementation of a combined modifier chain. */
@@ -165,7 +167,7 @@ public fun Modifier.verticalScroll(position: RcFloat): Modifier =
     then(VerticalScrollRcFloatModifier(position))
 
 /** clip modifier. */
-public fun Modifier.clip(shape: Shape): Modifier = then(ClipModifier(shape))
+public fun Modifier.clip(shape: RcShape): Modifier = then(ClipModifier(shape.legacyShape))
 
 /** widthIn modifier. */
 public fun Modifier.widthIn(min: Float = 0f, max: Float = Float.MAX_VALUE): Modifier =
@@ -260,12 +262,12 @@ public fun Modifier.animationSpec(
     visibilityDuration: Float = 300f,
     visibilityEasingType: Int =
         androidx.compose.remote.core.operations.utilities.easing.GeneralEasing.CUBIC_STANDARD,
-    enterAnimation: AnimationSpec.ANIMATION = AnimationSpec.ANIMATION.FADE_IN,
-    exitAnimation: AnimationSpec.ANIMATION = AnimationSpec.ANIMATION.FADE_OUT,
+    enterAnimation: RcEnterExitAnimation = RcEnterExitAnimation.FadeIn,
+    exitAnimation: RcEnterExitAnimation = RcEnterExitAnimation.FadeOut,
     enterFunctionId: Int = -1,
     exitFunctionId: Int = -1,
-    enterSequence: AnimationSpec.SEQUENCE = AnimationSpec.SEQUENCE.CONCURRENT,
-    exitSequence: AnimationSpec.SEQUENCE = AnimationSpec.SEQUENCE.CONCURRENT,
+    enterSequence: RcAnimationSequence = RcAnimationSequence.Concurrent,
+    exitSequence: RcAnimationSequence = RcAnimationSequence.Concurrent,
 ): Modifier =
     then(
         AnimationSpecModifier(
@@ -274,12 +276,12 @@ public fun Modifier.animationSpec(
             motionEasingType,
             visibilityDuration,
             visibilityEasingType,
-            enterAnimation,
-            exitAnimation,
+            enterAnimation.toCore(),
+            exitAnimation.toCore(),
             enterFunctionId,
             exitFunctionId,
-            enterSequence,
-            exitSequence,
+            enterSequence.toCore(),
+            exitSequence.toCore(),
         )
     )
 
@@ -323,7 +325,7 @@ public fun Modifier.zIndex(value: Float): Modifier = then(ZIndexModifier(value))
 /** Builder scope for [Modifier.graphicsLayer]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RcDslMarker
-public class RcGraphicsLayerScope {
+public class RcGraphicsLayerScope internal constructor() {
     internal val attributes: HashMap<Int, Any> = HashMap()
 
     public var scaleX: Float
@@ -491,32 +493,32 @@ internal class PaddingModifier(
     val top: Float,
     val end: Float,
     val bottom: Float,
-) : Modifier.Element {
+) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.padding(start, top, end, bottom)
     }
 }
 
-internal class SizeModifier(val width: Float, val height: Float) : Modifier.Element {
+internal class SizeModifier(val width: Float, val height: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.width(width).height(height)
     }
 }
 
-internal class WidthModifier(val width: Float) : Modifier.Element {
+internal class WidthModifier(val width: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.width(width)
     }
 }
 
-internal class HeightModifier(val height: Float) : Modifier.Element {
+internal class HeightModifier(val height: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.height(height)
     }
 }
 
 internal class WidthRcFloatModifier(val width: RcFloat) :
-    Modifier.Element, RecordingModifier.Element {
+    RecordingModifierElement, RecordingModifier.Element {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.then(this)
     }
@@ -527,7 +529,7 @@ internal class WidthRcFloatModifier(val width: RcFloat) :
 }
 
 internal class HeightRcFloatModifier(val height: RcFloat) :
-    Modifier.Element, RecordingModifier.Element {
+    RecordingModifierElement, RecordingModifier.Element {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.then(this)
     }
@@ -537,25 +539,25 @@ internal class HeightRcFloatModifier(val height: RcFloat) :
     }
 }
 
-internal class BackgroundModifier(val color: Int) : Modifier.Element {
+internal class BackgroundModifier(val color: Int) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.background(color)
     }
 }
 
-internal class BackgroundColorIdModifier(val color: RcColor) : Modifier.Element {
+internal class BackgroundColorIdModifier(val color: RcColor) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.backgroundId(color.id)
     }
 }
 
-internal class BackgroundColorModifier(val color: RcColorValue) : Modifier.Element {
+internal class BackgroundColorModifier(val color: RcColorValue) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.background(color.id)
     }
 }
 
-internal class WeightModifier(val weight: Float, val vertical: Boolean) : Modifier.Element {
+internal class WeightModifier(val weight: Float, val vertical: Boolean) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         if (vertical) {
             modifier.verticalWeight(weight)
@@ -565,56 +567,56 @@ internal class WeightModifier(val weight: Float, val vertical: Boolean) : Modifi
     }
 }
 
-internal class FillMaxWidthModifier(val fraction: Float) : Modifier.Element {
+internal class FillMaxWidthModifier(val fraction: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.fillMaxWidth(fraction)
     }
 }
 
-internal class FillMaxHeightModifier(val fraction: Float) : Modifier.Element {
+internal class FillMaxHeightModifier(val fraction: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.fillMaxHeight(fraction)
     }
 }
 
-internal class FillMaxSizeModifier(val fraction: Float) : Modifier.Element {
+internal class FillMaxSizeModifier(val fraction: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.fillMaxSize(fraction)
     }
 }
 
-internal object WrapContentSizeModifier : Modifier.Element {
+internal object WrapContentSizeModifier : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.wrapContentSize()
     }
 }
 
-internal object WrapContentWidthModifier : Modifier.Element {
+internal object WrapContentWidthModifier : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.wrapContentWidth()
     }
 }
 
-internal object WrapContentHeightModifier : Modifier.Element {
+internal object WrapContentHeightModifier : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.wrapContentHeight()
     }
 }
 
-internal class OffsetModifier(val x: Float, val y: Float) : Modifier.Element {
+internal class OffsetModifier(val x: Float, val y: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.offset(x, y)
     }
 }
 
-internal class VerticalScrollModifier(val position: Float) : Modifier.Element {
+internal class VerticalScrollModifier(val position: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.verticalScroll(position)
     }
 }
 
 internal class VerticalScrollRcFloatModifier(val position: RcFloat) :
-    Modifier.Element, RecordingModifier.Element {
+    RecordingModifierElement, RecordingModifier.Element {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.then(this)
     }
@@ -625,32 +627,32 @@ internal class VerticalScrollRcFloatModifier(val position: RcFloat) :
     }
 }
 
-internal class ClipModifier(val shape: Shape) : Modifier.Element {
+internal class ClipModifier(val shape: Shape) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.clip(shape)
     }
 }
 
-internal class WidthInModifier(val min: Float, val max: Float) : Modifier.Element {
+internal class WidthInModifier(val min: Float, val max: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.widthIn(min, max)
     }
 }
 
-internal class HeightInModifier(val min: Float, val max: Float) : Modifier.Element {
+internal class HeightInModifier(val min: Float, val max: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.heightIn(min, max)
     }
 }
 
-internal class ComponentIdModifier(val id: Int) : Modifier.Element {
+internal class ComponentIdModifier(val id: Int) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.componentId(id)
     }
 }
 
 internal class ClickActionModifierElement(val block: RcActionScope.() -> Unit, val clickType: Int) :
-    Modifier.Element, RecordingModifier.Element {
+    RecordingModifierElement, RecordingModifier.Element {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.then(this)
     }
@@ -665,7 +667,7 @@ internal class ClickActionModifierElement(val block: RcActionScope.() -> Unit, v
 }
 
 internal class TouchActionModifierElement(val block: RcActionScope.() -> Unit, val touchType: Int) :
-    Modifier.Element, RecordingModifier.Element {
+    RecordingModifierElement, RecordingModifier.Element {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.then(this)
     }
@@ -679,25 +681,25 @@ internal class TouchActionModifierElement(val block: RcActionScope.() -> Unit, v
     }
 }
 
-internal object HorizontalScrollModifier : Modifier.Element {
+internal object HorizontalScrollModifier : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.horizontalScroll()
     }
 }
 
-internal class FillParentMaxWidthModifier(val fraction: Float) : Modifier.Element {
+internal class FillParentMaxWidthModifier(val fraction: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.fillParentMaxWidth(fraction)
     }
 }
 
-internal class FillParentMaxHeightModifier(val fraction: Float) : Modifier.Element {
+internal class FillParentMaxHeightModifier(val fraction: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.fillParentMaxHeight(fraction)
     }
 }
 
-internal class FillParentMaxSizeModifier(val fraction: Float) : Modifier.Element {
+internal class FillParentMaxSizeModifier(val fraction: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.fillParentMaxSize(fraction)
     }
@@ -708,7 +710,7 @@ internal class BorderModifier(
     val roundedCorner: Float,
     val color: Int,
     val shape: Int,
-) : Modifier.Element {
+) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.border(width, roundedCorner, color, shape)
     }
@@ -719,13 +721,13 @@ internal class DynamicBorderModifier(
     val roundedCorner: Float,
     val color: Short,
     val shape: Int,
-) : Modifier.Element {
+) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.dynamicBorder(width, roundedCorner, color, shape)
     }
 }
 
-internal class VisibilityModifier(val visible: RcInteger) : Modifier.Element {
+internal class VisibilityModifier(val visible: RcInteger) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.visibility(visible.id.toInt())
     }
@@ -745,7 +747,7 @@ internal class AnimationSpecModifier(
     val exitFunctionId: Int = -1,
     val enterSequence: AnimationSpec.SEQUENCE = AnimationSpec.SEQUENCE.CONCURRENT,
     val exitSequence: AnimationSpec.SEQUENCE = AnimationSpec.SEQUENCE.CONCURRENT,
-) : Modifier.Element, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
+) : RecordingModifierElement, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.animationSpec(
             animationId,
@@ -777,19 +779,19 @@ internal class AnimationSpecModifier(
     }
 }
 
-internal object AlignByBaselineModifier : Modifier.Element {
+internal object AlignByBaselineModifier : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.alignByBaseline()
     }
 }
 
-internal class RequiredWidthInModifier(val min: Float, val max: Float) : Modifier.Element {
+internal class RequiredWidthInModifier(val min: Float, val max: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.requiredWidthIn(min, max)
     }
 }
 
-internal class RequiredHeightInModifier(val min: Float, val max: Float) : Modifier.Element {
+internal class RequiredHeightInModifier(val min: Float, val max: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.requiredHeightIn(min, max)
     }
@@ -802,7 +804,7 @@ internal class MarqueeModifier(
     val initialDelayMillis: Float,
     val spacing: Float,
     val velocity: Float,
-) : Modifier.Element, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
+) : RecordingModifierElement, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.then(this)
     }
@@ -820,7 +822,7 @@ internal class MarqueeModifier(
 }
 
 internal class ZIndexModifier(val value: Float) :
-    Modifier.Element, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
+    RecordingModifierElement, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.then(this)
     }
@@ -831,7 +833,7 @@ internal class ZIndexModifier(val value: Float) :
 }
 
 internal class GraphicsLayerModifier(val attributes: Map<Int, Any>) :
-    Modifier.Element, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
+    RecordingModifierElement, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.then(this)
     }
@@ -843,7 +845,7 @@ internal class GraphicsLayerModifier(val attributes: Map<Int, Any>) :
 }
 
 internal object RippleModifierElement :
-    Modifier.Element, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
+    RecordingModifierElement, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.then(this)
     }
@@ -854,7 +856,7 @@ internal object RippleModifierElement :
 }
 
 internal class DrawWithContentModifierElement(val block: RcCanvasScope.() -> Unit) :
-    Modifier.Element, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
+    RecordingModifierElement, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.then(this)
     }
@@ -868,7 +870,7 @@ internal class DrawWithContentModifierElement(val block: RcCanvasScope.() -> Uni
 }
 
 internal class CollapsiblePriorityModifierElement(val orientation: Int, val priority: Float) :
-    Modifier.Element, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
+    RecordingModifierElement, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.then(this)
     }
@@ -879,7 +881,7 @@ internal class CollapsiblePriorityModifierElement(val orientation: Int, val prio
 }
 
 internal class SemanticsModifierElement(val block: RcSemanticsScope.() -> Unit) :
-    Modifier.Element, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
+    RecordingModifierElement, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.then(this)
     }
@@ -897,7 +899,7 @@ internal class SemanticsModifierElement(val block: RcSemanticsScope.() -> Unit) 
 internal class ComponentLayoutComputeModifierElement(
     val type: Int,
     val block: RcLayoutScope.() -> Unit,
-) : Modifier.Element, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
+) : RecordingModifierElement, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.then(this)
     }

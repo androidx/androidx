@@ -16,10 +16,9 @@
 
 package androidx.compose.remote.integration.view.demos.blog
 
-import androidx.compose.remote.core.operations.Header
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcFloat
+import androidx.compose.remote.creation.dsl.RcHeaderTag
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.background
 import androidx.compose.remote.creation.dsl.clamp
@@ -57,9 +56,9 @@ public fun dslTouchBounce(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
-        RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
-        RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Touch Bounce"),
+        RcHeaderTag.docWidth(400),
+        RcHeaderTag.docHeight(400),
+        RcHeaderTag.contentDescription("Touch Bounce"),
     ) {
         Box(modifier = Modifier.fillMaxSize().background(0xFFFFFFFF.toInt())) {
             Canvas(modifier = Modifier.fillMaxSize().onTouchDown {}) {

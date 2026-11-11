@@ -136,11 +136,11 @@ fun dslClock(): ByteArray {
 
 @Suppress("RestrictedApiAndroidX")
 private class RcDslClockColors(scope: RcScope) {
-    var background: RcColor = RcColor(0)
-    var hourHand: RcColor = RcColor(0)
-    var minuteHand: RcColor = RcColor(0)
-    var text: RcColor = RcColor(0)
-    var dot: RcColor = RcColor(0)
+    var background: RcColor = RcColor.None
+    var hourHand: RcColor = RcColor.None
+    var minuteHand: RcColor = RcColor.None
+    var text: RcColor = RcColor.None
+    var dot: RcColor = RcColor.None
 
     init {
         scope.apply {

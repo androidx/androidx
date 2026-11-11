@@ -22,7 +22,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.RemoteComposeShader
 
 /**
- * Typed Kotlin DSL scope wrapping the legacy Java [RemoteComposeShader] uniform builder.
+ * Typed Kotlin DSL scope for configuring shader uniforms inside [RcScope.shader].
  *
  * Each `uniform(...)` overload picks the right wire encoding based on the value type — `Int` →
  * `setIntUniform`, `Float` / `FloatArray` → `setFloatUniform`, `RcImage` → `setBitmapUniform`,
@@ -36,15 +36,10 @@ import androidx.compose.remote.creation.RemoteComposeShader
  *     uniform("uTexture", myImage)
  * }
  * ```
- *
- * Use [raw] for any uniform setter not yet wrapped.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RcDslMarker
-public interface RcShaderScope {
-
-    /** Underlying mutable [RemoteComposeShader] for un-wrapped uniform shapes. */
-    public val raw: RemoteComposeShader
+public sealed interface RcShaderScope {
 
     // ---- Float uniforms ----
 
@@ -102,7 +97,7 @@ public interface RcShaderScope {
 }
 
 /** Internal implementation that forwards every method to a wrapped legacy [RemoteComposeShader]. */
-internal class RcShaderScopeImpl(override val raw: RemoteComposeShader) : RcShaderScope {
+internal class RcShaderScopeImpl(internal val raw: RemoteComposeShader) : RcShaderScope {
 
     override fun uniform(name: String, value: Float) {
         raw.setFloatUniform(name, value)

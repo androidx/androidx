@@ -14,30 +14,12 @@
  * limitations under the License.
  */
 
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@file:Suppress("RestrictedApiAndroidX")
+
 package androidx.compose.remote.integration.view.demos.dsl
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.RcPlatformServices
-import androidx.compose.remote.creation.RemotePathBase
 
-/**
- * Utility class in DSL to help with creation of path data for remotePathData(). Implements
- * RcPlatformServices.RcPathArrayCreator.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Suppress("RestrictedApiAndroidX") // Referring to drawPath, remote-creation
-class RcPathData : RemotePathBase, RcPlatformServices.RcPathArrayCreator {
-    private var customCreator: RcPlatformServices.RcPathArrayCreator? = null
-
-    constructor() : super()
-
-    constructor(bufferSize: Int) : super(bufferSize)
-
-    constructor(pathData: String) : super() {
-        customCreator = parsePath(pathData)
-    }
-
-    override fun createFloatArray(): FloatArray {
-        return customCreator?.createFloatArray() ?: wrappedRemotePath.createFloatArray()
-    }
-}
+/** Demo-package alias forwarding to [androidx.compose.remote.creation.dsl.RcPathData]. */
+public typealias RcPathData = androidx.compose.remote.creation.dsl.RcPathData

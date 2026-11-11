@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.actions.ValueStringChange
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcColumnVerticalPositioning
 import androidx.compose.remote.creation.dsl.RcFontWeight
+import androidx.compose.remote.creation.dsl.RcHeaderTag
 import androidx.compose.remote.creation.dsl.RcHorizontalPositioning
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcRowHorizontalPositioning
@@ -96,10 +97,10 @@ class DslComparisonTest {
         val dslBytes =
             createRcBuffer(
                 RcProfile(testProfile),
-                RemoteComposeWriter.hTag(Header.DOC_WIDTH, width),
-                RemoteComposeWriter.hTag(Header.DOC_HEIGHT, height),
-                RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, ""),
-                RemoteComposeWriter.hTag(Header.DOC_PROFILES, 0),
+                RcHeaderTag.docWidth(width),
+                RcHeaderTag.docHeight(height),
+                RcHeaderTag.contentDescription(""),
+                RcHeaderTag.raw(Header.DOC_PROFILES, 0),
             ) {
                 Column(
                     modifier = Modifier.background(0xFFEEEEEE.toInt()).padding(20f),
@@ -221,10 +222,10 @@ class DslComparisonTest {
         val dslBytes =
             createRcBuffer(
                 RcProfile(testProfile),
-                RemoteComposeWriter.hTag(Header.DOC_WIDTH, width),
-                RemoteComposeWriter.hTag(Header.DOC_HEIGHT, height),
-                RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, ""),
-                RemoteComposeWriter.hTag(Header.DOC_PROFILES, 0),
+                RcHeaderTag.docWidth(width),
+                RcHeaderTag.docHeight(height),
+                RcHeaderTag.contentDescription(""),
+                RcHeaderTag.raw(Header.DOC_PROFILES, 0),
             ) {
                 val count = remoteNamedFloat("count", 0f)
                 val textVar = remoteNamedText("message", "Click me!")
@@ -303,10 +304,10 @@ class DslComparisonTest {
         val dslBytes =
             createRcBuffer(
                 RcProfile(testProfile),
-                RemoteComposeWriter.hTag(Header.DOC_WIDTH, width),
-                RemoteComposeWriter.hTag(Header.DOC_HEIGHT, height),
-                RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, ""),
-                RemoteComposeWriter.hTag(Header.DOC_PROFILES, 0),
+                RcHeaderTag.docWidth(width),
+                RcHeaderTag.docHeight(height),
+                RcHeaderTag.contentDescription(""),
+                RcHeaderTag.raw(Header.DOC_PROFILES, 0),
             ) {
                 Canvas(modifier = Modifier.fillMaxSize()) {
                     drawRect(0.rf, 0.rf, this.width, this.height)
@@ -338,10 +339,10 @@ class DslComparisonTest {
         val dslBytes =
             createRcBuffer(
                 profile,
-                RemoteComposeWriter.hTag(Header.DOC_WIDTH, 100),
-                RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 100),
-                RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, ""),
-                RemoteComposeWriter.hTag(Header.DOC_PROFILES, 0),
+                RcHeaderTag.docWidth(100),
+                RcHeaderTag.docHeight(100),
+                RcHeaderTag.contentDescription(""),
+                RcHeaderTag.raw(Header.DOC_PROFILES, 0),
             ) {
                 Canvas {
                     drawLine(0f, 0f, 100f, 100f)
@@ -392,10 +393,10 @@ class DslComparisonTest {
         val dslBytes =
             createRcBuffer(
                 profile,
-                RemoteComposeWriter.hTag(Header.DOC_WIDTH, 100),
-                RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 100),
-                RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, ""),
-                RemoteComposeWriter.hTag(Header.DOC_PROFILES, 0),
+                RcHeaderTag.docWidth(100),
+                RcHeaderTag.docHeight(100),
+                RcHeaderTag.contentDescription(""),
+                RcHeaderTag.raw(Header.DOC_PROFILES, 0),
             ) {
                 Canvas {
                     paint { linearGradient(0f, 0f, 100f, 100f, colorsArray, positions) }
@@ -430,10 +431,10 @@ class DslComparisonTest {
         val dslBytes =
             createRcBuffer(
                 profile,
-                RemoteComposeWriter.hTag(Header.DOC_WIDTH, 100),
-                RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 100),
-                RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, ""),
-                RemoteComposeWriter.hTag(Header.DOC_PROFILES, 0),
+                RcHeaderTag.docWidth(100),
+                RcHeaderTag.docHeight(100),
+                RcHeaderTag.contentDescription(""),
+                RcHeaderTag.raw(Header.DOC_PROFILES, 0),
             ) {
                 Canvas {
                     paint {
@@ -451,12 +452,12 @@ class DslComparisonTest {
         val profile = RcProfile(testProfile)
         val tags =
             arrayOf(
-                RemoteComposeWriter.hTag(Header.DOC_WIDTH, 100),
-                RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 100),
-                RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, ""),
-                RemoteComposeWriter.hTag(Header.DOC_PROFILES, 0),
+                RcHeaderTag.docWidth(100),
+                RcHeaderTag.docHeight(100),
+                RcHeaderTag.contentDescription(""),
+                RcHeaderTag.raw(Header.DOC_PROFILES, 0),
             )
-        val compress = RemoteComposeWriter.hTag(Header.COMPRESS, Header.COMPRESSION_DEFLATE)
+        val compress = RcHeaderTag.compress()
 
         val plainBytes = createRcBuffer(profile, *tags) { Canvas { drawLine(0f, 0f, 100f, 100f) } }
         val compressedBytes =
@@ -468,7 +469,7 @@ class DslComparisonTest {
     @Test
     fun testCompressedExperimentalDocumentComparison() {
         val profile = RcProfile(testProfile)
-        val compress = RemoteComposeWriter.hTag(Header.COMPRESS, Header.COMPRESSION_DEFLATE)
+        val compress = RcHeaderTag.compress()
 
         val plainBytes =
             createRcBuffer(profile, experimental = true) { Canvas { drawLine(0f, 0f, 100f, 100f) } }

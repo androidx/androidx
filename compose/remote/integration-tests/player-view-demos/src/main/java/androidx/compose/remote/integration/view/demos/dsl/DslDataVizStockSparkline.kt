@@ -16,11 +16,10 @@
 
 package androidx.compose.remote.integration.view.demos.dsl
 
-import androidx.compose.remote.core.operations.Header
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcFontType
 import androidx.compose.remote.creation.dsl.RcFontWeight
+import androidx.compose.remote.creation.dsl.RcHeaderTag
 import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcStrokeCap
@@ -80,9 +79,9 @@ public fun dslDemoStockSparkline(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        RemoteComposeWriter.hTag(Header.DOC_WIDTH, 500),
-        RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 350),
-        RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Stock Sparkline"),
+        RcHeaderTag.docWidth(500),
+        RcHeaderTag.docHeight(350),
+        RcHeaderTag.contentDescription("Stock Sparkline"),
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFF1C1C1E.toInt())) {
             val w = componentWidth()
@@ -186,7 +185,7 @@ public fun dslDemoStockSparkline(): ByteArray {
             drawPath(linePath.getPath())
 
             // Reset shader so the labels below render as solid colour.
-            paint { raw.setShader(0) }
+            paint { clearShader() }
 
             // Min/max indicators.
             paint {
