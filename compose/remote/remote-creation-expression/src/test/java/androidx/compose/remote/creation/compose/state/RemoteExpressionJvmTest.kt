@@ -105,6 +105,23 @@ class RemoteExpressionJvmTest {
     }
 
     @Test
+    fun testRemoteColorCompanionConstants() {
+        assertThat(RemoteColor.Black.constantValue).isEqualTo(0xFF000000.toInt())
+        assertThat(RemoteColor.DarkGray.constantValue).isEqualTo(0xFF444444.toInt())
+        assertThat(RemoteColor.Gray.constantValue).isEqualTo(0xFF888888.toInt())
+        assertThat(RemoteColor.LightGray.constantValue).isEqualTo(0xFFCCCCCC.toInt())
+        assertThat(RemoteColor.White.constantValue).isEqualTo(0xFFFFFFFF.toInt())
+        assertThat(RemoteColor.Red.constantValue).isEqualTo(0xFFFF0000.toInt())
+        assertThat(RemoteColor.Green.constantValue).isEqualTo(0xFF00FF00.toInt())
+        assertThat(RemoteColor.Blue.constantValue).isEqualTo(0xFF0000FF.toInt())
+        assertThat(RemoteColor.Yellow.constantValue).isEqualTo(0xFFFFFF00.toInt())
+        assertThat(RemoteColor.Cyan.constantValue).isEqualTo(0xFF00FFFF.toInt())
+        assertThat(RemoteColor.Magenta.constantValue).isEqualTo(0xFFFF00FF.toInt())
+        assertThat(RemoteColor.Transparent.constantValue).isEqualTo(0x00000000)
+        assertThat(0xFFFFEE70.rc.constantValue).isEqualTo(0xFFFFEE70.toInt())
+    }
+
+    @Test
     fun testRemoteColorRgb() {
         val color = RemoteColor.rgb(red = 1f.rf, green = 0f.rf, blue = 0f.rf, alpha = 1f.rf)
         assertThat(color.constantValue).isEqualTo(0xFFFF0000.toInt())

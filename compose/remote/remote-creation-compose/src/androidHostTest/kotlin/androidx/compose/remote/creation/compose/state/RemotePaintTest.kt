@@ -125,8 +125,7 @@ class RemotePaintTest {
         val color = RemotePaint().color
 
         assertThat(color.isStructurallyEqual(Color.Black.rc)).isTrue()
-        // Like Color.Black.rc, every paint gets its own RemoteColor instance.
-        assertThat(color).isNotSameInstanceAs(RemotePaint().color)
+        assertThat(color).isSameInstanceAs(RemoteColor.Black)
     }
 
     @Test

@@ -36,9 +36,9 @@ import androidx.compose.runtime.Stable
  *
  * ```
  * RemoteBrush.radialGradient(
- *      0.0f.rf to 0xFFFF0000.toInt().rc,
- *      0.3f.rf to 0xFF00FF00.toInt().rc,
- *      1.0f.rf to 0xFF0000FF.toInt().rc,
+ *      0.0f.rf to 0xFFFF0000.rc,
+ *      0.3f.rf to 0xFF00FF00.rc,
+ *      1.0f.rf to 0xFF0000FF.rc,
  *      center = RemoteOffset(side1 / 2.0f, side2 / 2.0f),
  *      radius = side1 / 2.0f,
  *      tileMode = RemoteTileMode.Repeated,
@@ -75,7 +75,7 @@ public fun RemoteBrush.Companion.radialGradient(
  *
  * ```
  * RemoteBrush.radialGradient(
- *      listOf(0xFFFF0000.toInt().rc, 0xFF0000FF.toInt().rc),
+ *      listOf(0xFFFF0000.rc, 0xFF0000FF.rc),
  *      center = RemoteOffset(side1 / 2.0f, side2 / 2.0f),
  *      radius = side1 / 2.0f,
  *      tileMode = RemoteTileMode.Repeated,

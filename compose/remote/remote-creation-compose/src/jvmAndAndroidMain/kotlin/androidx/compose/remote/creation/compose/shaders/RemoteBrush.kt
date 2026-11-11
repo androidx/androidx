@@ -52,8 +52,6 @@ public abstract class RemoteBrush internal constructor() {
                 value
             }
         }
-
-        internal const val Black: Int = 0xFF000000.toInt()
     }
 }
 
@@ -69,7 +67,7 @@ public abstract class RemoteShaderBrush internal constructor() : RemoteBrush() {
     override fun RemoteStateScope.applyTo(paint: RemotePaint, size: RemoteSize) {
         val shader = createShader(size)
         paint.shader = shader
-        paint.color = RemoteColor(Black)
+        paint.color = RemoteColor.Black
     }
 
     /**
@@ -91,6 +89,6 @@ public abstract class RemoteShaderBrush internal constructor() : RemoteBrush() {
         val shader = createShader(size)
         shader.remoteMatrix3x3 = matrix3x3
         paint.shader = shader
-        paint.color = RemoteColor(Black)
+        paint.color = RemoteColor.Black
     }
 }

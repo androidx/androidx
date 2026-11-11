@@ -22,7 +22,6 @@ import androidx.compose.remote.creation.compose.capture.DefaultIconSize
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.capture.RemoteVectorGroup
 import androidx.compose.remote.creation.compose.capture.RemoteVectorPath
-import androidx.compose.remote.creation.compose.capture.TransparentArgb
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
@@ -124,7 +123,7 @@ internal fun createColorFilter(
     tintColor: RemoteColor,
     tintBlendMode: RemoteBlendMode,
 ): RemoteColorFilter? =
-    if (tintColor.constantValueOrNull == TransparentArgb) {
+    if (tintColor.isStructurallyEqual(RemoteColor.Transparent)) {
         null
     } else {
         RemoteBlendModeColorFilter(tintColor, tintBlendMode)
