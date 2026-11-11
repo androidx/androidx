@@ -117,18 +117,21 @@ import androidx.camera.video.internal.config.MediaConfigUtil;
 import androidx.camera.video.internal.config.MediaInfo;
 import androidx.camera.video.internal.config.VideoMimeInfo;
 import androidx.camera.video.internal.encoder.AudioEncoderConfig;
+import androidx.camera.video.internal.encoder.AudioEncoderFactory;
 import androidx.camera.video.internal.encoder.BufferCopiedEncodedData;
+import androidx.camera.video.internal.encoder.DefaultAudioEncoderFactory;
+import androidx.camera.video.internal.encoder.DefaultVideoEncoderFactory;
 import androidx.camera.video.internal.encoder.EncodeException;
 import androidx.camera.video.internal.encoder.EncodedData;
 import androidx.camera.video.internal.encoder.Encoder;
 import androidx.camera.video.internal.encoder.EncoderCallback;
-import androidx.camera.video.internal.encoder.EncoderFactory;
 import androidx.camera.video.internal.encoder.EncoderImpl;
 import androidx.camera.video.internal.encoder.InvalidConfigException;
 import androidx.camera.video.internal.encoder.OutputConfig;
 import androidx.camera.video.internal.encoder.SystemTimeProvider;
 import androidx.camera.video.internal.encoder.TimeProvider;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
+import androidx.camera.video.internal.encoder.VideoEncoderFactory;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
 import androidx.camera.video.internal.encoder.VideoEncoderInfoImpl;
 import androidx.camera.video.internal.muxer.Media3MuxerImpl;
@@ -423,8 +426,10 @@ public final class Recorder implements VideoOutput {
     private static final int AUDIO_CACHE_SIZE = 60;
     private static final int RETRY_SETUP_VIDEO_MAX_COUNT = 3;
     private static final long RETRY_SETUP_VIDEO_DELAY_MS = 1000L;
-    @VisibleForTesting
-    static final EncoderFactory DEFAULT_ENCODER_FACTORY = EncoderImpl::new;
+    private static final VideoEncoderFactory DEFAULT_VIDEO_ENCODER_FACTORY =
+            DefaultVideoEncoderFactory.DEFAULT;
+    private static final AudioEncoderFactory DEFAULT_AUDIO_ENCODER_FACTORY =
+            DefaultAudioEncoderFactory.DEFAULT;
     private static final VideoEncoderInfo.Finder DEFAULT_VIDEO_ENCODER_INFO_FINDER =
             VideoEncoderInfoImpl.FINDER;
     private static final AudioStreamFactory DEFAULT_AUDIO_STREAM_FACTORY = AudioStreamImpl::new;
@@ -468,8 +473,8 @@ public final class Recorder implements VideoOutput {
     private final Executor mExecutor;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Executor mSequentialExecutor;
-    private final EncoderFactory mVideoEncoderFactory;
-    private final EncoderFactory mAudioEncoderFactory;
+    private final VideoEncoderFactory mVideoEncoderFactory;
+    private final AudioEncoderFactory mAudioEncoderFactory;
     private final MuxerFactory mMuxerFactory;
     private final OutputStorage.Factory mOutputStorageFactory;
     private final AudioStreamFactory mAudioStreamFactory;
@@ -611,8 +616,8 @@ public final class Recorder implements VideoOutput {
     @OptIn(markerClass = ExperimentalAudioApi.class)
     Recorder(@Nullable Executor executor, @NonNull MediaSpec mediaSpec,
             @VideoCapabilitiesSource int videoCapabilitiesSource,
-            @NonNull EncoderFactory videoEncoderFactory,
-            @NonNull EncoderFactory audioEncoderFactory,
+            @NonNull VideoEncoderFactory videoEncoderFactory,
+            @NonNull AudioEncoderFactory audioEncoderFactory,
             @NonNull MuxerFactory muxerFactory,
             OutputStorage.@NonNull Factory outputStorageFactory,
             @NonNull AudioStreamFactory audioStreamFactory,
@@ -4199,8 +4204,8 @@ public final class Recorder implements VideoOutput {
         private @VideoCapabilitiesSource int mVideoCapabilitiesSource =
                 VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE;
         private Executor mExecutor = null;
-        private EncoderFactory mVideoEncoderFactory = DEFAULT_ENCODER_FACTORY;
-        private EncoderFactory mAudioEncoderFactory = DEFAULT_ENCODER_FACTORY;
+        private VideoEncoderFactory mVideoEncoderFactory = DEFAULT_VIDEO_ENCODER_FACTORY;
+        private AudioEncoderFactory mAudioEncoderFactory = DEFAULT_AUDIO_ENCODER_FACTORY;
         private MuxerFactory mMuxerFactory = DEFAULT_MUXER_FACTORY;
         private OutputStorage.Factory mOutputStorageFactory = OUTPUT_STORAGE_FACTORY_DEFAULT;
         private AudioStreamFactory mAudioStreamFactory = DEFAULT_AUDIO_STREAM_FACTORY;
@@ -4593,13 +4598,15 @@ public final class Recorder implements VideoOutput {
         }
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        @NonNull Builder setVideoEncoderFactory(@NonNull EncoderFactory videoEncoderFactory) {
+        @NonNull Builder setVideoEncoderFactory(
+                @NonNull VideoEncoderFactory videoEncoderFactory) {
             mVideoEncoderFactory = videoEncoderFactory;
             return this;
         }
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        @NonNull Builder setAudioEncoderFactory(@NonNull EncoderFactory audioEncoderFactory) {
+        @NonNull Builder setAudioEncoderFactory(
+                @NonNull AudioEncoderFactory audioEncoderFactory) {
             mAudioEncoderFactory = audioEncoderFactory;
             return this;
         }

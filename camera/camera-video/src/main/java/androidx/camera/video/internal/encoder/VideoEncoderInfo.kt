@@ -85,5 +85,22 @@ public interface VideoEncoderInfo : EncoderInfo {
     public fun interface Finder {
         /** Finds a [VideoEncoderInfo] for the given MIME type. */
         public fun find(mimeType: String): VideoEncoderInfo?
+
+        public companion object {
+            /**
+             * Returns a [Finder] that finds the [VideoEncoderInfo] of the encoders created by
+             * [factory].
+             *
+             * Finders returned for the same factory are equal, so they can be used as cache keys.
+             */
+            @JvmStatic
+            public fun from(factory: VideoEncoderFactory): Finder = FactoryFinder(factory)
+        }
     }
+}
+
+/** A [VideoEncoderInfo.Finder] backed by a [VideoEncoderFactory]. */
+private data class FactoryFinder(private val factory: VideoEncoderFactory) :
+    VideoEncoderInfo.Finder {
+    override fun find(mimeType: String): VideoEncoderInfo? = factory.getEncoderInfo(mimeType)
 }
