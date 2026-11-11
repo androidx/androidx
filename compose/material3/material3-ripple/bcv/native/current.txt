@@ -6,6 +6,10 @@
 // - Show declarations: true
 
 // Library unique name: <androidx.compose.material3:material3-ripple>
+open annotation class androidx.compose.material3.ripple/ExperimentalMaterial3RippleApi : kotlin/Annotation { // androidx.compose.material3.ripple/ExperimentalMaterial3RippleApi|null[0]
+    constructor <init>() // androidx.compose.material3.ripple/ExperimentalMaterial3RippleApi.<init>|<init>(){}[0]
+}
+
 final class androidx.compose.material3.ripple/RippleNodeConfiguration { // androidx.compose.material3.ripple/RippleNodeConfiguration|null[0]
     constructor <init>(kotlin/Boolean, androidx.compose.ui.unit/Dp, androidx.compose.ui.graphics/ColorProducer, androidx.compose.material3.ripple/RippleNodeConfiguration.PressConfiguration, androidx.compose.material3.ripple/RippleNodeConfiguration.FocusConfiguration, androidx.compose.material3.ripple/RippleNodeConfiguration.HoverConfiguration, androidx.compose.material3.ripple/RippleNodeConfiguration.DragConfiguration) // androidx.compose.material3.ripple/RippleNodeConfiguration.<init>|<init>(kotlin.Boolean;androidx.compose.ui.unit.Dp;androidx.compose.ui.graphics.ColorProducer;androidx.compose.material3.ripple.RippleNodeConfiguration.PressConfiguration;androidx.compose.material3.ripple.RippleNodeConfiguration.FocusConfiguration;androidx.compose.material3.ripple.RippleNodeConfiguration.HoverConfiguration;androidx.compose.material3.ripple.RippleNodeConfiguration.DragConfiguration){}[0]
 
@@ -110,6 +114,13 @@ final class androidx.compose.material3.ripple/RippleNodeConfiguration { // andro
     }
 }
 
+final object androidx.compose.material3.ripple/ComposeMaterial3RippleFlags { // androidx.compose.material3.ripple/ComposeMaterial3RippleFlags|null[0]
+    final var isBorderRendererFocusRingEnabled // androidx.compose.material3.ripple/ComposeMaterial3RippleFlags.isBorderRendererFocusRingEnabled|{}isBorderRendererFocusRingEnabled[0]
+        final fun <get-isBorderRendererFocusRingEnabled>(): kotlin/Boolean // androidx.compose.material3.ripple/ComposeMaterial3RippleFlags.isBorderRendererFocusRingEnabled.<get-isBorderRendererFocusRingEnabled>|<get-isBorderRendererFocusRingEnabled>(){}[0]
+        final fun <set-isBorderRendererFocusRingEnabled>(kotlin/Boolean) // androidx.compose.material3.ripple/ComposeMaterial3RippleFlags.isBorderRendererFocusRingEnabled.<set-isBorderRendererFocusRingEnabled>|<set-isBorderRendererFocusRingEnabled>(kotlin.Boolean){}[0]
+}
+
+final val androidx.compose.material3.ripple/androidx_compose_material3_ripple_ComposeMaterial3RippleFlags$stableprop // androidx.compose.material3.ripple/androidx_compose_material3_ripple_ComposeMaterial3RippleFlags$stableprop|#static{}androidx_compose_material3_ripple_ComposeMaterial3RippleFlags$stableprop[0]
 final val androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration$stableprop // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration$stableprop|#static{}androidx_compose_material3_ripple_RippleNodeConfiguration$stableprop[0]
 final val androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_DragConfiguration_None$stableprop // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_DragConfiguration_None$stableprop|#static{}androidx_compose_material3_ripple_RippleNodeConfiguration_DragConfiguration_None$stableprop[0]
 final val androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_DragConfiguration_Opacity$stableprop // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_DragConfiguration_Opacity$stableprop|#static{}androidx_compose_material3_ripple_RippleNodeConfiguration_DragConfiguration_Opacity$stableprop[0]
@@ -121,6 +132,7 @@ final val androidx.compose.material3.ripple/androidx_compose_material3_ripple_Ri
 final val androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_PressConfiguration_None$stableprop // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_PressConfiguration_None$stableprop|#static{}androidx_compose_material3_ripple_RippleNodeConfiguration_PressConfiguration_None$stableprop[0]
 final val androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_PressConfiguration_Opacity$stableprop // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_PressConfiguration_Opacity$stableprop|#static{}androidx_compose_material3_ripple_RippleNodeConfiguration_PressConfiguration_Opacity$stableprop[0]
 
+final fun androidx.compose.material3.ripple/androidx_compose_material3_ripple_ComposeMaterial3RippleFlags$stableprop_getter(): kotlin/Int // androidx.compose.material3.ripple/androidx_compose_material3_ripple_ComposeMaterial3RippleFlags$stableprop_getter|androidx_compose_material3_ripple_ComposeMaterial3RippleFlags$stableprop_getter(){}[0]
 final fun androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration$stableprop_getter(): kotlin/Int // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration$stableprop_getter|androidx_compose_material3_ripple_RippleNodeConfiguration$stableprop_getter(){}[0]
 final fun androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_DragConfiguration_None$stableprop_getter(): kotlin/Int // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_DragConfiguration_None$stableprop_getter|androidx_compose_material3_ripple_RippleNodeConfiguration_DragConfiguration_None$stableprop_getter(){}[0]
 final fun androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_DragConfiguration_Opacity$stableprop_getter(): kotlin/Int // androidx.compose.material3.ripple/androidx_compose_material3_ripple_RippleNodeConfiguration_DragConfiguration_Opacity$stableprop_getter|androidx_compose_material3_ripple_RippleNodeConfiguration_DragConfiguration_Opacity$stableprop_getter(){}[0]

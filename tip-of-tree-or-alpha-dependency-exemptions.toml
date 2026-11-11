@@ -216,6 +216,12 @@ validThroughLibraryVersion = "1.0.0-beta01"
 reason = "b/TODO - <reason>"
 
 [[exemption]]
+library = "androidx.compose.material3:material3-ripple"
+dependsOn = "androidx.compose.foundation:foundation"
+validThroughLibraryVersion = "1.6.0-beta01"
+reason = "b/487676841 - uses androidx.compose.foundation.BorderRenderer for inset focus rings, which is not in a released foundation version yet"
+
+[[exemption]]
 library = "androidx.compose.remote.foundation:foundation"
 dependsOn = "androidx.compose.remote:remote-creation"
 validThroughLibraryVersion = "1.0.0-beta01"

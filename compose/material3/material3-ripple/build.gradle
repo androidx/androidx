@@ -31,7 +31,7 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.compose.material3.ripple"
-        compileSdk { version = release(37) }
+        compileSdk { version = release(37) { minorApiLevel = 1 } }
     }
     jvmStubs()
     linuxX64Stubs()
@@ -40,7 +40,9 @@ androidXMultiplatform {
 
     sourceSets {
         commonMain.dependencies {
-            api("androidx.compose.foundation:foundation:1.11.4")
+            // TODO: b/487676841 - switch back to a pinned version once a release containing
+            //  BorderRenderer is available.
+            api(project(":compose:foundation:foundation"))
             api("androidx.compose.runtime:runtime:1.11.4")
 
             implementation("androidx.collection:collection:1.7.0")
@@ -48,6 +50,10 @@ androidXMultiplatform {
             implementation("androidx.compose.ui:ui-util:1.11.4")
             // Older versions of lifecycle-runtime lint checks use a deleted lint API
             implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
+        }
+
+        androidMain.dependencies {
+            api("androidx.annotation:annotation-experimental:1.4.1")
         }
 
         androidDeviceTest.dependencies {
@@ -60,6 +66,8 @@ androidXMultiplatform {
         }
 
         androidHostTest.dependencies {
+            implementation(project(":compose:test-utils"))
+            implementation(project(":compose:foundation:foundation"))
             implementation(libs.testRules)
             implementation(libs.testRunner)
             implementation(libs.junit)
@@ -78,6 +86,7 @@ androidx {
 
     inceptionYear = "2026"
     description = "Building block APIs to build ripples that follow a Material 3 specification."
+    enableRobolectric()
     samples(project(":compose:material3:material3-ripple:material3-ripple-samples"))
 }
 
