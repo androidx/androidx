@@ -45,7 +45,6 @@ import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
@@ -2929,6 +2928,7 @@ class DraggableTest {
             rule.runOnIdle { assertThat(focusRequester.requestFocus()).isTrue() }
     }
 
+    @Composable
     private fun Modifier.draggable(
         orientation: Orientation,
         enabled: Boolean = true,
@@ -2938,9 +2938,9 @@ class DraggableTest {
         onDragStarted: (startedPosition: Offset) -> Unit = {},
         onDragStopped: (velocity: Float) -> Unit = {},
         onDrag: (Float) -> Unit,
-    ): Modifier = composed {
+    ): Modifier {
         val state = rememberDraggableState(onDrag)
-        draggable(
+        return draggable(
             orientation = orientation,
             enabled = enabled,
             reverseDirection = reverseDirection,
