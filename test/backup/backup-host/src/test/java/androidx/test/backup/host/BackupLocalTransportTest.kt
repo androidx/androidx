@@ -49,9 +49,9 @@ class BackupLocalTransportTest {
     @Test
     fun backupRunsOnTheLocalTransportThenSelectsTheOriginalOneAgain() = runBlocking {
         device.onShell { command ->
-            when {
-                command == "bmgr list transports" -> shellOutput(TRANSPORTS_WITH_GMS_SELECTED)
-                command.contains("resolve-activity") -> shellOutput("No activity found\n")
+            when (command) {
+                "dumpsys package $PACKAGE" -> shellOutput(packageDump(PACKAGE, stopped = false))
+                "bmgr list transports" -> shellOutput(TRANSPORTS_WITH_GMS_SELECTED)
                 else -> null
             }
         }
@@ -61,6 +61,7 @@ class BackupLocalTransportTest {
 
         assertEquals(
             listOf(
+                "dumpsys package $PACKAGE",
                 "bmgr enable true",
                 "bmgr list transports",
                 "bmgr transport '$LOCAL_TRANSPORT'",
@@ -68,7 +69,7 @@ class BackupLocalTransportTest {
                 "bmgr backupnow $PACKAGE",
                 "bmgr transport '$GMS_TRANSPORT'",
             ),
-            device.commands.dropWhile { !it.startsWith("bmgr") },
+            device.commands,
         )
         assertEquals(
             BackupLocalTransport.LocalBackup(PACKAGE, FAKE_SERIAL),
@@ -183,14 +184,22 @@ class BackupLocalTransportTest {
         assertTrue(device.commands.isEmpty(), "${device.commands}")
     }
 
-    /** Backup skips packages in the stopped state, so the package is woken up first. */
+    /** Backup skips packages in the stopped state, so the package is taken out of it first. */
     @Test
     fun backupUnstopsThePackageFirst() = runBlocking {
+        device.onShell { command ->
+            when (command) {
+                "dumpsys package $PACKAGE" -> shellOutput(packageDump(PACKAGE, stopped = true))
+                "pm unstop $PACKAGE" -> shellOutput("Package $PACKAGE new stopped state: false\n")
+                else -> null
+            }
+        }
+
         transport.backup(archive())
 
-        assertTrue(
-            device.commands.first().startsWith("am broadcast -a android.intent.action.MAIN"),
-            "Actual commands: ${device.commands}",
+        assertEquals(
+            listOf("dumpsys package $PACKAGE", "pm unstop $PACKAGE", "bmgr enable true"),
+            device.commands.take(3),
         )
     }
 

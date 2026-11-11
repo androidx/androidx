@@ -419,24 +419,47 @@ class BackupDeviceShellTest {
     }
 
     @Test
-    fun unstopPackageStartsTheLauncherActivityThenGoesHome() = runBlocking {
+    fun unstopPackageLeavesAPackageThatIsNotStoppedAlone() = runBlocking {
+        device.onShell { shellOutput(packageDump(PACKAGE, stopped = false)) }
+
+        shell.unstopPackage(PACKAGE)
+
+        assertEquals(listOf("dumpsys package $PACKAGE"), device.commands)
+    }
+
+    @Test
+    fun unstopPackageUnstopsAStoppedPackageWithPmUnstop() = runBlocking {
+        device.onShell(unstopAnswers(packageDump(PACKAGE, stopped = true)))
+
+        shell.unstopPackage(PACKAGE)
+
+        assertEquals(listOf("dumpsys package $PACKAGE", "pm unstop $PACKAGE"), device.commands)
+    }
+
+    /** Android versions without `pm unstop` report it as an unknown command. */
+    @Test
+    fun unstopPackageStartsTheLauncherActivityThenGoesHomeWithoutPmUnstop() = runBlocking {
         device.onShell { command ->
-            if (command.contains("resolve-activity")) {
-                shellOutput(RESOLVE_OUTPUT_PREFIX + "com.example.app/com.example.app.Main\$Inner\n")
-            } else {
-                shellOutput()
+            when {
+                command == "dumpsys package $PACKAGE" ->
+                    shellOutput(packageDump(PACKAGE, stopped = true))
+                command == "pm unstop $PACKAGE" ->
+                    shellOutput("Unknown command: unstop\n", exitCode = 255)
+                command.contains("resolve-activity") ->
+                    shellOutput(RESOLVE_OUTPUT_PREFIX + "$PACKAGE/$PACKAGE.Main\$Inner\n")
+                else -> shellOutput()
             }
         }
 
-        shell.unstopPackage("com.example.app")
+        shell.unstopPackage(PACKAGE)
 
         assertEquals(
             listOf(
-                "am broadcast -a android.intent.action.MAIN -p com.example.app " +
-                    "--include-stopped-packages",
-                "cmd package resolve-activity --brief -c android.intent.category.LAUNCHER " +
-                    "com.example.app",
-                "am start -W -n 'com.example.app/com.example.app.Main\$Inner'",
+                "dumpsys package $PACKAGE",
+                "pm unstop $PACKAGE",
+                "am broadcast -a android.intent.action.MAIN -p $PACKAGE --include-stopped-packages",
+                "cmd package resolve-activity --brief -c android.intent.category.LAUNCHER $PACKAGE",
+                "am start -W -n '$PACKAGE/$PACKAGE.Main\$Inner'",
                 "input keyevent KEYCODE_HOME",
             ),
             device.commands,
@@ -444,23 +467,88 @@ class BackupDeviceShellTest {
     }
 
     @Test
-    fun unstopPackageReliesOnTheBroadcastWithoutALauncher() = runBlocking {
+    fun unstopPackageReliesOnTheBroadcastWithoutPmUnstopAndWithoutALauncher() = runBlocking {
         device.onShell { command ->
-            if (command.contains("resolve-activity")) shellOutput("No activity found\n")
-            else shellOutput()
+            when {
+                command == "dumpsys package $PACKAGE" ->
+                    shellOutput(packageDump(PACKAGE, stopped = true))
+                command == "pm unstop $PACKAGE" ->
+                    shellOutput("Unknown command: unstop\n", exitCode = 255)
+                command.contains("resolve-activity") -> shellOutput("No activity found\n")
+                else -> shellOutput()
+            }
         }
 
-        shell.unstopPackage("com.example.app")
+        shell.unstopPackage(PACKAGE)
 
         assertEquals(
             listOf(
-                "am broadcast -a android.intent.action.MAIN -p com.example.app " +
-                    "--include-stopped-packages",
-                "cmd package resolve-activity --brief -c android.intent.category.LAUNCHER " +
-                    "com.example.app",
+                "dumpsys package $PACKAGE",
+                "pm unstop $PACKAGE",
+                "am broadcast -a android.intent.action.MAIN -p $PACKAGE --include-stopped-packages",
+                "cmd package resolve-activity --brief -c android.intent.category.LAUNCHER $PACKAGE",
             ),
             device.commands,
         )
+    }
+
+    /**
+     * Other users, a system package that an update replaced and other sections have state lines of
+     * their own. Only the line of user 0 in the entry of the installed package counts, in the form
+     * of every supported Android version.
+     */
+    @Test
+    fun unstopPackageReadsTheStateOfUser0InTheEntryOfTheInstalledPackage() = runBlocking {
+        for (fields in USER_STATE_FIELDS) {
+            for (stopped in listOf(true, false)) {
+                val device = FakeAdbDevice()
+                device.onShell(unstopAnswers(updatedSystemPackageDump(fields, stopped)))
+
+                BackupDeviceShell(device.session, FAKE_SERIAL).unstopPackage(PACKAGE)
+
+                assertEquals(
+                    listOf("dumpsys package $PACKAGE") +
+                        if (stopped) listOf("pm unstop $PACKAGE") else emptyList(),
+                    device.commands,
+                    "stopped=$stopped in: $fields",
+                )
+            }
+        }
+    }
+
+    /** A package whose state does not read as expected is unstopped, as it may be stopped. */
+    @Test
+    fun unstopPackageUnstopsAPackageWhoseStateItCannotRead() = runBlocking {
+        val notStopped = packageDump(PACKAGE, stopped = false)
+        val unreadable =
+            listOf(
+                "",
+                "Unable to find package: $PACKAGE\n",
+                // The entry of another package.
+                packageDump("$PACKAGE.other", stopped = false),
+                // An entry that is not the one of the installed package.
+                notStopped.replace("Packages:", "Hidden system packages:"),
+                // No state for user 0.
+                notStopped.replace("    User 0: ", "    User 10: "),
+                // Not a state that is known.
+                notStopped.replace("stopped=false", "stopped=0"),
+                // Another field that ends like the state.
+                notStopped.replace(" stopped=false", " unstopped=false"),
+                // An entry that ends before the state, at a line that is not indented.
+                notStopped.replace("    install permissions:", "install permissions:"),
+            )
+        for (dump in unreadable) {
+            val device = FakeAdbDevice()
+            device.onShell(unstopAnswers(dump))
+
+            BackupDeviceShell(device.session, FAKE_SERIAL).unstopPackage(PACKAGE)
+
+            assertEquals(
+                listOf("dumpsys package $PACKAGE", "pm unstop $PACKAGE"),
+                device.commands,
+                dump,
+            )
+        }
     }
 
     @Test
@@ -900,6 +988,59 @@ class BackupDeviceShellTest {
         )
     }
 
+    /**
+     * Returns a shell handler for a device with `pm unstop`, whose `dumpsys package` prints
+     * [packageDump] for [PACKAGE].
+     */
+    private fun unstopAnswers(packageDump: String): (String) -> ShellCommandOutput? = { command ->
+        when (command) {
+            "dumpsys package $PACKAGE" -> shellOutput(packageDump)
+            "pm unstop $PACKAGE" -> shellOutput("Package $PACKAGE new stopped state: false\n")
+            else -> shellOutput()
+        }
+    }
+
+    /**
+     * Returns what `dumpsys package` prints for [PACKAGE] as a system package that an update
+     * replaced, on a device with a second user. The state lines have [fields], one of
+     * [USER_STATE_FIELDS]. User 0 of the installed package is stopped or not as [stopped] says, and
+     * every other state line says the opposite.
+     */
+    private fun updatedSystemPackageDump(fields: String, stopped: Boolean): String {
+        fun entry(hash: String, stoppedForUser0: Boolean) =
+            "  Package [$PACKAGE] ($hash):\n" +
+                "    appId=10190\n" +
+                "    pkg=Package{d3f4a5b $PACKAGE}\n" +
+                // Android 16 QPR2 sets this line off with an empty one.
+                "\n" +
+                "    developerVerificationStatus=DeveloperVerificationStatusInternal { " +
+                "internalStatus = STATUS_UNKNOWN, appMetadataVerificationStatus = 0, " +
+                "liteVerification = false }\n" +
+                "    install permissions:\n" +
+                "      android.permission.INTERNET: granted=true\n" +
+                "    User 0: ${fields.format(stoppedForUser0)}\n" +
+                "      installReason=0\n" +
+                "    User 10: ${fields.format(!stopped)}\n" +
+                "      installReason=0\n"
+        return "Packages:\n" +
+            entry("9a8b7c6", stopped) +
+            "\n" +
+            "Hidden system packages:\n" +
+            entry("4f1d0c2", !stopped) +
+            "\n" +
+            "Queries:\n" +
+            "  queryable via interaction:\n" +
+            "    User 0:\n" +
+            "      com.android.shell:\n" +
+            "        $PACKAGE\n" +
+            "\n" +
+            "Shared users:\n" +
+            "  SharedUser [com.example.uid.shared] (e4d8072):\n" +
+            "    appId=10190\n" +
+            "    User 0: \n" +
+            "      gids=[3003]\n"
+    }
+
     private companion object {
         const val PACKAGE = "com.example.app"
         val STAGED_APK = Regex("""/data/local/tmp/backup_test_[0-9a-f-]{36}\.apk""")
@@ -907,5 +1048,20 @@ class BackupDeviceShellTest {
             "priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true\n"
         const val DEVICE_EPOCH_SECONDS = 1_700_000_000L
         val THIRTY_SECONDS: Duration = Duration.ofSeconds(30)
+
+        /**
+         * The fields of the line of `dumpsys package` with the state of a package for a user: as
+         * Android 12 to 14 print them, and as Android 14 QPR3 and higher do. `%s` stands for
+         * whether the package is stopped.
+         */
+        val USER_STATE_FIELDS =
+            listOf(
+                "ceDataInode=131450 installed=true hidden=false suspended=false " +
+                    "distractionFlags=0 stopped=%s notLaunched=false enabled=0 instant=false " +
+                    "virtual=false",
+                "ceDataInode=131450 deDataInode=131451 installed=true hidden=false " +
+                    "suspended=false distractionFlags=0 stopped=%s notLaunched=false enabled=0 " +
+                    "instant=false virtual=false quarantined=false",
+            )
     }
 }

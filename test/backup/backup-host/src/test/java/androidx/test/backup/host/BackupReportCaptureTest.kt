@@ -2249,6 +2249,8 @@ class BackupReportCaptureTest {
                             "(target=$PACKAGE)\n"
                     )
                 cmd.startsWith("am instrument ") -> shellOutput(runnerStdout(populatePayload))
+                cmd == "dumpsys package $PACKAGE" ->
+                    shellOutput(packageDump(PACKAGE, stopped = false))
                 cmd == "bmgr list transports" -> shellOutput("  * $LOCAL_TRANSPORT\n")
                 cmd == "date +%s" -> shellOutput("1700000100\n")
                 cmd.startsWith("logcat ") -> shellOutput(logcat)

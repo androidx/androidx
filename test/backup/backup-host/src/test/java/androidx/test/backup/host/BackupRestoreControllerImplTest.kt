@@ -719,6 +719,16 @@ class BackupRestoreControllerImplTest {
         assertTrue(archive.toFile().isFile)
     }
 
+    /** The backup service backs up an app that is not stopped as it is, without a launch. */
+    @Test
+    fun performBackupOfACloudBackupLeavesAnAppThatIsNotStoppedAlone() = runBlocking {
+        onHealthyDevice()
+
+        controller.performBackup(BackupTransportMode.CLOUD_ENCRYPTED, outputDir())
+
+        assertEquals(listOf("dumpsys package $PACKAGE"), device.commands)
+    }
+
     /** A backup without app data cannot be restored into the data the test expects. */
     @Test
     fun performBackupThrowsAndDeletesTheArchiveWhenItHoldsNoAppData() {
@@ -1112,7 +1122,6 @@ class BackupRestoreControllerImplTest {
         val stageCommands =
             listOf(
                     BackupRestoreController.ACTION_POPULATE_STORAGE,
-                    "am force-stop",
                     "bmgr backupnow $PACKAGE",
                     "pm clear",
                     "bmgr restore",
@@ -1155,11 +1164,28 @@ class BackupRestoreControllerImplTest {
         )
     }
 
+    /** The seed actions leave the app without a process and not stopped, ready for a backup. */
     @Test
-    fun flowAttributesAStopFailureToTheBackup() {
+    fun flowNeitherStopsNorLaunchesTheAppBeforeTheBackup() {
+        onHealthyDevice()
+
+        runBlocking { controller.runBackupRestoreFlow(PREFERENCE, outputDir(), LOCAL) }
+
+        val seed =
+            device.commands.indexOfFirst {
+                it.contains(BackupRestoreController.ACTION_POPULATE_STORAGE)
+            }
+        val backup = device.commands.indexOfFirst { it.startsWith("bmgr") }
+        assertEquals(
+            listOf("dumpsys package $PACKAGE"),
+            device.commands.subList(seed + 1, backup),
+        )
+    }
+
+    @Test
+    fun flowAttributesAFailureToReadTheStoppedStateToTheBackup() {
         onHealthyDevice { command ->
-            if (command.startsWith("am force-stop")) throw IOException("Failed to stop process")
-            else null
+            if (command.startsWith("dumpsys package")) throw IOException("device offline") else null
         }
 
         assertFailsWith<IOException> {
@@ -1675,6 +1701,8 @@ class BackupRestoreControllerImplTest {
                 ?: when {
                     command.startsWith("am instrument") -> shellOutput(runnerStdout("{}"))
                     command.startsWith("pm clear") -> shellOutput("Success\n")
+                    command == "dumpsys package $PACKAGE" ->
+                        shellOutput(packageDump(PACKAGE, stopped = false))
                     command == "bmgr list transports" -> shellOutput("  * $LOCAL_TRANSPORT\n")
                     else -> null
                 }
