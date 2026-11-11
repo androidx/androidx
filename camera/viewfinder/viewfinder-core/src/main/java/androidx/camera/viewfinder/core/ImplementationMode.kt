@@ -37,7 +37,8 @@ public enum class ImplementationMode(private val id: Int) {
     /**
      * Use a SurfaceView/AndroidExternalSurface for the Viewfinder when possible. It has somewhat
      * lower latency and less performance and power overhead. It offers more control on a single
-     * drawing board, but does not support certain animations.
+     * drawing board, but does not support certain animations or rotating
+     * [TransformationMode.PRE_APPLIED] content below API level 29.
      */
     EXTERNAL(0),
 

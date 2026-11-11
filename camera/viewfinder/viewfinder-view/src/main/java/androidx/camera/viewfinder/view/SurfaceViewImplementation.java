@@ -25,10 +25,13 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import androidx.annotation.UiThread;
+import androidx.camera.viewfinder.core.ImplementationMode;
+import androidx.camera.viewfinder.core.TransformationMode;
 import androidx.camera.viewfinder.core.ViewfinderSurfaceRequest;
 import androidx.camera.viewfinder.core.impl.PixelCopyCompat;
 import androidx.camera.viewfinder.core.impl.RefCounted;
 import androidx.camera.viewfinder.core.impl.SurfaceControlCompat;
+import androidx.camera.viewfinder.core.impl.Transformations;
 import androidx.camera.viewfinder.view.internal.utils.Logger;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.content.ContextCompat;
@@ -74,6 +77,17 @@ final class SurfaceViewImplementation extends ViewfinderImplementation {
     // Guarded by the UI thread.
     private SurfaceControlCompat mActiveSurfaceControl = null;
 
+    // Intermediate SurfaceControl between the SurfaceView and mActiveSurfaceControl. The content
+    // is rotated by transforming the geometry of this layer, since the buffer transform of
+    // mActiveSurfaceControl is controlled by the frame producer. On API < 29, this is a stub and
+    // has no effect.
+    // Guarded by the UI thread.
+    private SurfaceControlCompat mActiveRotationSurfaceControl = null;
+
+    // The clockwise rotation applied to the content of mActiveRotationSurfaceControl.
+    // Guarded by the UI thread.
+    private int mContentRotationDegrees = 0;
+
     // The cached size of the current Surface.
     // Guarded by the UI thread.
     private int mCurrentSurfaceWidth = -1;
@@ -92,22 +106,33 @@ final class SurfaceViewImplementation extends ViewfinderImplementation {
         public void surfaceChanged(@NonNull SurfaceHolder surfaceHolder, int format, int width,
                 int height) {
             Logger.d(TAG, "Surface changed. Size: " + width + "x" + height);
+            int prevWidth = mCurrentSurfaceWidth;
+            int prevHeight = mCurrentSurfaceHeight;
             mCurrentSurfaceWidth = width;
             mCurrentSurfaceHeight = height;
 
             if (mActiveSurface == null) {
-                SurfaceControlCompat surfaceControl =
-                        mActiveSurfaceControl = SurfaceControlCompat.create(
+                SurfaceControlCompat rotationSurfaceControl =
+                        mActiveRotationSurfaceControl = SurfaceControlCompat.create(
                                 mSurfaceView,
                                 format,
                                 width,
                                 height,
-                                "SurfaceViewImplementation"
+                                "SurfaceViewImplementation-Rotation"
+                        );
+                SurfaceControlCompat surfaceControl =
+                        mActiveSurfaceControl = SurfaceControlCompat.create(
+                                rotationSurfaceControl,
+                                width,
+                                height,
+                                "SurfaceViewImplementation",
+                                format
                         );
 
                 mActiveSurface = new RefCounted<>(false, (surface) -> {
                     surface.release();
                     surfaceControl.release();
+                    rotationSurfaceControl.release();
                     return Unit.INSTANCE;
                 });
 
@@ -117,8 +142,21 @@ final class SurfaceViewImplementation extends ViewfinderImplementation {
                 } else {
                     mActiveSurface.initialize(surfaceHolder.getSurface());
                 }
-            } else if (mActiveSurfaceControl != null) {
-                mActiveSurfaceControl.setBufferSize(width, height);
+                // Apply the rotation immediately, before any frame is produced to the surface.
+                mContentRotationDegrees = 0;
+                updateContentRotation(/* syncView= */ null, /* force= */ false);
+            } else {
+                boolean sizeChanged = width != prevWidth || height != prevHeight;
+                if (sizeChanged) {
+                    if (mActiveRotationSurfaceControl != null) {
+                        mActiveRotationSurfaceControl.setBufferSize(width, height);
+                    }
+                    if (mActiveSurfaceControl != null) {
+                        mActiveSurfaceControl.setBufferSize(width, height);
+                    }
+                }
+                // The rotated content is fitted to the size of the surface.
+                updateContentRotation(mSurfaceView, /* force= */ sizeChanged);
             }
             tryToComplete();
         }
@@ -130,8 +168,8 @@ final class SurfaceViewImplementation extends ViewfinderImplementation {
             // If a surface was already provided to the camera, invalidate it so that it requests
             // a new valid one. Otherwise, cancel the surface request.
             if (mActiveSurface != null) {
-                if (mActiveSurfaceControl != null) {
-                    mActiveSurfaceControl.detach();
+                if (mActiveRotationSurfaceControl != null) {
+                    mActiveRotationSurfaceControl.detach();
                 }
 
                 invalidateSurface();
@@ -143,6 +181,7 @@ final class SurfaceViewImplementation extends ViewfinderImplementation {
             // Reset state
             mActiveSurface = null;
             mActiveSurfaceControl = null;
+            mActiveRotationSurfaceControl = null;
             mCurrentSurfaceWidth = -1;
             mCurrentSurfaceHeight = -1;
         }
@@ -198,6 +237,45 @@ final class SurfaceViewImplementation extends ViewfinderImplementation {
     @Override
     void onImplementationReplaced() {
         cancelPreviousRequest();
+    }
+
+    @Override
+    void redrawViewfinder() {
+        super.redrawViewfinder();
+        updateContentRotation(mSurfaceView, /* force= */ false);
+    }
+
+    /**
+     * Rotates the content of the active surface by the remaining source rotation of
+     * {@link TransformationMode#PRE_APPLIED} sources, consistent with how the source rotation is
+     * used to scale the {@link SurfaceView}.
+     *
+     * <p>A {@link SurfaceView} can't be rotated by View transformations, so the rotation is
+     * applied to the geometry of the intermediate {@link android.view.SurfaceControl} instead. This
+     * is a no-op on API levels where {@link SurfaceControlCompat} is not supported.
+     *
+     * @param syncView The view whose next frame the change is synchronized with, if any.
+     * @param force Whether to apply the rotation even if it did not change.
+     */
+    @UiThread
+    private void updateContentRotation(@Nullable View syncView, boolean force) {
+        SurfaceControlCompat rotationSurfaceControl = mActiveRotationSurfaceControl;
+        if (rotationSurfaceControl == null || mCurrentSurfaceWidth <= 0
+                || mCurrentSurfaceHeight <= 0) {
+            return;
+        }
+        // The content rotation of a SurfaceView does not depend on the display rotation.
+        int rotationDegrees = Transformations.getContentRotationDegrees(
+                getViewfinderTransformation().getTransformationInfo(),
+                Surface.ROTATION_0,
+                ImplementationMode.EXTERNAL);
+        if (!force && rotationDegrees == mContentRotationDegrees) {
+            return;
+        }
+        if (rotationSurfaceControl.setContentRotation(rotationDegrees, mCurrentSurfaceWidth,
+                mCurrentSurfaceHeight, syncView)) {
+            mContentRotationDegrees = rotationDegrees;
+        }
     }
 
     /**

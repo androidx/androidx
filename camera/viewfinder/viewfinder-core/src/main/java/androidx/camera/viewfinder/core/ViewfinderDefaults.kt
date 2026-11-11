@@ -25,7 +25,9 @@ public object ViewfinderDefaults {
      *
      * This value is determined by checking for known device quirks and API level limitations. It
      * will be [ImplementationMode.EMBEDDED] on devices with known issues (such as on API level 24
-     * and below), and the higher-performance [ImplementationMode.EXTERNAL] otherwise.
+     * and below), and the higher-performance [ImplementationMode.EXTERNAL] otherwise. Note that
+     * `Viewfinder` and `ViewfinderView` also fall back to [ImplementationMode.EMBEDDED] by default
+     * on API levels below 29 for [TransformationMode.PRE_APPLIED] sources.
      */
     @JvmStatic
     public val implementationMode: ImplementationMode

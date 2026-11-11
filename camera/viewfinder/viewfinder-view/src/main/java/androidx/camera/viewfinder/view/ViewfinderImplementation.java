@@ -53,6 +53,11 @@ abstract class ViewfinderImplementation {
 
     abstract @Nullable View getViewfinder();
 
+    /** Returns the transformation applied to the viewfinder. */
+    @NonNull ViewfinderTransformation getViewfinderTransformation() {
+        return mViewfinderTransformation;
+    }
+
     abstract void onSurfaceRequested(@NonNull ViewfinderSurfaceRequest surfaceRequest,
             CallbackToFutureAdapter.Completer<RefCounted<Surface>> surfaceResponse);
 

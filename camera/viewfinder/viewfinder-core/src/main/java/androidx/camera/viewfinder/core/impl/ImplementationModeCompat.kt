@@ -18,6 +18,8 @@ package androidx.camera.viewfinder.core.impl
 
 import android.os.Build
 import androidx.camera.viewfinder.core.ImplementationMode
+import androidx.camera.viewfinder.core.TransformationMode
+import androidx.camera.viewfinder.core.TransformationModeValue
 import androidx.camera.viewfinder.core.impl.quirk.DeviceQuirks
 import androidx.camera.viewfinder.core.impl.quirk.SurfaceViewNotCroppedByParentQuirk
 import androidx.camera.viewfinder.core.impl.quirk.SurfaceViewStretchedQuirk
@@ -52,5 +54,36 @@ public class ImplementationModeCompat {
             } else {
                 ImplementationMode.EXTERNAL
             }
+
+        /**
+         * Returns the [ImplementationMode] to use to display a source with the given
+         * [transformationMode].
+         *
+         * When [implementationMode] is non-null, it is respected and returned unchanged. Otherwise,
+         * a compatible default is chosen via [chooseCompatibleMode], additionally falling back to
+         * [ImplementationMode.EMBEDDED] on API levels below 29 for [TransformationMode.PRE_APPLIED]
+         * sources because [ImplementationMode.EXTERNAL] cannot rotate their content on those API
+         * levels. The result only depends on the transformation mode, not on the current source
+         * rotation, so that the implementation does not change when the source rotation changes.
+         *
+         * @param implementationMode The requested [ImplementationMode], or `null` to choose a
+         *   compatible default.
+         * @param transformationMode The [TransformationMode] of the source.
+         * @return The [ImplementationMode] to use.
+         */
+        @JvmStatic
+        public fun resolveImplementationMode(
+            implementationMode: ImplementationMode?,
+            @TransformationModeValue transformationMode: Int,
+        ): ImplementationMode =
+            implementationMode
+                ?: if (
+                    Build.VERSION.SDK_INT < Build.VERSION_CODES.Q &&
+                        transformationMode == TransformationMode.PRE_APPLIED
+                ) {
+                    ImplementationMode.EMBEDDED
+                } else {
+                    chooseCompatibleMode()
+                }
     }
 }
