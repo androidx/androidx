@@ -120,8 +120,7 @@ internal constructor(
         )
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
+    internal override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         Utils.idFromNan(creationState.document.matrixExpression(*arrayProvider(creationState)))
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

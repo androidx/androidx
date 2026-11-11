@@ -22,12 +22,15 @@ import androidx.compose.remote.core.operations.ComponentValue
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.layout.RemoteComponentToken
-import androidx.compose.remote.creation.compose.state.AnimatedRemoteFloat
 import androidx.compose.remote.creation.compose.state.BaseRemoteStateCacheKey
-import androidx.compose.remote.creation.compose.state.RemoteFloatExpression
-import androidx.compose.remote.creation.compose.state.RemoteIntExpression
+import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
+import androidx.compose.remote.creation.compose.state.MutableRemoteInt
+import androidx.compose.remote.creation.compose.state.RemoteConstantCacheKey
+import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteOperationCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
+import androidx.compose.remote.creation.compose.state.RemoteStateIdKey
 import androidx.compose.remote.creation.compose.state.nanIdContentEquals
 import androidx.compose.remote.creation.compose.state.nanIdContentHashCode
 
@@ -443,10 +446,10 @@ public open class RemoteComposeCreationState : RemoteDocumentScope {
 
 private fun RemoteStateCacheKey.isCanvasScopedExpressionKey(): Boolean {
     if (this is RemoteOperationCacheKey) return true
+    if (this is RemoteConstantCacheKey || this is RemoteStateIdKey) return false
     val state = (this as? BaseRemoteStateCacheKey)?.getState() ?: return false
-    return state is RemoteFloatExpression ||
-        state is AnimatedRemoteFloat ||
-        state is RemoteIntExpression
+    return (state is RemoteFloat && state !is MutableRemoteFloat) ||
+        (state is RemoteInt && state !is MutableRemoteInt)
 }
 
 /**

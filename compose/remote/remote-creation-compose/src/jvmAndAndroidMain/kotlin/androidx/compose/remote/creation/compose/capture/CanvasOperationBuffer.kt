@@ -441,7 +441,7 @@ internal sealed class CanvasOp {
     /** Represents an expression evaluation (hoisted variable assignment). */
     class Expression(val key: RemoteOperationCacheKey, val state: BaseRemoteState<*>) : CanvasOp() {
         override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCaptureState) {
-            creationState.getOrPutVariableId(key) { state.writeToDocument(creationState) }
+            state.getIdForCreationState(creationState)
         }
 
         // Variable/expression definition only; does not draw pixels directly.

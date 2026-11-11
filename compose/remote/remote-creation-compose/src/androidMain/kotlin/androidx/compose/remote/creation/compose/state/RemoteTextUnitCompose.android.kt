@@ -88,22 +88,5 @@ public fun TextUnit.asRemoteTextUnit(): RemoteTextUnit {
  */
 public fun Dp.toRsp(): RemoteTextUnit {
     check(isSpecified) { "Dp conversion not possible for unspecified Dp" }
-    return RemoteTextUnit(
-        value =
-            RemoteFloatExpression(
-                constantValueOrNull = null,
-                cacheKey = RemoteOperationCacheKey.create(TextUnitComposeOp.DpToSp, value),
-            ) { creationState ->
-                val fontScale = creationState.remoteDensity.fontScale
-                (value.rf / fontScale).arrayForCreationState(creationState)
-            },
-        type = RemoteTextUnitType.Sp,
-    )
-}
-
-internal enum class TextUnitComposeOp : RemoteOperation {
-    DpToSp;
-
-    override fun toDebugString(args: List<RemoteStateCacheKey>): String =
-        "${args[0].toDebugString()}.dpToSp()"
+    return value.rdp.toRsp()
 }

@@ -22,16 +22,23 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.annotation.RememberInComposition
 
 /**
- * Abstract base class for all remote long representations. This class extends [RemoteState<Long>].
+ * Read-only supertype for all remote 64-bit integer representations.
+ *
+ * [RemoteLong] represents a 64-bit signed integer value that may be a constant, a named variable,
+ * or a dynamic expression. For writable long variables, see [MutableRemoteLong].
+ *
+ * Operations on [RemoteLong] are evaluated dynamically on the remote player at runtime unless all
+ * inputs are known constants, in which case constant folding evaluates the result immediately at
+ * creation time (see [RemoteState]).
  */
 @Stable
 public open class RemoteLong
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public constructor(
+internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val low: RemoteInt,
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val high: RemoteInt,
     cacheKey: RemoteStateCacheKey =
         RemoteOperationCacheKey.create(RemoteLongOp.FromLowHigh, low, high),
+    private val idProvider: ((creationState: RemoteComposeCreationState) -> Int)? = null,
 ) : BaseRemoteState<Long>(cacheKey) {
 
     @get:Suppress("AutoBoxing")
@@ -45,15 +52,20 @@ public constructor(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun toDebugString(): String = constantValueOrNull?.toString() ?: super.toDebugString()
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
-        throw UnsupportedOperationException("RemoteLong cannot be directly written to document yet")
+    internal override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
+        val provider =
+            idProvider
+                ?: throw UnsupportedOperationException(
+                    "RemoteLong cannot be directly written to document yet"
+                )
+        return provider(creationState)
     }
 
     /**
      * Returns a new [RemoteLong] that evaluates to this [RemoteLong] plus [other].
      *
      * @param other The [RemoteLong] to add.
+     * @return A new [RemoteLong] representing `this + other`.
      */
     public operator fun plus(other: RemoteLong): RemoteLong {
         // Emulates 64-bit addition using 32-bit integer arithmetic (Multiple-precision arithmetic).
@@ -75,6 +87,7 @@ public constructor(
      * Returns a new [RemoteLong] that evaluates to this [RemoteLong] minus [other].
      *
      * @param other The [RemoteLong] to subtract.
+     * @return A new [RemoteLong] representing `this - other`.
      */
     public operator fun minus(other: RemoteLong): RemoteLong {
         // Emulates 64-bit subtraction using 32-bit integer arithmetic (Multiple-precision
@@ -99,6 +112,7 @@ public constructor(
      * Returns a new [RemoteLong] that evaluates to this [RemoteLong] times [other].
      *
      * @param other The [RemoteLong] to multiply by.
+     * @return A new [RemoteLong] representing `this * other`.
      */
     public operator fun times(other: RemoteLong): RemoteLong {
         // Emulates 64-bit multiplication using 32-bit integer arithmetic.
@@ -141,28 +155,14 @@ public constructor(
     }
 
     /**
-     * Returns a [RemoteInt] that evaluates to the truncating conversion of the lower 32 bits of the
-     * [RemoteLong].
+     * Returns a [RemoteInt] that evaluates to the truncating conversion of the lower 32 bits of
+     * this [RemoteLong].
+     *
+     * @return A [RemoteInt] representing the lower 32 bits of this [RemoteLong].
      */
     public fun toRemoteInt(): RemoteInt = low
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
-        /**
-         * Creates a [RemoteLong] instance from a constant [Long] value. This value will be added as
-         * a constant to the remote document.
-         *
-         * @param value The constant [Long] value.
-         * @return A [RemoteLong] representing the constant value.
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public operator fun invoke(value: Long): RemoteLong {
-            return MutableRemoteLong(value, cacheKey = RemoteConstantCacheKey(value)) {
-                creationState ->
-                creationState.document.addLong(value)
-            }
-        }
-
         /**
          * Creates a [RemoteLong] referencing a remote ID.
          *
@@ -180,7 +180,6 @@ public constructor(
          * @return A [RemoteLong] representing the combination of low and high.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @JvmStatic
         public fun fromLowHigh(low: RemoteInt, high: RemoteInt): RemoteLong {
             return RemoteLong(low, high)
         }
@@ -222,12 +221,12 @@ internal constructor(
     cacheKey: RemoteStateCacheKey,
     low: RemoteInt =
         constantValueOrNull?.let { RemoteInt(it.toInt()) }
-            ?: RemoteIntExpression(null, RemoteStateInstanceKey()) {
+            ?: RemoteInt(null, RemoteStateInstanceKey()) {
                 throw UnsupportedOperationException("Cannot extract low from dynamic RemoteLong")
             },
     high: RemoteInt =
         constantValueOrNull?.let { RemoteInt((it shr 32).toInt()) }
-            ?: RemoteIntExpression(null, RemoteStateInstanceKey()) {
+            ?: RemoteInt(null, RemoteStateInstanceKey()) {
                 throw UnsupportedOperationException("Cannot extract high from dynamic RemoteLong")
             },
     private val idProvider: (creationState: RemoteComposeCreationState) -> Int,
@@ -244,50 +243,51 @@ internal constructor(
         id: Int
     ) : this(constantValueOrNull = null, cacheKey = RemoteStateIdKey(id), idProvider = { id })
 
-    /**
-     * Creates a [MutableRemoteLong] initialized with [initialValue].
-     *
-     * @param initialValue The initial [Long] value.
-     */
-    @RememberInComposition
-    public constructor(
-        initialValue: Long
-    ) : this(
-        constantValueOrNull = initialValue,
-        cacheKey = RemoteStateInstanceKey(),
-        idProvider = { creationState -> creationState.document.addLong(initialValue) },
-    )
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
+    internal override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         idProvider(creationState)
 
     public override fun toString(): String {
         return "MutableRemoteLong@${this.hashCode()} =" + constantValueOrNull
     }
 
-    public companion object {
-        /**
-         * Creates a new mutable state (allocates an ID).
-         *
-         * @param initialValue The initial value for the state.
-         * @return A new [MutableRemoteLong] instance.
-         */
-        @RememberInComposition
-        public operator fun invoke(initialValue: Long): MutableRemoteLong {
-            return MutableRemoteLong(initialValue)
-        }
-
+    internal companion object {
         /**
          * Maps an existing mutable ID to a state instance.
          *
          * @param id The existing mutable ID.
          * @return A [MutableRemoteLong] instance mapping to the ID.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun createMutableForId(id: Int): MutableRemoteLong = MutableRemoteLong(id)
+        internal fun createMutableForId(id: Int): MutableRemoteLong = MutableRemoteLong(id)
     }
 }
+
+/**
+ * Creates a [RemoteLong] from a constant [Long] [value].
+ *
+ * @param value The constant [Long] value.
+ * @return A [RemoteLong] representing the constant long.
+ */
+public fun RemoteLong(value: Long): RemoteLong =
+    RemoteLong(
+        low = RemoteInt(value.toInt()),
+        high = RemoteInt((value shr 32).toInt()),
+        cacheKey = RemoteConstantCacheKey(value),
+        idProvider = { creationState -> creationState.document.addLong(value) },
+    )
+
+/**
+ * Creates a [MutableRemoteLong] initialized with [initialValue].
+ *
+ * @param initialValue The initial [Long] value.
+ * @return A [MutableRemoteLong] initialized with [initialValue].
+ */
+@RememberInComposition
+public fun MutableRemoteLong(initialValue: Long): MutableRemoteLong =
+    MutableRemoteLong(
+        constantValueOrNull = initialValue,
+        cacheKey = RemoteStateInstanceKey(),
+        idProvider = { creationState -> creationState.document.addLong(initialValue) },
+    )
 
 internal enum class RemoteLongOp(val symbol: String? = null) : RemoteOperation {
     FromLowHigh,

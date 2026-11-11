@@ -21,13 +21,20 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 import androidx.compose.runtime.Stable
 
 /**
- * A readable but not writable Remote Compose State value.
+ * A read-only Remote Compose state value.
  *
- * `RemoteState` represents a value that is available during remote document creation. It may
- * represent either a constant value or a dynamic expression that evaluates on the remote rendering
- * engine.
+ * [RemoteState] represents a value available during remote document creation — either a known
+ * constant or a dynamic expression evaluated on the remote player at runtime. Typed subtypes (such
+ * as [RemoteFloat] and [RemoteInt]) are read-only supertypes, while [MutableRemoteState] subtypes
+ * (such as [MutableRemoteFloat] and [MutableRemoteInt]) represent writable variables, analogous to
+ * `State` and `MutableState`.
  *
- * In Remote Compose recording mode, a type-specific ID is used to refer to this state within
+ * **Dynamic evaluation and constant folding:** Operations on [RemoteState] values typically record
+ * expressions that are evaluated dynamically on the remote player at runtime as inputs change.
+ * However, if all input operands have a known constant value ([hasConstantValue] is `true`),
+ * constant folding evaluates the result immediately at creation time into a constant [RemoteState].
+ *
+ * In Remote Compose recording mode, a type-specific ID is used to refer to a dynamic state within
  * [RemoteComposeCreationState].
  *
  * @param T The type of the value held by this state.
@@ -67,10 +74,13 @@ public interface RemoteState<T> {
      * The [Domain] namespaces named [RemoteState] variables so document-specific, host-defined, and
      * shared values do not collide.
      *
-     * Named states are recorded in a remote document under `<namespace>:<name>` (or bare `<name>`
-     * for [None]; see [prefixed]). Hosts update these variables at playback without re-recording
-     * the document, and can inspect a document's declared variable names to push only the domains
-     * that document reads:
+     * Named states — created via APIs such as [RemoteFloat.createNamedRemoteFloat],
+     * [RemoteInt.createNamedRemoteInt], [RemoteBoolean.createNamedRemoteBoolean],
+     * [RemoteString.createNamedRemoteString], and [RemoteColor.createNamedRemoteColor] — are
+     * recorded in a remote document under `<namespace>:<name>` (or bare `<name>` for [None]; see
+     * [prefixed]). Hosts update these variables at playback without re-recording the document, and
+     * can inspect a document's declared variable names to push only the domains that document
+     * reads:
      * - [User] (`"USER"`): Document-defined state supplied by the host specifically for a single
      *   document. Its meaning is only known for that document (for example, `"shutter.is_open"` for
      *   a card's bound device slot).
@@ -179,6 +189,8 @@ public interface RemoteState<T> {
         /**
          * Returns this domain's namespace (for example, `"USER"`, `"SYSTEM"`, or `"HOME"`), or `""`
          * for [None].
+         *
+         * @return the domain namespace string, or `""` if unprefixed
          */
         override fun toString(): String {
             return coreDomain ?: ""
@@ -287,8 +299,11 @@ public constructor(initialCacheKey: RemoteStateCacheKey) : RemoteState<T> {
      * @param creationState The [RemoteComposeCreationState] to write to.
      * @return The ID allocated by the [androidx.compose.remote.creation.RemoteComposeWriter].
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public abstract fun writeToDocument(creationState: RemoteComposeCreationState): Int
+    internal open fun writeToDocument(creationState: RemoteComposeCreationState): Int {
+        throw UnsupportedOperationException(
+            "${this::class.simpleName} must override writeToDocument or getIdForCreationState"
+        )
+    }
 }
 
 /**

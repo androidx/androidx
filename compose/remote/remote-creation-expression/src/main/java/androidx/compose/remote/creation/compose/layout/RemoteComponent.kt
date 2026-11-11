@@ -23,23 +23,7 @@ import androidx.compose.runtime.Stable
 
 /** Dynamic layout measurements of a RemoteCompose component in pixels. */
 @Stable
-public class RemoteComponent private constructor(private val context: RemoteFloatContext) {
-    /**
-     * Creates a [RemoteComponent] backed by [scope].
-     *
-     * @param scope [RemoteDocumentScope] providing the active component or target document
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public constructor(scope: RemoteDocumentScope) : this(RemoteFloatContext(scope))
-
-    /**
-     * Creates a [RemoteComponent] bound to [token].
-     *
-     * @param token identity token of the target layout component
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public constructor(token: RemoteComponentToken) : this(RemoteFloatContext(token))
-
+public class RemoteComponent internal constructor(private val context: RemoteFloatContext) {
     /** Width of this component in pixels. */
     public val width: RemoteFloat
         get() = context.componentWidth()
@@ -75,3 +59,21 @@ public class RemoteComponent private constructor(private val context: RemoteFloa
 
     override fun hashCode(): Int = context.hashCode()
 }
+
+/**
+ * Creates a [RemoteComponent] backed by [scope].
+ *
+ * @param scope [RemoteDocumentScope] providing the active component or target document
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteComponent(scope: RemoteDocumentScope): RemoteComponent =
+    RemoteComponent(RemoteFloatContext(scope))
+
+/**
+ * Creates a [RemoteComponent] bound to [token].
+ *
+ * @param token identity token of the target layout component
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteComponent(token: RemoteComponentToken): RemoteComponent =
+    RemoteComponent(RemoteFloatContext(token))

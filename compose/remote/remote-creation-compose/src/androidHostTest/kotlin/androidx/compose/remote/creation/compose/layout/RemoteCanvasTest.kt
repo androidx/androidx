@@ -1556,18 +1556,7 @@ class RemoteCanvasTest {
 
     @Test
     fun testDrawToOffscreenBitmapBuffered() {
-        val dummyBitmap =
-            object :
-                RemoteImageBitmap(
-                    null,
-                    RemoteOperationCacheKey(DummyEnum.VALUE, emptyList<RemoteStateCacheKey>()),
-                ) {
-
-                override fun writeToDocument(creationState: RemoteComposeCreationState): Int = 456
-
-                override fun getIdForCreationState(creationState: RemoteComposeCreationState): Int =
-                    456
-            }
+        val dummyBitmap = RemoteImageBitmap.createForId(456)
 
         remoteCanvas.drawToOffscreenBitmap(dummyBitmap) {
             remoteCanvas.drawRect(66f.rf, 67f.rf, 68f.rf, 69f.rf, RemotePaint())
@@ -1588,31 +1577,8 @@ class RemoteCanvasTest {
 
     @Test
     fun testDrawToOffscreenBitmap_Nested_StateImbalance() {
-        val outerBitmap =
-            object :
-                RemoteImageBitmap(
-                    null,
-                    RemoteOperationCacheKey(DummyEnum.VALUE, emptyList<RemoteStateCacheKey>()),
-                ) {
-
-                override fun writeToDocument(creationState: RemoteComposeCreationState): Int = 100
-
-                override fun getIdForCreationState(creationState: RemoteComposeCreationState): Int =
-                    100
-            }
-
-        val innerBitmap =
-            object :
-                RemoteImageBitmap(
-                    null,
-                    RemoteOperationCacheKey(DummyEnum.VALUE, emptyList<RemoteStateCacheKey>()),
-                ) {
-
-                override fun writeToDocument(creationState: RemoteComposeCreationState): Int = 200
-
-                override fun getIdForCreationState(creationState: RemoteComposeCreationState): Int =
-                    200
-            }
+        val outerBitmap = RemoteImageBitmap.createForId(100)
+        val innerBitmap = RemoteImageBitmap.createForId(200)
 
         remoteCanvas.drawToOffscreenBitmap(outerBitmap, android.graphics.Color.TRANSPARENT) {
             remoteCanvas.save()

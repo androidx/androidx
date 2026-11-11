@@ -108,7 +108,7 @@ class RemoteStateCreationTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 val namedLong = remember { createNamedRemoteLong("testLong", 42L) }
-                namedLong.writeToDocument(LocalRemoteComposeCreationState.current)
+                namedLong.getIdForCreationState(LocalRemoteComposeCreationState.current)
             }
 
         // No way to test this currently
@@ -146,8 +146,8 @@ class RemoteStateCreationTest {
 
                     val selectedFloat = namedBoolean.select(namedFloat, 0f.rf)
                     val selectedInt = namedBoolean.select(namedInt, 0.ri)
-                    selectedFloat.writeToDocument(LocalRemoteComposeCreationState.current)
-                    selectedInt.writeToDocument(LocalRemoteComposeCreationState.current)
+                    selectedFloat.getIdForCreationState(LocalRemoteComposeCreationState.current)
+                    selectedInt.getIdForCreationState(LocalRemoteComposeCreationState.current)
                 }
             assertThat(coreDoc.getNamedVariables(NamedVariable.FLOAT_TYPE))
                 .asList()
@@ -448,13 +448,13 @@ class RemoteStateCreationTest {
     fun creation_invoke_isStandardized() = runTest {
         remoteCaptureRule.captureDocument(context) {
             val state = LocalRemoteComposeCreationState.current
-            RemoteInt(42).writeToDocument(state)
-            RemoteFloat(42f).writeToDocument(state)
-            RemoteLong(42L).writeToDocument(state)
-            RemoteBoolean(true).writeToDocument(state)
-            RemoteString("hello").writeToDocument(state)
-            RemoteColor(Color.Red).writeToDocument(state)
-            RemoteDp(10.dp).writeToDocument(state)
+            RemoteInt(42).getIdForCreationState(state)
+            RemoteFloat(42f).getIdForCreationState(state)
+            RemoteLong(42L).getIdForCreationState(state)
+            RemoteBoolean(true).getIdForCreationState(state)
+            RemoteString("hello").getIdForCreationState(state)
+            RemoteColor(Color.Red).getIdForCreationState(state)
+            RemoteDp(10.dp).getIdForCreationState(state)
         }
     }
 
@@ -462,26 +462,26 @@ class RemoteStateCreationTest {
     fun creation_createForId_isStandardized() = runTest {
         remoteCaptureRule.captureDocument(context) {
             val state = LocalRemoteComposeCreationState.current
-            val iId = RemoteInt(1).writeToDocument(state) + 0x100000000L
-            RemoteInt.createForId(iId).writeToDocument(state)
+            val iId = RemoteInt(1).getIdForCreationState(state) + 0x100000000L
+            RemoteInt.createForId(iId).getIdForCreationState(state)
 
             val fId = RemoteFloat(1f).getFloatIdForCreationState(state)
-            RemoteFloat.createForId(fId).writeToDocument(state)
+            RemoteFloat.createForId(fId).getIdForCreationState(state)
 
-            val lId = RemoteLong(1L).writeToDocument(state)
-            RemoteLong.createForId(lId).writeToDocument(state)
+            val lId = RemoteLong(1L).getIdForCreationState(state)
+            RemoteLong.createForId(lId).getIdForCreationState(state)
 
-            val bId = RemoteBoolean(true).writeToDocument(state)
-            RemoteBoolean.createForId(bId).writeToDocument(state)
+            val bId = RemoteBoolean(true).getIdForCreationState(state)
+            RemoteBoolean.createForId(bId).getIdForCreationState(state)
 
-            val sId = RemoteString("h").writeToDocument(state)
-            RemoteString.createForId(sId).writeToDocument(state)
+            val sId = RemoteString("h").getIdForCreationState(state)
+            RemoteString.createForId(sId).getIdForCreationState(state)
 
-            val cId = RemoteColor(Color.Red).writeToDocument(state)
-            RemoteColor.createForId(cId).writeToDocument(state)
+            val cId = RemoteColor(Color.Red).getIdForCreationState(state)
+            RemoteColor.createForId(cId).getIdForCreationState(state)
 
             val dpRef = RemoteFloat(10f)
-            RemoteDp.createForId(dpRef).writeToDocument(state)
+            RemoteDp.createForId(dpRef).getIdForCreationState(state)
         }
     }
 
@@ -489,14 +489,14 @@ class RemoteStateCreationTest {
     fun creation_createNamedRemoteX_isStandardized() = runTest {
         remoteCaptureRule.captureDocument(context) {
             val state = LocalRemoteComposeCreationState.current
-            createNamedRemoteInt("i", defaultValue = 1).writeToDocument(state)
-            createNamedRemoteFloat("f", defaultValue = 1f).writeToDocument(state)
-            createNamedRemoteLong("l", defaultValue = 1L).writeToDocument(state)
-            createNamedRemoteBoolean("b", defaultValue = true).writeToDocument(state)
-            createNamedRemoteString("s", defaultValue = "h").writeToDocument(state)
+            createNamedRemoteInt("i", defaultValue = 1).getIdForCreationState(state)
+            createNamedRemoteFloat("f", defaultValue = 1f).getIdForCreationState(state)
+            createNamedRemoteLong("l", defaultValue = 1L).getIdForCreationState(state)
+            createNamedRemoteBoolean("b", defaultValue = true).getIdForCreationState(state)
+            createNamedRemoteString("s", defaultValue = "h").getIdForCreationState(state)
             RemoteColor.createNamedRemoteColor("c", defaultValue = Color.Red.rc)
-                .writeToDocument(state)
-            createNamedRemoteDp("d", defaultValue = 1f).writeToDocument(state)
+                .getIdForCreationState(state)
+            createNamedRemoteDp("d", defaultValue = 1f).getIdForCreationState(state)
         }
     }
 
@@ -504,34 +504,12 @@ class RemoteStateCreationTest {
     fun creation_mutableCreate_isStandardized() = runTest {
         remoteCaptureRule.captureDocument(context) {
             val state = LocalRemoteComposeCreationState.current
-            remember { MutableRemoteInt(1) }.writeToDocument(state)
-            remember { MutableRemoteFloat(1f) }.writeToDocument(state)
-            remember { MutableRemoteLong(1L) }.writeToDocument(state)
-            remember { MutableRemoteBoolean(true) }.writeToDocument(state)
-            remember { MutableRemoteString("h") }.writeToDocument(state)
+            remember { MutableRemoteInt(1) }.getIdForCreationState(state)
+            remember { MutableRemoteFloat(1f) }.getIdForCreationState(state)
+            remember { MutableRemoteLong(1L) }.getIdForCreationState(state)
+            remember { MutableRemoteBoolean(true) }.getIdForCreationState(state)
+            remember { MutableRemoteString("h") }.getIdForCreationState(state)
             // Color and Dp do not have MutableRemoteX.create versions.
-        }
-    }
-
-    @Test
-    fun creation_mutableForId_isStandardized() = runTest {
-        remoteCaptureRule.captureDocument(context) {
-            val state = LocalRemoteComposeCreationState.current
-            val iId = remember { MutableRemoteInt(1) }.writeToDocument(state).toLong()
-            MutableRemoteInt.createMutableForId(iId).writeToDocument(state)
-
-            val fId = remember { MutableRemoteFloat(1f) }.getFloatIdForCreationState(state)
-            MutableRemoteFloat.createMutableForId(fId).writeToDocument(state)
-
-            val lId = remember { MutableRemoteLong(1L) }.writeToDocument(state)
-            MutableRemoteLong.createMutableForId(lId).writeToDocument(state)
-
-            val bId = remember { MutableRemoteBoolean(true) }.writeToDocument(state).toLong()
-            MutableRemoteBoolean.createMutableForId(bId).writeToDocument(state)
-
-            val sId = remember { MutableRemoteString("h") }.writeToDocument(state)
-            MutableRemoteString.createMutableForId(sId).writeToDocument(state)
-            // Color and Dp do not have MutableRemoteX.forId versions.
         }
     }
 
@@ -541,15 +519,15 @@ class RemoteStateCreationTest {
             val state = LocalRemoteComposeCreationState.current
 
             // Taking expression values
-            rememberNamedRemoteFloat("f", 1f.rf).writeToDocument(state)
-            rememberNamedRemoteColor("c", Color.Red.rc).writeToDocument(state)
-            rememberNamedRemoteDp("d", 1.rdp).writeToDocument(state)
+            rememberNamedRemoteFloat("f", 1f.rf).getIdForCreationState(state)
+            rememberNamedRemoteColor("c", Color.Red.rc).getIdForCreationState(state)
+            rememberNamedRemoteDp("d", 1.rdp).getIdForCreationState(state)
 
             // Taking primitive values
-            rememberNamedRemoteLong("l", 1L).writeToDocument(state)
-            rememberNamedRemoteInt("i", 1).writeToDocument(state)
-            rememberNamedRemoteString("s", "h").writeToDocument(state)
-            rememberNamedRemoteBoolean("b", true).writeToDocument(state)
+            rememberNamedRemoteLong("l", 1L).getIdForCreationState(state)
+            rememberNamedRemoteInt("i", 1).getIdForCreationState(state)
+            rememberNamedRemoteString("s", "h").getIdForCreationState(state)
+            rememberNamedRemoteBoolean("b", true).getIdForCreationState(state)
         }
     }
 

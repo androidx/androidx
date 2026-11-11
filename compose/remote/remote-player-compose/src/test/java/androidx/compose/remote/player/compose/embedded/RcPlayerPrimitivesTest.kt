@@ -1328,8 +1328,8 @@ class RcPlayerPrimitivesTest {
         rule.setRemoteContent {
             val colorExpr =
                 lerp(
-                    AndroidColor.RED,
-                    AndroidColor.BLUE,
+                    AndroidColor.RED.rc,
+                    AndroidColor.BLUE.rc,
                     0.5f.rf,
                 )
             RemoteBox(modifier = RemoteModifier.size(100.rdp).background(colorExpr)) {

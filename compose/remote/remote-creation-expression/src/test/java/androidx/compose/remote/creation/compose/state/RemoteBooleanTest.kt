@@ -15,30 +15,19 @@
  */
 package androidx.compose.remote.creation.compose.state
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.VariableSupport
-import androidx.compose.remote.creation.compose.capture.createTestCreationState
 import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
-import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
+import org.junit.runners.JUnit4
 
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [Config.TARGET_SDK])
+@RunWith(JUnit4::class)
 class RemoteBooleanTest {
-    val context =
-        AndroidRemoteContext().apply {
-            useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
-        }
-
-    val creationState = createTestCreationState()
+    private val context = TestRemoteContext()
+    private val creationState = testCreationState()
 
     @Test
     fun stringSelect_true() {
@@ -542,11 +531,11 @@ class RemoteBooleanTest {
         val v1 = RemoteFloat(20f)
         val v2 = RemoteFloat(10f)
         val bool = v1.isGreaterThanOrEqualTo(v2)
-        val color = bool.select(Color.RED, Color.GREEN)
+        val color = bool.select(COLOR_RED, COLOR_GREEN)
         val colorId = color.getIdForCreationState(creationState)
         makeAndPaintCoreDocument()
 
-        assertThat(context.getColor(colorId)).isEqualTo(Color.RED)
+        assertThat(context.getColor(colorId)).isEqualTo(COLOR_RED)
     }
 
     @Test
@@ -554,11 +543,11 @@ class RemoteBooleanTest {
         val v1 = RemoteFloat(10f)
         val v2 = RemoteFloat(20f)
         val bool = v1.isGreaterThanOrEqualTo(v2)
-        val color = bool.select(Color.RED, Color.GREEN)
+        val color = bool.select(COLOR_RED, COLOR_GREEN)
         val colorId = color.getIdForCreationState(creationState)
         makeAndPaintCoreDocument()
 
-        assertThat(context.getColor(colorId)).isEqualTo(Color.GREEN)
+        assertThat(context.getColor(colorId)).isEqualTo(COLOR_GREEN)
     }
 
     @Test
@@ -566,11 +555,11 @@ class RemoteBooleanTest {
         val v1 = RemoteFloat(20f)
         val v2 = RemoteFloat(10f)
         val bool = v1.isGreaterThanOrEqualTo(v2)
-        val color = bool.select(RemoteColor(Color.RED), RemoteColor(Color.GREEN))
+        val color = bool.select(RemoteColor(COLOR_RED), RemoteColor(COLOR_GREEN))
         val colorId = color.getIdForCreationState(creationState)
         makeAndPaintCoreDocument()
 
-        assertThat(context.getColor(colorId)).isEqualTo(Color.RED)
+        assertThat(context.getColor(colorId)).isEqualTo(COLOR_RED)
     }
 
     @Test
@@ -578,11 +567,11 @@ class RemoteBooleanTest {
         val v1 = RemoteFloat(10f)
         val v2 = RemoteFloat(20f)
         val bool = v1.isGreaterThanOrEqualTo(v2)
-        val color = bool.select(RemoteColor(Color.RED), RemoteColor(Color.GREEN))
+        val color = bool.select(RemoteColor(COLOR_RED), RemoteColor(COLOR_GREEN))
         val colorId = color.getIdForCreationState(creationState)
         makeAndPaintCoreDocument()
 
-        assertThat(context.getColor(colorId)).isEqualTo(Color.GREEN)
+        assertThat(context.getColor(colorId)).isEqualTo(COLOR_GREEN)
     }
 
     @Test
@@ -920,4 +909,9 @@ class RemoteBooleanTest {
                 op.apply(context)
             }
         }
+
+    private companion object {
+        private const val COLOR_RED = 0xFFFF0000.toInt()
+        private const val COLOR_GREEN = 0xFF00FF00.toInt()
+    }
 }

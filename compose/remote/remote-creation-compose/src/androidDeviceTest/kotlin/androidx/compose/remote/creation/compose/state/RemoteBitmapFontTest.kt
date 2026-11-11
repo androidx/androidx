@@ -101,8 +101,11 @@ class RemoteBitmapFontTest {
     @Test
     fun drawBitmapFontTextRun_glyphSpacingTest() {
         val text = RemoteString("Lorem Ipsum")
+        // Extracting code points from constantValue only works for this test; a public API for
+        // computing the required code point set of an arbitrary RemoteString does not exist
+        // currently.
         val bitmapFont =
-            createBitmapFont(text.computeRequiredCodePointSet(creationState)!!, font, 80.0f)
+            createBitmapFont(text.constantValue.map { it.toString() }.toSet(), font, 80.0f)
 
         for (i in -4 until 5) {
             creationState.document.drawBitmapFontTextRun(
@@ -124,8 +127,11 @@ class RemoteBitmapFontTest {
     @Test
     fun drawBitmapFontTextRunOnPath_glyphSpacingTest() {
         val text = RemoteString("Lorem ipsum dolor sit amet, consectetur adipiscing elit.")
+        // Extracting code points from constantValue only works for this test; a public API for
+        // computing the required code point set of an arbitrary RemoteString does not exist
+        // currently.
         val bitmapFont =
-            createBitmapFont(text.computeRequiredCodePointSet(creationState)!!, font, 40.0f)
+            createBitmapFont(text.constantValue.map { it.toString() }.toSet(), font, 40.0f)
 
         creationState.document.drawBitmapFontTextRunOnPath(
             text.getIdForCreationState(creationState),

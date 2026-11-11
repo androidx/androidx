@@ -24,31 +24,19 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.crea
 import androidx.compose.runtime.Stable
 
 /**
- * Represents a Density-independent pixel (Dp) value.
+ * Represents a density-independent pixel (Dp) value.
  *
- * [RemoteDp] represents a Dp value that can be a constant, a named variable, or a dynamic
- * expression.
+ * [RemoteDp] represents a Dp value that may be a constant, a named variable, or a dynamic
+ * expression. Operations on [RemoteDp] are evaluated dynamically on the remote player at runtime
+ * unless all inputs are known constants, in which case constant folding evaluates the result
+ * immediately at creation time (see [RemoteState]).
  */
 @Stable
 public class RemoteDp
-/**
- * Creates a [RemoteDp] from a [RemoteFloat] [value].
- *
- * @param value scalar Dp value as a [RemoteFloat]
- */
-public constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val value: RemoteFloat) :
-    BaseRemoteState<Float>(RemoteStateInstanceKey()) {
-
-    /**
-     * Creates a [RemoteDp] with the given literal [Float] [value].
-     *
-     * @param value The literal float value.
-     */
-    public constructor(value: Float) : this(value.rf)
-
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public override val cacheKey: RemoteStateCacheKey
-        get() = RemoteOperationCacheKey.create(OperationKey.ToPx, value)
+internal constructor(
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val value: RemoteFloat,
+    cacheKey: RemoteStateCacheKey,
+) : BaseRemoteState<Float>(cacheKey) {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun toDebugString(): String {
@@ -60,11 +48,13 @@ public constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val va
     }
 
     internal enum class OperationKey : RemoteOperation {
+        Dp,
         ToPx,
         ToDp;
 
         override fun toDebugString(args: List<RemoteStateCacheKey>): String {
             return when (this) {
+                Dp -> "${args[0].toOperandString(100)}.dp"
                 ToPx -> "${args[0].toOperandString(100)}.toPx()"
                 ToDp -> "${args[0].toOperandString(100)}.toDp()"
             }
@@ -72,6 +62,7 @@ public constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val va
 
         override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> {
             return when (this) {
+                Dp -> RemoteDp(args[0] as RemoteFloat)
                 ToPx -> RemoteDp(args[0] as RemoteFloat).toPx()
                 ToDp -> (args[0] as RemoteFloat).toRemoteDp().value
             }
@@ -84,8 +75,7 @@ public constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val va
     override val constantValueOrNull: Float?
         get() = value.constantValueOrNull
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
+    internal override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
         return toPx(creationState.remoteDensity).writeToDocument(creationState)
     }
 
@@ -93,6 +83,7 @@ public constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val va
      * Converts this [RemoteDp] to pixels by multiplying the current float value by [density].
      *
      * @param density The [RemoteDensity] used to convert Dp to pixels.
+     * @return A [RemoteFloat] representing this value in pixels.
      */
     public fun toPx(density: RemoteDensity): RemoteFloat {
         return density.density * value
@@ -100,9 +91,11 @@ public constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val va
 
     /**
      * Converts this [RemoteDp] to a [RemoteFloat] pixel value using the current [RemoteDensity].
+     *
+     * @return A [RemoteFloat] representing this value in pixels.
      */
     public fun toPx(): RemoteFloat {
-        return RemoteFloatExpression(
+        return RemoteFloat(
             constantValueOrNull = null,
             cacheKey = RemoteOperationCacheKey.create(OperationKey.ToPx, value),
         ) { creationState ->
@@ -117,33 +110,41 @@ public constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val va
     }
 
     /**
-     * Adds two [RemoteDp] values together.
+     * Returns a new [RemoteDp] that evaluates to this [RemoteDp] plus [other].
      *
      * @param other The [RemoteDp] to add to this value.
+     * @return A [RemoteDp] representing `this + other`.
      */
     public operator fun plus(other: RemoteDp): RemoteDp = RemoteDp(this.value + other.value)
 
     /**
-     * Subtracts [other] from this [RemoteDp].
+     * Returns a new [RemoteDp] that evaluates to this [RemoteDp] minus [other].
      *
      * @param other The [RemoteDp] to subtract from this value.
+     * @return A [RemoteDp] representing `this - other`.
      */
     public operator fun minus(other: RemoteDp): RemoteDp = RemoteDp(this.value - other.value)
 
-    /** Negates this [RemoteDp], equivalent to multiplying by -1.0. */
+    /**
+     * Returns a new [RemoteDp] that evaluates to the negation of this [RemoteDp].
+     *
+     * @return A [RemoteDp] representing `-this`.
+     */
     public operator fun unaryMinus(): RemoteDp = RemoteDp(-this.value)
 
     /**
-     * Divides this [RemoteDp] by a scalar.
+     * Divides this [RemoteDp] by a scalar [Float].
      *
      * @param other The scalar divisor.
+     * @return A [RemoteDp] representing `this / other`.
      */
     public operator fun div(other: Float): RemoteDp = RemoteDp(this.value / other)
 
     /**
-     * Divides this [RemoteDp] by a scalar.
+     * Divides this [RemoteDp] by a scalar [Int].
      *
      * @param other The scalar divisor.
+     * @return A [RemoteDp] representing `this / other`.
      */
     public operator fun div(other: Int): RemoteDp = RemoteDp(this.value / other.toFloat())
 
@@ -151,6 +152,7 @@ public constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val va
      * Divides this [RemoteDp] by a [RemoteFloat].
      *
      * @param other The [RemoteFloat] divisor.
+     * @return A [RemoteDp] representing `this / other`.
      */
     public operator fun div(other: RemoteFloat): RemoteDp = RemoteDp(this.value / other)
 
@@ -158,28 +160,32 @@ public constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val va
      * Divides this [RemoteDp] by a [RemoteInt].
      *
      * @param other The [RemoteInt] divisor.
+     * @return A [RemoteDp] representing `this / other`.
      */
     public operator fun div(other: RemoteInt): RemoteDp =
         RemoteDp(this.value / other.toRemoteFloat())
 
     /**
-     * Divides this [RemoteDp] by another [RemoteDp] to produce a scalar ratio.
+     * Divides this [RemoteDp] by another [RemoteDp] to produce a unitless [RemoteFloat] ratio.
      *
      * @param other The [RemoteDp] divisor.
+     * @return A [RemoteFloat] representing the ratio `this / other`.
      */
     public operator fun div(other: RemoteDp): RemoteFloat = this.value / other.value
 
     /**
-     * Multiplies this [RemoteDp] by a scalar.
+     * Multiplies this [RemoteDp] by a scalar [Float].
      *
      * @param other The scalar multiplier.
+     * @return A [RemoteDp] representing `this * other`.
      */
     public operator fun times(other: Float): RemoteDp = RemoteDp(this.value * other)
 
     /**
-     * Multiplies this [RemoteDp] by a scalar.
+     * Multiplies this [RemoteDp] by a scalar [Int].
      *
      * @param other The scalar multiplier.
+     * @return A [RemoteDp] representing `this * other`.
      */
     public operator fun times(other: Int): RemoteDp = RemoteDp(this.value * other.toFloat())
 
@@ -187,6 +193,7 @@ public constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val va
      * Multiplies this [RemoteDp] by a [RemoteFloat].
      *
      * @param other The [RemoteFloat] multiplier.
+     * @return A [RemoteDp] representing `this * other`.
      */
     public operator fun times(other: RemoteFloat): RemoteDp = RemoteDp(this.value * other)
 
@@ -194,51 +201,64 @@ public constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val va
      * Multiplies this [RemoteDp] by a [RemoteInt].
      *
      * @param other The [RemoteInt] multiplier.
+     * @return A [RemoteDp] representing `this * other`.
      */
     public operator fun times(other: RemoteInt): RemoteDp =
         RemoteDp(this.value * other.toRemoteFloat())
 
     /**
-     * Checks if this [RemoteDp] is less than [other].
+     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this [RemoteDp]
+     * is less than the evaluated value of [other].
      *
      * @param other The [RemoteDp] to compare with.
+     * @return A [RemoteBoolean] representing `this < other`.
      */
     public fun isLessThan(other: RemoteDp): RemoteBoolean = this.value.isLessThan(other.value)
 
     /**
-     * Checks if this [RemoteDp] is less than or equal to [other].
+     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this [RemoteDp]
+     * is less than or equal to the evaluated value of [other].
      *
      * @param other The [RemoteDp] to compare with.
+     * @return A [RemoteBoolean] representing `this <= other`.
      */
     public fun isLessThanOrEqualTo(other: RemoteDp): RemoteBoolean =
         this.value.isLessThanOrEqualTo(other.value)
 
     /**
-     * Checks if this [RemoteDp] is greater than [other].
+     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this [RemoteDp]
+     * is greater than the evaluated value of [other].
      *
      * @param other The [RemoteDp] to compare with.
+     * @return A [RemoteBoolean] representing `this > other`.
      */
     public fun isGreaterThan(other: RemoteDp): RemoteBoolean = this.value.isGreaterThan(other.value)
 
     /**
-     * Checks if this [RemoteDp] is greater than or equal to [other].
+     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this [RemoteDp]
+     * is greater than or equal to the evaluated value of [other].
      *
      * @param other The [RemoteDp] to compare with.
+     * @return A [RemoteBoolean] representing `this >= other`.
      */
     public fun isGreaterThanOrEqualTo(other: RemoteDp): RemoteBoolean =
         this.value.isGreaterThanOrEqualTo(other.value)
 
     /**
-     * Checks if this [RemoteDp] is equal to [other].
+     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this [RemoteDp]
+     * is equal to the evaluated value of [other].
      *
      * @param other The [RemoteDp] to compare with.
+     * @return A [RemoteBoolean] representing `this == other`.
      */
     public fun isEqualTo(other: RemoteDp): RemoteBoolean = this.value.isEqualTo(other.value)
 
     /**
-     * Checks if this [RemoteDp] is not equal to [other].
+     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this [RemoteDp]
+     * is not equal to the evaluated value of [other].
      *
      * @param other The [RemoteDp] to compare with.
+     * @return A [RemoteBoolean] representing `this != other`.
      */
     public fun isNotEqualTo(other: RemoteDp): RemoteBoolean = this.value.isNotEqualTo(other.value)
 
@@ -302,6 +322,23 @@ public constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val va
 }
 
 /**
+ * Creates a [RemoteDp] from a [RemoteFloat].
+ *
+ * @param value The [RemoteFloat] that holds the actual Dp value.
+ * @return A [RemoteDp] wrapping the given [RemoteFloat].
+ */
+public fun RemoteDp(value: RemoteFloat): RemoteDp =
+    RemoteDp(value, RemoteOperationCacheKey.create(RemoteDp.OperationKey.Dp, value))
+
+/**
+ * Creates a [RemoteDp] with a literal [Float] value.
+ *
+ * @param value The literal float value in Dp.
+ * @return A [RemoteDp] representing the constant Dp.
+ */
+public fun RemoteDp(value: Float): RemoteDp = RemoteDp(value.rf)
+
+/**
  * Creates a named [RemoteDp] with an initial value.
  *
  * Named remote Dps can be set via AndroidRemoteContext.setNamedFloat.
@@ -343,16 +380,24 @@ public val Float.rdp: RemoteDp
         return RemoteDp(this.rf)
     }
 
-/** Converts this [RemoteFloat] to a [RemoteDp] directly (1:1) */
+/**
+ * Wraps this [RemoteFloat] directly as a [RemoteDp] without density conversion (`1:1`).
+ *
+ * @return A [RemoteDp] wrapping this [RemoteFloat] scalar value.
+ */
 public fun RemoteFloat.asRemoteDp(): RemoteDp {
     return RemoteDp(this)
 }
 
-/** Converts this [RemoteFloat] representing pixels to a [RemoteDp] by dividing by density. */
+/**
+ * Converts this [RemoteFloat] pixel value to a [RemoteDp] by dividing by the current density.
+ *
+ * @return A [RemoteDp] representing this pixel value in Dp.
+ */
 public fun RemoteFloat.toRemoteDp(): RemoteDp {
     // TODO: Optimize for constant values when value and density are constants
     return RemoteDp(
-        RemoteFloatExpression(
+        RemoteFloat(
             constantValueOrNull = null,
             cacheKey = RemoteOperationCacheKey.create(RemoteDp.OperationKey.ToDp, this),
         ) { creationState ->
@@ -363,17 +408,19 @@ public fun RemoteFloat.toRemoteDp(): RemoteDp {
 }
 
 /**
- * Returns the smaller of two [RemoteDp] values.
+ * Returns a [RemoteDp] that evaluates to the smaller of [a] and [b].
  *
  * @param a The first [RemoteDp] value to compare.
  * @param b The second [RemoteDp] value to compare.
+ * @return A [RemoteDp] representing the smaller of [a] and [b].
  */
 public fun min(a: RemoteDp, b: RemoteDp): RemoteDp = RemoteDp(min(a.value, b.value))
 
 /**
- * Returns the greater of two [RemoteDp] values.
+ * Returns a [RemoteDp] that evaluates to the greater of [a] and [b].
  *
  * @param a The first [RemoteDp] value to compare.
  * @param b The second [RemoteDp] value to compare.
+ * @return A [RemoteDp] representing the larger of [a] and [b].
  */
 public fun max(a: RemoteDp, b: RemoteDp): RemoteDp = RemoteDp(max(a.value, b.value))

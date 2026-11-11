@@ -25,11 +25,14 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.annotation.RememberInComposition
 
 /**
- * A class representing a remote boolean value.
+ * Read-only supertype for remote boolean values.
  *
  * [RemoteBoolean] internally stores its state as a [RemoteInt], typically using `1` for `true` and
- * `0` for `false`. This allows boolean logic to be evaluated efficiently on the remote rendering
- * engine.
+ * `0` for `false`. For writable boolean variables, see [MutableRemoteBoolean].
+ *
+ * Operations on [RemoteBoolean] are evaluated dynamically on the remote player at runtime unless
+ * all inputs are known constants, in which case constant folding evaluates the result immediately
+ * at creation time (see [RemoteState]).
  */
 @Stable
 public open class RemoteBoolean
@@ -91,8 +94,7 @@ internal constructor(
     override val asEncoded: RemoteInt
         get() = intValue
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
+    internal override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         intValue.writeToDocument(creationState)
 
     /**
@@ -104,25 +106,6 @@ internal constructor(
      * @return A new [RemoteBoolean] representing the logical NOT of this boolean.
      */
     public operator fun not(): RemoteBoolean = RemoteBoolean(intValue xor RemoteInt(1))
-
-    /**
-     * Constructor for creating a [RemoteBoolean] instance from a standard [Boolean].
-     *
-     * It converts the standard boolean value into a [RemoteInt]: `1` for `true` and `0` for `
-     * false`.
-     *
-     * @param value The standard boolean value to convert.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public constructor(
-        value: Boolean
-    ) : this(
-        if (value) {
-            RemoteInt(1)
-        } else {
-            RemoteInt(0)
-        }
-    )
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun toDebugString(): String {
@@ -306,7 +289,7 @@ internal constructor(
         }
 
         return RemoteBoolean(
-            RemoteIntExpression(
+            RemoteInt(
                 constantValueOrNull = null,
                 cacheKey =
                     RemoteOperationCacheKey.create(
@@ -390,24 +373,20 @@ internal constructor(
     }
 
     /**
-     * Equality operator for [RemoteBoolean]s.
-     *
-     * Returns a new [RemoteBoolean] that evaluates to `true` if this boolean's underlying
-     * [RemoteInt] is equal to another [RemoteBoolean]'s underlying [RemoteInt].
+     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this
+     * [RemoteBoolean] is equal to the evaluated value of [other].
      *
      * @param other The other [RemoteBoolean] to compare with.
-     * @return A new [RemoteBoolean] representing the result of the equality comparison.
+     * @return A new [RemoteBoolean] representing `this == other`.
      */
     public fun isEqualTo(other: RemoteBoolean): RemoteBoolean = intValue.isEqualTo(other.intValue)
 
     /**
-     * Inequality operator for [RemoteBoolean]s.
-     *
-     * Returns a new [RemoteBoolean] that evaluates to `true` if this boolean's underlying
-     * [RemoteInt] is *not* equal to another [RemoteBoolean]'s underlying [RemoteInt].
+     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this
+     * [RemoteBoolean] is not equal to the evaluated value of [other].
      *
      * @param other The other [RemoteBoolean] to compare with.
-     * @return A new [RemoteBoolean] representing the result of the inequality comparison.
+     * @return A new [RemoteBoolean] representing `this != other`.
      */
     public fun isNotEqualTo(other: RemoteBoolean): RemoteBoolean =
         intValue.isNotEqualTo(other.intValue)
@@ -456,14 +435,6 @@ internal constructor(
 
     public companion object {
         /**
-         * Creates a [RemoteBoolean] from a literal constant.
-         *
-         * @param value The constant [Boolean] value.
-         * @return A [RemoteBoolean] representing the constant boolean.
-         */
-        public operator fun invoke(value: Boolean): RemoteBoolean = RemoteBoolean(value = value)
-
-        /**
          * Creates a [RemoteBoolean] referencing a remote ID.
          *
          * @param id The remote ID (stored as a [RemoteInt]).
@@ -505,14 +476,6 @@ public class MutableRemoteBoolean
 internal constructor(remoteInt: MutableRemoteInt) :
     RemoteBoolean(remoteInt), MutableRemoteState<Boolean> {
 
-    /**
-     * Creates a [MutableRemoteBoolean] with an initial [Boolean] value.
-     *
-     * @param initialValue The initial value for this mutable boolean.
-     */
-    @RememberInComposition
-    public constructor(initialValue: Boolean) : this(MutableRemoteInt(if (initialValue) 1 else 0))
-
     @get:Suppress("AutoBoxing")
     public override val constantValueOrNull: Boolean?
         get() =
@@ -526,34 +489,47 @@ internal constructor(remoteInt: MutableRemoteInt) :
     override val asEncodedMutable: MutableRemoteInt
         get() = intValue as MutableRemoteInt
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
+    internal override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         intValue.writeToDocument(creationState)
 
-    public companion object {
+    internal companion object {
         /**
          * Creates a [MutableRemoteBoolean] for a given ID.
          *
          * @param id The ID for this mutable boolean.
          * @return A [MutableRemoteBoolean] instance.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun createMutableForId(id: Long): MutableRemoteBoolean =
+        internal fun createMutableForId(id: Long): MutableRemoteBoolean =
             MutableRemoteBoolean(MutableRemoteInt.createMutableForId(id))
-
-        /**
-         * Creates a [MutableRemoteBoolean] with an initial value.
-         *
-         * @param initialValue The initial value for this mutable boolean.
-         * @return A [MutableRemoteBoolean] instance.
-         */
-        @RememberInComposition
-        public operator fun invoke(initialValue: Boolean): MutableRemoteBoolean {
-            val initInt: Int = if (initialValue) 1 else 0
-            return MutableRemoteBoolean(MutableRemoteInt(initInt))
-        }
     }
 }
+
+/**
+ * Creates a [RemoteBoolean] from a literal constant [Boolean] [value].
+ *
+ * It converts the boolean value into a [RemoteInt]: `1` for `true` and `0` for `false`.
+ *
+ * @param value The constant [Boolean] value.
+ * @return A [RemoteBoolean] representing the constant boolean.
+ */
+public fun RemoteBoolean(value: Boolean): RemoteBoolean =
+    RemoteBoolean(
+        if (value) {
+            RemoteInt(1)
+        } else {
+            RemoteInt(0)
+        }
+    )
+
+/**
+ * Creates a [MutableRemoteBoolean] with an initial [Boolean] [initialValue].
+ *
+ * @param initialValue The initial value for this mutable boolean.
+ * @return A [MutableRemoteBoolean] initialized with [initialValue].
+ */
+@RememberInComposition
+public fun MutableRemoteBoolean(initialValue: Boolean): MutableRemoteBoolean =
+    MutableRemoteBoolean(MutableRemoteInt(if (initialValue) 1 else 0))
 
 /** Extension property to convert a [Boolean] to a [RemoteBoolean]. */
 public val Boolean.rb: RemoteBoolean

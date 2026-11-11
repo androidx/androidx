@@ -16,11 +16,7 @@
 
 package androidx.compose.remote.creation.compose.state
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.operations.matrix.MatrixExpression
-import androidx.compose.remote.creation.compose.capture.createTestCreationState
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createIdentity
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createRotate
@@ -28,7 +24,6 @@ import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createScaleY
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createTranslateX
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createTranslateXy
-import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,11 +31,8 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class RemoteMatrix3x3Test {
-    val context =
-        AndroidRemoteContext().apply {
-            useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
-        }
-    val creationState = createTestCreationState()
+    val context = TestRemoteContext()
+    val creationState = testCreationState()
 
     @Test
     fun remoteMatrix_cacheKey() {
@@ -225,11 +217,5 @@ class RemoteMatrix3x3Test {
             .isEqualTo("translate(user:x, user:y) * rotate(user:x) * identity()")
     }
 
-    private fun makeAndPaintCoreDocument() =
-        CoreDocument().apply {
-            val buffer = creationState.document.buffer
-            buffer.buffer.index = 0
-            initFromBuffer(buffer)
-            paint(context, 0)
-        }
+    private fun makeAndPaintCoreDocument() = context.loadDocument(creationState)
 }

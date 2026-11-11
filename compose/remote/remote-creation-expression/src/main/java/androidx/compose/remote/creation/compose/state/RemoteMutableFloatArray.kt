@@ -68,7 +68,7 @@ constructor(public val size: Int) : BaseRemoteState<List<RemoteFloat>>(RemoteSta
         },
     }
 
-    override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
+    internal override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
         return Utils.idFromNan(creationState.document.addDynamicFloatArray(size.toFloat()))
     }
 
@@ -90,7 +90,7 @@ constructor(public val size: Int) : BaseRemoteState<List<RemoteFloat>>(RemoteSta
         }
 
         val currentGeneration = generation
-        return UncachedRemoteFloatExpression(
+        return RemoteFloat(
             constantValueOrNull = null,
             cacheKey =
                 RemoteOperationCacheKey.create(
@@ -103,9 +103,11 @@ constructor(public val size: Int) : BaseRemoteState<List<RemoteFloat>>(RemoteSta
             maybeWritePendingSets(currentGeneration, creationState)
 
             floatArrayOf(
-                *arrayForCreationState(creationState),
-                v.getFloatIdForCreationState(creationState),
-                AnimatedFloatExpression.A_DEREF,
+                creationState.document.floatExpression(
+                    *arrayForCreationState(creationState),
+                    v.getFloatIdForCreationState(creationState),
+                    AnimatedFloatExpression.A_DEREF,
+                )
             )
         }
     }
