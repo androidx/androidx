@@ -44,9 +44,12 @@ import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.state.toRemoteString
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteFontStyle
+import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteHyphens
 import androidx.compose.remote.creation.compose.text.RemoteLineBreak
+import androidx.compose.remote.creation.compose.text.RemoteTextAlign
 import androidx.compose.remote.creation.compose.text.RemoteTextDecoration
+import androidx.compose.remote.creation.compose.text.RemoteTextOverflow
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.DownloadableTypefaceResolver
@@ -61,12 +64,6 @@ import androidx.compose.remote.player.core.platform.TypefaceResolver
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontVariation
-import androidx.compose.ui.text.font.FontVariation.Setting
-import androidx.compose.ui.text.font.FontVariation.Settings
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
@@ -167,42 +164,42 @@ class RemoteTextTest {
                     modifier = RemoteModifier.fillMaxWidth(),
                     fontSize = 32.rsp,
                     color = color,
-                    textAlign = TextAlign.Left,
+                    textAlign = RemoteTextAlign.Left,
                 )
                 RemoteText(
                     text = center,
                     modifier = RemoteModifier.fillMaxWidth(),
                     fontSize = 32.rsp,
                     color = color,
-                    textAlign = TextAlign.Center,
+                    textAlign = RemoteTextAlign.Center,
                 )
                 RemoteText(
                     text = right,
                     modifier = RemoteModifier.fillMaxWidth(),
                     fontSize = 32.rsp,
                     color = color,
-                    textAlign = TextAlign.Right,
+                    textAlign = RemoteTextAlign.Right,
                 )
                 RemoteText(
                     text = start,
                     modifier = RemoteModifier.fillMaxWidth(),
                     fontSize = 32.rsp,
                     color = color,
-                    textAlign = TextAlign.Start,
+                    textAlign = RemoteTextAlign.Start,
                 )
                 RemoteText(
                     text = center,
                     modifier = RemoteModifier.fillMaxWidth(),
                     fontSize = 32.rsp,
                     color = color,
-                    textAlign = TextAlign.Center,
+                    textAlign = RemoteTextAlign.Center,
                 )
                 RemoteText(
                     text = end,
                     modifier = RemoteModifier.fillMaxWidth(),
                     fontSize = 32.rsp,
                     color = color,
-                    textAlign = TextAlign.End,
+                    textAlign = RemoteTextAlign.End,
                 )
             }
         }
@@ -265,7 +262,7 @@ class RemoteTextTest {
             RemoteText(
                 text,
                 color = color,
-                fontStyle = FontStyle.Italic,
+                fontStyle = RemoteFontStyle.Italic,
                 style = LocalRemoteTextStyle.current.copy(fontSize = 32.rsp),
             )
         }
@@ -287,21 +284,21 @@ class RemoteTextTest {
                     modifier = RemoteModifier.fillMaxWidth(),
                     fontSize = 32.rsp,
                     color = color,
-                    textAlign = TextAlign.Left,
+                    textAlign = RemoteTextAlign.Left,
                 )
                 RemoteText(
                     text = center,
                     modifier = RemoteModifier.fillMaxWidth(),
                     fontSize = 32.rsp,
                     color = color,
-                    textAlign = TextAlign.Center,
+                    textAlign = RemoteTextAlign.Center,
                 )
                 RemoteText(
                     text = right,
                     modifier = RemoteModifier.fillMaxWidth(),
                     fontSize = 32.rsp,
                     color = color,
-                    textAlign = TextAlign.Right,
+                    textAlign = RemoteTextAlign.Right,
                 )
             }
         }
@@ -311,9 +308,9 @@ class RemoteTextTest {
     fun text_withWeight() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
             RemoteColumn(RemoteModifier.fillMaxSize()) {
-                VariantText(FontVariation.weight(100))
-                VariantText(FontVariation.weight(500))
-                VariantText(FontVariation.weight(900))
+                VariantText(RemoteFontVariation.weight(100f.rf))
+                VariantText(RemoteFontVariation.weight(500f.rf))
+                VariantText(RemoteFontVariation.weight(900f.rf))
             }
         }
     }
@@ -322,9 +319,9 @@ class RemoteTextTest {
     fun text_withWidth() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
             RemoteColumn(RemoteModifier.fillMaxSize()) {
-                VariantText(FontVariation.width(10f))
-                VariantText(FontVariation.width(50f))
-                VariantText(FontVariation.width(90f))
+                VariantText(RemoteFontVariation.width(10f.rf))
+                VariantText(RemoteFontVariation.width(50f.rf))
+                VariantText(RemoteFontVariation.width(90f.rf))
             }
         }
     }
@@ -333,9 +330,9 @@ class RemoteTextTest {
     fun text_withGrade() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
             RemoteColumn(RemoteModifier.fillMaxSize()) {
-                VariantText(FontVariation.grade(0))
-                VariantText(FontVariation.grade(100))
-                VariantText(FontVariation.grade(200))
+                VariantText(RemoteFontVariation.grade(0.rf))
+                VariantText(RemoteFontVariation.grade(100.rf))
+                VariantText(RemoteFontVariation.grade(200.rf))
             }
         }
     }
@@ -357,14 +354,16 @@ class RemoteTextTest {
                     modifier = RemoteModifier.fillMaxWidth(),
                     fontSize = 14.rsp,
                     fontFamily = robotoFont,
-                    fontVariationSettings = Settings(Setting("pnum", 1f)),
+                    fontVariationSettings =
+                        RemoteFontVariation.Settings(RemoteFontVariation.Setting("pnum", 1f.rf)),
                 )
                 RemoteText(
                     text = RemoteString("Roboto tnum: $sampleText"),
                     modifier = RemoteModifier.fillMaxWidth(),
                     fontSize = 14.rsp,
                     fontFamily = robotoFont,
-                    fontVariationSettings = Settings(Setting("tnum", 1f)),
+                    fontVariationSettings =
+                        RemoteFontVariation.Settings(RemoteFontVariation.Setting("tnum", 1f.rf)),
                 )
             }
         }
@@ -374,10 +373,10 @@ class RemoteTextTest {
     fun text_withSlant() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
             RemoteColumn(RemoteModifier.fillMaxSize()) {
-                VariantText(FontVariation.slant(-15f))
-                VariantText(FontVariation.slant(-7.5f))
-                VariantText(FontVariation.slant(0f))
-                VariantText(FontVariation.slant(15f))
+                VariantText(RemoteFontVariation.slant((-15f).rf))
+                VariantText(RemoteFontVariation.slant((-7.5f).rf))
+                VariantText(RemoteFontVariation.slant(0f.rf))
+                VariantText(RemoteFontVariation.slant(15f.rf))
             }
         }
     }
@@ -386,9 +385,9 @@ class RemoteTextTest {
     fun text_withRoundness() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
             RemoteColumn(RemoteModifier.fillMaxSize()) {
-                VariantText(Setting("RNDS", 0f))
-                VariantText(Setting("RNDS", 50f))
-                VariantText(Setting("RNDS", 100f))
+                VariantText(RemoteFontVariation.Setting("RNDS", 0f.rf))
+                VariantText(RemoteFontVariation.Setting("RNDS", 50f.rf))
+                VariantText(RemoteFontVariation.Setting("RNDS", 100f.rf))
             }
         }
     }
@@ -398,16 +397,56 @@ class RemoteTextTest {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
             val robotoFlex = RemoteFontFamily.Named("google:Roboto Flex")
             RemoteColumn(RemoteModifier.fillMaxSize()) {
-                VariantText(FontVariation.weight(100), fontSize = 14.rsp, fontFamily = robotoFlex)
-                VariantText(FontVariation.weight(1000), fontSize = 14.rsp, fontFamily = robotoFlex)
-                VariantText(FontVariation.width(25f), fontSize = 14.rsp, fontFamily = robotoFlex)
-                VariantText(FontVariation.width(151f), fontSize = 14.rsp, fontFamily = robotoFlex)
-                VariantText(FontVariation.grade(-200), fontSize = 14.rsp, fontFamily = robotoFlex)
-                VariantText(FontVariation.grade(150), fontSize = 14.rsp, fontFamily = robotoFlex)
-                VariantText(FontVariation.slant(0f), fontSize = 14.rsp, fontFamily = robotoFlex)
-                VariantText(FontVariation.slant(-10f), fontSize = 14.rsp, fontFamily = robotoFlex)
-                VariantText(Setting("opsz", 8f), fontSize = 14.rsp, fontFamily = robotoFlex)
-                VariantText(Setting("opsz", 144f), fontSize = 14.rsp, fontFamily = robotoFlex)
+                VariantText(
+                    RemoteFontVariation.weight(100f.rf),
+                    fontSize = 14.rsp,
+                    fontFamily = robotoFlex,
+                )
+                VariantText(
+                    RemoteFontVariation.weight(1000f.rf),
+                    fontSize = 14.rsp,
+                    fontFamily = robotoFlex,
+                )
+                VariantText(
+                    RemoteFontVariation.width(25f.rf),
+                    fontSize = 14.rsp,
+                    fontFamily = robotoFlex,
+                )
+                VariantText(
+                    RemoteFontVariation.width(151f.rf),
+                    fontSize = 14.rsp,
+                    fontFamily = robotoFlex,
+                )
+                VariantText(
+                    RemoteFontVariation.grade((-200).rf),
+                    fontSize = 14.rsp,
+                    fontFamily = robotoFlex,
+                )
+                VariantText(
+                    RemoteFontVariation.grade(150.rf),
+                    fontSize = 14.rsp,
+                    fontFamily = robotoFlex,
+                )
+                VariantText(
+                    RemoteFontVariation.slant(0f.rf),
+                    fontSize = 14.rsp,
+                    fontFamily = robotoFlex,
+                )
+                VariantText(
+                    RemoteFontVariation.slant((-10f).rf),
+                    fontSize = 14.rsp,
+                    fontFamily = robotoFlex,
+                )
+                VariantText(
+                    RemoteFontVariation.opticalSizing(8f.rf),
+                    fontSize = 14.rsp,
+                    fontFamily = robotoFlex,
+                )
+                VariantText(
+                    RemoteFontVariation.opticalSizing(144f.rf),
+                    fontSize = 14.rsp,
+                    fontFamily = robotoFlex,
+                )
             }
         }
     }
@@ -487,7 +526,7 @@ class RemoteTextTest {
 
     @Composable
     private fun VariantText(
-        setting: Setting,
+        setting: RemoteFontVariation.Setting,
         fontSize: RemoteTextUnit = 32.rsp,
         fontFamily: RemoteFontFamily = RemoteFontFamily.Named("google:Roboto Flex"),
     ) {
@@ -495,11 +534,11 @@ class RemoteTextTest {
             text =
                 RemoteString(setting.axisName) +
                     RemoteString(" = ") +
-                    setting.toVariationValue(null).rf.toRemoteString(DecimalFormat("0")),
+                    setting.value.toRemoteString(DecimalFormat("0")),
             modifier = RemoteModifier.fillMaxWidth(),
             fontSize = fontSize,
             fontFamily = fontFamily,
-            fontVariationSettings = Settings(setting),
+            fontVariationSettings = RemoteFontVariation.Settings(setting),
         )
     }
 
@@ -518,35 +557,35 @@ class RemoteTextTest {
                     text = text,
                     fontSize = 18.rsp,
                     color = color,
-                    overflow = TextOverflow.Clip,
+                    overflow = RemoteTextOverflow.Clip,
                     maxLines = 1,
                 )
                 RemoteText(
                     text = text,
                     fontSize = 18.rsp,
                     color = color,
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = RemoteTextOverflow.Ellipsis,
                     maxLines = 1,
                 )
                 RemoteText(
                     text = text,
                     fontSize = 18.rsp,
                     color = color,
-                    overflow = TextOverflow.Visible,
+                    overflow = RemoteTextOverflow.Visible,
                     maxLines = 1,
                 )
                 RemoteText(
                     text = text,
                     fontSize = 18.rsp,
                     color = color,
-                    overflow = TextOverflow.MiddleEllipsis,
+                    overflow = RemoteTextOverflow.MiddleEllipsis,
                     maxLines = 1,
                 )
                 RemoteText(
                     text = text,
                     fontSize = 18.rsp,
                     color = color,
-                    overflow = TextOverflow.StartEllipsis,
+                    overflow = RemoteTextOverflow.StartEllipsis,
                     maxLines = 1,
                 )
             }
@@ -582,7 +621,7 @@ class RemoteTextTest {
                         "LineBreak.Simple".rs,
                         color = textColor,
                         fontSize = 8.rsp,
-                        textAlign = TextAlign.Center,
+                        textAlign = RemoteTextAlign.Center,
                         modifier = RemoteModifier.weight(1f.rf),
                     )
                     RemoteBox(
@@ -593,7 +632,7 @@ class RemoteTextTest {
                         "LineBreak.Heading".rs,
                         color = textColor,
                         fontSize = 8.rsp,
-                        textAlign = TextAlign.Center,
+                        textAlign = RemoteTextAlign.Center,
                         modifier = RemoteModifier.weight(1f.rf),
                     )
                     RemoteBox(
@@ -604,7 +643,7 @@ class RemoteTextTest {
                         "LineBreak.Paragraph".rs,
                         color = textColor,
                         fontSize = 8.rsp,
-                        textAlign = TextAlign.Center,
+                        textAlign = RemoteTextAlign.Center,
                         modifier = RemoteModifier.weight(1f.rf),
                     )
                 }

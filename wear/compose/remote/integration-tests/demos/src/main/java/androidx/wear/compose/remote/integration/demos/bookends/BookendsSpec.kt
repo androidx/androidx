@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.remote.integration.demos.bookends
 
+import androidx.compose.remote.creation.compose.text.RemoteTextAlign
 import androidx.compose.ui.text.style.TextAlign
 
 /**
@@ -67,15 +68,15 @@ internal object BookendsSpec {
     const val PROP_TEXT_ALIGN = 3
     const val PROP_MAX_LINES = 4
 
-    /** [TextAlign] has no public stable int value, so map it explicitly for the wire. */
-    fun TextAlign.toWire(): Int =
+    /** [RemoteTextAlign] has no public stable int value, so map it explicitly for the wire. */
+    fun RemoteTextAlign.toWire(): Int =
         when (this) {
-            TextAlign.Left -> 1
-            TextAlign.Right -> 2
-            TextAlign.Center -> 3
-            TextAlign.Justify -> 4
-            TextAlign.Start -> 5
-            TextAlign.End -> 6
+            RemoteTextAlign.Left -> 1
+            RemoteTextAlign.Right -> 2
+            RemoteTextAlign.Center -> 3
+            RemoteTextAlign.Justify -> 4
+            RemoteTextAlign.Start -> 5
+            RemoteTextAlign.End -> 6
             else -> 0
         }
 

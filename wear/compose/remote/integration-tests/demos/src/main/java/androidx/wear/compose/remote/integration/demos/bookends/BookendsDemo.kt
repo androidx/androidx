@@ -31,6 +31,7 @@ import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.creation.compose.text.RemoteTextAlign
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
@@ -46,7 +47,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteAppScaffold
 import androidx.wear.compose.remote.integration.demos.bookends.material3.RemoteButton
@@ -73,7 +73,7 @@ fun BookendsDemoContent() {
     RemoteAppScaffold {
         RemoteScreenScaffold {
             RemoteTransformingLazyColumn {
-                item { RemoteText("Bookends".rs, textAlign = TextAlign.Center) }
+                item { RemoteText("Bookends".rs, textAlign = RemoteTextAlign.Center) }
                 item {
                     RemoteButton(
                         onClick = increment,

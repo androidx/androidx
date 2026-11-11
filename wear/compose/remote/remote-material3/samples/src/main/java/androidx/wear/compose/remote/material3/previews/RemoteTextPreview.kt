@@ -25,12 +25,12 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontStyle
+import androidx.compose.remote.creation.compose.text.RemoteTextOverflow
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.wear.compose.remote.material3.RemoteText
 import androidx.wear.compose.remote.material3.previews.utils.ProfilePreviewParameterProvider
@@ -69,7 +69,7 @@ private fun RemoteTextOverflowPreview(
                 text = text,
                 fontSize = 18.rsp,
                 color = color,
-                overflow = TextOverflow.Ellipsis,
+                overflow = RemoteTextOverflow.Ellipsis,
                 maxLines = 1,
             )
         }

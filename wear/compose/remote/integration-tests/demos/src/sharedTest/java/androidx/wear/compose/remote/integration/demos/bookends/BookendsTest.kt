@@ -40,6 +40,7 @@ import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.creation.compose.text.RemoteTextAlign
 import androidx.compose.remote.player.compose.RcPlayerTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -59,7 +60,6 @@ import androidx.compose.ui.test.assertIsToggleable
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.text.style.TextAlign
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.wear.compose.remote.integration.demos.bookends.material3.BookendsImplementation
@@ -249,17 +249,17 @@ abstract class BookendsTest(protected val implementation: BookendsImplementation
                 RemoteText(
                     "Start".rs,
                     modifier = RemoteModifier.fillMaxWidth(),
-                    textAlign = TextAlign.Start,
+                    textAlign = RemoteTextAlign.Start,
                 )
                 RemoteText(
                     "Center".rs,
                     modifier = RemoteModifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
+                    textAlign = RemoteTextAlign.Center,
                 )
                 RemoteText(
                     "End".rs,
                     modifier = RemoteModifier.fillMaxWidth(),
-                    textAlign = TextAlign.End,
+                    textAlign = RemoteTextAlign.End,
                 )
                 RemoteText("Colored".rs, color = RemoteColor(Color.Cyan))
                 RemoteText(

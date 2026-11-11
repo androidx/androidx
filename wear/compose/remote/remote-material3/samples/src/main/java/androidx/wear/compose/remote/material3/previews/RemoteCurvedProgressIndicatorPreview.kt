@@ -32,11 +32,11 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.state.toRemoteString
+import androidx.compose.remote.creation.compose.text.RemoteTextAlign
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.wear.compose.remote.material3.RemoteCurvedProgressIndicator
 import androidx.wear.compose.remote.material3.RemoteIntroOutroCurvedProgressIndicator
@@ -306,7 +306,7 @@ fun RemoteCurvedProgressIndicatorOutroLoop() {
             text = livePctString,
             color = Color.White.rc,
             fontSize = 10.rsp,
-            textAlign = TextAlign.Center,
+            textAlign = RemoteTextAlign.Center,
         )
     }
 }
@@ -332,7 +332,7 @@ fun RemoteCurvedProgressIndicatorIntroLoop() {
             text = livePctString,
             color = Color.White.rc,
             fontSize = 10.rsp,
-            textAlign = TextAlign.Center,
+            textAlign = RemoteTextAlign.Center,
         )
     }
 }
@@ -359,7 +359,7 @@ fun RemoteCurvedProgressIndicatorCountdownIntroLoop() {
             text = livePctString,
             color = Color.White.rc,
             fontSize = 10.rsp,
-            textAlign = TextAlign.Center,
+            textAlign = RemoteTextAlign.Center,
         )
     }
 }
@@ -385,7 +385,7 @@ fun RemoteCurvedProgressIndicatorCountdownOutroLoop() {
             text = livePctString,
             color = Color.White.rc,
             fontSize = 10.rsp,
-            textAlign = TextAlign.Center,
+            textAlign = RemoteTextAlign.Center,
         )
     }
 }
@@ -451,7 +451,7 @@ fun RemoteCurvedProgressIndicatorExpandFromZero() {
             text = livePctString,
             color = Color.White.rc,
             fontSize = 10.rsp,
-            textAlign = TextAlign.Center,
+            textAlign = RemoteTextAlign.Center,
         )
     }
 }
@@ -478,7 +478,7 @@ fun RemoteCurvedProgressIndicatorCollapseToZero() {
             text = livePctString,
             color = Color.White.rc,
             fontSize = 10.rsp,
-            textAlign = TextAlign.Center,
+            textAlign = RemoteTextAlign.Center,
         )
     }
 }
@@ -505,7 +505,7 @@ fun RemoteCurvedProgressIndicatorNoCollapse() {
             text = livePctString,
             color = Color.White.rc,
             fontSize = 10.rsp,
-            textAlign = TextAlign.Center,
+            textAlign = RemoteTextAlign.Center,
         )
     }
 }

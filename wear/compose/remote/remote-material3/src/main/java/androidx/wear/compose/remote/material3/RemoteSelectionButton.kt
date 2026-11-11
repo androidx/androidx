@@ -57,13 +57,12 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.sin
 import androidx.compose.remote.creation.compose.state.toRad
+import androidx.compose.remote.creation.compose.text.RemoteTextAlign
+import androidx.compose.remote.creation.compose.text.RemoteTextOverflow
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.wear.compose.material3.TextConfiguration
 
 /**
  * Returns the progress of a selection control, such as a checkbox, switch or radio dot, from
@@ -162,9 +161,9 @@ internal fun RemoteSelectionButtonImpl(
                         contentColor = contentColor,
                         textStyle = RemoteMaterialTheme.typography.labelMedium,
                         textConfiguration =
-                            TextConfiguration(
-                                textAlign = TextAlign.Start,
-                                overflow = TextOverflow.Ellipsis,
+                            RemoteTextConfiguration(
+                                textAlign = RemoteTextAlign.Start,
+                                overflow = RemoteTextOverflow.Ellipsis,
                                 maxLines = 3,
                             ),
                         content = label,
@@ -178,9 +177,9 @@ internal fun RemoteSelectionButtonImpl(
                             contentColor = secondaryContentColor,
                             textStyle = RemoteMaterialTheme.typography.labelSmall,
                             textConfiguration =
-                                TextConfiguration(
-                                    textAlign = TextAlign.Start,
-                                    overflow = TextOverflow.Ellipsis,
+                                RemoteTextConfiguration(
+                                    textAlign = RemoteTextAlign.Start,
+                                    overflow = RemoteTextOverflow.Ellipsis,
                                     maxLines = 2,
                                 ),
                             content = secondaryLabel,

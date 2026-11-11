@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontStyle
+import androidx.compose.remote.creation.compose.text.RemoteTextAlign
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -76,7 +77,7 @@ fun RemoteTextDemos(modifier: Modifier = Modifier) {
             remoteDemoItem("Centered") {
                 RemoteText(
                     "Centered Text".rs,
-                    textAlign = TextAlign.Center,
+                    textAlign = RemoteTextAlign.Center,
                     modifier = RemoteModifier.remoteFillMaxWidth(),
                 )
             }

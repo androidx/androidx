@@ -49,13 +49,12 @@ import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.text.RemoteTextAlign
+import androidx.compose.remote.creation.compose.text.RemoteTextOverflow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.wear.compose.material3.TextConfiguration
 
 /**
  * The Wear Material [RemoteSplitSwitchButton] offers two slots and shows the current toggle state
@@ -157,9 +156,9 @@ public fun RemoteSplitSwitchButton(
                                 contentColor = contentColor,
                                 textStyle = RemoteMaterialTheme.typography.labelMedium,
                                 textConfiguration =
-                                    TextConfiguration(
-                                        textAlign = TextAlign.Start,
-                                        overflow = TextOverflow.Ellipsis,
+                                    RemoteTextConfiguration(
+                                        textAlign = RemoteTextAlign.Start,
+                                        overflow = RemoteTextOverflow.Ellipsis,
                                         maxLines = 1,
                                     ),
                                 content = label,
@@ -173,10 +172,10 @@ public fun RemoteSplitSwitchButton(
                                     contentColor = secondaryContentColor,
                                     textStyle = RemoteMaterialTheme.typography.labelSmall,
                                     textConfiguration =
-                                        TextConfiguration(
-                                            overflow = TextOverflow.Ellipsis,
+                                        RemoteTextConfiguration(
+                                            overflow = RemoteTextOverflow.Ellipsis,
                                             maxLines = 1,
-                                            textAlign = TextAlign.Start,
+                                            textAlign = RemoteTextAlign.Start,
                                         ),
                                     secondaryLabel,
                                 )
