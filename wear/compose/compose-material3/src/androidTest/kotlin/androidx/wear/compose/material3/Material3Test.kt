@@ -390,19 +390,24 @@ private fun ComposeContentTestRule.assertFocusRingDrawn(node: SemanticsNodeInter
 
     // Find the outer edge on each side (left, right, top, bottom) along the center lines by
     // walking inward from the bitmap boundary until the first solid FocusRingOuterTestColor pixel
-    // (skipping any anti-aliased outer fringe pixels on curved or sloped edges).
-    val leftEdgeOutsideColor = pixelMap[0, centerY]
-    val leftEdgePx = (0..centerX).first { pixelMap[it, centerY].isCloseTo(FocusRingOuterTestColor) }
-    val rightEdgeOutsideColor = pixelMap[pixelMap.width - 1, centerY]
-    val rightEdgePx =
-        (pixelMap.width - 1 downTo centerX).first {
-            pixelMap[it, centerY].isCloseTo(FocusRingOuterTestColor)
+    // (skipping any anti-aliased outer fringe pixels on curved or sloped edges) and stepping back
+    // 1px when the preceding pixel is an anti-aliased fringe pixel so that outerStrokeOffsetPx and
+    // innerStrokeOffsetPx are measured from the outer boundary rather than inside the stroke.
+    fun findOuterBoundary(indices: IntProgression, pixelAt: (Int) -> Color): Int {
+        val outsideColor = pixelAt(indices.first)
+        val firstSolid = indices.first { pixelAt(it).isCloseTo(FocusRingOuterTestColor) }
+        val prev = firstSolid - indices.step
+        return if (firstSolid != indices.first && !pixelAt(prev).isCloseTo(outsideColor)) {
+            prev
+        } else {
+            firstSolid
         }
-    val topEdgePx = (0..centerY).first { pixelMap[centerX, it].isCloseTo(FocusRingOuterTestColor) }
+    }
+    val leftEdgePx = findOuterBoundary(0..centerX) { pixelMap[it, centerY] }
+    val rightEdgePx = findOuterBoundary(pixelMap.width - 1 downTo centerX) { pixelMap[it, centerY] }
+    val topEdgePx = findOuterBoundary(0..centerY) { pixelMap[centerX, it] }
     val bottomEdgePx =
-        (pixelMap.height - 1 downTo centerY).first {
-            pixelMap[centerX, it].isCloseTo(FocusRingOuterTestColor)
-        }
+        findOuterBoundary(pixelMap.height - 1 downTo centerY) { pixelMap[centerX, it] }
 
     // For each edge (left, right, top, bottom), take a middle point and make sure that both the
     // outer stroke and inner stroke have their expected focus ring colors.
@@ -419,35 +424,50 @@ private fun ComposeContentTestRule.assertFocusRingDrawn(node: SemanticsNodeInter
     // (for tapered shapes like EdgeButton, the widest X near the top is wider than leftEdgePx at
     // centerY). For rounded or curved components (including EdgeButton which hugs the curvature of
     // the screen), the 4 corners of this bounding box lie outside the component: walk inward from
-    // each of the 4 bounding-box corners along the 45° diagonal.
-    // The first pixel along the diagonal whose color differs from the corner pixel is the outer
-    // edge where the component's corner begins (for sharp 0.dp corners, such as Slider's inner
-    // button corners, the corner pixel itself is already the outer stroke color).
+    // each of the 4 bounding-box corners along the 45° diagonal until the first solid
+    // FocusRingOuterTestColor pixel and step back 1px to the outer boundary (or 0 for sharp 0.dp
+    // corners such as RectangleShape, where the corner pixel itself is already the outer stroke
+    // color).
     // Sampling both the outer stroke and the inner stroke along the corner diagonal verifies two
     // things:
     // 1. The component's container color does not spill outside the focus ring at the corner
     //    (which would happen if the focus ring's corner radius were larger than the component's).
-    // 2. Both the outer and inner focus ring strokes are drawn to their full thickness around the
-    //    corner rather than being clipped thin or cut off (which would happen if the focus ring
-    //    were rectangular or had a smaller corner radius than the component).
-    val minX =
-        (0..centerX).first { x ->
-            (topEdgePx..bottomEdgePx).any { y -> pixelMap[x, y] != leftEdgeOutsideColor }
-        }
-    val maxX =
-        (pixelMap.width - 1 downTo centerX).first { x ->
-            (topEdgePx..bottomEdgePx).any { y -> pixelMap[x, y] != rightEdgeOutsideColor }
-        }
-    val diagonalLimit = minOf(centerX - minX, bottomEdgePx - topEdgePx)
-    fun findCornerStartOffset(startX: Int, startY: Int, stepX: Int, stepY: Int): Int {
-        val outsideColor = pixelMap[startX, startY]
-        return if (outsideColor.isCloseTo(FocusRingOuterTestColor)) {
-            0
-        } else {
-            (0..diagonalLimit).first {
-                !pixelMap[startX + it * stepX, startY + it * stepY].isCloseTo(outsideColor)
+    // 2. Both the outer and inner focus ring strokes follow the component's corner curvature and
+    //    are drawn to their full thickness around the corner rather than being clipped thin or cut
+    //    off.
+    fun findHorizontalBound(indices: IntProgression): Int {
+        val firstSolidX = indices.first { x ->
+            (topEdgePx..bottomEdgePx).any { y ->
+                pixelMap[x, y].isCloseTo(FocusRingOuterTestColor)
             }
         }
+        val prevX = firstSolidX - indices.step
+        val hasAntiAliasedFringe =
+            firstSolidX != indices.first &&
+                (topEdgePx..bottomEdgePx).any { y ->
+                    pixelMap[firstSolidX, y].isCloseTo(FocusRingOuterTestColor) &&
+                        !pixelMap[prevX, y].isCloseTo(pixelMap[indices.first, y])
+                }
+        return if (hasAntiAliasedFringe) prevX else firstSolidX
+    }
+    val minX = findHorizontalBound(0..centerX)
+    val maxX = findHorizontalBound(pixelMap.width - 1 downTo centerX)
+    val diagonalLimit =
+        minOf(centerX - minX, maxX - centerX, centerY - topEdgePx, bottomEdgePx - centerY)
+    fun findCornerStartOffset(startX: Int, startY: Int, stepX: Int, stepY: Int): Int {
+        fun pixelAt(step: Int) = pixelMap[startX + step * stepX, startY + step * stepY]
+        val firstSolid = (0..diagonalLimit).first { pixelAt(it).isCloseTo(FocusRingOuterTestColor) }
+        if (firstSolid == 0) {
+            return 0
+        }
+        val outsideColor = pixelAt(0)
+        val firstNonOutside = (0..firstSolid).first { !pixelAt(it).isCloseTo(outsideColor) }
+        Assert.assertTrue(
+            "Unexpected non-background pixels before focus ring along corner diagonal from " +
+                "($startX, $startY): firstNonOutside=$firstNonOutside, firstOuterRing=$firstSolid",
+            firstSolid - firstNonOutside <= 3,
+        )
+        return firstSolid - 1
     }
     val topLeftCornerStartPx = findCornerStartOffset(minX, topEdgePx, 1, 1)
     val bottomLeftCornerStartPx = findCornerStartOffset(minX, bottomEdgePx, 1, -1)
