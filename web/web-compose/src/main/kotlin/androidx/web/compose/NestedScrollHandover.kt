@@ -35,6 +35,7 @@ import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.util.fastFirstOrNull
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 /**
@@ -72,6 +73,9 @@ internal class NestedScrollHandoverNode : DelegatingNode(), CompositionLocalCons
 
     /** The pointer whose moves we offer to parents. */
     private var pointerId: PointerId? = null
+
+    /** The last fling dispatched to parents. */
+    private var flingJob: Job? = null
 
     init {
         delegate(nestedScrollModifierNode(NoOpNestedScrollConnection, dispatcher))
@@ -170,6 +174,7 @@ internal class NestedScrollHandoverNode : DelegatingNode(), CompositionLocalCons
         parentsTookX = false
         parentsTookY = false
         pointerId = down.changes.firstOrNull()?.id
+        flingJob = null
     }
 
     /**
@@ -217,7 +222,7 @@ internal class NestedScrollHandoverNode : DelegatingNode(), CompositionLocalCons
     /** Ends a gesture that parents have, flinging them with [velocity] as a scrollable would. */
     private fun endHandover(velocity: Velocity) {
         phase = Phase.Done
-        dispatcher.coroutineScope.launch {
+        dispatchFling {
             val consumed = dispatcher.dispatchPreFling(velocity)
             dispatcher.dispatchPostFling(Velocity.Zero, velocity - consumed)
         }
@@ -225,10 +230,20 @@ internal class NestedScrollHandoverNode : DelegatingNode(), CompositionLocalCons
 
     /** The page flings itself, so parents only get the [available] velocity it didn't use. */
     private fun dispatchPageFling(available: Velocity) {
-        dispatcher.coroutineScope.launch {
+        dispatchFling {
             dispatcher.dispatchPreFling(Velocity.Zero)
             dispatcher.dispatchPostFling(Velocity.Zero, available)
         }
+    }
+
+    /** Dispatches flings one at a time, as several can come in for one gesture. */
+    private fun dispatchFling(fling: suspend () -> Unit) {
+        val previous = flingJob
+        flingJob =
+            dispatcher.coroutineScope.launch {
+                previous?.join()
+                fling()
+            }
     }
 
     /** Keeps only the axes that parents took overscroll on. */

@@ -83,6 +83,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
@@ -1223,10 +1224,7 @@ class WebSurfaceTest {
 
         // Pull down at the top of the page so overscroll pulls the indicator past its threshold.
         val surface = composeTestRule.onNodeWithTag("surface")
-        surface.performTouchInput {
-            down(Offset(centerX, 20.dp.toPx()))
-            repeat(10) { moveBy(Offset(0f, 15.dp.toPx())) }
-        }
+        surface.pullDownFromTop()
         composeTestRule.waitUntil(TIMEOUT_MS) { pullToRefreshState.distanceFraction > 1f }
 
         // Pushing back up hands the rest of the gesture to PullToRefreshBox: pushing past where
@@ -1241,10 +1239,7 @@ class WebSurfaceTest {
 
         // The page gets the next gesture again, so pulling down past the threshold and releasing
         // refreshes.
-        surface.performTouchInput {
-            down(Offset(centerX, 20.dp.toPx()))
-            repeat(10) { moveBy(Offset(0f, 15.dp.toPx())) }
-        }
+        surface.pullDownFromTop()
         composeTestRule.waitUntil(TIMEOUT_MS) { pullToRefreshState.distanceFraction > 1f }
         surface.performTouchInput { up() }
         composeTestRule.waitUntil(TIMEOUT_MS) { refreshCount == 1 && isRefreshing }
@@ -2112,6 +2107,12 @@ class WebSurfaceTest {
             getPixel(width / 2, height * 3 / 4) == Color.GREEN
 
     private fun WebContentView.loadHtml(html: String) = loadHtml(composeTestRule, html)
+
+    /** Drags down one move at a time, as Chromium can drop moves sent in a burst. */
+    private fun SemanticsNodeInteraction.pullDownFromTop() {
+        performTouchInput { down(Offset(centerX, 20.dp.toPx())) }
+        repeat(10) { performTouchInput { moveBy(Offset(0f, 15.dp.toPx())) } }
+    }
 
     companion object {
         internal const val TIMEOUT_MS = 5_000L
