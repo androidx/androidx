@@ -157,7 +157,7 @@ public class VariableFontDemo {
                 .commit();
         DecimalFormat df = new DecimalFormat("00");
         float count = rc.floatExpression(Rc.Time.CONTINUOUS_SEC, 100, MOD);
-        int txtId = rc.createTextFromFloat(count, 2, 0, 0);
+        int txtId = rc.createTextFromFloat(count, (short) 2, (short) 0, 0);
         rc.drawTextAnchored(txtId, cx1, cy, 0, 0, 0);
 
         rc.drawTextAnchored(df.format(23f), cx2, cy, 0, 0, 0);

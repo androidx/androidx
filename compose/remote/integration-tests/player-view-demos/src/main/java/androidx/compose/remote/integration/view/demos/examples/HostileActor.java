@@ -81,7 +81,7 @@ public class HostileActor {
                     RemoteComposeWriter.IMAGE_SCALE_FIT, 3f, "test image");
             rcDoc.restore();
         });
-        int tid = rcDoc.createTextFromFloat(value, 5, 2, 0);
+        int tid = rcDoc.createTextFromFloat(value, (short) 5, (short) 2, 0);
         rcDoc.getPainter().setTextSize(32.f).setColor(Color.RED).commit();
         rcDoc.drawTextAnchored(tid, cx, 20, 0, 0, ANCHOR_MONOSPACE_MEASURE);
 
@@ -138,7 +138,7 @@ public class HostileActor {
                     RemoteComposeWriter.IMAGE_SCALE_FIT, 3f, "test image");
             rcDoc.restore();
         });
-        int tid = rcDoc.createTextFromFloat(value, 5, 2, 0);
+        int tid = rcDoc.createTextFromFloat(value, (short) 5, (short) 2, 0);
         rcDoc.getPainter().setTextSize(32.f).setColor(Color.RED).commit();
         rcDoc.drawTextAnchored(tid, cx, 20, 0, 0, ANCHOR_MONOSPACE_MEASURE);
 

@@ -419,7 +419,7 @@ public class ClockDemo2 {
                                     3,
                                     MUL,
                                     ROUND);
-                    int tid = rc.createTextFromFloat(hr, 2, 0, 0);
+                    int tid = rc.createTextFromFloat(hr, (short) 2, (short) 0, 0);
 
                     rc.drawTextAnchored(tid, offsetX, offsetY, 0, 0, 0);
                 });
@@ -695,7 +695,7 @@ public class ClockDemo2 {
                                         3,
                                         MUL,
                                         ROUND);
-                        int tid = rc.createTextFromFloat(hr, 2, 0, 0);
+                        int tid = rc.createTextFromFloat(hr, (short) 2, (short) 0, 0);
                         rc.drawTextAnchored(tid, txtOffsetX, txtOffsetY, 0, 0, 0);
                     }
                     rc.endConditionalOperations();
@@ -955,9 +955,10 @@ public class ClockDemo2 {
                         ADD,
                         12,
                         MOD);
-        int hrId = rc.createTextFromFloat(hr, 3, 0, 0);
+        int hrId = rc.createTextFromFloat(hr, (short) 3, (short) 0, 0);
         float min = rc.floatExpression(Rc.Time.TIME_IN_MIN, 60, MOD);
-        int minId = rc.createTextFromFloat(min, 2, 0, Rc.TextFromFloat.PAD_PRE_ZERO);
+        int minId =
+                rc.createTextFromFloat(min, (short) 2, (short) 0, Rc.TextFromFloat.PAD_PRE_ZERO);
         int clock = rc.textMerge(hrId, rc.addText(":"));
         clock = rc.textMerge(clock, minId);
 
@@ -983,12 +984,14 @@ public class ClockDemo2 {
         rc.getPainter().setShader(0).setColor(Color.LTGRAY).commit();
         rc.drawTextAnchored(clock, cx, py, 0, -3f, 0);
         rc.drawTextAnchored(city, cx, py, 0, 0, Rc.TextAnchorMask.MEASURE_EVERY_TIME);
-        int hrSunrise = rc.createTextFromFloat(sunrise, 2, 0, 0);
+        int hrSunrise = rc.createTextFromFloat(sunrise, (short) 2, (short) 0, 0);
         int minSunrise =
-                rc.createTextFromFloat(rc.floatExpression(sunrise, 1, MOD, 60, MUL), 2, 0, 0);
-        int hrSunset = rc.createTextFromFloat(sunset, 2, 0, 0);
+                rc.createTextFromFloat(
+                        rc.floatExpression(sunrise, 1, MOD, 60, MUL), (short) 2, (short) 0, 0);
+        int hrSunset = rc.createTextFromFloat(sunset, (short) 2, (short) 0, 0);
         int minSunset =
-                rc.createTextFromFloat(rc.floatExpression(sunset, 1, MOD, 60, MUL), 2, 0, 0);
+                rc.createTextFromFloat(
+                        rc.floatExpression(sunset, 1, MOD, 60, MUL), (short) 2, (short) 0, 0);
 
         int sunriseText = rc.textMerge(rc.textMerge(hrSunrise, rc.addText(":")), minSunrise);
         int sunsetText = rc.textMerge(rc.textMerge(hrSunset, rc.addText(":")), minSunset);

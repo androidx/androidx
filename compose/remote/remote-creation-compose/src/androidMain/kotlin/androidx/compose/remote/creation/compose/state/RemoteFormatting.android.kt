@@ -42,7 +42,11 @@ import kotlin.math.pow
 internal val DefaultDecimalFormat = IcuDecimalFormat()
 internal val DefaultIntegerFormat = IcuDecimalFormat().apply { maximumFractionDigits = 0 }
 
-internal data class TextFromFloatOptions(val before: Int, val after: Int, val flags: Int)
+/**
+ * Formatting options for a `TextFromFloat` operation. [before] and [after] are shorts because that
+ * is how the operation encodes them on the wire.
+ */
+internal data class TextFromFloatOptions(val before: Short, val after: Short, val flags: Int)
 
 internal fun IcuDecimalFormat.toTextFromFloatOptions(): TextFromFloatOptions {
     val decimalSeparator = decimalFormatSymbols.decimalSeparator
@@ -77,8 +81,8 @@ internal fun IcuDecimalFormat.toTextFromFloatOptions(): TextFromFloatOptions {
             SEPARATOR_COMMA_PERIOD
         }
 
-    val before = maximumIntegerDigits.coerceAtMost(255)
-    val after = maximumFractionDigits.coerceAtMost(255)
+    val before = maximumIntegerDigits.coerceIn(0, 255).toShort()
+    val after = maximumFractionDigits.coerceIn(0, 255).toShort()
     var options = 0
     if (negativePrefix == "(") {
         options = options or OPTIONS_NEGATIVE_PARENTHESES
@@ -121,7 +125,7 @@ internal fun formatRemoteFloat(value: RemoteFloat, format: IcuDecimalFormat): Re
     // but doesn't require them (minimumFractionDigits == 0).
     if (format.minimumFractionDigits == 0 && after > 0 && format !== DefaultDecimalFormat) {
         value.constantValueOrNull?.let { constVal ->
-            val resolvedAfter = if (constVal % 1f == 0f) 0 else after
+            val resolvedAfter = if (constVal % 1f == 0f) 0.toShort() else after
             return value.toRemoteStringWithPadding(
                 before,
                 resolvedAfter,
@@ -190,7 +194,7 @@ internal fun formatRemoteInt(value: RemoteInt, format: IcuDecimalFormat): Remote
     val (before, after, flags) = format.toTextFromFloatOptions()
     // If the format doesn't require fractional digits, we force it to 0.
     // This is typical for integer formatting.
-    val resolvedAfter = if (format.minimumFractionDigits == 0) 0 else after
+    val resolvedAfter = if (format.minimumFractionDigits == 0) 0.toShort() else after
 
     // Optimization: We call toRemoteStringWithPadding directly on the float
     // representation rather than calling toRemoteFloat().toRemoteString(format).

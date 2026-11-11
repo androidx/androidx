@@ -243,7 +243,7 @@ public class ImpulseDemo {
             rcDoc.drawOval(0, 0, FLOAT_WINDOW_WIDTH, RemoteContext.FLOAT_WINDOW_HEIGHT);
             rcDoc.restore();
 
-            int textId = rcDoc.createTextFromFloat(500, 3, 0, PAD_AFTER_ZERO);
+            int textId = rcDoc.createTextFromFloat(500, (short) 3, (short) 0, PAD_AFTER_ZERO);
 
             rcDoc.getPainter().setStyle(Paint.Style.STROKE).setStrokeWidth(2f).setColor(
                     Color.BLACK).commit();
@@ -346,7 +346,7 @@ public class ImpulseDemo {
 
             rcDoc.drawOval(0, 0, FLOAT_WINDOW_WIDTH, RemoteContext.FLOAT_WINDOW_HEIGHT);
 
-            int textId = rcDoc.createTextFromFloat(500, 3, 0, PAD_AFTER_ZERO);
+            int textId = rcDoc.createTextFromFloat(500, (short) 3, (short) 0, PAD_AFTER_ZERO);
 
             rcDoc.getPainter().setStyle(Paint.Style.STROKE).setStrokeWidth(2f).setColor(
                     Color.BLACK).commit();

@@ -584,11 +584,19 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
     override fun remoteThemedColor(light: RcColor, dark: RcColor): RcColor =
         RcColor(writer.addThemedColor(light.id.toShort(), dark.id.toShort()).toInt())
 
-    override fun createTextFromFloat(value: Float, whole: Int, decimal: Int, flags: Int): RcText =
-        RcText(writer.createTextFromFloat(value, whole, decimal, flags))
+    override fun createTextFromFloat(
+        value: Float,
+        whole: Short,
+        decimal: Short,
+        flags: Int,
+    ): RcText = RcText(writer.createTextFromFloat(value, whole, decimal, flags))
 
-    override fun createTextFromFloat(value: RcFloat, whole: Int, decimal: Int, flags: Int): RcText =
-        value.withWriter(writer).format(whole, decimal, flags)
+    override fun createTextFromFloat(
+        value: RcFloat,
+        whole: Short,
+        decimal: Short,
+        flags: Int,
+    ): RcText = value.withWriter(writer).format(whole, decimal, flags)
 
     override fun remoteFloatArray(array: FloatArray): RcFloat =
         RcFloat(writer, writer.addFloatArray(array))

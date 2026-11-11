@@ -78,7 +78,7 @@ public class IndexingDemo {
             rc.restore();
             rc.getPainter().setColor(Color.BLACK).setTextSize(152f).commit();
 
-            int textId = rc.createTextFromFloat(sec, 1, 0, 0);
+            int textId = rc.createTextFromFloat(sec, (short) 1, (short) 0, 0);
             rc.drawTextAnchored(textId, cx, cy, 0, 0, 0);
             rc.endCanvas();
         });

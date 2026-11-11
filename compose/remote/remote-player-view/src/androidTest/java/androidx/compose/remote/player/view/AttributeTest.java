@@ -511,7 +511,7 @@ public class AttributeTest {
                     float timeSinceCreate =
                             rdoc.timeAttribute(creation_time, TimeAttribute.TIME_FROM_NOW_SEC);
 
-                    int tId = rdoc.createTextFromFloat(timeSinceCreate, 0, 4, 0);
+                    int tId = rdoc.createTextFromFloat(timeSinceCreate, (short) 0, (short) 4, 0);
                     // Change this to WHITE to see the difference
                     rdoc.getPainter().setTextSize(100f).setColor(0xFF0000FF).commit();
                     rdoc.drawTextAnchored(tId, tw / 2, th / 2, 0, 0, 0);
@@ -604,7 +604,7 @@ public class AttributeTest {
                     float timeSinceCreate =
                             rdoc.timeAttribute(creation_time, TimeAttribute.TIME_FROM_NOW_SEC);
 
-                    int tId = rdoc.createTextFromFloat(timeSinceCreate, 0, 4, 0);
+                    int tId = rdoc.createTextFromFloat(timeSinceCreate, (short) 0, (short) 4, 0);
                     // Change this to WHITE to see the difference
                     rdoc.getPainter().setTextSize(100f).setColor(0xFF0000FF).commit();
                     rdoc.drawTextAnchored(tId, tw / 2, th / 2, 0, 0, 0);

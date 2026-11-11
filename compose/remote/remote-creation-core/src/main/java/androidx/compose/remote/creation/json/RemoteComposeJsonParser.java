@@ -739,15 +739,15 @@ public class RemoteComposeJsonParser {
             RecordingModifier modifier) throws JSONException {
         Object value = component.has("value") ? component.opt("value") : component.opt("text");
         float textFromFloat = Float.NaN;
-        int textFromFloatWhole = 0;
-        int textFromFloatDecimal = 0;
+        short textFromFloatWhole = 0;
+        short textFromFloatDecimal = 0;
         int textFromFloatFlags = 0;
         boolean hasTextFromFloat = component.has("textFromFloat");
         if (hasTextFromFloat) {
             JSONObject obj = component.getJSONObject("textFromFloat");
             textFromFloat = parseFloat(obj.get("value"));
-            textFromFloatWhole = obj.optInt("whole", 0);
-            textFromFloatDecimal = obj.optInt("decimal", 0);
+            textFromFloatWhole = parseDigits(obj, "whole", 0);
+            textFromFloatDecimal = parseDigits(obj, "decimal", 0);
             textFromFloatFlags = obj.optInt("flags", 0);
         }
 
@@ -2328,8 +2328,8 @@ public class RemoteComposeJsonParser {
                             JSONObject vo = (JSONObject) val;
                             if (vo.optString("type", "").equalsIgnoreCase("textFromFloat")) {
                                 float floatVal = parseFloat(vo.get("value"));
-                                int after = vo.optInt("decimal", 3);
-                                int before = vo.optInt("whole", 0);
+                                short after = parseDigits(vo, "decimal", 3);
+                                short before = parseDigits(vo, "whole", 0);
                                 int flags = vo.optInt("flags", 0);
                                 varVal = (float) mWriter.createTextFromFloat(floatVal, before,
                                         after, flags);
@@ -2611,10 +2611,8 @@ public class RemoteComposeJsonParser {
                 JSONObject vo = (JSONObject) val;
                 if (vo.has("type") && vo.getString("type").equalsIgnoreCase("textFromFloat")) {
                     float floatVal = parseFloat(vo.get("value"));
-                    int after = vo.optInt("after", 3);
-                    if (vo.has("decimal")) after = vo.optInt("decimal", 3);
-                    int before = vo.optInt("before", 0);
-                    if (vo.has("whole")) before = vo.optInt("whole", 0);
+                    short after = parseDigits(vo, vo.has("decimal") ? "decimal" : "after", 3);
+                    short before = parseDigits(vo, vo.has("whole") ? "whole" : "before", 0);
                     int flags = vo.optInt("flags", 0);
                     int textId = mWriter.createTextFromFloat(floatVal, before, after, flags);
                     mVariables.put(name, (float) textId);
@@ -2758,6 +2756,27 @@ public class RemoteComposeJsonParser {
             }
         }
         return defaultValue;
+    }
+
+    /**
+     * Reads a digit count (e.g. the {@code whole}/{@code decimal} fields of a {@code
+     * textFromFloat}) from {@code obj}. The TextFromFloat operation stores these as shorts, so
+     * values outside {@code [0, Short.MAX_VALUE]} are rejected rather than silently truncated.
+     *
+     * @param obj the JSON object to read from
+     * @param key the key to read
+     * @param defaultValue the value to use when {@code key} is absent
+     * @return the digit count as a short
+     * @throws JSONException if the value is out of range
+     */
+    static short parseDigits(@NonNull JSONObject obj, @NonNull String key, int defaultValue)
+            throws JSONException {
+        int value = obj.optInt(key, defaultValue);
+        if (value < 0 || value > Short.MAX_VALUE) {
+            throw new JSONException(
+                    "\"" + key + "\" must be in [0, " + Short.MAX_VALUE + "], got " + value);
+        }
+        return (short) value;
     }
 
     float parseFloat(@Nullable Object value) throws JSONException {
@@ -3036,10 +3055,8 @@ public class RemoteComposeJsonParser {
                 return mWriter.textMerge(id1, id2);
             } else if (vo.has("type") && vo.getString("type").equalsIgnoreCase("textFromFloat")) {
                 float val = parseFloat(vo.get("value"));
-                int after = vo.optInt("after", 3);
-                if (vo.has("decimal")) after = vo.optInt("decimal", 3);
-                int before = vo.optInt("before", 0);
-                if (vo.has("whole")) before = vo.optInt("whole", 0);
+                short after = parseDigits(vo, vo.has("decimal") ? "decimal" : "after", 3);
+                short before = parseDigits(vo, vo.has("whole") ? "whole" : "before", 0);
                 int flags = vo.optInt("flags", 0);
                 return mWriter.createTextFromFloat(val, before, after, flags);
             } else {

@@ -691,7 +691,7 @@ public class RemoteComposeComparisonTest {
         writer.beginGlobal();
         int bgId = writer.addThemedColor(null, 0xFFEEEEEE, null, 0xFF111111);
         writer.setColorName(bgId, "bg");
-        int textId = writer.createTextFromFloat(123.45f, 0, 2, 0);
+        int textId = writer.createTextFromFloat(123.45f, (short) 0, (short) 2, 0);
         writer.setStringName(textId, "priceText");
 
         writer.root(() -> {

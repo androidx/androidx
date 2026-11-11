@@ -787,7 +787,7 @@ public class FloatTest {
                     float pi = rdoc.floatExpression(0f, ACOS, 2f, MUL);
                     rdoc.getPainter().setColor(0xff000077).setTextSize(100f).commit();
 
-                    int strId = rdoc.createTextFromFloat(pi, 2, 4, 0);
+                    int strId = rdoc.createTextFromFloat(pi, (short) 2, (short) 4, 0);
                     rdoc.drawTextAnchored(strId, tw / 2f, th / 2.f, 0f, 0f, 0);
                 };
 
@@ -857,7 +857,7 @@ public class FloatTest {
                     Float halfWidth = rdoc.floatExpression(FLOAT_WINDOW_WIDTH, 0.5f, MUL);
                     rdoc.getPainter().setColor(0xff000077).setTextSize(100f).commit();
 
-                    int strId = rdoc.createTextFromFloat(32.2321f, 2, 1, 0);
+                    int strId = rdoc.createTextFromFloat(32.2321f, (short) 2, (short) 1, 0);
                     rdoc.drawTextAnchored(strId, tw / 2f, th / 2.f, 0f, 0f, 0);
                     // rdoc.drawTextRun(nstr,0,nstr.length(),0,1,10f,th/2.f,false);
                 };
@@ -940,39 +940,47 @@ public class FloatTest {
                             .setTextSize(50f)
                             .commit();
                     float k = 0.05f;
-                    int strId1 = rdoc.createTextFromFloat(pi, 2, 4, 0);
+                    int strId1 = rdoc.createTextFromFloat(pi, (short) 2, (short) 4, 0);
                     rdoc.drawTextRun(strId1, 0, -1, 0, 1, 50, th * (k += 0.1f), false);
-                    int strId2 = rdoc.createTextFromFloat(num1, 2, 4, 0);
+                    int strId2 = rdoc.createTextFromFloat(num1, (short) 2, (short) 4, 0);
                     rdoc.drawTextRun(strId2, 0, -1, 0, 1, 50, th * (k += 0.1f), false);
 
-                    int strId3 = rdoc.createTextFromFloat(num2, 2, 0, 0);
+                    int strId3 = rdoc.createTextFromFloat(num2, (short) 2, (short) 0, 0);
                     rdoc.drawTextRun(strId3, 0, -1, 0, 1, 50, th * (k += 0.1f), false);
 
-                    int strId4 = rdoc.createTextFromFloat(num3, 1, 4, TextFromFloat.PAD_AFTER_ZERO);
+                    int strId4 =
+                            rdoc.createTextFromFloat(
+                                    num3, (short) 1, (short) 4, TextFromFloat.PAD_AFTER_ZERO);
                     rdoc.drawTextRun(strId4, 0, -1, 0, 1, 50, th * (k += 0.1f), false);
                     int id;
-                    id = rdoc.createTextFromFloat(num3, 1, 4, TextFromFloat.PAD_AFTER_SPACE);
+                    id =
+                            rdoc.createTextFromFloat(
+                                    num3, (short) 1, (short) 4, TextFromFloat.PAD_AFTER_SPACE);
                     rdoc.drawTextRun(id, 0, -1, 0, 1, 50, th * (k += 0.1f), false);
 
-                    id = rdoc.createTextFromFloat(num3, 1, 4, TextFromFloat.PAD_AFTER_NONE);
+                    id =
+                            rdoc.createTextFromFloat(
+                                    num3, (short) 1, (short) 4, TextFromFloat.PAD_AFTER_NONE);
                     rdoc.drawTextRun(id, 0, -1, 0, 1, 50, th * (k += 0.1f), false);
 
-                    id = rdoc.createTextFromFloat(num3, 4, 4, TextFromFloat.PAD_AFTER_NONE);
+                    id =
+                            rdoc.createTextFromFloat(
+                                    num3, (short) 4, (short) 4, TextFromFloat.PAD_AFTER_NONE);
                     rdoc.drawTextRun(id, 0, -1, 0, 1, 50, th * (k += 0.1f), false);
 
                     id =
                             rdoc.createTextFromFloat(
                                     num3,
-                                    4,
-                                    4,
+                                    (short) 4,
+                                    (short) 4,
                                     TextFromFloat.PAD_AFTER_NONE | TextFromFloat.PAD_PRE_NONE);
                     rdoc.drawTextRun(id, 0, -1, 0, 1, 50, th * (k += 0.1f), false);
 
                     id =
                             rdoc.createTextFromFloat(
                                     num3,
-                                    4,
-                                    4,
+                                    (short) 4,
+                                    (short) 4,
                                     TextFromFloat.PAD_AFTER_NONE | TextFromFloat.PAD_PRE_ZERO);
                     rdoc.drawTextRun(id, 0, -1, 0, 1, 50, th * (k += 0.1f), false);
                 };
@@ -1062,7 +1070,7 @@ public class FloatTest {
                     float pi = rdoc.floatExpression(0f, ACOS, 2f, MUL);
                     rdoc.getPainter().setColor(0xff000077).setTextSize(100f).commit();
 
-                    int floatString = rdoc.createTextFromFloat(pi, 1, 4, 0);
+                    int floatString = rdoc.createTextFromFloat(pi, (short) 1, (short) 4, 0);
                     int prompt = rdoc.textCreateId("foo:");
                     int ans = rdoc.textMerge(prompt, floatString);
                     rdoc.drawTextAnchored(ans, tw / 2f, th / 2.f, 0f, 0f, 0);

@@ -271,7 +271,7 @@ open public class RcFloat {
      * @param decimal the number of digits after the decimal point
      * @param flags formatting flags (see [Rc.TextFromFloat])
      */
-    public fun format(whole: Int, decimal: Int = 0, flags: Int = 0): RcText {
+    public fun format(whole: Short, decimal: Short = 0, flags: Int = 0): RcText {
         val w = writer ?: throw IllegalStateException("RcFloat must be associated with a writer")
         return RcText(w.createTextFromFloat(toFloat(), whole, decimal, flags))
     }
@@ -284,7 +284,7 @@ open public class RcFloat {
      * @param decimal the number of digits after the decimal point
      * @param spec typed formatting specification
      */
-    public fun format(whole: Int, decimal: Int = 0, spec: RcTextFromFloatSpec): RcText =
+    public fun format(whole: Short, decimal: Short = 0, spec: RcTextFromFloatSpec): RcText =
         format(whole, decimal, spec.bits)
 
     override fun equals(other: Any?): Boolean {

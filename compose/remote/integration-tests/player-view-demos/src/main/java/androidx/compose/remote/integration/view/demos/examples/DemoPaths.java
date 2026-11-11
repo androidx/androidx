@@ -1043,7 +1043,7 @@ public class DemoPaths {
                     .setStrokeWidth(1)
                     .commit();
             rc.drawRect(xPos1, lineTop, xPos2, lineBottom);
-            int textId = rc.createTextFromFloat(yVal, 2, 0, 0);
+            int textId = rc.createTextFromFloat(yVal, (short) 2, (short) 0, 0);
             rc.getPainter()
                     .setColor(Color.WHITE)
                     .setStyle(Paint.Style.STROKE)
@@ -1137,7 +1137,7 @@ public class DemoPaths {
                     .setStrokeWidth(1)
                     .commit();
             rc.drawRect(xPos1, lineTop, xPos2, lineBottom);
-            int textId = rc.createTextFromFloat(yVal, 2, 0, 0);
+            int textId = rc.createTextFromFloat(yVal, (short) 2, (short) 0, 0);
             rc.getPainter()
                     .setColor(Color.WHITE)
                     .setStyle(Paint.Style.STROKE)
