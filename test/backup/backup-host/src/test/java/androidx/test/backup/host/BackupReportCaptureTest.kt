@@ -2228,7 +2228,6 @@ class BackupReportCaptureTest {
             gmsVersionName?.split('.')?.let { (maj, min, pat) ->
                 maj.toLong() * 10_000_000L + min.toLong() * 100_000L + pat.toLong() * 1_000L
             }
-        var restoreActive = false
         val populatePayload = """{"status":"success"}"""
         adbDevice.onShell { cmd ->
             when {
@@ -2251,10 +2250,6 @@ class BackupReportCaptureTest {
                     )
                 cmd.startsWith("am instrument ") -> shellOutput(runnerStdout(populatePayload))
                 cmd == "bmgr list transports" -> shellOutput("  * $LOCAL_TRANSPORT\n")
-                cmd == "dumpsys backup" -> {
-                    restoreActive = !restoreActive
-                    shellOutput("Restore in progress: $restoreActive\n")
-                }
                 cmd == "date +%s" -> shellOutput("1700000100\n")
                 cmd.startsWith("logcat ") -> shellOutput(logcat)
                 else -> bmgrSuccessOutput(cmd) ?: ShellCommandOutput("", "", 0)

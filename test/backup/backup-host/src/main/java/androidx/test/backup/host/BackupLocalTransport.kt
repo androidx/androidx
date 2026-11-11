@@ -25,9 +25,6 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * Backs up and restores [applicationId] through the device's local backup transport with `bmgr`.
@@ -72,16 +69,12 @@ internal class BackupLocalTransport(
     }
 
     /**
-     * Restores the package from the local transport, as [backup], marked by [archive], and waits
-     * for the restore pass to end.
-     *
-     * [timeout] is the caller's budget for the whole restore. It limits how long to look for the
-     * restore pass, so that a restore finishing before the first check still completes within it.
-     * The wait for a pass that was seen has no bound of its own; the caller enforces [timeout].
+     * Restores the package from the local transport, as [backup], marked by [archive], and returns
+     * when the restore has finished.
      *
      * @throws IOException if [backup] is of another app, or was made on another device
      */
-    suspend fun restore(archive: Path, backup: LocalBackup, timeout: Duration) {
+    suspend fun restore(archive: Path, backup: LocalBackup) {
         if (backup.packageName != null && backup.packageName != applicationId) {
             throw IOException(
                 "${archive.fileName} is a LOCAL backup of ${backup.packageName}, not of " +
@@ -97,14 +90,13 @@ internal class BackupLocalTransport(
         }
         logger.info("Executing robust local transport restore simulation...")
         withLocalTransport {
+            // bmgr reports the result only when the restore has finished.
             bmgr(
                 "restore 1 ${BackupDeviceShell.quoteIfNeeded(applicationId)}",
                 BackupErrorCode.RESTORE_FAILED,
                 "Local restore of $applicationId failed",
                 "restoreFinished: 0",
             )
-            shell.exec("bmgr run")
-            waitForRestorePassCompletion(minOf(RESTORE_DISPATCH_TIMEOUT, timeout / 2))
         }
     }
 
@@ -178,37 +170,6 @@ internal class BackupLocalTransport(
     }
 
     /**
-     * Waits for BackupManagerService to dispatch the restore pass, and then for it to complete.
-     *
-     * A pass that is not seen within [dispatchTimeout] is assumed to have completed before the
-     * first check.
-     */
-    private suspend fun waitForRestorePassCompletion(dispatchTimeout: Duration) {
-        val started =
-            withTimeoutOrNull(dispatchTimeout) {
-                while (!isRestoreInProgress()) {
-                    delay(RESTORE_DISPATCH_POLL_INTERVAL_MS)
-                }
-                true
-            }
-        if (started == null) {
-            logger.warning(
-                "Restore pass registration was not detected within $dispatchTimeout; proceeding."
-            )
-            return
-        }
-        while (isRestoreInProgress()) {
-            delay(RESTORE_COMPLETION_POLL_INTERVAL_MS)
-        }
-    }
-
-    private suspend fun isRestoreInProgress(): Boolean {
-        val dumpsys = shell.exec("dumpsys backup").stdout
-        return RESTORE_SESSION_REGEX.containsMatchIn(dumpsys) ||
-            RESTORE_IN_PROGRESS_REGEX.containsMatchIn(dumpsys)
-    }
-
-    /**
      * A LOCAL backup of [packageName], made on the device [serialNumber]. Both are null for a
      * marker written by a version of this library that didn't record them.
      */
@@ -270,15 +231,5 @@ internal class BackupLocalTransport(
         /** Assumed to be the selected transport when `bmgr` does not mark one. */
         private const val DEFAULT_TRANSPORT =
             "com.google.android.gms/.backup.BackupTransportService"
-
-        /** Upper bound for detecting the restore pass, whatever the caller's timeout. */
-        private val RESTORE_DISPATCH_TIMEOUT = 7_500.milliseconds
-        private const val RESTORE_DISPATCH_POLL_INTERVAL_MS = 250L
-        private const val RESTORE_COMPLETION_POLL_INTERVAL_MS = 500L
-
-        private val RESTORE_SESSION_REGEX =
-            Regex("""(?i)(?:Restore session|Active restore):\s*(?!null\b|none\b)\S+""")
-        private val RESTORE_IN_PROGRESS_REGEX =
-            Regex("""(?i)Restore (?:pass )?in progress:\s*true\b""")
     }
 }
