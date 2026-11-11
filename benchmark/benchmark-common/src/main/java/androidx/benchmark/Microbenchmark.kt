@@ -18,6 +18,7 @@ package androidx.benchmark
 
 import android.util.Log
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.benchmark.BenchmarkState.Companion.enableMethodTracingAffectsMeasurementError
 import androidx.benchmark.perfetto.PerfettoCapture
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
@@ -126,14 +127,20 @@ internal constructor(
         paused = false
     }
 
+    internal fun resetTaskDeadlines() {
+        initialTimeNs = System.nanoTime()
+        // we try to stop next measurement after soft deadline...
+        softDeadlineNs =
+            initialTimeNs + TimeUnit.MILLISECONDS.toNanos(Microbenchmark.softDeadlineDurationMs)
+        // ... and throw if took longer than hard deadline
+        hardDeadlineNs =
+            initialTimeNs + TimeUnit.MILLISECONDS.toNanos(Microbenchmark.hardDeadlineDurationMs)
+    }
+
     public fun beginTaskTrace() {
         if (yieldThreadPeriodically) {
             Trace.beginSection("benchmark task")
-            initialTimeNs = System.nanoTime()
-            // we try to stop next measurement after soft deadline...
-            softDeadlineNs = initialTimeNs + TimeUnit.SECONDS.toNanos(2)
-            // ... and throw if took longer than hard deadline
-            hardDeadlineNs = initialTimeNs + TimeUnit.SECONDS.toNanos(10)
+            resetTaskDeadlines()
         }
     }
 
@@ -190,6 +197,10 @@ private fun checkForErrors() {
             "- no additional benchmarks can be run without restarting the test suite. Use " +
             "ProfilerConfig.MethodTracing.affectsMeasurementOnThisDevice to detect affected " +
             "devices, see its documentation for more info."
+    }
+    check(Microbenchmark.softDeadlineDurationMs < Microbenchmark.hardDeadlineDurationMs) {
+        "Soft deadline (${Microbenchmark.softDeadlineDurationMs}) must be less than hard deadline" +
+            " (${Microbenchmark.hardDeadlineDurationMs})"
     }
 }
 
@@ -367,6 +378,18 @@ internal class Microbenchmark(
 
     companion object {
         internal const val TAG = "Benchmark"
+
+        internal val softDeadlineDurationMs: Long
+            get() = softDeadlineDurationMsOverride ?: _softDeadlineDurationMs
+
+        private val _softDeadlineDurationMs: Long = TimeUnit.SECONDS.toMillis(2)
+        @VisibleForTesting internal var softDeadlineDurationMsOverride: Long? = null
+
+        internal val hardDeadlineDurationMs: Long
+            get() = hardDeadlineDurationMsOverride ?: _hardDeadlineDurationMs
+
+        private val _hardDeadlineDurationMs: Long = TimeUnit.SECONDS.toMillis(10)
+        @VisibleForTesting internal var hardDeadlineDurationMsOverride: Long? = null
     }
 }
 

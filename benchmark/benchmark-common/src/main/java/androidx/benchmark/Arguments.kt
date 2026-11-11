@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.benchmark.Arguments.startupInsightsHelpUrlBaseOverride
 import androidx.test.platform.app.InstrumentationRegistry
+import java.util.concurrent.TimeUnit
 
 /** This allows tests to override arguments from code */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -94,7 +95,13 @@ public object Arguments {
     internal val profilerSampleDurationSeconds: Long
     internal val profilerSkipWhenDurationRisksAnr: Boolean
     internal val profilerPerfCompareEnable: Boolean
-    internal val thermalThrottleSleepDurationSeconds: Long
+    internal val thermalThrottleSleepDurationMs: Long
+        get() = thermalThrottleSleepDurationMsOverride ?: _thermalThrottleSleepDurationMs
+
+    // Kept in milliseconds so tests can use a short sleep, while the public argument stays in
+    // seconds to match the existing command-line API.
+    private val _thermalThrottleSleepDurationMs: Long
+    @VisibleForTesting internal var thermalThrottleSleepDurationMsOverride: Long? = null
     public val cpuEventCounterEnable: Boolean // non-internal, checked in CpuEventCounterBenchmark
     internal val cpuEventCounterMask: Int
     internal val requireAot: Boolean
@@ -312,11 +319,13 @@ public object Arguments {
                     " See CpuEventCounters.Event for flag definitions."
         }
 
-        thermalThrottleSleepDurationSeconds =
-            arguments
-                .getBenchmarkArgument("thermalThrottle.sleepDurationSeconds")
-                ?.ifBlank { null }
-                ?.toLong() ?: 90
+        _thermalThrottleSleepDurationMs =
+            TimeUnit.SECONDS.toMillis(
+                arguments
+                    .getBenchmarkArgument("thermalThrottle.sleepDurationSeconds")
+                    ?.ifBlank { null }
+                    ?.toLong() ?: 90
+            )
 
         additionalTestOutputDir = arguments.getString("additionalTestOutputDir")
         Log.d(BenchmarkState.TAG, "additionalTestOutputDir=$additionalTestOutputDir")
