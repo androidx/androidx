@@ -35,13 +35,17 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 
-/** Timeout applied when waiting for a space mode transition to be observed. */
-private val SPACE_MODE_TIMEOUT = 5.seconds
+/**
+ * Golden image directory path for SceneCore integration screenshot tests, used with
+ * `XrScreenshotTestRule(GOLDEN_PATH)`.
+ */
+internal const val GOLDEN_PATH = "xr/scenecore/integration-tests/xr-integration-tests"
 
 /**
- * Launches [ComponentActivity], initializes a [Session], and executes [testBody], closing the scene
- * on completion.
+ * Launches [ComponentActivity], initializes a [Session], and executes [testBody] on the main
+ * thread, automatically closing the scene on completion.
  */
+// TODO(b/583197288): Replace runTestWithSession with XrSessionRule.
 internal inline fun runTestWithSession(
     crossinline testBody: suspend (ComponentActivity, Session) -> Unit
 ) = runBlocking {
@@ -66,6 +70,7 @@ internal inline fun runTestWithSession(
 }
 
 /** Convenience overload of [runTestWithSession] when only the [Session] reference is needed. */
+// TODO(b/583197288): Replace runTestWithSession with XrSessionRule.
 internal inline fun runTestWithSession(crossinline testBody: suspend (Session) -> Unit) =
     runTestWithSession { _, session ->
         testBody(session)
@@ -76,12 +81,14 @@ internal inline fun runTestWithSession(crossinline testBody: suspend (Session) -
  * [SpatialCapability.SPATIAL_UI] is present in [Scene.spatialCapabilities] and, when transitioning
  * from Home Space Mode, [Scene.activitySpace] has received its origin update.
  */
+// TODO(b/584458287): Replace with XrSessionRule.requestFullSpace in XrSceneSessionExtensions.
 internal suspend fun Scene.requestFullSpaceAndAwait() = requestSpaceModeAndAwait(fullSpace = true)
 
 /**
  * Requests Home Space Mode via [Scene.requestHomeSpace] and suspends until
  * [SpatialCapability.SPATIAL_UI] is removed from [Scene.spatialCapabilities].
  */
+// TODO(b/584458287): Replace with XrSessionRule.requestHomeSpace in XrSceneSessionExtensions.
 internal suspend fun Scene.requestHomeSpaceAndAwait() = requestSpaceModeAndAwait(fullSpace = false)
 
 private suspend fun Scene.requestSpaceModeAndAwait(fullSpace: Boolean) {
