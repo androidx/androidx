@@ -1215,6 +1215,7 @@ public abstract class Transition implements Cloneable {
      * construction, such as
      * <code>transitionSet.addTransitions(new Fade()).removeTargetId(someId);</code>
      */
+    @SuppressWarnings("ListRemoveAmbiguous")
     public @NonNull Transition removeTarget(@IdRes int targetId) {
         if (targetId != 0) {
             mTargetIds.remove((Integer) targetId);

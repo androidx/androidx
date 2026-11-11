@@ -126,6 +126,7 @@ public class SystemJobScheduler implements Scheduler, ForegroundListener {
     }
 
     @Override
+    @SuppressWarnings("ListRemoveAmbiguous")
     public void schedule(WorkSpec @NonNull ... workSpecs) {
         IdGenerator idGenerator = new IdGenerator(mWorkDatabase);
 

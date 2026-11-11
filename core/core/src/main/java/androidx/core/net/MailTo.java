@@ -101,7 +101,7 @@ public final class MailTo {
      *
      * @param uri String containing a mailto URI
      * @return MailTo object
-     * @exception ParseException if the scheme is not a mailto URI
+     * @throws ParseException if the scheme is not a mailto URI
      */
     public static @NonNull MailTo parse(@NonNull String uri) throws ParseException {
         Preconditions.checkNotNull(uri);
@@ -171,7 +171,7 @@ public final class MailTo {
      *
      * @param uri Uri containing a mailto URI
      * @return MailTo object
-     * @exception ParseException if the scheme is not a mailto URI
+     * @throws ParseException if the scheme is not a mailto URI
      */
     public static @NonNull MailTo parse(@NonNull Uri uri) throws ParseException {
         return parse(uri.toString());
