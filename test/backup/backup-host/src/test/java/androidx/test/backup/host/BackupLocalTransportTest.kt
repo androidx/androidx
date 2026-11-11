@@ -34,6 +34,7 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.measureTime
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.Rule
 import org.junit.Test
@@ -382,23 +383,41 @@ class BackupLocalTransportTest {
 
     @Test
     fun backupThrowsWhenTheBackupPassFails() {
+        val output =
+            "Running incremental backup for 2 requested packages.\n" +
+                "Package @pm@ with result: Success\n" +
+                "Package $PACKAGE with result: Success\n" +
+                "Backup finished with result: Backup cancelled\n" +
+                "Backups can be cancelled if a backup is already running, check backup dumpsys\n"
         onDevice(GMS_SELECTED) { command ->
-            if (command == "bmgr backupnow @pm@ $PACKAGE") {
-                shellOutput(
-                    "Running incremental backup for 2 requested packages.\n" +
-                        "Package @pm@ with result: Success\n" +
-                        "Package $PACKAGE with result: Success\n" +
-                        "Backup finished with result: Backup cancelled\n"
-                )
-            } else {
-                null
-            }
+            if (command == "bmgr backupnow @pm@ $PACKAGE") shellOutput(output) else null
         }
 
         val e = assertFailsWith<IOException> { runBlocking { transport.backup(archive()) } }
 
-        assertTrue(e.message!!.startsWith("Local backup of $PACKAGE failed: "), e.message)
-        assertTrue(e.message!!.contains("Backup finished with result: Backup cancelled"), e.message)
+        assertEquals("Local backup of $PACKAGE failed: ${output.trim()}", e.message)
+    }
+
+    /** `bmgr` takes its time to exit after the line that ends its work. */
+    @Test
+    fun backupDoesNotWaitForBmgrToExit() = runBlocking {
+        onDevice(backupDump(enabled = false, GMS_TRANSPORT))
+        device.lingerOn { it.startsWith("bmgr") }
+
+        withTimeout(10.seconds) { transport.backup(archive()) }
+
+        assertEquals(
+            listOf(
+                "dumpsys package $PACKAGE",
+                "dumpsys backup",
+                "bmgr enable true",
+                "bmgr transport '$LOCAL_TRANSPORT'",
+                "bmgr backupnow @pm@ $PACKAGE",
+                "bmgr transport '$GMS_TRANSPORT'",
+            ),
+            device.commands,
+        )
+        assertEquals(emptyList(), device.runningCommands)
     }
 
     @Test
@@ -530,6 +549,47 @@ class BackupLocalTransportTest {
             ),
             device.commands,
         )
+    }
+
+    /** `bmgr` takes its time to exit after the line that ends its work. */
+    @Test
+    fun restoreDoesNotWaitForBmgrToExit() = runBlocking {
+        onDevice(GMS_SELECTED)
+        device.lingerOn { it.startsWith("bmgr") }
+
+        withTimeout(10.seconds) { transport.restore() }
+
+        assertEquals(
+            listOf(
+                "dumpsys backup",
+                "bmgr transport '$LOCAL_TRANSPORT'",
+                "bmgr restore 1 $PACKAGE",
+                "bmgr transport '$GMS_TRANSPORT'",
+            ),
+            device.commands,
+        )
+        assertEquals(emptyList(), device.runningCommands)
+    }
+
+    /** `bmgr` ends the restore session after it has printed the result, and then prints `done`. */
+    @Test
+    fun restoreWaitsForBmgrToEndTheRestoreSession() = runBlocking {
+        onDevice(LOCAL_SELECTED) { command ->
+            if (command == "bmgr restore 1 $PACKAGE") {
+                shellOutput(
+                    "Scheduling restore: Local disk image\n" +
+                        "restoreStarting: 1 packages\n" +
+                        "onUpdate: 0 = $PACKAGE\n" +
+                        "restoreFinished: 0\n"
+                )
+            } else {
+                null
+            }
+        }
+        device.lingerOn { it == "bmgr restore 1 $PACKAGE" }
+
+        assertNull(withTimeoutOrNull(300.milliseconds) { transport.restore() })
+        assertEquals(emptyList(), device.runningCommands)
     }
 
     @Test
