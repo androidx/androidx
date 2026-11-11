@@ -22,6 +22,7 @@ import android.app.Application
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
 import android.media.MediaCodec
+import android.media.MediaFormat.MIMETYPE_VIDEO_AVC
 import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Looper
@@ -76,6 +77,7 @@ import androidx.camera.video.internal.OutputStorage
 import androidx.camera.video.internal.audio.AudioStreamFactory
 import androidx.camera.video.internal.audio.FakeAudioStream
 import androidx.camera.video.internal.encoder.AudioEncoderFactory
+import androidx.camera.video.internal.encoder.DefaultVideoEncoderFactory
 import androidx.camera.video.internal.encoder.EncodeException
 import androidx.camera.video.internal.encoder.EncodedData
 import androidx.camera.video.internal.encoder.Encoder
@@ -261,6 +263,28 @@ class RecorderTest {
         assertThrows(IllegalArgumentException::class.java) {
             Recorder.Builder().setTargetAudioChannelCount(-5)
         }
+    }
+
+    @Test
+    fun videoEncoderInfoFinder_isDefaultFinderByDefault() {
+        val recorder = Recorder.Builder().build()
+
+        assertThat(recorder.videoEncoderInfoFinder)
+            .isEqualTo(DefaultVideoEncoderFactory.DEFAULT_FINDER)
+    }
+
+    @Test
+    fun videoEncoderInfoFinder_findsEncoderInfoOfVideoEncoderFactory() {
+        val videoEncoderInfo = FakeVideoEncoderInfo()
+        val videoEncoderFactory =
+            FakeVideoEncoderFactory(encoderInfoProvider = { videoEncoderInfo }) { _, _ ->
+                throw UnsupportedOperationException()
+            }
+
+        val recorder = Recorder.Builder().setVideoEncoderFactory(videoEncoderFactory).build()
+
+        assertThat(recorder.videoEncoderInfoFinder.find(MIMETYPE_VIDEO_AVC))
+            .isSameInstanceAs(videoEncoderInfo)
     }
 
     @Test

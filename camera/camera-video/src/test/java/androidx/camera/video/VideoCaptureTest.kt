@@ -2410,10 +2410,8 @@ class VideoCaptureTest {
         setupCamera()
         createCameraUseCaseAdapter()
         var requestedSurfaceRequest: SurfaceRequest? = null
-        val videoOutput = VideoOutput { surfaceRequest ->
-            surfaceRequestsToRelease.add(surfaceRequest)
+        val videoOutput = createCustomVideoOutput { surfaceRequest ->
             requestedSurfaceRequest = surfaceRequest
-            surfaceRequest.willNotProvideSurface()
         }
 
         val videoCapture = createVideoCapture(videoOutput = videoOutput)
@@ -2428,10 +2426,8 @@ class VideoCaptureTest {
         setupCamera(sensorRotation = 90)
         createCameraUseCaseAdapter()
         var requestedSurfaceRequest: SurfaceRequest? = null
-        val videoOutput = VideoOutput { surfaceRequest ->
-            surfaceRequestsToRelease.add(surfaceRequest)
+        val videoOutput = createCustomVideoOutput { surfaceRequest ->
             requestedSurfaceRequest = surfaceRequest
-            surfaceRequest.willNotProvideSurface()
         }
 
         val videoCapture = createVideoCapture(videoOutput = videoOutput)
@@ -2447,10 +2443,8 @@ class VideoCaptureTest {
         setupCamera()
         createCameraUseCaseAdapter()
         var requestedSurfaceRequest: SurfaceRequest? = null
-        val videoOutput = VideoOutput { surfaceRequest ->
-            surfaceRequestsToRelease.add(surfaceRequest)
+        val videoOutput = createCustomVideoOutput { surfaceRequest ->
             requestedSurfaceRequest = surfaceRequest
-            surfaceRequest.willNotProvideSurface()
         }
         val resolutionSelector =
             ResolutionSelector.Builder()
@@ -2721,6 +2715,25 @@ class VideoCaptureTest {
             surfaceRequestListener.invoke(surfaceRequest, timebase)
         }
 
+    /**
+     * Creates a [VideoOutput] that only implements the public API, like an app's custom output.
+     *
+     * It reports a fake video encoder info since Robolectric doesn't have real codecs.
+     */
+    private fun createCustomVideoOutput(onSurfaceRequested: (SurfaceRequest) -> Unit): VideoOutput =
+        object : VideoOutput {
+            override fun onSurfaceRequested(request: SurfaceRequest) {
+                surfaceRequestsToRelease.add(request)
+                onSurfaceRequested(request)
+                request.willNotProvideSurface()
+            }
+
+            override fun getVideoEncoderInfoFinder(): VideoEncoderInfo.Finder =
+                VideoEncoderInfo.Finder { _ ->
+                    createVideoEncoderInfo()
+                }
+        }
+
     private fun createMediaSpec(
         outputFormat: Int? = null,
         qualitySelector: QualitySelector = DEFAULT_QUALITY_SELECTOR,
@@ -2785,6 +2798,12 @@ class VideoCaptureTest {
             isSourceStreamRequiredObservable.setState(isRequired)
         }
 
+        /** The video encoder info finder, or `null` to use the default one. */
+        var customVideoEncoderInfoFinder: VideoEncoderInfo.Finder? = null
+
+        override fun getVideoEncoderInfoFinder(): VideoEncoderInfo.Finder =
+            customVideoEncoderInfoFinder ?: super.getVideoEncoderInfoFinder()
+
         override fun getMediaCapabilities(
             cameraInfo: CameraInfo,
             sessionType: Int,
@@ -2841,8 +2860,18 @@ class VideoCaptureTest {
         videoEncoderInfoFinder: VideoEncoderInfo.Finder? = null,
         customOrderedResolutions: List<Size>? = null,
         resolutionSelector: ResolutionSelector? = null,
-    ): VideoCapture<VideoOutput> =
-        VideoCapture.Builder(videoOutput ?: createVideoOutput())
+    ): VideoCapture<VideoOutput> {
+        val output = videoOutput ?: createVideoOutput()
+        // The video encoder info is provided by the video output, which owns the encoder.
+        if (output is TestVideoOutput) {
+            output.customVideoEncoderInfoFinder =
+                videoEncoderInfoFinder ?: VideoEncoderInfo.Finder { _ -> createVideoEncoderInfo() }
+        } else {
+            check(videoEncoderInfoFinder == null) {
+                "A video encoder info finder can only be set to a TestVideoOutput"
+            }
+        }
+        return VideoCapture.Builder(output)
             .setSessionOptionUnpacker { _, _, _ -> }
             .apply {
                 targetRotation?.let { setTargetRotation(it) }
@@ -2851,14 +2880,11 @@ class VideoCaptureTest {
                 sessionType?.let { mutableConfig.insertOption(OPTION_SESSION_TYPE, it) }
                 targetFrameRate?.let { setTargetFrameRate(it) }
                 dynamicRange?.let { setDynamicRange(it) }
-                setVideoEncoderInfoFinder(
-                    videoEncoderInfoFinder
-                        ?: VideoEncoderInfo.Finder { _ -> createVideoEncoderInfo() }
-                )
                 customOrderedResolutions?.let { setCustomOrderedResolutions(it) }
                 resolutionSelector?.let { setResolutionSelector(resolutionSelector) }
             }
             .build()
+    }
 
     private fun createFakeEffect(
         processor: FakeSurfaceProcessorInternal = createFakeSurfaceProcessor()

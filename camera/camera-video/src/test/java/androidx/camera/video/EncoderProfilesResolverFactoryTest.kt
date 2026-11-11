@@ -18,9 +18,11 @@ package androidx.camera.video
 
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.impl.AdapterCameraInfo
+import androidx.camera.core.impl.SessionConfig.SESSION_TYPE_REGULAR
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.impl.fakes.FakeCameraConfig
 import androidx.camera.testing.impl.fakes.FakeVideoEncoderInfo
+import androidx.camera.video.internal.encoder.FakeVideoEncoderFactory
 import androidx.camera.video.internal.encoder.VideoEncoderInfo
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -253,5 +255,65 @@ class EncoderProfilesResolverFactoryTest {
 
         // Assert
         assertThat(capabilities1).isNotSameInstanceAs(capabilities2)
+    }
+
+    @Test
+    fun getResolver_findersFromSameFactory_returnsCachedInstance() {
+        val cameraInfo = AdapterCameraInfo(FakeCameraInfoInternal("0"), FakeCameraConfig())
+        val factory = createVideoEncoderFactory()
+
+        val resolver1 =
+            EncoderProfilesResolverFactory.getResolver(
+                cameraInfo,
+                videoEncoderInfoFinder = VideoEncoderInfo.Finder.from(factory),
+            )
+        val resolver2 =
+            EncoderProfilesResolverFactory.getResolver(
+                cameraInfo,
+                videoEncoderInfoFinder = VideoEncoderInfo.Finder.from(factory),
+            )
+
+        assertThat(resolver1).isSameInstanceAs(resolver2)
+    }
+
+    @Test
+    fun getResolver_findersFromDifferentFactories_returnsDifferentInstances() {
+        val cameraInfo = AdapterCameraInfo(FakeCameraInfoInternal("0"), FakeCameraConfig())
+
+        val resolver1 =
+            EncoderProfilesResolverFactory.getResolver(
+                cameraInfo,
+                videoEncoderInfoFinder = VideoEncoderInfo.Finder.from(createVideoEncoderFactory()),
+            )
+        val resolver2 =
+            EncoderProfilesResolverFactory.getResolver(
+                cameraInfo,
+                videoEncoderInfoFinder = VideoEncoderInfo.Finder.from(createVideoEncoderFactory()),
+            )
+
+        assertThat(resolver1).isNotSameInstanceAs(resolver2)
+    }
+
+    @Test
+    fun recordersWithSameVideoEncoderFactory_shareCachedResolver() {
+        val cameraInfo = AdapterCameraInfo(FakeCameraInfoInternal("0"), FakeCameraConfig())
+        val factory = createVideoEncoderFactory()
+
+        val resolver1 =
+            Recorder.Builder()
+                .setVideoEncoderFactory(factory)
+                .build()
+                .getEncoderProfilesResolver(cameraInfo, SESSION_TYPE_REGULAR)
+        val resolver2 =
+            Recorder.Builder()
+                .setVideoEncoderFactory(factory)
+                .build()
+                .getEncoderProfilesResolver(cameraInfo, SESSION_TYPE_REGULAR)
+
+        assertThat(resolver1).isSameInstanceAs(resolver2)
+    }
+
+    private fun createVideoEncoderFactory() = FakeVideoEncoderFactory { _, _ ->
+        throw UnsupportedOperationException()
     }
 }

@@ -83,6 +83,7 @@ import androidx.camera.video.MediaSpec
 import androidx.camera.video.Recorder
 import androidx.camera.video.VideoCapture
 import androidx.camera.video.VideoOutput
+import androidx.camera.video.internal.encoder.VideoEncoderInfo
 import androidx.core.util.Predicate
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
@@ -1399,12 +1400,14 @@ class StreamSharingTest {
                 override fun getMediaSpec(): Observable<MediaSpec> {
                     return ConstantObservable.withValue(MediaSpec.builder().build())
                 }
+
+                override fun getVideoEncoderInfoFinder(): VideoEncoderInfo.Finder =
+                    VideoEncoderInfo.Finder {
+                        FakeVideoEncoderInfo()
+                    }
             }
         val videoCapture =
-            VideoCapture.Builder(videoOutput)
-                .setVideoEncoderInfoFinder { FakeVideoEncoderInfo() }
-                .setTargetRotation(Surface.ROTATION_0)
-                .build()
+            VideoCapture.Builder(videoOutput).setTargetRotation(Surface.ROTATION_0).build()
         streamSharing =
             StreamSharing(
                 camera,
@@ -1459,12 +1462,14 @@ class StreamSharingTest {
                 override fun getMediaSpec(): Observable<MediaSpec> {
                     return ConstantObservable.withValue(MediaSpec.builder().build())
                 }
+
+                override fun getVideoEncoderInfoFinder(): VideoEncoderInfo.Finder =
+                    VideoEncoderInfo.Finder {
+                        FakeVideoEncoderInfo()
+                    }
             }
         val videoCapture =
-            VideoCapture.Builder(videoOutput)
-                .setVideoEncoderInfoFinder { FakeVideoEncoderInfo() }
-                .setTargetRotation(Surface.ROTATION_0)
-                .build()
+            VideoCapture.Builder(videoOutput).setTargetRotation(Surface.ROTATION_0).build()
         streamSharing =
             StreamSharing(
                 camera,
@@ -1734,11 +1739,13 @@ class StreamSharingTest {
                 override fun getMediaSpec(): Observable<MediaSpec> {
                     return ConstantObservable.withValue(MediaSpec.builder().build())
                 }
+
+                override fun getVideoEncoderInfoFinder(): VideoEncoderInfo.Finder =
+                    VideoEncoderInfo.Finder {
+                        FakeVideoEncoderInfo()
+                    }
             }
-        return VideoCapture.Builder(videoOutput)
-            .setVideoEncoderInfoFinder { FakeVideoEncoderInfo() }
-            .setTargetRotation(Surface.ROTATION_0)
-            .build()
+        return VideoCapture.Builder(videoOutput).setTargetRotation(Surface.ROTATION_0).build()
     }
 
     private fun provideTestSurface(request: SurfaceRequest) {

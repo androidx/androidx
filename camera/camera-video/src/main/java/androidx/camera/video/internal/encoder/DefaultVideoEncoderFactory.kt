@@ -16,6 +16,9 @@
 
 package androidx.camera.video.internal.encoder
 
+import androidx.camera.core.Logger
+import androidx.camera.video.internal.utils.CodecUtil.findCodecAndGetCodecInfo
+import androidx.camera.video.internal.workaround.ProfileAwareVideoEncoderInfo
 import java.util.concurrent.Executor
 
 /**
@@ -33,9 +36,18 @@ public class DefaultVideoEncoderFactory private constructor() : VideoEncoderFact
     ): Encoder = EncoderImpl(executor, encoderConfig)
 
     override fun getEncoderInfo(mimeType: String): VideoEncoderInfo? =
-        VideoEncoderInfoImpl.FINDER.find(mimeType)
+        try {
+            ProfileAwareVideoEncoderInfo.from(
+                VideoEncoderInfoImpl(findCodecAndGetCodecInfo(mimeType), mimeType)
+            )
+        } catch (e: InvalidConfigException) {
+            Logger.w(TAG, "Unable to find a VideoEncoderInfo for $mimeType", e)
+            null
+        }
 
     public companion object {
+        private const val TAG = "DefaultVideoEncoderFactory"
+
         /** The default video encoder factory. */
         @JvmField public val DEFAULT: DefaultVideoEncoderFactory = DefaultVideoEncoderFactory()
 

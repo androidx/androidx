@@ -133,7 +133,6 @@ import androidx.camera.video.internal.encoder.TimeProvider;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
 import androidx.camera.video.internal.encoder.VideoEncoderFactory;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
-import androidx.camera.video.internal.encoder.VideoEncoderInfoImpl;
 import androidx.camera.video.internal.muxer.Media3MuxerImpl;
 import androidx.camera.video.internal.muxer.MediaMuxerImpl;
 import androidx.camera.video.internal.muxer.Muxer;
@@ -431,7 +430,7 @@ public final class Recorder implements VideoOutput {
     private static final AudioEncoderFactory DEFAULT_AUDIO_ENCODER_FACTORY =
             DefaultAudioEncoderFactory.DEFAULT;
     private static final VideoEncoderInfo.Finder DEFAULT_VIDEO_ENCODER_INFO_FINDER =
-            VideoEncoderInfoImpl.FINDER;
+            DefaultVideoEncoderFactory.DEFAULT_FINDER;
     private static final AudioStreamFactory DEFAULT_AUDIO_STREAM_FACTORY = AudioStreamImpl::new;
     private static final MuxerFactory DEFAULT_MUXER_FACTORY = outputFormat -> {
         switch (outputFormat) {
@@ -474,6 +473,7 @@ public final class Recorder implements VideoOutput {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Executor mSequentialExecutor;
     private final VideoEncoderFactory mVideoEncoderFactory;
+    private final VideoEncoderInfo.Finder mVideoEncoderInfoFinder;
     private final AudioEncoderFactory mAudioEncoderFactory;
     private final MuxerFactory mMuxerFactory;
     private final OutputStorage.Factory mOutputStorageFactory;
@@ -633,6 +633,7 @@ public final class Recorder implements VideoOutput {
                 StreamInfo.of(mStreamId, internalStateToStreamState(mState)));
         mIsRecording = MutableStateObservable.withInitialState(false);
         mVideoEncoderFactory = videoEncoderFactory;
+        mVideoEncoderInfoFinder = VideoEncoderInfo.Finder.from(videoEncoderFactory);
         mAudioEncoderFactory = audioEncoderFactory;
         mMuxerFactory = muxerFactory;
         mOutputStorageFactory = outputStorageFactory;
@@ -731,7 +732,13 @@ public final class Recorder implements VideoOutput {
         String videoMimeType = getObservableData(mMediaSpec).getVideoSpec().getMimeType();
 
         return getVideoCapabilitiesInternal(videoCaptureType, cameraInfo, mVideoCapabilitiesSource,
-                videoMimeType);
+                videoMimeType, mVideoEncoderInfoFinder);
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Override
+    public VideoEncoderInfo.@NonNull Finder getVideoEncoderInfoFinder() {
+        return mVideoEncoderInfoFinder;
     }
 
     /**
@@ -3519,7 +3526,8 @@ public final class Recorder implements VideoOutput {
      */
     public static @NonNull VideoCapabilities getVideoCapabilities(@NonNull CameraInfo cameraInfo) {
         return getVideoCapabilitiesInternal(VIDEO_RECORDING_TYPE_REGULAR, cameraInfo,
-                VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE, MIME_TYPE_UNSPECIFIED);
+                VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE, MIME_TYPE_UNSPECIFIED,
+                DEFAULT_VIDEO_ENCODER_INFO_FINDER);
     }
 
     /**
@@ -3547,7 +3555,8 @@ public final class Recorder implements VideoOutput {
             @NonNull String mimeType) {
         VideoCapabilities videoCapabilities = getVideoCapabilitiesInternal(
                 VIDEO_RECORDING_TYPE_REGULAR, cameraInfo,
-                VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE, mimeType);
+                VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE, mimeType,
+                DEFAULT_VIDEO_ENCODER_INFO_FINDER);
         return videoCapabilities == VideoCapabilities.EMPTY ? null : videoCapabilities;
     }
 
@@ -3571,7 +3580,7 @@ public final class Recorder implements VideoOutput {
     public static @NonNull VideoCapabilities getVideoCapabilities(@NonNull CameraInfo cameraInfo,
             @VideoCapabilitiesSource int videoCapabilitiesSource) {
         return getVideoCapabilitiesInternal(VIDEO_RECORDING_TYPE_REGULAR, cameraInfo,
-                videoCapabilitiesSource, MIME_TYPE_UNSPECIFIED);
+                videoCapabilitiesSource, MIME_TYPE_UNSPECIFIED, DEFAULT_VIDEO_ENCODER_INFO_FINDER);
     }
 
     /**
@@ -3617,24 +3626,26 @@ public final class Recorder implements VideoOutput {
             @VideoCapabilitiesSource int videoCapabilitiesSource) {
         VideoCapabilities videoCapabilities = getVideoCapabilitiesInternal(
                 VIDEO_RECORDING_TYPE_HIGH_SPEED, cameraInfo, videoCapabilitiesSource,
-                MIME_TYPE_UNSPECIFIED);
+                MIME_TYPE_UNSPECIFIED, DEFAULT_VIDEO_ENCODER_INFO_FINDER);
         return videoCapabilities.getSupportedDynamicRanges().isEmpty() ? null : videoCapabilities;
     }
 
     @OptIn(markerClass = ExperimentalMimeTypeApi.class)
     private static @NonNull VideoCapabilities getVideoCapabilitiesInternal(
             @VideoRecordingType int videoRecordingType, @NonNull CameraInfo cameraInfo,
-            @VideoCapabilitiesSource int videoCapabilitiesSource, @NonNull String mimeType) {
+            @VideoCapabilitiesSource int videoCapabilitiesSource, @NonNull String mimeType,
+            VideoEncoderInfo.@NonNull Finder videoEncoderInfoFinder) {
 
         CameraInfoInternal cameraInfoInternal = (CameraInfoInternal) cameraInfo;
         if (MIME_TYPE_UNSPECIFIED.equals(mimeType)) {
             EncoderProfilesResolver profilesResolver = getEncoderProfilesResolverInternal(
-                    videoRecordingType, cameraInfo, videoCapabilitiesSource);
+                    videoRecordingType, cameraInfo, videoCapabilitiesSource,
+                    videoEncoderInfoFinder);
             return new RecorderVideoCapabilities(profilesResolver, cameraInfoInternal);
         } else {
             return getSupportedVideoMimeTypes().contains(mimeType)
                     ? new MimeMatchedVideoCapabilities(mimeType, cameraInfoInternal,
-                    DEFAULT_VIDEO_ENCODER_INFO_FINDER) : VideoCapabilities.EMPTY;
+                    videoEncoderInfoFinder) : VideoCapabilities.EMPTY;
         }
     }
 
@@ -3647,15 +3658,16 @@ public final class Recorder implements VideoOutput {
                 ? VIDEO_RECORDING_TYPE_HIGH_SPEED : VIDEO_RECORDING_TYPE_REGULAR;
 
         return getEncoderProfilesResolverInternal(videoCaptureType, cameraInfo,
-                mVideoCapabilitiesSource);
+                mVideoCapabilitiesSource, mVideoEncoderInfoFinder);
     }
 
     private static @NonNull EncoderProfilesResolver getEncoderProfilesResolverInternal(
             @VideoRecordingType int videoRecordingType,
             @NonNull CameraInfo cameraInfo,
-            @VideoCapabilitiesSource int videoCapabilitiesSource) {
+            @VideoCapabilitiesSource int videoCapabilitiesSource,
+            VideoEncoderInfo.@NonNull Finder videoEncoderInfoFinder) {
         return EncoderProfilesResolverFactory.getResolver(cameraInfo, videoRecordingType,
-                videoCapabilitiesSource, DEFAULT_VIDEO_ENCODER_INFO_FINDER);
+                videoCapabilitiesSource, videoEncoderInfoFinder);
     }
 
     /**

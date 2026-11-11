@@ -36,7 +36,7 @@ import androidx.camera.testing.impl.LabTestRule
 import androidx.camera.video.internal.BackupHdrProfileEncoderProfilesProvider.validateOrAdapt
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
 import androidx.camera.video.internal.compat.quirk.MediaCodecInfoReportIncorrectInfoQuirk
-import androidx.camera.video.internal.encoder.VideoEncoderInfoImpl
+import androidx.camera.video.internal.encoder.DefaultVideoEncoderFactory
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -151,7 +151,8 @@ class BackupHdrProfileEncoderProfilesProviderTest(
         assumeNotNull(baseVideoProfile)
 
         // Act.
-        val resultVideoProfile = validateOrAdapt(baseVideoProfile, VideoEncoderInfoImpl.FINDER)
+        val resultVideoProfile =
+            validateOrAdapt(baseVideoProfile, DefaultVideoEncoderFactory.DEFAULT_FINDER)
 
         // Verify.
         assertWithMessage("Video profile validation failed.").that(resultVideoProfile).isNotNull()
@@ -173,7 +174,10 @@ class BackupHdrProfileEncoderProfilesProviderTest(
 
         // Act.
         val backupProvider =
-            BackupHdrProfileEncoderProfilesProvider(baseProvider, VideoEncoderInfoImpl.FINDER)
+            BackupHdrProfileEncoderProfilesProvider(
+                baseProvider,
+                DefaultVideoEncoderFactory.DEFAULT_FINDER,
+            )
         assertThat(backupProvider.hasProfile(quality)).isTrue()
         val backupVideoProfiles = backupProvider.getAll(quality)!!.videoProfiles
 
@@ -199,7 +203,10 @@ class BackupHdrProfileEncoderProfilesProviderTest(
 
         // Act.
         val backupProvider =
-            BackupHdrProfileEncoderProfilesProvider(baseProvider, VideoEncoderInfoImpl.FINDER)
+            BackupHdrProfileEncoderProfilesProvider(
+                baseProvider,
+                DefaultVideoEncoderFactory.DEFAULT_FINDER,
+            )
         val backupVideoProfiles = requireNotNull(backupProvider.getAll(quality)).videoProfiles
 
         // Verify.
@@ -207,5 +214,6 @@ class BackupHdrProfileEncoderProfilesProviderTest(
     }
 
     private fun isHevcEncoderHardwareAccelerated(): Boolean =
-        VideoEncoderInfoImpl.FINDER.find(MIMETYPE_VIDEO_HEVC)?.isHardwareAccelerated == true
+        DefaultVideoEncoderFactory.DEFAULT_FINDER.find(MIMETYPE_VIDEO_HEVC)
+            ?.isHardwareAccelerated == true
 }

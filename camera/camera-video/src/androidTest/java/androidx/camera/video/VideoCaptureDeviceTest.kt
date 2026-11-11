@@ -43,6 +43,7 @@ import androidx.camera.video.Quality.FHD
 import androidx.camera.video.Quality.HD
 import androidx.camera.video.Quality.SD
 import androidx.camera.video.VideoOutput.SourceState
+import androidx.camera.video.internal.encoder.VideoEncoderInfo
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -220,14 +221,12 @@ class VideoCaptureDeviceTest(
                         mediaSpec =
                             createMediaSpec(qualitySelector = QualitySelector.from(quality)),
                         videoCapabilities = videoCapabilities,
+                        // Use custom VideoEncoderInfoFinder which always returns default
+                        // FakeVideoEncoderInfo, which tolerance typical resolutions.
+                        videoEncoderInfoFinder = { FakeVideoEncoderInfo() },
                     )
 
-                // Use custom VideoEncoderInfoFinder which always returns default
-                // FakeVideoEncoderInfo, which tolerance typical resolutions.
-                val videoCapture =
-                    VideoCapture.Builder(videoOutput)
-                        .setVideoEncoderInfoFinder { FakeVideoEncoderInfo() }
-                        .build()
+                val videoCapture = VideoCapture.Builder(videoOutput).build()
 
                 // Act.
                 if (!cameraUseCaseAdapter.isUseCasesCombinationSupported(videoCapture)) {
@@ -492,8 +491,9 @@ class VideoCaptureDeviceTest(
             StreamInfo.of(StreamInfo.STREAM_ID_ANY, StreamInfo.StreamState.ACTIVE),
         mediaSpec: MediaSpec = createMediaSpec(),
         videoCapabilities: VideoCapabilities = Recorder.getVideoCapabilities(cameraInfo),
+        videoEncoderInfoFinder: VideoEncoderInfo.Finder? = null,
     ): TestVideoOutput {
-        return TestVideoOutput(streamInfo, mediaSpec, videoCapabilities)
+        return TestVideoOutput(streamInfo, mediaSpec, videoCapabilities, videoEncoderInfoFinder)
     }
 
     private fun createMediaSpec(
@@ -508,6 +508,7 @@ class VideoCaptureDeviceTest(
         streamInfo: StreamInfo,
         mediaSpec: MediaSpec,
         private val videoCapabilities: VideoCapabilities,
+        private val videoEncoderInfoFinder: VideoEncoderInfo.Finder? = null,
     ) : VideoOutput {
         private val surfaceRequests = ArrayBlockingQueue<SurfaceRequest>(10)
 
@@ -531,6 +532,9 @@ class VideoCaptureDeviceTest(
         override fun getStreamInfo(): Observable<StreamInfo> = streamInfoObservable
 
         override fun getMediaSpec(): Observable<MediaSpec> = mediaSpecObservable
+
+        override fun getVideoEncoderInfoFinder(): VideoEncoderInfo.Finder =
+            videoEncoderInfoFinder ?: super.getVideoEncoderInfoFinder()
 
         override fun getMediaCapabilities(
             cameraInfo: CameraInfo,
