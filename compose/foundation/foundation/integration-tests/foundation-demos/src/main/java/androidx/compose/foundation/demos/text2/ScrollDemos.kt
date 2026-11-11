@@ -55,7 +55,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.focus.FocusProperties.Companion.UnsetFocusRect
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Brush
@@ -284,8 +283,8 @@ fun simpleDecoration(): TextFieldDecorator {
     }
 }
 
-fun Modifier.focusRect(): Modifier = composed {
+@Composable
+fun Modifier.focusRect(): Modifier =
     if (LocalDecorationSettings.current.focusOnDecoration) {
-        focusProperties { focusRect = UnsetFocusRect }
+        this.focusProperties { focusRect = UnsetFocusRect }
     } else this
-}
