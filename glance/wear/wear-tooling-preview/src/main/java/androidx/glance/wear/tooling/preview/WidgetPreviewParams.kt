@@ -126,11 +126,11 @@ private val SQUIRCLE_SMALL_PARAMS =
         WearWidgetParams(
             instanceId = WidgetInstanceId(WidgetPreviewConstants.WIDGETS_NAMESPACE, 1),
             containerType = ContainerInfo.CONTAINER_TYPE_SMALL,
-            widthDp = 166f,
-            heightDp = 60f,
-            verticalPaddingDp = 8f,
-            horizontalPaddingDp = 8f,
-            cornerRadiusDp = 26f,
+            widthDp = 162.784f,
+            heightDp = 44f,
+            verticalPaddingDp = 10f,
+            horizontalPaddingDp = 10f,
+            cornerRadiusDp = 32f,
         ),
         /**
          * A [WearWidgetParams] calculated with the default spec of small widget defined in renderer
@@ -139,11 +139,11 @@ private val SQUIRCLE_SMALL_PARAMS =
         WearWidgetParams(
             instanceId = WidgetInstanceId(WidgetPreviewConstants.WIDGETS_NAMESPACE, 2),
             containerType = ContainerInfo.CONTAINER_TYPE_SMALL,
-            widthDp = 200f,
-            heightDp = 60f,
-            verticalPaddingDp = 8f,
-            horizontalPaddingDp = 8f,
-            cornerRadiusDp = 26f,
+            widthDp = 195.04f,
+            heightDp = 44f,
+            verticalPaddingDp = 10f,
+            horizontalPaddingDp = 10f,
+            cornerRadiusDp = 32f,
         ),
     )
 
@@ -156,11 +156,11 @@ private val SQUIRCLE_LARGE_PARAMS =
         WearWidgetParams(
             instanceId = WidgetInstanceId(WidgetPreviewConstants.WIDGETS_NAMESPACE, 3),
             containerType = ContainerInfo.CONTAINER_TYPE_LARGE,
-            widthDp = 166f,
-            heightDp = 96f,
-            verticalPaddingDp = 8f,
-            horizontalPaddingDp = 8f,
-            cornerRadiusDp = 26f,
+            widthDp = 162.784f,
+            heightDp = 104f,
+            verticalPaddingDp = 10f,
+            horizontalPaddingDp = 10f,
+            cornerRadiusDp = 32f,
         ),
         /**
          * A [WearWidgetParams] calculated with the default spec of large widget defined in renderer
@@ -169,11 +169,11 @@ private val SQUIRCLE_LARGE_PARAMS =
         WearWidgetParams(
             instanceId = WidgetInstanceId(WidgetPreviewConstants.WIDGETS_NAMESPACE, 4),
             containerType = ContainerInfo.CONTAINER_TYPE_LARGE,
-            widthDp = 200f,
-            heightDp = 108f,
-            verticalPaddingDp = 8f,
-            horizontalPaddingDp = 8f,
-            cornerRadiusDp = 26f,
+            widthDp = 195.04f,
+            heightDp = 104f,
+            verticalPaddingDp = 10f,
+            horizontalPaddingDp = 10f,
+            cornerRadiusDp = 32f,
         ),
     )
 
