@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package androidx.glance.wear.parcel.legacy;
 
 import androidx.annotation.RestrictTo;

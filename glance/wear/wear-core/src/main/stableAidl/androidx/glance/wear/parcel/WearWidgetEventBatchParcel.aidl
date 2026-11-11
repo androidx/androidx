@@ -18,7 +18,7 @@ package androidx.glance.wear.parcel;
 /**
   * Parcelable that holds data for wear widget events.
   */
-@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)")
 parcelable WearWidgetEventBatchParcel {
     // The protobuf payload for [androidx.glance.wear.proto.WearWidgetEventBatchProto].
     byte[] payload;

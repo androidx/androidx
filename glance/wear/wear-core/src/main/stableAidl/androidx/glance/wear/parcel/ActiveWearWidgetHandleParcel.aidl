@@ -19,7 +19,7 @@ package androidx.glance.wear.parcel;
 /**
   * Parcelable that holds data for an active widget handle.
   */
-@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)")
 parcelable ActiveWearWidgetHandleParcel {
     // The protobuf payload for [androidx.glance.wear.proto.ActiveWearWidgetHandleProto].
     byte[] payload;

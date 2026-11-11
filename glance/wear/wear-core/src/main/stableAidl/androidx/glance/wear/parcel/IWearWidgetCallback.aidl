@@ -20,7 +20,7 @@ import androidx.glance.wear.parcel.WearWidgetRawContentParcel;
 /**
   * Callback used to return widget contents from a Provider to the system.
   */
-@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)")
 interface IWearWidgetCallback {
 
     /**

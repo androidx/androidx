@@ -19,7 +19,7 @@ package androidx.glance.wear.parcel;
 /**
   * The request object for when updating a widget.
   */
-@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)")
 parcelable WearWidgetUpdateRequestParcel {
     // The protobuf payload for [androidx.glance.wear.proto.WearWidgetUpdateRequestProto].
     byte[] payload;

@@ -26,7 +26,7 @@ import androidx.glance.wear.parcel.WearWidgetEventBatchParcel;
   * device.
   *
   */
-@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)")
 interface IWearWidgetProvider {
     const int API_VERSION = 1;
 
