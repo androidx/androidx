@@ -29,6 +29,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -45,6 +46,8 @@ import org.robolectric.annotation.Config
 import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowBroadcastPendingResult
 import org.robolectric.shadows.ShadowLog
+
+private const val THROWING_CALLBACK_MESSAGE = "Simulated callback failure"
 
 @Config(sdk = [Config.TARGET_SDK])
 @RunWith(RobolectricTestRunner::class)
@@ -149,14 +152,54 @@ class ActionCallbackBroadcastReceiverTest {
     }
 
     @Test
-    fun onReceive_whenCallbackThrows_doesNotCrash() = runTest {
+    fun onReceive_whenCallbackThrows_finishesBroadcastThenLeavesExceptionUncaught() {
+        val scheduler = TestCoroutineScheduler()
+        val receiver = RecordingUncaughtReceiver(scheduler)
+
+        sendBroadcast(receiver.receiver, GlanceWidgetAction.Callback(ThrowingCallback::class.java))
+        scheduler.advanceUntilIdle()
+
+        val uncaught = receiver.uncaughtExceptions.single()
+        // The exception crosses the scope of the timeout, so the coroutines debug mode of tests may
+        // rethrow a copy with a recovered stack trace, whose cause is the original.
+        assertThat(uncaught.cause ?: uncaught).hasMessageThat().isEqualTo(THROWING_CALLBACK_MESSAGE)
+        assertThat(receiver.broadcastFinishedWhenUncaught).isTrue()
+        assertThat(receiverErrorLogs()).isEmpty()
+    }
+
+    @Test
+    fun onReceive_whenCallbackCannotBeInstantiated_leavesExceptionUncaught() {
+        val scheduler = TestCoroutineScheduler()
+        val receiver = RecordingUncaughtReceiver(scheduler)
+
+        sendBroadcast(
+            receiver.receiver,
+            GlanceWidgetAction.Callback(NoZeroArgumentConstructorCallback::class.java),
+        )
+        scheduler.advanceUntilIdle()
+
+        val uncaught = receiver.uncaughtExceptions.single()
+        assertThat(uncaught.cause ?: uncaught).isInstanceOf(NoSuchMethodException::class.java)
+        assertThat(receiver.broadcastFinishedWhenUncaught).isTrue()
+    }
+
+    @Test
+    fun onReceive_whenCallbackClassDoesNotExist_logsErrorWithoutCrashing() = runTest {
         receive(
             callbackIntent(
-                GlanceWidgetAction.Callback(ThrowingCallback::class.java),
-                widgetName = "failing_widget",
-                widgetId = null,
-            )
+                    GlanceWidgetAction.Callback(RecordingCallback::class.java),
+                    widgetName = "widget",
+                    widgetId = null,
+                )
+                .putExtra(
+                    ActionCallbackBroadcastReceiver.EXTRA_CALLBACK_CLASS,
+                    "com.example.RemovedCallback",
+                )
         )
+
+        val errors = receiverErrorLogs()
+        assertThat(errors).hasSize(1)
+        assertThat(errors[0].msg).contains("com.example.RemovedCallback")
     }
 
     @Test
@@ -246,6 +289,24 @@ class ActionCallbackBroadcastReceiverTest {
     private fun receiverErrorLogs(): List<ShadowLog.LogItem> =
         ShadowLog.getLogsForTag("GlanceActionReceiver").filter { it.type == Log.ERROR }
 
+    /**
+     * An [ActionCallbackBroadcastReceiver] on [scheduler] that records what reaches the exception
+     * handler of its coroutine context, and whether the broadcast was finished by then.
+     */
+    private inner class RecordingUncaughtReceiver(scheduler: TestCoroutineScheduler) {
+        val uncaughtExceptions = mutableListOf<Throwable>()
+        var broadcastFinishedWhenUncaught = false
+
+        val receiver: ActionCallbackBroadcastReceiver =
+            ActionCallbackBroadcastReceiver(
+                StandardTestDispatcher(scheduler) +
+                    CoroutineExceptionHandler { _, exception ->
+                        broadcastFinishedWhenUncaught = receiver.isBroadcastFinished()
+                        uncaughtExceptions += exception
+                    }
+            )
+    }
+
     data class Invocation(val widgetName: String, val widgetId: String?, val parameters: Bundle)
 
     class RecordingCallback : GlanceAdaptiveActionCallback {
@@ -274,8 +335,19 @@ class ActionCallbackBroadcastReceiverTest {
             widgetId: String?,
             parameters: Bundle,
         ) {
-            throw IllegalStateException("Simulated callback failure")
+            throw IllegalStateException(THROWING_CALLBACK_MESSAGE)
         }
+    }
+
+    /** Breaks the contract of a public zero-argument constructor. */
+    class NoZeroArgumentConstructorCallback(@Suppress("unused") val value: Int) :
+        GlanceAdaptiveActionCallback {
+        override suspend fun onAction(
+            context: Context,
+            widgetName: String,
+            widgetId: String?,
+            parameters: Bundle,
+        ) {}
     }
 
     /** Suspends until cancelled. */

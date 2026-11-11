@@ -30,6 +30,11 @@ import androidx.annotation.RestrictTo
  * gives 10 seconds to finish. If [onAction] has not returned after 9 seconds, it is cancelled and
  * an error is logged. Cancellation can only stop suspending calls, so avoid blocking ones. Hand off
  * longer work, for example to a foreground service or a job.
+ *
+ * Exceptions thrown by [onAction] are not caught, as in a plain
+ * [android.content.BroadcastReceiver]: they crash the app. Catch the ones you expect, such as
+ * network errors. A [kotlinx.coroutines.CancellationException], such as from an expired
+ * `withTimeout`, only ends the call, without being reported.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface GlanceAdaptiveActionCallback {
