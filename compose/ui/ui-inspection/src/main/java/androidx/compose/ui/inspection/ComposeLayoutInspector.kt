@@ -51,6 +51,9 @@ import androidx.inspection.Connection
 import androidx.inspection.Inspector
 import androidx.inspection.InspectorEnvironment
 import androidx.inspection.InspectorFactory
+import androidx.savedstate.SavedStateContainer
+import androidx.savedstate.SavedStateValue
+import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import com.google.protobuf.ByteString
 import com.google.protobuf.InvalidProtocolBufferException
 import kotlin.collections.removeLast as removeLastKt
@@ -80,6 +83,10 @@ internal const val SPAM_LOG_TAG = "studio.$LOG_TAG"
 private const val LAYOUT_INSPECTION_ID = "layoutinspector.compose.inspection"
 private const val MAX_RECURSIONS = 2
 private const val MAX_ITERABLE_SIZE = 5
+
+// The key prefix of the SaveableStateRegistry containers of the AndroidComposeViews in the
+// SavedStateRegistry. See DisposableSaveableStateRegistry in compose:ui:ui.
+private const val SAVEABLE_STATE_REGISTRY_KEY_PREFIX = "SaveableStateRegistry:"
 
 // created by java.util.ServiceLoader
 class ComposeLayoutInspectorFactory :
@@ -598,7 +605,7 @@ class ComposeLayoutInspector(
                     if (slotTablesAdded > 0) {
                         // The slot tables added to existing views will be empty until the
                         // composables are reloaded. Do that now:
-                        hotReload()
+                        hotReload(composeViews)
                     }
                 }
             }
@@ -607,10 +614,32 @@ class ComposeLayoutInspector(
     /**
      * Perform a hot reload after adding SlotTable storage.
      *
-     * This will populate the slot tables that were just added.
+     * This will populate the slot tables that were just added, while preserving the state saved by
+     * `rememberSaveable` (such as navigation state).
      */
     @Suppress("BanUncheckedReflection")
-    private fun hotReload() {
+    private fun hotReload(composeViews: List<View>) {
+        // The hot reload clears the content of the compositions, which drops the state saved by
+        // rememberSaveable. Save and restore the containers of the SaveableStateRegistries of the
+        // AndroidComposeViews. Do not save the whole SavedStateRegistry: that would run all the
+        // registered SavedStateProviders (e.g. FragmentManager would mark its state as saved).
+        val containers =
+            composeViews
+                .mapNotNull {
+                    it.findViewTreeSavedStateRegistryOwner()?.savedStateRegistry?.asContainer()
+                }
+                .distinct()
+                .flatMap { parent ->
+                    parent
+                        .keys()
+                        .filter { it.startsWith(SAVEABLE_STATE_REGISTRY_KEY_PREFIX) }
+                        .mapNotNull { key ->
+                            parent.getSavedStateValue<Any?, SavedStateValue<Any?>>(key)?.value
+                                as? SavedStateContainer
+                        }
+                }
+        val savedStates = containers.map { it to it.saveState() }
+
         val hotReload = Class.forName("androidx.compose.runtime.HotReloader")
         val companion = hotReload.getField("Companion").get(null)
         val save = companion.javaClass.getDeclaredMethod("saveStateAndDispose", Any::class.java)
@@ -625,6 +654,7 @@ class ComposeLayoutInspector(
                 .apply { isAccessible = true }
                 .invoke(null)
         val state = save(companion, context)
+        savedStates.forEach { (container, savedState) -> container.restoreState(savedState) }
         load(companion, state)
     }
 
