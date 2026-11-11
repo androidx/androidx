@@ -25,8 +25,10 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.anyInt
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.never
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
@@ -77,7 +79,36 @@ class ConfigurationTest {
     }
 
     @Test
-    fun isJobSchedulerPersistenceEffective_cachesPermissionCheck() {
+    fun isJobSchedulerPersistenceEffective_cachesDeniedResultAcrossContexts() {
+        val deniedContext = createContextWithBootPermissionResult(PackageManager.PERMISSION_DENIED)
+        val grantedContext =
+            createContextWithBootPermissionResult(PackageManager.PERMISSION_GRANTED)
+
+        val configuration = Configuration.Builder().setJobSchedulerPersistenceEnabled(true).build()
+        assertThat(configuration.isJobSchedulerPersistenceEffective(deniedContext)).isFalse()
+        assertThat(configuration.isJobSchedulerPersistenceEffective(grantedContext)).isFalse()
+
+        verify(deniedContext, times(1))
+            .checkPermission(eq(Manifest.permission.RECEIVE_BOOT_COMPLETED), anyInt(), anyInt())
+        verify(grantedContext, never()).checkPermission(anyString(), anyInt(), anyInt())
+    }
+
+    @Test
+    fun isJobSchedulerPersistenceEffective_cachesGrantedResultAcrossContexts() {
+        val grantedContext =
+            createContextWithBootPermissionResult(PackageManager.PERMISSION_GRANTED)
+        val deniedContext = createContextWithBootPermissionResult(PackageManager.PERMISSION_DENIED)
+
+        val configuration = Configuration.Builder().setJobSchedulerPersistenceEnabled(true).build()
+        assertThat(configuration.isJobSchedulerPersistenceEffective(grantedContext)).isTrue()
+        assertThat(configuration.isJobSchedulerPersistenceEffective(deniedContext)).isTrue()
+
+        verify(grantedContext, times(1))
+            .checkPermission(eq(Manifest.permission.RECEIVE_BOOT_COMPLETED), anyInt(), anyInt())
+        verify(deniedContext, never()).checkPermission(anyString(), anyInt(), anyInt())
+    }
+
+    private fun createContextWithBootPermissionResult(permissionResult: Int): Context {
         val mockContext = mock(Context::class.java)
         `when`(
                 mockContext.checkPermission(
@@ -86,13 +117,7 @@ class ConfigurationTest {
                     anyInt(),
                 )
             )
-            .thenReturn(PackageManager.PERMISSION_DENIED)
-
-        val configuration = Configuration.Builder().setJobSchedulerPersistenceEnabled(true).build()
-        assertThat(configuration.isJobSchedulerPersistenceEffective(mockContext)).isFalse()
-        assertThat(configuration.isJobSchedulerPersistenceEffective(mockContext)).isFalse()
-
-        verify(mockContext, times(1))
-            .checkPermission(eq(Manifest.permission.RECEIVE_BOOT_COMPLETED), anyInt(), anyInt())
+            .thenReturn(permissionResult)
+        return mockContext
     }
 }

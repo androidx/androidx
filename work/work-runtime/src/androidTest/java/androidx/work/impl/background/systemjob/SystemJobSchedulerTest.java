@@ -349,9 +349,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
         when(mWorkDatabase.systemIdInfoDao().getWorkSpecIds()).thenReturn(
                 Arrays.asList(unpersistedWorkSpecId, persistedWorkSpecId, contentUriWorkSpecId));
 
-        Context mockContext = mock(Context.class);
-        when(mockContext.getPackageName()).thenReturn(
-                ApplicationProvider.getApplicationContext().getPackageName());
+        Context mockContext = createContextWithBootPermission();
         when(mockContext.getSystemService(Context.JOB_SCHEDULER_SERVICE)).thenReturn(mJobScheduler);
 
         Configuration configWithPersistence = new Configuration.Builder()
@@ -432,9 +430,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
         when(mWorkDatabase.systemIdInfoDao().getWorkSpecIds()).thenReturn(
                 Arrays.asList(persistedWorkSpecId, contentUriWorkSpecId));
 
-        Context mockContext = mock(Context.class);
-        when(mockContext.getPackageName()).thenReturn(
-                ApplicationProvider.getApplicationContext().getPackageName());
+        Context mockContext = createContextWithBootPermission();
         when(mockContext.getSystemService(Context.JOB_SCHEDULER_SERVICE)).thenReturn(mJobScheduler);
 
         Configuration configWithPersistence = new Configuration.Builder()
@@ -477,13 +473,21 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
         verify(mJobScheduler, never()).cancel(anyInt());
     }
 
+    private Context createContextWithBootPermission() {
+        return createContextWithBootPermissionResult(PackageManager.PERMISSION_GRANTED);
+    }
+
     private Context createContextWithoutBootPermission() {
+        return createContextWithBootPermissionResult(PackageManager.PERMISSION_DENIED);
+    }
+
+    private Context createContextWithBootPermissionResult(int permissionResult) {
         Context mockContext = mock(Context.class);
         when(mockContext.getPackageName()).thenReturn(
                 ApplicationProvider.getApplicationContext().getPackageName());
         when(mockContext.checkPermission(
                 eq(Manifest.permission.RECEIVE_BOOT_COMPLETED), anyInt(), anyInt()))
-                .thenReturn(PackageManager.PERMISSION_DENIED);
+                .thenReturn(permissionResult);
         return mockContext;
     }
 

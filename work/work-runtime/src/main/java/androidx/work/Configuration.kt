@@ -211,7 +211,9 @@ public class Configuration internal constructor(builder: Builder) {
      * This requires both [isJobSchedulerPersistenceEnabled] and the
      * `android.permission.RECEIVE_BOOT_COMPLETED` permission, without which
      * [android.app.job.JobScheduler] rejects persisted jobs. If the permission was removed from the
-     * merged manifest, this logs a warning once and falls back to non-persisted jobs.
+     * merged manifest, this logs a warning once and falls back to non-persisted jobs. The
+     * permission is checked once per [Configuration] instance, against the [context] of the first
+     * call; later calls return the cached result regardless of the [context] passed.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun isJobSchedulerPersistenceEffective(context: Context): Boolean {
@@ -223,22 +225,24 @@ public class Configuration internal constructor(builder: Builder) {
         }
         return synchronized(jobSchedulerPersistenceLock) {
             effectiveJobSchedulerPersistence
-                ?: (ContextCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.RECEIVE_BOOT_COMPLETED,
-                    ) == PackageManager.PERMISSION_GRANTED)
-                    .also { hasBootPermission ->
-                        if (!hasBootPermission) {
-                            Logger.get()
-                                .warning(
-                                    TAG,
-                                    "JobScheduler persistence is enabled, but " +
-                                        "android.permission.RECEIVE_BOOT_COMPLETED is not " +
-                                        "granted. Falling back to non-persisted jobs.",
-                                )
-                        }
-                        effectiveJobSchedulerPersistence = hasBootPermission
+                ?: run {
+                    val hasBootPermission =
+                        ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.RECEIVE_BOOT_COMPLETED,
+                        ) == PackageManager.PERMISSION_GRANTED
+                    if (!hasBootPermission) {
+                        Logger.get()
+                            .warning(
+                                TAG,
+                                "JobScheduler persistence is enabled, but " +
+                                    "android.permission.RECEIVE_BOOT_COMPLETED is not " +
+                                    "granted. Falling back to non-persisted jobs.",
+                            )
                     }
+                    effectiveJobSchedulerPersistence = hasBootPermission
+                    hasBootPermission
+                }
         }
     }
 
@@ -721,8 +725,10 @@ public class Configuration internal constructor(builder: Builder) {
          * [Constraints.contentUriTriggers], which JobScheduler cannot persist.
          *
          * * Requires `android.permission.RECEIVE_BOOT_COMPLETED`, which WorkManager declares in its
-         *   manifest. Do not remove it when enabling this option; JobScheduler rejects persisted
-         *   jobs without it, so WorkManager falls back to non-persisted jobs.
+         *   manifest; JobScheduler rejects persisted jobs without it. If the permission is removed
+         *   from the merged manifest, this option has no effect: WorkManager logs a warning and
+         *   schedules non-persisted jobs, which are lost on reboot and rescheduled only when the
+         *   app process next starts.
          * * Changing this value takes effect on the next initialization: existing JobScheduler jobs
          *   whose persistence does not match are cancelled and rescheduled.
          * * WorkManager no longer initializes on boot, so boot-time cleanup (e.g. resetting work
