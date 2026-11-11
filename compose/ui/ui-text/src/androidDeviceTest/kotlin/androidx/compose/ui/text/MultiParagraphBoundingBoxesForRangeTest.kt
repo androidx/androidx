@@ -18,11 +18,21 @@ package androidx.compose.ui.text
 
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.PathSegment
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.DrawStyle
+import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.BackgroundAnnotation.SpreadValues
 import androidx.compose.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.text.intl.LocaleList
@@ -30,9 +40,11 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -671,6 +683,116 @@ class MultiParagraphBoundingBoxesForRangeTest {
     }
 
     @Test
+    fun calculatePathFromBoundingBoxes_horizontalSpread_coalescesSameLineBidiBoxes() {
+        // LTR paragraph with embedded RTL word: "abc \u05D0\u05D1\u05D2 def"
+        // Range [2, 6) produces two disjoint boxes on line 0 separated by '\u05D2' (10px wide).
+        val text = "abc \u05D0\u05D1\u05D2 def"
+        val layoutResult =
+            simpleTextLayoutResult(
+                text = AnnotatedString(text),
+                style = TextStyle(fontSize = 10.sp, textDirection = TextDirection.Ltr),
+                width = 1000f,
+                localeList = ltrLocaleList,
+            )
+        val unadjustedBoxes = layoutResult.getBoundingBoxesForRange(2, 6)
+        assertThat(unadjustedBoxes).hasSize(2)
+
+        // Spreading left and right by 6px each bridges the 10px gap between the two runs.
+        val coalescedPath =
+            layoutResult.calculatePathFromBoundingBoxes(
+                start = 2,
+                end = 6,
+                spreadLeft = 6f,
+                spreadRight = 6f,
+                mergeLines = true,
+            )
+        assertThat(coalescedPath.getBounds())
+            .isEqualTo(
+                Rect(
+                    unadjustedBoxes[0].left - 6f,
+                    unadjustedBoxes[0].top,
+                    unadjustedBoxes[1].right + 6f,
+                    unadjustedBoxes[1].bottom,
+                )
+            )
+    }
+
+    @Test
+    fun calculatePathFromBoundingBoxes_negativeVerticalSpread_insetsBoundsAndHandlesLineSeam() {
+        val layoutResult = simpleTextLayoutResult(text = "abcdefghijkl\nabcdefgh", fontSize = 10.sp)
+        val seamProbe = Path().apply { addRect(Rect(0f, 9.5f, 80f, 10.5f)) }
+
+        // With mergeLines = true, negative vertical spread shrinks only the outer top of the first
+        // line and outer bottom of the last line while keeping the inner seam at y = 10f joined.
+        val mergedPath =
+            layoutResult.calculatePathFromBoundingBoxes(
+                start = 0,
+                end = layoutResult.layoutInput.text.length,
+                spreadTop = -1f,
+                spreadBottom = -1f,
+                mergeLines = true,
+            )
+        assertThat(mergedPath.getBounds()).isEqualTo(Rect(0f, 1f, 120f, 19f))
+        val mergedSeamIntersection =
+            Path().apply { op(mergedPath, seamProbe, PathOperation.Intersect) }
+        assertThat(mergedSeamIntersection.isEmpty).isFalse()
+
+        // With mergeLines = false, each per-line box is shrunk independently, creating a 2px
+        // vertical gap across y = 10f.
+        val unmergedPath =
+            layoutResult.calculatePathFromBoundingBoxes(
+                start = 0,
+                end = layoutResult.layoutInput.text.length,
+                spreadTop = -1f,
+                spreadBottom = -1f,
+                mergeLines = false,
+            )
+        assertThat(unmergedPath.getBounds()).isEqualTo(Rect(0f, 1f, 120f, 19f))
+        val unmergedSeamIntersection =
+            Path().apply { op(unmergedPath, seamProbe, PathOperation.Intersect) }
+        assertThat(unmergedSeamIntersection.isEmpty).isTrue()
+    }
+
+    @Test
+    fun calculatePathFromBoundingBoxes_negativeSpreadReducingWidthOrHeightToZeroOrLess_returnsEmptyPath() {
+        // Two lines: line 0 ("abcd", 40px x 10px), line 1 ("abcd", 40px x 10px), total height 20px
+        val layoutResult = simpleTextLayoutResult(text = "abcd\nabcd", fontSize = 10.sp)
+
+        // 1. mergeLines = false: per-line height = 10px; -5px top and -5px bottom -> height = 0px
+        val zeroHeightUnmerged =
+            layoutResult.calculatePathFromBoundingBoxes(
+                start = 0,
+                end = layoutResult.layoutInput.text.length,
+                spreadTop = -5f,
+                spreadBottom = -5f,
+                mergeLines = false,
+            )
+        assertThat(zeroHeightUnmerged.isEmpty).isTrue()
+
+        // 2. mergeLines = true: merged stack height = 20px; -10px top and -10px bottom -> 0px
+        val zeroHeightMerged =
+            layoutResult.calculatePathFromBoundingBoxes(
+                start = 0,
+                end = layoutResult.layoutInput.text.length,
+                spreadTop = -10f,
+                spreadBottom = -10f,
+                mergeLines = true,
+            )
+        assertThat(zeroHeightMerged.isEmpty).isTrue()
+
+        // 3. Negative horizontal spread reducing 40px width to <= 0px
+        val negativeWidthPath =
+            layoutResult.calculatePathFromBoundingBoxes(
+                start = 0,
+                end = layoutResult.layoutInput.text.length,
+                spreadLeft = -20f,
+                spreadRight = -21f,
+                mergeLines = true,
+            )
+        assertThat(negativeWidthPath.isEmpty).isTrue()
+    }
+
+    @Test
     fun calculateBoundingBoxList_beyondLaidOutParagraphs_returnsEmpty() {
         // Two paragraphs ("01234\n56789") constrained to maxLines = 1 drops the second paragraph
         // so paragraphInfoList.last().endIndex < layoutInput.text.length.
@@ -727,6 +849,174 @@ class MultiParagraphBoundingBoxesForRangeTest {
                 "behind:6..11:layout1=false:scope=$expectedScopeId",
             )
             .inOrder()
+    }
+
+    @Test
+    fun backgroundAnnotation_colorColorProducerAndBrushOverloadsWithOptionalBorderAndPathCache() {
+        // "abcdefghij" at 10.sp has 10px per char and height 10px:
+        // range [2, 7) is x=[20f, 70f], y=[0f, 10f]
+        val layoutResult = simpleTextLayoutResult(text = "abcdefghij", fontSize = 10.sp)
+        val drawScope = RecordingDrawScope(CanvasDrawScope(), densityValue = 2f)
+        val scope =
+            DrawAnnotationScopeImpl(
+                drawScope = drawScope,
+                textLayoutResult = layoutResult,
+                start = 2,
+                end = 7,
+            )
+
+        // 1. Color fill + solid border in a single BackgroundAnnotation
+        // With density = 2f, SpreadValues(horizontal = 2.dp, vertical = 1.dp) = (4px, 2px),
+        // expanding [20f, 0f, 70f, 10f] to [16f, -2f, 74f, 12f].
+        val colorAndBorderAnnotation =
+            BackgroundAnnotation(
+                color = Color.Yellow,
+                cornerRadius = 3.dp,
+                spread = SpreadValues(horizontal = 2.dp, vertical = 1.dp),
+                border = BackgroundAnnotation.Border(width = 1.dp, color = Color.Blue),
+                alpha = 0.8f,
+            )
+
+        assertThat(colorAndBorderAnnotation.path).isNull()
+        with(colorAndBorderAnnotation) { scope.drawBehind() }
+        assertThat(colorAndBorderAnnotation.path).isNotNull()
+
+        assertThat(drawScope.calls).hasSize(2)
+        val fillCall = drawScope.calls[0]
+        assertThat(fillCall.path.getBounds()).isEqualTo(Rect(16f, -2f, 74f, 12f))
+        assertThat(fillCall.color).isEqualTo(Color.Yellow)
+        assertThat(fillCall.alpha).isEqualTo(0.8f)
+        assertThat(fillCall.style).isEqualTo(Fill)
+        assertThat(fillCall.blendMode).isEqualTo(DrawScope.DefaultBlendMode)
+
+        val borderCall = drawScope.calls[1]
+        assertThat(borderCall.path).isSameInstanceAs(fillCall.path)
+        assertThat(borderCall.color).isEqualTo(Color.Blue)
+        assertThat(borderCall.alpha).isEqualTo(0.8f)
+        assertThat((borderCall.style as Stroke).width).isEqualTo(2f) // 1.dp * 2f density
+
+        // 2. ColorProducer overload resolves color dynamically during drawBehind() and updates
+        // cached Path when range changes
+        var dynamicColor = Color.Green
+        var dynamicBorderColor = Color.Red
+        val colorProducerAnnotation =
+            BackgroundAnnotation(
+                colorProducer = { dynamicColor },
+                cornerRadius = 4.dp,
+                border =
+                    BackgroundAnnotation.Border(
+                        width = 1.5.dp,
+                        colorProducer = { dynamicBorderColor },
+                    ),
+                alpha = 0.6f,
+            )
+        with(colorProducerAnnotation) { scope.drawBehind() }
+        assertThat(drawScope.calls[2].path.getBounds()).isEqualTo(Rect(20f, 0f, 70f, 10f))
+        assertThat(drawScope.calls[2].color).isEqualTo(Color.Green)
+        assertThat(drawScope.calls[3].color).isEqualTo(Color.Red)
+        assertThat((drawScope.calls[3].style as Stroke).width).isEqualTo(3f)
+
+        dynamicColor = Color.Cyan
+        dynamicBorderColor = Color.DarkGray
+        with(colorProducerAnnotation) { scope.drawBehind() }
+        assertThat(drawScope.calls[4].color).isEqualTo(Color.Cyan)
+        assertThat(drawScope.calls[5].color).isEqualTo(Color.DarkGray)
+
+        // Changing the range [2, 8) updates the cached Path bounds to [20f, 0f, 80f, 10f]
+        scope.end = 8
+        with(colorProducerAnnotation) { scope.drawBehind() }
+        assertThat(drawScope.calls[6].path.getBounds()).isEqualTo(Rect(20f, 0f, 80f, 10f))
+        scope.end = 7
+
+        // 3. Brush fill + border brush with Dp.Hairline width
+        val fillBrush = SolidColor(Color.Magenta)
+        val borderBrush = SolidColor(Color.Black)
+        val brushAnnotation =
+            BackgroundAnnotation(
+                brush = fillBrush,
+                cornerRadius = 4.dp,
+                border = BackgroundAnnotation.Border(width = Dp.Hairline, brush = borderBrush),
+                alpha = 0.5f,
+            )
+        with(brushAnnotation) { scope.drawBehind() }
+
+        assertThat(drawScope.calls).hasSize(10)
+        val bgBrushCall = drawScope.calls[8]
+        assertThat(bgBrushCall.brush).isSameInstanceAs(fillBrush)
+        assertThat(bgBrushCall.alpha).isEqualTo(0.5f)
+        assertThat(bgBrushCall.style).isEqualTo(Fill)
+
+        val borderBrushCall = drawScope.calls[9]
+        assertThat(borderBrushCall.brush).isSameInstanceAs(borderBrush)
+        assertThat(borderBrushCall.alpha).isEqualTo(0.5f)
+        assertThat((borderBrushCall.style as Stroke).width).isEqualTo(Stroke.HairlineWidth)
+    }
+
+    private class DrawPathCall(
+        val path: Path,
+        val color: Color?,
+        val brush: Brush?,
+        val alpha: Float,
+        val style: DrawStyle,
+        val colorFilter: ColorFilter?,
+        val blendMode: BlendMode,
+    )
+
+    private class RecordingDrawScope(
+        private val delegate: DrawScope,
+        private val densityValue: Float = 1f,
+    ) : DrawScope by delegate {
+        override val density: Float
+            get() = densityValue
+
+        override val fontScale: Float
+            get() = 1f
+
+        override fun Dp.toPx(): Float = value * densityValue
+
+        val calls = mutableListOf<DrawPathCall>()
+
+        override fun drawPath(
+            path: Path,
+            color: Color,
+            alpha: Float,
+            style: DrawStyle,
+            colorFilter: ColorFilter?,
+            blendMode: BlendMode,
+        ) {
+            calls.add(
+                DrawPathCall(
+                    path = path,
+                    color = color,
+                    brush = null,
+                    alpha = alpha,
+                    style = style,
+                    colorFilter = colorFilter,
+                    blendMode = blendMode,
+                )
+            )
+        }
+
+        override fun drawPath(
+            path: Path,
+            brush: Brush,
+            alpha: Float,
+            style: DrawStyle,
+            colorFilter: ColorFilter?,
+            blendMode: BlendMode,
+        ) {
+            calls.add(
+                DrawPathCall(
+                    path = path,
+                    color = null,
+                    brush = brush,
+                    alpha = alpha,
+                    style = style,
+                    colorFilter = colorFilter,
+                    blendMode = blendMode,
+                )
+            )
+        }
     }
 
     private fun simpleTextLayoutResult(

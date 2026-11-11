@@ -182,8 +182,8 @@ private val AnnotationRangeSaver =
  *   class`es on Android)
  *
  * Note: This [Saver] does not preserve the [LinkInteractionListener] of [LinkAnnotation]s,
- * lambda-backed [DrawAnnotation] instances, or [Bullet] annotations. If you need to restore them,
- * you must handle saving and restoring them manually.
+ * [BackgroundAnnotation]s, lambda-backed [DrawAnnotation] instances, or [Bullet] annotations. If
+ * you need to restore them, you must handle saving and restoring them manually.
  */
 @OptIn(ExperimentalTextApi::class)
 internal val AnnotationSaver: Saver<AnnotatedString.Annotation, Any> =

@@ -153,6 +153,77 @@ package androidx.compose.ui.text {
     method public static inline <R> R withStyle(androidx.compose.ui.text.AnnotatedString.Builder, androidx.compose.ui.text.SpanStyle style, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Builder,? extends R> block);
   }
 
+  @androidx.compose.runtime.Immutable public final class BackgroundAnnotation extends androidx.compose.ui.text.DrawAnnotation {
+    ctor @KotlinOnly public BackgroundAnnotation(androidx.compose.ui.graphics.Brush brush, optional androidx.compose.ui.unit.Dp cornerRadius, optional androidx.compose.ui.text.BackgroundAnnotation.SpreadValues spread, optional boolean mergeLines, optional androidx.compose.ui.text.BackgroundAnnotation.Border? border, optional @FloatRange(from=0.0, to=1.0) float alpha);
+    ctor @BytecodeOnly public BackgroundAnnotation(androidx.compose.ui.graphics.Brush!, float, androidx.compose.ui.text.BackgroundAnnotation.SpreadValues!, boolean, androidx.compose.ui.text.BackgroundAnnotation.Border!, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public BackgroundAnnotation(androidx.compose.ui.graphics.Brush!, float, androidx.compose.ui.text.BackgroundAnnotation.SpreadValues!, boolean, androidx.compose.ui.text.BackgroundAnnotation.Border!, @FloatRange(from=0.0, to=1.0) float, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @KotlinOnly public BackgroundAnnotation(androidx.compose.ui.graphics.Color color, optional androidx.compose.ui.unit.Dp cornerRadius, optional androidx.compose.ui.text.BackgroundAnnotation.SpreadValues spread, optional boolean mergeLines, optional androidx.compose.ui.text.BackgroundAnnotation.Border? border, optional @FloatRange(from=0.0, to=1.0) float alpha);
+    ctor @KotlinOnly public BackgroundAnnotation(androidx.compose.ui.graphics.ColorProducer colorProducer, optional androidx.compose.ui.unit.Dp cornerRadius, optional androidx.compose.ui.text.BackgroundAnnotation.SpreadValues spread, optional boolean mergeLines, optional androidx.compose.ui.text.BackgroundAnnotation.Border? border, optional @FloatRange(from=0.0, to=1.0) float alpha);
+    ctor @BytecodeOnly public BackgroundAnnotation(androidx.compose.ui.graphics.ColorProducer!, float, androidx.compose.ui.text.BackgroundAnnotation.SpreadValues!, boolean, androidx.compose.ui.text.BackgroundAnnotation.Border!, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public BackgroundAnnotation(androidx.compose.ui.graphics.ColorProducer!, float, androidx.compose.ui.text.BackgroundAnnotation.SpreadValues!, boolean, androidx.compose.ui.text.BackgroundAnnotation.Border!, @FloatRange(from=0.0, to=1.0) float, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public BackgroundAnnotation(long, float, androidx.compose.ui.text.BackgroundAnnotation.SpreadValues!, boolean, androidx.compose.ui.text.BackgroundAnnotation.Border!, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public BackgroundAnnotation(long, float, androidx.compose.ui.text.BackgroundAnnotation.SpreadValues!, boolean, androidx.compose.ui.text.BackgroundAnnotation.Border!, @FloatRange(from=0.0, to=1.0) float, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public float getAlpha();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.BackgroundAnnotation.Border? getBorder();
+    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.Brush? getBrush();
+    method @BytecodeOnly public long getColor-0d7_KjU();
+    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.ColorProducer? getColorProducer();
+    method @BytecodeOnly public float getCornerRadius-D9Ej5fM();
+    method @InaccessibleFromKotlin public boolean getMergeLines();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.BackgroundAnnotation.SpreadValues getSpread();
+    property public float alpha;
+    property public androidx.compose.ui.text.BackgroundAnnotation.Border? border;
+    property public androidx.compose.ui.graphics.Brush? brush;
+    property public androidx.compose.ui.graphics.Color color;
+    property public androidx.compose.ui.graphics.ColorProducer? colorProducer;
+    property public androidx.compose.ui.unit.Dp cornerRadius;
+    property public boolean mergeLines;
+    property public androidx.compose.ui.text.BackgroundAnnotation.SpreadValues spread;
+  }
+
+  @androidx.compose.runtime.Immutable public static final class BackgroundAnnotation.Border {
+    ctor @KotlinOnly public BackgroundAnnotation.Border(androidx.compose.ui.unit.Dp width, androidx.compose.ui.graphics.Brush brush);
+    ctor @KotlinOnly public BackgroundAnnotation.Border(androidx.compose.ui.unit.Dp width, androidx.compose.ui.graphics.Color color);
+    ctor @KotlinOnly public BackgroundAnnotation.Border(androidx.compose.ui.unit.Dp width, androidx.compose.ui.graphics.ColorProducer colorProducer);
+    ctor @BytecodeOnly public BackgroundAnnotation.Border(float, androidx.compose.ui.graphics.Brush!, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public BackgroundAnnotation.Border(float, androidx.compose.ui.graphics.ColorProducer!, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public BackgroundAnnotation.Border(float, long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.Brush? getBrush();
+    method @BytecodeOnly public long getColor-0d7_KjU();
+    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.ColorProducer? getColorProducer();
+    method @BytecodeOnly public float getWidth-D9Ej5fM();
+    property public androidx.compose.ui.graphics.Brush? brush;
+    property public androidx.compose.ui.graphics.Color color;
+    property public androidx.compose.ui.graphics.ColorProducer? colorProducer;
+    property public androidx.compose.ui.unit.Dp width;
+  }
+
+  @androidx.compose.runtime.Immutable public static final class BackgroundAnnotation.SpreadValues {
+    ctor @BytecodeOnly public BackgroundAnnotation.SpreadValues();
+    ctor @KotlinOnly public BackgroundAnnotation.SpreadValues(androidx.compose.ui.unit.Dp all);
+    ctor @KotlinOnly public BackgroundAnnotation.SpreadValues(optional androidx.compose.ui.unit.Dp horizontal, optional androidx.compose.ui.unit.Dp vertical);
+    ctor @KotlinOnly public BackgroundAnnotation.SpreadValues(optional androidx.compose.ui.unit.Dp left, optional androidx.compose.ui.unit.Dp top, optional androidx.compose.ui.unit.Dp right, optional androidx.compose.ui.unit.Dp bottom);
+    ctor @BytecodeOnly public BackgroundAnnotation.SpreadValues(float, float, float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public BackgroundAnnotation.SpreadValues(float, float, float, float, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public BackgroundAnnotation.SpreadValues(float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public BackgroundAnnotation.SpreadValues(float, float, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public BackgroundAnnotation.SpreadValues(float, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @BytecodeOnly public float getBottom-D9Ej5fM();
+    method @BytecodeOnly public float getLeft-D9Ej5fM();
+    method @BytecodeOnly public float getRight-D9Ej5fM();
+    method @BytecodeOnly public float getTop-D9Ej5fM();
+    property public androidx.compose.ui.unit.Dp bottom;
+    property public androidx.compose.ui.unit.Dp left;
+    property public androidx.compose.ui.unit.Dp right;
+    property public androidx.compose.ui.unit.Dp top;
+    field public static final androidx.compose.ui.text.BackgroundAnnotation.SpreadValues.Companion Companion;
+  }
+
+  public static final class BackgroundAnnotation.SpreadValues.Companion {
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.BackgroundAnnotation.SpreadValues getZero();
+    property public androidx.compose.ui.text.BackgroundAnnotation.SpreadValues Zero;
+  }
+
   public final class Bullet implements androidx.compose.ui.text.AnnotatedString.Annotation {
     ctor @KotlinOnly public Bullet(androidx.compose.ui.graphics.Shape shape, androidx.compose.ui.unit.TextUnit width, androidx.compose.ui.unit.TextUnit height, androidx.compose.ui.unit.TextUnit padding, optional androidx.compose.ui.graphics.Brush? brush, optional float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle drawStyle);
     ctor @BytecodeOnly public Bullet(androidx.compose.ui.graphics.Shape!, long, long, long, androidx.compose.ui.graphics.Brush!, float, androidx.compose.ui.graphics.drawscope.DrawStyle!, int, kotlin.jvm.internal.DefaultConstructorMarker!);

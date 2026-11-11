@@ -78,10 +78,12 @@ public interface DrawAnnotationScope : DrawScope {
  *   semantic meaning alongside [DrawAnnotation] using [SpanStyle], [TtsAnnotation],
  *   [LinkAnnotation], or [StringAnnotation].
  *
- * For one-off inline decorations, use the [DrawAnnotation] factory function.
+ * For standard rounded background fills and borders, use [BackgroundAnnotation]. For one-off inline
+ * decorations, use the [DrawAnnotation] factory function.
  *
  * @sample androidx.compose.ui.text.samples.DrawAnnotationSample
  * @sample androidx.compose.ui.text.samples.DrawAnnotationSubclassSample
+ * @see BackgroundAnnotation
  * @see AnnotatedString.Builder.withDrawAnnotation
  * @see AnnotatedString.Builder.addDrawAnnotation
  */

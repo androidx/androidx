@@ -1179,9 +1179,9 @@ internal constructor(
              *   [androidx.compose.runtime.saveable.SaverScope.canBeSaved] (such as `Parcelable`
              *   `data class`es on Android)
              *
-             * Note: Does not preserve [LinkInteractionListener] of [LinkAnnotation]s, lambda-backed
-             * [DrawAnnotation] instances, or [Bullet] annotations. Handle saving and restoring them
-             * manually if required.
+             * Note: Does not preserve [LinkInteractionListener] of [LinkAnnotation]s,
+             * [BackgroundAnnotation]s, lambda-backed [DrawAnnotation] instances, or [Bullet]
+             * annotations. Handle saving and restoring them manually if required.
              *
              * @sample androidx.compose.ui.text.samples.AnnotatedStringAnnotationSaverSample
              * @sample androidx.compose.ui.text.samples.LinkAnnotationSaverWithListenerSample
@@ -1197,8 +1197,9 @@ internal constructor(
         /**
          * The default [Saver] implementation for [AnnotatedString].
          *
-         * Note this Saver doesn't preserve the [LinkInteractionListener] of the links. You should
-         * handle this case manually if required (check
+         * Note this Saver doesn't preserve the [LinkInteractionListener] of the links,
+         * [BackgroundAnnotation]s, lambda-backed [DrawAnnotation] instances, or [Bullet]
+         * annotations. You should handle these cases manually if required (check
          * https://issuetracker.google.com/issues/332901550 for an example).
          */
         public val Saver: Saver<AnnotatedString, *> = AnnotatedStringSaver
