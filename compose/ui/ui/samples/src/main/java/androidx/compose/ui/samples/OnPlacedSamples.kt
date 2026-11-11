@@ -37,7 +37,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionInParent
@@ -49,13 +48,14 @@ import kotlinx.coroutines.launch
 @Sampled
 @Composable
 fun OnPlaced() {
-    fun Modifier.animatePlacement(): Modifier = composed {
+    @Composable
+    fun Modifier.animatePlacement(): Modifier {
         val scope = rememberCoroutineScope()
         var targetOffset by remember { mutableStateOf(IntOffset.Zero) }
         var animatable by remember {
             mutableStateOf<Animatable<IntOffset, AnimationVector2D>?>(null)
         }
-        this.onPlaced {
+        return this.onPlaced {
                 // Calculate the position in the parent layout
                 targetOffset = it.positionInParent().round()
             }

@@ -25,7 +25,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.modifier.modifierLocalOf
 import androidx.compose.ui.modifier.modifierLocalProvider
@@ -37,17 +36,14 @@ fun ModifierLocalParentChildCommunicationWithinLayoutNodeSample() {
     // Define the type of data.
     val ModifierLocalMessage = modifierLocalOf { "Unknown" }
 
+    var message by remember { mutableStateOf("") }
     Box(
         Modifier
             // Provide an instance associated with the data type.
             .modifierLocalProvider(ModifierLocalMessage) { "World" }
-            .composed {
-                var message by remember { mutableStateOf("") }
-                Modifier
-                    // Use the data type to read the message.
-                    .modifierLocalConsumer { message = ModifierLocalMessage.current }
-                    .clickable { println("Hello $message") }
-            }
+            // Use the data type to read the message.
+            .modifierLocalConsumer { message = ModifierLocalMessage.current }
+            .clickable { println("Hello $message") }
     )
 }
 
@@ -64,20 +60,17 @@ fun ModifierLocalChildParentCommunicationWithinLayoutNodeSample() {
     // Define the type of data.
     val ModifierLocalSender = modifierLocalOf<Sender> { error("No sender provided by parent.") }
 
+    var sender by remember { mutableStateOf<Sender?>(null) }
     Box(
         Modifier
             // Provide an instance associated with the sender type.
             .modifierLocalProvider(ModifierLocalSender) {
                 Sender { println("Message Received: $it") }
             }
-            .composed {
-                var sender by remember { mutableStateOf<Sender?>(null) }
-                Modifier
-                    // Use the sender type to fetch an instance.
-                    .modifierLocalConsumer { sender = ModifierLocalSender.current }
-                    // Use this instance to send a message to the parent.
-                    .clickable { sender?.sendMessage("Hello World") }
-            }
+            // Use the sender type to fetch an instance.
+            .modifierLocalConsumer { sender = ModifierLocalSender.current }
+            // Use this instance to send a message to the parent.
+            .clickable { sender?.sendMessage("Hello World") }
     )
 }
 
