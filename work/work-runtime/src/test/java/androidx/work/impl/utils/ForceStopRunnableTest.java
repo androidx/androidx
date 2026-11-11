@@ -130,6 +130,22 @@ public class ForceStopRunnableTest {
     }
 
     @Test
+    @Config(sdk = 29)
+    public void testReschedulesAfterReboot_apiBelow30_whenJobSchedulerPersistenceEnabled() {
+        Configuration configuration =
+                new Configuration.Builder(mConfiguration)
+                        .setJobSchedulerPersistenceEnabled(true)
+                        .build();
+        when(mWorkManager.getConfiguration()).thenReturn(configuration);
+        ForceStopRunnable runnable = spy(mRunnable);
+        doReturn(false).when(runnable).shouldRescheduleWorkers();
+        // No PendingIntent exists yet (as after a reboot) -> isForceStopped() must return true.
+        runnable.run();
+        verify(mWorkManager, times(1)).rescheduleEligibleWork();
+        verify(mWorkManager, times(1)).onForceStopRunnableCompleted();
+    }
+
+    @Test
     public void test_doNothingWhenNotForceStopped() {
         ForceStopRunnable runnable = spy(mRunnable);
         doReturn(false).when(runnable).shouldRescheduleWorkers();

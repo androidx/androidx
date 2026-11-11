@@ -21,8 +21,13 @@ import static android.app.job.JobScheduler.RESULT_SUCCESS;
 
 import static androidx.work.impl.background.systemjob.SystemJobInfoConverter.EXTRA_WORK_SPEC_ID;
 
+import static androidx.work.impl.model.WorkSpec.SCHEDULE_NOT_REQUESTED_YET;
+
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doNothing;
@@ -35,10 +40,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.Manifest;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.PersistableBundle;
 
 import androidx.core.util.Consumer;
@@ -65,6 +74,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -75,6 +85,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
     private static final String TEST_ID = "test";
 
     private ComponentName mJobServiceComponent;
+    private Configuration mConfiguration;
     private JobScheduler mJobScheduler;
     private SystemJobScheduler mSystemJobScheduler;
     private WorkSpecDao mMockWorkSpecDao;
@@ -86,7 +97,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
     public void setUp() {
         Context context = ApplicationProvider.getApplicationContext();
         mHandler = mock(Consumer.class);
-        Configuration configuration = new Configuration.Builder()
+        mConfiguration = new Configuration.Builder()
                 .setSchedulingExceptionHandler(mHandler).build();
         WorkDatabase workDatabase = mock(WorkDatabase.class);
         SystemIdInfoDao systemIdInfoDao = mock(SystemIdInfoDao.class);
@@ -123,10 +134,11 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
                 spy(new SystemJobScheduler(
                         context,
                         workDatabase,
-                        configuration,
+                        mConfiguration,
                         mJobScheduler,
-                        new SystemJobInfoConverter(context, configuration.getClock(),
-                                configuration.isMarkingJobsAsImportantWhileForeground()
+                        new SystemJobInfoConverter(context, mConfiguration.getClock(),
+                                mConfiguration.isMarkingJobsAsImportantWhileForeground(),
+                                mConfiguration.isJobSchedulerPersistenceEffective(context)
                         ),
                         mock(RunnableScheduler.class)));
 
@@ -280,7 +292,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
         when(mockContext.getPackageName()).thenReturn(
                 ApplicationProvider.getApplicationContext().getPackageName());
         when(mockContext.getSystemService(Context.JOB_SCHEDULER_SERVICE)).thenReturn(mJobScheduler);
-        SystemJobScheduler.reconcileJobs(mockContext, mWorkDatabase);
+        SystemJobScheduler.reconcileJobs(mockContext, mWorkDatabase, mConfiguration);
 
         verify(mJobScheduler).cancel(invalidJob.getId());
         verify(mJobScheduler, never()).cancel(validJob.getId());
@@ -309,9 +321,188 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
         when(mockContext.getPackageName()).thenReturn(
                 ApplicationProvider.getApplicationContext().getPackageName());
         when(mockContext.getSystemService(Context.JOB_SCHEDULER_SERVICE)).thenReturn(mJobScheduler);
-        SystemJobScheduler.reconcileJobs(mockContext, mWorkDatabase);
+        SystemJobScheduler.reconcileJobs(mockContext, mWorkDatabase, mConfiguration);
 
         verify(mJobScheduler).cancel(orphanedJob.getId());
+    }
+
+    @Test
+    @LargeTest
+    public void testReconcileJobs_reschedulesUnpersistedWhenPersistenceEnabled() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            when(mJobScheduler.forNamespace(anyString())).thenReturn(mJobScheduler);
+        }
+        String unpersistedWorkSpecId = "unpersisted_work";
+        String persistedWorkSpecId = "persisted_work";
+        String contentUriWorkSpecId = "content_uri_work";
+
+        JobInfo unpersistedJob = createMockJobInfo(1, unpersistedWorkSpecId, false);
+        JobInfo persistedJob = createMockJobInfo(2, persistedWorkSpecId, true);
+        JobInfo contentUriJob = createMockJobInfo(
+                3,
+                contentUriWorkSpecId,
+                false,
+                new JobInfo.TriggerContentUri(Uri.parse("content://test"), 0));
+
+        when(mJobScheduler.getAllPendingJobs()).thenReturn(
+                Arrays.asList(unpersistedJob, persistedJob, contentUriJob));
+        when(mWorkDatabase.systemIdInfoDao().getWorkSpecIds()).thenReturn(
+                Arrays.asList(unpersistedWorkSpecId, persistedWorkSpecId, contentUriWorkSpecId));
+
+        Context mockContext = mock(Context.class);
+        when(mockContext.getPackageName()).thenReturn(
+                ApplicationProvider.getApplicationContext().getPackageName());
+        when(mockContext.getSystemService(Context.JOB_SCHEDULER_SERVICE)).thenReturn(mJobScheduler);
+
+        Configuration configWithPersistence = new Configuration.Builder()
+                .setJobSchedulerPersistenceEnabled(true)
+                .build();
+        boolean needsReconciling = SystemJobScheduler.reconcileJobs(
+                mockContext, mWorkDatabase, configWithPersistence);
+
+        assertThat(needsReconciling).isTrue();
+        verify(mJobScheduler).cancel(unpersistedJob.getId());
+        verify(mJobScheduler, never()).cancel(persistedJob.getId());
+        verify(mJobScheduler, never()).cancel(contentUriJob.getId());
+        // When reconciliation is needed, all tracked WorkSpecs have their scheduled bit reset so
+        // ForceStopRunnable can pass them to Schedulers.schedule().
+        verify(mMockWorkSpecDao).markWorkSpecScheduled(
+                unpersistedWorkSpecId, SCHEDULE_NOT_REQUESTED_YET);
+        verify(mMockWorkSpecDao).markWorkSpecScheduled(
+                persistedWorkSpecId, SCHEDULE_NOT_REQUESTED_YET);
+        verify(mMockWorkSpecDao).markWorkSpecScheduled(
+                contentUriWorkSpecId, SCHEDULE_NOT_REQUESTED_YET);
+    }
+
+    @Test
+    @LargeTest
+    public void testReconcileJobs_reschedulesPersistedWhenPersistenceDisabled() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            when(mJobScheduler.forNamespace(anyString())).thenReturn(mJobScheduler);
+        }
+        String persistedWorkSpecId = "persisted_work";
+        String unpersistedWorkSpecId = "unpersisted_work";
+
+        JobInfo persistedJob = createMockJobInfo(1, persistedWorkSpecId, true);
+        JobInfo unpersistedJob = createMockJobInfo(2, unpersistedWorkSpecId, false);
+
+        when(mJobScheduler.getAllPendingJobs()).thenReturn(
+                Arrays.asList(persistedJob, unpersistedJob));
+        when(mWorkDatabase.systemIdInfoDao().getWorkSpecIds()).thenReturn(
+                Arrays.asList(persistedWorkSpecId, unpersistedWorkSpecId));
+
+        Context mockContext = mock(Context.class);
+        when(mockContext.getPackageName()).thenReturn(
+                ApplicationProvider.getApplicationContext().getPackageName());
+        when(mockContext.getSystemService(Context.JOB_SCHEDULER_SERVICE)).thenReturn(mJobScheduler);
+
+        Configuration configWithoutPersistence = new Configuration.Builder()
+                .setJobSchedulerPersistenceEnabled(false)
+                .build();
+        boolean needsReconciling = SystemJobScheduler.reconcileJobs(
+                mockContext, mWorkDatabase, configWithoutPersistence);
+
+        assertThat(needsReconciling).isTrue();
+        verify(mJobScheduler).cancel(persistedJob.getId());
+        verify(mJobScheduler, never()).cancel(unpersistedJob.getId());
+        verify(mMockWorkSpecDao).markWorkSpecScheduled(
+                persistedWorkSpecId, SCHEDULE_NOT_REQUESTED_YET);
+        verify(mMockWorkSpecDao).markWorkSpecScheduled(
+                unpersistedWorkSpecId, SCHEDULE_NOT_REQUESTED_YET);
+    }
+
+    @Test
+    @LargeTest
+    public void testReconcileJobs_noOpWhenPersistenceMatchesConfiguration() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            when(mJobScheduler.forNamespace(anyString())).thenReturn(mJobScheduler);
+        }
+        String persistedWorkSpecId = "persisted_work";
+        String contentUriWorkSpecId = "content_uri_work";
+
+        JobInfo persistedJob = createMockJobInfo(1, persistedWorkSpecId, true);
+        JobInfo contentUriJob = createMockJobInfo(
+                2,
+                contentUriWorkSpecId,
+                false,
+                new JobInfo.TriggerContentUri(Uri.parse("content://test"), 0));
+
+        when(mJobScheduler.getAllPendingJobs()).thenReturn(
+                Arrays.asList(persistedJob, contentUriJob));
+        when(mWorkDatabase.systemIdInfoDao().getWorkSpecIds()).thenReturn(
+                Arrays.asList(persistedWorkSpecId, contentUriWorkSpecId));
+
+        Context mockContext = mock(Context.class);
+        when(mockContext.getPackageName()).thenReturn(
+                ApplicationProvider.getApplicationContext().getPackageName());
+        when(mockContext.getSystemService(Context.JOB_SCHEDULER_SERVICE)).thenReturn(mJobScheduler);
+
+        Configuration configWithPersistence = new Configuration.Builder()
+                .setJobSchedulerPersistenceEnabled(true)
+                .build();
+        boolean needsReconciling = SystemJobScheduler.reconcileJobs(
+                mockContext, mWorkDatabase, configWithPersistence);
+
+        assertThat(needsReconciling).isFalse();
+        verify(mJobScheduler, never()).cancel(anyInt());
+        verify(mMockWorkSpecDao, never()).markWorkSpecScheduled(
+                anyString(), eq(SCHEDULE_NOT_REQUESTED_YET));
+    }
+
+    @Test
+    @LargeTest
+    public void testReconcileJobs_keepsUnpersistedWhenBootPermissionMissing() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            when(mJobScheduler.forNamespace(anyString())).thenReturn(mJobScheduler);
+        }
+        String unpersistedWorkSpecId = "unpersisted_work";
+        JobInfo unpersistedJob = createMockJobInfo(1, unpersistedWorkSpecId, false);
+
+        when(mJobScheduler.getAllPendingJobs()).thenReturn(
+                Collections.singletonList(unpersistedJob));
+        when(mWorkDatabase.systemIdInfoDao().getWorkSpecIds()).thenReturn(
+                Collections.singletonList(unpersistedWorkSpecId));
+
+        Context mockContext = createContextWithoutBootPermission();
+        when(mockContext.getSystemService(Context.JOB_SCHEDULER_SERVICE)).thenReturn(mJobScheduler);
+
+        Configuration configWithPersistence = new Configuration.Builder()
+                .setJobSchedulerPersistenceEnabled(true)
+                .build();
+        boolean needsReconciling = SystemJobScheduler.reconcileJobs(
+                mockContext, mWorkDatabase, configWithPersistence);
+
+        // Without RECEIVE_BOOT_COMPLETED, unpersisted jobs are expected and must not be churned.
+        assertThat(needsReconciling).isFalse();
+        verify(mJobScheduler, never()).cancel(anyInt());
+    }
+
+    private Context createContextWithoutBootPermission() {
+        Context mockContext = mock(Context.class);
+        when(mockContext.getPackageName()).thenReturn(
+                ApplicationProvider.getApplicationContext().getPackageName());
+        when(mockContext.checkPermission(
+                eq(Manifest.permission.RECEIVE_BOOT_COMPLETED), anyInt(), anyInt()))
+                .thenReturn(PackageManager.PERMISSION_DENIED);
+        return mockContext;
+    }
+
+    private JobInfo createMockJobInfo(
+            int jobId,
+            String workSpecId,
+            boolean isPersisted,
+            JobInfo.TriggerContentUri... triggerContentUris) {
+        PersistableBundle extras = new PersistableBundle();
+        extras.putString(EXTRA_WORK_SPEC_ID, workSpecId);
+        JobInfo jobInfo = mock(JobInfo.class);
+        when(jobInfo.getId()).thenReturn(jobId);
+        when(jobInfo.getService()).thenReturn(mJobServiceComponent);
+        when(jobInfo.getExtras()).thenReturn(extras);
+        when(jobInfo.isPersisted()).thenReturn(isPersisted);
+        if (triggerContentUris.length > 0) {
+            when(jobInfo.getTriggerContentUris()).thenReturn(triggerContentUris);
+        }
+        return jobInfo;
     }
 
     private void addToWorkSpecDao(WorkSpec workSpec) {

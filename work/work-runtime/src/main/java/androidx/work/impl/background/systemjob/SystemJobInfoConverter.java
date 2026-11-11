@@ -52,19 +52,25 @@ class SystemJobInfoConverter {
     private final ComponentName mWorkServiceComponent;
     private final Clock mClock;
     private final boolean mMarkImportantWhileForeground;
+    private final boolean mIsJobSchedulerPersistenceEnabled;
 
     SystemJobInfoConverter(@NonNull Context context,
-            Clock clock, boolean markImportantWhileForeground) {
+            Clock clock, boolean markImportantWhileForeground,
+            boolean isJobSchedulerPersistenceEnabled) {
         mClock = clock;
         Context appContext = context.getApplicationContext();
         mWorkServiceComponent = new ComponentName(appContext, SystemJobService.class);
         mMarkImportantWhileForeground = markImportantWhileForeground;
+        mIsJobSchedulerPersistenceEnabled = isJobSchedulerPersistenceEnabled;
     }
 
     /**
      * Converts a {@link WorkSpec} into a {@link JobInfo}.
      *
-     * Note: All {@link JobInfo} are set to persist on reboot.
+     * Note: {@link JobInfo} without content URI triggers are only set to persist on reboot when
+     * {@link androidx.work.Configuration#isJobSchedulerPersistenceEnabled()} is set and
+     * {@code android.permission.RECEIVE_BOOT_COMPLETED} is granted (see
+     * {@link androidx.work.Configuration#isJobSchedulerPersistenceEffective(Context)}).
      *
      * @param workSpec The {@link WorkSpec} to convert
      * @param jobId    The {@code jobId} to use. This is useful when de-duping jobs on reschedule.
@@ -124,7 +130,7 @@ class SystemJobInfoConverter {
             }
         }
 
-        if (Build.VERSION.SDK_INT >= 24 && constraints.hasContentUriTriggers()) {
+        if (constraints.hasContentUriTriggers()) {
             //noinspection ConstantConditions
             for (Constraints.ContentUriTrigger trigger : constraints.getContentUriTriggers()) {
                 builder.addTriggerContentUri(convertContentUriTrigger(trigger));
@@ -133,9 +139,9 @@ class SystemJobInfoConverter {
             builder.setTriggerContentMaxDelay(constraints.getContentTriggerMaxDelayMillis());
         }
 
-        // We don't want to persist these jobs because we reschedule these jobs on BOOT_COMPLETED.
-        // That way ForceStopRunnable correctly reschedules Jobs when necessary.
-        builder.setPersisted(false);
+        boolean isPersisted =
+                mIsJobSchedulerPersistenceEnabled && !constraints.hasContentUriTriggers();
+        builder.setPersisted(isPersisted);
         if (Build.VERSION.SDK_INT >= 26) {
             builder.setRequiresBatteryNotLow(constraints.requiresBatteryNotLow());
             builder.setRequiresStorageNotLow(constraints.requiresStorageNotLow());

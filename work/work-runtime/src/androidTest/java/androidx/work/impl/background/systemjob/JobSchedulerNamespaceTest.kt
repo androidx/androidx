@@ -23,12 +23,14 @@ import android.app.job.JobScheduler.RESULT_SUCCESS
 import android.app.job.JobService
 import android.content.ComponentName
 import android.content.Context.JOB_SCHEDULER_SERVICE
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.work.Configuration
+import androidx.work.Constraints
 import androidx.work.OneTimeWorkRequest
 import androidx.work.testutils.TestEnv
 import androidx.work.worker.TestWorker
@@ -117,11 +119,47 @@ class JobSchedulerNamespaceTest {
         val preReconcile = globalJobScheduler.pendingJobsInAllNamespaces
         assertThat(preReconcile[WORKMANAGER_NAMESPACE]).hasSize(2)
         assertThat(preReconcile[null]).hasSize(1)
-        SystemJobScheduler.reconcileJobs(env.context, env.db)
+        SystemJobScheduler.reconcileJobs(env.context, env.db, env.configuration)
         val postReconcile = globalJobScheduler.pendingJobsInAllNamespaces
         assertThat(postReconcile).hasSize(2)
         assertThat(postReconcile[WORKMANAGER_NAMESPACE]).hasSize(1)
         assertThat(preReconcile[null]).hasSize(1)
+    }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @MediumTest
+    @Test
+    fun schedule_persistsJobWhenPersistenceEnabled() {
+        val persistedConfig =
+            Configuration.Builder().setJobSchedulerPersistenceEnabled(true).build()
+        val persistedScheduler =
+            SystemJobScheduler(env.context, env.db, persistedConfig, env.taskExecutor)
+
+        val request = prepareWorkSpec()
+        val triggerRequest =
+            OneTimeWorkRequest.Builder(TestWorker::class.java)
+                .setConstraints(
+                    Constraints.Builder()
+                        .addContentUriTrigger(Uri.parse("content://test"), false)
+                        .build()
+                )
+                .build()
+        env.db.workSpecDao().insertWorkSpec(triggerRequest.workSpec)
+
+        persistedScheduler.schedule(request.workSpec, triggerRequest.workSpec)
+
+        val workManagerJobs = globalJobScheduler.pendingJobsInAllNamespaces[WORKMANAGER_NAMESPACE]
+        assertThat(workManagerJobs).hasSize(2)
+        val regularJob =
+            workManagerJobs!!.first {
+                it.extras.getString(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID) == request.stringId
+            }
+        val triggerJob = workManagerJobs.first {
+            it.extras.getString(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID) ==
+                triggerRequest.stringId
+        }
+        assertThat(regularJob.isPersisted).isTrue()
+        assertThat(triggerJob.isPersisted).isFalse()
     }
 
     @After

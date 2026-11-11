@@ -15,12 +15,16 @@
  */
 package androidx.work
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.core.content.ContextCompat
 import androidx.core.util.Consumer
 import androidx.tracing.Trace
 import androidx.work.impl.DefaultRunnableScheduler
@@ -186,6 +190,58 @@ public class Configuration internal constructor(builder: Builder) {
         return isMarkingJobsAsImportantWhileForeground
     }
 
+    @property:ExperimentalConfigurationApi private val isJobSchedulerPersistenceEnabled: Boolean
+
+    private val jobSchedulerPersistenceLock = Any()
+
+    @Volatile private var effectiveJobSchedulerPersistence: Boolean? = null
+
+    /**
+     * Returns `true` if WorkManager persists jobs with JobScheduler instead of rescheduling them on
+     * boot. See [Builder.setJobSchedulerPersistenceEnabled].
+     */
+    @ExperimentalConfigurationApi
+    public fun isJobSchedulerPersistenceEnabled(): Boolean {
+        return isJobSchedulerPersistenceEnabled
+    }
+
+    /**
+     * Returns `true` if jobs should be persisted with [android.app.job.JobScheduler].
+     *
+     * This requires both [isJobSchedulerPersistenceEnabled] and the
+     * `android.permission.RECEIVE_BOOT_COMPLETED` permission, without which
+     * [android.app.job.JobScheduler] rejects persisted jobs. If the permission was removed from the
+     * merged manifest, this logs a warning once and falls back to non-persisted jobs.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun isJobSchedulerPersistenceEffective(context: Context): Boolean {
+        if (!isJobSchedulerPersistenceEnabled) {
+            return false
+        }
+        effectiveJobSchedulerPersistence?.let {
+            return it
+        }
+        return synchronized(jobSchedulerPersistenceLock) {
+            effectiveJobSchedulerPersistence
+                ?: (ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.RECEIVE_BOOT_COMPLETED,
+                    ) == PackageManager.PERMISSION_GRANTED)
+                    .also { hasBootPermission ->
+                        if (!hasBootPermission) {
+                            Logger.get()
+                                .warning(
+                                    TAG,
+                                    "JobScheduler persistence is enabled, but " +
+                                        "android.permission.RECEIVE_BOOT_COMPLETED is not " +
+                                        "granted. Falling back to non-persisted jobs.",
+                                )
+                        }
+                        effectiveJobSchedulerPersistence = hasBootPermission
+                    }
+        }
+    }
+
     @property:ExperimentalEventsApi private val executionEventListener: ExecutionEventListener?
 
     /** The [ExecutionEventListener] that listens to work execution events for all workers. */
@@ -277,6 +333,7 @@ public class Configuration internal constructor(builder: Builder) {
         remoteSessionTimeoutMillis = builder.remoteSessionTimeoutMillis
         contentUriTriggerWorkersLimit = builder.contentUriTriggerWorkersLimit
         isMarkingJobsAsImportantWhileForeground = builder.markJobsAsImportantWhileForeground
+        isJobSchedulerPersistenceEnabled = builder.jobSchedulerPersistenceEnabled
         executionEventListener = builder.executionEventListener
         scheduleEventListener = builder.scheduleEventListener
         tracer = builder.tracer ?: createDefaultTracer()
@@ -307,6 +364,7 @@ public class Configuration internal constructor(builder: Builder) {
         internal var maxSchedulerLimit: Int = MIN_SCHEDULER_LIMIT
         internal var contentUriTriggerWorkersLimit: Int = DEFAULT_CONTENT_URI_TRIGGERS_WORKERS_LIMIT
         internal var markJobsAsImportantWhileForeground: Boolean = true
+        internal var jobSchedulerPersistenceEnabled: Boolean = false
         internal var executionEventListener: ExecutionEventListener? = null
         internal var scheduleEventListener: ScheduleEventListener? = null
         internal var tracer: Tracer? = null
@@ -347,6 +405,7 @@ public class Configuration internal constructor(builder: Builder) {
             contentUriTriggerWorkersLimit = configuration.contentUriTriggerWorkersLimit
             markJobsAsImportantWhileForeground =
                 configuration.isMarkingJobsAsImportantWhileForeground
+            jobSchedulerPersistenceEnabled = configuration.isJobSchedulerPersistenceEnabled
             executionEventListener = configuration.executionEventListener
             scheduleEventListener = configuration.scheduleEventListener
             tracer = configuration.tracer
@@ -654,6 +713,35 @@ public class Configuration internal constructor(builder: Builder) {
         }
 
         /**
+         * Sets whether WorkManager persists jobs with JobScheduler instead of rescheduling them on
+         * boot.
+         *
+         * When `true`, jobs are scheduled with [android.app.job.JobInfo.Builder.setPersisted] and
+         * the `BOOT_COMPLETED` receiver is disabled unless there is unfinished work with
+         * [Constraints.contentUriTriggers], which JobScheduler cannot persist.
+         *
+         * * Requires `android.permission.RECEIVE_BOOT_COMPLETED`, which WorkManager declares in its
+         *   manifest. Do not remove it when enabling this option; JobScheduler rejects persisted
+         *   jobs without it, so WorkManager falls back to non-persisted jobs.
+         * * Changing this value takes effect on the next initialization: existing JobScheduler jobs
+         *   whose persistence does not match are cancelled and rescheduled.
+         * * WorkManager no longer initializes on boot, so boot-time cleanup (e.g. resetting work
+         *   interrupted by the reboot) runs when the process next starts.
+         * * On API levels below 30, the first initialization after a reboot still cancels and
+         *   reschedules all jobs.
+         *
+         * Defaults to `false`.
+         *
+         * @param enabled `true` to persist jobs with JobScheduler
+         * @return this [Builder]
+         */
+        @ExperimentalConfigurationApi
+        public fun setJobSchedulerPersistenceEnabled(enabled: Boolean): Builder {
+            this.jobSchedulerPersistenceEnabled = enabled
+            return this
+        }
+
+        /**
          * Set a [ExecutionEventListener] to run whenever work execution events occur for any
          * worker.
          *
@@ -807,6 +895,8 @@ public class Configuration internal constructor(builder: Builder) {
         }
     }
 }
+
+private val TAG = Logger.tagWithPrefix("Configuration")
 
 internal const val DEFAULT_CONTENT_URI_TRIGGERS_WORKERS_LIMIT = 8
 

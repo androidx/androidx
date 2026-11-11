@@ -49,21 +49,29 @@ internal fun CoroutineScope.maybeLaunchUnfinishedWorkListener(
     db: WorkDatabase,
 ) {
     // Only register this in the designated process.
-    if (isDefaultProcess(appContext, configuration)) {
-        db.workSpecDao()
-            .hasUnfinishedWorkFlow()
-            .retryWhen { throwable, attempt ->
-                Logger.get().error(TAG, "Cannot check for unfinished work", throwable)
-                // Linear backoff is good enough here.
-                val delayBy = minOf(attempt * DELAY_MS, MAX_DELAY_MS)
-                delay(delayBy)
-                true
-            }
-            .conflate()
-            .distinctUntilChanged()
-            .onEach { hasUnfinishedWork ->
-                setReceiverEnabled(appContext, RescheduleReceiver::class.java, hasUnfinishedWork)
-            }
-            .launchIn(this)
+    if (!isDefaultProcess(appContext, configuration)) {
+        return
     }
+    val unfinishedWorkFlow =
+        if (configuration.isJobSchedulerPersistenceEffective(appContext)) {
+            // JobScheduler does not support persisting jobs with content URI triggers, so we still
+            // need RescheduleReceiver enabled when there are unfinished content URI trigger jobs.
+            db.workSpecDao().hasUnfinishedContentUriTriggerWorkFlow()
+        } else {
+            db.workSpecDao().hasUnfinishedWorkFlow()
+        }
+    unfinishedWorkFlow
+        .retryWhen { throwable, attempt ->
+            Logger.get().error(TAG, "Cannot check for unfinished work", throwable)
+            // Linear backoff is good enough here.
+            val delayBy = minOf(attempt * DELAY_MS, MAX_DELAY_MS)
+            delay(delayBy)
+            true
+        }
+        .conflate()
+        .distinctUntilChanged()
+        .onEach { hasUnfinishedWork ->
+            setReceiverEnabled(appContext, RescheduleReceiver::class.java, hasUnfinishedWork)
+        }
+        .launchIn(this)
 }
