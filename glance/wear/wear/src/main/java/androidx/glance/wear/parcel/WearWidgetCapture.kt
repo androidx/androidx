@@ -50,7 +50,8 @@ internal object WearWidgetCapture {
             captureSingleRemoteDocument(
                 context = context,
                 creationDisplayInfo = creationDisplayInfo,
-                profile = GlanceWearProfiles.createWearWidgetsProfile(supportedOperations),
+                profile =
+                    GlanceWearProfiles.createWearWidgetsProfileFromOperations(supportedOperations),
                 content = content,
             )
         return WearWidgetRawContent(

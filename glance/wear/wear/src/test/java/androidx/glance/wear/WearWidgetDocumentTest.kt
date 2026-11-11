@@ -141,7 +141,9 @@ class WearWidgetDocumentTest {
 
         val rawContent = document.captureRawContent(context, params, isInspectionMode = true)
         val profile =
-            GlanceWearProfiles.createWearWidgetsProfile(params.rendererVersion.supportedOperations)
+            GlanceWearProfiles.createWearWidgetsProfileFromOperations(
+                params.rendererVersion.supportedOperations
+            )
         val coreDoc =
             CoreDocument().apply {
                 val buffer =
