@@ -42,6 +42,7 @@ actual public object NativeLoader {
         get() =
             when {
                 osName.contains("linux") && osArch == "amd64" -> "linux-x86_64"
+                osName.contains("linux") && osArch == "aarch64" -> "linux-aarch64"
                 osName.contains("mac") && osArch == "aarch64" -> "macos-arm64"
                 else -> error("Unsupported platform: $osName, $osArch")
             }
