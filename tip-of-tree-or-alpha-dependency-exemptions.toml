@@ -58,6 +58,23 @@ dependsOn = "androidx.compose.ui:ui-tooling-preview"
 validThroughLibraryVersion = "1.0.0-beta01"
 reason = "b/TODO - <reason>"
 
+[[exemption]]
+library = "androidx.appstate.dataflow:dataflow"
+dependsOn = "androidx.appstate.transform:transform"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/584777773 - to separate statestore, dataflow and transform from parent appstate"
+
+[[exemption]]
+library = "androidx.appstate.statestore:statestore"
+dependsOn = "androidx.appstate.transform:transform"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/584777773 - to separate statestore, dataflow and transform from parent appstate"
+
+[[exemption]]
+library = "androidx.appstate.statestore:statestore-datastore"
+dependsOn = "androidx.appstate.transform:transform"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/584777773 - to separate statestore, dataflow and transform from parent appstate"
 
 [[exemption]]
 library = "androidx.appstate.transform:transform"
