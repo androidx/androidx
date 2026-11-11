@@ -231,7 +231,21 @@ class OverscrollTest {
         }
 
         // Should not crash - the node should not be added by Modifier.overscroll
-        rule.waitForIdle()
+        rule.runOnIdle {
+            assertThat(overscrollEffect.node.node.isAttached).isTrue()
+            addOverscrollModifier = false
+        }
+
+        // Should not crash - the node was not added by Modifier.overscroll, so it should not be
+        // removed by it either, and should remain attached through the other modifier
+        rule.runOnIdle {
+            assertThat(overscrollEffect.node.node.isAttached).isTrue()
+        }
+    }
+
+    @Test
+    fun overscrollModifier_returnsOriginalModifier_whenGivenNullEffect() {
+        assertThat(Modifier.overscroll(null)).isSameInstanceAs(Modifier)
     }
 
     @Test
