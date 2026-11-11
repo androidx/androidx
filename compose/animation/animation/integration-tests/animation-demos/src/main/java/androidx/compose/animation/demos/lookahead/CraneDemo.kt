@@ -47,15 +47,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ApproachLayoutModifierNode
 import androidx.compose.ui.layout.ApproachMeasureScope
 import androidx.compose.ui.layout.LookaheadScope
-import androidx.compose.ui.layout.Placeable
-import androidx.compose.ui.layout.approachLayout
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -171,28 +173,54 @@ interface ProgressProvider<T> {
     val progress: Float
 }
 
-@SuppressLint("PrimitiveInCollection")
 fun <T> Modifier.sharedElementBasedOnProgress(
     lookaheadScope: LookaheadScope,
     provider: ProgressProvider<T>,
-) =
-    with(lookaheadScope) {
-        composed {
-            val sizeMap = remember { mutableMapOf<T, IntSize>() }
-            val offsetMap = remember { mutableMapOf<T, Offset>() }
-            val calculateSize: (IntSize) -> IntSize = {
-                sizeMap[provider.targetState] = it
-                val (width, height) =
-                    lerp(
-                        sizeMap[provider.initialState]!!.toSize(),
-                        sizeMap[provider.targetState]!!.toSize(),
-                        provider.progress,
-                    )
-                IntSize(width.roundToInt(), height.roundToInt())
-            }
+): Modifier = this then SharedElementBasedOnProgressElement(lookaheadScope, provider)
 
-            val calculateOffset: Placeable.PlacementScope.(ApproachMeasureScope) -> IntOffset = {
-                with(it) {
+private data class SharedElementBasedOnProgressElement<T>(
+    val lookaheadScope: LookaheadScope,
+    val provider: ProgressProvider<T>,
+) : ModifierNodeElement<SharedElementBasedOnProgressNode<T>>() {
+    override fun InspectorInfo.inspectableProperties() {
+        name = "sharedElementBasedOnProgress"
+    }
+
+    override fun create() = SharedElementBasedOnProgressNode(lookaheadScope, provider)
+
+    override fun update(node: SharedElementBasedOnProgressNode<T>) {
+        node.lookaheadScope = lookaheadScope
+        node.provider = provider
+    }
+}
+
+@SuppressLint("PrimitiveInCollection")
+private class SharedElementBasedOnProgressNode<T>(
+    var lookaheadScope: LookaheadScope,
+    var provider: ProgressProvider<T>,
+) : ApproachLayoutModifierNode, Modifier.Node() {
+    private val sizeMap = mutableMapOf<T, IntSize>()
+    private val offsetMap = mutableMapOf<T, Offset>()
+
+    override fun isMeasurementApproachInProgress(lookaheadSize: IntSize): Boolean =
+        provider.progress != 1f
+
+    override fun ApproachMeasureScope.approachMeasure(
+        measurable: Measurable,
+        constraints: Constraints,
+    ): MeasureResult {
+        sizeMap[provider.targetState] = lookaheadSize
+        val (width, height) =
+            lerp(
+                sizeMap[provider.initialState]!!.toSize(),
+                sizeMap[provider.targetState]!!.toSize(),
+                provider.progress,
+            )
+        val animatedConstraints = Constraints.fixed(width.roundToInt(), height.roundToInt())
+        val placeable = measurable.measure(animatedConstraints)
+        return layout(placeable.width, placeable.height) {
+            val offset =
+                with(lookaheadScope) {
                     coordinates?.let {
                         offsetMap[provider.targetState] =
                             lookaheadScopeCoordinates.localLookaheadPositionOf(it)
@@ -203,21 +231,11 @@ fun <T> Modifier.sharedElementBasedOnProgress(
                                 provider.progress,
                             )
                         val currentOffset =
-                            lookaheadScopeCoordinates.localPositionOf(
-                                it,
-                                androidx.compose.ui.geometry.Offset.Zero,
-                            )
+                            lookaheadScopeCoordinates.localPositionOf(it, Offset.Zero)
                         (lerpedOffset - currentOffset).round()
                     } ?: IntOffset(0, 0)
                 }
-            }
-            this.approachLayout({ provider.progress != 1f }) { measurable, _ ->
-                val (width, height) = calculateSize(lookaheadSize)
-                val animatedConstraints = androidx.compose.ui.unit.Constraints.fixed(width, height)
-                val placeable = measurable.measure(animatedConstraints)
-                layout(placeable.width, placeable.height) {
-                    placeable.place(calculateOffset(this@approachLayout))
-                }
-            }
+            placeable.place(offset)
         }
     }
+}

@@ -27,17 +27,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.ApproachLayoutModifierNode
+import androidx.compose.ui.layout.ApproachMeasureScope
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LookaheadScope
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
-import androidx.compose.ui.layout.approachLayout
+import androidx.compose.ui.node.DrawModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -60,97 +65,141 @@ private const val debugSharedElement = true
 
 class SceneScope internal constructor(lookaheadScope: LookaheadScope) :
     LookaheadScope by lookaheadScope {
-    fun Modifier.sharedElement(): Modifier = composed {
-        val offsetAnimation: DeferredTargetAnimation<IntOffset, AnimationVector2D> = remember {
-            DeferredTargetAnimation(IntOffset.VectorConverter)
-        }
-        val sizeAnimation: DeferredTargetAnimation<IntSize, AnimationVector2D> = remember {
-            DeferredTargetAnimation(IntSize.VectorConverter)
-        }
+    fun Modifier.sharedElement(): Modifier = this then SharedElementElement(this@SceneScope)
+}
 
-        var placementOffset: IntOffset by remember { mutableStateOf(IntOffset.Zero) }
-        val coroutineScope = rememberCoroutineScope()
+private data class SharedElementElement(val lookaheadScope: LookaheadScope) :
+    ModifierNodeElement<SharedElementNode>() {
+    override fun InspectorInfo.inspectableProperties() {
+        name = "sharedElement"
+    }
 
-        this.drawBehind {
-                if (debugSharedElement) {
-                    drawRect(
-                        color = Color.Black,
-                        style = Stroke(2f),
-                        topLeft = (offsetAnimation.pendingTarget!! - placementOffset).toOffset(),
-                        size = sizeAnimation.pendingTarget!!.toSize(),
-                    )
-                }
-            }
-            .approachLayout(
-                isMeasurementApproachInProgress = {
-                    sizeAnimation.updateTarget(it, coroutineScope)
-                    !sizeAnimation.isIdle
-                },
-                isPlacementApproachInProgress = {
-                    val target = lookaheadScopeCoordinates.localLookaheadPositionOf(it)
-                    offsetAnimation.updateTarget(target.round(), coroutineScope, spring())
-                    !offsetAnimation.isIdle
-                },
-            ) { measurable, _ ->
-                with(coroutineScope) {
-                    val (width, height) =
-                        sizeAnimation.updateTarget(
-                            lookaheadSize,
-                            coroutineScope,
-                            spring(stiffness = Spring.StiffnessMediumLow),
-                        )
-                    val animatedConstraints = Constraints.fixed(width, height)
-                    val placeable = measurable.measure(animatedConstraints)
-                    layout(placeable.width, placeable.height) {
-                        val (x, y) =
-                            offsetAnimation.updateTargetBasedOnCoordinates(
-                                this@SceneScope,
-                                this@layout,
-                                this@with,
-                                spring(stiffness = Spring.StiffnessMediumLow),
-                            )
-                        coordinates?.let {
-                            placementOffset =
-                                lookaheadScopeCoordinates.localPositionOf(it, Offset.Zero).round()
-                        }
-                        placeable.place(x, y)
-                    }
-                }
-            }
+    override fun create() = SharedElementNode(lookaheadScope)
+
+    override fun update(node: SharedElementNode) {
+        node.lookaheadScope = lookaheadScope
     }
 }
 
-fun Modifier.animateSizeAndSkipToFinalLayout() = composed {
-    val sizeAnimation = remember { DeferredTargetAnimation(IntSize.VectorConverter) }
-    var targetSize: IntSize? by remember { mutableStateOf(null) }
-    val scope = rememberCoroutineScope()
-    this.drawBehind {
-            if (debugSharedElement) {
-                drawRect(
-                    color = Color.Black,
-                    style = Stroke(2f),
-                    topLeft = Offset.Zero,
-                    size = targetSize!!.toSize(),
+private class SharedElementNode(var lookaheadScope: LookaheadScope) :
+    ApproachLayoutModifierNode, DrawModifierNode, Modifier.Node() {
+    private val offsetAnimation: DeferredTargetAnimation<IntOffset, AnimationVector2D> =
+        DeferredTargetAnimation(IntOffset.VectorConverter)
+    private val sizeAnimation: DeferredTargetAnimation<IntSize, AnimationVector2D> =
+        DeferredTargetAnimation(IntSize.VectorConverter)
+
+    private var placementOffset: IntOffset by mutableStateOf(IntOffset.Zero)
+
+    override fun ContentDrawScope.draw() {
+        if (debugSharedElement) {
+            drawRect(
+                color = Color.Black,
+                style = Stroke(2f),
+                topLeft = (offsetAnimation.pendingTarget!! - placementOffset).toOffset(),
+                size = sizeAnimation.pendingTarget!!.toSize(),
+            )
+        }
+        drawContent()
+    }
+
+    override fun isMeasurementApproachInProgress(lookaheadSize: IntSize): Boolean {
+        sizeAnimation.updateTarget(lookaheadSize, coroutineScope)
+        return !sizeAnimation.isIdle
+    }
+
+    override fun Placeable.PlacementScope.isPlacementApproachInProgress(
+        lookaheadCoordinates: LayoutCoordinates
+    ): Boolean {
+        val target =
+            with(lookaheadScope) {
+                lookaheadScopeCoordinates.localLookaheadPositionOf(lookaheadCoordinates)
+            }
+        offsetAnimation.updateTarget(target.round(), coroutineScope, spring())
+        return !offsetAnimation.isIdle
+    }
+
+    override fun ApproachMeasureScope.approachMeasure(
+        measurable: Measurable,
+        constraints: Constraints,
+    ): MeasureResult {
+        val (width, height) =
+            sizeAnimation.updateTarget(
+                lookaheadSize,
+                coroutineScope,
+                spring(stiffness = Spring.StiffnessMediumLow),
+            )
+        val animatedConstraints = Constraints.fixed(width, height)
+        val placeable = measurable.measure(animatedConstraints)
+        return layout(placeable.width, placeable.height) {
+            val (x, y) =
+                offsetAnimation.updateTargetBasedOnCoordinates(
+                    lookaheadScope,
+                    this@layout,
+                    coroutineScope,
+                    spring(stiffness = Spring.StiffnessMediumLow),
                 )
+            coordinates?.let {
+                placementOffset =
+                    with(lookaheadScope) {
+                        lookaheadScopeCoordinates.localPositionOf(it, Offset.Zero).round()
+                    }
             }
+            placeable.place(x, y)
         }
-        .approachLayout(
-            isMeasurementApproachInProgress = {
-                sizeAnimation.updateTarget(it, scope)
-                !sizeAnimation.isIdle
-            }
-        ) { measurable, constraints ->
-            targetSize = lookaheadSize
-            val (width, height) = sizeAnimation.updateTarget(lookaheadSize, scope)
-            val placeable =
-                measurable.measure(Constraints.fixed(lookaheadSize.width, lookaheadSize.height))
-            // Make sure the content is aligned to topStart
-            val wrapperWidth = width.coerceIn(constraints.minWidth, constraints.maxWidth)
-            val wrapperHeight = height.coerceIn(constraints.minHeight, constraints.maxHeight)
-            layout(width, height) {
-                placeable.place(-(wrapperWidth - width) / 2, -(wrapperHeight - height) / 2)
-            }
+    }
+}
+
+fun Modifier.animateSizeAndSkipToFinalLayout(): Modifier =
+    this then AnimateSizeAndSkipToFinalLayoutElement
+
+private data object AnimateSizeAndSkipToFinalLayoutElement :
+    ModifierNodeElement<AnimateSizeAndSkipToFinalLayoutNode>() {
+    override fun InspectorInfo.inspectableProperties() {
+        name = "animateSizeAndSkipToFinalLayout"
+    }
+
+    override fun create() = AnimateSizeAndSkipToFinalLayoutNode()
+
+    override fun update(node: AnimateSizeAndSkipToFinalLayoutNode) {}
+}
+
+private class AnimateSizeAndSkipToFinalLayoutNode :
+    ApproachLayoutModifierNode, DrawModifierNode, Modifier.Node() {
+    private val sizeAnimation = DeferredTargetAnimation(IntSize.VectorConverter)
+    private var targetSize: IntSize? by mutableStateOf(null)
+
+    override fun ContentDrawScope.draw() {
+        if (debugSharedElement) {
+            drawRect(
+                color = Color.Black,
+                style = Stroke(2f),
+                topLeft = Offset.Zero,
+                size = targetSize!!.toSize(),
+            )
         }
+        drawContent()
+    }
+
+    override fun isMeasurementApproachInProgress(lookaheadSize: IntSize): Boolean {
+        sizeAnimation.updateTarget(lookaheadSize, coroutineScope)
+        return !sizeAnimation.isIdle
+    }
+
+    override fun ApproachMeasureScope.approachMeasure(
+        measurable: Measurable,
+        constraints: Constraints,
+    ): MeasureResult {
+        targetSize = lookaheadSize
+        val (width, height) = sizeAnimation.updateTarget(lookaheadSize, coroutineScope)
+        val placeable =
+            measurable.measure(Constraints.fixed(lookaheadSize.width, lookaheadSize.height))
+        // Make sure the content is aligned to topStart
+        val wrapperWidth = width.coerceIn(constraints.minWidth, constraints.maxWidth)
+        val wrapperHeight = height.coerceIn(constraints.minHeight, constraints.maxHeight)
+        return layout(width, height) {
+            placeable.place(-(wrapperWidth - width) / 2, -(wrapperHeight - height) / 2)
+        }
+    }
 }
 
 internal fun DeferredTargetAnimation<IntOffset, AnimationVector2D>.updateTargetBasedOnCoordinates(

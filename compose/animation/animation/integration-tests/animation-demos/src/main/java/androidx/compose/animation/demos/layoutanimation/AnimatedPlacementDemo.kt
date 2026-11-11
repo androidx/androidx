@@ -37,26 +37,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.layout.OnPlacedModifier
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.node.LayoutAwareModifierNode
+import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Preview
@@ -83,13 +82,19 @@ fun AnimatedPlacementDemo() {
     }
 }
 
-fun Modifier.animatePlacement(): Modifier = composed {
-    val scope = rememberCoroutineScope()
-    val modifier = remember { AnimatedPlacementModifier(scope) }
-    this.then(modifier)
+fun Modifier.animatePlacement(): Modifier = this then AnimatedPlacementElement
+
+private data object AnimatedPlacementElement : ModifierNodeElement<AnimatedPlacementNode>() {
+    override fun InspectorInfo.inspectableProperties() {
+        name = "animatePlacement"
+    }
+
+    override fun create() = AnimatedPlacementNode()
+
+    override fun update(node: AnimatedPlacementNode) {}
 }
 
-class AnimatedPlacementModifier(val scope: CoroutineScope) : OnPlacedModifier, LayoutModifier {
+private class AnimatedPlacementNode : Modifier.Node(), LayoutModifierNode, LayoutAwareModifierNode {
     var targetOffset by mutableStateOf(Offset.Zero)
     var animatable by mutableStateOf<Animatable<Offset, AnimationVector2D>?>(null)
 
@@ -109,10 +114,14 @@ class AnimatedPlacementModifier(val scope: CoroutineScope) : OnPlacedModifier, L
         val anim =
             animatable ?: Animatable(targetOffset, Offset.VectorConverter).also { animatable = it }
         if (anim.targetValue != targetOffset) {
-            scope.launch {
+            coroutineScope.launch {
                 anim.animateTo(targetOffset, spring(stiffness = Spring.StiffnessMediumLow))
             }
         }
+    }
+
+    override fun onDetach() {
+        animatable = null
     }
 }
 
