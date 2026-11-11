@@ -712,11 +712,10 @@ internal class TestExecutionCapture(
                 else TestDetailRecord.CALLOUT_STEP_FAILURE
             val prefix = if (isAssertion) "Assertion failed" else "Step failed"
             val title =
-                when {
-                    failedStepRecord?.n != null ->
-                        "$prefix at step ${failedStepRecord.n} \u00b7 ${failedStepRecord.name}"
-                    failedStepRecord != null -> "$prefix during ${failedStepRecord.name}"
-                    else -> prefix
+                if (failedStepRecord != null) {
+                    "$prefix at ${failedStepRecord.name}"
+                } else {
+                    prefix
                 }
 
             callout =
@@ -731,13 +730,7 @@ internal class TestExecutionCapture(
             if (failedStepRecord != null || likelyCause != null) {
                 failureNoticeText = buildString {
                     if (failedStepRecord != null) {
-                        if (failedStepRecord.n != null) {
-                            append(
-                                "Failed at step ${failedStepRecord.n} (${failedStepRecord.name})"
-                            )
-                        } else {
-                            append("Failed during ${failedStepRecord.name}")
-                        }
+                        append("Failed at ${failedStepRecord.name}")
                     }
                     if (likelyCause != null) {
                         if (isNotEmpty()) append(". ")

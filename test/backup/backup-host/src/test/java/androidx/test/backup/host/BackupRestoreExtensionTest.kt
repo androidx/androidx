@@ -1332,7 +1332,7 @@ class BackupRestoreExtensionTest {
                     "${ConstructorInjectedTestClass::class.java.simpleName}-"
                 )
             )
-            assertTrue(unclaimedErr.suppressed.any { "Failed during Prepare" in it.toString() })
+            assertTrue(unclaimedErr.suppressed.any { "Failed at Prepare" in it.toString() })
         }
 
     @Test
