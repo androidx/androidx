@@ -179,21 +179,23 @@ public interface VectorizedDurationBasedAnimationSpec<V : AnimationVector> :
         (delayMillis + durationMillis) * MillisToNanos
 }
 
-/**
- * Clamps the input [playTimeMillis] to the duration range in milliseconds of the given
- * [VectorizedDurationBasedAnimationSpec].
- */
-internal fun VectorizedDurationBasedAnimationSpec<*>.clampPlayTimeMillis(
-    playTimeMillis: Long
+/** Clamps [playTimeMillis] to `[0, durationMillis]` after subtracting [delayMillis]. */
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun clampPlayTimeMillis(
+    playTimeMillis: Long,
+    delayMillis: Int,
+    durationMillis: Int,
 ): Long {
-    return (playTimeMillis - delayMillis).fastCoerceIn(0, durationMillis.toLong())
+    return (playTimeMillis - delayMillis).fastCoerceIn(0L, durationMillis.toLong())
 }
 
-/**
- * Clamps the input [playTimeNanos] to the duration range in nanoseconds of the given
- * [VectorizedDurationBasedAnimationSpec].
- */
-internal fun VectorizedDurationBasedAnimationSpec<*>.clampPlayTimeNanos(playTimeNanos: Long): Long {
+/** Clamps [playTimeNanos] to `[0, durationMillis * MillisToNanos]` after [delayMillis]. */
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun clampPlayTimeNanos(
+    playTimeNanos: Long,
+    delayMillis: Int,
+    durationMillis: Int,
+): Long {
     return (playTimeNanos - delayMillis * MillisToNanos).fastCoerceIn(
         0L,
         durationMillis * MillisToNanos,
@@ -375,16 +377,21 @@ internal constructor(
         targetValue: V,
         initialVelocity: V,
     ): V {
-        val clampedPlayTimeNanos =
-            if (ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled) {
-                clampPlayTimeNanos(playTimeNanos)
-            } else {
-                clampPlayTimeMillis(playTimeNanos / MillisToNanos) * MillisToNanos
-            }
+        val clampedPlayTimeNanos: Long
+        val clampedPlayTimeMillis: Int
+        if (ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled) {
+            clampedPlayTimeNanos = clampPlayTimeNanos(playTimeNanos, delayMillis, durationMillis)
+            clampedPlayTimeMillis = (clampedPlayTimeNanos / MillisToNanos).toInt()
+        } else {
+            val clampedMillis =
+                clampPlayTimeMillis(playTimeNanos / MillisToNanos, delayMillis, durationMillis)
+            clampedPlayTimeMillis = clampedMillis.toInt()
+            clampedPlayTimeNanos = clampedMillis * MillisToNanos
+        }
 
         // If there is a key frame defined with the given time stamp, return that value
-        if (clampedPlayTimeNanos % MillisToNanos == 0L) {
-            val keyframe = keyframes[(clampedPlayTimeNanos / MillisToNanos).toInt()]
+        if (clampedPlayTimeNanos == clampedPlayTimeMillis * MillisToNanos) {
+            val keyframe = keyframes[clampedPlayTimeMillis]
             if (keyframe != null) {
                 return keyframe.vectorValue
             }
@@ -401,10 +408,14 @@ internal constructor(
         // Cannot be null after calling init()
         val valueVector = valueVector!!
 
+        // There's no promise on the nature of the given time, so we need to search for the correct
+        // time range at every call
+        val index = findEntryForTimeMillis(clampedPlayTimeMillis)
+
         // ArcSpline is only initialized when necessary
         if (arcSpline !== EmptyArcSpline) {
             // ArcSpline requires eased play time in seconds
-            val easedTime = getEasedTimeNanos(clampedPlayTimeNanos)
+            val easedTime = getEasedTimeFromIndexNanos(index, clampedPlayTimeNanos, false)
 
             val posArray = posArray
             arcSpline.getPos(time = easedTime, v = posArray)
@@ -415,8 +426,6 @@ internal constructor(
         }
 
         // If ArcSpline is not required we do a simple linear interpolation
-        val index = findEntryForTimeMillis((clampedPlayTimeNanos / MillisToNanos).toInt())
-
         // For the `lerp` method we need the eased time as a fraction
         val easedTime = getEasedTimeFromIndexNanos(index, clampedPlayTimeNanos, true)
 
@@ -449,9 +458,10 @@ internal constructor(
     ): V {
         val clampedPlayTimeNanos =
             if (ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled) {
-                clampPlayTimeNanos(playTimeNanos)
+                clampPlayTimeNanos(playTimeNanos, delayMillis, durationMillis)
             } else {
-                clampPlayTimeMillis(playTimeNanos / MillisToNanos) * MillisToNanos
+                clampPlayTimeMillis(playTimeNanos / MillisToNanos, delayMillis, durationMillis) *
+                    MillisToNanos
             }
         if (clampedPlayTimeNanos < 0L) {
             return initialVelocity

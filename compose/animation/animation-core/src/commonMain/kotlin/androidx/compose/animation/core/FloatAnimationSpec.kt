@@ -150,13 +150,13 @@ public class FloatSpringSpec(
         initialVelocity: Float,
     ): Float {
         spring.finalPosition = targetValue
-        val effectivePlayTimeNanos =
+        val deltaTSeconds =
             if (ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled) {
-                playTimeNanos
+                playTimeNanos.toDouble() / SecondsToNanos
             } else {
-                (playTimeNanos / MillisToNanos) * MillisToNanos
+                (playTimeNanos / MillisToNanos).toDouble() / SecondsToMillis
             }
-        return spring.updateValuesNanos(initialValue, initialVelocity, effectivePlayTimeNanos).value
+        return spring.updateValuesSeconds(initialValue, initialVelocity, deltaTSeconds).value
     }
 
     @OptIn(ExperimentalAnimationCoreApi::class)
@@ -167,15 +167,13 @@ public class FloatSpringSpec(
         initialVelocity: Float,
     ): Float {
         spring.finalPosition = targetValue
-        val effectivePlayTimeNanos =
+        val deltaTSeconds =
             if (ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled) {
-                playTimeNanos
+                playTimeNanos.toDouble() / SecondsToNanos
             } else {
-                (playTimeNanos / MillisToNanos) * MillisToNanos
+                (playTimeNanos / MillisToNanos).toDouble() / SecondsToMillis
             }
-        return spring
-            .updateValuesNanos(initialValue, initialVelocity, effectivePlayTimeNanos)
-            .velocity
+        return spring.updateValuesSeconds(initialValue, initialVelocity, deltaTSeconds).velocity
     }
 
     override fun getEndVelocity(

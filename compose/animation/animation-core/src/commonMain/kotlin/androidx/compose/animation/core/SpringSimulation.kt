@@ -95,29 +95,33 @@ internal class SpringSimulation(var finalPosition: Float) {
      * Internal only call for Spring to calculate the spring position/velocity using an analytical
      * approach.
      */
-    internal fun updateValues(
+    internal inline fun updateValues(
         lastDisplacement: Float,
         lastVelocity: Float,
         timeElapsed: Long,
-    ): Motion {
-        val deltaTSeconds = timeElapsed.toDouble() / SecondsToMillis
-        return updateValuesSeconds(lastDisplacement, lastVelocity, deltaTSeconds)
-    }
+    ): Motion =
+        updateValuesSeconds(
+            lastDisplacement,
+            lastVelocity,
+            timeElapsed.toDouble() / SecondsToMillis,
+        )
 
     /**
      * Internal only call for Spring to calculate the spring position/velocity using an analytical
      * approach with nanosecond precision.
      */
-    internal fun updateValuesNanos(
+    internal inline fun updateValuesNanos(
         lastDisplacement: Float,
         lastVelocity: Float,
         timeElapsedNanos: Long,
-    ): Motion {
-        val deltaTSeconds = timeElapsedNanos.toDouble() / SecondsToNanos
-        return updateValuesSeconds(lastDisplacement, lastVelocity, deltaTSeconds)
-    }
+    ): Motion =
+        updateValuesSeconds(
+            lastDisplacement,
+            lastVelocity,
+            timeElapsedNanos.toDouble() / SecondsToNanos,
+        )
 
-    private fun updateValuesSeconds(
+    internal fun updateValuesSeconds(
         lastDisplacement: Float,
         lastVelocity: Float,
         deltaTSeconds: Double,

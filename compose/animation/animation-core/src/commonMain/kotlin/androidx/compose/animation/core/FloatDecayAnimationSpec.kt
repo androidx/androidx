@@ -107,15 +107,15 @@ public class FloatExponentialDecaySpec(
         initialValue: Float,
         initialVelocity: Float,
     ): Float {
-        val effectivePlayTimeNanos =
-            if (ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled) {
-                playTimeNanos
-            } else {
-                (playTimeNanos / MillisToNanos) * MillisToNanos
-            }
-        val deltaT = (effectivePlayTimeNanos.toDouble() / SecondsToNanos).toFloat()
-        return initialValue - initialVelocity / friction +
-            initialVelocity / friction * exp(friction * deltaT)
+        return if (ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled) {
+            val deltaT = (playTimeNanos.toDouble() / SecondsToNanos).toFloat()
+            initialValue - initialVelocity / friction +
+                initialVelocity / friction * exp(friction * deltaT)
+        } else {
+            val playTimeMillis = playTimeNanos / MillisToNanos
+            initialValue - initialVelocity / friction +
+                initialVelocity / friction * exp(friction * playTimeMillis / 1000f)
+        }
     }
 
     @OptIn(ExperimentalAnimationCoreApi::class)
@@ -124,14 +124,13 @@ public class FloatExponentialDecaySpec(
         initialValue: Float,
         initialVelocity: Float,
     ): Float {
-        val effectivePlayTimeNanos =
-            if (ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled) {
-                playTimeNanos
-            } else {
-                (playTimeNanos / MillisToNanos) * MillisToNanos
-            }
-        val deltaT = (effectivePlayTimeNanos.toDouble() / SecondsToNanos).toFloat()
-        return initialVelocity * exp(deltaT * friction)
+        return if (ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled) {
+            val deltaT = (playTimeNanos.toDouble() / SecondsToNanos).toFloat()
+            initialVelocity * exp(deltaT * friction)
+        } else {
+            val playTimeMillis = playTimeNanos / MillisToNanos
+            initialVelocity * exp(((playTimeMillis / 1000f) * friction))
+        }
     }
 
     @OptIn(ExperimentalAnimationCoreApi::class)
