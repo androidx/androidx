@@ -64,7 +64,7 @@ public object AndroidComposeUiFlags {
     // TODO: b/483449576
     @field:Suppress("MutableBareField")
     @JvmField
-    public var isFrameworkVelocityTrackerEnabled: Boolean = false
+    public var isFrameworkVelocityTrackerEnabled: Boolean = true
 
     /** Guard for Hardware Navigation system default behavior in Compose. */
     // TODO(b/520209822): Cleanup once proven stable.
