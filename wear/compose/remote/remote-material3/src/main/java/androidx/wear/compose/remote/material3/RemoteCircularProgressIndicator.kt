@@ -18,11 +18,10 @@ package androidx.wear.compose.remote.material3
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
-import androidx.compose.remote.creation.compose.layout.RemoteOffset
-import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
@@ -30,16 +29,15 @@ import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.RemoteTimeVariables
-import androidx.compose.remote.creation.compose.state.asin
 import androidx.compose.remote.creation.compose.state.clamp
 import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
-import kotlin.math.PI
+import androidx.compose.ui.graphics.Color
 
 /**
  * Material Design circular progress indicator.
@@ -95,9 +93,18 @@ public fun RemoteCircularProgressIndicator(
     // end of the indicator instead of pausing there.
     val animatedProgress = animateProgress(clamp(progress, 0f.rf, 1f.rf))
     RemoteCanvas(modifier = modifier.fillMaxSize()) {
-        val fullSweep = 360f.rf - ((startAngle - endAngle) % 360f.rf + 360f.rf) % 360f.rf
+        val fullSweep = circularFullSweep(startAngle, endAngle)
         val sweepAngle = animatedProgress * fullSweep
-        drawIndicatorArcs(startAngle, sweepAngle, fullSweep, strokeWidth, gapSize, colors, enabled)
+        drawIndicatorArcs(
+            startAngle = startAngle,
+            sweepAngle = sweepAngle,
+            fullSweep = fullSweep,
+            isFullCircle = fullSweep.isGreaterThanOrEqualTo(360f.rf),
+            strokeWidth = strokeWidth,
+            gapSize = gapSize,
+            colors = colors,
+            enabled = enabled,
+        )
     }
 }
 
@@ -167,67 +174,95 @@ public fun RemoteCircularProgressIndicator(
 
         val sweepAngle = sweepAnimation * 360f.rf
 
-        drawIndicatorArcs(totalRotation, sweepAngle, 360f.rf, strokeWidth, gapSize, colors, true.rb)
+        drawIndicatorArcs(
+            startAngle = totalRotation,
+            sweepAngle = sweepAngle,
+            fullSweep = 360f.rf,
+            isFullCircle = false.rb,
+            strokeWidth = strokeWidth,
+            gapSize = gapSize,
+            colors = colors,
+            enabled = true.rb,
+        )
     }
 }
 
+/**
+ * Draws the track and the indicator of a circular progress indicator, with the indicator sweeping
+ * [sweepAngle] degrees clockwise from [startAngle], and the track the rest of [fullSweep].
+ */
 private fun RemoteDrawScope.drawIndicatorArcs(
     startAngle: RemoteFloat,
     sweepAngle: RemoteFloat,
     fullSweep: RemoteFloat,
+    isFullCircle: RemoteBoolean,
     strokeWidth: RemoteDp,
     gapSize: RemoteDp,
     colors: RemoteProgressIndicatorColors,
     enabled: RemoteBoolean,
 ) {
-    val coercedStrokeWidth = max(0.rdp, strokeWidth)
-    val isZeroStroke = coercedStrokeWidth.isLessThanOrEqualTo(0.rdp)
-    val strokePx = coercedStrokeWidth.toPx()
-    val gapSizePx = gapSize.toPx()
-    val diameter = min(width, height)
-    val diameterOffset = strokePx / 2f.rf
-    val arcDimen = diameter - (diameterOffset * 2f.rf)
+    val geometry = circularArcGeometry(strokeWidth, gapSize)
+    val gapSweep = geometry.gapSweep
+    val clampedSweep = clamp(sweepAngle, 0f.rf, fullSweep)
 
-    val left = diameterOffset + (width - diameter) / 2f.rf
-    val top = diameterOffset + (height - diameter) / 2f.rf
-    val right = left + arcDimen
-    val bottom = top + arcDimen
-
-    val chordRatio =
-        clamp((strokePx + gapSizePx) / max(0.001f.rf, diameter - strokePx), 0f.rf, 1f.rf)
-    val gapSweep = asin(chordRatio) * (360f / PI.toFloat()).rf
-
-    val trackGapSweep = min(sweepAngle, gapSweep)
-
-    // Track
-    val trackPaint = RemotePaint {
-        style = RemotePaintingStyle.Stroke
-        this.strokeWidth = strokePx
-        strokeCap = RemoteStrokeCap.Round
-        with(colors.trackBrush(enabled)) { applyTo(this@RemotePaint, size) }
-    }
-    drawArc(
-        paint = trackPaint,
-        startAngle = startAngle + sweepAngle + trackGapSweep / 2f.rf,
-        sweepAngle = isZeroStroke.select(0f.rf, max(0f.rf, fullSweep - sweepAngle - trackGapSweep)),
-        useCenter = false,
-        topLeft = RemoteOffset(left, top),
-        size = RemoteSize(right - left, bottom - top),
+    // Track, from the end of the indicator to the end of the full sweep. Its gap grows with the
+    // indicator, so that at progress 0 the track is drawn as a whole, without a gap.
+    drawIndicatorSegment(
+        startAngle = startAngle + clampedSweep,
+        sweepAngle = fullSweep - clampedSweep,
+        gapSweep = min(clampedSweep, gapSweep),
+        brush = colors.trackBrush(enabled),
+        geometry = geometry,
     )
 
-    // Indicator
-    val indicatorPaint = RemotePaint {
+    // Indicator. On a full circle, the gap shrinks with the rest of the track, so that at
+    // progress 1 the indicator closes into a full ring, without a notch at its start.
+    val closingGapSweep = min(gapSweep, fullSweep - clampedSweep)
+    drawIndicatorSegment(
+        startAngle = startAngle,
+        sweepAngle = clampedSweep,
+        gapSweep = isFullCircle.select(closingGapSweep, gapSweep),
+        brush = colors.indicatorBrush(enabled),
+        geometry = geometry,
+    )
+}
+
+/**
+ * Draws a segment of the indicator or the track, sweeping [sweepAngle] degrees clockwise from
+ * [startAngle], with half of [gapSweep] left out at each end to make room for the round caps and
+ * the gap between segments.
+ *
+ * A segment that doesn't sweep more than [gapSweep] is drawn as a dot at its center instead, with a
+ * stroke width that scales with how much of the gap it sweeps, so that it shrinks smoothly to
+ * nothing rather than leaving a full size round cap. The draw operations are the same in every
+ * case, only the values change.
+ */
+private fun RemoteDrawScope.drawIndicatorSegment(
+    startAngle: RemoteFloat,
+    sweepAngle: RemoteFloat,
+    gapSweep: RemoteFloat,
+    brush: RemoteBrush,
+    geometry: CircularArcGeometry,
+) {
+    // From 0 to 1 while the segment is within the gap, then 1 once it is an arc.
+    val fill = min(1f.rf, sweepAngle / max(0.001f.rf, gapSweep))
+    val isVisible = geometry.isZeroStroke.select(false.rb, sweepAngle.isGreaterThan(0f.rf))
+    val paint = RemotePaint {
         style = RemotePaintingStyle.Stroke
-        this.strokeWidth = strokePx
         strokeCap = RemoteStrokeCap.Round
-        with(colors.indicatorBrush(enabled)) { applyTo(this@RemotePaint, size) }
+        strokeWidth = geometry.strokePx * fill
+        with(brush) { applyTo(this@RemotePaint, size) }
+        // A stroke width of 0 still draws a hairline, and an arc a dot, so hide them instead.
+        color = isVisible.select(color, Color.Transparent.rc)
     }
     drawArc(
-        paint = indicatorPaint,
-        startAngle = startAngle + gapSweep / 2f.rf,
-        sweepAngle = isZeroStroke.select(0f.rf, max(0f.rf, sweepAngle - gapSweep)),
+        paint = paint,
+        // Within the gap, this is the center of the segment, where its dot is drawn.
+        startAngle = startAngle + min(sweepAngle, gapSweep) / 2f.rf,
+        // A tiny sweep with a round cap draws a dot.
+        sweepAngle = max(MinDotSweep, sweepAngle - gapSweep),
         useCenter = false,
-        topLeft = RemoteOffset(left, top),
-        size = RemoteSize(right - left, bottom - top),
+        topLeft = geometry.topLeft,
+        size = geometry.arcSize,
     )
 }
