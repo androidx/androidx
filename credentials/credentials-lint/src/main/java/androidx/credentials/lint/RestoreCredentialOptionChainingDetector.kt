@@ -52,12 +52,21 @@ class RestoreCredentialOptionChainingDetector : Detector(), SourceCodeScanner {
     }
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
+        val containingClass = method.containingClass ?: return
         val isRequestCreateFrom =
             method.name == "createFrom" &&
-                context.evaluator.isMemberInClass(method, CLASS_GET_CREDENTIAL_REQUEST)
+                (context.evaluator.inheritsFrom(
+                    containingClass,
+                    CLASS_GET_CREDENTIAL_REQUEST,
+                    false,
+                ) || containingClass.qualifiedName == "$CLASS_GET_CREDENTIAL_REQUEST.Companion")
         val isBuilderBuild =
             method.name == "build" &&
-                context.evaluator.isMemberInClass(method, CLASS_GET_CREDENTIAL_REQUEST_BUILDER)
+                context.evaluator.inheritsFrom(
+                    containingClass,
+                    CLASS_GET_CREDENTIAL_REQUEST_BUILDER,
+                    false,
+                )
         if (!isRequestCreateFrom && !isBuilderBuild) return
 
         checkRequestExpression(context, node)

@@ -112,13 +112,18 @@ class RestoreCredentialManifestBackupDetector : Detector(), SourceCodeScanner, X
     override fun applicableSuperClasses(): List<String> = listOf(CLASS_BACKUP_AGENT)
 
     override fun visitClass(context: JavaContext, declaration: UClass) {
+        val map = context.getPartialResults(ISSUE).map()
         val overridesOnRestoreFinished =
             declaration.javaPsi.findMethodsByName("onRestoreFinished", true).any { method ->
                 method.parameterList.parametersCount == 0 &&
                     method.containingClass?.qualifiedName != CLASS_BACKUP_AGENT
             }
+        val classKey = declaration.javaPsi.qualifiedName ?: declaration.name ?: return
         if (overridesOnRestoreFinished) {
-            context.getPartialResults(ISSUE).map().put(KEY_HAS_ON_RESTORE_FINISHED, true)
+            map.put(KEY_HAS_ON_RESTORE_FINISHED, true)
+            appendClassToken(map, KEY_AGENTS_WITH_RESTORE_FINISHED, classKey)
+        } else {
+            appendClassToken(map, KEY_AGENTS_WITHOUT_RESTORE_FINISHED, classKey)
         }
     }
 
@@ -133,13 +138,41 @@ class RestoreCredentialManifestBackupDetector : Detector(), SourceCodeScanner, X
             partialResults.maps().any { it.getBoolean(KEY_USES_RESTORE_CREDENTIALS) == true }
         if (!usesRestoreCredentials) return
 
-        val hasOnRestoreFinished =
-            partialResults.maps().any { it.getBoolean(KEY_HAS_ON_RESTORE_FINISHED) == true }
+        val agentsWithRestoreFinished =
+            partialResults
+                .maps()
+                .flatMap {
+                    it.getString(KEY_AGENTS_WITH_RESTORE_FINISHED, "")
+                        .orEmpty()
+                        .split(',')
+                        .filter(String::isNotEmpty)
+                }
+                .toSet()
+        val agentsWithoutRestoreFinished =
+            partialResults
+                .maps()
+                .flatMap {
+                    it.getString(KEY_AGENTS_WITHOUT_RESTORE_FINISHED, "")
+                        .orEmpty()
+                        .split(',')
+                        .filter(String::isNotEmpty)
+                }
+                .toSet()
 
-        val backupAgent = appMap.getString(KEY_BACKUP_AGENT, "") ?: ""
+        val mergedAppElement = findMergedApplicationElement(context)
+        val backupAgent =
+            appMap.getString(KEY_BACKUP_AGENT, "").orEmpty().ifEmpty {
+                mergedAppElement?.getAndroidAttribute(ATTR_BACKUP_AGENT).orEmpty()
+            }
         val hasBackupAgent = backupAgent.isNotEmpty()
-        val allowBackup = appMap.getString(KEY_ALLOW_BACKUP, "") ?: ""
-        val fullBackupOnly = appMap.getString(KEY_FULL_BACKUP_ONLY, "") ?: ""
+        val allowBackup =
+            appMap.getString(KEY_ALLOW_BACKUP, "").orEmpty().ifEmpty {
+                mergedAppElement?.getAndroidAttribute(ATTR_ALLOW_BACKUP).orEmpty()
+            }
+        val fullBackupOnly =
+            appMap.getString(KEY_FULL_BACKUP_ONLY, "").orEmpty().ifEmpty {
+                mergedAppElement?.getAndroidAttribute(ATTR_FULL_BACKUP_ONLY).orEmpty()
+            }
 
         val appNameLocation = appMap.getLocation(KEY_APP_NAME_LOCATION) ?: return
         val appElementLocation = appMap.getLocation(KEY_APP_ELEMENT_LOCATION) ?: appNameLocation
@@ -167,7 +200,13 @@ class RestoreCredentialManifestBackupDetector : Detector(), SourceCodeScanner, X
         }
 
         // Sub-case A: android:backupAgent declared without android:fullBackupOnly="true"
-        if (hasBackupAgent && !fullBackupOnly.equals("true", ignoreCase = true)) {
+        val isDynamicFullBackupOnly =
+            fullBackupOnly.startsWith("@") || fullBackupOnly.startsWith("\${")
+        if (
+            hasBackupAgent &&
+                !isDynamicFullBackupOnly &&
+                !fullBackupOnly.equals("true", ignoreCase = true)
+        ) {
             val fix =
                 LintFix.create()
                     .name("Set android:fullBackupOnly=\"true\"")
@@ -189,18 +228,28 @@ class RestoreCredentialManifestBackupDetector : Detector(), SourceCodeScanner, X
 
         // Sub-case C: Restore Credentials used with allowBackup="true" (or default) without Tier 1
         // BackupAgent overriding onRestoreFinished().
-        if (!allowBackup.equals("false", ignoreCase = true)) {
+        val isDynamicAllowBackup = allowBackup.startsWith("@") || allowBackup.startsWith("\${")
+        if (!allowBackup.equals("false", ignoreCase = true) && !isDynamicAllowBackup) {
             if (!hasBackupAgent) {
+                val allowBackupClause =
+                    if (allowBackup.equals("true", ignoreCase = true)) {
+                        "with `android:allowBackup=\"true\"` "
+                    } else {
+                        ""
+                    }
                 context.report(
                     Incident(
                         ISSUE,
                         appNameLocation,
-                        "App uses Restore Credentials with `android:allowBackup=\"true\"` without declaring " +
+                        "App uses Restore Credentials ${allowBackupClause}without declaring " +
                             "`android:backupAgent` overriding `BackupAgent.onRestoreFinished()`, missing Tier 1 " +
                             "background sign-in restoration during device setup",
                     )
                 )
-            } else if (!hasOnRestoreFinished) {
+            } else if (
+                !matchesAnyAgent(backupAgent, agentsWithRestoreFinished) &&
+                    matchesAnyAgent(backupAgent, agentsWithoutRestoreFinished)
+            ) {
                 context.report(
                     Incident(
                         ISSUE,
@@ -220,6 +269,39 @@ class RestoreCredentialManifestBackupDetector : Detector(), SourceCodeScanner, X
         }
     }
 
+    private fun appendClassToken(
+        map: com.android.tools.lint.detector.api.LintMap,
+        key: String,
+        value: String,
+    ) {
+        val existing = map.getString(key, "").orEmpty()
+        val updated = if (existing.isEmpty()) value else "$existing,$value"
+        map.put(key, updated)
+    }
+
+    private fun matchesAnyAgent(manifestAttr: String, candidates: Set<String>): Boolean {
+        val normalizedAttr = manifestAttr.removePrefix(".")
+        val attrSimple = normalizedAttr.substringAfterLast('.').substringAfterLast('$')
+        return candidates.any { candidate ->
+            val candidateSimple = candidate.substringAfterLast('.').substringAfterLast('$')
+            candidate == normalizedAttr ||
+                candidate.endsWith(".$normalizedAttr") ||
+                candidateSimple == attrSimple
+        }
+    }
+
+    private fun findMergedApplicationElement(context: Context): Element? {
+        val root = context.project.mergedManifest?.documentElement ?: return null
+        val children = root.childNodes
+        for (i in 0 until children.length) {
+            val node = children.item(i)
+            if (node is Element && node.tagName == TAG_APPLICATION) {
+                return node
+            }
+        }
+        return null
+    }
+
     private fun Element.getAndroidAttribute(localName: String): String {
         val nsVal = getAttributeNS(ANDROID_URI, localName)
         if (nsVal.isNotEmpty()) return nsVal.trim()
@@ -237,6 +319,8 @@ class RestoreCredentialManifestBackupDetector : Detector(), SourceCodeScanner, X
         private const val KEY_ALLOW_BACKUP_LOCATION = "ALLOW_BACKUP_LOCATION"
         private const val KEY_USES_RESTORE_CREDENTIALS = "USES_RESTORE_CREDENTIALS"
         private const val KEY_HAS_ON_RESTORE_FINISHED = "HAS_ON_RESTORE_FINISHED"
+        private const val KEY_AGENTS_WITH_RESTORE_FINISHED = "AGENTS_WITH_RESTORE_FINISHED"
+        private const val KEY_AGENTS_WITHOUT_RESTORE_FINISHED = "AGENTS_WITHOUT_RESTORE_FINISHED"
 
         private val IMPLEMENTATION =
             Implementation(

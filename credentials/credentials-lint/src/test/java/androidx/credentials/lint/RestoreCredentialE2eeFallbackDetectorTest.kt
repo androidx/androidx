@@ -267,4 +267,67 @@ class RestoreCredentialE2eeFallbackDetectorTest : LintDetectorTest() {
             .run()
             .expectClean()
     }
+
+    @Test
+    fun namedRequestArgAndUnprotectedHelperCall_reportWarningsWhileRetryHelperIsClean() {
+        lint()
+            .files(
+                *CREDENTIALS_STUBS,
+                kotlin(
+                        """
+                package com.example
+
+                import android.content.Context
+                import androidx.credentials.CreateRestoreCredentialRequest
+                import androidx.credentials.CredentialManager
+                import androidx.credentials.exceptions.restorecredential.E2eeUnavailableException
+
+                fun buildCloudRequest(json: String): CreateRestoreCredentialRequest =
+                    CreateRestoreCredentialRequest(json)
+
+                suspend fun retryLocalD2d(manager: CredentialManager, context: Context, json: String) {
+                    manager.createCredential(
+                        context,
+                        CreateRestoreCredentialRequest(json, isCloudBackupEnabled = false),
+                    )
+                }
+
+                suspend fun compliantWithHelperRetry(context: Context, json: String) {
+                    val manager = CredentialManager.create(context)
+                    val req = CreateRestoreCredentialRequest(json)
+                    try {
+                        manager.createCredential(request = req, context = context)
+                    } catch (e: E2eeUnavailableException) {
+                        retryLocalD2d(manager, context, json)
+                    }
+                }
+
+                suspend fun missingFallbackWithNamedArg(context: Context, json: String) {
+                    val manager = CredentialManager.create(context)
+                    val req = CreateRestoreCredentialRequest(json)
+                    manager.createCredential(request = req, context = context)
+                }
+
+                suspend fun missingFallbackWithHelperRequest(context: Context, json: String) {
+                    val manager = CredentialManager.create(context)
+                    manager.createCredential(context, buildCloudRequest(json))
+                }
+                """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expect(
+                """
+                src/com/example/test.kt:30: Warning: CreateRestoreCredentialRequest with cloud backup enabled throws E2eeUnavailableException when the device lacks a screen lock or cloud E2EE; catch E2eeUnavailableException and retry with isCloudBackupEnabled = false so local Device-to-Device restore still works [RestoreCredentialMissingE2eeFallback]
+                    val req = CreateRestoreCredentialRequest(json)
+                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/com/example/test.kt:36: Warning: CreateRestoreCredentialRequest with cloud backup enabled throws E2eeUnavailableException when the device lacks a screen lock or cloud E2EE; catch E2eeUnavailableException and retry with isCloudBackupEnabled = false so local Device-to-Device restore still works [RestoreCredentialMissingE2eeFallback]
+                    manager.createCredential(context, buildCloudRequest(json))
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                0 errors, 2 warnings
+                """
+                    .trimIndent()
+            )
+    }
 }

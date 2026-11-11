@@ -96,11 +96,17 @@ private val CREDENTIAL_OPTIONS_AND_REQUESTS_STUB: TestFile =
                 fun createFrom(
                     credentialOptions: List<CredentialOption>,
                     origin: String? = null,
+                    metadata: Bundle = Bundle(),
                 ): GetCredentialRequest = throw UnsupportedOperationException()
             }
         }
 
-        class GetCredentialResponse(val credential: Credential)
+        class GetCredentialResponse(val credentials: List<Credential>) {
+            constructor(credential: Credential) : this(listOf(credential))
+
+            val credential: Credential
+                get() = credentials.first()
+        }
 
         abstract class CreateCredentialRequest(val type: String)
 
@@ -240,6 +246,11 @@ internal val COROUTINES_STUB: TestFile =
             val coroutineContext: CoroutineContext
         }
 
+        object GlobalScope : CoroutineScope {
+            override val coroutineContext: CoroutineContext
+                get() = EmptyCoroutineContext
+        }
+
         fun CoroutineScope(context: CoroutineContext): CoroutineScope =
             throw UnsupportedOperationException()
 
@@ -252,19 +263,30 @@ internal val COROUTINES_STUB: TestFile =
                 get() = throw UnsupportedOperationException()
         }
 
-        class Job
+        enum class CoroutineStart {
+            DEFAULT,
+            LAZY,
+            ATOMIC,
+            UNDISPATCHED,
+        }
 
-        class Deferred<out T> {
-            suspend fun await(): T = throw UnsupportedOperationException()
+        interface Job : CoroutineContext.Element {
+            suspend fun join()
+        }
+
+        interface Deferred<out T> : Job {
+            suspend fun await(): T
         }
 
         fun CoroutineScope.launch(
             context: CoroutineContext = EmptyCoroutineContext,
+            start: CoroutineStart = CoroutineStart.DEFAULT,
             block: suspend CoroutineScope.() -> Unit,
         ): Job = throw UnsupportedOperationException()
 
         fun <T> CoroutineScope.async(
             context: CoroutineContext = EmptyCoroutineContext,
+            start: CoroutineStart = CoroutineStart.DEFAULT,
             block: suspend CoroutineScope.() -> T,
         ): Deferred<T> = throw UnsupportedOperationException()
 
@@ -275,6 +297,14 @@ internal val COROUTINES_STUB: TestFile =
 
         suspend fun <T> withContext(
             context: CoroutineContext,
+            block: suspend CoroutineScope.() -> T,
+        ): T = throw UnsupportedOperationException()
+
+        suspend fun <T> coroutineScope(
+            block: suspend CoroutineScope.() -> T,
+        ): T = throw UnsupportedOperationException()
+
+        suspend fun <T> supervisorScope(
             block: suspend CoroutineScope.() -> T,
         ): T = throw UnsupportedOperationException()
         """

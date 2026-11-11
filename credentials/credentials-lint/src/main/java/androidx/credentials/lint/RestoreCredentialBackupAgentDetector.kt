@@ -22,6 +22,7 @@ import androidx.credentials.lint.RestoreCredentialConstants.CLASS_CREDENTIAL_MAN
 import androidx.credentials.lint.RestoreCredentialConstants.CLASS_GET_RESTORE_CREDENTIAL_OPTION
 import androidx.credentials.lint.RestoreCredentialConstants.GET_CREDENTIAL_METHODS
 import androidx.credentials.lint.RestoreCredentialConstants.RESTORE_CREDENTIALS_GUIDE_URL
+import androidx.credentials.lint.RestoreCredentialConstants.anyInSubtreeOrSameFileHelpers
 import androidx.credentials.lint.RestoreCredentialConstants.unwrapNamedAndParens
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
@@ -33,9 +34,11 @@ import com.android.tools.lint.detector.api.Location
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
+import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiModifier
 import com.intellij.psi.PsiParameter
+import com.intellij.psi.PsiVariable
 import org.jetbrains.uast.UBlockExpression
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UCatchClause
@@ -45,10 +48,12 @@ import org.jetbrains.uast.ULambdaExpression
 import org.jetbrains.uast.UMethod
 import org.jetbrains.uast.UNamedExpression
 import org.jetbrains.uast.UQualifiedReferenceExpression
+import org.jetbrains.uast.UReferenceExpression
 import org.jetbrains.uast.UReturnExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.USuperExpression
 import org.jetbrains.uast.UThisExpression
+import org.jetbrains.uast.UVariable
 import org.jetbrains.uast.getParentOfType
 import org.jetbrains.uast.skipParenthesizedExprDown
 import org.jetbrains.uast.visitor.AbstractUastVisitor
@@ -144,7 +149,12 @@ class RestoreCredentialBackupAgentDetector : Detector(), SourceCodeScanner {
             context.getCallLocation(call, includeReceiver = false, includeArguments = true)
 
         if (method.name == "getCredentialAsync") {
-            if (containsBlockingSyncWait(onRestoreFinished)) return
+            if (
+                containsBlockingSyncWait(context, onRestoreFinished) ||
+                    containsBlockingSyncWait(context, enclosingMethod)
+            ) {
+                return
+            }
             context.report(
                 ASYNC_ISSUE,
                 call,
@@ -159,11 +169,16 @@ class RestoreCredentialBackupAgentDetector : Detector(), SourceCodeScanner {
 
         // Suspend `getCredential`: inspect coroutine builders enclosing the call (both inside the
         // immediate method and, if inside a helper method, around the helper call site).
-        val asyncCallInMethod = findUnjoinedAsyncBuilder(call, enclosingMethod)
-        val asyncCallAtHelperSite =
-            restoreFinishedContext.helperCallSiteInOnRestoreFinished?.let {
-                findUnjoinedAsyncBuilder(it, onRestoreFinished)
-            }
+        val helperSite = restoreFinishedContext.helperCallSiteInOnRestoreFinished
+        val asyncCallAtHelperSite = helperSite?.let {
+            findUnjoinedAsyncBuilder(context, it, onRestoreFinished, false)
+        }
+        val isHelperInsideRunBlocking =
+            helperSite != null &&
+                asyncCallAtHelperSite == null &&
+                isEnclosedByRunBlocking(helperSite, onRestoreFinished)
+        val asyncCallInMethod =
+            findUnjoinedAsyncBuilder(context, call, enclosingMethod, isHelperInsideRunBlocking)
         val offendingAsyncBuilder = asyncCallInMethod ?: asyncCallAtHelperSite ?: return
 
         val builderName = offendingAsyncBuilder.methodName ?: "launch"
@@ -180,12 +195,38 @@ class RestoreCredentialBackupAgentDetector : Detector(), SourceCodeScanner {
         )
     }
 
+    private fun isEnclosedByRunBlocking(leaf: UElement, stopAtMethod: UMethod): Boolean {
+        var current: UElement? = leaf
+        while (current != null && current != stopAtMethod) {
+            val lambda = current as? ULambdaExpression
+            if (lambda != null) {
+                val parentCall = lambda.getParentOfType<UCallExpression>(true)
+                if (
+                    parentCall != null &&
+                        parentCall.methodName == "runBlocking" &&
+                        parentCall.valueArguments.any {
+                            ((it as? UNamedExpression)?.expression ?: it) == lambda
+                        }
+                ) {
+                    return true
+                }
+            }
+            current = current.uastParent
+        }
+        return false
+    }
+
     /**
      * Walks up from [leaf] to [stopAtMethod] and returns an enclosing `launch` or `async` builder
      * call if that builder escapes `onRestoreFinished()` without being joined by an enclosing
-     * `runBlocking` scope.
+     * `runBlocking` scope or explicit `.join()` / `.await()`.
      */
-    private fun findUnjoinedAsyncBuilder(leaf: UElement, stopAtMethod: UMethod): UCallExpression? {
+    private fun findUnjoinedAsyncBuilder(
+        context: JavaContext,
+        leaf: UElement,
+        stopAtMethod: UMethod,
+        isCallerBlockedByRunBlocking: Boolean,
+    ): UCallExpression? {
         val enclosingBuilders = mutableListOf<UCallExpression>()
         var current: UElement? = leaf
         while (current != null && current != stopAtMethod) {
@@ -205,28 +246,71 @@ class RestoreCredentialBackupAgentDetector : Detector(), SourceCodeScanner {
         }
 
         // Builders are ordered innermost -> outermost.
-        val outermostRunBlockingIndex = enclosingBuilders.indexOfLast {
-            it.methodName == "runBlocking"
-        }
+        val outermostBlockingIndex =
+            if (isCallerBlockedByRunBlocking) {
+                enclosingBuilders.size
+            } else {
+                enclosingBuilders.indexOfLast { it.methodName == "runBlocking" }
+            }
 
         for ((index, builderCall) in enclosingBuilders.withIndex()) {
             val name = builderCall.methodName ?: continue
             if (name !in ASYNC_COROUTINE_BUILDERS) continue
+            if (isBuilderExplicitlyAwaitedOrJoined(context, builderCall, stopAtMethod)) continue
 
-            if (outermostRunBlockingIndex == -1 || index > outermostRunBlockingIndex) {
+            if (outermostBlockingIndex == -1 || index > outermostBlockingIndex) {
                 // Not enclosed by runBlocking at all.
                 return builderCall
             }
 
             // Even inside runBlocking { ... }, calling `CoroutineScope(Dispatchers.IO).launch {
-            // ... }` or `GlobalScope.launch { ... }` launches on an external scope that
+            // ... }`, `GlobalScope.launch { ... }`, or `this@ScopedBackupAgent.launch { ... }`
+            // (where BackupAgent implements CoroutineScope) launches on an external scope that
             // runBlocking does NOT join!
             val receiver = builderCall.receiver?.skipParenthesizedExprDown()
-            if (receiver != null && receiver !is UThisExpression) {
-                return builderCall
+            if (receiver != null) {
+                if (receiver !is UThisExpression || receiver.resolve() is PsiClass) {
+                    return builderCall
+                }
             }
         }
         return null
+    }
+
+    private fun isBuilderExplicitlyAwaitedOrJoined(
+        context: JavaContext,
+        builderCall: UCallExpression,
+        enclosingMethod: UMethod,
+    ): Boolean {
+        val outerQualified =
+            (builderCall.uastParent as? UQualifiedReferenceExpression)?.takeIf {
+                it.selector == builderCall
+            } ?: builderCall
+        val chainedParent = outerQualified.uastParent as? UQualifiedReferenceExpression
+        if (chainedParent != null && chainedParent.receiver == outerQualified) {
+            val selectorCall =
+                chainedParent.selector.skipParenthesizedExprDown() as? UCallExpression
+            if (selectorCall?.methodName in JOIN_OR_AWAIT_METHODS) {
+                return true
+            }
+        }
+        val parentCall = outerQualified.uastParent as? UCallExpression
+        if (
+            parentCall != null &&
+                parentCall.receiver == outerQualified &&
+                parentCall.methodName in JOIN_OR_AWAIT_METHODS
+        ) {
+            return true
+        }
+
+        val assignedVar =
+            (outerQualified.uastParent as? UVariable)?.javaPsi as? PsiVariable ?: return false
+        return anyInSubtreeOrSameFileHelpers(context, enclosingMethod.uastBody, maxDepth = 0) {
+            it is UCallExpression &&
+                it.methodName in JOIN_OR_AWAIT_METHODS &&
+                (it.receiver?.skipParenthesizedExprDown() as? UReferenceExpression)?.resolve() ==
+                    assignedVar
+        }
     }
 
     private fun buildRunBlockingQuickFix(
@@ -239,7 +323,7 @@ class RestoreCredentialBackupAgentDetector : Detector(), SourceCodeScanner {
         val lambdaArg =
             asyncCall.valueArguments.lastOrNull()?.unwrapNamedAndParens() as? ULambdaExpression
                 ?: return null
-        if (containsLabeledLaunchReturn(lambdaArg)) return null
+        if (containsLabeledLaunchReturn(context, lambdaArg)) return null
 
         val outerExpr: UElement =
             (asyncCall.uastParent as? UQualifiedReferenceExpression)?.takeIf {
@@ -308,23 +392,14 @@ class RestoreCredentialBackupAgentDetector : Detector(), SourceCodeScanner {
             .build()
     }
 
-    private fun containsLabeledLaunchReturn(lambdaArg: ULambdaExpression): Boolean {
-        var found = false
-        lambdaArg.body.accept(
-            object : AbstractUastVisitor() {
-                override fun visitReturnExpression(node: UReturnExpression): Boolean {
-                    if (
-                        node.label == "launch" ||
-                            (node.label != null && node.jumpTarget == lambdaArg)
-                    ) {
-                        found = true
-                    }
-                    return false
-                }
-            }
-        )
-        return found
-    }
+    private fun containsLabeledLaunchReturn(
+        context: JavaContext,
+        lambdaArg: ULambdaExpression,
+    ): Boolean =
+        anyInSubtreeOrSameFileHelpers(context, lambdaArg.body, maxDepth = 0) {
+            it is UReturnExpression &&
+                (it.label == "launch" || (it.label != null && it.jumpTarget == lambdaArg))
+        }
 
     private fun reportWrongBackupCallback(
         context: JavaContext,
@@ -596,18 +671,11 @@ class RestoreCredentialBackupAgentDetector : Detector(), SourceCodeScanner {
         val onRestore =
             enclosingClass.methods.firstOrNull { it.isLegacyOnRestore(context) } ?: return null
         val targetPsi = enclosingMethod.javaPsi
-        var calledFromOnRestore = false
-        onRestore.uastBody?.accept(
-            object : AbstractUastVisitor() {
-                override fun visitCallExpression(node: UCallExpression): Boolean {
-                    if (node.resolve() == targetPsi) {
-                        calledFromOnRestore = true
-                    }
-                    return false
-                }
+        val called =
+            anyInSubtreeOrSameFileHelpers(context, onRestore.uastBody, maxDepth = 0) {
+                it is UCallExpression && it.resolve() == targetPsi
             }
-        )
-        return if (calledFromOnRestore) onRestore else null
+        return if (called) onRestore else null
     }
 
     private fun UMethod.isOnRestoreFinished(): Boolean =
@@ -620,56 +688,39 @@ class RestoreCredentialBackupAgentDetector : Detector(), SourceCodeScanner {
         return context.evaluator.inheritsFrom(firstParamClass, CLASS_BACKUP_DATA_INPUT, false)
     }
 
-    private fun methodContainsGetCredentialCall(context: JavaContext, method: UMethod): Boolean {
-        var found = false
-        method.uastBody?.accept(
-            object : AbstractUastVisitor() {
-                override fun visitCallExpression(node: UCallExpression): Boolean {
-                    if (node.methodName in GET_CREDENTIAL_METHODS) {
-                        val containingClass = node.resolve()?.containingClass
-                        if (
-                            containingClass != null &&
-                                context.evaluator.inheritsFrom(
-                                    containingClass,
-                                    CLASS_CREDENTIAL_MANAGER,
-                                    false,
-                                )
-                        ) {
-                            found = true
-                        }
-                    }
-                    return false
-                }
-            }
-        )
-        return found
-    }
+    private fun methodContainsGetCredentialCall(context: JavaContext, method: UMethod): Boolean =
+        anyInSubtreeOrSameFileHelpers(context, method.uastBody, maxDepth = 0) { node ->
+            val cls =
+                (node as? UCallExpression)
+                    ?.takeIf { it.methodName in GET_CREDENTIAL_METHODS }
+                    ?.resolve()
+                    ?.containingClass
+            cls != null && context.evaluator.inheritsFrom(cls, CLASS_CREDENTIAL_MANAGER, false)
+        }
 
-    private fun containsBlockingSyncWait(method: UMethod): Boolean {
-        var hasSyncWait = false
-        method.uastBody?.accept(
-            object : AbstractUastVisitor() {
-                override fun visitCallExpression(node: UCallExpression): Boolean {
-                    val methodName = node.methodName
-                    if (methodName == "await" || methodName == "get") {
-                        val ownerName = node.resolve()?.containingClass?.qualifiedName
-                        if (
-                            ownerName == "java.util.concurrent.CountDownLatch" ||
-                                ownerName == "java.util.concurrent.Future" ||
-                                ownerName == "java.util.concurrent.CompletableFuture"
-                        ) {
-                            hasSyncWait = true
-                        }
-                    }
-                    return false
-                }
+    private fun containsBlockingSyncWait(context: JavaContext, method: UMethod): Boolean =
+        anyInSubtreeOrSameFileHelpers(context, method.uastBody, maxDepth = 0) { node ->
+            val call = node as? UCallExpression ?: return@anyInSubtreeOrSameFileHelpers false
+            val owner =
+                call.resolve()?.containingClass ?: return@anyInSubtreeOrSameFileHelpers false
+            when (call.methodName) {
+                "await",
+                "get" ->
+                    context.evaluator.inheritsFrom(
+                        owner,
+                        "java.util.concurrent.CountDownLatch",
+                        false,
+                    ) || context.evaluator.inheritsFrom(owner, "java.util.concurrent.Future", false)
+                "acquire" ->
+                    context.evaluator.inheritsFrom(owner, "java.util.concurrent.Semaphore", false)
+                "join" -> context.evaluator.inheritsFrom(owner, "java.lang.Thread", false)
+                else -> false
             }
-        )
-        return hasSyncWait
-    }
+        }
 
     companion object {
         private val ASYNC_COROUTINE_BUILDERS = setOf("launch", "async")
+        private val JOIN_OR_AWAIT_METHODS = setOf("join", "await")
         private val KOTLIN_ON_RESTORE_HEADER_REGEX = Regex("""\bfun\s+onRestore\b""")
         private val JAVA_ON_RESTORE_HEADER_REGEX = Regex("""\bvoid\s+onRestore\b""")
 
