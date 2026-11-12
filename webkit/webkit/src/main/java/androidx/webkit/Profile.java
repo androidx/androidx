@@ -827,7 +827,6 @@ public interface Profile {
     @Retention(RetentionPolicy.CLASS)
     @Target({ElementType.METHOD, ElementType.TYPE, ElementType.FIELD})
     @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @interface ExperimentalSelectedSiteIsolation {
     }
 
@@ -891,7 +890,6 @@ public interface Profile {
     @RequiresFeature(name = WebViewFeature.PROFILE_SELECTED_SITE_ISOLATION_EXPERIMENTAL_V1,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     @ExperimentalSelectedSiteIsolation
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @UiThread
     default void configureIsolatedSites(@NonNull Set<@NonNull String> sites) {
         throw new UnsupportedOperationException(
@@ -921,7 +919,6 @@ public interface Profile {
     @RequiresFeature(name = WebViewFeature.PROFILE_SELECTED_SITE_ISOLATION_EXPERIMENTAL_V1,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     @ExperimentalSelectedSiteIsolation
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @UiThread
     default boolean canConfigureIsolatedSites() {
         throw new UnsupportedOperationException(

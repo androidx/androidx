@@ -124,4 +124,5 @@ internal val PUBLIC_FEATURE_UNHIDE_CLS =
         WF.NAVIGATION_LISTENER_NAVIGATION_STATE to "https://crrev.com/c/8549000",
         WF.NAVIGATION_GET_RESPONSE_HEADERS to "https://crrev.com/c/8552417",
         WF.NAVIGATION_LISTENER_NAVIGATION_VISIBLE to "https://crrev.com/c/8028169",
+        WF.PROFILE_SELECTED_SITE_ISOLATION_EXPERIMENTAL_V1 to "https://crrev.com/c/8683808",
     )
