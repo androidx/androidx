@@ -25,13 +25,12 @@ description: >-
 >    orchestrating verifier sub-agents).
 > 2. **Writing/Modifying Code, API/Design Questions, Refactoring, Preparing
 >    Commits / CLs, or Updating Docs** *(Standards Hierarchy, 4-Layer
->    Package/Object-Job Map, Pre-Placement Checklist, Development Workflow,
->    Git Commit Rules, & `Skill: CameraX Agent Guidelines & Experience
->    Capture`)* -> Read
+>    Package/Object-Job Map, Pre-Placement, Workflow, Commit Rules, &
+>    `Skill: CameraX Agent Guidelines & Experience Capture`)* -> Read
 >    `camera/.agents/skills/camerax-guidelines-governance/SKILL.md`
->    ([`camerax-guidelines-governance`][skill-gov]) (and when modifying code
->    or fixing bugs, also read `camerax-testing/SKILL.md` Section 1 for
->    mandatory pre-coding test case study).
+>    ([`camerax-guidelines-governance`][skill-gov]; plus
+>    [`COMMIT_AND_AMEND.md`][commit-ref] when branching/committing, and
+>    `camerax-testing/SKILL.md` Section 1 when modifying code or fixing bugs).
 > 3. **Writing/Running Unit (Robolectric) or Device (`androidTest`) Tests, Test
 >    Strategy Questions, Debugging Leaks, or Migrating Tests Across the Test
 >    Pyramid** *(`Testing` & `Skill: CameraX Troubleshooting & Code
@@ -318,8 +317,8 @@ invariants:
 
 ## Git Commit Messages & Amend (CameraX Overrides)
 
-Read [`camerax-guidelines-governance`][skill-gov] (`## Git Commit Messages` and
-`### Git Commit Amend`) and repo-wide `manage_commits` before committing:
+Read [`COMMIT_AND_AMEND.md`][commit-ref] and repo-wide `manage_commits` before
+committing:
 - **Title & Body**: Imperative title strictly `<= 50` chars; body lines `<= 72`.
 - **RelNote**: Required ONLY for public API (`camera/**/api/`) or user bugs;
   omit `RelNote` entirely for internal, test, doc, or `@RestrictTo` changes.
@@ -385,3 +384,4 @@ Read [`camerax-guidelines-governance`][skill-gov] (`## Git Commit Messages` and
 [skill-gov]: .agents/skills/camerax-guidelines-governance/SKILL.md
 [skill-test]: .agents/skills/camerax-testing/SKILL.md
 [skill-triage]: .agents/skills/camerax-triage-and-quirks/SKILL.md
+[commit-ref]: .agents/skills/camerax-guidelines-governance/references/COMMIT_AND_AMEND.md
