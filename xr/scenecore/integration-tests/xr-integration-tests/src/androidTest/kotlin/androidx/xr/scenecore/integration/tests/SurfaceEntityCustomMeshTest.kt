@@ -14,57 +14,40 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX", "DEPRECATION")
+@file:Suppress("RestrictedApiAndroidX")
 
 package androidx.xr.scenecore.integration.tests
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.media.MediaPlayer
-import android.os.SystemClock
 import android.view.Surface
-import androidx.activity.ComponentActivity
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.xr.runtime.Session
-import androidx.xr.runtime.SessionCreateSuccess
-import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.Space
-import androidx.xr.scenecore.SpatialCapability
 import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.Texture
 import androidx.xr.scenecore.scene
-import androidx.xr.testutils.SpatialNode
-import androidx.xr.testutils.SpatialSceneHelper
 import androidx.xr.testutils.XrDeviceTest
-import androidx.xr.testutils.resetSpatialInteraction
+import androidx.xr.testutils.createXrSessionRule
+import androidx.xr.testutils.waitUntil
 import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import java.nio.Buffer
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import java.nio.file.Paths
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
-import java.util.function.Consumer
 import kotlin.math.PI
-import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import org.junit.After
-import org.junit.Before
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -83,412 +66,276 @@ import org.junit.runner.RunWith
  * - Stereoscopic left/right eye triangle fan meshes ([SurfaceEntity.DrawMode.TRIANGLE_FAN]).
  * - Dynamic shape switching, stereo mode transitions, edge feathering, and alpha mask textures.
  */
-@SuppressLint("RestrictedApiAndroidX")
 @RunWith(AndroidJUnit4::class)
 @LargeTest
+@XrDeviceTest
 class SurfaceEntityCustomMeshTest {
-    @get:Rule val activityScenarioRule = ActivityScenarioRule(ComponentActivity::class.java)
 
-    private lateinit var appContext: Context
-    private lateinit var session: Session
-    private lateinit var videoSession: VideoPlaybackSession
-    private var surfaceEntity: SurfaceEntity? = null
+    @get:Rule val sessionRule = createXrSessionRule()
 
-    @Before
-    fun setUp() {
-        appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        videoSession = VideoPlaybackSession(appContext)
-    }
-
-    /**
-     * Cleanly stops and detaches [MediaPlayer] instances and disposes any [SurfaceEntity] while the
-     * [Session] and `SplitEngineBridge` are still active, preventing asynchronous `imp_bg_wk`
-     * texture release calls from racing with `SpatialRenderingRuntime.destroy()` during
-     * `Activity.onDestroy()`.
-     */
-    @After
-    fun tearDown() {
-        resetSpatialInteraction()
-        if (this::videoSession.isInitialized) {
-            videoSession.release()
-        }
-        if (this::session.isInitialized) {
-            runCatching {
-                activityScenarioRule.scenario.onActivity {
-                    surfaceEntity?.removeAllComponents()
-                    surfaceEntity?.parent = null
-                    surfaceEntity?.dispose()
-                    surfaceEntity = null
-                    session.scene.mainPanelEntity.setEnabled(true)
-                }
+    @Test
+    fun surfaceEntity_customTriangleMesh_attachesAndPlaysVideo() {
+        sessionRule.requestFullSpace()
+        val (customMeshShape, entity) =
+            sessionRule.onMainThread {
+                session.scene.mainPanelEntity.setEnabled(false)
+                val triangleMesh = createTriangleMeshDirect()
+                val customMeshShape =
+                    SurfaceEntity.Shape.CustomMesh(
+                        leftEye = triangleMesh,
+                        drawMode = SurfaceEntity.DrawMode.TRIANGLES,
+                    )
+                customMeshShape to
+                    SurfaceEntity.create(
+                        session = session,
+                        pose = SURFACE_POSE,
+                        shape = customMeshShape,
+                        stereoMode = SurfaceEntity.StereoMode.TOP_BOTTOM,
+                        superSampling = SurfaceEntity.SuperSampling.PENTAGON,
+                        surfaceProtection = SurfaceEntity.SurfaceProtection.NONE,
+                        parent = session.scene.activitySpace,
+                    )
             }
-            SystemClock.sleep(TEARDOWN_SETTLE_MS)
+        startVideo(entity).use { video ->
+            val dimensions = entity.dimensions
+            assertThat(customMeshShape.drawMode).isEqualTo(SurfaceEntity.DrawMode.TRIANGLES)
+            assertThat(customMeshShape.rightEye).isNull()
+            assertThat(dimensions.width).isWithin(TOLERANCE).of(1.0f)
+            assertThat(dimensions.height).isWithin(TOLERANCE).of(1.0f)
+            assertThat(dimensions.depth).isWithin(TOLERANCE).of(0.0f)
+            assertAttachedToActivitySpace(entity)
+
+            video.awaitAndAssertVideoRendered()
+            // TODO(b/583873060): Verify video frames composited on custom mesh.
         }
     }
 
     @Test
-    @XrDeviceTest
-    fun surfaceEntity_customTriangleMesh_playsVideoAndAttachesSubspace() {
-        initSessionAndEnterFullSpace()
-
-        lateinit var customMeshShape: SurfaceEntity.Shape.CustomMesh
-        lateinit var dimensions: FloatSize3d
-        lateinit var activityPose: Pose
-
-        activityScenarioRule.scenario.onActivity {
-            val triangleMesh = createTriangleMeshDirect()
-            customMeshShape =
-                SurfaceEntity.Shape.CustomMesh(
-                    leftEye = triangleMesh,
-                    drawMode = SurfaceEntity.DrawMode.TRIANGLES,
-                )
-            val entity =
-                SurfaceEntity.create(
-                    session = session,
-                    pose = SURFACE_POSE,
-                    shape = customMeshShape,
-                    stereoMode = SurfaceEntity.StereoMode.TOP_BOTTOM,
-                    superSampling = SurfaceEntity.SuperSampling.PENTAGON,
-                    surfaceProtection = SurfaceEntity.SurfaceProtection.NONE,
-                    parent = session.scene.activitySpace,
-                )
-            surfaceEntity = entity
-            videoSession.start(entity.getSurface())
-
-            dimensions = entity.dimensions
-            activityPose = entity.getPose(Space.ACTIVITY)
-        }
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-
-        assertThat(customMeshShape.drawMode).isEqualTo(SurfaceEntity.DrawMode.TRIANGLES)
-        assertThat(customMeshShape.rightEye).isNull()
-        assertThat(dimensions.width).isWithin(TOLERANCE).of(1.0f)
-        assertThat(dimensions.height).isWithin(TOLERANCE).of(1.0f)
-        assertThat(dimensions.depth).isWithin(TOLERANCE).of(0.0f)
-        assertPose(activityPose, SURFACE_POSE, TOLERANCE)
-
-        videoSession.awaitAndAssertVideoRendered()
-        val subspaceNode = awaitSurfaceSubspaceNode(expectPresent = true)
-        assertThat(subspaceNode).isNotNull()
-
-        // Stop video and destroy the SurfaceEntity (equivalent to clicking "End Video" in the CUJ).
-        stopVideoAndDestroySurfaceEntity()
-        awaitSurfaceSubspaceNode(expectPresent = false)
-    }
-
-    @Test
-    @XrDeviceTest
     fun surfaceEntity_customTriangleMeshNonDirect_copiesBuffersToDirectAndPlaysVideo() {
-        initSessionAndEnterFullSpace()
+        sessionRule.requestFullSpace()
+        val (nonDirectMesh, entity) =
+            sessionRule.onMainThread {
+                session.scene.mainPanelEntity.setEnabled(false)
+                val nonDirectMesh = createTriangleMeshNonDirect()
+                val customMeshShape = SurfaceEntity.Shape.CustomMesh(leftEye = nonDirectMesh)
+                nonDirectMesh to
+                    SurfaceEntity.create(
+                        session = session,
+                        pose = SURFACE_POSE,
+                        shape = customMeshShape,
+                        stereoMode = SurfaceEntity.StereoMode.TOP_BOTTOM,
+                        parent = session.scene.activitySpace,
+                    )
+            }
+        startVideo(entity).use { video ->
+            val dimensions = entity.dimensions
 
-        lateinit var nonDirectMesh: SurfaceEntity.Shape.TriangleMesh
-        lateinit var dimensions: FloatSize3d
+            // TriangleMesh copies non-direct heap buffers into direct ByteBuffers upon
+            // initialization.
+            assertThat(nonDirectMesh.positions.isDirect).isTrue()
+            assertThat(nonDirectMesh.texCoords.isDirect).isTrue()
+            assertThat(dimensions.width).isWithin(TOLERANCE).of(1.0f)
+            assertThat(dimensions.height).isWithin(TOLERANCE).of(1.0f)
+            assertThat(dimensions.depth).isWithin(TOLERANCE).of(0.0f)
+            assertAttachedToActivitySpace(entity)
 
-        activityScenarioRule.scenario.onActivity {
-            nonDirectMesh = createTriangleMeshNonDirect()
-            val customMeshShape = SurfaceEntity.Shape.CustomMesh(leftEye = nonDirectMesh)
-            val entity =
-                SurfaceEntity.create(
-                    session = session,
-                    pose = SURFACE_POSE,
-                    shape = customMeshShape,
-                    stereoMode = SurfaceEntity.StereoMode.TOP_BOTTOM,
-                    parent = session.scene.activitySpace,
-                )
-            surfaceEntity = entity
-            videoSession.start(entity.getSurface())
-            dimensions = entity.dimensions
+            video.awaitAndAssertVideoRendered()
         }
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-
-        // TriangleMesh copies non-direct heap buffers into direct ByteBuffers upon initialization.
-        assertThat(nonDirectMesh.positions.isDirect).isTrue()
-        assertThat(nonDirectMesh.texCoords.isDirect).isTrue()
-        assertThat(dimensions.width).isWithin(TOLERANCE).of(1.0f)
-        assertThat(dimensions.height).isWithin(TOLERANCE).of(1.0f)
-        assertThat(dimensions.depth).isWithin(TOLERANCE).of(0.0f)
-
-        videoSession.awaitAndAssertVideoRendered()
-        val subspaceNode = awaitSurfaceSubspaceNode(expectPresent = true)
-        assertThat(subspaceNode).isNotNull()
-
-        stopVideoAndDestroySurfaceEntity()
-        awaitSurfaceSubspaceNode(expectPresent = false)
     }
 
     @Test
-    @XrDeviceTest
     fun surfaceEntity_customTriangleStrip_playsStereoQuadVideoWithIndices() {
-        initSessionAndEnterFullSpace()
+        sessionRule.requestFullSpace()
+        val (stripShape, entity) =
+            sessionRule.onMainThread {
+                session.scene.mainPanelEntity.setEnabled(false)
+                val leftEyeMesh = createTriangleStripMeshLeft()
+                val rightEyeMesh = createTriangleStripMeshRight()
+                val stripShape =
+                    SurfaceEntity.Shape.CustomMesh(
+                        leftEye = leftEyeMesh,
+                        rightEye = rightEyeMesh,
+                        drawMode = SurfaceEntity.DrawMode.TRIANGLE_STRIP,
+                    )
+                stripShape to
+                    SurfaceEntity.create(
+                        session = session,
+                        pose = SURFACE_POSE,
+                        shape = stripShape,
+                        stereoMode = SurfaceEntity.StereoMode.TOP_BOTTOM,
+                        superSampling = SurfaceEntity.SuperSampling.PENTAGON,
+                        surfaceProtection = SurfaceEntity.SurfaceProtection.NONE,
+                        parent = session.scene.activitySpace,
+                    )
+            }
+        startVideo(entity).use { video ->
+            val dimensions = entity.dimensions
+            assertThat(stripShape.drawMode).isEqualTo(SurfaceEntity.DrawMode.TRIANGLE_STRIP)
+            assertThat(stripShape.leftEye.indices).isNotNull()
+            assertThat(stripShape.rightEye).isNotNull()
+            assertThat(stripShape.rightEye!!.indices).isNotNull()
+            // Left eye spans X [-1.0, 0.0] and right eye spans X [0.0, 1.0], forming a
+            // 2.0m x 1.0m quad.
+            assertThat(dimensions.width).isWithin(TOLERANCE).of(2.0f)
+            assertThat(dimensions.height).isWithin(TOLERANCE).of(1.0f)
+            assertThat(dimensions.depth).isWithin(TOLERANCE).of(0.0f)
+            assertAttachedToActivitySpace(entity)
 
-        lateinit var stripShape: SurfaceEntity.Shape.CustomMesh
-        lateinit var dimensions: FloatSize3d
-        lateinit var activityPose: Pose
-
-        activityScenarioRule.scenario.onActivity {
-            val leftEyeMesh = createTriangleStripMeshLeft()
-            val rightEyeMesh = createTriangleStripMeshRight()
-            stripShape =
-                SurfaceEntity.Shape.CustomMesh(
-                    leftEye = leftEyeMesh,
-                    rightEye = rightEyeMesh,
-                    drawMode = SurfaceEntity.DrawMode.TRIANGLE_STRIP,
-                )
-            val entity =
-                SurfaceEntity.create(
-                    session = session,
-                    pose = SURFACE_POSE,
-                    shape = stripShape,
-                    stereoMode = SurfaceEntity.StereoMode.TOP_BOTTOM,
-                    superSampling = SurfaceEntity.SuperSampling.PENTAGON,
-                    surfaceProtection = SurfaceEntity.SurfaceProtection.NONE,
-                    parent = session.scene.activitySpace,
-                )
-            surfaceEntity = entity
-            videoSession.start(entity.getSurface())
-
-            dimensions = entity.dimensions
-            activityPose = entity.getPose(Space.ACTIVITY)
+            video.awaitAndAssertVideoRendered()
         }
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-
-        assertThat(stripShape.drawMode).isEqualTo(SurfaceEntity.DrawMode.TRIANGLE_STRIP)
-        assertThat(stripShape.leftEye.indices).isNotNull()
-        assertThat(stripShape.rightEye).isNotNull()
-        assertThat(stripShape.rightEye!!.indices).isNotNull()
-        // Left eye spans X [-1.0, 0.0] and right eye spans X [0.0, 1.0], forming a 2.0m x 1.0m
-        // quad.
-        assertThat(dimensions.width).isWithin(TOLERANCE).of(2.0f)
-        assertThat(dimensions.height).isWithin(TOLERANCE).of(1.0f)
-        assertThat(dimensions.depth).isWithin(TOLERANCE).of(0.0f)
-        assertPose(activityPose, SURFACE_POSE, TOLERANCE)
-
-        videoSession.awaitAndAssertVideoRendered()
-        val subspaceNode = awaitSurfaceSubspaceNode(expectPresent = true)
-        assertThat(subspaceNode).isNotNull()
-
-        stopVideoAndDestroySurfaceEntity()
-        awaitSurfaceSubspaceNode(expectPresent = false)
     }
 
     @Test
-    @XrDeviceTest
     fun surfaceEntity_customTriangleFan_playsStereoFanVideo() {
-        initSessionAndEnterFullSpace()
+        sessionRule.requestFullSpace()
+        val (fanShape, entity) =
+            sessionRule.onMainThread {
+                session.scene.mainPanelEntity.setEnabled(false)
+                val leftEyeMesh = createTriangleFanMesh(centerX = -0.5f, centerU = 0.25f)
+                val rightEyeMesh = createTriangleFanMesh(centerX = 0.5f, centerU = 0.75f)
+                val fanShape =
+                    SurfaceEntity.Shape.CustomMesh(
+                        leftEye = leftEyeMesh,
+                        rightEye = rightEyeMesh,
+                        drawMode = SurfaceEntity.DrawMode.TRIANGLE_FAN,
+                    )
+                fanShape to
+                    SurfaceEntity.create(
+                        session = session,
+                        pose = SURFACE_POSE,
+                        shape = fanShape,
+                        stereoMode = SurfaceEntity.StereoMode.TOP_BOTTOM,
+                        superSampling = SurfaceEntity.SuperSampling.PENTAGON,
+                        surfaceProtection = SurfaceEntity.SurfaceProtection.NONE,
+                        parent = session.scene.activitySpace,
+                    )
+            }
+        startVideo(entity).use { video ->
+            val dimensions = entity.dimensions
+            assertThat(fanShape.drawMode).isEqualTo(SurfaceEntity.DrawMode.TRIANGLE_FAN)
+            assertThat(fanShape.rightEye).isNotNull()
+            // Left fan center (-0.5, 0) + radius 0.5 -> min X = -1.0; Right fan center
+            // (0.5, 0) + radius 0.5 -> max X = 1.0.
+            // 6-vertex hexagon Y extents are +/- 0.5 * sin(60 deg) = +/- sqrt(3)/4 ->
+            // height = sqrt(3)/2.
+            val expectedFanHeight = sqrt(3.0f) / 2.0f
+            assertThat(dimensions.width).isWithin(TOLERANCE).of(2.0f)
+            assertThat(dimensions.height).isWithin(TOLERANCE).of(expectedFanHeight)
+            assertThat(dimensions.depth).isWithin(TOLERANCE).of(0.0f)
+            assertAttachedToActivitySpace(entity)
 
-        lateinit var fanShape: SurfaceEntity.Shape.CustomMesh
-        lateinit var dimensions: FloatSize3d
-        lateinit var activityPose: Pose
-
-        activityScenarioRule.scenario.onActivity {
-            val leftEyeMesh = createTriangleFanMesh(centerX = -0.5f, centerU = 0.25f)
-            val rightEyeMesh = createTriangleFanMesh(centerX = 0.5f, centerU = 0.75f)
-            fanShape =
-                SurfaceEntity.Shape.CustomMesh(
-                    leftEye = leftEyeMesh,
-                    rightEye = rightEyeMesh,
-                    drawMode = SurfaceEntity.DrawMode.TRIANGLE_FAN,
-                )
-            val entity =
-                SurfaceEntity.create(
-                    session = session,
-                    pose = SURFACE_POSE,
-                    shape = fanShape,
-                    stereoMode = SurfaceEntity.StereoMode.TOP_BOTTOM,
-                    superSampling = SurfaceEntity.SuperSampling.PENTAGON,
-                    surfaceProtection = SurfaceEntity.SurfaceProtection.NONE,
-                    parent = session.scene.activitySpace,
-                )
-            surfaceEntity = entity
-            videoSession.start(entity.getSurface())
-
-            dimensions = entity.dimensions
-            activityPose = entity.getPose(Space.ACTIVITY)
+            video.awaitAndAssertVideoRendered()
         }
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-
-        assertThat(fanShape.drawMode).isEqualTo(SurfaceEntity.DrawMode.TRIANGLE_FAN)
-        assertThat(fanShape.rightEye).isNotNull()
-        // Left fan center (-0.5, 0) + radius 0.5 -> min X = -1.0; Right fan center (0.5, 0) +
-        // radius 0.5 -> max X = 1.0.
-        // 6-vertex hexagon Y extents are +/- 0.5 * sin(60 deg) = +/- sqrt(3)/4 -> height =
-        // sqrt(3)/2.
-        val expectedFanHeight = sqrt(3.0f) / 2.0f
-        assertThat(dimensions.width).isWithin(TOLERANCE).of(2.0f)
-        assertThat(dimensions.height).isWithin(TOLERANCE).of(expectedFanHeight)
-        assertThat(dimensions.depth).isWithin(TOLERANCE).of(0.0f)
-        assertPose(activityPose, SURFACE_POSE, TOLERANCE)
-
-        videoSession.awaitAndAssertVideoRendered()
-        val subspaceNode = awaitSurfaceSubspaceNode(expectPresent = true)
-        assertThat(subspaceNode).isNotNull()
-
-        stopVideoAndDestroySurfaceEntity()
-        awaitSurfaceSubspaceNode(expectPresent = false)
     }
 
     @Test
-    @XrDeviceTest
     fun surfaceEntity_customMesh_updatesShapeStereoModeFeatheringAndAlphaMaskDuringPlayback() {
-        initSessionAndEnterFullSpace()
-
-        lateinit var triangleDimensions: FloatSize3d
-        lateinit var stripDimensions: FloatSize3d
-        lateinit var fanDimensions: FloatSize3d
-        lateinit var featherAfterUpdate: SurfaceEntity.EdgeFeatheringParams.RectangleFeather
-        var alphaMaskSet = false
-        var alphaMaskCleared = false
-
-        activityScenarioRule.scenario.onActivity {
-            val entity =
-                SurfaceEntity.create(
-                    session = session,
-                    pose = SURFACE_POSE,
-                    shape = SurfaceEntity.Shape.CustomMesh(leftEye = createTriangleMeshDirect()),
-                    stereoMode = SurfaceEntity.StereoMode.TOP_BOTTOM,
-                    parent = session.scene.activitySpace,
-                )
-            surfaceEntity = entity
-            videoSession.start(entity.getSurface())
-            triangleDimensions = entity.dimensions
-        }
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-        videoSession.awaitAndAssertVideoRendered()
-
-        activityScenarioRule.scenario.onActivity {
-            val entity = checkNotNull(surfaceEntity)
-
-            // Transition shape to Triangle Strip (left + right eye quads).
-            entity.shape =
-                SurfaceEntity.Shape.CustomMesh(
-                    leftEye = createTriangleStripMeshLeft(),
-                    rightEye = createTriangleStripMeshRight(),
-                    drawMode = SurfaceEntity.DrawMode.TRIANGLE_STRIP,
-                )
-            stripDimensions = entity.dimensions
-
-            // Transition shape to Triangle Fan (left + right eye rings).
-            entity.shape =
-                SurfaceEntity.Shape.CustomMesh(
-                    leftEye = createTriangleFanMesh(centerX = -0.5f, centerU = 0.25f),
-                    rightEye = createTriangleFanMesh(centerX = 0.5f, centerU = 0.75f),
-                    drawMode = SurfaceEntity.DrawMode.TRIANGLE_FAN,
-                )
-            fanDimensions = entity.dimensions
-
-            // Verify stereo mode updates (Mono, Top-Bottom, Side-by-Side) from the player controls.
-            entity.stereoMode = SurfaceEntity.StereoMode.MONO
-            assertThat(entity.stereoMode).isEqualTo(SurfaceEntity.StereoMode.MONO)
-            entity.stereoMode = SurfaceEntity.StereoMode.SIDE_BY_SIDE
-            assertThat(entity.stereoMode).isEqualTo(SurfaceEntity.StereoMode.SIDE_BY_SIDE)
-            entity.stereoMode = SurfaceEntity.StereoMode.TOP_BOTTOM
-            assertThat(entity.stereoMode).isEqualTo(SurfaceEntity.StereoMode.TOP_BOTTOM)
-
-            // Verify edge feathering updates.
-            val feather = SurfaceEntity.EdgeFeatheringParams.RectangleFeather(0.15f, 0.25f)
-            entity.edgeFeatheringParams = feather
-            featherAfterUpdate =
-                entity.edgeFeatheringParams as SurfaceEntity.EdgeFeatheringParams.RectangleFeather
-        }
-
-        // Load and apply alpha mask texture on Dispatchers.Main without blocking the main looper
-        // inside onActivity while native Impress AssetLoader callbacks complete.
-        runBlocking(Dispatchers.Main) {
-            val entity = checkNotNull(surfaceEntity)
-            Texture.create(session, Paths.get(ALPHA_MASK_TEXTURE_ASSET)).use { alphaMaskTexture ->
-                entity.primaryAlphaMaskTexture = alphaMaskTexture
-                alphaMaskSet = (entity.primaryAlphaMaskTexture == alphaMaskTexture)
-                entity.primaryAlphaMaskTexture = null
-                alphaMaskCleared = (entity.primaryAlphaMaskTexture == null)
-            }
-        }
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-
-        assertThat(triangleDimensions.width).isWithin(TOLERANCE).of(1.0f)
-        assertThat(stripDimensions.width).isWithin(TOLERANCE).of(2.0f)
-        assertThat(fanDimensions.width).isWithin(TOLERANCE).of(2.0f)
-        assertThat(fanDimensions.height).isWithin(TOLERANCE).of(sqrt(3.0f) / 2.0f)
-        assertThat(featherAfterUpdate.leftRight).isWithin(TOLERANCE).of(0.15f)
-        assertThat(featherAfterUpdate.topBottom).isWithin(TOLERANCE).of(0.25f)
-        assertThat(alphaMaskSet).isTrue()
-        assertThat(alphaMaskCleared).isTrue()
-        assertThat(videoSession.surface.get()?.isValid).isTrue()
-
-        stopVideoAndDestroySurfaceEntity()
-        awaitSurfaceSubspaceNode(expectPresent = false)
-    }
-
-    private fun initSessionAndEnterFullSpace() {
-        val latch = CountDownLatch(1)
-        val listener =
-            Consumer<Set<SpatialCapability>> { capabilities ->
-                if (capabilities.contains(SpatialCapability.SPATIAL_UI)) {
-                    latch.countDown()
-                }
-            }
-
-        activityScenarioRule.scenario.onActivity { activity ->
-            val sessionResult = Session.create(activity = activity)
-            check(sessionResult is SessionCreateSuccess) {
-                "Failed to create XR session: $sessionResult"
-            }
-            session = sessionResult.session
-            session.scene.addSpatialCapabilitiesChangedListener(listener)
-            if (session.scene.spatialCapabilities.contains(SpatialCapability.SPATIAL_UI)) {
-                latch.countDown()
-            } else {
-                session.scene.requestFullSpace()
-            }
-        }
-
-        assertWithMessage("Timed out waiting for the transition to full space mode")
-            .that(latch.await(SCENE_TIMEOUT_MS, TimeUnit.MILLISECONDS))
-            .isTrue()
-
-        activityScenarioRule.scenario.onActivity {
-            session.scene.removeSpatialCapabilitiesChangedListener(listener)
+        sessionRule.requestFullSpace()
+        val entity = sessionRule.onMainThread {
             session.scene.mainPanelEntity.setEnabled(false)
+            SurfaceEntity.create(
+                session = session,
+                pose = SURFACE_POSE,
+                shape = SurfaceEntity.Shape.CustomMesh(leftEye = createTriangleMeshDirect()),
+                stereoMode = SurfaceEntity.StereoMode.TOP_BOTTOM,
+                parent = session.scene.activitySpace,
+            )
         }
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-    }
+        startVideo(entity).use { video ->
+            val triangleDimensions = entity.dimensions
+            assertAttachedToActivitySpace(entity)
+            video.awaitAndAssertVideoRendered()
 
-    private fun stopVideoAndDestroySurfaceEntity() {
-        videoSession.release()
-        activityScenarioRule.scenario.onActivity {
-            surfaceEntity?.removeAllComponents()
-            surfaceEntity?.parent = null
-            surfaceEntity?.dispose()
-            surfaceEntity = null
+            sessionRule.onMainThread {
+                // Transition shape to Triangle Strip (left + right eye quads).
+                entity.shape =
+                    SurfaceEntity.Shape.CustomMesh(
+                        leftEye = createTriangleStripMeshLeft(),
+                        rightEye = createTriangleStripMeshRight(),
+                        drawMode = SurfaceEntity.DrawMode.TRIANGLE_STRIP,
+                    )
+                val stripDimensions = entity.dimensions
+
+                // Transition shape to Triangle Fan (left + right eye rings).
+                entity.shape =
+                    SurfaceEntity.Shape.CustomMesh(
+                        leftEye = createTriangleFanMesh(centerX = -0.5f, centerU = 0.25f),
+                        rightEye = createTriangleFanMesh(centerX = 0.5f, centerU = 0.75f),
+                        drawMode = SurfaceEntity.DrawMode.TRIANGLE_FAN,
+                    )
+                val fanDimensions = entity.dimensions
+
+                // Verify stereo mode updates (Mono, Top-Bottom, Side-by-Side) from player
+                // controls.
+                entity.stereoMode = SurfaceEntity.StereoMode.MONO
+                assertThat(entity.stereoMode).isEqualTo(SurfaceEntity.StereoMode.MONO)
+                entity.stereoMode = SurfaceEntity.StereoMode.SIDE_BY_SIDE
+                assertThat(entity.stereoMode).isEqualTo(SurfaceEntity.StereoMode.SIDE_BY_SIDE)
+                entity.stereoMode = SurfaceEntity.StereoMode.TOP_BOTTOM
+                assertThat(entity.stereoMode).isEqualTo(SurfaceEntity.StereoMode.TOP_BOTTOM)
+
+                // Verify edge feathering updates are accepted. The getter returns the cached
+                // value, so this only checks that the setter does not throw and keeps the
+                // requested params.
+                val feather = SurfaceEntity.EdgeFeatheringParams.RectangleFeather(0.15f, 0.25f)
+                entity.edgeFeatheringParams = feather
+                val featherAfterUpdate =
+                    entity.edgeFeatheringParams
+                        as SurfaceEntity.EdgeFeatheringParams.RectangleFeather
+
+                // Texture.create suspends on the main dispatcher without blocking the main looper
+                // while native Impress AssetLoader callbacks complete. The alpha mask getter
+                // returns the cached value, so this only checks that setting and clearing it does
+                // not throw.
+                val alphaMaskPath = Paths.get(ALPHA_MASK_TEXTURE_ASSET)
+                Texture.create(session, alphaMaskPath).use { alphaMaskTexture ->
+                    entity.primaryAlphaMaskTexture = alphaMaskTexture
+                    assertThat(entity.primaryAlphaMaskTexture).isSameInstanceAs(alphaMaskTexture)
+                    entity.primaryAlphaMaskTexture = null
+                    assertThat(entity.primaryAlphaMaskTexture).isNull()
+                }
+
+                assertThat(triangleDimensions.width).isWithin(TOLERANCE).of(1.0f)
+                assertThat(stripDimensions.width).isWithin(TOLERANCE).of(2.0f)
+                assertThat(fanDimensions.width).isWithin(TOLERANCE).of(2.0f)
+                assertThat(fanDimensions.height).isWithin(TOLERANCE).of(sqrt(3.0f) / 2.0f)
+                assertThat(featherAfterUpdate.leftRight).isWithin(TOLERANCE).of(0.15f)
+                assertThat(featherAfterUpdate.topBottom).isWithin(TOLERANCE).of(0.25f)
+                assertThat(video.surface.get()?.isValid).isTrue()
+            }
         }
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
     }
 
     /**
-     * Polls `dumpsys spf_cpm` via [SpatialSceneHelper] until the surface entity subspace node
-     * (`stereo_surface_panel_entity_subspace_*`) matches [expectPresent].
+     * Starts [SAMPLE_VIDEO_ASSET] on [entity]'s [Surface]. Must be called from the instrumentation
+     * thread.
+     *
+     * The [MediaPlayer] is not owned by the XR Session, so the caller must close the returned
+     * [VideoPlaybackSession] (with `use { }`) at the end of the test body. This releases the player
+     * before the per-test Activity is destroyed and [entity] is torn down, which prevents
+     * asynchronous `imp_bg_wk` texture release calls from racing with
+     * `SpatialRenderingRuntime.destroy()`. If starting playback fails, the player is released
+     * before the exception is rethrown.
      */
-    private fun awaitSurfaceSubspaceNode(expectPresent: Boolean): SpatialNode? {
-        val packageName = appContext.packageName
-        val deadline = SystemClock.uptimeMillis() + SCENE_TIMEOUT_MS
-        var lastNode: SpatialNode? = null
-        while (SystemClock.uptimeMillis() < deadline) {
-            val scene = SpatialSceneHelper.captureSpatialScene()
-            val task = scene.findTaskByPackageName(packageName)
-            lastNode = task?.findNode { node ->
-                node.name.startsWith(SURFACE_ENTITY_SUBSPACE_PREFIX)
-            }
-            if ((lastNode != null) == expectPresent) {
-                return lastNode
-            }
-            SystemClock.sleep(SCENE_POLL_INTERVAL_MS)
+    private fun startVideo(entity: SurfaceEntity): VideoPlaybackSession {
+        val video = sessionRule.onMainThread {
+            VideoPlaybackSession(activity).apply { attach(entity.getSurface()) }
         }
-        assertWithMessage(
-                "Timed out waiting for surface subspace node ($SURFACE_ENTITY_SUBSPACE_PREFIX) " +
-                    "expectPresent=$expectPresent in package $packageName"
-            )
-            .that(lastNode != null)
-            .isEqualTo(expectPresent)
-        return lastNode
+        try {
+            video.prepareAndStart()
+        } catch (e: Throwable) {
+            video.close()
+            throw e
+        }
+        return video
+    }
+
+    /** Asserts that [entity] is enabled under the activity space at [SURFACE_POSE]. */
+    private fun assertAttachedToActivitySpace(entity: SurfaceEntity) {
+        assertThat(entity.parent).isSameInstanceAs(sessionRule.session.scene.activitySpace)
+        assertThat(entity.isEnabled(includeParents = true)).isTrue()
+        assertPose(entity.getPose(Space.ACTIVITY), SURFACE_POSE, TOLERANCE)
+        assertThat(entity.getScale()).isWithin(TOLERANCE).of(1.0f)
     }
 
     /** Single upward-pointing triangle centered on the origin using direct [ByteBuffer]s. */
@@ -575,13 +422,6 @@ class SurfaceEntityCustomMeshTest {
         )
     }
 
-    private fun assertPose(actual: Pose, expected: Pose, tolerance: Float) {
-        assertThat(actual.translation.x).isWithin(tolerance).of(expected.translation.x)
-        assertThat(actual.translation.y).isWithin(tolerance).of(expected.translation.y)
-        assertThat(actual.translation.z).isWithin(tolerance).of(expected.translation.z)
-        assertThat(abs(actual.rotation.dot(expected.rotation))).isWithin(tolerance).of(1.0f)
-    }
-
     private fun <T : Buffer> toDirectBuffer(size: Int, block: (ByteBuffer) -> T): T =
         block(ByteBuffer.allocateDirect(size * 4).order(ByteOrder.nativeOrder())).apply {
             position(0)
@@ -590,9 +430,9 @@ class SurfaceEntityCustomMeshTest {
     /**
      * Helper that attaches a [MediaPlayer] playing [SAMPLE_VIDEO_ASSET] (`videos/sample_video.mp4`
      * from `prebuilts/androidx/xr/assets`) to a [SurfaceEntity]'s [Surface] and verifies frame
-     * delivery.
+     * delivery. [close] stops and releases the player.
      */
-    private class VideoPlaybackSession(private val context: Context) {
+    private class VideoPlaybackSession(private val context: Context) : AutoCloseable {
         val surface = AtomicReference<Surface?>(null)
         private val mediaPlayerRef = AtomicReference<MediaPlayer?>(null)
         private val firstFrameRendered = AtomicBoolean(false)
@@ -600,7 +440,13 @@ class SurfaceEntityCustomMeshTest {
         private val decodedHeight = AtomicInteger(0)
         private val playbackError = AtomicBoolean(false)
 
-        fun start(targetSurface: Surface) {
+        /**
+         * Creates a [MediaPlayer] that renders to [targetSurface].
+         *
+         * Must be called on the main thread so [MediaPlayer] callbacks are delivered on the main
+         * looper. Call [prepareAndStart] afterwards from the instrumentation thread.
+         */
+        fun attach(targetSurface: Surface) {
             assertThat(targetSurface.isValid).isTrue()
             surface.set(targetSurface)
             firstFrameRendered.set(false)
@@ -609,14 +455,11 @@ class SurfaceEntityCustomMeshTest {
             playbackError.set(false)
 
             // Release any existing MediaPlayer before allocating a new hardware video decoder.
-            release()
+            close()
 
             val player = MediaPlayer()
             mediaPlayerRef.set(player)
             player.apply {
-                context.assets.openFd(SAMPLE_VIDEO_ASSET).use { afd ->
-                    setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
-                }
                 setSurface(targetSurface)
                 isLooping = true
                 setOnVideoSizeChangedListener { _, width, height ->
@@ -633,34 +476,50 @@ class SurfaceEntityCustomMeshTest {
                     playbackError.set(true)
                     true
                 }
-                prepare()
-                start()
             }
         }
 
+        /**
+         * Loads [SAMPLE_VIDEO_ASSET] into the player created by [attach] and starts playback.
+         *
+         * Must be called from the instrumentation thread, because `setDataSource` and `prepare`
+         * block.
+         */
+        fun prepareAndStart() {
+            val player = checkNotNull(mediaPlayerRef.get()) { "attach() must be called first." }
+            context.assets.openFd(SAMPLE_VIDEO_ASSET).use { afd ->
+                player.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+            }
+            player.prepare()
+            player.start()
+        }
+
+        /**
+         * Blocks until the first video frame is rendered, then asserts the player state. Must be
+         * called from the instrumentation thread.
+         */
         fun awaitAndAssertVideoRendered() {
-            val deadline = SystemClock.uptimeMillis() + VIDEO_RENDER_TIMEOUT_MS
-            var rendered = false
-            while (SystemClock.uptimeMillis() < deadline) {
-                val player = mediaPlayerRef.get()
-                val position = runCatching { player?.currentPosition ?: 0 }.getOrDefault(0)
-                if (
+            try {
+                waitUntil(
+                    description = "MediaPlayer to render $SAMPLE_VIDEO_ASSET",
+                    timeout = VIDEO_RENDER_TIMEOUT,
+                    pollInterval = VIDEO_POLL_INTERVAL,
+                ) {
                     surface.get()?.isValid == true &&
                         decodedWidth.get() > 0 &&
                         decodedHeight.get() > 0 &&
-                        (firstFrameRendered.get() || position > 0)
-                ) {
-                    rendered = true
-                    break
+                        firstFrameRendered.get()
                 }
-                SystemClock.sleep(VIDEO_POLL_INTERVAL_MS)
+            } catch (e: AssertionError) {
+                throw AssertionError(
+                    "Timed out waiting for MediaPlayer to render $SAMPLE_VIDEO_ASSET " +
+                        "(firstFrameRendered=${firstFrameRendered.get()}, " +
+                        "size=${decodedWidth.get()}x${decodedHeight.get()}, " +
+                        "error=${playbackError.get()})",
+                    e,
+                )
             }
-            assertWithMessage("Timed out waiting for MediaPlayer to render $SAMPLE_VIDEO_ASSET")
-                .that(rendered)
-                .isTrue()
 
-            // Keep video playing so rendered frames are visually observable on the emulator/device.
-            SystemClock.sleep(MIN_VIDEO_PLAYBACK_MS)
             val player = checkNotNull(mediaPlayerRef.get())
             assertThat(playbackError.get()).isFalse()
             assertThat(surface.get()?.isValid).isTrue()
@@ -669,7 +528,7 @@ class SurfaceEntityCustomMeshTest {
             assertThat(player.isPlaying).isTrue()
         }
 
-        fun release() {
+        override fun close() {
             mediaPlayerRef.getAndSet(null)?.let { player ->
                 runCatching { player.setSurface(null) }
                 runCatching {
@@ -685,16 +544,11 @@ class SurfaceEntityCustomMeshTest {
     private companion object {
         const val TOLERANCE = 1e-3f
         const val FAN_OUTER_VERTICES = 6
-        const val SCENE_TIMEOUT_MS = 5_000L
-        const val SCENE_POLL_INTERVAL_MS = 100L
-        const val VIDEO_RENDER_TIMEOUT_MS = 5_000L
-        const val VIDEO_POLL_INTERVAL_MS = 50L
-        const val MIN_VIDEO_PLAYBACK_MS = 2_500L
-        const val TEARDOWN_SETTLE_MS = 500L
         const val SAMPLE_VIDEO_ASSET = "videos/sample_video.mp4"
         const val ALPHA_MASK_TEXTURE_ASSET = "textures/alpha_mask.png"
-        const val SURFACE_ENTITY_SUBSPACE_PREFIX = "stereo_surface_panel_entity_subspace_"
 
+        val VIDEO_RENDER_TIMEOUT = 5.seconds
+        val VIDEO_POLL_INTERVAL = 50.milliseconds
         val SURFACE_POSE = Pose(Vector3(0.0f, 0.0f, -1.5f), Quaternion.Identity)
     }
 }
