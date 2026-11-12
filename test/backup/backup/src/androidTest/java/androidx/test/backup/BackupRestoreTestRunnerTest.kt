@@ -77,7 +77,6 @@ public class BackupRestoreTestRunnerTest {
         assertFalse(result.has("payloadJson"))
     }
 
-    /** The host reads this message to tell that the device library predates an action. */
     @Test
     public fun reportsAnActionClassThatCannotBeLoaded() {
         val result = runWith("actionClass" to "com.example.MissingAction")

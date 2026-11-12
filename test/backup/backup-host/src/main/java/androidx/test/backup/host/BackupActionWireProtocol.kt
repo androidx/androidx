@@ -24,10 +24,6 @@ import java.util.UUID
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.addJsonObject
-import kotlinx.serialization.json.buildJsonArray
-import kotlinx.serialization.json.put
-import kotlinx.serialization.json.putJsonObject
 
 /**
  * Mirrors `androidx.test.backup.BackupActionInputKeys` for the host.
@@ -194,64 +190,6 @@ internal object BackupActionWireProtocol {
                 BackupRestoreController.ACTION_ASSERT_STORAGE to absenceArgs(storage.domain)
             else -> BackupRestoreController.ACTION_ASSERT_STORAGE to assertArgs(storage)
         }
-
-    /**
-     * Returns [storages] split, in their order, into the domains whose device actions run in one
-     * run of the runner each: consecutive domains with built-in actions together, and every
-     * [StorageDomain.CustomData] on its own.
-     */
-    fun deviceRuns(storages: List<StorageDomain>): List<List<StorageDomain>> =
-        buildList<MutableList<StorageDomain>> {
-            for (storage in storages) {
-                val run = lastOrNull()
-                if (
-                    run == null ||
-                        storage is StorageDomain.CustomData ||
-                        run.last() is StorageDomain.CustomData
-                ) {
-                    add(mutableListOf(storage))
-                } else {
-                    run += storage
-                }
-            }
-        }
-
-    /**
-     * Returns the class name and the arguments of the device action that runs [calls], the class
-     * names and arguments of built-in storage actions, in order in one run of the runner.
-     */
-    fun storageBatchCall(
-        calls: List<Pair<String, Map<String, String>>>
-    ): Pair<String, Map<String, String>> =
-        STORAGE_BATCH_ACTION to
-            mapOf(
-                BATCH_CALLS to
-                    buildJsonArray {
-                        for ((actionClassName, args) in calls) {
-                            addJsonObject {
-                                put(BATCH_CALL_ACTION, actionClassName)
-                                putJsonObject(BATCH_CALL_ARGS) {
-                                    for ((key, value) in args) put(key, value)
-                                }
-                            }
-                        }
-                    }
-                        .toString()
-            )
-
-    /**
-     * Returns the index of the call that failed in the action of [storageBatchCall], given its
-     * [failure], or null if the failure names no call.
-     */
-    fun failedBatchCall(failure: BackupActionResult.Failure): Int? =
-        failure.data[BATCH_FAILED_CALL]?.toIntOrNull()
-
-    /**
-     * Returns whether [failure] of the action of [storageBatchCall] is the one that the runner
-     * reports for an action that its device library doesn't have.
-     */
-    fun isStorageBatchMissing(failure: BackupActionResult.Failure): Boolean =
-        failure.errorMessage.contains("Could not load class $STORAGE_BATCH_ACTION")
 
     /**
      * Returns the `PopulateStorageAction` arguments that write [storage] on the device.
@@ -441,15 +379,6 @@ internal object BackupActionWireProtocol {
     private const val RUNNER_REDIRECT_DIR = "redirect_dir"
     val RUNNER_KEYS: Set<String> =
         setOf(RUNNER_DEBUG, RUNNER_ACTION_CLASS, RUNNER_ARGS_FILE, RUNNER_REDIRECT_DIR)
-
-    // Mirrors `androidx.test.backup.actions.StorageBatchAction`: its class name, the argument that
-    // holds its calls, the members of a call, and the result key that holds the index of the call
-    // that failed.
-    private const val STORAGE_BATCH_ACTION = "androidx.test.backup.actions.StorageBatchAction"
-    private const val BATCH_CALLS = "calls"
-    private const val BATCH_CALL_ACTION = "action"
-    private const val BATCH_CALL_ARGS = "args"
-    private const val BATCH_FAILED_CALL = "failed_call"
 
     /** Device directory for the files that the host pushes for the runner. */
     private const val DEVICE_TEMP_DIR = "/data/local/tmp"

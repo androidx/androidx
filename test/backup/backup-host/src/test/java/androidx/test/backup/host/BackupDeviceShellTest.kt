@@ -31,7 +31,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
@@ -39,8 +38,6 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
-import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.yield
 import org.junit.Rule
 import org.junit.Test
@@ -87,63 +84,6 @@ class BackupDeviceShellTest {
         assertEquals("out", output.stdout)
         assertEquals("err", output.stderr)
         assertEquals(3, output.exitCode)
-    }
-
-    /** Some tools take their time to exit after their last line, which tells all there is. */
-    @Test
-    fun execWithALastLineReturnsOnThatLineWithoutWaitingForTheCommandToExit() = runBlocking {
-        device.onShell {
-            shellOutput(stdout = "Running\nResult: 1\nBye\n", stderr = "warning\n")
-        }
-        device.lingerOn { true }
-
-        val output = withTimeout(10.seconds) { shell.exec("tool", Regex("Result: \\d")) }
-
-        assertEquals(listOf("tool"), device.commands)
-        assertEquals("Running\nResult: 1", output.stdout)
-        assertEquals("warning", output.stderr)
-        assertEquals(0, output.exitCode)
-        assertEquals(emptyList(), device.runningCommands)
-    }
-
-    @Test
-    fun execWithALastLineReturnsTheWholeOutputOfACommandThatExitsWithoutThatLine() = runBlocking {
-        for (expected in
-            listOf(
-                shellOutput(stdout = "Running\nError\n", stderr = "warning\n", exitCode = 3),
-                shellOutput(stdout = "Running\nError", stderr = "warning"),
-                shellOutput(),
-            )) {
-            device.onShell { expected }
-
-            val output = shell.exec("tool", Regex("Result: \\d"))
-
-            assertEquals(expected.stdout, output.stdout)
-            assertEquals(expected.stderr, output.stderr)
-            assertEquals(expected.exitCode, output.exitCode)
-        }
-    }
-
-    @Test
-    fun execWithALastLineGoesOnAfterALineThatOnlyHoldsAMatch() = runBlocking {
-        device.onShell { shellOutput("not done\ndone, almost\ndone\nBye\n") }
-
-        val output = shell.exec("tool", Regex("done"))
-
-        assertEquals("not done\ndone, almost\ndone", output.stdout)
-    }
-
-    /** A caller that stops waiting, such as on a timeout, must not leave the command running. */
-    @Test
-    fun execWithALastLineEndsTheCommandWhenItIsCancelled() = runBlocking {
-        device.onShell { shellOutput("Running\n") }
-        device.lingerOn { true }
-
-        val output = withTimeoutOrNull(100.milliseconds) { shell.exec("tool", Regex("Result")) }
-
-        assertNull(output)
-        assertEquals(listOf("tool"), device.commands)
-        assertEquals(emptyList(), device.runningCommands)
     }
 
     @Test
@@ -619,98 +559,6 @@ class BackupDeviceShellTest {
     }
 
     @Test
-    fun backupManagerStateTellsWhetherBackupIsEnabledAndTheSelectedTransport() = runBlocking {
-        device.onShell { shellOutput(backupDump(enabled = true, GMS_TRANSPORT)) }
-        assertEquals(
-            BackupDeviceShell.BackupManagerState(isEnabled = true, GMS_TRANSPORT),
-            shell.backupManagerState(),
-        )
-
-        device.onShell { shellOutput(backupDump(enabled = false, LOCAL_TRANSPORT)) }
-        assertEquals(
-            BackupDeviceShell.BackupManagerState(isEnabled = false, LOCAL_TRANSPORT),
-            shell.backupManagerState(),
-        )
-        assertEquals(listOf("dumpsys backup", "dumpsys backup"), device.commands)
-    }
-
-    @Test
-    fun backupManagerStateReadsTheDumpOfEverySupportedAndroidVersion() = runBlocking {
-        val android14 = backupDump(enabled = true, GMS_TRANSPORT)
-        val dumps =
-            listOf(
-                // Android 12 and 13 don't tell whether the framework schedules backups.
-                android14.replace("Framework scheduling is enabled\n", ""),
-                android14,
-                // Android 14 QPR3 and higher end the state of a user with its monitor events.
-                android14 + "NO BACKUP MANAGER MONITOR EVENTS\n",
-            )
-        for (dump in dumps) {
-            device.onShell { shellOutput(dump) }
-
-            assertEquals(
-                BackupDeviceShell.BackupManagerState(isEnabled = true, GMS_TRANSPORT),
-                shell.backupManagerState(),
-                dump,
-            )
-        }
-    }
-
-    /** The state of user 0 comes first, and the lines of other users start with `User <id>:`. */
-    @Test
-    fun backupManagerStateIsTheOneOfUser0() = runBlocking {
-        val user10 = forUser10(backupDump(enabled = false, LOCAL_TRANSPORT))
-
-        device.onShell { shellOutput(backupDump(enabled = true, GMS_TRANSPORT) + user10) }
-        assertEquals(
-            BackupDeviceShell.BackupManagerState(isEnabled = true, GMS_TRANSPORT),
-            shell.backupManagerState(),
-        )
-
-        device.onShell {
-            shellOutput(backupDump(enabled = true, selectedTransport = null) + user10)
-        }
-        assertNull(shell.backupManagerState())
-    }
-
-    @Test
-    fun backupManagerStateIsNullForADumpThatDoesNotReadAsExpected() = runBlocking {
-        val dump = backupDump(enabled = true, GMS_TRANSPORT)
-        val noneSelected = backupDump(enabled = true, selectedTransport = null)
-        val unexpected =
-            listOf(
-                "",
-                "Can't find service: backup\n",
-                // Backup is not active.
-                "Inactive\n",
-                // No state of user 0.
-                forUser10(dump),
-                // Not a state that is known.
-                dump.replace("Backup Manager is enabled", "Backup Manager is paused"),
-                // Another line before the state.
-                "\n" + dump,
-                // No transports.
-                dump.replace("Available transports:", "Transports:"),
-                // Only the transports of another user.
-                dump.replace("Available transports:", "Transports:") + forUser10(dump),
-                noneSelected,
-                // A transport that is marked, but not among the available transports.
-                noneSelected.replace(
-                    "    $GMS_TRANSPORT\nAvailable",
-                    "  * $GMS_TRANSPORT\nAvailable",
-                ),
-                noneSelected.replace("Pending init: 0\n", "Pending init: 1\n  * $GMS_TRANSPORT\n"),
-                // A selected transport whose name is not one word.
-                dump.replace("  * $GMS_TRANSPORT", "  * Google Play services"),
-            )
-        for (output in unexpected) {
-            device.onShell { shellOutput(output) }
-
-            assertNull(shell.backupManagerState(), output)
-        }
-    }
-
-    @Test
     fun clearPackageDataSucceedsWhenPmClearReportsSuccess() = runBlocking {
         device.onShell { shellOutput("Success\n") }
 
@@ -1139,19 +987,6 @@ class BackupDeviceShellTest {
             stringExtras = emptyMap(),
         )
     }
-
-    /**
-     * Returns [dump], which `dumpsys backup` prints for user 0, as it prints the state of user 10.
-     */
-    private fun forUser10(dump: String): String =
-        dump.replace(
-            Regex(
-                "(?m)^(?=Backup Manager is |Transport whitelist:|Available transports:|" +
-                    "Pending |Ancestral|Current: |Participants:|Ever backed up: |" +
-                    "Full backup queue:)"
-            ),
-            "User 10:",
-        )
 
     /**
      * Returns a shell handler for a device with `pm unstop`, whose `dumpsys package` prints

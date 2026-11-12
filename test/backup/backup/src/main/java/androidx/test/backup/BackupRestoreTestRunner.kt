@@ -118,7 +118,7 @@ public class BackupRestoreTestRunner : Instrumentation() {
         private const val MAX_RESULT_CHARS_PER_TRANSACTION = 64 * 1024
 
         /** The maximum length of an error message or a stack trace in a result (50 KB). */
-        internal const val MAX_TEXT_LENGTH_CHARS = 50 * 1024
+        private const val MAX_TEXT_LENGTH_CHARS = 50 * 1024
 
         /**
          * Returns the content of the device file at [path], read as the shell user through the
@@ -193,7 +193,7 @@ public class BackupRestoreTestRunner : Instrumentation() {
             val actionArgs =
                 if (argsFile != null) {
                     try {
-                        argsOf(JSONObject(readFile(argsFile)))
+                        parseArgsFile(readFile(argsFile))
                     } catch (e: Exception) {
                         return outcome(
                             isSuccess = false,
@@ -243,26 +243,25 @@ public class BackupRestoreTestRunner : Instrumentation() {
                 e.printStackTrace(PrintWriter(stackTrace))
                 outcome(
                     isSuccess = false,
-                    errorMessage = thrownMessage(e),
+                    errorMessage = "Exception executing action: ${e.message ?: e.toString()}",
                     stackTrace = stackTrace.toString(),
                 )
             }
         }
 
-        /** Returns the error message that reports [e], which an action threw. */
-        internal fun thrownMessage(e: Throwable): String =
-            "Exception executing action: ${e.message ?: e.toString()}"
-
         /**
-         * Returns the action arguments that [json] holds, whose values are all strings.
+         * Returns the arguments in [json], a JSON object whose values are all strings.
          *
+         * @throws org.json.JSONException if [json] is not a JSON object
          * @throws IllegalArgumentException if a value is not a string
          */
-        internal fun argsOf(json: JSONObject): Map<String, String> =
-            json.keys().asSequence().associateWith { key ->
-                json.get(key) as? String
+        private fun parseArgsFile(json: String): Map<String, String> {
+            val jsonObject = JSONObject(json)
+            return jsonObject.keys().asSequence().associateWith { key ->
+                jsonObject.get(key) as? String
                     ?: throw IllegalArgumentException("The value of '$key' is not a string")
             }
+        }
 
         /**
          * Returns an outcome as the JSON object that the host decodes. The error message and the

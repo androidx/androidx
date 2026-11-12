@@ -20,9 +20,7 @@ import com.android.adblib.AdbSession
 import com.android.adblib.DeviceSelector
 import com.android.adblib.RemoteFileMode
 import com.android.adblib.ShellCommandOutput
-import com.android.adblib.ShellCommandOutputElement
 import com.android.adblib.deviceProperties
-import com.android.adblib.shellAsLines
 import com.android.adblib.shellAsText
 import java.io.IOException
 import java.nio.file.Path
@@ -35,8 +33,6 @@ import kotlin.time.Duration as KotlinDuration
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 
@@ -57,54 +53,11 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, val serialN
 
     /** Runs [command] through the device shell and returns its output. */
     suspend fun exec(command: String): ShellCommandOutput {
-        logCommand(command)
-        @Suppress("AdbDeviceServicesCommand")
-        return adbSession.deviceServices.shellAsText(device, command)
-    }
-
-    /**
-     * Runs [command] through the device shell, and returns as soon as it prints a line on stdout
-     * that fully matches [lastLine], without waiting for it to exit. The output then holds the
-     * stdout up to and including that line and the stderr up to then, with the exit code 0.
-     *
-     * If no line matches, returns the whole output when the command exits, as the other `exec`
-     * does.
-     */
-    suspend fun exec(command: String, lastLine: Regex): ShellCommandOutput {
-        logCommand(command)
-        val stdout = mutableListOf<String>()
-        val stderr = mutableListOf<String>()
-        var exitCode = 0
-        @Suppress("AdbDeviceServicesCommand")
-        adbSession.deviceServices
-            .shellAsLines(device, command)
-            // Ending the collection closes the shell stream, on which the device signals the
-            // command to end.
-            .takeWhile { output ->
-                when (output) {
-                    is ShellCommandOutputElement.StdoutLine -> {
-                        stdout += output.contents
-                        !lastLine.matches(output.contents)
-                    }
-                    is ShellCommandOutputElement.StderrLine -> {
-                        stderr += output.contents
-                        true
-                    }
-                    is ShellCommandOutputElement.ExitCode -> {
-                        exitCode = output.exitCode
-                        true
-                    }
-                }
-            }
-            .collect()
-        // The last line of each stream is the text after its last line break, even when empty.
-        return ShellCommandOutput(stdout.joinToString("\n"), stderr.joinToString("\n"), exitCode)
-    }
-
-    private fun logCommand(command: String) {
         if (logger.isLoggable(Level.FINE)) {
             logger.fine("adb -s $serialNumber shell $command")
         }
+        @Suppress("AdbDeviceServicesCommand")
+        return adbSession.deviceServices.shellAsText(device, command)
     }
 
     /** Copies [devicePath] from the device to [hostPath]. */
@@ -333,43 +286,6 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, val serialN
     }
 
     /**
-     * Returns the state of the backup manager for user 0, or null if the backup manager does not
-     * report it in the form that is expected of it.
-     */
-    suspend fun backupManagerState(): BackupManagerState? {
-        // The backup manager dumps user 0 first, with the lines below. For every other user, the
-        // first line and the line above the transports start with `User <id>:`. The transports end
-        // at the next line that is not indented, and the selected one is marked:
-        //
-        //   Backup Manager is enabled / setup complete / not pending init
-        //   ...
-        //   Available transports:
-        //       com.google.android.gms/.backup.BackupTransportService
-        //          destination: Need to set the backup account
-        //     * com.android.localtransport/.LocalTransport
-        //          destination: Backing up to debug-only private cache
-        //   Transport clients created: 2
-        val lines = exec("dumpsys backup").stdout.lines()
-        val enabled =
-            BACKUP_ENABLED_LINE.matchEntire(lines.first())?.groupValues?.get(1) ?: return null
-        val selectedTransport =
-            lines
-                .dropWhile { it != "Available transports:" }
-                .drop(1)
-                .takeWhile { it.startsWith(" ") }
-                .firstNotNullOfOrNull { SELECTED_TRANSPORT_LINE.matchEntire(it) }
-                ?.groupValues
-                ?.get(1) ?: return null
-        return BackupManagerState(enabled == "enabled", selectedTransport)
-    }
-
-    /**
-     * Whether backup is enabled for user 0, and the name of the backup transport that is selected
-     * for it.
-     */
-    data class BackupManagerState(val isEnabled: Boolean, val selectedTransport: String)
-
-    /**
      * Clears the data of [packageName].
      *
      * @throws IOException if the package manager does not report success
@@ -537,16 +453,6 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, val serialN
          */
         private val USER_0_STATE_LINE =
             Regex("""    User 0: (?:\S+ )*stopped=(true|false)(?: \S+)*""")
-
-        /** The first line of `dumpsys backup`, which tells whether backup is enabled for user 0. */
-        private val BACKUP_ENABLED_LINE =
-            Regex(
-                "Backup Manager is (enabled|disabled) / (?:not )?setup complete / " +
-                    "(?:not )?pending init"
-            )
-
-        /** The line of the selected transport among the transports of `dumpsys backup`. */
-        private val SELECTED_TRANSPORT_LINE = Regex("""  \* (\S+)""")
 
         /**
          * Returns whether a package manager command succeeded: it exited with 0 and printed a

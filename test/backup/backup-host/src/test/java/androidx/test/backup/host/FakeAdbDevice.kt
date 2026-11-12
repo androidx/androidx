@@ -34,16 +34,13 @@ import com.android.adblib.DeviceCacheProvider
 import com.android.adblib.DeviceInfo
 import com.android.adblib.DeviceSelector
 import com.android.adblib.DeviceState
-import com.android.adblib.LineShellV2Collector
 import com.android.adblib.RemoteFileMode
 import com.android.adblib.ShellCollector
-import com.android.adblib.ShellCollectorCapabilities
 import com.android.adblib.ShellCommandOutput
 import com.android.adblib.StateFlowStatus
 import com.android.adblib.TextShellCollector
 import com.android.adblib.connectedDevicesTracker
 import com.android.adblib.deviceCacheProvider
-import java.nio.ByteBuffer
 import java.nio.file.Path
 import java.time.Duration
 import kotlinx.coroutines.CoroutineDispatcher
@@ -69,9 +66,6 @@ internal const val FAKE_SERIAL = "fake-serial"
 
 /** Name of the device's local backup transport, as `bmgr list transports` prints it. */
 internal const val LOCAL_TRANSPORT = "com.android.localtransport/.LocalTransport"
-
-/** Name of the backup transport of Google Play services, as `bmgr list transports` prints it. */
-internal const val GMS_TRANSPORT = "com.google.android.gms/.backup.BackupTransportService"
 
 /** Returns a [ShellCommandOutput] for a stubbed shell command. */
 internal fun shellOutput(stdout: String = "", stderr: String = "", exitCode: Int = 0) =
@@ -134,9 +128,8 @@ internal fun bmgrSuccessOutput(command: String): ShellCommandOutput? {
             "enable" -> "Backup Manager now enabled\n"
             "transport" -> "Selected transport ${arg(1)} (formerly ${arg(1)})\n"
             "backupnow" ->
-                "Running incremental backup for ${args.size - 1} requested packages.\n" +
+                "Running incremental backup for 1 requested packages.\n" +
                     "Package ${arg(1)} with result: Success\n" +
-                    args.drop(2).joinToString("") { "Package $it with result: Success\n" } +
                     "Backup finished with result: Success\n"
             "restore" ->
                 "Scheduling restore: Local disk image\n" +
@@ -147,47 +140,6 @@ internal fun bmgrSuccessOutput(command: String): ShellCommandOutput? {
             else -> return null
         }
     return shellOutput(stdout)
-}
-
-/**
- * Returns what `dumpsys backup` prints on a device with the local transport and the one of Google
- * Play services, in the form of an API 34 device. For user 0, backup is enabled or not as [enabled]
- * says, and [selectedTransport] is the selected transport, or none is if it is null.
- */
-internal fun backupDump(enabled: Boolean, selectedTransport: String?): String {
-    fun transport(name: String, destination: String) =
-        (if (name == selectedTransport) "  * " else "    ") +
-            "$name\n" +
-            "       destination: $destination\n" +
-            "       intent: null\n" +
-            "       @pm@ - 153 state bytes\n"
-    return "Backup Manager is ${if (enabled) "enabled" else "disabled"} / setup complete / " +
-        "not pending init\n" +
-        "Auto-restore is enabled\n" +
-        "No backups running\n" +
-        "Framework scheduling is enabled\n" +
-        "Last backup pass started: 1700000000000 (now = 1700000100000)\n" +
-        "  next scheduled: 1700014400000\n" +
-        "Transport whitelist:\n" +
-        "    $LOCAL_TRANSPORT\n" +
-        "    $GMS_TRANSPORT\n" +
-        "Available transports:\n" +
-        transport(LOCAL_TRANSPORT, "Backing up to debug-only private cache") +
-        transport(GMS_TRANSPORT, "Need to set the backup account") +
-        "Transport clients created: 4\n" +
-        "Current transport clients: 0\n" +
-        "Pending init: 0\n" +
-        "Ancestral: 0\n" +
-        "Current:   1\n" +
-        "Participants:\n" +
-        "  uid: 10190\n" +
-        "    com.example.app\n" +
-        "Ancestral packages: none\n" +
-        "Ever backed up: 1\n" +
-        "    com.example.app\n" +
-        "Pending key/value backup: 0\n" +
-        "Full backup queue:1\n" +
-        "    0 : com.example.app\n"
 }
 
 /**
@@ -251,10 +203,6 @@ internal class FakeAdbDevice(
     val commands: List<String>
         get() = _commands
 
-    /** Shell commands that are running: neither ended nor cancelled. */
-    val runningCommands: List<String>
-        get() = _runningCommands
-
     /** Device paths pulled from the device, in order. */
     val pulledPaths: List<String>
         get() = _pulledPaths
@@ -272,7 +220,6 @@ internal class FakeAdbDevice(
         get() = _pushedModes
 
     private val _commands = mutableListOf<String>()
-    private val _runningCommands = mutableListOf<String>()
     private val _pulledPaths = mutableListOf<String>()
     private val _pushedPaths = mutableListOf<String>()
     private val _pushedContents = mutableMapOf<String, String>()
@@ -281,7 +228,6 @@ internal class FakeAdbDevice(
     private var shellHandler: (String) -> ShellCommandOutput? = { null }
     private var pullHandler: (String) -> String = { "" }
     private var hangPredicate: (String) -> Boolean = { false }
-    private var lingerPredicate: (String) -> Boolean = { false }
     private var onlineDevicesApi: Map<String, Int> = emptyMap()
     private var readonlyProps: Map<String, String> = emptyMap()
     private var lastCreatedHostFile: Path? = null
@@ -336,14 +282,6 @@ internal class FakeAdbDevice(
      */
     fun hangOn(predicate: (command: String) -> Boolean) {
         hangPredicate = predicate
-    }
-
-    /**
-     * Makes every later shell command matching [predicate] print its output and then run until it
-     * is cancelled, as a tool that takes its time to exit.
-     */
-    fun lingerOn(predicate: (command: String) -> Boolean) {
-        lingerPredicate = predicate
     }
 
     init {
@@ -484,45 +422,14 @@ internal class FakeAdbDevice(
                 } else {
                     checkAddressedToThisDevice(selector)
                     _commands += command
-                    val collectsLines =
-                        (invocation.getArgument<Any>(2) as? ShellCollectorCapabilities)
-                            ?.isSingleOutput != true
-                    val output =
-                        if (hangPredicate(command)) {
-                            null
-                        } else {
-                            shellHandler(command) ?: bmgrSuccessOutput(command) ?: shellOutput()
-                        }
-                    commandFlow(command, output, collectsLines)
+                    if (hangPredicate(command)) {
+                        flow<ShellCommandOutput> { awaitCancellation() }
+                    } else {
+                        flowOf(shellHandler(command) ?: bmgrSuccessOutput(command) ?: shellOutput())
+                    }
                 }
             }
     }
-
-    /**
-     * Returns the flow of [command], which prints [output], or prints nothing until it is cancelled
-     * if [output] is null.
-     *
-     * A collector of lines gets the lines of stderr, then those of stdout, as the command prints
-     * them, and the rest of both with the exit code when the command ends. Any other collector gets
-     * the whole output when the command ends.
-     */
-    private fun commandFlow(command: String, output: ShellCommandOutput?, collectsLines: Boolean) =
-        flow<Any> {
-            _runningCommands += command
-            try {
-                if (output == null) awaitCancellation()
-                val lines = LineShellV2Collector()
-                if (collectsLines) {
-                    lines.start(this)
-                    lines.collectStderr(this, ByteBuffer.wrap(output.stderr.toByteArray()))
-                    lines.collectStdout(this, ByteBuffer.wrap(output.stdout.toByteArray()))
-                }
-                if (lingerPredicate(command)) awaitCancellation()
-                if (collectsLines) lines.end(this, output.exitCode) else emit(output)
-            } finally {
-                _runningCommands -= command
-            }
-        }
 
     /**
      * Fails the test if [selector] addresses a device other than [serialNumber]. Throws an [Error]
