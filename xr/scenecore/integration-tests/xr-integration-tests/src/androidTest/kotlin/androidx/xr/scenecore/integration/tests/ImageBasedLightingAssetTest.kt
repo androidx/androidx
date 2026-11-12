@@ -22,9 +22,9 @@ import androidx.xr.runtime.RequiresSpatialApi
 import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.scenecore.ImageBasedLightingAsset
 import androidx.xr.testutils.XrDeviceTest
+import androidx.xr.testutils.createXrSessionRule
 import java.nio.file.Paths
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -40,29 +40,32 @@ import org.junit.runner.RunWith
 @LargeTest
 class ImageBasedLightingAssetTest {
 
+    @get:Rule val sessionRule = createXrSessionRule()
+
     @Test
     @XrDeviceTest
     @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
-    fun createFromZip_withAssetPath_loadsWithoutThrowing() = runTestWithSession { session ->
-        ImageBasedLightingAsset.createFromZip(
-                session,
-                Paths.get("skyboxes", "BlueSkybox.zip"),
-            )
-            .close()
+    fun createFromZip_withAssetPath_loadsWithoutThrowing() {
+        sessionRule.onMainThread {
+            ImageBasedLightingAsset.createFromZip(
+                    session,
+                    Paths.get("skyboxes", "BlueSkybox.zip"),
+                )
+                .close()
+        }
     }
 
     @Test
     @XrDeviceTest
     @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
-    fun createFromZip_withByteArray_loadsWithoutThrowing() =
-        runTestWithSession { activity, session ->
-            // Read the ~1.7 MB asset off the main thread to avoid stalling the main Looper.
-            val bytes =
-                withContext(Dispatchers.IO) {
-                    activity.assets.open("skyboxes/BlueSkybox.zip").use { it.readBytes() }
-                }
+    fun createFromZip_withByteArray_loadsWithoutThrowing() {
+        // Read the ~1.7 MB asset on the instrumentation thread to avoid stalling the main Looper.
+        val bytes =
+            sessionRule.activity.assets.open("skyboxes/BlueSkybox.zip").use { it.readBytes() }
 
+        sessionRule.onMainThread {
             @Suppress("RestrictedApiAndroidX")
             ImageBasedLightingAsset.createFromZip(session, bytes, "BlueSkybox.zip").close()
         }
+    }
 }
