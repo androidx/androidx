@@ -779,7 +779,7 @@ private class MenuItemAnimationNode(
         updateAlpha(Snapshot.withoutReadObservation { widthProgress.floatValue })
     }
 
-    override fun Density.modifyParentData(parentData: Any?) = this
+    override fun Density.modifyParentData(parentData: Any?) = this@MenuItemAnimationNode
 
     override val shouldClearDescendantSemantics: Boolean
         get() = !isVisible
