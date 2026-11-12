@@ -24,4 +24,8 @@ second caller.
 
 Provides the layout plan, size selector, Glance renderer, and blocks for the Track template.
 
+# Package androidx.glance.adaptive.appwidget.templates.dashboard
+
+Provides the Information Matrix selector for the Dashboard template.
+
 
