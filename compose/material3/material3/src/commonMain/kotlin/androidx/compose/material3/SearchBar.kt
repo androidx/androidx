@@ -3398,15 +3398,14 @@ internal fun SearchBarImpl(
 ) {
     val density = LocalDensity.current
 
-    val defaultInputFieldShape = SearchBarDefaults.inputFieldShape
     val defaultFullScreenShape = SearchBarDefaults.fullScreenShape
     val useFullScreenShape by remember {
         derivedStateOf(structuralEqualityPolicy()) { animationProgress.value == 1f }
     }
     val animatedShape =
-        remember(useFullScreenShape, shape) {
+        remember(useFullScreenShape, shape, defaultFullScreenShape) {
             when {
-                shape == defaultInputFieldShape ->
+                shape == CircleShape && defaultFullScreenShape == RectangleShape ->
                     // The shape can only be animated if it's the default spec value
                     GenericShape { size, _ ->
                         val radius =
