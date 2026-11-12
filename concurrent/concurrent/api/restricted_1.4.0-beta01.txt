@@ -1,0 +1,11 @@
+// Signature format: 5.0
+// - surface=restricted-atomic-group
+package androidx.concurrent {
+
+  public final class AndroidXExecutors {
+    method public static java.util.concurrent.Executor serialExecutor(java.util.concurrent.Executor wrapped);
+    field public static final androidx.concurrent.AndroidXExecutors INSTANCE;
+  }
+
+}
+
