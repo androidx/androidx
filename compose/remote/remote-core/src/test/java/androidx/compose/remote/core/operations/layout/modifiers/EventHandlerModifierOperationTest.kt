@@ -14,27 +14,35 @@
  * limitations under the License.
  */
 
-package androidx.compose.remote.core.operations
+package androidx.compose.remote.core.operations.layout.modifiers
 
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.Operations
+import androidx.compose.remote.core.RcProfiles
+import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.events.Event
+import androidx.compose.remote.core.events.EventHandler
 import androidx.compose.remote.core.events.EventManager
-import androidx.compose.remote.core.operations.layout.modifiers.ValueFloatChangeActionOperation
+import androidx.compose.remote.core.events.EventRouter
+import androidx.compose.remote.core.operations.FloatExpression
+import androidx.compose.remote.core.operations.ShaderData
+import androidx.compose.remote.core.operations.TextData
+import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.core.operations.utilities.ArrayAccess
 import androidx.compose.remote.core.operations.utilities.DataMap
 import androidx.compose.remote.core.types.IntegerConstant
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
 
-class EventActionOperationTest {
+class EventHandlerModifierOperationTest {
 
     @Test
     fun `matchEvent returns false for wrong event type`() {
         // Arrange.
-        val eventAction =
-            EventActionOperation(
+        val eventHandlerModifier =
+            EventHandlerModifierOperation(
                 /* type = */ EVENT_TYPE_1,
                 /* filter = */ 0,
                 /* flags = */ 0,
@@ -43,7 +51,7 @@ class EventActionOperationTest {
             )
 
         // Act.
-        val matchesEvent = eventAction.matchesEvent(EVENT_TYPE_2)
+        val matchesEvent = eventHandlerModifier.matchesEvent(EVENT_TYPE_2)
 
         // Assert.
         assertThat(matchesEvent).isFalse()
@@ -52,8 +60,8 @@ class EventActionOperationTest {
     @Test
     fun `match event returns true when event type matches`() {
         // Arrange.
-        val eventAction =
-            EventActionOperation(
+        val eventHandlerModifier =
+            EventHandlerModifierOperation(
                 /* type = */ EVENT_TYPE_1,
                 /* filter = */ 0,
                 /* flags = */ 0,
@@ -62,7 +70,7 @@ class EventActionOperationTest {
             )
 
         // Act.
-        val matchesEvent = eventAction.matchesEvent(EVENT_TYPE_1)
+        val matchesEvent = eventHandlerModifier.matchesEvent(EVENT_TYPE_1)
 
         // Assert.
         assertThat(matchesEvent).isTrue()
@@ -71,8 +79,8 @@ class EventActionOperationTest {
     @Test
     fun `filter ignored for match event`() {
         // Arrange.
-        val eventAction =
-            EventActionOperation(
+        val eventHandlerModifier =
+            EventHandlerModifierOperation(
                 /* type = */ EVENT_TYPE_1,
                 /* filter = */ 123,
                 /* flags = */ 0,
@@ -81,7 +89,7 @@ class EventActionOperationTest {
             )
 
         // Act.
-        val matchesEvent = eventAction.matchesEvent(EVENT_TYPE_1)
+        val matchesEvent = eventHandlerModifier.matchesEvent(EVENT_TYPE_1)
 
         // Assert.
         assertThat(matchesEvent).isTrue()
@@ -90,8 +98,8 @@ class EventActionOperationTest {
     @Test
     fun `flags don't affect matches event`() {
         // Arrange.
-        val eventAction =
-            EventActionOperation(
+        val eventHandlerModifier =
+            EventHandlerModifierOperation(
                 /* type = */ EVENT_TYPE_1,
                 /* filter = */ 0,
                 /* flags = */ 123,
@@ -100,7 +108,7 @@ class EventActionOperationTest {
             )
 
         // Act.
-        val matchesEvent = eventAction.matchesEvent(EVENT_TYPE_1)
+        val matchesEvent = eventHandlerModifier.matchesEvent(EVENT_TYPE_1)
 
         // Assert.
         assertThat(matchesEvent).isTrue()
@@ -109,8 +117,8 @@ class EventActionOperationTest {
     @Test
     fun `specifying empty data ids don't affect matches event`() {
         // Arrange.
-        val eventAction =
-            EventActionOperation(
+        val eventHandlerModifier =
+            EventHandlerModifierOperation(
                 /* type = */ EVENT_TYPE_1,
                 /* filter = */ 0,
                 /* flags = */ 0,
@@ -119,7 +127,7 @@ class EventActionOperationTest {
             )
 
         // Act.
-        val matchesEvent = eventAction.matchesEvent(EVENT_TYPE_1)
+        val matchesEvent = eventHandlerModifier.matchesEvent(EVENT_TYPE_1)
 
         // Assert.
         assertThat(matchesEvent).isTrue()
@@ -128,8 +136,8 @@ class EventActionOperationTest {
     @Test
     fun `specifying uninitialized data ids don't affect matches event`() {
         // Arrange.
-        val eventAction =
-            EventActionOperation(
+        val eventHandlerModifier =
+            EventHandlerModifierOperation(
                 /* type = */ EVENT_TYPE_1,
                 /* filter = */ 0,
                 /* flags = */ 0,
@@ -138,7 +146,7 @@ class EventActionOperationTest {
             )
 
         // Act.
-        val matchesEvent = eventAction.matchesEvent(EVENT_TYPE_1)
+        val matchesEvent = eventHandlerModifier.matchesEvent(EVENT_TYPE_1)
 
         // Assert.
         assertThat(matchesEvent).isTrue()
@@ -147,8 +155,8 @@ class EventActionOperationTest {
     @Test
     fun `specifying empty condition does not affect matches event`() {
         // Arrange.
-        val eventAction =
-            EventActionOperation(
+        val eventHandlerModifier =
+            EventHandlerModifierOperation(
                 /* type = */ EVENT_TYPE_1,
                 /* filter = */ 0,
                 /* flags = */ 0,
@@ -157,7 +165,7 @@ class EventActionOperationTest {
             )
 
         // Act.
-        val matchesEvent = eventAction.matchesEvent(EVENT_TYPE_1)
+        val matchesEvent = eventHandlerModifier.matchesEvent(EVENT_TYPE_1)
 
         // Assert.
         assertThat(matchesEvent).isTrue()
@@ -166,8 +174,8 @@ class EventActionOperationTest {
     @Test
     fun `specifying false condition does not affect matches event`() {
         // Arrange.
-        val eventAction =
-            EventActionOperation(
+        val eventHandlerModifier =
+            EventHandlerModifierOperation(
                 /* type = */ EVENT_TYPE_1,
                 /* filter = */ 0,
                 /* flags = */ 0,
@@ -176,7 +184,7 @@ class EventActionOperationTest {
             )
 
         // Act.
-        val matchesEvent = eventAction.matchesEvent(EVENT_TYPE_1)
+        val matchesEvent = eventHandlerModifier.matchesEvent(EVENT_TYPE_1)
 
         // Assert.
         assertThat(matchesEvent).isTrue()
@@ -185,8 +193,8 @@ class EventActionOperationTest {
     @Test
     fun `specifying true condition does not affect matches event`() {
         // Arrange.
-        val eventAction =
-            EventActionOperation(
+        val eventHandlerModifier =
+            EventHandlerModifierOperation(
                 /* type = */ EVENT_TYPE_1,
                 /* filter = */ 0,
                 /* flags = */ 0,
@@ -195,7 +203,7 @@ class EventActionOperationTest {
             )
 
         // Act.
-        val matchesEvent = eventAction.matchesEvent(EVENT_TYPE_1)
+        val matchesEvent = eventHandlerModifier.matchesEvent(EVENT_TYPE_1)
 
         // Assert.
         assertThat(matchesEvent).isTrue()
@@ -204,8 +212,8 @@ class EventActionOperationTest {
     @Test
     fun `onEvent doesn't handle events that don't match the filter`() {
         // Arrange.
-        val eventAction =
-            EventActionOperation(
+        val eventHandlerModifier =
+            EventHandlerModifierOperation(
                 /* type = */ EVENT_TYPE_1,
                 /* filter = */ FILTER_1,
                 /* flags = */ 0,
@@ -215,7 +223,7 @@ class EventActionOperationTest {
 
         // Act.
         val result =
-            eventAction.onEvent(
+            eventHandlerModifier.onEvent(
                 TestRemoteContext(),
                 CoreDocument(),
                 Event(/* type= */ EVENT_TYPE_1, /* metadata= */ FILTER_2, /* data= */ null),
@@ -229,8 +237,8 @@ class EventActionOperationTest {
     fun `onEvent doesn't write data when data id is 0`() {
         // Arrange.
         val remoteContext = TestRemoteContext()
-        val eventAction =
-            EventActionOperation(
+        val eventHandlerModifier =
+            EventHandlerModifierOperation(
                 /* type = */ EVENT_TYPE_1,
                 /* filter = */ FILTER_1,
                 /* flags = */ 0,
@@ -239,7 +247,7 @@ class EventActionOperationTest {
             )
 
         // Act.
-        eventAction.onEvent(
+        eventHandlerModifier.onEvent(
             remoteContext,
             CoreDocument(),
             Event(
@@ -257,8 +265,8 @@ class EventActionOperationTest {
     fun `onEvent doesn't write data only for data id = 0`() {
         // Arrange.
         val remoteContext = TestRemoteContext()
-        val eventAction =
-            EventActionOperation(
+        val eventHandlerModifier =
+            EventHandlerModifierOperation(
                 /* type = */ EVENT_TYPE_1,
                 /* filter = */ FILTER_1,
                 /* flags = */ 0,
@@ -267,7 +275,7 @@ class EventActionOperationTest {
             )
 
         // Act.
-        eventAction.onEvent(
+        eventHandlerModifier.onEvent(
             remoteContext,
             CoreDocument(),
             Event(
@@ -287,8 +295,8 @@ class EventActionOperationTest {
     fun `onEvent doesn't write data if event has less data than specified by the handler`() {
         // Arrange.
         val remoteContext = TestRemoteContext()
-        val eventAction =
-            EventActionOperation(
+        val eventHandlerModifier =
+            EventHandlerModifierOperation(
                 /* type = */ EVENT_TYPE_1,
                 /* filter = */ FILTER_1,
                 /* flags = */ 0,
@@ -297,7 +305,7 @@ class EventActionOperationTest {
             )
 
         // Act.
-        eventAction.onEvent(
+        eventHandlerModifier.onEvent(
             remoteContext,
             CoreDocument(),
             Event(
@@ -318,8 +326,8 @@ class EventActionOperationTest {
     fun `onEvent doesn't write data if handler doesn't specify a data id for it`() {
         // Arrange.
         val remoteContext = TestRemoteContext()
-        val eventAction =
-            EventActionOperation(
+        val eventHandlerModifier =
+            EventHandlerModifierOperation(
                 /* type = */ EVENT_TYPE_1,
                 /* filter = */ FILTER_1,
                 /* flags = */ 0,
@@ -328,7 +336,7 @@ class EventActionOperationTest {
             )
 
         // Act.
-        eventAction.onEvent(
+        eventHandlerModifier.onEvent(
             remoteContext,
             CoreDocument(),
             Event(
@@ -349,8 +357,8 @@ class EventActionOperationTest {
     fun `onEvent writes data even if condition is false`() {
         // Arrange.
         val remoteContext = TestRemoteContext()
-        val eventAction =
-            EventActionOperation(
+        val eventHandlerModifier =
+            EventHandlerModifierOperation(
                 /* type = */ EVENT_TYPE_1,
                 /* filter = */ FILTER_1,
                 /* flags = */ 0,
@@ -360,7 +368,7 @@ class EventActionOperationTest {
 
         // Act.
         val result =
-            eventAction.onEvent(
+            eventHandlerModifier.onEvent(
                 remoteContext,
                 CoreDocument(),
                 Event(
@@ -380,8 +388,8 @@ class EventActionOperationTest {
     fun `onEvent writes data when condition is true and returns flag value`() {
         // Arrange.
         val remoteContext = TestRemoteContext()
-        val eventAction =
-            EventActionOperation(
+        val eventHandlerModifier =
+            EventHandlerModifierOperation(
                 /* type = */ EVENT_TYPE_1,
                 /* filter = */ FILTER_1,
                 /* flags = */ ROUTER_FLAGS,
@@ -391,7 +399,7 @@ class EventActionOperationTest {
 
         // Act.
         val result =
-            eventAction.onEvent(
+            eventHandlerModifier.onEvent(
                 remoteContext,
                 CoreDocument(),
                 Event(
@@ -412,19 +420,19 @@ class EventActionOperationTest {
         // Arrange.
         val remoteContext = TestRemoteContext()
         remoteContext.loadFloat(DATA_ID_1, 10f)
-        val eventAction =
-            EventActionOperation(
+        val eventHandlerModifier =
+            EventHandlerModifierOperation(
                 /* type = */ EVENT_TYPE_1,
                 /* filter = */ FILTER_1,
                 /* flags = */ ROUTER_FLAGS,
                 /* dataIds = */ null,
                 /* condition = */ floatArrayOf(TRUE),
             )
-        eventAction.list.add(ValueFloatChangeActionOperation(DATA_ID_1, 20f))
+        eventHandlerModifier.list.add(ValueFloatChangeActionOperation(DATA_ID_1, 20f))
 
         // Act.
         val result =
-            eventAction.onEvent(
+            eventHandlerModifier.onEvent(
                 remoteContext,
                 CoreDocument(),
                 Event(
@@ -446,15 +454,15 @@ class EventActionOperationTest {
         remoteContext.loadFloat(DATA_ID_1, 10f)
         remoteContext.loadFloat(DATA_ID_2, 10f)
         remoteContext.loadFloat(DATA_ID_4, 10f)
-        val eventAction =
-            EventActionOperation(
+        val eventHandlerModifier =
+            EventHandlerModifierOperation(
                 /* type = */ EVENT_TYPE_1,
                 /* filter = */ FILTER_1,
                 /* flags = */ ROUTER_FLAGS,
                 /* dataIds = */ null,
                 /* condition = */ floatArrayOf(TRUE),
             )
-        eventAction.list.apply {
+        eventHandlerModifier.list.apply {
             add(ValueFloatChangeActionOperation(DATA_ID_1, 20f))
             add(ValueFloatChangeActionOperation(DATA_ID_2, 30f))
             add(ValueFloatChangeActionOperation(DATA_ID_3, 40f))
@@ -462,7 +470,7 @@ class EventActionOperationTest {
 
         // Act.
         val result =
-            eventAction.onEvent(
+            eventHandlerModifier.onEvent(
                 remoteContext,
                 CoreDocument(),
                 Event(
@@ -485,15 +493,15 @@ class EventActionOperationTest {
         val remoteContext = TestRemoteContext()
         remoteContext.loadFloat(DATA_ID_1, 10f)
         remoteContext.loadFloat(DATA_ID_2, 10f)
-        val eventAction =
-            EventActionOperation(
+        val eventHandlerModifier =
+            EventHandlerModifierOperation(
                 /* type = */ EVENT_TYPE_1,
                 /* filter = */ FILTER_1,
                 /* flags = */ ROUTER_FLAGS,
                 /* dataIds = */ null,
                 /* condition = */ floatArrayOf(TRUE),
             )
-        eventAction.list.apply {
+        eventHandlerModifier.list.apply {
             add(IntegerConstant(500, 10))
             add(ValueFloatChangeActionOperation(DATA_ID_1, 20f))
             add(IntegerConstant(501, 10))
@@ -503,7 +511,7 @@ class EventActionOperationTest {
 
         // Act.
         val result =
-            eventAction.onEvent(
+            eventHandlerModifier.onEvent(
                 remoteContext,
                 CoreDocument(),
                 Event(
@@ -520,22 +528,22 @@ class EventActionOperationTest {
     }
 
     @Test
-    fun `onEvent ignores nested Event Action Operations`() {
+    fun `onEvent ignores nested event handler modifiers`() {
         // Arrange.
         val remoteContext = TestRemoteContext()
         remoteContext.loadFloat(DATA_ID_1, 10f)
         remoteContext.loadFloat(DATA_ID_2, 10f)
-        val eventAction =
-            EventActionOperation(
+        val eventHandlerModifier =
+            EventHandlerModifierOperation(
                 /* type = */ EVENT_TYPE_1,
                 /* filter = */ FILTER_1,
                 /* flags = */ ROUTER_FLAGS,
                 /* dataIds = */ null,
                 /* condition = */ floatArrayOf(TRUE),
             )
-        eventAction.list.apply {
+        eventHandlerModifier.list.apply {
             add(
-                EventActionOperation(
+                EventHandlerModifierOperation(
                     EVENT_TYPE_1,
                     FILTER_1,
                     ROUTER_FLAGS,
@@ -545,7 +553,7 @@ class EventActionOperationTest {
             )
             add(ValueFloatChangeActionOperation(DATA_ID_1, 20f))
             add(
-                EventActionOperation(
+                EventHandlerModifierOperation(
                     EVENT_TYPE_2,
                     FILTER_2,
                     ROUTER_FLAGS,
@@ -555,7 +563,7 @@ class EventActionOperationTest {
             )
             add(ValueFloatChangeActionOperation(DATA_ID_2, 30f))
             add(
-                EventActionOperation(
+                EventHandlerModifierOperation(
                     EVENT_TYPE_1,
                     FILTER_1,
                     ROUTER_FLAGS,
@@ -567,7 +575,7 @@ class EventActionOperationTest {
 
         // Act.
         val result =
-            eventAction.onEvent(
+            eventHandlerModifier.onEvent(
                 remoteContext,
                 CoreDocument(),
                 Event(
@@ -590,8 +598,8 @@ class EventActionOperationTest {
     fun `onEvent does not crash when event data is null but dataIds are specified`() {
         // Arrange.
         val remoteContext = TestRemoteContext()
-        val eventAction =
-            EventActionOperation(
+        val eventHandlerModifier =
+            EventHandlerModifierOperation(
                 /* type = */ EVENT_TYPE_1,
                 /* filter = */ FILTER_1,
                 /* flags = */ 0,
@@ -601,7 +609,7 @@ class EventActionOperationTest {
 
         // Act.
         val result =
-            eventAction.onEvent(
+            eventHandlerModifier.onEvent(
                 remoteContext,
                 CoreDocument(),
                 Event(/* type= */ EVENT_TYPE_1, /* metadata= */ FILTER_1, /* data= */ null),
@@ -617,19 +625,19 @@ class EventActionOperationTest {
         // Arrange.
         val remoteContext = TestRemoteContext()
         remoteContext.loadFloat(DATA_ID_1, 10f)
-        val eventAction =
-            EventActionOperation(
+        val eventHandlerModifier =
+            EventHandlerModifierOperation(
                 /* type = */ EVENT_TYPE_1,
                 /* filter = */ FILTER_1,
                 /* flags = */ ROUTER_FLAGS,
                 /* dataIds = */ null,
                 /* condition = */ floatArrayOf(2.5f),
             )
-        eventAction.list.add(ValueFloatChangeActionOperation(DATA_ID_1, 20f))
+        eventHandlerModifier.list.add(ValueFloatChangeActionOperation(DATA_ID_1, 20f))
 
         // Act.
         val result =
-            eventAction.onEvent(
+            eventHandlerModifier.onEvent(
                 remoteContext,
                 CoreDocument(),
                 Event(/* type= */ EVENT_TYPE_1, /* metadata= */ FILTER_1, /* data= */ null),
@@ -645,19 +653,19 @@ class EventActionOperationTest {
         // Arrange.
         val remoteContext = TestRemoteContext().apply { mLastComponent = null }
         remoteContext.loadFloat(DATA_ID_1, 10f)
-        val eventAction =
-            EventActionOperation(
+        val eventHandlerModifier =
+            EventHandlerModifierOperation(
                 /* type = */ EVENT_TYPE_1,
                 /* filter = */ FILTER_1,
                 /* flags = */ ROUTER_FLAGS,
                 /* dataIds = */ null,
                 /* condition = */ floatArrayOf(TRUE),
             )
-        eventAction.list.add(ValueFloatChangeActionOperation(DATA_ID_1, 20f))
+        eventHandlerModifier.list.add(ValueFloatChangeActionOperation(DATA_ID_1, 20f))
 
         // Act.
         val result =
-            eventAction.onEvent(
+            eventHandlerModifier.onEvent(
                 remoteContext,
                 CoreDocument(),
                 Event(/* type= */ EVENT_TYPE_1, /* metadata= */ FILTER_1, /* data= */ null),
@@ -666,6 +674,141 @@ class EventActionOperationTest {
         // Assert.
         assertThat(remoteContext.getFloat(DATA_ID_1)).isEqualTo(20f)
         assertThat(result).isEqualTo(ROUTER_FLAGS)
+    }
+
+    @Test
+    fun `apply loads nested TextData so it is available when the event fires`() {
+        // Arrange.
+        val remoteContext = TestRemoteContext()
+        val eventHandler =
+            EventHandlerModifierOperation(
+                /* type = */ EVENT_TYPE_1,
+                /* filter = */ FILTER_1,
+                /* flags = */ ROUTER_FLAGS,
+                /* dataIds = */ null,
+                /* condition = */ null,
+            )
+        // Mirrors what the writer emits for a ValueStringChange(id, "hello") action.
+        eventHandler.list.apply {
+            add(TextData(TEXT_ID_1, "hello"))
+            add(ValueStringChangeActionOperation(TEXT_ID_2, TEXT_ID_1))
+        }
+
+        // Act.
+        eventHandler.apply(remoteContext)
+
+        // Assert.
+        assertThat(remoteContext.getText(TEXT_ID_1)).isEqualTo("hello")
+        assertThat(remoteContext.getText(TEXT_ID_2)).isNull()
+    }
+
+    @Test
+    fun `apply does not run nested actions`() {
+        // Arrange.
+        val remoteContext = TestRemoteContext()
+        remoteContext.mLastComponent = BoxLayout(null, 0, 0, 0f, 0f, 0f, 0f, 0, 0)
+        remoteContext.loadFloat(DATA_ID_1, 10f)
+        val eventHandler =
+            EventHandlerModifierOperation(
+                /* type = */ EVENT_TYPE_1,
+                /* filter = */ FILTER_1,
+                /* flags = */ ROUTER_FLAGS,
+                /* dataIds = */ null,
+                /* condition = */ null,
+            )
+        eventHandler.list.add(ValueFloatChangeActionOperation(DATA_ID_1, 20f))
+
+        // Act.
+        eventHandler.apply(remoteContext)
+
+        // Assert.
+        assertThat(remoteContext.getFloat(DATA_ID_1)).isEqualTo(10f)
+    }
+
+    @Test
+    fun `document with nested TextData action loads text on initializeContext and runs it on dispatchEvent`() {
+        // Arrange - Root > Box carrying an event handler whose action sets a text variable.
+        val buffer =
+            RemoteComposeBuffer().useExperimental().apply {
+                addRootStart()
+                addBoxStart(
+                    /* componentId = */ -1,
+                    /* animationId = */ -1,
+                    /* horizontal = */ 0,
+                    /* vertical = */ 0,
+                )
+                addEventHandlerModifierOperation(
+                    /* type = */ EVENT_TYPE_1,
+                    /* filter = */ FILTER_1,
+                    /* flags = */ ROUTER_FLAGS,
+                    /* dataIds = */ null,
+                    /* condition = */ null,
+                )
+                // What ValueStringChange(TEXT_ID_2, "hello") writes: the string, then the action.
+                addText(TEXT_ID_1, "hello")
+                addValueStringChangeActionOperation(TEXT_ID_2, TEXT_ID_1)
+                addContainerEnd() // event handler actions
+                addContentStart()
+                addContainerEnd() // content
+                addContainerEnd() // box
+                addContainerEnd() // root
+            }
+        val document = CoreDocument().useExperimental()
+        document.initFromBuffer(buffer)
+        val remoteContext = TestRemoteContext()
+        val router = DispatchingEventRouter()
+        remoteContext.eventManager.registerRouter(EVENT_TYPE_1, router)
+
+        // Act - DATA pass.
+        document.initializeContext(remoteContext)
+
+        // Assert - the nested TextData was applied and the handler reached the router.
+        assertThat(remoteContext.getText(TEXT_ID_1)).isEqualTo("hello")
+        assertThat(remoteContext.getText(TEXT_ID_2)).isNull()
+        assertThat(router.handlers).hasSize(1)
+
+        // Act - dispatch the event. mLastComponent stands in for the component painted last.
+        remoteContext.mLastComponent = document.rootLayoutComponent
+        val result =
+            remoteContext.eventManager.dispatchEvent(
+                remoteContext,
+                document,
+                Event(/* type= */ EVENT_TYPE_1, /* metadata= */ FILTER_1, /* data= */ null),
+            )
+
+        // Assert - the action copied the text into the target variable.
+        assertThat(result).isEqualTo(ROUTER_FLAGS)
+        assertThat(remoteContext.getText(TEXT_ID_2)).isEqualTo("hello")
+    }
+
+    private fun RemoteComposeBuffer.useExperimental(): RemoteComposeBuffer = apply {
+        val profileMask = RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL
+        val map = Operations.getOperations(CoreDocument.DOCUMENT_API_LEVEL, profileMask)!!
+        setVersion(CoreDocument.DOCUMENT_API_LEVEL, profileMask, map.keySet())
+        setVersion(CoreDocument.DOCUMENT_API_LEVEL, profileMask, map)
+    }
+
+    private fun CoreDocument.useExperimental(): CoreDocument = apply {
+        mProfileMask = RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL
+    }
+
+    /** Router forwarding events to every registered handler until one handles it. */
+    private class DispatchingEventRouter : EventRouter {
+        val handlers = mutableListOf<EventHandler>()
+
+        override fun registerHandler(eventHandler: EventHandler) {
+            handlers.add(eventHandler)
+        }
+
+        override fun routeEvent(context: RemoteContext, document: CoreDocument, event: Event): Int {
+            for (handler in handlers) {
+                val status = handler.onEvent(context, document, event)
+                if (status != EventManager.STATUS_UNHANDLED) {
+                    return status
+                }
+            }
+            return EventManager.STATUS_UNHANDLED
+        }
     }
 
     companion object {
@@ -687,12 +830,16 @@ class EventActionOperationTest {
         const val DATA_ID_5 = 1005
         const val DATA_ID_6 = 1006
         const val DATA_ID_7 = 1007
+
+        const val TEXT_ID_1 = 2001
+        const val TEXT_ID_2 = 2002
     }
 
     private class TestRemoteContext : RemoteContext() {
 
         // TODO(b/555326918): Using HashMap instead of IntFloatMap.
         val floatMap = HashMap<Int, Float>()
+        val textMap = HashMap<Int, String>()
 
         override fun loadFloat(id: Int, value: Float) {
             floatMap[id] = value
@@ -763,15 +910,19 @@ class EventActionOperationTest {
             bitmap: ByteArray,
         ) {}
 
-        override fun loadText(id: Int, text: String) {}
+        override fun loadText(id: Int, text: String) {
+            textMap[id] = text
+        }
 
-        override fun getText(id: Int): String? = null
+        override fun getText(id: Int): String? = textMap[id]
 
         override fun loadInteger(id: Int, value: Int) {}
 
         override fun overrideInteger(id: Int, value: Int) {}
 
-        override fun overrideText(id: Int, valueId: Int) {}
+        override fun overrideText(id: Int, valueId: Int) {
+            textMap[valueId]?.let { textMap[id] = it }
+        }
 
         override fun loadAnimatedFloat(id: Int, animatedFloat: FloatExpression) {}
 

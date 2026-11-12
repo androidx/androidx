@@ -63,7 +63,6 @@ import androidx.compose.remote.core.operations.DrawTextOnCircle;
 import androidx.compose.remote.core.operations.DrawTextOnPath;
 import androidx.compose.remote.core.operations.DrawToBitmap;
 import androidx.compose.remote.core.operations.DrawTweenPath;
-import androidx.compose.remote.core.operations.EventActionOperation;
 import androidx.compose.remote.core.operations.FloatConstant;
 import androidx.compose.remote.core.operations.FloatExpression;
 import androidx.compose.remote.core.operations.FloatFunctionCall;
@@ -157,6 +156,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.CollapsiblePrior
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.DrawContentOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.EventHandlerModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.HeightInModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.HeightModifierOperation;
@@ -346,11 +346,6 @@ public class Operations {
     // -------------------------------------- //
 
     // -------------------------------------- //
-    // Communication
-    // -------------------------------------- //
-    public static final int EVENT_ACTION = 100;
-
-    // -------------------------------------- //
     // Layout commands
     // -------------------------------------- //
 
@@ -411,6 +406,7 @@ public class Operations {
     public static final int MODIFIER_TOUCH_DOWN = 219;
     public static final int MODIFIER_TOUCH_UP = 220;
     public static final int MODIFIER_TOUCH_CANCEL = 225;
+    public static final int MODIFIER_EVENT_HANDLER = 100;
 
     public static final int CONTAINER_END = 214;
 
@@ -500,7 +496,7 @@ public class Operations {
         DATA_SOUND,
         SOUND_EXPRESSION,
         PLAY_SOUND,
-        EVENT_ACTION,
+        MODIFIER_EVENT_HANDLER,
         ADD_MESH_2D,
         DRAW_MESH_2D,
         MATRIX_FROM_MESH_2D,
@@ -641,7 +637,7 @@ public class Operations {
                 sAllOperationsV7.put(DATA_SOUND, SoundData::read);
                 sAllOperationsV7.put(SOUND_EXPRESSION, SoundExpression::read);
                 sAllOperationsV7.put(PLAY_SOUND, PlaySound::read);
-                sAllOperationsV7.put(EVENT_ACTION, EventActionOperation::read);
+                sAllOperationsV7.put(MODIFIER_EVENT_HANDLER, EventHandlerModifierOperation::read);
                 sAllOperationsV7.put(ADD_MESH_2D, AddMesh2D::read);
                 sAllOperationsV7.put(DRAW_MESH_2D, DrawMesh2D::read);
                 sAllOperationsV7.put(MATRIX_FROM_MESH_2D, MatrixFromMesh2D::read);

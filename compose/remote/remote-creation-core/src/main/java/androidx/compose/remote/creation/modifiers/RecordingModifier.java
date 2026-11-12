@@ -784,6 +784,28 @@ public class RecordingModifier {
     }
 
     /**
+     * Adds an event handler modifier
+     *
+     * @param type      type identifying compatible events
+     * @param filter    filter metadata required to match the event
+     * @param flags     routing specific status flags returned on success
+     * @param dataIds   optional mapping of input payload indices to target float variables
+     * @param condition optional RPN condition used to conditionally trigger actions
+     * @param actions   list of actions to execute when the event matches
+     */
+    public @NonNull RecordingModifier onEvent(
+            int type,
+            int filter,
+            int flags,
+            int @Nullable [] dataIds,
+            float @Nullable [] condition,
+            Action @NonNull ... actions) {
+        mList.add(new EventHandlerModifier(
+                type, filter, flags, dataIds, condition, Arrays.asList(actions)));
+        return this;
+    }
+
+    /**
      * Adds a touchDownmodifier
      *
      * @param actions list of actions to execute on touch down

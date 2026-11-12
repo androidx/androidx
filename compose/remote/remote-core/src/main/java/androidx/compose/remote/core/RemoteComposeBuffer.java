@@ -58,7 +58,6 @@ import androidx.compose.remote.core.operations.DrawTextOnCircle;
 import androidx.compose.remote.core.operations.DrawTextOnPath;
 import androidx.compose.remote.core.operations.DrawToBitmap;
 import androidx.compose.remote.core.operations.DrawTweenPath;
-import androidx.compose.remote.core.operations.EventActionOperation;
 import androidx.compose.remote.core.operations.FloatConstant;
 import androidx.compose.remote.core.operations.FloatExpression;
 import androidx.compose.remote.core.operations.FloatFunctionCall;
@@ -150,6 +149,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.CollapsiblePrior
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.DrawContentOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.EventHandlerModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.HeightInModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.HeightModifierOperation;
@@ -2892,7 +2892,8 @@ public class RemoteComposeBuffer {
     }
 
     /**
-     * Starts an event actions block.
+     * Add an event handler modifier operation. The nested actions follow this operation and the
+     * block is terminated with {@link #addContainerEnd()}.
      *
      * @param type the event type
      * @param filter the filter metadata
@@ -2900,18 +2901,13 @@ public class RemoteComposeBuffer {
      * @param dataIds optional target payload data mapping IDs
      * @param condition optional conditional float expression RPN stream
      */
-    public void startEventActions(
+    public void addEventHandlerModifierOperation(
             int type,
             int filter,
             int flags,
             int @Nullable [] dataIds,
             float @Nullable [] condition) {
-        EventActionOperation.apply(mBuffer, type, filter, flags, dataIds, condition);
-    }
-
-    /** Ends the current event actions block. */
-    public void endEventActions() {
-        addContainerEnd();
+        EventHandlerModifierOperation.apply(mBuffer, type, filter, flags, dataIds, condition);
     }
 
     /**
