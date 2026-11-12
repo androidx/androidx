@@ -124,16 +124,19 @@ class RcPlayerTextScreenshotTest {
             val valueStyle = RemoteTextStyle(fontSize = 48.rsp)
             val labelStyle = RemoteTextStyle(fontSize = 14.rsp)
             val tagStyle = RemoteTextStyle(fontSize = 9.rsp)
-            val valueLayout = textMeasurer.measure("7".rs, valueStyle)
-            val labelLayout = textMeasurer.measure("7".rs, labelStyle)
-            val tagRef = textMeasurer.measure("Ag".rs, tagStyle)
-            val tagCenterY = tagRef.firstBaseline + (tagRef.glyphTop + tagRef.glyphBottom) * 0.5f.rf
+            val valueLayout = textMeasurer.measureSingleLine("7".rs, valueStyle)
+            val valueFontMetrics = textMeasurer.measureFontMetrics(valueStyle)
+            val valueBounds = textMeasurer.measurePaintBounds("7".rs, valueStyle)
+            val labelBounds = textMeasurer.measurePaintBounds("7".rs, labelStyle)
+            val tagLayout = textMeasurer.measureSingleLine("Ag".rs, tagStyle)
+            val tagBounds = textMeasurer.measurePaintBounds("Ag".rs, tagStyle)
+            val tagCenterY = tagLayout.baseline + (tagBounds.top + tagBounds.bottom) * 0.5f.rf
 
-            val valueTop = valueLayout.glyphTop
-            val labelTop = labelLayout.glyphTop
-            val ascentY = valueLayout.firstBaseline + valueLayout.ascent
-            val capTopY = valueLayout.firstBaseline + valueTop
-            val baselineY = valueLayout.firstBaseline
+            val valueTop = valueBounds.top
+            val labelTop = labelBounds.top
+            val ascentY = valueLayout.baseline + valueFontMetrics.ascent
+            val capTopY = valueLayout.baseline + valueTop
+            val baselineY = valueLayout.baseline
             val lineEndX = 250f.rf
             val tagX = 258f.rf
 
@@ -484,17 +487,20 @@ private fun RemoteFontMetricsAndBoundsSample(
     applyOuterPadding: Boolean = true,
 ) {
     val tagStyle = RemoteTextStyle(fontSize = 8.rsp)
-    val layout = textMeasurer.measure(sampleText.rs, style)
-    val tagRef = textMeasurer.measure("Ag".rs, tagStyle)
-    val tagCenterY = tagRef.firstBaseline + (tagRef.glyphTop + tagRef.glyphBottom) * 0.5f.rf
+    val layout = textMeasurer.measureSingleLine(sampleText.rs, style)
+    val fontMetrics = textMeasurer.measureFontMetrics(style)
+    val glyphBounds = textMeasurer.measurePaintBounds(sampleText.rs, style)
+    val tagLayout = textMeasurer.measureSingleLine("Ag".rs, tagStyle)
+    val tagBounds = textMeasurer.measurePaintBounds("Ag".rs, tagStyle)
+    val tagCenterY = tagLayout.baseline + (tagBounds.top + tagBounds.bottom) * 0.5f.rf
 
-    val ascentY = layout.firstBaseline + layout.ascent
-    val topY = layout.firstBaseline + layout.glyphTop
-    val baselineY = layout.firstBaseline
-    val bottomY = layout.firstBaseline + layout.glyphBottom
-    val descentY = layout.firstBaseline + layout.descent
-    val lineEndX = layout.width + 16f.rf
-    val tagX = layout.width + 24f.rf
+    val ascentY = layout.baseline + fontMetrics.ascent
+    val topY = layout.baseline + glyphBounds.top
+    val baselineY = layout.baseline
+    val bottomY = layout.baseline + glyphBounds.bottom
+    val descentY = layout.baseline + fontMetrics.descent
+    val lineEndX = layout.size.width + 16f.rf
+    val tagX = layout.size.width + 24f.rf
     val boundsLabelY = descentY + 6f.rf
 
     val outerModifier =
@@ -526,8 +532,8 @@ private fun RemoteFontMetricsAndBoundsSample(
                                 this.style = RemotePaintingStyle.Stroke
                                 strokeWidth = 2f.rf
                             },
-                        topLeft = RemoteOffset(layout.glyphLeft, topY),
-                        size = RemoteSize(layout.glyphRight - layout.glyphLeft, bottomY - topY),
+                        topLeft = RemoteOffset(glyphBounds.left, topY),
+                        size = RemoteSize(glyphBounds.width, bottomY - topY),
                     )
                     drawLine(
                         paint =
@@ -620,15 +626,16 @@ private fun RemoteFontMetricsAndBoundsSample(
                 label = "glyphLeft",
                 color = GlyphBoundsOrange.rc,
                 style = tagStyle,
-                x = layout.glyphLeft,
+                x = glyphBounds.left,
                 y = boundsLabelY,
             )
-            val rightLabelWidth = textMeasurer.measure("glyphRight".rs, tagStyle).width
+            val rightLabelWidth =
+                textMeasurer.measureSingleLine("glyphRight".rs, tagStyle).size.width
             LineTag(
                 label = "glyphRight",
                 color = GlyphBoundsOrange.rc,
                 style = tagStyle,
-                x = layout.glyphRight - rightLabelWidth,
+                x = glyphBounds.right - rightLabelWidth,
                 y = boundsLabelY,
             )
         }
