@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
@@ -37,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -64,7 +66,11 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.width
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -432,5 +438,160 @@ class SwitchTest {
 
         // Is not moving or animating
         assertThat(onThumb.getBoundsInRoot()).isEqualTo(origBounds)
+    }
+
+    @Test
+    fun switch_dragToToggle() {
+        rule.setMaterialContent(lightColorScheme()) {
+            var checked by remember { mutableStateOf(false) }
+            Box {
+                Switch(
+                    modifier = Modifier.testTag(defaultSwitchTag),
+                    checked = checked,
+                    onCheckedChange = { checked = it },
+                )
+            }
+        }
+
+        rule
+            .onNodeWithTag(defaultSwitchTag)
+            .assertIsOff()
+            .performTouchInput { swipeRight() }
+            .assertIsOn()
+            .performTouchInput { swipeLeft() }
+            .assertIsOff()
+    }
+
+    @Test
+    fun switch_dragToToggle_rtl() {
+        rule.setMaterialContent(lightColorScheme()) {
+            var checked by remember { mutableStateOf(false) }
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                Box {
+                    Switch(
+                        modifier = Modifier.testTag(defaultSwitchTag),
+                        checked = checked,
+                        onCheckedChange = { checked = it },
+                    )
+                }
+            }
+        }
+
+        rule
+            .onNodeWithTag(defaultSwitchTag)
+            .assertIsOff()
+            .performTouchInput { swipeLeft() }
+            .assertIsOn()
+            .performTouchInput { swipeRight() }
+            .assertIsOff()
+    }
+
+    @Test
+    fun switch_partialDrag_snapsBack() {
+        rule.setMaterialContent(lightColorScheme()) {
+            var checked by remember { mutableStateOf(false) }
+            val spacer = @Composable { Spacer(Modifier.size(16.dp).testTag("spacer")) }
+            Box {
+                Switch(
+                    modifier = Modifier.testTag(defaultSwitchTag),
+                    checked = checked,
+                    thumbContent = spacer,
+                    onCheckedChange = { checked = it },
+                )
+            }
+        }
+
+        rule.onNodeWithTag(defaultSwitchTag).performTouchInput {
+            down(centerLeft)
+            // Drag slightly past touch slop without fling velocity, well below 50% threshold
+            moveBy(Offset(viewConfiguration.touchSlop + 2.dp.toPx(), 0f), delayMillis = 200L)
+            advanceEventTime(200L)
+            up()
+        }
+
+        rule.onNodeWithTag(defaultSwitchTag).assertIsOff()
+        rule.onNodeWithTag("spacer", useUnmergedTree = true).assertLeftPositionInRootIsEqualTo(8.dp)
+    }
+
+    @Test
+    fun switch_drag_whenUncontrolled_snapsBack() {
+        rule.setMaterialContent(lightColorScheme()) {
+            val spacer = @Composable { Spacer(Modifier.size(16.dp).testTag("spacer")) }
+            Box {
+                Switch(
+                    modifier = Modifier.testTag(defaultSwitchTag),
+                    checked = false,
+                    thumbContent = spacer,
+                    onCheckedChange = {},
+                )
+            }
+        }
+
+        rule.onNodeWithTag(defaultSwitchTag).performTouchInput { swipeRight() }
+
+        rule.onNodeWithTag(defaultSwitchTag).assertIsOff()
+        rule.onNodeWithTag("spacer", useUnmergedTree = true).assertLeftPositionInRootIsEqualTo(8.dp)
+    }
+
+    @Test
+    fun switch_drag_disabled_doesNotToggle() {
+        var checked by mutableStateOf(false)
+        rule.setMaterialContent(lightColorScheme()) {
+            Box {
+                Switch(
+                    modifier = Modifier.testTag(defaultSwitchTag),
+                    checked = checked,
+                    enabled = false,
+                    onCheckedChange = { checked = it },
+                )
+            }
+        }
+
+        rule.onNodeWithTag(defaultSwitchTag).performTouchInput { swipeRight() }.assertIsOff()
+        assertThat(checked).isFalse()
+    }
+
+    @Test
+    fun switch_press_animatesThumbSizeInsteadOfSnapping() {
+        rule.mainClock.autoAdvance = false
+        val thumbTag = "thumb"
+        rule.setMaterialContent(lightColorScheme()) {
+            Box {
+                Switch(
+                    modifier = Modifier.testTag(defaultSwitchTag),
+                    checked = false,
+                    onCheckedChange = {},
+                    thumbContent = {
+                        Box(
+                            Modifier.defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
+                                .fillMaxSize()
+                                .testTag(thumbTag)
+                        )
+                    },
+                )
+            }
+        }
+
+        val initialWidth =
+            rule.onNodeWithTag(thumbTag, useUnmergedTree = true).getBoundsInRoot().width
+        assertThat(initialWidth.value).isWithin(0.5f).of(SwitchTokens.SelectedHandleWidth.value)
+
+        rule.onNodeWithTag(defaultSwitchTag).performTouchInput { down(center) }
+        rule.mainClock.advanceTimeByFrame()
+
+        val midPressWidth =
+            rule.onNodeWithTag(thumbTag, useUnmergedTree = true).getBoundsInRoot().width
+        assertThat(midPressWidth).isLessThan(SwitchTokens.PressedHandleWidth)
+
+        rule.mainClock.advanceTimeBy(milliseconds = 500)
+        val pressedWidth =
+            rule.onNodeWithTag(thumbTag, useUnmergedTree = true).getBoundsInRoot().width
+        assertThat(pressedWidth.value).isWithin(0.5f).of(SwitchTokens.PressedHandleWidth.value)
+
+        rule.onNodeWithTag(defaultSwitchTag).performTouchInput { up() }
+        rule.mainClock.advanceTimeBy(milliseconds = 500)
+        val releasedWidth =
+            rule.onNodeWithTag(thumbTag, useUnmergedTree = true).getBoundsInRoot().width
+        assertThat(releasedWidth.value).isWithin(0.5f).of(SwitchTokens.SelectedHandleWidth.value)
     }
 }
