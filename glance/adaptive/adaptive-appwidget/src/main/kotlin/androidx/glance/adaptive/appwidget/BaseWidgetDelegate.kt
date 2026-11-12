@@ -210,9 +210,18 @@ internal class BaseWidgetDelegate(
      * @param widgetName Developer widget definition String identifier matching
      *   [GlanceAdaptiveWidgetReceiver.widgetName].
      * @param previewData Declarative template data payload implementing [GlanceAdaptiveTemplate].
+     *   Picker categories with the same layout, such as home screen and search box, are set with
+     *   one platform call. Categories with different layouts are set independently: once every
+     *   category has been attempted, the first failure is thrown with the others attached as
+     *   suppressed exceptions. If the platform rejects a preview, typically because of its rate
+     *   limit, the remaining categories are not attempted, as they would be rejected too. A failure
+     *   never clears a preview: the picker keeps the last accepted one, or the static preview
+     *   declared by the widget.
      * @throws IllegalArgumentException if [widgetName] cannot be resolved, see
      *   [GlanceAdaptiveWidgetReceiver.widgetName].
-     * @throws IllegalStateException if [widgetName] cannot be resolved.
+     * @throws IllegalStateException if [widgetName] cannot be resolved, or if the platform rejects
+     *   a preview, typically because of its rate limit. Do not retry immediately: each call counts
+     *   against the limit, so call this only when the preview content changes.
      */
     override suspend fun setPreview(widgetName: String, previewData: GlanceAdaptiveTemplate): Unit =
         withContext(Dispatchers.IO) {
@@ -224,61 +233,64 @@ internal class BaseWidgetDelegate(
                 return@withContext
             }
 
-            try {
-                // Match against the installed provider before expensive composition.
-                val providerInfo = findInstalledProvider(componentName) ?: return@withContext
+            // A disabled receiver is not an installed provider, so it has no picker entry.
+            val providerInfo = findInstalledProvider(componentName) ?: return@withContext
 
-                val targetToPreviews = composer.groupPreviewsByRenderTarget(listOf(providerInfo))
-                for ((target, previews) in targetToPreviews) {
-                    val remoteViews =
-                        try {
-                            composer.compose(previewData, target, widgetName)
-                        } catch (e: CancellationException) {
-                            throw e
-                        } catch (e: Exception) {
-                            Log.e(
-                                TAG,
-                                "Error composing preview for surface ${target.surface}, size " +
-                                    "${target.dimensions} and widgetName $widgetName",
-                                e,
-                            )
-                            continue
-                        }
-
-                    for (i in previews.indices) {
-                        val preview = previews[i]
-                        try {
-                            val success =
-                                appWidgetManager.setWidgetPreview(
-                                    preview.provider,
-                                    preview.category,
-                                    remoteViews,
-                                )
-                            if (!success) {
-                                Log.w(
-                                    TAG,
-                                    "AppWidgetManager.setWidgetPreview returned false for " +
-                                        "${preview.provider} with category ${preview.category}",
-                                )
-                            }
-                        } catch (e: CancellationException) {
-                            throw e
-                        } catch (e: Exception) {
-                            Log.e(
-                                TAG,
-                                "Error setting widget preview for ${preview.provider} with " +
-                                    "category ${preview.category}",
-                                e,
-                            )
-                        }
+            val failures = SetPreviewFailures(widgetName)
+            val targetToPreviews = composer.groupPreviewsByRenderTarget(listOf(providerInfo))
+            for ((target, previews) in targetToPreviews) {
+                // Composing and setting previews never suspends, so cancellation is checked here.
+                ensureActive()
+                val remoteViews =
+                    try {
+                        composer.compose(previewData, target, widgetName)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        failures.add(e, target, previews)
+                        continue
                     }
+
+                // The previews of a target share their RemoteViews, so their categories are set
+                // in one call, as each call counts against the platform's rate limit.
+                var categories = 0
+                for (i in previews.indices) {
+                    categories = categories or previews[i].category
                 }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                // TODO(b/550323432): Re-evaluate error propagation vs logging for widget failures.
-                Log.e(TAG, "Error setting widget preview for widgetName $widgetName", e)
+                ensureActive()
+                try {
+                    val accepted =
+                        appWidgetManager.setWidgetPreview(
+                            providerInfo.provider,
+                            categories,
+                            remoteViews,
+                        )
+                    if (!accepted) {
+                        failures.add(
+                            IllegalStateException(
+                                "AppWidgetManager.setWidgetPreview rejected the preview of " +
+                                    "widgetName $widgetName for categories $categories, " +
+                                    "typically because of its rate limit. Do not retry " +
+                                    "immediately: call setPreview only when the preview " +
+                                    "content changes. The picker keeps the last accepted " +
+                                    "preview, or the static preview declared by the widget."
+                            ),
+                            target,
+                            previews,
+                        )
+                        // The rate limit applies to the whole provider, so the remaining
+                        // categories would be rejected too.
+                        break
+                    }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    failures.add(e, target, previews)
+                }
             }
+            // A cancelled call throws CancellationException rather than the collected failures.
+            ensureActive()
+            failures.throwIfAny()
         }
 
     /**

@@ -39,8 +39,8 @@ internal interface GlanceAdaptiveAppWidgetDelegate : GlanceAdaptiveWidgetDelegat
      * @param previewData The declarative template data payload to render as a preview.
      * @throws IllegalArgumentException if [widgetName] cannot be resolved, see
      *   [GlanceAdaptiveWidgetReceiver.widgetName].
-     * @throws IllegalStateException if [widgetName] cannot be resolved, see
-     *   [GlanceAdaptiveWidgetReceiver.widgetName].
+     * @throws IllegalStateException if [widgetName] cannot be resolved (see
+     *   [GlanceAdaptiveWidgetReceiver.widgetName]), or if the platform rejects a preview.
      */
     suspend fun setPreview(widgetName: String, previewData: GlanceAdaptiveTemplate)
 
