@@ -21,24 +21,33 @@ import androidx.compose.remote.creation.compose.capture.RemoteDocumentScope
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.runtime.Stable
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** Dynamic layout measurements of a RemoteCompose component in pixels. */
 @Stable
 public class RemoteComponent internal constructor(private val context: RemoteFloatContext) {
+    /** Width of this component in pixels. */
     public val width: RemoteFloat
         get() = context.componentWidth()
 
+    /** Height of this component in pixels. */
     public val height: RemoteFloat
         get() = context.componentHeight()
 
+    /** Horizontal center (`width / 2`) of this component in pixels. */
     public val centerX: RemoteFloat
         get() = context.componentCenterX()
 
+    /** Vertical center (`height / 2`) of this component in pixels. */
     public val centerY: RemoteFloat
         get() = context.componentCenterY()
 
+    /**
+     * Position of this component's top-left corner relative to its parent in pixels, or `(0, 0)`
+     * for the root component.
+     */
     public val positionInParent: RemoteOffset
         get() = RemoteOffset(context.componentX(), context.componentY())
 
+    /** Position of this component's top-left corner relative to the root in pixels. */
     public val positionInRoot: RemoteOffset
         get() = RemoteOffset(context.componentRootX(), context.componentRootY())
 

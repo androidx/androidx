@@ -16,21 +16,31 @@
 
 package androidx.compose.remote.creation.compose.layout
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Immutable
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * An immutable 2D floating-point offset that can be used to represent a point or a vector in a
+ * remote UI context.
+ *
+ * This class is similar to `androidx.compose.ui.geometry.Offset`, but uses [RemoteFloat] for its
+ * coordinates to support remote state synchronization.
+ *
+ * @property x The horizontal displacement.
+ * @property y The vertical displacement.
+ */
 @Immutable
 public class RemoteOffset(
     public val x: RemoteFloat,
     public val y: RemoteFloat,
 ) {
+    /** The magnitude of the smaller of the two components, [x] and [y]. */
     public val minDimension: RemoteFloat
         get() = x.min(y)
 
     public companion object {
+        /** A [RemoteOffset] with both [x] and [y] set to zero. */
         public val Zero: RemoteOffset = RemoteOffset(0.rf, 0.rf)
 
         public val Infinite: RemoteOffset =
