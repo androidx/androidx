@@ -41,6 +41,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
+import androidx.compose.remote.integration.view.demos.utils.DemoRcResolver;
 import androidx.compose.remote.player.view.RemoteComposePlayer;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -426,6 +427,7 @@ public class DocPlayerActivity extends Activity {
                 mPreview[i].addView(previewView);
             } else {
                 RemoteComposePlayer player = new RemoteComposePlayer(this);
+                player.setRcResolver(DemoRcResolver.create(this));
                 player.setShaderControl((String str) -> {
                     return true;
                 });

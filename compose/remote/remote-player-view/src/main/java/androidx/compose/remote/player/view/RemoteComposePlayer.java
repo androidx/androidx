@@ -40,6 +40,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.CoreDocument.ShaderControl;
 import androidx.compose.remote.core.Limits;
+import androidx.compose.remote.core.RcResolver;
 import androidx.compose.remote.core.RemoteComposeBuffer;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.RemoteContextActions;
@@ -713,6 +714,28 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
      */
     public void setCustomSupport(@Nullable AndroidCustomContext androidCustomSupport) {
         mInner.setCustomSupport(androidCustomSupport);
+    }
+
+    /**
+     * Sets the {@link RcResolver} plugin used to resolve embedded RemoteCompose document URLs into
+     * serialized {@code byte[]} buffers.
+     *
+     * @param resolver the {@link RcResolver} plugin, or {@code null} to disable resolution
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public void setRcResolver(@Nullable RcResolver resolver) {
+        mInner.setRcResolver(resolver);
+    }
+
+    /**
+     * Gets the current {@link RcResolver} plugin used to resolve embedded RemoteCompose document
+     * URLs.
+     *
+     * @return the current {@link RcResolver}, or {@code null} if none is set
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public @Nullable RcResolver getRcResolver() {
+        return mInner.getRcResolver();
     }
 
     /**

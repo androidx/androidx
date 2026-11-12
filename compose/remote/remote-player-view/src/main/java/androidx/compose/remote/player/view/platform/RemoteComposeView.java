@@ -40,6 +40,7 @@ import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.LayoutCallback;
 import androidx.compose.remote.core.Limiter;
 import androidx.compose.remote.core.Limits;
+import androidx.compose.remote.core.RcResolver;
 import androidx.compose.remote.core.RemoteClock;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.SystemClock;
@@ -92,6 +93,7 @@ public class RemoteComposeView extends FrameLayout
     long mDoubleTapTimeout;
 
     AndroidCustomContext mAndroidCustomContext = null;
+    @Nullable RcResolver mRcResolver = null;
     AndroidRemoteContext mARContext;
     Map<Integer, Object> mResolvedData = null;
     PatternCallback mPatternCallback = null;
@@ -243,6 +245,7 @@ public class RemoteComposeView extends FrameLayout
         mARContext = new AndroidRemoteContext(clock);
         mARContext.setAndroidContext(getContext());
         mARContext.setEdgeEffectBuilder(() -> new EdgeEffect(getContext()));
+        mARContext.setRcResolver(mRcResolver);
     }
 
     /** Sets the debug mode for the view. */
@@ -794,6 +797,37 @@ public class RemoteComposeView extends FrameLayout
      */
     public void setCustomSupport(@Nullable AndroidCustomContext androidCustomSupport) {
         mAndroidCustomContext = androidCustomSupport;
+    }
+
+    /**
+     * Set the host {@link RcResolver} plugin used to resolve embedded RemoteCompose document URLs
+     * into serialized {@code byte[]} buffers.
+     *
+     * @param resolver the {@link RcResolver} plugin, or {@code null} to disable resolution
+     */
+    public void setRcResolver(@Nullable RcResolver resolver) {
+        if (mRcResolver == resolver) {
+            return;
+        }
+        mRcResolver = resolver;
+        if (mARContext != null) {
+            mARContext.setRcResolver(resolver);
+        }
+        if (mDocument != null) {
+            mDocument.invalidate();
+            requestLayout();
+            invalidate();
+        }
+    }
+
+    /**
+     * Return the current {@link RcResolver} plugin used to resolve embedded RemoteCompose document
+     * URLs.
+     *
+     * @return the {@link RcResolver} plugin, or {@code null}
+     */
+    public @Nullable RcResolver getRcResolver() {
+        return mRcResolver;
     }
 
     /** Interface to receive click events on components. */

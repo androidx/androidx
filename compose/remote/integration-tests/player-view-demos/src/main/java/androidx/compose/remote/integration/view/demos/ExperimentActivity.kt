@@ -159,6 +159,7 @@ import androidx.compose.remote.integration.view.demos.examples.rcJsonStyleMacroD
 import androidx.compose.remote.integration.view.demos.examples.rcJsonTextDemo8
 import androidx.compose.remote.integration.view.demos.examples.rcJsonTicker
 import androidx.compose.remote.integration.view.demos.examples.shaderFireworks
+import androidx.compose.remote.integration.view.demos.utils.DemoRcResolver
 import androidx.compose.remote.integration.view.demos.utils.RCDoc
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.player.view.RemoteComposePlayer
@@ -1132,6 +1133,7 @@ private fun DocumentView(
                     .size(documentWidth.value.dp, documentHeight.value.dp),
             factory = {
                 val player = RemoteComposePlayer(it)
+                player.setRcResolver(DemoRcResolver.create(it))
                 player.setShaderControl(shaderControl)
                 if (currentDocument.value != null) {
                     player.setDocument(RemoteDocument(currentDocument.value!!))
@@ -1253,6 +1255,7 @@ fun DisplayStats(fileReady: Boolean, func: RemoteComposeFunc) {
                 modifier = Modifier.size(documentWidth.dp, documentHeight.dp),
                 factory = {
                     val player = RemoteComposePlayer(it)
+                    player.setRcResolver(DemoRcResolver.create(it))
                     player.setShaderControl(shaderControl)
                     if (currentDocument.value != null) {
                         player.setDocument(RemoteDocument(currentDocument.value!!))
@@ -1368,6 +1371,7 @@ fun DisplayDoc(fileReady: Boolean, func: RemoteComposeFunc) {
                 modifier = Modifier.size(documentWidth.dp, documentHeight.dp),
                 factory = {
                     val player = RemoteComposePlayer(it)
+                    player.setRcResolver(DemoRcResolver.create(it))
                     player.setShaderControl(shaderControl)
                     if (currentDocument.value != null) {
                         player.setDocument(RemoteDocument(currentDocument.value!!))
@@ -1437,6 +1441,7 @@ fun DisplayMain(
                         modifier = Modifier, // .size(documentWidth.dp, documentHeight.dp),
                         factory = {
                             val player = RemoteComposePlayer(it)
+                            player.setRcResolver(DemoRcResolver.create(it))
                             player.setShaderControl(shaderControl)
                             if (currentDocument.value != null) {
                                 player.setDocument(RemoteDocument(currentDocument.value!!))

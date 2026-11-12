@@ -119,7 +119,9 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
         mCustomSupport.setCanvas(mCanvas);
         mCustomSupport.setRemoteContext(mContext);
         android.content.Context androidContext =
-                ((AndroidRemoteContext) mContext).getAndroidContext();
+                (mContext instanceof AndroidRemoteContext)
+                        ? ((AndroidRemoteContext) mContext).getAndroidContext()
+                        : null;
         if (androidContext != null) {
             mCustomSupport.setContext(androidContext);
         }
@@ -131,7 +133,9 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
             throw new RuntimeException("No Custom components supported");
         }
         android.content.Context androidContext =
-                ((AndroidRemoteContext) mContext).getAndroidContext();
+                (mContext instanceof AndroidRemoteContext)
+                        ? ((AndroidRemoteContext) mContext).getAndroidContext()
+                        : null;
         if (androidContext != null) {
             mCustomSupport.setContext(androidContext);
             mCustomSupport.createCustom(id, config);
@@ -262,9 +266,8 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
             int dstRight,
             int dstBottom,
             int cdId) {
-        AndroidRemoteContext androidContext = (AndroidRemoteContext) mContext;
-        if (androidContext.mRemoteComposeState.containsId(imageId)) {
-            Bitmap bitmap = (Bitmap) androidContext.mRemoteComposeState.getFromId(imageId);
+        if (mContext.mRemoteComposeState.containsId(imageId)) {
+            Bitmap bitmap = (Bitmap) mContext.mRemoteComposeState.getFromId(imageId);
             mCanvas.drawBitmap(
                     bitmap,
                     new Rect(srcLeft, srcTop, srcRight, srcBottom),
@@ -451,9 +454,8 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
 
     @Override
     public void drawBitmap(int id, float left, float top, float right, float bottom) {
-        AndroidRemoteContext androidContext = (AndroidRemoteContext) mContext;
-        if (androidContext.mRemoteComposeState.containsId(id)) {
-            Bitmap bitmap = (Bitmap) androidContext.mRemoteComposeState.getFromId(id);
+        if (mContext.mRemoteComposeState.containsId(id)) {
+            Bitmap bitmap = (Bitmap) mContext.mRemoteComposeState.getFromId(id);
             Rect src = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
             RectF dst = new RectF(left, top, right, bottom);
             mCanvas.drawBitmap(bitmap, src, dst, mPaint);
@@ -1265,8 +1267,7 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
                     for (int i = 0; i < names.length; i++) {
                         String name = names[i];
                         int val = data.getUniformBitmapId(name);
-                        AndroidRemoteContext androidContext = (AndroidRemoteContext) mContext;
-                        Bitmap bitmap = (Bitmap) androidContext.mRemoteComposeState.getFromId(val);
+                        Bitmap bitmap = (Bitmap) mContext.mRemoteComposeState.getFromId(val);
                         BitmapShader bitmapShader =
                                 new BitmapShader(
                                         bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
@@ -1505,8 +1506,7 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
     @Override
     public void tweenPath(int out, int path1, int path2, float tween) {
         float[] p = getPathArray(path1, path2, tween);
-        AndroidRemoteContext androidContext = (AndroidRemoteContext) mContext;
-        androidContext.mRemoteComposeState.putPathData(out, p);
+        mContext.mRemoteComposeState.putPathData(out, p);
     }
 
     @Override
@@ -1523,8 +1523,7 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
         Path p = new Path(p1);
         p.op(p2, op[operation]);
 
-        AndroidRemoteContext androidContext = (AndroidRemoteContext) mContext;
-        androidContext.mRemoteComposeState.putPath(out, p);
+        mContext.mRemoteComposeState.putPath(out, p);
     }
 
     @Override
@@ -1542,16 +1541,15 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
     }
 
     private float[] getPathArray(int path1Id, int path2Id, float tween) {
-        AndroidRemoteContext androidContext = (AndroidRemoteContext) mContext;
         if (tween == 0.0f) {
-            return androidContext.mRemoteComposeState.getPathData(path1Id);
+            return mContext.mRemoteComposeState.getPathData(path1Id);
         }
         if (tween == 1.0f) {
-            return androidContext.mRemoteComposeState.getPathData(path2Id);
+            return mContext.mRemoteComposeState.getPathData(path2Id);
         }
 
-        float[] data1 = androidContext.mRemoteComposeState.getPathData(path1Id);
-        float[] data2 = androidContext.mRemoteComposeState.getPathData(path2Id);
+        float[] data1 = mContext.mRemoteComposeState.getPathData(path1Id);
+        float[] data2 = mContext.mRemoteComposeState.getPathData(path2Id);
         float[] tmp = new float[data2.length];
         for (int i = 0; i < tmp.length; i++) {
             if (Float.isNaN(data1[i]) || Float.isNaN(data2[i])) {
@@ -1570,14 +1568,13 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
     }
 
     private Path getPath(int id, float start, float end) {
-        AndroidRemoteContext androidContext = (AndroidRemoteContext) mContext;
-        Path p = (Path) androidContext.mRemoteComposeState.getPath(id);
-        int w = androidContext.mRemoteComposeState.getPathWinding(id);
+        Path p = (Path) mContext.mRemoteComposeState.getPath(id);
+        int w = mContext.mRemoteComposeState.getPathWinding(id);
         if (p != null) {
             return p;
         }
         Path path = new Path();
-        float[] pathData = androidContext.mRemoteComposeState.getPathData(id);
+        float[] pathData = mContext.mRemoteComposeState.getPathData(id);
         if (pathData != null) {
             FloatsToPath.genPath(path, pathData, start, end);
             switch (w) {
@@ -1591,7 +1588,7 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
                     path.setFillType(Path.FillType.INVERSE_WINDING);
                     break;
             }
-            androidContext.mRemoteComposeState.putPath(id, path);
+            mContext.mRemoteComposeState.putPath(id, path);
         }
 
         return path;

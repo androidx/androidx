@@ -562,13 +562,15 @@ public class ScrollModifierOperation extends ListActionsOperation
 
     @Override
     public int scrollByOffset(@NonNull RemoteContext context, int offset) {
-        // TODO work out how to avoid disabling this
-        mTouchExpression = null;
-
+        // Set the scroll position through an override so the TouchExpression driving the
+        // position adopts it (and the list stays draggable), rather than disabling touch.
+        // mScrollX/mScrollY are stored negated: paint() does mScrollY = -position.
         if (handlesVerticalScroll()) {
             mScrollY = Math.max(-mMaxScrollY, Math.min(0, mScrollY + offset));
+            context.overrideFloat(Utils.idFromNan(mPositionExpression), 0f - mScrollY);
         } else {
             mScrollX = Math.max(-mMaxScrollX, Math.min(0, mScrollX + offset));
+            context.overrideFloat(Utils.idFromNan(mPositionExpression), 0f - mScrollX);
         }
         return offset;
     }

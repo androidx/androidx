@@ -52,7 +52,6 @@ import androidx.compose.remote.player.compose.utils.toPaintingStyle
 import androidx.compose.remote.player.compose.utils.toStampedPathEffectStyle
 import androidx.compose.remote.player.compose.utils.toStrokeCap
 import androidx.compose.remote.player.compose.utils.toStrokeJoin
-import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.PathEffect.Companion.chainPathEffect
 import androidx.compose.ui.graphics.PathEffect.Companion.dashPathEffect
@@ -65,7 +64,12 @@ import java.nio.ByteBuffer
 
 /** A [PaintChanges] implementation for [ComposePaintContext]. */
 internal class ComposePaintChanges(
-    private val remoteContext: RemoteContext,
+    /**
+     * Supplies the context currently being painted. This is a provider rather than a fixed
+     * reference because embedded documents (rcDoc) temporarily swap the paint context's
+     * RemoteContext for their own; ids must be resolved against that child context.
+     */
+    private val getContext: () -> RemoteContext,
     private val getPaint: () -> androidx.compose.ui.graphics.Paint,
 ) : PaintChanges {
     private var fontBuilder: Font.Builder? = null
@@ -110,7 +114,7 @@ internal class ComposePaintChanges(
                 }
 
             else -> {
-                val fi = remoteContext.getObject(fontType) as RemoteContext.FontInfo?
+                val fi = getContext().getObject(fontType) as RemoteContext.FontInfo?
                 var builder = fi!!.fontBuilder as Font.Builder?
                 if (builder == null) {
                     builder = createFontBuilder(fi.mFontData, weight, italic)
@@ -132,7 +136,7 @@ internal class ComposePaintChanges(
             getNativePaint().shader.setLocalMatrix(null)
             return
         }
-        val matAccess = remoteContext.getObject(id) as MatrixAccess?
+        val matAccess = getContext().getObject(id) as MatrixAccess?
         tmpMatrix.setValues(MatrixAccess.to3x3(matAccess!!.get()))
         val s: Shader = getNativePaint().shader
         s.setLocalMatrix(tmpMatrix)
@@ -250,7 +254,7 @@ internal class ComposePaintChanges(
     ) {
 
         // TODO implement getBitmap(bitmapId)
-        val bitmap = remoteContext.mRemoteComposeState.getFromId(bitmapId) as Bitmap ?: return
+        val bitmap = getContext().mRemoteComposeState.getFromId(bitmapId) as Bitmap ?: return
         val bs =
             BitmapShader(
                 bitmap,
@@ -288,7 +292,7 @@ internal class ComposePaintChanges(
 
             is PaintPathEffects.PathDash ->
                 stampedPathEffect(
-                    remoteContext.mRemoteComposeState.getPath(pe.mShapeId, 0f, 1f),
+                    getContext().mRemoteComposeState.getPath(pe.mShapeId, 0f, 1f),
                     pe.mAdvance,
                     pe.mPhase,
                     PathDashPathEffect.Style.entries[pe.mStyle].toStampedPathEffectStyle(),
@@ -345,7 +349,7 @@ internal class ComposePaintChanges(
         if (data == null) {
             return
         }
-        val shader = RuntimeShader(remoteContext.getText(data.shaderTextId)!!)
+        val shader = RuntimeShader(getContext().getText(data.shaderTextId)!!)
         var names = data.getUniformFloatNames()
         for (i in names.indices) {
             val name = names[i]
@@ -362,8 +366,7 @@ internal class ComposePaintChanges(
         for (i in names.indices) {
             val name = names[i]
             val `val` = data.getUniformBitmapId(name)
-            val androidContext = remoteContext as AndroidRemoteContext
-            val bitmap = androidContext.mRemoteComposeState.getFromId(`val`) as Bitmap?
+            val bitmap = getContext().mRemoteComposeState.getFromId(`val`) as Bitmap?
             val bitmapShader = BitmapShader(bitmap!!, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
             shader.setInputShader(name, bitmapShader)
         }
@@ -486,7 +489,7 @@ internal class ComposePaintChanges(
     private fun getNativePaint(): android.graphics.Paint = getPaint().asFrameworkPaint()
 
     private fun getShaderData(id: Int): ShaderData? {
-        return remoteContext.mRemoteComposeState.getFromId(id) as ShaderData?
+        return getContext().mRemoteComposeState.getFromId(id) as ShaderData?
     }
 
     companion object {

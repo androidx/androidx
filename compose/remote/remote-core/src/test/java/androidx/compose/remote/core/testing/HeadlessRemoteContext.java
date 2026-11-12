@@ -80,6 +80,16 @@ public class HeadlessRemoteContext extends RemoteContext {
         mRemoteComposeState.cacheData(id, (Object) color);
     }
 
+    /**
+     * Override colors
+     * @param id id of color
+     * @param color the new color
+     */
+    public void overrideColor(int id, int color) {
+        mColors.put(id, color);
+        mRemoteComposeState.overrideColor(id, color);
+    }
+
     @Override
     public int getColor(int id) {
         Integer color = mColors.get(id);
@@ -141,7 +151,9 @@ public class HeadlessRemoteContext extends RemoteContext {
     }
 
     @Override
-    public void runAction(int id, @NonNull String metadata) {}
+    public void runAction(int id, @NonNull String metadata) {
+        mDocument.performClick(this, id, metadata);
+    }
 
     @Override
     public void runNamedAction(int textId, @Nullable Object value) {}
@@ -224,7 +236,22 @@ public class HeadlessRemoteContext extends RemoteContext {
     }
 
     @Override
-    public void overrideText(int id, int valueId) {}
+    public void overrideText(int id, int valueId) {
+        String text = getText(valueId);
+        if (text != null) {
+            overrideText(id, text);
+        }
+    }
+
+    /**
+     * override a text value
+     * @param id id of the text to override
+     * @param text the new string
+     */
+    public void overrideText(int id, @NonNull String text) {
+        mTexts.put(id, text);
+        mRemoteComposeState.overrideData(id, text);
+    }
 
     @Override
     public void loadAnimatedFloat(int id, @NonNull FloatExpression animatedFloat) {

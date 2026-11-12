@@ -71,6 +71,7 @@ import androidx.compose.remote.integration.view.demos.providers.Demo2;
 import androidx.compose.remote.integration.view.demos.providers.Demo3;
 import androidx.compose.remote.integration.view.demos.providers.Demo4;
 import androidx.compose.remote.integration.view.demos.providers.Demo5;
+import androidx.compose.remote.integration.view.demos.utils.DemoRcResolver;
 import androidx.compose.remote.integration.view.demos.utils.RCDoc;
 import androidx.compose.remote.player.core.RemoteDocument;
 import androidx.compose.remote.player.view.RemoteComposePlayer;
@@ -652,6 +653,7 @@ public class DemoActivity extends Activity {
             setOrientation(VERTICAL);
             mPlayer = new RemoteComposePlayer(context);
             mPlayer.setCustomSupport(new AndroidCustomSupport(mPlayer));
+            mPlayer.setRcResolver(DemoRcResolver.create(context));
             mTitle = new TextView(context);
             mStats = new TextView(context);
             mPlayer.setShaderControl(new ShaderControl() {

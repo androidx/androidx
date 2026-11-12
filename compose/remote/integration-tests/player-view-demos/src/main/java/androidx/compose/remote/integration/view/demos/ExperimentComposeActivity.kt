@@ -40,6 +40,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.remote.integration.view.demos.customCompose.SupportSlider
 import androidx.compose.remote.integration.view.demos.customCompose.SupportText
+import androidx.compose.remote.integration.view.demos.utils.DemoRcResolver
 import androidx.compose.remote.integration.view.demos.utils.RCDoc
 import androidx.compose.remote.player.compose.custom.ComposeCustomSupport
 import androidx.compose.remote.player.compose.impl.RemoteComposePlayer
@@ -55,6 +56,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -89,6 +91,9 @@ public fun ExperimentComposeScreen(docList: List<RCDoc>) {
     var isLocked by remember { mutableStateOf(true) }
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+    // Resolves the embedded `.rc` documents (rcDoc) used by the dsl/embedded demos.
+    val context = LocalContext.current
+    val rcResolver = remember(context) { DemoRcResolver.create(context) }
     @SuppressLint("FrequentlyChangingValue")
     LaunchedEffect(listState.firstVisibleItemIndex) {
         currentIndex = listState.firstVisibleItemIndex
@@ -186,6 +191,7 @@ public fun ExperimentComposeScreen(docList: List<RCDoc>) {
                             document = remoteDocument,
                             modifier = Modifier.fillMaxSize(),
                             customSupport = customSupport,
+                            rcResolver = rcResolver,
                         )
                     }
                 }

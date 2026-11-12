@@ -208,6 +208,39 @@ public open class RemoteComposeContext {
         mRemoteWriter.fitBox(modifier, horizontal, vertical) { content() }
     }
 
+    public fun rcDoc(url: String, modifier: RecordingModifier = Modifier): Int {
+        return mRemoteWriter.rcDoc(url, modifier)
+    }
+
+    public fun rcDoc(urlTextId: Int, modifier: RecordingModifier = Modifier): Int {
+        return mRemoteWriter.rcDoc(urlTextId, modifier)
+    }
+
+    /** Adds an opaque binary blob and returns its id, see [RemoteComposeWriter.addBinaryData]. */
+    public fun addBinaryData(type: Int, flags: Int, data: ByteArray): Int {
+        return mRemoteWriter.addBinaryData(type, flags, data)
+    }
+
+    /**
+     * Embeds a complete child document in this document and returns its id; pass it to [rcDoc]. See
+     * [RemoteComposeWriter.addEmbeddedDocument].
+     */
+    public fun addEmbeddedDocument(document: ByteArray): Int {
+        return mRemoteWriter.addEmbeddedDocument(document)
+    }
+
+    public fun mapRcDocVariables(docId: Int, mode: Int, localId: Int, remoteName: String) {
+        mRemoteWriter.mapRcDocVariables(docId, mode, localId, remoteName)
+    }
+
+    public fun mapRcDocVariables(docId: Int, mode: Int, localFloatVar: Float, remoteName: String) {
+        mRemoteWriter.mapRcDocVariables(docId, mode, localFloatVar, remoteName)
+    }
+
+    public fun mapRcDocVariables(docId: Int, mode: Int, localId: Int, remoteTarget: Int) {
+        mRemoteWriter.mapRcDocVariables(docId, mode, localId, remoteTarget)
+    }
+
     public val Modifier: RecordingModifier
         get() = RecordingModifier()
 

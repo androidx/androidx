@@ -22,6 +22,7 @@ import static androidx.compose.remote.core.RcProfiles.PROFILE_WIDGETS;
 
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.AddMesh2D;
+import androidx.compose.remote.core.operations.BinaryData;
 import androidx.compose.remote.core.operations.BitmapData;
 import androidx.compose.remote.core.operations.BitmapFontData;
 import androidx.compose.remote.core.operations.BitmapTextMeasure;
@@ -74,6 +75,7 @@ import androidx.compose.remote.core.operations.IdLookup;
 import androidx.compose.remote.core.operations.ImageAttribute;
 import androidx.compose.remote.core.operations.IncludeReferencedOperations;
 import androidx.compose.remote.core.operations.IntegerExpression;
+import androidx.compose.remote.core.operations.MapRcDocVariables;
 import androidx.compose.remote.core.operations.MatrixFromMesh2D;
 import androidx.compose.remote.core.operations.MatrixFromPath;
 import androidx.compose.remote.core.operations.MatrixRestore;
@@ -142,6 +144,7 @@ import androidx.compose.remote.core.operations.layout.managers.Custom;
 import androidx.compose.remote.core.operations.layout.managers.FitBoxLayout;
 import androidx.compose.remote.core.operations.layout.managers.FlowLayout;
 import androidx.compose.remote.core.operations.layout.managers.ImageLayout;
+import androidx.compose.remote.core.operations.layout.managers.RcDocLayout;
 import androidx.compose.remote.core.operations.layout.managers.RowLayout;
 import androidx.compose.remote.core.operations.layout.managers.StateLayout;
 import androidx.compose.remote.core.operations.layout.managers.TextLayout;
@@ -368,6 +371,7 @@ public class Operations {
     // support embedded doc
     public static final int LAYOUT_RC_DOC = 121;
     public static final int MAP_RC_DOC_VARIABLES = 122;
+    public static final int BINARY_DATA = 41;
 
     public static final int LAYOUT_ROOT = 200;
     public static final int LAYOUT_CONTENT = 201;
@@ -500,6 +504,9 @@ public class Operations {
         ADD_MESH_2D,
         DRAW_MESH_2D,
         MATRIX_FROM_MESH_2D,
+        LAYOUT_RC_DOC,
+        MAP_RC_DOC_VARIABLES,
+        BINARY_DATA,
     };
 
     /** Deprecated operations of the AndroidX profile. */
@@ -546,6 +553,9 @@ public class Operations {
         ADD_MESH_2D,
         DRAW_MESH_2D,
         MATRIX_FROM_MESH_2D,
+        LAYOUT_RC_DOC,
+        MAP_RC_DOC_VARIABLES,
+        BINARY_DATA,
     };
 
     /** Deprecated operations of the Widgets profile. */
@@ -635,6 +645,9 @@ public class Operations {
                 sAllOperationsV7.put(ADD_MESH_2D, AddMesh2D::read);
                 sAllOperationsV7.put(DRAW_MESH_2D, DrawMesh2D::read);
                 sAllOperationsV7.put(MATRIX_FROM_MESH_2D, MatrixFromMesh2D::read);
+                sAllOperationsV7.put(LAYOUT_RC_DOC, RcDocLayout::read);
+                sAllOperationsV7.put(MAP_RC_DOC_VARIABLES, MapRcDocVariables::read);
+                sAllOperationsV7.put(BINARY_DATA, BinaryData::read);
 
                 sAllOperationsV7.put(ROOT_CONTENT_BEHAVIOR, RootContentBehavior::read);
             }

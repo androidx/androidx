@@ -424,6 +424,17 @@ public class RemoteComposeState implements CollectionsAccess {
     }
 
     /**
+     * Returns true if the float with this id is currently overridden, i.e. {@link #overrideFloat}
+     * was called and {@link #clearFloatOverride} hasn't been called since.
+     *
+     * @param id the float id
+     * @return true if overridden
+     */
+    public boolean isFloatOverridden(int id) {
+        return id >= 0 && id < mFloatOverride.length && mFloatOverride[id];
+    }
+
+    /**
      * Clear the float override
      *
      * @param id the float id to clear

@@ -24,6 +24,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RcResolver
 import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.player.core.action.NamedActionHandler
@@ -62,6 +63,7 @@ public fun RemoteDocumentPlayer(
     bitmapLoader: BitmapLoader? = null,
     typefaceResolver: TypefaceResolver? = null,
     customSupport: AndroidCustomContext? = null,
+    rcResolver: RcResolver? = null,
 ) {
     var inDarkTheme by remember { mutableStateOf(false) }
     var playbackTheme by remember { mutableIntStateOf(Theme.UNSPECIFIED) }
@@ -114,6 +116,7 @@ public fun RemoteDocumentPlayer(
                 bitmapLoader?.let(::setBitmapLoader)
                 typefaceResolver?.let(::setTypefaceResolver)
                 customSupport?.let(::setCustomSupport)
+                rcResolver?.let(::setRcResolver)
                 init(this)
             }
         },
@@ -122,6 +125,7 @@ public fun RemoteDocumentPlayer(
             remoteComposePlayer.setDocument(remoteDoc)
             remoteComposePlayer.setDebug(debugMode)
             customSupport?.let(remoteComposePlayer::setCustomSupport)
+            rcResolver?.let(remoteComposePlayer::setRcResolver)
             remoteComposePlayer.document.document.clearActionCallbacks()
             remoteComposePlayer.document.document.addIdActionListener { id, value ->
                 onAction.invoke(id, value)

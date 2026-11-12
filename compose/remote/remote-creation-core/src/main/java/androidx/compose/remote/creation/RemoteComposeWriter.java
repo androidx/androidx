@@ -53,6 +53,7 @@ import androidx.compose.remote.core.RemoteComposeBuffer;
 import androidx.compose.remote.core.RemoteComposeState;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.AddMesh2D;
+import androidx.compose.remote.core.operations.BinaryData;
 import androidx.compose.remote.core.operations.BitmapFontData;
 import androidx.compose.remote.core.operations.ComponentValue;
 import androidx.compose.remote.core.operations.DataMapIds;
@@ -60,6 +61,7 @@ import androidx.compose.remote.core.operations.DrawTextOnCircle;
 import androidx.compose.remote.core.operations.FloatConstant;
 import androidx.compose.remote.core.operations.Header;
 import androidx.compose.remote.core.operations.IncludeReferencedOperations;
+import androidx.compose.remote.core.operations.MapRcDocVariables;
 import androidx.compose.remote.core.operations.NamedVariable;
 import androidx.compose.remote.core.operations.PathAppend;
 import androidx.compose.remote.core.operations.PathCombine;
@@ -5610,6 +5612,150 @@ public class RemoteComposeWriter {
      */
     public void endSkip(int offset) {
         mBuffer.endSkip(offset);
+    }
+
+    /** Forward variable mapping: host {@code localId} -> child {@code remoteName}. */
+    public static final int MAP_FORWARD = MapRcDocVariables.MAP_FORWARD;
+
+    /** Reverse variable mapping: child {@code remoteName} -> host {@code localId}. */
+    public static final int MAP_REVERSE = MapRcDocVariables.MAP_REVERSE;
+
+    /** Bidirectional variable mapping: host {@code localId} <-> child {@code remoteName}. */
+    public static final int MAP_BIDIRECTIONAL = MapRcDocVariables.MAP_BIDIRECTIONAL;
+
+    /**
+     * Host action mapping: child {@code hostAction(actionId, metadata)} sets host String variable
+     * {@code localId} to {@code metadata}.
+     */
+    public static final int MAP_HOST_ACTION = MapRcDocVariables.MAP_HOST_ACTION;
+
+    /**
+     * Create an embedded RemoteCompose document layout component instance and return its component
+     * ID ({@code docId}).
+     *
+     * @param url the URL or identifier string for the embedded document
+     * @param modifier layout and interaction modifiers applied to the component
+     * @return the component ID of the created {@code RcDocLayout}
+     */
+    public int rcDoc(@NonNull String url, @NonNull RecordingModifier modifier) {
+        return rcDoc(addText(url), modifier);
+    }
+
+    /**
+     * Create an embedded RemoteCompose document layout component instance from a text variable ID
+     * and return its component ID ({@code docId}).
+     *
+     * @param urlTextId the text ID of the URL or identifier string for the embedded document, or
+     *     the id of an embedded document returned by {@link #addEmbeddedDocument(byte[])}
+     * @param modifier layout and interaction modifiers applied to the component
+     * @return the component ID of the created {@code RcDocLayout}
+     */
+    public int rcDoc(int urlTextId, @NonNull RecordingModifier modifier) {
+        int docId = mBuffer.addRcDoc(modifier.getComponentId(), -1, urlTextId);
+        for (RecordingModifier.Element m : modifier.getList()) {
+            m.write(this);
+        }
+        mBuffer.addContainerEnd();
+        return docId;
+    }
+
+    /**
+     * Add an opaque binary blob to the document and return its id.
+     *
+     * @param type what the bytes are, {@link BinaryData#TYPE_RAW} or {@link BinaryData#TYPE_RC_DOC}
+     * @param flags type-specific flags, 0 for now
+     * @param data the bytes
+     * @return the id the blob is registered under
+     */
+    public int addBinaryData(int type, int flags, byte @NonNull [] data) {
+        int id = mState.createNextAvailableId();
+        mBuffer.addBinaryData(id, type, flags, data);
+        return id;
+    }
+
+    /**
+     * Embed a complete RemoteCompose document (as produced by {@link #encodeToByteArray()}) in
+     * this document and return its id. Pass the id to {@link #rcDoc(int, RecordingModifier)} to
+     * display it: the child is then loaded from these bytes, without going through the host's
+     * {@code RcResolver}, so the parent and its children travel as a single byte array. The id can
+     * also be referenced from a url string as {@code "rc:embedded/<id>"}, e.g. from a string
+     * variable that switches between embedded and host-resolved children.
+     *
+     * @param document the child document bytes
+     * @return the id of the embedded document
+     */
+    public int addEmbeddedDocument(byte @NonNull [] document) {
+        return addBinaryData(BinaryData.TYPE_RC_DOC, 0, document);
+    }
+
+    /**
+     * Create an embedded RemoteCompose document layout component instance with no modifiers and
+     * return its component ID ({@code docId}).
+     *
+     * @param url the URL or identifier string for the embedded document
+     * @return the component ID of the created {@code RcDocLayout}
+     */
+    public int rcDoc(@NonNull String url) {
+        return rcDoc(addText(url), new RecordingModifier());
+    }
+
+    /**
+     * Create an embedded RemoteCompose document layout component instance from a text variable ID
+     * with no modifiers and return its component ID ({@code docId}).
+     *
+     * @param urlTextId the text ID of the URL or identifier string for the embedded document
+     * @return the component ID of the created {@code RcDocLayout}
+     */
+    public int rcDoc(int urlTextId) {
+        return rcDoc(urlTextId, new RecordingModifier());
+    }
+
+    /**
+     * Map a variable in the host document to a named variable in an embedded {@code RcDocLayout}.
+     *
+     * @param docId the component ID returned by {@link #rcDoc}
+     * @param mode one of {@link #MAP_FORWARD}, {@link #MAP_REVERSE}, or {@link #MAP_BIDIRECTIONAL}
+     * @param localId the variable ID in the host document
+     * @param remoteName the named variable in the embedded document
+     */
+    public void mapRcDocVariables(
+            int docId, int mode, int localId, @NonNull String remoteName) {
+        int remoteNameTextId = addText(remoteName);
+        mBuffer.mapRcDocVariables(docId, mode, localId, remoteNameTextId);
+    }
+
+    /**
+     * Map a float variable (NaN-encoded ID) in the host document to a named variable in an embedded
+     * {@code RcDocLayout}.
+     *
+     * @param docId the component ID returned by {@link #rcDoc}
+     * @param mode one of {@link #MAP_FORWARD}, {@link #MAP_REVERSE}, or {@link #MAP_BIDIRECTIONAL}
+     * @param localFloatVar the NaN-encoded float variable in the host document
+     * @param remoteName the named variable in the embedded document
+     */
+    public void mapRcDocVariables(
+            int docId, int mode, float localFloatVar, @NonNull String remoteName) {
+        mapRcDocVariables(docId, mode, Utils.idFromNan(localFloatVar), remoteName);
+    }
+
+    /**
+     * Map a variable or {@code hostAction} between the host document and an embedded {@code
+     * RcDocLayout}.
+     *
+     * <p>When {@code mode == MAP_HOST_ACTION}, {@code remoteTarget} is the {@code actionId} emitted
+     * by {@code hostAction(actionId, metadata)} in the embedded document, and {@code localId} is
+     * the String variable ID in the host document that receives {@code metadata}. Any unmapped
+     * {@code actionId} is forwarded to the host's real action handler.
+     *
+     * @param docId the component ID returned by {@link #rcDoc}
+     * @param mode one of {@link #MAP_FORWARD}, {@link #MAP_REVERSE}, {@link #MAP_BIDIRECTIONAL}, or
+     *     {@link #MAP_HOST_ACTION}
+     * @param localId the variable ID in the host document
+     * @param remoteTarget for modes 0..2, the text ID of the named variable in the embedded
+     *     document; for {@link #MAP_HOST_ACTION}, the action ID to intercept
+     */
+    public void mapRcDocVariables(int docId, int mode, int localId, int remoteTarget) {
+        mBuffer.mapRcDocVariables(docId, mode, localId, remoteTarget);
     }
 
     /**

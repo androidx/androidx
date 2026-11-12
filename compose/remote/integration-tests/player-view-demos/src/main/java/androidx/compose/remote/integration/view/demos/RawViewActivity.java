@@ -39,6 +39,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.compose.remote.integration.view.demos.notifications.RemoteNotification;
+import androidx.compose.remote.integration.view.demos.utils.DemoRcResolver;
 import androidx.compose.remote.player.view.RemoteComposePlayer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -133,6 +134,7 @@ public class RawViewActivity extends Activity {
             RemoteComposePlayer player = null;
             if (USE_PLAYER) {
                 player = new RemoteComposePlayer(parent.getContext());
+                player.setRcResolver(DemoRcResolver.create(parent.getContext()));
                 rcViewContainer.addView(player);
             }
 
