@@ -14,5 +14,36 @@
  * limitations under the License.
  */
 
-// Placeholder file to generate klib and avoid empty project issues.
 package androidx.appstate.dataflow.ui
+
+import androidx.appstate.dataflow.DataKey
+import androidx.appstate.dataflow.DataflowRegistry
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.remember
+
+/**
+ * Subscribes to data of type [S] for [key] and provides it to [content].
+ *
+ * Recomposes [content] whenever the reducer for [key] in this [DataflowRegistry] produces new data.
+ *
+ * Automatically disposes the subscription when this composable leaves the composition.
+ *
+ * [S] - the type of data produced for [key]
+ *
+ * @param key [DataKey] identifying the data in this [DataflowRegistry]
+ * @param content composable called with the latest [S] data
+ */
+@Composable
+public fun <S : Any> DataflowRegistry.UiContent(
+    key: DataKey<S>,
+    content: @Composable (data: S) -> Unit,
+) {
+    val disposableState = remember(key, this) { getState(key) }
+    DisposableEffect(disposableState) {
+        onDispose {
+            disposableState.dispose()
+        }
+    }
+    content(disposableState.value)
+}

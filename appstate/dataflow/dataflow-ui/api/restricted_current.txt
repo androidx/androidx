@@ -1,2 +1,11 @@
 // Signature format: 5.0
 // - surface=restricted-atomic-group
+package androidx.appstate.dataflow.ui {
+
+  public final class UiContentKt {
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <S> void UiContent(androidx.appstate.dataflow.DataflowRegistry, androidx.appstate.dataflow.DataKey<? extends S>, kotlin.jvm.functions.Function3<? super S,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <S> void UiContent(androidx.appstate.dataflow.DataflowRegistry, androidx.appstate.dataflow.DataKey<S> key, kotlin.jvm.functions.Function1<S,kotlin.Unit> content);
+  }
+
+}
+
