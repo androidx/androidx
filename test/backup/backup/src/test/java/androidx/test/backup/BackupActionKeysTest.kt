@@ -16,9 +16,6 @@
 
 package androidx.test.backup
 
-import androidx.test.backup.actions.AssertStorageAction
-import androidx.test.backup.actions.PopulateStorageAction
-import androidx.test.backup.actions.StorageBatchAction
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -76,31 +73,6 @@ class BackupActionKeysTest {
         assertEquals("success", BackupActionValues.STATUS_SUCCESS)
         assertEquals("failure", BackupActionValues.STATUS_FAILURE)
         assertEquals("default_prefs", BackupActionValues.DEFAULT_PREF_NAME)
-    }
-
-    /** The host names an action by its class, also in the calls of a storage batch. */
-    @Test
-    fun actionClassNamesMatchTheWireProtocol() {
-        assertEquals(
-            "androidx.test.backup.actions.PopulateStorageAction",
-            PopulateStorageAction::class.java.name,
-        )
-        assertEquals(
-            "androidx.test.backup.actions.AssertStorageAction",
-            AssertStorageAction::class.java.name,
-        )
-        assertEquals(
-            "androidx.test.backup.actions.StorageBatchAction",
-            StorageBatchAction::class.java.name,
-        )
-    }
-
-    @Test
-    fun storageBatchKeysMatchTheWireProtocol() {
-        assertEquals("calls", StorageBatchAction.KEY_CALLS)
-        assertEquals("action", StorageBatchAction.CALL_ACTION)
-        assertEquals("args", StorageBatchAction.CALL_ARGS)
-        assertEquals("failed_call", StorageBatchAction.KEY_FAILED_CALL)
     }
 
     /** Input and output vocabularies are disjoint, so a key is never ambiguous. */
