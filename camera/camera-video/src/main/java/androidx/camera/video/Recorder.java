@@ -61,6 +61,7 @@ import static java.util.Arrays.asList;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.location.Location;
@@ -3653,6 +3654,51 @@ public final class Recorder implements VideoOutput {
     }
 
     /**
+     * Sets the output of the muxer to a newly inserted {@link MediaStore} entry.
+     *
+     * <p>If the output can't be set, the inserted entry is deleted on a best-effort basis so
+     * that no orphaned entry is left in {@link MediaStore}, since no output file is generated
+     * for a recording that fails with
+     * {@link VideoRecordEvent.Finalize#ERROR_INVALID_OUTPUT_OPTIONS}.
+     *
+     * @throws IOException if the output can't be set.
+     */
+    private static void setMuxerOutputToMediaStoreEntry(@NonNull Muxer muxer,
+            @Muxer.Format int muxerOutputFormat, @NonNull ContentResolver resolver,
+            @NonNull Uri outputUri) throws IOException {
+        try {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                String path = OutputUtil.getAbsolutePathFromUri(resolver, outputUri, MEDIA_COLUMN);
+                if (path == null) {
+                    throw new IOException("Unable to get path from uri " + outputUri);
+                }
+                if (!OutputUtil.createParentFolder(new File(path))) {
+                    Logger.w(TAG, "Failed to create folder for " + path);
+                }
+                Logger.d(TAG, "Muxer.setOutput by path = " + path);
+                muxer.setOutput(path, muxerOutputFormat);
+            } else {
+                ParcelFileDescriptor parcelFileDescriptor =
+                        OutputUtil.openMediaStoreFileDescriptor(resolver, outputUri);
+                try {
+                    Logger.d(TAG, "Muxer.setOutput by ParcelFileDescriptor");
+                    muxer.setOutput(parcelFileDescriptor, muxerOutputFormat);
+                } catch (IOException | RuntimeException e) {
+                    try {
+                        parcelFileDescriptor.close();
+                    } catch (IOException | RuntimeException closeException) {
+                        e.addSuppressed(closeException);
+                    }
+                    throw e;
+                }
+            }
+        } catch (IOException | RuntimeException e) {
+            OutputUtil.deleteMediaStoreEntryQuietly(resolver, outputUri);
+            throw e;
+        }
+    }
+
+    /**
      * The info of a recording, e.g. its video and audio encoder configs and orientation.
      *
      * <p>It is set once when the muxer of the recording starts, i.e. when the tracks are created
@@ -3824,36 +3870,8 @@ public final class Recorder implements VideoOutput {
                             if (outputUri == null) {
                                 throw new IOException("Unable to create MediaStore entry.");
                             }
-
-                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-                                String path = OutputUtil.getAbsolutePathFromUri(
-                                        mediaStoreOutputOptions.getContentResolver(),
-                                        outputUri, MEDIA_COLUMN);
-                                if (path == null) {
-                                    throw new IOException(
-                                            "Unable to get path from uri " + outputUri);
-                                }
-                                if (!OutputUtil.createParentFolder(new File(path))) {
-                                    Logger.w(TAG, "Failed to create folder for " + path);
-                                }
-                                Logger.d(TAG, "Muxer.setOutput by path = " + path);
-                                muxer.setOutput(path, muxerOutputFormat);
-                            } else {
-                                ParcelFileDescriptor parcelFileDescriptor =
-                                        mediaStoreOutputOptions.getContentResolver()
-                                                .openFileDescriptor(outputUri, "rw");
-                                if (parcelFileDescriptor == null) {
-                                    throw new IOException(
-                                            "Unable to open file descriptor from uri " + outputUri);
-                                }
-                                try {
-                                    Logger.d(TAG, "Muxer.setOutput by ParcelFileDescriptor");
-                                    muxer.setOutput(parcelFileDescriptor, muxerOutputFormat);
-                                } catch (IOException e) {
-                                    parcelFileDescriptor.close();
-                                    throw e;
-                                }
-                            }
+                            setMuxerOutputToMediaStoreEntry(muxer, muxerOutputFormat,
+                                    mediaStoreOutputOptions.getContentResolver(), outputUri);
                         } else {
                             throw new AssertionError(
                                     "Invalid output options type: "
