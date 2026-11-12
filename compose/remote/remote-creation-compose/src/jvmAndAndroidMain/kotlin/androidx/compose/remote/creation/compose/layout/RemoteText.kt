@@ -114,7 +114,10 @@ public fun RemoteText(
         modifier = modifier,
         fontStyle = fontStyle ?: style.fontStyle ?: RemoteFontStyle.Normal,
         fontWeight = unadjustedFontWeight,
-        textAlign = textAlign?.takeUnless { it == RemoteTextAlign.Unspecified } ?: style.textAlign,
+        textAlign =
+            textAlign?.takeUnless { it == RemoteTextAlign.Unspecified }
+                ?: style.textAlign.takeUnless { it == RemoteTextAlign.Unspecified }
+                ?: RemoteTextAlign.Start,
         fontFamily = (fontFamily ?: style.fontFamily)?.name,
         overflow = overflow,
         maxLines = maxLines,

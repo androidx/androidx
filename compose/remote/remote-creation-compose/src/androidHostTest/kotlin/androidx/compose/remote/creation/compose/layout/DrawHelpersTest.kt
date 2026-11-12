@@ -100,7 +100,7 @@ class DrawHelpersTest {
     fun composeGraphicsConversions_toInt() {
         assertEquals(PaintBundle.BLEND_MODE_SRC_OVER, BlendMode.SrcOver.toRemoteBlendMode().value)
         assertEquals(TextLayout.TEXT_ALIGN_CENTER, TextAlign.Center.toRemoteTextAlign().value)
-        assertEquals(RemoteTextAlign.Left, TextAlign.Unspecified.toRemoteTextAlign())
+        assertEquals(RemoteTextAlign.Unspecified, TextAlign.Unspecified.toRemoteTextAlign())
         assertEquals(1, FontStyle.Italic.toRemoteFontStyle().value)
         assertEquals(CoreText.BREAK_STRATEGY_BALANCED, LineBreak.Heading.toRemoteLineBreak().value)
         assertEquals(RemoteLineBreak.Simple, LineBreak.Unspecified.toRemoteLineBreak())

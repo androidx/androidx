@@ -235,7 +235,32 @@ class RemoteTextFontSettingsTest {
     }
 
     @Test
-    fun unspecifiedTextAlignUnderRtl_preservesUnspecifiedAlignment() = runTest {
+    fun defaultTextAlign_resolvesToStartInLtr() = runTest {
+        val omittedText =
+            captureRule
+                .captureDocument(context = context) {
+                    RemoteText("Text".rs, overflow = RemoteTextOverflow.Clip)
+                }
+                .findCoreText()
+        val unspecifiedText =
+            captureRule
+                .captureDocument(context = context) {
+                    RemoteText(
+                        "Text".rs,
+                        textAlign = RemoteTextAlign.Unspecified,
+                        overflow = RemoteTextOverflow.Clip,
+                    )
+                }
+                .findCoreText()
+
+        assertThat(omittedText.serializedTextAlign()).isEqualTo(RemoteTextAlign.Start.value)
+        assertThat(omittedText.textAlignValue).isEqualTo(RemoteTextAlign.Start.value)
+        assertThat(unspecifiedText.serializedTextAlign()).isEqualTo(RemoteTextAlign.Start.value)
+        assertThat(unspecifiedText.textAlignValue).isEqualTo(RemoteTextAlign.Start.value)
+    }
+
+    @Test
+    fun defaultTextAlign_resolvesToEndInRtl() = runTest {
         val rtlContext =
             context.createConfigurationContext(
                 Configuration(context.resources.configuration).apply {
@@ -243,28 +268,58 @@ class RemoteTextFontSettingsTest {
                 }
             )
 
-        val unspecifiedText =
+        val omittedText =
             captureRule
                 .captureDocument(context = rtlContext) {
                     RemoteText("Text".rs, overflow = RemoteTextOverflow.Clip)
                 }
                 .findCoreText()
-        val startText =
+        val unspecifiedText =
             captureRule
                 .captureDocument(context = rtlContext) {
                     RemoteText(
                         "Text".rs,
-                        textAlign = RemoteTextAlign.Start,
+                        textAlign = RemoteTextAlign.Unspecified,
                         overflow = RemoteTextOverflow.Clip,
                     )
                 }
                 .findCoreText()
 
-        assertThat(unspecifiedText.serializedTextAlign())
-            .isEqualTo(RemoteTextAlign.Unspecified.value)
-        assertThat(unspecifiedText.textAlignValue).isNotEqualTo(RemoteTextAlign.End.value)
-        assertThat(startText.serializedTextAlign()).isEqualTo(RemoteTextAlign.End.value)
-        assertThat(startText.textAlignValue).isEqualTo(RemoteTextAlign.End.value)
+        assertThat(omittedText.serializedTextAlign()).isEqualTo(RemoteTextAlign.End.value)
+        assertThat(omittedText.textAlignValue).isEqualTo(RemoteTextAlign.End.value)
+        assertThat(unspecifiedText.serializedTextAlign()).isEqualTo(RemoteTextAlign.End.value)
+        assertThat(unspecifiedText.textAlignValue).isEqualTo(RemoteTextAlign.End.value)
+    }
+
+    @Test
+    fun unspecifiedTextAlign_fallsBackToStyleTextAlign() = runTest {
+        val styledText =
+            captureRule
+                .captureDocument(context = context) {
+                    RemoteText(
+                        "Text".rs,
+                        style = RemoteTextStyle(textAlign = RemoteTextAlign.Center),
+                        overflow = RemoteTextOverflow.Clip,
+                    )
+                }
+                .findCoreText()
+        val unspecifiedWithStyledText =
+            captureRule
+                .captureDocument(context = context) {
+                    RemoteText(
+                        "Text".rs,
+                        textAlign = RemoteTextAlign.Unspecified,
+                        style = RemoteTextStyle(textAlign = RemoteTextAlign.Center),
+                        overflow = RemoteTextOverflow.Clip,
+                    )
+                }
+                .findCoreText()
+
+        assertThat(styledText.serializedTextAlign()).isEqualTo(RemoteTextAlign.Center.value)
+        assertThat(styledText.textAlignValue).isEqualTo(RemoteTextAlign.Center.value)
+        assertThat(unspecifiedWithStyledText.serializedTextAlign())
+            .isEqualTo(RemoteTextAlign.Center.value)
+        assertThat(unspecifiedWithStyledText.textAlignValue).isEqualTo(RemoteTextAlign.Center.value)
     }
 
     private fun CoreText.serializedTextAlign(): Int {
