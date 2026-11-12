@@ -304,6 +304,20 @@ class DeviceCapabilitiesTest {
 
     @Test
     @XrDeviceTest
+    fun getPreferredDisplayBlendMode_whenExpectedModeProvided_returnsExpectedMode() {
+        val expectedMode = getExpectedDisplayBlendMode()
+        assumeTrue(
+            "Skipping test: '$EXPECTED_DISPLAY_BLEND_MODE_ARG' argument is missing or blank",
+            expectedMode != null,
+        )
+
+        val displayBlendMode = xrDevice.getPreferredDisplayBlendMode()
+
+        assertThat(displayBlendMode).isEqualTo(expectedMode)
+    }
+
+    @Test
+    @XrDeviceTest
     fun getLifecycle_afterMainIdle_returnsResumedLifecycle() {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
 
@@ -339,5 +353,33 @@ class DeviceCapabilitiesTest {
             }
         }
         return result.session
+    }
+
+    /**
+     * Returns the expected [DisplayBlendMode] from instrumentation arguments, or `null` when
+     * omitted or blank.
+     *
+     * @throws IllegalArgumentException if [EXPECTED_DISPLAY_BLEND_MODE_ARG] is unrecognized.
+     */
+    private fun getExpectedDisplayBlendMode(): DisplayBlendMode? {
+        val rawMode =
+            InstrumentationRegistry.getArguments()
+                .getString(EXPECTED_DISPLAY_BLEND_MODE_ARG)
+                ?.trim()
+                ?.takeIf { it.isNotEmpty() } ?: return null
+
+        return when (rawMode) {
+            "ADDITIVE" -> DisplayBlendMode.ADDITIVE
+            "ALPHA_BLEND" -> DisplayBlendMode.ALPHA_BLEND
+            else ->
+                throw IllegalArgumentException(
+                    "Invalid $EXPECTED_DISPLAY_BLEND_MODE_ARG value '$rawMode'; " +
+                        "expected 'ADDITIVE' or 'ALPHA_BLEND'."
+                )
+        }
+    }
+
+    companion object {
+        private const val EXPECTED_DISPLAY_BLEND_MODE_ARG = "expectedDisplayBlendMode"
     }
 }
