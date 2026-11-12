@@ -18,11 +18,15 @@ package androidx.appsearch.cts.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
+
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SchemaVisibilityConfig;
 import androidx.appsearch.app.SetBlobVisibilityRequest;
 import androidx.appsearch.app.SetSchemaRequest;
+import androidx.appsearch.flags.Flags;
 import androidx.appsearch.testutil.AppSearchTestUtils;
+import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -143,5 +147,70 @@ public class SetBlobVisibilityRequestCtsTest {
 
         assertThat(request.getNamespacesVisibleToConfigs())
                 .containsExactly("namespace1", ImmutableSet.of(config2));
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS)
+    public void testBuild_packageVisibleWithAndWithoutTags_throws() {
+        PackageIdentifier packageFoo =
+                new PackageIdentifier("com.package.foo", new byte[] {100});
+        // The same package, identified by another certificate.
+        PackageIdentifier packageFooOtherCert =
+                new PackageIdentifier("com.package.foo", new byte[] {101});
+        SchemaVisibilityConfig packageConfig =
+                new SchemaVisibilityConfig.Builder()
+                        .addAllowedPackage(packageFooOtherCert)
+                        .addRequiredPermissions(ImmutableSet.of(SetSchemaRequest.READ_CALENDAR))
+                        .build();
+        SchemaVisibilityConfig packageWithTagsConfig =
+                new SchemaVisibilityConfig.Builder()
+                        .setAllowedPackageWithTags(packageFoo, ImmutableSet.of("tagA"))
+                        .build();
+
+        SetBlobVisibilityRequest.Builder builder = new SetBlobVisibilityRequest.Builder()
+                .addNamespaceVisibleToConfig("namespace1", packageConfig)
+                .addNamespaceVisibleToConfig("namespace1", packageWithTagsConfig);
+        IllegalArgumentException e =
+                assertThrows(IllegalArgumentException.class, builder::build);
+        assertThat(e).hasMessageThat().contains(
+                "Namespace namespace1 is visible to package com.package.foo both as a whole and "
+                        + "restricted by attribution tags");
+
+        // The request is valid once the namespace only has one of the two.
+        SetBlobVisibilityRequest request = builder
+                .clearNamespaceVisibleToConfigs("namespace1")
+                .addNamespaceVisibleToConfig("namespace1", packageWithTagsConfig)
+                .build();
+        assertThat(request.getNamespacesVisibleToConfigs())
+                .containsExactly("namespace1", ImmutableSet.of(packageWithTagsConfig));
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS)
+    public void testBuild_differentPackagesVisibleWithAndWithoutTags() {
+        PackageIdentifier packageFoo =
+                new PackageIdentifier("com.package.foo", new byte[] {100});
+        PackageIdentifier packageBar =
+                new PackageIdentifier("com.package.bar", new byte[] {100});
+        SchemaVisibilityConfig fooConfig =
+                new SchemaVisibilityConfig.Builder().addAllowedPackage(packageFoo).build();
+        SchemaVisibilityConfig barConfig =
+                new SchemaVisibilityConfig.Builder().addAllowedPackage(packageBar).build();
+        SchemaVisibilityConfig fooWithTagsConfig =
+                new SchemaVisibilityConfig.Builder()
+                        .setAllowedPackageWithTags(packageFoo, ImmutableSet.of("tagA"))
+                        .build();
+
+        // A namespace can be visible to a package as a whole and to another package by
+        // attribution tag, and a package can be visible both ways for different namespaces.
+        SetBlobVisibilityRequest request = new SetBlobVisibilityRequest.Builder()
+                .addNamespaceVisibleToConfig("namespace1", barConfig)
+                .addNamespaceVisibleToConfig("namespace1", fooWithTagsConfig)
+                .addNamespaceVisibleToConfig("namespace2", fooConfig)
+                .build();
+
+        assertThat(request.getNamespacesVisibleToConfigs()).containsExactly(
+                "namespace1", ImmutableSet.of(barConfig, fooWithTagsConfig),
+                "namespace2", ImmutableSet.of(fooConfig));
     }
 }

@@ -128,6 +128,9 @@ final class FeaturesImpl implements Features {
             case Features.ENCRYPTED_BLOB:
                 // Encrypted blobs need isolated storage, which GMSCore AppSearch does not have.
                 // fall through
+            case Features.SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS:
+                // TODO(b/584870136) : Update once this features is supported.
+                // fall through
             default:
                 return false; // AppSearch features absent in GMSCore AppSearch.
         }

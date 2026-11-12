@@ -23,6 +23,7 @@ import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.EmbeddingVector;
 import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.appsearch.app.Features;
+import androidx.appsearch.app.PackageIdentifier;
 
 import org.jspecify.annotations.NonNull;
 
@@ -124,6 +125,18 @@ public interface PlatformConversionAdapter {
             @NonNull Map<String, Set<String>> paths) {
         throw new UnsupportedOperationException(
                 Features.SET_SCHEMA_REQUEST_SET_WIPEOUT_ACCOUNT
+                        + " is not available on this AppSearch implementation.");
+    }
+
+    /**
+     * Handles adding the packages, and the attribution tags a caller from each must present, that
+     * have access to a schema visibility config.
+     */
+    default void addAllowedPackagesWithTags(
+            android.app.appsearch.SchemaVisibilityConfig.@NonNull Builder builder,
+            @NonNull Map<PackageIdentifier, Set<String>> allowedPackagesWithTags) {
+        throw new UnsupportedOperationException(
+                Features.SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS
                         + " is not available on this AppSearch implementation.");
     }
 

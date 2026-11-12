@@ -349,6 +349,15 @@ public final class Flags {
     public static final String FLAG_ENABLE_OFFLINE_OBSERVERS =
             FLAG_PREFIX + "enable_offline_observers";
 
+    /**
+     * Enables {@link
+     * androidx.appsearch.app.SchemaVisibilityConfig.Builder#setAllowedPackageWithTags}, which
+     * restricts schema visibility to callers from a package that present specific attribution
+     * tags.
+     */
+    public static final String FLAG_ENABLE_SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS =
+            FLAG_PREFIX + "enable_schema_visible_to_package_with_tags";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -765,5 +774,13 @@ public final class Flags {
     public static boolean enableOfflineObservers() {
         // TODO(b/568469783): Enable this once the offline observers feature is ready.
         return false;
+    }
+
+    /**
+     * Whether restricting schema visibility to callers from a package that present specific
+     * attribution tags should be enabled.
+     */
+    public static boolean enableSchemaVisibleToPackageWithTags() {
+        return true;
     }
 }

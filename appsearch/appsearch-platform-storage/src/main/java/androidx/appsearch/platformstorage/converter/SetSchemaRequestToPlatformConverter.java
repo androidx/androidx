@@ -133,7 +133,7 @@ public final class SetSchemaRequestToPlatformConverter {
                 for (Map.Entry<String, Set<SchemaVisibilityConfig>> entry :
                         jetpackRequest.getSchemasVisibleToConfigs().entrySet()) {
                     ApiHelperForSdkExtensionVBase.addSchemaTypeVisibleToConfig(
-                            platformBuilder, entry.getKey(), entry.getValue());
+                            platformBuilder, entry.getKey(), entry.getValue(), adapter);
                 }
             } else {
                 throw new UnsupportedOperationException(
@@ -243,7 +243,7 @@ public final class SetSchemaRequestToPlatformConverter {
                                 platformSchemaVisibilityConfig =
                                         ApiHelperForSdkExtensionVBase
                                                 .toPlatformSchemaVisibilityConfig(
-                                                        schemaVisibilityConfig);
+                                                        schemaVisibilityConfig, adapter);
                         platformRequestBuilder.addNamespaceVisibleToConfig(namespace,
                                 platformSchemaVisibilityConfig);
                     }
@@ -289,13 +289,15 @@ public final class SetSchemaRequestToPlatformConverter {
         }
 
         @DoNotInline
+        @OptIn(markerClass = ExperimentalAppSearchApi.class)
         public static void addSchemaTypeVisibleToConfig(
                 android.app.appsearch.SetSchemaRequest.Builder platformBuilder,
                 String schemaType,
-                Set<SchemaVisibilityConfig> jetpackConfigs) {
+                Set<SchemaVisibilityConfig> jetpackConfigs,
+                @NonNull PlatformConversionAdapter adapter) {
             for (SchemaVisibilityConfig jetpackConfig : jetpackConfigs) {
                 android.app.appsearch.SchemaVisibilityConfig platformConfig =
-                        toPlatformSchemaVisibilityConfig(jetpackConfig);
+                        toPlatformSchemaVisibilityConfig(jetpackConfig, adapter);
                 platformBuilder.addSchemaTypeVisibleToConfig(schemaType, platformConfig);
             }
         }
@@ -304,9 +306,13 @@ public final class SetSchemaRequestToPlatformConverter {
          * Translates a jetpack {@link SchemaVisibilityConfig} into a platform
          * {@link android.app.appsearch.SchemaVisibilityConfig}.
          */
+        @OptIn(markerClass = ExperimentalAppSearchApi.class)
         public static android.app.appsearch.@NonNull SchemaVisibilityConfig
-                toPlatformSchemaVisibilityConfig(@NonNull SchemaVisibilityConfig jetpackConfig) {
+                toPlatformSchemaVisibilityConfig(
+                        @NonNull SchemaVisibilityConfig jetpackConfig,
+                        @NonNull PlatformConversionAdapter adapter) {
             Preconditions.checkNotNull(jetpackConfig);
+            Preconditions.checkNotNull(adapter);
             android.app.appsearch.SchemaVisibilityConfig.Builder platformBuilder =
                     new android.app.appsearch.SchemaVisibilityConfig.Builder();
 
@@ -331,6 +337,14 @@ public final class SetSchemaRequestToPlatformConverter {
                         new android.app.appsearch.PackageIdentifier(
                                 publiclyVisibleTargetPackage.getPackageName(),
                                 publiclyVisibleTargetPackage.getSha256Certificate()));
+            }
+
+            // Translate allowedPackagesWithTags. Dropping these would widen access to a config
+            // that also has other requirements, so platforms that don't support them must fail.
+            Map<PackageIdentifier, Set<String>> allowedPackagesWithTags =
+                    jetpackConfig.getAllowedPackagesWithTags();
+            if (!allowedPackagesWithTags.isEmpty()) {
+                adapter.addAllowedPackagesWithTags(platformBuilder, allowedPackagesWithTags);
             }
 
             return platformBuilder.build();

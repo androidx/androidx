@@ -29,7 +29,9 @@ import androidx.annotation.OptIn;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.appsearch.app.Features;
+import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.PropertyPath;
+import androidx.appsearch.app.SchemaVisibilityConfig;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.platformstorage.PlatformStorage;
 import androidx.appsearch.platformstorage.UnsupportedPlatformConversionAdapter;
@@ -96,6 +98,28 @@ public class SetSchemaRequestToPlatformConverterTest {
                 .build();
         UnsupportedPlatformConversionAdapter adapter = new UnsupportedPlatformConversionAdapter();
 
+        assertThrows(UnsupportedOperationException.class,
+                () -> SetSchemaRequestToPlatformConverter.toPlatformSetSchemaRequest(
+                        mContext, jetpackRequest, adapter));
+    }
+
+    @Test
+    public void testAllowedPackageWithTags_throws() {
+        assumeFalse(PlatformStorage.getFeatures(mContext).isFeatureSupported(
+                Features.SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS));
+        SetSchemaRequest jetpackRequest = new SetSchemaRequest.Builder()
+                .addSchemas(new AppSearchSchema.Builder("testSchema").build())
+                .addSchemaTypeVisibleToConfig(
+                        "testSchema",
+                        new SchemaVisibilityConfig.Builder()
+                                .setAllowedPackageWithTags(
+                                        new PackageIdentifier("com.package.foo", new byte[32]),
+                                        Collections.singleton("tagA"))
+                                .build())
+                .build();
+        UnsupportedPlatformConversionAdapter adapter = new UnsupportedPlatformConversionAdapter();
+
+        // The tags must not be silently dropped on a platform that can't enforce them.
         assertThrows(UnsupportedOperationException.class,
                 () -> SetSchemaRequestToPlatformConverter.toPlatformSetSchemaRequest(
                         mContext, jetpackRequest, adapter));

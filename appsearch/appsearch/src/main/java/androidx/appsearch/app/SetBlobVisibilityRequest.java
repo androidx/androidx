@@ -124,6 +124,11 @@ public class SetBlobVisibilityRequest {
          * namespace. The caller will have access if they match any of the configurations added,
          * so the configurations form an "OR" relationship.
          *
+         * <p>A namespace cannot be visible to the same package both as a whole, through
+         * {@link SchemaVisibilityConfig.Builder#addAllowedPackage}, and restricted by attribution
+         * tags, through {@link SchemaVisibilityConfig.Builder#setAllowedPackageWithTags}:
+         * {@link #build} throws if it is.
+         *
          * @param namespace The blob namespace to set visibility for.
          * @param visibilityConfig The config hold specifying visibility settings.
          */
@@ -160,11 +165,36 @@ public class SetBlobVisibilityRequest {
         }
 
 
-        /**  Builds a new {@link SetBlobVisibilityRequest} object.         */
+        /**
+         * Builds a new {@link SetBlobVisibilityRequest} object.
+         *
+         * @throws IllegalArgumentException if a namespace is visible to the same package both as
+         *                                  a whole and restricted by attribution tags.
+         */
         public @NonNull SetBlobVisibilityRequest build() {
+            verifyNoConflictingPackageVisibilitySettings();
             return new SetBlobVisibilityRequest(
                     new ArraySet<>(mNamespacesNotDisplayedBySystem),
                     new ArrayMap<>(mNamespacesVisibleToConfigs));
+        }
+
+        /**
+         * Verifies that no namespace is visible to the same package both as a whole and
+         * restricted by attribution tag.
+         */
+        private void verifyNoConflictingPackageVisibilitySettings() {
+            for (int i = 0; i < mNamespacesVisibleToConfigs.size(); i++) {
+                String packageName =
+                        SchemaVisibilityConfig.findPackageWithConflictingVisibilitySettings(
+                                /* visibleToPackages= */ null,
+                                mNamespacesVisibleToConfigs.valueAt(i));
+                if (packageName != null) {
+                    throw new IllegalArgumentException(
+                            "Namespace " + mNamespacesVisibleToConfigs.keyAt(i)
+                                    + " is visible to package " + packageName
+                                    + " both as a whole and restricted by attribution tags.");
+                }
+            }
         }
     }
 }

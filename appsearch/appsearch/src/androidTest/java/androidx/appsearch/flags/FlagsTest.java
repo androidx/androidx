@@ -341,4 +341,11 @@ public class FlagsTest {
                 .isEqualTo("com.android.appsearch.flags."
                         + "enable_upgradable_lock_and_two_stage_optimize");
     }
+
+    @Test
+    public void testFlagValue_enableSchemaVisibleToPackageWithTags() {
+        assertThat(Flags.FLAG_ENABLE_SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS)
+                .isEqualTo("com.android.appsearch.flags."
+                        + "enable_schema_visible_to_package_with_tags");
+    }
 }

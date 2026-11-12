@@ -20,6 +20,7 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.ExperimentalAppSearchApi;
+import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.Migrator;
 import androidx.appsearch.app.PackageIdentifier;
@@ -197,9 +198,17 @@ public final class SetSchemaRequestToGmsConverter {
      * Translates a jetpack {@link SchemaVisibilityConfig} into a gms
      * {@link com.google.android.gms.appsearch.SchemaVisibilityConfig}.
      */
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
     private static com.google.android.gms.appsearch.@NonNull SchemaVisibilityConfig
             toGmsSchemaVisibilityConfig(@NonNull SchemaVisibilityConfig jetpackConfig) {
         Preconditions.checkNotNull(jetpackConfig);
+        // TODO(b/584870136) support this feature once it's ready in gms appsearch. Dropping the
+        //  attribution tags would widen access to a config that also has other requirements.
+        if (!jetpackConfig.getAllowedPackagesWithTags().isEmpty()) {
+            throw new UnsupportedOperationException(
+                    Features.SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS
+                            + " is not available on this AppSearch implementation.");
+        }
         com.google.android.gms.appsearch.SchemaVisibilityConfig.Builder gmsBuilder =
                 new com.google.android.gms.appsearch.SchemaVisibilityConfig.Builder();
 

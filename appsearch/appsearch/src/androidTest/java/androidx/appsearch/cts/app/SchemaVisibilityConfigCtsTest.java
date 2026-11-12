@@ -18,6 +18,8 @@ package androidx.appsearch.cts.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
+
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SchemaVisibilityConfig;
 import androidx.appsearch.flags.Flags;
@@ -139,5 +141,156 @@ public class SchemaVisibilityConfigCtsTest {
         assertThat(certs).hasSize(2);
         assertThat(certs.get(0)).isEqualTo(cert1);
         assertThat(certs.get(1)).isEqualTo(cert2);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS)
+    public void testBuildVisibilityConfig_allowedPackageWithTags() {
+        byte[] cert2 = new byte[32];
+        Arrays.fill(cert2, (byte) 2);
+        PackageIdentifier pkg1 = new PackageIdentifier("pkg1", new byte[32]);
+        PackageIdentifier pkg2 = new PackageIdentifier("pkg2", cert2);
+
+        SchemaVisibilityConfig schemaVisibilityConfig = new SchemaVisibilityConfig.Builder()
+                .setAllowedPackageWithTags(pkg1, ImmutableSet.of("tagA"))
+                .setAllowedPackageWithTags(pkg2, ImmutableSet.of("tagC", "tagD"))
+                .build();
+
+        assertThat(schemaVisibilityConfig.getAllowedPackagesWithTags()).containsExactly(
+                pkg1, ImmutableSet.of("tagA"),
+                pkg2, ImmutableSet.of("tagC", "tagD"));
+        // A package that is restricted by attribution tag is not granted whole-package access.
+        assertThat(schemaVisibilityConfig.getAllowedPackages()).isEmpty();
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS)
+    public void testAllowedPackageWithTags_samePackage_replacesTags() {
+        SchemaVisibilityConfig schemaVisibilityConfig = new SchemaVisibilityConfig.Builder()
+                .setAllowedPackageWithTags(
+                        new PackageIdentifier("pkg1", new byte[32]), ImmutableSet.of("tagA"))
+                .setAllowedPackageWithTags(
+                        new PackageIdentifier("pkg1", new byte[32]), ImmutableSet.of("tagB"))
+                .build();
+
+        // The second call replaces the tags of the first call, it doesn't add to them.
+        assertThat(schemaVisibilityConfig.getAllowedPackagesWithTags()).containsExactly(
+                new PackageIdentifier("pkg1", new byte[32]), ImmutableSet.of("tagB"));
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS)
+    public void testClearAllowedPackageWithTags() {
+        PackageIdentifier pkg1 = new PackageIdentifier("pkg1", new byte[32]);
+        PackageIdentifier pkg2 = new PackageIdentifier("pkg2", new byte[32]);
+        SchemaVisibilityConfig.Builder builder = new SchemaVisibilityConfig.Builder()
+                .setAllowedPackageWithTags(pkg1, ImmutableSet.of("tagA"))
+                .setAllowedPackageWithTags(pkg2, ImmutableSet.of("tagB"));
+        SchemaVisibilityConfig original = builder.build();
+
+        // Only the given package is cleared.
+        SchemaVisibilityConfig cleared = builder.clearAllowedPackageWithTags(pkg1).build();
+        assertThat(cleared.getAllowedPackagesWithTags())
+                .containsExactly(pkg2, ImmutableSet.of("tagB"));
+
+        // Clearing a package which was not set does nothing.
+        SchemaVisibilityConfig clearedAgain = builder
+                .clearAllowedPackageWithTags(pkg1)
+                .clearAllowedPackageWithTags(new PackageIdentifier("pkg3", new byte[32]))
+                .build();
+        assertThat(clearedAgain).isEqualTo(cleared);
+
+        // The config which was already built is not changed.
+        assertThat(original.getAllowedPackagesWithTags()).containsExactly(
+                pkg1, ImmutableSet.of("tagA"),
+                pkg2, ImmutableSet.of("tagB"));
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS)
+    public void testAllowedPackageWithTags_emptyTags_throws() {
+        SchemaVisibilityConfig.Builder builder = new SchemaVisibilityConfig.Builder();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> builder.setAllowedPackageWithTags(
+                        new PackageIdentifier("pkg1", new byte[32]), ImmutableSet.of()));
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS)
+    public void testVisibilityConfigEquals_allowedPackagesWithTags() {
+        PackageIdentifier pkg1 = new PackageIdentifier("pkg1", new byte[32]);
+        PackageIdentifier pkg2 = new PackageIdentifier("pkg2", new byte[32]);
+
+        SchemaVisibilityConfig visibilityConfig1 = new SchemaVisibilityConfig.Builder()
+                .setAllowedPackageWithTags(pkg1, ImmutableSet.of("tagA", "tagB"))
+                .setAllowedPackageWithTags(pkg2, ImmutableSet.of("tagC"))
+                .build();
+        // The same packages and tags, set in a different order.
+        SchemaVisibilityConfig visibilityConfig2 = new SchemaVisibilityConfig.Builder()
+                .setAllowedPackageWithTags(pkg2, ImmutableSet.of("tagC"))
+                .setAllowedPackageWithTags(pkg1, ImmutableSet.of("tagB", "tagA"))
+                .build();
+        SchemaVisibilityConfig differentTags = new SchemaVisibilityConfig.Builder()
+                .setAllowedPackageWithTags(pkg1, ImmutableSet.of("tagA"))
+                .setAllowedPackageWithTags(pkg2, ImmutableSet.of("tagC"))
+                .build();
+        SchemaVisibilityConfig wholePackage = new SchemaVisibilityConfig.Builder()
+                .addAllowedPackage(pkg1)
+                .addAllowedPackage(pkg2)
+                .build();
+
+        assertThat(visibilityConfig1).isEqualTo(visibilityConfig2);
+        assertThat(visibilityConfig1.hashCode()).isEqualTo(visibilityConfig2.hashCode());
+        assertThat(visibilityConfig1).isNotEqualTo(differentTags);
+        assertThat(visibilityConfig1).isNotEqualTo(wholePackage);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS)
+    public void testVisibilityConfig_rebuild_allowedPackagesWithTags() {
+        PackageIdentifier pkg1 = new PackageIdentifier("pkg1", new byte[32]);
+        SchemaVisibilityConfig.Builder builder = new SchemaVisibilityConfig.Builder()
+                .setAllowedPackageWithTags(pkg1, ImmutableSet.of("tagA"));
+
+        SchemaVisibilityConfig original = builder.build();
+        SchemaVisibilityConfig rebuild =
+                builder.setAllowedPackageWithTags(pkg1, ImmutableSet.of("tagB")).build();
+        SchemaVisibilityConfig cleared = builder.clearAllowedPackagesWithTags().build();
+
+        // Modifying the builder after build() doesn't change the configs it already built.
+        assertThat(original.getAllowedPackagesWithTags())
+                .containsExactly(pkg1, ImmutableSet.of("tagA"));
+        assertThat(rebuild.getAllowedPackagesWithTags())
+                .containsExactly(pkg1, ImmutableSet.of("tagB"));
+        assertThat(cleared.getAllowedPackagesWithTags()).isEmpty();
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS)
+    public void testBuild_allowedPackagesAndAllowedPackagesWithTags_throws() {
+        PackageIdentifier pkg1 = new PackageIdentifier("pkg1", new byte[32]);
+        PackageIdentifier pkg2 = new PackageIdentifier("pkg2", new byte[32]);
+        // A config cannot have both, even for different packages and whatever the call order.
+        SchemaVisibilityConfig.Builder builder = new SchemaVisibilityConfig.Builder()
+                .setAllowedPackageWithTags(pkg2, ImmutableSet.of("tagA"))
+                .addAllowedPackage(pkg1);
+
+        IllegalArgumentException e =
+                assertThrows(IllegalArgumentException.class, builder::build);
+        assertThat(e).hasMessageThat().contains(
+                "cannot have both allowed packages and allowed packages with attribution tags");
+
+        // The builder can still be used once either of the two is cleared.
+        SchemaVisibilityConfig packagesWithTagsConfig = builder.clearAllowedPackages().build();
+        assertThat(packagesWithTagsConfig.getAllowedPackages()).isEmpty();
+        assertThat(packagesWithTagsConfig.getAllowedPackagesWithTags())
+                .containsExactly(pkg2, ImmutableSet.of("tagA"));
+
+        builder.addAllowedPackage(pkg1);
+        assertThrows(IllegalArgumentException.class, builder::build);
+        SchemaVisibilityConfig packagesConfig = builder.clearAllowedPackagesWithTags().build();
+        assertThat(packagesConfig.getAllowedPackages()).containsExactly(pkg1);
+        assertThat(packagesConfig.getAllowedPackagesWithTags()).isEmpty();
     }
 }

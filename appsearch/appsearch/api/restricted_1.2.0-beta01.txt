@@ -389,6 +389,7 @@ package androidx.appsearch.app {
     field @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static final String SCHEMA_JOINABLE_REPEATED_PROPERTIES = "SCHEMA_JOINABLE_REPEATED_PROPERTIES";
     field @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static final String SCHEMA_SCORABLE_PROPERTY_CONFIG = "SCHEMA_SCORABLE_PROPERTY_CONFIG";
     field @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static final String SCHEMA_SET_DESCRIPTION = "SCHEMA_SET_DESCRIPTION";
+    field @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static final String SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS = "SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS";
     field @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static final String SEARCH_EMBEDDING_MATCH_INFO = "SEARCH_EMBEDDING_MATCH_INFO";
     field public static final String SEARCH_RESULT_MATCH_INFO_SUBMATCH = "SEARCH_RESULT_MATCH_INFO_SUBMATCH";
     field @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static final String SEARCH_RESULT_PARENT_TYPES = "SEARCH_RESULT_PARENT_TYPES";
@@ -668,6 +669,7 @@ package androidx.appsearch.app {
 
   public final class SchemaVisibilityConfig {
     method public java.util.List<androidx.appsearch.app.PackageIdentifier!> getAllowedPackages();
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public java.util.Map<androidx.appsearch.app.PackageIdentifier!,java.util.Set<java.lang.String!>!> getAllowedPackagesWithTags();
     method public androidx.appsearch.app.PackageIdentifier? getPubliclyVisibleTargetPackage();
     method public java.util.Set<java.util.Set<java.lang.Integer!>!> getRequiredPermissions();
   }
@@ -677,8 +679,11 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SchemaVisibilityConfig.Builder addAllowedPackage(androidx.appsearch.app.PackageIdentifier);
     method public androidx.appsearch.app.SchemaVisibilityConfig.Builder addRequiredPermissions(java.util.Set<java.lang.Integer!>);
     method public androidx.appsearch.app.SchemaVisibilityConfig build();
+    method @SuppressCompatibility @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS) @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.app.SchemaVisibilityConfig.Builder clearAllowedPackageWithTags(androidx.appsearch.app.PackageIdentifier);
     method public androidx.appsearch.app.SchemaVisibilityConfig.Builder clearAllowedPackages();
+    method @SuppressCompatibility @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS) @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.app.SchemaVisibilityConfig.Builder clearAllowedPackagesWithTags();
     method public androidx.appsearch.app.SchemaVisibilityConfig.Builder clearRequiredPermissions();
+    method @SuppressCompatibility @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS) @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.app.SchemaVisibilityConfig.Builder setAllowedPackageWithTags(androidx.appsearch.app.PackageIdentifier, java.util.Set<java.lang.String!>);
     method public androidx.appsearch.app.SchemaVisibilityConfig.Builder setPubliclyVisibleTargetPackage(androidx.appsearch.app.PackageIdentifier?);
   }
 

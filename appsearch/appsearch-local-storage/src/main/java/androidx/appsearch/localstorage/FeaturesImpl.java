@@ -115,6 +115,10 @@ public class FeaturesImpl implements Features {
                 // fall through
             case Features.SET_SCHEMA_REQUEST_SET_WIPEOUT_ACCOUNT:
                 return true;
+            case Features.SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS:
+                // TODO(b/584870136): Enable this once attribution tags are persisted in the
+                //   visibility store and enforced.
+                return false;
             case Features.SCHEMA_STRING_PROPERTY_CONFIG_DELETE_PROPAGATION_TYPE_PROPAGATE_FROM:
                 // TODO(b/384947619): Enable this once the feature is rolled out to Nextfood in
                 //   platform.
