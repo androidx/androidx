@@ -71,13 +71,16 @@ handoff mechanics. Read-only leaf verifiers skip this file and read
       repeatedly patches around its own design. When multiple model families
       are available in the harness (see `AGENTS_INTERNAL.md` when
       configured):
-      1. *Phase-Matched Authoring:* Use high-throughput search/tool models
-         for fast codebase exploration, log/query ingestion, and test
-         runner execution, and switch the active coordinator model in-place
-         (or delegate to a dedicated coding/architect worker) on the
-         strongest available coding/architecture model family *before*
-         designing and authoring non-trivial Kotlin/Java state-machine or
-         concurrency changes.
+      1. *Phase-Matched Search vs. Complex Code Authoring (Design -> Author
+         Escalation Gate):* Use high-throughput search/tool models first for
+         fast codebase exploration, log/query ingestion, and test runner
+         execution. Then, after the Mandatory Pre-Coding Study &
+         Solution-Cooking Gate (`camerax-guidelines-governance`) and *before*
+         designing and writing non-trivial multi-class, concurrency, or
+         lifecycle state-machine code—check live cross-family quota and switch
+         the active coordinator model in-place (or delegate code authoring to a
+         dedicated architect/author worker) on the strongest available
+         coding/architecture model family whenever healthy.
       2. *Opposite-Family-First Round 1 (`R1`):* Never start Round 1 (`R1`)
          on the **same** model family as the active code/draft author when a
          cross-family model has available quota. Always assign Round 1
@@ -128,7 +131,10 @@ handoff mechanics. Read-only leaf verifiers skip this file and read
       fetch the remote change ref (`git fetch aosp refs/changes/...` ->
       `FETCH_HEAD`, or inspect the target VCS workspace/changelist) and
       specify the resolved workspace path and target revision/diff in the
-      brief (never pass only an incremental delta since the last round).
+      brief (never pass only an incremental delta since the last round, re-check
+      the latest remote Gerrit patchset immediately before delivering any Mode 1
+      review, and include `camera/camera-camera2-pipe/AGENTS.md` in the brief
+      whenever `camera/camera-camera2-pipe/` is in scope).
       Verifiers inspect `git status` / `git diff` / `git show` (or the
       workspace VCS diff) and full surrounding source files at that target
       revision directly.
@@ -141,6 +147,74 @@ handoff mechanics. Read-only leaf verifiers skip this file and read
          references)
       so each clean-context verifier can independently cross-examine the
       complete draft against the raw ground truth without anchoring bias.
+*   **Orchestrator Convergence State Machine, Auto-Extension (Rounds 4–5),
+    Post-Fix Holistic Simplification & Unreviewed-CL Re-Evaluation:**
+    - **Ephemeral Convergence Defect Ledger
+      (`<scratch_or_tmp>/convergence_ledger.md`):**
+      Maintain a state-machine ledger in a scratch/temp file (never committed
+      to the repository and never shown to verifiers during their initial cold
+      audit) tracking every finding across rounds:
+      - `OPEN (R{n})` -> `PATCHED_PENDING_REAUDIT (v{n+1})` ->
+        `VERIFIED_RESOLVED (R{n+1})` or `REGRESSED (R{n+1})`
+      - `REVERTED_VERIFICATION_FAILURE` (when a candidate fix breaks
+        compilation or tests: revert immediately, log the failed approach so
+        later rounds do not re-attempt it, and return the finding to `OPEN` so
+        it still blocks the exit gate until an alternative fix lands, it is
+        `DISMISSED_WITH_PROOF` and `UPHELD`, or it is marked `ESCALATED` to the
+        user)
+      - `DISMISSED_WITH_PROOF` (requires exact `file:line` or specification
+        proof; must be adjudicated in Round `n+1`'s Post-Blind Adjudication
+        Turn as `UPHELD` or `REJECTED` -> `OPEN`)
+      - `ESCALATED` (unresolved trade-off or stalled defect surfaced to the
+        user after reaching the cap or failing progress)
+      The ledger exists to prevent context compaction or memory drift across
+      rounds. Every semantic edit applied in Round `n` must be confirmed
+      `VERIFIED_RESOLVED` in Round `n+1` (invalidating prior LGTM sign-offs),
+      and any dismissal in the final round receives the `+1` focused check or
+      is marked `ESCALATED`. Fix in priority order so rounds are never wasted
+      polishing code that is about to be restructured.
+    - **Auto-Extension (Rounds 4–5 While Fixes Are Converging):** If Round 3
+      (or Round 4) applies a valid semantic fix (`PATCHED_PENDING_REAUDIT`)
+      that actively reduces open defects without oscillating (`progress_made ==
+      true`, meaning the count of open `Critical`/`High`/`Medium` items
+      decreased from the prior round or all prior `PATCHED_PENDING_REAUDIT`
+      items resolved without new regressions), automatically extend the loop up
+      to 5 rounds (`verifier-r4`, `verifier-r5`, cycling across model families)
+      so post-fix changes are audited to true convergence. Otherwise (if a
+      semantic fix was applied with `progress_made == false`), or if Round 5
+      still has a semantic edit or unadjudicated `DISMISSED_WITH_PROOF`, run at
+      most **1 focused post-fix clean-context check**; if any
+      `Critical`/`High`/`Medium`, `PATCHED_PENDING_REAUDIT`, or unadjudicated
+      item remains, stop and mark the remaining items `ESCALATED` to the user
+      (never deliver as converged while `PATCHED_PENDING_REAUDIT` > 0).
+    - **Anti-Sunk-Cost Dismissal, CL-History Seeding & Anti-Oscillation Lock:**
+      Never silently ignore or discard a verifier's `Critical`, `High`, or
+      `Medium` finding; every such finding must be fixed
+      (`PATCHED_PENDING_REAUDIT`) or explicitly rebutted
+      (`DISMISSED_WITH_PROOF`) with `file:line` evidence in the final user
+      report and adjudicated in the next round. Reject any Round `n+1`
+      suggestion that contradicts or reverts a prior round's verified fix
+      unless it proves a concrete failure mode (reproducible race, crash, test
+      failure, or API violation) or a new specification constraint. Document
+      non-obvious ordering, lock, or lifecycle invariants in concise inline
+      comments alongside a deterministic regression test so subsequent
+      verifiers see the constraint; if a design choice returns to a previously
+      rejected state (`v1 -> v2 -> v1`), lock the state and surface the
+      trade-off (`ESCALATED`) to the user. Before modifying an existing CL or
+      applying verifier refactors, inspect patchset/commit history (`git
+      --no-lazy-fetch log -p`, `git reflog`, or fetched Gerrit patchsets) and
+      seed prior resolved findings into `convergence_ledger.md` so solved bugs
+      never ping-pong back across revisions.
+    - **Post-Fix Holistic Simplification & Unreviewed-CL Re-Evaluation:**
+      After resolving multi-round findings (`R2+`) on code edits and before
+      uploading, audit the full `base..HEAD` diff (`git log -p` per commit
+      across stacks) once to collapse patch-on-patch scaffolding and revert
+      causally unnecessary legacy hunk churn (any semantic simplification must
+      pass a final clean-context check). For author-owned unreviewed CLs (`0`
+      human reviewers/comments) scoring `< 9/10` vs. assigned-reviewer or
+      other-author CLs, follow the canonical rule in
+      `camerax-guidelines-governance/references/COMMIT_AND_AMEND.md`
+      (*Unreviewed-CL Holistic Re-Evaluation vs. Assigned/Active Review Lock*).
 
 ---
 

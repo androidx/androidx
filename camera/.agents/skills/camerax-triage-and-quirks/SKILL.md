@@ -274,6 +274,23 @@ three layers in order:
      scattering raw `Quirk` checks across core pipeline classes. **Avoid**
      ad-hoc test `assumeFalse` skips when a workaround or quirk can protect
      production applications.
+   - **Platform Invariant vs. Force-Enableable `Quirk` Separation
+     (`QuirkSettings.withQuirksForceEnabled(...)` Safety) & Bucket-Aware
+     Filtering**:
+     - Never encode hardware-level or API-level platform invariants (such as
+       `INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY` session-close or surface rules
+       that must remain disabled on compliant modern hardware) inside a
+       `QuirkSettings`-toggleable `Quirk` (`shouldEnableQuirk(...)`), because
+       `QuirkSettings.withQuirksForceEnabled(...)` (`Builder.forceEnableQuirks`
+       / `KEY_QUIRK_FORCE_ENABLED` metadata) can force any registered `Quirk`
+       ON across non-target devices and override compliant hardware behavior;
+       keep platform/API invariants directly in core/adapter/`Camera2Quirks`
+       code and reserve `Quirk` strictly for vendor defects safe under
+       `withQuirksForceEnabled(...)`.
+     - When excluding broken resolutions or profiles, evaluate quality-bucket
+       impact (e.g., `Quality.SD` / `HD`) so filtering a single size does not
+       unintentionally drop an entire public quality bucket when sibling sizes
+       in that bucket succeed.
    - **Feature-Preserving Workaround Ladder (`Rungs W1-W4`, Before Disabling Any
      User Feature)**: Study existing `compat/quirk/` and `workaround/` packages
      across `camera-core`, `camera-camera2`, `camera-video`, and
@@ -347,10 +364,21 @@ three layers in order:
         `DynamicRangeFormatComboRegistry`, `DynamicRangeUtil`,
         `EncoderProfilesResolver`) advertising invalid combinations or omitting
         required profile/dataspace parameters?
-     b. **Specification Compliance**: Does the configuration adhere strictly to
-        the underlying Android platform and industry standards (e.g., Android
-        `MediaCodec` profiles, Camera2 stream constraints, ISO/IEC
-        specifications)?
+     b. **Specification Compliance, Dual-Path Grounding & Capability Caps**:
+        Does the configuration adhere strictly to the underlying Android
+        platform and industry standards (e.g., Android `MediaCodec` profiles,
+        Camera2 guaranteed stream-combination & `OutputConfiguration` Javadoc,
+        VINTF `Stream.aidl`, CTS, CameraITS, reference `EmulatedCamera`
+        behavior, ISO/IEC specifications)?
+        When internal query vs. bind paths (`FeatureCombinationQuery` /
+        `FastSwitchConfigQuery` vs. `ImagePipeline`) disagree, verify platform
+        specifications before choosing alignment direction rather than assuming
+        either CameraX path is canonical; before capping `Quality`/FPS
+        (e.g., on `!isHardwareAccelerated`), check Android CDD (`SHOULD` vs.
+        `MUST`) and dynamic platform APIs (`getAchievableFrameRatesFor`,
+        `MEDIA_PERFORMANCE_CLASS`, `isLowRamDevice`); and when updating quirks
+        or `VendorExtender` capability tables, sweep all 4 trees (`src/main`,
+        `src/test`, `src/androidTest`, `integration-tests/*` `*Util` tables).
         *(Case Study: APV codec `video/apv` is an intra-frame 10/12-bit format.
         Erroneously registering it under `buildSdrRegistry()` caused 8-bit SDR
         surfaces to feed a 10-bit encoder without profile keys, producing
@@ -370,8 +398,11 @@ three layers in order:
        conclusively proven to be an unrecoverable vendor driver/HAL defect.
      - **Gate 1 — Telemetry Granularity & Production vs. Synthetic/Raw-Framework
        Split**: Never treat a multi-test failure or bug report as a monolithic
-       device breakdown. Inspect test history and telemetry for **every
-       individual test class and method** on the target device. Always
+       device breakdown, and never bundle independent device/symptom root causes
+       into one mega-CL or close a multi-symptom issue until every
+       device/symptom cluster is either fixed or split into a tracked sub-issue.
+       Inspect test history and telemetry for **every individual test class and
+       method** on the target device. Always
        distinguish production CameraX API tests (`camera-core`,
        `camera-camera2`, `camera-video`, `camera-view`, `camera-extensions`)
        exercising real app user journeys from synthetic harness or raw-framework
@@ -404,14 +435,15 @@ three layers in order:
           production (`DeviceQuirk` untouched) and evaluate Gate 4.
      - **Gate 4 — Fleet-Wide Test Semantics & Coverage Preservation Check**:
        Before modifying a shared test class to make it pass on an anomalous
-       device, inspect its `git log -S` history and class KDoc to verify what
-       contract or boundary the test was designed to exercise (e.g., isolated
-       capture-only sessions, rapid reconfiguration, or concurrent stream
-       transitions). If modifying the test globally would weaken test rigor or
-       alter coverage across the device fleet, preserve the original test
-       semantics globally, add a narrowly scoped device/OS skip (e.g., targeted
-       `assumeFalse` for the specific device, hardware level, or mode), and open
-       a dedicated tracking issue documenting the vendor defect.
+       device, inspect its path-scoped `git --no-lazy-fetch log -S "<token>" --
+       <test_path>` history and class KDoc to verify what contract or boundary
+       the test was designed to exercise (e.g., isolated capture-only sessions,
+       rapid reconfiguration, or concurrent stream transitions). If modifying
+       the test globally would weaken test rigor or alter coverage across the
+       device fleet, preserve the original test semantics globally, add a
+       narrowly scoped device/OS skip (e.g., targeted `assumeFalse` for the
+       specific device, hardware level, or mode), and open a dedicated tracking
+       issue documenting the vendor defect.
      - **Gate 5 — Mandatory On-Device Hypothesis Verification**: Whenever a root
        cause or candidate fix is proposed for a hardware-dependent failure, run
        a targeted reproduction and verification test directly on the physical
