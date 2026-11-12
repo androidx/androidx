@@ -133,13 +133,15 @@ public class RippleNodeConfiguration(
         /**
          * An inset ring focus visual - the created ripple will show an inset focus ring.
          *
+         * Negative inset values are not supported and are treated as `0.dp` (no inset).
+         *
          * @param shape the shape of the focus ring.
          * @param outerStrokeInset the inset from the edge of the shape's outline to the outer edge
-         *   of the outer stroke.
+         *   of the outer stroke. Must not be negative; negative values are treated as `0.dp`.
          * @param outerStrokeWidth the width of the outer stroke.
          * @param outerStrokeColor the color of the outer stroke.
          * @param innerStrokeInset the inset from the edge of the shape's outline to the outer edge
-         *   of the inner stroke.
+         *   of the inner stroke. Must not be negative; negative values are treated as `0.dp`.
          * @param innerStrokeWidth the width of the inner stroke.
          * @param innerStrokeColor the color of the inner stroke.
          * @param focusingAnimationSpec the animation spec used when gaining focus.
