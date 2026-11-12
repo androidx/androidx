@@ -19,13 +19,12 @@ package androidx.compose.remote.creation.compose.modifier
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -55,45 +54,53 @@ class AlphaModifierScreenshotTest {
             listOf<Pair<String, @RemoteComposable @Composable () -> Unit>>(
                 "alpha(1.0f)" to
                     @RemoteComposable @Composable {
-                        RemoteBox(modifier = RemoteModifier.size(50.rdp).background(Color.Red.rc)) {
+                        RemoteBox(
+                            modifier = RemoteModifier.size(50.rdp).background(RemoteColor.Red)
+                        ) {
                             RemoteBox(
                                 modifier =
                                     RemoteModifier.size(20.rdp)
                                         .alpha(1.0f.rf)
-                                        .background(Color.Blue.rc)
+                                        .background(RemoteColor.Blue)
                             )
                         }
                     },
                 "alpha(0.5f)" to
                     @RemoteComposable @Composable {
-                        RemoteBox(modifier = RemoteModifier.size(50.rdp).background(Color.Red.rc)) {
+                        RemoteBox(
+                            modifier = RemoteModifier.size(50.rdp).background(RemoteColor.Red)
+                        ) {
                             RemoteBox(
                                 modifier =
                                     RemoteModifier.size(20.rdp)
                                         .alpha(0.5f.rf)
-                                        .background(Color.Blue.rc)
+                                        .background(RemoteColor.Blue)
                             )
                         }
                     },
                 "alpha(0.1f)" to
                     @RemoteComposable @Composable {
-                        RemoteBox(modifier = RemoteModifier.size(50.rdp).background(Color.Red.rc)) {
+                        RemoteBox(
+                            modifier = RemoteModifier.size(50.rdp).background(RemoteColor.Red)
+                        ) {
                             RemoteBox(
                                 modifier =
                                     RemoteModifier.size(20.rdp)
                                         .alpha(0.1f.rf)
-                                        .background(Color.Blue.rc)
+                                        .background(RemoteColor.Blue)
                             )
                         }
                     },
                 "alpha(0f)" to
                     @RemoteComposable @Composable {
-                        RemoteBox(modifier = RemoteModifier.size(50.rdp).background(Color.Red.rc)) {
+                        RemoteBox(
+                            modifier = RemoteModifier.size(50.rdp).background(RemoteColor.Red)
+                        ) {
                             RemoteBox(
                                 modifier =
                                     RemoteModifier.size(20.rdp)
                                         .alpha(0f.rf)
-                                        .background(Color.Blue.rc)
+                                        .background(RemoteColor.Blue)
                             )
                         }
                     },

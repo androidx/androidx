@@ -33,7 +33,6 @@ import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI.Compa
 import androidx.compose.remote.creation.compose.test.util.propertyName
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -174,12 +173,10 @@ class RemoteColumnTest {
                                 verticalArrangement = arrangement,
                             ) {
                                 RemoteBox(
-                                    modifier =
-                                        RemoteModifier.size(48.rdp).background(Color(0xFF6200EE).rc)
+                                    modifier = RemoteModifier.size(48.rdp).background(0xFF6200EE.rc)
                                 )
                                 RemoteBox(
-                                    modifier =
-                                        RemoteModifier.size(24.rdp).background(Color(0xFF03DAC6).rc)
+                                    modifier = RemoteModifier.size(24.rdp).background(0xFF03DAC6.rc)
                                 )
                             }
                         }
@@ -198,16 +195,13 @@ class RemoteColumnTest {
             verticalArrangement = spacedBy(5.rdp),
         ) {
             RemoteBox(
-                modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF6200EE).rc)
+                modifier = RemoteModifier.height(20.rdp).fillMaxWidth().background(0xFF6200EE.rc)
             )
             RemoteBox(
-                modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF03DAC6).rc)
+                modifier = RemoteModifier.height(20.rdp).fillMaxWidth().background(0xFF03DAC6.rc)
             )
             RemoteBox(
-                modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFFBB86FC).rc)
+                modifier = RemoteModifier.height(20.rdp).fillMaxWidth().background(0xFFBB86FC.rc)
             )
         }
     }
@@ -221,16 +215,13 @@ class RemoteColumnTest {
             verticalArrangement = spacedBy(10f.rf),
         ) {
             RemoteBox(
-                modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF6200EE).rc)
+                modifier = RemoteModifier.height(20.rdp).fillMaxWidth().background(0xFF6200EE.rc)
             )
             RemoteBox(
-                modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF03DAC6).rc)
+                modifier = RemoteModifier.height(20.rdp).fillMaxWidth().background(0xFF03DAC6.rc)
             )
             RemoteBox(
-                modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFFBB86FC).rc)
+                modifier = RemoteModifier.height(20.rdp).fillMaxWidth().background(0xFFBB86FC.rc)
             )
         }
     }
@@ -244,16 +235,13 @@ class RemoteColumnTest {
             verticalArrangement = spacedBy(space = 5.rdp, alignment = alignment),
         ) {
             RemoteBox(
-                modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF6200EE).rc)
+                modifier = RemoteModifier.height(20.rdp).fillMaxWidth().background(0xFF6200EE.rc)
             )
             RemoteBox(
-                modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF03DAC6).rc)
+                modifier = RemoteModifier.height(20.rdp).fillMaxWidth().background(0xFF03DAC6.rc)
             )
             RemoteBox(
-                modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFFBB86FC).rc)
+                modifier = RemoteModifier.height(20.rdp).fillMaxWidth().background(0xFFBB86FC.rc)
             )
         }
     }
@@ -267,16 +255,13 @@ class RemoteColumnTest {
             verticalArrangement = spacedBy(space = 10f.rf, alignment = alignment),
         ) {
             RemoteBox(
-                modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF6200EE).rc)
+                modifier = RemoteModifier.height(20.rdp).fillMaxWidth().background(0xFF6200EE.rc)
             )
             RemoteBox(
-                modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF03DAC6).rc)
+                modifier = RemoteModifier.height(20.rdp).fillMaxWidth().background(0xFF03DAC6.rc)
             )
             RemoteBox(
-                modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFFBB86FC).rc)
+                modifier = RemoteModifier.height(20.rdp).fillMaxWidth().background(0xFFBB86FC.rc)
             )
         }
     }
@@ -290,16 +275,13 @@ class RemoteColumnTest {
             verticalArrangement = Absolute.spacedBy(space = 5.rdp, alignment = alignment),
         ) {
             RemoteBox(
-                modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF6200EE).rc)
+                modifier = RemoteModifier.height(20.rdp).fillMaxWidth().background(0xFF6200EE.rc)
             )
             RemoteBox(
-                modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF03DAC6).rc)
+                modifier = RemoteModifier.height(20.rdp).fillMaxWidth().background(0xFF03DAC6.rc)
             )
             RemoteBox(
-                modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFFBB86FC).rc)
+                modifier = RemoteModifier.height(20.rdp).fillMaxWidth().background(0xFFBB86FC.rc)
             )
         }
     }
@@ -313,16 +295,13 @@ class RemoteColumnTest {
             verticalArrangement = Absolute.spacedBy(space = 10f.rf, alignment = alignment),
         ) {
             RemoteBox(
-                modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF6200EE).rc)
+                modifier = RemoteModifier.height(20.rdp).fillMaxWidth().background(0xFF6200EE.rc)
             )
             RemoteBox(
-                modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF03DAC6).rc)
+                modifier = RemoteModifier.height(20.rdp).fillMaxWidth().background(0xFF03DAC6.rc)
             )
             RemoteBox(
-                modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFFBB86FC).rc)
+                modifier = RemoteModifier.height(20.rdp).fillMaxWidth().background(0xFFBB86FC.rc)
             )
         }
     }

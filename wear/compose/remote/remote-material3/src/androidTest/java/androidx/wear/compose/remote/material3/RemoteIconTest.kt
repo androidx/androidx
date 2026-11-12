@@ -18,21 +18,16 @@ package androidx.wear.compose.remote.material3
 import android.content.Context
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.toRemoteImageVector
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.border
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.RemoteColor
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.toSize
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -58,7 +53,13 @@ class RemoteIconTest {
     @Test
     fun volumeUpRemoteIcon() {
         remoteComposeTestRule.runScreenshotTest(
-            remoteCreationDisplayInfo = createCreationDisplayInfo(context, size.toSize()),
+            remoteCreationDisplayInfo =
+                RemoteCreationDisplayInfo(
+                    size,
+                    size,
+                    context.resources.displayMetrics.densityDpi,
+                    context.resources.configuration.fontScale,
+                ),
             playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             RemoteIcon(imageVector = TestImageVectors.VolumeUp, contentDescription = null)
@@ -68,13 +69,19 @@ class RemoteIconTest {
     @Test
     fun volumeUpRemoteIcon_tintedRed() {
         remoteComposeTestRule.runScreenshotTest(
-            remoteCreationDisplayInfo = createCreationDisplayInfo(context, size.toSize()),
+            remoteCreationDisplayInfo =
+                RemoteCreationDisplayInfo(
+                    size,
+                    size,
+                    context.resources.displayMetrics.densityDpi,
+                    context.resources.configuration.fontScale,
+                ),
             playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             RemoteIcon(
                 imageVector = TestImageVectors.VolumeUp,
                 contentDescription = null,
-                tint = RemoteColor(Color.Red),
+                tint = RemoteColor.Red,
             )
         }
     }
@@ -82,7 +89,13 @@ class RemoteIconTest {
     @Test
     fun volumeUpRemoteIcon_rtl() {
         remoteComposeTestRule.runScreenshotTest(
-            remoteCreationDisplayInfo = createCreationDisplayInfo(context, size.toSize()),
+            remoteCreationDisplayInfo =
+                RemoteCreationDisplayInfo(
+                    size,
+                    size,
+                    context.resources.displayMetrics.densityDpi,
+                    context.resources.configuration.fontScale,
+                ),
             creationComposableWrapper = ComposableWrappers.rtl,
             playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
@@ -93,7 +106,13 @@ class RemoteIconTest {
     @Test
     fun volumeUpRemoteIcon_scaledUp() {
         remoteComposeTestRule.runScreenshotTest(
-            remoteCreationDisplayInfo = createCreationDisplayInfo(context, Size(48f, 48f)),
+            remoteCreationDisplayInfo =
+                RemoteCreationDisplayInfo(
+                    48,
+                    48,
+                    context.resources.displayMetrics.densityDpi,
+                    context.resources.configuration.fontScale,
+                ),
             playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             RemoteIcon(
@@ -107,7 +126,13 @@ class RemoteIconTest {
     @Test
     fun remoteIcon_fromImageVector() {
         remoteComposeTestRule.runScreenshotTest(
-            remoteCreationDisplayInfo = createCreationDisplayInfo(context, Size(48f, 48f)),
+            remoteCreationDisplayInfo =
+                RemoteCreationDisplayInfo(
+                    48,
+                    48,
+                    context.resources.displayMetrics.densityDpi,
+                    context.resources.configuration.fontScale,
+                ),
             playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             RemoteIcon(
@@ -121,7 +146,13 @@ class RemoteIconTest {
     @Test
     fun remoteIcon_setBorderSizeUnchanged() {
         remoteComposeTestRule.runScreenshotTest(
-            remoteCreationDisplayInfo = createCreationDisplayInfo(context, Size(200f, 100f)),
+            remoteCreationDisplayInfo =
+                RemoteCreationDisplayInfo(
+                    200,
+                    100,
+                    context.resources.displayMetrics.densityDpi,
+                    context.resources.configuration.fontScale,
+                ),
             playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             RemoteRow {
@@ -129,13 +160,13 @@ class RemoteIconTest {
                 RemoteIcon(
                     imageVector = TestImageVectors.VolumeUp,
                     contentDescription = null,
-                    modifier = RemoteModifier.border(1.rdp, Color.Yellow.rc),
+                    modifier = RemoteModifier.border(1.rdp, RemoteColor.Yellow),
                 )
             }
         }
     }
 
     companion object {
-        val size = IntSize(24, 24)
+        const val size = 24
     }
 }

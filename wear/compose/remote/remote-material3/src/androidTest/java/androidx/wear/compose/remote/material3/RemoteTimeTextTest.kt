@@ -29,9 +29,9 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.offset
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
@@ -47,7 +47,6 @@ import androidx.compose.remote.player.compose.test.utils.createMockContextWithFo
 import androidx.compose.remote.player.core.platform.FontInstance
 import androidx.compose.remote.player.core.platform.TypefaceResolver
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontVariation.Setting
 import androidx.compose.ui.text.font.FontVariation.Settings
@@ -83,7 +82,7 @@ class RemoteTimeTextTest {
     @Test
     fun timeText_withBackground() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
-            RemoteBox(RemoteModifier.fillMaxSize().background(Color.DarkGray.rc)) {
+            RemoteBox(RemoteModifier.fillMaxSize().background(RemoteColor.DarkGray)) {
                 RemoteTimeText(
                     modifier = RemoteModifier.fillMaxSize(),
                     time = "10:09".rs,
@@ -91,7 +90,7 @@ class RemoteTimeTextTest {
                 RemoteTimeText(
                     modifier = RemoteModifier.fillMaxSize().offset(0.rdp, 35.rdp),
                     time = "10:09".rs,
-                    backgroundColor = Color.Transparent.rc,
+                    backgroundColor = RemoteColor.Transparent,
                 )
             }
         }
@@ -132,7 +131,7 @@ class RemoteTimeTextTest {
                     val innerRadius = 95.rf
 
                     val guidePaint = RemotePaint {
-                        color = Color.DarkGray.rc
+                        color = RemoteColor.DarkGray
                         style = RemotePaintingStyle.Stroke
                         strokeWidth = 2.rf
                     }
@@ -147,7 +146,7 @@ class RemoteTimeTextTest {
 
                     val textPaint = RemotePaint {
                         textSize = 9.rsp.toPx()
-                        color = Color.White.rc
+                        color = RemoteColor.White
                     }
 
                     // OUTSIDE placement along top half (270°), upright left-to-right

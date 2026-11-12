@@ -21,7 +21,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.MutableRemoteImageBitmap
@@ -37,8 +37,6 @@ import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRul
 import androidx.compose.remote.player.core.platform.BitmapLoader
 import androidx.compose.remote.testing.LimitsRule
 import androidx.compose.runtime.remember
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
@@ -78,7 +76,12 @@ class RemoteImageTest {
         val size = 48
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo =
-                createCreationDisplayInfo(context, Size(size.toFloat(), size.toFloat())),
+                RemoteCreationDisplayInfo(
+                    width = size,
+                    height = size,
+                    densityDpi = context.resources.displayMetrics.densityDpi,
+                    fontScale = context.resources.configuration.fontScale,
+                ),
             bitmapLoader = bitmapLoader,
             playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
@@ -92,7 +95,7 @@ class RemoteImageTest {
                 contentDescription = "background".rs,
                 modifier = RemoteModifier.size(size.rdp),
                 contentScale = RemoteContentScale.Fit,
-                alpha = DefaultAlpha.rf,
+                alpha = 1.0f.rf,
             )
         }
     }
@@ -102,7 +105,12 @@ class RemoteImageTest {
         val size = 227
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo =
-                createCreationDisplayInfo(context, Size(size.toFloat(), size.toFloat())),
+                RemoteCreationDisplayInfo(
+                    width = size,
+                    height = size,
+                    densityDpi = context.resources.displayMetrics.densityDpi,
+                    fontScale = context.resources.configuration.fontScale,
+                ),
             bitmapLoader = bitmapLoader,
             playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
@@ -127,7 +135,12 @@ class RemoteImageTest {
         val size = 48
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo =
-                createCreationDisplayInfo(context, Size(size.toFloat(), size.toFloat())),
+                RemoteCreationDisplayInfo(
+                    width = size,
+                    height = size,
+                    densityDpi = context.resources.displayMetrics.densityDpi,
+                    fontScale = context.resources.configuration.fontScale,
+                ),
             bitmapLoader = bitmapLoader,
         ) {
             val dummyImage = remember {
@@ -141,7 +154,7 @@ class RemoteImageTest {
                 contentDescription = "background".rs,
                 modifier = RemoteModifier.size(size.rdp),
                 contentScale = RemoteContentScale.Fit,
-                alpha = DefaultAlpha.rf,
+                alpha = 1.0f.rf,
             )
         }
     }
@@ -151,7 +164,12 @@ class RemoteImageTest {
         val size = 48
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo =
-                createCreationDisplayInfo(context, Size(size.toFloat(), size.toFloat())),
+                RemoteCreationDisplayInfo(
+                    width = size,
+                    height = size,
+                    densityDpi = context.resources.displayMetrics.densityDpi,
+                    fontScale = context.resources.configuration.fontScale,
+                ),
             bitmapLoader = bitmapLoader,
         ) {
             val backgroundImage = createImage(size, size)
@@ -174,7 +192,12 @@ class RemoteImageTest {
         assertThrows(RuntimeException::class.java) {
             remoteComposeTestRule.runScreenshotTest(
                 remoteCreationDisplayInfo =
-                    createCreationDisplayInfo(context, Size(size.toFloat(), size.toFloat())),
+                    RemoteCreationDisplayInfo(
+                        width = size,
+                        height = size,
+                        densityDpi = context.resources.displayMetrics.densityDpi,
+                        fontScale = context.resources.configuration.fontScale,
+                    ),
                 bitmapLoader = bitmapLoader,
             ) {
                 val dummyImage = remember {
@@ -189,7 +212,7 @@ class RemoteImageTest {
                     contentDescription = "background".rs,
                     modifier = RemoteModifier.size(size.rdp),
                     contentScale = RemoteContentScale.Fit,
-                    alpha = DefaultAlpha.rf,
+                    alpha = 1.0f.rf,
                 )
             }
         }
@@ -201,7 +224,12 @@ class RemoteImageTest {
         val size = 48
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo =
-                createCreationDisplayInfo(context, Size(size.toFloat(), size.toFloat())),
+                RemoteCreationDisplayInfo(
+                    width = size,
+                    height = size,
+                    densityDpi = context.resources.displayMetrics.densityDpi,
+                    fontScale = context.resources.configuration.fontScale,
+                ),
             bitmapLoader = bitmapLoader,
         ) {
             val dummyImage = remember {
@@ -214,7 +242,7 @@ class RemoteImageTest {
                 contentDescription = "background".rs,
                 modifier = RemoteModifier.size(size.rdp),
                 contentScale = RemoteContentScale.Fit,
-                alpha = DefaultAlpha.rf,
+                alpha = 1.0f.rf,
             )
         }
     }
@@ -224,7 +252,12 @@ class RemoteImageTest {
         val size = 48
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo =
-                createCreationDisplayInfo(context, Size(size.toFloat(), size.toFloat())),
+                RemoteCreationDisplayInfo(
+                    width = size,
+                    height = size,
+                    densityDpi = context.resources.displayMetrics.densityDpi,
+                    fontScale = context.resources.configuration.fontScale,
+                ),
             bitmapLoader = bitmapLoader,
         ) {
             val backgroundImage = createImage(size, size).asImageBitmap()

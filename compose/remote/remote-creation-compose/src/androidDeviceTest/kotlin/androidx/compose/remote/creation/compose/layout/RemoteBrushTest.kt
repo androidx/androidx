@@ -51,8 +51,6 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -75,7 +73,7 @@ class RemoteBrushTest {
             matcher = MSSIMMatcher(threshold = 0.9995),
         )
 
-    private val colors = listOf(Color.Red.rc, Color.Blue.rc)
+    private val colors = listOf(RemoteColor.Red, RemoteColor.Blue)
     private val dynamicColors =
         listOf(
             // Force non constant values with createReference()
@@ -106,8 +104,8 @@ class RemoteBrushTest {
                                         start = RemoteOffset(0f.rf, 0f.rf),
                                         end =
                                             RemoteOffset(
-                                                Offset.Infinite.x.rf,
-                                                Offset.Infinite.y.rf,
+                                                Float.POSITIVE_INFINITY.rf,
+                                                Float.POSITIVE_INFINITY.rf,
                                             ),
                                     )
                                 )
@@ -151,8 +149,8 @@ class RemoteBrushTest {
                                         colors = colors,
                                         center =
                                             RemoteOffset(
-                                                Offset.Infinite.x.rf,
-                                                Offset.Infinite.y.rf,
+                                                Float.POSITIVE_INFINITY.rf,
+                                                Float.POSITIVE_INFINITY.rf,
                                             ),
                                         radius = Float.POSITIVE_INFINITY.rf,
                                     )
@@ -169,8 +167,8 @@ class RemoteBrushTest {
                                         colors = colors,
                                         center =
                                             RemoteOffset(
-                                                Offset.Infinite.x.rf,
-                                                Offset.Infinite.y.rf,
+                                                Float.POSITIVE_INFINITY.rf,
+                                                Float.POSITIVE_INFINITY.rf,
                                             ),
                                     )
                                 )
@@ -235,7 +233,7 @@ class RemoteBrushTest {
             val topLeftX = 50f
             val topLeftY = 50f
             val matrix33 = createTranslateXy(RemoteFloat(topLeftX), RemoteFloat(topLeftY))
-            RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Yellow.rc)) {
+            RemoteBox(modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Yellow)) {
                 RemoteBox(
                     modifier =
                         RemoteModifier.size(100.rdp)
@@ -333,7 +331,7 @@ class RemoteBrushTest {
     private companion object {
         val Padding = 24.rdp
         val ContainerSize = 100.rdp
-        val ContainerColor = Color(0xFFCFD8DC.toInt()).rc
+        val ContainerColor = 0xFFCFD8DC.rc
 
         // Draws a red cross with a cyan/grey/blue background
         fun createImage(tw: Int, th: Int): Bitmap {

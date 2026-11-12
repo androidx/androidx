@@ -25,15 +25,14 @@ import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.state.MutableRemoteEnum
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteEnum
 import androidx.compose.remote.creation.compose.state.RemoteString
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -60,7 +59,7 @@ class StateLayoutTest {
     @Test
     fun single() = testRule.runScreenshotTest {
         NestedStateLayout("one".rs) { one ->
-            RemoteText("Innermost $one".rs, color = Color.Black.rc)
+            RemoteText("Innermost $one".rs, color = RemoteColor.Black)
         }
     }
 
@@ -70,10 +69,10 @@ class StateLayoutTest {
             val currentState = remember { MutableRemoteEnum(LayoutState.First) }
             NestedStateLayout("one".rs, currentState = currentState) { state ->
                 RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
-                    RemoteText("State $state".rs, color = Color.Black.rc)
+                    RemoteText("State $state".rs, color = RemoteColor.Black)
                     RemoteText(
                         "Switch".rs,
-                        color = Color.Black.rc,
+                        color = RemoteColor.Black,
                         modifier =
                             RemoteModifier.clickable(
                                 valueChangeAction(
@@ -110,7 +109,7 @@ class StateLayoutTest {
                 currentState = remember { MutableRemoteEnum(LayoutState.Second) },
             ) { two ->
                 NestedStateLayout("three".rs) { three ->
-                    RemoteText("Innermost $one / $two / $three".rs, color = Color.Black.rc)
+                    RemoteText("Innermost $one / $two / $three".rs, color = RemoteColor.Black)
                 }
             }
         }
@@ -125,12 +124,13 @@ class StateLayoutTest {
     ) {
         RemoteStateLayout(
             currentState = currentState,
-            modifier = RemoteModifier.fillMaxSize().background(Color.LightGray.rc),
+            modifier = RemoteModifier.fillMaxSize().background(RemoteColor.LightGray),
         ) { layoutState ->
             RemoteColumn(
-                modifier = RemoteModifier.fillMaxSize().border(1.rdp, Color.Blue.rc).padding(10.rdp)
+                modifier =
+                    RemoteModifier.fillMaxSize().border(1.rdp, RemoteColor.Blue).padding(10.rdp)
             ) {
-                RemoteText(label + " / " + layoutState.toString(), color = Color.Black.rc)
+                RemoteText(label + " / " + layoutState.toString(), color = RemoteColor.Black)
                 when (layoutState) {
                     LayoutState.First -> {
                         content(layoutState)

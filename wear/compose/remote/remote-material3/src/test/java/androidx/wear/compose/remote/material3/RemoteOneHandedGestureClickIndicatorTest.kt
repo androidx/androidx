@@ -23,9 +23,9 @@ import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.creation.compose.action.hostAction
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
@@ -33,7 +33,6 @@ import androidx.compose.remote.player.compose.RcPlayerTestRule
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.testTag
@@ -60,7 +59,12 @@ class RemoteOneHandedGestureClickIndicatorTest {
 
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val creationDisplayInfo =
-        createCreationDisplayInfo(context, Size(DISPLAY_SIZE_PX, DISPLAY_SIZE_PX))
+        RemoteCreationDisplayInfo(
+            DISPLAY_SIZE_PX,
+            DISPLAY_SIZE_PX,
+            context.resources.displayMetrics.densityDpi,
+            context.resources.configuration.fontScale,
+        )
     private val testAction = hostAction("testAction".rs)
 
     @Test
@@ -112,14 +116,14 @@ class RemoteOneHandedGestureClickIndicatorTest {
     private fun renderIndicatorAtProgress(progress: Float): Bitmap = renderToBitmap {
         RemoteButton(
             onClick = testAction,
-            colors = RemoteButtonDefaults.buttonColors(containerColor = Color.Black.rc),
+            colors = RemoteButtonDefaults.buttonColors(containerColor = RemoteColor.Black),
         ) {
             RemoteOneHandedGestureClickIndicator(
                 hintProgress = progress.rf,
                 gestureIndicatorSize = RemoteOneHandedGestureDefaults.SmallIndicatorSize,
-                gestureIndicatorTint = Color.Red.rc,
+                gestureIndicatorTint = RemoteColor.Red,
             ) {
-                RemoteText("Click Me".rs, color = Color.Blue.rc)
+                RemoteText("Click Me".rs, color = RemoteColor.Blue)
             }
         }
     }
@@ -157,7 +161,7 @@ class RemoteOneHandedGestureClickIndicatorTest {
     }
 
     private companion object {
-        const val DISPLAY_SIZE_PX = 200f
+        const val DISPLAY_SIZE_PX = 200
         const val PLAYER_TAG = "player"
     }
 }

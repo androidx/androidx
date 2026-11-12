@@ -43,7 +43,6 @@ import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.RemoteInteractionTestRule
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiObject2
@@ -86,7 +85,7 @@ class GesturePropagationTest {
                 RemoteBox(
                     modifier =
                         RemoteModifier.size(width = 200.rdp, height = 200.rdp)
-                            .background(RemoteColor(Color.Red))
+                            .background(RemoteColor.Red)
                             .clickable(HostAction(remoteComposeClick.rs)),
                     contentAlignment = RemoteAlignment.Center,
                 ) {
@@ -145,7 +144,7 @@ class GesturePropagationTest {
                 RemoteBox(
                     modifier =
                         RemoteModifier.size(width = 200.rdp, height = 200.rdp)
-                            .background(RemoteColor(Color.Red))
+                            .background(RemoteColor.Red)
                             .combinedClickable(onClick = HostAction(remoteClick.rs)),
                     contentAlignment = RemoteAlignment.Center,
                 ) {
@@ -210,7 +209,7 @@ class GesturePropagationTest {
                 RemoteBox(
                     modifier =
                         RemoteModifier.size(width = 200.rdp, height = 200.rdp)
-                            .background(RemoteColor(Color.Red))
+                            .background(RemoteColor.Red)
                             .combinedClickable(onDoubleClick = HostAction(remoteDoubleClick.rs)),
                     contentAlignment = RemoteAlignment.Center,
                 ) {
@@ -277,7 +276,7 @@ class GesturePropagationTest {
                 RemoteBox(
                     modifier =
                         RemoteModifier.size(width = 200.rdp, height = 200.rdp)
-                            .background(RemoteColor(Color.Red))
+                            .background(RemoteColor.Red)
                             .combinedClickable(onLongClick = HostAction(remoteLongClick.rs)),
                     contentAlignment = RemoteAlignment.Center,
                 ) {

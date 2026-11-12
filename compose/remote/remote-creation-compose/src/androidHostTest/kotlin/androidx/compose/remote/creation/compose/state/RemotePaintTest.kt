@@ -17,8 +17,6 @@ package androidx.compose.remote.creation.compose.state
 
 import androidx.compose.remote.creation.compose.shaders.RemoteLinearShader
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -62,10 +60,9 @@ class RemotePaintTest {
     @Test
     fun setColorTest() {
         val remotePaint = RemotePaint()
-        val color = Color.Red
-        val rc = color.rc
-        remotePaint.color = rc
-        assertThat(remotePaint.color).isEqualTo(rc)
+        val remoteColor = RemoteColor.Red
+        remotePaint.color = remoteColor
+        assertThat(remotePaint.color).isEqualTo(remoteColor)
     }
 
     @Test
@@ -84,11 +81,11 @@ class RemotePaintTest {
     @Test
     fun copyConstructorWithNullsTest() {
         val remotePaint = RemotePaint()
-        remotePaint.color = Color.Red.rc
+        remotePaint.color = RemoteColor.Red
         remotePaint.colorFilter = null
 
         val copiedPaint = StandardRemotePaint(remotePaint)
-        assertThat(copiedPaint.color.asConstantColor()).isEqualTo(Color.Red)
+        assertThat(copiedPaint.color.constantValue).isEqualTo(RemoteColor.Red.constantValue)
         assertThat(copiedPaint.colorFilter).isEqualTo(null)
     }
 
@@ -117,14 +114,14 @@ class RemotePaintTest {
     @Test
     fun remoteColorBlackByDefaultTest() {
         val remotePaint = RemotePaint()
-        assertThat(remotePaint.color.asConstantColor()).isEqualTo(Color.Black)
+        assertThat(remotePaint.color.constantValue).isEqualTo(RemoteColor.Black.constantValue)
     }
 
     @Test
     fun remoteColorBlackByDefaultMatchesColorBlackRcTest() {
         val color = RemotePaint().color
 
-        assertThat(color.isStructurallyEqual(Color.Black.rc)).isTrue()
+        assertThat(color.isStructurallyEqual(RemoteColor.Black)).isTrue()
         assertThat(color).isSameInstanceAs(RemoteColor.Black)
     }
 
@@ -168,7 +165,7 @@ class RemotePaintTest {
 
         val defaultPaint = StandardRemotePaint(remotePaint)
 
-        assertThat(defaultPaint.color.asConstantColor()).isEqualTo(Color.Blue)
+        assertThat(defaultPaint.color.constantValue).isEqualTo(RemoteColor.Blue.constantValue)
         assertThat(defaultPaint.strokeWidth.constantValue).isEqualTo(10f)
         assertThat(defaultPaint.isAntiAlias).isTrue()
         assertThat(defaultPaint.style).isEqualTo(RemotePaintingStyle.Stroke)
@@ -177,10 +174,10 @@ class RemotePaintTest {
     @Test
     fun compatAndroidRemotePaintColorTest() {
         val paint = CompatAndroidRemotePaint()
-        val color = Color.Red
-        paint.remoteColor = color.rc
-        assertThat(paint.color).isEqualTo(color.toArgb())
-        assertThat(paint.remoteColor?.asConstantColor()).isEqualTo(color)
+        val color = RemoteColor.Red
+        paint.remoteColor = color
+        assertThat(paint.color).isEqualTo(android.graphics.Color.RED)
+        assertThat(paint.remoteColor?.constantValue).isEqualTo(color.constantValue)
 
         paint.setColor(android.graphics.Color.BLUE)
         assertThat(paint.remoteColor).isNull()
@@ -205,8 +202,7 @@ class RemotePaintTest {
     @Test
     fun compatAndroidRemotePaintColorFilterTest() {
         val paint = CompatAndroidRemotePaint()
-        val color = Color.Red
-        val filter = RemoteBlendModeColorFilter(color.rc, RemoteBlendMode.SrcIn)
+        val filter = RemoteBlendModeColorFilter(RemoteColor.Red, RemoteBlendMode.SrcIn)
         paint.remoteColorFilter = filter
         assertThat(paint.remoteColorFilter).isEqualTo(filter)
         assertThat(paint.colorFilter).isNotNull()
@@ -268,14 +264,15 @@ class RemotePaintTest {
     fun compatAndroidRemotePaintColorPropertiesTest() {
         val compatPaint =
             CompatAndroidRemotePaint().apply {
-                remoteColor = Color.Green.rc
-                remoteColorFilter = RemoteBlendModeColorFilter(Color.Red.rc, RemoteBlendMode.SrcIn)
+                remoteColor = RemoteColor.Green
+                remoteColorFilter =
+                    RemoteBlendModeColorFilter(RemoteColor.Red, RemoteBlendMode.SrcIn)
             }
         val remotePaint = compatPaint.asRemotePaint()
 
-        assertThat(remotePaint.color.asConstantColor()).isEqualTo(Color.Green)
+        assertThat(remotePaint.color.constantValue).isEqualTo(RemoteColor.Green.constantValue)
         val colorFilter = remotePaint.colorFilter as RemoteBlendModeColorFilter
-        assertThat(colorFilter.color.asConstantColor()).isEqualTo(Color.Red)
+        assertThat(colorFilter.color.constantValue).isEqualTo(RemoteColor.Red.constantValue)
         assertThat(colorFilter.blendMode).isEqualTo(RemoteBlendMode.SrcIn)
     }
 
@@ -287,7 +284,7 @@ class RemotePaintTest {
                 y0 = 0f.rf,
                 x1 = 10f.rf,
                 y1 = 10f.rf,
-                colors = listOf(Color.Red.rc, Color.Blue.rc),
+                colors = listOf(RemoteColor.Red, RemoteColor.Blue),
                 positions = null,
                 tileMode = RemoteTileMode.Clamp,
             )

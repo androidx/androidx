@@ -33,6 +33,7 @@ import androidx.compose.remote.creation.compose.shaders.RemoteShader
 import androidx.compose.remote.creation.compose.state.CompatAndroidRemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemoteBlendModeColorFilter
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFilterQuality
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createIdentity
@@ -49,9 +50,6 @@ import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.compose.text.RemoteTypeface.Companion.create
 import androidx.compose.remote.creation.compose.text.toRemoteFontVariationSettings
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
@@ -84,7 +82,7 @@ class PaintTrackerTest {
     @Test
     fun testInitialSync() {
         val paint = RemotePaint {
-            color = Color.Red.rc
+            color = RemoteColor.Red
             strokeWidth = 5f.rf
         }
         val bundle = PaintBundle()
@@ -95,13 +93,13 @@ class PaintTrackerTest {
         val changes = TestPaintChanges()
         bundle.applyPaintChange(paintContext, changes)
 
-        assertThat(changes.mColor).isEqualTo(Color.Red.toArgb())
+        assertThat(changes.mColor).isEqualTo(android.graphics.Color.RED)
         assertThat(changes.mStrokeWidth).isEqualTo(5f)
     }
 
     @Test
     fun testInitialSync_WhiteColor() {
-        val paint = RemotePaint { color = Color.White.rc }
+        val paint = RemotePaint { color = RemoteColor.White }
         val bundle = PaintBundle()
         tracker.updateWithPaint(paint, bundle, creationState)
 
@@ -111,7 +109,7 @@ class PaintTrackerTest {
         bundle.applyPaintChange(paintContext, changes)
 
         assertThat(changes.colorSet).isTrue()
-        assertThat(changes.mColor).isEqualTo(Color.White.toArgb())
+        assertThat(changes.mColor).isEqualTo(android.graphics.Color.WHITE)
     }
 
     @Test
@@ -126,20 +124,20 @@ class PaintTrackerTest {
         bundle.applyPaintChange(paintContext, changes)
 
         assertThat(changes.colorSet).isTrue()
-        assertThat(changes.mColor).isEqualTo(Color.Black.toArgb())
+        assertThat(changes.mColor).isEqualTo(android.graphics.Color.BLACK)
     }
 
     @Test
     fun testDeltaOptimization() {
         val paint1 = RemotePaint {
-            color = Color.Red.rc
+            color = RemoteColor.Red
             strokeWidth = 5f.rf
         }
         tracker.updateWithPaint(paint1, PaintBundle(), creationState)
         tracker.reset(force = false)
 
         val paint2 = RemotePaint {
-            color = Color.Red.rc // Unchanged
+            color = RemoteColor.Red // Unchanged
             strokeWidth = 10f.rf // Changed
         }
         val bundle2 = PaintBundle()
@@ -157,7 +155,7 @@ class PaintTrackerTest {
 
     @Test
     fun testForceSync() {
-        val paint = RemotePaint { color = Color.Red.rc }
+        val paint = RemotePaint { color = RemoteColor.Red }
         tracker.updateWithPaint(paint, PaintBundle(), creationState)
 
         tracker.reset(force = true)
@@ -169,7 +167,7 @@ class PaintTrackerTest {
         val changes = TestPaintChanges()
         bundle2.applyPaintChange(paintContext, changes)
         assertThat(changes.colorSet).isTrue()
-        assertThat(changes.mColor).isEqualTo(Color.Red.toArgb())
+        assertThat(changes.mColor).isEqualTo(android.graphics.Color.RED)
     }
 
     @Test
@@ -193,7 +191,7 @@ class PaintTrackerTest {
     @Test
     fun testComposeToAndroidTransition() {
         // Sync with DefaultRemotePaint first
-        val paint1 = RemotePaint { color = Color.Blue.rc }
+        val paint1 = RemotePaint { color = RemoteColor.Blue }
         tracker.updateWithPaint(paint1, PaintBundle(), creationState)
         tracker.reset(force = false)
 
@@ -735,12 +733,12 @@ class PaintTrackerTest {
 
     @Test
     fun paintSnapshotTest() {
-        val paint = RemotePaint { color = Color.Red.rc }
+        val paint = RemotePaint { color = RemoteColor.Red }
         val remoteCanvas = RemoteCanvas(creationState)
         remoteCanvas.drawRect(0f.rf, 0f.rf, 100f.rf, 100f.rf, paint)
 
         // Modify the input paint immediately after capturing the draw operation
-        paint.color = Color.Blue.rc
+        paint.color = RemoteColor.Blue
 
         // Verify that modifying the input paint does not alter the emitted UsePaint operations
         remoteCanvas.flush()
@@ -755,7 +753,7 @@ class PaintTrackerTest {
 
         // If snapshotting failed, the mutation to Color.BLUE would have leaked into the recorded
         // operation
-        assertThat(changes.mColor).isEqualTo(Color.Red.toArgb())
+        assertThat(changes.mColor).isEqualTo(android.graphics.Color.RED)
     }
 
     @Test
@@ -905,7 +903,7 @@ class PaintTrackerTest {
     fun testAndroidPaintBlendModeSync() {
         assertThat(AndroidBlendModes.map { it.first })
             .containsExactlyElementsIn(AndroidBlendMode.entries)
-        for ((androidBlendMode, _, remoteBlendMode) in AndroidBlendModes) {
+        for ((androidBlendMode, remoteBlendMode) in AndroidBlendModes) {
             val androidPaint = AndroidPaint().apply { blendMode = androidBlendMode }
             assertThat(androidPaint.blendMode).isEqualTo(androidBlendMode)
 
@@ -921,7 +919,7 @@ class PaintTrackerTest {
     @Test
     fun testAndroidPaintBlendModeColorFilterSync() {
         val filterColor = android.graphics.Color.argb(0x80, 0x12, 0x34, 0x56)
-        for ((androidBlendMode, _, remoteBlendMode) in AndroidBlendModes) {
+        for ((androidBlendMode, remoteBlendMode) in AndroidBlendModes) {
             val androidPaint =
                 AndroidPaint().apply {
                     colorFilter = BlendModeColorFilter(filterColor, androidBlendMode)
@@ -931,7 +929,7 @@ class PaintTrackerTest {
             val colorFilter = paint.colorFilter as RemoteBlendModeColorFilter
 
             assertWithMessage("$androidBlendMode")
-                .that(colorFilter.color.isStructurallyEqual(Color(filterColor).rc))
+                .that(colorFilter.color.isStructurallyEqual(filterColor.rc))
                 .isTrue()
             assertWithMessage("$androidBlendMode")
                 .that(colorFilter.blendMode)
@@ -1224,36 +1222,36 @@ class PaintTrackerTest {
     }
 }
 
-/** Every platform blend mode with the Compose and remote blend modes that it converts to. */
+/** Every platform blend mode with the remote blend mode that it converts to. */
 private val AndroidBlendModes =
     listOf(
-        Triple(AndroidBlendMode.CLEAR, BlendMode.Clear, RemoteBlendMode.Clear),
-        Triple(AndroidBlendMode.SRC, BlendMode.Src, RemoteBlendMode.Src),
-        Triple(AndroidBlendMode.DST, BlendMode.Dst, RemoteBlendMode.Dst),
-        Triple(AndroidBlendMode.SRC_OVER, BlendMode.SrcOver, RemoteBlendMode.SrcOver),
-        Triple(AndroidBlendMode.DST_OVER, BlendMode.DstOver, RemoteBlendMode.DstOver),
-        Triple(AndroidBlendMode.SRC_IN, BlendMode.SrcIn, RemoteBlendMode.SrcIn),
-        Triple(AndroidBlendMode.DST_IN, BlendMode.DstIn, RemoteBlendMode.DstIn),
-        Triple(AndroidBlendMode.SRC_OUT, BlendMode.SrcOut, RemoteBlendMode.SrcOut),
-        Triple(AndroidBlendMode.DST_OUT, BlendMode.DstOut, RemoteBlendMode.DstOut),
-        Triple(AndroidBlendMode.SRC_ATOP, BlendMode.SrcAtop, RemoteBlendMode.SrcAtop),
-        Triple(AndroidBlendMode.DST_ATOP, BlendMode.DstAtop, RemoteBlendMode.DstAtop),
-        Triple(AndroidBlendMode.XOR, BlendMode.Xor, RemoteBlendMode.Xor),
-        Triple(AndroidBlendMode.PLUS, BlendMode.Plus, RemoteBlendMode.Plus),
-        Triple(AndroidBlendMode.MODULATE, BlendMode.Modulate, RemoteBlendMode.Modulate),
-        Triple(AndroidBlendMode.SCREEN, BlendMode.Screen, RemoteBlendMode.Screen),
-        Triple(AndroidBlendMode.OVERLAY, BlendMode.Overlay, RemoteBlendMode.Overlay),
-        Triple(AndroidBlendMode.DARKEN, BlendMode.Darken, RemoteBlendMode.Darken),
-        Triple(AndroidBlendMode.LIGHTEN, BlendMode.Lighten, RemoteBlendMode.Lighten),
-        Triple(AndroidBlendMode.COLOR_DODGE, BlendMode.ColorDodge, RemoteBlendMode.ColorDodge),
-        Triple(AndroidBlendMode.COLOR_BURN, BlendMode.ColorBurn, RemoteBlendMode.ColorBurn),
-        Triple(AndroidBlendMode.HARD_LIGHT, BlendMode.Hardlight, RemoteBlendMode.Hardlight),
-        Triple(AndroidBlendMode.SOFT_LIGHT, BlendMode.Softlight, RemoteBlendMode.Softlight),
-        Triple(AndroidBlendMode.DIFFERENCE, BlendMode.Difference, RemoteBlendMode.Difference),
-        Triple(AndroidBlendMode.EXCLUSION, BlendMode.Exclusion, RemoteBlendMode.Exclusion),
-        Triple(AndroidBlendMode.MULTIPLY, BlendMode.Multiply, RemoteBlendMode.Multiply),
-        Triple(AndroidBlendMode.HUE, BlendMode.Hue, RemoteBlendMode.Hue),
-        Triple(AndroidBlendMode.SATURATION, BlendMode.Saturation, RemoteBlendMode.Saturation),
-        Triple(AndroidBlendMode.COLOR, BlendMode.Color, RemoteBlendMode.Color),
-        Triple(AndroidBlendMode.LUMINOSITY, BlendMode.Luminosity, RemoteBlendMode.Luminosity),
+        Pair(AndroidBlendMode.CLEAR, RemoteBlendMode.Clear),
+        Pair(AndroidBlendMode.SRC, RemoteBlendMode.Src),
+        Pair(AndroidBlendMode.DST, RemoteBlendMode.Dst),
+        Pair(AndroidBlendMode.SRC_OVER, RemoteBlendMode.SrcOver),
+        Pair(AndroidBlendMode.DST_OVER, RemoteBlendMode.DstOver),
+        Pair(AndroidBlendMode.SRC_IN, RemoteBlendMode.SrcIn),
+        Pair(AndroidBlendMode.DST_IN, RemoteBlendMode.DstIn),
+        Pair(AndroidBlendMode.SRC_OUT, RemoteBlendMode.SrcOut),
+        Pair(AndroidBlendMode.DST_OUT, RemoteBlendMode.DstOut),
+        Pair(AndroidBlendMode.SRC_ATOP, RemoteBlendMode.SrcAtop),
+        Pair(AndroidBlendMode.DST_ATOP, RemoteBlendMode.DstAtop),
+        Pair(AndroidBlendMode.XOR, RemoteBlendMode.Xor),
+        Pair(AndroidBlendMode.PLUS, RemoteBlendMode.Plus),
+        Pair(AndroidBlendMode.MODULATE, RemoteBlendMode.Modulate),
+        Pair(AndroidBlendMode.SCREEN, RemoteBlendMode.Screen),
+        Pair(AndroidBlendMode.OVERLAY, RemoteBlendMode.Overlay),
+        Pair(AndroidBlendMode.DARKEN, RemoteBlendMode.Darken),
+        Pair(AndroidBlendMode.LIGHTEN, RemoteBlendMode.Lighten),
+        Pair(AndroidBlendMode.COLOR_DODGE, RemoteBlendMode.ColorDodge),
+        Pair(AndroidBlendMode.COLOR_BURN, RemoteBlendMode.ColorBurn),
+        Pair(AndroidBlendMode.HARD_LIGHT, RemoteBlendMode.Hardlight),
+        Pair(AndroidBlendMode.SOFT_LIGHT, RemoteBlendMode.Softlight),
+        Pair(AndroidBlendMode.DIFFERENCE, RemoteBlendMode.Difference),
+        Pair(AndroidBlendMode.EXCLUSION, RemoteBlendMode.Exclusion),
+        Pair(AndroidBlendMode.MULTIPLY, RemoteBlendMode.Multiply),
+        Pair(AndroidBlendMode.HUE, RemoteBlendMode.Hue),
+        Pair(AndroidBlendMode.SATURATION, RemoteBlendMode.Saturation),
+        Pair(AndroidBlendMode.COLOR, RemoteBlendMode.Color),
+        Pair(AndroidBlendMode.LUMINOSITY, RemoteBlendMode.Luminosity),
     )

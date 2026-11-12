@@ -23,7 +23,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
-import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
@@ -74,7 +74,7 @@ class RemoteTypographyTest {
             remoteCreationDisplayInfo = creationDisplayInfo,
             profile = TestProfiles.androidXWithCoreText,
         ) {
-            RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Black.rc)) {
+            RemoteBox(modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Black)) {
                 RemoteMaterialTheme(typography = monoTypography) {
                     RemoteColumn {
                         RemoteText("Mono default".rs)
@@ -118,7 +118,7 @@ class RemoteTypographyTest {
             remoteCreationDisplayInfo = creationDisplayInfo,
             profile = TestProfiles.androidXWithCoreText,
         ) {
-            RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Black.rc)) {
+            RemoteBox(modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Black)) {
                 RemoteMaterialTheme(typography = robotoFlexTypography) {
                     RemoteColumn {
                         RemoteText(
@@ -141,13 +141,15 @@ class RemoteTypographyTest {
     @Test
     fun typography_override_style() {
         val myTypography =
-            RemoteTypography(bodyLarge = RemoteTextStyle(fontSize = 40.rsp, color = Color.Red.rc))
+            RemoteTypography(
+                bodyLarge = RemoteTextStyle(fontSize = 40.rsp, color = RemoteColor.Red)
+            )
 
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo = creationDisplayInfo,
             profile = TestProfiles.wearWidgets,
         ) {
-            RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Black.rc)) {
+            RemoteBox(modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Black)) {
                 RemoteMaterialTheme(typography = myTypography) {
                     // Should use the overridden bodyLarge which is Red and 40sp
                     ProvideRemoteTextStyle(value = RemoteMaterialTheme.typography.bodyLarge) {
@@ -195,7 +197,7 @@ class RemoteTypographyTest {
             profile = TestProfiles.wearWidgets,
         ) {
             RemoteMaterialTheme(typography = myTypography) {
-                RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Black.rc)) {
+                RemoteBox(modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Black)) {
                     RemoteText(
                         "red bodyLarge 40sp".rs,
                         style = RemoteMaterialTheme.typography.bodyLarge,

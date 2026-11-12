@@ -21,7 +21,7 @@ import android.content.Context
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.creation.compose.action.hostAction
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.heightDp
 import androidx.compose.remote.creation.compose.capture.widthDp
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -29,14 +29,12 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.RcPlayerTestRule
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.testTag
@@ -64,7 +62,13 @@ class RemoteButtonTest {
 
     private val context: Context = ApplicationProvider.getApplicationContext()
 
-    private val creationDisplayInfo = createCreationDisplayInfo(context, Size(500f, 500f))
+    private val creationDisplayInfo =
+        RemoteCreationDisplayInfo(
+            500,
+            500,
+            context.resources.displayMetrics.densityDpi,
+            context.resources.configuration.fontScale,
+        )
 
     @Test
     fun button_enabled_and_has_action_click_modifier_is_added(): Unit = runTest {
@@ -108,7 +112,13 @@ class RemoteButtonTest {
 
     @Test
     fun button_border_width_is_scaled_with_density() {
-        val displayInfo = createCreationDisplayInfo(context, Size(500f, 500f))
+        val displayInfo =
+            RemoteCreationDisplayInfo(
+                500,
+                500,
+                context.resources.displayMetrics.densityDpi,
+                context.resources.configuration.fontScale,
+            )
         val density = displayInfo.density
         playerRule.setRemoteContent(
             profile = TestProfiles.wearWidgets,
@@ -127,11 +137,8 @@ class RemoteButtonTest {
                 RemoteButton(
                     modifier = RemoteModifier.size(100.rdp, 50.rdp),
                     onClick = testAction,
-                    border = RemoteBorderStroke(width = 8.rdp, color = Color.Red.rc),
-                    colors =
-                        RemoteButtonDefaults.buttonColors(
-                            containerColor = RemoteColor(Color.Black)
-                        ),
+                    border = RemoteBorderStroke(width = 8.rdp, color = RemoteColor.Red),
+                    colors = RemoteButtonDefaults.buttonColors(containerColor = RemoteColor.Black),
                     shape = RemoteRectangleShape,
                 ) {
                     RemoteText("button".rs)
@@ -168,8 +175,8 @@ class RemoteButtonTest {
     fun button_provides_iconColor_to_icon_slot() = runTest {
         var actualIconContentColor: RemoteColor? = null
         var actualLabelContentColor: RemoteColor? = null
-        val expectedIconColor = RemoteColor(Color.Green)
-        val expectedContentColor = RemoteColor(Color.Red)
+        val expectedIconColor = RemoteColor.Green
+        val expectedContentColor = RemoteColor.Red
 
         captureRule.captureDocument(
             context = context,
@@ -196,8 +203,8 @@ class RemoteButtonTest {
     fun compactButton_provides_iconColor_to_icon_slot() = runTest {
         var actualIconContentColor: RemoteColor? = null
         var actualIconOnlyContentColor: RemoteColor? = null
-        val expectedIconColor = RemoteColor(Color.Green)
-        val expectedContentColor = RemoteColor(Color.Red)
+        val expectedIconColor = RemoteColor.Green
+        val expectedContentColor = RemoteColor.Red
 
         captureRule.captureDocument(
             context = context,

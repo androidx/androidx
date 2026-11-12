@@ -24,13 +24,13 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteText
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -53,8 +53,7 @@ class ScrollModifierScreenshotTest {
             matcher = MSSIMMatcher(threshold = 0.999),
         )
 
-    private val colors =
-        listOf(Color(0xFFE0E0E0), Color(0xFFBDBDBD), Color(0xFF9E9E9E), Color(0xFF757575))
+    private val colors = listOf(0xFFE0E0E0.rc, 0xFFBDBDBD.rc, 0xFF9E9E9E.rc, 0xFF757575.rc)
 
     @Test
     fun verticalScroll() {
@@ -62,7 +61,7 @@ class ScrollModifierScreenshotTest {
             val scrollState = remember { RemoteScrollState() }
             RemoteColumn(modifier = RemoteModifier.verticalScroll(scrollState).fillMaxSize()) {
                 repeat(4) { index ->
-                    val color = colors[index % colors.size].rc
+                    val color = colors[index % colors.size]
                     RemoteBox(
                         modifier =
                             RemoteModifier.fillMaxWidth()
@@ -70,7 +69,7 @@ class ScrollModifierScreenshotTest {
                                 .background(color),
                         contentAlignment = RemoteAlignment.Center,
                     ) {
-                        RemoteText("Item #$index".rs, color = Color.White.rc)
+                        RemoteText("Item #$index".rs, color = RemoteColor.White)
                     }
                 }
             }
@@ -94,7 +93,7 @@ class ScrollModifierScreenshotTest {
             val scrollState = remember { RemoteScrollState() }
             RemoteRow(modifier = RemoteModifier.horizontalScroll(scrollState).fillMaxSize()) {
                 repeat(4) { index ->
-                    val color = colors[index % colors.size].rc
+                    val color = colors[index % colors.size]
                     RemoteBox(
                         modifier =
                             RemoteModifier.fillMaxHeight()
@@ -102,7 +101,7 @@ class ScrollModifierScreenshotTest {
                                 .background(color),
                         contentAlignment = RemoteAlignment.Center,
                     ) {
-                        RemoteText("Item #$index".rs, color = Color.White.rc)
+                        RemoteText("Item #$index".rs, color = RemoteColor.White)
                     }
                 }
             }
@@ -129,7 +128,7 @@ class ScrollModifierScreenshotTest {
                         RemoteModifier.horizontalScroll(scrollState).fillMaxWidth().weight(1f.rf)
                 ) {
                     repeat(4) { index ->
-                        val color = colors[index % colors.size].rc
+                        val color = colors[index % colors.size]
                         RemoteBox(
                             modifier =
                                 RemoteModifier.fillMaxHeight()
@@ -137,7 +136,7 @@ class ScrollModifierScreenshotTest {
                                     .background(color),
                             contentAlignment = RemoteAlignment.Center,
                         ) {
-                            RemoteText("Item #$index".rs, color = Color.White.rc)
+                            RemoteText("Item #$index".rs, color = RemoteColor.White)
                         }
                     }
                 }
@@ -145,7 +144,7 @@ class ScrollModifierScreenshotTest {
                 RemoteText(
                     text = "Position: ".rs + hasScrolled.select("Scrolled".rs, "Static".rs),
                     modifier = RemoteModifier.padding(16.rdp),
-                    color = Color.Black.rc,
+                    color = RemoteColor.Black,
                 )
             }
         }
@@ -171,7 +170,7 @@ class ScrollModifierScreenshotTest {
                         RemoteModifier.horizontalScroll(scrollState).fillMaxWidth().weight(1f.rf)
                 ) {
                     repeat(4) { index ->
-                        val color = colors[index % colors.size].rc
+                        val color = colors[index % colors.size]
                         RemoteBox(
                             modifier =
                                 RemoteModifier.fillMaxHeight()
@@ -179,7 +178,7 @@ class ScrollModifierScreenshotTest {
                                     .background(color),
                             contentAlignment = RemoteAlignment.Center,
                         ) {
-                            RemoteText("Item #$index".rs, color = Color.White.rc)
+                            RemoteText("Item #$index".rs, color = RemoteColor.White)
                         }
                     }
                 }
@@ -187,11 +186,11 @@ class ScrollModifierScreenshotTest {
                     modifier =
                         RemoteModifier.fillMaxWidth()
                             .weight(1f.rf)
-                            .background(Color.LightGray.rc)
+                            .background(RemoteColor.LightGray)
                             .clickable(scrollState.scrollTo(200f.rf)),
                     contentAlignment = RemoteAlignment.Center,
                 ) {
-                    RemoteText("Scroll Button".rs, color = Color.Black.rc)
+                    RemoteText("Scroll Button".rs, color = RemoteColor.Black)
                 }
             }
         }
@@ -213,7 +212,7 @@ class ScrollModifierScreenshotTest {
                         RemoteModifier.horizontalScroll(scrollState).fillMaxWidth().weight(1f.rf)
                 ) {
                     repeat(4) { index ->
-                        val color = colors[index % colors.size].rc
+                        val color = colors[index % colors.size]
                         RemoteBox(
                             modifier =
                                 RemoteModifier.fillMaxHeight()
@@ -221,7 +220,7 @@ class ScrollModifierScreenshotTest {
                                     .background(color),
                             contentAlignment = RemoteAlignment.Center,
                         ) {
-                            RemoteText("Item #$index".rs, color = Color.White.rc)
+                            RemoteText("Item #$index".rs, color = RemoteColor.White)
                         }
                     }
                 }
@@ -229,11 +228,11 @@ class ScrollModifierScreenshotTest {
                     modifier =
                         RemoteModifier.fillMaxWidth()
                             .weight(1f.rf)
-                            .background(Color.LightGray.rc)
+                            .background(RemoteColor.LightGray)
                             .clickable(scrollState.scrollBy(200f.rf)),
                     contentAlignment = RemoteAlignment.Center,
                 ) {
-                    RemoteText("Scroll Button".rs, color = Color.Black.rc)
+                    RemoteText("Scroll Button".rs, color = RemoteColor.Black)
                 }
             }
         }

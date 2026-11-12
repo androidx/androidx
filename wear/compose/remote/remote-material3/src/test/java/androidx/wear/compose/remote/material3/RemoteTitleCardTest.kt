@@ -25,11 +25,10 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.drawWithContent
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePaint
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.ui.graphics.Color
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
@@ -46,13 +45,13 @@ class RemoteTitleCardTest {
     fun button_withCallerDrawWithContent_preservesContainerBackground() {
         val painter = painterRule.paintDocument {
             RemoteBox(
-                modifier = RemoteModifier.fillMaxSize().background(Color.Black.rc),
+                modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Black),
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteButton(
                     onClick = RemoteAction.None,
                     modifier = RemoteModifier.drawWithContent { drawContent() },
-                    colors = RemoteButtonDefaults.buttonColors(containerColor = Color.Red.rc),
+                    colors = RemoteButtonDefaults.buttonColors(containerColor = RemoteColor.Red),
                 ) {
                     RemoteText("Primary label".rs)
                 }
@@ -70,7 +69,7 @@ class RemoteTitleCardTest {
     fun titleCard_withCallerDrawWithContent_preservesContainerAndPostContentOverlay() {
         val painter = painterRule.paintDocument {
             RemoteBox(
-                modifier = RemoteModifier.fillMaxSize().background(Color.Black.rc),
+                modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Black),
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteTitleCard(
@@ -80,12 +79,12 @@ class RemoteTitleCardTest {
                         RemoteModifier.drawWithContent {
                             drawContent()
                             drawRect(
-                                paint = RemotePaint { color = Color.Green.rc },
+                                paint = RemotePaint { color = RemoteColor.Green },
                                 topLeft = RemoteOffset.Zero,
                                 size = RemoteSize(width, 8f.rf),
                             )
                         },
-                    colors = RemoteCardDefaults.cardColors(containerColor = Color.Red.rc),
+                    colors = RemoteCardDefaults.cardColors(containerColor = RemoteColor.Red),
                 ) {
                     RemoteText("Body".rs)
                 }

@@ -29,6 +29,7 @@ import androidx.compose.remote.creation.compose.modifier.offset
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.width
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
@@ -45,7 +46,6 @@ import androidx.compose.remote.creation.compose.state.toRemoteDp
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
 import androidx.compose.remote.player.compose.test.utils.RemoteEmbeddedScreenshotTestRule
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -103,26 +103,26 @@ internal fun remoteComponentEdgeCaseGridCells():
 @Composable
 @RemoteComposable
 private fun PrecedingSiblingTrapCell() {
-    RemoteColumn(modifier = RemoteModifier.fillMaxSize().border(1.rdp, Color(0xFF37474F).rc)) {
-        RemoteBox(modifier = RemoteModifier.size(24.rdp, 16.rdp).background(Color(0xFFE53935).rc))
+    RemoteColumn(modifier = RemoteModifier.fillMaxSize().border(1.rdp, 0xFF37474F.rc)) {
+        RemoteBox(modifier = RemoteModifier.size(24.rdp, 16.rdp).background(0xFFE53935.rc))
         val parent = remoteComponent()
         RemoteBox(
             modifier =
                 RemoteModifier.width((parent.width * 0.5f).toRemoteDp())
                     .height((parent.height * 0.5f).toRemoteDp())
-                    .background(Color(0xFF43A047).rc),
+                    .background(0xFF43A047.rc),
             contentAlignment = RemoteAlignment.Center,
         ) {
             RemoteText(
                 dpStr(parent.width * 0.5f) + "x".rs + dpStr(parent.height * 0.5f),
                 fontSize = 8.rsp,
-                color = Color.White.rc,
+                color = RemoteColor.White,
             )
         }
         RemoteText(
             "P:".rs + dpStr(parent.width) + "x".rs + dpStr(parent.height),
             fontSize = 8.rsp,
-            color = Color(0xFF1B1B1B).rc,
+            color = 0xFF1B1B1B.rc,
         )
     }
 }
@@ -134,51 +134,47 @@ private fun PrecedingSiblingTrapCell() {
 @Composable
 @RemoteComposable
 private fun ThreeLevelNestingCell() {
-    RemoteColumn(modifier = RemoteModifier.fillMaxSize().border(1.rdp, Color(0xFF263238).rc)) {
-        RemoteBox(modifier = RemoteModifier.size(16.rdp, 6.rdp).background(Color(0xFFE53935).rc))
+    RemoteColumn(modifier = RemoteModifier.fillMaxSize().border(1.rdp, 0xFF263238.rc)) {
+        RemoteBox(modifier = RemoteModifier.size(16.rdp, 6.rdp).background(0xFFE53935.rc))
         val outer = remoteComponent()
         RemoteColumn(
             modifier =
                 RemoteModifier.size(84.rdp, 90.rdp)
-                    .background(Color(0xFFE3F2FD).rc)
-                    .border(1.rdp, Color(0xFF1565C0).rc)
+                    .background(0xFFE3F2FD.rc)
+                    .border(1.rdp, 0xFF1565C0.rc)
         ) {
-            RemoteBox(
-                modifier = RemoteModifier.size(12.rdp, 6.rdp).background(Color(0xFFE53935).rc)
-            )
+            RemoteBox(modifier = RemoteModifier.size(12.rdp, 6.rdp).background(0xFFE53935.rc))
             val middle = remoteComponent()
             RemoteColumn(
                 modifier =
                     RemoteModifier.size(64.rdp, 80.rdp)
-                        .background(Color(0xFFFFF8E1).rc)
-                        .border(1.rdp, Color(0xFFEF6C00).rc)
+                        .background(0xFFFFF8E1.rc)
+                        .border(1.rdp, 0xFFEF6C00.rc)
             ) {
-                RemoteBox(
-                    modifier = RemoteModifier.size(10.rdp, 4.rdp).background(Color(0xFFE53935).rc)
-                )
+                RemoteBox(modifier = RemoteModifier.size(10.rdp, 4.rdp).background(0xFFE53935.rc))
                 val inner = remoteComponent()
                 RemoteBox(
                     modifier =
                         RemoteModifier.width((outer.width * 0.5f).toRemoteDp())
                             .height(10.rdp)
-                            .background(Color(0xFF1565C0).rc)
+                            .background(0xFF1565C0.rc)
                 )
                 RemoteBox(
                     modifier =
                         RemoteModifier.width((middle.width * 0.5f).toRemoteDp())
                             .height(10.rdp)
-                            .background(Color(0xFF00897B).rc)
+                            .background(0xFF00897B.rc)
                 )
                 RemoteBox(
                     modifier =
                         RemoteModifier.width((inner.width * 0.5f).toRemoteDp())
                             .height(10.rdp)
-                            .background(Color(0xFFEF6C00).rc)
+                            .background(0xFFEF6C00.rc)
                 )
                 RemoteText(
                     dpStr(outer.width) + "/".rs + dpStr(middle.width) + "/".rs + dpStr(inner.width),
                     fontSize = 8.rsp,
-                    color = Color(0xFF1B1B1B).rc,
+                    color = 0xFF1B1B1B.rc,
                 )
             }
         }
@@ -192,19 +188,19 @@ private fun ThreeLevelNestingCell() {
 @Composable
 @RemoteComposable
 private fun LazyCanvasReadCell() {
-    RemoteBox(modifier = RemoteModifier.fillMaxSize().border(1.rdp, Color(0xFF37474F).rc)) {
+    RemoteBox(modifier = RemoteModifier.fillMaxSize().border(1.rdp, 0xFF37474F.rc)) {
         val lazyOuter = remoteComponent()
-        RemoteBox(modifier = RemoteModifier.size(20.rdp, 12.rdp).background(Color(0xFFE53935).rc))
+        RemoteBox(modifier = RemoteModifier.size(20.rdp, 12.rdp).background(0xFFE53935.rc))
         RemoteColumn(modifier = RemoteModifier.padding(top = 14.rdp)) {
             RemoteCanvas(
                 modifier =
                     RemoteModifier.size(72.rdp, 56.rdp)
-                        .background(Color(0xFFECEFF1).rc)
-                        .border(1.rdp, Color(0xFF455A64).rc)
+                        .background(0xFFECEFF1.rc)
+                        .border(1.rdp, 0xFF455A64.rc)
             ) {
-                val outerBarPaint = RemotePaint { color = Color(0xFF3949AB).rc }
+                val outerBarPaint = RemotePaint { color = 0xFF3949AB.rc }
                 val canvasDiagPaint = RemotePaint {
-                    color = Color(0xFFD81B60).rc
+                    color = 0xFFD81B60.rc
                     strokeWidth = 3f.rf
                     style = RemotePaintingStyle.Stroke
                 }
@@ -224,7 +220,7 @@ private fun LazyCanvasReadCell() {
             RemoteText(
                 "O:".rs + dpStr(lazyOuter.width) + "x".rs + dpStr(lazyOuter.height),
                 fontSize = 8.rsp,
-                color = Color(0xFF1B1B1B).rc,
+                color = 0xFF1B1B1B.rc,
             )
         }
     }
@@ -241,16 +237,14 @@ private fun CenterCrosshairCell() {
         RemoteBox(
             modifier =
                 RemoteModifier.size(96.rdp, 80.rdp)
-                    .background(Color(0xFFF3E5F5).rc)
-                    .border(1.rdp, Color(0xFF6A1B9A).rc)
+                    .background(0xFFF3E5F5.rc)
+                    .border(1.rdp, 0xFF6A1B9A.rc)
         ) {
-            RemoteBox(
-                modifier = RemoteModifier.size(16.rdp, 10.rdp).background(Color(0xFFE53935).rc)
-            )
+            RemoteBox(modifier = RemoteModifier.size(16.rdp, 10.rdp).background(0xFFE53935.rc))
             val box = remoteComponent()
             RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
                 val crossPaint = RemotePaint {
-                    color = Color(0xFF8E24AA).rc
+                    color = 0xFF8E24AA.rc
                     strokeWidth = 2f.rf
                 }
                 drawLine(
@@ -271,13 +265,13 @@ private fun CenterCrosshairCell() {
                             y = box.centerY.toRemoteDp() - 8.rdp,
                         )
                         .size(16.rdp, 16.rdp)
-                        .background(Color(0xFF00ACC1).rc)
+                        .background(0xFF00ACC1.rc)
             )
             RemoteBox(modifier = RemoteModifier.padding(start = 2.rdp, top = 64.rdp)) {
                 RemoteText(
                     "c=".rs + dpStr(box.centerX) + ",".rs + dpStr(box.centerY),
                     fontSize = 8.rsp,
-                    color = Color(0xFF1B1B1B).rc,
+                    color = 0xFF1B1B1B.rc,
                 )
             }
         }
@@ -294,21 +288,21 @@ private fun LocalVsRootCoordsCell() {
     RemoteBox(
         modifier =
             RemoteModifier.fillMaxSize()
-                .border(1.rdp, Color(0xFF37474F).rc)
+                .border(1.rdp, 0xFF37474F.rc)
                 .padding(start = 10.rdp, top = 12.rdp)
     ) {
         RemoteBox(
             modifier =
                 RemoteModifier.size(86.rdp, 84.rdp)
-                    .background(Color(0xFFE8F5E9).rc)
-                    .border(1.rdp, Color(0xFF2E7D32).rc),
+                    .background(0xFFE8F5E9.rc)
+                    .border(1.rdp, 0xFF2E7D32.rc),
             contentAlignment = RemoteAlignment.BottomEnd,
         ) {
             RemoteBox(
                 modifier =
                     RemoteModifier.size(66.rdp, 58.rdp)
-                        .background(Color(0xFFC8E6C9).rc)
-                        .border(1.rdp, Color(0xFF1B5E20).rc)
+                        .background(0xFFC8E6C9.rc)
+                        .border(1.rdp, 0xFF1B5E20.rc)
             ) {
                 val target = remoteComponent()
                 val pos = target.positionInParent
@@ -317,17 +311,17 @@ private fun LocalVsRootCoordsCell() {
                     RemoteText(
                         "xy:".rs + dpStr(pos.x) + ",".rs + dpStr(pos.y),
                         fontSize = 7.rsp,
-                        color = Color(0xFF1B1B1B).rc,
+                        color = 0xFF1B1B1B.rc,
                     )
                     RemoteText(
                         "rt:".rs + dpStr(root.x) + ",".rs + dpStr(root.y),
                         fontSize = 7.rsp,
-                        color = Color(0xFF0D47A1).rc,
+                        color = 0xFF0D47A1.rc,
                     )
                     RemoteText(
                         "sz:".rs + dpStr(target.width) + "x".rs + dpStr(target.height),
                         fontSize = 7.rsp,
-                        color = Color(0xFF1B5E20).rc,
+                        color = 0xFF1B5E20.rc,
                     )
                 }
             }
@@ -346,21 +340,21 @@ private fun DistinctSiblingCacheKeyCell() {
         RemoteBox(
             modifier =
                 RemoteModifier.size(96.rdp, 42.rdp)
-                    .background(Color(0xFFE1F5FE).rc)
-                    .border(1.rdp, Color(0xFF0277BD).rc)
+                    .background(0xFFE1F5FE.rc)
+                    .border(1.rdp, 0xFF0277BD.rc)
         ) {
             val top = remoteComponent()
             RemoteBox(
                 modifier =
                     RemoteModifier.width((top.width * 0.5f).toRemoteDp())
                         .height((top.height * 0.5f).toRemoteDp())
-                        .background(Color(0xFF0288D1).rc)
+                        .background(0xFF0288D1.rc)
             )
             RemoteBox(modifier = RemoteModifier.padding(start = 2.rdp, top = 24.rdp)) {
                 RemoteText(
                     "A:".rs + dpStr(top.width) + "x".rs + dpStr(top.height),
                     fontSize = 8.rsp,
-                    color = Color(0xFF01579B).rc,
+                    color = 0xFF01579B.rc,
                 )
             }
         }
@@ -368,21 +362,21 @@ private fun DistinctSiblingCacheKeyCell() {
         RemoteBox(
             modifier =
                 RemoteModifier.size(52.rdp, 52.rdp)
-                    .background(Color(0xFFFFF3E0).rc)
-                    .border(1.rdp, Color(0xFFE65100).rc)
+                    .background(0xFFFFF3E0.rc)
+                    .border(1.rdp, 0xFFE65100.rc)
         ) {
             val bottom = remoteComponent()
             RemoteBox(
                 modifier =
                     RemoteModifier.width((bottom.width * 0.5f).toRemoteDp())
                         .height((bottom.height * 0.5f).toRemoteDp())
-                        .background(Color(0xFFF57C00).rc)
+                        .background(0xFFF57C00.rc)
             )
             RemoteBox(modifier = RemoteModifier.padding(start = 2.rdp, top = 34.rdp)) {
                 RemoteText(
                     "B:".rs + dpStr(bottom.width) + "x".rs + dpStr(bottom.height),
                     fontSize = 8.rsp,
-                    color = Color(0xFFBF360C).rc,
+                    color = 0xFFBF360C.rc,
                 )
             }
         }
@@ -399,9 +393,7 @@ private fun WrapContentLateSiblingCell() {
     RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
         RemoteRow(
             modifier =
-                RemoteModifier.fillMaxWidth()
-                    .background(Color(0xFFEDE7F6).rc)
-                    .border(1.rdp, Color(0xFF4527A0).rc)
+                RemoteModifier.fillMaxWidth().background(0xFFEDE7F6.rc).border(1.rdp, 0xFF4527A0.rc)
         ) {
             val row = remoteComponent()
             // Earlier sibling depends on row.height before the tall sibling is declared.
@@ -409,22 +401,21 @@ private fun WrapContentLateSiblingCell() {
                 modifier =
                     RemoteModifier.width(36.rdp)
                         .height((row.height * 0.5f).toRemoteDp())
-                        .background(Color(0xFF26A69A).rc),
+                        .background(0xFF26A69A.rc),
                 contentAlignment = RemoteAlignment.Center,
             ) {
-                RemoteText(dpStr(row.height * 0.5f), fontSize = 8.rsp, color = Color.White.rc)
+                RemoteText(dpStr(row.height * 0.5f), fontSize = 8.rsp, color = RemoteColor.White)
             }
             RemoteBox(modifier = RemoteModifier.width(6.rdp))
             // Tall sibling that dictates the wrap-content row's height.
             RemoteBox(
-                modifier =
-                    RemoteModifier.width(36.rdp).height(68.rdp).background(Color(0xFF5E35B1).rc),
+                modifier = RemoteModifier.width(36.rdp).height(68.rdp).background(0xFF5E35B1.rc),
                 contentAlignment = RemoteAlignment.Center,
             ) {
-                RemoteText("68".rs, fontSize = 8.rsp, color = Color.White.rc)
+                RemoteText("68".rs, fontSize = 8.rsp, color = RemoteColor.White)
             }
         }
-        RemoteText("50% of 68 = 34".rs, fontSize = 8.rsp, color = Color(0xFF1B1B1B).rc)
+        RemoteText("50% of 68 = 34".rs, fontSize = 8.rsp, color = 0xFF1B1B1B.rc)
     }
 }
 
@@ -439,11 +430,11 @@ private fun PaddedContainerCell() {
     RemoteBox(
         modifier =
             RemoteModifier.size(92.rdp, 84.rdp)
-                .background(Color(0xFFFFEBEE).rc)
-                .border(1.rdp, Color(0xFFC62828).rc)
+                .background(0xFFFFEBEE.rc)
+                .border(1.rdp, 0xFFC62828.rc)
                 .padding(10.rdp)
     ) {
-        RemoteBox(modifier = RemoteModifier.size(14.rdp, 8.rdp).background(Color(0xFFE53935).rc))
+        RemoteBox(modifier = RemoteModifier.size(14.rdp, 8.rdp).background(0xFFE53935.rc))
         val paddedBox = remoteComponent()
         val innerWidthDp = max(paddedBox.width.toRemoteDp().value - 20f.rf, 0f.rf)
         RemoteColumn(modifier = RemoteModifier.padding(top = 12.rdp)) {
@@ -451,19 +442,19 @@ private fun PaddedContainerCell() {
                 modifier =
                     RemoteModifier.width(innerWidthDp.asRemoteDp())
                         .height(22.rdp)
-                        .background(Color(0xFFEF5350).rc),
+                        .background(0xFFEF5350.rc),
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteText(
                     "in:".rs + (innerWidthDp + 0.5f).toRemoteInt().toRemoteString(),
                     fontSize = 7.rsp,
-                    color = Color.White.rc,
+                    color = RemoteColor.White,
                 )
             }
             RemoteText(
                 "box:".rs + dpStr(paddedBox.width) + "x".rs + dpStr(paddedBox.height),
                 fontSize = 8.rsp,
-                color = Color(0xFFB71C1C).rc,
+                color = 0xFFB71C1C.rc,
             )
         }
     }
@@ -479,10 +470,10 @@ private fun NamedExpressionSiblingCell() {
     RemoteColumn(
         modifier =
             RemoteModifier.size(96.rdp, 88.rdp)
-                .background(Color(0xFFE0F2F1).rc)
-                .border(1.rdp, Color(0xFF00695C).rc)
+                .background(0xFFE0F2F1.rc)
+                .border(1.rdp, 0xFF00695C.rc)
     ) {
-        RemoteBox(modifier = RemoteModifier.size(20.rdp, 12.rdp).background(Color(0xFFE53935).rc))
+        RemoteBox(modifier = RemoteModifier.size(20.rdp, 12.rdp).background(0xFFE53935.rc))
         val comp = remoteComponent()
         val namedW = rememberNamedRemoteFloat("cell9_w", comp.width)
         val namedH = rememberNamedRemoteFloat("cell9_h", comp.height)
@@ -491,19 +482,19 @@ private fun NamedExpressionSiblingCell() {
             modifier =
                 RemoteModifier.width((namedW * 0.5f).toRemoteDp())
                     .height((namedH * 0.5f).toRemoteDp())
-                    .background(Color(0xFF00897B).rc),
+                    .background(0xFF00897B.rc),
             contentAlignment = RemoteAlignment.Center,
         ) {
             RemoteText(
                 dpStr(namedW * 0.5f) + "x".rs + dpStr(namedH * 0.5f),
                 fontSize = 8.rsp,
-                color = Color.White.rc,
+                color = RemoteColor.White,
             )
         }
         RemoteText(
             dpStr(namedW) + "x".rs + dpStr(namedH) + " c".rs + dpStr(namedCx),
             fontSize = 8.rsp,
-            color = Color(0xFF004D40).rc,
+            color = 0xFF004D40.rc,
         )
     }
 }

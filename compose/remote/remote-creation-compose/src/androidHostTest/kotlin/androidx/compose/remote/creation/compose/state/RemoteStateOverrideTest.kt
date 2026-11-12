@@ -34,7 +34,6 @@ import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.create
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -108,7 +107,7 @@ class RemoteStateOverrideTest {
                 context = applicationContext,
             ) {
                 val myColor = remember {
-                    RemoteColor.createNamedRemoteColor("myColor", Color.Red.rc)
+                    RemoteColor.createNamedRemoteColor("myColor", RemoteColor.Red)
                 }
                 RemoteBox(modifier = RemoteModifier.size(10.rdp).background(myColor))
             }

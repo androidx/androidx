@@ -19,14 +19,13 @@ package androidx.compose.remote.creation.compose.modifier
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -151,9 +150,9 @@ class PaddingModifierTest {
     @RemoteComposable
     @Composable
     private fun PaddingItem(padding: RemoteModifier) {
-        RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Red.rc)) {
+        RemoteBox(modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Red)) {
             RemoteBox(
-                modifier = RemoteModifier.fillMaxSize().then(padding).background(Color.Blue.rc)
+                modifier = RemoteModifier.fillMaxSize().then(padding).background(RemoteColor.Blue)
             )
         }
     }

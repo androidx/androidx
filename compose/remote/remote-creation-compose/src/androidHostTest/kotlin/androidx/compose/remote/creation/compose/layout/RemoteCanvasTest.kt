@@ -67,7 +67,6 @@ import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.creation.compose.state.RemoteStringArray
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
@@ -84,7 +83,6 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.TestPlayer
 import androidx.compose.remote.player.core.platform.AndroidCustomContext
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
-import androidx.compose.ui.graphics.Color
 import com.google.common.truth.Truth.assertThat
 import java.text.DecimalFormat
 import org.junit.Assert.assertEquals
@@ -1123,7 +1121,7 @@ class RemoteCanvasTest {
         val intState = 42.ri
         val stringState = "hello".rs
         val dpState = 16.rdp
-        val colorState = Color.Red.rc
+        val colorState = RemoteColor.Red
         val boolState = RemoteBoolean(true)
 
         remoteCanvas.custom("multiTypeConfig") {
@@ -1249,7 +1247,7 @@ class RemoteCanvasTest {
         val scope =
             RemoteCustomPropertiesScope().apply {
                 property(0, 42)
-                property(1, Color.Red.rc)
+                property(1, RemoteColor.Red)
                 property(2, 3.14f)
                 property(3, "test")
                 property(4, true)
@@ -1257,13 +1255,13 @@ class RemoteCanvasTest {
                 property(6, 16.rdp)
                 property(7, "remoteString".rs)
                 property(8, 99.ri)
-                property(9, Color.Blue.rc)
+                property(9, RemoteColor.Blue)
                 property(10, RemoteBoolean(false))
                 bindReturn(11, MutableRemoteFloat(1f))
                 bindReturn(12, MutableRemoteString("ret"))
                 bindReturn(13, MutableRemoteInt(7))
                 bindReturn(14, MutableRemoteBoolean(true))
-                bindReturn(15, Color.Green.rc)
+                bindReturn(15, RemoteColor.Green)
             }
 
         val properties = scope.entries.map { it.toCustomProperty(creationState) }
@@ -3500,8 +3498,8 @@ class RemoteCanvasTest {
     @Test
     fun testSaveRestoreWithoutTransformsInlinedEvenWithDrawingAfter() {
         runWithOptimizingCanvas { canvas, buffer ->
-            val paint1 = RemotePaint { color = Color.Red.rc }
-            val paint2 = RemotePaint { color = Color.Blue.rc }
+            val paint1 = RemotePaint { color = RemoteColor.Red }
+            val paint2 = RemotePaint { color = RemoteColor.Blue }
             canvas.save()
             canvas.drawRect(0f.rf, 0f.rf, 5f.rf, 5f.rf, paint1)
             canvas.restore()
@@ -3917,10 +3915,10 @@ class RemoteCanvasTest {
             )
         }
 
-        macro(10f.rf, 10f.rf, Color.Red.rc, null)
-        macro(10f.rf, 100f.rf, Color.Green.rc, null)
-        macro(100f.rf, 10f.rf, Color.Blue.rc, null)
-        macro(100f.rf, 100f.rf, Color.Yellow.rc, null)
+        macro(10f.rf, 10f.rf, RemoteColor.Red, null)
+        macro(10f.rf, 100f.rf, RemoteColor.Green, null)
+        macro(100f.rf, 10f.rf, RemoteColor.Blue, null)
+        macro(100f.rf, 100f.rf, RemoteColor.Yellow, null)
 
         remoteCanvas.flush()
 
@@ -3961,9 +3959,9 @@ class RemoteCanvasTest {
                 }
             }
 
-        macro(10f.rf, 10f.rf, 50f.rf, 50f.rf, Color.Red.rc, RemoteBoolean(true), null)
+        macro(10f.rf, 10f.rf, 50f.rf, 50f.rf, RemoteColor.Red, RemoteBoolean(true), null)
         // Note this will get elided due to the condition being false.
-        macro(20f.rf, 20f.rf, 60f.rf, 60f.rf, Color.Green.rc, RemoteBoolean(false), null)
+        macro(20f.rf, 20f.rf, 60f.rf, 60f.rf, RemoteColor.Green, RemoteBoolean(false), null)
 
         remoteCanvas.flush()
 
@@ -3984,7 +3982,7 @@ class RemoteCanvasTest {
                 cx,
                 50f.rf,
                 10f.rf,
-                RemotePaint { color = Color.Blue.rc },
+                RemotePaint { color = RemoteColor.Blue },
             )
         }
 
@@ -4012,7 +4010,7 @@ class RemoteCanvasTest {
         remoteCanvas.forEach(
             listOf(10f.rf, 40f.rf),
             listOf(15f.rf, 45f.rf),
-            listOf(Color.Red.rc, Color.Green.rc),
+            listOf(RemoteColor.Red, RemoteColor.Green),
         ) { x, y, color ->
             remoteCanvas.drawRect(
                 x,
@@ -4039,7 +4037,7 @@ class RemoteCanvasTest {
 
     @Test
     fun testRemoteCanvas_forEach_floatArray() {
-        val paint = RemotePaint { color = Color.Red.rc }
+        val paint = RemotePaint { color = RemoteColor.Red }
         val array = RemoteFloatArray(listOf(100f.rf, 200f.rf))
 
         remoteCanvas.forEach(array) { x -> remoteCanvas.drawCircle(x, 50f.rf, 10f.rf, paint) }
@@ -4062,7 +4060,7 @@ class RemoteCanvasTest {
 
     @Test
     fun testRemoteCanvas_forEach_intArray() {
-        val paint = RemotePaint { color = Color.Blue.rc }
+        val paint = RemotePaint { color = RemoteColor.Blue }
         val intArray = RemoteIntArray(10, 20, 30)
 
         remoteCanvas.forEach(intArray) { intVal ->
@@ -4089,7 +4087,7 @@ class RemoteCanvasTest {
 
     @Test
     fun testDefinePattern_withRemoteIntArray() {
-        val paint = RemotePaint { color = Color.Green.rc }
+        val paint = RemotePaint { color = RemoteColor.Green }
         val listPattern = remoteCanvas.definePattern { offsets: RemoteIntArray ->
             remoteCanvas.forEach(offsets) { offset ->
                 remoteCanvas.drawCircle(offset.toRemoteFloat(), 25f.rf, 5f.rf, paint)
@@ -4116,7 +4114,7 @@ class RemoteCanvasTest {
 
     @Test
     fun testRemoteCanvas_forEach_stringArray() {
-        val paint = RemotePaint { color = Color.Black.rc }
+        val paint = RemotePaint { color = RemoteColor.Black }
         val stringArray = RemoteStringArray(listOf("One".rs, "Two".rs))
 
         remoteCanvas.forEach(stringArray) { str ->
@@ -4146,7 +4144,7 @@ class RemoteCanvasTest {
                 cx,
                 50f.rf,
                 10f.rf,
-                RemotePaint { color = Color.Blue.rc },
+                RemotePaint { color = RemoteColor.Blue },
             )
         }
 
@@ -4173,7 +4171,7 @@ class RemoteCanvasTest {
                 cx.toRemoteFloat(),
                 50f.rf,
                 10f.rf,
-                RemotePaint { color = Color.Green.rc },
+                RemotePaint { color = RemoteColor.Green },
             )
         }
 
@@ -4200,7 +4198,7 @@ class RemoteCanvasTest {
                 text,
                 0f.rf,
                 10f.rf,
-                RemotePaint { color = Color.Black.rc },
+                RemotePaint { color = RemoteColor.Black },
             )
         }
 
@@ -4222,7 +4220,7 @@ class RemoteCanvasTest {
 
     @Test
     fun testDefinePattern_withRemoteStringArray() {
-        val paint = RemotePaint { color = Color.Magenta.rc }
+        val paint = RemotePaint { color = RemoteColor.Magenta }
         val listPattern = remoteCanvas.definePattern { texts: RemoteStringArray ->
             remoteCanvas.forEach(texts) { text ->
                 remoteCanvas.drawText(text, 0f.rf, 20f.rf, paint)
@@ -4249,7 +4247,7 @@ class RemoteCanvasTest {
 
     @Test
     fun testDefinePattern_withRemoteFloatArray() {
-        val paint = RemotePaint { color = Color.Red.rc }
+        val paint = RemotePaint { color = RemoteColor.Red }
         val listPattern = remoteCanvas.definePattern { offsets: RemoteFloatArray ->
             remoteCanvas.forEach(offsets) { offset ->
                 remoteCanvas.drawCircle(offset, 25f.rf, 5f.rf, paint)

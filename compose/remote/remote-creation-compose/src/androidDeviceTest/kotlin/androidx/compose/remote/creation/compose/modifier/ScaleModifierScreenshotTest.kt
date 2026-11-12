@@ -20,13 +20,12 @@ import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -79,10 +78,10 @@ class ScaleModifierScreenshotTest {
     @RemoteComposable
     private fun Content(testModifier: RemoteModifier) {
         RemoteBox(
-            modifier = RemoteModifier.size(50.rdp).background(Color.Red.rc),
+            modifier = RemoteModifier.size(50.rdp).background(RemoteColor.Red),
             contentAlignment = RemoteAlignment.Center,
         ) {
-            RemoteBox(modifier = testModifier.background(Color.Blue.rc))
+            RemoteBox(modifier = testModifier.background(RemoteColor.Blue))
         }
     }
 }

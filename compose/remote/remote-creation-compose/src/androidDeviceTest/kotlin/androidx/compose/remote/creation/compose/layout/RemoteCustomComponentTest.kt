@@ -36,7 +36,6 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.crea
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
@@ -336,11 +335,11 @@ class RemoteCustomComponentTest {
                 configureInt = { _, type, value -> configuredInts[type] = value },
             ) {
                 val namedColor = remember {
-                    RemoteColor.createNamedRemoteColor("named_color_prop", Color.Blue.rc)
+                    RemoteColor.createNamedRemoteColor("named_color_prop", RemoteColor.Blue)
                 }
                 RemoteCustomComponent(name = "ColorPropertiesCustom") {
-                    property(1, Color.Red.rc)
-                    property(2, Color.Green.rc)
+                    property(1, RemoteColor.Red)
+                    property(2, RemoteColor.Green)
                     property(3, namedColor)
                 }
             }
@@ -522,7 +521,7 @@ class RemoteCustomComponentTest {
                 },
             ) {
                 val colorState = remember {
-                    RemoteColor.createNamedRemoteColor("named_color_return", Color.Red.rc)
+                    RemoteColor.createNamedRemoteColor("named_color_return", RemoteColor.Red)
                 }
                 RemoteCustomComponent(name = "ColorReturnCustom") { bindReturn(4, colorState) }
             }

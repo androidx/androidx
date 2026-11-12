@@ -24,13 +24,11 @@ import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePaint
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -63,17 +61,16 @@ class DrawWithContentModifierScreenshotTest {
                         RemoteBox(
                             modifier =
                                 RemoteModifier.size(70.rdp)
-                                    .background(Color.White.rc)
+                                    .background(RemoteColor.White)
                                     .padding(15.rdp)
                                     .drawWithContent {
-                                        val paint =
-                                            RemotePaint().apply { color = RemoteColor(Color.Blue) }
+                                        val paint = RemotePaint().apply { color = RemoteColor.Blue }
                                         drawRect(paint = paint)
                                         drawContent()
                                     }
                         ) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(20.rdp).background(Color.Red.rc)
+                                modifier = RemoteModifier.size(20.rdp).background(RemoteColor.Red)
                             )
                         }
                     },
@@ -82,17 +79,16 @@ class DrawWithContentModifierScreenshotTest {
                         RemoteBox(
                             modifier =
                                 RemoteModifier.size(70.rdp)
-                                    .background(Color.White.rc)
+                                    .background(RemoteColor.White)
                                     .drawWithContent {
-                                        val paint =
-                                            RemotePaint().apply { color = RemoteColor(Color.Blue) }
+                                        val paint = RemotePaint().apply { color = RemoteColor.Blue }
                                         drawRect(paint = paint)
                                         drawContent()
                                     }
                                     .padding(15.rdp)
                         ) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(20.rdp).background(Color.Red.rc)
+                                modifier = RemoteModifier.size(20.rdp).background(RemoteColor.Red)
                             )
                         }
                     },
@@ -101,7 +97,7 @@ class DrawWithContentModifierScreenshotTest {
                         RemoteBox(
                             modifier =
                                 RemoteModifier.size(70.rdp)
-                                    .background(Color.White.rc)
+                                    .background(RemoteColor.White)
                                     .padding(
                                         start = 10.rdp,
                                         top = 20.rdp,
@@ -109,14 +105,13 @@ class DrawWithContentModifierScreenshotTest {
                                         bottom = 5.rdp,
                                     )
                                     .drawWithContent {
-                                        val paint =
-                                            RemotePaint().apply { color = RemoteColor(Color.Blue) }
+                                        val paint = RemotePaint().apply { color = RemoteColor.Blue }
                                         drawRect(paint = paint)
                                         drawContent()
                                     }
                         ) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(20.rdp).background(Color.Red.rc)
+                                modifier = RemoteModifier.size(20.rdp).background(RemoteColor.Red)
                             )
                         }
                     },
@@ -125,18 +120,17 @@ class DrawWithContentModifierScreenshotTest {
                         RemoteBox(
                             modifier =
                                 RemoteModifier.size(60.rdp)
-                                    .background(Color.White.rc)
+                                    .background(RemoteColor.White)
                                     .offset(10.rdp, 10.rdp)
                                     .padding(12.rdp)
                                     .drawWithContent {
-                                        val paint =
-                                            RemotePaint().apply { color = RemoteColor(Color.Blue) }
+                                        val paint = RemotePaint().apply { color = RemoteColor.Blue }
                                         drawRect(paint = paint)
                                         drawContent()
                                     }
                         ) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(15.rdp).background(Color.Red.rc)
+                                modifier = RemoteModifier.size(15.rdp).background(RemoteColor.Red)
                             )
                         }
                     },
@@ -145,18 +139,17 @@ class DrawWithContentModifierScreenshotTest {
                         RemoteBox(
                             modifier =
                                 RemoteModifier.size(60.rdp)
-                                    .background(Color.White.rc)
+                                    .background(RemoteColor.White)
                                     .rotate(30f.rf)
                                     .padding(12.rdp)
                                     .drawWithContent {
-                                        val paint =
-                                            RemotePaint().apply { color = RemoteColor(Color.Blue) }
+                                        val paint = RemotePaint().apply { color = RemoteColor.Blue }
                                         drawRect(paint = paint)
                                         drawContent()
                                     }
                         ) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(15.rdp).background(Color.Red.rc)
+                                modifier = RemoteModifier.size(15.rdp).background(RemoteColor.Red)
                             )
                         }
                     },
@@ -165,18 +158,17 @@ class DrawWithContentModifierScreenshotTest {
                         RemoteBox(
                             modifier =
                                 RemoteModifier.size(60.rdp)
-                                    .background(Color.White.rc)
+                                    .background(RemoteColor.White)
                                     .scale(0.8f.rf)
                                     .padding(12.rdp)
                                     .drawWithContent {
-                                        val paint =
-                                            RemotePaint().apply { color = RemoteColor(Color.Blue) }
+                                        val paint = RemotePaint().apply { color = RemoteColor.Blue }
                                         drawRect(paint = paint)
                                         drawContent()
                                     }
                         ) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(15.rdp).background(Color.Red.rc)
+                                modifier = RemoteModifier.size(15.rdp).background(RemoteColor.Red)
                             )
                         }
                     },
@@ -185,11 +177,10 @@ class DrawWithContentModifierScreenshotTest {
                         RemoteBox(
                             modifier =
                                 RemoteModifier.size(70.rdp)
-                                    .background(Color.White.rc)
+                                    .background(RemoteColor.White)
                                     .padding(15.rdp)
                                     .drawWithContent {
-                                        val paint =
-                                            RemotePaint().apply { color = RemoteColor(Color.Blue) }
+                                        val paint = RemotePaint().apply { color = RemoteColor.Blue }
                                         translate(8f.rf, 8f.rf) {
                                             drawRect(paint = paint)
                                         }
@@ -197,7 +188,7 @@ class DrawWithContentModifierScreenshotTest {
                                     }
                         ) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(15.rdp).background(Color.Red.rc)
+                                modifier = RemoteModifier.size(15.rdp).background(RemoteColor.Red)
                             )
                         }
                     },
@@ -206,11 +197,10 @@ class DrawWithContentModifierScreenshotTest {
                         RemoteBox(
                             modifier =
                                 RemoteModifier.size(70.rdp)
-                                    .background(Color.White.rc)
+                                    .background(RemoteColor.White)
                                     .padding(15.rdp)
                                     .drawWithContent {
-                                        val paint =
-                                            RemotePaint().apply { color = RemoteColor(Color.Blue) }
+                                        val paint = RemotePaint().apply { color = RemoteColor.Blue }
                                         rotate(45f.rf, pivot = RemoteOffset(20f.rf, 20f.rf)) {
                                             drawRect(paint = paint)
                                         }
@@ -218,7 +208,7 @@ class DrawWithContentModifierScreenshotTest {
                                     }
                         ) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(15.rdp).background(Color.Red.rc)
+                                modifier = RemoteModifier.size(15.rdp).background(RemoteColor.Red)
                             )
                         }
                     },
@@ -227,11 +217,10 @@ class DrawWithContentModifierScreenshotTest {
                         RemoteBox(
                             modifier =
                                 RemoteModifier.size(70.rdp)
-                                    .background(Color.White.rc)
+                                    .background(RemoteColor.White)
                                     .padding(15.rdp)
                                     .drawWithContent {
-                                        val paint =
-                                            RemotePaint().apply { color = RemoteColor(Color.Blue) }
+                                        val paint = RemotePaint().apply { color = RemoteColor.Blue }
                                         drawRect(paint = paint)
                                         drawContent()
                                     }
@@ -241,7 +230,7 @@ class DrawWithContentModifierScreenshotTest {
                                     RemoteModifier.offset(5.rdp, 5.rdp)
                                         .rotate(45f.rf)
                                         .size(15.rdp)
-                                        .background(Color.Red.rc)
+                                        .background(RemoteColor.Red)
                             )
                         }
                     },
@@ -250,18 +239,17 @@ class DrawWithContentModifierScreenshotTest {
                         RemoteBox(
                             modifier =
                                 RemoteModifier.size(70.rdp)
-                                    .background(Color.White.rc)
+                                    .background(RemoteColor.White)
                                     .padding(8.rdp)
                                     .padding(8.rdp)
                                     .drawWithContent {
-                                        val paint =
-                                            RemotePaint().apply { color = RemoteColor(Color.Blue) }
+                                        val paint = RemotePaint().apply { color = RemoteColor.Blue }
                                         drawRect(paint = paint)
                                         drawContent()
                                     }
                         ) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(15.rdp).background(Color.Red.rc)
+                                modifier = RemoteModifier.size(15.rdp).background(RemoteColor.Red)
                             )
                         }
                     },
@@ -270,19 +258,18 @@ class DrawWithContentModifierScreenshotTest {
                         RemoteBox(
                             modifier =
                                 RemoteModifier.size(60.rdp)
-                                    .background(Color.White.rc)
+                                    .background(RemoteColor.White)
                                     .offset(8.rdp, 8.rdp)
                                     .rotate(25f.rf)
                                     .padding(10.rdp)
                                     .drawWithContent {
-                                        val paint =
-                                            RemotePaint().apply { color = RemoteColor(Color.Blue) }
+                                        val paint = RemotePaint().apply { color = RemoteColor.Blue }
                                         drawRect(paint = paint)
                                         drawContent()
                                     }
                         ) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(15.rdp).background(Color.Red.rc)
+                                modifier = RemoteModifier.size(15.rdp).background(RemoteColor.Red)
                             )
                         }
                     },
@@ -291,14 +278,14 @@ class DrawWithContentModifierScreenshotTest {
                         RemoteBox(
                             modifier =
                                 RemoteModifier.size(70.rdp)
-                                    .background(Color.White.rc)
+                                    .background(RemoteColor.White)
                                     .padding(15.rdp)
                                     .drawWithContent {
                                         val paintBlue =
-                                            RemotePaint().apply { color = RemoteColor(Color.Blue) }
+                                            RemotePaint().apply { color = RemoteColor.Blue }
                                         val paintYellow =
                                             RemotePaint().apply {
-                                                color = RemoteColor(Color.Yellow)
+                                                color = RemoteColor.Yellow
                                             }
                                         drawRoundRect(
                                             paint = paintBlue,
@@ -313,7 +300,7 @@ class DrawWithContentModifierScreenshotTest {
                                     }
                         ) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(10.rdp).background(Color.Red.rc)
+                                modifier = RemoteModifier.size(10.rdp).background(RemoteColor.Red)
                             )
                         }
                     },
@@ -345,10 +332,10 @@ private fun ChainedPreAndPostDraw() {
     RemoteBox(
         modifier =
             RemoteModifier.size(70.rdp)
-                .background(Color.White.rc)
+                .background(RemoteColor.White)
                 .drawWithContent {
-                    val paintBlue = RemotePaint { color = Color.Blue.rc }
-                    val paintYellow = RemotePaint { color = Color.Yellow.rc }
+                    val paintBlue = RemotePaint { color = RemoteColor.Blue }
+                    val paintYellow = RemotePaint { color = RemoteColor.Yellow }
                     drawRect(paint = paintBlue)
                     drawContent()
                     drawRect(
@@ -358,8 +345,8 @@ private fun ChainedPreAndPostDraw() {
                     )
                 }
                 .drawWithContent {
-                    val paintCyan = RemotePaint { color = Color.Cyan.rc }
-                    val paintGreen = RemotePaint { color = Color.Green.rc }
+                    val paintCyan = RemotePaint { color = RemoteColor.Cyan }
+                    val paintGreen = RemotePaint { color = RemoteColor.Green }
                     drawRect(
                         paint = paintCyan,
                         topLeft = RemoteOffset(12f.rf, 12f.rf),
@@ -373,7 +360,9 @@ private fun ChainedPreAndPostDraw() {
                     )
                 }
     ) {
-        RemoteBox(modifier = RemoteModifier.padding(25.rdp).size(20.rdp).background(Color.Red.rc))
+        RemoteBox(
+            modifier = RemoteModifier.padding(25.rdp).size(20.rdp).background(RemoteColor.Red)
+        )
     }
 }
 
@@ -383,10 +372,10 @@ private fun DrawPaddingDraw() {
     RemoteBox(
         modifier =
             RemoteModifier.size(70.rdp)
-                .background(Color.White.rc)
+                .background(RemoteColor.White)
                 .drawWithContent {
-                    val paintBlue = RemotePaint { color = Color.Blue.rc }
-                    val paintYellow = RemotePaint { color = Color.Yellow.rc }
+                    val paintBlue = RemotePaint { color = RemoteColor.Blue }
+                    val paintYellow = RemotePaint { color = RemoteColor.Yellow }
                     drawRect(paint = paintBlue)
                     drawContent()
                     drawRect(
@@ -397,12 +386,12 @@ private fun DrawPaddingDraw() {
                 }
                 .padding(14.rdp)
                 .drawWithContent {
-                    val paintCyan = RemotePaint { color = Color.Cyan.rc }
+                    val paintCyan = RemotePaint { color = RemoteColor.Cyan }
                     drawRect(paint = paintCyan)
                     drawContent()
                 }
     ) {
-        RemoteBox(modifier = RemoteModifier.size(20.rdp).background(Color.Red.rc))
+        RemoteBox(modifier = RemoteModifier.size(20.rdp).background(RemoteColor.Red))
     }
 }
 
@@ -412,21 +401,21 @@ private fun PaddingDrawPaddingDraw() {
     RemoteBox(
         modifier =
             RemoteModifier.size(70.rdp)
-                .background(Color.White.rc)
+                .background(RemoteColor.White)
                 .padding(8.rdp)
                 .drawWithContent {
-                    val paintBlue = RemotePaint { color = Color.Blue.rc }
+                    val paintBlue = RemotePaint { color = RemoteColor.Blue }
                     drawRect(paint = paintBlue)
                     drawContent()
                 }
                 .padding(10.rdp)
                 .drawWithContent {
-                    val paintYellow = RemotePaint { color = Color.Yellow.rc }
+                    val paintYellow = RemotePaint { color = RemoteColor.Yellow }
                     drawRect(paint = paintYellow)
                     drawContent()
                 }
     ) {
-        RemoteBox(modifier = RemoteModifier.size(16.rdp).background(Color.Red.rc))
+        RemoteBox(modifier = RemoteModifier.size(16.rdp).background(RemoteColor.Red))
     }
 }
 
@@ -436,10 +425,10 @@ private fun TripleChainedDrawWithContent() {
     RemoteBox(
         modifier =
             RemoteModifier.size(70.rdp)
-                .background(Color.White.rc)
+                .background(RemoteColor.White)
                 .drawWithContent {
-                    val paintBlue = RemotePaint { color = Color.Blue.rc }
-                    val paintGreen = RemotePaint { color = Color.Green.rc }
+                    val paintBlue = RemotePaint { color = RemoteColor.Blue }
+                    val paintGreen = RemotePaint { color = RemoteColor.Green }
                     drawRect(paint = paintBlue)
                     drawContent()
                     drawRect(
@@ -450,18 +439,18 @@ private fun TripleChainedDrawWithContent() {
                 }
                 .padding(8.rdp)
                 .drawWithContent {
-                    val paintCyan = RemotePaint { color = Color.Cyan.rc }
+                    val paintCyan = RemotePaint { color = RemoteColor.Cyan }
                     drawRect(paint = paintCyan)
                     drawContent()
                 }
                 .padding(8.rdp)
                 .drawWithContent {
-                    val paintYellow = RemotePaint { color = Color.Yellow.rc }
+                    val paintYellow = RemotePaint { color = RemoteColor.Yellow }
                     drawRect(paint = paintYellow)
                     drawContent()
                 }
     ) {
-        RemoteBox(modifier = RemoteModifier.size(18.rdp).background(Color.Red.rc))
+        RemoteBox(modifier = RemoteModifier.size(18.rdp).background(RemoteColor.Red))
     }
 }
 
@@ -472,8 +461,8 @@ private fun ChainedRemoteCanvas() {
         modifier =
             RemoteModifier.size(70.rdp)
                 .drawWithContent {
-                    val paintBlue = RemotePaint { color = Color.Blue.rc }
-                    val paintYellow = RemotePaint { color = Color.Yellow.rc }
+                    val paintBlue = RemotePaint { color = RemoteColor.Blue }
+                    val paintYellow = RemotePaint { color = RemoteColor.Yellow }
                     drawRect(paint = paintBlue)
                     drawContent()
                     drawRect(
@@ -483,7 +472,7 @@ private fun ChainedRemoteCanvas() {
                     )
                 }
                 .drawWithContent {
-                    val paintCyan = RemotePaint { color = Color.Cyan.rc }
+                    val paintCyan = RemotePaint { color = RemoteColor.Cyan }
                     drawRect(
                         paint = paintCyan,
                         topLeft = RemoteOffset(14f.rf, 14f.rf),
@@ -492,7 +481,7 @@ private fun ChainedRemoteCanvas() {
                     drawContent()
                 }
     ) {
-        val paintRed = RemotePaint { color = Color.Red.rc }
+        val paintRed = RemotePaint { color = RemoteColor.Red }
         drawCircle(paint = paintRed, radius = 14f.rf, center = center)
     }
 }
@@ -503,7 +492,7 @@ private fun CardWithCallerOverlay() {
     SimulatedCard(
         modifier =
             RemoteModifier.drawWithContent {
-                val paintGreen = RemotePaint { color = Color.Green.rc }
+                val paintGreen = RemotePaint { color = RemoteColor.Green }
                 drawContent()
                 drawCircle(
                     paint = paintGreen,
@@ -512,7 +501,7 @@ private fun CardWithCallerOverlay() {
                 )
             }
     ) {
-        RemoteBox(modifier = RemoteModifier.size(20.rdp).background(Color.Red.rc))
+        RemoteBox(modifier = RemoteModifier.size(20.rdp).background(RemoteColor.Red))
     }
 }
 
@@ -527,7 +516,7 @@ private fun SimulatedCard(
             modifier
                 .size(70.rdp)
                 .drawWithContent {
-                    val paintBlue = RemotePaint { color = Color.Blue.rc }
+                    val paintBlue = RemotePaint { color = RemoteColor.Blue }
                     drawRoundRect(
                         paint = paintBlue,
                         cornerRadius = RemoteOffset(16f.rf, 16f.rf),

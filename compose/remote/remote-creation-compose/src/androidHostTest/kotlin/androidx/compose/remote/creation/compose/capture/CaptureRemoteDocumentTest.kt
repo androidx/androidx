@@ -55,6 +55,7 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.horizontalScroll
 import androidx.compose.remote.creation.compose.modifier.width
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.rc
@@ -80,7 +81,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.withFrameNanos
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -174,7 +174,7 @@ class CaptureRemoteDocumentTest {
         captureSingleRemoteDocument(context) {
             RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
                 drawCount.value = drawCount.value + 1
-                drawRect(paint = RemotePaint { color = Color.Red.rc })
+                drawRect(paint = RemotePaint { color = RemoteColor.Red })
             }
         }
 
@@ -192,7 +192,7 @@ class CaptureRemoteDocumentTest {
                     captureSingleRemoteDocument(context) {
                         RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
                             drawCount.value = drawCount.value + 1
-                            drawRect(paint = RemotePaint { color = Color.Red.rc })
+                            drawRect(paint = RemotePaint { color = RemoteColor.Red })
                         }
                     }
                 }
@@ -207,7 +207,9 @@ class CaptureRemoteDocumentTest {
         runTest(UnconfinedTestDispatcher()) {
             val document: ByteArray =
                 captureSingleRemoteDocument(context) {
-                        RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Red.rc))
+                        RemoteBox(
+                            modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Red)
+                        )
                     }
                     .bytes
 
@@ -238,9 +240,9 @@ class CaptureRemoteDocumentTest {
             val document: ByteArray =
                 captureSingleRemoteDocument(context, profile = customProfile) {
                         RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
-                            val redPaint = RemotePaint { color = Color.Red.rc }
+                            val redPaint = RemotePaint { color = RemoteColor.Red }
                             drawRect(paint = redPaint)
-                            val bluePaint = RemotePaint { color = Color.Blue.rc }
+                            val bluePaint = RemotePaint { color = RemoteColor.Blue }
                             drawCircle(
                                 paint = bluePaint,
                                 center = RemoteOffset(width / 2f, height / 2f),
@@ -248,7 +250,7 @@ class CaptureRemoteDocumentTest {
                             )
                             val textPaint = RemotePaint {
                                 isAntiAlias = true
-                                color = Color.LightGray.rc
+                                color = RemoteColor.LightGray
                                 textSize = 12f.rf
                             }
 
@@ -366,7 +368,7 @@ class CaptureRemoteDocumentTest {
                             }
 
                             RemoteBox(
-                                modifier = RemoteModifier.fillMaxSize().background(Color.Red.rc)
+                                modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Red)
                             ) {
                                 RemoteText(label.rs)
                             }
@@ -462,7 +464,7 @@ class CaptureRemoteDocumentTest {
                         }
 
                         RemoteBox(
-                            modifier = RemoteModifier.fillMaxSize().background(Color.Blue.rc)
+                            modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Blue)
                         ) {
                             RemoteText(status.rs)
                         }
@@ -514,7 +516,8 @@ class CaptureRemoteDocumentTest {
                             }
 
                             RemoteBox(
-                                modifier = RemoteModifier.fillMaxSize().background(Color.Green.rc)
+                                modifier =
+                                    RemoteModifier.fillMaxSize().background(RemoteColor.Green)
                             ) {
                                 RemoteText(text.rs)
                             }
@@ -582,7 +585,7 @@ class CaptureRemoteDocumentTest {
                         }
 
                         RemoteBox(
-                            modifier = RemoteModifier.fillMaxSize().background(Color.Red.rc)
+                            modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Red)
                         ) {
                             RemoteText("TasksCompleted:$completedTasks".rs)
                         }
@@ -775,7 +778,7 @@ class CaptureRemoteDocumentTest {
                             withFrameNanos { label = "Unconfined:OK" }
                         }
                         RemoteBox(
-                            modifier = RemoteModifier.fillMaxSize().background(Color.Yellow.rc)
+                            modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Yellow)
                         ) {
                             RemoteText(label.rs)
                         }
@@ -824,7 +827,7 @@ class CaptureRemoteDocumentTest {
                                 withFrameNanos { label = "CustomInterceptor:OK" }
                             }
                             RemoteBox(
-                                modifier = RemoteModifier.fillMaxSize().background(Color.Cyan.rc)
+                                modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Cyan)
                             ) {
                                 RemoteText(label.rs)
                             }
@@ -859,7 +862,7 @@ class CaptureRemoteDocumentTest {
                         }
 
                         RemoteBox(
-                            modifier = RemoteModifier.fillMaxSize().background(Color.Magenta.rc)
+                            modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Magenta)
                         ) {
                             RemoteText(status.rs)
                         }
@@ -887,7 +890,7 @@ class CaptureRemoteDocumentTest {
                                 frameCounter++
                             }
                             RemoteBox(
-                                modifier = RemoteModifier.fillMaxSize().background(Color.Red.rc)
+                                modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Red)
                             ) {
                                 RemoteText("Frame:$frameCounter".rs)
                             }
@@ -956,7 +959,7 @@ class CaptureRemoteDocumentTest {
                             LifecycleEventObserver { _, event -> lifecycleEvents.add(event) }
                         )
                     }
-                    RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Red.rc)) {
+                    RemoteBox(modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Red)) {
                         RemoteText("${state.value}:${lifecycleState.name}".rs)
                     }
                 }
@@ -1010,11 +1013,7 @@ class CaptureRemoteDocumentTest {
                     capturedLifecycles.add(lifecycleOwner)
                     capturedStates.add(lifecycleOwner.lifecycle.currentState)
                 }
-                RemoteBox(
-                    modifier =
-                        RemoteModifier.fillMaxSize()
-                            .background(androidx.compose.ui.graphics.Color.Red.rc)
-                )
+                RemoteBox(modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Red))
             }
 
         // First collection
@@ -1058,7 +1057,7 @@ class CaptureRemoteDocumentTest {
                 creationDisplayInfo = createCreationDisplayInfo(context),
                 coroutineContext = Dispatchers.Default,
             ) {
-                RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Red.rc)) {
+                RemoteBox(modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Red)) {
                     RemoteText(state.value.rs)
                 }
             }
@@ -1153,7 +1152,7 @@ class CaptureRemoteDocumentTest {
 
                                     RemoteBox(
                                         modifier =
-                                            RemoteModifier.fillMaxSize().background(Color.Red.rc)
+                                            RemoteModifier.fillMaxSize().background(RemoteColor.Red)
                                     ) {
                                         RemoteText("$workerState:${sharedCounter.value}".rs)
                                     }
@@ -1183,7 +1182,8 @@ class CaptureRemoteDocumentTest {
                                         LocalLifecycleOwner.current.lifecycle.currentStateAsState()
                                     RemoteBox(
                                         modifier =
-                                            RemoteModifier.fillMaxSize().background(Color.Blue.rc)
+                                            RemoteModifier.fillMaxSize()
+                                                .background(RemoteColor.Blue)
                                     ) {
                                         RemoteText(
                                             "${streamState.value}:${lifecycleState.name}:${sharedCounter.value}"
@@ -1280,7 +1280,7 @@ class CaptureRemoteDocumentTest {
                     profile = RcPlatformProfiles.ANDROIDX,
                 ) {
                     capturedDensity = LocalRemoteDensity.current
-                    RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Red.rc)) {
+                    RemoteBox(modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Red)) {
                         RemoteText("HeadlessNoContext".rs)
                     }
                 }
@@ -2052,8 +2052,7 @@ class CaptureRemoteDocumentTest {
     @Test
     fun horizontalScrollWithPosition_updatesPositionTextAfterTouchScroll() =
         runTest(UnconfinedTestDispatcher()) {
-            val colors =
-                listOf(Color(0xFFE0E0E0), Color(0xFFBDBDBD), Color(0xFF9E9E9E), Color(0xFF757575))
+            val colors = listOf(0xFFE0E0E0.rc, 0xFFBDBDBD.rc, 0xFF9E9E9E.rc, 0xFF757575.rc)
             val captured =
                 captureSingleRemoteDocument(
                     creationDisplayInfo = RemoteCreationDisplayInfo(400, 400, 160, 1.0f),
@@ -2068,21 +2067,21 @@ class CaptureRemoteDocumentTest {
                                     .weight(1f.rf)
                         ) {
                             repeat(4) { index ->
-                                val color = colors[index % colors.size].rc
+                                val color = colors[index % colors.size]
                                 RemoteBox(
                                     modifier =
                                         RemoteModifier.fillMaxHeight()
                                             .width(200.rdp)
                                             .background(color)
                                 ) {
-                                    RemoteText("Item #$index".rs, color = Color.White.rc)
+                                    RemoteText("Item #$index".rs, color = RemoteColor.White)
                                 }
                             }
                         }
                         val hasScrolled = scrollState.positionState.isGreaterThan(100f.rf)
                         RemoteText(
                             text = "Position: ".rs + hasScrolled.select("Scrolled".rs, "Static".rs),
-                            color = Color.Black.rc,
+                            color = RemoteColor.Black,
                         )
                     }
                 }

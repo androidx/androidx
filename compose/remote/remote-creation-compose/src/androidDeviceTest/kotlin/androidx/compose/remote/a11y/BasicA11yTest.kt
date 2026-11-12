@@ -33,13 +33,12 @@ import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.text
 import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.MutableRemoteString
-import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.toRemoteString
 import androidx.compose.remote.player.compose.test.utils.RemoteInteractionTestRule
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -127,7 +126,7 @@ class BasicA11yTest {
                 modifier =
                     RemoteModifier.fillMaxSize()
                         .clickable(valueChangeAction(text, "Updated".rs), role = RemoteRole.Button)
-                        .background(Color.White.rc),
+                        .background(RemoteColor.White),
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteText(text)
@@ -155,7 +154,7 @@ class BasicA11yTest {
                             valueChangeAction(remoteInt, remoteInt + 1),
                             role = RemoteRole.Button,
                         )
-                        .background(Color.White.rc),
+                        .background(RemoteColor.White),
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteText("".rs + remoteInt.toRemoteString(decimalFormat))

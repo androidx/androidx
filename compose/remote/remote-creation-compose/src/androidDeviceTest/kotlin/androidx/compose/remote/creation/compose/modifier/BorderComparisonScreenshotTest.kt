@@ -40,7 +40,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
-import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
@@ -157,15 +157,15 @@ class BorderComparisonScreenshotTest {
                         text = "Remote".rs,
                         fontWeight = RemoteFontWeight.Bold,
                         fontSize = 14.rsp,
-                        color = Color.Black.rc,
+                        color = RemoteColor.Black,
                     )
 
                     // Case 1: Rectangle Border
                     RemoteBox(
                         modifier =
                             RemoteModifier.size(80.rdp)
-                                .background(Color.Green.rc)
-                                .border(15.rdp, Color.Red.rc)
+                                .background(RemoteColor.Green)
+                                .border(15.rdp, RemoteColor.Red)
                     )
 
                     // Case 2: Rounded Corner Border
@@ -173,8 +173,8 @@ class BorderComparisonScreenshotTest {
                         modifier =
                             RemoteModifier.size(80.rdp)
                                 .clip(RemoteRoundedCornerShape(12.rdp))
-                                .background(Color.Green.rc)
-                                .border(15.rdp, Color.Red.rc, RemoteRoundedCornerShape(12.rdp))
+                                .background(RemoteColor.Green)
+                                .border(15.rdp, RemoteColor.Red, RemoteRoundedCornerShape(12.rdp))
                     )
 
                     // Case 3: Circle Border
@@ -182,16 +182,16 @@ class BorderComparisonScreenshotTest {
                         modifier =
                             RemoteModifier.size(80.rdp)
                                 .clip(RemoteCircleShape)
-                                .background(Color.Green.rc)
-                                .border(15.rdp, Color.Red.rc, RemoteCircleShape)
+                                .background(RemoteColor.Green)
+                                .border(15.rdp, RemoteColor.Red, RemoteCircleShape)
                     )
 
                     // Case 4: Filled Border (border width >= size / 2)
                     RemoteBox(
                         modifier =
                             RemoteModifier.size(80.rdp)
-                                .background(Color.Green.rc)
-                                .border(50.rdp, Color.Red.rc)
+                                .background(RemoteColor.Green)
+                                .border(50.rdp, RemoteColor.Red)
                     )
                 }
             }

@@ -21,9 +21,9 @@ import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.remotePath
 import androidx.compose.remote.creation.compose.state.rf
@@ -37,7 +37,6 @@ import androidx.compose.remote.player.compose.test.utils.FallbackCreateTypefaceR
 import androidx.compose.remote.player.compose.test.utils.R
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.remote.player.compose.test.utils.createMockContextWithFont
-import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -75,19 +74,19 @@ class RemoteCanvasScreenshotTest {
         ) {
             val paintNull = RemotePaint {
                 typeface = RemoteTypeface.Named("RobotoFlex")
-                color = Color.White.rc
+                color = RemoteColor.White
                 textSize = 30f.rf
             }
             val paintW100 = RemotePaint {
                 typeface = RemoteTypeface.Named("RobotoFlex")
-                color = Color.White.rc
+                color = RemoteColor.White
                 textSize = 30f.rf
                 fontVariationSettings =
                     RemoteFontVariation.Settings(RemoteFontVariation.weight(100.rf))
             }
             val paintW900 = RemotePaint {
                 typeface = RemoteTypeface.Named("RobotoFlex")
-                color = Color.White.rc
+                color = RemoteColor.White
                 textSize = 30f.rf
                 fontVariationSettings =
                     RemoteFontVariation.Settings(RemoteFontVariation.weight(900.rf))
@@ -119,22 +118,22 @@ class RemoteCanvasScreenshotTest {
         ) {
             val paintNormal = RemotePaint {
                 typeface = create("sans-serif", RemoteTypeface.Style.Normal)
-                color = Color.White.rc
+                color = RemoteColor.White
                 textSize = 30f.rf
             }
             val paintBold = RemotePaint {
                 typeface = create("sans-serif", RemoteTypeface.Style.Bold)
-                color = Color.White.rc
+                color = RemoteColor.White
                 textSize = 30f.rf
             }
             val paintItalic = RemotePaint {
                 typeface = create("sans-serif", RemoteTypeface.Style.Italic)
-                color = Color.White.rc
+                color = RemoteColor.White
                 textSize = 30f.rf
             }
             val paintBoldItalic = RemotePaint {
                 typeface = create("sans-serif", RemoteTypeface.Style.BoldItalic)
-                color = Color.White.rc
+                color = RemoteColor.White
                 textSize = 30f.rf
             }
 
@@ -172,7 +171,7 @@ class RemoteCanvasScreenshotTest {
                 }
 
                 val paint = RemotePaint {
-                    color = Color.Red.rc
+                    color = RemoteColor.Red
                     style = RemotePaintingStyle.Fill
                 }
                 drawPath(path, paint)
@@ -210,12 +209,12 @@ class RemoteCanvasScreenshotTest {
             RemoteCanvas(modifier = RemoteModifier.size(width.rdp, height.rdp)) {
                 val paintDefault = RemotePaint {
                     typeface = RemoteTypeface.Default
-                    color = Color.White.rc
+                    color = RemoteColor.White
                     textSize = 14.rf * remoteDensity.density
                 }
                 val paintInconsolata = RemotePaint {
                     typeface = create("google:inconsolata")
-                    color = Color.White.rc
+                    color = RemoteColor.White
                     textSize = 14f.rf * remoteDensity.density
                 }
                 drawText("Hello Default!".rs, 10f.rf, 40f.rf, paintDefault)
@@ -256,7 +255,7 @@ class RemoteCanvasScreenshotTest {
                 }
 
                 val paint = RemotePaint {
-                    color = Color.Cyan.rc
+                    color = RemoteColor.Cyan
                     style = RemotePaintingStyle.Stroke
                     strokeWidth = 3f.rf
                 }

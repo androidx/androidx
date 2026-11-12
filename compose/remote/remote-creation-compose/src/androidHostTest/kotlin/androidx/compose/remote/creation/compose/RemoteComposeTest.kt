@@ -36,12 +36,11 @@ import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.MutableRemoteEnum
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePaint
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -123,7 +122,7 @@ class RemoteComposeTest {
         val displayInfo = RemoteCreationDisplayInfo(500, 500, 1, 1.0f)
         val document =
             captureSingleRemoteDocument(creationDisplayInfo = displayInfo, context = context) {
-                RemoteCanvas { drawRect(paint = RemotePaint { color = Color.Red.rc }) }
+                RemoteCanvas { drawRect(paint = RemotePaint { color = RemoteColor.Red }) }
             }
 
         assertNotNull(document)

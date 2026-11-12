@@ -60,7 +60,6 @@ import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -136,7 +135,7 @@ class RemoteCanvasCaptureTest {
         val paint = RemotePaint {
             colorFilter =
                 RemoteBlendModeColorFilter(
-                    Color(0xffffee70).rc,
+                    0xffffee70.rc,
                     RemoteBlendMode.Multiply,
                 )
         }
@@ -163,7 +162,7 @@ class RemoteCanvasCaptureTest {
                 10f.rf,
                 300f.rf,
                 300f.rf,
-                RemotePaint { color = Color.Yellow.rc },
+                RemotePaint { color = RemoteColor.Yellow },
             )
         }
 
@@ -182,7 +181,7 @@ class RemoteCanvasCaptureTest {
                 10f.rf,
                 300f.rf,
                 300f.rf,
-                RemotePaint { color = Color.Yellow.rc },
+                RemotePaint { color = RemoteColor.Yellow },
             )
         }
 
@@ -217,14 +216,14 @@ class RemoteCanvasCaptureTest {
                 10f.rf,
                 300f.rf,
                 300f.rf,
-                RemotePaint { color = Color.Yellow.rc },
+                RemotePaint { color = RemoteColor.Yellow },
             )
             remoteCanvas.drawText(
                 "True",
                 10.rf,
                 80.rf,
                 RemotePaint {
-                    color = Color.Green.rc
+                    color = RemoteColor.Green
                     textSize = 80f.rf
                 },
             )
@@ -238,7 +237,7 @@ class RemoteCanvasCaptureTest {
                 10f.rf,
                 300f.rf,
                 300f.rf,
-                RemotePaint { color = Color.Yellow.rc },
+                RemotePaint { color = RemoteColor.Yellow },
             )
 
             remoteCanvas.drawText(
@@ -246,7 +245,7 @@ class RemoteCanvasCaptureTest {
                 10.rf,
                 80.rf,
                 RemotePaint {
-                    color = Color.Red.rc
+                    color = RemoteColor.Red
                     textSize = 80f.rf
                 },
             )
@@ -260,7 +259,7 @@ class RemoteCanvasCaptureTest {
 
     private fun createConditionalHues(flag: RemoteBoolean): Hues {
         val tweenFactor = RemoteTimeVariables.continuousSeconds / 30f % 1f
-        val colorRamp = lerp(Color.Red.rc, Color.Blue.rc, tweenFactor)
+        val colorRamp = lerp(RemoteColor.Red, RemoteColor.Blue, tweenFactor)
         val hue = colorRamp.hue
         val hueString1 = hue.toRemoteString(DecimalFormat("0.00"))
         val hueString2 = RemoteString("hue") + hue.toRemoteString(DecimalFormat("0.00"))
@@ -271,7 +270,7 @@ class RemoteCanvasCaptureTest {
                 10f.rf,
                 80f.rf,
                 RemotePaint {
-                    color = Color.Green.rc
+                    color = RemoteColor.Green
                     textSize = 80f.rf
                 },
             )
@@ -281,7 +280,7 @@ class RemoteCanvasCaptureTest {
             12f.rf,
             82f.rf,
             RemotePaint {
-                color = Color.Red.rc
+                color = RemoteColor.Red
                 textSize = 80f.rf
             },
         )
@@ -337,7 +336,7 @@ class RemoteCanvasCaptureTest {
     @Test
     fun remotePaintColorInt() {
         val paint = RemotePaint()
-        paint.color = Color.Red.rc
+        paint.color = RemoteColor.Red
 
         remoteCanvas.usePaint(paint)
 
@@ -348,7 +347,7 @@ class RemoteCanvasCaptureTest {
 
     @Test
     fun paintColorInt() {
-        val paint = RemotePaint { color = Color.Red.rc }
+        val paint = RemotePaint { color = RemoteColor.Red }
 
         remoteCanvas.usePaint(paint)
 
@@ -475,14 +474,14 @@ class RemoteCanvasCaptureTest {
             0.rf,
             WIDTH.rf,
             HEIGHT.rf,
-            RemotePaint { color = Color.Black.rc },
+            RemotePaint { color = RemoteColor.Black },
         )
         remoteCanvas.drawRect(
             20.rf,
             20.rf,
             (WIDTH - 20).rf,
             (HEIGHT - 20).rf,
-            RemotePaint { color = Color.Yellow.rc },
+            RemotePaint { color = RemoteColor.Yellow },
         )
         val bitmap = createOffscreenRemoteBitmap(WIDTH, HEIGHT)
         remoteCanvas.drawToOffscreenBitmap(bitmap, AndroidColor.TRANSPARENT) {
@@ -491,7 +490,7 @@ class RemoteCanvasCaptureTest {
                 20.rf,
                 (WIDTH - 20).rf,
                 (HEIGHT - 20).rf,
-                RemotePaint { color = Color.Red.rc },
+                RemotePaint { color = RemoteColor.Red },
             )
             remoteCanvas.drawText(
                 "HI",
@@ -524,14 +523,14 @@ class RemoteCanvasCaptureTest {
             0.rf,
             WIDTH.rf,
             HEIGHT.rf,
-            RemotePaint { color = Color.Black.rc },
+            RemotePaint { color = RemoteColor.Black },
         )
         remoteCanvas.drawRect(
             20.rf,
             20.rf,
             (WIDTH - 20).rf,
             (HEIGHT - 20).rf,
-            RemotePaint { color = Color.Yellow.rc },
+            RemotePaint { color = RemoteColor.Yellow },
         )
         val bitmap = createOffscreenRemoteBitmap(WIDTH, HEIGHT)
         remoteCanvas.drawToOffscreenBitmap(bitmap, AndroidColor.TRANSPARENT) {
@@ -540,7 +539,7 @@ class RemoteCanvasCaptureTest {
                 20.rf,
                 (WIDTH - 20).rf,
                 (HEIGHT - 20).rf,
-                RemotePaint { color = Color.Red.rc },
+                RemotePaint { color = RemoteColor.Red },
             )
         }
         remoteCanvas.drawToOffscreenBitmap(bitmap) {
@@ -575,7 +574,7 @@ class RemoteCanvasCaptureTest {
             0.rf,
             WIDTH.rf,
             HEIGHT.rf,
-            RemotePaint { color = Color.Black.rc },
+            RemotePaint { color = RemoteColor.Black },
         )
 
         // Create the outer offscreen bitmap.
@@ -587,7 +586,7 @@ class RemoteCanvasCaptureTest {
                 0.rf,
                 WIDTH.rf,
                 HEIGHT.rf,
-                RemotePaint { color = Color.Blue.rc },
+                RemotePaint { color = RemoteColor.Blue },
             )
 
             remoteCanvas.save()
@@ -601,7 +600,7 @@ class RemoteCanvasCaptureTest {
                     0f.rf,
                     (WIDTH / 2).rf,
                     (HEIGHT / 2).rf,
-                    RemotePaint { color = Color.Red.rc },
+                    RemotePaint { color = RemoteColor.Red },
                 )
             }
 
@@ -640,7 +639,7 @@ class RemoteCanvasCaptureTest {
             RemoteSweepShader(
                     100f.rf,
                     100f.rf,
-                    listOf(Color.Red.rc, Color.Green.rc, Color.Blue.rc),
+                    listOf(RemoteColor.Red, RemoteColor.Green, RemoteColor.Blue),
                     null,
                 )
                 .apply { remoteMatrix3x3 = createRotate(90f.rf) }
@@ -652,7 +651,7 @@ class RemoteCanvasCaptureTest {
                     100f.rf,
                     200f.rf,
                     200f.rf,
-                    listOf(Color.Red.rc, Color.Green.rc, Color.Blue.rc),
+                    listOf(RemoteColor.Red, RemoteColor.Green, RemoteColor.Blue),
                     null,
                     RemoteTileMode.Repeated,
                 )
@@ -664,7 +663,7 @@ class RemoteCanvasCaptureTest {
                     100f.rf,
                     100f.rf,
                     200f.rf,
-                    listOf(Color.Red.rc, Color.Blue.rc),
+                    listOf(RemoteColor.Red, RemoteColor.Blue),
                     null,
                     RemoteTileMode.Repeated,
                 )
@@ -703,18 +702,18 @@ class RemoteCanvasCaptureTest {
 
         // 1. Draw something with a color filter
         val paintWithFilter = RemotePaint {
-            colorFilter = RemoteBlendModeColorFilter(Color.Red.rc, RemoteBlendMode.SrcIn)
+            colorFilter = RemoteBlendModeColorFilter(RemoteColor.Red, RemoteBlendMode.SrcIn)
         }
         remoteCanvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, paintWithFilter)
 
         // 2. Draw conditionally, without color filter inside
         remoteCanvas.drawConditionally(flag) {
-            val paintNoFilter = RemotePaint { color = Color.Blue.rc }
+            val paintNoFilter = RemotePaint { color = RemoteColor.Blue }
             remoteCanvas.drawRect(10f.rf, 10f.rf, 20f.rf, 20f.rf, paintNoFilter)
         }
 
         // 3. Draw something after, without color filter
-        val paintNoFilterPost = RemotePaint { color = Color.Green.rc }
+        val paintNoFilterPost = RemotePaint { color = RemoteColor.Green }
         remoteCanvas.drawRect(20f.rf, 20f.rf, 30f.rf, 30f.rf, paintNoFilterPost)
 
         val operations = inflateOperations()
@@ -739,20 +738,20 @@ class RemoteCanvasCaptureTest {
 
         // 1. Draw something with color filter A
         val paintWithFilterA = RemotePaint {
-            colorFilter = RemoteBlendModeColorFilter(Color.Red.rc, RemoteBlendMode.SrcIn)
+            colorFilter = RemoteBlendModeColorFilter(RemoteColor.Red, RemoteBlendMode.SrcIn)
         }
         remoteCanvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, paintWithFilterA)
 
         // 2. Draw conditionally, with color filter B inside
         remoteCanvas.drawConditionally(flag) {
             val paintWithFilterB = RemotePaint {
-                colorFilter = RemoteBlendModeColorFilter(Color.Blue.rc, RemoteBlendMode.SrcIn)
+                colorFilter = RemoteBlendModeColorFilter(RemoteColor.Blue, RemoteBlendMode.SrcIn)
             }
             remoteCanvas.drawRect(10f.rf, 10f.rf, 20f.rf, 20f.rf, paintWithFilterB)
         }
 
         // 3. Draw something after, without color filter
-        val paintNoFilterPost = RemotePaint { color = Color.Green.rc }
+        val paintNoFilterPost = RemotePaint { color = RemoteColor.Green }
         remoteCanvas.drawRect(20f.rf, 20f.rf, 30f.rf, 30f.rf, paintNoFilterPost)
 
         val operations = inflateOperations()
@@ -772,7 +771,7 @@ class RemoteCanvasCaptureTest {
 
     @Test
     fun patternCrossGrid_golden() {
-        val paint = RemotePaint { color = Color.Blue.rc }
+        val paint = RemotePaint { color = RemoteColor.Blue }
         val crossPattern =
             remoteCanvas.definePattern { x: RemoteFloat, y: RemoteFloat, size: RemoteFloat ->
                 val halfSize = size * 0.5f

@@ -20,8 +20,8 @@ import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.path
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
@@ -33,14 +33,13 @@ import androidx.compose.remote.creation.compose.shaders.horizontalGradient
 import androidx.compose.remote.creation.compose.shaders.radialGradient
 import androidx.compose.remote.creation.compose.shaders.sweepGradient
 import androidx.compose.remote.creation.compose.shaders.verticalGradient
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePathFillType
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rememberNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -56,6 +55,14 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class RemoteVectorBrushScreenshotTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
+
+    private val creationDisplayInfo =
+        RemoteCreationDisplayInfo(
+            width = 96,
+            height = 96,
+            densityDpi = context.resources.displayMetrics.densityDpi,
+            fontScale = context.resources.configuration.fontScale,
+        )
 
     @get:Rule
     val remoteComposeTestRule =
@@ -75,14 +82,15 @@ class RemoteVectorBrushScreenshotTest {
             RemoteImageVector.Builder(
                     viewportWidth = 24f.rf,
                     viewportHeight = 24f.rf,
-                    tintColor = Color.Unspecified.rc,
+                    tintColor = RemoteColor.Transparent,
                 )
                 .path(
                     pathFillType = RemotePathFillType.NonZero,
-                    fill = RemoteBrush.horizontalGradient(listOf(Color.Red.rc, Color.Blue.rc)),
+                    fill =
+                        RemoteBrush.horizontalGradient(listOf(RemoteColor.Red, RemoteColor.Blue)),
                     stroke =
                         RemoteBrush.radialGradient(
-                            colors = listOf(Color.Yellow.rc, Color.Cyan.rc),
+                            colors = listOf(RemoteColor.Yellow, RemoteColor.Cyan),
                             center = RemoteOffset(3f.rf, 3f.rf),
                             radius = 25f.rf,
                         ),
@@ -97,11 +105,11 @@ class RemoteVectorBrushScreenshotTest {
                 .build()
 
         remoteComposeTestRule.runScreenshotTest(
-            remoteCreationDisplayInfo = createCreationDisplayInfo(context, Size(96f, 96f)),
+            remoteCreationDisplayInfo = creationDisplayInfo,
             playComposableWrapper = whiteBackground,
         ) {
             RemoteBox(RemoteModifier.fillMaxSize()) {
-                val painter = painterRemoteVector(gradientVector, Color.Unspecified.rc)
+                val painter = painterRemoteVector(gradientVector, RemoteColor.Transparent)
                 RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) { with(painter) { onDraw() } }
             }
         }
@@ -113,13 +121,15 @@ class RemoteVectorBrushScreenshotTest {
             RemoteImageVector.Builder(
                     viewportWidth = 24f.rf,
                     viewportHeight = 24f.rf,
-                    tintColor = Color.Unspecified.rc,
+                    tintColor = RemoteColor.Transparent,
                 )
                 .path(
                     pathFillType = RemotePathFillType.NonZero,
-                    fill = RemoteBrush.horizontalGradient(listOf(Color.Red.rc, Color.Blue.rc)),
+                    fill =
+                        RemoteBrush.horizontalGradient(listOf(RemoteColor.Red, RemoteColor.Blue)),
                     fillAlpha = 0.5f.rf,
-                    stroke = RemoteBrush.verticalGradient(listOf(Color.Black.rc, Color.Cyan.rc)),
+                    stroke =
+                        RemoteBrush.verticalGradient(listOf(RemoteColor.Black, RemoteColor.Cyan)),
                     strokeAlpha = 0.5f.rf,
                     strokeLineWidth = 3f.rf,
                 ) {
@@ -132,12 +142,12 @@ class RemoteVectorBrushScreenshotTest {
                 .build()
 
         remoteComposeTestRule.runScreenshotTest(
-            remoteCreationDisplayInfo = createCreationDisplayInfo(context, Size(96f, 96f)),
+            remoteCreationDisplayInfo = creationDisplayInfo,
             playComposableWrapper = whiteBackground,
         ) {
             RemoteBox(RemoteModifier.fillMaxSize()) {
                 val painter =
-                    painterRemoteVector(semiTransparentGradientVector, Color.Unspecified.rc)
+                    painterRemoteVector(semiTransparentGradientVector, RemoteColor.Transparent)
                 RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) { with(painter) { onDraw() } }
             }
         }
@@ -146,16 +156,16 @@ class RemoteVectorBrushScreenshotTest {
     @Test
     fun sweepGradientAndDynamicNamedColors() {
         remoteComposeTestRule.runScreenshotTest(
-            remoteCreationDisplayInfo = createCreationDisplayInfo(context, Size(96f, 96f)),
+            remoteCreationDisplayInfo = creationDisplayInfo,
             playComposableWrapper = whiteBackground,
         ) {
-            val startColor = rememberNamedRemoteColor("vectorStart", Color.Green.rc)
-            val endColor = rememberNamedRemoteColor("vectorEnd", Color.Magenta.rc)
+            val startColor = rememberNamedRemoteColor("vectorStart", RemoteColor.Green)
+            val endColor = rememberNamedRemoteColor("vectorEnd", RemoteColor.Magenta)
             val dynamicVector =
                 RemoteImageVector.Builder(
                         viewportWidth = 24f.rf,
                         viewportHeight = 24f.rf,
-                        tintColor = Color.Unspecified.rc,
+                        tintColor = RemoteColor.Transparent,
                     )
                     .path(
                         pathFillType = RemotePathFillType.NonZero,
@@ -170,7 +180,7 @@ class RemoteVectorBrushScreenshotTest {
                     .build()
 
             RemoteBox(RemoteModifier.fillMaxSize()) {
-                val painter = painterRemoteVector(dynamicVector, Color.Unspecified.rc)
+                val painter = painterRemoteVector(dynamicVector, RemoteColor.Transparent)
                 RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) { with(painter) { onDraw() } }
             }
         }

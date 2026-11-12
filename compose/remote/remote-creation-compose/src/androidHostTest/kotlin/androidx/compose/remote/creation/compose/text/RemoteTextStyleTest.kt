@@ -17,10 +17,10 @@
 package androidx.compose.remote.creation.compose.text
 
 import androidx.compose.remote.core.operations.layout.managers.CoreText
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteTextUnitType
 import androidx.compose.remote.creation.compose.state.asConstantColorOrNull
 import androidx.compose.remote.creation.compose.state.asConstantTextUnitOrNull
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.ui.graphics.Color
@@ -293,7 +293,7 @@ class RemoteTextStyleTest {
     fun copy_overrides_properties() {
         val style =
             RemoteTextStyle(
-                color = Color.Red.rc,
+                color = RemoteColor.Red,
                 fontSize = 12.rsp,
                 fontWeight = RemoteFontWeight.Bold,
                 lineHeight = 10.rsp,
@@ -304,7 +304,7 @@ class RemoteTextStyleTest {
 
         val newStyle =
             style.copy(
-                color = Color.Blue.rc,
+                color = RemoteColor.Blue,
                 fontSize = 24.rsp,
                 lineHeight = 20.rsp,
                 textDecoration = RemoteTextDecoration.LineThrough,
@@ -312,7 +312,8 @@ class RemoteTextStyleTest {
                 hyphens = RemoteHyphens.Auto,
             )
 
-        assertThat(newStyle.color?.constantValueOrNull).isEqualTo(Color.Blue.rc.constantValueOrNull)
+        assertThat(newStyle.color?.constantValueOrNull)
+            .isEqualTo(RemoteColor.Blue.constantValueOrNull)
         assertThat(newStyle.fontSize?.constantValueOrNull).isEqualTo(24.rsp.constantValueOrNull)
         assertThat(newStyle.fontWeight).isEqualTo(RemoteFontWeight.Bold)
         assertThat(newStyle.lineHeight?.constantValueOrNull).isEqualTo(20.rsp.constantValueOrNull)
@@ -325,7 +326,7 @@ class RemoteTextStyleTest {
     fun noarg_copy_does_not_overrides_properties() {
         val style =
             RemoteTextStyle(
-                color = Color.Red.rc,
+                color = RemoteColor.Red,
                 fontSize = 12.rsp,
                 lineBreak = RemoteLineBreak.Heading,
                 hyphens = RemoteHyphens.Auto,
@@ -343,7 +344,7 @@ class RemoteTextStyleTest {
     fun merge_overrides_properties() {
         val style =
             RemoteTextStyle(
-                color = Color.Red.rc,
+                color = RemoteColor.Red,
                 fontSize = 12.rsp,
                 fontWeight = RemoteFontWeight.Normal,
                 lineBreak = RemoteLineBreak.Heading,
@@ -352,13 +353,14 @@ class RemoteTextStyleTest {
 
         val newStyle =
             style.merge(
-                color = Color.Blue.rc,
+                color = RemoteColor.Blue,
                 fontWeight = RemoteFontWeight.Bold,
                 lineBreak = RemoteLineBreak.Paragraph,
                 hyphens = RemoteHyphens.Auto,
             )
 
-        assertThat(newStyle.color?.constantValueOrNull).isEqualTo(Color.Blue.rc.constantValueOrNull)
+        assertThat(newStyle.color?.constantValueOrNull)
+            .isEqualTo(RemoteColor.Blue.constantValueOrNull)
         assertThat(newStyle.fontSize?.constantValueOrNull).isEqualTo(12.rsp.constantValueOrNull)
         assertThat(newStyle.fontWeight).isEqualTo(RemoteFontWeight.Bold)
         assertThat(newStyle.lineBreak).isEqualTo(RemoteLineBreak.Paragraph)
@@ -371,13 +373,13 @@ class RemoteTextStyleTest {
         val overrideSettings = RemoteFontVariation.Settings(RemoteFontVariation.weight(700.rf))
         val style =
             RemoteTextStyle(
-                color = Color.Red.rc,
+                color = RemoteColor.Red,
                 fontSize = 12.rsp,
                 fontWeight = RemoteFontWeight.Bold,
                 fontStyle = RemoteFontStyle.Italic,
                 fontFamily = RemoteFontFamily.Serif,
                 letterSpacing = 1.rsp,
-                background = Color.Blue.rc,
+                background = RemoteColor.Blue,
                 textAlign = RemoteTextAlign.Center,
                 lineHeight = 16.rsp,
                 textDecoration = RemoteTextDecoration.Underline,

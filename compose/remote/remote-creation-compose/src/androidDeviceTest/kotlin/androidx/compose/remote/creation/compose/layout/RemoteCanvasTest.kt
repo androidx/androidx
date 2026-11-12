@@ -35,7 +35,6 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -97,7 +96,7 @@ class RemoteCanvasTest {
                 anchorY = 40f.rf,
                 paint =
                     RemotePaint {
-                        color = Color.Red.rc
+                        color = RemoteColor.Red
                         textSize = SMALL_FONT_SIZE.rf
                     },
             )
@@ -107,7 +106,7 @@ class RemoteCanvasTest {
                 anchorY = 80f.rf,
                 paint =
                     RemotePaint {
-                        color = Color.Green.rc
+                        color = RemoteColor.Green
                         textSize = MEDIUM_FONT_SIZE.rf
                     },
             )
@@ -117,7 +116,7 @@ class RemoteCanvasTest {
                 anchorY = 120f.rf,
                 paint =
                     RemotePaint {
-                        color = Color.Blue.rc
+                        color = RemoteColor.Blue
                         textSize = LARGE_FONT_SIZE.rf
                     },
             )
@@ -128,15 +127,15 @@ class RemoteCanvasTest {
     @Composable
     fun TestDrawPrimitives() {
         RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
-            val paint = RemotePaint { color = Color.Red.rc }
+            val paint = RemotePaint { color = RemoteColor.Red }
             drawRect(paint = paint)
             drawCircle(
-                paint = RemotePaint { color = Color.Blue.rc },
+                paint = RemotePaint { color = RemoteColor.Blue },
                 center = RemoteOffset(50f.rf, 50f.rf),
                 radius = 40f.rf,
             )
             drawArc(
-                paint = RemotePaint { color = Color.Green.rc },
+                paint = RemotePaint { color = RemoteColor.Green },
                 startAngle = 0f.rf,
                 sweepAngle = 90f.rf,
                 useCenter = true,
@@ -146,7 +145,7 @@ class RemoteCanvasTest {
             drawLine(
                 paint =
                     RemotePaint {
-                        color = Color.Yellow.rc
+                        color = RemoteColor.Yellow
                         strokeWidth = 5f.rf
                     },
                 start = RemoteOffset(0f.rf, 0f.rf),
@@ -196,7 +195,7 @@ class RemoteCanvasTest {
                 anchorY = 40f.rf,
                 paint =
                     RemotePaint {
-                        with(RemoteBrush.solidColor(Color.Red.rc)) {
+                        with(RemoteBrush.solidColor(RemoteColor.Red)) {
                             applyTo(this@RemotePaint, size)
                         }
                         textSize = SMALL_FONT_SIZE.rf
@@ -208,7 +207,7 @@ class RemoteCanvasTest {
                 anchorY = 80f.rf,
                 paint =
                     RemotePaint {
-                        with(RemoteBrush.solidColor(Color.Green.rc)) {
+                        with(RemoteBrush.solidColor(RemoteColor.Green)) {
                             applyTo(this@RemotePaint, size)
                         }
                         textSize = MEDIUM_FONT_SIZE.rf
@@ -220,7 +219,7 @@ class RemoteCanvasTest {
                 anchorY = 120f.rf,
                 paint =
                     RemotePaint {
-                        with(RemoteBrush.solidColor(Color.Blue.rc)) {
+                        with(RemoteBrush.solidColor(RemoteColor.Blue)) {
                             applyTo(this@RemotePaint, size)
                         }
                         textSize = LARGE_FONT_SIZE.rf
@@ -282,7 +281,7 @@ class RemoteCanvasTest {
                     right = clipRect2Right,
                     bottom = clipRect2Bottom,
                 ) {
-                    drawRect(paint = RemotePaint { color = Color.Red.rc })
+                    drawRect(paint = RemotePaint { color = RemoteColor.Red })
                 }
             }
         }
@@ -304,7 +303,7 @@ class RemoteCanvasTest {
     private companion object {
         val Padding = 24.rdp
         val ContainerSize = 100.rdp
-        val ContainerColor = Color(0xFFCFD8DC.toInt()).rc
+        val ContainerColor = 0xFFCFD8DC.rc
         const val SMALL_FONT_SIZE = 16f
         const val MEDIUM_FONT_SIZE = 32f
         const val LARGE_FONT_SIZE = 48f

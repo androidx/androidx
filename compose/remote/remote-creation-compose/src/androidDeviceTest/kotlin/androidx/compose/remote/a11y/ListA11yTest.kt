@@ -35,7 +35,6 @@ import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.state.RemoteColor
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
@@ -43,7 +42,6 @@ import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.player.compose.test.utils.RemoteInteractionTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -156,7 +154,7 @@ class ListA11yTest {
     ) {
         val scrollState = remember { RemoteScrollState(notches) }
         RemoteColumn(
-            modifier = modifier.verticalScroll(scrollState).background(Color.White.rc),
+            modifier = modifier.verticalScroll(scrollState).background(RemoteColor.White),
             horizontalAlignment = RemoteAlignment.CenterHorizontally,
             verticalArrangement = RemoteArrangement.Center,
         ) {
@@ -165,13 +163,13 @@ class ListA11yTest {
                     modifier =
                         RemoteModifier.fillMaxWidth()
                             .height(192.rdp)
-                            .border(1.rdp, Color.LightGray.rc)
+                            .border(1.rdp, RemoteColor.LightGray)
                             .clickable(hostAction("abc".rs, i.ri))
                             // Must be direct child of the scrollable item
                             .semantics(mergeDescendants = true) {},
                     contentAlignment = RemoteAlignment.Center,
                 ) {
-                    RemoteText("Item $i".rs, color = RemoteColor(Color.Black), fontSize = 36.rsp)
+                    RemoteText("Item $i".rs, color = RemoteColor.Black, fontSize = 36.rsp)
                 }
             }
         }

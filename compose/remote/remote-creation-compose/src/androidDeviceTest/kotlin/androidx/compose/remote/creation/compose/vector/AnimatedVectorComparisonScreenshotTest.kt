@@ -46,6 +46,7 @@ import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
@@ -198,13 +199,13 @@ class AnimatedVectorComparisonScreenshotTest {
                                 text = "Remote".rs,
                                 fontWeight = RemoteFontWeight.Bold,
                                 fontSize = 16.rsp,
-                                color = Color.Black.rc,
+                                color = RemoteColor.Black,
                             )
                             for (progress in progressValues) {
                                 RemoteText(
                                     text = "p = $progress".rs,
                                     fontSize = 12.rsp,
-                                    color = Color.DarkGray.rc,
+                                    color = RemoteColor.DarkGray,
                                 )
                                 RemoteBox(
                                     modifier =

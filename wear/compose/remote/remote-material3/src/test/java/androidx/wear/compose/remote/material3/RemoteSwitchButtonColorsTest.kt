@@ -19,7 +19,6 @@ package androidx.wear.compose.remote.material3
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.ui.graphics.Color
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -53,42 +52,42 @@ class RemoteSwitchButtonColorsTest {
 
     @Test
     fun switchButtonColors_resolvesCorrectly() {
-        val checkedContainer = RemoteColor(Color.Red)
-        val uncheckedContainer = RemoteColor(Color.Blue)
-        val disabledCheckedContainer = RemoteColor(Color.Gray)
-        val disabledUncheckedContainer = RemoteColor(Color.DarkGray)
+        val checkedContainer = RemoteColor.Red
+        val uncheckedContainer = RemoteColor.Blue
+        val disabledCheckedContainer = RemoteColor.Gray
+        val disabledUncheckedContainer = RemoteColor.DarkGray
 
         val colors =
             RemoteSwitchButtonColors(
                 checkedContainerColor = checkedContainer,
-                checkedContentColor = RemoteColor(Color.White),
-                checkedSecondaryContentColor = RemoteColor(Color.LightGray),
-                checkedIconColor = RemoteColor(Color.Yellow),
-                checkedThumbColor = RemoteColor(Color.Cyan),
-                checkedThumbIconColor = RemoteColor(Color.Black),
-                checkedTrackColor = RemoteColor(Color.Blue),
-                checkedTrackBorderColor = RemoteColor(Color.White),
+                checkedContentColor = RemoteColor.White,
+                checkedSecondaryContentColor = RemoteColor.LightGray,
+                checkedIconColor = RemoteColor.Yellow,
+                checkedThumbColor = RemoteColor.Cyan,
+                checkedThumbIconColor = RemoteColor.Black,
+                checkedTrackColor = RemoteColor.Blue,
+                checkedTrackBorderColor = RemoteColor.White,
                 uncheckedContainerColor = uncheckedContainer,
-                uncheckedContentColor = RemoteColor(Color.White),
-                uncheckedSecondaryContentColor = RemoteColor(Color.LightGray),
-                uncheckedIconColor = RemoteColor(Color.Yellow),
-                uncheckedThumbColor = RemoteColor(Color.Magenta),
-                uncheckedTrackColor = RemoteColor(Color.DarkGray),
-                uncheckedTrackBorderColor = RemoteColor(Color.Gray),
+                uncheckedContentColor = RemoteColor.White,
+                uncheckedSecondaryContentColor = RemoteColor.LightGray,
+                uncheckedIconColor = RemoteColor.Yellow,
+                uncheckedThumbColor = RemoteColor.Magenta,
+                uncheckedTrackColor = RemoteColor.DarkGray,
+                uncheckedTrackBorderColor = RemoteColor.Gray,
                 disabledCheckedContainerColor = disabledCheckedContainer,
-                disabledCheckedContentColor = RemoteColor(Color.DarkGray),
-                disabledCheckedSecondaryContentColor = RemoteColor(Color.DarkGray),
-                disabledCheckedIconColor = RemoteColor(Color.DarkGray),
-                disabledCheckedThumbColor = RemoteColor(Color.DarkGray),
-                disabledCheckedThumbIconColor = RemoteColor(Color.DarkGray),
-                disabledCheckedTrackColor = RemoteColor(Color.DarkGray),
-                disabledCheckedTrackBorderColor = RemoteColor(Color.DarkGray),
+                disabledCheckedContentColor = RemoteColor.DarkGray,
+                disabledCheckedSecondaryContentColor = RemoteColor.DarkGray,
+                disabledCheckedIconColor = RemoteColor.DarkGray,
+                disabledCheckedThumbColor = RemoteColor.DarkGray,
+                disabledCheckedThumbIconColor = RemoteColor.DarkGray,
+                disabledCheckedTrackColor = RemoteColor.DarkGray,
+                disabledCheckedTrackBorderColor = RemoteColor.DarkGray,
                 disabledUncheckedContainerColor = disabledUncheckedContainer,
-                disabledUncheckedContentColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedSecondaryContentColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedIconColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedThumbColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedTrackBorderColor = RemoteColor(Color.DarkGray),
+                disabledUncheckedContentColor = RemoteColor.DarkGray,
+                disabledUncheckedSecondaryContentColor = RemoteColor.DarkGray,
+                disabledUncheckedIconColor = RemoteColor.DarkGray,
+                disabledUncheckedThumbColor = RemoteColor.DarkGray,
+                disabledUncheckedTrackBorderColor = RemoteColor.DarkGray,
             )
 
         // Enabled + Checked
@@ -112,42 +111,42 @@ class RemoteSwitchButtonColorsTest {
     fun switchButtonColors_equality() {
         val colors1 =
             RemoteSwitchButtonColors(
-                checkedContainerColor = RemoteColor(Color.Red),
-                checkedContentColor = RemoteColor(Color.White),
-                checkedSecondaryContentColor = RemoteColor(Color.LightGray),
-                checkedIconColor = RemoteColor(Color.Yellow),
-                checkedThumbColor = RemoteColor(Color.Cyan),
-                checkedThumbIconColor = RemoteColor(Color.Black),
-                checkedTrackColor = RemoteColor(Color.Blue),
-                checkedTrackBorderColor = RemoteColor(Color.White),
-                uncheckedContainerColor = RemoteColor(Color.Blue),
-                uncheckedContentColor = RemoteColor(Color.White),
-                uncheckedSecondaryContentColor = RemoteColor(Color.LightGray),
-                uncheckedIconColor = RemoteColor(Color.Yellow),
-                uncheckedThumbColor = RemoteColor(Color.Magenta),
-                uncheckedTrackColor = RemoteColor(Color.DarkGray),
-                uncheckedTrackBorderColor = RemoteColor(Color.Gray),
-                disabledCheckedContainerColor = RemoteColor(Color.Gray),
-                disabledCheckedContentColor = RemoteColor(Color.DarkGray),
-                disabledCheckedSecondaryContentColor = RemoteColor(Color.DarkGray),
-                disabledCheckedIconColor = RemoteColor(Color.DarkGray),
-                disabledCheckedThumbColor = RemoteColor(Color.DarkGray),
-                disabledCheckedThumbIconColor = RemoteColor(Color.DarkGray),
-                disabledCheckedTrackColor = RemoteColor(Color.DarkGray),
-                disabledCheckedTrackBorderColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedContainerColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedContentColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedSecondaryContentColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedIconColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedThumbColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedTrackBorderColor = RemoteColor(Color.DarkGray),
+                checkedContainerColor = RemoteColor.Red,
+                checkedContentColor = RemoteColor.White,
+                checkedSecondaryContentColor = RemoteColor.LightGray,
+                checkedIconColor = RemoteColor.Yellow,
+                checkedThumbColor = RemoteColor.Cyan,
+                checkedThumbIconColor = RemoteColor.Black,
+                checkedTrackColor = RemoteColor.Blue,
+                checkedTrackBorderColor = RemoteColor.White,
+                uncheckedContainerColor = RemoteColor.Blue,
+                uncheckedContentColor = RemoteColor.White,
+                uncheckedSecondaryContentColor = RemoteColor.LightGray,
+                uncheckedIconColor = RemoteColor.Yellow,
+                uncheckedThumbColor = RemoteColor.Magenta,
+                uncheckedTrackColor = RemoteColor.DarkGray,
+                uncheckedTrackBorderColor = RemoteColor.Gray,
+                disabledCheckedContainerColor = RemoteColor.Gray,
+                disabledCheckedContentColor = RemoteColor.DarkGray,
+                disabledCheckedSecondaryContentColor = RemoteColor.DarkGray,
+                disabledCheckedIconColor = RemoteColor.DarkGray,
+                disabledCheckedThumbColor = RemoteColor.DarkGray,
+                disabledCheckedThumbIconColor = RemoteColor.DarkGray,
+                disabledCheckedTrackColor = RemoteColor.DarkGray,
+                disabledCheckedTrackBorderColor = RemoteColor.DarkGray,
+                disabledUncheckedContainerColor = RemoteColor.DarkGray,
+                disabledUncheckedContentColor = RemoteColor.DarkGray,
+                disabledUncheckedSecondaryContentColor = RemoteColor.DarkGray,
+                disabledUncheckedIconColor = RemoteColor.DarkGray,
+                disabledUncheckedThumbColor = RemoteColor.DarkGray,
+                disabledUncheckedTrackBorderColor = RemoteColor.DarkGray,
             )
 
         val colors2 = colors1.copy()
         assertThat(colors2).isEqualTo(colors1)
         assertThat(colors2.hashCode()).isEqualTo(colors1.hashCode())
 
-        val colors3 = colors1.copy(checkedContainerColor = RemoteColor(Color.Green))
+        val colors3 = colors1.copy(checkedContainerColor = RemoteColor.Green)
         assertThat(colors3).isNotEqualTo(colors1)
     }
 }

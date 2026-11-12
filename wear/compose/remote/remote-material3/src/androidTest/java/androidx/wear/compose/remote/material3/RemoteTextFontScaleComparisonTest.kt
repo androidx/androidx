@@ -32,8 +32,8 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.remote.creation.compose.capture.LocalRemoteDensity
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -88,7 +88,13 @@ class RemoteTextFontScaleComparisonTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     private val size = Size(500f, 500f)
-    private val creationDisplayInfo = createCreationDisplayInfo(context, size)
+    private val creationDisplayInfo =
+        RemoteCreationDisplayInfo(
+            size.width.toInt(),
+            size.height.toInt(),
+            context.resources.displayMetrics.densityDpi,
+            context.resources.configuration.fontScale,
+        )
 
     @get:Rule val composeTestRule: ComposeContentTestRule = createComposeRule()
 
@@ -196,10 +202,10 @@ class RemoteTextFontScaleComparisonTest {
                     RemoteDensity(density = density.density.rf, fontScale = fontScale.rf)
                 }
             CompositionLocalProvider(LocalRemoteDensity provides remoteDensity) {
-                RemoteText(text = text.rs, fontSize = size1.rsp, color = RemoteColor(Color.White))
-                RemoteText(text = text.rs, fontSize = size2.rsp, color = RemoteColor(Color.White))
-                RemoteText(text = text.rs, fontSize = size3.rsp, color = RemoteColor(Color.White))
-                RemoteText(text = text.rs, fontSize = size4.rsp, color = RemoteColor(Color.White))
+                RemoteText(text = text.rs, fontSize = size1.rsp, color = RemoteColor.White)
+                RemoteText(text = text.rs, fontSize = size2.rsp, color = RemoteColor.White)
+                RemoteText(text = text.rs, fontSize = size3.rsp, color = RemoteColor.White)
+                RemoteText(text = text.rs, fontSize = size4.rsp, color = RemoteColor.White)
             }
         }
     }

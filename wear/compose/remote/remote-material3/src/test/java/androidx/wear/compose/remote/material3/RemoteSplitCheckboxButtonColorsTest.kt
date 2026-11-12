@@ -19,7 +19,6 @@ package androidx.wear.compose.remote.material3
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.ui.graphics.Color
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,35 +35,35 @@ class RemoteSplitCheckboxButtonColorsTest {
 
     @Test
     fun splitCheckboxButtonColors_resolvesCorrectly() {
-        val checkedContainer = RemoteColor(Color.Red)
-        val uncheckedContainer = RemoteColor(Color.Blue)
-        val disabledCheckedContainer = RemoteColor(Color.Gray)
-        val disabledUncheckedContainer = RemoteColor(Color.DarkGray)
+        val checkedContainer = RemoteColor.Red
+        val uncheckedContainer = RemoteColor.Blue
+        val disabledCheckedContainer = RemoteColor.Gray
+        val disabledUncheckedContainer = RemoteColor.DarkGray
 
         val colors =
             RemoteSplitCheckboxButtonColors(
                 checkedContainerColor = checkedContainer,
-                checkedContentColor = RemoteColor(Color.White),
-                checkedSecondaryContentColor = RemoteColor(Color.LightGray),
-                checkedSplitContainerColor = RemoteColor(Color.Yellow),
-                checkedBoxColor = RemoteColor(Color.Cyan),
-                checkedCheckmarkColor = RemoteColor(Color.Black),
+                checkedContentColor = RemoteColor.White,
+                checkedSecondaryContentColor = RemoteColor.LightGray,
+                checkedSplitContainerColor = RemoteColor.Yellow,
+                checkedBoxColor = RemoteColor.Cyan,
+                checkedCheckmarkColor = RemoteColor.Black,
                 uncheckedContainerColor = uncheckedContainer,
-                uncheckedContentColor = RemoteColor(Color.White),
-                uncheckedSecondaryContentColor = RemoteColor(Color.LightGray),
-                uncheckedSplitContainerColor = RemoteColor(Color.Yellow),
-                uncheckedBoxColor = RemoteColor(Color.Magenta),
+                uncheckedContentColor = RemoteColor.White,
+                uncheckedSecondaryContentColor = RemoteColor.LightGray,
+                uncheckedSplitContainerColor = RemoteColor.Yellow,
+                uncheckedBoxColor = RemoteColor.Magenta,
                 disabledCheckedContainerColor = disabledCheckedContainer,
-                disabledCheckedContentColor = RemoteColor(Color.DarkGray),
-                disabledCheckedSecondaryContentColor = RemoteColor(Color.DarkGray),
-                disabledCheckedSplitContainerColor = RemoteColor(Color.DarkGray),
-                disabledCheckedBoxColor = RemoteColor(Color.DarkGray),
-                disabledCheckedCheckmarkColor = RemoteColor(Color.DarkGray),
+                disabledCheckedContentColor = RemoteColor.DarkGray,
+                disabledCheckedSecondaryContentColor = RemoteColor.DarkGray,
+                disabledCheckedSplitContainerColor = RemoteColor.DarkGray,
+                disabledCheckedBoxColor = RemoteColor.DarkGray,
+                disabledCheckedCheckmarkColor = RemoteColor.DarkGray,
                 disabledUncheckedContainerColor = disabledUncheckedContainer,
-                disabledUncheckedContentColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedSecondaryContentColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedSplitContainerColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedBoxColor = RemoteColor(Color.DarkGray),
+                disabledUncheckedContentColor = RemoteColor.DarkGray,
+                disabledUncheckedSecondaryContentColor = RemoteColor.DarkGray,
+                disabledUncheckedSplitContainerColor = RemoteColor.DarkGray,
+                disabledUncheckedBoxColor = RemoteColor.DarkGray,
             )
 
         // Enabled + Checked
@@ -88,35 +87,35 @@ class RemoteSplitCheckboxButtonColorsTest {
     fun splitCheckboxButtonColors_equality() {
         val colors1 =
             RemoteSplitCheckboxButtonColors(
-                checkedContainerColor = RemoteColor(Color.Red),
-                checkedContentColor = RemoteColor(Color.White),
-                checkedSecondaryContentColor = RemoteColor(Color.LightGray),
-                checkedSplitContainerColor = RemoteColor(Color.Yellow),
-                checkedBoxColor = RemoteColor(Color.Cyan),
-                checkedCheckmarkColor = RemoteColor(Color.Black),
-                uncheckedContainerColor = RemoteColor(Color.Blue),
-                uncheckedContentColor = RemoteColor(Color.White),
-                uncheckedSecondaryContentColor = RemoteColor(Color.LightGray),
-                uncheckedSplitContainerColor = RemoteColor(Color.Yellow),
-                uncheckedBoxColor = RemoteColor(Color.Magenta),
-                disabledCheckedContainerColor = RemoteColor(Color.Gray),
-                disabledCheckedContentColor = RemoteColor(Color.DarkGray),
-                disabledCheckedSecondaryContentColor = RemoteColor(Color.DarkGray),
-                disabledCheckedSplitContainerColor = RemoteColor(Color.DarkGray),
-                disabledCheckedBoxColor = RemoteColor(Color.DarkGray),
-                disabledCheckedCheckmarkColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedContainerColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedContentColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedSecondaryContentColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedSplitContainerColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedBoxColor = RemoteColor(Color.DarkGray),
+                checkedContainerColor = RemoteColor.Red,
+                checkedContentColor = RemoteColor.White,
+                checkedSecondaryContentColor = RemoteColor.LightGray,
+                checkedSplitContainerColor = RemoteColor.Yellow,
+                checkedBoxColor = RemoteColor.Cyan,
+                checkedCheckmarkColor = RemoteColor.Black,
+                uncheckedContainerColor = RemoteColor.Blue,
+                uncheckedContentColor = RemoteColor.White,
+                uncheckedSecondaryContentColor = RemoteColor.LightGray,
+                uncheckedSplitContainerColor = RemoteColor.Yellow,
+                uncheckedBoxColor = RemoteColor.Magenta,
+                disabledCheckedContainerColor = RemoteColor.Gray,
+                disabledCheckedContentColor = RemoteColor.DarkGray,
+                disabledCheckedSecondaryContentColor = RemoteColor.DarkGray,
+                disabledCheckedSplitContainerColor = RemoteColor.DarkGray,
+                disabledCheckedBoxColor = RemoteColor.DarkGray,
+                disabledCheckedCheckmarkColor = RemoteColor.DarkGray,
+                disabledUncheckedContainerColor = RemoteColor.DarkGray,
+                disabledUncheckedContentColor = RemoteColor.DarkGray,
+                disabledUncheckedSecondaryContentColor = RemoteColor.DarkGray,
+                disabledUncheckedSplitContainerColor = RemoteColor.DarkGray,
+                disabledUncheckedBoxColor = RemoteColor.DarkGray,
             )
 
         val colors2 = colors1.copy()
         assertThat(colors2).isEqualTo(colors1)
         assertThat(colors2.hashCode()).isEqualTo(colors1.hashCode())
 
-        val colors3 = colors1.copy(checkedContainerColor = RemoteColor(Color.Green))
+        val colors3 = colors1.copy(checkedContainerColor = RemoteColor.Green)
         assertThat(colors3).isNotEqualTo(colors1)
     }
 }

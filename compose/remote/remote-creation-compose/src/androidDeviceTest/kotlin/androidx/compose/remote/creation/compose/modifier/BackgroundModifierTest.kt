@@ -18,7 +18,7 @@ package androidx.compose.remote.creation.compose.modifier
 
 import android.content.Context
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -33,7 +33,6 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteString
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rememberNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
@@ -42,9 +41,6 @@ import androidx.compose.remote.creation.compose.state.toRemoteString
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -69,8 +65,13 @@ class BackgroundModifierTest {
         )
     private val context: Context = ApplicationProvider.getApplicationContext()
 
-    val size = Size(200f, 200f)
-    private val creationDisplayInfo = createCreationDisplayInfo(context, size)
+    private val creationDisplayInfo =
+        RemoteCreationDisplayInfo(
+            width = 200,
+            height = 200,
+            densityDpi = context.resources.displayMetrics.densityDpi,
+            fontScale = context.resources.configuration.fontScale,
+        )
 
     val hexDecimalFormat = DecimalFormat("0")
 
@@ -122,7 +123,7 @@ class BackgroundModifierTest {
             remoteCreationDisplayInfo = creationDisplayInfo,
             playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
-            val blue = Color.Blue.rc
+            val blue = RemoteColor.Blue
             DemoBox("background(".rs + blue.toHexString() + ".rc)") {
                 RemoteBox(modifier = RemoteModifier.fillMaxSize().background(blue))
             }
@@ -135,7 +136,7 @@ class BackgroundModifierTest {
             remoteCreationDisplayInfo = creationDisplayInfo,
             playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
-            val blue = rememberNamedRemoteColor("ABC", Color.Blue.rc)
+            val blue = rememberNamedRemoteColor("ABC", RemoteColor.Blue)
             DemoBox("background(".rs + blue.toHexString() + ".rc named)") {
                 RemoteBox(modifier = RemoteModifier.fillMaxSize().background(blue))
             }
@@ -148,9 +149,9 @@ class BackgroundModifierTest {
             remoteCreationDisplayInfo = creationDisplayInfo,
             playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
-            val blue = Color.Blue
-            DemoBox("background(0x".rs + Integer.toHexString(blue.toArgb()) + ")") {
-                RemoteBox(modifier = RemoteModifier.fillMaxSize().background(blue.rc))
+            val blue = RemoteColor.Blue
+            DemoBox("background(0x".rs + Integer.toHexString(blue.constantValue) + ")") {
+                RemoteBox(modifier = RemoteModifier.fillMaxSize().background(blue))
             }
         }
     }
@@ -166,7 +167,9 @@ class BackgroundModifierTest {
                     modifier =
                         RemoteModifier.fillMaxSize()
                             .background(
-                                RemoteBrush.verticalGradient(listOf(Color.Blue.rc, Color.Red.rc))
+                                RemoteBrush.verticalGradient(
+                                    listOf(RemoteColor.Blue, RemoteColor.Red)
+                                )
                             )
                 )
             }
@@ -184,7 +187,9 @@ class BackgroundModifierTest {
                     modifier =
                         RemoteModifier.fillMaxSize()
                             .background(
-                                RemoteBrush.horizontalGradient(listOf(Color.Blue.rc, Color.Red.rc))
+                                RemoteBrush.horizontalGradient(
+                                    listOf(RemoteColor.Blue, RemoteColor.Red)
+                                )
                             )
                 )
             }
@@ -202,7 +207,9 @@ class BackgroundModifierTest {
                     modifier =
                         RemoteModifier.fillMaxSize()
                             .background(
-                                RemoteBrush.radialGradient(listOf(Color.Blue.rc, Color.Red.rc))
+                                RemoteBrush.radialGradient(
+                                    listOf(RemoteColor.Blue, RemoteColor.Red)
+                                )
                             )
                 )
             }
@@ -220,7 +227,7 @@ class BackgroundModifierTest {
                     modifier =
                         RemoteModifier.fillMaxSize()
                             .background(
-                                RemoteBrush.sweepGradient(listOf(Color.Blue.rc, Color.Red.rc))
+                                RemoteBrush.sweepGradient(listOf(RemoteColor.Blue, RemoteColor.Red))
                             )
                 )
             }
@@ -233,7 +240,7 @@ class BackgroundModifierTest {
             remoteCreationDisplayInfo = creationDisplayInfo,
             playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
-            val blue = Color.Blue.rc
+            val blue = RemoteColor.Blue
             DemoBox("background(painterRemoteColor(Color.Blue))".rs) {
                 RemoteBox(
                     modifier =
@@ -255,7 +262,7 @@ class BackgroundModifierTest {
                 modifier = RemoteModifier.fillMaxSize(),
                 contentAlignment = RemoteAlignment.BottomCenter,
             ) {
-                RemoteText(title, color = RemoteColor(Color.White), fontSize = 8.rsp)
+                RemoteText(title, color = RemoteColor.White, fontSize = 8.rsp)
             }
         }
     }
