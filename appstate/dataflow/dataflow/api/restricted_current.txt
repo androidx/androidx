@@ -9,7 +9,7 @@ package androidx.appstate.dataflow {
     ctor @BytecodeOnly public DataflowRegistry(kotlin.coroutines.CoroutineContext!, androidx.appstate.dataflow.DataflowRegistry!, java.util.Map!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public DataflowRegistry(kotlin.coroutines.CoroutineContext coroutineContext, optional androidx.appstate.dataflow.DataflowRegistry? parent, optional java.util.Map<kotlin.reflect.KClass<? extends androidx.appstate.dataflow.DataKey<? extends java.lang.Object?>>,? extends androidx.appstate.dataflow.Reducer.Factory<? extends java.lang.Object?,? extends java.lang.Object?>> reducerFactories);
     method public void dispose();
-    method public <S> androidx.compose.runtime.State<S> getState(androidx.appstate.dataflow.DataKey<? extends S> key);
+    method public <S> androidx.appstate.transform.DisposableState<S> getState(androidx.appstate.dataflow.DataKey<? extends S> key);
   }
 
   public interface Reducer<K extends androidx.appstate.dataflow.DataKey<?>, S> {
