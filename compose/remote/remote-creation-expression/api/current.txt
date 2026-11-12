@@ -68,6 +68,7 @@ package androidx.compose.remote.creation.compose.state {
   }
 
   public final class MutableRemoteEnum<T extends java.lang.Enum<T>> extends androidx.compose.remote.creation.compose.state.RemoteEnum<T> implements androidx.compose.remote.creation.compose.state.MutableRemoteState<T> {
+    ctor @androidx.compose.runtime.annotation.RememberInComposition public MutableRemoteEnum(androidx.compose.remote.creation.compose.state.MutableRemoteInt remoteInt, kotlin.enums.EnumEntries<T> enumEntries);
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.MutableRemoteInt getRemoteInt();
     property public androidx.compose.remote.creation.compose.state.MutableRemoteInt remoteInt;
   }
@@ -308,6 +309,7 @@ package androidx.compose.remote.creation.compose.state {
   }
 
   @androidx.compose.runtime.Stable public class RemoteEnum<T extends java.lang.Enum<T>> extends androidx.compose.remote.creation.compose.state.BaseRemoteState<T> {
+    ctor public RemoteEnum(androidx.compose.remote.creation.compose.state.RemoteInt intValue, kotlin.enums.EnumEntries<T> enumEntries);
     method @InaccessibleFromKotlin public T? getConstantValueOrNull();
     method @InaccessibleFromKotlin public final kotlin.enums.EnumEntries<T> getEnumEntries();
     method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteInt getOrdinal();
@@ -325,9 +327,7 @@ package androidx.compose.remote.creation.compose.state {
   }
 
   public final class RemoteEnumKt {
-    method @androidx.compose.runtime.annotation.RememberInComposition public static <T extends java.lang.Enum<T>> androidx.compose.remote.creation.compose.state.MutableRemoteEnum<T> MutableRemoteEnum(androidx.compose.remote.creation.compose.state.MutableRemoteInt remoteInt, kotlin.enums.EnumEntries<T> enumEntries);
     method @KotlinOnly @androidx.compose.runtime.annotation.RememberInComposition public static inline <reified T extends java.lang.Enum<T>> androidx.compose.remote.creation.compose.state.MutableRemoteEnum<T> MutableRemoteEnum(T initialValue);
-    method public static <T extends java.lang.Enum<T>> androidx.compose.remote.creation.compose.state.RemoteEnum<T> RemoteEnum(androidx.compose.remote.creation.compose.state.RemoteInt intValue, kotlin.enums.EnumEntries<T> enumEntries);
     method @KotlinOnly public static inline <reified T extends java.lang.Enum<T>> androidx.compose.remote.creation.compose.state.RemoteEnum<T> RemoteEnum(T value);
   }
 
@@ -515,6 +515,7 @@ package androidx.compose.remote.creation.compose.state {
   @androidx.compose.runtime.Stable public class RemoteString extends androidx.compose.remote.creation.compose.state.BaseRemoteState<java.lang.String> {
     method public static final androidx.compose.remote.creation.compose.state.RemoteString createNamedRemoteString(String name, String defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
     method @InaccessibleFromKotlin public String? getConstantValueOrNull();
+    method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteInt getLength();
     method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteBoolean isEmpty();
     method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteBoolean isNotEmpty();
     method public final androidx.compose.remote.creation.compose.state.RemoteString lowercase();
@@ -524,6 +525,7 @@ package androidx.compose.remote.creation.compose.state {
     property public String? constantValueOrNull;
     property public final androidx.compose.remote.creation.compose.state.RemoteBoolean isEmpty;
     property public final androidx.compose.remote.creation.compose.state.RemoteBoolean isNotEmpty;
+    property public final androidx.compose.remote.creation.compose.state.RemoteInt length;
     field public static final androidx.compose.remote.creation.compose.state.RemoteString.Companion Companion;
   }
 

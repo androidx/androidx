@@ -157,8 +157,8 @@ internal constructor(
         }
     }
 
+    /** The length of this [RemoteString] as a [RemoteInt]. */
     public val length: RemoteInt
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // Restricts operator
         get() {
             constantValueOrNull?.let {
                 return RemoteInt(it.length)

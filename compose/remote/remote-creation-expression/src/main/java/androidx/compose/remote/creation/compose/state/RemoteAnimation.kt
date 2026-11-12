@@ -30,8 +30,10 @@ public sealed interface RemoteAnimationSpec {
      * parameters.
      *
      * @param targetValue The target value to animate towards.
-     * @param initialValue Optional initial value if animating from a start value, or [Float.NaN].
-     * @param wrap Optional wrap modulo bound (e.g. 360f for angles), or [Float.NaN].
+     * @param initialValue Optional initial value if animating from a start value, or [Float.NaN] to
+     *   start from the current value without an explicit initial value.
+     * @param wrap Optional wrap modulo bound (e.g. 360f for angles), or [Float.NaN] for no
+     *   wrapping.
      * @return An animated [RemoteFloat].
      */
     public fun animate(
@@ -268,8 +270,9 @@ public fun remoteSpring(
  * @sample androidx.compose.remote.creation.compose.samples.AnimateRemoteFloatSample
  * @param targetValue The target value to animate towards.
  * @param animationSpec The specification for the animation (e.g. [remoteTween] or [remoteSpring]).
- * @param initialValue Optional initial value if animating from a start value.
- * @param wrap Optional wrap modulo bound (e.g. 360f for angles).
+ * @param initialValue Optional initial value if animating from a start value, or [Float.NaN] to
+ *   start from the current value without an explicit initial value.
+ * @param wrap Optional wrap modulo bound (e.g. 360f for angles), or [Float.NaN] for no wrapping.
  * @return An animated [RemoteFloat] tracking [targetValue].
  */
 public fun animateRemoteFloatAsState(
@@ -288,7 +291,8 @@ public fun animateRemoteFloatAsState(
  * @sample androidx.compose.remote.creation.compose.samples.AnimateRemoteDpSample
  * @param targetValue The target value to animate towards.
  * @param animationSpec The specification for the animation (e.g. [remoteTween] or [remoteSpring]).
- * @param initialValue Optional initial value if animating from a start value.
+ * @param initialValue Optional initial value if animating from a start value, or [Float.NaN] to
+ *   start from the current value without an explicit initial value.
  * @return An animated [RemoteDp] tracking [targetValue].
  */
 public fun animateRemoteDpAsState(
