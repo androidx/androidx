@@ -3336,6 +3336,10 @@ public class ExifInterface {
             return new ExifAttribute(IFD_FORMAT_STRING, ascii.length, ascii);
         }
 
+        public static ExifAttribute createUndefined(byte[] bytes) {
+            return new ExifAttribute(IFD_FORMAT_UNDEFINED, bytes.length, bytes);
+        }
+
         public static ExifAttribute createURational(Rational[] values, ByteOrder byteOrder) {
             final ByteBuffer buffer = ByteBuffer.wrap(
                     new byte[IFD_FORMAT_BYTES_PER_FORMAT[IFD_FORMAT_URATIONAL] * values.length]);
@@ -3727,7 +3731,7 @@ public class ExifInterface {
             new ExifTag(TAG_ISO_SPEED, 34867, IFD_FORMAT_ULONG),
             new ExifTag(TAG_ISO_SPEED_LATITUDE_YYY, 34868, IFD_FORMAT_ULONG),
             new ExifTag(TAG_ISO_SPEED_LATITUDE_ZZZ, 34869, IFD_FORMAT_ULONG),
-            new ExifTag(TAG_EXIF_VERSION, 36864, IFD_FORMAT_STRING),
+            new ExifTag(TAG_EXIF_VERSION, 36864, IFD_FORMAT_UNDEFINED),
             new ExifTag(TAG_DATETIME_ORIGINAL, 36867, IFD_FORMAT_STRING),
             new ExifTag(TAG_DATETIME_DIGITIZED, 36868, IFD_FORMAT_STRING),
             new ExifTag(TAG_OFFSET_TIME, 36880, IFD_FORMAT_STRING),
@@ -4530,7 +4534,11 @@ public class ExifInterface {
                         mAttributes[i].put(tag, ExifAttribute.createByte(value));
                         break;
                     }
-                    case IFD_FORMAT_UNDEFINED:
+                    case IFD_FORMAT_UNDEFINED: {
+                        mAttributes[i].put(
+                                tag, ExifAttribute.createUndefined(value.getBytes(ASCII)));
+                        break;
+                    }
                     case IFD_FORMAT_STRING: {
                         mAttributes[i].put(tag, ExifAttribute.createString(value));
                         break;
@@ -5864,8 +5872,8 @@ public class ExifInterface {
                     in.readFully(bytes);
                     length = 0;
                     if (getAttribute(TAG_USER_COMMENT) == null) {
-                        mAttributes[IFD_TYPE_EXIF].put(TAG_USER_COMMENT, ExifAttribute.createString(
-                                new String(bytes, ASCII)));
+                        mAttributes[IFD_TYPE_EXIF].put(
+                                TAG_USER_COMMENT, ExifAttribute.createUndefined(bytes));
                     }
                     break;
                 }
