@@ -28,6 +28,12 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.android.asCoroutineDispatcher
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -80,50 +86,97 @@ class LowLightBoostEffectBelowApi30Test {
     }
 
     @Test
-    fun construct_succeedsWithOffState() {
+    fun construct_succeedsWithOffStateAndEnabledDefault() {
         val effect =
             LowLightBoostEffect(
                 context,
                 CameraEffect.PREVIEW or CameraEffect.VIDEO_CAPTURE or CameraEffect.IMAGE_CAPTURE,
             )
 
-        assertThat(effect.state.value?.type).isEqualTo(LowLightBoostEffectState.OFF)
+        assertThat(effect.isLowLightBoostEnabled).isTrue()
+        assertThat(effect.status).isEqualTo(LowLightBoostEffect.STATUS_OFF)
+        assertThat(effect.error).isNull()
     }
 
     @Test
-    fun setLowLightBoostEnabled_doesNothing() {
+    fun isLowLightBoostEnabled_togglesUniformlyAndNotifiesBeforeBinding() {
         val effect = LowLightBoostEffect(context, CameraEffect.PREVIEW)
+        val listenerEvents = mutableListOf<Boolean>()
+        val observed = mutableListOf<Boolean>()
+        effect.addListener(
+            object : LowLightBoostEffect.Listener {
+                override fun onLowLightBoostEnabledChanged(enabled: Boolean) {
+                    listenerEvents.add(enabled)
+                }
+            }
+        )
+        val scope =
+            CoroutineScope(SupervisorJob() + Handler(getMainLooper()).asCoroutineDispatcher())
+        try {
+            scope.launch(start = CoroutineStart.UNDISPATCHED) {
+                effect.observe { observed.add(isLowLightBoostEnabled) }
+            }
 
-        effect.setLowLightBoostEnabled(true)
-        shadowOf(getMainLooper()).idle()
+            effect.isLowLightBoostEnabled = false
+            assertThat(effect.isLowLightBoostEnabled).isFalse()
+            effect.isLowLightBoostEnabled = true
+            assertThat(effect.isLowLightBoostEnabled).isTrue()
+            shadowOf(getMainLooper()).idle()
 
-        assertThat(effect.state.value?.type).isEqualTo(LowLightBoostEffectState.OFF)
+            assertThat(listenerEvents).containsExactly(false, true).inOrder()
+            assertThat(observed).hasSize(3)
+            assertThat(effect.status).isEqualTo(LowLightBoostEffect.STATUS_OFF)
+            assertThat(effect.error).isNull()
+        } finally {
+            scope.cancel()
+            shadowOf(getMainLooper()).idle()
+        }
     }
 
     // Robolectric's EGL shadows below API 30 cannot initialize OpenGlRenderer, so this test runs on
     // the target SDK with Build.VERSION.SDK_INT overridden instead.
     @Config(sdk = [Config.TARGET_SDK])
     @Test
-    fun inputSurface_providesPassthroughSurfaceAndReportsUnsupportedDevice() {
+    fun inputSurface_providesPassthroughSurfaceAndToggleClearsAndReReportsError() {
         val originalSdkInt = Build.VERSION.SDK_INT
         ReflectionHelpers.setStaticField(
             Build.VERSION::class.java,
             "SDK_INT",
             Build.VERSION_CODES.Q,
         )
-        // Arrange: a session manager that runs synchronously on the test thread.
-        val sessionManager =
-            LowLightBoostSessionManager(
-                CameraXExecutors.directExecutor(),
-                Handler(getMainLooper()),
-                rendererFactory = { FakeGlRenderer() },
-            )
-        val processor = PlayServicesLowLightBoostSurfaceProcessor(context, { null }, sessionManager)
-        val resolution = Size(1920, 1080)
-        val surfaceRequest =
-            SurfaceRequest(resolution, FakeCamera("0"), DynamicRange.SDR, FRAME_RATE_RANGE) {}
+        var sessionManager: LowLightBoostSessionManager? = null
+        var surfaceRequest: SurfaceRequest? = null
         try {
-            // Act.
+            // Arrange: a session manager that runs synchronously on the test thread.
+            sessionManager =
+                LowLightBoostSessionManager(
+                    CameraXExecutors.directExecutor(),
+                    Handler(getMainLooper()),
+                    rendererFactory = { FakeGlRenderer() },
+                )
+            val processor =
+                PlayServicesLowLightBoostSurfaceProcessor(context, { null }, sessionManager)
+            val effect = LowLightBoostEffect(CameraEffect.PREVIEW, processor)
+            val resolution = Size(1920, 1080)
+            surfaceRequest =
+                SurfaceRequest(resolution, FakeCamera("0"), DynamicRange.SDR, FRAME_RATE_RANGE) {}
+            val events = mutableListOf<String>()
+            effect.addListener(
+                object : LowLightBoostEffect.Listener {
+                    override fun onLowLightBoostEnabledChanged(enabled: Boolean) {
+                        events.add("enabled:$enabled")
+                    }
+
+                    override fun onStatusChanged(status: Int) {
+                        events.add("status:$status")
+                    }
+
+                    override fun onErrorChanged(error: Exception?) {
+                        events.add("error:${error?.javaClass?.simpleName}")
+                    }
+                }
+            )
+            // Act: bind while enabled -> reports UnsupportedOperationException.
             sessionManager.bindInputSurfaceRequest(
                 processor,
                 surfaceRequest,
@@ -138,17 +191,190 @@ class LowLightBoostEffectBelowApi30Test {
             )
             shadowOf(getMainLooper()).idle()
 
-            // Assert: the camera stream is still connected for passthrough rendering, and the
-            // device is reported as unsupported like any other unsupported device.
             assertThat(surfaceRequest.deferrableSurface.surface.isDone).isTrue()
-            val state = requireNotNull(processor.stateLiveData.value)
-            assertThat(state.type).isEqualTo(LowLightBoostEffectState.ERROR)
-            assertThat(state.error).isInstanceOf(UnsupportedOperationException::class.java)
-            assertThat(state.error).hasMessageThat().contains("not supported on this device")
+            val initialError = effect.error
+            assertThat(effect.status).isEqualTo(LowLightBoostEffect.STATUS_OFF)
+            assertThat(initialError).isInstanceOf(UnsupportedOperationException::class.java)
+            assertThat(initialError).hasMessageThat().contains("not supported on this device")
             assertThat(sessionManager.getCurrentSession()).isNull()
+
+            // Disabling clears the error to (STATUS_OFF, null).
+            effect.isLowLightBoostEnabled = false
+            shadowOf(getMainLooper()).idle()
+            assertThat(effect.status).isEqualTo(LowLightBoostEffect.STATUS_OFF)
+            assertThat(effect.error).isNull()
+
+            // Re-enabling reports the same UnsupportedOperationException again.
+            effect.isLowLightBoostEnabled = true
+            shadowOf(getMainLooper()).idle()
+            assertThat(effect.status).isEqualTo(LowLightBoostEffect.STATUS_OFF)
+            assertThat(effect.error).isSameInstanceAs(initialError)
+
+            // Back-to-back false -> true clears error and reports it again. Because glExecutor is
+            // directExecutor() here, onBoostEnabledChanged(false) runs synchronously before = true.
+            effect.isLowLightBoostEnabled = false
+            effect.isLowLightBoostEnabled = true
+            shadowOf(getMainLooper()).idle()
+            assertThat(effect.error).isSameInstanceAs(initialError)
+
+            assertThat(events)
+                .containsExactly(
+                    "error:UnsupportedOperationException",
+                    "enabled:false",
+                    "error:null",
+                    "enabled:true",
+                    "error:UnsupportedOperationException",
+                    "enabled:false",
+                    "error:null",
+                    "enabled:true",
+                    "error:UnsupportedOperationException",
+                )
+                .inOrder()
         } finally {
-            sessionManager.destroySessionInternal()
-            surfaceRequest.deferrableSurface.close()
+            sessionManager?.destroySessionInternal()
+            surfaceRequest?.deferrableSurface?.close()
+            shadowOf(getMainLooper()).idle()
+            ReflectionHelpers.setStaticField(Build.VERSION::class.java, "SDK_INT", originalSdkInt)
+        }
+    }
+
+    @Config(sdk = [Config.TARGET_SDK])
+    @Test
+    fun boundWhileDisabledBelowApi30_keepsNullErrorUntilEnabled() {
+        val originalSdkInt = Build.VERSION.SDK_INT
+        ReflectionHelpers.setStaticField(
+            Build.VERSION::class.java,
+            "SDK_INT",
+            Build.VERSION_CODES.Q,
+        )
+        var sessionManager: LowLightBoostSessionManager? = null
+        var surfaceRequest: SurfaceRequest? = null
+        try {
+            sessionManager =
+                LowLightBoostSessionManager(
+                    CameraXExecutors.directExecutor(),
+                    Handler(getMainLooper()),
+                    rendererFactory = { FakeGlRenderer() },
+                )
+            val processor =
+                PlayServicesLowLightBoostSurfaceProcessor(context, { null }, sessionManager)
+            val effect = LowLightBoostEffect(CameraEffect.PREVIEW, processor)
+            surfaceRequest =
+                SurfaceRequest(
+                    Size(1920, 1080),
+                    FakeCamera("0"),
+                    DynamicRange.SDR,
+                    FRAME_RATE_RANGE,
+                ) {}
+            effect.isLowLightBoostEnabled = false
+            sessionManager.bindInputSurfaceRequest(
+                processor,
+                surfaceRequest,
+                surfaceRequest.camera.cameraInfoInternal,
+                "0",
+            )
+            sessionManager.provideInputSurfaceAndPrepareSession(
+                processor = processor,
+                surfaceRequest = surfaceRequest,
+                resolution = Size(1920, 1080),
+                cameraId = "0",
+            )
+            shadowOf(getMainLooper()).idle()
+
+            assertThat(effect.status).isEqualTo(LowLightBoostEffect.STATUS_OFF)
+            assertThat(effect.error).isNull()
+
+            effect.isLowLightBoostEnabled = true
+            shadowOf(getMainLooper()).idle()
+            assertThat(effect.status).isEqualTo(LowLightBoostEffect.STATUS_OFF)
+            assertThat(effect.error).isInstanceOf(UnsupportedOperationException::class.java)
+        } finally {
+            sessionManager?.destroySessionInternal()
+            surfaceRequest?.deferrableSurface?.close()
+            shadowOf(getMainLooper()).idle()
+            ReflectionHelpers.setStaticField(Build.VERSION::class.java, "SDK_INT", originalSdkInt)
+        }
+    }
+
+    @Config(sdk = [Config.TARGET_SDK])
+    @Test
+    fun postingExecutorBelowApi30_backToBackToggleClearsAndReReportsError() {
+        val originalSdkInt = Build.VERSION.SDK_INT
+        ReflectionHelpers.setStaticField(
+            Build.VERSION::class.java,
+            "SDK_INT",
+            Build.VERSION_CODES.Q,
+        )
+        var sessionManager: LowLightBoostSessionManager? = null
+        var surfaceRequest: SurfaceRequest? = null
+        try {
+            val handler = Handler(getMainLooper())
+            sessionManager =
+                LowLightBoostSessionManager(
+                    CameraXExecutors.newHandlerExecutor(handler),
+                    handler,
+                    rendererFactory = { FakeGlRenderer() },
+                )
+            val processor =
+                PlayServicesLowLightBoostSurfaceProcessor(context, { null }, sessionManager)
+            val effect = LowLightBoostEffect(CameraEffect.PREVIEW, processor)
+            surfaceRequest =
+                SurfaceRequest(
+                    Size(1920, 1080),
+                    FakeCamera("0"),
+                    DynamicRange.SDR,
+                    FRAME_RATE_RANGE,
+                ) {}
+            val events = mutableListOf<String>()
+            effect.addListener(
+                object : LowLightBoostEffect.Listener {
+                    override fun onLowLightBoostEnabledChanged(enabled: Boolean) {
+                        events.add("enabled:$enabled")
+                    }
+
+                    override fun onStatusChanged(status: Int) {
+                        events.add("status:$status")
+                    }
+
+                    override fun onErrorChanged(error: Exception?) {
+                        events.add("error:${error?.javaClass?.simpleName}")
+                    }
+                }
+            )
+            sessionManager.bindInputSurfaceRequest(
+                processor,
+                surfaceRequest,
+                surfaceRequest.camera.cameraInfoInternal,
+                "0",
+            )
+            sessionManager.provideInputSurfaceAndPrepareSession(
+                processor = processor,
+                surfaceRequest = surfaceRequest,
+                resolution = Size(1920, 1080),
+                cameraId = "0",
+            )
+            shadowOf(getMainLooper()).idle()
+            events.clear()
+
+            // Synchronous back-to-back false -> true before glExecutor runs either task.
+            effect.isLowLightBoostEnabled = false
+            effect.isLowLightBoostEnabled = true
+            shadowOf(getMainLooper()).idle()
+
+            assertThat(effect.isLowLightBoostEnabled).isTrue()
+            assertThat(effect.error).isInstanceOf(UnsupportedOperationException::class.java)
+            assertThat(events)
+                .containsExactly(
+                    "enabled:false",
+                    "enabled:true",
+                    "error:null",
+                    "error:UnsupportedOperationException",
+                )
+                .inOrder()
+        } finally {
+            sessionManager?.destroySessionInternal()
+            surfaceRequest?.deferrableSurface?.close()
+            shadowOf(getMainLooper()).idle()
             ReflectionHelpers.setStaticField(Build.VERSION::class.java, "SDK_INT", originalSdkInt)
         }
     }

@@ -154,9 +154,9 @@ internal class LowLightBoostSessionCreator(
     /**
      * Requests the module installation for [target] once Google Play Services reports the device
      * and the camera as supported. The module can't be installed on an unsupported device, so the
-     * current SurfaceRequest then fails with [LowLightBoostEffectState.ERROR] right away, without
-     * [LowLightBoostEffectState.PENDING_INSTALLATION]. If support can't be determined, e.g. because
-     * the query timed out, the installation is requested anyway.
+     * current SurfaceRequest then fails with an error right away, without
+     * [LowLightBoostEffect.STATUS_PENDING_INSTALLATION]. If support can't be determined, e.g.
+     * because the query timed out, the installation is requested anyway.
      */
     @RequiresApi(Build.VERSION_CODES.R)
     private fun checkSupportAndInstallModule(
@@ -199,8 +199,8 @@ internal class LowLightBoostSessionCreator(
     }
 
     /**
-     * Reports [LowLightBoostEffectState.PENDING_INSTALLATION] while frames are passed through, and
-     * requests the module installation via [LowLightBoostClient.installModule].
+     * Reports [LowLightBoostEffect.STATUS_PENDING_INSTALLATION] while frames are passed through,
+     * and requests the module installation via [LowLightBoostClient.installModule].
      */
     @RequiresApi(Build.VERSION_CODES.R)
     private fun installModule(
@@ -340,9 +340,13 @@ internal class LowLightBoostSessionCreator(
             }
         // targetSurface == null implies targetSurfaceError != null; checking it smart-casts it.
         if (targetSurface == null || targetSurfaceError != null) {
-            // A failed creation round: background recovery stops until a new round is allowed.
+            // An OpenGL setup failure persists for the stream; a consumed surface retries on a new
+            // creation round.
             Logger.w(TAG, "$targetSurfaceError; no session is created.")
-            host.onCreationFailed(IllegalStateException(targetSurfaceError), unrecoverable = false)
+            host.onCreationFailed(
+                IllegalStateException(targetSurfaceError),
+                unrecoverable = !isOutputBridgeUsable || targetSurface == null,
+            )
             return
         }
 
@@ -557,7 +561,7 @@ internal class LowLightBoostSessionCreator(
          * Delays between `createSession` retries after a transient failure, e.g. while the service
          * is still releasing a previous session or is being updated. Recreating the service's
          * processing pipeline takes about 2 seconds, so a session can usually be created again
-         * within about 4 seconds, before ERROR is reported.
+         * within about 4 seconds, before an error is reported.
          */
         private val RETRY_DELAYS_MS = longArrayOf(1000L, 1000L, 2000L)
         private val MAX_RETRIES = RETRY_DELAYS_MS.size

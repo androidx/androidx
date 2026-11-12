@@ -17,6 +17,9 @@
 package androidx.camera.effects.playservices.lowlight
 
 import android.util.Size
+import com.google.android.gms.cameralowlight.LowLightBoostStatusCodes
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.CommonStatusCodes
 
 /**
  * Checks whether Low Light Boost can be used for a camera stream: the resolution limits of the
@@ -100,4 +103,52 @@ internal object LowLightBoostSupport {
                 UnsupportedOperationException("Low Light Boost is not supported on this device."),
             logMessage = "Device does not support Low Light Boost. Falling back to passthrough.",
         )
+
+    /**
+     * Normalizes internal failures into the three standard [Exception] types documented by
+     * [LowLightBoostEffect.error]: [UnsupportedOperationException], [IllegalArgumentException], and
+     * [IllegalStateException].
+     */
+    internal fun toPublicError(error: Throwable): Exception {
+        if (
+            error is UnsupportedOperationException ||
+                error is IllegalArgumentException ||
+                error is IllegalStateException
+        ) {
+            return error
+        }
+        if (error is ApiException) {
+            return when (error.statusCode) {
+                LowLightBoostStatusCodes.CAMERA_NOT_SUPPORTED,
+                LowLightBoostStatusCodes.MISSING_CAMERA_CHARACTERISTICS ->
+                    UnsupportedOperationException(
+                        "Low Light Boost is not supported on this camera: ${error.message}",
+                        error,
+                    )
+                LowLightBoostStatusCodes.UNSUPPORTED_DATASPACE ->
+                    IllegalArgumentException(
+                        "Unsupported dataspace for Low Light Boost: ${error.message}",
+                        error,
+                    )
+                CommonStatusCodes.API_NOT_CONNECTED ->
+                    if (PlayServicesLowLightBoostAvailability.getCachedDeviceSupported() == false) {
+                        UnsupportedOperationException(
+                            "Low Light Boost is not supported on this device: ${error.message}",
+                            error,
+                        )
+                    } else {
+                        IllegalStateException(
+                            "Low Light Boost session failed: ${error.message}",
+                            error,
+                        )
+                    }
+                else ->
+                    IllegalStateException(
+                        "Low Light Boost session failed: ${error.message}",
+                        error,
+                    )
+            }
+        }
+        return IllegalStateException(error.message ?: "Low Light Boost failed", error)
+    }
 }

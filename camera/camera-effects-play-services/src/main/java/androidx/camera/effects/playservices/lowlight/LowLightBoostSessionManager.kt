@@ -42,7 +42,7 @@ import java.util.concurrent.Executor
  *
  * The manager owns the shared state: the processor that owns the session (the most recently bound
  * one), the current [SurfaceRequest] and its errors, and the session state (idle, being created, or
- * active). It applies the owner's enabled setting, reports [LowLightBoostEffectState] to it, reuses
+ * active). It applies the owner's enabled setting, reports its [LowLightBoostStateSnapshot], reuses
  * the session for the same camera stream, triggers the recovery of a session that died, and
  * releases the session after the camera stream has been idle for a while. It delegates to these
  * collaborators, which keep their own state and report events back to it:
@@ -126,6 +126,8 @@ internal class LowLightBoostSessionManager(
 
     private var sessionState: SessionState = SessionState.Idle
 
+    private var isModuleInstalling = false
+
     private var lastCreationId = 0L
 
     private var currentSurfaceRequest: SurfaceRequest? = null
@@ -140,7 +142,7 @@ internal class LowLightBoostSessionManager(
     // The last state of the previous owner when the latest SurfaceRequest moved the ownership to
     // another processor, or null. A creation in flight for the same target continues for the new
     // owner, which then reports this state.
-    private var previousOwnerState: LowLightBoostEffectState? = null
+    private var previousOwnerState: LowLightBoostStateSnapshot? = null
 
     private var registeredCameraInfoInternal: CameraInfoInternal? = null
 
@@ -154,7 +156,8 @@ internal class LowLightBoostSessionManager(
     // Whether the last session creation for the current camera stream failed after all retries,
     // the module installation failed, the support check found the device or camera unsupported,
     // or the boosted OpenGL pipeline couldn't be initialized.
-    // Background recovery then stops, so the app doesn't see ERROR change to INACTIVE much later.
+    // Background recovery then stops, so the app doesn't see an error change to INACTIVE much
+    // later.
     // It is cleared by a SurfaceRequest that starts over, a created session, the app enabling Low
     // Light Boost, the camera stream resuming after a pause, or the full idle release.
     private var creationFailedForCurrentStream = false
@@ -212,19 +215,18 @@ internal class LowLightBoostSessionManager(
 
     /**
      * Called when [processor] toggles Low Light Boost via
-     * [PlayServicesLowLightBoostSurfaceProcessor.setLowLightBoostEnabled]. When enabled, resets the
+     * [PlayServicesLowLightBoostSurfaceProcessor.isLowLightBoostEnabled]. When enabled, resets the
      * recovery throttling, the recovery cap and the failed-creation flag, so a session can be
      * created again, and reports the unrecoverable error of the current [SurfaceRequest] again, if
-     * any. Updates the processor's [LowLightBoostEffectState] and the session. The output switches
-     * between boosted and passthrough frames with the next frames.
+     * any. Updates the processor's [LowLightBoostStateSnapshot] and the session. The output
+     * switches between boosted and passthrough frames with the next frames.
      *
      * If another processor owns the session, or no processor does, [processor] reports
-     * [LowLightBoostEffectState.OFF], since it isn't processing a camera stream. So does an enabled
-     * owner without a [SurfaceRequest], unless an unrecoverable error is still reported or the
+     * [LowLightBoostStateSnapshot.OFF], since it isn't processing a camera stream. So does an
+     * enabled owner without an active session or an unrecoverable error, unless the Play Services
      * module is still being installed.
      */
     @WorkerThread
-    @RequiresApi(Build.VERSION_CODES.R)
     internal fun onBoostEnabledChanged(
         processor: PlayServicesLowLightBoostSurfaceProcessor,
         enabled: Boolean,
@@ -232,47 +234,59 @@ internal class LowLightBoostSessionManager(
         val owner = currentProcessor
         if (owner != null && owner !== processor) {
             // The session, its recovery and the request state belong to the owner.
-            processor.postState(LowLightBoostEffectState.createOff())
+            processor.postState(LowLightBoostStateSnapshot.OFF)
             return
         }
         if (!enabled) {
-            processor.postState(LowLightBoostEffectState.createOff())
-        } else {
-            // Enabling is an explicit request from the app, so allow an immediate recovery attempt
-            // and reset the recovery cap. Otherwise, after the cap was reached, the state would be
-            // reported as INACTIVE while no session would ever be created again.
-            allowNewCreationRound()
-            val unrecoverableError = unrecoverableErrorForCurrentStream
-            val isOwner = processor === currentProcessor
-            if (unrecoverableError != null && isOwner) {
-                // Low Light Boost still can't be used for the current SurfaceRequest.
-                processor.notifyError(unrecoverableError)
-            } else if (currentSurfaceRequest == null || !isOwner) {
-                // No camera stream is processed, unless the module is still being installed for
-                // a creation that continues once a SurfaceRequest is bound again.
-                val isInstalling =
-                    sessionState is SessionState.Creating &&
-                        processor.lastPostedState?.type ==
-                            LowLightBoostEffectState.PENDING_INSTALLATION
-                if (!isInstalling) {
-                    processor.postState(LowLightBoostEffectState.createOff())
+            processor.postState(LowLightBoostStateSnapshot.OFF)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                activeSession?.let { session ->
+                    runSessionCall(session, "enableLowLightBoost") {
+                        it.enableLowLightBoost(false)
+                    }
                 }
-            } else if (
-                processor.lastPostedState?.type != LowLightBoostEffectState.PENDING_INSTALLATION
-            ) {
-                processor.postState(stateForBoostStrength(lastBoostStrength))
             }
-        }
-        val session = activeSession
-        if (
-            session != null &&
-                !runSessionCall(session, "enableLowLightBoost") { it.enableLowLightBoost(enabled) }
-        ) {
             return
         }
-        if (enabled) {
-            triggerAutoRecoveryIfNeeded(processor)
+
+        // Enabling is an explicit request from the app, so allow an immediate recovery attempt
+        // and reset the recovery cap. Otherwise, after the cap was reached, the state would not
+        // retry when enabled again.
+        allowNewCreationRound()
+        val unrecoverableError = unrecoverableErrorForCurrentStream
+        val isOwner = processor === currentProcessor
+        if (unrecoverableError != null && isOwner) {
+            // Low Light Boost still can't be used for the current SurfaceRequest.
+            processor.notifyError(unrecoverableError)
+            return
         }
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            processor.postState(LowLightBoostStateSnapshot.OFF)
+            return
+        }
+
+        val session = activeSession
+        if (session != null) {
+            if (!runSessionCall(session, "enableLowLightBoost") { it.enableLowLightBoost(true) }) {
+                return
+            }
+            processor.postState(
+                if (currentSurfaceRequest != null && isOwner) {
+                    stateForBoostStrength(lastBoostStrength)
+                } else {
+                    LowLightBoostStateSnapshot.OFF
+                }
+            )
+            return
+        }
+
+        if (isOwner && sessionState is SessionState.Creating && isModuleInstalling) {
+            processor.postState(LowLightBoostStateSnapshot.PENDING_INSTALLATION)
+        } else {
+            processor.postState(LowLightBoostStateSnapshot.OFF)
+        }
+        triggerAutoRecoveryIfNeeded(processor)
     }
 
     /**
@@ -285,11 +299,11 @@ internal class LowLightBoostSessionManager(
     }
 
     /** Returns the ACTIVE or INACTIVE state for the scene's [boostStrength]. */
-    private fun stateForBoostStrength(boostStrength: Float?): LowLightBoostEffectState =
+    private fun stateForBoostStrength(boostStrength: Float?): LowLightBoostStateSnapshot =
         if (boostStrength != null && boostStrength >= ACTIVE_BOOST_STRENGTH_THRESHOLD) {
-            LowLightBoostEffectState.createActive()
+            LowLightBoostStateSnapshot.ACTIVE
         } else {
-            LowLightBoostEffectState.createInactive()
+            LowLightBoostStateSnapshot.INACTIVE
         }
 
     // Camera input: binds each SurfaceRequest and prepares a session for it.
@@ -329,7 +343,7 @@ internal class LowLightBoostSessionManager(
         if (previousProcessor != null && previousProcessor !== processor) {
             // The previous processor no longer owns the session.
             previousOwnerState = previousProcessor.lastPostedState
-            previousProcessor.postState(LowLightBoostEffectState.createOff())
+            previousProcessor.postState(LowLightBoostStateSnapshot.OFF)
         }
         currentProcessor = processor
         updateRegisteredCameraInfo(cameraInfoInternal)
@@ -454,13 +468,17 @@ internal class LowLightBoostSessionManager(
                         "$cameraId; linking new SurfaceRequest",
                 )
                 // The creation, e.g. while the module is installed, continues for a new owner, so
-                // it reports the same state as the previous owner.
-                if (
-                    previousOwnerState != null &&
-                        previousOwnerState.type != LowLightBoostEffectState.OFF &&
-                        processor.isLowLightBoostEnabled()
-                ) {
-                    processor.postState(previousOwnerState)
+                // it reports the same state as the previous owner, including an error, whose
+                // status is STATUS_OFF too.
+                if (processor.isLowLightBoostEnabled) {
+                    if (isModuleInstalling) {
+                        processor.postState(LowLightBoostStateSnapshot.PENDING_INSTALLATION)
+                    } else if (
+                        previousOwnerState != null &&
+                            previousOwnerState != LowLightBoostStateSnapshot.OFF
+                    ) {
+                        processor.postState(previousOwnerState)
+                    }
                 }
                 return
             }
@@ -537,7 +555,7 @@ internal class LowLightBoostSessionManager(
         }
         val session = active.session
         val camSurface = blockingCalls.cameraSurfaceOf(session)
-        val isEnabled = processor.isLowLightBoostEnabled()
+        val isEnabled = processor.isLowLightBoostEnabled
         if (camSurface == null || !camSurface.isValid || !renderPipeline.outputBridge.isValid()) {
             Logger.w(TAG, "Existing session camera surface or GL intermediate is invalid")
             releaseSessionKeepingInput()
@@ -560,7 +578,7 @@ internal class LowLightBoostSessionManager(
             if (isEnabled) {
                 stateForBoostStrength(lastBoostStrength)
             } else {
-                LowLightBoostEffectState.createOff()
+                LowLightBoostStateSnapshot.OFF
             }
         )
         return true
@@ -569,19 +587,25 @@ internal class LowLightBoostSessionManager(
     /**
      * Records [error] as unrecoverable for the current [SurfaceRequest], so no further session is
      * created for it, ends a session creation, if any, and falls back to passthrough mode with
-     * [LowLightBoostEffectState.ERROR].
+     * [error] reported when [processor] is enabled.
      */
     private fun failCurrentRequest(
         processor: PlayServicesLowLightBoostSurfaceProcessor,
         error: Throwable,
         logMessage: String,
     ) {
-        unrecoverableErrorForCurrentStream = error
+        val publicError = LowLightBoostSupport.toPublicError(error)
+        unrecoverableErrorForCurrentStream = publicError
         Logger.w(TAG, logMessage)
         if (sessionState is SessionState.Creating) {
+            isModuleInstalling = false
             sessionState = SessionState.Idle
         }
-        processor.notifyError(error)
+        if (processor.isLowLightBoostEnabled) {
+            processor.notifyError(publicError)
+        } else {
+            processor.postState(LowLightBoostStateSnapshot.OFF)
+        }
     }
 
     /**
@@ -597,10 +621,11 @@ internal class LowLightBoostSessionManager(
         createdSession: LowLightBoostSession,
         target: SessionTarget,
     ) {
+        isModuleInstalling = false
         sessionState = SessionState.Active(createdSession, target, SystemClock.elapsedRealtime())
         unrecoverableErrorForCurrentStream = null
         creationFailedForCurrentStream = false
-        val isEnabled = processor.isLowLightBoostEnabled()
+        val isEnabled = processor.isLowLightBoostEnabled
         if (
             !runSessionCall(createdSession, "enableLowLightBoost") {
                 it.enableLowLightBoost(isEnabled)
@@ -610,9 +635,9 @@ internal class LowLightBoostSessionManager(
         }
         processor.postState(
             if (isEnabled) {
-                LowLightBoostEffectState.createInactive()
+                LowLightBoostStateSnapshot.INACTIVE
             } else {
-                LowLightBoostEffectState.createOff()
+                LowLightBoostStateSnapshot.OFF
             }
         )
         val sceneCallback = SceneDetectorCallback { _, boostStrength ->
@@ -622,7 +647,7 @@ internal class LowLightBoostSessionManager(
             }
             lastBoostStrength = boostStrength
             val proc = currentProcessor
-            if (proc != null && proc.isLowLightBoostEnabled()) {
+            if (proc != null && proc.isLowLightBoostEnabled) {
                 proc.postState(stateForBoostStrength(boostStrength))
             }
         }
@@ -648,50 +673,63 @@ internal class LowLightBoostSessionManager(
         override val ownerContext: Context?
             get() = currentProcessor?.appContext
 
-        override fun isBoostEnabled(): Boolean = currentProcessor?.isLowLightBoostEnabled() ?: false
+        override fun isBoostEnabled(): Boolean = currentProcessor?.isLowLightBoostEnabled ?: false
 
         override fun isCurrentCreation(creationId: Long): Boolean =
             this@LowLightBoostSessionManager.isCurrentCreation(creationId)
 
         @RequiresApi(Build.VERSION_CODES.R)
         override fun onCreationAborted() {
+            isModuleInstalling = false
             sessionState = SessionState.Idle
         }
 
         @RequiresApi(Build.VERSION_CODES.R)
         override fun onModuleInstallationStarted() {
-            currentProcessor?.postState(LowLightBoostEffectState.createPendingInstallation())
+            isModuleInstalling = true
+            currentProcessor?.let { proc ->
+                if (proc.isLowLightBoostEnabled) {
+                    proc.postState(LowLightBoostStateSnapshot.PENDING_INSTALLATION)
+                }
+            }
         }
 
         @RequiresApi(Build.VERSION_CODES.R)
         override fun onModuleInstalled() {
+            isModuleInstalling = false
             currentProcessor?.let { proc ->
-                if (proc.lastPostedState?.type == LowLightBoostEffectState.PENDING_INSTALLATION) {
-                    proc.postState(
-                        if (proc.isLowLightBoostEnabled()) {
-                            LowLightBoostEffectState.createInactive()
-                        } else {
-                            LowLightBoostEffectState.createOff()
-                        }
-                    )
+                if (proc.lastPostedState == LowLightBoostStateSnapshot.PENDING_INSTALLATION) {
+                    proc.postState(LowLightBoostStateSnapshot.OFF)
                 }
             }
         }
 
         @RequiresApi(Build.VERSION_CODES.R)
         override fun onCreationFailed(error: Throwable, unrecoverable: Boolean) {
+            isModuleInstalling = false
+            val publicError = LowLightBoostSupport.toPublicError(error)
             if (unrecoverable) {
-                unrecoverableErrorForCurrentStream = error
+                unrecoverableErrorForCurrentStream = publicError
             }
             creationFailedForCurrentStream = true
             sessionState = SessionState.Idle
-            currentProcessor?.notifyError(error)
+            currentProcessor?.let { proc ->
+                if (proc.isLowLightBoostEnabled) {
+                    proc.notifyError(publicError)
+                } else {
+                    proc.postState(LowLightBoostStateSnapshot.OFF)
+                }
+            }
         }
 
         @RequiresApi(Build.VERSION_CODES.R)
         override fun onCreatedSessionTerminated() {
+            isModuleInstalling = false
             sessionState = SessionState.Idle
             val processor = currentProcessor ?: return
+            if (!processor.isLowLightBoostEnabled) {
+                return
+            }
             processor.notifyError(
                 IllegalStateException("LowLightBoostSession was terminated during creation")
             )
@@ -734,7 +772,7 @@ internal class LowLightBoostSessionManager(
         override val activeSession: LowLightBoostSession?
             get() = this@LowLightBoostSessionManager.activeSession
 
-        override fun isBoostEnabled(): Boolean = currentProcessor?.isLowLightBoostEnabled() ?: false
+        override fun isBoostEnabled(): Boolean = currentProcessor?.isLowLightBoostEnabled ?: false
 
         @RequiresApi(Build.VERSION_CODES.R)
         override fun onCameraStreamResumed() {
@@ -757,9 +795,9 @@ internal class LowLightBoostSessionManager(
     // Recovery: session death and background recovery.
 
     /**
-     * Handles the death of [session] if it is still the active session: releases it, reports
-     * [LowLightBoostEffectState.ERROR] while frames are rendered in passthrough mode, and triggers
-     * a capped background recovery.
+     * Handles the death of [session] if it is still the active session: releases it, reports an
+     * error while frames are rendered in passthrough mode, and triggers a capped background
+     * recovery.
      */
     @WorkerThread
     @RequiresApi(Build.VERSION_CODES.R)
@@ -772,7 +810,7 @@ internal class LowLightBoostSessionManager(
         recoveryPolicy.onSessionDied(active.startTimeMs, SystemClock.elapsedRealtime())
         releaseSessionKeepingInput()
         val processor = currentProcessor
-        if (processor == null || !processor.isLowLightBoostEnabled()) {
+        if (processor == null || !processor.isLowLightBoostEnabled) {
             // Keep the OFF state while Low Light Boost is disabled. A session is created again
             // when it is enabled.
             return
@@ -794,7 +832,7 @@ internal class LowLightBoostSessionManager(
         if (
             Build.VERSION.SDK_INT < Build.VERSION_CODES.R ||
                 processor !== currentProcessor ||
-                !processor.isLowLightBoostEnabled()
+                !processor.isLowLightBoostEnabled
         ) {
             return
         }
@@ -883,8 +921,8 @@ internal class LowLightBoostSessionManager(
             currentProcessor = null
             destroySessionInternal()
             // Also replaces a state reported without an active session, e.g.
-            // PENDING_INSTALLATION or ERROR, since no camera stream is processed anymore.
-            processor?.postState(LowLightBoostEffectState.createOff())
+            // PENDING_INSTALLATION or an error, since no camera stream is processed anymore.
+            processor?.postState(LowLightBoostStateSnapshot.OFF)
         } else if (outputsEmpty || noRequest) {
             Logger.i(
                 TAG,
@@ -899,10 +937,10 @@ internal class LowLightBoostSessionManager(
                 // missing, e.g. when the output returns.
                 val abortedInstallation =
                     detached.wasCreating &&
-                        processor?.lastPostedState?.type ==
-                            LowLightBoostEffectState.PENDING_INSTALLATION
+                        processor?.lastPostedState ==
+                            LowLightBoostStateSnapshot.PENDING_INSTALLATION
                 if (releasedSession || abortedInstallation) {
-                    processor?.postState(LowLightBoostEffectState.createOff())
+                    processor?.postState(LowLightBoostStateSnapshot.OFF)
                 }
             }
         }
@@ -924,6 +962,7 @@ internal class LowLightBoostSessionManager(
         if (state !is SessionState.Idle) {
             sessionCreator.onSessionReleased()
         }
+        isModuleInstalling = false
         sessionState = SessionState.Idle
         lastBoostStrength = null
         return detached

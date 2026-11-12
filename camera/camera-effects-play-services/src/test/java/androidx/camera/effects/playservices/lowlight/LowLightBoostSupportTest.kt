@@ -16,6 +16,10 @@
 package androidx.camera.effects.playservices.lowlight
 
 import android.util.Size
+import com.google.android.gms.cameralowlight.LowLightBoostStatusCodes
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.CommonStatusCodes
+import com.google.android.gms.common.api.Status
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
@@ -76,5 +80,57 @@ class LowLightBoostSupportTest {
         // Assert.
         assertThat(requireNotNull(reason).error.message)
             .isEqualTo("Low Light Boost is not supported on camera 0.")
+    }
+
+    @Test
+    fun toPublicError_preservesStandardExceptionInstances() {
+        val unsupported = UnsupportedOperationException("Unsupported")
+        val illegalArg = IllegalArgumentException("Bad arg")
+        val illegalState = IllegalStateException("Bad state")
+
+        assertThat(LowLightBoostSupport.toPublicError(unsupported)).isSameInstanceAs(unsupported)
+        assertThat(LowLightBoostSupport.toPublicError(illegalArg)).isSameInstanceAs(illegalArg)
+        assertThat(LowLightBoostSupport.toPublicError(illegalState)).isSameInstanceAs(illegalState)
+    }
+
+    @Test
+    fun toPublicError_normalizesApiExceptionsAndWrapsOtherErrorsWithCause() {
+        val cameraUnsupported = ApiException(Status(LowLightBoostStatusCodes.CAMERA_NOT_SUPPORTED))
+        val missingChars =
+            ApiException(Status(LowLightBoostStatusCodes.MISSING_CAMERA_CHARACTERISTICS))
+        val badDataspace = ApiException(Status(LowLightBoostStatusCodes.UNSUPPORTED_DATASPACE))
+        val internalError = ApiException(Status(CommonStatusCodes.INTERNAL_ERROR))
+        val apiNotConnected = ApiException(Status(CommonStatusCodes.API_NOT_CONNECTED))
+        val securityException = SecurityException("Denied")
+
+        val normalizedCamera = LowLightBoostSupport.toPublicError(cameraUnsupported)
+        assertThat(normalizedCamera).isInstanceOf(UnsupportedOperationException::class.java)
+        assertThat(normalizedCamera.cause).isSameInstanceAs(cameraUnsupported)
+
+        val normalizedChars = LowLightBoostSupport.toPublicError(missingChars)
+        assertThat(normalizedChars).isInstanceOf(UnsupportedOperationException::class.java)
+        assertThat(normalizedChars.cause).isSameInstanceAs(missingChars)
+
+        val normalizedDataspace = LowLightBoostSupport.toPublicError(badDataspace)
+        assertThat(normalizedDataspace).isInstanceOf(IllegalArgumentException::class.java)
+        assertThat(normalizedDataspace.cause).isSameInstanceAs(badDataspace)
+
+        val normalizedInternal = LowLightBoostSupport.toPublicError(internalError)
+        assertThat(normalizedInternal).isInstanceOf(IllegalStateException::class.java)
+        assertThat(normalizedInternal.cause).isSameInstanceAs(internalError)
+
+        val normalizedTransientDisconnect = LowLightBoostSupport.toPublicError(apiNotConnected)
+        assertThat(normalizedTransientDisconnect).isInstanceOf(IllegalStateException::class.java)
+        assertThat(normalizedTransientDisconnect.cause).isSameInstanceAs(apiNotConnected)
+
+        PlayServicesLowLightBoostAvailability.setDeviceSupported(false)
+        val normalizedUnsupportedDisconnect = LowLightBoostSupport.toPublicError(apiNotConnected)
+        assertThat(normalizedUnsupportedDisconnect)
+            .isInstanceOf(UnsupportedOperationException::class.java)
+        assertThat(normalizedUnsupportedDisconnect.cause).isSameInstanceAs(apiNotConnected)
+
+        val normalizedSecurity = LowLightBoostSupport.toPublicError(securityException)
+        assertThat(normalizedSecurity).isInstanceOf(IllegalStateException::class.java)
+        assertThat(normalizedSecurity.cause).isSameInstanceAs(securityException)
     }
 }

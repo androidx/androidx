@@ -20,6 +20,9 @@ import android.content.Context
 import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
+import android.os.Looper
+import androidx.annotation.GuardedBy
+import androidx.annotation.MainThread
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.camera.core.Logger
@@ -28,11 +31,11 @@ import androidx.camera.core.SurfaceProcessor
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.core.os.HandlerCompat
 import com.google.android.gms.cameralowlight.LowLightBoost
 import com.google.android.gms.cameralowlight.LowLightBoostClient
 import java.util.concurrent.Executor
+import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -40,12 +43,13 @@ import java.util.concurrent.atomic.AtomicBoolean
  * `LowLightBoostClient`.
  *
  * Each [LowLightBoostEffect] instance owns a [PlayServicesLowLightBoostSurfaceProcessor] to track
- * its per-instance [stateLiveData] and enabled flag, while delegating the process-wide
- * `LowLightBoostSession` management and dual-bridge OpenGL rendering to
+ * its per-instance state ([committedSnapshot]), listeners and enabled flag, while delegating the
+ * process-wide `LowLightBoostSession` management and dual-bridge OpenGL rendering to
  * [LowLightBoostSessionManager] and [LowLightBoostRenderPipeline].
  *
  * **Threading:** [LowLightBoostEffect] delivers the [SurfaceProcessor] callbacks on [glExecutor],
- * the single GL thread that all session and OpenGL work runs on.
+ * the single GL thread that all session and OpenGL work runs on. States are posted on the GL thread
+ * ([postState]) and committed on the main thread, which then notifies the listeners.
  *
  * **Resource Lifecycle:** Because [LowLightBoostEffect] instances may be reused across multiple
  * camera bindings, configuration changes, and lens switches, this processor does not permanently
@@ -55,9 +59,11 @@ import java.util.concurrent.atomic.AtomicBoolean
  * session, OpenGL bridges, and active processor reference once the pipeline is idle.
  *
  * **API level:** The `LowLightBoostSession` requires Android 11 (API level 30). On lower API
- * levels, this processor never creates a [LowLightBoostClient] or session, treats the device as
- * unsupported (passthrough with [LowLightBoostEffectState.ERROR]), and ignores
- * [setLowLightBoostEnabled].
+ * levels, this processor never creates a [LowLightBoostClient] or session and treats the device as
+ * unsupported (passthrough with [LowLightBoostEffect.STATUS_OFF] and an
+ * [UnsupportedOperationException] via [LowLightBoostEffect.error] when bound while
+ * [isLowLightBoostEnabled] is `true`), while [isLowLightBoostEnabled] behaves uniformly across all
+ * API levels.
  */
 internal class PlayServicesLowLightBoostSurfaceProcessor
 @VisibleForTesting
@@ -78,26 +84,40 @@ internal constructor(
         defaultSessionManager,
     )
 
-    private val mutableState =
-        MutableLiveData<LowLightBoostEffectState>(LowLightBoostEffectState.createOff())
-
-    /** LiveData exposing the current [LowLightBoostEffectState] to [LowLightBoostEffect.state]. */
-    internal val stateLiveData: LiveData<LowLightBoostEffectState>
-        get() = mutableState
+    /** The handler of the main thread, which commits the posted states and notifies listeners. */
+    private val mainHandler = HandlerCompat.createAsync(Looper.getMainLooper())
 
     /** The executor of the GL thread, which the [SurfaceProcessor] callbacks must run on. */
     internal val glExecutor: Executor
         get() = sessionManager.glExecutor
 
     /**
-     * The latest state posted to [stateLiveData]. Unlike `LiveData.getValue()`, it includes a state
-     * that is posted but not yet delivered on the main thread.
+     * The latest state posted by [postState] on the GL thread. Unlike [committedSnapshot], it
+     * includes a state that is posted but not yet committed on the main thread, so the session
+     * manager can check the state synchronously on the GL thread.
      */
     @Volatile
-    internal var lastPostedState: LowLightBoostEffectState? = LowLightBoostEffectState.createOff()
+    internal var lastPostedState: LowLightBoostStateSnapshot = LowLightBoostStateSnapshot.OFF
         private set
 
-    private val boostEnabled = AtomicBoolean(true)
+    /**
+     * The state backing [LowLightBoostEffect.status] and [LowLightBoostEffect.error]. It is only
+     * written on the main thread, as a single reference, before the listeners of the transition are
+     * notified, so both values are always read consistently on the main thread.
+     */
+    @Volatile
+    internal var committedSnapshot: LowLightBoostStateSnapshot = LowLightBoostStateSnapshot.OFF
+        private set
+
+    private val listenerLock = Any()
+
+    @GuardedBy("listenerLock")
+    private val listeners = LinkedHashMap<LowLightBoostEffect.Listener, ListenerRegistration>()
+
+    @GuardedBy("listenerLock")
+    private val transitionObservers = LinkedHashMap<Runnable, AtomicBoolean>()
+
+    @Volatile private var boostEnabled = true
 
     // Written on the main or GL thread and read on the GL thread.
     @Volatile private var clientInternal: LowLightBoostClient? = null
@@ -139,43 +159,154 @@ internal constructor(
     }
 
     /**
-     * Posts [state] to [mutableState], unless it equals the latest posted state, so observers
-     * aren't notified again, e.g. when a new SurfaceRequest reuses the session.
+     * Posts [snapshot] to be committed on the main thread, unless it equals the latest posted
+     * state, so listeners aren't notified again, e.g. when a new SurfaceRequest reuses the session.
+     * Called on the GL thread.
      */
-    internal fun postState(state: LowLightBoostEffectState) {
-        if (state == lastPostedState) {
+    internal fun postState(snapshot: LowLightBoostStateSnapshot) {
+        if (snapshot == lastPostedState) {
             return
         }
-        lastPostedState = state
-        mutableState.postValue(state)
+        lastPostedState = snapshot
+        // Every posted state is committed in order, so no transition is dropped.
+        mainHandler.post { commitAndDispatchOnMain(snapshot) }
     }
 
     /**
-     * Enables or disables Low Light Boost enhancement dynamically and delegates session/renderer
-     * state updates to [sessionManager] on the GL thread. Does nothing if [enabled] doesn't change
-     * the current setting. Can be called on any thread.
+     * Commits [snapshot] as the [committedSnapshot] and notifies the listeners and the transition
+     * observers registered at this point, unless it equals the committed state.
+     *
+     * The state is committed before any callback, so the callbacks of this transition read the new
+     * [LowLightBoostEffect.status] and [LowLightBoostEffect.error]. A listener removed by a
+     * callback, including one of an earlier listener, isn't called for the rest of the transition.
+     * A listener added by a callback is only notified of later transitions.
      */
-    internal fun setLowLightBoostEnabled(enabled: Boolean) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+    @MainThread
+    private fun commitAndDispatchOnMain(snapshot: LowLightBoostStateSnapshot) {
+        val previous = committedSnapshot
+        if (snapshot == previous) {
             return
         }
-        if (boostEnabled.getAndSet(enabled) == enabled) {
-            return
+        committedSnapshot = snapshot
+        val statusChanged = snapshot.status != previous.status
+        val errorChanged = snapshot.error != previous.error
+        val (registrations, observers) =
+            synchronized(listenerLock) {
+                listeners.values.toList() to transitionObservers.entries.toList()
+            }
+        for (registration in registrations) {
+            registration.dispatch(snapshot, statusChanged, errorChanged)
         }
-        glExecutor.execute { sessionManager.onBoostEnabledChanged(this, enabled) }
+        // Notified once per transition, even if both the status and the error changed.
+        notifyTransitionObservers(observers)
+    }
+
+    @MainThread
+    private fun dispatchEnabledChangedOnMain(
+        enabled: Boolean,
+        registrations: List<ListenerRegistration>,
+        observers: List<Map.Entry<Runnable, AtomicBoolean>>,
+    ) {
+        for (registration in registrations) {
+            registration.dispatchEnabled(enabled)
+        }
+        notifyTransitionObservers(observers)
+    }
+
+    @MainThread
+    private fun notifyTransitionObservers(observers: List<Map.Entry<Runnable, AtomicBoolean>>) {
+        for ((observer, isActive) in observers) {
+            if (isActive.get()) {
+                observer.run()
+            }
+        }
     }
 
     /**
-     * Returns true if Low Light Boost enhancement is currently enabled on this processor. Always
-     * false below API level 30, where Low Light Boost is unsupported.
+     * Registers [listener] to be notified of future state transitions, on the main thread if
+     * [executor] is null, or sequentially on [executor] otherwise. Does nothing if [listener] is
+     * already registered. Can be called on any thread.
      */
-    internal fun isLowLightBoostEnabled(): Boolean =
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && boostEnabled.get()
+    internal fun addListener(executor: Executor?, listener: LowLightBoostEffect.Listener) {
+        synchronized(listenerLock) {
+            if (listeners.containsKey(listener)) {
+                return
+            }
+            // Calls of the same listener mustn't overlap or be reordered, even if [executor] runs
+            // tasks concurrently, e.g. a thread pool.
+            listeners[listener] =
+                ListenerRegistration(
+                    listener,
+                    executor?.let(CameraXExecutors::newSequentialExecutor),
+                )
+        }
+    }
 
-    /** Transitions [stateLiveData] to [LowLightBoostEffectState.ERROR] with [error]. */
+    /**
+     * Unregisters [listener], including its calls that are pending on its executor or remaining in
+     * the current transition. Does nothing if [listener] isn't registered. Can be called on any
+     * thread.
+     */
+    internal fun removeListener(listener: LowLightBoostEffect.Listener) {
+        val removed = synchronized(listenerLock) { listeners.remove(listener) }
+        removed?.isActive?.set(false)
+    }
+
+    /**
+     * Registers [observer] to be run on the main thread once per future state transition, after the
+     * transition is committed. Does nothing if [observer] is already registered.
+     */
+    internal fun addTransitionObserver(observer: Runnable) {
+        synchronized(listenerLock) {
+            transitionObservers.getOrPut(observer) { AtomicBoolean(true) }
+        }
+    }
+
+    /**
+     * Unregisters [observer], which then isn't run again, even for the rest of the current
+     * transition.
+     */
+    internal fun removeTransitionObserver(observer: Runnable) {
+        val isActive = synchronized(listenerLock) { transitionObservers.remove(observer) }
+        isActive?.set(false)
+    }
+
+    /** The number of registered transition observers. */
+    @VisibleForTesting
+    internal val transitionObserverCount: Int
+        get() = synchronized(listenerLock) { transitionObservers.size }
+
+    /**
+     * Enables or disables Low Light Boost enhancement dynamically, notifies listeners and
+     * transition observers, and delegates session/renderer state updates to [sessionManager] on the
+     * GL thread. Does nothing if the value matches the current setting. Can be called on any
+     * thread.
+     */
+    internal var isLowLightBoostEnabled: Boolean
+        get() = boostEnabled
+        set(enabled) {
+            synchronized(listenerLock) {
+                if (boostEnabled == enabled) {
+                    return
+                }
+                boostEnabled = enabled
+                val registrations = listeners.values.toList()
+                val observers = transitionObservers.entries.toList()
+                // Enqueue under listenerLock so concurrent writers keep the same FIFO order on
+                // main and GL.
+                mainHandler.post {
+                    dispatchEnabledChangedOnMain(enabled, registrations, observers)
+                }
+                glExecutor.execute { sessionManager.onBoostEnabledChanged(this, enabled) }
+            }
+        }
+
+    /**
+     * Posts [LowLightBoostEffect.STATUS_OFF] with [error] normalized for
+     * [LowLightBoostEffect.error].
+     */
     internal fun notifyError(error: Throwable) {
-        val exception = error as? Exception ?: RuntimeException(error.message, error)
-        postState(LowLightBoostEffectState.createError(exception))
+        postState(LowLightBoostStateSnapshot.error(LowLightBoostSupport.toPublicError(error)))
     }
 
     /**
@@ -197,7 +328,9 @@ internal constructor(
             } catch (e: RuntimeException) {
                 Logger.e(TAG, "CameraInfoInternal unavailable; no Surface is provided", e)
                 surfaceRequest.willNotProvideSurface()
-                notifyError(e)
+                if (isLowLightBoostEnabled) {
+                    notifyError(e)
+                }
                 return
             }
         val cameraId = realCameraId(cameraInfoInternal)
@@ -250,6 +383,60 @@ internal constructor(
             renderPipeline.unregisterOutputSurface(surfaceOutput)
             surfaceOutput.close()
             sessionManager.scheduleSessionReleaseIfIdle()
+        }
+    }
+
+    /**
+     * A registered [LowLightBoostEffect.Listener]. [sequentialExecutor] is null for a listener
+     * called on the main thread, while the transition is committed.
+     */
+    private class ListenerRegistration(
+        val listener: LowLightBoostEffect.Listener,
+        val sequentialExecutor: Executor?,
+    ) {
+        /** Cleared when the listener is removed, so its pending and remaining calls are skipped. */
+        val isActive = AtomicBoolean(true)
+
+        @MainThread
+        fun dispatch(
+            snapshot: LowLightBoostStateSnapshot,
+            statusChanged: Boolean,
+            errorChanged: Boolean,
+        ) {
+            dispatchAsync {
+                if (statusChanged && isActive.get()) {
+                    listener.onStatusChanged(snapshot.status)
+                }
+                if (errorChanged && isActive.get()) {
+                    listener.onErrorChanged(snapshot.error)
+                }
+            }
+        }
+
+        @MainThread
+        fun dispatchEnabled(enabled: Boolean) {
+            dispatchAsync {
+                if (isActive.get()) {
+                    listener.onLowLightBoostEnabledChanged(enabled)
+                }
+            }
+        }
+
+        @MainThread
+        private inline fun dispatchAsync(crossinline action: () -> Unit) {
+            if (!isActive.get()) {
+                return
+            }
+            if (sequentialExecutor == null) {
+                action()
+                return
+            }
+            try {
+                sequentialExecutor.execute { action() }
+            } catch (e: RejectedExecutionException) {
+                // E.g. the app shut down the executor without removing the listener first.
+                Logger.w(TAG, "Failed to notify Low Light Boost listener $listener", e)
+            }
         }
     }
 
