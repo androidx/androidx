@@ -94,7 +94,7 @@ internal class OpenXrPerceptionManager(private val timeSource: OpenXrTimeSource)
                 ray.direction.z,
                 lastUpdateXrTime,
             )
-        return Arrays.asList(*hitData).toList().map { toHitResult(it, ray.origin) }
+        return hitData.mapNotNull { toHitResult(it, ray.origin) }
     }
 
     override fun getPersistedAnchorUuids(): List<UUID> {
@@ -425,10 +425,8 @@ internal class OpenXrPerceptionManager(private val timeSource: OpenXrTimeSource)
         }
     }
 
-    private fun toHitResult(hitData: HitData, origin: Vector3): HitResult {
-        val trackable =
-            xrResources.trackablesMap[hitData.id]
-                ?: throw IllegalStateException("Trackable not found.")
+    private fun toHitResult(hitData: HitData, origin: Vector3): HitResult? {
+        val trackable = xrResources.trackablesMap[hitData.id] ?: return null
 
         return HitResult(
             distance = (hitData.pose.translation - origin).length,
