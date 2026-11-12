@@ -1,2 +1,39 @@
 // Signature format: 5.0
 // - surface=public
+package androidx.compose.remote.creation.compose.state {
+
+  public abstract class BaseRemoteState<T> implements androidx.compose.remote.creation.compose.state.RemoteState<T> {
+    property public abstract T? constantValueOrNull;
+  }
+
+  @androidx.compose.runtime.Stable public interface MutableRemoteState<T> extends androidx.compose.remote.creation.compose.state.RemoteState<T> {
+  }
+
+  @androidx.compose.runtime.Stable public interface RemoteState<T> {
+    method @InaccessibleFromKotlin public default T getConstantValue();
+    method @InaccessibleFromKotlin public T? getConstantValueOrNull();
+    method @InaccessibleFromKotlin public default boolean getHasConstantValue();
+    property public default T constantValue;
+    property public abstract T? constantValueOrNull;
+    property public default boolean hasConstantValue;
+  }
+
+  @androidx.compose.runtime.Stable public static class RemoteState.Domain {
+    ctor public RemoteState.Domain(String? namespace);
+    method public final String prefixed(String name);
+  }
+
+  public static final class RemoteState.Domain.None extends androidx.compose.remote.creation.compose.state.RemoteState.Domain {
+    field public static final androidx.compose.remote.creation.compose.state.RemoteState.Domain.None INSTANCE;
+  }
+
+  public static final class RemoteState.Domain.System extends androidx.compose.remote.creation.compose.state.RemoteState.Domain {
+    field public static final androidx.compose.remote.creation.compose.state.RemoteState.Domain.System INSTANCE;
+  }
+
+  public static final class RemoteState.Domain.User extends androidx.compose.remote.creation.compose.state.RemoteState.Domain {
+    field public static final androidx.compose.remote.creation.compose.state.RemoteState.Domain.User INSTANCE;
+  }
+
+}
+
