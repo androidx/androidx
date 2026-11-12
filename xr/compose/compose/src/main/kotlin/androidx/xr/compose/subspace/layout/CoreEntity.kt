@@ -274,6 +274,14 @@ internal sealed class CoreEntity(val pixelDensity: PixelDensity, initialEntity: 
         }
     }
 
+    fun setAsKeyEntity(session: Session) {
+        entityActionQueue.executeWhenAvailable { session.scene.keyEntity = it }
+    }
+
+    fun isKeyEntity(session: Session): Boolean {
+        return entity != null && session.scene.keyEntity == entity
+    }
+
     override fun toString(): String = "CoreEntity(entity=$entity)"
 
     /** Returns true if this CoreEntity wraps the given SceneCore [Entity]. */

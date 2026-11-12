@@ -13,6 +13,7 @@
     <string name="curve_panel_row_test">Curved Row Test Case</string>
     <string name="movable_panels_test">Movable Modifier Test Case</string>
     <string name="movable_scalable_panel_test">Movable Scaling With Depth Test Case</string>
+    <string name="spatial_continuity">Spatial Continuity Test Case</string>
     <string name="spatial_elevation_test">Orbiter/Elevation Test Case</string>
     <string name="title_activity_another">AnotherActivity</string>
     <string name="spatial_layout_test">Spatial layout Test Case</string>

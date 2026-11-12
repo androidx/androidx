@@ -22,6 +22,7 @@ import androidx.compose.runtime.compositionLocalWithComputedDefaultOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Density
@@ -115,11 +116,13 @@ internal class SessionSpatialConfiguration(
 
     private val recommendedPoseState =
         mutableStateOf(
-            try {
-                session.scene.keyEntity?.getPose(relativeTo = Space.ACTIVITY) ?: Pose.Identity
-            } catch (_: RuntimeException) {
-                Pose.Identity
-            }
+            value =
+                try {
+                    session.scene.keyEntity?.getPose(relativeTo = Space.ACTIVITY) ?: Pose.Identity
+                } catch (_: RuntimeException) {
+                    Pose.Identity
+                },
+            policy = neverEqualPolicy(),
         )
 
     private val recommendedScaleState =

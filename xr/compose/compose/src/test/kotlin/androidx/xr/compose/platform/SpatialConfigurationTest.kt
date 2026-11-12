@@ -30,6 +30,8 @@ import androidx.xr.compose.unit.DpVolumeSize
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.Entity
+import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testing.FakeSceneRuntime
 import com.google.common.truth.Truth.assertThat
@@ -160,5 +162,27 @@ class SpatialConfigurationTest {
 
         assertThat(actualPose).isEqualTo(expectedPose)
         assertThat(actualScale).isEqualTo(expectedScale)
+    }
+
+    @Test
+    fun sessionSpatialConfiguration_whenSpatialModeChanges_updatesSubspaceRootNodePose() {
+        val session = composeTestRule.configureFakeSession()
+        val fakeSceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().first()
+        val subspaceRootNode =
+            Entity.create(session, "subspaceRootNode", parent = session.scene.activitySpace)
+
+        SessionSpatialConfiguration(session, subspaceRootNode)
+
+        val recommendedPose =
+            Pose(translation = Vector3(x = 10f, y = 20f, z = 30f), rotation = Quaternion.Identity)
+        composeTestRule.runOnIdle {
+            fakeSceneRuntime.spatialModeChangeListener?.onSpatialModeChanged(
+                recommendedPose = recommendedPose,
+                recommendedScale = Vector3(x = 1f, y = 1f, z = 1f),
+            )
+        }
+        composeTestRule.waitForIdle()
+
+        assertThat(subspaceRootNode.getPose(Space.ACTIVITY)).isEqualTo(recommendedPose)
     }
 }

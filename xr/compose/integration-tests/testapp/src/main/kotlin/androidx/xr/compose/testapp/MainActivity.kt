@@ -106,6 +106,7 @@ import androidx.xr.compose.testapp.spatialalignmentusage.SpatialAlignmentUsageAc
 import androidx.xr.compose.testapp.spatialarrangementusage.SpatialArrangementUsageActivity
 import androidx.xr.compose.testapp.spatialaudio.SpatialAudioActivity
 import androidx.xr.compose.testapp.spatialcompose.SpatialCompose
+import androidx.xr.compose.testapp.spatialcontinuity.SpatialContinuityActivity
 import androidx.xr.compose.testapp.spatialelevation.SpatialElevation
 import androidx.xr.compose.testapp.spatialgltfmodel.SpatialGltfModelActivity
 import androidx.xr.compose.testapp.spatialpanel.SpatialPanelActivity
@@ -346,6 +347,9 @@ class MainActivity : ComponentActivity() {
                             },
                             TestCase(getString(R.string.spatial_navigation_test)) {
                                 startTest<SpatialNavigationActivity>()
+                            },
+                            TestCase(getString(R.string.spatial_continuity)) {
+                                startTest<SpatialContinuityActivity>()
                             },
                         ),
                     "Interaction" to

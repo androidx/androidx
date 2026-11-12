@@ -60,8 +60,10 @@ import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testing.MemoryUtils
 import com.google.common.truth.Truth.assertThat
 import java.lang.ref.WeakReference
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Ignore
@@ -770,5 +772,29 @@ class CoreEntityTest {
         corePanelEntity.setShape(shape, newDensity)
 
         assertThat(panelEntity.cornerRadius).isEqualTo(50f.pxToMeters(pixelDensity))
+    }
+
+    @Test
+    fun keyEntity_setAsKeyEntity_updatesSessionKeyEntity() {
+        val session = composeTestRule.configureFakeSession()
+        val testEntity = Entity.create(session = assertNotNull(session), name = "Initial")
+        val coreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, testEntity)
+
+        coreEntity.setAsKeyEntity(session)
+
+        assertThat(session.scene.keyEntity).isEqualTo(testEntity)
+    }
+
+    @Test
+    fun keyEntity_isKeyEntity_returnsTrue() {
+        val session = composeTestRule.configureFakeSession()
+        val testEntity = Entity.create(session = assertNotNull(session), name = "Initial")
+        val coreEntity = CoreGroupEntity(session.scene.virtualPixelDensity, testEntity)
+
+        assertFalse(coreEntity.isKeyEntity(session))
+
+        session.scene.keyEntity = testEntity
+
+        assertTrue(coreEntity.isKeyEntity(session))
     }
 }
