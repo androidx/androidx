@@ -79,6 +79,7 @@ internal class FakeInProgressShape : InProgressShape<FakeShapeSpec, ImmutableStr
     private val updatedRealInputs = MutableStrokeInputBatch()
     private val pendingRealInputs = MutableStrokeInputBatch()
     internal var lastUpdateSystemElapsedTimeMillis: Long? = null
+    internal var lastUpdateShapeDurationMillis: Long? = null
     private var forcedCompletion = false
     private var finishedTimeMillis: Long? = null
     private var updateSinceLastReset = false
@@ -93,6 +94,7 @@ internal class FakeInProgressShape : InProgressShape<FakeShapeSpec, ImmutableStr
         updatedRealInputs.clear()
         pendingRealInputs.clear()
         lastUpdateSystemElapsedTimeMillis = null
+        lastUpdateShapeDurationMillis = null
         forcedCompletion = false
         finishedTimeMillis = null
         updateSinceLastReset = false
@@ -109,8 +111,18 @@ internal class FakeInProgressShape : InProgressShape<FakeShapeSpec, ImmutableStr
         }
 
     override fun update(shapeDurationMillis: Long) {
+        require(shapeDurationMillis >= 0L) {
+            "shapeDurationMillis must be non-negative, got $shapeDurationMillis"
+        }
+        lastUpdateShapeDurationMillis?.let { prevShapeDurationMillis ->
+            require(shapeDurationMillis >= prevShapeDurationMillis) {
+                "shapeDurationMillis must be monotonically non-decreasing, got $shapeDurationMillis " +
+                    "after $prevShapeDurationMillis"
+            }
+        }
         updatedRealInputs.add(pendingRealInputs)
         pendingRealInputs.clear()
+        lastUpdateShapeDurationMillis = shapeDurationMillis
         lastUpdateSystemElapsedTimeMillis = startSystemElapsedTimeMillis + shapeDurationMillis
         updateSinceLastReset = true
     }

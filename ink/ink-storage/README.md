@@ -10,5 +10,5 @@ Currently, this supports storage of `BrushFamily` and `StrokeInputBatch`
 objects.
 
 Cross-platform implementation supports Android and non-Android JVM (supported on
-Linux for 86_64 and Mac for arm64 specifically). iOS support via Kotlin-native
-is in alpha.
+Linux for 86_64/arm64 and Mac for arm64 specifically). iOS support via
+Kotlin-native is in alpha.

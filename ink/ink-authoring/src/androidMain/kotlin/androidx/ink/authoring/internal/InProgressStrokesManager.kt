@@ -1064,7 +1064,13 @@ internal class InProgressStrokesManager<
         forceCompletion: Boolean = false,
     ) {
         val systemElapsedTimeMillis = systemElapsedTimeNanos / 1_000_000L
-        inProgressShape.update(shapeDurationMillis = systemElapsedTimeMillis - startEventTimeMillis)
+        // TODO(b/552666754): Replace this clamp-and-ratchet workaround with a more comprehensive
+        // fix
+        // that derives start and update timestamps from a consistent clock.
+        val shapeDurationMillis =
+            (systemElapsedTimeMillis - startEventTimeMillis).coerceAtLeast(maxShapeDurationMillis)
+        maxShapeDurationMillis = shapeDurationMillis
+        inProgressShape.update(shapeDurationMillis = shapeDurationMillis)
         if (forceCompletion) {
             inProgressShape.forceCompletion()
         }
@@ -1683,6 +1689,7 @@ internal class InProgressStrokesManager<
         val strokeToMotionEventTransform: Matrix,
         val startEventTimeMillis: Long,
         var status: Status = RenderThreadStrokeState.Started,
+        var maxShapeDurationMillis: Long = 0L,
     ) {
 
         fun needsAnimationFrame() = status is Drying || inProgressShape.changesWithTime()

@@ -2098,6 +2098,123 @@ internal class InProgressStrokesManagerTest {
         assertThat(renderHelper.drawCount).isEqualTo(numDraws)
     }
 
+    // Regression test for b/552666754.
+    @Test
+    fun startAddAndFinishStroke_whenSystemClockBehindMotionEventTime_updatesWithNonNegativeMonotonicDurations() {
+        // Clock starts at 300ms while MotionEvent.eventTime is 313ms (13ms ahead).
+        val clock = FakeClock(300_000_000L)
+        val (manager, renderHelper) = makeSyncManagerAndHelper(LatencyDataRecorder(), clock)
+        val finishedStrokes = mutableListOf<FinishedStroke<ImmutableStrokeInputBatch>>()
+        manager.addListener { strokes -> finishedStrokes.addAll(strokes) }
+
+        val downEvent = MotionEvent.obtain(313L, 313L, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
+        val strokeId =
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                FakeShapeSpec(),
+                0f,
+            )
+        val durationAfterStart = checkNotNull(renderHelper.lastUpdateShapeDurationMillis)
+        assertThat(durationAfterStart).isAtLeast(0L)
+
+        // Advance clock by 5ms (to 305ms, still behind 313ms) and add input.
+        clock.advanceByMillis(5L)
+        val moveEvent = MotionEvent.obtain(313L, 318L, MotionEvent.ACTION_MOVE, 30f, 40f, 0)
+        manager.addToStroke(moveEvent, moveEvent.getPointerId(0), strokeId, null)
+        val durationAfterMove = checkNotNull(renderHelper.lastUpdateShapeDurationMillis)
+        assertThat(durationAfterMove).isAtLeast(durationAfterStart)
+
+        // Advance clock by 20ms (to 325ms, now past 313ms) and finish stroke.
+        clock.advanceByMillis(20L)
+        val upEvent = MotionEvent.obtain(313L, 325L, MotionEvent.ACTION_UP, 50f, 60f, 0)
+        manager.finishStroke(upEvent, upEvent.getPointerId(0), strokeId)
+        val durationAfterFinish = checkNotNull(renderHelper.lastUpdateShapeDurationMillis)
+        assertThat(durationAfterFinish).isAtLeast(durationAfterMove)
+
+        manager.onStrokeCohortHandoffToHwuiComplete()
+        assertThat(finishedStrokes).hasSize(1)
+        assertThat(finishedStrokes[0].stroke.size).isEqualTo(3)
+    }
+
+    // Regression test for b/552666754.
+    @Test
+    fun finishStroke_whileSystemClockStillBehindMotionEventTime_updatesWithNonNegativeDuration() {
+        val clock = FakeClock(300_000_000L)
+        val (manager, renderHelper, runUiThreadToEndOfFrame) =
+            makeAsyncManagerAndHelper(LatencyDataRecorder(), clock)
+        val finishedStrokes = mutableListOf<FinishedStroke<ImmutableStrokeInputBatch>>()
+        manager.addListener { strokes -> finishedStrokes.addAll(strokes) }
+
+        val downEvent = MotionEvent.obtain(313L, 313L, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
+        val strokeId =
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                FakeShapeSpec(),
+                0f,
+            )
+        renderHelper.runRenderThreadToIdle()
+        runUiThreadToEndOfFrame()
+        val durationAfterStart = checkNotNull(renderHelper.lastUpdateShapeDurationMillis)
+        assertThat(durationAfterStart).isAtLeast(0L)
+
+        // Finish while clock is at 304ms, still behind downEvent.eventTime (313ms).
+        clock.advanceByMillis(4L)
+        val upEvent = MotionEvent.obtain(313L, 317L, MotionEvent.ACTION_UP, 20f, 30f, 0)
+        manager.finishStroke(upEvent, upEvent.getPointerId(0), strokeId)
+        renderHelper.runRenderThreadToIdle()
+        runUiThreadToEndOfFrame()
+        val durationAfterFinish = checkNotNull(renderHelper.lastUpdateShapeDurationMillis)
+        assertThat(durationAfterFinish).isAtLeast(durationAfterStart)
+
+        // Advance clock past upEvent.eventTime so any debounce window clears and handoff completes.
+        clock.advanceByMillis(20L)
+        runUiThreadToEndOfFrame()
+        assertThat(finishedStrokes).hasSize(1)
+        assertThat(finishedStrokes[0].stroke.size).isEqualTo(2)
+    }
+
+    // Regression test for b/552666754.
+    @Test
+    fun updateShape_whenSystemClockMovesBackwardBetweenDraws_keepsShapeDurationMonotonic() {
+        val clock = FakeClock(500_000_000L)
+        val (manager, renderHelper) = makeSyncManagerAndHelper(LatencyDataRecorder(), clock)
+        val finishedStrokes = mutableListOf<FinishedStroke<ImmutableStrokeInputBatch>>()
+        manager.addListener { strokes -> finishedStrokes.addAll(strokes) }
+
+        val downEvent = MotionEvent.obtain(490L, 490L, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
+        val strokeId =
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                FakeShapeSpec(),
+                0f,
+            )
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(10L)
+
+        // Simulate clock stepping backward by 5ms (to 495ms, which would yield 5ms < 10ms).
+        clock.timeNanos = 495_000_000L
+        val moveEvent = MotionEvent.obtain(490L, 498L, MotionEvent.ACTION_MOVE, 30f, 40f, 0)
+        manager.addToStroke(moveEvent, moveEvent.getPointerId(0), strokeId, null)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(10L)
+
+        // Advance clock forward to 520ms (30ms elapsed) and finish.
+        clock.timeNanos = 520_000_000L
+        val upEvent = MotionEvent.obtain(490L, 515L, MotionEvent.ACTION_UP, 50f, 60f, 0)
+        manager.finishStroke(upEvent, upEvent.getPointerId(0), strokeId)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(30L)
+
+        manager.onStrokeCohortHandoffToHwuiComplete()
+        assertThat(finishedStrokes).hasSize(1)
+    }
+
     @Test
     fun fakeRenderHelper_executeOnRenderThread_executesCallbackOnFakeRenderThread() {
         val clock = FakeClock()
@@ -2279,6 +2396,9 @@ private class FakeRenderHelper(
     var lastUpdateSystemElapsedTimeMillis: Long? = null
         private set
 
+    var lastUpdateShapeDurationMillis: Long? = null
+        private set
+
     var startCohortCount = 0
         private set
 
@@ -2348,6 +2468,7 @@ private class FakeRenderHelper(
         assertOnRenderThread()
         drawCount++
         lastUpdateSystemElapsedTimeMillis = inProgressShape.lastUpdateSystemElapsedTimeMillis
+        lastUpdateShapeDurationMillis = inProgressShape.lastUpdateShapeDurationMillis
     }
 
     override fun afterDrawInModifiedRegion() {
