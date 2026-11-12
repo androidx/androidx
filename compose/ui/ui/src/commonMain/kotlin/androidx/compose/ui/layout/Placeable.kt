@@ -552,7 +552,7 @@ private class LookaheadCapablePlacementScope(private val within: LookaheadCapabl
             // if coordinates are not null we will only set this flag when the inner
             // coordinate values are read. see NodeCoordinator.onCoordinatesUsed()
             if (coords == null) {
-                within.layoutNode.layoutDelegate.onCoordinatesUsed()
+                within.onCoordinatesUsedWhilePlacingForAlignment()
             }
             return coords
         }

@@ -615,6 +615,13 @@ internal class LookaheadPassDelegate(
             lastLayerBlock = layerBlock
             lastExplicitLayer = layer
             layoutState = LayoutState.Idle
+            if (
+                outerCoordinator.lookaheadDelegate?.isPlacingForAlignment == true &&
+                    (layoutNodeLayoutDelegate.lookaheadCoordinatesAccessedDuringModifierPlacement ||
+                        layoutNodeLayoutDelegate.lookaheadCoordinatesAccessedDuringPlacement)
+            ) {
+                requestLayout()
+            }
         }
     }
 
