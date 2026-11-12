@@ -68,14 +68,17 @@ public class GlContext {
         mGlThread = Thread.currentThread();
 
         // Create EGLDisplay.
-        mEglDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
-        if (Objects.equals(mEglDisplay, EGL14.EGL_NO_DISPLAY)) {
+        EGLDisplay eglDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
+        if (Objects.equals(eglDisplay, EGL14.EGL_NO_DISPLAY)) {
             throw new IllegalStateException("Unable to get EGL14 display");
         }
         int[] version = new int[2];
-        if (!EGL14.eglInitialize(mEglDisplay, version, 0, version, 1)) {
+        if (!EGL14.eglInitialize(eglDisplay, version, 0, version, 1)) {
             throw new IllegalStateException("Unable to initialize EGL14");
         }
+        // Only store the display once initialized, so that release() never terminates a display
+        // that this context did not initialize.
+        mEglDisplay = eglDisplay;
 
         // Create EGLConfig.
         int rgbBits = 8;
