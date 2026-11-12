@@ -28,7 +28,7 @@
 
         <activity
             android:name=".MainActivity"
-            android:configChanges="uiMode"
+            android:configChanges="uiMode|orientation|screenSize|screenLayout|smallestScreenSize"
             android:exported="true"
             android:theme="@android:style/Theme.Material.Light.NoActionBar">
             <intent-filter>

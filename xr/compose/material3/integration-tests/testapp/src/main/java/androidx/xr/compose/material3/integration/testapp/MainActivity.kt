@@ -51,12 +51,23 @@ import androidx.xr.compose.material3.LocalSpatialShortNavigationBarOrbiterProper
 import androidx.xr.compose.material3.LocalSpatialWideNavigationRailOrbiterProperties
 import androidx.xr.compose.material3.integration.testapp.components.ListDetailPaneScaffold
 import androidx.xr.compose.material3.integration.testapp.components.NavigationSuiteScaffold
+import androidx.xr.compose.spatial.Subspace
+import androidx.xr.compose.subspace.SpatialMainPanel
+import androidx.xr.compose.subspace.layout.SubspaceModifier
+import androidx.xr.compose.subspace.layout.movable
+import androidx.xr.compose.subspace.layout.resizable
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.enableEdgeToEdge(window)
+        // Add the MainPanel so that the PlanarEmbeddedSubspace has a size to fit to, but set it to
+        // transparent so that it will not be seen behind the content.
+        window.setBackgroundDrawableResource(android.R.color.transparent)
         setContent {
+            Subspace {
+                SpatialMainPanel(SubspaceModifier.movable().resizable())
+            }
             Content()
         }
     }
