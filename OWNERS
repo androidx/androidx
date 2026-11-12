@@ -49,7 +49,7 @@ per-file *libraryversions.toml =leoferrer@google.com, mrw@google.com
 # MediaRouter *
 per-file *libraryversions.toml = aquilescanta@google.com, asargent@google.com, asapperstein@google.com, halliwell@google.com, taesuny@google.com, tanaykhemani@google.com, tkourim@google.com
 # PDF *
-per-file *libraryversions.toml = anuragadarsh@google.com, bhavyajain@google.com, rahulkanojia@google.com
+per-file *libraryversions.toml = anuragadarsh@google.com, rahulkanojia@google.com
 # Camera *
 per-file *libraryversions.toml = wujulie@google.com, scottnien@google.com, trevormcguire@google.com
 # Health Connect
