@@ -17,6 +17,9 @@
 package androidx.ink.nativeloader
 
 import androidx.annotation.RestrictTo
+import androidx.ink.nativeloader.cinterop.StatusNative_allocateStatusString
+import androidx.ink.nativeloader.cinterop.StatusNative_freeStatusString
+import androidx.ink.nativeloader.cinterop.StatusNative_getStatusCode
 import androidx.ink.nativeloader.cinterop.StatusNative_statusCodeFailedPrecondition
 import androidx.ink.nativeloader.cinterop.StatusNative_statusCodeInvalidArgument
 import androidx.ink.nativeloader.cinterop.StatusNative_statusCodeNotFound
@@ -42,9 +45,18 @@ import kotlinx.cinterop.toKString
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
 @InkInternalOnlyApi
 public val throwForNonOkStatusCallback:
-    CPointer<CFunction<(COpaquePointer?, Int, CPointer<ByteVar>?) -> Unit>> =
-    staticCFunction({ _, statusCode, statusString ->
-        NativeExceptionHandling.throwForNonOkStatus(statusCode, statusString?.toKString() ?: "")
+    CPointer<CFunction<(COpaquePointer?, COpaquePointer?) -> Unit>> =
+    staticCFunction({ _, status ->
+        val statusCode = StatusNative_getStatusCode(status)
+        var statusStrPtr: CPointer<ByteVar>? = null
+        val statusString =
+            try {
+                statusStrPtr = StatusNative_allocateStatusString(status)
+                statusStrPtr?.toKString() ?: ""
+            } finally {
+                StatusNative_freeStatusString(statusStrPtr)
+            }
+        NativeExceptionHandling.throwForNonOkStatus(statusCode, statusString)
     })
 
 @OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)

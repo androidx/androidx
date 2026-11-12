@@ -488,7 +488,7 @@ internal class CanvasInProgressStrokesRenderHelperV33<
             setLayer(sc, nextBufferLayer.getAndIncrement())
             setFrameRate(
                 sc,
-                1000F,
+                720F,
                 SurfaceControlCompat.FRAME_RATE_COMPATIBILITY_DEFAULT,
                 SurfaceControlCompat.CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS,
             )

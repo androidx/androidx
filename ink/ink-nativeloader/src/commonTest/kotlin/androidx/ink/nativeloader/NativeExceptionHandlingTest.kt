@@ -40,7 +40,9 @@ class NativeExceptionHandlingTest {
             assertFailsWith<IllegalStateException> {
                 StatusNative.throwExceptionFromFailedPreconditionForTesting("Failed precondition")
             }
-        assertThat(ex).hasMessageThat().isEqualTo("FAILED_PRECONDITION: Failed precondition")
+        assertThat(ex).hasMessageThat().startsWith("FAILED_PRECONDITION: Failed precondition")
+        assertThat(ex).hasMessageThat().contains("=== Source Location Trace: ===")
+        assertThat(ex).hasMessageThat().contains("status_native.cc")
     }
 
     @Test
@@ -49,7 +51,9 @@ class NativeExceptionHandlingTest {
             assertFailsWith<IllegalArgumentException> {
                 StatusNative.throwExceptionFromInvalidArgumentForTesting("Invalid argument")
             }
-        assertThat(ex).hasMessageThat().isEqualTo("INVALID_ARGUMENT: Invalid argument")
+        assertThat(ex).hasMessageThat().startsWith("INVALID_ARGUMENT: Invalid argument")
+        assertThat(ex).hasMessageThat().contains("=== Source Location Trace: ===")
+        assertThat(ex).hasMessageThat().contains("status_native.cc")
     }
 
     @Test
@@ -58,7 +62,9 @@ class NativeExceptionHandlingTest {
             assertFailsWith<NoSuchElementException> {
                 StatusNative.throwExceptionFromNotFoundForTesting("Not found")
             }
-        assertThat(ex).hasMessageThat().isEqualTo("NOT_FOUND: Not found")
+        assertThat(ex).hasMessageThat().startsWith("NOT_FOUND: Not found")
+        assertThat(ex).hasMessageThat().contains("=== Source Location Trace: ===")
+        assertThat(ex).hasMessageThat().contains("status_native.cc")
     }
 
     @Test
@@ -67,7 +73,9 @@ class NativeExceptionHandlingTest {
             assertFailsWith<IndexOutOfBoundsException> {
                 StatusNative.throwExceptionFromOutOfRangeForTesting("Out of range")
             }
-        assertThat(ex).hasMessageThat().isEqualTo("OUT_OF_RANGE: Out of range")
+        assertThat(ex).hasMessageThat().startsWith("OUT_OF_RANGE: Out of range")
+        assertThat(ex).hasMessageThat().contains("=== Source Location Trace: ===")
+        assertThat(ex).hasMessageThat().contains("status_native.cc")
     }
 
     @Test
@@ -76,7 +84,9 @@ class NativeExceptionHandlingTest {
             assertFailsWith<UnsupportedOperationException> {
                 StatusNative.throwExceptionFromUnimplementedForTesting("Unimplemented")
             }
-        assertThat(ex).hasMessageThat().isEqualTo("UNIMPLEMENTED: Unimplemented")
+        assertThat(ex).hasMessageThat().startsWith("UNIMPLEMENTED: Unimplemented")
+        assertThat(ex).hasMessageThat().contains("=== Source Location Trace: ===")
+        assertThat(ex).hasMessageThat().contains("status_native.cc")
     }
 
     @Test
@@ -87,6 +97,8 @@ class NativeExceptionHandlingTest {
                 // RuntimeException.
                 StatusNative.throwExceptionFromUnknownStatusCodeForTesting(4, "Unknown status code")
             }
-        assertThat(ex).hasMessageThat().isEqualTo("DEADLINE_EXCEEDED: Unknown status code")
+        assertThat(ex).hasMessageThat().startsWith("DEADLINE_EXCEEDED: Unknown status code")
+        assertThat(ex).hasMessageThat().contains("=== Source Location Trace: ===")
+        assertThat(ex).hasMessageThat().contains("status_native.cc")
     }
 }
