@@ -150,11 +150,20 @@ internal class AndroidPrefetchScheduler(private val view: View) :
     }
 
     private fun runNewBehavior() {
+        val now = System.nanoTime()
         // viewDrawTimeNanos is the latter between the last drawing time, and the frame start time.
-        var viewDrawTimeNanos =
+        val rawViewDrawTimeNanos =
             maxOf(frameStartTimeNanos, TimeUnit.MILLISECONDS.toNanos(view.drawingTime))
+        // Clamp to `now` in case frameStartTimeNanos or view.drawingTime is in the future (e.g.
+        // when Client-Side Render-Ahead is active).
+        var viewDrawTimeNanos =
+            if (AndroidComposeFoundationFlags.isPrefetchSchedulerFutureDrawTimeClampingEnabled) {
+                minOf(rawViewDrawTimeNanos, now)
+            } else {
+                rawViewDrawTimeNanos
+            }
         // We calculate how many nanoseconds have elapsed
-        val elapsedSinceDraw = System.nanoTime() - viewDrawTimeNanos
+        val elapsedSinceDraw = now - viewDrawTimeNanos
         var isFrameIdle = false
         // Prefents us from posting with `view.post(this)` more than we need to
         var alreadyPostScheduled = false

@@ -64,4 +64,15 @@ public object AndroidComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isPrefetchSchedulerLateFrameDetectionEnabled: Boolean = true
+
+    /**
+     * This flag controls a fix in the lazy layout prefetch scheduler's draw time calculation. When
+     * enabled, `viewDrawTimeNanos` is clamped to at most `System.nanoTime()` so that future frame
+     * timestamps (such as when Client-Side Render-Ahead is active) do not inflate the available
+     * prefetch time beyond a single frame interval or produce a negative elapsed time since draw.
+     */
+    // TODO: b/584767519
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isPrefetchSchedulerFutureDrawTimeClampingEnabled: Boolean = true
 }

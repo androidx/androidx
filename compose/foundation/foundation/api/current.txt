@@ -3,8 +3,10 @@
 package androidx.compose.foundation {
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final class AndroidComposeFoundationFlags {
+    property public boolean isPrefetchSchedulerFutureDrawTimeClampingEnabled;
     property public boolean isPrefetchSchedulerLateFrameDetectionEnabled;
     field public static final androidx.compose.foundation.AndroidComposeFoundationFlags INSTANCE;
+    field public static boolean isPrefetchSchedulerFutureDrawTimeClampingEnabled;
     field public static boolean isPrefetchSchedulerLateFrameDetectionEnabled;
   }
 
