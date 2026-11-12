@@ -81,7 +81,7 @@ public fun dslCustomComposeDemo(): ByteArray {
                 textAlign = RcTextAlign.Center,
                 color = 0xFF94A3B8.toInt(),
             )
-            val timeCount = createTextFromFloat(seconds(), 2, 0, 0)
+            val timeCount = createTextFromFloat(seconds(), 2, 0)
 
             Row(Modifier.padding(8f), vertical = RcVerticalPositioning.Center) {
                 Text(
@@ -98,7 +98,7 @@ public fun dslCustomComposeDemo(): ByteArray {
                         .background(Color.GREEN)
                 ) {
                     paint { textSize(48f) }
-                    drawTextAnchored(timeCount, width / 2f, height / 2f, 0.rf, 0.rf, 0)
+                    drawTextAnchored(timeCount, width / 2f, height / 2f, 0.rf, 0.rf)
                 }
             }
 
@@ -110,7 +110,7 @@ public fun dslCustomComposeDemo(): ByteArray {
                     color = 0xFF94A3B8.toInt(),
                     modifier = Modifier.width(300.rdp),
                 )
-                Custom(
+                CustomComponent(
                     config = "Text",
                     properties =
                         listOf(
@@ -130,8 +130,8 @@ public fun dslCustomComposeDemo(): ByteArray {
                 )
             }
 
-            val prop = RcCustomProperty.returnFloat(SupportSlider.RET_PROGRESS, this)
-            val slider = prop.getFloatValue()
+            val prop = customReturnFloat(SupportSlider.RET_PROGRESS)
+            val slider = prop.floatValue
             // Composable hosted Custom Component Slider!
             val progressProps =
                 listOf(
@@ -152,7 +152,7 @@ public fun dslCustomComposeDemo(): ByteArray {
                     color = 0xFF94A3B8.toInt(),
                     modifier = Modifier.width(300.rdp),
                 )
-                Custom(
+                CustomComponent(
                     config = "Slider",
                     properties = progressProps,
                     modifier = Modifier.width(450.rdp).height(100.rdp),
@@ -160,7 +160,7 @@ public fun dslCustomComposeDemo(): ByteArray {
             }
 
             Spacer(Modifier.height(12.rdp))
-            val sliderValText = createTextFromFloat(slider, 3, 0, 0)
+            val sliderValText = createTextFromFloat(slider, 3, 0)
             Text(
                 text = "Slider Value: " join slider.format(3),
                 fontWeight = RcFontWeight.Bold,

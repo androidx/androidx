@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.integration.view.demos.dsl
 
-import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.creation.dsl.*
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
@@ -71,11 +70,9 @@ public fun dslTouchDemo(): ByteArray {
                         defaultValue = 280f,
                         range = 40f..520f,
                         stopMode = RcTouchStopMode.NotchesEven,
-                        velocity = 0f,
+                        expression = touchPosX(),
                         notchHaptic = RcHaptic.SegmentTick,
                         notches = floatArrayOf(5f), // 5 snapping points
-                        easing = null,
-                        RemoteContext.FLOAT_TOUCH_POS_X,
                     )
 
                 // Draw base slider track
@@ -145,11 +142,7 @@ public fun dslTouchDemo(): ByteArray {
                         defaultValue = 280f,
                         range = 40f..520f,
                         stopMode = RcTouchStopMode.Gently,
-                        velocity = 0f,
-                        notchHaptic = RcHaptic.NoHaptics,
-                        notches = null,
-                        easing = null,
-                        RemoteContext.FLOAT_TOUCH_POS_X,
+                        expression = touchPosX(),
                     )
 
                 // Draw base track

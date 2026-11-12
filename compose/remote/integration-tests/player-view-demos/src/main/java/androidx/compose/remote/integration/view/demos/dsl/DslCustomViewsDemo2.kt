@@ -85,7 +85,7 @@ public fun dslCustomViewsDemo(): ByteArray {
                 textAlign = RcTextAlign.Center,
                 color = 0xFF94A3B8.toInt(),
             )
-            val timeCount = createTextFromFloat(seconds(), 2, 0, 0)
+            val timeCount = createTextFromFloat(seconds(), 2, 0)
 
             Row(Modifier.padding(8f), vertical = RcVerticalPositioning.Center) {
                 label("RC Canvas :")
@@ -96,7 +96,7 @@ public fun dslCustomViewsDemo(): ByteArray {
                         .background(Color.GREEN)
                 ) {
                     paint { textSize(48f) }
-                    drawTextAnchored(timeCount, width / 2f, height / 2f, 0.rf, 0.rf, 0)
+                    drawTextAnchored(timeCount, width / 2f, height / 2f, 0.rf, 0.rf)
                 }
             }
 
@@ -155,7 +155,7 @@ private fun RcScope.label(text: RcText) {
 
 @Suppress("RestrictedApiAndroidX")
 private fun RcScope.textView1(timeCount: RcText) {
-    Custom(
+    CustomComponent(
         config = "TextView",
         properties =
             listOf(
@@ -176,7 +176,7 @@ private fun RcScope.textView1(timeCount: RcText) {
 
 @Suppress("RestrictedApiAndroidX")
 private fun RcScope.textView2(timeCount: RcText) {
-    Custom(
+    CustomComponent(
         config = "TextView",
         properties =
             listOf(
@@ -197,7 +197,7 @@ private fun RcScope.textView2(timeCount: RcText) {
 
 @Suppress("RestrictedApiAndroidX")
 private fun RcScope.textView3(text: RcText) {
-    Custom(
+    CustomComponent(
         config = "TextView",
         properties =
             listOf(
@@ -218,8 +218,8 @@ private fun RcScope.textView3(text: RcText) {
 
 @Suppress("RestrictedApiAndroidX")
 private fun RcScope.progressBar(): RcFloat {
-    val prop = RcCustomProperty.returnFloat(SupportProgressBar.RET_PROGRESS, this)
-    val slider = prop.getFloatValue()
+    val prop = customReturnFloat(SupportProgressBar.RET_PROGRESS)
+    val slider = prop.floatValue
 
     val progressProps =
         listOf(
@@ -233,7 +233,7 @@ private fun RcScope.progressBar(): RcFloat {
             prop,
         )
 
-    Custom(
+    CustomComponent(
         config = "ProgressBar",
         properties = progressProps,
         modifier = Modifier.width(450.rdp).height(120.rdp),
@@ -243,9 +243,9 @@ private fun RcScope.progressBar(): RcFloat {
 
 @Suppress("RestrictedApiAndroidX")
 private fun RcScope.textEdit(text: RcText): RcText {
-    val prop = RcCustomProperty.returnText(SupportEditText.RET_TEXT, this)
-    val textId = prop.getStringValue()
-    Custom(
+    val prop = customReturnText(SupportEditText.RET_TEXT)
+    val textId = prop.textValue
+    CustomComponent(
         config = "EditText",
         properties =
             listOf(

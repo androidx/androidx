@@ -58,7 +58,7 @@ internal fun RcCanvasScope.renderScatter(
             strokeCap(RcStrokeCap.Round)
             strokeJoin(RcStrokeJoin.Round)
         }
-        drawPath(path.getPath())
+        drawPath(path.toPath())
     }
 
     // Bubble radius scaling (area-proportional in the size channel).
@@ -123,7 +123,7 @@ internal fun RcCanvasScope.renderXYLine(
         strokeCap(RcStrokeCap.Round)
         strokeJoin(RcStrokeJoin.Round)
     }
-    drawPath(path.getPath())
+    drawPath(path.toPath())
 }
 
 /** A straight fitted line `y = slope·x + intercept` across `[xLo, xHi]`. */
@@ -145,5 +145,5 @@ internal fun RcCanvasScope.renderRegressionLine(
         style(RcPaintStyle.Stroke)
         strokeWidth(2.5f)
     }
-    drawPath(path.getPath())
+    drawPath(path.toPath())
 }

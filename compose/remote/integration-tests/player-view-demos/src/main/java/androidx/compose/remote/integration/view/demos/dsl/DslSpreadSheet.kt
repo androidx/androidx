@@ -78,9 +78,9 @@ public fun dslSpreadSheet(): ByteArray {
                 val id2 = textLookup(header2, k)
                 paint { color(0xFFFF00FF.toInt()) }
                 val centerText = colPos + cellWidth / 2f
-                drawTextAnchored(id0, centerText, round + cellHeight / 2f, 0f.rf, (-3.5f).rf, 0)
-                drawTextAnchored(id1, centerText, round + cellHeight / 2f, 0f.rf, (-1f).rf, 0)
-                drawTextAnchored(id2, centerText, round + cellHeight / 2f, 0f.rf, 1.5f.rf, 0)
+                drawTextAnchored(id0, centerText, round + cellHeight / 2f, 0f.rf, (-3.5f).rf)
+                drawTextAnchored(id1, centerText, round + cellHeight / 2f, 0f.rf, (-1f).rf)
+                drawTextAnchored(id2, centerText, round + cellHeight / 2f, 0f.rf, 1.5f.rf)
             }
 
             paint {
@@ -93,7 +93,7 @@ public fun dslSpreadSheet(): ByteArray {
                 var centerText = cellWidth * 0.5f
                 var spec = RcTextFromFloatSpec.Default
                 var tid = createTextFromFloat(num, 6, 2, spec)
-                drawTextAnchored(tid, centerText, yPos, 0f.rf, 0f.rf, 0)
+                drawTextAnchored(tid, centerText, yPos, 0f.rf, 0f.rf)
 
                 spec =
                     RcTextFromFloatSpec.of(
@@ -102,7 +102,7 @@ public fun dslSpreadSheet(): ByteArray {
                     )
                 centerText = cellWidth * 1.5f
                 tid = createTextFromFloat(num, 6, 2, spec)
-                drawTextAnchored(tid, centerText, yPos, 0f.rf, 0f.rf, 0)
+                drawTextAnchored(tid, centerText, yPos, 0f.rf, 0f.rf)
 
                 spec =
                     RcTextFromFloatSpec.of(
@@ -111,7 +111,7 @@ public fun dslSpreadSheet(): ByteArray {
                     )
                 centerText = cellWidth * 2.5f
                 tid = createTextFromFloat(num, 6, 2, spec)
-                drawTextAnchored(tid, centerText, yPos, 0f.rf, 0f.rf, 0)
+                drawTextAnchored(tid, centerText, yPos, 0f.rf, 0f.rf)
 
                 spec =
                     RcTextFromFloatSpec.of(
@@ -121,7 +121,7 @@ public fun dslSpreadSheet(): ByteArray {
                     )
                 centerText = cellWidth * 3.5f
                 tid = createTextFromFloat(num, 6, 2, spec)
-                drawTextAnchored(tid, centerText, yPos, 0f.rf, 0f.rf, 0)
+                drawTextAnchored(tid, centerText, yPos, 0f.rf, 0f.rf)
             }
 
             paint {
@@ -152,10 +152,10 @@ public fun dslSpreadSheet(): ByteArray {
                 val id3 = textLookup(header23, k)
                 paint { color(0xFFFF00FF.toInt()) }
                 val centerText = colPos + cellWidth / 2f
-                drawTextAnchored(id0, centerText, cy + 50f, 0f.rf, (-3.5f).rf, 0)
-                drawTextAnchored(id1, centerText, cy + 50f, 0f.rf, (-1f).rf, 0)
-                drawTextAnchored(id2, centerText, cy + 50f, 0f.rf, 1.5f.rf, 0)
-                drawTextAnchored(id3, centerText, cy + 50f, 0f.rf, 4f.rf, 0)
+                drawTextAnchored(id0, centerText, cy + 50f, 0f.rf, (-3.5f).rf)
+                drawTextAnchored(id1, centerText, cy + 50f, 0f.rf, (-1f).rf)
+                drawTextAnchored(id2, centerText, cy + 50f, 0f.rf, 1.5f.rf)
+                drawTextAnchored(id3, centerText, cy + 50f, 0f.rf, 4f.rf)
             }
             paint {
                 color(0xFF000000.toInt())
@@ -174,7 +174,7 @@ public fun dslSpreadSheet(): ByteArray {
                     )
 
                 var tid = createTextFromFloat(num, 10, 2, spec)
-                drawTextAnchored(tid, centerText, yPos, 0f.rf, 0f.rf, 0)
+                drawTextAnchored(tid, centerText, yPos, 0f.rf, 0f.rf)
 
                 spec =
                     RcTextFromFloatSpec.of(
@@ -185,7 +185,7 @@ public fun dslSpreadSheet(): ByteArray {
                     )
                 centerText = cellWidth * 1.5f
                 tid = createTextFromFloat(num, 10, 2, spec)
-                drawTextAnchored(tid, centerText, yPos, 0f.rf, 0f.rf, 0)
+                drawTextAnchored(tid, centerText, yPos, 0f.rf, 0f.rf)
 
                 spec =
                     RcTextFromFloatSpec.of(
@@ -196,7 +196,7 @@ public fun dslSpreadSheet(): ByteArray {
                     )
                 centerText = cellWidth * 2.5f
                 tid = createTextFromFloat(num, 10, 2, spec)
-                drawTextAnchored(tid, centerText, yPos, 0f.rf, 0f.rf, 0)
+                drawTextAnchored(tid, centerText, yPos, 0f.rf, 0f.rf)
 
                 spec =
                     RcTextFromFloatSpec.of(
@@ -207,7 +207,7 @@ public fun dslSpreadSheet(): ByteArray {
                     )
                 centerText = cellWidth * 3.5f
                 tid = createTextFromFloat(num, 10, 2, spec)
-                drawTextAnchored(tid, centerText, yPos, 0f.rf, 0f.rf, 0)
+                drawTextAnchored(tid, centerText, yPos, 0f.rf, 0f.rf)
             }
         }
     }

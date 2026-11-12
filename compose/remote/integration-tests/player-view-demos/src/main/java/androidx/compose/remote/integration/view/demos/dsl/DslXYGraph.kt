@@ -24,6 +24,10 @@ import androidx.compose.remote.creation.dsl.RcFloat
 import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcPathType
 import androidx.compose.remote.creation.dsl.RcScope
+import androidx.compose.remote.creation.dsl.arrayLength
+import androidx.compose.remote.creation.dsl.arrayMax
+import androidx.compose.remote.creation.dsl.arrayMin
+import androidx.compose.remote.creation.dsl.arraySpline
 import androidx.compose.remote.creation.dsl.rcColor
 import androidx.compose.remote.integration.view.demos.examples.Plot
 import androidx.compose.remote.integration.view.demos.examples.XYGraphProperties
@@ -116,7 +120,7 @@ class FunctionPlot(
             debug("params.offsetX", params.offsetX)
             debug("params.left", params.left)
             debug("params.scaleY", params.scaleY)
-            val xExpr = rFun { x -> (x * params.scaleX + params.offsetX + params.left) }
+            val xExpr = remoteFunction { x -> (x * params.scaleX + params.offsetX + params.left) }
 
             val path =
                 remoteXYPath(
@@ -165,7 +169,7 @@ class DataPlot(val data: RcFloat) : PlotBase {
                 style(RcPaintStyle.Stroke)
                 strokeWidth(2f)
             }
-            drawPath(path.getPath())
+            drawPath(path.toPath())
         }
     }
 }

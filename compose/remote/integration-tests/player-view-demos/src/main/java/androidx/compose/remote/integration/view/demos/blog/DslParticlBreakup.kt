@@ -21,11 +21,14 @@ import androidx.compose.remote.creation.dsl.RcFloat
 import androidx.compose.remote.creation.dsl.RcHeaderTag
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.background
+import androidx.compose.remote.creation.dsl.cos
 import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
 import androidx.compose.remote.creation.dsl.ifElse
+import androidx.compose.remote.creation.dsl.min
 import androidx.compose.remote.creation.dsl.onTouchDown
 import androidx.compose.remote.creation.dsl.random
+import androidx.compose.remote.creation.dsl.sin
 import androidx.compose.remote.creation.dsl.times
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.core.RemoteDocument
@@ -119,7 +122,7 @@ public fun dslParticlBreakup(): ByteArray {
                     val shatterSystem =
                         createParticles(
                             rawRegisters,
-                            arrayOf(
+                            listOf(
                                 0f.rf, // Initial explosion offset X
                                 0f.rf, // Initial explosion offset Y
                                 // Direction from center via the polar angle [0..2π]
@@ -157,7 +160,7 @@ public fun dslParticlBreakup(): ByteArray {
                         particlesLoop(
                             shatterSystem,
                             null,
-                            arrayOf(
+                            listOf(
                                 nextOffsetX,
                                 nextOffsetY,
                                 particle.polarAngle,

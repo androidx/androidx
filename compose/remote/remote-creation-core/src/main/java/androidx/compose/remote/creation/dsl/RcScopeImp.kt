@@ -77,7 +77,7 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         writer.endStateLayout()
     }
 
-    override fun Custom(
+    override fun CustomComponent(
         config: String,
         modifier: Modifier,
         properties: List<RcCustomProperty>,
@@ -236,8 +236,8 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         writer.endBox()
     }
 
-    override fun debug(msg: String, value: RcFloat) {
-        writer.addDebugMessage(msg, value.withWriter(writer).toFloat())
+    override fun debug(message: String, value: RcFloat) {
+        writer.addDebugMessage(message, value.withWriter(writer).toFloat())
     }
 
     override fun RcPath.combine(path2: RcPath, op: RcPathCombineOp): RcPath {
@@ -248,9 +248,9 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         writer.performHaptic(haptic.value)
     }
 
-    override fun addSound(data: ByteArray): RcSound = RcSound(writer.addSound(data))
+    override fun remoteSound(data: ByteArray): RcSound = RcSound(writer.addSound(data))
 
-    override fun soundExpression(
+    override fun remoteSoundExpression(
         type: RcSoundType,
         frequency: Float,
         durationSeconds: Float,
@@ -280,33 +280,22 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         writer.wakeIn(seconds)
     }
 
-    override fun getColorAttribute(baseColor: RcColor, type: Short): RcFloat {
-        return RcFloat(writer, writer.getColorAttribute(baseColor.id, type))
+    override fun getColorAttribute(baseColor: RcColor, attr: RcColorAttr): RcFloat {
+        return RcFloat(writer, writer.getColorAttribute(baseColor.id, attr.value))
     }
 
-    override fun RcText.substring(start: RcFloat, len: RcFloat): RcText {
+    override fun RcText.substring(start: RcFloat, length: RcFloat): RcText {
         return RcText(
             writer.textSubtext(
                 this.id,
                 start.withWriter(writer).toFloat(),
-                len.withWriter(writer).toFloat(),
+                length.withWriter(writer).toFloat(),
             )
         )
     }
 
-    override fun RcText.substring(start: Float, len: Float): RcText {
-        return RcText(writer.textSubtext(this.id, start, len))
-    }
-
-    override fun RcText.measure(
-        bmFontId: RcBitmapFont,
-        measureWidth: Int,
-        glyphSpacing: Float,
-    ): RcFloat {
-        return RcFloat(
-            writer,
-            writer.bitmapTextMeasure(this.id, bmFontId.id, measureWidth, glyphSpacing),
-        )
+    override fun RcText.substring(start: Float, length: Float): RcText {
+        return RcText(writer.textSubtext(this.id, start, length))
     }
 
     override fun RcBitmapFont.measure(
@@ -317,17 +306,18 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         return RcFloat(writer, writer.bitmapTextMeasure(text.id, this.id, type.value, glyphSpacing))
     }
 
-    override fun createBitmapFont(glyphs: Array<RcBitmapFontGlyph>): RcBitmapFont {
-        return RcBitmapFont(writer.addBitmapFont(Array(glyphs.size) { glyphs[it].glyph }))
-    }
-
     override fun createBitmapFont(
-        glyphs: Array<RcBitmapFontGlyph>,
-        kerningTable: Map<String, Short>,
+        glyphs: List<RcBitmapFontGlyph>,
+        kerningTable: Map<String, Int>,
     ): RcBitmapFont {
-        return RcBitmapFont(
-            writer.addBitmapFont(Array(glyphs.size) { glyphs[it].glyph }, kerningTable)
-        )
+        val glyphArray = Array(glyphs.size) { glyphs[it].glyph }
+        return if (kerningTable.isEmpty()) {
+            RcBitmapFont(writer.addBitmapFont(glyphArray))
+        } else {
+            RcBitmapFont(
+                writer.addBitmapFont(glyphArray, kerningTable.mapValues { it.value.toShort() })
+            )
+        }
     }
 
     override fun Text(
@@ -499,7 +489,7 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
                 x: RcFloat,
                 y: RcFloat,
             ) -> Unit
-    ): Int {
+    ): RcVisibilityAnimation {
         val args = FloatArray(6)
         val fid = writer.createFloatFunction(args)
         val scope = RcCanvasScopeImpl(writer)
@@ -512,7 +502,7 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
             RcFloat(writer, args[4]),
         )
         writer.endFloatFunction()
-        return fid
+        return RcVisibilityAnimation(fid)
     }
 
     override fun paint(block: RcPaintScope.() -> Unit) {
@@ -573,34 +563,44 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
     override fun remoteColorExpression(
         alpha: Int,
         hue: RcFloat,
-        sat: Float,
+        saturation: Float,
         value: Float,
-    ): RcColor = RcColor(writer.addColorExpression(alpha, hue.toFloat(), sat, value).toInt())
+    ): RcColor =
+        RcColor(
+            writer
+                .addColorExpression(alpha, hue.withWriter(writer).toFloat(), saturation, value)
+                .toInt()
+        )
 
-    override fun remoteColorExpression(alpha: Int, hue: Float, sat: Float, value: Float): RcColor =
-        RcColor(writer.addColorExpression(alpha, hue, sat, value).toInt())
+    override fun remoteColorExpression(
+        alpha: Int,
+        hue: Float,
+        saturation: Float,
+        value: Float,
+    ): RcColor = RcColor(writer.addColorExpression(alpha, hue, saturation, value).toInt())
 
     override fun remoteThemedColor(light: RcColor, dark: RcColor): RcColor =
         RcColor(writer.addThemedColor(light.id.toShort(), dark.id.toShort()).toInt())
 
     override fun createTextFromFloat(
         value: Float,
-        whole: Short,
-        decimal: Short,
-        flags: Int,
-    ): RcText = RcText(writer.createTextFromFloat(value, whole, decimal, flags))
+        whole: Int,
+        decimal: Int,
+        spec: RcTextFromFloatSpec,
+    ): RcText =
+        RcText(writer.createTextFromFloat(value, whole.toShort(), decimal.toShort(), spec.bits))
 
     override fun createTextFromFloat(
         value: RcFloat,
-        whole: Short,
-        decimal: Short,
-        flags: Int,
-    ): RcText = value.withWriter(writer).format(whole, decimal, flags)
+        whole: Int,
+        decimal: Int,
+        spec: RcTextFromFloatSpec,
+    ): RcText = value.withWriter(writer).format(whole, decimal, spec)
 
     override fun remoteFloatArray(array: FloatArray): RcFloat =
         RcFloat(writer, writer.addFloatArray(array))
 
-    override fun addNamedFloatArray(name: String, array: FloatArray): RcFloat {
+    override fun remoteNamedFloatArray(name: String, array: FloatArray): RcFloat {
         val id = RcFloat(writer, writer.addFloatArray(array))
         writer.setFloatName(Utils.idFromNan(id.toArray()[0]), name)
         return id
@@ -643,69 +643,6 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
     override fun continuousSeconds(): RcFloat =
         RcFloat(writer, floatArrayOf(Rc.Time.CONTINUOUS_SEC))
 
-    override fun max(a: RcFloat, b: RcFloat): RcFloat =
-        RcFloat(writer, floatArrayOf(*a.toArray(), *b.toArray(), Rc.FloatExpression.MAX))
-
-    override fun max(a: Float, b: RcFloat): RcFloat =
-        RcFloat(writer, floatArrayOf(a, *b.toArray(), Rc.FloatExpression.MAX))
-
-    override fun max(a: RcFloat, b: Float): RcFloat =
-        RcFloat(writer, floatArrayOf(*a.toArray(), b, Rc.FloatExpression.MAX))
-
-    override fun min(a: RcFloat, b: RcFloat): RcFloat =
-        RcFloat(writer, floatArrayOf(*a.toArray(), *b.toArray(), Rc.FloatExpression.MIN))
-
-    override fun min(a: Float, b: RcFloat): RcFloat =
-        RcFloat(writer, floatArrayOf(a, *b.toArray(), Rc.FloatExpression.MIN))
-
-    override fun min(a: RcFloat, b: Float): RcFloat =
-        RcFloat(writer, floatArrayOf(*a.toArray(), b, Rc.FloatExpression.MIN))
-
-    override fun sign(v: RcFloat): RcFloat =
-        RcFloat(writer, floatArrayOf(*v.toArray(), Rc.FloatExpression.SIGN))
-
-    override fun sin(v: RcFloat): RcFloat = v.sin()
-
-    override fun cos(v: RcFloat): RcFloat = v.cos()
-
-    override fun abs(v: RcFloat): RcFloat = v.abs()
-
-    override fun arrayMax(array: RcFloat): RcFloat =
-        RcFloat(writer, floatArrayOf(*array.toArray(), Rc.FloatExpression.A_MAX))
-
-    override fun arrayMin(array: RcFloat): RcFloat =
-        RcFloat(writer, floatArrayOf(*array.toArray(), Rc.FloatExpression.A_MIN))
-
-    override fun arraySpline(array: RcFloat, position: RcFloat): RcFloat =
-        RcFloat(
-            writer,
-            floatArrayOf(*array.toArray(), *position.toArray(), Rc.FloatExpression.A_SPLINE),
-        )
-
-    override fun arraySpline(array: RcFloat, position: Float): RcFloat =
-        RcFloat(writer, floatArrayOf(*array.toArray(), position, Rc.FloatExpression.A_SPLINE))
-
-    override fun arrayLength(a: RcFloat): RcFloat =
-        RcFloat(writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.A_LEN))
-
-    override fun arraySum(a: RcFloat): RcFloat =
-        RcFloat(writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.A_SUM))
-
-    override fun arraySum(a: RcFloat, index: RcFloat): RcFloat =
-        RcFloat(
-            writer,
-            floatArrayOf(*a.toArray(), *index.toArray(), Rc.FloatExpression.A_SUM_UNTIL),
-        )
-
-    override fun arraySumXY(a: RcFloat, b: RcFloat): RcFloat =
-        RcFloat(writer, floatArrayOf(*a.toArray(), *b.toArray(), Rc.FloatExpression.A_SUM_XY))
-
-    override fun arraySumSqr(a: RcFloat): RcFloat =
-        RcFloat(writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.A_SUM_SQR))
-
-    override fun arrayAvg(a: RcFloat): RcFloat =
-        RcFloat(writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.A_AVG))
-
     override fun remotePolarPath(
         expression: RcFloat,
         start: Float,
@@ -746,7 +683,7 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
             )
         )
 
-    override fun rFun(block: (RcFloat) -> RcFloat): RcFloat {
+    override fun remoteFunction(block: (RcFloat) -> RcFloat): RcFloat {
         val arg = RcFloat(writer, floatArrayOf(Rc.FloatExpression.VAR1))
         return block.invoke(arg)
     }
@@ -793,15 +730,27 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
 
     override fun componentHeight(): RcFloat = RcFloat(writer, writer.addComponentHeightValue())
 
-    override fun remoteBitmap(image: Any): RcImage = RcImage(writer.addBitmap(image))
+    override fun remotePlatformBitmap(image: Any): RcImage = RcImage(writer.addBitmap(image))
 
-    override fun remoteNamedBitmap(name: String, image: Any): RcImage =
+    override fun remoteNamedPlatformBitmap(name: String, image: Any): RcImage =
         RcImage(writer.addNamedBitmap(name, image))
+
+    override fun remoteBitmap(width: Int, height: Int, data: ByteArray): RcImage =
+        RcImage(writer.addBitmap(width, height, data))
+
+    override fun remoteNamedBitmap(
+        name: String,
+        width: Int,
+        height: Int,
+        data: ByteArray,
+    ): RcImage = RcImage(writer.addNamedBitmap(name, width, height, data))
 
     override fun remoteBitmapUrl(url: String): RcImage = RcImage(writer.addBitmapUrl(url))
 
     override fun remoteNamedBitmapUrl(name: String, url: String): RcImage =
         RcImage(writer.addNamedBitmapUrl(name, url))
+
+    override fun remoteFont(data: ByteArray): RcFont = RcFont(writer.addFont(data))
 
     override fun remoteFloat(value: Float): RcFloat =
         RcFloat(writer, writer.addFloatConstant(value))
@@ -817,8 +766,24 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
     override fun remoteLong(value: Long): RcInteger =
         RcInteger(writer.addLong(value).toLong(), writer)
 
-    override fun remoteBoolean(value: Boolean): RcInteger =
-        RcInteger(writer.addBoolean(value).toLong(), writer)
+    override fun remoteBoolean(value: Boolean): RcBool = RcBool(writer.addBoolean(value).toLong())
+
+    override fun customReturnFloat(type: Int): RcCustomProperty =
+        RcCustomProperty(
+            type.toShort(),
+            RcCustomProperty.FLOAT_RETURN,
+            writer.createFloatId(),
+            writer,
+        )
+
+    override fun customReturnText(type: Int): RcCustomProperty =
+        RcCustomProperty(type.toShort(), RcCustomProperty.TEXT_RETURN, writer.nextId(), writer)
+
+    override fun customReturnInt(type: Int): RcCustomProperty =
+        RcCustomProperty(type.toShort(), RcCustomProperty.INT_RETURN, writer.nextId(), writer)
+
+    override fun customReturnColor(type: Int): RcCustomProperty =
+        RcCustomProperty(type.toShort(), RcCustomProperty.COLOR_RETURN, writer.nextId(), writer)
 
     override fun remotePathData(path: RcPathData): RcPath = RcPath(writer.addPathData(path.base))
 
@@ -910,35 +875,41 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
 
         content(argMap)
         writer.endPatternDefine()
-        return RcMacro(macroId)
+        return RcMacro(macroId, parameters, paramIds)
     }
 
-    override fun RcMacro.inflate(arguments: Map<String, Any>) {
+    override fun RcMacro.inflate(block: RcMacroArgsScope.() -> Unit) {
+        val argsScope = RcMacroArgsScopeImpl(this@RcScopeImpl.writer).apply(block)
         val argIds =
-            arguments.values
-                .map { valArg ->
-                    when (valArg) {
-                        is RcFloat -> writer.cacheData(valArg.id.toInt())
-                        is RcInteger -> writer.cacheData(valArg.id.toInt())
-                        is RcText -> valArg.id
-                        is RcColor -> valArg.id
-                        is Number -> writer.cacheData(valArg.toFloat().toInt())
-                        is String -> writer.addText(valArg)
-                        else -> writer.cacheData(valArg.hashCode())
+            IntArray(this.parameters.size) { index ->
+                val paramName = this.parameters[index]
+                argsScope.argIdByName[paramName]
+                    ?: if (paramName in argsScope.blocksByName) {
+                        this.paramIds[index]
+                    } else {
+                        throw IllegalArgumentException(
+                            "Missing macro argument for parameter '$paramName'"
+                        )
                     }
+            }
+        if (argsScope.blocksByName.isEmpty()) {
+            this@RcScopeImpl.writer.addPatternInflation(this.id, argIds)
+        } else {
+            this@RcScopeImpl.writer.patternInflation(this.id, argIds)
+            this.parameters.forEachIndexed { index, paramName ->
+                val blockContent = argsScope.blocksByName[paramName]
+                if (blockContent != null) {
+                    this@RcScopeImpl.writer.addPatternBlock(this.paramIds[index])
+                    RcScopeImpl(this@RcScopeImpl.writer).blockContent()
+                    this@RcScopeImpl.writer.endPatternBlock()
                 }
-                .toIntArray()
-        writer.addPatternInflation(this.id, argIds)
+            }
+            this@RcScopeImpl.writer.endPatternInflation()
+        }
     }
 
     override fun RcMacroArg.insertArgument() {
         writer.addPatternArgument(this.paramId)
-    }
-
-    override fun RcMacroArg.insertBlock(content: RcScope.() -> Unit) {
-        writer.addPatternBlock(this.paramId)
-        content()
-        writer.endPatternBlock()
     }
 
     override val Int.rf: RcFloat
@@ -953,8 +924,6 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
     override val Boolean.rb: RcBool
         get() = RcBool(writer.addBoolean(this).toLong())
 
-    override fun remoteBool(value: Boolean): RcBool = RcBool(writer.addBoolean(value).toLong())
-
     override fun RcPath.tween(path2: RcPath, tween: Float): RcPath {
         return RcPath(writer.pathTween(this.id, path2.id, tween))
     }
@@ -965,31 +934,35 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
 
     override fun RcText.transform(
         start: RcFloat,
-        len: RcFloat,
+        length: RcFloat,
         operation: RcTextTransformOp,
     ): RcText {
         return RcText(
             writer.textTransform(
                 this.id,
                 start.withWriter(writer).toFloat(),
-                len.withWriter(writer).toFloat(),
+                length.withWriter(writer).toFloat(),
                 operation.value,
             )
         )
     }
 
-    override fun RcText.transform(start: Float, len: Float, operation: RcTextTransformOp): RcText {
-        return RcText(writer.textTransform(this.id, start, len, operation.value))
+    override fun RcText.transform(
+        start: Float,
+        length: Float,
+        operation: RcTextTransformOp,
+    ): RcText {
+        return RcText(writer.textTransform(this.id, start, length, operation.value))
     }
 
-    override fun textMeasure(text: RcText, mode: Int): RcFloat {
-        return RcFloat(writer, writer.textMeasure(text.id, mode))
+    override fun textMeasure(text: RcText, mode: RcTextMeasureMode): RcFloat {
+        return RcFloat(writer, writer.textMeasure(text.id, mode.value))
     }
 
-    override fun timeAttribute(variable: RcInteger, type: Short, vararg args: Int): RcFloat {
+    override fun timeAttribute(variable: RcInteger, attr: RcTimeAttr, vararg args: Int): RcFloat {
         return RcFloat(
             writer,
-            writer.timeAttribute((variable.id % 0x100000000L).toInt(), type, *args),
+            writer.timeAttribute((variable.id % 0x100000000L).toInt(), attr.value, *args),
         )
     }
 
@@ -1125,8 +1098,8 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
     override fun remoteMesh2DPathStrip(
         path: RcPath,
         segments: Int,
-        widths: Array<RcFloat>,
-        positions: Array<RcFloat>?,
+        widths: List<RcFloat>,
+        positions: List<RcFloat>?,
     ): RcMesh =
         RcMesh(
             writer.addMesh2DPathStrip(
@@ -1149,8 +1122,8 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
     override fun remoteMesh2DRoundStrip(
         path: RcPath,
         segments: Int,
-        widths: Array<RcFloat>,
-        positions: Array<RcFloat>?,
+        widths: List<RcFloat>,
+        positions: List<RcFloat>?,
     ): RcMesh =
         RcMesh(
             writer.addMesh2DRoundStrip(
@@ -1162,13 +1135,13 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         )
 
     override fun <S : RcScope> S.conditionalOperations(
-        type: Byte,
+        op: RcConditionOp,
         a: RcFloat,
         b: RcFloat,
         content: S.() -> Unit,
     ) {
         this@RcScopeImpl.writer.conditionalOperations(
-            type,
+            op.value,
             a.withWriter(this@RcScopeImpl.writer).toFloat(),
             b.withWriter(this@RcScopeImpl.writer).toFloat(),
         )
@@ -1178,21 +1151,21 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
 
     override fun createParticles(
         variables: FloatArray,
-        initialExpressions: Array<RcFloat>,
+        initialExpressions: List<RcFloat>,
         particleCount: Int,
     ): RcFloat {
-        val initialExprArrays = initialExpressions.map { it.toArray() }.toTypedArray()
+        val initialExprArrays = Array(initialExpressions.size) { initialExpressions[it].toArray() }
         return RcFloat(writer, writer.createParticles(variables, initialExprArrays, particleCount))
     }
 
     override fun particlesLoop(
         id: RcFloat,
         restart: RcFloat?,
-        expressions: Array<RcFloat>,
+        expressions: List<RcFloat>,
         block: RcCanvasScope.() -> Unit,
     ) {
         val restartArray = restart?.toArray()
-        val exprArrays = expressions.map { it.toArray() }.toTypedArray()
+        val exprArrays = Array(expressions.size) { expressions[it].toArray() }
         writer.particlesLoop(
             id.withWriter(writer).toFloat(),
             restartArray,
@@ -1207,22 +1180,22 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
 
     override fun particlesComparison(
         id: RcFloat,
-        flags: Short,
         min: RcFloat,
         max: RcFloat,
         condition: RcFloat?,
-        then1: Array<RcFloat>?,
-        then2: Array<RcFloat>?,
+        then1: List<RcFloat>?,
+        then2: List<RcFloat>?,
+        flags: RcParticleComparisonFlags,
         block: RcCanvasScope.() -> Unit,
     ) {
         val minVal = min.withWriter(writer).toFloat()
         val maxVal = max.withWriter(writer).toFloat()
         val condArray = condition?.toArray()
-        val then1Arrays = then1?.map { it.toArray() }?.toTypedArray()
-        val then2Arrays = then2?.map { it.toArray() }?.toTypedArray()
+        val then1Arrays = then1?.let { list -> Array(list.size) { list[it].toArray() } }
+        val then2Arrays = then2?.let { list -> Array(list.size) { list[it].toArray() } }
         writer.particlesComparison(
             id.withWriter(writer).toFloat(),
-            flags,
+            flags.value,
             minVal,
             maxVal,
             condArray,
@@ -1238,20 +1211,20 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
 
     override fun particlesComparison(
         id: RcFloat,
-        flags: Short,
         min: RcFloat,
         max: RcFloat,
         condition: RcFloat?,
-        then: Array<RcFloat>?,
+        then: List<RcFloat>?,
+        flags: RcParticleComparisonFlags,
         block: RcCanvasScope.() -> Unit,
     ) {
         val minVal = min.withWriter(writer).toFloat()
         val maxVal = max.withWriter(writer).toFloat()
         val condArray = condition?.toArray()
-        val thenArrays = then?.map { it.toArray() }?.toTypedArray()
+        val thenArrays = then?.let { list -> Array(list.size) { list[it].toArray() } }
         writer.particlesComparison(
             id.withWriter(writer).toFloat(),
-            flags,
+            flags.value,
             minVal,
             maxVal,
             condArray,
@@ -1295,13 +1268,13 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         writer.endRunActions()
     }
 
-    override fun <S : RcScope> S.skip(type: Short, value: Int, block: S.() -> Unit) {
-        val offset = this@RcScopeImpl.writer.beginSkip(type, value)
+    override fun <S : RcScope> S.skip(kind: RcSkipKind, value: Int, block: S.() -> Unit) {
+        val offset = this@RcScopeImpl.writer.beginSkip(kind.value, value)
         this.block()
         this@RcScopeImpl.writer.endSkip(offset)
     }
 
-    override fun <S : RcScope> S.rcLoop(
+    override fun <S : RcScope> S.loop(
         start: RcFloat,
         step: Float,
         end: RcFloat,
@@ -1317,7 +1290,7 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         }
     }
 
-    override fun <S : RcScope> S.rcLoop(
+    override fun <S : RcScope> S.loop(
         start: RcFloat,
         step: RcFloat,
         end: RcFloat,
@@ -1539,7 +1512,7 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         arcTo(0f, 0f, rx, ry, angle, largeArc, sweep, x, y)
     }
 
-    override fun RcDynamicPath.getPath(): RcPath {
+    override fun RcDynamicPath.toPath(): RcPath {
         return RcPath(id)
     }
 
@@ -1559,8 +1532,8 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
     override fun remoteFloatList(values: FloatArray): RcFloat =
         RcFloat(writer, writer.addFloatList(values))
 
-    override fun remoteFloatMap(keys: Array<String>, values: FloatArray): RcFloat =
-        RcFloat(writer, writer.addFloatMap(keys, values))
+    override fun remoteFloatMap(keys: List<String>, values: FloatArray): RcFloat =
+        RcFloat(writer, writer.addFloatMap(keys.toTypedArray(), values))
 
     override fun setArrayValue(array: RcFloat, index: RcFloat, value: RcFloat) {
         val arrayId = Utils.idFromNan(array.id)
@@ -1568,8 +1541,6 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         val valueVal = value.withWriter(writer).toFloat()
         writer.setArrayValue(arrayId, indexVal, valueVal)
     }
-
-    // ###############################################
 
     override fun componentContentWidth(): RcFloat {
         return RcFloat(this.writer, this.writer.addComponentContentWidthValue())
@@ -1602,19 +1573,53 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
     override fun index(): RcFloat {
         return RcFloat(this.writer, Rc.FloatExpression.VAR1)
     }
+}
 
-    override val var1: RcFloat
-        get() = RcFloat(this.writer, floatArrayOf(Rc.FloatExpression.VAR1))
+private class RcMacroArgsScopeImpl(private val writer: RemoteComposeWriter) : RcMacroArgsScope {
+    val argIdByName: MutableMap<String, Int> = LinkedHashMap()
+    val blocksByName: MutableMap<String, RcScope.() -> Unit> = LinkedHashMap()
 
-    override fun rf(vararg elements: Float): RcFloat {
-        return RcFloat(this.writer, elements)
+    override fun text(name: String, value: RcText) {
+        argIdByName[name] = value.id
     }
 
-    override fun rf(v: Number): RcFloat {
-        return RcFloat(this.writer, v.toFloat())
+    override fun text(name: String, value: String) {
+        argIdByName[name] = writer.addText(value)
     }
 
-    // ###############################################
+    override fun float(name: String, value: RcFloat) {
+        val f = value.withWriter(writer).toFloat()
+        argIdByName[name] =
+            if (f.isNaN()) Utils.idFromNan(f) else Utils.idFromNan(writer.addFloatConstant(f))
+    }
+
+    override fun float(name: String, value: Float) {
+        argIdByName[name] = Utils.idFromNan(writer.addFloatConstant(value))
+    }
+
+    override fun int(name: String, value: RcInteger) {
+        argIdByName[name] = value.toRawInt()
+    }
+
+    override fun int(name: String, value: Int) {
+        argIdByName[name] = (writer.addInteger(value) % 0x100000000L).toInt()
+    }
+
+    override fun color(name: String, value: RcColor) {
+        argIdByName[name] = value.id
+    }
+
+    override fun color(name: String, value: RcColorValue) {
+        argIdByName[name] = writer.addColor(value.id)
+    }
+
+    override fun image(name: String, value: RcImage) {
+        argIdByName[name] = value.id
+    }
+
+    override fun block(name: String, content: RcScope.() -> Unit) {
+        blocksByName[name] = content
+    }
 }
 
 private class RcImpulseScopeImpl(writer: RemoteComposeWriter) :
@@ -1709,16 +1714,26 @@ internal open class RcCanvasScopeImpl(writer: RemoteComposeWriter) :
         writer.skew(skewX, skewY)
     }
 
-    override fun matrixFromPath(path: RcPath, fraction: Float, vOffset: Float, flags: Int) {
-        writer.matrixFromPath(path.id, fraction, vOffset, flags)
+    override fun matrixFromPath(
+        path: RcPath,
+        fraction: Float,
+        vOffset: Float,
+        flags: RcMatrixFromPathFlags,
+    ) {
+        writer.matrixFromPath(path.id, fraction, vOffset, flags.bits)
     }
 
-    override fun matrixFromPath(path: RcPath, fraction: RcFloat, vOffset: RcFloat, flags: Int) {
+    override fun matrixFromPath(
+        path: RcPath,
+        fraction: RcFloat,
+        vOffset: RcFloat,
+        flags: RcMatrixFromPathFlags,
+    ) {
         writer.matrixFromPath(
             path.id,
             fraction.withWriter(writer).toFloat(),
             vOffset.withWriter(writer).toFloat(),
-            flags,
+            flags.bits,
         )
     }
 
@@ -1896,9 +1911,9 @@ internal open class RcCanvasScopeImpl(writer: RemoteComposeWriter) :
         y: Float,
         panX: Float,
         panY: Float,
-        flags: Int,
+        flags: RcTextAnchorFlags,
     ) {
-        writer.drawTextAnchored(text.id, x, y, panX, panY, flags)
+        writer.drawTextAnchored(text.id, x, y, panX, panY, flags.bits)
     }
 
     override fun drawTextAnchored(
@@ -1907,7 +1922,7 @@ internal open class RcCanvasScopeImpl(writer: RemoteComposeWriter) :
         y: RcFloat,
         panX: RcFloat,
         panY: RcFloat,
-        flags: Int,
+        flags: RcTextAnchorFlags,
     ) {
         writer.drawTextAnchored(
             text.id,
@@ -1915,7 +1930,7 @@ internal open class RcCanvasScopeImpl(writer: RemoteComposeWriter) :
             y.withWriter(writer).toFloat(),
             panX.withWriter(writer).toFloat(),
             panY.withWriter(writer).toFloat(),
-            flags,
+            flags.bits,
         )
     }
 
@@ -2014,7 +2029,7 @@ internal open class RcCanvasScopeImpl(writer: RemoteComposeWriter) :
         path: RcPath,
         start: Int,
         end: Int,
-        yAdj: Float,
+        yOffset: Float,
         glyphSpacing: Float,
     ) {
         writer.drawBitmapFontTextRunOnPath(
@@ -2023,7 +2038,7 @@ internal open class RcCanvasScopeImpl(writer: RemoteComposeWriter) :
             path.id,
             start,
             end,
-            yAdj,
+            yOffset,
             glyphSpacing,
         )
     }
@@ -2034,7 +2049,7 @@ internal open class RcCanvasScopeImpl(writer: RemoteComposeWriter) :
         path: RcPath,
         start: Int,
         end: Int,
-        yAdj: RcFloat,
+        yOffset: RcFloat,
         glyphSpacing: Float,
     ) {
         writer.drawBitmapFontTextRunOnPath(
@@ -2043,7 +2058,7 @@ internal open class RcCanvasScopeImpl(writer: RemoteComposeWriter) :
             path.id,
             start,
             end,
-            yAdj.withWriter(writer).toFloat(),
+            yOffset.withWriter(writer).toFloat(),
             glyphSpacing,
         )
     }
@@ -2237,55 +2252,28 @@ internal open class RcCanvasScopeImpl(writer: RemoteComposeWriter) :
     }
 
     override fun addTouch(
-        defValue: RcFloat,
+        defaultValue: RcFloat,
         min: RcFloat,
         max: RcFloat,
-        exp: RcFloat,
+        expression: RcFloat,
         stopMode: RcTouchStopMode,
         velocity: RcFloat,
         notchHaptic: RcHaptic,
-        touchSpec: FloatArray?,
-        easingSpec: FloatArray?,
+        notches: FloatArray?,
+        easing: FloatArray?,
     ): RcFloat {
         return RcFloat(
             writer,
             writer.addTouch(
-                defValue.withWriter(writer).toFloat(),
+                defaultValue.withWriter(writer).toFloat(),
                 min.withWriter(writer).toFloat(),
                 max.withWriter(writer).toFloat(),
                 stopMode.value,
                 velocity.withWriter(writer).toFloat(),
                 notchHaptic.value,
-                touchSpec,
-                easingSpec,
-                *exp.array,
-            ),
-        )
-    }
-
-    override fun addTouch(
-        defValue: Float,
-        min: Float,
-        max: Float,
-        touchMode: Int,
-        velocityId: Float,
-        touchEffects: Int,
-        touchSpec: FloatArray?,
-        easingSpec: FloatArray?,
-        vararg exp: Float,
-    ): RcFloat {
-        return RcFloat(
-            writer,
-            writer.addTouch(
-                defValue,
-                min,
-                max,
-                touchMode,
-                velocityId,
-                touchEffects,
-                touchSpec,
-                easingSpec,
-                *exp,
+                notches,
+                easing,
+                *expression.withWriter(writer).toArray(),
             ),
         )
     }

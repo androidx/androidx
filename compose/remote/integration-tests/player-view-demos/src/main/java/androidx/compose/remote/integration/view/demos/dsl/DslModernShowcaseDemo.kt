@@ -72,7 +72,7 @@ public fun dslModernShowcaseDemo(): ByteArray {
                         Canvas(Modifier.fillMaxSize()) {
                             val w = componentWidth()
                             val h = componentHeight()
-                            args["bgColor"]?.insertArgument()
+                            paint { color(args["bgColor"]!!.asColor()) }
                             drawRect(0.rf, 0.rf, w, h)
 
                             paint {
@@ -80,17 +80,23 @@ public fun dslModernShowcaseDemo(): ByteArray {
                                 textSize(64f)
                             }
                             val titleText = args["title"]!!.asText()
-                            drawTextAnchored(titleText, w / 2f, h / 2f, 0.rf, 0.rf, 0)
+                            drawTextAnchored(titleText, w / 2f, h / 2f, 0.rf, 0.rf)
                         }
                     }
                 }
 
             // Inflate macro templates live!
             val helloId = remoteText("Reusable Macro Inflation 1")
-            bannerMacro.inflate(mapOf("title" to helloId, "bgColor" to 0xFF3B82F6.toInt()))
+            bannerMacro.inflate {
+                text("title", helloId)
+                color("bgColor", 0xFF3B82F6.rcColor())
+            }
             Spacer(Modifier.height(12.rdp))
             val worldId = remoteText("Reusable Macro Inflation 2")
-            bannerMacro.inflate(mapOf("title" to worldId, "bgColor" to 0xFF10B981.toInt()))
+            bannerMacro.inflate {
+                text("title", worldId)
+                color("bgColor", 0xFF10B981.rcColor())
+            }
 
             Spacer(Modifier.height(24.rdp))
 
@@ -118,11 +124,11 @@ public fun dslModernShowcaseDemo(): ByteArray {
                     }
                     ifTrue(sec lt 5f.rf) {
                         val txtLeft = remoteText("Status: < 5s")
-                        drawTextAnchored(txtLeft, w / 2f, 60f.rf, 0f.rf, 0f.rf, 0)
+                        drawTextAnchored(txtLeft, w / 2f, 60f.rf, 0f.rf, 0f.rf)
                     }
                     ifTrue(sec gte 5f.rf) {
                         val txtRight = remoteText("Status: >= 5s")
-                        drawTextAnchored(txtRight, w / 2f, 60f.rf, 0f.rf, 0f.rf, 0)
+                        drawTextAnchored(txtRight, w / 2f, 60f.rf, 0f.rf, 0f.rf)
                     }
                 }
             }

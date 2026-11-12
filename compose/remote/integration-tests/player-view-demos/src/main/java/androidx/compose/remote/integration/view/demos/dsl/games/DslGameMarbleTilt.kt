@@ -26,10 +26,12 @@ import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcScope
 import androidx.compose.remote.creation.dsl.clamp
+import androidx.compose.remote.creation.dsl.cos
 import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
 import androidx.compose.remote.creation.dsl.padding
 import androidx.compose.remote.creation.dsl.rsp
+import androidx.compose.remote.creation.dsl.sin
 import androidx.compose.remote.creation.dsl.sqrt
 import androidx.compose.remote.creation.dsl.times
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
@@ -43,7 +45,7 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
 fun dslGameMarbleTilt(): ByteArray {
     return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
         //        val warningSound =
-        //            soundExpression(
+        //            remoteSoundExpression(
         //                type = RcSoundType.Tone,
         //                frequency = 220f,
         //                durationSeconds = 0.08f,
@@ -121,7 +123,7 @@ fun RcScope.marble(w: RcFloat, h: RcFloat): Array<RcFloat> {
     var returnY: RcFloat = 0.rf
 
     impulse(20000.rf, 0.rf) {
-        val ps = createParticles(variables, arrayOf(w / 2f, h / 2f, 0f.rf, 0f.rf), 1)
+        val ps = createParticles(variables, listOf(w / 2f, h / 2f, 0f.rf, 0f.rf), 1)
         val (x, y, dx, dy) = rcFloats(variables)
         returnX = x
         returnY = y
@@ -129,7 +131,7 @@ fun RcScope.marble(w: RcFloat, h: RcFloat): Array<RcFloat> {
             particlesLoop(
                 ps,
                 null,
-                arrayOf(
+                listOf(
                     clamp(rad, w - rad, x + dx * dt),
                     clamp(rad, h - rad, y + dy * dt),
                     clamp(-300.rf, 300.rf, dx + ax * dt),

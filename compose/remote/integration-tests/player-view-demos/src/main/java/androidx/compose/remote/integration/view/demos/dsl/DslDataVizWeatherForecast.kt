@@ -82,7 +82,7 @@ public fun dslDemoWeatherForecast(): ByteArray {
                 textSize((density * 16f).toFloat())
                 typeface(RcFontType.Default, RcFontWeight.Bold, italic = false)
             }
-            drawTextAnchored(remoteText("Hourly Forecast"), w / 2f, density * 18f, 0f.rf, 0f.rf, 0)
+            drawTextAnchored(remoteText("Hourly Forecast"), w / 2f, density * 18f, 0f.rf, 0f.rf)
 
             // Temperature bars via player-side loop.
             loop(0f.rf, 1f.rf, barCount.rf) { i ->
@@ -122,7 +122,6 @@ public fun dslDemoWeatherForecast(): ByteArray {
                     barY - density * 6f,
                     0f.rf,
                     0f.rf,
-                    0,
                 )
 
                 // Precipitation indicator (blue dot, size = probability).
@@ -146,7 +145,6 @@ public fun dslDemoWeatherForecast(): ByteArray {
                     graphBottom + density * 22f,
                     0f.rf,
                     0f.rf,
-                    0,
                 )
             }
 
@@ -158,7 +156,7 @@ public fun dslDemoWeatherForecast(): ByteArray {
             for (t in intArrayOf(15, 20, 25, 30)) {
                 // Rearranged so `graphH` (RcFloat) is on the left of the `*` (G15).
                 val y = graphBottom - graphH * ((t.toFloat() - minTemp) / tempRange)
-                drawTextAnchored(remoteText("$t°"), marginL - density * 6f, y, 1f.rf, 0f.rf, 0)
+                drawTextAnchored(remoteText("$t°"), marginL - density * 6f, y, 1f.rf, 0f.rf)
                 paint {
                     color(0x22FFFFFF.rcColor())
                     strokeWidth(1f)

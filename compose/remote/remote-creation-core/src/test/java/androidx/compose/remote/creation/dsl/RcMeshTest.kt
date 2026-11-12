@@ -253,7 +253,7 @@ class RcMeshTest {
 
     /** A simple curve for a ribbon to follow. */
     private fun RcScope.testPath() =
-        remoteXYPath(rFun { s -> s * 200f }, rFun { s -> s * 50f }, 0f, 1f, 16)
+        remoteXYPath(remoteFunction { s -> s * 200f }, remoteFunction { s -> s * 50f }, 0f, 1f, 16)
 
     @Test
     fun pathSplineStripReachesTheWire() {
@@ -295,8 +295,8 @@ class RcMeshTest {
             scope.remoteMesh2DPathStrip(
                 scope.testPath(),
                 segments = 8,
-                widths = arrayOf(RcFloat(1f), RcFloat(18f)),
-                positions = arrayOf(RcFloat(0f), RcFloat(1f)),
+                widths = listOf(RcFloat(1f), RcFloat(18f)),
+                positions = listOf(RcFloat(0f), RcFloat(1f)),
             )
         scope.drawMesh2D(ribbon)
 
@@ -358,8 +358,8 @@ class RcMeshTest {
             scope.remoteMesh2DRoundStrip(
                 scope.testPath(),
                 segments = 8,
-                widths = arrayOf(RcFloat(1f), RcFloat(18f)),
-                positions = arrayOf(RcFloat(0f), RcFloat(1f)),
+                widths = listOf(RcFloat(1f), RcFloat(18f)),
+                positions = listOf(RcFloat(0f), RcFloat(1f)),
             )
         scope.drawMesh2D(ribbon)
 

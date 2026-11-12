@@ -181,7 +181,6 @@ public fun dslRadialGradientFocusDemo(): ByteArray {
                     cy + radius + (density * 18f),
                     0f.rf,
                     0f.rf,
-                    0,
                 )
             }
         }

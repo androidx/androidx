@@ -128,7 +128,7 @@ public fun dslDemoHeartRateTimeline(): ByteArray {
                 strokeWidth((density * 2.5f).toFloat())
                 strokeCap(RcStrokeCap.Round)
             }
-            drawPath(linePath.getPath())
+            drawPath(linePath.toPath())
 
             // Hour labels (host-side loop over [0, 6, 12, 18]).
             paint {
@@ -138,7 +138,7 @@ public fun dslDemoHeartRateTimeline(): ByteArray {
             }
             for (hr in intArrayOf(0, 6, 12, 18)) {
                 val x = gLeft + gW * hr.rf / 23f
-                drawTextAnchored(remoteText("${hr}h"), x, gBottom + density * 12f, 0f.rf, 0f.rf, 0)
+                drawTextAnchored(remoteText("${hr}h"), x, gBottom + density * 12f, 0f.rf, 0f.rf)
             }
 
             // Current BPM with pulsing effect.
@@ -156,20 +156,20 @@ public fun dslDemoHeartRateTimeline(): ByteArray {
                     0,
                     RcTextFromFloatSpec.of(padPre = RcTextFromFloatSpec.PadPre.None),
                 )
-            drawTextAnchored(bpmText, w * 0.75f, h * 0.12f, 0f.rf, 0f.rf, 0)
+            drawTextAnchored(bpmText, w * 0.75f, h * 0.12f, 0f.rf, 0f.rf)
             paint {
                 textSize((density * 14f).toFloat())
                 typeface(RcFontType.Default, RcFontWeight.Normal, italic = false)
                 color(0xAAFFFFFF.toInt())
             }
-            drawTextAnchored(remoteText("BPM"), w * 0.75f, h * 0.12f, 0f.rf, 3f.rf, 0)
+            drawTextAnchored(remoteText("BPM"), w * 0.75f, h * 0.12f, 0f.rf, 3f.rf)
 
             // Heart icon.
             paint {
                 color(0xFFFF3B30.toInt())
                 textSize((density * 20f * pulse).toFloat())
             }
-            drawTextAnchored(remoteText("♥"), w * 0.75f, h * 0.12f, 4f.rf, 0f.rf, 0)
+            drawTextAnchored(remoteText("♥"), w * 0.75f, h * 0.12f, 4f.rf, 0f.rf)
         }
     }
 }

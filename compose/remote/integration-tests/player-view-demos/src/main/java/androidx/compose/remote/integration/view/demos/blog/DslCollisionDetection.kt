@@ -79,7 +79,7 @@ public fun dslCollisionDetection(): ByteArray {
                     val rainSystem =
                         createParticles(
                             stateRegisters,
-                            arrayOf(
+                            listOf(
                                 random(30f.rf, width - 30f), // Distributed across width
                                 random((-160f).rf, 0f.rf), // Staggered starting Y
                                 0f.rf, // Initial horizontal velocity
@@ -113,13 +113,12 @@ public fun dslCollisionDetection(): ByteArray {
                         //   2. Executes the scoped draw lambda ONLY for the colliding particles.
                         particlesComparison(
                             id = rainSystem,
-                            flags = 0,
                             // min/max of -1 means "no index range filter": test every particle.
                             min = (-1f).rf,
                             max = (-1f).rf,
                             condition = hitFloor, // Evaluated as true if > 0.
                             then =
-                                arrayOf(
+                                listOf(
                                     nextX, // Register 0 (x): Maintain horizontal position
                                     // Register 1 (y): Snap position to the floor surface
                                     // (prevents tunneling)
@@ -142,7 +141,7 @@ public fun dslCollisionDetection(): ByteArray {
                         }
 
                         // Green falling particles
-                        particlesLoop(rainSystem, null, arrayOf(nextX, nextY, vx, nextVy)) {
+                        particlesLoop(rainSystem, null, listOf(nextX, nextY, vx, nextVy)) {
                             save()
                             this@Canvas.translate(x, y)
                             paint { color(0xFF34A853.toInt()) }

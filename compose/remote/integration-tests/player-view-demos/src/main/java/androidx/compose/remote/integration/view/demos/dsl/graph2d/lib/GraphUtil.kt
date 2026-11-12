@@ -165,7 +165,7 @@ public fun RcCanvasScope.labelR(
             italic = false,
         )
     }
-    drawTextAnchored(remoteText(text), x, y, panX.rf, panY.rf, 0)
+    drawTextAnchored(remoteText(text), x, y, panX.rf, panY.rf)
 }
 
 /** Draw a text label (host string) anchored at ([x],[y]) with the given pan and style. */
@@ -191,7 +191,7 @@ public fun RcCanvasScope.label(
             italic = false,
         )
     }
-    drawTextAnchored(remoteText(text), x, y, panX, panY, 0)
+    drawTextAnchored(remoteText(text), x, y, panX, panY)
 }
 
 /** Draw a label rotated 90° counter-clockwise (for vertical y-axis titles). */

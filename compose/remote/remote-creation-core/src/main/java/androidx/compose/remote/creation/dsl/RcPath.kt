@@ -15,7 +15,7 @@
  */
 
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@file:JvmName("RcPathKt")
+@file:JvmName("RcPaths")
 
 package androidx.compose.remote.creation.dsl
 

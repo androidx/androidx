@@ -35,9 +35,9 @@ import kotlin.math.PI
  * - `remoteXYPath(expressionX, expressionY, start, end, count, type)` for XY plots
  * - `remotePolarPath(expression, start, end, count, centerX, centerY, type)` for polar plots
  *
- * Plus `RcFloat.anim(duration, RcAnimationCurve)` for animation, `rFun { x -> … }` for single-var
- * functions, and `value.format(whole, decimal, spec)` returning typed `RcText` (replacing legacy
- * `genTextId(…)` Int returns).
+ * Plus `RcFloat.anim(duration, RcAnimationCurve)` for animation, `remoteFunction { x -> … }` for
+ * single-var functions, and `value.format(whole, decimal, spec)` returning typed `RcText`
+ * (replacing legacy `genTextId(…)` Int returns).
  *
  * `plot1()`/`plot2()` are skipped — they use `writer.addThemedColor(…)` returning Short colorIds
  * (used as `painter.setColorId(short)`) which the DSL doesn't expose cleanly today — would need
@@ -63,16 +63,16 @@ public fun dslPlot3(): ByteArray {
                 // top-level extensions to be imported.
                 val offsetX = scaleX * (-minX) + 50f
 
-                Text(scale.format(1, 1, 0))
+                Text(scale.format(1, 1))
 
                 paint {
                     strokeWidth(10f)
                     style(RcPaintStyle.Stroke)
                 }
-                val equ = rFun { x -> sin(x + continuousSeconds() * 3f) }
+                val equ = remoteFunction { x -> sin(x + continuousSeconds() * 3f) }
                 val pathId =
                     remoteXYPath(
-                        expressionX = rFun { x -> x * scaleX + offsetX },
+                        expressionX = remoteFunction { x -> x * scaleX + offsetX },
                         expressionY = equ * scaleY + offsetY,
                         start = minX,
                         end = maxX,
@@ -99,11 +99,13 @@ public fun dslPlot4(): ByteArray {
                 val maxX = PI.toFloat() * 2f
                 val scale =
                     (((seconds() / 2f) % 2f) + 1f).anim(0.5f, RcAnimationCurve.CubicDecelerate)
-                Text(scale.format(1, 1, 0))
+                Text(scale.format(1, 1))
 
                 // Rearranged so RcFloat is on the left of each operator (avoids needing
                 // `Float.times(RcFloat)` and `Float.plus(RcFloat)` extensions imported).
-                val equ = rFun { x -> sin(x * 10f + continuousSeconds() * 3f) * 10f + 100f }
+                val equ = remoteFunction { x ->
+                    sin(x * 10f + continuousSeconds() * 3f) * 10f + 100f
+                }
                 val pathId =
                     remotePolarPath(
                         expression = equ * scale,

@@ -1182,7 +1182,7 @@ private fun RcCanvasScope.renderSparkline(
             color(Palette.fadeAlpha(color, 0.28f))
             style(RcPaintStyle.Fill)
         }
-        drawPath(ap.getPath())
+        drawPath(ap.toPath())
     }
 
     val lp = remotePath(left, firstY.toFloat())
@@ -1194,5 +1194,5 @@ private fun RcCanvasScope.renderSparkline(
         strokeCap(RcStrokeCap.Round)
         strokeJoin(RcStrokeJoin.Round)
     }
-    drawPath(lp.getPath())
+    drawPath(lp.toPath())
 }

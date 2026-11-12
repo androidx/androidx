@@ -30,7 +30,7 @@ import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
 import androidx.compose.remote.creation.dsl.min
 import androidx.compose.remote.creation.dsl.sin
-import androidx.compose.remote.creation.dsl.toRad
+import androidx.compose.remote.creation.dsl.toRadians
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 
 /**
@@ -41,7 +41,7 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
  *
  * Exercises:
  * - Host-side iteration over a constant `intArrayOf(25, 50, 75, 100)` to render labels.
- * - `toRad(...)`, `cos(...)`, `sin(...)` typed math.
+ * - `toRadians(...)`, `cos(...)`, `sin(...)` typed math.
  * - Mixed-float drawArc still requires `.rf` coercion (G9 workaround).
  */
 @Suppress("RestrictedApiAndroidX")
@@ -105,7 +105,7 @@ public fun dslDemoStepProgressArc(): ByteArray {
             val tickLen = strokeW * 0.6f
             for (pct in intArrayOf(25, 50, 75, 100)) {
                 val angle = 180f + pct.toFloat() / 100f * 180f
-                val rad = toRad(angle.rf)
+                val rad = toRadians(angle.rf)
                 val outerR = arcRadius + strokeW / 2f + density * 2f
                 val innerR = arcRadius + strokeW / 2f + tickLen
                 val tx1 = cx + outerR * cos(rad)
@@ -126,7 +126,6 @@ public fun dslDemoStepProgressArc(): ByteArray {
                     cy + lR * sin(rad),
                     0f.rf,
                     0f.rf,
-                    0,
                 )
                 paint { style(RcPaintStyle.Stroke) }
             }
@@ -145,7 +144,7 @@ public fun dslDemoStepProgressArc(): ByteArray {
                     0,
                     RcTextFromFloatSpec.of(padPre = RcTextFromFloatSpec.PadPre.None),
                 )
-            drawTextAnchored(stepsText, cx, cy - density * 15f, 0f.rf, 0f.rf, 0)
+            drawTextAnchored(stepsText, cx, cy - density * 15f, 0f.rf, 0f.rf)
 
             // Goal text.
             paint {
@@ -161,7 +160,7 @@ public fun dslDemoStepProgressArc(): ByteArray {
                     RcTextFromFloatSpec.of(padPre = RcTextFromFloatSpec.PadPre.None),
                 )
             val goalLabel = remoteText("/ ") + goalNumber + " steps"
-            drawTextAnchored(goalLabel, cx, cy + density * 8f, 0f.rf, 0f.rf, 0)
+            drawTextAnchored(goalLabel, cx, cy + density * 8f, 0f.rf, 0f.rf)
         }
     }
 }

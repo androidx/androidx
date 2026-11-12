@@ -134,14 +134,14 @@ public fun dslDemoSleepQualityRings(): ByteArray {
                     RcTextFromFloatSpec.of(padPre = RcTextFromFloatSpec.PadPre.None),
                 )
             val timeLabel = hrsText + "h " + minsText + "m"
-            drawTextAnchored(timeLabel, cx, cy, 0f.rf, 0f.rf, 0)
+            drawTextAnchored(timeLabel, cx, cy, 0f.rf, 0f.rf)
 
             paint {
                 color(0xAAFFFFFF.toInt())
                 textSize((density * 13f).toFloat())
                 typeface(RcFontType.Default, RcFontWeight.Normal, italic = false)
             }
-            drawTextAnchored(remoteText("Total Sleep"), cx, cy, 0f.rf, 3.5f.rf, 0)
+            drawTextAnchored(remoteText("Total Sleep"), cx, cy, 0f.rf, 3.5f.rf)
 
             // Legend.
             for (i in stageData.indices) {
@@ -163,7 +163,6 @@ public fun dslDemoSleepQualityRings(): ByteArray {
                     ly + density * 12f,
                     0f.rf,
                     0f.rf,
-                    0,
                 )
             }
         }

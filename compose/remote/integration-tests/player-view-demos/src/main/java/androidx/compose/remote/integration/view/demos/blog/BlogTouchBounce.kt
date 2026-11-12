@@ -29,6 +29,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.dsl.RcCanvas
 import androidx.compose.remote.creation.dsl.RcFloat
 import androidx.compose.remote.creation.dsl.clamp
+import androidx.compose.remote.creation.dsl.min
 import androidx.compose.remote.creation.dsl.minus
 import androidx.compose.remote.creation.dsl.times
 import androidx.compose.runtime.Composable
@@ -88,7 +89,7 @@ public fun TouchBounce() {
                     val particleSystem =
                         createParticles(
                             stateRegisters,
-                            arrayOf(
+                            listOf(
                                 floorY, // Initial vertical position
                                 0f.rf, // Initial vertical velocity
                             ),
@@ -118,7 +119,7 @@ public fun TouchBounce() {
                             // Writes back to the registers attached to the particleSystem so that
                             // on the next frame newVerticalPosition and newVerticalVelocity are
                             // calculated using the position and velocity from this frame.
-                            arrayOf(newVerticalPosition, newVerticalVelocity),
+                            listOf(newVerticalPosition, newVerticalVelocity),
                         ) {
                             save()
                             // Qualified because the particle loop body runs in a plain RcScope,

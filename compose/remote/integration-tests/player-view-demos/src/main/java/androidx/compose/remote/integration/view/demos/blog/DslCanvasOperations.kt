@@ -42,15 +42,20 @@ import androidx.compose.remote.creation.dsl.RcText
 import androidx.compose.remote.creation.dsl.background
 import androidx.compose.remote.creation.dsl.bitmapFontGlyph
 import androidx.compose.remote.creation.dsl.clip
+import androidx.compose.remote.creation.dsl.cos
 import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
 import androidx.compose.remote.creation.dsl.horizontalWeight
 import androidx.compose.remote.creation.dsl.hypot
 import androidx.compose.remote.creation.dsl.mad
+import androidx.compose.remote.creation.dsl.max
+import androidx.compose.remote.creation.dsl.min
 import androidx.compose.remote.creation.dsl.minus
 import androidx.compose.remote.creation.dsl.padding
 import androidx.compose.remote.creation.dsl.pingPong
 import androidx.compose.remote.creation.dsl.random
+import androidx.compose.remote.creation.dsl.remoteBitmap
+import androidx.compose.remote.creation.dsl.sin
 import androidx.compose.remote.creation.dsl.sqrt
 import androidx.compose.remote.creation.dsl.square
 import androidx.compose.remote.creation.dsl.times
@@ -325,7 +330,7 @@ private fun RcCanvasScope.pathsPanel() {
 
     val blob =
         remotePolarPath(
-            rFun { th ->
+            remoteFunction { th ->
                 (sin(th * 5f + t * 1.3f) * 0.18f + sin(th * 3f - t * 2.1f) * 0.08f + 0.7f) * r
             },
             0f,
@@ -350,8 +355,8 @@ private fun RcCanvasScope.pathsPanel() {
 
     val knot =
         remoteXYPath(
-            rFun { s -> sin(s * 3f + t * 0.6f) * r * 0.85f + cx },
-            rFun { s -> sin(s * 2f) * r * 0.85f + cy },
+            remoteFunction { s -> sin(s * 3f + t * 0.6f) * r * 0.85f + cx },
+            remoteFunction { s -> sin(s * 2f) * r * 0.85f + cy },
             0f,
             TAU,
             180,
@@ -511,8 +516,8 @@ private fun RcCanvasScope.mesh2DPanel() {
     // s runs 0 (tail) → 1 (head).
     val spine =
         remoteXYPath(
-            rFun { s -> s * xSpan + x0 + 2f * amp * cos(s * 9.4f - phase) },
-            rFun { s -> sin(s * 9.4f - phase) * (s * 0.5f + 0.5f) * amp + y0 },
+            remoteFunction { s -> s * xSpan + x0 + 2f * amp * cos(s * 9.4f - phase) },
+            remoteFunction { s -> sin(s * 9.4f - phase) * (s * 0.5f + 0.5f) * amp + y0 },
             0f,
             1f,
             64,
@@ -727,7 +732,7 @@ private fun RcCanvasScope.particlesPanel() {
         val letterSystem =
             createParticles(
                 regs,
-                arrayOf(
+                listOf(
                     random(size, w - size), // x
                     random(h * -0.8f, -size), // y: above the panel, staggered
                     random(0f.rf, 150f.rf), // vy px/s
@@ -754,26 +759,24 @@ private fun RcCanvasScope.particlesPanel() {
             // Bounce: only particles that would end up below the floor.
             particlesComparison(
                 id = letterSystem,
-                flags = 0,
                 min = (-1f).rf,
                 max = (-1f).rf,
                 condition = nextY - floorY,
-                then = arrayOf(x, floorY, -0.6f * vy, angle, spin * 0.7f, age),
+                then = listOf(x, floorY, -0.6f * vy, angle, spin * 0.7f, age),
             ) {}
 
             // Integrate every particle; kill and respawn it once it outlives LIFETIME.
             particlesLoop(
                 letterSystem,
                 age - LIFETIME,
-                arrayOf(x, nextY, nextVy, nextAngle, spin, nextAge),
+                listOf(x, nextY, nextVy, nextAngle, spin, nextAge),
             ) {}
 
             // Draw: particle k, and only particle k, gets letter k.
-            val keep = arrayOf(x, y, vy, angle, spin, age)
+            val keep = listOf(x, y, vy, angle, spin, age)
             for ((k, text) in letters.withIndex()) {
                 particlesComparison(
                     id = letterSystem,
-                    flags = 0,
                     min = k.toFloat().rf,
                     max = (k + 1).toFloat().rf,
                     condition = 1f.rf, // always true
@@ -855,7 +858,6 @@ private fun RcCanvasScope.bitmapFontsPanel() {
                 Canvas(bmp).drawText(s, 0f, -metrics.ascent, glyphPaint)
                 bitmapFontGlyph(s, remoteBitmap(bmp), glyphW, glyphH)
             }
-            .toTypedArray()
     val font = createBitmapFont(glyphs)
     val digits = remoteText(PI_DIGITS)
     val spiral = remotePathData(spiralSvg(SPIRAL_OUTER, 16f, 5.5f))

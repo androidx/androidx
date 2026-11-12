@@ -18,7 +18,6 @@ package androidx.compose.remote.integration.view.demos.dsl
 
 import android.graphics.Bitmap
 import android.graphics.Color
-import androidx.compose.remote.core.operations.DrawTextAnchored
 import androidx.compose.remote.creation.dsl.*
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.core.RemoteDocument
@@ -53,7 +52,7 @@ fun demoImage(): ByteArray {
 
         val ball = remoteBitmap(initBall(0x10101))
 
-        rcLoop(0f.rf, 1f, count) { index ->
+        loop(0f.rf, 1f, count) { index ->
             val rx = ((index * 12.34f + sec).sin() + 1f) * 0.5f * w
             val ry = ((index * 56.78f + sec).sin() + 1f) * 0.5f * h
             drawScaledBitmap(
@@ -72,12 +71,12 @@ fun demoImage(): ByteArray {
             )
         }
 
-        val text = count.format(5, 2, 0)
+        val text = count.format(5, 2)
         paint {
             textSize(32f)
             color(Color.RED)
         }
-        drawTextAnchored(text, cx, 20f.rf, 0f.rf, 0f.rf, DrawTextAnchored.ANCHOR_MONOSPACE_MEASURE)
+        drawTextAnchored(text, cx, 20f.rf, 0f.rf, 0f.rf, RcTextAnchorFlags.MonospaceMeasure)
     }
 }
 
@@ -95,7 +94,7 @@ fun demoImageColor(): ByteArray {
         val greenBall = remoteBitmap(initBall(0x100))
         val blueBall = remoteBitmap(initBall(0x1))
 
-        rcLoop(0f.rf, 1f, count) { index ->
+        loop(0f.rf, 1f, count) { index ->
             val rx1 = ((index * 12.34f + sec).sin() + 1f) * 0.5f * w
             val ry1 = ((index * 56.78f + sec).sin() + 1f) * 0.5f * h
             drawScaledBitmap(
@@ -148,12 +147,12 @@ fun demoImageColor(): ByteArray {
             )
         }
 
-        val text = count.format(5, 2, 0)
+        val text = count.format(5, 2)
         paint {
             textSize(32f)
             color(Color.RED)
         }
-        drawTextAnchored(text, cx, 20f.rf, 0f.rf, 0f.rf, DrawTextAnchored.ANCHOR_MONOSPACE_MEASURE)
+        drawTextAnchored(text, cx, 20f.rf, 0f.rf, 0f.rf, RcTextAnchorFlags.MonospaceMeasure)
 
         paint {
             color(Color.RED)

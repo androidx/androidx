@@ -32,10 +32,10 @@ import org.jspecify.annotations.NonNull;
 @SuppressLint("RestrictedApiAndroidX")
 public class SupportTextView implements AndroidComponentSupport {
 
-    public static final short PROP_TEXT = 1;
-    public static final short PROP_TEXT_COLOR = 2;
-    public static final short PROP_TEXT_SIZE = 3;
-    public static final short PROP_BACKGROUND_COLOR = 4;
+    public static final int PROP_TEXT = 1;
+    public static final int PROP_TEXT_COLOR = 2;
+    public static final int PROP_TEXT_SIZE = 3;
+    public static final int PROP_BACKGROUND_COLOR = 4;
 
     @Override
     public @NonNull View createView(@NonNull Context context) {

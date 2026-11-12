@@ -15,7 +15,7 @@
  */
 
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@file:JvmName("RcDocCreatorKt")
+@file:JvmName("RcDocumentBuilders")
 
 package androidx.compose.remote.creation.dsl
 

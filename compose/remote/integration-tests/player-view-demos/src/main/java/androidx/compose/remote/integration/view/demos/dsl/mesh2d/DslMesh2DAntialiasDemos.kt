@@ -116,8 +116,8 @@ private fun RcCanvasScope.columnHeaders(y: Float) {
         textSize(15f)
         antiAlias(true)
     }
-    drawTextAnchored(remoteText("plain"), 100f.rf, y.rf, 0f.rf, 0f.rf, 0)
-    drawTextAnchored(remoteText("antialias"), 300f.rf, y.rf, 0f.rf, 0f.rf, 0)
+    drawTextAnchored(remoteText("plain"), 100f.rf, y.rf, 0f.rf, 0f.rf)
+    drawTextAnchored(remoteText("antialias"), 300f.rf, y.rf, 0f.rf, 0f.rf)
     paint { color(0x33FFFFFF) }
     drawRect(199.5f, y + 12f, 200.5f, 396f)
     restore()
@@ -201,8 +201,8 @@ public fun dslMesh2DAntialiasShapes(): ByteArray {
 
             val orbit =
                 remoteXYPath(
-                    rFun { s -> sin(s * TURN) * (w * 0.18f) },
-                    rFun { s -> sin(s * (TURN * 2f)) * (w * 0.075f) },
+                    remoteFunction { s -> sin(s * TURN) * (w * 0.18f) },
+                    remoteFunction { s -> sin(s * (TURN * 2f)) * (w * 0.075f) },
                     0f,
                     1f,
                     128,

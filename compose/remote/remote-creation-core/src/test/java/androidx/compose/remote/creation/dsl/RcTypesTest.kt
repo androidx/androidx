@@ -17,6 +17,7 @@
 package androidx.compose.remote.creation.dsl
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class RcTypesTest {
@@ -51,7 +52,7 @@ class RcTypesTest {
         assertEquals(RcCustomProperty.INT_PROP, intProp.mDataType)
         assertEquals(42, intProp.mIntValue)
 
-        val intDynamicProp = RcCustomProperty.int(2.toShort(), RcInteger(100L))
+        val intDynamicProp = RcCustomProperty.int(2, RcInteger(100L))
         assertEquals(2.toShort(), intDynamicProp.mType)
         assertEquals(RcCustomProperty.INT_ID_PROP, intDynamicProp.mDataType)
         assertEquals(100, intDynamicProp.mIntValue)
@@ -61,25 +62,25 @@ class RcTypesTest {
         assertEquals(RcCustomProperty.FLOAT_PROP, floatProp.mDataType)
         assertEquals(3.14f, floatProp.mFloatValue, 0.001f)
 
-        val floatRcProp = RcCustomProperty.float(4.toShort(), RcFloat(2.5f))
+        val floatRcProp = RcCustomProperty.float(4, RcFloat(2.5f))
         assertEquals(4.toShort(), floatRcProp.mType)
         assertEquals(RcCustomProperty.FLOAT_PROP, floatRcProp.mDataType)
-        assertEquals(2.5f, floatRcProp.getFloatValue().toFloat(), 0.001f)
+        assertEquals(2.5f, floatRcProp.floatValue.toFloat(), 0.001f)
 
         val colorProp = RcCustomProperty.color(5, RcColorValue(0xFF00FF))
         assertEquals(5.toShort(), colorProp.mType)
         assertEquals(RcCustomProperty.COLOR_PROP, colorProp.mDataType)
         assertEquals(0xFF00FF, colorProp.mIntValue)
 
-        val colorIdProp = RcCustomProperty.color(6.toShort(), RcColor(50))
+        val colorIdProp = RcCustomProperty.color(6, RcColor(50))
         assertEquals(6.toShort(), colorIdProp.mType)
         assertEquals(RcCustomProperty.COLOR_ID_PROP, colorIdProp.mDataType)
-        assertEquals(50, colorIdProp.getColorValue().id)
+        assertEquals(50, colorIdProp.colorValue.id)
 
-        val textProp = RcCustomProperty.text(7.toShort(), RcText(70))
+        val textProp = RcCustomProperty.text(7, RcText(70))
         assertEquals(7.toShort(), textProp.mType)
         assertEquals(RcCustomProperty.STRING_PROP, textProp.mDataType)
-        assertEquals(70, textProp.getStringValue().id)
+        assertEquals(70, textProp.textValue.id)
 
         val testProfile =
             androidx.compose.remote.creation.profile.Profile(
@@ -92,23 +93,25 @@ class RcTypesTest {
         val writer = androidx.compose.remote.creation.RemoteComposeWriter(testProfile)
         val scope = RcScopeImpl(writer)
 
-        val retFloat = RcCustomProperty.returnFloat(10.toShort(), scope)
+        val retFloat = scope.customReturnFloat(10)
         assertEquals(10.toShort(), retFloat.mType)
         assertEquals(RcCustomProperty.FLOAT_RETURN, retFloat.mDataType)
+        assertTrue(retFloat.floatValue.format(3).id >= 0)
 
-        val retText = RcCustomProperty.returnText(11.toShort(), scope)
+        val retText = scope.customReturnText(11)
         assertEquals(11.toShort(), retText.mType)
         assertEquals(RcCustomProperty.TEXT_RETURN, retText.mDataType)
+        assertEquals(retText.mIntValue, retText.textValue.id)
 
-        val retInt = RcCustomProperty.returnInt(12, scope)
+        val retInt = scope.customReturnInt(12)
         assertEquals(12.toShort(), retInt.mType)
         assertEquals(RcCustomProperty.INT_RETURN, retInt.mDataType)
-        assertEquals(retInt.mIntValue.toLong(), retInt.getIntValue().id)
+        assertEquals(0x100000000L + retInt.mIntValue.toLong(), retInt.intValue.id)
 
-        val retColor = RcCustomProperty.returnColor(13, scope)
+        val retColor = scope.customReturnColor(13)
         assertEquals(13.toShort(), retColor.mType)
         assertEquals(RcCustomProperty.COLOR_RETURN, retColor.mDataType)
-        assertEquals(retColor.mIntValue, retColor.getColorValue().id)
+        assertEquals(retColor.mIntValue, retColor.colorValue.id)
     }
 
     @Test
@@ -121,6 +124,8 @@ class RcTypesTest {
         assertEquals(99, macroArg.asText().id)
         assertEquals(99, macroArg.asColor().id)
         assertEquals(99, macroArg.asImage().id)
+        assertTrue(java.lang.Float.isNaN(macroArg.asFloat().toFloat()))
+        assertEquals(0x100000000L + 99L, macroArg.asInteger().id)
 
         val shape =
             RcShape.roundedCorner(topStart = 1f, topEnd = 2f, bottomEnd = 3f, bottomStart = 4f)
@@ -130,5 +135,29 @@ class RcTypesTest {
         assertEquals(2f, legacy.topEnd, 0f)
         assertEquals(4f, legacy.bottomStart, 0f)
         assertEquals(3f, legacy.bottomEnd, 0f)
+    }
+
+    @Test
+    fun testTypedValueClasses() {
+        assertEquals(0, RcTextureFilterMode.Default.value.toInt())
+        assertEquals(1, RcTextureFilterMode.Nearest.value.toInt())
+
+        assertEquals(0, RcParticleComparisonFlags.None.value.toInt())
+
+        val combinedMeasure = RcTextMeasureMode.Width or RcTextMeasureMode.MonospaceWidth
+        assertEquals(
+            RcTextMeasureMode.Width.value or RcTextMeasureMode.MonospaceWidth.value,
+            combinedMeasure.value,
+        )
+
+        assertEquals(0, RcSpringBoundaryMode.Overshoot.value)
+        assertEquals(1, RcSpringBoundaryMode.BounceStart.value)
+        assertEquals(2, RcSpringBoundaryMode.BounceEnd.value)
+        assertEquals(3, RcSpringBoundaryMode.BounceBoth.value)
+
+        assertEquals(0, RcMarqueeAnimationMode.Immediately.value)
+        assertEquals(1, RcMarqueeAnimationMode.WhileFocused.value)
+
+        assertEquals(7, RcVisibilityAnimation(7).id)
     }
 }

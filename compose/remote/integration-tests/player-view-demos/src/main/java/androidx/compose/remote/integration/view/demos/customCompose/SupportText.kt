@@ -31,22 +31,19 @@ import androidx.compose.ui.unit.sp
 
 @SuppressLint("RestrictedApiAndroidX")
 public object SupportText {
-    public const val PROP_TEXT: Short = 1
-    public const val PROP_TEXT_COLOR: Short = 2
-    public const val PROP_TEXT_SIZE: Short = 3
-    public const val PROP_BACKGROUND_COLOR: Short = 4
+    public const val PROP_TEXT: Int = 1
+    public const val PROP_TEXT_COLOR: Int = 2
+    public const val PROP_TEXT_SIZE: Int = 3
+    public const val PROP_BACKGROUND_COLOR: Int = 4
 
     @SuppressLint("RestrictedApiAndroidX")
     @Composable
     public fun Content(state: ComposeCustomSupport.ComponentState, remoteContext: RemoteContext?) {
-        val text = state.stringProps[PROP_TEXT.toInt()] ?: ""
-        val textColor =
-            state.intProps[PROP_TEXT_COLOR.toInt()]?.let { Color(it) } ?: Color.Unspecified
+        val text = state.stringProps[PROP_TEXT] ?: ""
+        val textColor = state.intProps[PROP_TEXT_COLOR]?.let { Color(it) } ?: Color.Unspecified
         val textSize =
-            state.floatProps[PROP_TEXT_SIZE.toInt()]
-                ?: (state.intProps[PROP_TEXT_SIZE.toInt()]?.toFloat() ?: 14f)
-        val bgColor =
-            state.intProps[PROP_BACKGROUND_COLOR.toInt()]?.let { Color(it) } ?: Color.Transparent
+            state.floatProps[PROP_TEXT_SIZE] ?: (state.intProps[PROP_TEXT_SIZE]?.toFloat() ?: 14f)
+        val bgColor = state.intProps[PROP_BACKGROUND_COLOR]?.let { Color(it) } ?: Color.Transparent
 
         Box(
             modifier = Modifier.background(bgColor).fillMaxSize(),

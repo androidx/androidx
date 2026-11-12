@@ -17,7 +17,6 @@
 package androidx.compose.remote.integration.view.demos.dsl
 
 import android.graphics.Color
-import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.dsl.*
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.core.RemoteDocument
@@ -72,8 +71,8 @@ fun demoAnchorText(): ByteArray {
                 val pingpongY = ((vY % 4f) - 2f).abs()
                 val animatY = pingpongY - 1f
 
-                val flag1 = Rc.TextAnchorMask.MEASURE_EVERY_TIME
-                val flag2 = Rc.TextAnchorMask.BASELINE_RELATIVE
+                val flag1 = RcTextAnchorFlags.MeasureEveryTime
+                val flag2 = RcTextAnchorFlags.BaselineRelative
 
                 paint {
                     color(Color.BLUE)
@@ -92,20 +91,20 @@ fun demoAnchorText(): ByteArray {
                 val textLeftBaseline = remoteText("X Left baseline X")
 
                 ifTrue(t lt dur) {
-                    drawTextAnchored(t1, v1, l1, 1f.rf, 1f.rf, 0)
-                    drawTextAnchored(textLeftTop, v2, l1, (-1f).rf, 1f.rf, 0)
-                    drawTextAnchored(textRightCenter, v1, l2, 1f.rf, 0f.rf, 0)
-                    drawTextAnchored(textLeftCenter, v2, l2, (-1f).rf, 0f.rf, 0)
-                    drawTextAnchored(textRightBottom, v1, l3, 1f.rf, (-1f).rf, 0)
-                    drawTextAnchored(textLeftBottom, v2, l3, (-1f).rf, (-1f).rf, 0)
+                    drawTextAnchored(t1, v1, l1, 1f.rf, 1f.rf)
+                    drawTextAnchored(textLeftTop, v2, l1, (-1f).rf, 1f.rf)
+                    drawTextAnchored(textRightCenter, v1, l2, 1f.rf, 0f.rf)
+                    drawTextAnchored(textLeftCenter, v2, l2, (-1f).rf, 0f.rf)
+                    drawTextAnchored(textRightBottom, v1, l3, 1f.rf, (-1f).rf)
+                    drawTextAnchored(textLeftBottom, v2, l3, (-1f).rf, (-1f).rf)
                     drawTextAnchored(textRightBaseline, v1, l4, 1f.rf, 0f.rf, flag2)
                     drawTextAnchored(textLeftBaseline, v2, l4, (-1f).rf, 0f.rf, flag2)
                 }
 
                 ifTrue(t gt dur) {
-                    drawTextAnchored(strId, v1, l1, 1f.rf, 1f.rf, 0)
-                    drawTextAnchored(strId, v1, l2, 1f.rf, 0f.rf, 0)
-                    drawTextAnchored(strId, v1, l3, 1f.rf, (-1f).rf, 0)
+                    drawTextAnchored(strId, v1, l1, 1f.rf, 1f.rf)
+                    drawTextAnchored(strId, v1, l2, 1f.rf, 0f.rf)
+                    drawTextAnchored(strId, v1, l3, 1f.rf, (-1f).rf)
                     drawTextAnchored(strId, v1, l4, 1f.rf, 0f.rf, flag2)
 
                     ifTrue(t gt (dur * 2f)) {

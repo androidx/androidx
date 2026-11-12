@@ -95,14 +95,14 @@ internal fun RcCanvasScope.renderRidgeline(
             color(Palette.fadeAlpha(color, theme.ridgelineFillAlpha))
             style(RcPaintStyle.Fill)
         }
-        drawPath(path.getPath())
+        drawPath(path.toPath())
         paint {
             color(color)
             style(RcPaintStyle.Stroke)
             strokeWidth(1.5f)
             strokeJoin(RcStrokeJoin.Round)
         }
-        drawPath(path.getPath())
+        drawPath(path.toPath())
         labelR(
             labels[i],
             (plotLeft - theme.labelGap).rf,

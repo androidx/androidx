@@ -49,7 +49,7 @@ internal fun RcCanvasScope.drawMesh2DLabel(text: String, color: Int = 0xFFE2E8F0
         textSize(18f)
         antiAlias(true)
     }
-    drawTextAnchored(remoteText(text), 200f.rf, 24f.rf, 0f.rf, 0f.rf, 0)
+    drawTextAnchored(remoteText(text), 200f.rf, 24f.rf, 0f.rf, 0f.rf)
     restore()
 }
 
@@ -118,7 +118,7 @@ public fun dslMesh2DWavingFlag(): ByteArray {
                     textSize(34f)
                     antiAlias(true)
                 }
-                drawTextAnchored(remoteText("RemoteCompose"), 0f.rf, 0f.rf, 0f.rf, 0f.rf, 0)
+                drawTextAnchored(remoteText("RemoteCompose"), 0f.rf, 0f.rf, 0f.rf, 0f.rf)
             }
 
             // A flagpole, so the anchored edge has something to be anchored to.
@@ -202,8 +202,8 @@ public fun dslMesh2DCometTrail(): ByteArray {
             // A lissajous loop for the comet to run along.
             val orbit =
                 remoteXYPath(
-                    rFun { s -> cx + sin(s * TAU) * radius },
-                    rFun { s -> cy + sin(s * TAU * 2f) * radius * 0.62f },
+                    remoteFunction { s -> cx + sin(s * TAU) * radius },
+                    remoteFunction { s -> cy + sin(s * TAU * 2f) * radius * 0.62f },
                     0f,
                     1f,
                     96,
@@ -298,12 +298,11 @@ public fun dslMesh2DRingGauge(): ByteArray {
                 antiAlias(true)
             }
             drawTextAnchored(
-                createTextFromFloat(value * 100f, 2, 0, 0),
+                createTextFromFloat(value * 100f, 2, 0),
                 cx,
                 cy,
                 0f.rf,
                 0f.rf,
-                0,
             )
 
             drawMesh2DLabel("mesh2d Strip arc, Rotation matrix")

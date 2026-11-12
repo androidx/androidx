@@ -33,11 +33,11 @@ import org.jspecify.annotations.NonNull;
 @SuppressLint("RestrictedApiAndroidX")
 public class SupportProgressBar implements AndroidComponentSupport {
 
-    public static final short PROP_PROGRESS = 5;
-    public static final short PROP_MAX_PROGRESS = 6;
-    public static final short PROP_INDETERMINATE = 7;
-    public static final short PROP_PROGRESS_COLOR = 8;
-    public static final short RET_PROGRESS = 9;
+    public static final int PROP_PROGRESS = 5;
+    public static final int PROP_MAX_PROGRESS = 6;
+    public static final int PROP_INDETERMINATE = 7;
+    public static final int PROP_PROGRESS_COLOR = 8;
+    public static final int RET_PROGRESS = 9;
 
 
     private final AndroidCustomSupport mSupport;

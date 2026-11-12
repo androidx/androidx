@@ -71,7 +71,7 @@ internal fun RcCanvasScope.renderDensity(
             color(Palette.fadeAlpha(color, cart.theme.densityFillAlpha))
             style(RcPaintStyle.Fill)
         }
-        drawPath(ap.getPath())
+        drawPath(ap.toPath())
     }
     val lp = remotePath(xs.map(curve.xs[0]).toFloat(), cart.value.map(curve.ys[0]).toFloat())
     for (i in 1 until n) lp.lineTo(
@@ -84,7 +84,7 @@ internal fun RcCanvasScope.renderDensity(
         strokeWidth(cart.theme.lineStroke)
         strokeJoin(RcStrokeJoin.Round)
     }
-    drawPath(lp.getPath())
+    drawPath(lp.toPath())
 }
 
 /** ECDF: a step function rising from 0 to 1 over a numeric x axis. */
@@ -108,7 +108,7 @@ internal fun RcCanvasScope.renderEcdf(cart: Cartesian, curve: Stats.Curve, color
         strokeWidth(cart.theme.lineStroke)
         strokeCap(RcStrokeCap.Square)
     }
-    drawPath(path.getPath())
+    drawPath(path.toPath())
 }
 
 /** Box-and-whisker glyph per category (band), value on y. */
@@ -184,14 +184,14 @@ internal fun RcCanvasScope.renderViolin(cart: Cartesian, groups: List<Stats.Curv
             color(Palette.fadeAlpha(color, cart.theme.violinFillAlpha))
             style(RcPaintStyle.Fill)
         }
-        drawPath(path.getPath())
+        drawPath(path.toPath())
         paint {
             color(color)
             style(RcPaintStyle.Stroke)
             strokeWidth(1.5f)
             strokeJoin(RcStrokeJoin.Round)
         }
-        drawPath(path.getPath())
+        drawPath(path.toPath())
     }
 }
 

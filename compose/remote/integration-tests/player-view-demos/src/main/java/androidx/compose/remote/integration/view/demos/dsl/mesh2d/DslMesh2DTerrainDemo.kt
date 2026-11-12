@@ -182,7 +182,7 @@ private fun RcScope.rollingBalls(terrain: TerrainData, w: RcFloat, h: RcFloat) {
         val ps =
             createParticles(
                 variables,
-                arrayOf(startX, startY, startVx, startVy, startAge),
+                listOf(startX, startY, startVx, startVy, startAge),
                 BALL_COUNT,
             )
         val (px, py, vx, vy, age) = rcFloats(variables)
@@ -202,7 +202,7 @@ private fun RcScope.rollingBalls(terrain: TerrainData, w: RcFloat, h: RcFloat) {
                 // being explored. The start values are deterministic, so a restart returns a
                 // ball to exactly where it began.
                 age - BALL_LIFETIME,
-                arrayOf(
+                listOf(
                     // Position is clamped to the canvas so a ball that runs out of terrain
                     // parks at the edge until its lifetime expires.
                     clamp(0.012f.rf, 0.988f.rf, px + vx * dt),

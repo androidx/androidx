@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.integration.view.demos.dsl
 
-import androidx.compose.remote.core.RemoteComposeBuffer.PAD_AFTER_ZERO
 import androidx.compose.remote.creation.dsl.*
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.core.RemoteDocument
@@ -73,11 +72,12 @@ fun dslCountdown(): ByteArray {
             typeface(RcFontType.Monospace)
         }
 
-        val textId = hue.format(1, 2, PAD_AFTER_ZERO)
+        val textId =
+            hue.format(1, 2, RcTextFromFloatSpec.of(padAfter = RcTextFromFloatSpec.PadAfter.Zero))
         val merge = remoteText("Hue:") + textId
         save()
         scale(hue, hue, 300f.rf, 300f.rf)
-        drawTextAnchored(merge, 300f, 300f, 0f, 0f, 2)
+        drawTextAnchored(merge, 300f, 300f, 0f, 0f, RcTextAnchorFlags.MonospaceMeasure)
         restore()
 
         for (i in 0..5) {

@@ -162,7 +162,7 @@ private fun RcCanvasScope.drawLineStroke(
         strokeJoin(RcStrokeJoin.Round)
         if (spec.dash != null) pathEffect(dashEffect(*spec.dash))
     }
-    drawPath(path.getPath())
+    drawPath(path.toPath())
     if (spec.dash != null) paint { pathEffect(null) }
 }
 
@@ -185,7 +185,7 @@ private fun RcCanvasScope.drawAreaFill(
         color(Palette.fadeAlpha(color, cart.theme.areaFillAlpha))
         style(RcPaintStyle.Fill)
     }
-    drawPath(path.getPath())
+    drawPath(path.toPath())
 }
 
 @Suppress("RestrictedApiAndroidX")
@@ -256,7 +256,7 @@ private fun RcCanvasScope.renderStackedAreas(
             color(color)
             style(RcPaintStyle.Fill)
         }
-        drawPath(path.getPath())
+        drawPath(path.toPath())
         for (i in 0 until n) lower[i] = upper[i]
     }
 }

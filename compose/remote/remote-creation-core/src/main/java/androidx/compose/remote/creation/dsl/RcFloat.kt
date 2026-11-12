@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@file:JvmName("RcFloatKt")
+@file:JvmName("RcFloats")
 
 package androidx.compose.remote.creation.dsl
 
@@ -165,17 +165,33 @@ public class RcFloat {
     }
 
     public fun min(v: RcFloat): RcFloat {
-        return RcFloat(writer, floatArrayOf(*toArray(this), *toArray(v), Rc.FloatExpression.MIN))
+        return RcFloat(
+            writer ?: v.writer,
+            floatArrayOf(*toArray(), *v.toArray(), Rc.FloatExpression.MIN),
+        )
     }
 
     public fun min(v: Float): RcFloat {
-        return RcFloat(writer, floatArrayOf(*toArray(this), v, Rc.FloatExpression.MIN))
+        return RcFloat(writer, floatArrayOf(*toArray(), v, Rc.FloatExpression.MIN))
+    }
+
+    /** Returns the larger of this expression and [v]. */
+    public fun max(v: RcFloat): RcFloat {
+        return RcFloat(
+            writer ?: v.writer,
+            floatArrayOf(*toArray(), *v.toArray(), Rc.FloatExpression.MAX),
+        )
+    }
+
+    /** Returns the larger of this expression and [v]. */
+    public fun max(v: Float): RcFloat {
+        return RcFloat(writer, floatArrayOf(*toArray(), v, Rc.FloatExpression.MAX))
     }
 
     public operator fun get(index: RcFloat): RcFloat {
         return RcFloat(
-            writer,
-            floatArrayOf(*toArray(this), *toArray(index), Rc.FloatExpression.A_DEREF),
+            writer ?: index.writer,
+            floatArrayOf(*toArray(), *index.toArray(), Rc.FloatExpression.A_DEREF),
         )
     }
 
@@ -190,7 +206,7 @@ public class RcFloat {
     public operator fun get(index: Int): RcFloat {
         return RcFloat(
             writer,
-            floatArrayOf(*toArray(this), index.toFloat(), Rc.FloatExpression.A_DEREF),
+            floatArrayOf(*toArray(), index.toFloat(), Rc.FloatExpression.A_DEREF),
         )
     }
 
@@ -200,9 +216,9 @@ public class RcFloat {
         }
     }
 
-    public fun anim(
+    private fun anim(
         duration: Float,
-        type: Int = Rc.Animate.CUBIC_STANDARD,
+        type: Int,
         spec: FloatArray? = null,
         initialValue: Float = Float.NaN,
         wrap: Float = Float.NaN,
@@ -212,34 +228,36 @@ public class RcFloat {
         return this
     }
 
-    /** support springs for animation */
+    /** Animates changes to this expression using a spring physics model. */
     public fun spring(
         stiffness: Float,
         damping: Float,
         stopThreshold: Float,
-        boundaryMode: Int,
+        boundaryMode: RcSpringBoundaryMode = RcSpringBoundaryMode.Overshoot,
     ): RcFloat {
-        animation = writer?.spring(stiffness, damping, stopThreshold, boundaryMode)
+        animation = writer?.spring(stiffness, damping, stopThreshold, boundaryMode.value)
         this.flush()
         return this
     }
 
     /**
-     * Type-safe overload of [anim] that accepts a [RcAnimationCurve] instead of a raw
-     * `Rc.Animate.*` opcode. `CubicCustom` and `SplineCustom` require a non-null [spec] containing
-     * the control points; the others ignore [spec].
+     * Animates changes to this expression over [duration] seconds using [curve].
+     *
+     * [RcAnimationCurve.CubicCustom] and [RcAnimationCurve.SplineCustom] require a non-null [spec]
+     * containing the control points; the other curves ignore [spec].
      */
     public fun anim(
         duration: Float,
-        curve: RcAnimationCurve,
+        curve: RcAnimationCurve = RcAnimationCurve.CubicStandard,
         spec: FloatArray? = null,
         initialValue: Float = Float.NaN,
         wrap: Float = Float.NaN,
     ): RcFloat = anim(duration, curve.value, spec, initialValue, wrap)
 
+    /** Animates changes to this expression over a dynamic [duration] (in seconds) using [curve]. */
     public fun anim(
         duration: RcFloat,
-        curve: RcAnimationCurve,
+        curve: RcAnimationCurve = RcAnimationCurve.CubicStandard,
         spec: FloatArray? = null,
         initialValue: Float = Float.NaN,
         wrap: Float = Float.NaN,
@@ -266,18 +284,6 @@ public class RcFloat {
         RcFloat(writer ?: v.writer, floatArrayOf(*toArray(), *v.toArray(), Rc.FloatExpression.POW))
 
     /**
-     * Converts this float expression to an [RcText] using the specified formatting.
-     *
-     * @param whole the number of digits before the decimal point
-     * @param decimal the number of digits after the decimal point
-     * @param flags formatting flags (see [Rc.TextFromFloat])
-     */
-    public fun format(whole: Short, decimal: Short = 0, flags: Int = 0): RcText {
-        val w = writer ?: throw IllegalStateException("RcFloat must be associated with a writer")
-        return RcText(w.createTextFromFloat(toFloat(), whole, decimal, flags))
-    }
-
-    /**
      * Converts this float expression to an [RcText] using the specified [RcTextFromFloatSpec]
      * formatting.
      *
@@ -285,8 +291,16 @@ public class RcFloat {
      * @param decimal the number of digits after the decimal point
      * @param spec typed formatting specification
      */
-    public fun format(whole: Short, decimal: Short = 0, spec: RcTextFromFloatSpec): RcText =
-        format(whole, decimal, spec.bits)
+    public fun format(
+        whole: Int,
+        decimal: Int = 0,
+        spec: RcTextFromFloatSpec = RcTextFromFloatSpec.Default,
+    ): RcText {
+        val w = writer ?: throw IllegalStateException("RcFloat must be associated with a writer")
+        return RcText(
+            w.createTextFromFloat(toFloat(), whole.toShort(), decimal.toShort(), spec.bits)
+        )
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -306,64 +320,72 @@ public class RcFloat {
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun arrayValue(array: Float, b: RcFloat): RcFloat {
-    return RcFloat(b.writer, floatArrayOf(array, *b.array, Rc.FloatExpression.A_DEREF))
+internal fun arrayValue(array: Float, b: RcFloat): RcFloat {
+    return RcFloat(b.writer, floatArrayOf(array, *b.toArray(), Rc.FloatExpression.A_DEREF))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun max(a: RcFloat, b: Float): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, b, Rc.FloatExpression.MAX))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), b, Rc.FloatExpression.MAX))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun max(a: Float, b: RcFloat): RcFloat {
-    return RcFloat(b.writer, floatArrayOf(a, *b.array, Rc.FloatExpression.MAX))
+    return RcFloat(b.writer, floatArrayOf(a, *b.toArray(), Rc.FloatExpression.MAX))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun max(a: RcFloat, b: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, *b.array, Rc.FloatExpression.MAX))
+    return RcFloat(
+        a.writer ?: b.writer,
+        floatArrayOf(*a.toArray(), *b.toArray(), Rc.FloatExpression.MAX),
+    )
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun min(a: RcFloat, b: Float): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, b, Rc.FloatExpression.MIN))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), b, Rc.FloatExpression.MIN))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun min(a: Float, b: RcFloat): RcFloat {
-    return RcFloat(b.writer, floatArrayOf(a, *b.array, Rc.FloatExpression.MIN))
+    return RcFloat(b.writer, floatArrayOf(a, *b.toArray(), Rc.FloatExpression.MIN))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun min(a: RcFloat, b: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, *b.array, Rc.FloatExpression.MIN))
+    return RcFloat(
+        a.writer ?: b.writer,
+        floatArrayOf(*a.toArray(), *b.toArray(), Rc.FloatExpression.MIN),
+    )
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun pow(a: RcFloat, b: Float): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, b, Rc.FloatExpression.POW))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), b, Rc.FloatExpression.POW))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun pow(a: Float, b: RcFloat): RcFloat {
-    return RcFloat(b.writer, floatArrayOf(a, *b.array, Rc.FloatExpression.POW))
+    return RcFloat(b.writer, floatArrayOf(a, *b.toArray(), Rc.FloatExpression.POW))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun pow(a: RcFloat, b: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, *b.array, Rc.FloatExpression.POW))
+    return RcFloat(
+        a.writer ?: b.writer,
+        floatArrayOf(*a.toArray(), *b.toArray(), Rc.FloatExpression.POW),
+    )
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun sqrt(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.SQRT))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.SQRT))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun abs(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.ABS))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.ABS))
 }
 
 /**
@@ -372,131 +394,137 @@ public fun abs(a: RcFloat): RcFloat {
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun sign(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.SIGN))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.SIGN))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun copySign(a: RcFloat, b: Float): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, b, Rc.FloatExpression.COPY_SIGN))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), b, Rc.FloatExpression.COPY_SIGN))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun copySign(a: Float, b: RcFloat): RcFloat {
-    return RcFloat(b.writer, floatArrayOf(a, *b.array, Rc.FloatExpression.COPY_SIGN))
+    return RcFloat(b.writer, floatArrayOf(a, *b.toArray(), Rc.FloatExpression.COPY_SIGN))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun copySign(a: RcFloat, b: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, *b.array, Rc.FloatExpression.COPY_SIGN))
+    return RcFloat(
+        a.writer ?: b.writer,
+        floatArrayOf(*a.toArray(), *b.toArray(), Rc.FloatExpression.COPY_SIGN),
+    )
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun exp(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.EXP))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.EXP))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun ceil(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.CEIL))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.CEIL))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun floor(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.FLOOR))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.FLOOR))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun log(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.LOG))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.LOG))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun log2(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.LOG2))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.LOG2))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun ln(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.LN))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.LN))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun round(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.ROUND))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.ROUND))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun inverse(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.INV))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.INV))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun fraction(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.FRACT))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.FRACT))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun square(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.SQUARE))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.SQUARE))
 }
 
-/** Math.sin(a) */
+/** Returns the sine of [a] (in radians). */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun sin(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.SIN))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.SIN))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun cos(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.COS))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.COS))
 }
 
-/** Math.tan(a) */
+/** Returns the tangent of [a] (in radians). */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun tan(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.TAN))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.TAN))
 }
 
-/** Math.asin(a) */
+/** Returns the arc sine of [a] in radians. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun asin(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.ASIN))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.ASIN))
 }
 
-/** Math.acos(a) */
+/** Returns the arc cosine of [a] in radians. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun acos(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.ACOS))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.ACOS))
 }
 
-/** atan(a) */
+/** Returns the arc tangent of [a] in radians. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun atan(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.ATAN))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.ATAN))
 }
 
-/** atan2(a,b) */
+/** Returns the angle `atan2(a, b)` in radians. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun atan2(a: RcFloat, b: Float): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, b, Rc.FloatExpression.ATAN2))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), b, Rc.FloatExpression.ATAN2))
 }
 
-/** atan2(a,b) */
+/** Returns the angle `atan2(a, b)` in radians. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun atan2(a: Float, b: RcFloat): RcFloat {
-    return RcFloat(b.writer, floatArrayOf(a, *b.array, Rc.FloatExpression.ATAN2))
+    return RcFloat(b.writer, floatArrayOf(a, *b.toArray(), Rc.FloatExpression.ATAN2))
 }
 
-/** atan2(a,b) */
+/** Returns the angle `atan2(a, b)` in radians. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun atan2(a: RcFloat, b: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, *b.array, Rc.FloatExpression.ATAN2))
+    return RcFloat(
+        a.writer ?: b.writer,
+        floatArrayOf(*a.toArray(), *b.toArray(), Rc.FloatExpression.ATAN2),
+    )
 }
 
-/** cube root */
+/** Returns the cube root of [a]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun cbrt(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.CBRT))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.CBRT))
 }
 
 /** Returns [ifTrue] when [condition] > 0, otherwise [ifFalse]. */
@@ -504,167 +532,151 @@ public fun cbrt(a: RcFloat): RcFloat {
 public fun ifElse(condition: RcFloat, ifTrue: RcFloat, ifFalse: RcFloat): RcFloat {
     return RcFloat(
         condition.writer ?: ifTrue.writer ?: ifFalse.writer,
-        floatArrayOf(*ifFalse.array, *ifTrue.array, *condition.array, Rc.FloatExpression.IFELSE),
+        floatArrayOf(
+            *ifFalse.toArray(),
+            *ifTrue.toArray(),
+            *condition.toArray(),
+            Rc.FloatExpression.IFELSE,
+        ),
     )
 }
 
-/** convert radians to degrees */
+/** Converts [a] from radians to degrees. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun toDeg(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.DEG))
+public fun toDegrees(a: RcFloat): RcFloat {
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.DEG))
 }
 
-/** convert degrees to radians */
+/** Converts [a] from degrees to radians. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun toRad(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.RAD))
+public fun toRadians(a: RcFloat): RcFloat {
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.RAD))
 }
 
 /**
- * Refers to property [a] of the second particle in a dual-particle [RcScope.particlesComparison].
+ * Refers to property [a] of the second particle in a dual-particle
+ * [RcCanvasScope.particlesComparison].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun second(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.CMD2))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), AnimatedFloatExpression.CMD2))
 }
 
 /**
- * Refers to property [a] of the first particle in a dual-particle [RcScope.particlesComparison].
+ * Refers to property [a] of the first particle in a dual-particle
+ * [RcCanvasScope.particlesComparison].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun first(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.CMD1))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), AnimatedFloatExpression.CMD1))
 }
 
 /** Calculates a deterministic pseudo-random `0..1` number based on seed [a]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun noiseFrom(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.NOISE_FROM))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.NOISE_FROM))
 }
 
-/** Returns the sum of the squares of [a] and [b]. */
+/** Returns the sum of the squares of [a] and [b] (`a * a + b * b`). */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun sqrSum(a: RcFloat, b: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, *b.array, Rc.FloatExpression.SQUARE_SUM))
+public fun squareSum(a: RcFloat, b: RcFloat): RcFloat {
+    return RcFloat(
+        a.writer ?: b.writer,
+        floatArrayOf(*a.toArray(), *b.toArray(), Rc.FloatExpression.SQUARE_SUM),
+    )
 }
 
 /** Returns `1f` when [a] is greater than [b], and `0f` otherwise. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun step(a: RcFloat, b: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, *b.array, Rc.FloatExpression.STEP))
-}
-
-/** output goes smoothly from 0 to 1 as value goes from min to max */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun smoothStep(value: RcFloat, min: RcFloat, max: RcFloat): RcFloat {
-
-    var writer = value.writer
-    if (writer == null) {
-        writer = min.writer
-    }
-    if (writer == null) {
-        writer = max.writer
-    }
-    if (writer == null) {
-        throw IllegalStateException("one of the inputs must have a writer")
-    }
     return RcFloat(
-        writer,
-        floatArrayOf(*value.array, *max.array, *min.array, Rc.FloatExpression.SMOOTH_STEP),
+        a.writer ?: b.writer,
+        floatArrayOf(*a.toArray(), *b.toArray(), Rc.FloatExpression.STEP),
     )
 }
 
-/** output goes from 0 to max and back with x */
+/** Smoothly interpolates from `0` to `1` as [value] progresses between [min] and [max]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun smoothStep(value: RcFloat, min: RcFloat, max: RcFloat): RcFloat {
+    return RcFloat(
+        value.writer ?: min.writer ?: max.writer,
+        floatArrayOf(
+            *value.toArray(),
+            *max.toArray(),
+            *min.toArray(),
+            Rc.FloatExpression.SMOOTH_STEP,
+        ),
+    )
+}
+
+/** Oscillates smoothly from `0` to [max] and back as [x] advances. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun pingPong(max: RcFloat, x: RcFloat): RcFloat {
-
-    var writer = x.writer
-    if (writer == null) {
-        writer = max.writer
-    }
-
-    if (writer == null) {
-        throw IllegalStateException("one of the inputs must have a writer")
-    }
-    return RcFloat(writer, floatArrayOf(*x.array, *max.array, Rc.FloatExpression.PINGPONG))
+    return RcFloat(
+        x.writer ?: max.writer,
+        floatArrayOf(*x.toArray(), *max.toArray(), Rc.FloatExpression.PINGPONG),
+    )
 }
 
-/** linear interpolation (1-t)*x+t*y; */
+/** Linearly interpolates `(1 - t) * x + t * y`. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun lerp(x: RcFloat, y: RcFloat, t: RcFloat): RcFloat {
-    var writer = x.writer
-    if (writer == null) {
-        writer = y.writer
-    }
-    if (writer == null) {
-        writer = t.writer
-    }
-    if (writer == null) {
-        throw IllegalStateException("one of the inputs must have a writer")
-    }
-    return RcFloat(writer, floatArrayOf(*x.array, *y.array, *t.array, Rc.FloatExpression.LERP))
+    return RcFloat(
+        x.writer ?: y.writer ?: t.writer,
+        floatArrayOf(*x.toArray(), *y.toArray(), *t.toArray(), Rc.FloatExpression.LERP),
+    )
 }
 
-/** Math.hypot */
+/** Returns `sqrt(a * a + b * b)` without intermediate overflow or underflow. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun hypot(a: RcFloat, b: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, *b.array, Rc.FloatExpression.HYPOT))
+    return RcFloat(
+        a.writer ?: b.writer,
+        floatArrayOf(*a.toArray(), *b.toArray(), Rc.FloatExpression.HYPOT),
+    )
 }
 
-/** random number in range */
+/** Generates a random number in `[min, max]`. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun random(min: RcFloat, max: RcFloat): RcFloat {
     return RcFloat(
-        min.writer,
-        floatArrayOf(*min.array, *max.array, Rc.FloatExpression.RAND_IN_RANGE),
+        min.writer ?: max.writer,
+        floatArrayOf(*min.toArray(), *max.toArray(), Rc.FloatExpression.RAND_IN_RANGE),
     )
 }
 
-/** parameters can be float or RcFloat. Coded this way to not require 8 versions returns a*b+c */
+/** Returns fused multiply-add `a * b + c`. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun mad(a: RcFloat, b: RcFloat, c: RcFloat): RcFloat {
     return RcFloat(
-        null,
-        floatArrayOf(*(toArray(a)), *(toArray(b)), *(toArray(c)), Rc.FloatExpression.MAD),
+        a.writer ?: b.writer ?: c.writer,
+        floatArrayOf(*a.toArray(), *b.toArray(), *c.toArray(), Rc.FloatExpression.MAD),
     )
 }
 
-internal fun toArray(a: RcFloat): FloatArray {
+internal fun toArray(a: RcFloat): FloatArray = a.toArray()
 
-    if (a.id.isNaN()) {
-        return floatArrayOf(a.id)
-    }
-    return a.array
-}
-
-/** clamp a value between min and max */
+/** Clamps [value] between [min] and [max]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun clamp(min: RcFloat, max: RcFloat, value: RcFloat): RcFloat {
     return RcFloat(
-        value.writer,
-        floatArrayOf(*(toArray(min)), *(toArray(max)), *(toArray(value)), Rc.FloatExpression.CLAMP),
+        value.writer ?: min.writer ?: max.writer,
+        floatArrayOf(*min.toArray(), *max.toArray(), *value.toArray(), Rc.FloatExpression.CLAMP),
     )
 }
 
 /** Evaluates a cubic Bézier curve with control points ([x1], [y1]) and ([x2], [y2]) at [value]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun cubic(x1: RcFloat, x2: RcFloat, y1: RcFloat, y2: RcFloat, value: RcFloat): RcFloat {
-    val writer =
-        if (value.writer != null) value.writer
-        else if (x1.writer != null) x1.writer
-        else if (x2.writer != null) x2.writer
-        else if (y1.writer != null) y1.writer else if (y2.writer != null) y2.writer else null
-    if (writer == null) {
-        throw IllegalStateException("one of the inputs must be an RcFloat")
-    }
+    val writer = value.writer ?: x1.writer ?: x2.writer ?: y1.writer ?: y2.writer
     return RcFloat(
         writer,
         floatArrayOf(
-            *(toArray(x1)),
-            *(toArray(y1)),
-            *(toArray(x2)),
-            *(toArray(y2)),
-            *(toArray(value)),
+            *x1.toArray(),
+            *y1.toArray(),
+            *x2.toArray(),
+            *y2.toArray(),
+            *value.toArray(),
             Rc.FloatExpression.CUBIC,
         ),
     )
@@ -672,64 +684,85 @@ public fun cubic(x1: RcFloat, x2: RcFloat, y1: RcFloat, y2: RcFloat, value: RcFl
 
 /* ==================== Array operations ================== */
 
-/** maximum value of an array */
+/** Returns the maximum element of array [a]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun arrayMax(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.A_MAX))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.A_MAX))
 }
 
-/** The minimum value of an array */
+/** Returns the minimum element of array [a]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun arrayMin(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.A_MIN))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.A_MIN))
 }
 
-/** the sum of the values of an array */
+/** Returns the sum of all elements in array [a]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun arraySum(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.A_SUM))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.A_SUM))
 }
 
-/** the sum of the values of an array up to index */
+/** Returns the sum of elements in array [a] up to [index]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun arraySum(a: RcFloat, index: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, *index.array, Rc.FloatExpression.A_SUM_UNTIL))
+    return RcFloat(
+        a.writer ?: index.writer,
+        floatArrayOf(*a.toArray(), *index.toArray(), Rc.FloatExpression.A_SUM_UNTIL),
+    )
 }
 
 /** Returns the dot product (sum of element-wise products) of arrays [a] and [b]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun arraySumXY(a: RcFloat, b: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, *b.array, Rc.FloatExpression.A_SUM_XY))
+    return RcFloat(
+        a.writer ?: b.writer,
+        floatArrayOf(*a.toArray(), *b.toArray(), Rc.FloatExpression.A_SUM_XY),
+    )
 }
 
 /** Returns the sum of the squares of all elements in array [a]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun arraySumSqr(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.A_SUM_SQR))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.A_SUM_SQR))
 }
 
-/** the avg values of an array */
+/** Returns the arithmetic mean of all elements in array [a]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun arrayAvg(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.A_AVG))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.A_AVG))
 }
 
-/** the length of an array */
+/** Returns the element count of array [a]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun arrayLength(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.A_LEN))
+    return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.A_LEN))
 }
 
-/** treat the array as a spline and get a value 0 = start 1 = end */
+/** Interpolates array [array] as a spline at normalized static [position] (`0f..1f`). */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun arraySpline(array: RcFloat, position: Float): RcFloat {
+    return RcFloat(
+        array.writer,
+        floatArrayOf(*array.toArray(), position, Rc.FloatExpression.A_SPLINE),
+    )
+}
+
+/** Interpolates array [a] as a spline at normalized dynamic [pos] (`0f..1f`). */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun arraySpline(a: RcFloat, pos: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, *pos.array, Rc.FloatExpression.A_SPLINE))
+    return RcFloat(
+        a.writer ?: pos.writer,
+        floatArrayOf(*a.toArray(), *pos.toArray(), Rc.FloatExpression.A_SPLINE),
+    )
 }
 
-/** treat the array as a spline that loops and get a value 0 = start 1 = start & end */
+/** Interpolates array [a] as a looping spline at normalized dynamic [pos] (`0f..1f`). */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun splineLoop(a: RcFloat, pos: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.array, *pos.array, Rc.FloatExpression.A_SPLINE_LOOP))
+    return RcFloat(
+        a.writer ?: pos.writer,
+        floatArrayOf(*a.toArray(), *pos.toArray(), Rc.FloatExpression.A_SPLINE_LOOP),
+    )
 }
 
 /** generate random number */
@@ -767,25 +800,25 @@ internal fun RemoteComposeWriter.rf(v: Number): RcFloat {
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public operator fun Float.times(v: RcFloat): RcFloat {
-    return RcFloat(v.writer, floatArrayOf(this, *v.array, Rc.FloatExpression.MUL))
+    return RcFloat(v.writer, floatArrayOf(this, *v.toArray(), Rc.FloatExpression.MUL))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public operator fun Float.plus(v: RcFloat): RcFloat {
-    return RcFloat(v.writer, floatArrayOf(this, *v.array, Rc.FloatExpression.ADD))
+    return RcFloat(v.writer, floatArrayOf(this, *v.toArray(), Rc.FloatExpression.ADD))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public operator fun Float.minus(v: RcFloat): RcFloat {
-    return RcFloat(v.writer, floatArrayOf(this, *v.array, Rc.FloatExpression.SUB))
+    return RcFloat(v.writer, floatArrayOf(this, *v.toArray(), Rc.FloatExpression.SUB))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public operator fun Float.div(v: RcFloat): RcFloat {
-    return RcFloat(v.writer, floatArrayOf(this, *v.array, Rc.FloatExpression.DIV))
+    return RcFloat(v.writer, floatArrayOf(this, *v.toArray(), Rc.FloatExpression.DIV))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public operator fun Float.rem(v: RcFloat): RcFloat {
-    return RcFloat(v.writer, floatArrayOf(this, *v.array, Rc.FloatExpression.MOD))
+    return RcFloat(v.writer, floatArrayOf(this, *v.toArray(), Rc.FloatExpression.MOD))
 }

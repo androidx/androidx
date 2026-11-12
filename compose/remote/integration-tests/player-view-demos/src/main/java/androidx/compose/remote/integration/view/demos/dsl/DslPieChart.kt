@@ -120,7 +120,7 @@ public fun dslPieChart(): ByteArray {
                         typeface(RcFontType.Default, RcFontWeight.Bold, italic = false)
                     }
                     val textId = remoteText(names[i])
-                    drawTextAnchored(textId, lx, ly, 0.5f.rf, 0.5f.rf, 0)
+                    drawTextAnchored(textId, lx, ly, 0.5f.rf, 0.5f.rf)
 
                     currentAngle += sweepAngle
                 }
@@ -140,7 +140,7 @@ public fun dslPieChart(): ByteArray {
                         textSize(20f)
                     }
                     val textId = remoteText(names[i] + " (" + data[i].toInt() + "%)")
-                    drawTextAnchored(textId, legendX + 30f, legendY + 15f, -1f, 0f, 0)
+                    drawTextAnchored(textId, legendX + 30f, legendY + 15f, -1f, 0f)
 
                     legendY += 30f
                 }
