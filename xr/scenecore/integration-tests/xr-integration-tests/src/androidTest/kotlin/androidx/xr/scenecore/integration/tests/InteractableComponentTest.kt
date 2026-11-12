@@ -16,6 +16,7 @@
 
 package androidx.xr.scenecore.integration.tests
 
+import android.app.Activity
 import android.content.Intent
 import android.view.View
 import androidx.activity.ComponentActivity
@@ -36,8 +37,10 @@ import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
+import androidx.test.runner.lifecycle.Stage
 import androidx.xr.runtime.RequiresSpatialApi
-import androidx.xr.runtime.Session
 import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
@@ -50,25 +53,24 @@ import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.SpatialCapability
 import androidx.xr.scenecore.scene
 import androidx.xr.testutils.SpatialNode
-import androidx.xr.testutils.SpatialScene
 import androidx.xr.testutils.SpatialSceneHelper
 import androidx.xr.testutils.SpatialTask
 import androidx.xr.testutils.XrDeviceTest
+import androidx.xr.testutils.XrSessionScope
+import androidx.xr.testutils.createXrSessionRule
 import androidx.xr.testutils.performSpatialInteraction
 import androidx.xr.testutils.resetSpatialInteraction
+import androidx.xr.testutils.waitUntil
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.TruthJUnit.assume
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import java.util.function.Consumer
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.TimeSource
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -91,6 +93,8 @@ import org.junit.runner.RunWith
 @LargeTest
 class InteractableComponentTest {
 
+    @get:Rule val sessionRule = createXrSessionRule()
+
     @After
     fun tearDown() {
         resetSpatialInteraction()
@@ -99,119 +103,99 @@ class InteractableComponentTest {
     @Test
     @XrDeviceTest
     @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
-    fun interactableComponent_mainPanelEntity_receivesInputEvents() =
-        runTestWithSession { activity, session ->
-            val inputListener = RecordingInputEventListener()
+    fun interactableComponent_mainPanelEntity_receivesInputEvents() {
+        val inputListener = RecordingInputEventListener()
 
-            // 1. Set the Compose content of the main panel.
+        // 1. Set the Compose content of the main panel.
+        sessionRule.onMainThread {
             activity.setContent { CenteredLabel("This is Interactable MainPanel") }
+        }
 
-            // 2. Request Full Space Mode and wait for the transition to complete.
-            session.scene.requestFullSpaceAndAwait()
+        // 2. Request Full Space Mode and wait for the transition to complete.
+        sessionRule.requestFullSpace()
 
-            // 3. Create the InteractableComponent and attach it to the main panel.
-            val mainPanelEntity = session.scene.mainPanelEntity
+        // 3. Create the InteractableComponent and attach it to the main panel.
+        val mainPanelEntity = sessionRule.session.scene.mainPanelEntity
+        val interactableComponent =
+            InteractableComponent.create(
+                session = sessionRule.session,
+                inputEventListener = inputListener,
+            )
+        assertThat(mainPanelEntity.addComponent(interactableComponent)).isTrue()
+
+        // Wait for the main panel node to be ready to receive input in the spatial scene.
+        val mainPanelNode =
+            awaitInteractableNode(sessionRule.activity, "main panel") { task ->
+                task.findNode { it.name == MAIN_PANEL_NODE_NAME }
+            }
+
+        // 4. Aim at the main panel, press, drag across its center, and release.
+        performDragInteraction(mainPanelNode)
+
+        // 5. Wait for the input sequence to complete and verify the received InputEvents.
+        awaitInputEnd(inputListener)
+        assertInputEvents(inputListener.events, expectedEntity = mainPanelEntity)
+    }
+
+    @Test
+    @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
+    fun interactableComponent_panelEntity_receivesInputEvents() {
+        val panelName = "interactablePanel"
+        val inputListener = RecordingInputEventListener()
+
+        // 1. Request Full Space Mode and wait for the transition to complete.
+        sessionRule.requestFullSpace()
+
+        val panelEntity = sessionRule.onMainThread {
+            // 2. Hide the main panel so it does not interfere with the spatial panel test, then
+            // create the PanelEntity under test.
+            session.scene.mainPanelEntity.setEnabled(false)
+            val panel = createSpatialPanel(panelName, "This is Interactable Spatial Panel")
+
+            // 3. Create the InteractableComponent and attach it to the panel entity.
             val interactableComponent =
                 InteractableComponent.create(
                     session = session,
                     inputEventListener = inputListener,
                 )
-            assertThat(mainPanelEntity.addComponent(interactableComponent)).isTrue()
-            try {
-                // Wait for the main panel node to be ready to receive input in the spatial scene.
-                val mainPanelNode =
-                    awaitInteractableNode(activity, "main panel") { task ->
-                        task.findNodeByName(MAIN_PANEL_NODE_NAME) ?: task.taskWindowLeash
-                    }
-
-                // 4. Aim at the main panel, press, drag across its center, and release.
-                performDragInteraction(mainPanelNode)
-
-                // 5. Wait for the input sequence to complete and verify the received InputEvents.
-                awaitInputEnd(inputListener)
-                assertInputEvents(inputListener.events, expectedEntity = mainPanelEntity)
-            } finally {
-                mainPanelEntity.removeComponent(interactableComponent)
-            }
+            assertThat(panel.addComponent(interactableComponent)).isTrue()
+            panel
         }
+
+        // Wait for the spatial panel node to be ready to receive input in the spatial scene.
+        val panelNode =
+            awaitInteractableNode(sessionRule.activity, "spatial panel '$panelName'") { task ->
+                task.findNode { it.name == panelName && it.isEmbeddedWindowLeash }
+            }
+
+        // 4. Aim at the panel, press, drag across its center, and release.
+        performDragInteraction(panelNode)
+
+        // 5. Wait for the input sequence to complete and verify the received InputEvents.
+        awaitInputEnd(inputListener)
+        assertInputEvents(inputListener.events, expectedEntity = panelEntity)
+    }
 
     @Test
     @XrDeviceTest
     @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
-    fun interactableComponent_panelEntity_receivesInputEvents() =
-        runTestWithSession { activity, session ->
-            val panelName = "interactablePanel"
-            val inputListener = RecordingInputEventListener()
+    fun interactableComponent_activityPanelEntity_receivesInputEvents() {
+        val panelName = "interactableActivityPanel"
+        val inputListener = RecordingInputEventListener()
 
-            // 1. Request Full Space Mode and wait for the transition to complete.
-            session.scene.requestFullSpaceAndAwait()
+        // 1. Request Full Space Mode and wait for the transition to complete.
+        sessionRule.requestFullSpace()
+        // Embedding an activity in a panel requires the EMBED_ACTIVITY capability.
+        val spatialCapabilities = sessionRule.session.scene.spatialCapabilities
+        assume().that(spatialCapabilities).contains(SpatialCapability.EMBED_ACTIVITY)
 
-            // 2. Hide the main panel so it does not interfere with the spatial panel test, then
-            // create the PanelEntity under test.
-            session.scene.mainPanelEntity.setEnabled(false)
-            var panelEntity: PanelEntity? = null
-            try {
-                panelEntity =
-                    createSpatialPanel(
-                        activity,
-                        session,
-                        panelName,
-                        "This is Interactable Spatial Panel",
-                    )
-
-                // 3. Create the InteractableComponent and attach it to the panel entity.
-                val interactableComponent =
-                    InteractableComponent.create(
-                        session = session,
-                        inputEventListener = inputListener,
-                    )
-                assertThat(panelEntity.addComponent(interactableComponent)).isTrue()
-
-                // Wait for the spatial panel node to be ready to receive input in the spatial
-                // scene.
-                val panelNode =
-                    awaitInteractableNode(activity, "spatial panel '$panelName'") { task ->
-                        task.findNode { it.name == panelName && it.isEmbeddedWindowLeash }
-                    }
-
-                // 4. Aim at the panel, press, drag across its center, and release.
-                performDragInteraction(panelNode)
-
-                // 5. Wait for the input sequence to complete and verify the received InputEvents.
-                awaitInputEnd(inputListener)
-                assertInputEvents(inputListener.events, expectedEntity = panelEntity)
-            } finally {
-                // Detach the component and the panel created by this test before restoring the
-                // main panel.
-                panelEntity?.removeAllComponents()
-                panelEntity?.parent = null
-                // Restore main panel visibility before closing the session, since it is backed by
-                // the task-scoped window leash node.
-                session.scene.mainPanelEntity.setEnabled(true)
-            }
-        }
-
-    @Test
-    @XrDeviceTest
-    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
-    fun interactableComponent_activityPanelEntity_receivesInputEvents() =
-        runTestWithSession { activity, session ->
-            val panelName = "interactableActivityPanel"
-            val inputListener = RecordingInputEventListener()
-
-            // 1. Request Full Space Mode and wait for the transition to complete.
-            session.scene.requestFullSpaceAndAwait()
-            // Embedding an activity in a panel requires the EMBED_ACTIVITY capability.
-            assume()
-                .that(session.scene.spatialCapabilities)
-                .contains(SpatialCapability.EMBED_ACTIVITY)
-
-            // 2. Hide the main panel so it does not interfere with the activity panel test, then
-            // create the ActivityPanelEntity under test and launch an activity into it.
-            session.scene.mainPanelEntity.setEnabled(false)
-            var activityPanelEntity: ActivityPanelEntity? = null
-            try {
-                activityPanelEntity =
+        try {
+            val activityPanelEntity = sessionRule.onMainThread {
+                // 2. Hide the main panel so it does not interfere with the activity panel test,
+                // then create the ActivityPanelEntity under test and launch an activity into it.
+                session.scene.mainPanelEntity.setEnabled(false)
+                val activityPanel =
                     ActivityPanelEntity.create(
                         session = session,
                         pixelDimensions = PANEL_PIXEL_DIMENSIONS,
@@ -219,10 +203,10 @@ class InteractableComponentTest {
                         pose = PANEL_POSE,
                         parent = session.scene.activitySpace,
                     )
-                // Unlike the intent launched by runTestWithSession, this intent has no action and
-                // no category, so ActivityScenario does not mistake the embedded activity for the
-                // activity under test.
-                activityPanelEntity.startActivity(Intent(activity, ComponentActivity::class.java))
+                // Unlike the intent that XrSessionRule's ActivityScenarioRule launches the activity
+                // under test with, this intent has no action and no category, so ActivityScenario
+                // does not mistake the embedded activity for the activity under test.
+                activityPanel.startActivity(Intent(activity, ComponentActivity::class.java))
 
                 // 3. Create the InteractableComponent and attach it to the activity panel entity.
                 val interactableComponent =
@@ -230,40 +214,36 @@ class InteractableComponentTest {
                         session = session,
                         inputEventListener = inputListener,
                     )
-                assertThat(activityPanelEntity.addComponent(interactableComponent)).isTrue()
-
-                // Wait for the embedded activity to be shown and ready to receive input in the
-                // spatial scene.
-                val panelNode =
-                    awaitInteractableNode(activity, "activity panel '$panelName'") { task ->
-                        task.findNode { it.name == panelName }
-                    }
-
-                // 4. Aim at the activity panel, press, drag across its center, and release.
-                performDragInteraction(panelNode)
-
-                // 5. Wait for the input sequence to complete and verify the received InputEvents.
-                awaitInputEnd(inputListener)
-                assertInputEvents(inputListener.events, expectedEntity = activityPanelEntity)
-            } finally {
-                // Detach the component and the activity panel created by this test before
-                // restoring the main panel.
-                activityPanelEntity?.removeAllComponents()
-                activityPanelEntity?.parent = null
-                // Restore main panel visibility before closing the session, since it is backed by
-                // the task-scoped window leash node.
-                session.scene.mainPanelEntity.setEnabled(true)
+                assertThat(activityPanel.addComponent(interactableComponent)).isTrue()
+                activityPanel
             }
+
+            // Wait for the embedded activity to be shown and ready to receive input in the spatial
+            // scene.
+            val panelNode =
+                awaitInteractableNode(sessionRule.activity, "activity panel '$panelName'") { task ->
+                    task.findNode { it.name == panelName }
+                }
+
+            // 4. Aim at the activity panel, press, drag across its center, and release.
+            performDragInteraction(panelNode)
+
+            // 5. Wait for the input sequence to complete and verify the received InputEvents.
+            awaitInputEnd(inputListener)
+            assertInputEvents(inputListener.events, expectedEntity = activityPanelEntity)
+        } finally {
+            // No public API closes the embedded activity before the host finishes; finish it
+            // directly.
+            finishActivitiesOtherThan(sessionRule.activity)
         }
+    }
 
     /**
      * Creates a [PanelEntity] named [name] that hosts a [ComposeView] displaying [text].
      *
-     * Must be called on the main thread.
+     * Must be called inside `sessionRule.onMainThread { }`.
      */
-    private fun createSpatialPanel(
-        activity: ComponentActivity,
-        session: Session,
+    private fun XrSessionScope<ComponentActivity>.createSpatialPanel(
         name: String,
         text: String,
     ): PanelEntity {
@@ -303,16 +283,21 @@ class InteractableComponentTest {
      * The pointer ray is aimed at the node based on its extents, so its extents have to be ready
      * before interacting with it. For instance, the surface and extents of an [ActivityPanelEntity]
      * are only populated once its embedded activity has been launched.
+     *
+     * Blocks, so it must be called from the instrumentation thread.
      */
-    private suspend fun awaitInteractableNode(
+    private fun awaitInteractableNode(
         activity: ComponentActivity,
         description: String,
         selectNode: (SpatialTask) -> SpatialNode?,
     ): SpatialNode {
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
         val node =
-            pollUntil(
+            SpatialSceneHelper.waitForSpatialScene(
                 description = "an interactable $description",
-                select = { captureSpatialScene().findTaskByActivity(activity)?.let(selectNode) },
+                timeout = POLL_TIMEOUT,
+                pollInterval = POLL_INTERVAL,
+                select = { scene -> scene.findTaskByActivity(activity)?.let(selectNode) },
                 until = { it != null && it.worldExtents != null },
             )
         return checkNotNull(node)
@@ -321,27 +306,59 @@ class InteractableComponentTest {
     /**
      * Aims the pointer ray at [node], presses, drags across its center from [DRAG_START_OFFSET] to
      * [DRAG_END_OFFSET], and releases.
+     *
+     * Blocks, so it must be called from the instrumentation thread.
      */
-    private suspend fun performDragInteraction(node: SpatialNode) {
-        withContext(Dispatchers.IO) {
-            node.performSpatialInteraction {
-                pointAt(offset = DRAG_START_OFFSET)
-                press()
-                animate { fraction ->
-                    pointAt(offset = Vector3.lerp(DRAG_START_OFFSET, DRAG_END_OFFSET, fraction))
-                }
-                release()
+    private fun performDragInteraction(node: SpatialNode) {
+        node.performSpatialInteraction {
+            pointAt(offset = DRAG_START_OFFSET)
+            press()
+            animate { fraction ->
+                pointAt(offset = Vector3.lerp(DRAG_START_OFFSET, DRAG_END_OFFSET, fraction))
             }
+            release()
         }
     }
 
-    /** Suspends until [listener] has recorded an [InputEvent.Action.UP] event, or fails. */
-    private suspend fun awaitInputEnd(listener: RecordingInputEventListener) {
-        withTimeoutOrNull(INPUT_TIMEOUT) { listener.inputEnded.await() }
-            ?: throw AssertionError(
+    /**
+     * Finishes every activity of this process except [host], and blocks until they are destroyed.
+     *
+     * An [ActivityPanelEntity] only destroys its embedded activity when the entity itself is
+     * destroyed, which happens after [host] has finished. If the embedded activity is still alive
+     * when [host] finishes, it becomes the top activity of the task and crashes SystemUI.
+     *
+     * Must be called from the instrumentation thread before XrSessionRule finishes [host].
+     */
+    private fun finishActivitiesOtherThan(host: Activity) {
+        val monitor = ActivityLifecycleMonitorRegistry.getInstance()
+        fun aliveActivities(): List<Activity> =
+            Stage.values()
+                .filter { it != Stage.DESTROYED }
+                .flatMap { monitor.getActivitiesInStage(it) }
+                .filter { it !== host }
+
+        sessionRule.onMainThread { aliveActivities().forEach { it.finish() } }
+        waitUntil(
+            description = "embedded activities to be destroyed",
+            timeout = EMBEDDED_ACTIVITY_FINISH_TIMEOUT,
+            pollInterval = POLL_INTERVAL,
+        ) {
+            sessionRule.onMainThread { aliveActivities().isEmpty() }
+        }
+    }
+
+    /**
+     * Blocks the instrumentation thread until [listener] has recorded an [InputEvent.Action.UP]
+     * event, and fails on timeout.
+     */
+    private fun awaitInputEnd(listener: RecordingInputEventListener) {
+        val timeoutMillis = INPUT_TIMEOUT.inWholeMilliseconds
+        if (!listener.inputEnded.await(timeoutMillis, TimeUnit.MILLISECONDS)) {
+            throw AssertionError(
                 "Input sequence did not end with UP, received actions: " +
                     "${listener.events.map { it.action }}"
             )
+        }
     }
 
     /**
@@ -375,34 +392,12 @@ class InteractableComponentTest {
         }
     }
 
-    /** Captures the spatial scene off the main thread, since the capture blocks while polling. */
-    private suspend fun captureSpatialScene(): SpatialScene =
-        withContext(Dispatchers.IO) { SpatialSceneHelper.captureSpatialScene() }
-
-    /**
-     * Repeatedly evaluates [select] until [until] holds for its result, and returns that result.
-     *
-     * @throws AssertionError if [until] does not hold within [POLL_TIMEOUT].
-     */
-    private suspend fun <T> pollUntil(
-        description: String,
-        select: suspend () -> T,
-        until: (T) -> Boolean,
-    ): T {
-        val start = TimeSource.Monotonic.markNow()
-        while (true) {
-            val value = select()
-            if (until(value)) return value
-            if (start.elapsedNow() >= POLL_TIMEOUT) {
-                throw AssertionError("Timed out waiting for $description, last value: $value")
-            }
-            delay(POLL_INTERVAL)
-        }
-    }
-
     private companion object {
         /** Timeout applied when waiting for the input sequence to complete. */
         val INPUT_TIMEOUT = 5.seconds
+
+        /** Timeout applied when waiting for embedded activities to be destroyed. */
+        val EMBEDDED_ACTIVITY_FINISH_TIMEOUT = 5.seconds
 
         /** Timeout applied when polling the spatial scene. */
         val POLL_TIMEOUT = 10.seconds
@@ -428,8 +423,11 @@ class InteractableComponentTest {
 }
 
 /**
- * An [InputEvent] listener that records all received events in order and completes [inputEnded]
+ * An [InputEvent] listener that records all received events in order and counts down [inputEnded]
  * once an [InputEvent.Action.UP] event is received.
+ *
+ * Events are delivered on the main thread, while [events] and [inputEnded] are read from the
+ * instrumentation thread.
  */
 private class RecordingInputEventListener : Consumer<InputEvent> {
     private val _events = CopyOnWriteArrayList<InputEvent>()
@@ -437,12 +435,12 @@ private class RecordingInputEventListener : Consumer<InputEvent> {
     val events: List<InputEvent>
         get() = _events.toList()
 
-    val inputEnded = CompletableDeferred<Unit>()
+    val inputEnded = CountDownLatch(1)
 
     override fun accept(event: InputEvent) {
         _events.add(event)
         if (event.action == InputEvent.Action.UP) {
-            inputEnded.complete(Unit)
+            inputEnded.countDown()
         }
     }
 }
