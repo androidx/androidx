@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteContentScale
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
@@ -71,8 +72,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.DefaultAlpha
-import androidx.compose.ui.layout.ContentScale
 import androidx.wear.compose.material3.ButtonDefaults.scrimGradientEndColor
 import androidx.wear.compose.material3.ButtonDefaults.scrimGradientStartColor
 import androidx.wear.compose.remote.material3.RemoteButtonDefaults.buttonColors
@@ -1154,9 +1153,9 @@ public object RemoteButtonDefaults {
     public fun containerPainter(
         image: RemoteImageBitmap,
         scrim: RemoteBrush? = scrimBrush(),
-        alpha: RemoteFloat = DefaultAlpha.rf,
+        alpha: RemoteFloat = 1f.rf,
         shape: RemoteShape = this.shape,
-        contentScale: ContentScale = ContentScale.Crop,
+        contentScale: RemoteContentScale = RemoteContentScale.Crop,
     ): RemotePainter {
         return remoteContainerPainter(image, alpha, shape, contentScale, scrim)
     }
