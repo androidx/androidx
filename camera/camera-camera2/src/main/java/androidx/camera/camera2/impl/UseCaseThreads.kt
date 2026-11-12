@@ -34,11 +34,20 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 
-/** Collection of threads and scope(s) that have been configured and tuned. */
-public class UseCaseThreads(
+/**
+ * Collection of threads and scope(s) that have been configured and tuned.
+ *
+ * @param schedulerHandler Optional [Handler] used only as a timer for delayed coroutine work (e.g.
+ *   `delay` or `withTimeout`) on [sequentialScope]. When set, timers are tracked on this handler
+ *   and resumed tasks still run on [sequentialExecutor], so no extra timer thread is created.
+ */
+public class UseCaseThreads
+@JvmOverloads
+constructor(
     public val scope: CoroutineScope,
     public val backgroundExecutor: Executor,
     public val backgroundDispatcher: CoroutineDispatcher,
+    schedulerHandler: Handler? = null,
 ) {
     public val mainHandler: Handler = Handler(Looper.getMainLooper())
     private val sequentialExecutorDelegate =
@@ -58,11 +67,8 @@ public class UseCaseThreads(
      */
     public fun isOnSequentialThread(): Boolean = isSequentialThread.get() == true
 
-    /**
-     * Executor that enforces sequential execution and sets the [isSequentialThread] flag during
-     * task execution.
-     */
-    public val sequentialExecutor: Executor = Executor { command ->
+    /** Runs tasks sequentially and sets the [isSequentialThread] flag during task execution. */
+    private val confinedSequentialExecutor = Executor { command ->
         sequentialExecutorDelegate.execute {
             isSequentialThread.set(true)
             try {
@@ -72,7 +78,25 @@ public class UseCaseThreads(
             }
         }
     }
-    private val sequentialDispatcher = sequentialExecutor.asCoroutineDispatcher()
+
+    /**
+     * Executor that enforces sequential execution and sets the [isSequentialThread] flag during
+     * task execution.
+     *
+     * If a scheduler [Handler] is provided, this is also a
+     * [java.util.concurrent.ScheduledExecutorService] whose delayed tasks still run sequentially
+     * with the flag set.
+     */
+    public val sequentialExecutor: Executor =
+        if (schedulerHandler != null) {
+            CameraXExecutors.asScheduledExecutor(confinedSequentialExecutor, schedulerHandler)
+        } else {
+            confinedSequentialExecutor
+        }
+
+    internal val sequentialDispatcher: CoroutineDispatcher =
+        sequentialExecutor.asCoroutineDispatcher()
+
     public var sequentialScope: CoroutineScope =
         CoroutineScope(scope.coroutineContext + SupervisorJob() + sequentialDispatcher)
         @VisibleForTesting set

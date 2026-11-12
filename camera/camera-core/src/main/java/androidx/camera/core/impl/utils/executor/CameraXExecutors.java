@@ -94,6 +94,21 @@ public final class CameraXExecutors {
     }
 
     /**
+     * Returns {@code executor} as a {@link ScheduledExecutorService}.
+     *
+     * <p>If {@code executor} already is a {@link ScheduledExecutorService}, it is returned as-is so
+     * that its own scheduling is kept. Otherwise, it is wrapped in a stateless service that tracks
+     * delayed tasks on {@code schedulerHandler} and always executes tasks on {@code executor}.
+     */
+    public static @NonNull ScheduledExecutorService asScheduledExecutor(
+            @NonNull Executor executor, @NonNull Handler schedulerHandler) {
+        if (executor instanceof ScheduledExecutorService) {
+            return (ScheduledExecutorService) executor;
+        }
+        return new DelegatingScheduledExecutorService(executor, schedulerHandler);
+    }
+
+    /**
      * @return a cached high priority {@link Executor} suitable for lightweight tasks.
      */
     public static @NonNull Executor highPriorityExecutor() {
