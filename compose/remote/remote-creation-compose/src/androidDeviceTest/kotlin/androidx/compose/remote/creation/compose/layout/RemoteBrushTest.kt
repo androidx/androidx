@@ -102,11 +102,7 @@ class RemoteBrushTest {
                                     RemoteBrush.linearGradient(
                                         colors = colors,
                                         start = RemoteOffset(0f.rf, 0f.rf),
-                                        end =
-                                            RemoteOffset(
-                                                Float.POSITIVE_INFINITY.rf,
-                                                Float.POSITIVE_INFINITY.rf,
-                                            ),
+                                        end = RemoteOffset.Infinite,
                                     )
                                 )
                     )
@@ -147,11 +143,7 @@ class RemoteBrushTest {
                                 .background(
                                     RemoteBrush.radialGradient(
                                         colors = colors,
-                                        center =
-                                            RemoteOffset(
-                                                Float.POSITIVE_INFINITY.rf,
-                                                Float.POSITIVE_INFINITY.rf,
-                                            ),
+                                        center = RemoteOffset.Infinite,
                                         radius = Float.POSITIVE_INFINITY.rf,
                                     )
                                 )
@@ -165,11 +157,7 @@ class RemoteBrushTest {
                                 .background(
                                     RemoteBrush.sweepGradient(
                                         colors = colors,
-                                        center =
-                                            RemoteOffset(
-                                                Float.POSITIVE_INFINITY.rf,
-                                                Float.POSITIVE_INFINITY.rf,
-                                            ),
+                                        center = RemoteOffset.Infinite,
                                     )
                                 )
                     )

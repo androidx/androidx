@@ -51,7 +51,7 @@ import kotlin.collections.toFloatArray
  * @param colorStops Colors and their offset in the gradient area
  * @param start Starting position of the linear gradient. This can be set to [RemoteOffset.Zero] to
  *   position at the far left and top of the drawing area
- * @param end Ending position of the linear gradient. This can be set to [RemoteOffset] Infinite to
+ * @param end Ending position of the linear gradient. This can be set to [RemoteOffset.Infinite] to
  *   position at the far right and bottom of the drawing area
  * @param tileMode Determines the behavior for how the shader is to fill a region outside its
  *   bounds. Defaults to [RemoteTileMode.Clamp] to repeat the edge pixels
@@ -86,7 +86,7 @@ public fun RemoteBrush.Companion.linearGradient(
  * @param colors Colors to be rendered as part of the gradient
  * @param start Starting position of the linear gradient. This can be set to [RemoteOffset.Zero] to
  *   position at the far left and top of the drawing area
- * @param end Ending position of the linear gradient. This can be set to [RemoteOffset] Infinite to
+ * @param end Ending position of the linear gradient. This can be set to [RemoteOffset.Infinite] to
  *   position at the far right and bottom of the drawing area
  * @param tileMode Determines the behavior for how the shader is to fill a region outside its
  *   bounds. Defaults to [RemoteTileMode.Clamp] to repeat the edge pixels

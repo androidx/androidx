@@ -42,5 +42,9 @@ public class RemoteOffset(
     public companion object {
         /** A [RemoteOffset] with both [x] and [y] set to zero. */
         public val Zero: RemoteOffset = RemoteOffset(0.rf, 0.rf)
+
+        /** A [RemoteOffset] with both [x] and [y] set to [Float.POSITIVE_INFINITY]. */
+        public val Infinite: RemoteOffset =
+            RemoteOffset(Float.POSITIVE_INFINITY.rf, Float.POSITIVE_INFINITY.rf)
     }
 }

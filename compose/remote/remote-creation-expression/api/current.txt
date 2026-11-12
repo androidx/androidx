@@ -49,7 +49,9 @@ package androidx.compose.remote.creation.compose.layout {
   }
 
   public static final class RemoteOffset.Companion {
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteOffset getInfinite();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteOffset getZero();
+    property public androidx.compose.remote.creation.compose.layout.RemoteOffset Infinite;
     property public androidx.compose.remote.creation.compose.layout.RemoteOffset Zero;
   }
 
