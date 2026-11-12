@@ -6,6 +6,16 @@ package androidx.compose.remote.creation.compose.state {
     property public abstract T? constantValueOrNull;
   }
 
+  public final class MutableRemoteBoolean extends androidx.compose.remote.creation.compose.state.RemoteBoolean implements androidx.compose.remote.creation.compose.state.MutableRemoteState<java.lang.Boolean> {
+    property public Boolean? constantValueOrNull;
+  }
+
+  public final class MutableRemoteEnum<T extends java.lang.Enum<T>> extends androidx.compose.remote.creation.compose.state.RemoteEnum<T> implements androidx.compose.remote.creation.compose.state.MutableRemoteState<T> {
+    ctor @androidx.compose.runtime.annotation.RememberInComposition public MutableRemoteEnum(androidx.compose.remote.creation.compose.state.MutableRemoteInt remoteInt, kotlin.enums.EnumEntries<T> enumEntries);
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.MutableRemoteInt getRemoteInt();
+    property public androidx.compose.remote.creation.compose.state.MutableRemoteInt remoteInt;
+  }
+
   public final class MutableRemoteFloat extends androidx.compose.remote.creation.compose.state.RemoteFloat implements androidx.compose.remote.creation.compose.state.MutableRemoteState<java.lang.Float> {
     property public Float? constantValueOrNull;
   }
@@ -18,6 +28,61 @@ package androidx.compose.remote.creation.compose.state {
   }
 
   @androidx.compose.runtime.Stable public interface MutableRemoteState<T> extends androidx.compose.remote.creation.compose.state.RemoteState<T> {
+  }
+
+  @androidx.compose.runtime.Stable public class RemoteBoolean extends androidx.compose.remote.creation.compose.state.BaseRemoteState<java.lang.Boolean> {
+    method public final infix androidx.compose.remote.creation.compose.state.RemoteBoolean and(androidx.compose.remote.creation.compose.state.RemoteBoolean other);
+    method public static final androidx.compose.remote.creation.compose.state.RemoteBoolean createNamedRemoteBoolean(String name, boolean defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+    method @InaccessibleFromKotlin public Boolean? getConstantValueOrNull();
+    method public final androidx.compose.remote.creation.compose.state.RemoteBoolean isEqualTo(androidx.compose.remote.creation.compose.state.RemoteBoolean other);
+    method public final androidx.compose.remote.creation.compose.state.RemoteBoolean isNotEqualTo(androidx.compose.remote.creation.compose.state.RemoteBoolean other);
+    method public final operator androidx.compose.remote.creation.compose.state.RemoteBoolean not();
+    method public final infix androidx.compose.remote.creation.compose.state.RemoteBoolean or(androidx.compose.remote.creation.compose.state.RemoteBoolean other);
+    method public final androidx.compose.remote.creation.compose.state.RemoteBoolean select(androidx.compose.remote.creation.compose.state.RemoteBoolean ifTrue, androidx.compose.remote.creation.compose.state.RemoteBoolean ifFalse);
+    method public final androidx.compose.remote.creation.compose.state.RemoteColor select(androidx.compose.remote.creation.compose.state.RemoteColor ifTrue, androidx.compose.remote.creation.compose.state.RemoteColor ifFalse);
+    method public final androidx.compose.remote.creation.compose.state.RemoteDp select(androidx.compose.remote.creation.compose.state.RemoteDp ifTrue, androidx.compose.remote.creation.compose.state.RemoteDp ifFalse);
+    method public final androidx.compose.remote.creation.compose.state.RemoteFloat select(androidx.compose.remote.creation.compose.state.RemoteFloat ifTrue, androidx.compose.remote.creation.compose.state.RemoteFloat ifFalse);
+    method public final androidx.compose.remote.creation.compose.state.RemoteInt select(androidx.compose.remote.creation.compose.state.RemoteInt ifTrue, androidx.compose.remote.creation.compose.state.RemoteInt ifFalse);
+    method public final androidx.compose.remote.creation.compose.state.RemoteString select(androidx.compose.remote.creation.compose.state.RemoteString ifTrue, androidx.compose.remote.creation.compose.state.RemoteString ifFalse);
+    method public final androidx.compose.remote.creation.compose.state.RemoteInt toRemoteInt();
+    method public final infix androidx.compose.remote.creation.compose.state.RemoteBoolean xor(androidx.compose.remote.creation.compose.state.RemoteBoolean other);
+    property public Boolean? constantValueOrNull;
+    field public static final androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion Companion;
+  }
+
+  public static final class RemoteBoolean.Companion {
+    method public androidx.compose.remote.creation.compose.state.RemoteBoolean createNamedRemoteBoolean(String name, boolean defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteBoolean! createNamedRemoteBoolean$default(androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion!, String!, boolean, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, int, Object!);
+  }
+
+  public final class RemoteBooleanKt {
+    method @androidx.compose.runtime.annotation.RememberInComposition public static androidx.compose.remote.creation.compose.state.MutableRemoteBoolean MutableRemoteBoolean(boolean initialValue);
+    method public static androidx.compose.remote.creation.compose.state.RemoteBoolean RemoteBoolean(boolean value);
+    method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteBoolean getRb(boolean);
+    property public static androidx.compose.remote.creation.compose.state.RemoteBoolean boolean.rb;
+  }
+
+  @androidx.compose.runtime.Stable public class RemoteEnum<T extends java.lang.Enum<T>> extends androidx.compose.remote.creation.compose.state.BaseRemoteState<T> {
+    ctor public RemoteEnum(androidx.compose.remote.creation.compose.state.RemoteInt intValue, kotlin.enums.EnumEntries<T> enumEntries);
+    method @InaccessibleFromKotlin public T? getConstantValueOrNull();
+    method @InaccessibleFromKotlin public final kotlin.enums.EnumEntries<T> getEnumEntries();
+    method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteInt getOrdinal();
+    method public final androidx.compose.remote.creation.compose.state.RemoteInt toRemoteInt(kotlin.jvm.functions.Function1<? super T,? extends androidx.compose.remote.creation.compose.state.RemoteInt> mapping);
+    method public final androidx.compose.remote.creation.compose.state.RemoteString toRemoteString(optional kotlin.jvm.functions.Function1<? super T,? extends androidx.compose.remote.creation.compose.state.RemoteString> mapping);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteString! toRemoteString$default(androidx.compose.remote.creation.compose.state.RemoteEnum!, kotlin.jvm.functions.Function1!, int, Object!);
+    property public T? constantValueOrNull;
+    property public final kotlin.enums.EnumEntries<T> enumEntries;
+    property public final androidx.compose.remote.creation.compose.state.RemoteInt ordinal;
+    field public static final androidx.compose.remote.creation.compose.state.RemoteEnum.Companion Companion;
+  }
+
+  public static final class RemoteEnum.Companion {
+    method @KotlinOnly public inline <reified T extends java.lang.Enum<T>> androidx.compose.remote.creation.compose.state.RemoteEnum<T> createNamedRemoteEnum(String name, T defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+  }
+
+  public final class RemoteEnumKt {
+    method @KotlinOnly @androidx.compose.runtime.annotation.RememberInComposition public static inline <reified T extends java.lang.Enum<T>> androidx.compose.remote.creation.compose.state.MutableRemoteEnum<T> MutableRemoteEnum(T initialValue);
+    method @KotlinOnly public static inline <reified T extends java.lang.Enum<T>> androidx.compose.remote.creation.compose.state.RemoteEnum<T> RemoteEnum(T value);
   }
 
   @androidx.compose.runtime.Stable public class RemoteFloat extends androidx.compose.remote.creation.compose.state.BaseRemoteState<java.lang.Float> {
