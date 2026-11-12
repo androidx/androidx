@@ -28,7 +28,6 @@ import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.internal.ThreadConfig;
 import androidx.camera.video.VideoCapture;
 import androidx.camera.video.VideoOutput;
-import androidx.camera.video.internal.encoder.VideoEncoderInfo;
 
 import org.jspecify.annotations.NonNull;
 
@@ -50,11 +49,6 @@ public final class VideoCaptureConfig<T extends VideoOutput>
     public static final Option<VideoOutput> OPTION_VIDEO_OUTPUT =
             Option.create("camerax.video.VideoCapture.videoOutput", VideoOutput.class);
 
-    public static final Option<VideoEncoderInfo.Finder>
-            OPTION_VIDEO_ENCODER_INFO_FINDER =
-            Option.create("camerax.video.VideoCapture.videoEncoderInfoFinder",
-                    VideoEncoderInfo.Finder.class);
-
     public static final Option<Boolean> OPTION_FORCE_ENABLE_SURFACE_PROCESSING = Option.create(
             "camerax.video.VideoCapture.forceEnableSurfaceProcessing", Boolean.class);
 
@@ -70,10 +64,6 @@ public final class VideoCaptureConfig<T extends VideoOutput>
     @SuppressWarnings("unchecked")
     public @NonNull T getVideoOutput() {
         return (T) requireNonNull(retrieveOption(OPTION_VIDEO_OUTPUT));
-    }
-
-    public VideoEncoderInfo.@NonNull Finder getVideoEncoderInfoFinder() {
-        return requireNonNull(retrieveOption(OPTION_VIDEO_ENCODER_INFO_FINDER));
     }
 
     public boolean isSurfaceProcessingForceEnabled() {

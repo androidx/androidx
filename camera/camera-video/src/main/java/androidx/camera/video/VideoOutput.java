@@ -25,6 +25,8 @@ import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.ConstantObservable;
 import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.Timebase;
+import androidx.camera.video.internal.encoder.DefaultVideoEncoderFactory;
+import androidx.camera.video.internal.encoder.VideoEncoderInfo;
 import androidx.core.util.Consumer;
 
 import org.jspecify.annotations.NonNull;
@@ -191,6 +193,20 @@ public interface VideoOutput {
     default @NonNull EncoderProfilesResolver getEncoderProfilesResolver(
             @NonNull CameraInfo cameraInfo, int sessionType) {
         return EncoderProfilesResolver.EMPTY;
+    }
+
+    /**
+     * Returns the {@link VideoEncoderInfo.Finder} for the video encoders used by the
+     * {@link VideoOutput}.
+     *
+     * <p>The finder is used to query the capabilities of the video encoder, e.g. supported
+     * resolutions and size alignments, so the stream can be configured to what the encoder
+     * supports. The default implementation returns the finder of the default video encoder
+     * factory.
+     */
+    @RestrictTo(Scope.LIBRARY)
+    default VideoEncoderInfo.@NonNull Finder getVideoEncoderInfoFinder() {
+        return DefaultVideoEncoderFactory.DEFAULT_FINDER;
     }
 
     /**

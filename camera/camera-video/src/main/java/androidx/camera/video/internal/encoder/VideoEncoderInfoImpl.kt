@@ -17,10 +17,7 @@ package androidx.camera.video.internal.encoder
 
 import android.media.MediaCodecInfo
 import android.util.Range
-import androidx.camera.core.Logger
 import androidx.camera.video.internal.utils.CodecUtil
-import androidx.camera.video.internal.utils.CodecUtil.findCodecAndGetCodecInfo
-import androidx.camera.video.internal.workaround.ProfileAwareVideoEncoderInfo
 
 /**
  * VideoEncoderInfoImpl provides video encoder related information and capabilities.
@@ -90,26 +87,7 @@ internal constructor(codecInfo: MediaCodecInfo, mime: String) :
     override val isHardwareAccelerated: Boolean
         get() = CodecUtil.isHardwareAccelerated(mediaCodecInfo, mime)
 
-    public companion object {
-        private const val TAG = "VideoEncoderInfoImpl"
-
-        /**
-         * A default implementation of the VideoEncoderInfoImpl finder.
-         *
-         * The function will return `null` if it can't find a VideoEncoderInfoImpl.
-         */
-        @JvmField
-        public val FINDER: VideoEncoderInfo.Finder = VideoEncoderInfo.Finder { mimeType: String ->
-            try {
-                val videoEncoderInfo =
-                    VideoEncoderInfoImpl(findCodecAndGetCodecInfo(mimeType), mimeType)
-                return@Finder ProfileAwareVideoEncoderInfo.from(videoEncoderInfo)
-            } catch (e: InvalidConfigException) {
-                Logger.w(TAG, "Unable to find a VideoEncoderInfoImpl", e)
-                return@Finder null
-            }
-        }
-
+    private companion object {
         private fun toIllegalArgumentException(t: Throwable): IllegalArgumentException {
             return t as? IllegalArgumentException ?: IllegalArgumentException(t)
         }

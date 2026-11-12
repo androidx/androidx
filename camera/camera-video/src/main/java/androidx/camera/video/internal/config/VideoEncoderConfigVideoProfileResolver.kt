@@ -55,6 +55,7 @@ public constructor(
     private val videoProfile: VideoProfileProxy,
     private val dynamicRange: DynamicRange,
     private val expectedFrameRateRange: Range<Int>,
+    private val isHighSpeedCapture: Boolean = false,
 ) : Supplier<VideoEncoderConfig> {
 
     public companion object {
@@ -109,6 +110,7 @@ public constructor(
             .setEncodeFrameRate(resolvedFrameRates.encodeRate)
             .setProfile(resolvedProfile)
             .setDataSpace(dataSpace)
+            .setHighSpeedCapture(isHighSpeedCapture)
             .build()
     }
 }

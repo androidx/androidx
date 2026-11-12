@@ -24,8 +24,8 @@ import androidx.camera.core.impl.AdapterCameraInfo
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.video.Recorder.VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE
 import androidx.camera.video.Recorder.VIDEO_RECORDING_TYPE_REGULAR
+import androidx.camera.video.internal.encoder.DefaultVideoEncoderFactory
 import androidx.camera.video.internal.encoder.VideoEncoderInfo
-import androidx.camera.video.internal.encoder.VideoEncoderInfoImpl
 
 /** Factory for creating and caching [EncoderProfilesResolver] instances. */
 internal object EncoderProfilesResolverFactory {
@@ -38,7 +38,7 @@ internal object EncoderProfilesResolverFactory {
         @Recorder.VideoRecordingType videoRecordingType: Int = VIDEO_RECORDING_TYPE_REGULAR,
         @Recorder.VideoCapabilitiesSource
         videoCapabilitiesSource: Int = VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE,
-        videoEncoderInfoFinder: VideoEncoderInfo.Finder = VideoEncoderInfoImpl.FINDER,
+        videoEncoderInfoFinder: VideoEncoderInfo.Finder = DefaultVideoEncoderFactory.DEFAULT_FINDER,
     ): EncoderProfilesResolver {
         val createResolver by lazy {
             createResolver(

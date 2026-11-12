@@ -117,20 +117,22 @@ import androidx.camera.video.internal.config.MediaConfigUtil;
 import androidx.camera.video.internal.config.MediaInfo;
 import androidx.camera.video.internal.config.VideoMimeInfo;
 import androidx.camera.video.internal.encoder.AudioEncoderConfig;
+import androidx.camera.video.internal.encoder.AudioEncoderFactory;
 import androidx.camera.video.internal.encoder.BufferCopiedEncodedData;
+import androidx.camera.video.internal.encoder.DefaultAudioEncoderFactory;
+import androidx.camera.video.internal.encoder.DefaultVideoEncoderFactory;
 import androidx.camera.video.internal.encoder.EncodeException;
 import androidx.camera.video.internal.encoder.EncodedData;
 import androidx.camera.video.internal.encoder.Encoder;
 import androidx.camera.video.internal.encoder.EncoderCallback;
-import androidx.camera.video.internal.encoder.EncoderFactory;
 import androidx.camera.video.internal.encoder.EncoderImpl;
 import androidx.camera.video.internal.encoder.InvalidConfigException;
 import androidx.camera.video.internal.encoder.OutputConfig;
 import androidx.camera.video.internal.encoder.SystemTimeProvider;
 import androidx.camera.video.internal.encoder.TimeProvider;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
+import androidx.camera.video.internal.encoder.VideoEncoderFactory;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
-import androidx.camera.video.internal.encoder.VideoEncoderInfoImpl;
 import androidx.camera.video.internal.muxer.Media3MuxerImpl;
 import androidx.camera.video.internal.muxer.MediaMuxerImpl;
 import androidx.camera.video.internal.muxer.Muxer;
@@ -423,10 +425,12 @@ public final class Recorder implements VideoOutput {
     private static final int AUDIO_CACHE_SIZE = 60;
     private static final int RETRY_SETUP_VIDEO_MAX_COUNT = 3;
     private static final long RETRY_SETUP_VIDEO_DELAY_MS = 1000L;
-    @VisibleForTesting
-    static final EncoderFactory DEFAULT_ENCODER_FACTORY = EncoderImpl::new;
+    private static final VideoEncoderFactory DEFAULT_VIDEO_ENCODER_FACTORY =
+            DefaultVideoEncoderFactory.DEFAULT;
+    private static final AudioEncoderFactory DEFAULT_AUDIO_ENCODER_FACTORY =
+            DefaultAudioEncoderFactory.DEFAULT;
     private static final VideoEncoderInfo.Finder DEFAULT_VIDEO_ENCODER_INFO_FINDER =
-            VideoEncoderInfoImpl.FINDER;
+            DefaultVideoEncoderFactory.DEFAULT_FINDER;
     private static final AudioStreamFactory DEFAULT_AUDIO_STREAM_FACTORY = AudioStreamImpl::new;
     private static final MuxerFactory DEFAULT_MUXER_FACTORY = outputFormat -> {
         switch (outputFormat) {
@@ -468,8 +472,9 @@ public final class Recorder implements VideoOutput {
     private final Executor mExecutor;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Executor mSequentialExecutor;
-    private final EncoderFactory mVideoEncoderFactory;
-    private final EncoderFactory mAudioEncoderFactory;
+    private final VideoEncoderFactory mVideoEncoderFactory;
+    private final VideoEncoderInfo.Finder mVideoEncoderInfoFinder;
+    private final AudioEncoderFactory mAudioEncoderFactory;
     private final MuxerFactory mMuxerFactory;
     private final OutputStorage.Factory mOutputStorageFactory;
     private final AudioStreamFactory mAudioStreamFactory;
@@ -611,8 +616,8 @@ public final class Recorder implements VideoOutput {
     @OptIn(markerClass = ExperimentalAudioApi.class)
     Recorder(@Nullable Executor executor, @NonNull MediaSpec mediaSpec,
             @VideoCapabilitiesSource int videoCapabilitiesSource,
-            @NonNull EncoderFactory videoEncoderFactory,
-            @NonNull EncoderFactory audioEncoderFactory,
+            @NonNull VideoEncoderFactory videoEncoderFactory,
+            @NonNull AudioEncoderFactory audioEncoderFactory,
             @NonNull MuxerFactory muxerFactory,
             OutputStorage.@NonNull Factory outputStorageFactory,
             @NonNull AudioStreamFactory audioStreamFactory,
@@ -628,6 +633,7 @@ public final class Recorder implements VideoOutput {
                 StreamInfo.of(mStreamId, internalStateToStreamState(mState)));
         mIsRecording = MutableStateObservable.withInitialState(false);
         mVideoEncoderFactory = videoEncoderFactory;
+        mVideoEncoderInfoFinder = VideoEncoderInfo.Finder.from(videoEncoderFactory);
         mAudioEncoderFactory = audioEncoderFactory;
         mMuxerFactory = muxerFactory;
         mOutputStorageFactory = outputStorageFactory;
@@ -726,7 +732,13 @@ public final class Recorder implements VideoOutput {
         String videoMimeType = getObservableData(mMediaSpec).getVideoSpec().getMimeType();
 
         return getVideoCapabilitiesInternal(videoCaptureType, cameraInfo, mVideoCapabilitiesSource,
-                videoMimeType);
+                videoMimeType, mVideoEncoderInfoFinder);
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Override
+    public VideoEncoderInfo.@NonNull Finder getVideoEncoderInfoFinder() {
+        return mVideoEncoderInfoFinder;
     }
 
     /**
@@ -1586,7 +1598,8 @@ public final class Recorder implements VideoOutput {
                         mediaSpec.getVideoSpec(),
                         request.getResolution(),
                         dynamicRange,
-                        request.getExpectedFrameRate());
+                        request.getExpectedFrameRate(),
+                        request.getSessionType() == SESSION_TYPE_HIGH_SPEED);
                 config = workaroundDataSpaceIfRequired(config, mHasGlProcessing);
                 mVideoEncoderConfig = config;
 
@@ -1847,8 +1860,7 @@ public final class Recorder implements VideoOutput {
         // Select and create the audio encoder
         AudioEncoderConfig audioEncoderConfig = resolveAudioEncoderConfig(audioMimeInfo,
                 audioSourceTimebase, audioSourceOutputSettings, mediaSpec.getAudioSpec());
-        mAudioEncoder = mAudioEncoderFactory.createEncoder(mExecutor, audioEncoderConfig,
-                checkNotNull(mLatestSurfaceRequest).getSessionType());
+        mAudioEncoder = mAudioEncoderFactory.createEncoder(mExecutor, audioEncoderConfig);
         mAudioEncoderConfig = audioEncoderConfig;
 
         // Connect the audio source to the audio encoder
@@ -3514,7 +3526,8 @@ public final class Recorder implements VideoOutput {
      */
     public static @NonNull VideoCapabilities getVideoCapabilities(@NonNull CameraInfo cameraInfo) {
         return getVideoCapabilitiesInternal(VIDEO_RECORDING_TYPE_REGULAR, cameraInfo,
-                VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE, MIME_TYPE_UNSPECIFIED);
+                VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE, MIME_TYPE_UNSPECIFIED,
+                DEFAULT_VIDEO_ENCODER_INFO_FINDER);
     }
 
     /**
@@ -3542,7 +3555,8 @@ public final class Recorder implements VideoOutput {
             @NonNull String mimeType) {
         VideoCapabilities videoCapabilities = getVideoCapabilitiesInternal(
                 VIDEO_RECORDING_TYPE_REGULAR, cameraInfo,
-                VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE, mimeType);
+                VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE, mimeType,
+                DEFAULT_VIDEO_ENCODER_INFO_FINDER);
         return videoCapabilities == VideoCapabilities.EMPTY ? null : videoCapabilities;
     }
 
@@ -3566,7 +3580,7 @@ public final class Recorder implements VideoOutput {
     public static @NonNull VideoCapabilities getVideoCapabilities(@NonNull CameraInfo cameraInfo,
             @VideoCapabilitiesSource int videoCapabilitiesSource) {
         return getVideoCapabilitiesInternal(VIDEO_RECORDING_TYPE_REGULAR, cameraInfo,
-                videoCapabilitiesSource, MIME_TYPE_UNSPECIFIED);
+                videoCapabilitiesSource, MIME_TYPE_UNSPECIFIED, DEFAULT_VIDEO_ENCODER_INFO_FINDER);
     }
 
     /**
@@ -3612,24 +3626,26 @@ public final class Recorder implements VideoOutput {
             @VideoCapabilitiesSource int videoCapabilitiesSource) {
         VideoCapabilities videoCapabilities = getVideoCapabilitiesInternal(
                 VIDEO_RECORDING_TYPE_HIGH_SPEED, cameraInfo, videoCapabilitiesSource,
-                MIME_TYPE_UNSPECIFIED);
+                MIME_TYPE_UNSPECIFIED, DEFAULT_VIDEO_ENCODER_INFO_FINDER);
         return videoCapabilities.getSupportedDynamicRanges().isEmpty() ? null : videoCapabilities;
     }
 
     @OptIn(markerClass = ExperimentalMimeTypeApi.class)
     private static @NonNull VideoCapabilities getVideoCapabilitiesInternal(
             @VideoRecordingType int videoRecordingType, @NonNull CameraInfo cameraInfo,
-            @VideoCapabilitiesSource int videoCapabilitiesSource, @NonNull String mimeType) {
+            @VideoCapabilitiesSource int videoCapabilitiesSource, @NonNull String mimeType,
+            VideoEncoderInfo.@NonNull Finder videoEncoderInfoFinder) {
 
         CameraInfoInternal cameraInfoInternal = (CameraInfoInternal) cameraInfo;
         if (MIME_TYPE_UNSPECIFIED.equals(mimeType)) {
             EncoderProfilesResolver profilesResolver = getEncoderProfilesResolverInternal(
-                    videoRecordingType, cameraInfo, videoCapabilitiesSource);
+                    videoRecordingType, cameraInfo, videoCapabilitiesSource,
+                    videoEncoderInfoFinder);
             return new RecorderVideoCapabilities(profilesResolver, cameraInfoInternal);
         } else {
             return getSupportedVideoMimeTypes().contains(mimeType)
                     ? new MimeMatchedVideoCapabilities(mimeType, cameraInfoInternal,
-                    DEFAULT_VIDEO_ENCODER_INFO_FINDER) : VideoCapabilities.EMPTY;
+                    videoEncoderInfoFinder) : VideoCapabilities.EMPTY;
         }
     }
 
@@ -3642,15 +3658,16 @@ public final class Recorder implements VideoOutput {
                 ? VIDEO_RECORDING_TYPE_HIGH_SPEED : VIDEO_RECORDING_TYPE_REGULAR;
 
         return getEncoderProfilesResolverInternal(videoCaptureType, cameraInfo,
-                mVideoCapabilitiesSource);
+                mVideoCapabilitiesSource, mVideoEncoderInfoFinder);
     }
 
     private static @NonNull EncoderProfilesResolver getEncoderProfilesResolverInternal(
             @VideoRecordingType int videoRecordingType,
             @NonNull CameraInfo cameraInfo,
-            @VideoCapabilitiesSource int videoCapabilitiesSource) {
+            @VideoCapabilitiesSource int videoCapabilitiesSource,
+            VideoEncoderInfo.@NonNull Finder videoEncoderInfoFinder) {
         return EncoderProfilesResolverFactory.getResolver(cameraInfo, videoRecordingType,
-                videoCapabilitiesSource, DEFAULT_VIDEO_ENCODER_INFO_FINDER);
+                videoCapabilitiesSource, videoEncoderInfoFinder);
     }
 
     /**
@@ -4199,8 +4216,8 @@ public final class Recorder implements VideoOutput {
         private @VideoCapabilitiesSource int mVideoCapabilitiesSource =
                 VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE;
         private Executor mExecutor = null;
-        private EncoderFactory mVideoEncoderFactory = DEFAULT_ENCODER_FACTORY;
-        private EncoderFactory mAudioEncoderFactory = DEFAULT_ENCODER_FACTORY;
+        private VideoEncoderFactory mVideoEncoderFactory = DEFAULT_VIDEO_ENCODER_FACTORY;
+        private AudioEncoderFactory mAudioEncoderFactory = DEFAULT_AUDIO_ENCODER_FACTORY;
         private MuxerFactory mMuxerFactory = DEFAULT_MUXER_FACTORY;
         private OutputStorage.Factory mOutputStorageFactory = OUTPUT_STORAGE_FACTORY_DEFAULT;
         private AudioStreamFactory mAudioStreamFactory = DEFAULT_AUDIO_STREAM_FACTORY;
@@ -4593,13 +4610,15 @@ public final class Recorder implements VideoOutput {
         }
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        @NonNull Builder setVideoEncoderFactory(@NonNull EncoderFactory videoEncoderFactory) {
+        @NonNull Builder setVideoEncoderFactory(
+                @NonNull VideoEncoderFactory videoEncoderFactory) {
             mVideoEncoderFactory = videoEncoderFactory;
             return this;
         }
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        @NonNull Builder setAudioEncoderFactory(@NonNull EncoderFactory audioEncoderFactory) {
+        @NonNull Builder setAudioEncoderFactory(
+                @NonNull AudioEncoderFactory audioEncoderFactory) {
             mAudioEncoderFactory = audioEncoderFactory;
             return this;
         }

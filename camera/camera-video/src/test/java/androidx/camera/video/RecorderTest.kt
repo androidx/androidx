@@ -22,6 +22,7 @@ import android.app.Application
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
 import android.media.MediaCodec
+import android.media.MediaFormat.MIMETYPE_VIDEO_AVC
 import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Looper
@@ -29,9 +30,13 @@ import android.os.ParcelFileDescriptor
 import android.os.SystemClock
 import android.util.Range
 import android.util.Size
+import androidx.camera.core.DynamicRange
 import androidx.camera.core.SurfaceRequest
+import androidx.camera.core.SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
 import androidx.camera.core.impl.AdapterCameraInfo
 import androidx.camera.core.impl.Observable.Observer
+import androidx.camera.core.impl.SessionConfig.SESSION_TYPE_HIGH_SPEED
+import androidx.camera.core.impl.SessionConfig.SESSION_TYPE_REGULAR
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
@@ -71,13 +76,18 @@ import androidx.camera.video.internal.BufferProvider
 import androidx.camera.video.internal.OutputStorage
 import androidx.camera.video.internal.audio.AudioStreamFactory
 import androidx.camera.video.internal.audio.FakeAudioStream
+import androidx.camera.video.internal.encoder.AudioEncoderFactory
+import androidx.camera.video.internal.encoder.DefaultVideoEncoderFactory
 import androidx.camera.video.internal.encoder.EncodeException
 import androidx.camera.video.internal.encoder.EncodedData
 import androidx.camera.video.internal.encoder.Encoder
 import androidx.camera.video.internal.encoder.EncoderCallback
-import androidx.camera.video.internal.encoder.EncoderFactory
+import androidx.camera.video.internal.encoder.FakeAudioEncoderFactory
 import androidx.camera.video.internal.encoder.FakeEncodedData
+import androidx.camera.video.internal.encoder.FakeVideoEncoderFactory
 import androidx.camera.video.internal.encoder.InvalidConfigException
+import androidx.camera.video.internal.encoder.VideoEncoderConfig
+import androidx.camera.video.internal.encoder.VideoEncoderFactory
 import androidx.camera.video.internal.muxer.MuxerException
 import androidx.camera.video.internal.muxer.MuxerFactory
 import androidx.camera.video.internal.utils.FakeMediaContentProvider
@@ -253,6 +263,28 @@ class RecorderTest {
         assertThrows(IllegalArgumentException::class.java) {
             Recorder.Builder().setTargetAudioChannelCount(-5)
         }
+    }
+
+    @Test
+    fun videoEncoderInfoFinder_isDefaultFinderByDefault() {
+        val recorder = Recorder.Builder().build()
+
+        assertThat(recorder.videoEncoderInfoFinder)
+            .isEqualTo(DefaultVideoEncoderFactory.DEFAULT_FINDER)
+    }
+
+    @Test
+    fun videoEncoderInfoFinder_findsEncoderInfoOfVideoEncoderFactory() {
+        val videoEncoderInfo = FakeVideoEncoderInfo()
+        val videoEncoderFactory =
+            FakeVideoEncoderFactory(encoderInfoProvider = { videoEncoderInfo }) { _, _ ->
+                throw UnsupportedOperationException()
+            }
+
+        val recorder = Recorder.Builder().setVideoEncoderFactory(videoEncoderFactory).build()
+
+        assertThat(recorder.videoEncoderInfoFinder.find(MIMETYPE_VIDEO_AVC))
+            .isSameInstanceAs(videoEncoderInfo)
     }
 
     @Test
@@ -1274,9 +1306,10 @@ class RecorderTest {
         var audioEncoder: StopDeferringEncoder? = null
         val recorder =
             createRecorder(
-                audioEncoderFactory = { _, _, _ ->
-                    StopDeferringEncoder(createFakeAudioEncoder()).also { audioEncoder = it }
-                }
+                audioEncoderFactory =
+                    FakeAudioEncoderFactory { _, _ ->
+                        StopDeferringEncoder(createFakeAudioEncoder()).also { audioEncoder = it }
+                    }
             )
         val recording =
             createRecording(recorder, withAudio = true, asPersistentRecording = true)
@@ -1445,16 +1478,16 @@ class RecorderTest {
         // finalizing while the Recorder is RESETTING.
         val recorder =
             createRecorder(
-                videoEncoderFactory = { executor, config, sessionType ->
-                    val encoder =
-                        startTrackingFactory.createEncoder(executor, config, sessionType)
-                            as FakeEncoder
-                    if (stopDeferringEncoder == null) {
-                        StopDeferringEncoder(encoder).also { stopDeferringEncoder = it }
-                    } else {
-                        encoder
+                videoEncoderFactory =
+                    FakeVideoEncoderFactory { executor, config ->
+                        val encoder =
+                            startTrackingFactory.createEncoder(executor, config) as FakeEncoder
+                        if (stopDeferringEncoder == null) {
+                            StopDeferringEncoder(encoder).also { stopDeferringEncoder = it }
+                        } else {
+                            encoder
+                        }
                     }
-                }
             )
         val oldSurfaceRequest = checkNotNull(latestSurfaceRequest)
         val oldEncoder = checkNotNull(latestVideoEncoder)
@@ -1705,27 +1738,28 @@ class RecorderTest {
         // while the Recorder moves on to other states.
         val recorder =
             createRecorder(
-                videoEncoderFactory = { executor, config, sessionType ->
-                    if (videoEncoder != null) {
-                        onCreateLaterVideoEncoder()
-                    }
-                    val encoder =
-                        startTrackingFactory.createEncoder(executor, config, sessionType)
-                            as FakeEncoder
-                    if (videoEncoder == null) {
-                        StopDeferringEncoder(encoder).also { videoEncoder = it }
-                    } else {
-                        encoder
-                    }
-                },
-                audioEncoderFactory = { _, _, _ ->
-                    val encoder = createFakeAudioEncoder()
-                    if (audioEncoder == null) {
-                        StopDeferringEncoder(encoder).also { audioEncoder = it }
-                    } else {
-                        encoder
-                    }
-                },
+                videoEncoderFactory =
+                    FakeVideoEncoderFactory { executor, config ->
+                        if (videoEncoder != null) {
+                            onCreateLaterVideoEncoder()
+                        }
+                        val encoder =
+                            startTrackingFactory.createEncoder(executor, config) as FakeEncoder
+                        if (videoEncoder == null) {
+                            StopDeferringEncoder(encoder).also { videoEncoder = it }
+                        } else {
+                            encoder
+                        }
+                    },
+                audioEncoderFactory =
+                    FakeAudioEncoderFactory { _, _ ->
+                        val encoder = createFakeAudioEncoder()
+                        if (audioEncoder == null) {
+                            StopDeferringEncoder(encoder).also { audioEncoder = it }
+                        } else {
+                            encoder
+                        }
+                    },
             )
         val oldSurfaceRequest = checkNotNull(latestSurfaceRequest)
         val firstVideoEncoder = checkNotNull(videoEncoder)
@@ -1825,6 +1859,45 @@ class RecorderTest {
     }
 
     @Test
+    fun highSpeedSurfaceRequest_videoEncoderConfigIsHighSpeedCapture() {
+        val videoEncoderConfigs = mutableListOf<VideoEncoderConfig>()
+        val recorder =
+            createRecorder(
+                sendSurfaceRequest = false,
+                videoEncoderFactory = createConfigCapturingVideoEncoderFactory(videoEncoderConfigs),
+            )
+
+        recorder.sendSurfaceRequest(sessionType = SESSION_TYPE_HIGH_SPEED)
+
+        assertThat(videoEncoderConfigs.last().isHighSpeedCapture).isTrue()
+    }
+
+    @Test
+    fun regularSurfaceRequest_videoEncoderConfigIsNotHighSpeedCapture() {
+        val videoEncoderConfigs = mutableListOf<VideoEncoderConfig>()
+        val recorder =
+            createRecorder(
+                sendSurfaceRequest = false,
+                videoEncoderFactory = createConfigCapturingVideoEncoderFactory(videoEncoderConfigs),
+            )
+
+        recorder.sendSurfaceRequest(sessionType = SESSION_TYPE_REGULAR)
+
+        assertThat(videoEncoderConfigs.last().isHighSpeedCapture).isFalse()
+    }
+
+    private fun createConfigCapturingVideoEncoderFactory(
+        videoEncoderConfigs: MutableList<VideoEncoderConfig>
+    ): VideoEncoderFactory = FakeVideoEncoderFactory { _, config ->
+        videoEncoderConfigs.add(config)
+        FakeEncoder(
+                encoderInfo = FakeVideoEncoderInfo(supportedBitrateRange = Range(1, 100_000_000)),
+                encoderConfig = config,
+            )
+            .also { latestVideoEncoder = it }
+    }
+
+    @Test
     fun audioEncoderError_stopsAudioSourceWhenRecordingFinalized() {
         // Arrange.
         val audioStream = createFakeAudioStream()
@@ -1908,9 +1981,10 @@ class RecorderTest {
         var audioEncoder: StopDeferringEncoder? = null
         val recorder =
             createRecorder(
-                audioEncoderFactory = { _, _, _ ->
-                    StopDeferringEncoder(createFakeAudioEncoder()).also { audioEncoder = it }
-                }
+                audioEncoderFactory =
+                    FakeAudioEncoderFactory { _, _ ->
+                        StopDeferringEncoder(createFakeAudioEncoder()).also { audioEncoder = it }
+                    }
             )
         val recording =
             createRecording(recorder, asPersistentRecording = true, withAudio = true)
@@ -1979,9 +2053,12 @@ class RecorderTest {
                                 failVideoEncoderCreation.also { failVideoEncoderCreation = false }
                             }
                         ),
-                    audioEncoderFactory = { _, _, _ ->
-                        StopDeferringEncoder(createFakeAudioEncoder()).also { audioEncoder = it }
-                    },
+                    audioEncoderFactory =
+                        FakeAudioEncoderFactory { _, _ ->
+                            StopDeferringEncoder(createFakeAudioEncoder()).also {
+                                audioEncoder = it
+                            }
+                        },
                     retrySetupVideoMaxCount = 1,
                     retrySetupVideoDelayMs = RETRY_SETUP_VIDEO_DELAY_MS,
                 )
@@ -2174,7 +2251,7 @@ class RecorderTest {
         val recorder =
             createRecorder(
                 videoEncoderFactory =
-                    EncoderFactory { _, _, _ ->
+                    FakeVideoEncoderFactory { _, _ ->
                         val fakeEncoder = FakeEncoder().also { latestVideoEncoder = it }
                         object : Encoder by fakeEncoder {
                             override fun stop(expectedStopTimeUs: Long) {
@@ -2252,13 +2329,13 @@ class RecorderTest {
             .verifyFinalize(error = ERROR_INVALID_OUTPUT_OPTIONS)
 
     /**
-     * Creates a video [EncoderFactory] that records every encoder that has been started into
+     * Creates a [VideoEncoderFactory] that records every encoder that has been started into
      * [startedEncoders], since [FakeEncoder.isStarted] is reset once the encoder is released.
      */
     private fun createStartTrackingVideoEncoderFactory(
         startedEncoders: MutableList<FakeEncoder>,
         onEncoderCreated: () -> Unit = {},
-    ): EncoderFactory = EncoderFactory { _, config, _ ->
+    ): VideoEncoderFactory = FakeVideoEncoderFactory { _, config ->
         lateinit var encoder: FakeEncoder
         encoder =
             FakeEncoder(
@@ -2275,9 +2352,9 @@ class RecorderTest {
         encoder
     }
 
-    /** Creates a video [EncoderFactory] that fails to create an encoder when [shouldFail]. */
-    private fun createVideoEncoderFactory(shouldFail: () -> Boolean): EncoderFactory =
-        EncoderFactory { _, config, _ ->
+    /** Creates a [VideoEncoderFactory] that fails to create an encoder when [shouldFail]. */
+    private fun createVideoEncoderFactory(shouldFail: () -> Boolean): VideoEncoderFactory =
+        FakeVideoEncoderFactory { _, config ->
             if (shouldFail()) {
                 throw InvalidConfigException("Create video encoder fail on purpose.")
             }
@@ -2295,7 +2372,7 @@ class RecorderTest {
      */
     private fun createCallbackCapturingVideoEncoderFactory(
         callbacks: MutableList<Pair<EncoderCallback, Executor>>
-    ): EncoderFactory = EncoderFactory { _, config, _ ->
+    ): VideoEncoderFactory = FakeVideoEncoderFactory { _, config ->
         val fakeEncoder =
             FakeEncoder(
                     encoderInfo =
@@ -2330,9 +2407,9 @@ class RecorderTest {
         return FakeEncodedData(ByteBuffer.allocateDirect(1024), bufferInfo)
     }
 
-    private fun createFailingVideoEncoderFactory(failCreationTimes: Int = 2): EncoderFactory {
+    private fun createFailingVideoEncoderFactory(failCreationTimes: Int = 2): VideoEncoderFactory {
         var createEncoderRequestCount = 0
-        return EncoderFactory { _, _, _ ->
+        return FakeVideoEncoderFactory { _, _ ->
             if (createEncoderRequestCount < failCreationTimes) {
                 createEncoderRequestCount++
                 throw InvalidConfigException("Create video encoder fail on purpose.")
@@ -2342,10 +2419,21 @@ class RecorderTest {
         }
     }
 
-    private fun Recorder.sendSurfaceRequest(resolution: Size = Size(640, 480)): SurfaceRequest {
+    private fun Recorder.sendSurfaceRequest(
+        resolution: Size = Size(640, 480),
+        sessionType: Int = SESSION_TYPE_REGULAR,
+    ): SurfaceRequest {
         latestSurfaceRequest?.deferrableSurface?.close()
         idleMainLooper()
-        val request = SurfaceRequest(resolution, fakeCamera) {}
+        val request =
+            SurfaceRequest(
+                resolution,
+                fakeCamera,
+                /* isPrimary= */ true,
+                DynamicRange.SDR,
+                sessionType,
+                FRAME_RATE_RANGE_UNSPECIFIED,
+            ) {}
         latestSurfaceRequest = request
         surfaceRequestsToClose.add(request)
         onSurfaceRequested(request)
@@ -2356,8 +2444,8 @@ class RecorderTest {
     private fun createRecorder(
         sendSurfaceRequest: Boolean = true,
         initSourceState: VideoOutput.SourceState = ACTIVE_STREAMING,
-        videoEncoderFactory: EncoderFactory? = null,
-        audioEncoderFactory: EncoderFactory? = null,
+        videoEncoderFactory: VideoEncoderFactory? = null,
+        audioEncoderFactory: AudioEncoderFactory? = null,
         muxerFactory: MuxerFactory? = null,
         outputStorageFactory: OutputStorage.Factory? = null,
         audioStreamFactory: AudioStreamFactory? = null,
@@ -2368,7 +2456,7 @@ class RecorderTest {
         requiredFreeStorageBytes: Long? = null,
         audioProcessors: List<AudioProcessor>? = null,
     ): Recorder {
-        val defaultVideoEncoderFactory = EncoderFactory { _, config, _ ->
+        val defaultVideoEncoderFactory = FakeVideoEncoderFactory { _, config ->
             FakeEncoder(
                     encoderInfo =
                         FakeVideoEncoderInfo(supportedBitrateRange = Range(1, 100_000_000)),
@@ -2376,7 +2464,9 @@ class RecorderTest {
                 )
                 .also { latestVideoEncoder = it }
         }
-        val defaultAudioEncoderFactory = EncoderFactory { _, _, _ -> createFakeAudioEncoder() }
+        val defaultAudioEncoderFactory = FakeAudioEncoderFactory { _, _ ->
+            createFakeAudioEncoder()
+        }
         val defaultOutputStorageFactory =
             object : OutputStorage.Factory {
                 override fun create(outputOptions: OutputOptions): OutputStorage =

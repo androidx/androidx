@@ -24,9 +24,9 @@ import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.video.internal.encoder.Encoder;
-import androidx.camera.video.internal.encoder.EncoderFactory;
 import androidx.camera.video.internal.encoder.InvalidConfigException;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
+import androidx.camera.video.internal.encoder.VideoEncoderFactory;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -50,7 +50,7 @@ final class VideoEncoderSession {
     private static final String TAG = "VideoEncoderSession";
     private final Executor mExecutor;
     private final Executor mSequentialExecutor;
-    private final EncoderFactory mVideoEncoderFactory;
+    private final VideoEncoderFactory mVideoEncoderFactory;
 
     private enum VideoEncoderState {
         /**
@@ -86,7 +86,7 @@ final class VideoEncoderSession {
             new IllegalStateException("Cannot close the encoder before configuring."));
     private CallbackToFutureAdapter.Completer<Encoder> mReadyToReleaseCompleter = null;
 
-    VideoEncoderSession(@NonNull EncoderFactory videoEncoderFactory,
+    VideoEncoderSession(@NonNull VideoEncoderFactory videoEncoderFactory,
             @NonNull Executor sequentialExecutor, @NonNull Executor executor) {
         mExecutor = executor;
         mSequentialExecutor = sequentialExecutor;
@@ -273,8 +273,7 @@ final class VideoEncoderSession {
             @NonNull VideoEncoderConfig config,
             CallbackToFutureAdapter.@NonNull Completer<Encoder> configureCompleter) {
         try {
-            mVideoEncoder = mVideoEncoderFactory.createEncoder(mExecutor, config,
-                    surfaceRequest.getSessionType());
+            mVideoEncoder = mVideoEncoderFactory.createEncoder(mExecutor, config);
         } catch (InvalidConfigException e) {
             Logger.e(TAG, "Unable to initialize video encoder.", e);
             configureCompleter.setException(e);

@@ -53,7 +53,6 @@ import static androidx.camera.core.internal.utils.SizeUtil.getArea;
 import static androidx.camera.video.QualitySelector.getQualityToResolutionMap;
 import static androidx.camera.video.StreamInfo.STREAM_ID_ERROR;
 import static androidx.camera.video.impl.VideoCaptureConfig.OPTION_FORCE_ENABLE_SURFACE_PROCESSING;
-import static androidx.camera.video.impl.VideoCaptureConfig.OPTION_VIDEO_ENCODER_INFO_FINDER;
 import static androidx.camera.video.impl.VideoCaptureConfig.OPTION_VIDEO_OUTPUT;
 import static androidx.camera.video.internal.utils.DynamicRangeUtil.isHdrSettingsMatched;
 import static androidx.camera.video.internal.utils.DynamicRangeUtil.videoProfileToDynamicRange;
@@ -139,7 +138,6 @@ import androidx.camera.video.internal.config.MediaInfo;
 import androidx.camera.video.internal.config.VideoMimeInfo;
 import androidx.camera.video.internal.encoder.SwappedVideoEncoderInfo;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
-import androidx.camera.video.internal.encoder.VideoEncoderInfoImpl;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -770,7 +768,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         DynamicRange dynamicRange = streamSpec.getDynamicRange();
         MediaInfo mediaInfo = requireNonNull(mResolvedMediaInfo);
         VideoEncoderInfo videoEncoderInfo = resolveVideoEncoderInfo(
-                config.getVideoEncoderInfoFinder(), mediaInfo.getVideoMimeInfo());
+                getOutput().getVideoEncoderInfoFinder(), mediaInfo.getVideoMimeInfo());
         mRotationDegrees = getCompensatedRotation(camera);
         Rect originalCropRect = calculateCropRect(resolution, videoEncoderInfo);
         mCropRect = adjustCropRectWithInProgressTransformation(camera, originalCropRect,
@@ -965,9 +963,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 SurfaceRequest::willNotProvideSurface;
         private static final VideoCaptureConfig<?> DEFAULT_CONFIG;
 
-        private static final VideoEncoderInfo.Finder
-                DEFAULT_VIDEO_ENCODER_INFO_FINDER = VideoEncoderInfoImpl.FINDER;
-
         static final Range<Integer> DEFAULT_FPS_RANGE = new Range<>(30, 30);
         static final Range<Integer> DEFAULT_HIGH_SPEED_FPS_RANGE = new Range<>(120, 120);
 
@@ -981,7 +976,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             Builder<?> builder = new Builder<>(DEFAULT_VIDEO_OUTPUT)
                     .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
                     .setStreamUseCase(DEFAULT_STREAM_USE_CASE)
-                    .setVideoEncoderInfoFinder(DEFAULT_VIDEO_ENCODER_INFO_FINDER)
                     .setDynamicRange(DEFAULT_DYNAMIC_RANGE);
 
             DEFAULT_CONFIG = builder.getUseCaseConfig();
@@ -1640,7 +1634,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         LinkedHashMap<Quality, List<Size>> supportedQualityToSizeMap =
                 createOrderedQualityToSizesMap(cameraInfo, mediaSpec, requestedDynamicRange,
                         videoCapabilities, profilesResolver, sessionType, targetFrameRate,
-                        config.getVideoEncoderInfoFinder(), selectedQualities);
+                        getOutput().getVideoEncoderInfoFinder(), selectedQualities);
 
         if (sessionType == SESSION_TYPE_HIGH_SPEED) {
             // Sets custom maximum frame rates for high-speed sessions to match the
@@ -2100,15 +2094,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         @Override
         public @NonNull VideoCaptureConfig<T> getUseCaseConfig() {
             return new VideoCaptureConfig<>(OptionsBundle.from(mMutableConfig));
-        }
-
-        /** Sets the {@link VideoEncoderInfo.Finder} to find video encoder info. */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        public @NonNull Builder<T> setVideoEncoderInfoFinder(
-                VideoEncoderInfo.@NonNull Finder videoEncoderInfoFinder) {
-            getMutableConfig().insertOption(OPTION_VIDEO_ENCODER_INFO_FINDER,
-                    videoEncoderInfoFinder);
-            return this;
         }
 
         /**

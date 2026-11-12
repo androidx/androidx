@@ -267,6 +267,8 @@ public object VideoConfigUtil {
      * @param inputTimebase the timebase of the input frame.
      * @param surfaceSize the surface size.
      * @param expectedFrameRateRange the expected frame rate range.
+     * @param isHighSpeedCapture whether the frames come from a dedicated high-speed capture
+     *   pipeline, see [VideoEncoderConfig.isHighSpeedCapture].
      * @return a VideoEncoderConfig.
      */
     @JvmStatic
@@ -277,6 +279,7 @@ public object VideoConfigUtil {
         surfaceSize: Size,
         dynamicRange: DynamicRange,
         expectedFrameRateRange: Range<Int>,
+        isHighSpeedCapture: Boolean,
     ): VideoEncoderConfig {
         val configSupplier =
             if (videoMimeInfo.compatibleVideoProfile != null) {
@@ -288,6 +291,7 @@ public object VideoConfigUtil {
                     videoProfile = videoMimeInfo.compatibleVideoProfile,
                     dynamicRange = dynamicRange,
                     expectedFrameRateRange = expectedFrameRateRange,
+                    isHighSpeedCapture = isHighSpeedCapture,
                 )
             } else {
                 VideoEncoderConfigDefaultResolver(
@@ -297,6 +301,7 @@ public object VideoConfigUtil {
                     surfaceSize = surfaceSize,
                     dynamicRange = dynamicRange,
                     expectedFrameRateRange = expectedFrameRateRange,
+                    isHighSpeedCapture = isHighSpeedCapture,
                 )
             }
         return configSupplier.get()

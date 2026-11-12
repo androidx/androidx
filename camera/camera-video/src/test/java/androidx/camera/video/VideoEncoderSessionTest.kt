@@ -27,9 +27,10 @@ import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.impl.fakes.FakeEncoder
 import androidx.camera.testing.impl.fakes.FakeEncoderSurfaceInput
 import androidx.camera.testing.impl.fakes.createFakeVideoEncoderConfig
-import androidx.camera.video.internal.encoder.EncoderFactory
+import androidx.camera.video.internal.encoder.FakeVideoEncoderFactory
 import androidx.camera.video.internal.encoder.InvalidConfigException
 import androidx.camera.video.internal.encoder.VideoEncoderConfig
+import androidx.camera.video.internal.encoder.VideoEncoderFactory
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
@@ -48,7 +49,7 @@ class VideoEncoderSessionTest {
 
     private lateinit var sequentialExecutor: Executor
     private lateinit var executor: ExecutorService
-    private lateinit var encoderFactory: EncoderFactory
+    private lateinit var encoderFactory: VideoEncoderFactory
     private lateinit var encoder: FakeEncoder
     private lateinit var surfaceTexture: SurfaceTexture
     private lateinit var surface: Surface
@@ -67,7 +68,7 @@ class VideoEncoderSessionTest {
         surface = Surface(surfaceTexture)
         encoderInput = FakeEncoderSurfaceInput(surface)
         encoder = FakeEncoder(encoderInput = encoderInput)
-        encoderFactory = EncoderFactory { _, _, _ -> encoder }
+        encoderFactory = FakeVideoEncoderFactory { _, _ -> encoder }
         videoEncoderConfig = createFakeVideoEncoderConfig()
         fakeCamera = FakeCamera()
         surfaceRequest = SurfaceRequest(Size(640, 480), fakeCamera) {}
@@ -103,7 +104,7 @@ class VideoEncoderSessionTest {
     @Test
     fun configure_throwsException_whenEncoderFactoryFails() {
         // Arrange
-        val encoderFactory = EncoderFactory { _, _, _ ->
+        val encoderFactory = FakeVideoEncoderFactory { _, _ ->
             throw InvalidConfigException("Failed in purpose")
         }
         val session = VideoEncoderSession(encoderFactory, sequentialExecutor, executor)

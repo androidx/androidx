@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.camera.video.internal.encoder;
+package androidx.camera.video.internal.encoder
 
-import org.jspecify.annotations.NonNull;
+import android.util.Range
 
-import java.util.concurrent.Executor;
+/** A fake [AudioEncoderInfo]. */
+class FakeAudioEncoderInfo(
+    override val bitrateRange: Range<Int> = Range(1, Int.MAX_VALUE),
+    override val mime: String = "audio/fake",
+    private val name: String = "fake.audio.encoder",
+) : AudioEncoderInfo {
 
-/** Factory to create {@link Encoder} */
-public interface EncoderFactory {
-
-    /** Factory method to create {@link Encoder}. */
-    @NonNull Encoder createEncoder(@NonNull Executor executor, @NonNull EncoderConfig encoderConfig,
-            int sessionType) throws InvalidConfigException;
+    override fun getName(): String = name
 }

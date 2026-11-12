@@ -52,6 +52,26 @@ class VideoEncoderConfigDefaultResolverTest {
     }
 
     @Test
+    fun highSpeedCapture_isSetToConfig() {
+        val expectedCaptureFrameRateRange = Range(FRAME_RATE_30_INT, FRAME_RATE_30_INT)
+
+        fun resolve(isHighSpeedCapture: Boolean) =
+            VideoEncoderConfigDefaultResolver(
+                    DEFAULT_MIME_TYPE,
+                    TIMEBASE,
+                    DEFAULT_VIDEO_SPEC,
+                    EncoderProfilesUtil.RESOLUTION_720P,
+                    DynamicRange.SDR,
+                    expectedCaptureFrameRateRange,
+                    isHighSpeedCapture,
+                )
+                .get()
+
+        assertThat(resolve(isHighSpeedCapture = true).isHighSpeedCapture).isTrue()
+        assertThat(resolve(isHighSpeedCapture = false).isHighSpeedCapture).isFalse()
+    }
+
+    @Test
     fun defaultVideoSpecProducesValidSettings_forDifferentSurfaceSizes() {
         val surfaceSizeCif = EncoderProfilesUtil.RESOLUTION_CIF
         val surfaceSize720p = EncoderProfilesUtil.RESOLUTION_720P
