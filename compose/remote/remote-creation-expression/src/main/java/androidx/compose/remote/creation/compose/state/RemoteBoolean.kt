@@ -24,16 +24,7 @@ import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.create
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.annotation.RememberInComposition
 
-/**
- * Read-only supertype for remote boolean values.
- *
- * [RemoteBoolean] internally stores its state as a [RemoteInt], typically using `1` for `true` and
- * `0` for `false`. For writable boolean variables, see [MutableRemoteBoolean].
- *
- * Operations on [RemoteBoolean] are evaluated dynamically on the remote player at runtime unless
- * all inputs are known constants, in which case constant folding evaluates the result immediately
- * at creation time (see [RemoteState]).
- */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable
 public open class RemoteBoolean
 internal constructor(
@@ -97,14 +88,6 @@ internal constructor(
     internal override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         intValue.writeToDocument(creationState)
 
-    /**
-     * Logical NOT operator for [RemoteBoolean].
-     *
-     * This creates a new [RemoteBoolean] whose value is the logical inverse of this boolean. It
-     * achieves this by performing a bitwise XOR operation with `1` on the underlying [RemoteInt].
-     *
-     * @return A new [RemoteBoolean] representing the logical NOT of this boolean.
-     */
     public operator fun not(): RemoteBoolean = RemoteBoolean(intValue xor RemoteInt(1))
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -117,22 +100,8 @@ internal constructor(
         }
     }
 
-    /**
-     * Converts this [RemoteBoolean] to its underlying [RemoteInt] representation, which evaluates
-     * to `1` for `true` and `0` for `false`.
-     *
-     * @return The [RemoteInt] that holds the boolean\'s value.
-     */
     public fun toRemoteInt(): RemoteInt = intValue
 
-    /**
-     * If this [RemoteBoolean] evaluates to `true` then the returned value evaluates to [ifTrue]
-     * otherwise it evaluates to [ifFalse].
-     *
-     * @param ifTrue The [RemoteString] to be selected if this boolean is `true`.
-     * @param ifFalse The [RemoteString] to be selected if this boolean is `false`.
-     * @return A new [RemoteString] representing the conditionally selected string.
-     */
     public fun select(ifTrue: RemoteString, ifFalse: RemoteString): RemoteString {
         intValue.constantValueOrNull?.let {
             return if (it != 0) {
@@ -177,14 +146,6 @@ internal constructor(
         )
     }
 
-    /**
-     * If this [RemoteBoolean] evaluates to `true` then the returned value evaluates to [ifTrue]
-     * otherwise it evaluates to [ifFalse].
-     *
-     * @param ifTrue The [RemoteFloat] to be selected if this boolean is `true`.
-     * @param ifFalse The [RemoteFloat] to be selected if this boolean is `false`.
-     * @return A new [RemoteFloat] representing the conditionally selected float value.
-     */
     public fun select(ifTrue: RemoteFloat, ifFalse: RemoteFloat): RemoteFloat {
         intValue.constantValueOrNull?.let {
             return if (it != 0) {
@@ -208,14 +169,6 @@ internal constructor(
         )
     }
 
-    /**
-     * If this [RemoteBoolean] evaluates to `true` then the returned value evaluates to [ifTrue]
-     * otherwise it evaluates to [ifFalse].
-     *
-     * @param ifTrue The [RemoteInt] to be selected if this boolean is `true`.
-     * @param ifFalse The [RemoteInt] to be selected if this boolean is `false`.
-     * @return A new [RemoteInt] representing the conditionally selected integer value.
-     */
     public fun select(ifTrue: RemoteInt, ifFalse: RemoteInt): RemoteInt {
         intValue.constantValueOrNull?.let {
             return if (it != 0) {
@@ -239,14 +192,6 @@ internal constructor(
         )
     }
 
-    /**
-     * If this [RemoteBoolean] evaluates to `true` then the returned value evaluates to [ifTrue]
-     * otherwise it evaluates to [ifFalse].
-     *
-     * @param ifTrue The [RemoteBoolean] to be selected if this boolean is `true`.
-     * @param ifFalse The [RemoteBoolean] to be selected if this boolean is `false`.
-     * @return A new [RemoteBoolean] representing the conditionally selected boolean value.
-     */
     public fun select(ifTrue: RemoteBoolean, ifFalse: RemoteBoolean): RemoteBoolean {
         if (ifTrue.cacheKey == ifFalse.cacheKey) {
             return ifTrue
@@ -336,14 +281,6 @@ internal constructor(
         return lerp(ifFalse, ifTrue, intValue.toRemoteFloat())
     }
 
-    /**
-     * If this [RemoteBoolean] evaluates to `true` then the returned value evaluates to [ifTrue]
-     * otherwise it evaluates to [ifFalse].
-     *
-     * @param ifTrue The [RemoteColor] to be selected if this boolean is `true`.
-     * @param ifFalse The [RemoteColor] to be selected if this boolean is `false`.
-     * @return A new [RemoteColor] representing the conditionally selected color.
-     */
     public fun select(ifTrue: RemoteColor, ifFalse: RemoteColor): RemoteColor {
         intValue.constantValueOrNull?.let {
             return if (it != 0) {
@@ -360,76 +297,21 @@ internal constructor(
         return lerp(ifFalse, ifTrue, intValue.toRemoteFloat())
     }
 
-    /**
-     * If this [RemoteBoolean] evaluates to `true` then the returned value evaluates to [ifTrue]
-     * otherwise it evaluates to [ifFalse].
-     *
-     * @param ifTrue The [RemoteDp] to be selected if this boolean is `true`.
-     * @param ifFalse The [RemoteDp] to be selected if this boolean is `false`.
-     * @return A new [RemoteDp] representing the conditionally selected Dp value.
-     */
     public fun select(ifTrue: RemoteDp, ifFalse: RemoteDp): RemoteDp {
         return select(ifTrue.value, ifFalse.value).asRemoteDp()
     }
 
-    /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this
-     * [RemoteBoolean] is equal to the evaluated value of [other].
-     *
-     * @param other The other [RemoteBoolean] to compare with.
-     * @return A new [RemoteBoolean] representing `this == other`.
-     */
     public fun isEqualTo(other: RemoteBoolean): RemoteBoolean = intValue.isEqualTo(other.intValue)
 
-    /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this
-     * [RemoteBoolean] is not equal to the evaluated value of [other].
-     *
-     * @param other The other [RemoteBoolean] to compare with.
-     * @return A new [RemoteBoolean] representing `this != other`.
-     */
     public fun isNotEqualTo(other: RemoteBoolean): RemoteBoolean =
         intValue.isNotEqualTo(other.intValue)
 
-    /**
-     * Logical OR operator for [RemoteBoolean]s.
-     *
-     * Performs a bitwise OR operation on the underlying [RemoteInt] values of this boolean and the
-     * other [RemoteBoolean]. The result is a new [RemoteBoolean].
-     *
-     * This is designed to align with the standard Kotlin [Boolean.or] infix function.
-     *
-     * @param other The other [RemoteBoolean] to perform the OR operation with.
-     * @return A new [RemoteBoolean] representing the result of the logical OR.
-     */
     public infix fun or(other: RemoteBoolean): RemoteBoolean =
         RemoteBoolean(intValue or other.intValue)
 
-    /**
-     * Logical AND operator for [RemoteBoolean]s.
-     *
-     * Performs a bitwise AND operation on the underlying [RemoteInt] values of this boolean and the
-     * other [RemoteBoolean]. The result is a new [RemoteBoolean].
-     *
-     * This is designed to align with the standard Kotlin [Boolean.and] infix function.
-     *
-     * @param other The other [RemoteBoolean] to perform the AND operation with.
-     * @return A new [RemoteBoolean] representing the result of the logical AND.
-     */
     public infix fun and(other: RemoteBoolean): RemoteBoolean =
         RemoteBoolean(intValue and other.intValue)
 
-    /**
-     * Logical XOR operator for [RemoteBoolean]s.
-     *
-     * Performs a bitwise XOR operation on the underlying [RemoteInt] values of this boolean and the
-     * other [RemoteBoolean]. The result is a new [RemoteBoolean].
-     *
-     * This is designed to align with the standard Kotlin [Boolean.xor] infix function.
-     *
-     * @param other The other [RemoteBoolean] to perform the XOR operation with.
-     * @return A new [RemoteBoolean] representing the result of the logical XOR.
-     */
     public infix fun xor(other: RemoteBoolean): RemoteBoolean =
         RemoteBoolean(intValue xor other.intValue)
 
@@ -444,15 +326,6 @@ internal constructor(
         public fun createForId(id: Int): RemoteBoolean =
             RemoteBoolean(RemoteInt.createForId(0x100000000L + id))
 
-        /**
-         * Creates a named [RemoteBoolean] with an initial value. Named remote booleans can be set
-         * via AndroidRemoteContext.setNamedBoolean.
-         *
-         * @param name The unique name for this remote boolean.
-         * @param domain The domain of the named boolean (defaults to [RemoteState.Domain.User]).
-         * @param defaultValue The initial [Boolean] value for the named remote boolean.
-         * @return A [RemoteBoolean] representing the named boolean.
-         */
         @JvmStatic
         public fun createNamedRemoteBoolean(
             name: String,
@@ -470,7 +343,7 @@ internal constructor(
     }
 }
 
-/** A mutable implementation of [RemoteBoolean]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MutableRemoteBoolean
 @RememberInComposition
 internal constructor(remoteInt: MutableRemoteInt) :
@@ -504,14 +377,7 @@ internal constructor(remoteInt: MutableRemoteInt) :
     }
 }
 
-/**
- * Creates a [RemoteBoolean] from a literal constant [Boolean] [value].
- *
- * It converts the boolean value into a [RemoteInt]: `1` for `true` and `0` for `false`.
- *
- * @param value The constant [Boolean] value.
- * @return A [RemoteBoolean] representing the constant boolean.
- */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteBoolean(value: Boolean): RemoteBoolean =
     RemoteBoolean(
         if (value) {
@@ -521,17 +387,12 @@ public fun RemoteBoolean(value: Boolean): RemoteBoolean =
         }
     )
 
-/**
- * Creates a [MutableRemoteBoolean] with an initial [Boolean] [initialValue].
- *
- * @param initialValue The initial value for this mutable boolean.
- * @return A [MutableRemoteBoolean] initialized with [initialValue].
- */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RememberInComposition
 public fun MutableRemoteBoolean(initialValue: Boolean): MutableRemoteBoolean =
     MutableRemoteBoolean(MutableRemoteInt(if (initialValue) 1 else 0))
 
-/** Extension property to convert a [Boolean] to a [RemoteBoolean]. */
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public val Boolean.rb: RemoteBoolean
     get() {
         return RemoteBoolean(this)

@@ -16,35 +16,29 @@
 
 package androidx.compose.remote.creation.compose.state
 
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RemoteContext
 
-/** Provides access to host display and window context variables evaluated by the host player. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object RemoteConfiguration {
-    /** The logical screen density scaling factor of the host display as a [RemoteFloat]. */
     public val density: RemoteFloat
         get() = RemoteFloat(RemoteContext.FLOAT_DENSITY)
 
-    /** The default system font size of the host in pixels as a [RemoteFloat]. */
     public val fontSizePx: RemoteFloat
         get() = RemoteFloat(RemoteContext.FLOAT_FONT_SIZE)
 
-    /** The default system font size of the host as a [RemoteDp], using the host [density]. */
     public val fontSize: RemoteDp
         get() = (fontSizePx / density).asRemoteDp()
 
-    /** The width of the host window in pixels as a [RemoteFloat]. */
     public val windowWidthPx: RemoteFloat
         get() = RemoteFloat(RemoteContext.FLOAT_WINDOW_WIDTH)
 
-    /** The width of the host window as a [RemoteDp], using the host [density]. */
     public val windowWidth: RemoteDp
         get() = (windowWidthPx / density).asRemoteDp()
 
-    /** The height of the host window in pixels as a [RemoteFloat]. */
     public val windowHeightPx: RemoteFloat
         get() = RemoteFloat(RemoteContext.FLOAT_WINDOW_HEIGHT)
 
-    /** The height of the host window as a [RemoteDp], using the host [density]. */
     public val windowHeight: RemoteDp
         get() = (windowHeightPx / density).asRemoteDp()
 }

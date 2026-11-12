@@ -26,17 +26,7 @@ import androidx.compose.remote.creation.compose.state.RemoteString.OperationKey
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.annotation.RememberInComposition
 
-/**
- * Read-only supertype for all remote string representations.
- *
- * [RemoteString] represents a string value that may be a constant, a named variable, or a dynamic
- * expression (such as concatenation or formatting). For writable string variables, see
- * [MutableRemoteString].
- *
- * Operations on [RemoteString] are evaluated dynamically on the remote player at runtime unless all
- * inputs are known constants, in which case constant folding evaluates the result immediately at
- * creation time (see [RemoteState]).
- */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable
 public open class RemoteString
 internal constructor(
@@ -180,10 +170,6 @@ internal constructor(
             }
         }
 
-    /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if this [RemoteString] is empty (`length
-     * == 0`).
-     */
     public val isEmpty: RemoteBoolean
         get() {
             constantValueOrNull?.let {
@@ -211,10 +197,6 @@ internal constructor(
             )
         }
 
-    /**
-     * Returns a [RemoteBoolean] that evaluates to `true` if this [RemoteString] is not empty
-     * (`length > 0`).
-     */
     public val isNotEmpty: RemoteBoolean
         get() {
             constantValueOrNull?.let {
@@ -242,12 +224,6 @@ internal constructor(
             )
         }
 
-    /**
-     * Concatenates this [RemoteString] with another [RemoteString].
-     *
-     * @param other The other [RemoteString] to concatenate.
-     * @return A new [RemoteString] representing the concatenated string.
-     */
     public operator fun plus(other: RemoteString): RemoteString {
         if (constantValueOrNull != null && other.constantValueOrNull != null) {
             return RemoteString(constantValueOrNull!! + other.constantValueOrNull!!)
@@ -316,12 +292,6 @@ internal constructor(
         )
     }
 
-    /**
-     * Returns a [RemoteString] that evaluates to a upper case version of this [RemoteString] using
-     * the system default locale.
-     *
-     * @return A new [RemoteString] representing the upper case version of this string.
-     */
     public fun uppercase(): RemoteString {
         constantValueOrNull?.let {
             return RemoteString(it.uppercase())
@@ -358,12 +328,6 @@ internal constructor(
         )
     }
 
-    /**
-     * Returns a [RemoteString] that evaluates to a lower case version of this [RemoteString] using
-     * the system default locale.
-     *
-     * @return A new [RemoteString] representing the lower case version of this string.
-     */
     public fun lowercase(): RemoteString {
         constantValueOrNull?.let {
             return RemoteString(it.lowercase())
@@ -400,12 +364,6 @@ internal constructor(
         )
     }
 
-    /**
-     * Returns a [RemoteString] that evaluates to the trimmed version of this [RemoteString] where
-     * leading and trailing whitespace characters have been removed.
-     *
-     * @return A new [RemoteString] representing the trimmed version of this string.
-     */
     public fun trim(): RemoteString {
         constantValueOrNull?.let {
             return RemoteString(it.trim())
@@ -606,14 +564,6 @@ internal constructor(
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun createForId(id: Int): RemoteString = MutableRemoteString(id)
 
-        /**
-         * Creates a named [RemoteString] with an initial value.
-         *
-         * @param name A unique name to identify this state within its [domain].
-         * @param defaultValue The initial [String] value for the named remote string.
-         * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
-         * @return A [RemoteString] representing the named string.
-         */
         @JvmStatic
         public fun createNamedRemoteString(
             name: String,
@@ -998,15 +948,8 @@ public fun selectIfGe(
 }
 
 internal interface LazyRemoteString {
-    /**
-     * @return The text ID for the RemoteString within the provided [RemoteComposeCreationState].
-     */
     public fun reserveTextId(creationState: RemoteComposeCreationState): Int
 
-    /**
-     * @return The set of unicode code points needed to render this string, or null if that can\'t
-     *   be statically determined.
-     */
     public fun computeRequiredCodePointSet(creationState: RemoteComposeCreationState): Set<String>?
 }
 
@@ -1026,7 +969,7 @@ internal fun mergeSets(a: Set<String>?, b: Set<String>?): Set<String>? {
     return a + b
 }
 
-/** An implementation of [RemoteString] that holds its value in a [MutableRemoteState<String>]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MutableRemoteString
 @RememberInComposition
 internal constructor(
@@ -1063,12 +1006,7 @@ internal constructor(
     }
 }
 
-/**
- * Creates a [RemoteString] from a constant [String] [value].
- *
- * @param value The constant [String] value.
- * @return A [RemoteString] representing the constant string.
- */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteString(value: String): RemoteString =
     RemoteString(
         constantValueOrNull = value,
@@ -1084,12 +1022,7 @@ public fun RemoteString(value: String): RemoteString =
             },
     )
 
-/**
- * Creates a [MutableRemoteString] initialized with [initialValue].
- *
- * @param initialValue The initial [String] value.
- * @return A [MutableRemoteString] initialized with [initialValue].
- */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RememberInComposition
 public fun MutableRemoteString(initialValue: String): MutableRemoteString =
     MutableRemoteString(
@@ -1106,7 +1039,7 @@ public fun MutableRemoteString(initialValue: String): MutableRemoteString =
             },
     )
 
-/** Extension property to convert a [String] to a [RemoteString]. */
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public val String.rs: RemoteString
     get() {
         return RemoteString(this)

@@ -24,12 +24,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.annotation.RememberInComposition
 
-/**
- * Abstract base class for all remote bitmap representations in Compose Remote.
- *
- * `RemoteImageBitmap` represents an image value that can be a constant, a named variable, or an
- * offscreen buffer.
- */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable
 public open class RemoteImageBitmap
 internal constructor(
@@ -49,7 +44,6 @@ internal constructor(
         Height,
     }
 
-    /** The width of the bitmap as represented in the remote document. */
     public val width: RemoteFloat
         get() {
             return RemoteFloat(
@@ -65,7 +59,6 @@ internal constructor(
             }
         }
 
-    /** The height of the bitmap as represented in the remote document. */
     public val height: RemoteFloat
         get() {
             return RemoteFloat(
@@ -96,18 +89,6 @@ internal constructor(
                 idProvider = { id },
             )
 
-        /**
-         * Creates a named [RemoteImageBitmap] backed by an image [url].
-         *
-         * Defaults to `1x1` dimensions for compatibility with existing players. Pass explicit width
-         * and height or use the `IntSize` extension overload to instruct updated players to take
-         * the actual size from the loaded image.
-         *
-         * @param name unique name to identify this state within its [domain]
-         * @param url URL of the image
-         * @param domain domain for the named state, defaults to [RemoteState.Domain.User]
-         * @return a [RemoteImageBitmap] for the named bitmap
-         */
         @JvmStatic
         public fun createNamedRemoteImageBitmap(
             name: String,
@@ -170,10 +151,7 @@ internal constructor(
     }
 }
 
-/**
- * A mutable implementation of [RemoteImageBitmap] that holds its value in a
- * [MutableRemoteState<Any>].
- */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MutableRemoteImageBitmap
 @RememberInComposition
 internal constructor(
@@ -216,12 +194,7 @@ public fun MutableRemoteImageBitmap(
         idProvider = idProvider,
     )
 
-/**
- * Creates a [RemoteImageBitmap] from a [url].
- *
- * @param url The URL of the image.
- * @return A [RemoteImageBitmap] representing the image from the URL.
- */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteImageBitmap(url: String): RemoteImageBitmap =
     RemoteImageBitmap(
         constantValueOrNull = null,

@@ -16,47 +16,26 @@
 
 package androidx.compose.remote.creation.compose.capture
 
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteConfiguration
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteTextUnit
 import androidx.compose.runtime.Immutable
 
-/**
- * Represents the screen density and font scale factor used for unit conversions in a remote
- * composition context. Similar to Compose Density.
- *
- * @property density The logical density of the display, used to convert DP to pixels.
- * @property fontScale The current user preference for the scaling factor for fonts.
- */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
 public class RemoteDensity(
     public val density: RemoteFloat,
     public val fontScale: RemoteFloat,
 ) {
-    /**
-     * Converts a [RemoteDp] to pixels using this [RemoteDensity].
-     *
-     * @param dp The [RemoteDp] value to convert.
-     * @return A [RemoteFloat] representing [dp] in pixels.
-     */
     public fun toPx(dp: RemoteDp): RemoteFloat = dp.toPx(this)
 
-    /**
-     * Converts a [RemoteTextUnit] to pixels using this [RemoteDensity].
-     *
-     * @param textUnit The [RemoteTextUnit] value to convert.
-     * @return A [RemoteFloat] representing [textUnit] in pixels.
-     */
     public fun toPx(textUnit: RemoteTextUnit): RemoteFloat = textUnit.toPx(this)
 
     public companion object {
         private const val DEFAULT_FONT_SIZE = 14f
 
-        /**
-         * A [RemoteDensity] instance that represents the host's screen density, with font scale
-         * derived from the host's system font size and density settings.
-         */
         public val Host: RemoteDensity
             get() {
                 val density = RemoteConfiguration.density

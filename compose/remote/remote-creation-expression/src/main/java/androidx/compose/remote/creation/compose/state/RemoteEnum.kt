@@ -24,14 +24,7 @@ import androidx.compose.runtime.annotation.RememberInComposition
 import kotlin.enums.EnumEntries
 import kotlin.enums.enumEntries
 
-/**
- * A class representing a remote enum value.
- *
- * [RemoteEnum] internally stores its state as a [RemoteInt], using the Enum ordinal.
- *
- * @param T The enum type.
- * @property enumEntries The [EnumEntries] containing all values of the enum.
- */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable
 public open class RemoteEnum<T : Enum<T>>
 /**
@@ -43,7 +36,6 @@ public open class RemoteEnum<T : Enum<T>>
  */
 internal constructor(
     internal val intValue: RemoteInt,
-    /** All entries of the enum type [T]. */
     public val enumEntries: EnumEntries<T>,
     cacheKey: RemoteStateCacheKey,
 ) : BaseRemoteState<T>(cacheKey) {
@@ -91,26 +83,9 @@ internal constructor(
         }
     }
 
-    /**
-     * Converts this [RemoteEnum] to its underlying [RemoteInt] representation, using the Enum
-     * ordinal.
-     *
-     * @return The [RemoteInt] that holds the enum's value.
-     */
     public val ordinal: RemoteInt
         get() = intValue
 
-    /**
-     * Converts this [RemoteEnum] to a [RemoteString] representation.
-     *
-     * This method maps each possible enum entry to a string using the provided [mapping] function.
-     * At runtime, the [RemoteString] will resolve to the string corresponding to the current value
-     * of the enum. Defaults to calling [Any.toString] on the enum entry.
-     *
-     * @param mapping A function that defines how each enum constant should be converted to a
-     *   [RemoteString].
-     * @return A [RemoteString] that tracks the string value of this enum.
-     */
     public fun toRemoteString(mapping: (T) -> RemoteString = { it.toString().rs }): RemoteString {
         constantValueOrNull?.let {
             return mapping(it)
@@ -148,17 +123,6 @@ internal constructor(
         )
     }
 
-    /**
-     * Converts this [RemoteEnum] to a [RemoteInt] representation using a provided mapping.
-     *
-     * This method maps each possible enum entry to a [RemoteInt] using the provided [mapping]
-     * function. At runtime, the resulting [RemoteInt] will resolve to the value corresponding to
-     * the current state of the enum.
-     *
-     * @param mapping A function that defines how each enum constant should be converted to a
-     *   [RemoteInt].
-     * @return A [RemoteInt] that tracks the integer value associated with this enum.
-     */
     public fun toRemoteInt(mapping: (T) -> RemoteInt): RemoteInt {
         constantValueOrNull?.let {
             return mapping(it)
@@ -179,14 +143,6 @@ internal constructor(
         internal inline fun <reified T : Enum<T>> createForId(id: Int): RemoteEnum<T> =
             RemoteEnum(RemoteInt.createForId(0x100000000L + id), enumEntries())
 
-        /**
-         * Creates a named [RemoteEnum] with an initial value.
-         *
-         * @param name The unique name for this remote enum.
-         * @param domain The domain of the named enum (defaults to [RemoteState.Domain.User]).
-         * @param defaultValue The initial [Enum] value for the named remote enum.
-         * @return A [RemoteEnum] representing the named enum.
-         */
         @JvmStatic
         public inline fun <reified T : Enum<T>> createNamedRemoteEnum(
             name: String,
@@ -205,34 +161,17 @@ internal constructor(
     }
 }
 
-/**
- * Creates a [RemoteEnum] backed by [intValue] and [enumEntries].
- *
- * @param T The enum type.
- * @param intValue The [RemoteInt] representing the enum ordinal.
- * @param enumEntries The [EnumEntries] containing all values of the enum.
- * @return A [RemoteEnum] wrapping the given [RemoteInt].
- */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun <T : Enum<T>> RemoteEnum(
     intValue: RemoteInt,
     enumEntries: EnumEntries<T>,
 ): RemoteEnum<T> = RemoteEnum(intValue, enumEntries, RemoteStateInstanceKey())
 
-/**
- * Creates a [RemoteEnum] from a literal constant.
- *
- * @param T The enum type.
- * @param value The constant [Enum] value.
- * @return A [RemoteEnum] representing the constant enum.
- */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public inline fun <reified T : Enum<T>> RemoteEnum(value: T): RemoteEnum<T> =
     RemoteEnum(value.ordinal.ri, enumEntries())
 
-/**
- * A mutable implementation of [RemoteEnum].
- *
- * @param T The enum type.
- */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MutableRemoteEnum<T : Enum<T>>
 @RememberInComposition
 internal constructor(
@@ -259,27 +198,14 @@ internal constructor(
     }
 }
 
-/**
- * Creates a [MutableRemoteEnum] backed by [remoteInt] and [enumEntries].
- *
- * @param T The enum type.
- * @param remoteInt The [MutableRemoteInt] representing the mutable enum ordinal.
- * @param enumEntries The [EnumEntries] containing all values of the enum.
- * @return A [MutableRemoteEnum] wrapping the given [MutableRemoteInt].
- */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RememberInComposition
 public fun <T : Enum<T>> MutableRemoteEnum(
     remoteInt: MutableRemoteInt,
     enumEntries: EnumEntries<T>,
 ): MutableRemoteEnum<T> = MutableRemoteEnum(remoteInt, enumEntries, RemoteStateInstanceKey())
 
-/**
- * Creates a [MutableRemoteEnum] with an initial value.
- *
- * @param T The enum type.
- * @param initialValue The initial value for this mutable enum.
- * @return A [MutableRemoteEnum] instance.
- */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RememberInComposition
 public inline fun <reified T : Enum<T>> MutableRemoteEnum(initialValue: T): MutableRemoteEnum<T> =
     MutableRemoteEnum(MutableRemoteInt(initialValue.ordinal), enumEntries())

@@ -23,17 +23,12 @@ import androidx.compose.remote.creation.compose.state.RemoteTextUnit.OperationKe
 import androidx.compose.remote.creation.compose.text.RemoteFontScaleConverter
 import androidx.compose.runtime.Stable
 
-/** The type of a [RemoteTextUnit]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public enum class RemoteTextUnitType {
     Sp
 }
 
-/**
- * Represents a TextUnit value backed by a [RemoteFloat].
- *
- * @property value The [RemoteFloat] that holds the scalar value.
- * @property type The [RemoteTextUnitType].
- */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable
 public class RemoteTextUnit
 internal constructor(
@@ -64,12 +59,6 @@ internal constructor(
         return toPx(creationState.remoteDensity).writeToDocument(creationState)
     }
 
-    /**
-     * Converts this [RemoteTextUnit] to pixels using the provided [density].
-     *
-     * @param density The [RemoteDensity] used to convert this [RemoteTextUnit] to pixels.
-     * @return A [RemoteFloat] representing this text size in pixels.
-     */
     public fun toPx(density: RemoteDensity): RemoteFloat {
         checkTextUnit()
         val constValue = value.constantValueOrNull
@@ -97,11 +86,6 @@ internal constructor(
         }
     }
 
-    /**
-     * Converts this [RemoteTextUnit] to pixels using the current [RemoteDensity].
-     *
-     * @return A [RemoteFloat] representing this text size in pixels.
-     */
     public fun toPx(): RemoteFloat {
         checkTextUnit()
         return RemoteFloat(
@@ -118,13 +102,7 @@ internal constructor(
         check(type == RemoteTextUnitType.Sp) { "Only Sp is supported for conversion to pixels" }
 }
 
-/**
- * Creates a [RemoteTextUnit] backed by a [RemoteFloat].
- *
- * @param value The [RemoteFloat] that holds the scalar value.
- * @param type The [RemoteTextUnitType]. Defaults to [RemoteTextUnitType.Sp].
- * @return A [RemoteTextUnit] wrapping the given [RemoteFloat].
- */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteTextUnit(
     value: RemoteFloat,
     type: RemoteTextUnitType = RemoteTextUnitType.Sp,
@@ -135,33 +113,21 @@ public fun RemoteTextUnit(
         cacheKey = RemoteOperationCacheKey.create(RemoteTextUnit.OperationKey.Sp, value, type),
     )
 
-/**
- * Creates a [RemoteTextUnit] with the given literal [Float] [value] and [type].
- *
- * @param value The literal float value.
- * @param type The [RemoteTextUnitType]. Defaults to [RemoteTextUnitType.Sp].
- * @return A [RemoteTextUnit] representing the constant text unit.
- */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteTextUnit(
     value: Float,
     type: RemoteTextUnitType = RemoteTextUnitType.Sp,
 ): RemoteTextUnit = RemoteTextUnit(value.rf, type)
 
-/** Extension property to convert an [Int] to a [RemoteTextUnit] in Sp. */
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public val Int.rsp: RemoteTextUnit
     get() = RemoteTextUnit(this.rf, RemoteTextUnitType.Sp)
 
-/** Extension property to convert a [Float] to a [RemoteTextUnit] in Sp. */
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public val Float.rsp: RemoteTextUnit
     get() = RemoteTextUnit(this.rf, RemoteTextUnitType.Sp)
 
-/**
- * Extension property to convert a [RemoteFloat] to a [RemoteTextUnit] in Sp.
- *
- * Example of computing a dynamic font size from a [RemoteFloat] expression:
- *
- * @sample androidx.compose.remote.creation.compose.samples.RemoteTextDynamicFontSizeSample
- */
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public val RemoteFloat.rsp: RemoteTextUnit
     get() = RemoteTextUnit(this, RemoteTextUnitType.Sp)
 
