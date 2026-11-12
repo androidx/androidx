@@ -42,6 +42,8 @@ private const val MAX_SUPPORTING_ITEMS = 3
  * - secondary (optional): unit label paired with the headline metric.
  * - supporting (optional): up to 3 supporting text values or status badges.
  *
+ * Build an instance with [trackTemplate].
+ *
  * @throws IllegalArgumentException if the populated slots do not satisfy these requirements
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
