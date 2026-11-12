@@ -63,7 +63,8 @@ import androidx.glance.adaptive.core.templates.DashboardTemplate
  * header wherever a row fits a label. A tile is always described by its label, for accessibility
  * services.
  *
- * Not registered by default.
+ * The library's default for [DashboardTemplate] on every AppWidget surface, drawn by
+ * [androidx.glance.adaptive.appwidget.matrix.remoteviews.RemoteViewsMatrixRenderer].
  */
 // TODO(b/580007927): Confirm with UX whether the design's `5, 8` and `5, 6, 8` tile numbering on
 //  narrower widths pins the last action as an overflow tile (e.g. Contacts "…") instead of showing

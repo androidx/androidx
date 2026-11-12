@@ -32,7 +32,9 @@ import androidx.glance.adaptive.core.selection.Dimensions
 import androidx.glance.adaptive.core.slots.Ring
 import androidx.glance.adaptive.core.slots.TemplateText
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
+import androidx.glance.adaptive.core.templates.TemplateIcon
 import androidx.glance.adaptive.core.templates.TrackTemplate
+import androidx.glance.adaptive.core.templates.dashboardTemplate
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -80,6 +82,39 @@ class AppWidgetTemplateRegistryTest {
                 )
             assertThat(output).isInstanceOf(RemoteViewsRenderOutput::class.java)
         }
+    }
+
+    @Test
+    fun defaultTemplates_includeDashboardTemplate() {
+        val glyph = TemplateIcon.fromResource(android.R.drawable.ic_menu_compass)
+        val template = dashboardTemplate {
+            leading { icon(glyph) }
+            primary { text("Start a workout") }
+            actions { repeat(8) { action(glyph, "Workout $it") } }
+        }
+        // The bulb and strip on the lock screen, and the card on the home screen.
+        for (targetSurface in AppWidgetSurface.ALL) {
+            val output =
+                AppWidgetTemplateRegistry.render(
+                    template,
+                    targetSurface.withDimensions(Dimensions(200, 100)),
+                )
+            assertThat(output).isInstanceOf(RemoteViewsRenderOutput::class.java)
+        }
+        assertThat(
+                AppWidgetTemplateRegistry.hasDroppedSlots(
+                    template,
+                    surface.withDimensions(Dimensions(344, 264)),
+                )
+            )
+            .isFalse()
+        assertThat(
+                AppWidgetTemplateRegistry.hasDroppedSlots(
+                    template,
+                    surface.withDimensions(Dimensions(177, 132)),
+                )
+            )
+            .isTrue()
     }
 
     @Test

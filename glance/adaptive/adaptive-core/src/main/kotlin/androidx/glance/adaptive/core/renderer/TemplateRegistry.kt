@@ -19,6 +19,7 @@ package androidx.glance.adaptive.core.renderer
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.glance.adaptive.core.selection.GlanceSurface
+import androidx.glance.adaptive.core.templates.DashboardTemplate
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 import androidx.glance.adaptive.core.templates.TrackTemplate
 
@@ -58,6 +59,9 @@ public class TemplateRegistry<S : GlanceSurface, R>(
     public interface DefaultRenderers<S : GlanceSurface, R> {
         /** Returns the built-in default [TemplateRenderer] for [TrackTemplate] on [surface]. */
         public fun trackRenderer(surface: S): TemplateRenderer<TrackTemplate, S, R>
+
+        /** Returns the built-in default [TemplateRenderer] for [DashboardTemplate] on [surface]. */
+        public fun dashboardRenderer(surface: S): TemplateRenderer<DashboardTemplate, S, R>
     }
 
     private val surfaces = surfaces.toList()
@@ -85,6 +89,8 @@ public class TemplateRegistry<S : GlanceSurface, R>(
             val surface = surfaces[i]
             defaultMap[TemplateSurfaceKey(TrackTemplate::class.java, surface)] =
                 defaultRenderers.trackRenderer(surface).asUntyped()
+            defaultMap[TemplateSurfaceKey(DashboardTemplate::class.java, surface)] =
+                defaultRenderers.dashboardRenderer(surface).asUntyped()
         }
     }
 

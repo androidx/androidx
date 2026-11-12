@@ -21,9 +21,11 @@ import androidx.glance.adaptive.appwidget.matrix.MatrixContent
 import androidx.glance.adaptive.appwidget.matrix.remoteviews.RemoteViewsMatrixRenderer
 import androidx.glance.adaptive.appwidget.renderer.AppWidgetRenderOutput
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
+import androidx.glance.adaptive.appwidget.templates.dashboard.DashboardMatrixSelector
 import androidx.glance.adaptive.appwidget.templates.track.TrackMatrixSelector
 import androidx.glance.adaptive.core.renderer.TemplateRegistry
 import androidx.glance.adaptive.core.renderer.TemplateRenderer
+import androidx.glance.adaptive.core.templates.DashboardTemplate
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 import androidx.glance.adaptive.core.templates.TrackTemplate
 
@@ -37,6 +39,12 @@ internal object AppWidgetTemplateRegistry {
         TemplateRenderer<TrackTemplate, AppWidgetSurface, MatrixContent>(
             TrackMatrixSelector::select
         )
+    private val defaultDashboardRenderer =
+        TemplateRenderer(DashboardMatrixSelector, RemoteViewsMatrixRenderer)
+    private val defaultDashboardSelector =
+        TemplateRenderer<DashboardTemplate, AppWidgetSurface, MatrixContent>(
+            DashboardMatrixSelector::select
+        )
 
     private val registry =
         TemplateRegistry(
@@ -48,6 +56,14 @@ internal object AppWidgetTemplateRegistry {
                         surface: AppWidgetSurface
                     ): TemplateRenderer<TrackTemplate, AppWidgetSurface, AppWidgetRenderOutput> =
                         defaultTrackRenderer
+
+                    override fun dashboardRenderer(
+                        surface: AppWidgetSurface
+                    ): TemplateRenderer<
+                        DashboardTemplate,
+                        AppWidgetSurface,
+                        AppWidgetRenderOutput,
+                    > = defaultDashboardRenderer
                 },
         )
 
@@ -60,6 +76,11 @@ internal object AppWidgetTemplateRegistry {
                         surface: AppWidgetSurface
                     ): TemplateRenderer<TrackTemplate, AppWidgetSurface, MatrixContent> =
                         defaultTrackSelector
+
+                    override fun dashboardRenderer(
+                        surface: AppWidgetSurface
+                    ): TemplateRenderer<DashboardTemplate, AppWidgetSurface, MatrixContent> =
+                        defaultDashboardSelector
                 },
         )
 

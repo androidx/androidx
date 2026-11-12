@@ -80,9 +80,9 @@ import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
  *
  * Taps run the [GlanceAdaptiveAction]s the matrix carries. A [GlanceAdaptiveAction.CallbackAction]
  * hands its callback the name and instance ID of the widget it was tapped on, which a renderer is
- * not given, so this renderer draws a callback as inert; register the renderer of [forWidget] to
- * deliver them with the widget's name (`widgetId` remains `null` until the renderer is given the
- * target instance).
+ * not given, so this renderer logs a warning and draws a callback as inert; register the renderer
+ * of [forWidget] to deliver them with the widget's name (`widgetId` remains `null` until the
+ * renderer is given the target instance).
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object RemoteViewsMatrixRenderer :
