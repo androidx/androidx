@@ -24,6 +24,7 @@ import static androidx.core.content.ContextCompat.getMainExecutor;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -179,11 +180,23 @@ public final class PreviewView extends FrameLayout {
     private final @NonNull DisplayRotationListener mDisplayRotationListener =
             new DisplayRotationListener();
 
+    // The display rotation used to orient the preview, and the ID of its display, or
+    // Display.INVALID_DISPLAY if not accepted yet. See updateAcceptedDisplayRotation().
+    private int mAcceptedDisplayId = Display.INVALID_DISPLAY;
+    @ImageOutputConfig.RotationValue
+    private int mAcceptedDisplayRotation = Surface.ROTATION_0;
+    // Whether any display rotation is accepted on the next layout pass, after a configuration
+    // change. See onConfigurationChanged().
+    private boolean mAcceptAnyRotationOnNextLayout = false;
+
     private final OnLayoutChangeListener mOnLayoutChangeListener =
             (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
                 boolean isSizeChanged =
                         right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop;
-                if (isSizeChanged) {
+                boolean acceptAnyRotation = isSizeChanged || mAcceptAnyRotationOnNextLayout;
+                mAcceptAnyRotationOnNextLayout = false;
+                boolean isRotationChanged = updateAcceptedDisplayRotation(acceptAnyRotation);
+                if (isSizeChanged || isRotationChanged) {
                     redrawPreview();
                 }
                 if (isSizeChanged || (mCameraController != null && !mIsAttachedToController)) {
@@ -364,7 +377,25 @@ public final class PreviewView extends FrameLayout {
         if (mImplementation != null) {
             mImplementation.onAttachedToWindow();
         }
+        // The display may have rotated while detached. Before the first layout, the next layout
+        // redraws the preview.
+        if (updateAcceptedDisplayRotation(/* acceptAnyRotation= */ true)
+                && getWidth() > 0 && getHeight() > 0) {
+            redrawPreview();
+        }
         attachToControllerIfReady(true);
+    }
+
+    @Override
+    protected void onConfigurationChanged(@Nullable Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        // A quarter turn dispatches onConfigurationChanged before the layout pass updates
+        // PreviewView's bounds, and may not change the size of a square PreviewView. Schedule a
+        // layout pass and accept the new rotation there so it never runs ahead of relayout.
+        if (isAttachedToWindow()) {
+            mAcceptAnyRotationOnNextLayout = true;
+            requestLayout();
+        }
     }
 
     @Override
@@ -379,6 +410,8 @@ public final class PreviewView extends FrameLayout {
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         removeOnLayoutChangeListener(mOnLayoutChangeListener);
+        mAcceptedDisplayId = Display.INVALID_DISPLAY;
+        mAcceptAnyRotationOnNextLayout = false;
         if (mImplementation != null) {
             mImplementation.onDetachedFromWindow();
         }
@@ -648,7 +681,9 @@ public final class PreviewView extends FrameLayout {
      * </code></pre>
      *
      * <p> Note that for non-display rotation to work, the mode must be set to
-     * {@link ImplementationMode#COMPATIBLE}.
+     * {@link ImplementationMode#COMPATIBLE}. If a {@link androidx.camera.core.CameraEffect} is
+     * applied to the preview, {@link PreviewView} may ignore the target rotation and orient the
+     * preview upright relative to the display.
      *
      * @param targetRotation A rotation value, expressed as one of
      *                       {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
@@ -771,14 +806,55 @@ public final class PreviewView extends FrameLayout {
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
     void updateDisplayRotationIfNeeded() {
-        if (mUseDisplayRotation) {
-            Display display = getDefaultDisplay();
-            if (display != null && mCameraInfoInternal != null) {
-                mPreviewTransform.overrideWithDisplayRotation(
-                        mCameraInfoInternal.getSensorRotationDegrees(
-                                display.getRotation()), display.getRotation());
-            }
+        if (mUseDisplayRotation && mCameraInfoInternal != null
+                && mAcceptedDisplayId != Display.INVALID_DISPLAY) {
+            mPreviewTransform.overrideWithDisplayRotation(mCameraInfoInternal,
+                    mAcceptedDisplayRotation);
         }
+    }
+
+    /**
+     * Updates the display rotation used to orient the preview, so that it is consistent with the
+     * layout of {@link PreviewView}.
+     *
+     * <p>The rotation of {@link #getDefaultDisplay()} is accepted only when it cannot run ahead of
+     * the layout:
+     * <ul>
+     *     <li>Any rotation is accepted on the layout pass following a configuration change, with
+     *     a change of the size of {@link PreviewView}, or when {@link PreviewView} attaches,
+     *     since a quarter turn relayouts the window.
+     *     <li>Otherwise, such as from a {@link DisplayManager.DisplayListener} or a same-size
+     *     relayout, only a half turn is accepted, since a half turn does not change the
+     *     configuration or the window size.
+     *     <li>Any rotation is accepted when {@link PreviewView} is on another display, e.g. an
+     *     external display, since the rotation of {@link #getDefaultDisplay()} doesn't relayout
+     *     its window.
+     * </ul>
+     *
+     * @return whether the accepted display rotation changed.
+     */
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    boolean updateAcceptedDisplayRotation(boolean acceptAnyRotation) {
+        Display display = getDefaultDisplay();
+        if (display == null) {
+            return false;
+        }
+        int displayId = display.getDisplayId();
+        int rotation = display.getRotation();
+        if (displayId != mAcceptedDisplayId) {
+            mAcceptedDisplayId = displayId;
+            mAcceptedDisplayRotation = rotation;
+            return true;
+        }
+        int delta = ((rotation - mAcceptedDisplayRotation) % 4 + 4) % 4;
+        Display viewDisplay = getDisplay();
+        boolean isOtherDisplay = viewDisplay != null && displayId != viewDisplay.getDisplayId();
+        if (delta == 0 || !(acceptAnyRotation || isOtherDisplay || delta == 2)) {
+            return false;
+        }
+        mAcceptedDisplayRotation = rotation;
+        return true;
     }
 
     /**
@@ -857,6 +933,10 @@ public final class PreviewView extends FrameLayout {
 
         /**
          * Use a {@link TextureView} for the preview.
+         *
+         * <p>Note that if a {@link androidx.camera.core.CameraEffect} is applied to the preview,
+         * {@link PreviewView} may ignore {@link Preview#setTargetRotation(int)} and orient the
+         * preview upright relative to the display.
          */
         COMPATIBLE(1);
 
@@ -1281,7 +1361,9 @@ public final class PreviewView extends FrameLayout {
         public void onDisplayChanged(int displayId) {
             Display display = getDefaultDisplay();
             if (display != null && display.getDisplayId() == displayId) {
-                redrawPreview();
+                if (updateAcceptedDisplayRotation(/* acceptAnyRotation= */ false)) {
+                    redrawPreview();
+                }
                 if (mCameraController != null && !mIsAttachedToController) {
                     attachToControllerIfReady(true);
                 }

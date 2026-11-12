@@ -19,9 +19,14 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.graphics.Rect
+import android.graphics.RectF
 import android.graphics.drawable.ColorDrawable
+import android.hardware.display.DisplayManager
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.util.Size
+import android.view.Display
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.Surface
@@ -29,33 +34,44 @@ import android.view.SurfaceView
 import android.view.TextureView
 import android.view.View
 import android.view.ViewConfiguration
+import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import androidx.annotation.GuardedBy
 import androidx.camera.core.Camera
+import androidx.camera.core.CameraEffect
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.DynamicRange
 import androidx.camera.core.MeteringPoint
 import androidx.camera.core.MeteringPointFactory
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
+import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.ViewPort
 import androidx.camera.core.impl.CameraInfoInternal
+import androidx.camera.core.impl.utils.TransformUtils
 import androidx.camera.core.impl.utils.futures.Futures
+import androidx.camera.core.processing.DefaultSurfaceProcessor
+import androidx.camera.core.processing.SurfaceProcessorInternal
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.ParameterizedTestConfigUtil
 import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.testing.impl.fakes.FakeActivity
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.fakes.FakeSurfaceEffect
 import androidx.camera.view.PreviewView.ImplementationMode
 import androidx.camera.view.internal.compat.quirk.DeviceQuirks
 import androidx.camera.view.internal.compat.quirk.SurfaceViewNotCroppedByParentQuirk
 import androidx.camera.view.internal.compat.quirk.SurfaceViewStretchedQuirk
 import androidx.camera.view.test.R
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -1015,6 +1031,457 @@ class PreviewViewDeviceTest(private val implName: String, private val cameraConf
         assertThat(executedOnExecutor).isTrue()
     }
 
+    @Test
+    fun displayRotationChange_updatesSensorToViewTransformAndViewPort() {
+        assertDisplayRotationChangeUpdatesSensorToViewTransform(
+            ImplementationMode.COMPATIBLE,
+            withPreviewEffect = false,
+        )
+    }
+
+    @Test
+    fun displayRotationChange_withPreviewEffect_updatesTransformWithoutTargetRotation() {
+        // Preview.setTargetRotation() is intentionally never called, so the stream without the
+        // camera transform must follow the display rotation through PreviewView alone.
+        assertDisplayRotationChangeUpdatesSensorToViewTransform(
+            ImplementationMode.PERFORMANCE,
+            withPreviewEffect = true,
+        )
+    }
+
+    @Test
+    fun displayRotationChange_compatibleWithEffect_updatesTransformWithoutTargetRotation() {
+        assertDisplayRotationChangeUpdatesSensorToViewTransform(
+            ImplementationMode.COMPATIBLE,
+            withPreviewEffect = true,
+        )
+    }
+
+    /**
+     * Rotates the device from the natural orientation in an activity that handles configuration
+     * changes itself, and asserts that [PreviewView.getSensorToViewTransform] and
+     * [PreviewView.getViewPort] follow the new display rotation.
+     *
+     * @param withPreviewEffect whether to apply a [CameraEffect.PREVIEW], which makes the stream
+     *   not have the camera transform.
+     */
+    private fun assertDisplayRotationChangeUpdatesSensorToViewTransform(
+        implementationMode: ImplementationMode,
+        withPreviewEffect: Boolean,
+    ) {
+        val cameraSelector = CameraUtil.assumeFirstAvailableCameraSelector()
+        CoreAppTestUtil.checkKeyguard(context)
+        activityScenario?.close()
+        activityScenario = null
+
+        val lifecycleOwner = FakeLifecycleOwner()
+        // RequireForegroundRule freezes the rotation in its setup and unfreezes it in teardown.
+        ActivityScenario.launch(ConfigChangesFakeActivity::class.java).use { scenario ->
+            var processor: SurfaceProcessorInternal? = null
+            try {
+                // Freeze at ROTATION_0 while ConfigChangesFakeActivity is already in the
+                // foreground, after leaving any SCREEN_ORIENTATION_NOSENSOR launcher behind.
+                setDeviceOrientationNatural()
+                Assume.assumeTrue(
+                    "Device could not settle to natural orientation",
+                    awaitUiDeviceDisplayRotation(Surface.ROTATION_0),
+                )
+                val previewProcessor =
+                    if (withPreviewEffect) {
+                        DefaultSurfaceProcessor.Factory.newInstance(DynamicRange.SDR)
+                    } else {
+                        null
+                    }
+                processor = previewProcessor
+
+                lateinit var previewView: PreviewView
+                lateinit var sensorRect: Rect
+                lateinit var cameraInfo: CameraInfoInternal
+                val streamingLatch = CountDownLatch(1)
+                scenario.onActivity { activity ->
+                    previewView = PreviewView(activity)
+                    previewView.implementationMode = implementationMode
+                    activity.setContentView(previewView)
+                    previewView.previewStreamState.observe(lifecycleOwner) { state ->
+                        if (state == PreviewView.StreamState.STREAMING) {
+                            streamingLatch.countDown()
+                        }
+                    }
+                    val preview = Preview.Builder().build()
+                    preview.surfaceProvider = previewView.surfaceProvider
+                    val useCaseGroup =
+                        UseCaseGroup.Builder()
+                            .addUseCase(preview)
+                            .apply {
+                                if (previewProcessor != null) {
+                                    addEffect(
+                                        FakeSurfaceEffect(CameraEffect.PREVIEW, previewProcessor)
+                                    )
+                                }
+                            }
+                            .build()
+                    lifecycleOwner.startAndResume()
+                    val camera =
+                        checkNotNull(cameraProvider)
+                            .bindToLifecycle(
+                                lifecycleOwner,
+                                cameraSelector,
+                                useCaseGroup,
+                            )
+                    cameraInfo = camera.cameraInfo as CameraInfoInternal
+                    sensorRect = cameraInfo.sensorRect
+                }
+                assertThat(streamingLatch.await(TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS))
+                    .isTrue()
+
+                val (initialTransform, initialViewPort, initialSize) =
+                    awaitInitialSensorToViewTransformAndViewPort(previewView)
+                assertThat(initialViewPort.rotation).isEqualTo(Surface.ROTATION_0)
+
+                val result =
+                    rotateLeftAndAwaitSettledTransform(previewView, initialTransform, initialSize)
+
+                val uiDisplayRotation = getUiDeviceDisplayRotation()
+                Assume.assumeTrue(
+                    "Device display did not rotate from ROTATION_0",
+                    uiDisplayRotation != Surface.ROTATION_0,
+                )
+                assertThat(result.attachedAfterRotation).isTrue()
+                assertThat(result.settled).isTrue()
+                // The new rotation must not be applied while PreviewView still has the bounds of
+                // the previous rotation, which would stretch the preview.
+                assertThat(result.prematureTransformBeforeResize).isFalse()
+
+                val finalTransform = checkNotNull(result.transform)
+                val finalViewPort = checkNotNull(result.viewPort)
+                assertThat(finalViewPort.rotation).isEqualTo(uiDisplayRotation)
+                assertThat(finalTransform).isNotEqualTo(initialTransform)
+
+                val mappedSensor = RectF(sensorRect)
+                assertThat(finalTransform.mapRect(mappedSensor)).isTrue()
+                assertThat(mappedSensor.contains(result.viewCenterX, result.viewCenterY)).isTrue()
+
+                assertRotatedOrthogonally(
+                    initialTransform,
+                    finalTransform,
+                    finalViewPort.rotation,
+                    useFrontCameraRotation =
+                        cameraInfo.lensFacing != CameraSelector.LENS_FACING_BACK,
+                )
+                assertThat(extractUnmirroredRotationDegrees(finalTransform))
+                    .isEqualTo(cameraInfo.getSensorRotationDegrees(finalViewPort.rotation))
+            } finally {
+                try {
+                    instrumentation.runOnMainSync {
+                        cameraProvider?.unbindAll()
+                        when (lifecycleOwner.lifecycle.currentState) {
+                            Lifecycle.State.RESUMED -> {
+                                lifecycleOwner.pauseAndStop()
+                                lifecycleOwner.destroy()
+                            }
+                            Lifecycle.State.STARTED -> {
+                                lifecycleOwner.stop()
+                                lifecycleOwner.destroy()
+                            }
+                            Lifecycle.State.CREATED -> lifecycleOwner.destroy()
+                            else -> {}
+                        }
+                    }
+                } finally {
+                    try {
+                        processor?.release()
+                    } finally {
+                        setDeviceOrientationNatural()
+                        awaitUiDeviceDisplayRotation(Surface.ROTATION_0)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Waits until [previewView] is laid out with a non-null sensor-to-view transform and view port,
+     * and returns a copy of the transform with the view port and the size of [previewView].
+     */
+    private fun awaitInitialSensorToViewTransformAndViewPort(
+        previewView: PreviewView
+    ): Triple<Matrix, ViewPort, Size> {
+        var initialTransform: Matrix? = null
+        var initialViewPort: ViewPort? = null
+        var initialSize: Size? = null
+        val initialReadyLatch = CountDownLatch(1)
+        val tryCaptureInitial = {
+            val currentTransform = previewView.sensorToViewTransform
+            val currentViewPort = previewView.viewPort
+            if (
+                initialTransform == null &&
+                    previewView.isAttachedToWindow &&
+                    !previewView.isLayoutRequested &&
+                    previewView.width > 0 &&
+                    previewView.height > 0 &&
+                    currentTransform != null &&
+                    currentViewPort != null
+            ) {
+                initialTransform = Matrix(currentTransform)
+                initialViewPort = currentViewPort
+                initialSize = Size(previewView.width, previewView.height)
+                initialReadyLatch.countDown()
+            }
+        }
+        val layoutListener = View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            tryCaptureInitial()
+        }
+        val preDrawListener = ViewTreeObserver.OnPreDrawListener {
+            tryCaptureInitial()
+            true
+        }
+        instrumentation.runOnMainSync {
+            previewView.addOnLayoutChangeListener(layoutListener)
+            previewView.viewTreeObserver.addOnPreDrawListener(preDrawListener)
+            tryCaptureInitial()
+        }
+        val initialReady =
+            try {
+                initialReadyLatch.await(TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS)
+            } finally {
+                instrumentation.runOnMainSync {
+                    previewView.removeOnLayoutChangeListener(layoutListener)
+                    if (previewView.viewTreeObserver.isAlive) {
+                        previewView.viewTreeObserver.removeOnPreDrawListener(preDrawListener)
+                    }
+                }
+            }
+        assertThat(initialReady).isTrue()
+        return Triple(
+            checkNotNull(initialTransform),
+            checkNotNull(initialViewPort),
+            checkNotNull(initialSize),
+        )
+    }
+
+    /**
+     * Rotates the device to the left and waits until [previewView] is laid out for the new display
+     * rotation with a sensor-to-view transform different from [initialTransform].
+     *
+     * The settled state is checked on layout, pre-draw and display change callbacks only, so that
+     * the test verifies that [PreviewView] follows the display rotation without any delayed sync.
+     * Since the device rotates by a quarter turn, a non-square [previewView] is only settled once
+     * its size differs from [initialSize], and the result records whether the transform changed
+     * while [previewView] still had [initialSize] before it was resized.
+     */
+    private fun rotateLeftAndAwaitSettledTransform(
+        previewView: PreviewView,
+        initialTransform: Matrix,
+        initialSize: Size,
+    ): DisplayRotationResult {
+        val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        val mainHandler = Handler(Looper.getMainLooper())
+        var attachedAfterRotation = false
+        var updatedTransform: Matrix? = null
+        var updatedViewPort: ViewPort? = null
+        var viewCenterX = 0f
+        var viewCenterY = 0f
+        var sawResizedBounds = false
+        var updatedWhileInitialSize = false
+        val requiresResize = initialSize.width != initialSize.height
+        val settledLatch = CountDownLatch(1)
+        val tryCaptureSettled = {
+            attachedAfterRotation = previewView.isAttachedToWindow
+            val displayRotation = previewView.defaultDisplay?.rotation
+            val currentSize = Size(previewView.width, previewView.height)
+            val currentTransform = previewView.sensorToViewTransform
+            if (currentSize != initialSize) {
+                sawResizedBounds = true
+            } else if (
+                !sawResizedBounds &&
+                    currentTransform != null &&
+                    currentTransform != initialTransform
+            ) {
+                updatedWhileInitialSize = true
+            }
+            if (
+                updatedTransform == null &&
+                    attachedAfterRotation &&
+                    displayRotation != null &&
+                    displayRotation != Surface.ROTATION_0 &&
+                    !previewView.isLayoutRequested &&
+                    previewView.width > 0 &&
+                    previewView.height > 0 &&
+                    (!requiresResize || currentSize != initialSize)
+            ) {
+                val currentViewPort = previewView.viewPort
+                if (
+                    currentTransform != null &&
+                        currentTransform != initialTransform &&
+                        currentViewPort != null &&
+                        currentViewPort.rotation == displayRotation
+                ) {
+                    updatedTransform = Matrix(currentTransform)
+                    updatedViewPort = currentViewPort
+                    viewCenterX = previewView.width / 2f
+                    viewCenterY = previewView.height / 2f
+                    settledLatch.countDown()
+                }
+            }
+        }
+        val checkSettledRunnable = Runnable { tryCaptureSettled() }
+        val layoutListener = View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            tryCaptureSettled()
+        }
+        val preDrawListener = ViewTreeObserver.OnPreDrawListener {
+            tryCaptureSettled()
+            true
+        }
+        val displayListener =
+            object : DisplayManager.DisplayListener {
+                override fun onDisplayAdded(displayId: Int) {}
+
+                override fun onDisplayRemoved(displayId: Int) {}
+
+                override fun onDisplayChanged(displayId: Int) {
+                    if (displayId == Display.DEFAULT_DISPLAY) {
+                        mainHandler.post(checkSettledRunnable)
+                    }
+                }
+            }
+        instrumentation.runOnMainSync {
+            displayManager.registerDisplayListener(displayListener, mainHandler)
+            previewView.addOnLayoutChangeListener(layoutListener)
+            previewView.viewTreeObserver.addOnPreDrawListener(preDrawListener)
+        }
+        val settled =
+            try {
+                setDeviceOrientationLeft()
+                uiDevice.waitForIdle()
+                instrumentation.runOnMainSync { tryCaptureSettled() }
+                settledLatch.await(TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS)
+            } finally {
+                displayManager.unregisterDisplayListener(displayListener)
+                instrumentation.runOnMainSync {
+                    mainHandler.removeCallbacks(checkSettledRunnable)
+                    previewView.removeOnLayoutChangeListener(layoutListener)
+                    if (previewView.viewTreeObserver.isAlive) {
+                        previewView.viewTreeObserver.removeOnPreDrawListener(preDrawListener)
+                    }
+                    attachedAfterRotation = previewView.isAttachedToWindow
+                }
+            }
+        return DisplayRotationResult(
+            settled = settled,
+            attachedAfterRotation = attachedAfterRotation,
+            transform = updatedTransform,
+            viewPort = updatedViewPort,
+            viewCenterX = viewCenterX,
+            viewCenterY = viewCenterY,
+            prematureTransformBeforeResize = sawResizedBounds && updatedWhileInitialSize,
+        )
+    }
+
+    /**
+     * Asserts that [finalTransform] maps the sensor x-axis orthogonally to [initialTransform], in
+     * the rotation direction expected for [displayRotation].
+     */
+    private fun assertRotatedOrthogonally(
+        initialTransform: Matrix,
+        finalTransform: Matrix,
+        displayRotation: Int,
+        useFrontCameraRotation: Boolean,
+    ) {
+        val (v0x, v0y) = mapUnitXVector(initialTransform)
+        val (v1x, v1y) = mapUnitXVector(finalTransform)
+        assertThat(kotlin.math.abs(v0x * v1x + v0y * v1y)).isLessThan(0.05f)
+        val cross = v0x * v1y - v0y * v1x
+        val isMirrored = TransformUtils.isMirrored(finalTransform)
+        val signedCross = if (useFrontCameraRotation == isMirrored) cross else -cross
+        if (displayRotation == Surface.ROTATION_90) {
+            assertThat(signedCross).isLessThan(-0.5f)
+        } else if (displayRotation == Surface.ROTATION_270) {
+            assertThat(signedCross).isGreaterThan(0.5f)
+        }
+    }
+
+    /** Returns the normalized vector that [matrix] maps the unit x-axis vector to. */
+    private fun mapUnitXVector(matrix: Matrix): Pair<Float, Float> {
+        val vector = floatArrayOf(1f, 0f)
+        matrix.mapVectors(vector)
+        val length = kotlin.math.hypot(vector[0].toDouble(), vector[1].toDouble()).toFloat()
+        return Pair(vector[0] / length, vector[1] / length)
+    }
+
+    private class DisplayRotationResult(
+        val settled: Boolean,
+        val attachedAfterRotation: Boolean,
+        val transform: Matrix?,
+        val viewPort: ViewPort?,
+        val viewCenterX: Float,
+        val viewCenterY: Float,
+        val prematureTransformBeforeResize: Boolean,
+    )
+
+    private fun extractUnmirroredRotationDegrees(matrix: Matrix): Int {
+        val unmirrored = Matrix(matrix)
+        if (TransformUtils.isMirrored(unmirrored)) {
+            unmirrored.postScale(-1f, 1f)
+        }
+        return TransformUtils.getRotationDegrees(unmirrored)
+    }
+
+    private fun getUiDeviceDisplayRotation(): Int =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            uiDevice.getDisplayRotation(Display.DEFAULT_DISPLAY)
+        } else {
+            uiDevice.displayRotation
+        }
+
+    private fun awaitUiDeviceDisplayRotation(expectedRotation: Int): Boolean {
+        val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        val rotationLatch = CountDownLatch(1)
+        val displayListener =
+            object : DisplayManager.DisplayListener {
+                override fun onDisplayAdded(displayId: Int) {}
+
+                override fun onDisplayRemoved(displayId: Int) {}
+
+                override fun onDisplayChanged(displayId: Int) {
+                    if (
+                        displayId == Display.DEFAULT_DISPLAY &&
+                            getUiDeviceDisplayRotation() == expectedRotation
+                    ) {
+                        rotationLatch.countDown()
+                    }
+                }
+            }
+        displayManager.registerDisplayListener(displayListener, Handler(Looper.getMainLooper()))
+        try {
+            // Check after registering, so that a rotation in between is not missed.
+            if (getUiDeviceDisplayRotation() == expectedRotation) {
+                rotationLatch.countDown()
+            }
+            rotationLatch.await(5, TimeUnit.SECONDS)
+        } finally {
+            displayManager.unregisterDisplayListener(displayListener)
+        }
+        uiDevice.waitForIdle()
+        instrumentation.waitForIdleSync()
+        return getUiDeviceDisplayRotation() == expectedRotation
+    }
+
+    private fun setDeviceOrientationNatural() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            uiDevice.setOrientationNatural(Display.DEFAULT_DISPLAY)
+        } else {
+            uiDevice.setOrientationNatural()
+        }
+    }
+
+    private fun setDeviceOrientationLeft() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            uiDevice.setOrientationLeft(Display.DEFAULT_DISPLAY)
+        } else {
+            uiDevice.setOrientationLeft()
+        }
+    }
+
     private fun setContentView(view: View?) {
         activityScenario!!.onActivity { activity: FakeActivity ->
             activity.setContentView(view)
@@ -1119,3 +1586,5 @@ class PreviewViewDeviceTest(private val implName: String, private val cameraConf
             )
     }
 }
+
+class ConfigChangesFakeActivity : FakeActivity()

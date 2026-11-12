@@ -16,6 +16,7 @@
 
 package androidx.camera.view
 
+import android.content.Context
 import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.RectF
@@ -23,12 +24,22 @@ import android.util.LayoutDirection
 import android.util.Size
 import android.view.Surface
 import android.view.Surface.ROTATION_0
+import android.view.TextureView
 import android.view.View
+import androidx.camera.core.CameraInfo
+import androidx.camera.core.CameraSelector
 import androidx.camera.core.SurfaceRequest
+import androidx.camera.core.impl.AdapterCameraInfo
+import androidx.camera.core.impl.CameraConfigs
+import androidx.camera.core.impl.CameraInfoInternal
+import androidx.camera.core.impl.ForwardingCameraInfo
 import androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue
 import androidx.camera.core.impl.utils.TransformUtils.getRectToRect
+import androidx.camera.core.impl.utils.TransformUtils.rotateSize
 import androidx.camera.core.impl.utils.TransformUtils.sizeToVertices
+import androidx.camera.core.impl.utils.TransformUtils.within360
+import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
@@ -679,5 +690,238 @@ class PreviewTransformationTest {
             useFrontCameraRotation,
         )
         mPreviewTransform.transformView(previewViewSize, LayoutDirection.LTR, mView)
+    }
+
+    @Test
+    fun transformViewWithTextureView_invalidatesOnlyWhenCorrectionChanges() {
+        var invalidateCount = 0
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val textureView =
+            object : TextureView(context) {
+                override fun invalidate() {
+                    super.invalidate()
+                    invalidateCount++
+                }
+            }
+        invalidateCount = 0
+
+        mPreviewTransform.setTransformationInfo(
+            SurfaceRequest.TransformationInfo.of(
+                CROP_RECT,
+                /* rotationDegrees= */ 0,
+                Surface.ROTATION_90,
+                /* hasCameraTransform= */ true,
+                /* sensorToBufferTransform= */ Matrix(),
+                /* mirroring= */ false,
+            ),
+            SURFACE_SIZE,
+            BACK_CAMERA,
+        )
+
+        // First non-identity correction updates transform and invalidates TextureView.
+        mPreviewTransform.transformView(PREVIEW_VIEW_SIZE, LayoutDirection.LTR, textureView)
+        assertThat(textureView.getTransform(null))
+            .isEqualTo(mPreviewTransform.textureViewCorrectionMatrix)
+        assertThat(invalidateCount).isEqualTo(1)
+
+        // Re-transforming with unchanged correction (e.g. view resize) does not re-invalidate.
+        mPreviewTransform.transformView(Size(800, 400), LayoutDirection.LTR, textureView)
+        assertThat(invalidateCount).isEqualTo(1)
+
+        // 180-degree flip updates correction matrix and invalidates TextureView.
+        mPreviewTransform.setTransformationInfo(
+            SurfaceRequest.TransformationInfo.of(
+                CROP_RECT,
+                /* rotationDegrees= */ 180,
+                Surface.ROTATION_270,
+                /* hasCameraTransform= */ true,
+                /* sensorToBufferTransform= */ Matrix(),
+                /* mirroring= */ false,
+            ),
+            SURFACE_SIZE,
+            BACK_CAMERA,
+        )
+        mPreviewTransform.transformView(PREVIEW_VIEW_SIZE, LayoutDirection.LTR, textureView)
+        assertThat(textureView.getTransform(null))
+            .isEqualTo(mPreviewTransform.textureViewCorrectionMatrix)
+        assertThat(invalidateCount).isEqualTo(2)
+    }
+
+    @Test
+    fun overrideWithDisplayRotation_beforeSetTransformationInfo_noOps() {
+        val cameraInfo = FakeCameraInfoInternal(90, CameraSelector.LENS_FACING_BACK)
+        mPreviewTransform.overrideWithDisplayRotation(cameraInfo, Surface.ROTATION_90)
+        assertThat(mPreviewTransform.surfaceViewContentRotationDegrees).isEqualTo(0)
+        assertThat(mPreviewTransform.getSensorToViewTransform(PREVIEW_VIEW_SIZE, 0)).isNull()
+    }
+
+    @Test
+    fun overrideWithDisplayRotation_withoutCameraTransform_mapsSensorUprightAcrossAllRotations() {
+        val sensorSize = Size(640, 480)
+        val sensorRectF = RectF(0f, 0f, sensorSize.width.toFloat(), sensorSize.height.toFloat())
+        val sensorCorners =
+            floatArrayOf(
+                0f,
+                0f,
+                sensorSize.width.toFloat(),
+                0f,
+                sensorSize.width.toFloat(),
+                sensorSize.height.toFloat(),
+                0f,
+                sensorSize.height.toFloat(),
+            )
+        val rotations =
+            listOf(
+                Surface.ROTATION_0,
+                Surface.ROTATION_90,
+                Surface.ROTATION_180,
+                Surface.ROTATION_270,
+            )
+
+        for (sensorOrientation in listOf(0, 90, 180, 270)) {
+            for (lensFacing in
+                listOf(CameraSelector.LENS_FACING_BACK, CameraSelector.LENS_FACING_FRONT)) {
+                val cameraInfo = FakeCameraInfoInternal(sensorOrientation, lensFacing)
+                val useFrontCameraRotation = lensFacing != CameraSelector.LENS_FACING_BACK
+                for (mirroring in listOf(false, true)) {
+                    for (bindRotation in rotations) {
+                        val bakedRotation = cameraInfo.getSensorRotationDegrees(bindRotation)
+                        val bufferSize = rotateSize(sensorSize, bakedRotation)
+                        val bufferRect = Rect(0, 0, bufferSize.width, bufferSize.height)
+                        val sensorToBuffer =
+                            getRectToRect(
+                                sensorRectF,
+                                RectF(bufferRect),
+                                bakedRotation,
+                                mirroring,
+                            )
+
+                        for (displayRotation in rotations) {
+                            val totalSensorRotation =
+                                cameraInfo.getSensorRotationDegrees(displayRotation)
+                            val viewSize = rotateSize(sensorSize, totalSensorRotation)
+                            val viewRectF =
+                                RectF(0f, 0f, viewSize.width.toFloat(), viewSize.height.toFloat())
+
+                            mPreviewTransform.setTransformationInfo(
+                                SurfaceRequest.TransformationInfo.of(
+                                    bufferRect,
+                                    /* rotationDegrees= */ 0,
+                                    ROTATION_NOT_SPECIFIED,
+                                    /* hasCameraTransform= */ false,
+                                    sensorToBuffer,
+                                    /* mirroring= */ false,
+                                ),
+                                bufferSize,
+                                useFrontCameraRotation,
+                            )
+                            mPreviewTransform.overrideWithDisplayRotation(
+                                cameraInfo,
+                                displayRotation,
+                            )
+
+                            val actualPoints = sensorCorners.copyOf()
+                            checkNotNull(
+                                    mPreviewTransform.getSensorToViewTransform(
+                                        viewSize,
+                                        LayoutDirection.LTR,
+                                    )
+                                )
+                                .mapPoints(actualPoints)
+
+                            val expectedPoints = sensorCorners.copyOf()
+                            getRectToRect(sensorRectF, viewRectF, totalSensorRotation, mirroring)
+                                .mapPoints(expectedPoints)
+
+                            for (i in actualPoints.indices) {
+                                assertThat(actualPoints[i])
+                                    .isWithin(FLOAT_ERROR)
+                                    .of(expectedPoints[i])
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun getSensorCameraInfo_unwrapsVirtualCameraToImplementation() {
+        val implementation = FakeCameraInfoInternal(90, CameraSelector.LENS_FACING_BACK)
+        // Mimics VirtualCameraInfo, which subtracts the rotation it has already applied.
+        val virtualCameraInfo =
+            object : ForwardingCameraInfo(implementation) {
+                override fun getSensorRotationDegrees(relativeRotation: Int): Int =
+                    within360(super.getSensorRotationDegrees(relativeRotation) - 90)
+            }
+
+        assertThat(PreviewTransformation.getSensorCameraInfo(virtualCameraInfo))
+            .isSameInstanceAs(implementation)
+    }
+
+    @Test
+    fun getSensorCameraInfo_unwrapsVirtualCameraToSelectedPhysicalCamera() {
+        val physicalCameraId = "2"
+        val physicalSelector =
+            CameraSelector.Builder()
+                .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+                .setPhysicalCameraId(physicalCameraId)
+                .build()
+        val physicalCameraInfo =
+            object :
+                ForwardingCameraInfo(
+                    FakeCameraInfoInternal(physicalCameraId, 270, CameraSelector.LENS_FACING_BACK)
+                ) {
+                override fun getCameraSelector(): CameraSelector = physicalSelector
+            }
+        val logicalCameraInfo =
+            object :
+                ForwardingCameraInfo(FakeCameraInfoInternal(90, CameraSelector.LENS_FACING_BACK)) {
+                override fun getPhysicalCameraInfos(): Set<CameraInfo> = setOf(physicalCameraInfo)
+
+                override fun getImplementation(): CameraInfoInternal = this
+            }
+        val adapterCameraInfo =
+            AdapterCameraInfo(logicalCameraInfo, physicalCameraId, CameraConfigs.defaultConfig())
+        val virtualCameraInfo = object : ForwardingCameraInfo(adapterCameraInfo) {}
+
+        assertThat(PreviewTransformation.getSensorCameraInfo(adapterCameraInfo))
+            .isSameInstanceAs(physicalCameraInfo)
+        assertThat(PreviewTransformation.getSensorCameraInfo(virtualCameraInfo))
+            .isSameInstanceAs(physicalCameraInfo)
+    }
+
+    @Test
+    fun overrideWithDisplayRotation_withoutCameraTransform_ignoresVirtualCameraRotation() {
+        val implementation = FakeCameraInfoInternal(90, CameraSelector.LENS_FACING_BACK)
+        val virtualCameraRotation = 90
+        val virtualCameraInfo =
+            object : ForwardingCameraInfo(implementation) {
+                override fun getSensorRotationDegrees(relativeRotation: Int): Int =
+                    within360(
+                        super.getSensorRotationDegrees(relativeRotation) - virtualCameraRotation
+                    )
+            }
+        // The virtual camera applied 90 degrees to the buffer.
+        val sensorToBuffer =
+            getRectToRect(RectF(0f, 0f, 60f, 40f), RectF(0f, 0f, 40f, 60f), virtualCameraRotation)
+        mPreviewTransform.setTransformationInfo(
+            SurfaceRequest.TransformationInfo.of(
+                Rect(0, 0, 40, 60),
+                /* rotationDegrees= */ 0,
+                ROTATION_NOT_SPECIFIED,
+                /* hasCameraTransform= */ false,
+                sensorToBuffer,
+                /* mirroring= */ false,
+            ),
+            Size(40, 60),
+            BACK_CAMERA,
+        )
+
+        mPreviewTransform.overrideWithDisplayRotation(virtualCameraInfo, Surface.ROTATION_90)
+
+        // 90 degrees sensor at ROTATION_90 needs 0 degrees in total, so the 90 degrees applied by
+        // the virtual camera remain to be reverted.
+        assertThat(mPreviewTransform.surfaceViewContentRotationDegrees).isEqualTo(270)
     }
 }
