@@ -55,6 +55,8 @@ per-file *libraryversions.toml = wujulie@google.com, scottnien@google.com, trevo
 per-file *libraryversions.toml = abeltsegaye@google.com, sameerj@google.com, bhupindersd@google.com
 # Enterprise
 per-file *libraryversions.toml = dveduard@google.com, pgrafov@google.com, rubinxu@google.com, sandness@google.com
+# ExifInterface
+per-file *libraryversions.toml = andrewlewis@google.com, ibaker@google.com, tonihei@google.com #{LAST_RESORT_SUGGESTION}
 
 # Agents
 per-file AGENTS.md = file:/TAG_OWNERS
