@@ -20,17 +20,21 @@ import android.content.Context
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.RemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.contentDescription
 import androidx.compose.remote.creation.compose.modifier.height
+import androidx.compose.remote.creation.compose.modifier.horizontalScroll
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.modifier.width
+import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.testing.RemoteCaptureTestRule
@@ -47,6 +51,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -146,5 +151,41 @@ class RcPlayerLayoutA11yTest {
         assert(after > before + 1f) {
             "Scrolling should publish the offset to the bound variable; before=$before after=$after"
         }
+    }
+
+    /**
+     * Device counterpart of the Robolectric initial-scroll tests: verifies [RcPlayer] initializes
+     * its scroll offset from the document's scroll-position state variable on first layout.
+     */
+    @Test
+    fun scrollStartsAtInitialPositionFromState() {
+        rule.setRemoteContent(
+            playComposableWrapper = { content ->
+                Box(modifier = Modifier.size(100.dp)) { content() }
+            }
+        ) {
+            val scrollState = remember {
+                RemoteScrollState(
+                    positionState = MutableRemoteFloat(RemoteDensity.Host.toPx(100.rdp)),
+                    notches = 2,
+                )
+            }
+            RemoteRow(modifier = RemoteModifier.size(100.rdp).horizontalScroll(scrollState)) {
+                repeat(3) { index ->
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.size(100.rdp).semantics {
+                                contentDescription = "Tile$index".rs
+                            }
+                    )
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        rule.onNodeWithContentDescription("Tile1").assertIsDisplayed()
+        assertThat(rule.onNodeWithContentDescription("Tile1").getUnclippedBoundsInRoot().left.value)
+            .isWithin(1f)
+            .of(0f)
     }
 }
