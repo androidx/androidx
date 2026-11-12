@@ -438,6 +438,37 @@ internal fun ScaffoldStatusBarRegistration(
     }
 }
 
+/**
+ * Registers an active status bar layer with [AppScaffoldState.screenContent]. Typically used by
+ * [ScreenScaffold], [HorizontalPagerScaffold], and [VerticalPagerScaffold] to sync their status bar
+ * state with the enclosing [AppScaffoldState].
+ *
+ * Coordinates status bar lifecycle with the scaffold, attaching [showStatusBar] state handle while
+ * active and removing the status bar registration when leaving composition or becoming inactive.
+ */
+@Composable
+internal fun StatusBarRegistration(
+    showStatusBar: State<Boolean>,
+    scaffoldState: ScaffoldState? = LocalScaffoldState.current,
+) {
+    val actualScaffoldState = scaffoldState as? AppScaffoldState ?: return
+    val screenIsActive = LocalScreenIsActive.current
+
+    val key = remember { Any() }
+    val viewState = rememberUpdatedState(LocalView.current)
+
+    DisposableEffect(screenIsActive, actualScaffoldState) {
+        if (screenIsActive) {
+            actualScaffoldState.screenContent.addStatusBar(
+                key = key,
+                view = viewState,
+                showStatusBar = showStatusBar,
+            )
+        }
+        onDispose { actualScaffoldState.screenContent.removeStatusBar(key) }
+    }
+}
+
 /** [CompositionLocal] to determine if the system status bar is enabled on the device. */
 internal val LocalStatusBarEnabled: CompositionLocal<Boolean> =
     compositionLocalWithComputedDefaultOf {
