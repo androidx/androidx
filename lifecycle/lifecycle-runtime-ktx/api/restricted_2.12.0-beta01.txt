@@ -1,2 +1,0 @@
-// Signature format: 5.0
-// - surface=restricted-atomic-group
