@@ -37,9 +37,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_margin="15dp"
-                android:min="-100"
-                android:max="100"
-                android:progress="0"/>
+                android:max="200"
+                android:progress="100"/>
             <ToggleButton
                 android:id="@+id/hdr"
                 android:layout_width="wrap_content"

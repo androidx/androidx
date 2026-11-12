@@ -18,7 +18,6 @@ package androidx.camera.integration.view
 
 import android.annotation.SuppressLint
 import android.content.ContentValues
-import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.LayoutInflater
@@ -29,7 +28,6 @@ import android.widget.SeekBar
 import android.widget.Toast
 import android.widget.ToggleButton
 import androidx.annotation.OptIn
-import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraEffect.IMAGE_CAPTURE
 import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
@@ -68,7 +66,6 @@ class Media3EffectsFragment : Fragment() {
     private lateinit var recordButton: Button
     private var recording: Recording? = null
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -92,7 +89,7 @@ class Media3EffectsFragment : Fragment() {
         slider.setOnSeekBarChangeListener(
             object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                    val effectValue = progress / 100f
+                    val effectValue = (progress - 100) / 100f
                     val effect =
                         if (effectName == EFFECT_BRIGHTNESS) {
                             Brightness(effectValue)
