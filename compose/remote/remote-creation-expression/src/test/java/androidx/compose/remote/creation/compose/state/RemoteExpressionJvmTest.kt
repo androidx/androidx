@@ -24,6 +24,7 @@ import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteComponent
 import androidx.compose.remote.creation.compose.layout.RemoteComponentToken
+import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -388,5 +389,13 @@ class RemoteExpressionJvmTest {
         val longExpr = RemoteLong.fromLowHigh(continuousSecFloat.toRemoteInt(), 0.ri)
         assertThat(longExpr.toDebugString())
             .isEqualTo("fromLowHigh(context:continuous_sec.toRemoteInt(), 0)")
+    }
+
+    @Test
+    fun testRemoteOffsetCompanionConstants() {
+        assertThat(RemoteOffset.Zero.x.constantValue).isEqualTo(0f)
+        assertThat(RemoteOffset.Zero.y.constantValue).isEqualTo(0f)
+        assertThat(RemoteOffset.Infinite.x.constantValue).isEqualTo(Float.POSITIVE_INFINITY)
+        assertThat(RemoteOffset.Infinite.y.constantValue).isEqualTo(Float.POSITIVE_INFINITY)
     }
 }
