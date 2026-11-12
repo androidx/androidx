@@ -25,7 +25,7 @@ plugins {
 android {
     namespace = "androidx.glance.adaptive.samples"
     // Required by project(":compose:ui:ui") and project(":compose:foundation:foundation") AAR metadata
-    compileSdk { version = release(37) { minorApiLevel = 2 } }
+    compileSdk { version = release(37) { minorApiLevel = 1 } }
 
     defaultConfig {
         minSdk { version = release(29) }

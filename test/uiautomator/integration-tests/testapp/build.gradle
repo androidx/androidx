@@ -51,7 +51,7 @@ dependencies {
 }
 
 android {
-    compileSdk { version = release(37) { minorApiLevel = 2 } }
+    compileSdk { version = release(37) { minorApiLevel = 1 } }
     namespace = "androidx.test.uiautomator.testapp"
     deviceTests.minSdkForFtlOverride = 25 // b/555371834
 }

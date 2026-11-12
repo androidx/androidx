@@ -222,7 +222,7 @@ class AndroidTextInputSessionTest {
             val request1 = ExtractedTextRequest().apply { token = 11 }
             val extractedText1 = getExtractedText(request1, 0)
 
-            Truth.assertThat(extractedText1!!.text.toString()).isEqualTo("hello")
+            Truth.assertThat(extractedText1.text.toString()).isEqualTo("hello")
         }
 
         // Change the text, updateExtractedText should NOT be called
@@ -239,7 +239,7 @@ class AndroidTextInputSessionTest {
             val extractedText2 =
                 getExtractedText(request2, InputConnection.GET_EXTRACTED_TEXT_MONITOR)
 
-            Truth.assertThat(extractedText2!!.text.toString()).isEqualTo("world")
+            Truth.assertThat(extractedText2.text.toString()).isEqualTo("world")
         }
 
         // Change the text again

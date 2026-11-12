@@ -83,7 +83,6 @@ private open class PlatformPasswordVisibilitySettingImpl(protected val context: 
     override fun shouldShowPhysicalInput(): Boolean = getSystemShowPasswordSetting()
 
     /** Fallback for SDK < 37 to read the system show password setting. */
-    @Suppress("DEPRECATION")
     private fun getSystemShowPasswordSetting(): Boolean {
         return try {
             Settings.System.getInt(context.contentResolver, TEXT_SHOW_PASSWORD) > 0
@@ -94,7 +93,7 @@ private open class PlatformPasswordVisibilitySettingImpl(protected val context: 
     }
 
     override fun registerObserver(onChange: () -> Unit): Runnable {
-        @Suppress("DEPRECATION") val uri = Settings.System.getUriFor(TEXT_SHOW_PASSWORD)
+        val uri = Settings.System.getUriFor(TEXT_SHOW_PASSWORD)
         val observer =
             object : ContentObserver(HandlerCompat.createAsync(Looper.getMainLooper())) {
                 override fun onChange(selfChange: Boolean) {

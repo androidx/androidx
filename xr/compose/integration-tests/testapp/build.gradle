@@ -24,7 +24,7 @@ plugins {
 
 android {
     namespace = "androidx.xr.compose.testapp"
-    compileSdk { version = release(37) { minorApiLevel = 2 } }
+    compileSdk { version = release(37) { minorApiLevel = 1 } }
     defaultConfig {
         minSdk { version = release(34) }
     }
