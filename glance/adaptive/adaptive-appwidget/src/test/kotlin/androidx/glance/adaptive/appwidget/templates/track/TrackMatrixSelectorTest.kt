@@ -16,13 +16,17 @@
 
 package androidx.glance.adaptive.appwidget.templates.track
 
+import androidx.collection.floatListOf
 import androidx.glance.adaptive.appwidget.matrix.MatrixBulbContent
 import androidx.glance.adaptive.appwidget.matrix.MatrixCardContent
 import androidx.glance.adaptive.appwidget.matrix.MatrixContent
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
 import androidx.glance.adaptive.core.selection.HeightTier
 import androidx.glance.adaptive.core.selection.WidthTier
+import androidx.glance.adaptive.core.slots.Badge
+import androidx.glance.adaptive.core.slots.ChartLabel
 import androidx.glance.adaptive.core.slots.ContainedRing
+import androidx.glance.adaptive.core.slots.Graph
 import androidx.glance.adaptive.core.slots.Ring
 import androidx.glance.adaptive.core.slots.TemplateText
 import androidx.glance.adaptive.core.templates.TrackTemplate
@@ -34,39 +38,42 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class TrackMatrixSelectorTest {
 
-    private val template =
-        TrackTemplate(
-            title = TrackTestData.TITLE,
-            subtitle = TrackTestData.SUBTITLE,
-            progress = TrackTestData.PROGRESS,
-            statusText = TrackTestData.STATUS_TEXT,
-        )
+    private val template = fullTemplate()
 
     @Test
-    fun narrowAndShort_isTheBulb() {
+    fun narrowAndShort_usesTheBulbWithTemplateRingAndSensitivePrimary() {
         for (height in listOf(HeightTier.H0, HeightTier.H1)) {
             val bulb = select(WidthTier.W1, height) as MatrixBulbContent
             val ring = bulb.component as ContainedRing
-            assertThat(ring.value).isEqualTo(TrackTestData.TITLE)
-            assertThat(ring.progress).isEqualTo(TrackTestData.PROGRESS)
+            assertThat(ring.value).isEqualTo(PRIMARY)
+            assertThat(ring.progress).isEqualTo(PROGRESS)
+            assertThat(ring.icon).isEqualTo(ICON_RES)
+            assertThat(ring.sensitiveReplacement).isEqualTo(SENSITIVE_PRIMARY)
         }
     }
 
     @Test
-    fun narrowAndShort_withoutATitle_staysACard() {
-        val content = select(WidthTier.W1, HeightTier.H1, TrackTemplate(title = " "))
+    fun narrowAndShort_withoutLeadingRing_stillRendersBulbWithEmptyRing() {
+        val chartOnly =
+            TrackTemplate(
+                primary = TemplateText("72 bpm"),
+                hero = Graph(values = floatListOf(0.4f, 0.8f), goal = 1.0f),
+            )
 
-        assertThat(content).isInstanceOf(MatrixCardContent::class.java)
-        assertThat((content as MatrixCardContent).primary).isNull()
+        val bulb = select(WidthTier.W1, HeightTier.H1, chartOnly) as MatrixBulbContent
+        val ring = bulb.component as ContainedRing
+        assertThat(ring.value).isEqualTo("72 bpm")
+        assertThat(ring.progress).isNull()
+        assertThat(ring.icon).isNull()
     }
 
     @Test
-    fun card_alwaysHasTheRingAndTheTitle() {
+    fun card_alwaysHasLeadingAndPrimaryFromTemplate() {
         for (width in WidthTier.entries) {
             for (height in listOf(HeightTier.H2, HeightTier.H3, HeightTier.H4)) {
                 val card = card(width, height)
-                assertThat((card.leading as Ring).progress).isEqualTo(TrackTestData.PROGRESS)
-                assertThat((card.primary as TemplateText).value).isEqualTo(TrackTestData.TITLE)
+                assertThat((card.leading as Ring).progress).isEqualTo(PROGRESS)
+                assertThat((card.primary as TemplateText).value).isEqualTo(PRIMARY)
             }
         }
     }
@@ -78,87 +85,75 @@ class TrackMatrixSelectorTest {
         assertThat(card(WidthTier.W2, HeightTier.H4).secondary).isNull()
         assertThat(card(WidthTier.W3, HeightTier.H2).secondary).isNotNull()
         assertThat(card(WidthTier.W4, HeightTier.H2).secondary).isNotNull()
-        assertThat(
-                card(
-                        WidthTier.W4,
-                        HeightTier.H2,
-                        TrackTemplate(title = TrackTestData.TITLE, subtitle = " "),
-                    )
-                    .secondary
-            )
+        assertThat(card(WidthTier.W4, HeightTier.H2, fullTemplate(secondaryText = null)).secondary)
             .isNull()
     }
 
     @Test
-    fun card_actionCountFollowsWidthFromH2() {
+    fun card_actionCountFollowsWidthFromH2AndPreservesComponentTypes() {
         assertThat(card(WidthTier.W4, HeightTier.H1).actions).isEmpty()
-        assertThat(card(WidthTier.W2, HeightTier.H2).actions).hasSize(1)
-        assertThat(card(WidthTier.W3, HeightTier.H2).actions).hasSize(2)
-        assertThat(card(WidthTier.W4, HeightTier.H2).actions).hasSize(3)
+        assertThat(card(WidthTier.W2, HeightTier.H2).actions)
+            .containsExactly(template.supporting[0])
+        assertThat(card(WidthTier.W3, HeightTier.H2).actions)
+            .containsExactly(template.supporting[0], template.supporting[1])
+            .inOrder()
+        val w4Actions = card(WidthTier.W4, HeightTier.H2).actions
+        assertThat(w4Actions)
+            .containsExactly(template.supporting[0], template.supporting[1], template.supporting[2])
+            .inOrder()
+        assertThat((w4Actions[0] as TemplateText).value).isEqualTo(FIRST_SUPPORTING)
+        assertThat((w4Actions[1] as TemplateText).value).isEqualTo(SECOND_SUPPORTING)
+        assertThat((w4Actions[2] as Badge).label).isEqualTo(BADGE_LABEL)
         assertThat(card(WidthTier.W1, HeightTier.H3).actions).isEmpty()
         assertThat(card(WidthTier.W1, HeightTier.H4).actions).hasSize(1)
     }
 
     @Test
-    fun card_heroGraphFromH3AndCaptionedAtH4() {
+    fun card_heroGraphStripsDescriptionAtH3AndKeepsDescriptionAtH4() {
         assertThat(card(WidthTier.W4, HeightTier.H2).hero).isNull()
         assertThat(card(WidthTier.W1, HeightTier.H4).hero).isNull()
-        assertThat(card(WidthTier.W4, HeightTier.H3).hero)
-            .isSameInstanceAs(TrackPlaceholderData.WeekGraph)
-        assertThat(card(WidthTier.W4, HeightTier.H4).hero)
-            .isSameInstanceAs(TrackPlaceholderData.CaptionedWeekGraph)
+
+        val compactHero = card(WidthTier.W4, HeightTier.H3).hero as Graph
+        assertThat(compactHero.hasDescription).isFalse()
+
+        val fullHero = card(WidthTier.W4, HeightTier.H4).hero as Graph
+        assertThat(fullHero.startLabel?.text).isEqualTo(START_LABEL)
+        assertThat(fullHero.endLabel?.text).isEqualTo(END_LABEL)
+        assertThat(fullHero.endLabel?.icon).isEqualTo(ICON_RES)
     }
 
     @Test
-    fun card_missingStatusTextLeavesItsPositionEmpty() {
-        val card = card(WidthTier.W4, HeightTier.H2, TrackTemplate(title = TrackTestData.TITLE))
-        val blankStatusCard =
-            card(
-                WidthTier.W4,
-                HeightTier.H2,
-                TrackTemplate(title = TrackTestData.TITLE, statusText = " "),
+    fun card_withoutHeroOrLeading_leavesOmittedSlotNull() {
+        val ringOnly = TrackTemplate(leading = Ring(0.4f), primary = TemplateText("4,000"))
+        val chartOnly =
+            TrackTemplate(
+                primary = TemplateText("72 bpm"),
+                hero = Graph(values = floatListOf(0.4f, 0.8f), goal = 1.0f),
             )
 
-        assertThat(card.actions).hasSize(3)
-        assertThat(card.actions[0]).isNull()
-        assertThat(blankStatusCard.actions[0]).isNull()
+        assertThat(card(WidthTier.W4, HeightTier.H4, ringOnly).hero).isNull()
+        assertThat(card(WidthTier.W4, HeightTier.H4, chartOnly).leading).isNull()
     }
 
     @Test
-    fun card_withoutProgress_hasNoRing() {
-        assertThat(card(WidthTier.W4, HeightTier.H2, TrackTemplate(title = "1")).leading).isNull()
-        assertThat(
-                card(WidthTier.W4, HeightTier.H2, TrackTemplate(title = "1", progress = Float.NaN))
-                    .leading
-            )
-            .isNull()
-    }
-
-    @Test
-    fun card_outOfRangeProgressIsClamped() {
-        val high = card(WidthTier.W4, HeightTier.H2, TrackTemplate(title = "1", progress = 2f))
-        val low = card(WidthTier.W4, HeightTier.H2, TrackTemplate(title = "1", progress = -1f))
-
-        assertThat((high.leading as Ring).progress).isEqualTo(1f)
-        assertThat((low.leading as Ring).progress).isEqualTo(0f)
-    }
-
-    @Test
-    fun hasDroppedSlots_whenOptionalSlotsAbsentOrBlank_isAlwaysFalse() {
-        val absent = TrackTemplate(title = "7,922", progress = 0.8f)
-        val blank = TrackTemplate(title = "7,922", subtitle = "  ", statusText = "")
+    fun hasDroppedSlots_whenOptionalSlotsAbsent_isAlwaysFalse() {
+        val absent = TrackTemplate(leading = Ring(0.8f), primary = TemplateText("7,922"))
 
         for (width in WidthTier.entries) {
             for (height in HeightTier.entries) {
                 assertThat(select(width, height, absent).hasDroppedSlots).isFalse()
-                assertThat(select(width, height, blank).hasDroppedSlots).isFalse()
             }
         }
     }
 
     @Test
-    fun hasDroppedSlots_whenSubtitlePresent_isTrueWhereSecondaryIsHidden() {
-        val template = TrackTemplate(title = "7,922", subtitle = "steps")
+    fun hasDroppedSlots_whenSecondaryPresent_isTrueWhereSecondaryIsHidden() {
+        val template =
+            TrackTemplate(
+                leading = Ring(0.8f),
+                primary = TemplateText("7,922"),
+                secondary = TemplateText("steps"),
+            )
 
         for (width in WidthTier.entries) {
             for (height in HeightTier.entries) {
@@ -176,8 +171,13 @@ class TrackMatrixSelectorTest {
     }
 
     @Test
-    fun hasDroppedSlots_whenStatusTextPresent_isTrueWhereSupportingIsHidden() {
-        val template = TrackTemplate(title = "7,922", statusText = "340 kcal")
+    fun hasDroppedSlots_whenSupportingPresent_isTrueWhereSupportingIsHidden() {
+        val template =
+            TrackTemplate(
+                leading = Ring(0.8f),
+                primary = TemplateText("7,922"),
+                supporting = listOf(TemplateText("340 kcal")),
+            )
 
         for (width in WidthTier.entries) {
             for (height in HeightTier.entries) {
@@ -195,13 +195,30 @@ class TrackMatrixSelectorTest {
     }
 
     @Test
+    fun hasDroppedSlots_whenHeroPresent_isTrueWhereHeroIsHidden() {
+        val template =
+            TrackTemplate(
+                primary = TemplateText("7,922"),
+                hero = Graph(values = floatListOf(0.5f, 1.0f), goal = 1.0f),
+            )
+
+        for (width in WidthTier.entries) {
+            for (height in HeightTier.entries) {
+                val expectedDropped = width == WidthTier.W1 || height < HeightTier.H3
+                assertThat(select(width, height, template).hasDroppedSlots)
+                    .isEqualTo(expectedDropped)
+            }
+        }
+    }
+
+    @Test
     fun hasDroppedSlots_whenBothOptionalSlotsPresent_isFalseOnlyWhereBothFit() {
         val template =
             TrackTemplate(
-                title = "7,922",
-                subtitle = "steps",
-                progress = 0.8f,
-                statusText = "Goal: 10,000",
+                leading = Ring(0.8f),
+                primary = TemplateText("7,922"),
+                secondary = TemplateText("steps"),
+                supporting = listOf(TemplateText("Goal: 10,000")),
             )
 
         for (width in WidthTier.entries) {
@@ -229,4 +246,38 @@ class TrackMatrixSelectorTest {
             template,
             AppWidgetSurface.MOBILE_HOME_SCREEN.withDimensions(nominalDimensions(width, height)),
         )
+
+    private fun fullTemplate(secondaryText: String? = SECONDARY): TrackTemplate =
+        TrackTemplate(
+            leading = Ring(progress = PROGRESS, icon = ICON_RES),
+            primary = TemplateText(value = PRIMARY, sensitiveReplacement = SENSITIVE_PRIMARY),
+            secondary = secondaryText?.let(::TemplateText),
+            hero =
+                Graph(
+                    values = floatListOf(0.65f, 1.0f, 0.80f),
+                    labels = listOf("M", "T", "W"),
+                    goal = 1.0f,
+                    startLabel = ChartLabel(START_LABEL),
+                    endLabel = ChartLabel(END_LABEL, icon = ICON_RES),
+                ),
+            supporting =
+                listOf(
+                    TemplateText(FIRST_SUPPORTING),
+                    TemplateText(SECOND_SUPPORTING),
+                    Badge(BADGE_LABEL, outlineColor = 0),
+                ),
+        )
+
+    private companion object {
+        const val PRIMARY = "11,056"
+        const val SENSITIVE_PRIMARY = "--"
+        const val SECONDARY = "Steps"
+        const val PROGRESS = 0.55f
+        const val FIRST_SUPPORTING = "1,982 Cal"
+        const val SECOND_SUPPORTING = "3,118 to go"
+        const val BADGE_LABEL = "Z2"
+        const val START_LABEL = "7 Day Avg"
+        const val END_LABEL = "13,843"
+        const val ICON_RES = 101
+    }
 }

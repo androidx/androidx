@@ -27,6 +27,7 @@ import androidx.glance.adaptive.core.selection.HeightTier
 import androidx.glance.adaptive.core.selection.SizeTiers
 import androidx.glance.adaptive.core.selection.WidthTier
 import androidx.glance.adaptive.core.slots.ContainedRing
+import androidx.glance.adaptive.core.slots.Graph
 import androidx.glance.adaptive.core.slots.Ring
 import androidx.glance.adaptive.core.slots.TemplateText
 import androidx.glance.adaptive.core.templates.TrackTemplate
@@ -49,21 +50,27 @@ import androidx.glance.adaptive.core.templates.TrackTemplate
 public object TrackMatrixSelector :
     ArchetypeSelector<TrackTemplate, AppWidgetSurface, MatrixContent> {
 
-    override fun select(
-        template: TrackTemplate,
-        surface: AppWidgetSurface,
-    ): MatrixContent {
+    override fun select(template: TrackTemplate, surface: AppWidgetSurface): MatrixContent {
         val tiers = SizeTiers.from(surface.dimensions, surface)
         val isNarrow = tiers.width == WidthTier.W1
-        val title = template.title.takeIf { it.isNotBlank() }
-        val subtitle = template.subtitle.toTextOrNull()
-        val statusText = template.statusText.toTextOrNull()
-        val progress = template.progress.validProgress()
-        // The bulb is the headline inside the ring, so without a headline the card stays.
-        if (isNarrow && tiers.height <= HeightTier.H1 && title != null) {
+        val ring = template.leading as? Ring
+        val primaryText = template.primary as? TemplateText
+
+        // The bulb draws the headline inside the ring on narrow, short placements.
+        // TODO(b/584617288): Double-check bulb vs. card fallback when ring == null.
+        if (isNarrow && tiers.height <= HeightTier.H1 && primaryText != null) {
             return MatrixBulbContent(
-                component = ContainedRing(progress, title, TrackPlaceholderData.Glyph),
-                hasDroppedSlots = subtitle != null || statusText != null,
+                component =
+                    ContainedRing(
+                        progress = ring?.progress,
+                        value = primaryText.value,
+                        icon = ring?.icon,
+                        sensitiveReplacement = primaryText.sensitiveReplacement,
+                    ),
+                hasDroppedSlots =
+                    template.secondary != null ||
+                        template.hero != null ||
+                        template.supporting.isNotEmpty(),
             )
         }
 
@@ -82,36 +89,20 @@ public object TrackMatrixSelector :
         val hero =
             when {
                 isNarrow || tiers.height < HeightTier.H3 -> null
-                tiers.height == HeightTier.H4 -> TrackPlaceholderData.CaptionedWeekGraph
-                else -> TrackPlaceholderData.WeekGraph
+                tiers.height == HeightTier.H4 -> template.hero
+                else -> (template.hero as? Graph)?.withoutDescription() ?: template.hero
             }
 
         return MatrixCardContent(
-            // The ring tracks the template's progress, so without progress the slot stays empty.
-            leading = progress?.let { Ring(it, TrackPlaceholderData.Glyph) },
-            primary = title?.let { TemplateText(it) },
-            secondary = subtitle?.takeIf { showSecondary },
+            leading = template.leading,
+            primary = template.primary,
+            secondary = template.secondary?.takeIf { showSecondary },
             hero = hero,
-            // A missing status text leaves its position empty rather than shifting the others.
-            actions =
-                listOf(
-                        statusText,
-                        TrackPlaceholderData.SecondaryStatus,
-                        TrackPlaceholderData.StatusBadge,
-                    )
-                    .subList(0, actionCount),
+            actions = template.supporting.subList(0, minOf(actionCount, template.supporting.size)),
             hasDroppedSlots =
-                (subtitle != null && !showSecondary) || (statusText != null && actionCount == 0),
+                (template.secondary != null && !showSecondary) ||
+                    (template.hero != null && hero == null) ||
+                    template.supporting.size > actionCount,
         )
     }
 }
-
-/** This text as a component, or `null` when there is none to show. */
-private fun String?.toTextOrNull(): TemplateText? =
-    this?.takeIf { it.isNotBlank() }?.let(::TemplateText)
-
-/**
- * This progress clamped to `[0.0, 1.0]`, or `null` when absent or not a number. [TrackTemplate]
- * does not check it, while the ring components do.
- */
-private fun Float?.validProgress(): Float? = this?.takeUnless { it.isNaN() }?.coerceIn(0f, 1f)

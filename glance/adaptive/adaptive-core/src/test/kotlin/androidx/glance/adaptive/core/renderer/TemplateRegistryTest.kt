@@ -19,6 +19,8 @@ package androidx.glance.adaptive.core.renderer
 import androidx.glance.adaptive.core.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.selection.Dimensions
 import androidx.glance.adaptive.core.selection.GlanceSurface
+import androidx.glance.adaptive.core.slots.Ring
+import androidx.glance.adaptive.core.slots.TemplateText
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 import androidx.glance.adaptive.core.templates.TrackTemplate
 import com.google.common.truth.Truth.assertThat
@@ -43,7 +45,7 @@ class TemplateRegistryTest {
                 surface: TestSurface
             ): TemplateRenderer<TrackTemplate, TestSurface, String> =
                 TemplateRenderer { template, _ ->
-                    "builtIn(${surface.tag}):${template.title}"
+                    "builtIn(${surface.tag}):${(template.primary as TemplateText).value}"
                 }
         }
 
@@ -130,7 +132,9 @@ class TemplateRegistryTest {
         registry.registerOverride(
             "custom",
             TrackTemplate::class.java,
-            TemplateRenderer { template, _ -> "override:${template.title}" },
+            TemplateRenderer { template, _ ->
+                "override:${(template.primary as TemplateText).value}"
+            },
         )
 
         registry.resetForTesting()
@@ -138,7 +142,8 @@ class TemplateRegistryTest {
         assertThrows(IllegalStateException::class.java) {
             registry.render(TestTemplate("Run"), home)
         }
-        assertThat(registry.render(TrackTemplate("Steps"), home, widgetName = "custom"))
+        val stepsTemplate = TrackTemplate(leading = Ring(0.5f), primary = TemplateText("Steps"))
+        assertThat(registry.render(stepsTemplate, home, widgetName = "custom"))
             .isEqualTo("builtIn(home):Steps")
     }
 

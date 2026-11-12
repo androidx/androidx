@@ -15,10 +15,8 @@
   limitations under the License.
 -->
 <!--
-  Placeholder glyph for the Track progress ring, from the xFF Widget design.
-
-  TrackTemplate carries no icon, so the renderer draws this fixed one — the same reason the chart
-  series and the badge are hardcoded. It is tinted at the call site, so the fill here is white.
+  Steps glyph for the Track progress ring in screenshot tests, matching the xFF Widget design
+  goldens. It is tinted at the call site, so the fill here is white.
 
   Declared at 32dp rather than the design's 26dp: RemoteViews cannot size an ImageView before API
   31, so the renderer caps it with setMaxWidth / setMaxHeight instead, which only shrinks. The
