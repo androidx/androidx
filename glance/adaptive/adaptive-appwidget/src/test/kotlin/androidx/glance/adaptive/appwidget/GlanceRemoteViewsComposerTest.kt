@@ -22,13 +22,17 @@ import android.content.ComponentName
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.os.Parcel
 import android.util.SizeF
 import android.widget.RemoteViews
-import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
-import androidx.compose.remote.creation.compose.capture.heightDp
-import androidx.compose.remote.creation.compose.capture.widthDp
+import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
+import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
+import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createProfile
 import androidx.compose.remote.creation.compose.layout.RemoteBox
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
 import androidx.glance.adaptive.appwidget.renderer.GlanceAppWidgetProfiles
 import androidx.glance.adaptive.appwidget.renderer.RemoteViewsRenderOutput
@@ -43,7 +47,6 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.doThrow
@@ -597,14 +600,11 @@ class GlanceRemoteViewsComposerTest {
         assertThat(result).isSameInstanceAs(expectedRemoteViews)
     }
 
-    @Ignore("b/580960449")
     @Test
     @Config(sdk = [37], qualifiers = "xhdpi")
     fun compose_remoteComposeRenderer_capturesDocumentIntoRemoteViewsWithPxSize() = runTest {
         var remoteComposableInvoked = false
         var observedSurface: AppWidgetSurface? = null
-        var capturedDisplaySize: Size? = null
-        var capturedProfile: Profile? = null
 
         AppWidgetTemplateRegistry.registerDefault(
             TestTemplate::class.java,
@@ -612,14 +612,6 @@ class GlanceRemoteViewsComposerTest {
                 observedSurface = surface
                 {
                     remoteComposableInvoked = true
-                    val state = LocalRemoteComposeCreationState.current
-                    val density = context.resources.displayMetrics.density
-                    capturedDisplaySize =
-                        Size(
-                            state.creationDisplayInfo.widthDp.value * density,
-                            state.creationDisplayInfo.heightDp.value * density,
-                        )
-                    capturedProfile = state.profile
                     RemoteBox {}
                 }
             },
@@ -630,48 +622,52 @@ class GlanceRemoteViewsComposerTest {
 
         val density = context.resources.displayMetrics.density
         assertThat(density).isEqualTo(2f)
-        assertThat(result).isNotNull()
         assertThat(remoteComposableInvoked).isTrue()
         assertThat(observedSurface).isEqualTo(target.surface)
         assertThat(observedSurface?.dimensions).isEqualTo(Dimensions(348, 88))
-        assertThat(capturedDisplaySize).isEqualTo(Size(348 * density, 88 * density))
-        assertThat(capturedProfile).isSameInstanceAs(GlanceAppWidgetProfiles.widgetsV7)
-        assertThat(capturedProfile?.apiLevel)
-            .isEqualTo(GlanceAppWidgetProfiles.WIDGETS_V7_DOC_API_LEVEL)
-        assertThat(capturedProfile?.operationsProfiles)
-            .isEqualTo(GlanceAppWidgetProfiles.PROFILE_WIDGETS)
+
+        val actualParcelBytes = result.marshallParcel()
+        val expectedSize = Size(348 * density, 88 * density)
+        assertThat(actualParcelBytes)
+            .isEqualTo(
+                captureExpectedParcelBytes(
+                    size = expectedSize,
+                    profile =
+                        createProfile(
+                            docApiLevel = GlanceAppWidgetProfiles.WIDGETS_V7_DOC_API_LEVEL,
+                            profileFlags = GlanceAppWidgetProfiles.PROFILE_WIDGETS,
+                        ),
+                )
+            )
+        assertThat(actualParcelBytes)
+            .isNotEqualTo(captureExpectedParcelBytes(size = Size(348f, 88f)))
+        assertThat(actualParcelBytes)
+            .isNotEqualTo(
+                captureExpectedParcelBytes(size = expectedSize, profile = createProfile())
+            )
     }
 
-    @Ignore("b/580960449")
     @Test
     @Config(sdk = [37], qualifiers = "xhdpi")
     fun compose_remoteComposeRenderer_unspecifiedDimensions_fallsBackToDisplaySize() = runTest {
-        var capturedDisplaySize: Size? = null
-
         AppWidgetTemplateRegistry.registerDefault(
             TestTemplate::class.java,
-            remoteComposeRenderer { _, _ ->
-                {
-                    val displayInfo = LocalRemoteComposeCreationState.current.creationDisplayInfo
-                    val density = context.resources.displayMetrics.density
-                    capturedDisplaySize =
-                        Size(
-                            displayInfo.widthDp.value * density,
-                            displayInfo.heightDp.value * density,
-                        )
-                    RemoteBox {}
-                }
-            },
+            remoteComposeRenderer { _, _ -> { RemoteBox {} } },
         )
         val target = RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, UNSPECIFIED)
 
         val result = composer.compose(TestTemplate(), target)
 
         val displayMetrics = context.resources.displayMetrics
-        assertThat(result).isNotNull()
-        assertThat(capturedDisplaySize)
+        assertThat(result.marshallParcel())
             .isEqualTo(
-                Size(displayMetrics.widthPixels.toFloat(), displayMetrics.heightPixels.toFloat())
+                captureExpectedParcelBytes(
+                    size =
+                        Size(
+                            displayMetrics.widthPixels.toFloat(),
+                            displayMetrics.heightPixels.toFloat(),
+                        )
+                )
             )
     }
 
@@ -747,6 +743,37 @@ class GlanceRemoteViewsComposerTest {
 
     /** Converts [dp] into the pixel value an [AppWidgetProviderInfo] would report here. */
     private fun Context.dpToPx(dp: Int): Int = (dp * resources.displayMetrics.density).roundToInt()
+
+    @OptIn(ExperimentalRemoteCreationComposeApi::class)
+    private suspend fun captureExpectedParcelBytes(
+        size: Size,
+        profile: Profile = GlanceAppWidgetProfiles.widgetsV7,
+        content: @RemoteComposable @Composable () -> Unit = { RemoteBox {} },
+    ): ByteArray {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.CINNAMON_BUN) {
+            error("Requires API 37")
+        }
+        val bytes =
+            captureSingleRemoteDocument(
+                    context = context,
+                    creationDisplayInfo = createCreationDisplayInfo(context = context, size = size),
+                    profile = profile,
+                    content = content,
+                )
+                .bytes
+        return RemoteViews(RemoteViews.DrawInstructions.Builder(listOf(bytes)).build())
+            .marshallParcel()
+    }
+
+    private fun RemoteViews.marshallParcel(): ByteArray {
+        val parcel = Parcel.obtain()
+        try {
+            writeToParcel(parcel, 0)
+            return parcel.marshall()
+        } finally {
+            parcel.recycle()
+        }
+    }
 
     private companion object {
         val UNSPECIFIED = Dimensions(0, 0)
