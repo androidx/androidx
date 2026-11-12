@@ -17,6 +17,7 @@
 package androidx.compose.ui.inspection.recompositions
 
 import androidx.annotation.GuardedBy
+import androidx.annotation.MainThread
 import androidx.compose.runtime.Composer
 import androidx.compose.runtime.CompositionTracer
 import androidx.compose.runtime.ExperimentalComposeRuntimeApi
@@ -37,10 +38,12 @@ import androidx.compose.ui.inspection.util.AnchorMap
 import androidx.compose.ui.tooling.data.UiToolingDataApi
 import androidx.compose.ui.tooling.data.findParameters
 import androidx.inspection.ArtTooling
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.StateReadSettings
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.StateReadSettings.MethodCase
@@ -78,10 +81,14 @@ internal class StateReadHandler(
         anchorMap,
         { RecompositionDataWithStateReads() },
     ) {
-    private val scope = CoroutineScope(Dispatchers.Main)
+    private val exceptionHandler = CoroutineExceptionHandler { _, _ ->
+        // Never let the inspector crash the app.
+        // TODO(b/562965619): Report the exception to the client.
+    }
+    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob() + exceptionHandler)
 
-    // Job used for observing state reads.
-    @GuardedBy("lock") private var observerJob: Job? = null
+    // Job used for observing state reads. Accessed only on the main thread ([scope]).
+    private var observerJob: Job? = null
 
     // True while state reads are being observed. Updated under [lock].
     // A composition pass that started before observation stopped keeps calling the observer, so the
@@ -103,13 +110,16 @@ internal class StateReadHandler(
 
     @GuardedBy("lock") private val cache = StateReadCache(counts)
 
-    // The recomposers being observed (for state reads)
-    @GuardedBy("lock")
+    // The recomposers being observed (for state reads). Accessed only on the main thread ([scope]).
     private val recomposers = hashMapOf<RecomposerInfo, CompositionObserverHandle>()
 
-    // The compositions being observed (for state reads)
-    @GuardedBy("lock")
+    // The compositions being observed (for state reads). Accessed only on the main thread
+    // ([scope]).
     private val compositions = hashMapOf<ObservableComposition, CompositionObserverHandle>()
+
+    // True on the main thread while RecomposerInfo.observe reports the existing compositions to
+    // [observer], holding the Recomposer lock.
+    private val reportingExistingCompositions = ThreadLocal<Boolean>()
 
     // The anchor of the scope last entered by the observer on the current thread.
     // A scope is entered in startRestartGroup right before the hook calls
@@ -121,15 +131,60 @@ internal class StateReadHandler(
     // The composition passes are only needed for parameter changes, and are skipped otherwise.
     @Volatile private var trackingParameterChanges = false
 
-    // An observer to keep track of compositions
+    /**
+     * An observer to keep track of compositions.
+     *
+     * Threading: the Compose runtime calls these callbacks while holding its own locks (the
+     * composition lock or the Recomposer state lock), and the same runtime locks are acquired by
+     * [ObservableComposition.setObserver], [RecomposerInfo.observe] and
+     * [CompositionObserverHandle.dispose]. To avoid lock order inversions (deadlocks), all observer
+     * handles are managed sequentially on [scope] ([Dispatchers.Main]) without holding [lock] or
+     * the Recomposer state lock.
+     */
     private val observer =
         object : CompositionRegistrationObserver, CompositionObserver, CompositionTracer {
             override fun onCompositionRegistered(composition: ObservableComposition) {
-                synchronized(lock) { compositions[composition] = composition.setObserver(this) }
+                if (!observingStateReads) {
+                    return
+                }
+                if (reportingExistingCompositions.get() == true) {
+                    // An existing composition reported by RecomposerInfo.observe in
+                    // observeRecomposer, while the Recomposer lock is held.
+                    // Calling setObserver here could deadlock: it needs the composition lock,
+                    // which may be held by another thread that is composing the composition and
+                    // waiting for the Recomposer lock (e.g. to compose a sub-composition).
+                    // Instead, set the observer on the main thread after the Recomposer lock is
+                    // released. This is safe: setObserver waits for a composition in progress to
+                    // complete, so a composition pass is never partially observed.
+                    val compositionObserver = this
+                    scope.launch {
+                        if (observerJob != null && composition !in compositions) {
+                            try {
+                                compositions[composition] =
+                                    composition.setObserver(compositionObserver)
+                            } catch (_: Exception) {
+                                // TODO(b/562965619): Report the exception to the client.
+                            }
+                        }
+                    }
+                    return
+                }
+                // A new composition is registered right before its initial composition, while the
+                // Recomposer lock is held. Nobody holds the lock of a composition that has not
+                // been composed yet, so the observer can be set right away, which makes sure the
+                // initial composition is observed. The handle is stored on the main thread.
+                val handle = composition.setObserver(this)
+                scope.launch {
+                    if (observerJob != null) {
+                        compositions[composition] = handle
+                    } else {
+                        handle.dispose()
+                    }
+                }
             }
 
             override fun onCompositionUnregistered(composition: ObservableComposition) {
-                synchronized(lock) { compositions.remove(composition)?.dispose() }
+                scope.launch { compositions.remove(composition)?.dispose() }
             }
 
             override fun onBeginComposition(composition: ObservableComposition) {
@@ -234,18 +289,31 @@ internal class StateReadHandler(
     ) {
         synchronized(lock) {
             if (!keepRecomposeCounts) {
-                // The recomposition numbers are reset, so the recorded state reads and parameter
-                // changes no longer match the recomposition numbers.
+                // The recomposition numbers are reset, so the recorded state reads and
+                // parameter changes no longer match the recomposition numbers.
                 cache.clear()
             }
             super.changeCollectionMode(includeRecomposeCounts, keepRecomposeCounts)
+            var anchorsToObserve = emptySet<Any>()
             val newObservingStateReads =
                 includeRecomposeCounts &&
                     when (settings.methodCase) {
-                        MethodCase.BY_ID -> settings.byId.composableToObserveList.isNotEmpty()
+                        MethodCase.BY_ID -> {
+                            anchorsToObserve =
+                                settings.byId.composableToObserveList.mapNotNullTo(HashSet()) {
+                                    anchorMap[it]
+                                }
+                            anchorsToObserve.isNotEmpty()
+                        }
                         MethodCase.ALL -> true
                         else -> false
                     }
+            if (anchorsToObserve != anchorsObserved) {
+                anchorsObserved = anchorsToObserve
+                if (anchorsToObserve.isNotEmpty()) {
+                    cache.removeAllExcept(anchorsToObserve)
+                }
+            }
             val includeParameterChanges =
                 newObservingStateReads &&
                     when (settings.methodCase) {
@@ -253,7 +321,7 @@ internal class StateReadHandler(
                         MethodCase.ALL -> settings.all.includeParameterChanges
                         else -> false
                     }
-            if (newObservingStateReads != (observerJob != null)) {
+            if (newObservingStateReads != observingStateReads) {
                 if (newObservingStateReads) {
                     startObservingStateReads(includeParameterChanges)
                 } else {
@@ -262,18 +330,6 @@ internal class StateReadHandler(
             } else if (newObservingStateReads) {
                 // Parameter changes may be turned on or off while observing state reads.
                 trackParameterChanges(includeParameterChanges)
-            }
-            if (!newObservingStateReads || settings.methodCase == MethodCase.ALL) {
-                anchorsObserved = emptySet()
-            } else {
-                val anchorsToObserve =
-                    settings.byId.composableToObserveList.mapNotNullTo(HashSet()) {
-                        anchorMap[it]
-                    }
-                if (anchorsToObserve != anchorsObserved) {
-                    anchorsObserved = anchorsToObserve
-                    cache.removeAllExcept(anchorsToObserve)
-                }
             }
             cache.maxStateReads =
                 when (settings.methodCase) {
@@ -314,8 +370,9 @@ internal class StateReadHandler(
 
     override fun dispose() {
         super.dispose()
-        stopObservingStateReads()
-        scope.cancel()
+        // Note: Do not cancel the scope. A composition registered concurrently may still post its
+        // observer handle, which must be disposed on the main thread.
+        synchronized(lock) { stopObservingStateReads() }
     }
 
     /**
@@ -421,34 +478,38 @@ internal class StateReadHandler(
         return result
     }
 
+    @GuardedBy("lock")
     private fun startObservingStateReads(includeParameterChanges: Boolean) {
-        synchronized(lock) {
-            trackParameterChanges(includeParameterChanges)
-            observingStateReads = true
-
-            if (observerJob != null) {
-                // We are already observing state reads
-                return
+        trackParameterChanges(includeParameterChanges)
+        observingStateReads = true
+        scope.launch {
+            if (!observingStateReads || observerJob != null) {
+                return@launch
             }
-        }
-        observerJob = scope.launch {
+            observerJob = coroutineContext.job
             Recomposer.runningRecomposers.collect { running ->
                 running.forEach { info ->
-                    val alreadyRegistered = synchronized(lock) { info in recomposers.keys }
-                    if (!alreadyRegistered) {
-                        info.observe(observer)?.let { handle ->
-                            synchronized(lock) { recomposers[info] = handle }
-                        }
+                    if (info !in recomposers) {
+                        observeRecomposer(info)
                     }
                 }
-                val toRemove = synchronized(lock) { recomposers.keys.filter { it !in running } }
-                toRemove.forEach { info ->
-                    synchronized(lock) {
-                        recomposers[info]?.dispose()
-                        recomposers.remove(info)
-                    }
-                }
+                val removed = recomposers.keys.filter { it !in running }
+                removed.forEach { recomposers.remove(it)?.dispose() }
             }
+        }
+    }
+
+    @MainThread
+    private fun observeRecomposer(info: RecomposerInfo) {
+        // RecomposerInfo.observe reports the existing compositions to [observer] while holding the
+        // Recomposer lock. [observer] sets their observers after the lock is released.
+        reportingExistingCompositions.set(true)
+        try {
+            info.observe(observer)?.let { recomposers[info] = it }
+        } catch (_: Exception) {
+            // TODO(b/562965619): Report the exception to the client.
+        } finally {
+            reportingExistingCompositions.remove()
         }
     }
 
@@ -462,20 +523,22 @@ internal class StateReadHandler(
         trackingParameterChanges = includeParameterChanges
     }
 
+    @GuardedBy("lock")
     private fun stopObservingStateReads() {
-        synchronized(lock) {
-            observingStateReads = false
-            trackParameterChanges(false)
-            // Just return if we are not currently observing state reads
-            val job = observerJob ?: return
-            job.cancel()
-            observerJob = null
-            compositions.values.forEach { it.dispose() }
-            compositions.clear()
-            recomposers.values.forEach { it.dispose() }
-            recomposers.clear()
-            cache.clear()
-        }
+        observingStateReads = false
+        trackParameterChanges(false)
+        cache.clear()
+        scope.launch { stopObservingOnMainThread() }
+    }
+
+    @MainThread
+    private fun stopObservingOnMainThread() {
+        observerJob?.cancel()
+        observerJob = null
+        recomposers.values.forEach { it.dispose() }
+        recomposers.clear()
+        compositions.values.forEach { it.dispose() }
+        compositions.clear()
     }
 
     /**
