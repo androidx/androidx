@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Rule
@@ -420,16 +421,22 @@ class ButtonGroupTest {
 
         // Pressing two adjacent items (0 and 1) before releasing either keeps all widths >= 0 and
         // preserves the total width (160.dp): item 0 first grows to 80.dp (shrinking item 1 to
-        // 0.dp), then item 1 runs later in the loop and grows by 100.dp, taking 50.dp back from
-        // pressed item 0 (80.dp -> 30.dp, below its 40.dp rest width, which is expected for this
-        // extreme expansionWidth) and 50.dp from item 2 (80.dp -> 30.dp).
+        // 0.dp), then item 1 runs later in the loop and grows by ~100.dp, taking ~50.dp back from
+        // pressed item 0 (80.dp -> ~30.dp, below its 40.dp rest width, which is expected for this
+        // extreme expansionWidth) and ~50.dp from item 2 (80.dp -> ~30.dp).
         val simultaneousPress0 = PressInteraction.Press(Offset.Zero)
         val simultaneousPress1 = PressInteraction.Press(Offset.Zero)
         interactionSources[0].tryEmit(simultaneousPress0)
         interactionSources[1].tryEmit(simultaneousPress1)
-        rule.onNodeWithTag("${TEST_TAG}0").assertWidthIsEqualTo(30.dp)
-        rule.onNodeWithTag("${TEST_TAG}1").assertWidthIsEqualTo(100.dp)
-        rule.onNodeWithTag("${TEST_TAG}2").assertWidthIsEqualTo(30.dp)
+        // Middle item 1 rounds its half-expansion to integer pixels on each side to preserve parity
+        // (e.g. at 1.75x density, 50.dp = 87.5px rounds to 88px per side).
+        val halfExpansionPx = with(rule.density) { (100.dp.toPx() / 2).roundToInt() }
+        val expectedItem1Width = with(rule.density) { (halfExpansionPx * 2).toDp() }
+        val expectedNeighborWidth =
+            with(rule.density) { (80.dp.roundToPx() - halfExpansionPx).toDp() }
+        rule.onNodeWithTag("${TEST_TAG}0").assertWidthIsEqualTo(expectedNeighborWidth)
+        rule.onNodeWithTag("${TEST_TAG}1").assertWidthIsEqualTo(expectedItem1Width)
+        rule.onNodeWithTag("${TEST_TAG}2").assertWidthIsEqualTo(expectedNeighborWidth)
 
         interactionSources[0].tryEmit(PressInteraction.Release(simultaneousPress0))
         interactionSources[1].tryEmit(PressInteraction.Release(simultaneousPress1))
