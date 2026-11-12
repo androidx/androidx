@@ -63,6 +63,7 @@ import androidx.camera.video.OutputOptions;
 import androidx.camera.video.PendingRecording;
 import androidx.camera.video.Recorder;
 import androidx.camera.video.Recording;
+import androidx.camera.video.RecordingStats;
 import androidx.camera.video.VideoCapture;
 import androidx.camera.video.VideoRecordEvent;
 import androidx.core.app.NotificationCompat;
@@ -90,6 +91,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -100,6 +102,7 @@ public class CameraXService extends LifecycleService {
     private static final int NOTIFICATION_ID = 1;
     private static final String CHANNEL_ID_SERVICE_INFO = "channel_service_info";
     private static final int FRAME_COUNT_TO_UPDATE_ANALYSIS_INFO = 60;
+    private static final long RECORD_VIDEO_MIN_DURATION_NANOS = TimeUnit.SECONDS.toNanos(1);
 
     // Actions
     public static final String ACTION_BIND_USE_CASES =
@@ -137,7 +140,8 @@ public class CameraXService extends LifecycleService {
     private @Nullable Consumer<Collection<UseCase>> mOnUseCaseBoundCallback;
     private @Nullable CountDownLatch mAnalysisFrameLatch;
     private @Nullable CountDownLatch mTakePictureLatch;
-    private @Nullable CountDownLatch mRecordVideoLatch;
+    private volatile @Nullable CountDownLatch mRecordVideoLatch;
+    private volatile @Nullable CountDownLatch mRecordVideoStatusLatch;
     private volatile int mRecordVideoError = ERROR_NONE;
     //--------------------------------------------------------------------------------------------//
 
@@ -463,7 +467,16 @@ public class CameraXService extends LifecycleService {
     };
 
     private final Consumer<VideoRecordEvent> mRecordingListener = event -> {
-        if (event instanceof VideoRecordEvent.Finalize) {
+        if (event instanceof VideoRecordEvent.Status) {
+            RecordingStats stats = event.getRecordingStats();
+            if (stats.getNumBytesRecorded() > 0
+                    && stats.getRecordedDurationNanos() >= RECORD_VIDEO_MIN_DURATION_NANOS) {
+                CountDownLatch statusLatch = mRecordVideoStatusLatch;
+                if (statusLatch != null) {
+                    statusLatch.countDown();
+                }
+            }
+        } else if (event instanceof VideoRecordEvent.Finalize) {
             VideoRecordEvent.Finalize finalize = (VideoRecordEvent.Finalize) event;
 
             switch (finalize.getError()) {
@@ -509,11 +522,16 @@ public class CameraXService extends LifecycleService {
                     Log.e(TAG, errMsg, finalize.getCause());
                     Toast.makeText(CameraXService.this, errMsg, Toast.LENGTH_LONG).show();
             }
-            // Always release the latch so tests fail fast with the actual error instead of
+            // Always release the latches so tests fail fast with the actual error instead of
             // timing out.
             mRecordVideoError = finalize.getError();
-            if (mRecordVideoLatch != null) {
-                mRecordVideoLatch.countDown();
+            CountDownLatch statusLatch = mRecordVideoStatusLatch;
+            if (statusLatch != null) {
+                statusLatch.countDown();
+            }
+            CountDownLatch recordLatch = mRecordVideoLatch;
+            if (recordLatch != null) {
+                recordLatch.countDown();
             }
             mActiveRecording = null;
             updateNotification();
@@ -558,8 +576,16 @@ public class CameraXService extends LifecycleService {
     @VisibleForTesting
     @NonNull CountDownLatch acquireRecordVideoCountDownLatch() {
         mRecordVideoError = ERROR_NONE;
-        mRecordVideoLatch = new CountDownLatch(1);
-        return mRecordVideoLatch;
+        CountDownLatch latch = new CountDownLatch(1);
+        mRecordVideoLatch = latch;
+        return latch;
+    }
+
+    @VisibleForTesting
+    @NonNull CountDownLatch acquireRecordVideoStatusCountDownLatch() {
+        CountDownLatch latch = new CountDownLatch(1);
+        mRecordVideoStatusLatch = latch;
+        return latch;
     }
 
     /**
