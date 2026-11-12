@@ -29,7 +29,20 @@ private const val TransparentArgb = 0x00000000
 private const val BlackArgb = 0xFF000000.toInt()
 private const val RgbMask: Int = 0x00FFFFFF
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Canvas color supporting constant values, named variables, and dynamic expressions.
+ *
+ * Operations on [RemoteColor] are evaluated dynamically on the remote player at runtime unless all
+ * inputs are known constants, in which case constant folding evaluates the result immediately at
+ * creation time (see [RemoteState]).
+ *
+ * Constant color values are backed by a 32-bit packed ARGB integer ([ColorInt]) in sRGB color
+ * space:
+ * - Bits 24-31: Alpha component (0-255).
+ * - Bits 16-23: Red component (0-255).
+ * - Bits 8-15: Green component (0-255).
+ * - Bits 0-7: Blue component (0-255).
+ */
 @Stable
 public open class RemoteColor
 internal constructor(
@@ -37,6 +50,7 @@ internal constructor(
     // Compose UI Color or Android ColorLong), but handling color spaces would be difficult
     // outside of Android in platform-agnostic JVM targets, so 32-bit packed ARGB Int was chosen
     // instead.
+    /** Constant 32-bit ARGB [ColorInt] value of this color, or `null` if dynamic. */
     @get:ColorInt @get:Suppress("AutoBoxing") public override val constantValueOrNull: Int?,
     cacheKey: RemoteStateCacheKey,
     red: RemoteFloat?,
@@ -46,6 +60,11 @@ internal constructor(
     private val idProvider: (creationState: RemoteComposeCreationState) -> Int,
 ) : BaseRemoteState<Int>(cacheKey) {
 
+    /**
+     * Constant 32-bit ARGB [ColorInt] value of this color.
+     *
+     * @throws IllegalStateException if this color is dynamic.
+     */
     @get:ColorInt
     @get:Suppress("AutoBoxing")
     public override val constantValue: Int
@@ -174,6 +193,17 @@ internal constructor(
         }
     }
 
+    /**
+     * Creates a copy of this [RemoteColor] with the ability to override individual ARGB components.
+     * If a component is not specified, it defaults to the corresponding component of the original
+     * [RemoteColor].
+     *
+     * @param alpha Optional [RemoteFloat] to override the alpha component.
+     * @param red Optional [RemoteFloat] to override the red component.
+     * @param green Optional [RemoteFloat] to override the green component.
+     * @param blue Optional [RemoteFloat] to override the blue component.
+     * @return A new [RemoteColor] with the specified components overridden.
+     */
     public fun copy(
         alpha: RemoteFloat? = null,
         red: RemoteFloat? = null,
@@ -223,56 +253,93 @@ internal constructor(
         }
     }
 
+    /**
+     * Returns a [RemoteFloat] that evaluates to the alpha of this [RemoteColor] in the range
+     * [0..1].
+     */
     public val alpha: RemoteFloat
         get() = configuredAlpha ?: colorComponent(ColorAttribute.COLOR_ALPHA)
 
+    /**
+     * Returns a [RemoteFloat] that evaluates to the red of this [RemoteColor] in the range [0..1].
+     */
     public val red: RemoteFloat
         get() = configuredRed ?: colorComponent(ColorAttribute.COLOR_RED)
 
+    /**
+     * Returns a [RemoteFloat] that evaluates to the green of this [RemoteColor] in the range
+     * [0..1].
+     */
     public val green: RemoteFloat
         get() = configuredGreen ?: colorComponent(ColorAttribute.COLOR_GREEN)
 
+    /**
+     * Returns a [RemoteFloat] that evaluates to the blue of this [RemoteColor] in the range [0..1].
+     */
     public val blue: RemoteFloat
         get() = configuredBlue ?: colorComponent(ColorAttribute.COLOR_BLUE)
 
+    /**
+     * Returns a [RemoteFloat] that evaluates to the hue of this [RemoteColor] in the range [0..1].
+     */
     public val hue: RemoteFloat
         get() =
             constantValueOrNull?.let { Utils.getHue(it).rf }
                 ?: colorComponent(ColorAttribute.COLOR_HUE)
 
+    /**
+     * Returns a [RemoteFloat] that evaluates to the saturation of this [RemoteColor] in the range
+     * [0..1].
+     */
     public val saturation: RemoteFloat
         get() =
             constantValueOrNull?.let { Utils.getSaturation(it).rf }
                 ?: colorComponent(ColorAttribute.COLOR_SATURATION)
 
+    /**
+     * Returns a [RemoteFloat] that evaluates to the brightness of this [RemoteColor] in the range
+     * [0..1].
+     */
     public val brightness: RemoteFloat
         get() =
             constantValueOrNull?.let { Utils.getBrightness(it).rf }
                 ?: colorComponent(ColorAttribute.COLOR_BRIGHTNESS)
 
     public companion object {
+        /** Black color (`0xFF000000`). */
         @Stable public val Black: RemoteColor = BlackArgb.rc
 
+        /** Dark gray color (`0xFF444444`). */
         @Stable public val DarkGray: RemoteColor = 0xFF444444.rc
 
+        /** Gray color (`0xFF888888`). */
         @Stable public val Gray: RemoteColor = 0xFF888888.rc
 
+        /** Light gray color (`0xFFCCCCCC`). */
         @Stable public val LightGray: RemoteColor = 0xFFCCCCCC.rc
 
+        /** White color (`0xFFFFFFFF`). */
         @Stable public val White: RemoteColor = WhiteArgb.rc
 
+        /** Red color (`0xFFFF0000`). */
         @Stable public val Red: RemoteColor = 0xFFFF0000.rc
 
+        /** Green color (`0xFF00FF00`). */
         @Stable public val Green: RemoteColor = 0xFF00FF00.rc
 
+        /** Blue color (`0xFF0000FF`). */
         @Stable public val Blue: RemoteColor = 0xFF0000FF.rc
 
+        /** Yellow color (`0xFFFFFF00`). */
         @Stable public val Yellow: RemoteColor = 0xFFFFFF00.rc
 
+        /** Cyan color (`0xFF00FFFF`). */
         @Stable public val Cyan: RemoteColor = 0xFF00FFFF.rc
 
+        /** Magenta color (`0xFFFF00FF`). */
         @Stable public val Magenta: RemoteColor = 0xFFFF00FF.rc
 
+        /** Transparent color (`0x00000000`). */
         @Stable public val Transparent: RemoteColor = TransparentArgb.rc
 
         /**
@@ -285,6 +352,16 @@ internal constructor(
         public fun createForId(id: Int): RemoteColor =
             RemoteColor(idProvider = { id }, cacheKey = RemoteStateIdKey(id))
 
+        /**
+         * Creates a named [RemoteColor] with an initial value.
+         *
+         * Named remote colors can be set via AndroidRemoteContext.setNamedColor.
+         *
+         * @param name A unique name to identify this state within its [domain].
+         * @param defaultValue The initial ARGB integer value for the named remote color.
+         * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
+         * @return A [RemoteColor] representing the named color.
+         */
         @JvmStatic
         public fun createNamedRemoteColor(
             name: String,
@@ -307,6 +384,16 @@ internal constructor(
             )
         }
 
+        /**
+         * Creates a named [RemoteColor] with an initial [defaultValue].
+         *
+         * Named remote colors can be overridden by [name] at playback time.
+         *
+         * @param name unique name identifying this state within its [domain]
+         * @param defaultValue initial [RemoteColor] constant or expression
+         * @param domain domain for the named state, defaulting to [RemoteState.Domain.User]
+         * @return a named [RemoteColor] initialized to [defaultValue]
+         */
         @JvmStatic
         public fun createNamedRemoteColor(
             name: String,
@@ -335,6 +422,17 @@ internal constructor(
             )
         }
 
+        /**
+         * Creates a [RemoteColor] from remote [hue], [saturation], and [value] (brightness)
+         * components. The resulting color is expressed as a [RemoteColor] expression that combines
+         * these inputs.
+         *
+         * @param hue A [RemoteFloat] representing the hue in the range [0..1].
+         * @param saturation A [RemoteFloat] representing the saturation in the range [0..1].
+         * @param value A [RemoteFloat] representing the brightness in the range [0..1].
+         * @param alpha A [RemoteFloat] representing the alpha in the range [0..1].
+         * @return A new [RemoteColor] derived from the provided HSV components.
+         */
         public fun hsv(
             hue: RemoteFloat,
             saturation: RemoteFloat,
@@ -450,6 +548,15 @@ internal constructor(
             )
         }
 
+        /**
+         * Creates a [RemoteColor] from remote [red], [green], [blue], and [alpha] components.
+         *
+         * @param red A [RemoteFloat] representing red in the range [0..1].
+         * @param green A [RemoteFloat] representing green in the range [0..1].
+         * @param blue A [RemoteFloat] representing blue in the range [0..1].
+         * @param alpha [RemoteFloat] representing the alpha in the range [0..1].
+         * @return A new [RemoteColor] derived from the provided RGBA components.
+         */
         public fun rgb(
             red: RemoteFloat,
             green: RemoteFloat,
@@ -513,7 +620,12 @@ internal constructor(
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Creates a [RemoteColor] from a packed ARGB integer [color] value.
+ *
+ * @param color The ARGB integer color value.
+ * @return A [RemoteColor] representing the constant ARGB color.
+ */
 public fun RemoteColor(@ColorInt color: Int): RemoteColor =
     RemoteColor(
         constantValueOrNull = color,
@@ -525,7 +637,15 @@ public fun RemoteColor(@ColorInt color: Int): RemoteColor =
         idProvider = { creationState -> creationState.document.addColor(color) },
     )
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Creates a [RemoteColor] from remote [red], [green], [blue], and [alpha] components.
+ *
+ * @param red A [RemoteFloat] representing red in the range [0..1].
+ * @param green A [RemoteFloat] representing green in the range [0..1].
+ * @param blue A [RemoteFloat] representing blue in the range [0..1].
+ * @param alpha A [RemoteFloat] representing the alpha in the range [0..1].
+ * @return A [RemoteColor] representing the RGBA color.
+ */
 public fun RemoteColor(
     red: RemoteFloat,
     green: RemoteFloat,
@@ -594,7 +714,16 @@ public fun lerp(@ColorInt from: Int, @ColorInt to: Int, fraction: RemoteFloat): 
     )
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Creates a remote color that interpolates between two [RemoteColor]s based on [fraction]. This
+ * allows for dynamic color transitions where both the start/end colors and the interpolation factor
+ * can be remote expressions.
+ *
+ * @param from The starting [RemoteColor].
+ * @param to The ending [RemoteColor].
+ * @param fraction A [RemoteFloat] representing the interpolation factor in range [0..1].
+ * @return A new [RemoteColor] representing the interpolated color.
+ */
 public fun lerp(from: RemoteColor, to: RemoteColor, fraction: RemoteFloat): RemoteColor {
     if (from.cacheKey == to.cacheKey) {
         return from
@@ -623,11 +752,16 @@ public fun lerp(from: RemoteColor, to: RemoteColor, fraction: RemoteFloat): Remo
     )
 }
 
-@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** Extension property to convert an ARGB [Int] to a [RemoteColor]. */
 public val @receiver:ColorInt Int.rc: RemoteColor
     get() = RemoteColor(this)
 
-@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Extension property to convert a 32-bit ARGB [Long] literal to a [RemoteColor].
+ *
+ * This is useful for specifying colors with alpha greater than 0x80 in numeric form without using
+ * [Long.toInt]: `val color = 0xFFFFEE70.rc`.
+ */
 public val Long.rc: RemoteColor
     get() = RemoteColor(this.toInt())
 
