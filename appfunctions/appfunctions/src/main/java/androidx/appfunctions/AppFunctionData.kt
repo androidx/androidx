@@ -976,7 +976,7 @@ internal constructor(
      * fun callCreateNoteFunction(metadata: AppFunctionMetadata) {
      *   val appFunctionData = AppFunctionData.Builder(
      *     metadata.parameters,
-     *     metadata.components,
+     *     metadata.packageMetadata.components,
      *   ).apply {
      *     setString("title", "Note Title")
      *     // If the function doesn't accept "owner" as parameter, it would throw an error

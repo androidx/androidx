@@ -100,7 +100,10 @@ public sealed interface ExecuteAppFunctionResponse {
             ): Success {
                 return Success(
                     AppFunctionData(response.resultDocument, response.extras)
-                        .replaceSpecWith(functionMetadata.response, functionMetadata.components)
+                        .replaceSpecWith(
+                            functionMetadata.response,
+                            functionMetadata.packageMetadata.components,
+                        )
                 )
             }
 
@@ -122,7 +125,10 @@ public sealed interface ExecuteAppFunctionResponse {
             ): Success {
                 return Success(
                     AppFunctionData(this.resultDocument, this.extras)
-                        .replaceSpecWith(functionMetadata.response, functionMetadata.components)
+                        .replaceSpecWith(
+                            functionMetadata.response,
+                            functionMetadata.packageMetadata.components,
+                        )
                 )
             }
         }

@@ -44,7 +44,9 @@ class `$SchemaAppFunctionInventory_Impl` : SchemaAppFunctionInventory() {
             )
 
     override val componentsMetadata: AppFunctionComponentsMetadata
-        get() = AppFunctionMetadataTestHelper.FunctionMetadata.NOTES_SCHEMA_PRINT.components
+        get() =
+            AppFunctionMetadataTestHelper.FunctionMetadata.NOTES_SCHEMA_PRINT.packageMetadata
+                .components
 
     private fun AppFunctionMetadata.toStaticCompileTimeMetadata(
         isEnabled: Boolean

@@ -176,7 +176,10 @@ class SerializationTest {
                 .singleOrNull { parameterMetadata -> parameterMetadata.name == parameterName }
                 ?.dataType ?: fail("Unable to find $parameterName from $targetFunctionMetadata")
 
-        return Pair(targetParameterDataTypeMetadata, targetFunctionMetadata.components)
+        return Pair(
+            targetParameterDataTypeMetadata,
+            targetFunctionMetadata.packageMetadata.components,
+        )
     }
 
     private suspend fun isDynamicIndexerAvailable(

@@ -148,7 +148,10 @@ class ExecuteAppFunctionIntegrationTest {
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
                         metadata.id,
-                        AppFunctionData.Builder(metadata.parameters, metadata.components)
+                        AppFunctionData.Builder(
+                                metadata.parameters,
+                                metadata.packageMetadata.components,
+                            )
                             .setLong("num1", 1)
                             .setLong("num2", 2)
                             .build(),
@@ -175,7 +178,10 @@ class ExecuteAppFunctionIntegrationTest {
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
                         metadata.id,
-                        AppFunctionData.Builder(metadata.parameters, metadata.components)
+                        AppFunctionData.Builder(
+                                metadata.parameters,
+                                metadata.packageMetadata.components,
+                            )
                             .setLong("num1", 1)
                             .setLong("num2", 2)
                             .build(),
@@ -218,7 +224,10 @@ class ExecuteAppFunctionIntegrationTest {
                             ExecuteAppFunctionRequest(
                                 metadata.packageName,
                                 metadata.id,
-                                AppFunctionData.Builder(metadata.parameters, metadata.components)
+                                AppFunctionData.Builder(
+                                        metadata.parameters,
+                                        metadata.packageMetadata.components,
+                                    )
                                     .setLong("num1", 1)
                                     .setLong("num2", 2)
                                     .build(),
@@ -262,7 +271,10 @@ class ExecuteAppFunctionIntegrationTest {
                             ExecuteAppFunctionRequest(
                                 metadata.packageName,
                                 metadata.id,
-                                AppFunctionData.Builder(metadata.parameters, metadata.components)
+                                AppFunctionData.Builder(
+                                        metadata.parameters,
+                                        metadata.packageMetadata.components,
+                                    )
                                     .setLong("num1", 1)
                                     .setLong("num2", 2)
                                     .build(),
@@ -289,7 +301,11 @@ class ExecuteAppFunctionIntegrationTest {
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
                         metadata.id,
-                        AppFunctionData.Builder(metadata.parameters, metadata.components).build(),
+                        AppFunctionData.Builder(
+                                metadata.parameters,
+                                metadata.packageMetadata.components,
+                            )
+                            .build(),
                     )
             )
 
@@ -327,7 +343,11 @@ class ExecuteAppFunctionIntegrationTest {
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
                         metadata.id,
-                        AppFunctionData.Builder(metadata.parameters, metadata.components).build(),
+                        AppFunctionData.Builder(
+                                metadata.parameters,
+                                metadata.packageMetadata.components,
+                            )
+                            .build(),
                     )
             )
 
@@ -353,7 +373,7 @@ class ExecuteAppFunctionIntegrationTest {
                         createNoteMetadata.id,
                         AppFunctionData.Builder(
                                 createNoteMetadata.parameters,
-                                createNoteMetadata.components,
+                                createNoteMetadata.packageMetadata.components,
                             )
                             .setAppFunctionData(
                                 "createNoteParams",
@@ -361,9 +381,9 @@ class ExecuteAppFunctionIntegrationTest {
                                     requireTargetObjectTypeMetadata(
                                         "createNoteParams",
                                         createNoteMetadata.parameters,
-                                        createNoteMetadata.components,
+                                        createNoteMetadata.packageMetadata.components,
                                     ),
-                                    createNoteMetadata.components,
+                                    createNoteMetadata.packageMetadata.components,
                                     CreateNoteParams(
                                         title = "Test Title",
                                         content = listOf("1", "2"),
@@ -409,16 +429,19 @@ class ExecuteAppFunctionIntegrationTest {
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
                         metadata.id,
-                        AppFunctionData.Builder(metadata.parameters, metadata.components)
+                        AppFunctionData.Builder(
+                                metadata.parameters,
+                                metadata.packageMetadata.components,
+                            )
                             .setAppFunctionData(
                                 "createNoteParams",
                                 AppFunctionData.serialize(
                                     requireTargetObjectTypeMetadata(
                                         "createNoteParams",
                                         metadata.parameters,
-                                        metadata.components,
+                                        metadata.packageMetadata.components,
                                     ),
-                                    metadata.components,
+                                    metadata.packageMetadata.components,
                                     CreateNoteParams(
                                         title = "Test Title",
                                         content = listOf("1", "2"),
@@ -464,16 +487,19 @@ class ExecuteAppFunctionIntegrationTest {
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
                         metadata.id,
-                        AppFunctionData.Builder(metadata.parameters, metadata.components)
+                        AppFunctionData.Builder(
+                                metadata.parameters,
+                                metadata.packageMetadata.components,
+                            )
                             .setAppFunctionData(
                                 "createNoteParams",
                                 AppFunctionData.serialize(
                                     requireTargetObjectTypeMetadata(
                                         "createNoteParams",
                                         metadata.parameters,
-                                        metadata.components,
+                                        metadata.packageMetadata.components,
                                     ),
-                                    metadata.components,
+                                    metadata.packageMetadata.components,
                                     CreateNoteParams(
                                         title = "Test Title",
                                         content = listOf("1", "2"),
@@ -535,16 +561,19 @@ class ExecuteAppFunctionIntegrationTest {
                         targetPackageName = metadata.packageName,
                         functionIdentifier = metadata.id,
                         functionParameters =
-                            AppFunctionData.Builder(metadata.parameters, metadata.components)
+                            AppFunctionData.Builder(
+                                    metadata.parameters,
+                                    metadata.packageMetadata.components,
+                                )
                                 .setAppFunctionData(
                                     "value",
                                     AppFunctionData.serialize(
                                         requireTargetObjectTypeMetadata(
                                             "value",
                                             metadata.parameters,
-                                            metadata.components,
+                                            metadata.packageMetadata.components,
                                         ),
-                                        metadata.components,
+                                        metadata.packageMetadata.components,
                                         value,
                                     ),
                                 )
@@ -584,16 +613,19 @@ class ExecuteAppFunctionIntegrationTest {
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
                         metadata.id,
-                        AppFunctionData.Builder(metadata.parameters, metadata.components)
+                        AppFunctionData.Builder(
+                                metadata.parameters,
+                                metadata.packageMetadata.components,
+                            )
                             .setAppFunctionData(
                                 "updateNoteParams",
                                 AppFunctionData.serialize(
                                     requireTargetObjectTypeMetadata(
                                         "updateNoteParams",
                                         metadata.parameters,
-                                        metadata.components,
+                                        metadata.packageMetadata.components,
                                     ),
-                                    metadata.components,
+                                    metadata.packageMetadata.components,
                                     UpdateNoteParams(
                                         title = SetField("NewTitle1"),
                                         nullableTitle = SetField("NewTitle2"),
@@ -640,16 +672,19 @@ class ExecuteAppFunctionIntegrationTest {
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
                         metadata.id,
-                        AppFunctionData.Builder(metadata.parameters, metadata.components)
+                        AppFunctionData.Builder(
+                                metadata.parameters,
+                                metadata.packageMetadata.components,
+                            )
                             .setAppFunctionData(
                                 "updateNoteParams",
                                 AppFunctionData.serialize(
                                     requireTargetObjectTypeMetadata(
                                         "updateNoteParams",
                                         metadata.parameters,
-                                        metadata.components,
+                                        metadata.packageMetadata.components,
                                     ),
-                                    metadata.components,
+                                    metadata.packageMetadata.components,
                                     UpdateNoteParams(
                                         title = SetField("NewTitle1"),
                                         nullableTitle = SetField(null),
@@ -693,16 +728,19 @@ class ExecuteAppFunctionIntegrationTest {
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
                         metadata.id,
-                        AppFunctionData.Builder(metadata.parameters, metadata.components)
+                        AppFunctionData.Builder(
+                                metadata.parameters,
+                                metadata.packageMetadata.components,
+                            )
                             .setAppFunctionData(
                                 "updateNoteParams",
                                 AppFunctionData.serialize(
                                     requireTargetObjectTypeMetadata(
                                         "updateNoteParams",
                                         metadata.parameters,
-                                        metadata.components,
+                                        metadata.packageMetadata.components,
                                     ),
-                                    metadata.components,
+                                    metadata.packageMetadata.components,
                                     UpdateNoteParams(),
                                 ),
                             )
@@ -747,7 +785,7 @@ class ExecuteAppFunctionIntegrationTest {
                 functionParameters =
                     AppFunctionData.Builder(
                             createNoteMetadata.parameters,
-                            createNoteMetadata.components,
+                            createNoteMetadata.packageMetadata.components,
                         )
                         .setAppFunctionData(
                             "parameters",
@@ -755,9 +793,9 @@ class ExecuteAppFunctionIntegrationTest {
                                     requireTargetObjectTypeMetadata(
                                         "parameters",
                                         createNoteMetadata.parameters,
-                                        createNoteMetadata.components,
+                                        createNoteMetadata.packageMetadata.components,
                                     ),
-                                    createNoteMetadata.components,
+                                    createNoteMetadata.packageMetadata.components,
                                 )
                                 .setString("title", "Test Title")
                                 .setString("content", "Some valid content")
@@ -809,7 +847,7 @@ class ExecuteAppFunctionIntegrationTest {
                 functionParameters =
                     AppFunctionData.Builder(
                             createNoteMetadata.parameters,
-                            createNoteMetadata.components,
+                            createNoteMetadata.packageMetadata.components,
                         )
                         .setAppFunctionData(
                             "parameters",
@@ -817,9 +855,9 @@ class ExecuteAppFunctionIntegrationTest {
                                 requireTargetObjectTypeMetadata(
                                     "parameters",
                                     createNoteMetadata.parameters,
-                                    createNoteMetadata.components,
+                                    createNoteMetadata.packageMetadata.components,
                                 ),
-                                createNoteMetadata.components,
+                                createNoteMetadata.packageMetadata.components,
                                 parameters,
                             ),
                         )
@@ -858,7 +896,7 @@ class ExecuteAppFunctionIntegrationTest {
                 functionParameters =
                     AppFunctionData.Builder(
                             createNoteMetadata.parameters,
-                            createNoteMetadata.components,
+                            createNoteMetadata.packageMetadata.components,
                         )
                         .setAppFunctionData(
                             "parameters",
@@ -866,9 +904,9 @@ class ExecuteAppFunctionIntegrationTest {
                                     requireTargetObjectTypeMetadata(
                                         "parameters",
                                         createNoteMetadata.parameters,
-                                        createNoteMetadata.components,
+                                        createNoteMetadata.packageMetadata.components,
                                     ),
-                                    createNoteMetadata.components,
+                                    createNoteMetadata.packageMetadata.components,
                                 )
                                 .setString("title", "Test Title")
                                 .setString("content", "Some valid content")
@@ -910,9 +948,9 @@ class ExecuteAppFunctionIntegrationTest {
                     requireTargetObjectTypeMetadata(
                         "parameters",
                         createNoteMetadata.parameters,
-                        createNoteMetadata.components,
+                        createNoteMetadata.packageMetadata.components,
                     ),
-                    createNoteMetadata.components,
+                    createNoteMetadata.packageMetadata.components,
                 )
                 .setString("title", "Test Title")
                 .setString("content", "Some valid content")
@@ -921,7 +959,10 @@ class ExecuteAppFunctionIntegrationTest {
                 .setString("externalUuid", "testExternalUuid")
                 .build()
         assertThrows(IllegalArgumentException::class.java) {
-            AppFunctionData.Builder(createNoteMetadata.parameters, createNoteMetadata.components)
+            AppFunctionData.Builder(
+                    createNoteMetadata.parameters,
+                    createNoteMetadata.packageMetadata.components,
+                )
                 .setAppFunctionData("wrongParameters", innerData)
                 .build()
         }
@@ -946,9 +987,9 @@ class ExecuteAppFunctionIntegrationTest {
                     requireTargetObjectTypeMetadata(
                         "parameters",
                         createNoteMetadata.parameters,
-                        createNoteMetadata.components,
+                        createNoteMetadata.packageMetadata.components,
                     ),
-                    createNoteMetadata.components,
+                    createNoteMetadata.packageMetadata.components,
                 )
                 .setString("wrongTitle", "Test Title")
                 .build()
@@ -1003,16 +1044,19 @@ class ExecuteAppFunctionIntegrationTest {
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
                         metadata.id,
-                        AppFunctionData.Builder(metadata.parameters, metadata.components)
+                        AppFunctionData.Builder(
+                                metadata.parameters,
+                                metadata.packageMetadata.components,
+                            )
                             .setAppFunctionData(
                                 "classWithOptionalValues",
                                 AppFunctionData.serialize(
                                     requireTargetObjectTypeMetadata(
                                         "classWithOptionalValues",
                                         metadata.parameters,
-                                        metadata.components,
+                                        metadata.packageMetadata.components,
                                     ),
-                                    metadata.components,
+                                    metadata.packageMetadata.components,
                                     classWithOptionalValues,
                                 ),
                             )
@@ -1043,7 +1087,10 @@ class ExecuteAppFunctionIntegrationTest {
                         ExecuteAppFunctionRequest(
                             metadata.packageName,
                             metadata.id,
-                            AppFunctionData.Builder(metadata.parameters, metadata.components)
+                            AppFunctionData.Builder(
+                                    metadata.parameters,
+                                    metadata.packageMetadata.components,
+                                )
                                 .setAppFunctionData(
                                     "classWithOptionalValues",
                                     AppFunctionData.EMPTY,
@@ -1107,7 +1154,10 @@ class ExecuteAppFunctionIntegrationTest {
                     ExecuteAppFunctionRequest(
                         metadata.packageName,
                         metadata.id,
-                        AppFunctionData.Builder(metadata.parameters, metadata.components)
+                        AppFunctionData.Builder(
+                                metadata.parameters,
+                                metadata.packageMetadata.components,
+                            )
                             .setInt("optionalNonNullInt", 1)
                             .setInt("optionalNullableInt", 2)
                             .setLong("optionalNonNullLong", 100L)
@@ -1125,9 +1175,9 @@ class ExecuteAppFunctionIntegrationTest {
                                     requireTargetObjectTypeMetadata(
                                         "optionalNullableSerializable",
                                         metadata.parameters,
-                                        metadata.components,
+                                        metadata.packageMetadata.components,
                                     ),
-                                    metadata.components,
+                                    metadata.packageMetadata.components,
                                     Owner("John"),
                                 ),
                             )
@@ -1137,9 +1187,9 @@ class ExecuteAppFunctionIntegrationTest {
                                     requireTargetObjectTypeMetadata(
                                         "optionalNullableProxySerializable",
                                         metadata.parameters,
-                                        metadata.components,
+                                        metadata.packageMetadata.components,
                                     ),
-                                    metadata.components,
+                                    metadata.packageMetadata.components,
                                     LocalDateTime.of(2025, 7, 4, 12, 0),
                                 ),
                             )
@@ -1173,18 +1223,18 @@ class ExecuteAppFunctionIntegrationTest {
                                         requireTargetObjectTypeMetadata(
                                             "optionalNonNullSerializableList",
                                             metadata.parameters,
-                                            metadata.components,
+                                            metadata.packageMetadata.components,
                                         ),
-                                        metadata.components,
+                                        metadata.packageMetadata.components,
                                         Owner("Alice"),
                                     ),
                                     AppFunctionData.serialize(
                                         requireTargetObjectTypeMetadata(
                                             "optionalNonNullSerializableList",
                                             metadata.parameters,
-                                            metadata.components,
+                                            metadata.packageMetadata.components,
                                         ),
-                                        metadata.components,
+                                        metadata.packageMetadata.components,
                                         Owner("Bob"),
                                     ),
                                 ),
@@ -1196,9 +1246,9 @@ class ExecuteAppFunctionIntegrationTest {
                                         requireTargetObjectTypeMetadata(
                                             "optionalNullableSerializableList",
                                             metadata.parameters,
-                                            metadata.components,
+                                            metadata.packageMetadata.components,
                                         ),
-                                        metadata.components,
+                                        metadata.packageMetadata.components,
                                         Owner("Charlie"),
                                     )
                                 ),
@@ -1210,9 +1260,9 @@ class ExecuteAppFunctionIntegrationTest {
                                         requireTargetObjectTypeMetadata(
                                             "optionalNonNullProxySerializableList",
                                             metadata.parameters,
-                                            metadata.components,
+                                            metadata.packageMetadata.components,
                                         ),
-                                        metadata.components,
+                                        metadata.packageMetadata.components,
                                         LocalDateTime.of(2025, 7, 4, 12, 0),
                                     )
                                 ),
@@ -1224,9 +1274,9 @@ class ExecuteAppFunctionIntegrationTest {
                                         requireTargetObjectTypeMetadata(
                                             "optionalNullableProxySerializableList",
                                             metadata.parameters,
-                                            metadata.components,
+                                            metadata.packageMetadata.components,
                                         ),
-                                        metadata.components,
+                                        metadata.packageMetadata.components,
                                         LocalDateTime.of(2025, 7, 4, 12, 0),
                                     )
                                 ),
@@ -1291,7 +1341,10 @@ class ExecuteAppFunctionIntegrationTest {
                         ExecuteAppFunctionRequest(
                             metadata.packageName,
                             metadata.id,
-                            AppFunctionData.Builder(metadata.parameters, metadata.components)
+                            AppFunctionData.Builder(
+                                    metadata.parameters,
+                                    metadata.packageMetadata.components,
+                                )
                                 .build(),
                         )
                 )
@@ -1467,7 +1520,7 @@ class ExecuteAppFunctionIntegrationTest {
                 functionParameters =
                     AppFunctionData.Builder(
                             oneOfFunctionMetadata.parameters,
-                            oneOfFunctionMetadata.components,
+                            oneOfFunctionMetadata.packageMetadata.components,
                         )
                         .setAppFunctionDataList(
                             "oneOfList",
@@ -1476,10 +1529,10 @@ class ExecuteAppFunctionIntegrationTest {
                                     requireTargetObjectTypeMetadata(
                                         "oneOfList",
                                         oneOfFunctionMetadata.parameters,
-                                        oneOfFunctionMetadata.components,
+                                        oneOfFunctionMetadata.packageMetadata.components,
                                         item.javaClass.canonicalName,
                                     ),
-                                    oneOfFunctionMetadata.components,
+                                    oneOfFunctionMetadata.packageMetadata.components,
                                     item,
                                 )
                             },
@@ -1511,7 +1564,7 @@ class ExecuteAppFunctionIntegrationTest {
                 )
             val resolvedResponseAllOfType =
                 assertIs<AppFunctionAllOfTypeMetadata>(
-                    resourceFunctionMetadata.components.dataTypes[
+                    resourceFunctionMetadata.packageMetadata.components.dataTypes[
                             responseValueType.referenceDataType]
                 )
             assertThat(resolvedResponseAllOfType.matchAll)
@@ -1552,7 +1605,7 @@ class ExecuteAppFunctionIntegrationTest {
                     functionParameters =
                         AppFunctionData.Builder(
                                 resourceFunctionMetadata.parameters,
-                                resourceFunctionMetadata.components,
+                                resourceFunctionMetadata.packageMetadata.components,
                             )
                             .setString("text", "Hello World!")
                             .build(),
@@ -1679,7 +1732,10 @@ class ExecuteAppFunctionIntegrationTest {
         parameterName: String,
         value: String,
     ): AppFunctionData =
-        AppFunctionData.Builder(functionMetadata.parameters, functionMetadata.components)
+        AppFunctionData.Builder(
+                functionMetadata.parameters,
+                functionMetadata.packageMetadata.components,
+            )
             .setString(parameterName, value)
             .build()
 
@@ -1692,13 +1748,16 @@ class ExecuteAppFunctionIntegrationTest {
             requireTargetObjectTypeMetadata(
                 parameterName,
                 functionMetadata.parameters,
-                functionMetadata.components,
+                functionMetadata.packageMetadata.components,
             )
         val uriDoc =
-            AppFunctionData.Builder(uriObjectType, functionMetadata.components)
+            AppFunctionData.Builder(uriObjectType, functionMetadata.packageMetadata.components)
                 .setString("uri", uriString)
                 .build()
-        return AppFunctionData.Builder(functionMetadata.parameters, functionMetadata.components)
+        return AppFunctionData.Builder(
+                functionMetadata.parameters,
+                functionMetadata.packageMetadata.components,
+            )
             .setAppFunctionData(parameterName, uriDoc)
             .build()
     }

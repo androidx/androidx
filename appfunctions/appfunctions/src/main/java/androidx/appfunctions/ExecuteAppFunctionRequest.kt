@@ -259,6 +259,9 @@ constructor(
             functionMetadata: AppFunctionMetadata,
             parametersAfd: AppFunctionData,
         ): AppFunctionData =
-            parametersAfd.replaceSpecWith(functionMetadata.parameters, functionMetadata.components)
+            parametersAfd.replaceSpecWith(
+                functionMetadata.parameters,
+                functionMetadata.packageMetadata.components,
+            )
     }
 }
