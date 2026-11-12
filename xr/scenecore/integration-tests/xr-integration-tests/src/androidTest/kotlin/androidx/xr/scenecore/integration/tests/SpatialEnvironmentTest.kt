@@ -19,6 +19,7 @@ package androidx.xr.scenecore.integration.tests
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.os.SystemClock
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -31,24 +32,22 @@ import androidx.xr.scenecore.SpatialCapability
 import androidx.xr.scenecore.SpatialEnvironment
 import androidx.xr.scenecore.SpatialEnvironment.SpatialEnvironmentPreference
 import androidx.xr.scenecore.scene
-import androidx.xr.testutils.SpatialNode
-import androidx.xr.testutils.SpatialScene
-import androidx.xr.testutils.SpatialSceneHelper
 import androidx.xr.testutils.XrDeviceTest
+import androidx.xr.testutils.createXrSessionRule
+import androidx.xr.testutils.toPixelArray
+import androidx.xr.testutils.toSoftwareBitmap
+import androidx.xr.testutils.waitUntil
 import com.google.common.truth.Truth.assertThat
 import java.nio.file.Paths
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReference
 import java.util.function.Consumer
 import kotlin.math.abs
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.TimeSource
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
-import kotlinx.coroutines.yield
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -57,27 +56,29 @@ import org.junit.runner.RunWith
  * (image-based lighting and glTF geometry), passthrough opacity, and Full Space / Home Space
  * transitions.
  *
- * Environment geometry attachment is verified through the SpaceFlinger scene graph (`dumpsys
- * spf_cpm`, parsed by [SpatialSceneHelper]): the attached geometry appears as an
- * [ENVIRONMENT_GEOMETRY_NODE] node under the [ENVIRONMENT_ROOT_NODE] node. The system environment
- * may use the same node name, so tests compare node ids rather than names.
- *
- * Skybox rendering is checked by sampling the colors of a screenshot region.
+ * Environment state is asserted only through SceneCore APIs
+ * ([SpatialEnvironment.preferredSpatialEnvironment],
+ * [SpatialEnvironment.isPreferredSpatialEnvironmentActive] and its change listener). Skybox
+ * rendering is checked by sampling the colors of a screenshot region.
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class SpatialEnvironmentTest {
 
+    @get:Rule val sessionRule = createXrSessionRule()
+
+    // TODO(b/583873060): Verify that the geometry is rendered while the preference is set and
+    //  disappears after it is cleared.
     @Test
     @XrDeviceTest
     @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
-    fun appEnvironment_setAndClear_attachesGeometryAndUpdatesActiveState() =
-        runTestWithSession { session ->
-            session.scene.requestFullSpaceAndAwait()
-            val env = session.scene.spatialEnvironment
-            assertThat(session.scene.spatialCapabilities)
-                .contains(SpatialCapability.APP_ENVIRONMENT)
+    fun appEnvironment_setAndClear_updatesPreferenceAndActiveState() {
+        sessionRule.requestFullSpace()
+        val scene = sessionRule.session.scene
+        assertThat(scene.spatialCapabilities).contains(SpatialCapability.APP_ENVIRONMENT)
+        val env = scene.spatialEnvironment
 
+        val preference = sessionRule.onMainThread {
             val blueIbl =
                 ImageBasedLightingAsset.createFromZip(
                     session,
@@ -85,500 +86,362 @@ class SpatialEnvironmentTest {
                 )
             val geometry = GltfModel.create(session, Paths.get("models", "BoundingBoxBlue.glb"))
 
-            try {
-                val systemGeometryNode = environmentGeometryNode(captureSpatialScene())
-
-                env.setPreferredEnvironmentAndSettle(
-                    SpatialEnvironmentPreference(blueIbl, geometry)
-                )
-                env.awaitPreferredEnvironmentActive(expected = true)
-                val appGeometryNode =
-                    awaitEnvironmentGeometryNode("app geometry to be attached") {
-                        it != null && it.id != systemGeometryNode?.id
-                    }
-
-                // A null preference reverts to the system default environment.
-                env.setPreferredEnvironmentAndSettle(null)
-                env.awaitPreferredEnvironmentActive(expected = false)
-                awaitEnvironmentGeometryNode("app geometry to be detached") {
-                    it?.id != appGeometryNode?.id
-                }
-            } finally {
-                env.setPreferredEnvironmentAndSettle(null)
-                blueIbl.close()
-                geometry.close()
+            SpatialEnvironmentPreference(blueIbl, geometry).also {
+                env.preferredSpatialEnvironment = it
             }
         }
+        sessionRule.waitForSpatialEnvironmentSettled()
+        assertThat(env.preferredSpatialEnvironment).isEqualTo(preference)
+        assertThat(env.isPreferredSpatialEnvironmentActive).isTrue()
 
+        // A null preference reverts to the system default environment.
+        sessionRule.onMainThread { env.preferredSpatialEnvironment = null }
+        sessionRule.waitForSpatialEnvironmentSettled()
+        assertThat(env.preferredSpatialEnvironment).isNull()
+        assertThat(env.isPreferredSpatialEnvironmentActive).isFalse()
+    }
+
+    // TODO(b/583873060): Verify that swapping or unsetting the IBL keeps the rendered geometry,
+    //  and that swapping or unsetting the geometry replaces or removes it.
     @Test
     @XrDeviceTest
     @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
-    fun appEnvironment_swapIblOrGeometry_keepsEnvironmentActive() = runTestWithSession { session ->
-        session.scene.requestFullSpaceAndAwait()
-        val env = session.scene.spatialEnvironment
-        assertThat(session.scene.spatialCapabilities).contains(SpatialCapability.APP_ENVIRONMENT)
+    fun appEnvironment_swapIblOrGeometry_keepsEnvironmentActive() {
+        sessionRule.requestFullSpace()
+        val scene = sessionRule.session.scene
+        assertThat(scene.spatialCapabilities).contains(SpatialCapability.APP_ENVIRONMENT)
+        val env = scene.spatialEnvironment
 
-        val greyIbl =
-            ImageBasedLightingAsset.createFromZip(
-                session,
-                Paths.get("skyboxes", "GreySkybox.zip"),
-            )
-        val blueIbl =
-            ImageBasedLightingAsset.createFromZip(
-                session,
-                Paths.get("skyboxes", "BlueSkybox.zip"),
-            )
-        val blueBox = GltfModel.create(session, Paths.get("models", "BoundingBoxBlue.glb"))
-        val greenBox = GltfModel.create(session, Paths.get("models", "BoundingBoxGreen.glb"))
+        val (blueIbl, blueBox, greenBox) =
+            sessionRule.onMainThread {
+                val greyIbl =
+                    ImageBasedLightingAsset.createFromZip(
+                        session,
+                        Paths.get("skyboxes", "GreySkybox.zip"),
+                    )
+                val blueIbl =
+                    ImageBasedLightingAsset.createFromZip(
+                        session,
+                        Paths.get("skyboxes", "BlueSkybox.zip"),
+                    )
+                val blueBox = GltfModel.create(session, Paths.get("models", "BoundingBoxBlue.glb"))
+                val greenBox =
+                    GltfModel.create(session, Paths.get("models", "BoundingBoxGreen.glb"))
 
-        try {
-            val systemGeometryNode = environmentGeometryNode(captureSpatialScene())
-            env.setPreferredEnvironmentAndSettle(SpatialEnvironmentPreference(greyIbl, blueBox))
-            env.awaitPreferredEnvironmentActive(expected = true)
-            val blueBoxNode =
-                awaitEnvironmentGeometryNode("blue box geometry to be attached") {
-                    it != null && it.id != systemGeometryNode?.id
-                }
-
-            // Swapping or unsetting the IBL keeps the attached geometry. This is a no-op for the
-            // scene graph, so the geometry node must stay the same over a settle window that
-            // starts after the main thread has processed the new preference.
-            env.setPreferredEnvironmentAndSettle(SpatialEnvironmentPreference(blueIbl, blueBox))
-            assertEnvironmentGeometryNodeUnchanged("geometry kept after swapping IBL", blueBoxNode)
-            assertThat(env.isPreferredSpatialEnvironmentActive).isTrue()
-
-            env.setPreferredEnvironmentAndSettle(SpatialEnvironmentPreference(null, blueBox))
-            assertEnvironmentGeometryNodeUnchanged("geometry kept after unsetting IBL", blueBoxNode)
-            assertThat(env.isPreferredSpatialEnvironmentActive).isTrue()
-
-            // Swapping the geometry attaches a new geometry node.
-            env.setPreferredEnvironmentAndSettle(SpatialEnvironmentPreference(blueIbl, greenBox))
-            assertThat(env.isPreferredSpatialEnvironmentActive).isTrue()
-            val greenBoxNode =
-                awaitEnvironmentGeometryNode("green box geometry to be attached") {
-                    it != null && it.id != blueBoxNode?.id && it.id != systemGeometryNode?.id
-                }
-
-            // Unsetting the geometry detaches it while the IBL-only environment stays active.
-            env.setPreferredEnvironmentAndSettle(SpatialEnvironmentPreference(blueIbl, null))
-            assertThat(env.isPreferredSpatialEnvironmentActive).isTrue()
-            awaitEnvironmentGeometryNode("green box geometry to be detached") {
-                it?.id != greenBoxNode?.id
+                env.preferredSpatialEnvironment = SpatialEnvironmentPreference(greyIbl, blueBox)
+                Triple(blueIbl, blueBox, greenBox)
             }
-        } finally {
-            env.setPreferredEnvironmentAndSettle(null)
-            greyIbl.close()
-            blueIbl.close()
-            blueBox.close()
-            greenBox.close()
+        sessionRule.waitForSpatialEnvironmentSettled()
+        assertThat(env.isPreferredSpatialEnvironmentActive).isTrue()
+
+        // Record every active state change reported while the preference is swapped.
+        val reportedActiveStates = CopyOnWriteArrayList<Boolean>()
+        val listener = Consumer<Boolean> { reportedActiveStates.add(it) }
+        env.addSpatialEnvironmentChangedListener(listener)
+
+        // Swap the IBL, unset the IBL, swap the geometry, then unset the geometry. Each
+        // preference still has an IBL or geometry, so the app environment stays active.
+        for (preference in
+            listOf(
+                SpatialEnvironmentPreference(blueIbl, blueBox),
+                SpatialEnvironmentPreference(null, blueBox),
+                SpatialEnvironmentPreference(blueIbl, greenBox),
+                SpatialEnvironmentPreference(blueIbl, null),
+            )) {
+            sessionRule.onMainThread { env.preferredSpatialEnvironment = preference }
+            sessionRule.waitForSpatialEnvironmentSettled()
+            assertThat(env.preferredSpatialEnvironment).isEqualTo(preference)
+            assertThat(env.isPreferredSpatialEnvironmentActive).isTrue()
         }
+
+        // waitForSpatialEnvironmentSettled() above is the arrival anchor for the last update.
+        // Observe for a short settle window to confirm no late inactive notification is delivered.
+        SystemClock.sleep(NO_CHANGE_SETTLE_WINDOW.inWholeMilliseconds)
+        assertThat(reportedActiveStates).doesNotContain(false)
     }
 
     @Test
     @XrDeviceTest
-    fun appEnvironment_blackVoidPreference_isDistinctFromSystemDefault() =
-        runTestWithSession { session ->
-            session.scene.requestFullSpaceAndAwait()
-            val env = session.scene.spatialEnvironment
-            assertThat(session.scene.spatialCapabilities)
-                .contains(SpatialCapability.APP_ENVIRONMENT)
+    fun appEnvironment_blackVoidPreference_isDistinctFromSystemDefault() {
+        sessionRule.requestFullSpace()
+        val scene = sessionRule.session.scene
+        assertThat(scene.spatialCapabilities).contains(SpatialCapability.APP_ENVIRONMENT)
+        val env = scene.spatialEnvironment
 
-            try {
-                // A preference whose fields are all null is a black void app environment, which
-                // is distinct from a null preference (system default environment).
-                val blackVoidPref = SpatialEnvironmentPreference(null, null)
-                env.setPreferredEnvironmentAndSettle(blackVoidPref)
-                assertThat(env.preferredSpatialEnvironment).isEqualTo(blackVoidPref)
-                env.awaitPreferredEnvironmentActive(expected = true)
+        // A preference whose fields are all null is a black void app environment, which is
+        // distinct from a null preference (system default environment).
+        val blackVoidPref = SpatialEnvironmentPreference(null, null)
+        sessionRule.onMainThread { env.preferredSpatialEnvironment = blackVoidPref }
+        sessionRule.waitForSpatialEnvironmentSettled()
+        assertThat(env.preferredSpatialEnvironment).isEqualTo(blackVoidPref)
+        assertThat(env.isPreferredSpatialEnvironmentActive).isTrue()
 
-                env.setPreferredEnvironmentAndSettle(null)
-                assertThat(env.preferredSpatialEnvironment).isNull()
-                env.awaitPreferredEnvironmentActive(expected = false)
-            } finally {
-                env.setPreferredEnvironmentAndSettle(null)
-            }
-        }
+        sessionRule.onMainThread { env.preferredSpatialEnvironment = null }
+        sessionRule.waitForSpatialEnvironmentSettled()
+        assertThat(env.preferredSpatialEnvironment).isNull()
+        assertThat(env.isPreferredSpatialEnvironmentActive).isFalse()
+    }
 
     @Test
     @XrDeviceTest
     @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
-    fun appEnvironment_setBlueSkybox_turnsScreenBlue() = runTestWithSession { session ->
-        session.scene.requestFullSpaceAndAwait()
-        val env = session.scene.spatialEnvironment
-        assertThat(session.scene.spatialCapabilities).contains(SpatialCapability.APP_ENVIRONMENT)
+    fun appEnvironment_setBlueSkybox_turnsScreenBlue() {
+        sessionRule.requestFullSpace()
+        val scene = sessionRule.session.scene
+        assertThat(scene.spatialCapabilities).contains(SpatialCapability.APP_ENVIRONMENT)
+        val env = scene.spatialEnvironment
 
-        val blueIbl =
-            ImageBasedLightingAsset.createFromZip(session, Paths.get("skyboxes", "BlueSkybox.zip"))
+        scene.mainPanelEntity.setEnabled(false)
+        env.preferredPassthroughOpacity = 0.0f
 
-        try {
-            session.scene.mainPanelEntity.setEnabled(false)
-            env.preferredPassthroughOpacity = 0.0f
-
+        val blueIbl = sessionRule.onMainThread {
+            val ibl =
+                ImageBasedLightingAsset.createFromZip(
+                    session,
+                    Paths.get("skyboxes", "BlueSkybox.zip"),
+                )
             // Start from a black void so that the baseline does not depend on the system
             // environment, which may itself contain blue.
-            env.setPreferredEnvironmentAndSettle(SpatialEnvironmentPreference(null, null))
-            env.awaitPreferredEnvironmentActive(expected = true)
-            pollScreenshot("sky hemisphere to not be blue", ::skyBlueFraction) {
-                it <= MAX_NOT_BLUE_FRACTION
-            }
+            env.preferredSpatialEnvironment = SpatialEnvironmentPreference(null, null)
+            ibl
+        }
+        sessionRule.waitForSpatialEnvironmentSettled()
+        assertThat(env.isPreferredSpatialEnvironmentActive).isTrue()
+        pollScreenshot("sky hemisphere to not be blue", ::skyBlueFraction) {
+            it <= MAX_NOT_BLUE_FRACTION
+        }
 
-            env.setPreferredEnvironmentAndSettle(SpatialEnvironmentPreference(blueIbl, null))
-            pollScreenshot("sky hemisphere to turn blue", ::skyBlueFraction) {
-                it >= MIN_BLUE_FRACTION
-            }
-        } finally {
-            session.scene.mainPanelEntity.setEnabled(true)
-            env.preferredPassthroughOpacity = SpatialEnvironment.NO_PASSTHROUGH_OPACITY_PREFERENCE
-            env.setPreferredEnvironmentAndSettle(null)
-            blueIbl.close()
+        sessionRule.onMainThread {
+            env.preferredSpatialEnvironment = SpatialEnvironmentPreference(blueIbl, null)
+        }
+        sessionRule.waitForSpatialEnvironmentSettled()
+        assertThat(env.isPreferredSpatialEnvironmentActive).isTrue()
+        pollScreenshot("sky hemisphere to turn blue", ::skyBlueFraction) {
+            it >= MIN_BLUE_FRACTION
         }
     }
 
+    // TODO(b/583873060): Verify that the entity is rendered as the environment geometry while the
+    //  preference is set.
+    // TODO(b/568632541): Confirm whether clearing the preference should render the entity in the
+    //  app task again, and verify it once the expected behavior is settled.
     @Test
     @XrDeviceTest
     @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
     @SuppressLint("RestrictedApiAndroidX")
-    fun geometryEntity_setAndClear_movesEntitySubspaceUnderEnvironmentRoot() =
-        runTestWithSession { activity, session ->
-            session.scene.requestFullSpaceAndAwait()
-            val env = session.scene.spatialEnvironment
-            assertThat(session.scene.spatialCapabilities)
-                .contains(SpatialCapability.APP_ENVIRONMENT)
+    fun geometryEntity_setAndClear_updatesPreferenceAndActiveState() {
+        sessionRule.requestFullSpace()
+        val scene = sessionRule.session.scene
+        assertThat(scene.spatialCapabilities).contains(SpatialCapability.APP_ENVIRONMENT)
+        val env = scene.spatialEnvironment
 
+        val preference = sessionRule.onMainThread {
             val model = GltfModel.create(session, Paths.get("models", "BoundingBoxYellow.glb"))
             val entity =
                 GltfModelEntity.create(session, model, parent = session.scene.activitySpace)
 
-            try {
-                // The entity renders through its own subspace, which starts in the app task.
-                val entitySubspace =
-                    checkNotNull(
-                        awaitSpatialScene(
-                            description = "entity subspace to appear in the app task",
-                            select = { scene ->
-                                scene
-                                    .findTaskByPackageName(activity.packageName)
-                                    ?.subspaceNodes
-                                    ?.firstOrNull()
-                            },
-                            until = { it != null },
-                        )
-                    ) {
-                        "Entity subspace did not appear in the app task"
-                    }
-
-                // The environment reuses the entity's subspace node as its geometry node.
-                env.setPreferredEnvironmentAndSettle(
-                    SpatialEnvironmentPreference(null, null, geometryEntity = entity)
-                )
-                env.awaitPreferredEnvironmentActive(expected = true)
-                awaitEnvironmentGeometryNode("entity subspace to be attached") {
-                    it?.id == entitySubspace.id
-                }
-
-                // TODO(b/568632541): Confirm whether clearing the preference should reparent the
-                // entity subspace back to the entity node in the app task. Currently it only
-                // detaches the environment root, so we only verify it leaves the environment root.
-                env.setPreferredEnvironmentAndSettle(null)
-                env.awaitPreferredEnvironmentActive(expected = false)
-                awaitEnvironmentGeometryNode("entity subspace to be detached") {
-                    it?.id != entitySubspace.id
-                }
-            } finally {
-                env.setPreferredEnvironmentAndSettle(null)
-                entity.parent = null
-                model.close()
+            SpatialEnvironmentPreference(null, null, geometryEntity = entity).also {
+                env.preferredSpatialEnvironment = it
             }
         }
+        sessionRule.waitForSpatialEnvironmentSettled()
+        // SpatialEnvironmentPreference.equals() also compares the geometry entity.
+        assertThat(env.preferredSpatialEnvironment).isEqualTo(preference)
+        assertThat(env.isPreferredSpatialEnvironmentActive).isTrue()
+
+        sessionRule.onMainThread { env.preferredSpatialEnvironment = null }
+        sessionRule.waitForSpatialEnvironmentSettled()
+        assertThat(env.preferredSpatialEnvironment).isNull()
+        assertThat(env.isPreferredSpatialEnvironmentActive).isFalse()
+    }
 
     @Test
     @XrDeviceTest
     @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
-    fun passthroughOpacity_inFullSpaceMode_updatesCurrentOpacityAndNotifiesListeners() =
-        runTestWithSession { session ->
-            session.scene.requestFullSpaceAndAwait()
-            val env = session.scene.spatialEnvironment
-            assertThat(session.scene.spatialCapabilities)
-                .contains(SpatialCapability.PASSTHROUGH_CONTROL)
+    fun passthroughOpacity_inFullSpaceMode_updatesCurrentOpacityAndNotifiesListeners() {
+        sessionRule.requestFullSpace()
+        val scene = sessionRule.session.scene
+        assertThat(scene.spatialCapabilities).contains(SpatialCapability.PASSTHROUGH_CONTROL)
+        val env = scene.spatialEnvironment
 
+        // Semi-transparent passthrough is disabled when there is no preferred spatial environment
+        // and no active system passthrough, so activate an app environment before requesting a
+        // semi-transparent opacity.
+        sessionRule.onMainThread {
             val ibl =
                 ImageBasedLightingAsset.createFromZip(
                     session,
                     Paths.get("skyboxes", "BlueSkybox.zip"),
                 )
             val geometry = GltfModel.create(session, Paths.get("models", "BoundingBoxBlue.glb"))
-            val removedListenerOpacities = CopyOnWriteArrayList<Float>()
-            val removedListenerNotified = CompletableDeferred<Unit>()
-            val removedListener =
-                Consumer<Float> { opacity ->
-                    removedListenerOpacities.add(opacity)
-                    removedListenerNotified.complete(Unit)
-                }
-
-            try {
-                // Semi-transparent passthrough is disabled when there is no preferred spatial
-                // environment and no active system passthrough, so activate an app environment
-                // before requesting a semi-transparent opacity.
-                env.setPreferredEnvironmentAndSettle(SpatialEnvironmentPreference(ibl, geometry))
-                env.awaitPreferredEnvironmentActive(expected = true)
-
-                env.addPassthroughOpacityChangedListener(removedListener)
-
-                val receivedOpacity = env.setPassthroughOpacityAndAwaitCallback(0.5f)
-                assertThat(receivedOpacity).isWithin(OPACITY_TOLERANCE).of(0.5f)
-                assertThat(env.currentPassthroughOpacity).isWithin(OPACITY_TOLERANCE).of(0.5f)
-                withTimeout(CALLBACK_TIMEOUT) { removedListenerNotified.await() }
-
-                // Removing a listener prevents further notifications. The callback awaited by
-                // setPassthroughOpacityAndAwaitCallback acts as the control, and yielding lets any
-                // other notification dispatched for the same change run before the check.
-                env.removePassthroughOpacityChangedListener(removedListener)
-                env.setPassthroughOpacityAndAwaitCallback(1.0f)
-                yield()
-                assertThat(removedListenerOpacities.none { abs(it - 1.0f) <= OPACITY_TOLERANCE })
-                    .isTrue()
-            } finally {
-                env.removePassthroughOpacityChangedListener(removedListener)
-                env.preferredPassthroughOpacity =
-                    SpatialEnvironment.NO_PASSTHROUGH_OPACITY_PREFERENCE
-                env.setPreferredEnvironmentAndSettle(null)
-                ibl.close()
-                geometry.close()
-            }
+            env.preferredSpatialEnvironment = SpatialEnvironmentPreference(ibl, geometry)
         }
+        sessionRule.waitForSpatialEnvironmentSettled()
+
+        val removedListenerOpacities = CopyOnWriteArrayList<Float>()
+        val removedListenerNotified = CountDownLatch(1)
+        val removedListener =
+            Consumer<Float> { opacity ->
+                removedListenerOpacities.add(opacity)
+                removedListenerNotified.countDown()
+            }
+
+        val halfOpacityReceived = CountDownLatch(1)
+        val receivedHalfOpacity = AtomicReference<Float?>(null)
+        val halfOpacityListener =
+            Consumer<Float> { opacity ->
+                if (abs(opacity - 0.5f) <= OPACITY_TOLERANCE) {
+                    receivedHalfOpacity.set(opacity)
+                    halfOpacityReceived.countDown()
+                }
+            }
+
+        env.addPassthroughOpacityChangedListener(removedListener)
+        env.addPassthroughOpacityChangedListener(halfOpacityListener)
+        env.preferredPassthroughOpacity = 0.5f
+        sessionRule.waitForSpatialEnvironmentSettled()
+
+        assertThat(
+                halfOpacityReceived.await(
+                    CALLBACK_TIMEOUT.inWholeMilliseconds,
+                    TimeUnit.MILLISECONDS,
+                )
+            )
+            .isTrue()
+        assertThat(receivedHalfOpacity.get()).isWithin(OPACITY_TOLERANCE).of(0.5f)
+        assertThat(env.currentPassthroughOpacity).isWithin(OPACITY_TOLERANCE).of(0.5f)
+        assertThat(
+                removedListenerNotified.await(
+                    CALLBACK_TIMEOUT.inWholeMilliseconds,
+                    TimeUnit.MILLISECONDS,
+                )
+            )
+            .isTrue()
+
+        // Removing a listener prevents further notifications. The callback for 1.0f acts as the
+        // arrival anchor; the settle window then lets any late notification run before the check.
+        env.removePassthroughOpacityChangedListener(halfOpacityListener)
+        env.removePassthroughOpacityChangedListener(removedListener)
+
+        val fullOpacityReceived = CountDownLatch(1)
+        val fullOpacityListener =
+            Consumer<Float> { opacity ->
+                if (abs(opacity - 1.0f) <= OPACITY_TOLERANCE) {
+                    fullOpacityReceived.countDown()
+                }
+            }
+        env.addPassthroughOpacityChangedListener(fullOpacityListener)
+        env.preferredPassthroughOpacity = 1.0f
+        waitUntil(
+            description = "currentPassthroughOpacity to reach 1.0f",
+            timeout = CALLBACK_TIMEOUT,
+        ) {
+            abs(env.currentPassthroughOpacity - 1.0f) <= OPACITY_TOLERANCE
+        }
+        assertThat(
+                fullOpacityReceived.await(
+                    CALLBACK_TIMEOUT.inWholeMilliseconds,
+                    TimeUnit.MILLISECONDS,
+                )
+            )
+            .isTrue()
+
+        SystemClock.sleep(NO_CHANGE_SETTLE_WINDOW.inWholeMilliseconds)
+        assertThat(removedListenerOpacities.none { abs(it - 1.0f) <= OPACITY_TOLERANCE }).isTrue()
+    }
 
     @Test
     @XrDeviceTest
     @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
-    fun spaceModeToggle_betweenFullSpaceAndHomeSpace_updatesCapabilitiesAndEnvironmentActiveState() =
-        runTestWithSession { session ->
-            session.scene.requestFullSpaceAndAwait()
-            val env = session.scene.spatialEnvironment
+    fun spaceModeToggle_betweenFullSpaceAndHomeSpace_updatesCapabilitiesAndEnvironmentActiveState() {
+        sessionRule.requestFullSpace()
+        val scene = sessionRule.session.scene
+        val env = scene.spatialEnvironment
 
+        val targetPref = sessionRule.onMainThread {
             val blueIbl =
                 ImageBasedLightingAsset.createFromZip(
                     session,
                     Paths.get("skyboxes", "BlueSkybox.zip"),
                 )
             val geometry = GltfModel.create(session, Paths.get("models", "BoundingBoxBlue.glb"))
-            val targetPref = SpatialEnvironmentPreference(blueIbl, geometry)
-
-            try {
-                env.setPreferredEnvironmentAndSettle(targetPref)
-                env.awaitPreferredEnvironmentActive(expected = true)
-                assertThat(session.scene.activitySpace.bounds.width)
-                    .isEqualTo(Float.POSITIVE_INFINITY)
-
-                session.scene.requestHomeSpaceAndAwait()
-                assertThat(session.scene.spatialCapabilities)
-                    .doesNotContain(SpatialCapability.APP_ENVIRONMENT)
-                assertThat(session.scene.activitySpace.bounds.width)
-                    .isLessThan(Float.POSITIVE_INFINITY)
-                // The environment visibility update may arrive in a separate spatial state update
-                // from the capability change, so wait for it explicitly.
-                env.awaitPreferredEnvironmentActive(expected = false)
-                // The preference itself remains retained across HSM transitions
-                assertThat(env.preferredSpatialEnvironment).isEqualTo(targetPref)
-
-                session.scene.requestFullSpaceAndAwait()
-                assertThat(session.scene.spatialCapabilities)
-                    .contains(SpatialCapability.APP_ENVIRONMENT)
-                assertThat(session.scene.activitySpace.bounds.width)
-                    .isEqualTo(Float.POSITIVE_INFINITY)
-                assertThat(env.preferredSpatialEnvironment).isEqualTo(targetPref)
-                // The retained preference is re-applied once back in Full Space Mode
-                env.awaitPreferredEnvironmentActive(expected = true)
-            } finally {
-                // Clear the preference before releasing the assets it still references.
-                env.setPreferredEnvironmentAndSettle(null)
-                blueIbl.close()
-                geometry.close()
+            SpatialEnvironmentPreference(blueIbl, geometry).also {
+                env.preferredSpatialEnvironment = it
             }
         }
+        sessionRule.waitForSpatialEnvironmentSettled()
+        assertThat(env.isPreferredSpatialEnvironmentActive).isTrue()
+        assertThat(scene.activitySpace.bounds.width).isEqualTo(Float.POSITIVE_INFINITY)
 
-    /**
-     * Sets [preference] and yields the main thread once, so that the geometry attachment coroutine
-     * launched by the rendering runtime runs before the test continues or cleans up.
-     */
-    private suspend fun SpatialEnvironment.setPreferredEnvironmentAndSettle(
-        preference: SpatialEnvironmentPreference?
-    ) {
-        preferredSpatialEnvironment = preference
-        yield()
+        sessionRule.requestHomeSpace()
+        assertThat(scene.spatialCapabilities).doesNotContain(SpatialCapability.APP_ENVIRONMENT)
+        assertThat(scene.activitySpace.bounds.width).isLessThan(Float.POSITIVE_INFINITY)
+        // The environment visibility update may arrive in a separate spatial state update from
+        // the capability change, so wait for it explicitly.
+        waitUntil(
+            description = "preferred spatial environment to become inactive in Home Space Mode",
+            timeout = CALLBACK_TIMEOUT,
+        ) {
+            !env.isPreferredSpatialEnvironmentActive
+        }
+        // The preference itself remains retained across HSM transitions.
+        assertThat(env.preferredSpatialEnvironment).isEqualTo(targetPref)
+
+        sessionRule.requestFullSpace()
+        assertThat(scene.spatialCapabilities).contains(SpatialCapability.APP_ENVIRONMENT)
+        assertThat(scene.activitySpace.bounds.width).isEqualTo(Float.POSITIVE_INFINITY)
+        assertThat(env.preferredSpatialEnvironment).isEqualTo(targetPref)
+        // The retained preference is re-applied once back in Full Space Mode.
+        sessionRule.waitForSpatialEnvironmentSettled()
+        assertThat(env.isPreferredSpatialEnvironmentActive).isTrue()
     }
 
     /**
-     * Suspends until [SpatialEnvironment.isPreferredSpatialEnvironmentActive] equals [expected],
-     * either immediately or via [SpatialEnvironment.addSpatialEnvironmentChangedListener].
-     */
-    private suspend fun SpatialEnvironment.awaitPreferredEnvironmentActive(expected: Boolean) {
-        val reached = CompletableDeferred<Unit>()
-        val listener =
-            Consumer<Boolean> { isActive ->
-                if (isActive == expected) reached.complete(Unit)
-            }
-        addSpatialEnvironmentChangedListener(listener)
-        try {
-            if (isPreferredSpatialEnvironmentActive == expected) return
-            withTimeout(CALLBACK_TIMEOUT) { reached.await() }
-        } finally {
-            removeSpatialEnvironmentChangedListener(listener)
-        }
-    }
-
-    /**
-     * Sets [SpatialEnvironment.preferredPassthroughOpacity] to [target] and suspends until a
-     * passthrough opacity listener reports a value matching [target].
-     *
-     * @return the opacity reported by the listener.
-     */
-    private suspend fun SpatialEnvironment.setPassthroughOpacityAndAwaitCallback(
-        target: Float
-    ): Float {
-        val received = CompletableDeferred<Float>()
-        val listener =
-            Consumer<Float> { opacity ->
-                if (abs(opacity - target) <= OPACITY_TOLERANCE) received.complete(opacity)
-            }
-        addPassthroughOpacityChangedListener(listener)
-        try {
-            preferredPassthroughOpacity = target
-            return withTimeout(CALLBACK_TIMEOUT) { received.await() }
-        } finally {
-            removePassthroughOpacityChangedListener(listener)
-        }
-    }
-
-    /** Captures the scene graph off the main thread, since the capture blocks while polling. */
-    private suspend fun captureSpatialScene(): SpatialScene =
-        withContext(Dispatchers.IO) { SpatialSceneHelper.captureSpatialScene() }
-
-    /** Polls the spatial scene off the main thread, since waiting blocks between captures. */
-    private suspend fun <T> awaitSpatialScene(
-        description: String,
-        select: (SpatialScene) -> T,
-        until: (T) -> Boolean,
-    ): T =
-        withContext(Dispatchers.IO) {
-            SpatialSceneHelper.waitForSpatialScene(
-                description = description,
-                timeout = SCENE_TIMEOUT,
-                pollInterval = SCENE_POLL_INTERVAL,
-                select = select,
-                until = until,
-            )
-        }
-
-    /** Returns the geometry node currently attached under the environment root, if any. */
-    private fun environmentGeometryNode(scene: SpatialScene): SpatialNode? =
-        scene.rootNodes
-            .firstNotNullOfOrNull { root -> root.findNode { it.name == ENVIRONMENT_ROOT_NODE } }
-            ?.findDescendant { it.name == ENVIRONMENT_GEOMETRY_NODE }
-
-    private suspend fun awaitEnvironmentGeometryNode(
-        description: String,
-        until: (SpatialNode?) -> Boolean,
-    ): SpatialNode? =
-        awaitSpatialScene(
-            description = description,
-            select = ::environmentGeometryNode,
-            until = until,
-        )
-
-    /**
-     * Asserts that the environment geometry node keeps the id of [expected] throughout a settle
-     * window. There is no scene graph change to anchor on, so the window starts after the main
-     * Looper has drained, which submits any work queued by the preceding preference update.
-     */
-    private suspend fun assertEnvironmentGeometryNodeUnchanged(
-        description: String,
-        expected: SpatialNode?,
-    ) {
-        withContext(Dispatchers.IO) {
-            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-        }
-        assertSpatialSceneInvariant(
-            description,
-            select = ::environmentGeometryNode,
-            anchor = { true },
-            invariant = { it?.id == expected?.id },
-        )
-    }
-
-    /**
-     * Polls until [anchor] holds, then asserts that [invariant] holds on every snapshot for at
-     * least [SETTLE_POLLS] captures spanning [SETTLE_WINDOW].
-     *
-     * @throws AssertionError if [anchor] does not hold within [SCENE_TIMEOUT] or [invariant] is
-     *   violated during the settle window.
-     */
-    private suspend fun <T> assertSpatialSceneInvariant(
-        description: String,
-        select: (SpatialScene) -> T,
-        anchor: (T) -> Boolean,
-        invariant: (T) -> Boolean,
-    ) {
-        var value =
-            awaitSpatialScene(
-                description = "anchor for $description",
-                select = select,
-                until = anchor,
-            )
-        val settleStart = TimeSource.Monotonic.markNow()
-        var polls = 0
-        while (true) {
-            if (!invariant(value)) throw AssertionError("Violated $description, value: $value")
-            if (++polls >= SETTLE_POLLS && settleStart.elapsedNow() >= SETTLE_WINDOW) return
-            delay(SCENE_POLL_INTERVAL)
-            value = select(captureSpatialScene())
-        }
-    }
-
-    /**
-     * Repeatedly takes screenshots until [until] holds for the value returned by [select]. Taking a
-     * screenshot blocks, so the loop runs on [Dispatchers.IO], and [select] and [until] are also
-     * evaluated off the main thread. The [Bitmap] passed to [select] is recycled after each call.
+     * Repeatedly takes screenshots until [until] holds for the value returned by [select], using
+     * [waitUntil]. Taking a screenshot blocks, so this must be called from the instrumentation
+     * thread, where [select] and [until] are also evaluated. The [Bitmap] passed to [select] is
+     * recycled after each call.
      *
      * @throws AssertionError if [until] does not hold within [SCREENSHOT_TIMEOUT], including when
      *   no screenshot could be taken.
      */
-    private suspend fun <T> pollScreenshot(
+    private fun <T> pollScreenshot(
         description: String,
         select: (Bitmap) -> T,
         until: (T) -> Boolean,
-    ): T =
-        withContext(Dispatchers.IO) {
-            val start = TimeSource.Monotonic.markNow()
-            var screenshotCount = 0
-            var lastValue: T? = null
-            while (true) {
+    ): T {
+        var screenshotCount = 0
+        var lastValue: T? = null
+        var matched = false
+        try {
+            waitUntil(description, SCREENSHOT_TIMEOUT, SCREENSHOT_POLL_INTERVAL) {
                 val screenshot =
                     InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
-                if (screenshot != null) {
-                    screenshotCount++
-                    val value =
-                        try {
-                            select(screenshot)
-                        } finally {
-                            screenshot.recycle()
-                        }
-                    if (until(value)) return@withContext value
-                    lastValue = value
-                }
-                if (start.elapsedNow() >= SCREENSHOT_TIMEOUT) {
-                    break
-                }
-                delay(SCREENSHOT_POLL_INTERVAL)
+                        ?: return@waitUntil false
+                screenshotCount++
+                val value =
+                    try {
+                        select(screenshot)
+                    } finally {
+                        screenshot.recycle()
+                    }
+                lastValue = value
+                until(value).also { matched = it }
             }
+        } catch (e: AssertionError) {
             throw AssertionError(
                 if (screenshotCount == 0) {
-                    "Timed out waiting for $description: takeScreenshot() kept returning null"
+                    "${e.message} takeScreenshot() kept returning null."
                 } else {
-                    "Timed out waiting for $description after $screenshotCount screenshots, " +
-                        "last value: $lastValue"
-                }
+                    "${e.message} Took $screenshotCount screenshots, last value: $lastValue"
+                },
+                e,
             )
         }
+        check(matched)
+        @Suppress("UNCHECKED_CAST")
+        return lastValue as T
+    }
 
     /**
      * Returns the fraction of blue pixels in the sky hemisphere of [screenshot]. Both the top and
@@ -588,47 +451,38 @@ class SpatialEnvironmentTest {
      * need to be classified.
      */
     private fun skyBlueFraction(screenshot: Bitmap): Float {
-        // Pixel access is not supported on hardware bitmaps.
-        val source =
-            if (screenshot.config == Bitmap.Config.HARDWARE) {
-                checkNotNull(screenshot.copy(Bitmap.Config.ARGB_8888, false))
-            } else {
-                screenshot
-            }
+        val source = toSoftwareBitmap(screenshot)
         try {
             val sampleHeight = (SAMPLE_WIDTH * source.height / source.width).coerceAtLeast(2)
             val sample = Bitmap.createScaledBitmap(source, SAMPLE_WIDTH, sampleHeight, true)
             val regionWidth = sample.width
             val halfHeight = (sample.height / 2).coerceAtLeast(1)
-            val topPixels = IntArray(regionWidth * halfHeight)
-            val bottomPixels = IntArray(regionWidth * (sample.height - halfHeight))
-            try {
-                sample.getPixels(topPixels, 0, regionWidth, 0, 0, regionWidth, halfHeight)
-                sample.getPixels(
-                    bottomPixels,
-                    0,
-                    regionWidth,
-                    0,
-                    halfHeight,
-                    regionWidth,
-                    sample.height - halfHeight,
-                )
-            } finally {
-                if (sample !== source) {
-                    sample.recycle()
+            val splitIndex = halfHeight * regionWidth
+            val pixels =
+                try {
+                    toPixelArray(sample)
+                } finally {
+                    if (sample !== source) {
+                        sample.recycle()
+                    }
                 }
-            }
             val hsv = FloatArray(3)
-            fun IntArray.blueFraction(): Float =
-                count { pixel ->
-                    Color.colorToHSV(pixel, hsv)
-                    hsv[0] in BLUE_HUE_RANGE &&
-                        hsv[1] >= MIN_BLUE_SATURATION &&
-                        hsv[2] >= MIN_BLUE_BRIGHTNESS
+            fun blueFraction(startIndex: Int, endExclusive: Int): Float {
+                var blueCount = 0
+                for (i in startIndex until endExclusive) {
+                    Color.colorToHSV(pixels[i], hsv)
+                    if (
+                        hsv[0] in BLUE_HUE_RANGE &&
+                            hsv[1] >= MIN_BLUE_SATURATION &&
+                            hsv[2] >= MIN_BLUE_BRIGHTNESS
+                    ) {
+                        blueCount++
+                    }
                 }
-                    .toFloat() / size
+                return blueCount.toFloat() / (endExclusive - startIndex)
+            }
 
-            return maxOf(topPixels.blueFraction(), bottomPixels.blueFraction())
+            return maxOf(blueFraction(0, splitIndex), blueFraction(splitIndex, pixels.size))
         } finally {
             if (source !== screenshot) {
                 source.recycle()
@@ -640,10 +494,11 @@ class SpatialEnvironmentTest {
         val CALLBACK_TIMEOUT = 5.seconds
         const val OPACITY_TOLERANCE = 1e-4f
 
-        val SCENE_TIMEOUT = 5.seconds
-        val SCENE_POLL_INTERVAL = 100.milliseconds
-        val SETTLE_WINDOW = 300.milliseconds
-        const val SETTLE_POLLS = 3
+        /**
+         * How long to keep observing after an arrival anchor before asserting that no further
+         * notification was delivered.
+         */
+        val NO_CHANGE_SETTLE_WINDOW = 300.milliseconds
 
         val SCREENSHOT_TIMEOUT = 8.seconds
         val SCREENSHOT_POLL_INTERVAL = 200.milliseconds
@@ -667,11 +522,5 @@ class SpatialEnvironmentTest {
          */
         const val MIN_BLUE_FRACTION = 0.25f
         const val MAX_NOT_BLUE_FRACTION = 0.1f
-
-        /** Scene graph node that parents the active environment. */
-        const val ENVIRONMENT_ROOT_NODE = "Environment Root"
-
-        /** Name given to the environment geometry subspace by the rendering runtime. */
-        const val ENVIRONMENT_GEOMETRY_NODE = "EnvironmentGeometryNode"
     }
 }
