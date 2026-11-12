@@ -16,14 +16,14 @@
 
 package androidx.compose.remote.integration.view.demos.dsl
 
-import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.operations.Header
-import androidx.compose.remote.creation.RemoteComposeWriter.HTag
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcColumnVerticalPositioning
+import androidx.compose.remote.creation.dsl.RcDensityBehavior
+import androidx.compose.remote.creation.dsl.RcHeaderTag
 import androidx.compose.remote.creation.dsl.RcHorizontalPositioning
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcRowHorizontalPositioning
+import androidx.compose.remote.creation.dsl.RcShape
 import androidx.compose.remote.creation.dsl.RcVerticalPositioning
 import androidx.compose.remote.creation.dsl.animationSpec
 import androidx.compose.remote.creation.dsl.background
@@ -37,7 +37,6 @@ import androidx.compose.remote.creation.dsl.padding
 import androidx.compose.remote.creation.dsl.rsp
 import androidx.compose.remote.creation.dsl.size
 import androidx.compose.remote.creation.dsl.width
-import androidx.compose.remote.creation.modifiers.RoundedRectShape
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 
 /**
@@ -49,7 +48,7 @@ public fun dslRcStateLayout3StatesDemo(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        HTag(Header.DOC_DENSITY_BEHAVIOR, CoreDocument.DENSITY_BEHAVIOR_DP),
+        RcHeaderTag.densityBehavior(RcDensityBehavior.Dp),
     ) {
         val stateVar = remoteNamedInteger("state", 0)
 
@@ -103,7 +102,7 @@ public fun dslRcStateLayout3StatesDemo(): ByteArray {
                 modifier =
                     Modifier.width(180f)
                         .height(48f)
-                        .clip(RoundedRectShape(12f, 12f, 12f, 12f))
+                        .clip(RcShape.roundedCorner(12f))
                         .background(0xFFA9A9A9.toInt())
                         .onClick { setValue(stateVar, (stateVar + 1) % 3) },
                 horizontal = RcHorizontalPositioning.Center,

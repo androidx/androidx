@@ -63,7 +63,7 @@ public fun dslBasicTimer(): ByteArray {
 
                 paint {
                     color(0x99888888.toInt())
-                    raw.setShader(0)
+                    clearShader()
                     strokeWidth(32f)
                     strokeCap(RcStrokeCap.Round)
                 }

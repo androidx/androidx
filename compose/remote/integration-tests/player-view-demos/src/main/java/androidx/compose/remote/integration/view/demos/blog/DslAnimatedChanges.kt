@@ -16,14 +16,13 @@
 
 package androidx.compose.remote.integration.view.demos.blog
 
-import androidx.compose.remote.core.operations.Header
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcAnimationCurve
 import androidx.compose.remote.creation.dsl.RcCanvasScope
 import androidx.compose.remote.creation.dsl.RcFloat
 import androidx.compose.remote.creation.dsl.RcFontType
 import androidx.compose.remote.creation.dsl.RcFontWeight
+import androidx.compose.remote.creation.dsl.RcHeaderTag
 import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcStrokeCap
@@ -101,7 +100,7 @@ public fun dslAnimatedChanges(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Animated changes"),
+        RcHeaderTag.contentDescription("Animated changes"),
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(PAGE_COLOR)) {
             val w = componentWidth()

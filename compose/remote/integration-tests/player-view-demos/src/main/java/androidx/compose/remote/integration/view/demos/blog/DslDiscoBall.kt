@@ -16,9 +16,8 @@
 
 package androidx.compose.remote.integration.view.demos.blog
 
-import androidx.compose.remote.core.operations.Header
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.Modifier
+import androidx.compose.remote.creation.dsl.RcHeaderTag
 import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.background
@@ -60,9 +59,9 @@ public fun dslDiscoBall(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
-        RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
-        RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Disco Ball"),
+        RcHeaderTag.docWidth(400),
+        RcHeaderTag.docHeight(400),
+        RcHeaderTag.contentDescription("Disco Ball"),
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFFFFFFFF.toInt())) {
             // ============================================================

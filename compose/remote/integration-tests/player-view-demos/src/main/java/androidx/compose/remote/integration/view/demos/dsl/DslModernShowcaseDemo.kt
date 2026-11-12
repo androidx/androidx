@@ -17,7 +17,6 @@
 package androidx.compose.remote.integration.view.demos.dsl
 
 import androidx.compose.remote.creation.dsl.*
-import androidx.compose.remote.creation.modifiers.RoundedRectShape
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.tooling.preview.RemoteDocumentPreview
@@ -68,9 +67,7 @@ public fun dslModernShowcaseDemo(): ByteArray {
                 defineMacro("BannerCard", listOf("title", "bgColor")) { args ->
                     Box(
                         modifier =
-                            Modifier.fillMaxWidth()
-                                .height(100.rdp)
-                                .clip(RoundedRectShape(24f, 24f, 24f, 24f))
+                            Modifier.fillMaxWidth().height(100.rdp).clip(RcShape.roundedCorner(24f))
                     ) {
                         Canvas(Modifier.fillMaxSize()) {
                             val w = componentWidth()
@@ -104,7 +101,7 @@ public fun dslModernShowcaseDemo(): ByteArray {
                 modifier =
                     Modifier.fillMaxWidth()
                         .height(120.rdp)
-                        .clip(RoundedRectShape(24f, 24f, 24f, 24f))
+                        .clip(RcShape.roundedCorner(24f))
                         .background(0xFF1E293B.toInt())
             ) {
                 Canvas(Modifier.fillMaxSize()) {
@@ -176,7 +173,7 @@ public fun dslModernShowcaseDemo(): ByteArray {
                     Modifier.width(180.rdp)
                         .height(80.rdp)
                         .background(0xFF8B5CF6.toInt())
-                        .clip(RoundedRectShape(16f, 16f, 16f, 16f))
+                        .clip(RcShape.roundedCorner(16f))
                 ) {
                     Text(
                         text = "FitBox Parity",

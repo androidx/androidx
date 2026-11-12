@@ -16,11 +16,10 @@
 
 package androidx.compose.remote.integration.view.demos.dsl
 
-import androidx.compose.remote.core.operations.Header
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcFontType
 import androidx.compose.remote.creation.dsl.RcFontWeight
+import androidx.compose.remote.creation.dsl.RcHeaderTag
 import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.background
@@ -85,9 +84,9 @@ public fun dslDemoCalendarHeatmap(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
-        RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
-        RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Calendar Heatmap Grid"),
+        RcHeaderTag.docWidth(400),
+        RcHeaderTag.docHeight(400),
+        RcHeaderTag.contentDescription("Calendar Heatmap Grid"),
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFF161B22.toInt())) {
             val w = componentWidth()

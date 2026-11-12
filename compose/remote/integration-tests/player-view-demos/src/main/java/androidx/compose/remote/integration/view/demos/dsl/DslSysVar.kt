@@ -16,11 +16,10 @@
 
 package androidx.compose.remote.integration.view.demos.dsl
 
-import androidx.compose.remote.core.operations.Header
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcCanvasScope
 import androidx.compose.remote.creation.dsl.RcFloat
+import androidx.compose.remote.creation.dsl.RcHeaderTag
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcText
 import androidx.compose.remote.creation.dsl.background
@@ -46,9 +45,9 @@ public fun dslSysVar(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
-        RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
-        RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Activity Rings"),
+        RcHeaderTag.docWidth(400),
+        RcHeaderTag.docHeight(400),
+        RcHeaderTag.contentDescription("Activity Rings"),
     ) {
         val rad = remoteNamedFloat("system.system_app_widget_background_radius", 32f)
         val innerRad = remoteNamedFloat("system.system_app_widget_inner_radius", 25f)

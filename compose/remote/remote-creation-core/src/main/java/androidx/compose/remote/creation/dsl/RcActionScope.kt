@@ -32,7 +32,7 @@ import androidx.compose.remote.creation.actions.ValueStringChange
 /** Scope for recording interaction logic. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RcDslMarker
-public interface RcRunActionScope {
+public sealed interface RcRunActionScope {
     /** Sets a float variable to a new value. */
     public fun setValue(variable: RcFloat, value: Float)
 
@@ -56,7 +56,7 @@ public interface RcRunActionScope {
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface RcActionScope : RcRunActionScope {
+public sealed interface RcActionScope : RcRunActionScope {
     public fun hostAction(name: String)
 
     public fun hostAction(id: Int, metadata: RcText)

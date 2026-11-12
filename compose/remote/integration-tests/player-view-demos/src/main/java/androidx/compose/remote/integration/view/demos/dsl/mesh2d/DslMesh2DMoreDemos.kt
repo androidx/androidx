@@ -16,11 +16,10 @@
 
 package androidx.compose.remote.integration.view.demos.dsl.mesh2d
 
-import androidx.compose.remote.core.operations.Header
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcColorValue
 import androidx.compose.remote.creation.dsl.RcDrawOnBitmapMode
+import androidx.compose.remote.creation.dsl.RcHeaderTag
 import androidx.compose.remote.creation.dsl.RcMeshBlend
 import androidx.compose.remote.creation.dsl.RcMeshLayout
 import androidx.compose.remote.creation.dsl.RcMeshMatrix
@@ -74,9 +73,9 @@ public fun dslMesh2DRoseWindow(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
-        RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
-        RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Mesh2D rose window"),
+        RcHeaderTag.docWidth(400),
+        RcHeaderTag.docHeight(400),
+        RcHeaderTag.contentDescription("Mesh2D rose window"),
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFF0A0710.toInt())) {
             val w = componentWidth()
@@ -153,9 +152,9 @@ public fun dslMesh2DRadarSweep(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
-        RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
-        RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Mesh2D radar sweep"),
+        RcHeaderTag.docWidth(400),
+        RcHeaderTag.docHeight(400),
+        RcHeaderTag.contentDescription("Mesh2D radar sweep"),
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFF02100A.toInt())) {
             val w = componentWidth()
@@ -236,9 +235,9 @@ public fun dslMesh2DTexturedTapestry(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
-        RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
-        RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Mesh2D textured tapestry"),
+        RcHeaderTag.docWidth(400),
+        RcHeaderTag.docHeight(400),
+        RcHeaderTag.contentDescription("Mesh2D textured tapestry"),
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFF070A14.toInt())) {
             val w = componentWidth()
@@ -408,9 +407,9 @@ public fun dslMesh2DPerspectiveCarpet(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
-        RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
-        RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Mesh2D perspective carpet"),
+        RcHeaderTag.docWidth(400),
+        RcHeaderTag.docHeight(400),
+        RcHeaderTag.contentDescription("Mesh2D perspective carpet"),
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFF090812.toInt())) {
             val w = componentWidth()

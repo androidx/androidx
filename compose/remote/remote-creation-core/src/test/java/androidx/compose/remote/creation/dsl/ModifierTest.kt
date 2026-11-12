@@ -68,7 +68,9 @@ class ModifierTest {
 
         val modifier = Modifier.padding(10f).size(100f).background(0xFF00FF00.toInt())
 
-        modifier.foldIn(Unit) { _, element -> element.applyTo(recordingModifier) }
+        modifier.foldIn(Unit) { _, element ->
+            (element as RecordingModifierElement).applyTo(recordingModifier)
+        }
 
         assertEquals(true, recordingModifier.paddingCalled)
         assertEquals(true, recordingModifier.sizeCalled)

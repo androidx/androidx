@@ -273,14 +273,8 @@ open class BaseLayoutTest : LayoutTestPlayer() {
             )
         val tags =
             arrayOf(
-                RemoteComposeWriter.HTag(
-                    androidx.compose.remote.core.operations.Header.DOC_WIDTH,
-                    w,
-                ),
-                RemoteComposeWriter.HTag(
-                    androidx.compose.remote.core.operations.Header.DOC_HEIGHT,
-                    h,
-                ),
+                androidx.compose.remote.creation.dsl.RcHeaderTag.docWidth(w),
+                androidx.compose.remote.creation.dsl.RcHeaderTag.docHeight(h),
             )
         val byteBuffer = createRcBuffer(profile, experimental = true, *tags, content = content)
         if (overridePlayerSize) {

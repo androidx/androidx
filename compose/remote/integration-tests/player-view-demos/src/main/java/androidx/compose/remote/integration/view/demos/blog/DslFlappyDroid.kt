@@ -16,12 +16,11 @@
 
 package androidx.compose.remote.integration.view.demos.blog
 
-import androidx.compose.remote.core.operations.Header
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcCanvasScope
 import androidx.compose.remote.creation.dsl.RcConditionOp
 import androidx.compose.remote.creation.dsl.RcFloat
+import androidx.compose.remote.creation.dsl.RcHeaderTag
 import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcPath
 import androidx.compose.remote.creation.dsl.RcProfile
@@ -35,7 +34,6 @@ import androidx.compose.remote.creation.dsl.minus
 import androidx.compose.remote.creation.dsl.onClick
 import androidx.compose.remote.creation.dsl.smoothStep
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
-import androidx.compose.remote.integration.view.demos.dsl.RcPathData
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.tooling.preview.RemoteDocumentPreview
 import androidx.compose.runtime.Composable
@@ -66,51 +64,41 @@ public fun dslFlappyDroid(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        RemoteComposeWriter.hTag(Header.DOC_WIDTH, 1000),
-        RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 1000),
-        RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Flappy Droid"),
+        RcHeaderTag.docWidth(1000),
+        RcHeaderTag.docHeight(1000),
+        RcHeaderTag.contentDescription("Flappy Droid"),
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Canvas(modifier = Modifier.fillMaxSize().onClick {}) {
                 // ======================= RESOURCES =======================
                 val flameOrange =
                     remotePathData(
-                        RcPathData(
-                            "M -78,700 A 78 78 0 0 1 78,700 C 78,790 22,855 0,905 " +
-                                "C -22,855 -78,790 -78,700 Z"
-                        )
+                        "M -78,700 A 78 78 0 0 1 78,700 C 78,790 22,855 0,905 " +
+                            "C -22,855 -78,790 -78,700 Z"
                     )
                 val flameYellow =
                     remotePathData(
-                        RcPathData(
-                            "M -46,712 A 46 46 0 0 1 46,712 C 46,772 14,820 0,855 " +
-                                "C -14,820 -46,772 -46,712 Z"
-                        )
+                        "M -46,712 A 46 46 0 0 1 46,712 C 46,772 14,820 0,855 " +
+                            "C -14,820 -46,772 -46,712 Z"
                     )
                 val rocketBody =
                     remotePathData(
-                        RcPathData(
-                            "M 0,0 C -54,54 -124,158 -124,248 L -124,615 L 124,615 " +
-                                "L 124,248 C 124,158 54,54 0,0 Z"
-                        )
+                        "M 0,0 C -54,54 -124,158 -124,248 L -124,615 L 124,615 " +
+                            "L 124,248 C 124,158 54,54 0,0 Z"
                     )
                 val rocketShade =
-                    remotePathData(RcPathData("M 0,0 C 54,54 124,158 124,248 L 124,615 L 0,615 Z"))
+                    remotePathData("M 0,0 C 54,54 124,158 124,248 L 124,615 L 0,615 Z")
                 val rocketNozzle =
                     remotePathData(
-                        RcPathData(
-                            "M -124,598 L 124,598 L 124,658 Q 124,690 92,690 " +
-                                "L -92,690 Q -124,690 -124,658 Z"
-                        )
+                        "M -124,598 L 124,598 L 124,658 Q 124,690 92,690 " +
+                            "L -92,690 Q -124,690 -124,658 Z"
                     )
                 val droidTorso =
                     remotePathData(
-                        RcPathData(
-                            "M -290,34 L 290,34 L 290,322 Q 290,370 242,370 " +
-                                "L -242,370 Q -290,370 -290,322 Z"
-                        )
+                        "M -290,34 L 290,34 L 290,322 Q 290,370 242,370 " +
+                            "L -242,370 Q -290,370 -290,322 Z"
                     )
-                val droidHead = remotePathData(RcPathData("M -290,0 A 290 290 0 0 1 290,0 Z"))
+                val droidHead = remotePathData("M -290,0 A 290 290 0 0 1 290,0 Z")
 
                 // ======================= VARIABLES =======================
                 val w = componentWidth().flush()

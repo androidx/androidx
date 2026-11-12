@@ -17,13 +17,12 @@
 package androidx.compose.remote.integration.view.demos.dsl.mesh2d
 
 import android.annotation.SuppressLint
-import androidx.compose.remote.core.operations.Header
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcCanvasScope
 import androidx.compose.remote.creation.dsl.RcColorValue
 import androidx.compose.remote.creation.dsl.RcDrawOnBitmapMode
 import androidx.compose.remote.creation.dsl.RcFloat
+import androidx.compose.remote.creation.dsl.RcHeaderTag
 import androidx.compose.remote.creation.dsl.RcMesh
 import androidx.compose.remote.creation.dsl.RcMeshLayout
 import androidx.compose.remote.creation.dsl.RcPaintStyle
@@ -163,9 +162,9 @@ public fun dslMesh2DAntialiasShapes(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
-        RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
-        RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Mesh2D antialias shapes"),
+        RcHeaderTag.docWidth(400),
+        RcHeaderTag.docHeight(400),
+        RcHeaderTag.contentDescription("Mesh2D antialias shapes"),
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(BACKDROP)) {
             val w = componentWidth()
@@ -309,9 +308,9 @@ public fun dslMesh2DAntialiasZoom(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
-        RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
-        RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Mesh2D antialias zoom"),
+        RcHeaderTag.docWidth(400),
+        RcHeaderTag.docHeight(400),
+        RcHeaderTag.contentDescription("Mesh2D antialias zoom"),
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(BACKDROP)) {
             val w = componentWidth()
@@ -385,9 +384,9 @@ public fun dslMesh2DAntialiasTextured(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
-        RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
-        RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Mesh2D antialias textured"),
+        RcHeaderTag.docWidth(400),
+        RcHeaderTag.docHeight(400),
+        RcHeaderTag.contentDescription("Mesh2D antialias textured"),
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(BACKDROP)) {
             val w = componentWidth()

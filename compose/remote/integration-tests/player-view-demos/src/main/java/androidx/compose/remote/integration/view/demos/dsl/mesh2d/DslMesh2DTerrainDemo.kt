@@ -16,11 +16,10 @@
 
 package androidx.compose.remote.integration.view.demos.dsl.mesh2d
 
-import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.Rc
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcFloat
+import androidx.compose.remote.creation.dsl.RcHeaderTag
 import androidx.compose.remote.creation.dsl.RcMeshLayout
 import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcProfile
@@ -93,12 +92,9 @@ public fun dslMesh2DPerlinTerrain(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
-        RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
-        RemoteComposeWriter.hTag(
-            Header.DOC_CONTENT_DESCRIPTION,
-            "Perlin terrain with rolling balls",
-        ),
+        RcHeaderTag.docWidth(400),
+        RcHeaderTag.docHeight(400),
+        RcHeaderTag.contentDescription("Perlin terrain with rolling balls"),
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFF05070C.toInt())) {
             val w = componentWidth()

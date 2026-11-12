@@ -22,11 +22,11 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.RcPaint
 
 /**
- * Typed Kotlin DSL scope wrapping the legacy Java [RcPaint] mutable builder.
+ * Typed Kotlin DSL scope for configuring paint attributes inside [RcScope.paint].
  *
- * Each method takes typed value classes / enums (`RcColor`, `RcPaintStyle`, `RcStrokeCap`,
- * `RcBlendMode`, etc.) instead of raw `Int` opcodes. Method names drop the Java-style `set` prefix
- * for a more idiomatic Kotlin DSL feel.
+ * Each method takes typed value classes (`RcColor`, `RcPaintStyle`, `RcStrokeCap`, `RcBlendMode`,
+ * etc.) instead of raw `Int` opcodes. Method names drop the Java-style `set` prefix for a more
+ * idiomatic Kotlin DSL feel.
  *
  * ```
  * paint {
@@ -36,16 +36,10 @@ import androidx.compose.remote.creation.RcPaint
  *     strokeCap(RcStrokeCap.Round)
  * }
  * ```
- *
- * For paint methods not yet wrapped (gradients, axes, path effects, etc.) use the [raw] escape
- * hatch to access the underlying [RcPaint] builder directly.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RcDslMarker
-public interface RcPaintScope {
-
-    /** Underlying mutable [RcPaint] builder. Use for paint settings not yet wrapped. */
-    public val raw: RcPaint
+public sealed interface RcPaintScope {
 
     // ---- Color ----
 
@@ -241,21 +235,115 @@ public interface RcPaintScope {
         positions: FloatArray? = null,
         colorMask: Int = 0,
     )
+
+    /** Linear gradient between two endpoints using dynamic [RcColor] stops. */
+    public fun linearGradient(
+        startX: Float,
+        startY: Float,
+        endX: Float,
+        endY: Float,
+        colors: List<RcColor>,
+        positions: FloatArray? = null,
+        tileMode: RcTileMode = RcTileMode.Clamp,
+    ) {
+        linearGradient(
+            startX = startX,
+            startY = startY,
+            endX = endX,
+            endY = endY,
+            colors = IntArray(colors.size) { colors[it].id },
+            positions = positions,
+            tileMode = tileMode,
+            colorMask = dynamicColorMask(colors),
+        )
+    }
+
+    /** Radial gradient around a center point using dynamic [RcColor] stops. */
+    public fun radialGradient(
+        centerX: Float,
+        centerY: Float,
+        radius: Float,
+        colors: List<RcColor>,
+        positions: FloatArray? = null,
+        tileMode: RcTileMode = RcTileMode.Clamp,
+    ) {
+        radialGradient(
+            centerX = centerX,
+            centerY = centerY,
+            radius = radius,
+            colors = IntArray(colors.size) { colors[it].id },
+            positions = positions,
+            tileMode = tileMode,
+            colorMask = dynamicColorMask(colors),
+        )
+    }
+
+    /** Radial gradient between two circles using dynamic [RcColor] stops. */
+    public fun radialGradient(
+        startX: Float,
+        startY: Float,
+        startRadius: Float,
+        endX: Float,
+        endY: Float,
+        endRadius: Float,
+        colors: List<RcColor>,
+        positions: FloatArray? = null,
+        tileMode: RcTileMode = RcTileMode.Clamp,
+    ) {
+        radialGradient(
+            startX = startX,
+            startY = startY,
+            startRadius = startRadius,
+            endX = endX,
+            endY = endY,
+            endRadius = endRadius,
+            colors = IntArray(colors.size) { colors[it].id },
+            positions = positions,
+            tileMode = tileMode,
+            colorMask = dynamicColorMask(colors),
+        )
+    }
+
+    /** Sweep gradient around a center point using dynamic [RcColor] stops. */
+    public fun sweepGradient(
+        centerX: Float,
+        centerY: Float,
+        colors: List<RcColor>,
+        positions: FloatArray? = null,
+    ) {
+        sweepGradient(
+            centerX = centerX,
+            centerY = centerY,
+            colors = IntArray(colors.size) { colors[it].id },
+            positions = positions,
+            colorMask = dynamicColorMask(colors),
+        )
+    }
+}
+
+private fun dynamicColorMask(colors: List<RcColor>): Int {
+    var mask = 0
+    for (i in colors.indices) {
+        if (colors[i].id != 0) {
+            mask = mask or (1 shl i)
+        }
+    }
+    return mask
 }
 
 /** Internal implementation that forwards every method to a wrapped legacy [RcPaint]. */
-internal class RcPaintScopeImpl(override val raw: RcPaint) : RcPaintScope {
+internal class RcPaintScopeImpl(internal val raw: RcPaint) : RcPaintScope {
 
     override fun color(value: Int) {
         raw.setColor(value)
     }
 
     override fun color(value: RcColor) {
-        raw.setColor(value)
+        raw.setColorId(value.id)
     }
 
     override fun color(value: RcColorValue) {
-        raw.setColor(value)
+        raw.setColor(value.id)
     }
 
     override fun alpha(value: Float) {

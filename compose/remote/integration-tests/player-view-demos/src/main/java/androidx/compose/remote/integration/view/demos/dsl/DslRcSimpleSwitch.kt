@@ -19,6 +19,7 @@ package androidx.compose.remote.integration.view.demos.dsl
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcHorizontalPositioning
 import androidx.compose.remote.creation.dsl.RcProfile
+import androidx.compose.remote.creation.dsl.RcShape
 import androidx.compose.remote.creation.dsl.RcVerticalPositioning
 import androidx.compose.remote.creation.dsl.background
 import androidx.compose.remote.creation.dsl.clip
@@ -30,7 +31,6 @@ import androidx.compose.remote.creation.dsl.padding
 import androidx.compose.remote.creation.dsl.rsp
 import androidx.compose.remote.creation.dsl.size
 import androidx.compose.remote.creation.dsl.width
-import androidx.compose.remote.creation.modifiers.RoundedRectShape
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 
 /**
@@ -66,7 +66,7 @@ public fun dslRcSimpleSwitchDemo(): ByteArray {
                         modifier =
                             Modifier.width(60f)
                                 .height(36f)
-                                .clip(RoundedRectShape(20f, 20f, 20f, 20f))
+                                .clip(RcShape.roundedCorner(20f))
                                 .background(0xFF888888.toInt())
                                 .padding(8f),
                         horizontal = RcHorizontalPositioning.Start,
@@ -75,7 +75,7 @@ public fun dslRcSimpleSwitchDemo(): ByteArray {
                         Box(
                             modifier =
                                 Modifier.size(20f)
-                                    .clip(RoundedRectShape(10f, 10f, 10f, 10f))
+                                    .clip(RcShape.roundedCorner(10f))
                                     .background(0xFFFFFFFF.toInt())
                         ) {}
                     }
@@ -85,7 +85,7 @@ public fun dslRcSimpleSwitchDemo(): ByteArray {
                         modifier =
                             Modifier.width(60f)
                                 .height(36f)
-                                .clip(RoundedRectShape(20f, 20f, 20f, 20f))
+                                .clip(RcShape.roundedCorner(20f))
                                 .background(0xFF0000FF.toInt())
                                 .padding(2f),
                         horizontal = RcHorizontalPositioning.End,
@@ -94,7 +94,7 @@ public fun dslRcSimpleSwitchDemo(): ByteArray {
                         Box(
                             modifier =
                                 Modifier.size(32f)
-                                    .clip(RoundedRectShape(16f, 16f, 16f, 16f))
+                                    .clip(RcShape.roundedCorner(16f))
                                     .background(0xFFFFFFFF.toInt())
                         ) {}
                     }

@@ -33,7 +33,7 @@ import androidx.compose.remote.creation.remoteContentHashCode
  * NaN-encoded ID for player-side evaluation.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-open public class RcFloat {
+public class RcFloat {
     internal var array: FloatArray = floatArrayOf()
     internal var id: Float = 0f // if 0 it has not been sent
     internal var animation: FloatArray? = null
@@ -68,7 +68,7 @@ open public class RcFloat {
 
     public constructor(a: Float) : this(null, a)
 
-    public fun toArray(): FloatArray {
+    internal fun toArray(): FloatArray {
         return if (isEvaluated) floatArrayOf(id) else array
     }
 
@@ -81,7 +81,8 @@ open public class RcFloat {
         return this
     }
 
-    public fun withWriter(writer: RemoteComposeWriter): RcFloat {
+    @JvmName("withWriter")
+    internal fun withWriter(writer: RemoteComposeWriter): RcFloat {
         if (this.writer == null) {
             this.writer = writer
         }
@@ -194,7 +195,7 @@ open public class RcFloat {
     }
 
     public companion object {
-        public operator fun invoke(float: Float, writer: RemoteComposeWriter? = null): RcFloat {
+        internal operator fun invoke(float: Float, writer: RemoteComposeWriter? = null): RcFloat {
             return RcFloat(writer, floatArrayOf(float))
         }
     }
@@ -628,8 +629,7 @@ public fun mad(a: RcFloat, b: RcFloat, c: RcFloat): RcFloat {
     )
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun toArray(a: RcFloat): FloatArray {
+internal fun toArray(a: RcFloat): FloatArray {
 
     if (a.id.isNaN()) {
         return floatArrayOf(a.id)
@@ -733,42 +733,35 @@ public fun splineLoop(a: RcFloat, pos: RcFloat): RcFloat {
 }
 
 /** generate random number */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteComposeWriter.rand(): RcFloat {
+internal fun RemoteComposeWriter.rand(): RcFloat {
     return RcFloat(this, Rc.FloatExpression.RAND)
 }
 
 /** the index variable in the particle system */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteComposeWriter.index(): RcFloat {
+internal fun RemoteComposeWriter.index(): RcFloat {
     return RcFloat(this, Rc.FloatExpression.VAR1)
 }
 
 /** The time in seconds relative to animation 0 at start of running */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteComposeWriter.animationTime(): RcFloat {
+internal fun RemoteComposeWriter.animationTime(): RcFloat {
     return RcFloat(this, FLOAT_ANIMATION_TIME)
 }
 
 /** Returns the frame delta time in seconds. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteComposeWriter.deltaTime(): RcFloat {
+internal fun RemoteComposeWriter.deltaTime(): RcFloat {
     return RcFloat(this, FLOAT_ANIMATION_DELTA_TIME)
 }
 
 /** First expression parameter variable (`VAR1`). */
-@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public val RemoteComposeWriter.var1: RcFloat
+internal val RemoteComposeWriter.var1: RcFloat
     get() = RcFloat(this, floatArrayOf(Rc.FloatExpression.VAR1))
 
 /** Creates an [RcFloat] from raw RPN expression elements bound to this [RemoteComposeWriter]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteComposeWriter.rf(vararg elements: Float): RcFloat {
+internal fun RemoteComposeWriter.rf(vararg elements: Float): RcFloat {
     return RcFloat(this, elements)
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteComposeWriter.rf(v: Number): RcFloat {
+internal fun RemoteComposeWriter.rf(v: Number): RcFloat {
     return RcFloat(this, v.toFloat())
 }
 

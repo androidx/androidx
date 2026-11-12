@@ -16,9 +16,8 @@
 
 package androidx.compose.remote.integration.view.demos.dsl
 
-import androidx.compose.remote.core.operations.Header
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.Modifier
+import androidx.compose.remote.creation.dsl.RcHeaderTag
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcRowHorizontalPositioning
 import androidx.compose.remote.creation.dsl.RcVerticalPositioning
@@ -48,9 +47,9 @@ public fun dslRcTextDemo(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        RemoteComposeWriter.hTag(Header.DOC_WIDTH, 600),
-        RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 600),
-        RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Demo"),
+        RcHeaderTag.docWidth(600),
+        RcHeaderTag.docHeight(600),
+        RcHeaderTag.contentDescription("Demo"),
     ) {
         Box(modifier = Modifier.fillMaxSize().background(0xFFFFFF00.toInt())) {
             Row(

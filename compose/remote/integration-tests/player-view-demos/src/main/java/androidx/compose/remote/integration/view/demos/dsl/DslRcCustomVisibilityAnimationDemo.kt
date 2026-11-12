@@ -16,16 +16,17 @@
 
 package androidx.compose.remote.integration.view.demos.dsl
 
-import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.layout.Component
-import androidx.compose.remote.core.operations.layout.animation.AnimationSpec
-import androidx.compose.remote.creation.RemoteComposeWriter.HTag
 import androidx.compose.remote.creation.dsl.Modifier
+import androidx.compose.remote.creation.dsl.RcAnimationSequence
 import androidx.compose.remote.creation.dsl.RcColumnVerticalPositioning
+import androidx.compose.remote.creation.dsl.RcDensityBehavior
+import androidx.compose.remote.creation.dsl.RcEnterExitAnimation
+import androidx.compose.remote.creation.dsl.RcHeaderTag
 import androidx.compose.remote.creation.dsl.RcHorizontalPositioning
 import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcProfile
+import androidx.compose.remote.creation.dsl.RcShape
 import androidx.compose.remote.creation.dsl.animationSpec
 import androidx.compose.remote.creation.dsl.background
 import androidx.compose.remote.creation.dsl.clip
@@ -35,13 +36,11 @@ import androidx.compose.remote.creation.dsl.height
 import androidx.compose.remote.creation.dsl.max
 import androidx.compose.remote.creation.dsl.onClick
 import androidx.compose.remote.creation.dsl.padding
-import androidx.compose.remote.creation.dsl.rf
 import androidx.compose.remote.creation.dsl.rsp
 import androidx.compose.remote.creation.dsl.sin
 import androidx.compose.remote.creation.dsl.size
 import androidx.compose.remote.creation.dsl.visibility
 import androidx.compose.remote.creation.dsl.width
-import androidx.compose.remote.creation.modifiers.RoundedRectShape
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import org.intellij.lang.annotations.Language
 
@@ -730,9 +729,9 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        HTag(Header.DOC_WIDTH, 360),
-        HTag(Header.DOC_HEIGHT, 680),
-        HTag(Header.DOC_DENSITY_BEHAVIOR, CoreDocument.DENSITY_BEHAVIOR_DP),
+        RcHeaderTag.docWidth(360),
+        RcHeaderTag.docHeight(680),
+        RcHeaderTag.densityBehavior(RcDensityBehavior.Dp),
     ) {
         val visState1 = remoteNamedInteger("vis1", Component.Visibility.VISIBLE)
         val visState2 = remoteNamedInteger("vis2", Component.Visibility.VISIBLE)
@@ -1469,12 +1468,12 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                         .animationSpec(
                             motionDuration = 600f,
                             visibilityDuration = 1000f,
-                            enterAnimation = AnimationSpec.ANIMATION.CUSTOM,
-                            exitAnimation = AnimationSpec.ANIMATION.CUSTOM,
+                            enterAnimation = RcEnterExitAnimation.Custom,
+                            exitAnimation = RcEnterExitAnimation.Custom,
                             enterFunctionId = customScaleRotateEnter,
                             exitFunctionId = customScaleRotateExit,
                         )
-                        .clip(RoundedRectShape(10f, 10f, 10f, 10f))
+                        .clip(RcShape.roundedCorner(10f))
                         .background(0xFFFF5722.toInt()),
                 horizontal = RcHorizontalPositioning.Center,
                 vertical = RcColumnVerticalPositioning.Center,
@@ -1493,12 +1492,12 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                         .animationSpec(
                             motionDuration = 600f,
                             visibilityDuration = 1000f,
-                            enterAnimation = AnimationSpec.ANIMATION.CUSTOM,
-                            exitAnimation = AnimationSpec.ANIMATION.CUSTOM,
+                            enterAnimation = RcEnterExitAnimation.Custom,
+                            exitAnimation = RcEnterExitAnimation.Custom,
                             enterFunctionId = customSlideRingEnter,
                             exitFunctionId = customSlideRingExit,
                         )
-                        .clip(RoundedRectShape(10f, 10f, 10f, 10f))
+                        .clip(RcShape.roundedCorner(10f))
                         .background(0xFF3F51B5.toInt()),
                 horizontal = RcHorizontalPositioning.Center,
                 vertical = RcColumnVerticalPositioning.Center,
@@ -1517,12 +1516,12 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                         .animationSpec(
                             motionDuration = 600f,
                             visibilityDuration = 1000f,
-                            enterAnimation = AnimationSpec.ANIMATION.CUSTOM,
-                            exitAnimation = AnimationSpec.ANIMATION.CUSTOM,
+                            enterAnimation = RcEnterExitAnimation.Custom,
+                            exitAnimation = RcEnterExitAnimation.Custom,
                             enterFunctionId = customParticleAssembleEnter,
                             exitFunctionId = customParticleExplodeExit,
                         )
-                        .clip(RoundedRectShape(10f, 10f, 10f, 10f))
+                        .clip(RcShape.roundedCorner(10f))
                         .background(0xFF9C27B0.toInt()),
                 horizontal = RcHorizontalPositioning.Center,
                 vertical = RcColumnVerticalPositioning.Center,
@@ -1541,12 +1540,12 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                         .animationSpec(
                             motionDuration = 600f,
                             visibilityDuration = 1000f,
-                            enterAnimation = AnimationSpec.ANIMATION.CUSTOM,
-                            exitAnimation = AnimationSpec.ANIMATION.CUSTOM,
+                            enterAnimation = RcEnterExitAnimation.Custom,
+                            exitAnimation = RcEnterExitAnimation.Custom,
                             enterFunctionId = customVortexEnter,
                             exitFunctionId = customVortexExit,
                         )
-                        .clip(RoundedRectShape(10f, 10f, 10f, 10f))
+                        .clip(RcShape.roundedCorner(10f))
                         .background(0xFF1A237E.toInt()),
                 horizontal = RcHorizontalPositioning.Center,
                 vertical = RcColumnVerticalPositioning.Center,
@@ -1565,12 +1564,12 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                         .animationSpec(
                             motionDuration = 600f,
                             visibilityDuration = 1000f,
-                            enterAnimation = AnimationSpec.ANIMATION.CUSTOM,
-                            exitAnimation = AnimationSpec.ANIMATION.CUSTOM,
+                            enterAnimation = RcEnterExitAnimation.Custom,
+                            exitAnimation = RcEnterExitAnimation.Custom,
                             enterFunctionId = customGlitchHologramEnter,
                             exitFunctionId = customGlitchHologramExit,
                         )
-                        .clip(RoundedRectShape(10f, 10f, 10f, 10f))
+                        .clip(RcShape.roundedCorner(10f))
                         .background(0xFF004D40.toInt()),
                 horizontal = RcHorizontalPositioning.Center,
                 vertical = RcColumnVerticalPositioning.Center,
@@ -1589,12 +1588,12 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                         .animationSpec(
                             motionDuration = 600f,
                             visibilityDuration = 1000f,
-                            enterAnimation = AnimationSpec.ANIMATION.CUSTOM,
-                            exitAnimation = AnimationSpec.ANIMATION.CUSTOM,
+                            enterAnimation = RcEnterExitAnimation.Custom,
+                            exitAnimation = RcEnterExitAnimation.Custom,
                             enterFunctionId = customShaderMeltEnter,
                             exitFunctionId = customShaderMeltExit,
                         )
-                        .clip(RoundedRectShape(10f, 10f, 10f, 10f))
+                        .clip(RcShape.roundedCorner(10f))
                         .background(0xFF006064.toInt()),
                 horizontal = RcHorizontalPositioning.Center,
                 vertical = RcColumnVerticalPositioning.Center,
@@ -1613,12 +1612,12 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                         .animationSpec(
                             motionDuration = 600f,
                             visibilityDuration = 1000f,
-                            enterAnimation = AnimationSpec.ANIMATION.CUSTOM,
-                            exitAnimation = AnimationSpec.ANIMATION.CUSTOM,
+                            enterAnimation = RcEnterExitAnimation.Custom,
+                            exitAnimation = RcEnterExitAnimation.Custom,
                             enterFunctionId = customSnapDustEnter,
                             exitFunctionId = customSnapDustExit,
                         )
-                        .clip(RoundedRectShape(10f, 10f, 10f, 10f))
+                        .clip(RcShape.roundedCorner(10f))
                         .background(0xFF3E2723.toInt()),
                 horizontal = RcHorizontalPositioning.Center,
                 vertical = RcColumnVerticalPositioning.Center,
@@ -1637,12 +1636,12 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                         .animationSpec(
                             motionDuration = 600f,
                             visibilityDuration = 1000f,
-                            enterAnimation = AnimationSpec.ANIMATION.CUSTOM,
-                            exitAnimation = AnimationSpec.ANIMATION.CUSTOM,
+                            enterAnimation = RcEnterExitAnimation.Custom,
+                            exitAnimation = RcEnterExitAnimation.Custom,
                             enterFunctionId = customSingularityEnter,
                             exitFunctionId = customSingularityExit,
                         )
-                        .clip(RoundedRectShape(10f, 10f, 10f, 10f))
+                        .clip(RcShape.roundedCorner(10f))
                         .background(0xFF1A0033.toInt()),
                 horizontal = RcHorizontalPositioning.Center,
                 vertical = RcColumnVerticalPositioning.Center,
@@ -1661,12 +1660,12 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                         .animationSpec(
                             motionDuration = 600f,
                             visibilityDuration = 1000f,
-                            enterAnimation = AnimationSpec.ANIMATION.CUSTOM,
-                            exitAnimation = AnimationSpec.ANIMATION.CUSTOM,
+                            enterAnimation = RcEnterExitAnimation.Custom,
+                            exitAnimation = RcEnterExitAnimation.Custom,
                             enterFunctionId = customMatrixGlitchEnter,
                             exitFunctionId = customMatrixGlitchExit,
                         )
-                        .clip(RoundedRectShape(10f, 10f, 10f, 10f))
+                        .clip(RcShape.roundedCorner(10f))
                         .background(0xFF003314.toInt()),
                 horizontal = RcHorizontalPositioning.Center,
                 vertical = RcColumnVerticalPositioning.Center,
@@ -1685,12 +1684,12 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                         .animationSpec(
                             motionDuration = 600f,
                             visibilityDuration = 1000f,
-                            enterAnimation = AnimationSpec.ANIMATION.CUSTOM,
-                            exitAnimation = AnimationSpec.ANIMATION.CUSTOM,
+                            enterAnimation = RcEnterExitAnimation.Custom,
+                            exitAnimation = RcEnterExitAnimation.Custom,
                             enterFunctionId = customFireSweepEnter,
                             exitFunctionId = customFireSweepExit,
                         )
-                        .clip(RoundedRectShape(10f, 10f, 10f, 10f))
+                        .clip(RcShape.roundedCorner(10f))
                         .background(0xFF4A1000.toInt()),
                 horizontal = RcHorizontalPositioning.Center,
                 vertical = RcColumnVerticalPositioning.Center,
@@ -1710,14 +1709,14 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                         .animationSpec(
                             motionDuration = 600f,
                             visibilityDuration = 1000f,
-                            enterAnimation = AnimationSpec.ANIMATION.CUSTOM,
-                            exitAnimation = AnimationSpec.ANIMATION.CUSTOM,
+                            enterAnimation = RcEnterExitAnimation.Custom,
+                            exitAnimation = RcEnterExitAnimation.Custom,
                             enterFunctionId = customLiquidFillEnter,
                             exitFunctionId = customLiquidDrainExit,
-                            enterSequence = AnimationSpec.SEQUENCE.AFTER,
-                            exitSequence = AnimationSpec.SEQUENCE.BEFORE,
+                            enterSequence = RcAnimationSequence.After,
+                            exitSequence = RcAnimationSequence.Before,
                         )
-                        .clip(RoundedRectShape(10f, 10f, 10f, 10f))
+                        .clip(RcShape.roundedCorner(10f))
                         .background(0xFF004D40.toInt()),
                 horizontal = RcHorizontalPositioning.Center,
                 vertical = RcColumnVerticalPositioning.Center,
@@ -1736,12 +1735,12 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                         .animationSpec(
                             motionDuration = 600f,
                             visibilityDuration = 1000f,
-                            enterAnimation = AnimationSpec.ANIMATION.CUSTOM,
-                            exitAnimation = AnimationSpec.ANIMATION.CUSTOM,
+                            enterAnimation = RcEnterExitAnimation.Custom,
+                            exitAnimation = RcEnterExitAnimation.Custom,
                             enterFunctionId = customShardExplodeEnter,
                             exitFunctionId = customShardExplodeExit,
                         )
-                        .clip(RoundedRectShape(10f, 10f, 10f, 10f))
+                        .clip(RcShape.roundedCorner(10f))
                         .background(0xFF880E4F.toInt()),
                 horizontal = RcHorizontalPositioning.Center,
                 vertical = RcColumnVerticalPositioning.Center,
@@ -1760,12 +1759,12 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                         .animationSpec(
                             motionDuration = 600f,
                             visibilityDuration = 1000f,
-                            enterAnimation = AnimationSpec.ANIMATION.CUSTOM,
-                            exitAnimation = AnimationSpec.ANIMATION.CUSTOM,
+                            enterAnimation = RcEnterExitAnimation.Custom,
+                            exitAnimation = RcEnterExitAnimation.Custom,
                             enterFunctionId = customLiquidChromeEnter,
                             exitFunctionId = customLiquidChromeExit,
                         )
-                        .clip(RoundedRectShape(10f, 10f, 10f, 10f))
+                        .clip(RcShape.roundedCorner(10f))
                         .background(0xFF263238.toInt()),
                 horizontal = RcHorizontalPositioning.Center,
                 vertical = RcColumnVerticalPositioning.Center,
@@ -1781,7 +1780,7 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                     modifier =
                         Modifier.width(125f)
                             .height(24f)
-                            .clip(RoundedRectShape(6f, 6f, 6f, 6f))
+                            .clip(RcShape.roundedCorner(6f))
                             .background(0xFFE0E0E0.toInt())
                             .onClick { setValue(visState1, (visState1 + 2) % 4) },
                     horizontal = RcHorizontalPositioning.Center,
@@ -1794,7 +1793,7 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                     modifier =
                         Modifier.width(125f)
                             .height(24f)
-                            .clip(RoundedRectShape(6f, 6f, 6f, 6f))
+                            .clip(RcShape.roundedCorner(6f))
                             .background(0xFFE0E0E0.toInt())
                             .onClick { setValue(visState2, (visState2 + 2) % 4) },
                     horizontal = RcHorizontalPositioning.Center,
@@ -1812,7 +1811,7 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                     modifier =
                         Modifier.width(125f)
                             .height(24f)
-                            .clip(RoundedRectShape(6f, 6f, 6f, 6f))
+                            .clip(RcShape.roundedCorner(6f))
                             .background(0xFFE0E0E0.toInt())
                             .onClick { setValue(visState3, (visState3 + 2) % 4) },
                     horizontal = RcHorizontalPositioning.Center,
@@ -1825,7 +1824,7 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                     modifier =
                         Modifier.width(125f)
                             .height(24f)
-                            .clip(RoundedRectShape(6f, 6f, 6f, 6f))
+                            .clip(RcShape.roundedCorner(6f))
                             .background(0xFFE0E0E0.toInt())
                             .onClick { setValue(visState4, (visState4 + 2) % 4) },
                     horizontal = RcHorizontalPositioning.Center,
@@ -1843,7 +1842,7 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                     modifier =
                         Modifier.width(125f)
                             .height(24f)
-                            .clip(RoundedRectShape(6f, 6f, 6f, 6f))
+                            .clip(RcShape.roundedCorner(6f))
                             .background(0xFFE0E0E0.toInt())
                             .onClick { setValue(visState5, (visState5 + 2) % 4) },
                     horizontal = RcHorizontalPositioning.Center,
@@ -1856,7 +1855,7 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                     modifier =
                         Modifier.width(125f)
                             .height(24f)
-                            .clip(RoundedRectShape(6f, 6f, 6f, 6f))
+                            .clip(RcShape.roundedCorner(6f))
                             .background(0xFFE0E0E0.toInt())
                             .onClick { setValue(visState6, (visState6 + 2) % 4) },
                     horizontal = RcHorizontalPositioning.Center,
@@ -1874,7 +1873,7 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                     modifier =
                         Modifier.width(125f)
                             .height(24f)
-                            .clip(RoundedRectShape(6f, 6f, 6f, 6f))
+                            .clip(RcShape.roundedCorner(6f))
                             .background(0xFFE0E0E0.toInt())
                             .onClick { setValue(visState7, (visState7 + 2) % 4) },
                     horizontal = RcHorizontalPositioning.Center,
@@ -1887,7 +1886,7 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                     modifier =
                         Modifier.width(125f)
                             .height(24f)
-                            .clip(RoundedRectShape(6f, 6f, 6f, 6f))
+                            .clip(RcShape.roundedCorner(6f))
                             .background(0xFFE0E0E0.toInt())
                             .onClick { setValue(visState8, (visState8 + 2) % 4) },
                     horizontal = RcHorizontalPositioning.Center,
@@ -1905,7 +1904,7 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                     modifier =
                         Modifier.width(125f)
                             .height(24f)
-                            .clip(RoundedRectShape(6f, 6f, 6f, 6f))
+                            .clip(RcShape.roundedCorner(6f))
                             .background(0xFFE0E0E0.toInt())
                             .onClick { setValue(visState9, (visState9 + 2) % 4) },
                     horizontal = RcHorizontalPositioning.Center,
@@ -1918,7 +1917,7 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                     modifier =
                         Modifier.width(125f)
                             .height(24f)
-                            .clip(RoundedRectShape(6f, 6f, 6f, 6f))
+                            .clip(RcShape.roundedCorner(6f))
                             .background(0xFFE0E0E0.toInt())
                             .onClick { setValue(visState10, (visState10 + 2) % 4) },
                     horizontal = RcHorizontalPositioning.Center,
@@ -1936,7 +1935,7 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                     modifier =
                         Modifier.width(125f)
                             .height(24f)
-                            .clip(RoundedRectShape(6f, 6f, 6f, 6f))
+                            .clip(RcShape.roundedCorner(6f))
                             .background(0xFFE0E0E0.toInt())
                             .onClick { setValue(visState11, (visState11 + 2) % 4) },
                     horizontal = RcHorizontalPositioning.Center,
@@ -1949,7 +1948,7 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                     modifier =
                         Modifier.width(125f)
                             .height(24f)
-                            .clip(RoundedRectShape(6f, 6f, 6f, 6f))
+                            .clip(RcShape.roundedCorner(6f))
                             .background(0xFFE0E0E0.toInt())
                             .onClick { setValue(visState12, (visState12 + 2) % 4) },
                     horizontal = RcHorizontalPositioning.Center,
@@ -1967,7 +1966,7 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                     modifier =
                         Modifier.width(258f)
                             .height(24f)
-                            .clip(RoundedRectShape(6f, 6f, 6f, 6f))
+                            .clip(RcShape.roundedCorner(6f))
                             .background(0xFFE0E0E0.toInt())
                             .onClick { setValue(visState13, (visState13 + 2) % 4) },
                     horizontal = RcHorizontalPositioning.Center,

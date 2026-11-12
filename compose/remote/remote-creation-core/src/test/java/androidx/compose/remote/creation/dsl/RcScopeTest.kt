@@ -20,10 +20,11 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.creation.RemoteComposeWriter
-import androidx.compose.remote.creation.modifiers.RoundedRectShape
 import androidx.compose.remote.creation.profile.Profile
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class RcScopeTest {
@@ -119,16 +120,36 @@ class RcScopeTest {
     }
 
     @Test
-    fun testRemotePathBaseArcTo() {
-        val path = androidx.compose.remote.core.RemotePathBase()
+    fun testRcPathDataAndRemotePathData() {
+        val path = RcPathData()
+        assertTrue(path.isEmpty)
         path.moveTo(0f, 0f)
         path.arcTo(0f, 0f, 100f, 100f, 0f, 90f, false)
-        val floats = path.createFloatArray()
-        assertEquals(true, floats.isNotEmpty())
+        assertFalse(path.isEmpty)
+        assertTrue(path.base.createFloatArray().isNotEmpty())
 
-        val pathSvg = androidx.compose.remote.core.RemotePathBase("M 0 0 A 25 25 0 0 1 50 50 Z")
-        val svgFloats = pathSvg.createFloatArray()
-        assertEquals(true, svgFloats.isNotEmpty())
+        val pathAvd =
+            parseAvdPathData(
+                "M 0 0 h 20 v 10 l -5 5 c 1 2 3 4 5 6 s 1 2 3 4 q 1 2 3 4 t 2 2 a 25 25 0 0 1 50 50 z"
+            )
+        assertTrue(pathAvd.base.createFloatArray().isNotEmpty())
+
+        val writer = RemoteComposeWriter(testProfile)
+        val scope = RcScopeImpl(writer)
+        scope.apply {
+            Canvas {
+                val p1 = remotePathData(path)
+                val p2 = remotePathData("M 0 0 L 10 10 Z")
+                val p3 = remotePathData {
+                    moveTo(0f, 0f)
+                    lineTo(25f, 25f)
+                    close()
+                }
+                drawPath(p1)
+                drawPath(p2)
+                drawPath(p3)
+            }
+        }
     }
 
     @Test
@@ -247,11 +268,77 @@ class RcScopeTest {
                     Modifier.size(100f)
                         .padding(10f)
                         .background(0xFFFF0000.toInt())
-                        .clip(RoundedRectShape(5f, 5f, 5f, 5f))
+                        .clip(RcShape.roundedCorner(5f))
+                        .animationSpec(
+                            enterAnimation = RcEnterExitAnimation.FadeIn,
+                            exitAnimation = RcEnterExitAnimation.SlideBottom,
+                            enterSequence = RcAnimationSequence.After,
+                        )
+                        .semantics {
+                            role(RcRole.Button)
+                            mode(RcSemanticsMode.Merge)
+                        }
             ) {
-                Text("With Modifier")
+                Text("With Modifier", modifier = Modifier.clip(RcShape.Rectangle))
             }
         }
+    }
+
+    @Test
+    fun testHeaderTagsGradientsAndCircleText() {
+        val supportedOps =
+            requireNotNull(
+                    androidx.compose.remote.core.Operations.getOperations(
+                        CoreDocument.DOCUMENT_API_LEVEL,
+                        RcProfiles.PROFILE_ANDROIDX,
+                    )
+                )
+                .keySet() + setOf(androidx.compose.remote.core.Operations.DRAW_TEXT_ON_CIRCLE)
+        val circleProfile =
+            Profile(
+                CoreDocument.DOCUMENT_API_LEVEL,
+                RcProfiles.PROFILE_ANDROIDX,
+                RcPlatformServices.None,
+                { supportedOps },
+            ) { _, profile, _ ->
+                RemoteComposeWriter(profile)
+            }
+        val bytes =
+            createRcBuffer(
+                RcProfile(circleProfile),
+                RcHeaderTag.docWidth(200),
+                RcHeaderTag.docHeight(150),
+                RcHeaderTag.desiredFps(60),
+                RcHeaderTag.contentDescription("Header test"),
+                RcHeaderTag.densityBehavior(RcDensityBehavior.Dp),
+                RcHeaderTag.debug(0),
+            ) {
+                val c1 = remoteColor(0xFFFF0000.toInt())
+                val c2 = remoteColor(0xFF0000FF.toInt())
+                val glyphImg = createBitmap(8, 8)
+                val font =
+                    createBitmapFont(arrayOf(bitmapFontGlyph("A", glyphImg, 0, 0, 0, 0, 8, 8)))
+                assertTrue(font.id >= 0)
+
+                Canvas {
+                    paint {
+                        linearGradient(0f, 0f, 100f, 100f, listOf(c1, RcColor.None, c2))
+                        radialGradient(50f, 50f, 40f, listOf(c1, c2))
+                        sweepGradient(50f, 50f, listOf(c1, c2))
+                    }
+                    drawTextOnCircle(
+                        text = remoteText("Arc"),
+                        centerX = 100f,
+                        centerY = 75f,
+                        radius = 50f,
+                        startAngle = 0f,
+                        warpRadiusOffset = 0f,
+                        alignment = RcCircleTextAlignment.Center,
+                        placement = RcCircleTextPlacement.Outside,
+                    )
+                }
+            }
+        assertTrue(bytes.isNotEmpty())
     }
 
     @Test

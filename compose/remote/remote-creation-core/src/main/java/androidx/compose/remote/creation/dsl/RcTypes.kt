@@ -19,16 +19,24 @@
 
 package androidx.compose.remote.creation.dsl
 
+import androidx.annotation.ColorInt
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.DrawTextAnchored
+import androidx.compose.remote.core.operations.DrawTextOnCircle
 import androidx.compose.remote.core.operations.MatrixFromPath
 import androidx.compose.remote.core.operations.SoundExpression
 import androidx.compose.remote.core.operations.TextFromFloat
+import androidx.compose.remote.core.operations.layout.animation.AnimationSpec
 import androidx.compose.remote.core.operations.layout.modifiers.ShapeType
+import androidx.compose.remote.core.semantics.AccessibleComponent
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.RcTextFromFloatSpec.Companion.of
+import androidx.compose.remote.creation.modifiers.CircleShape
+import androidx.compose.remote.creation.modifiers.RectShape
+import androidx.compose.remote.creation.modifiers.RoundedRectShape
+import androidx.compose.remote.creation.modifiers.Shape
 
 /** Type-safe reference for remote text resources. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -89,40 +97,28 @@ public value class RcWaveform internal constructor(internal val value: Float) {
     }
 }
 
-/**
- * Type-safe reference for remote color variables or expressions.
- *
- * **Note:** `id` is `public val` rather than `internal val` because the legacy Java
- * `RcPaint.setColor(RcColorValue)` (one package above `/dsl/`, add-only per the project's API
- * constraint) reads it via `color.getId()`. Tried `@PublishedApi internal` to keep the Java
- * accessor public while restricting Kotlin source visibility, but `@JvmInline value class` accessor
- * projection doesn't generate the expected `getId()` instance method — see
- * https://youtrack.jetbrains.com/issue/KT-54604.
- *
- * Hiding fully would require updating `RcPaint.java` to call a different accessor. Until that
- * boundary opens, this class is the one B4 holdout (along with [RcColor]).
- */
+/** Type-safe static packed ARGB color literal (`0xAARRGGBB`). */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-public value class RcColorValue(public val id: Int)
+public value class RcColorValue(@ColorInt internal val id: Int)
 
-/** convert to RcColorValue */
+/** Converts this packed ARGB `Long` literal (`0xAARRGGBB`) to an [RcColorValue]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun Long.rcColor(): RcColorValue = RcColorValue(this.toInt())
 
-/** convert to RcColorValue */
+/** Converts this packed ARGB `Int` literal (`0xAARRGGBB`) to an [RcColorValue]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun Int.rcColor(): RcColorValue = RcColorValue(this)
 
-/**
- * Type-safe reference for remote color variables or expressions.
- *
- * Same B4-holdout situation as [RcColorValue] — kept `public val id` because
- * `RcPaint.setColor(RcColor)` reads it.
- */
+/** Type-safe reference for remote color variables or expressions. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-public value class RcColor(public val id: Int)
+public value class RcColor internal constructor(internal val id: Int) {
+    public companion object {
+        /** Sentinel representing an unset or transparent remote color reference. */
+        public val None: RcColor = RcColor(0)
+    }
+}
 
 /** Type-safe reference for remote text-list resources. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -269,11 +265,15 @@ public value class RcTextStyle internal constructor(internal val id: Int)
 public value class RcBitmapFont internal constructor(internal val id: Int)
 
 /**
- * Builds a [BitmapFontData.Glyph] for [RcScope.createBitmapFont] whose image is [image].
+ * Type-safe glyph descriptor for assembling a bitmap font via [RcScope.createBitmapFont].
  *
- * A glyph refers to its bitmap by raw id, which [RcImage] does not expose, so this is the only way
- * to assemble a bitmap font from images registered through the DSL (for example with
- * [RcScope.remoteBitmap] or [RcScope.createBitmap]).
+ * Construct instances using [bitmapFontGlyph].
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RcBitmapFontGlyph internal constructor(internal val glyph: BitmapFontData.Glyph)
+
+/**
+ * Builds an [RcBitmapFontGlyph] for [RcScope.createBitmapFont] whose image is [image].
  *
  * @param chars the character sequence this glyph renders
  * @param image the glyph's bitmap
@@ -294,16 +294,18 @@ public fun bitmapFontGlyph(
     marginTop: Int = 0,
     marginRight: Int = 0,
     marginBottom: Int = 0,
-): BitmapFontData.Glyph =
-    BitmapFontData.Glyph(
-        chars,
-        image.id,
-        marginLeft.toShort(),
-        marginTop.toShort(),
-        marginRight.toShort(),
-        marginBottom.toShort(),
-        width.toShort(),
-        height.toShort(),
+): RcBitmapFontGlyph =
+    RcBitmapFontGlyph(
+        BitmapFontData.Glyph(
+            chars,
+            image.id,
+            marginLeft.toShort(),
+            marginTop.toShort(),
+            marginRight.toShort(),
+            marginBottom.toShort(),
+            width.toShort(),
+            height.toShort(),
+        )
     )
 
 /**
@@ -363,59 +365,77 @@ public val Double.rsp: RcSp
 
 /** Text alignment options for the remote player. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcTextAlign(internal val value: Int) {
-    Start(Rc.Text.ALIGN_START),
-    Center(Rc.Text.ALIGN_CENTER),
-    End(Rc.Text.ALIGN_END),
-    Left(Rc.Text.ALIGN_LEFT),
-    Right(Rc.Text.ALIGN_RIGHT),
-    Justify(Rc.Text.ALIGN_JUSTIFY),
+@JvmInline
+public value class RcTextAlign internal constructor(internal val value: Int) {
+    public companion object {
+        public val Start: RcTextAlign = RcTextAlign(Rc.Text.ALIGN_START)
+        public val Center: RcTextAlign = RcTextAlign(Rc.Text.ALIGN_CENTER)
+        public val End: RcTextAlign = RcTextAlign(Rc.Text.ALIGN_END)
+        public val Left: RcTextAlign = RcTextAlign(Rc.Text.ALIGN_LEFT)
+        public val Right: RcTextAlign = RcTextAlign(Rc.Text.ALIGN_RIGHT)
+        public val Justify: RcTextAlign = RcTextAlign(Rc.Text.ALIGN_JUSTIFY)
+    }
 }
 
 /** Text overflow strategies for the remote player. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcTextOverflow(internal val value: Int) {
-    Clip(Rc.Text.OVERFLOW_CLIP),
-    Visible(Rc.Text.OVERFLOW_VISIBLE),
-    Ellipsis(Rc.Text.OVERFLOW_ELLIPSIS),
-    StartEllipsis(Rc.Text.OVERFLOW_START_ELLIPSIS),
-    MiddleEllipsis(Rc.Text.OVERFLOW_MIDDLE_ELLIPSIS),
+@JvmInline
+public value class RcTextOverflow internal constructor(internal val value: Int) {
+    public companion object {
+        public val Clip: RcTextOverflow = RcTextOverflow(Rc.Text.OVERFLOW_CLIP)
+        public val Visible: RcTextOverflow = RcTextOverflow(Rc.Text.OVERFLOW_VISIBLE)
+        public val Ellipsis: RcTextOverflow = RcTextOverflow(Rc.Text.OVERFLOW_ELLIPSIS)
+        public val StartEllipsis: RcTextOverflow = RcTextOverflow(Rc.Text.OVERFLOW_START_ELLIPSIS)
+        public val MiddleEllipsis: RcTextOverflow = RcTextOverflow(Rc.Text.OVERFLOW_MIDDLE_ELLIPSIS)
+    }
 }
 
 /** Content scaling strategies for images. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcContentScale(internal val value: Int) {
-    Fit(Rc.ImageScale.FIT),
-    Crop(Rc.ImageScale.CROP),
-    FillBounds(Rc.ImageScale.FILL_BOUNDS),
-    FillWidth(Rc.ImageScale.FILL_WIDTH),
-    FillHeight(Rc.ImageScale.FILL_HEIGHT),
-    Inside(Rc.ImageScale.INSIDE),
-    None(Rc.ImageScale.NONE),
+@JvmInline
+public value class RcContentScale internal constructor(internal val value: Int) {
+    public companion object {
+        public val Fit: RcContentScale = RcContentScale(Rc.ImageScale.FIT)
+        public val Crop: RcContentScale = RcContentScale(Rc.ImageScale.CROP)
+        public val FillBounds: RcContentScale = RcContentScale(Rc.ImageScale.FILL_BOUNDS)
+        public val FillWidth: RcContentScale = RcContentScale(Rc.ImageScale.FILL_WIDTH)
+        public val FillHeight: RcContentScale = RcContentScale(Rc.ImageScale.FILL_HEIGHT)
+        public val Inside: RcContentScale = RcContentScale(Rc.ImageScale.INSIDE)
+        public val None: RcContentScale = RcContentScale(Rc.ImageScale.NONE)
+    }
 }
 
 /** Stroke cap styles for lines and paths. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcStrokeCap(internal val value: Int) {
-    Butt(0),
-    Round(1),
-    Square(2),
+@JvmInline
+public value class RcStrokeCap internal constructor(internal val value: Int) {
+    public companion object {
+        public val Butt: RcStrokeCap = RcStrokeCap(0)
+        public val Round: RcStrokeCap = RcStrokeCap(1)
+        public val Square: RcStrokeCap = RcStrokeCap(2)
+    }
 }
 
 /** Stroke join styles for paths. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcStrokeJoin(internal val value: Int) {
-    Miter(0),
-    Round(1),
-    Bevel(2),
+@JvmInline
+public value class RcStrokeJoin internal constructor(internal val value: Int) {
+    public companion object {
+        public val Miter: RcStrokeJoin = RcStrokeJoin(0)
+        public val Round: RcStrokeJoin = RcStrokeJoin(1)
+        public val Bevel: RcStrokeJoin = RcStrokeJoin(2)
+    }
 }
 
 /** Paint styles for drawing shapes. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcPaintStyle(internal val value: Int) {
-    Fill(0),
-    Stroke(1),
-    FillAndStroke(2),
+@JvmInline
+public value class RcPaintStyle internal constructor(internal val value: Int) {
+    public companion object {
+        public val Fill: RcPaintStyle = RcPaintStyle(0)
+        public val Stroke: RcPaintStyle = RcPaintStyle(1)
+        public val FillAndStroke: RcPaintStyle = RcPaintStyle(2)
+    }
 }
 
 /** Type-safe font-weight value; the underlying [value] is the standard CSS weight (100..900). */
@@ -476,25 +496,34 @@ public value class RcTextTransformOp internal constructor(internal val value: In
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcDrawOnBitmapMode(internal val value: Int) {
-    Clear(Rc.DrawOnBitmap.CLEAR_BITMAP),
-    NoClear(Rc.DrawOnBitmap.DO_NOT_CLEAR),
+@JvmInline
+public value class RcDrawOnBitmapMode internal constructor(internal val value: Int) {
+    public companion object {
+        public val Clear: RcDrawOnBitmapMode = RcDrawOnBitmapMode(Rc.DrawOnBitmap.CLEAR_BITMAP)
+        public val NoClear: RcDrawOnBitmapMode = RcDrawOnBitmapMode(Rc.DrawOnBitmap.DO_NOT_CLEAR)
+    }
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcBitmapTextMeasure(internal val value: Int) {
-    Bottom(Rc.BitmapTextMeasure.BOTTOM),
-    Height(Rc.BitmapTextMeasure.HEIGHT),
-    Top(Rc.BitmapTextMeasure.TOP),
-    Left(Rc.BitmapTextMeasure.LEFT),
-    Right(Rc.BitmapTextMeasure.RIGHT),
-    Width(Rc.BitmapTextMeasure.WIDTH),
+@JvmInline
+public value class RcBitmapTextMeasure internal constructor(internal val value: Int) {
+    public companion object {
+        public val Bottom: RcBitmapTextMeasure = RcBitmapTextMeasure(Rc.BitmapTextMeasure.BOTTOM)
+        public val Height: RcBitmapTextMeasure = RcBitmapTextMeasure(Rc.BitmapTextMeasure.HEIGHT)
+        public val Top: RcBitmapTextMeasure = RcBitmapTextMeasure(Rc.BitmapTextMeasure.TOP)
+        public val Left: RcBitmapTextMeasure = RcBitmapTextMeasure(Rc.BitmapTextMeasure.LEFT)
+        public val Right: RcBitmapTextMeasure = RcBitmapTextMeasure(Rc.BitmapTextMeasure.RIGHT)
+        public val Width: RcBitmapTextMeasure = RcBitmapTextMeasure(Rc.BitmapTextMeasure.WIDTH)
+    }
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcFontStyle(internal val value: Int) {
-    Normal(0),
-    Italic(1),
+@JvmInline
+public value class RcFontStyle internal constructor(internal val value: Int) {
+    public companion object {
+        public val Normal: RcFontStyle = RcFontStyle(0)
+        public val Italic: RcFontStyle = RcFontStyle(1)
+    }
 }
 
 /**
@@ -540,24 +569,30 @@ public value class RcBlendMode internal constructor(internal val value: Int) {
 
 /** Tiling mode for shader/texture sampling. Wraps `Rc.Texture.TILE_*` constants. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcTileMode(internal val value: Short) {
-    /** Replicate the edge sample. */
-    Clamp(Rc.Texture.TILE_CLAMP),
-    /** Mirror across each tile boundary. */
-    Mirror(Rc.Texture.TILE_MIRROR),
-    /** Repeat (wrap) the sample range. */
-    Repeat(Rc.Texture.TILE_REPEAT),
-    /** Sample as transparent outside the source bounds. */
-    Decal(Rc.Texture.TILE_DECAL),
+@JvmInline
+public value class RcTileMode internal constructor(internal val value: Short) {
+    public companion object {
+        /** Replicate the edge sample. */
+        public val Clamp: RcTileMode = RcTileMode(Rc.Texture.TILE_CLAMP)
+        /** Mirror across each tile boundary. */
+        public val Mirror: RcTileMode = RcTileMode(Rc.Texture.TILE_MIRROR)
+        /** Repeat (wrap) the sample range. */
+        public val Repeat: RcTileMode = RcTileMode(Rc.Texture.TILE_REPEAT)
+        /** Sample as transparent outside the source bounds. */
+        public val Decal: RcTileMode = RcTileMode(Rc.Texture.TILE_DECAL)
+    }
 }
 
 /** Typeface family for [RcPaintScope.typeface]. Wraps `RcPaint.FONT_TYPE_*` constants. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcFontType(internal val value: Int) {
-    Default(0),
-    SansSerif(1),
-    Serif(2),
-    Monospace(3),
+@JvmInline
+public value class RcFontType internal constructor(internal val value: Int) {
+    public companion object {
+        public val Default: RcFontType = RcFontType(0)
+        public val SansSerif: RcFontType = RcFontType(1)
+        public val Serif: RcFontType = RcFontType(2)
+        public val Monospace: RcFontType = RcFontType(3)
+    }
 }
 
 /**
@@ -607,19 +642,22 @@ public value class RcTouchStopMode internal constructor(internal val value: Int)
 
 /** Comparison operator for [RcScope.conditionalOperations]. Wraps `Rc.Condition.*` opcodes. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcConditionOp(internal val value: Byte) {
-    /** Equality (a == b). */
-    Eq(Rc.Condition.EQ),
-    /** Inequality (a != b). */
-    Neq(Rc.Condition.NEQ),
-    /** Strictly less than (a < b). */
-    Lt(Rc.Condition.LT),
-    /** Less than or equal (a <= b). */
-    Lte(Rc.Condition.LTE),
-    /** Strictly greater than (a > b). */
-    Gt(Rc.Condition.GT),
-    /** Greater than or equal (a >= b). */
-    Gte(Rc.Condition.GTE),
+@JvmInline
+public value class RcConditionOp internal constructor(internal val value: Byte) {
+    public companion object {
+        /** Equality (a == b). */
+        public val Eq: RcConditionOp = RcConditionOp(Rc.Condition.EQ)
+        /** Inequality (a != b). */
+        public val Neq: RcConditionOp = RcConditionOp(Rc.Condition.NEQ)
+        /** Strictly less than (a < b). */
+        public val Lt: RcConditionOp = RcConditionOp(Rc.Condition.LT)
+        /** Less than or equal (a <= b). */
+        public val Lte: RcConditionOp = RcConditionOp(Rc.Condition.LTE)
+        /** Strictly greater than (a > b). */
+        public val Gt: RcConditionOp = RcConditionOp(Rc.Condition.GT)
+        /** Greater than or equal (a >= b). */
+        public val Gte: RcConditionOp = RcConditionOp(Rc.Condition.GTE)
+    }
 }
 
 /** Represents a resolved logical condition between two float values. */
@@ -755,21 +793,24 @@ public value class RcTimeAttr internal constructor(internal val value: Short) {
 
 /** Color attribute selector for [RcScope.getColorAttribute]. Wraps `Rc.ColorAttribute.*`. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcColorAttr(internal val value: Short) {
-    /** Hue component (HSV). */
-    Hue(Rc.ColorAttribute.HUE),
-    /** Saturation component (HSV). */
-    Saturation(Rc.ColorAttribute.SATURATION),
-    /** Brightness / value component (HSV). */
-    Brightness(Rc.ColorAttribute.BRIGHTNESS),
-    /** Red channel (sRGB). */
-    Red(Rc.ColorAttribute.RED),
-    /** Green channel (sRGB). */
-    Green(Rc.ColorAttribute.GREEN),
-    /** Blue channel (sRGB). */
-    Blue(Rc.ColorAttribute.BLUE),
-    /** Alpha channel. */
-    Alpha(Rc.ColorAttribute.ALPHA),
+@JvmInline
+public value class RcColorAttr internal constructor(internal val value: Short) {
+    public companion object {
+        /** Hue component (HSV). */
+        public val Hue: RcColorAttr = RcColorAttr(Rc.ColorAttribute.HUE)
+        /** Saturation component (HSV). */
+        public val Saturation: RcColorAttr = RcColorAttr(Rc.ColorAttribute.SATURATION)
+        /** Brightness / value component (HSV). */
+        public val Brightness: RcColorAttr = RcColorAttr(Rc.ColorAttribute.BRIGHTNESS)
+        /** Red channel (sRGB). */
+        public val Red: RcColorAttr = RcColorAttr(Rc.ColorAttribute.RED)
+        /** Green channel (sRGB). */
+        public val Green: RcColorAttr = RcColorAttr(Rc.ColorAttribute.GREEN)
+        /** Blue channel (sRGB). */
+        public val Blue: RcColorAttr = RcColorAttr(Rc.ColorAttribute.BLUE)
+        /** Alpha channel. */
+        public val Alpha: RcColorAttr = RcColorAttr(Rc.ColorAttribute.ALPHA)
+    }
 }
 
 /**
@@ -808,18 +849,18 @@ public value class RcAnimationCurve internal constructor(internal val value: Int
 /**
  * Border / dynamicBorder shape selector for [Modifier.border] and [Modifier.dynamicBorder]. Wraps
  * `ShapeType.*` constants from the layout core.
- *
- * Named `RcBorderShape` to avoid colliding with the existing
- * `androidx.compose.remote.creation.modifiers.Shape` class used by [Modifier.clip].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcBorderShape(internal val value: Int) {
-    /** Rectangular outline. */
-    Rectangle(ShapeType.RECTANGLE),
-    /** Circular (pill shaped) outline (uses the smaller of width/height as diameter). */
-    Circle(ShapeType.CIRCLE),
-    /** Rounded-rectangle outline (uses the `roundedCorner` parameter). */
-    RoundedRectangle(ShapeType.ROUNDED_RECTANGLE),
+@JvmInline
+public value class RcBorderShape internal constructor(internal val value: Int) {
+    public companion object {
+        /** Rectangular outline. */
+        public val Rectangle: RcBorderShape = RcBorderShape(ShapeType.RECTANGLE)
+        /** Circular (pill shaped) outline (uses the smaller of width/height as diameter). */
+        public val Circle: RcBorderShape = RcBorderShape(ShapeType.CIRCLE)
+        /** Rounded-rectangle outline (uses the `roundedCorner` parameter). */
+        public val RoundedRectangle: RcBorderShape = RcBorderShape(ShapeType.ROUNDED_RECTANGLE)
+    }
 }
 
 /**
@@ -968,57 +1009,77 @@ public value class RcMatrixFromPathFlags internal constructor(internal val bits:
 @JvmInline
 public value class RcTextFromFloatSpec internal constructor(internal val bits: Int) {
     /** Pad style after the decimal point (mutually exclusive). */
-    public enum class PadAfter(internal val value: Int) {
-        /** Pad past the point with spaces. */
-        Space(TextFromFloat.PAD_AFTER_SPACE),
-        /** Do not pad past the last digit. */
-        None(TextFromFloat.PAD_AFTER_NONE),
-        /** Pad past the last digit with `0`. */
-        Zero(TextFromFloat.PAD_AFTER_ZERO),
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @JvmInline
+    public value class PadAfter internal constructor(internal val value: Int) {
+        public companion object {
+            /** Pad past the point with spaces. */
+            public val Space: PadAfter = PadAfter(TextFromFloat.PAD_AFTER_SPACE)
+            /** Do not pad past the last digit. */
+            public val None: PadAfter = PadAfter(TextFromFloat.PAD_AFTER_NONE)
+            /** Pad past the last digit with `0`. */
+            public val Zero: PadAfter = PadAfter(TextFromFloat.PAD_AFTER_ZERO)
+        }
     }
 
     /** Pad style before the number (mutually exclusive). */
-    public enum class PadPre(internal val value: Int) {
-        /** Pad before the number with spaces. */
-        Space(TextFromFloat.PAD_PRE_SPACE),
-        /** Do not pad before the number. */
-        None(TextFromFloat.PAD_PRE_NONE),
-        /** Pad before the number with `0`s. */
-        Zero(TextFromFloat.PAD_PRE_ZERO),
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @JvmInline
+    public value class PadPre internal constructor(internal val value: Int) {
+        public companion object {
+            /** Pad before the number with spaces. */
+            public val Space: PadPre = PadPre(TextFromFloat.PAD_PRE_SPACE)
+            /** Do not pad before the number. */
+            public val None: PadPre = PadPre(TextFromFloat.PAD_PRE_NONE)
+            /** Pad before the number with `0`s. */
+            public val Zero: PadPre = PadPre(TextFromFloat.PAD_PRE_ZERO)
+        }
     }
 
     /** Digit-grouping style (mutually exclusive). */
-    public enum class Grouping(internal val value: Int) {
-        /** No grouping, e.g. `1234567890.12`. */
-        None(TextFromFloat.GROUPING_NONE),
-        /** Group every 3 digits, e.g. `1,234,567,890.12`. */
-        By3(TextFromFloat.GROUPING_BY3),
-        /** Group every 4 digits, e.g. `12,3456,7890.12`. */
-        By4(TextFromFloat.GROUPING_BY4),
-        /** Group 3 then 2, e.g. `1,23,45,67,890.12`. */
-        By32(TextFromFloat.GROUPING_BY32),
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @JvmInline
+    public value class Grouping internal constructor(internal val value: Int) {
+        public companion object {
+            /** No grouping, e.g. `1234567890.12`. */
+            public val None: Grouping = Grouping(TextFromFloat.GROUPING_NONE)
+            /** Group every 3 digits, e.g. `1,234,567,890.12`. */
+            public val By3: Grouping = Grouping(TextFromFloat.GROUPING_BY3)
+            /** Group every 4 digits, e.g. `12,3456,7890.12`. */
+            public val By4: Grouping = Grouping(TextFromFloat.GROUPING_BY4)
+            /** Group 3 then 2, e.g. `1,23,45,67,890.12`. */
+            public val By32: Grouping = Grouping(TextFromFloat.GROUPING_BY32)
+        }
     }
 
     /** Decimal/thousands separator style (mutually exclusive). */
-    public enum class Separator(internal val value: Int) {
-        /** Comma group, period decimal: `123,456.12`. */
-        CommaPeriod(TextFromFloat.SEPARATOR_COMMA_PERIOD),
-        /** Period group, comma decimal: `123.456,12`. */
-        PeriodComma(TextFromFloat.SEPARATOR_PERIOD_COMMA),
-        /** Space group, comma decimal: `123 456,12`. */
-        SpaceComma(TextFromFloat.SEPARATOR_SPACE_COMMA),
-        /** Underscore group, period decimal: `123_456.12`. */
-        UnderPeriod(TextFromFloat.SEPARATOR_UNDER_PERIOD),
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @JvmInline
+    public value class Separator internal constructor(internal val value: Int) {
+        public companion object {
+            /** Comma group, period decimal: `123,456.12`. */
+            public val CommaPeriod: Separator = Separator(TextFromFloat.SEPARATOR_COMMA_PERIOD)
+            /** Period group, comma decimal: `123.456,12`. */
+            public val PeriodComma: Separator = Separator(TextFromFloat.SEPARATOR_PERIOD_COMMA)
+            /** Space group, comma decimal: `123 456,12`. */
+            public val SpaceComma: Separator = Separator(TextFromFloat.SEPARATOR_SPACE_COMMA)
+            /** Underscore group, period decimal: `123_456.12`. */
+            public val UnderPeriod: Separator = Separator(TextFromFloat.SEPARATOR_UNDER_PERIOD)
+        }
     }
 
     /** Numeric-presentation options (mutually exclusive). */
-    public enum class Options(internal val value: Int) {
-        /** Default presentation. */
-        None(TextFromFloat.OPTIONS_NONE),
-        /** Render negative values with parentheses: `(890.12)`. */
-        NegativeParens(TextFromFloat.OPTIONS_NEGATIVE_PARENTHESES),
-        /** Round (rather than clip) the last visible digit. */
-        Rounding(TextFromFloat.OPTIONS_ROUNDING),
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @JvmInline
+    public value class Options internal constructor(internal val value: Int) {
+        public companion object {
+            /** Default presentation. */
+            public val None: Options = Options(TextFromFloat.OPTIONS_NONE)
+            /** Render negative values with parentheses: `(890.12)`. */
+            public val NegativeParens: Options = Options(TextFromFloat.OPTIONS_NEGATIVE_PARENTHESES)
+            /** Round (rather than clip) the last visible digit. */
+            public val Rounding: Options = Options(TextFromFloat.OPTIONS_ROUNDING)
+        }
     }
 
     public companion object {
@@ -1332,5 +1393,198 @@ public class RcCustomProperty {
 
         public fun returnColor(type: Int, scope: RcScope): RcCustomProperty =
             returnColor(type.toShort(), scope)
+    }
+}
+
+/** Outline shape used by [Modifier.clip]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RcShape internal constructor(internal val legacyShape: Shape) {
+    public companion object {
+        /** Axis-aligned rectangular clip outline. */
+        public val Rectangle: RcShape = RcShape(RectShape(0f, 0f, 0f, 0f))
+
+        /** Circular clip outline inscribed in the component bounds. */
+        public val Circle: RcShape = RcShape(CircleShape())
+
+        /** Creates a rounded-rectangle clip outline with uniform [radius] on all four corners. */
+        public fun roundedCorner(radius: Float): RcShape =
+            RcShape(RoundedRectShape(radius, radius, radius, radius))
+
+        /** Creates a rounded-rectangle clip outline with uniform [radius] on all four corners. */
+        public fun roundedCorner(radius: RcDp): RcShape =
+            RcShape(RoundedRectShape(radius.value, radius.value, radius.value, radius.value))
+
+        /** Creates a rounded-rectangle clip outline with uniform [radius] on all four corners. */
+        public fun roundedCorner(radius: RcPx): RcShape =
+            RcShape(RoundedRectShape(radius.value, radius.value, radius.value, radius.value))
+
+        /** Creates a rounded-rectangle clip outline with per-corner radii. */
+        public fun roundedCorner(
+            topStart: Float = 0f,
+            topEnd: Float = 0f,
+            bottomEnd: Float = 0f,
+            bottomStart: Float = 0f,
+        ): RcShape = RcShape(RoundedRectShape(topStart, topEnd, bottomStart, bottomEnd))
+
+        /** Creates a rounded-rectangle clip outline with per-corner [RcDp] radii. */
+        public fun roundedCorner(
+            topStart: RcDp = 0.rdp,
+            topEnd: RcDp = 0.rdp,
+            bottomEnd: RcDp = 0.rdp,
+            bottomStart: RcDp = 0.rdp,
+        ): RcShape =
+            RcShape(
+                RoundedRectShape(topStart.value, topEnd.value, bottomStart.value, bottomEnd.value)
+            )
+
+        /** Creates a rounded-rectangle clip outline with per-corner [RcPx] radii. */
+        public fun roundedCorner(
+            topStart: RcPx = 0.rpx,
+            topEnd: RcPx = 0.rpx,
+            bottomEnd: RcPx = 0.rpx,
+            bottomStart: RcPx = 0.rpx,
+        ): RcShape =
+            RcShape(
+                RoundedRectShape(topStart.value, topEnd.value, bottomStart.value, bottomEnd.value)
+            )
+    }
+}
+
+/** Component enter/exit visibility animation preset for [Modifier.animationSpec]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcEnterExitAnimation internal constructor(internal val value: Int) {
+    internal fun toCore(): AnimationSpec.ANIMATION = AnimationSpec.intToAnimation(value)
+
+    public companion object {
+        /** Fade in from transparent to opaque. */
+        public val FadeIn: RcEnterExitAnimation =
+            RcEnterExitAnimation(AnimationSpec.ANIMATION.FADE_IN.ordinal)
+        /** Fade out from opaque to transparent. */
+        public val FadeOut: RcEnterExitAnimation =
+            RcEnterExitAnimation(AnimationSpec.ANIMATION.FADE_OUT.ordinal)
+        /** Slide horizontally from/to the left edge. */
+        public val SlideLeft: RcEnterExitAnimation =
+            RcEnterExitAnimation(AnimationSpec.ANIMATION.SLIDE_LEFT.ordinal)
+        /** Slide horizontally from/to the right edge. */
+        public val SlideRight: RcEnterExitAnimation =
+            RcEnterExitAnimation(AnimationSpec.ANIMATION.SLIDE_RIGHT.ordinal)
+        /** Slide vertically from/to the top edge. */
+        public val SlideTop: RcEnterExitAnimation =
+            RcEnterExitAnimation(AnimationSpec.ANIMATION.SLIDE_TOP.ordinal)
+        /** Slide vertically from/to the bottom edge. */
+        public val SlideBottom: RcEnterExitAnimation =
+            RcEnterExitAnimation(AnimationSpec.ANIMATION.SLIDE_BOTTOM.ordinal)
+        /** Rotate during visibility transition. */
+        public val Rotate: RcEnterExitAnimation =
+            RcEnterExitAnimation(AnimationSpec.ANIMATION.ROTATE.ordinal)
+        /** Dissolve using a particle effect. */
+        public val Particle: RcEnterExitAnimation =
+            RcEnterExitAnimation(AnimationSpec.ANIMATION.PARTICLE.ordinal)
+        /**
+         * Execute a custom visibility animation defined via [RcScope.defineVisibilityAnimation].
+         */
+        public val Custom: RcEnterExitAnimation =
+            RcEnterExitAnimation(AnimationSpec.ANIMATION.CUSTOM.ordinal)
+    }
+}
+
+/**
+ * Sequencing order of an enter/exit animation relative to layout motion in
+ * [Modifier.animationSpec].
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcAnimationSequence internal constructor(internal val value: Int) {
+    internal fun toCore(): AnimationSpec.SEQUENCE = AnimationSpec.intToSequence(value)
+
+    public companion object {
+        /** Run simultaneously with layout motion. */
+        public val Concurrent: RcAnimationSequence =
+            RcAnimationSequence(AnimationSpec.SEQUENCE.CONCURRENT.ordinal)
+        /** Run before layout motion begins. */
+        public val Before: RcAnimationSequence =
+            RcAnimationSequence(AnimationSpec.SEQUENCE.BEFORE.ordinal)
+        /** Run after layout motion completes. */
+        public val After: RcAnimationSequence =
+            RcAnimationSequence(AnimationSpec.SEQUENCE.AFTER.ordinal)
+    }
+}
+
+/** Horizontal alignment along the arc for [RcCanvasScope.drawTextOnCircle]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcCircleTextAlignment internal constructor(internal val value: Int) {
+    internal fun toCore(): DrawTextOnCircle.Alignment = DrawTextOnCircle.Alignment.fromInt(value)
+
+    public companion object {
+        /** Align text start at `startAngle`. */
+        public val Start: RcCircleTextAlignment =
+            RcCircleTextAlignment(DrawTextOnCircle.Alignment.START.ordinal)
+        /** Center text around `startAngle`. */
+        public val Center: RcCircleTextAlignment =
+            RcCircleTextAlignment(DrawTextOnCircle.Alignment.CENTER.ordinal)
+        /** Align text end at `startAngle`. */
+        public val End: RcCircleTextAlignment =
+            RcCircleTextAlignment(DrawTextOnCircle.Alignment.END.ordinal)
+    }
+}
+
+/** Radial placement relative to the circle circumference for [RcCanvasScope.drawTextOnCircle]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcCircleTextPlacement internal constructor(internal val value: Int) {
+    internal fun toCore(): DrawTextOnCircle.Placement = DrawTextOnCircle.Placement.fromInt(value)
+
+    public companion object {
+        /** Place text outside the circle circumference. */
+        public val Outside: RcCircleTextPlacement =
+            RcCircleTextPlacement(DrawTextOnCircle.Placement.OUTSIDE.ordinal)
+        /** Place text inside the circle circumference. */
+        public val Inside: RcCircleTextPlacement =
+            RcCircleTextPlacement(DrawTextOnCircle.Placement.INSIDE.ordinal)
+    }
+}
+
+/** Semantic UI role announced by assistive technologies in [RcSemanticsScope.role]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcRole internal constructor(internal val value: Int) {
+    public companion object {
+        /** Standard clickable button. */
+        public val Button: RcRole = RcRole(AccessibleComponent.Role.BUTTON.ordinal)
+        /** Two-state or tri-state checkbox. */
+        public val Checkbox: RcRole = RcRole(AccessibleComponent.Role.CHECKBOX.ordinal)
+        /** Two-state on/off switch. */
+        public val Switch: RcRole = RcRole(AccessibleComponent.Role.SWITCH.ordinal)
+        /** Mutually exclusive radio button. */
+        public val RadioButton: RcRole = RcRole(AccessibleComponent.Role.RADIO_BUTTON.ordinal)
+        /** Selectable tab within a tab bar. */
+        public val Tab: RcRole = RcRole(AccessibleComponent.Role.TAB.ordinal)
+        /** Graphic or illustration. */
+        public val Image: RcRole = RcRole(AccessibleComponent.Role.IMAGE.ordinal)
+        /** Expandable dropdown list trigger. */
+        public val DropdownList: RcRole = RcRole(AccessibleComponent.Role.DROPDOWN_LIST.ordinal)
+        /** Value picker control. */
+        public val Picker: RcRole = RcRole(AccessibleComponent.Role.PICKER.ordinal)
+        /** Scrollable carousel container. */
+        public val Carousel: RcRole = RcRole(AccessibleComponent.Role.CAROUSEL.ordinal)
+        /** Unspecified or custom role. */
+        public val Unknown: RcRole = RcRole(AccessibleComponent.Role.UNKNOWN.ordinal)
+    }
+}
+
+/** Semantic tree merge behavior for [RcSemanticsScope.mode]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcSemanticsMode internal constructor(internal val value: Int) {
+    public companion object {
+        /** Adds or overrides semantic properties on this node without merging descendants. */
+        public val Set: RcSemanticsMode = RcSemanticsMode(AccessibleComponent.Mode.SET.ordinal)
+        /** Clears descendant semantics and sets only the properties declared on this node. */
+        public val ClearAndSet: RcSemanticsMode =
+            RcSemanticsMode(AccessibleComponent.Mode.CLEAR_AND_SET.ordinal)
+        /** Merges descendant semantic properties into this node. */
+        public val Merge: RcSemanticsMode = RcSemanticsMode(AccessibleComponent.Mode.MERGE.ordinal)
     }
 }

@@ -16,12 +16,11 @@
 
 package androidx.compose.remote.integration.view.demos.dsl.graph2d.lib
 
-import androidx.compose.remote.core.operations.Header
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcCanvasScope
 import androidx.compose.remote.creation.dsl.RcDynamicPath
 import androidx.compose.remote.creation.dsl.RcFloat
+import androidx.compose.remote.creation.dsl.RcHeaderTag
 import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcScope
@@ -65,9 +64,9 @@ public fun graph2dDoc(
 ): ByteArray =
     createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
-        RemoteComposeWriter.hTag(Header.DOC_WIDTH, width),
-        RemoteComposeWriter.hTag(Header.DOC_HEIGHT, height),
-        RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, description),
+        RcHeaderTag.docWidth(width),
+        RcHeaderTag.docHeight(height),
+        RcHeaderTag.contentDescription(description),
         content = content,
     )
 

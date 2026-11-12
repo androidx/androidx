@@ -62,31 +62,41 @@ public value class RcMeshLayout internal constructor(internal val value: Int) {
 
 /** How a mesh's vertex colours combine with the texel sampled from its image. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcMeshBlend(internal val value: Int) {
-    /** Ignore the image and use the vertex colours alone. */
-    ColorsOnly(DrawMesh2D.BLEND_COLORS_ONLY),
-    /** Multiply texel by vertex colour, so the colours tint the image. */
-    Modulate(DrawMesh2D.BLEND_MODULATE),
+@JvmInline
+public value class RcMeshBlend internal constructor(internal val value: Int) {
+    public companion object {
+        /** Ignore the image and use the vertex colours alone. */
+        public val ColorsOnly: RcMeshBlend = RcMeshBlend(DrawMesh2D.BLEND_COLORS_ONLY)
+
+        /** Multiply texel by vertex colour, so the colours tint the image. */
+        public val Modulate: RcMeshBlend = RcMeshBlend(DrawMesh2D.BLEND_MODULATE)
+    }
 }
 
 /**
  * How much of a mesh's local frame [RcCanvasScope.matrixFromMesh2D] applies.
  *
- * These are increasing levels of faithfulness rather than independent bits, which is why they are
- * an enum and not an OR-able flag set. Where the patch is degenerate - a fan's apex, a ring at
- * radius zero, a collapsed grid cell - the matrix is singular, and the player falls back to the
- * next level down rather than emitting a matrix that scales content to nothing.
+ * These are increasing levels of faithfulness rather than independent bits, which is why they are a
+ * discrete value class and not an OR-able flag set. Where the patch is degenerate - a fan's apex, a
+ * ring at radius zero, a collapsed grid cell - the matrix is singular, and the player falls back to
+ * the next level down rather than emitting a matrix that scales content to nothing.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcMeshMatrix(internal val value: Int) {
-    /** Translate to the mesh position only. */
-    Origin(MatrixFromMesh2D.FLAG_ORIGIN),
-    /** Position, plus the rotation of the surface. Text along a path strip. */
-    Rotation(MatrixFromMesh2D.FLAG_ROTATION),
-    /** Position and rotation, plus scale - a label that grows as the ribbon widens. */
-    Scale(MatrixFromMesh2D.FLAG_SCALE),
-    /** The full 2x3 affine, skew included. Content shears with the patch. */
-    Full(MatrixFromMesh2D.FLAG_FULL),
+@JvmInline
+public value class RcMeshMatrix internal constructor(internal val value: Int) {
+    public companion object {
+        /** Translate to the mesh position only. */
+        public val Origin: RcMeshMatrix = RcMeshMatrix(MatrixFromMesh2D.FLAG_ORIGIN)
+
+        /** Position, plus the rotation of the surface. Text along a path strip. */
+        public val Rotation: RcMeshMatrix = RcMeshMatrix(MatrixFromMesh2D.FLAG_ROTATION)
+
+        /** Position and rotation, plus scale - a label that grows as the ribbon widens. */
+        public val Scale: RcMeshMatrix = RcMeshMatrix(MatrixFromMesh2D.FLAG_SCALE)
+
+        /** The full 2x3 affine, skew included. Content shears with the patch. */
+        public val Full: RcMeshMatrix = RcMeshMatrix(MatrixFromMesh2D.FLAG_FULL)
+    }
 }
 
 /**

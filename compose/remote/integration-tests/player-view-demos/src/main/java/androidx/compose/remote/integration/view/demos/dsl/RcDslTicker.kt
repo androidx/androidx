@@ -29,6 +29,7 @@ import androidx.compose.remote.creation.dsl.RcPath
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcScope
 import androidx.compose.remote.creation.dsl.RcShader
+import androidx.compose.remote.creation.dsl.RcShape
 import androidx.compose.remote.creation.dsl.RcSp
 import androidx.compose.remote.creation.dsl.RcVerticalPositioning
 import androidx.compose.remote.creation.dsl.background
@@ -44,7 +45,6 @@ import androidx.compose.remote.creation.dsl.rsp
 import androidx.compose.remote.creation.dsl.size
 import androidx.compose.remote.creation.dsl.verticalScroll
 import androidx.compose.remote.creation.dsl.widthIn
-import androidx.compose.remote.creation.modifiers.RoundedRectShape
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.tooling.preview.RemoteDocumentPreview
@@ -124,7 +124,7 @@ private fun RcFlowScope.Stock(name: String, price: Float, change: String) {
     Row(
         modifier =
             Modifier.padding(32f, 0f, 32f, 28f)
-                .clip(RoundedRectShape(s, s, s, s))
+                .clip(RcShape.roundedCorner(s))
                 .background(colors.panels)
                 .weight(1f)
                 .widthIn(120f, Float.MAX_VALUE)
@@ -224,21 +224,12 @@ private fun RcScope.StockGraph() {
         path.lineTo(xEnd.toFloat(), lineBottom.toFloat())
         path.close()
 
-        paint { style(RcPaintStyle.Fill) }
-        paint
-            .setLinearGradient(
-                0f,
-                0f,
-                0f,
-                lineBottom.toFloat(),
-                intArrayOf(colors.dotColor.id, 0x00),
-                1,
-                null,
-                0, /* CLAMP */
-            )
-            .setPathEffect(null)
-            .setColor(Color.BLACK)
-            .commit()
+        paint {
+            style(RcPaintStyle.Fill)
+            linearGradient(0f, 0f, 0f, lineBottom.toFloat(), listOf(colors.dotColor, RcColor.None))
+            pathEffect(null)
+            color(Color.BLACK)
+        }
 
         save {
             val cut = 5f
@@ -263,10 +254,10 @@ private fun RcScope.FollowInvestments() {
         modifier =
             Modifier.padding(8f)
                 .height(100f)
-                .clip(RoundedRectShape(s, s, s, s))
+                .clip(RcShape.roundedCorner(s))
                 .background(colors.followText)
                 .padding(4f)
-                .clip(RoundedRectShape(s, s, s, s))
+                .clip(RcShape.roundedCorner(s))
                 .background(colors.background)
                 .padding(16f),
         horizontal = RcHorizontalPositioning.Center,
@@ -290,7 +281,7 @@ private fun RcScope.DirectionIcon() {
         modifier =
             Modifier.size(120f)
                 .padding(16f)
-                .clip(RoundedRectShape(s, s, s, s))
+                .clip(RcShape.roundedCorner(s))
                 .background(colors.dotColor),
         horizontal = RcHorizontalPositioning.Center,
         vertical = RcVerticalPositioning.Center,
@@ -302,7 +293,7 @@ private fun RcScope.DirectionIcon() {
 @Suppress("RestrictedApiAndroidX")
 private fun RcScope.RefreshIcon() {
     Canvas(modifier = Modifier.size(64.rdp)) {
-        paint.setColor(colors.textColor).commit()
+        paint { color(colors.textColor) }
         val path = refreshPath()
         val size = 64
         scale(size / 960f, size / 960f)
@@ -318,7 +309,7 @@ private fun RcScope.refreshPath(): RcPath {
             "440L520,360L688,360Q656,304 600.5,272Q545,240 480,240Q380,240 310,310Q240," +
             "380 240,480Q240,580 310,650Q380,720 480,720Q557,720 619,676Q681,632 706," +
             "560L790,560Q762,666 676,733Q590,800 480,800Z"
-    return remotePathData(refreshStr.toPathData())
+    return remotePathData(refreshStr)
 }
 
 @Suppress("RestrictedApiAndroidX")
@@ -331,11 +322,10 @@ private fun RcCanvasScope.Scrollbar(
     val h = height.flush()
     val alpha = sign(max(0f.rf, (touchTime() - animationTime() + 0.1f))).anim(1.2f).flush()
 
-    with(paint) {
-        setColorId(color.id)
-        setAlpha(alpha)
-        setStrokeWidth(10f)
-        commit()
+    paint {
+        color(color)
+        alpha(alpha)
+        strokeWidth(10f)
     }
     val safeSize = max(1f.rf, scrollPanelSize).flush()
     val len = (h * h / safeSize).flush()

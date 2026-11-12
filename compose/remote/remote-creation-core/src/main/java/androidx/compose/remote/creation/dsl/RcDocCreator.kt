@@ -20,14 +20,73 @@
 package androidx.compose.remote.creation.dsl
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles
+import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriter.HTag
+
+/**
+ * Controls how coordinate and dimension values in a RemoteCompose document are interpreted by the
+ * player relative to display density.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcDensityBehavior internal constructor(internal val value: Int) {
+    public companion object {
+        /** Values are interpreted as raw pixels, with no display density scaling applied. */
+        public val Pixels: RcDensityBehavior =
+            RcDensityBehavior(CoreDocument.DENSITY_BEHAVIOR_PIXELS)
+
+        /** Values are interpreted as density-independent pixels (dp) and scaled by density. */
+        public val Dp: RcDensityBehavior = RcDensityBehavior(CoreDocument.DENSITY_BEHAVIOR_DP)
+    }
+}
+
+/**
+ * Metadata property written into the header of a serialized RemoteCompose document created via
+ * [createRcBuffer] or [createRawRcBuffer].
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RcHeaderTag internal constructor(internal val tag: Short, internal val value: Any) {
+    public companion object {
+        /** Sets the intrinsic document width in pixels or dp (per [densityBehavior]). */
+        public fun docWidth(width: Int): RcHeaderTag = RcHeaderTag(Header.DOC_WIDTH, width)
+
+        /** Sets the intrinsic document height in pixels or dp (per [densityBehavior]). */
+        public fun docHeight(height: Int): RcHeaderTag = RcHeaderTag(Header.DOC_HEIGHT, height)
+
+        /** Sets the target playback frame rate in frames per second. */
+        public fun desiredFps(fps: Int): RcHeaderTag = RcHeaderTag(Header.DOC_DESIRED_FPS, fps)
+
+        /** Sets the accessibility content description for the document. */
+        public fun contentDescription(description: String): RcHeaderTag =
+            RcHeaderTag(Header.DOC_CONTENT_DESCRIPTION, description)
+
+        /** Configures whether coordinates and dimensions are interpreted as pixels or dp. */
+        public fun densityBehavior(behavior: RcDensityBehavior): RcHeaderTag =
+            RcHeaderTag(Header.DOC_DENSITY_BEHAVIOR, behavior.value)
+
+        /** Enables or disables DEFLATE stream compression for document operations. */
+        public fun compress(enabled: Boolean = true): RcHeaderTag =
+            RcHeaderTag(
+                Header.COMPRESS,
+                if (enabled) Header.COMPRESSION_DEFLATE else Header.COMPRESSION_NONE,
+            )
+
+        /** Sets the player debug verbosity level (`0` disables debug output). */
+        public fun debug(level: Int): RcHeaderTag = RcHeaderTag(Header.DEBUG, level)
+
+        /** Creates a raw header tag from a wire property ID and value. */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun raw(tag: Short, value: Any): RcHeaderTag = RcHeaderTag(tag, value)
+    }
+}
 
 private fun createRcBufferInternal(
     profile: RcProfile,
     experimental: Boolean = false,
-    vararg tags: HTag,
+    vararg tags: RcHeaderTag,
     contentExecution: (RemoteComposeWriter, RcScope) -> Unit,
 ): ByteArray {
     val isExperimental = experimental || profile.experimental
@@ -43,15 +102,14 @@ private fun createRcBufferInternal(
             profile.profile
         }
 
+    val rawTags = Array(tags.size) { HTag(tags[it].tag, tags[it].value) }
     val finalTags =
         if (isExperimental) {
             var profileTagFound = false
             val modifiedTags =
-                tags
+                rawTags
                     .map { tag ->
-                        if (
-                            tag.tag == androidx.compose.remote.core.operations.Header.DOC_PROFILES
-                        ) {
+                        if (tag.tag == Header.DOC_PROFILES) {
                             profileTagFound = true
                             HTag(tag.tag, (tag.value as Int) or RcProfiles.PROFILE_EXPERIMENTAL)
                         } else {
@@ -63,14 +121,14 @@ private fun createRcBufferInternal(
             if (!profileTagFound) {
                 modifiedTags.add(
                     HTag(
-                        androidx.compose.remote.core.operations.Header.DOC_PROFILES,
+                        Header.DOC_PROFILES,
                         profile.profile.operationsProfiles or RcProfiles.PROFILE_EXPERIMENTAL,
                     )
                 )
             }
             modifiedTags.toTypedArray()
         } else {
-            tags
+            rawTags
         }
 
     val writer = RemoteComposeWriter(finalProfile, *finalTags)
@@ -88,7 +146,7 @@ private fun createRcBufferInternal(
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun createRcBuffer(
     profile: RcProfile,
-    vararg tags: HTag,
+    vararg tags: RcHeaderTag,
     content: RcScope.() -> Unit,
 ): ByteArray =
     createRcBufferInternal(profile, experimental = false, *tags) { writer, scope ->
@@ -103,7 +161,7 @@ public fun createRcBuffer(
 public fun createRcBuffer(
     profile: RcProfile,
     experimental: Boolean,
-    vararg tags: HTag,
+    vararg tags: RcHeaderTag,
     content: RcScope.() -> Unit,
 ): ByteArray =
     createRcBufferInternal(profile, experimental, *tags) { writer, scope ->
@@ -117,7 +175,7 @@ public fun createRcBuffer(
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun createRawRcBuffer(
     profile: RcProfile,
-    vararg tags: HTag,
+    vararg tags: RcHeaderTag,
     content: RcCanvasScope.() -> Unit,
 ): ByteArray =
     createRcBufferInternal(profile, experimental = false, *tags) { writer, _ ->
@@ -132,7 +190,7 @@ public fun createRawRcBuffer(
 public fun createRawRcBuffer(
     profile: RcProfile,
     experimental: Boolean,
-    vararg tags: HTag,
+    vararg tags: RcHeaderTag,
     content: RcCanvasScope.() -> Unit,
 ): ByteArray =
     createRcBufferInternal(profile, experimental, *tags) { writer, _ ->

@@ -17,10 +17,10 @@
 package androidx.compose.remote.integration.view.demos.dsl
 
 import androidx.compose.remote.core.operations.Header
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcBorderShape
 import androidx.compose.remote.creation.dsl.RcColumnVerticalPositioning
+import androidx.compose.remote.creation.dsl.RcHeaderTag
 import androidx.compose.remote.creation.dsl.RcHorizontalPositioning
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.background
@@ -47,7 +47,7 @@ public fun dslRcScrollview(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
         experimental = true,
-        RemoteComposeWriter.hTag(Header.FEATURE_MEASURE_VERSION, 2),
+        RcHeaderTag.raw(Header.FEATURE_MEASURE_VERSION, 2),
     ) {
         Column(modifier = Modifier.fillMaxSize().background(0xFFFFFFFF.toInt()).padding(60f)) {
             Column(
