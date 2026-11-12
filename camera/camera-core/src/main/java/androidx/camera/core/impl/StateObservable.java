@@ -221,17 +221,18 @@ public abstract class StateObservable<T> implements Observable<T> {
             Object newState;
             int currentVersion;
             synchronized (this) {
-                // Only update if we're still active.
+                // Read state before mActive. Both mStateRef and mActive are volatile atomics,
+                // and removeObserver() sets mActive=false before any post-removal updateState()
+                // writes mState, so if this read observes a post-removal state, mActive.get()
+                // below must observe false. Do not reorder.
+                newState = mStateRef.get();
                 if (!mActive.get()) {
                     mWrapperUpdating = false;
                     return;
                 }
-                // Get latest state.
-                newState = mStateRef.get();
                 currentVersion = mLatestSignalledVersion;
             }
 
-            // Continue to check if we're active before updating
             while (true) {
                 // Conflate notification using equality
                 if (!Objects.equals(mLastState, newState)) {
@@ -244,14 +245,18 @@ public abstract class StateObservable<T> implements Observable<T> {
                 }
 
                 synchronized (this) {
-                    if (currentVersion == mLatestSignalledVersion || !mActive.get()) {
-                        // Updating complete or no longer active. Break out of update loop.
+                    if (currentVersion == mLatestSignalledVersion) {
+                        // Updating complete. Break out of update loop.
                         mWrapperUpdating = false;
                         break;
                     }
 
-                    // Get state and version for next update.
+                    // Read state before checking mActive for the same JMM ordering guarantee.
                     newState = mStateRef.get();
+                    if (!mActive.get()) {
+                        mWrapperUpdating = false;
+                        break;
+                    }
                     currentVersion = mLatestSignalledVersion;
                 }
             }
