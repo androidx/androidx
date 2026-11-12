@@ -40,10 +40,8 @@ import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.compose.text.RemoteTimeDefaults
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
-import androidx.compose.remote.creation.compose.text.toRemoteFontVariationSettings
 import androidx.compose.remote.creation.compose.text.toRemoteTypeface
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.text.font.FontVariation
 import androidx.wear.compose.remote.material3.internal.setLuminance
 
 /**
@@ -105,7 +103,7 @@ public fun RemoteTimeText(
     backgroundColor: RemoteColor = RemoteTimeTextDefaults.backgroundColor,
     style: RemoteTextStyle = RemoteTimeTextDefaults.TimeTextStyle,
     fontFeatureSettings: String? = null,
-    fontVariationSettings: FontVariation.Settings? = null,
+    fontVariationSettings: RemoteFontVariation.Settings? = null,
 ) {
     val text =
         buildTimeTextString(
@@ -114,14 +112,13 @@ public fun RemoteTimeText(
             trailingText = trailingText ?: "".rs,
             separator = separator,
         )
-    @Suppress("RestrictedApiAndroidX")
     val mergedStyle =
         style.merge(
             color = color,
             fontSize = fontSize,
             fontFamily = fontFamily,
             fontFeatureSettings = fontFeatureSettings,
-            fontVariationSettings = fontVariationSettings?.toRemoteFontVariationSettings(),
+            fontVariationSettings = fontVariationSettings,
         )
     val resolvedFontSize = mergedStyle.fontSize ?: 14.rsp
     val resolvedColor =
@@ -253,7 +250,7 @@ public object RemoteTimeTextDefaults {
     public val FontFeatureSettings: String? = "tnum"
 
     /** Default font variation settings used by [RemoteTimeText]. */
-    public val FontVariationSettings: FontVariation.Settings? = null
+    public val FontVariationSettings: RemoteFontVariation.Settings? = null
 
     /**
      * Default background color used by [RemoteTimeText], so the text stays visible on top of other
@@ -265,12 +262,11 @@ public object RemoteTimeTextDefaults {
         get() = RemoteMaterialTheme.colorScheme.background.copy(alpha = 0.85f.rf)
 
     /** Default text style used by [RemoteTimeText]. */
-    @Suppress("RestrictedApiAndroidX")
     public val TimeTextStyle: RemoteTextStyle =
         RemoteTextStyle(
             fontSize = 14.rsp,
             fontFamily = FontFamily,
             fontFeatureSettings = FontFeatureSettings,
-            fontVariationSettings = FontVariationSettings?.toRemoteFontVariationSettings(),
+            fontVariationSettings = FontVariationSettings,
         )
 }
