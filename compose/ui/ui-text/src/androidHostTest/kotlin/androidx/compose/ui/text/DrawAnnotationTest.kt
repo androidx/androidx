@@ -19,8 +19,12 @@ package androidx.compose.ui.text
 import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.AnnotatedString.Range
+import androidx.compose.ui.text.BackgroundAnnotation.SpreadValues
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -258,6 +262,143 @@ class DrawAnnotationTest {
         // Saveable DrawAnnotation subclass is preserved; lambda-backed DrawAnnotation is skipped.
         assertThat(restored.getDrawAnnotations(0, restored.length))
             .containsExactly(Range(saveableHighlight, 7, 15))
+    }
+
+    @Test
+    fun spreadValues_constructorsGettersEqualityAndToString() {
+        val zero = SpreadValues.Zero
+        assertThat(zero.left).isEqualTo(0.dp)
+        assertThat(zero.top).isEqualTo(0.dp)
+        assertThat(zero.right).isEqualTo(0.dp)
+        assertThat(zero.bottom).isEqualTo(0.dp)
+        assertThat(SpreadValues()).isEqualTo(zero)
+        assertThat(SpreadValues(all = 0.dp)).isEqualTo(zero)
+
+        val fourEdge = SpreadValues(left = 1.dp, top = 2.dp, right = 3.dp, bottom = 4.dp)
+        assertThat(fourEdge.left).isEqualTo(1.dp)
+        assertThat(fourEdge.top).isEqualTo(2.dp)
+        assertThat(fourEdge.right).isEqualTo(3.dp)
+        assertThat(fourEdge.bottom).isEqualTo(4.dp)
+        assertThat(fourEdge.toString())
+            .isEqualTo("SpreadValues(left=1.0.dp, top=2.0.dp, right=3.0.dp, bottom=4.0.dp)")
+
+        val symmetric = SpreadValues(horizontal = 4.dp, vertical = 2.dp)
+        assertThat(symmetric)
+            .isEqualTo(SpreadValues(left = 4.dp, top = 2.dp, right = 4.dp, bottom = 2.dp))
+        assertThat(symmetric.hashCode())
+            .isEqualTo(
+                SpreadValues(left = 4.dp, top = 2.dp, right = 4.dp, bottom = 2.dp).hashCode()
+            )
+
+        val uniform = SpreadValues(all = 6.dp)
+        assertThat(uniform)
+            .isEqualTo(SpreadValues(left = 6.dp, top = 6.dp, right = 6.dp, bottom = 6.dp))
+
+        val negative = SpreadValues(horizontal = (-2).dp, vertical = (-1.5).dp)
+        assertThat(negative.left).isEqualTo((-2).dp)
+        assertThat(negative.top).isEqualTo((-1.5).dp)
+        assertThat(negative.right).isEqualTo((-2).dp)
+        assertThat(negative.bottom).isEqualTo((-1.5).dp)
+    }
+
+    @Test
+    fun backgroundAnnotation_equalsHashCodeAndToString() {
+        val brush1 = SolidColor(Color.Cyan)
+        val brush2 = SolidColor(Color.Green)
+        val producer1 = ColorProducer { Color.Red }
+        val producer2 = ColorProducer { Color.Blue }
+
+        val borderColor1 = BackgroundAnnotation.Border(width = 1.dp, color = Color.Blue)
+        val borderColor2 = BackgroundAnnotation.Border(width = 1.dp, color = Color.Blue)
+        val borderProducer = BackgroundAnnotation.Border(width = 1.dp, colorProducer = producer1)
+        val borderBrush = BackgroundAnnotation.Border(width = 1.dp, brush = brush2)
+
+        assertThat(borderColor1).isEqualTo(borderColor2)
+        assertThat(borderColor1.hashCode()).isEqualTo(borderColor2.hashCode())
+        assertThat(borderColor1).isNotEqualTo(borderProducer)
+        assertThat(borderColor1).isNotEqualTo(borderBrush)
+        assertThat(borderColor1.toString()).contains("Border")
+
+        val bg1 =
+            BackgroundAnnotation(
+                color = Color.Red,
+                cornerRadius = 6.dp,
+                spread = SpreadValues(horizontal = 4.dp, vertical = 2.dp),
+                mergeLines = false,
+                border = borderColor1,
+                alpha = 0.75f,
+            )
+        val bg2 =
+            BackgroundAnnotation(
+                color = Color.Red,
+                cornerRadius = 6.dp,
+                spread = SpreadValues(horizontal = 4.dp, vertical = 2.dp),
+                mergeLines = false,
+                border = borderColor2,
+                alpha = 0.75f,
+            )
+        val bgDifferentRadius =
+            BackgroundAnnotation(
+                color = Color.Red,
+                cornerRadius = 10.dp,
+                spread = SpreadValues(horizontal = 4.dp, vertical = 2.dp),
+                mergeLines = false,
+                border = borderColor1,
+                alpha = 0.75f,
+            )
+        val bgDefaults = BackgroundAnnotation(color = Color.Red)
+        assertThat(bgDefaults.cornerRadius).isEqualTo(0.dp)
+        assertThat(bgDefaults.spread).isEqualTo(SpreadValues.Zero)
+        assertThat(bgDefaults.mergeLines).isTrue()
+        assertThat(bgDefaults.border).isNull()
+        assertThat(bgDefaults.alpha).isEqualTo(1.0f)
+
+        assertThat(bg1.path).isNull()
+        assertThat(bg1.color).isEqualTo(Color.Red)
+        assertThat(bg1.colorProducer).isNull()
+        assertThat(bg1.brush).isNull()
+        assertThat(bg1.cornerRadius).isEqualTo(6.dp)
+        assertThat(bg1.spread).isEqualTo(SpreadValues(horizontal = 4.dp, vertical = 2.dp))
+        assertThat(bg1.mergeLines).isFalse()
+        assertThat(bg1.border).isEqualTo(borderColor1)
+        assertThat(bg1.alpha).isEqualTo(0.75f)
+        assertThat(borderColor1.width).isEqualTo(1.dp)
+        assertThat(borderColor1.color).isEqualTo(Color.Blue)
+        assertThat(borderColor1.colorProducer).isNull()
+        assertThat(borderColor1.brush).isNull()
+        assertThat(bg1).isEqualTo(bg2)
+        assertThat(bg1.hashCode()).isEqualTo(bg2.hashCode())
+        assertThat(bg1).isNotEqualTo(bgDifferentRadius)
+        assertThat(bg1.toString()).contains("BackgroundAnnotation(")
+        assertThat(bg1.toString()).contains("spread=SpreadValues(")
+        assertThat(bg1.toString()).doesNotContain("colorFilter")
+        assertThat(bg1.toString()).doesNotContain("blendMode")
+
+        val bgBrush =
+            BackgroundAnnotation(
+                brush = brush1,
+                cornerRadius = 6.dp,
+                border = borderBrush,
+            )
+        assertThat(bgBrush.color).isEqualTo(Color.Unspecified)
+        assertThat(bgBrush.colorProducer).isNull()
+        assertThat(bgBrush.brush).isEqualTo(brush1)
+        assertThat(bgBrush.border).isEqualTo(borderBrush)
+        assertThat(bgBrush.border!!.color).isEqualTo(Color.Unspecified)
+        assertThat(bgBrush.border!!.brush).isEqualTo(brush2)
+
+        val bgProducer1 =
+            BackgroundAnnotation(
+                colorProducer = producer1,
+                cornerRadius = 6.dp,
+                border = borderProducer,
+            )
+        val bgProducer2 = BackgroundAnnotation(colorProducer = producer2, cornerRadius = 6.dp)
+        assertThat(bgProducer1.color).isEqualTo(Color.Unspecified)
+        assertThat(bgProducer1.brush).isNull()
+        assertThat(bgProducer1.colorProducer).isEqualTo(producer1)
+        assertThat(bgProducer1.border!!.colorProducer).isEqualTo(producer1)
+        assertThat(bgProducer1).isNotEqualTo(bgProducer2)
     }
 
     private data class CustomRoundedHighlightAnnotation(val colorArgb: Int, val radiusPx: Float) :

@@ -910,6 +910,77 @@ final class androidx.compose.ui.text/AnnotatedString : kotlin/CharSequence { // 
     }
 }
 
+final class androidx.compose.ui.text/BackgroundAnnotation : androidx.compose.ui.text/DrawAnnotation { // androidx.compose.ui.text/BackgroundAnnotation|null[0]
+    constructor <init>(androidx.compose.ui.graphics/Brush, androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.text/BackgroundAnnotation.SpreadValues = ..., kotlin/Boolean = ..., androidx.compose.ui.text/BackgroundAnnotation.Border? = ..., kotlin/Float = ...) // androidx.compose.ui.text/BackgroundAnnotation.<init>|<init>(androidx.compose.ui.graphics.Brush;androidx.compose.ui.unit.Dp;androidx.compose.ui.text.BackgroundAnnotation.SpreadValues;kotlin.Boolean;androidx.compose.ui.text.BackgroundAnnotation.Border?;kotlin.Float){}[0]
+    constructor <init>(androidx.compose.ui.graphics/Color, androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.text/BackgroundAnnotation.SpreadValues = ..., kotlin/Boolean = ..., androidx.compose.ui.text/BackgroundAnnotation.Border? = ..., kotlin/Float = ...) // androidx.compose.ui.text/BackgroundAnnotation.<init>|<init>(androidx.compose.ui.graphics.Color;androidx.compose.ui.unit.Dp;androidx.compose.ui.text.BackgroundAnnotation.SpreadValues;kotlin.Boolean;androidx.compose.ui.text.BackgroundAnnotation.Border?;kotlin.Float){}[0]
+    constructor <init>(androidx.compose.ui.graphics/ColorProducer, androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.text/BackgroundAnnotation.SpreadValues = ..., kotlin/Boolean = ..., androidx.compose.ui.text/BackgroundAnnotation.Border? = ..., kotlin/Float = ...) // androidx.compose.ui.text/BackgroundAnnotation.<init>|<init>(androidx.compose.ui.graphics.ColorProducer;androidx.compose.ui.unit.Dp;androidx.compose.ui.text.BackgroundAnnotation.SpreadValues;kotlin.Boolean;androidx.compose.ui.text.BackgroundAnnotation.Border?;kotlin.Float){}[0]
+
+    final val alpha // androidx.compose.ui.text/BackgroundAnnotation.alpha|{}alpha[0]
+        final fun <get-alpha>(): kotlin/Float // androidx.compose.ui.text/BackgroundAnnotation.alpha.<get-alpha>|<get-alpha>(){}[0]
+    final val border // androidx.compose.ui.text/BackgroundAnnotation.border|{}border[0]
+        final fun <get-border>(): androidx.compose.ui.text/BackgroundAnnotation.Border? // androidx.compose.ui.text/BackgroundAnnotation.border.<get-border>|<get-border>(){}[0]
+    final val brush // androidx.compose.ui.text/BackgroundAnnotation.brush|{}brush[0]
+        final fun <get-brush>(): androidx.compose.ui.graphics/Brush? // androidx.compose.ui.text/BackgroundAnnotation.brush.<get-brush>|<get-brush>(){}[0]
+    final val color // androidx.compose.ui.text/BackgroundAnnotation.color|{}color[0]
+        final fun <get-color>(): androidx.compose.ui.graphics/Color // androidx.compose.ui.text/BackgroundAnnotation.color.<get-color>|<get-color>(){}[0]
+    final val colorProducer // androidx.compose.ui.text/BackgroundAnnotation.colorProducer|{}colorProducer[0]
+        final fun <get-colorProducer>(): androidx.compose.ui.graphics/ColorProducer? // androidx.compose.ui.text/BackgroundAnnotation.colorProducer.<get-colorProducer>|<get-colorProducer>(){}[0]
+    final val cornerRadius // androidx.compose.ui.text/BackgroundAnnotation.cornerRadius|{}cornerRadius[0]
+        final fun <get-cornerRadius>(): androidx.compose.ui.unit/Dp // androidx.compose.ui.text/BackgroundAnnotation.cornerRadius.<get-cornerRadius>|<get-cornerRadius>(){}[0]
+    final val mergeLines // androidx.compose.ui.text/BackgroundAnnotation.mergeLines|{}mergeLines[0]
+        final fun <get-mergeLines>(): kotlin/Boolean // androidx.compose.ui.text/BackgroundAnnotation.mergeLines.<get-mergeLines>|<get-mergeLines>(){}[0]
+    final val spread // androidx.compose.ui.text/BackgroundAnnotation.spread|{}spread[0]
+        final fun <get-spread>(): androidx.compose.ui.text/BackgroundAnnotation.SpreadValues // androidx.compose.ui.text/BackgroundAnnotation.spread.<get-spread>|<get-spread>(){}[0]
+
+    final fun (androidx.compose.ui.text/DrawAnnotationScope).drawBehind() // androidx.compose.ui.text/BackgroundAnnotation.drawBehind|drawBehind@androidx.compose.ui.text.DrawAnnotationScope(){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.text/BackgroundAnnotation.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.ui.text/BackgroundAnnotation.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.ui.text/BackgroundAnnotation.toString|toString(){}[0]
+
+    final class Border { // androidx.compose.ui.text/BackgroundAnnotation.Border|null[0]
+        constructor <init>(androidx.compose.ui.unit/Dp, androidx.compose.ui.graphics/Brush) // androidx.compose.ui.text/BackgroundAnnotation.Border.<init>|<init>(androidx.compose.ui.unit.Dp;androidx.compose.ui.graphics.Brush){}[0]
+        constructor <init>(androidx.compose.ui.unit/Dp, androidx.compose.ui.graphics/Color) // androidx.compose.ui.text/BackgroundAnnotation.Border.<init>|<init>(androidx.compose.ui.unit.Dp;androidx.compose.ui.graphics.Color){}[0]
+        constructor <init>(androidx.compose.ui.unit/Dp, androidx.compose.ui.graphics/ColorProducer) // androidx.compose.ui.text/BackgroundAnnotation.Border.<init>|<init>(androidx.compose.ui.unit.Dp;androidx.compose.ui.graphics.ColorProducer){}[0]
+
+        final val brush // androidx.compose.ui.text/BackgroundAnnotation.Border.brush|{}brush[0]
+            final fun <get-brush>(): androidx.compose.ui.graphics/Brush? // androidx.compose.ui.text/BackgroundAnnotation.Border.brush.<get-brush>|<get-brush>(){}[0]
+        final val color // androidx.compose.ui.text/BackgroundAnnotation.Border.color|{}color[0]
+            final fun <get-color>(): androidx.compose.ui.graphics/Color // androidx.compose.ui.text/BackgroundAnnotation.Border.color.<get-color>|<get-color>(){}[0]
+        final val colorProducer // androidx.compose.ui.text/BackgroundAnnotation.Border.colorProducer|{}colorProducer[0]
+            final fun <get-colorProducer>(): androidx.compose.ui.graphics/ColorProducer? // androidx.compose.ui.text/BackgroundAnnotation.Border.colorProducer.<get-colorProducer>|<get-colorProducer>(){}[0]
+        final val width // androidx.compose.ui.text/BackgroundAnnotation.Border.width|{}width[0]
+            final fun <get-width>(): androidx.compose.ui.unit/Dp // androidx.compose.ui.text/BackgroundAnnotation.Border.width.<get-width>|<get-width>(){}[0]
+
+        final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.text/BackgroundAnnotation.Border.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // androidx.compose.ui.text/BackgroundAnnotation.Border.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // androidx.compose.ui.text/BackgroundAnnotation.Border.toString|toString(){}[0]
+    }
+
+    final class SpreadValues { // androidx.compose.ui.text/BackgroundAnnotation.SpreadValues|null[0]
+        constructor <init>(androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ...) // androidx.compose.ui.text/BackgroundAnnotation.SpreadValues.<init>|<init>(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+        constructor <init>(androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ...) // androidx.compose.ui.text/BackgroundAnnotation.SpreadValues.<init>|<init>(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+        constructor <init>(androidx.compose.ui.unit/Dp) // androidx.compose.ui.text/BackgroundAnnotation.SpreadValues.<init>|<init>(androidx.compose.ui.unit.Dp){}[0]
+
+        final val bottom // androidx.compose.ui.text/BackgroundAnnotation.SpreadValues.bottom|{}bottom[0]
+            final fun <get-bottom>(): androidx.compose.ui.unit/Dp // androidx.compose.ui.text/BackgroundAnnotation.SpreadValues.bottom.<get-bottom>|<get-bottom>(){}[0]
+        final val left // androidx.compose.ui.text/BackgroundAnnotation.SpreadValues.left|{}left[0]
+            final fun <get-left>(): androidx.compose.ui.unit/Dp // androidx.compose.ui.text/BackgroundAnnotation.SpreadValues.left.<get-left>|<get-left>(){}[0]
+        final val right // androidx.compose.ui.text/BackgroundAnnotation.SpreadValues.right|{}right[0]
+            final fun <get-right>(): androidx.compose.ui.unit/Dp // androidx.compose.ui.text/BackgroundAnnotation.SpreadValues.right.<get-right>|<get-right>(){}[0]
+        final val top // androidx.compose.ui.text/BackgroundAnnotation.SpreadValues.top|{}top[0]
+            final fun <get-top>(): androidx.compose.ui.unit/Dp // androidx.compose.ui.text/BackgroundAnnotation.SpreadValues.top.<get-top>|<get-top>(){}[0]
+
+        final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.text/BackgroundAnnotation.SpreadValues.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // androidx.compose.ui.text/BackgroundAnnotation.SpreadValues.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // androidx.compose.ui.text/BackgroundAnnotation.SpreadValues.toString|toString(){}[0]
+
+        final object Companion { // androidx.compose.ui.text/BackgroundAnnotation.SpreadValues.Companion|null[0]
+            final val Zero // androidx.compose.ui.text/BackgroundAnnotation.SpreadValues.Companion.Zero|{}Zero[0]
+                final fun <get-Zero>(): androidx.compose.ui.text/BackgroundAnnotation.SpreadValues // androidx.compose.ui.text/BackgroundAnnotation.SpreadValues.Companion.Zero.<get-Zero>|<get-Zero>(){}[0]
+        }
+    }
+}
+
 final class androidx.compose.ui.text/Bullet : androidx.compose.ui.text/AnnotatedString.Annotation { // androidx.compose.ui.text/Bullet|null[0]
     constructor <init>(androidx.compose.ui.graphics/Shape, androidx.compose.ui.unit/TextUnit, androidx.compose.ui.unit/TextUnit, androidx.compose.ui.unit/TextUnit, androidx.compose.ui.graphics/Brush? = ..., kotlin/Float = ..., androidx.compose.ui.graphics.drawscope/DrawStyle = ...) // androidx.compose.ui.text/Bullet.<init>|<init>(androidx.compose.ui.graphics.Shape;androidx.compose.ui.unit.TextUnit;androidx.compose.ui.unit.TextUnit;androidx.compose.ui.unit.TextUnit;androidx.compose.ui.graphics.Brush?;kotlin.Float;androidx.compose.ui.graphics.drawscope.DrawStyle){}[0]
 
@@ -1992,6 +2063,9 @@ final val androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString$stab
 final val androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString_Builder$stableprop // androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString_Builder$stableprop|#static{}androidx_compose_ui_text_AnnotatedString_Builder$stableprop[0]
 final val androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString_Builder_BulletScope$stableprop // androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString_Builder_BulletScope$stableprop|#static{}androidx_compose_ui_text_AnnotatedString_Builder_BulletScope$stableprop[0]
 final val androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString_Range$stableprop // androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString_Range$stableprop|#static{}androidx_compose_ui_text_AnnotatedString_Range$stableprop[0]
+final val androidx.compose.ui.text/androidx_compose_ui_text_BackgroundAnnotation$stableprop // androidx.compose.ui.text/androidx_compose_ui_text_BackgroundAnnotation$stableprop|#static{}androidx_compose_ui_text_BackgroundAnnotation$stableprop[0]
+final val androidx.compose.ui.text/androidx_compose_ui_text_BackgroundAnnotation_Border$stableprop // androidx.compose.ui.text/androidx_compose_ui_text_BackgroundAnnotation_Border$stableprop|#static{}androidx_compose_ui_text_BackgroundAnnotation_Border$stableprop[0]
+final val androidx.compose.ui.text/androidx_compose_ui_text_BackgroundAnnotation_SpreadValues$stableprop // androidx.compose.ui.text/androidx_compose_ui_text_BackgroundAnnotation_SpreadValues$stableprop|#static{}androidx_compose_ui_text_BackgroundAnnotation_SpreadValues$stableprop[0]
 final val androidx.compose.ui.text/androidx_compose_ui_text_Bullet$stableprop // androidx.compose.ui.text/androidx_compose_ui_text_Bullet$stableprop|#static{}androidx_compose_ui_text_Bullet$stableprop[0]
 final val androidx.compose.ui.text/androidx_compose_ui_text_DrawAnnotation$stableprop // androidx.compose.ui.text/androidx_compose_ui_text_DrawAnnotation$stableprop|#static{}androidx_compose_ui_text_DrawAnnotation$stableprop[0]
 final val androidx.compose.ui.text/androidx_compose_ui_text_LinkAnnotation$stableprop // androidx.compose.ui.text/androidx_compose_ui_text_LinkAnnotation$stableprop|#static{}androidx_compose_ui_text_LinkAnnotation$stableprop[0]
@@ -2114,6 +2188,9 @@ final fun androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString$stab
 final fun androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString_Builder$stableprop_getter(): kotlin/Int // androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString_Builder$stableprop_getter|androidx_compose_ui_text_AnnotatedString_Builder$stableprop_getter(){}[0]
 final fun androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString_Builder_BulletScope$stableprop_getter(): kotlin/Int // androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString_Builder_BulletScope$stableprop_getter|androidx_compose_ui_text_AnnotatedString_Builder_BulletScope$stableprop_getter(){}[0]
 final fun androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString_Range$stableprop_getter(): kotlin/Int // androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString_Range$stableprop_getter|androidx_compose_ui_text_AnnotatedString_Range$stableprop_getter(){}[0]
+final fun androidx.compose.ui.text/androidx_compose_ui_text_BackgroundAnnotation$stableprop_getter(): kotlin/Int // androidx.compose.ui.text/androidx_compose_ui_text_BackgroundAnnotation$stableprop_getter|androidx_compose_ui_text_BackgroundAnnotation$stableprop_getter(){}[0]
+final fun androidx.compose.ui.text/androidx_compose_ui_text_BackgroundAnnotation_Border$stableprop_getter(): kotlin/Int // androidx.compose.ui.text/androidx_compose_ui_text_BackgroundAnnotation_Border$stableprop_getter|androidx_compose_ui_text_BackgroundAnnotation_Border$stableprop_getter(){}[0]
+final fun androidx.compose.ui.text/androidx_compose_ui_text_BackgroundAnnotation_SpreadValues$stableprop_getter(): kotlin/Int // androidx.compose.ui.text/androidx_compose_ui_text_BackgroundAnnotation_SpreadValues$stableprop_getter|androidx_compose_ui_text_BackgroundAnnotation_SpreadValues$stableprop_getter(){}[0]
 final fun androidx.compose.ui.text/androidx_compose_ui_text_Bullet$stableprop_getter(): kotlin/Int // androidx.compose.ui.text/androidx_compose_ui_text_Bullet$stableprop_getter|androidx_compose_ui_text_Bullet$stableprop_getter(){}[0]
 final fun androidx.compose.ui.text/androidx_compose_ui_text_DrawAnnotation$stableprop_getter(): kotlin/Int // androidx.compose.ui.text/androidx_compose_ui_text_DrawAnnotation$stableprop_getter|androidx_compose_ui_text_DrawAnnotation$stableprop_getter(){}[0]
 final fun androidx.compose.ui.text/androidx_compose_ui_text_LinkAnnotation$stableprop_getter(): kotlin/Int // androidx.compose.ui.text/androidx_compose_ui_text_LinkAnnotation$stableprop_getter|androidx_compose_ui_text_LinkAnnotation$stableprop_getter(){}[0]

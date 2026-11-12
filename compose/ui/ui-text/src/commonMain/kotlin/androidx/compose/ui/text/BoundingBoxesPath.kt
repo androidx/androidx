@@ -162,14 +162,14 @@ internal expect fun Path.addClockwiseRoundRect(
  * 3. **Cache lookup (`rangeKey -> cachedCoordsPool` slice)**: Pack [start] (upper 32 bits) and
  *    [end] (lower 32 bits) into a 64-bit `Long` `rangeKey` via [packInts] and look it up in
  *    [BoundaryBoxComputeCache.rangeCoordsCache]. On a hit (`cachedSlice != -1L`), unpack
- *    `poolStart` ([unpackInt1]) and `floatCount` ([unpackInt2]) and copy that uninflated slice from
+ *    `poolStart` ([unpackInt1]) and `floatCount` ([unpackInt2]) and copy that unadjusted slice from
  *    [BoundaryBoxComputeCache.cachedCoordsPool] into [target], skipping platform [Paragraph] line
  *    and run measurements on subsequent draw passes.
  * 4. **Paragraph traversal (cache miss)**: Walk all paragraphs overlapping `TextRange(start, end)`
  *    via [findParagraphsByRange], converting `[start, end)` to local paragraph offsets and
  *    appending each paragraph's coalesced per-line boxes (shifted vertically by
  *    [ParagraphInfo.top]) into [target].
- * 5. **Bounded cache population**: Copy [target]'s uninflated coordinates into
+ * 5. **Bounded cache population**: Copy [target]'s unadjusted coordinates into
  *    [BoundaryBoxComputeCache.cachedCoordsPool] under `rangeKey` (clearing both
  *    [BoundaryBoxComputeCache.rangeCoordsCache] and [BoundaryBoxComputeCache.cachedCoordsPool]
  *    first when [MAX_CACHED_RANGES] is reached so memory stays bounded across changing selection
@@ -297,11 +297,14 @@ internal fun TextLayoutResult.calculateBoundingBoxList(
 
 /**
  * Populates [target] with a contour [Path] enclosing the bounding boxes for the character range
- * from [start] (inclusive) to [end] (exclusive), applying optional [cornerRadius] and [mergeLines].
+ * from [start] (inclusive) to [end] (exclusive), applying optional [cornerRadius], per-edge spread
+ * ([spreadLeft], [spreadTop], [spreadRight], [spreadBottom]), and [mergeLines].
  *
  * Algorithm stages:
  * 1. Obtain the packed per-line bounding box coordinates via [fillRangeBoundingBoxCoords] using
- *    [MultiParagraph.boundaryBoxComputeCache].
+ *    [MultiParagraph.boundaryBoxComputeCache]. When horizontal spread ([spreadLeft], [spreadRight])
+ *    is non-zero, apply it in-place and merge any boxes on the same line that overlap after
+ *    applying spread via [spreadAndCoalesceHorizontalInPlace].
  * 2. When [mergeLines] is `false`, emit each box as an independent rectangle or rounded rectangle
  *    via [addRectToPath].
  * 3. When [mergeLines] is `true`, iterate through the boxes line by line:
@@ -315,6 +318,10 @@ internal fun TextLayoutResult.calculatePathFromBoundingBoxes(
     start: Int,
     end: Int,
     cornerRadius: CornerRadius = CornerRadius.Zero,
+    spreadLeft: Float = 0f,
+    spreadTop: Float = 0f,
+    spreadRight: Float = 0f,
+    spreadBottom: Float = 0f,
     mergeLines: Boolean = true,
     target: Path = Path(),
 ): Path {
@@ -325,6 +332,11 @@ internal fun TextLayoutResult.calculatePathFromBoundingBoxes(
     val cache = multiParagraph.boundaryBoxComputeCache
     val boxes = cache.rectCoords
     fillRangeBoundingBoxCoords(start = start, end = end, target = boxes)
+    if (boxes.boxCount == 0) return target
+
+    if (spreadLeft != 0f || spreadRight != 0f) {
+        spreadAndCoalesceHorizontalInPlace(boxes, spreadLeft, spreadRight)
+    }
     val count = boxes.boxCount
     if (count == 0) return target
 
@@ -339,6 +351,8 @@ internal fun TextLayoutResult.calculatePathFromBoundingBoxes(
                 bottom = boxes.boxBottom(i),
                 cornerRadius = cornerRadius,
                 hasCornerRadius = hasCornerRadius,
+                spreadTop = spreadTop,
+                spreadBottom = spreadBottom,
             )
         }
         return target
@@ -359,6 +373,8 @@ internal fun TextLayoutResult.calculatePathFromBoundingBoxes(
                     bottom = boxes.boxBottom(i),
                     cornerRadius = cornerRadius,
                     hasCornerRadius = hasCornerRadius,
+                    spreadTop = spreadTop,
+                    spreadBottom = spreadBottom,
                 )
                 i++
             }
@@ -384,10 +400,83 @@ internal fun TextLayoutResult.calculatePathFromBoundingBoxes(
                 vertices = cache.vertices,
                 cornerRadius = cornerRadius,
                 hasCornerRadius = hasCornerRadius,
+                spreadTop = spreadTop,
+                spreadBottom = spreadBottom,
             )
         }
     }
     return target
+}
+
+/**
+ * Expands (or shrinks, when negative) each packed box in [boxes] horizontally by [spreadLeft] and
+ * [spreadRight] in-place, dropping any box whose resulting width is `<= 0f` and merging any boxes
+ * on the same visual line that overlap or touch within `0.5px` after applying spread.
+ *
+ * [boxes] comes from [fillRangeBoundingBoxCoords], which already groups contiguous LTR/RTL runs and
+ * sorts each line's boxes in visual left-to-right order (`left` ascending) via
+ * `sortAndCoalesceLineBoxes`. Because every box on a line has the same [spreadLeft] subtracted,
+ * boxes on the same line remain sorted by `left` ascending (`prevLeft <= left`), so a single
+ * left-to-right pass checking `left <= prevRight + 0.5f` suffices even for BiDi text.
+ */
+private fun spreadAndCoalesceHorizontalInPlace(
+    boxes: MutableFloatList,
+    spreadLeft: Float,
+    spreadRight: Float,
+) {
+    if (spreadLeft == 0f && spreadRight == 0f) return
+
+    val count = boxes.boxCount
+    // Write index of the next box to be written to the list, which is also the
+    // number of boxes written so far.
+    var writeIndex = 0
+    for (i in 0 until count) {
+        val left = boxes.boxLeft(i) - spreadLeft
+        val right = boxes.boxRight(i) + spreadRight
+        // Drop any box whose resulting width is `<= 0f`.
+        if (right <= left) continue
+
+        val top = boxes.boxTop(i)
+        val bottom = boxes.boxBottom(i)
+
+        // Merge the current box with the previous box if they are on the same line and overlap
+        // horizontally after applying spread.
+        if (writeIndex > 0) {
+            val prevIndex = writeIndex - 1
+            val prevTop = boxes.boxTop(prevIndex)
+            val prevBottom = boxes.boxBottom(prevIndex)
+            val prevRight = boxes.boxRight(prevIndex)
+            if (
+                abs(top - prevTop) < 0.5f &&
+                    abs(bottom - prevBottom) < 0.5f &&
+                    left <= prevRight + 0.5f
+            ) {
+                val prevLeft = boxes.boxLeft(prevIndex)
+                boxes.setBox(
+                    boxIndex = prevIndex,
+                    left = min(prevLeft, left),
+                    top = min(prevTop, top),
+                    right = max(prevRight, right),
+                    bottom = max(prevBottom, bottom),
+                )
+                // Skip writing the current box since it has been merged with
+                // the previous box.
+                continue
+            }
+        }
+        boxes.setBox(
+            boxIndex = writeIndex,
+            left = left,
+            top = top,
+            right = right,
+            bottom = bottom,
+        )
+        writeIndex++
+    }
+    val newFloatSize = writeIndex * FLOATS_PER_BOX
+    if (newFloatSize < boxes.size) {
+        boxes.removeRange(newFloatSize, boxes.size)
+    }
 }
 
 /**
@@ -433,9 +522,9 @@ private fun TextLayoutResult.canMergeWithPreviousLine(
 }
 
 /**
- * Appends `[left, top, right, bottom]` to [path] as a clockwise rounded rectangle (when
- * [hasCornerRadius] is `true`) or rectangle (when [hasCornerRadius] is `false`) if its height is
- * positive.
+ * Expands (or shrinks, when negative) `[left, top, right, bottom]` vertically by [spreadTop] and
+ * [spreadBottom], and appends it to [path] as a clockwise rounded rectangle (when [hasCornerRadius]
+ * is `true`) or rectangle (when [hasCornerRadius] is `false`) if its resulting height is positive.
  */
 private fun addRectToPath(
     path: Path,
@@ -445,13 +534,24 @@ private fun addRectToPath(
     bottom: Float,
     cornerRadius: CornerRadius,
     hasCornerRadius: Boolean,
+    spreadTop: Float = 0f,
+    spreadBottom: Float = 0f,
 ) {
+    val topWithSpread = top - spreadTop
+    val bottomWithSpread = bottom + spreadBottom
     // Drop any box whose resulting height is `<= 0f`.
-    if (bottom <= top) return
+    if (bottomWithSpread <= topWithSpread) return
     if (hasCornerRadius) {
-        path.addClockwiseRoundRect(left, top, right, bottom, cornerRadius.x, cornerRadius.y)
+        path.addClockwiseRoundRect(
+            left,
+            topWithSpread,
+            right,
+            bottomWithSpread,
+            cornerRadius.x,
+            cornerRadius.y,
+        )
     } else {
-        path.addClockwiseRect(left, top, right, bottom)
+        path.addClockwiseRect(left, topWithSpread, right, bottomWithSpread)
     }
 }
 
@@ -501,6 +601,8 @@ private fun mergeAndAddConnectingLinesToPath(
     vertices: MutableFloatList,
     cornerRadius: CornerRadius,
     hasCornerRadius: Boolean,
+    spreadTop: Float = 0f,
+    spreadBottom: Float = 0f,
 ) {
     val lineCount = stackEndIndex - stackStartIndex
     if (lineCount <= 0) return
@@ -515,13 +617,15 @@ private fun mergeAndAddConnectingLinesToPath(
             bottom = boxes.boxBottom(stackStartIndex),
             cornerRadius = cornerRadius,
             hasCornerRadius = hasCornerRadius,
+            spreadTop = spreadTop,
+            spreadBottom = spreadBottom,
         )
         return
     }
 
     val lastBoxIndex = stackEndIndex - 1
-    val minTop = boxes.boxTop(stackStartIndex)
-    val maxBottom = boxes.boxBottom(lastBoxIndex)
+    val minTop = boxes.boxTop(stackStartIndex) - spreadTop
+    val maxBottom = boxes.boxBottom(lastBoxIndex) + spreadBottom
 
     // If the line stack has no height, do not add anything to the path.
     if (maxBottom <= minTop) return

@@ -17,6 +17,11 @@
 package androidx.compose.ui.text.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
@@ -28,9 +33,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.text.BackgroundAnnotation
+import androidx.compose.ui.text.BackgroundAnnotation.SpreadValues
 import androidx.compose.ui.text.DrawAnnotation
 import androidx.compose.ui.text.DrawAnnotationScope
 import androidx.compose.ui.text.TextLayoutResult
@@ -104,6 +112,118 @@ fun DrawAnnotationSubclassSample() {
             withDrawAnnotation(highlight) { append("second range") }
         }
     )
+}
+
+@Sampled
+@Composable
+fun BackgroundAnnotationSample() {
+    val text = remember {
+        buildAnnotatedString {
+            append("Use ")
+            withDrawAnnotation(
+                BackgroundAnnotation(
+                    color = Color.Cyan.copy(alpha = 0.2f),
+                    cornerRadius = 6.dp,
+                    spread = SpreadValues(horizontal = 4.dp, vertical = 2.dp),
+                    border = BackgroundAnnotation.Border(width = 1.dp, color = Color.Blue),
+                )
+            ) {
+                append("BackgroundAnnotation")
+            }
+            append(" to draw rounded backgrounds and borders.")
+        }
+    }
+    BasicText(text = text)
+}
+
+@Sampled
+@Composable
+fun BackgroundAnnotationSpreadSample() {
+    val text = remember {
+        buildAnnotatedString {
+            append("Use positive horizontal and negative vertical ")
+            withDrawAnnotation(
+                BackgroundAnnotation(
+                    color = Color.Cyan.copy(alpha = 0.25f),
+                    cornerRadius = 6.dp,
+                    // Positive horizontal spread adds side space around the glyphs;
+                    // negative vertical spread shrinks from the line top/bottom so wrapped pills
+                    // on consecutive lines stay visually separated instead of touching.
+                    spread = SpreadValues(horizontal = 4.dp, vertical = (-2).dp),
+                    mergeLines = false,
+                    border = BackgroundAnnotation.Border(width = 1.dp, color = Color.Blue),
+                )
+            ) {
+                append("SpreadValues on multi-line per-line pills")
+            }
+            append(" so adjacent lines do not touch.")
+        }
+    }
+    BasicText(text = text, style = TextStyle(fontSize = 16.sp, lineHeight = 24.sp))
+}
+
+@Sampled
+@Composable
+fun BackgroundAnnotationColorProducerSample() {
+    val transition = rememberInfiniteTransition(label = "highlight")
+    val animatedColor by
+        transition.animateColor(
+            initialValue = Color.Cyan.copy(alpha = 0.2f),
+            targetValue = Color.Cyan.copy(alpha = 0.6f),
+            animationSpec = infiniteRepeatable(tween(1000), RepeatMode.Reverse),
+            label = "highlightColor",
+        )
+    val text = remember {
+        buildAnnotatedString {
+            append("Animate ")
+            withDrawAnnotation(
+                BackgroundAnnotation(
+                    colorProducer = { animatedColor },
+                    cornerRadius = 6.dp,
+                    spread = SpreadValues(horizontal = 4.dp, vertical = 2.dp),
+                )
+            ) {
+                append("draw-phase color")
+            }
+            append(" without recomposing or re-measuring text.")
+        }
+    }
+    BasicText(text = text)
+}
+
+@Sampled
+@Composable
+fun BackgroundAnnotationBrushSample() {
+    val gradientBrush = remember {
+        Brush.horizontalGradient(
+            colors =
+                listOf(
+                    Color.Cyan.copy(alpha = 0.3f),
+                    Color.Magenta.copy(alpha = 0.3f),
+                    Color.Red.copy(alpha = 0.3f),
+                )
+        )
+    }
+    val borderGradientBrush = remember {
+        Brush.horizontalGradient(colors = listOf(Color.Blue, Color.Magenta))
+    }
+    val text = remember {
+        buildAnnotatedString {
+            append("Use a ")
+            withDrawAnnotation(
+                BackgroundAnnotation(
+                    brush = gradientBrush,
+                    cornerRadius = 6.dp,
+                    spread = SpreadValues(horizontal = 4.dp, vertical = 2.dp),
+                    border = BackgroundAnnotation.Border(width = 1.dp, brush = borderGradientBrush),
+                )
+            ) {
+                append("gradient Brush background")
+            }
+            append(" with a matching gradient border.")
+        }
+    }
+    BasicText(text = text)
 }
 
 @Sampled
