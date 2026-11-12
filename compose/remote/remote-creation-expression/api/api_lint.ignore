@@ -1,5 +1,0 @@
-// Baseline format: 1.0
-ReferencesHidden: androidx.compose.remote.creation.compose.state.RemoteDp#toPx(androidx.compose.remote.creation.compose.capture.RemoteDensity) parameter #0:
-    Class androidx.compose.remote.creation.compose.capture.RemoteDensity is hidden but was referenced (in parameter type) from public parameter density in androidx.compose.remote.creation.compose.state.RemoteDp.toPx(androidx.compose.remote.creation.compose.capture.RemoteDensity density)
-ReferencesHidden: androidx.compose.remote.creation.compose.state.RemoteTextUnit#toPx(androidx.compose.remote.creation.compose.capture.RemoteDensity) parameter #0:
-    Class androidx.compose.remote.creation.compose.capture.RemoteDensity is hidden but was referenced (in parameter type) from public parameter density in androidx.compose.remote.creation.compose.state.RemoteTextUnit.toPx(androidx.compose.remote.creation.compose.capture.RemoteDensity density)
