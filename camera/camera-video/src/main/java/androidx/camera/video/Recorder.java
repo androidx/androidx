@@ -1586,7 +1586,8 @@ public final class Recorder implements VideoOutput {
                         mediaSpec.getVideoSpec(),
                         request.getResolution(),
                         dynamicRange,
-                        request.getExpectedFrameRate());
+                        request.getExpectedFrameRate(),
+                        request.getSessionType() == SESSION_TYPE_HIGH_SPEED);
                 config = workaroundDataSpaceIfRequired(config, mHasGlProcessing);
                 mVideoEncoderConfig = config;
 
@@ -1847,8 +1848,7 @@ public final class Recorder implements VideoOutput {
         // Select and create the audio encoder
         AudioEncoderConfig audioEncoderConfig = resolveAudioEncoderConfig(audioMimeInfo,
                 audioSourceTimebase, audioSourceOutputSettings, mediaSpec.getAudioSpec());
-        mAudioEncoder = mAudioEncoderFactory.createEncoder(mExecutor, audioEncoderConfig,
-                checkNotNull(mLatestSurfaceRequest).getSessionType());
+        mAudioEncoder = mAudioEncoderFactory.createEncoder(mExecutor, audioEncoderConfig);
         mAudioEncoderConfig = audioEncoderConfig;
 
         // Connect the audio source to the audio encoder

@@ -21,7 +21,6 @@ import android.media.MediaFormat
 import android.media.MediaFormat.MIMETYPE_AUDIO_AAC
 import android.os.Looper.getMainLooper
 import androidx.camera.core.impl.Observable
-import androidx.camera.core.impl.SessionConfig.SESSION_TYPE_REGULAR
 import androidx.camera.core.impl.Timebase
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.video.internal.BufferProvider
@@ -103,7 +102,6 @@ class EncoderImplTest {
                     .setEncodeSampleRate(SAMPLE_RATE)
                     .setChannelCount(CHANNEL_COUNT)
                     .build(),
-                SESSION_TYPE_REGULAR,
             )
         encoder.setEncoderCallback(encoderCallback, CameraXExecutors.directExecutor())
     }

@@ -273,8 +273,7 @@ final class VideoEncoderSession {
             @NonNull VideoEncoderConfig config,
             CallbackToFutureAdapter.@NonNull Completer<Encoder> configureCompleter) {
         try {
-            mVideoEncoder = mVideoEncoderFactory.createEncoder(mExecutor, config,
-                    surfaceRequest.getSessionType());
+            mVideoEncoder = mVideoEncoderFactory.createEncoder(mExecutor, config);
         } catch (InvalidConfigException e) {
             Logger.e(TAG, "Unable to initialize video encoder.", e);
             configureCompleter.setException(e);

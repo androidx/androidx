@@ -27,7 +27,6 @@ import androidx.camera.core.DynamicRange
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.CameraInfoInternal
-import androidx.camera.core.impl.SessionConfig.SESSION_TYPE_REGULAR
 import androidx.camera.core.impl.Timebase
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
@@ -329,7 +328,7 @@ class VideoEncoderTest(private val implName: String, private val cameraConfig: C
 
         repeat(3) {
             // The encoder is configured with a surface input but never started.
-            val encoder = EncoderImpl(encoderExecutor, config, SESSION_TYPE_REGULAR)
+            val encoder = EncoderImpl(encoderExecutor, config)
             encoder.release()
             encoder.releasedFuture.get(5, TimeUnit.SECONDS)
         }
@@ -416,7 +415,7 @@ class VideoEncoderTest(private val implName: String, private val cameraConfig: C
             .`when`(videoEncoderCallback)
             .onEncodedData(any())
 
-        videoEncoder = EncoderImpl(encoderExecutor, videoEncoderConfig, SESSION_TYPE_REGULAR)
+        videoEncoder = EncoderImpl(encoderExecutor, videoEncoderConfig)
 
         videoEncoder.setEncoderCallback(videoEncoderCallback, CameraXExecutors.directExecutor())
 

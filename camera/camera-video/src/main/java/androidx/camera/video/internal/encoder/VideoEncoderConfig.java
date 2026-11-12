@@ -44,7 +44,8 @@ public abstract class VideoEncoderConfig implements EncoderConfig {
                 .setProfile(EncoderConfig.CODEC_PROFILE_NONE)
                 .setIFrameInterval(VIDEO_INTRA_FRAME_INTERVAL_DEFAULT)
                 .setColorFormat(VIDEO_COLOR_FORMAT_DEFAULT)
-                .setDataSpace(VideoEncoderDataSpace.ENCODER_DATA_SPACE_UNSPECIFIED);
+                .setDataSpace(VideoEncoderDataSpace.ENCODER_DATA_SPACE_UNSPECIFIED)
+                .setHighSpeedCapture(false);
     }
 
     /** Returns a build from the input config. */
@@ -79,6 +80,17 @@ public abstract class VideoEncoderConfig implements EncoderConfig {
 
     /** Gets the bitrate. */
     public abstract int getBitrate();
+
+    /**
+     * Returns whether the frames come from a dedicated high-speed capture pipeline, e.g. a
+     * recording with {@link androidx.camera.video.HighSpeedVideoSessionConfig}.
+     *
+     * <p>This describes the capture pipeline, not a frame rate threshold: a regular capture can
+     * also run at a high frame rate and still returns {@code false}. It's also independent of
+     * {@link #isSlowMotion()}: a high-speed capture can be encoded at the capture frame rate
+     * (high frame rate video) or at a lower frame rate (slow motion).
+     */
+    public abstract boolean isHighSpeedCapture();
 
     /** {@inheritDoc} */
     @Override
@@ -116,7 +128,11 @@ public abstract class VideoEncoderConfig implements EncoderConfig {
         return format;
     }
 
-    /** Returns whether the encoder config is for slow-motion recording. */
+    /**
+     * Returns whether the encoder config is for slow-motion recording.
+     *
+     * @see #isHighSpeedCapture()
+     */
     public boolean isSlowMotion() {
         return getCaptureFrameRate() > getEncodeFrameRate();
     }
@@ -157,6 +173,13 @@ public abstract class VideoEncoderConfig implements EncoderConfig {
 
         /** Sets the bitrate. */
         public abstract @NonNull Builder setBitrate(int bitrate);
+
+        /**
+         * Sets whether the frames come from a dedicated high-speed capture pipeline.
+         *
+         * <p>The default is {@code false}.
+         */
+        public abstract @NonNull Builder setHighSpeedCapture(boolean highSpeedCapture);
 
         /** Builds the config instance. */
         public abstract @NonNull VideoEncoderConfig build();

@@ -16,7 +16,6 @@
 
 package androidx.camera.video.internal.encoder;
 
-import static androidx.camera.core.impl.SessionConfig.SESSION_TYPE_HIGH_SPEED;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
 import static androidx.camera.video.internal.DebugUtils.getCsdHex;
 import static androidx.camera.video.internal.encoder.EncoderImpl.InternalState.CONFIGURED;
@@ -238,11 +237,9 @@ public class EncoderImpl implements Encoder {
      *
      * @param executor      the executor suitable for background task
      * @param encoderConfig the encoder config
-     * @param sessionType   the session type
      * @throws InvalidConfigException when the encoder cannot be configured.
      */
-    public EncoderImpl(@NonNull Executor executor, @NonNull EncoderConfig encoderConfig,
-            int sessionType)
+    public EncoderImpl(@NonNull Executor executor, @NonNull EncoderConfig encoderConfig)
             throws InvalidConfigException {
         Preconditions.checkNotNull(executor);
 
@@ -253,6 +250,7 @@ public class EncoderImpl implements Encoder {
         mInputTimebase = encoderConfig.getInputTimebase();
         mTimeProvider = transformTimeProvider(new SystemTimeProvider(),
                 this::toPresentationTimeUsByCaptureEncodeRatio);
+        boolean isHighSpeedCapture = false;
         if (encoderConfig instanceof AudioEncoderConfig) {
             AudioEncoderConfig audioEncoderConfig = (AudioEncoderConfig) encoderConfig;
             mTag = "AudioEncoder";
@@ -275,6 +273,7 @@ public class EncoderImpl implements Encoder {
             mEncoderInfo = videoEncoderInfo;
             mCaptureToEncodeFrameRateRatio = new Rational(videoEncoderConfig.getCaptureFrameRate(),
                     videoEncoderConfig.getEncodeFrameRate());
+            isHighSpeedCapture = videoEncoderConfig.isHighSpeedCapture();
         } else {
             throw new InvalidConfigException("Unknown encoder config type");
         }
@@ -297,7 +296,8 @@ public class EncoderImpl implements Encoder {
                 }));
         mReleasedCompleter = Preconditions.checkNotNull(releaseFutureRef.get());
 
-        mCodecStopAsFlushWorkaroundEnabled = shouldEnableCodecStopAsFlushWorkaround(sessionType);
+        mCodecStopAsFlushWorkaroundEnabled =
+                shouldEnableCodecStopAsFlushWorkaround(isHighSpeedCapture);
 
         setState(CONFIGURED);
     }
@@ -1321,9 +1321,9 @@ public class EncoderImpl implements Encoder {
         return DeviceQuirks.get(StopCodecAfterSurfaceRemovalCrashMediaServerQuirk.class) != null;
     }
 
-    private boolean shouldEnableCodecStopAsFlushWorkaround(int sessionType) {
+    private boolean shouldEnableCodecStopAsFlushWorkaround(boolean isHighSpeedCapture) {
         return mIsVideoEncoder
-                && ((sessionType == SESSION_TYPE_HIGH_SPEED
+                && ((isHighSpeedCapture
                 && DeviceQuirks.get(PreviewFreezeAfterHighSpeedRecordingQuirk.class) != null)
                 || DeviceQuirks.get(GLProcessingStuckOnCodecFlushQuirk.class) != null);
     }

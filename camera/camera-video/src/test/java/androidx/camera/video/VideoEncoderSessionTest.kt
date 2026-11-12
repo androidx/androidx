@@ -67,7 +67,7 @@ class VideoEncoderSessionTest {
         surface = Surface(surfaceTexture)
         encoderInput = FakeEncoderSurfaceInput(surface)
         encoder = FakeEncoder(encoderInput = encoderInput)
-        encoderFactory = EncoderFactory { _, _, _ -> encoder }
+        encoderFactory = EncoderFactory { _, _ -> encoder }
         videoEncoderConfig = createFakeVideoEncoderConfig()
         fakeCamera = FakeCamera()
         surfaceRequest = SurfaceRequest(Size(640, 480), fakeCamera) {}
@@ -103,7 +103,7 @@ class VideoEncoderSessionTest {
     @Test
     fun configure_throwsException_whenEncoderFactoryFails() {
         // Arrange
-        val encoderFactory = EncoderFactory { _, _, _ ->
+        val encoderFactory = EncoderFactory { _, _ ->
             throw InvalidConfigException("Failed in purpose")
         }
         val session = VideoEncoderSession(encoderFactory, sequentialExecutor, executor)
