@@ -950,7 +950,8 @@ public final class Recorder implements VideoOutput {
     }
 
     /**
-     * Returns the target audio channel count of this Recorder.
+     * Returns the target audio channel count of this Recorder, before any audio processing is
+     * applied.
      *
      * @return the value provided to {@link Builder#setTargetAudioChannelCount(int)} on the
      * builder used to create this recorder. Returns 0 if
@@ -963,13 +964,13 @@ public final class Recorder implements VideoOutput {
     }
 
     /**
-     * Returns the target audio sample rate of this Recorder.
+     * Returns the target audio sample rate of this Recorder, before any audio processing is
+     * applied.
      *
      * @return the value provided to {@link Builder#setTargetAudioSampleRate(int)} on the
      * builder used to create this recorder. Returns 0 if
      * {@link Builder#setTargetAudioSampleRate(int)} is not called.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntRange(from = 0)
     public int getTargetAudioSampleRate() {
         int sampleRate = getObservableData(mMediaSpec).getAudioSpec().getSampleRate();
@@ -4484,7 +4485,8 @@ public final class Recorder implements VideoOutput {
         }
 
         /**
-         * Sets the intended audio channel count for recording.
+         * Sets the intended audio channel count for recording, before any audio processing is
+         * applied.
          *
          * <p>Common values are 1 for mono and 2 for stereo. If the requested channel count is
          * not supported by the device, CameraX will fall back to a supported channel count. If
@@ -4505,7 +4507,8 @@ public final class Recorder implements VideoOutput {
         }
 
         /**
-         * Sets the intended audio sample rate for recording.
+         * Sets the intended audio sample rate for recording, before any audio processing is
+         * applied.
          *
          * <p>Common values are 44100 Hz and 48000 Hz. If the requested sample rate is not
          * supported by the device or the selected audio codec, CameraX will fall back to a
@@ -4516,7 +4519,6 @@ public final class Recorder implements VideoOutput {
          * @return the builder instance.
          * @throws IllegalArgumentException if {@code sampleRate} is less than 1.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         public @NonNull Builder setTargetAudioSampleRate(@IntRange(from = 1) int sampleRate) {
             if (sampleRate < 1) {
                 throw new IllegalArgumentException("Target sample rate must be greater than 0, "
@@ -4627,6 +4629,14 @@ public final class Recorder implements VideoOutput {
          *   <li><b>Reuse:</b> The same processor instances are reused for every recording made
          *       with the built {@link Recorder}, and are flushed or reset between them. Do not
          *       share processor instances between {@link Recorder}s.</li>
+         *   <li><b>Audio Settings:</b> The first processor receives audio at the channel count
+         *       and sample rate resolved from {@link #setTargetAudioChannelCount(int)} and
+         *       {@link #setTargetAudioSampleRate(int)}. Processors may change them, in which case
+         *       the audio output by the final processor is what gets encoded. Avoid changing the
+         *       sample rate unless needed, and prefer common rates such as 44100 Hz or 48000 Hz.
+         *       If the processed audio cannot be encoded, audio recording will fail with
+         *       {@link AudioStats#AUDIO_STATE_ENCODER_ERROR} and recording will proceed without
+         *       audio.</li>
          * </ul>
          *
          * <p>See {@link AudioProcessor} for the complete contract.
