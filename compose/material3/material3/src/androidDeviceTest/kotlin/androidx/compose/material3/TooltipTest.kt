@@ -42,11 +42,13 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHeightIsEqualTo
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
@@ -1242,6 +1244,128 @@ class TooltipTest {
                 tooltipLeft = screenWidth - tooltipWidth,
             )
         assertThat(rightCaretX).isEqualTo(520f)
+    }
+
+    @Test
+    fun richTooltip_restoresVisibilityState() {
+        val restorationTester = StateRestorationTester(rule)
+        lateinit var state: TooltipState
+        lateinit var scope: CoroutineScope
+        restorationTester.setContent {
+            MaterialTheme(lightColorScheme()) {
+                state = rememberTooltipState(isPersistent = true)
+                scope = rememberCoroutineScope()
+                RichTooltipTest(
+                    text = { Text("Text") },
+                    action = {
+                        TextButton(
+                            onClick = { scope.launch { state.dismiss() } },
+                            modifier = Modifier.testTag(ActionTestTag),
+                        ) {
+                            Text("Action")
+                        }
+                    },
+                    tooltipState = state,
+                )
+            }
+        }
+
+        scope.launch { state.show() }
+        rule.waitForIdle()
+        rule.onNodeWithTag(ContainerTestTag).assertIsDisplayed()
+
+        val shownState = state
+        restorationTester.emulateSavedInstanceStateRestore()
+        rule.waitForIdle()
+        assertThat(state).isNotSameInstanceAs(shownState)
+        assertThat(state.isVisible).isTrue()
+        rule.onNodeWithTag(ContainerTestTag).assertIsDisplayed()
+
+        rule.onNodeWithTag(ActionTestTag).performTouchInput { click() }
+        rule.waitForIdle()
+        rule.onNodeWithTag(ContainerTestTag).assertDoesNotExist()
+
+        val dismissedState = state
+        restorationTester.emulateSavedInstanceStateRestore()
+        rule.waitForIdle()
+        assertThat(state).isNotSameInstanceAs(dismissedState)
+        assertThat(state.isVisible).isFalse()
+        rule.onNodeWithTag(ContainerTestTag).assertDoesNotExist()
+    }
+
+    @Test
+    fun plainTooltip_doesNotRestoreVisibilityState() {
+        val restorationTester = StateRestorationTester(rule)
+        lateinit var state: TooltipState
+        lateinit var scope: CoroutineScope
+        restorationTester.setContent {
+            MaterialTheme(lightColorScheme()) {
+                state = rememberTooltipState(isPersistent = false)
+                scope = rememberCoroutineScope()
+                PlainTooltipTest(tooltipContent = { Text("Text") }, tooltipState = state)
+            }
+        }
+
+        scope.launch { state.show() }
+        rule.waitForIdle()
+        rule.onNodeWithTag(ContainerTestTag).assertIsDisplayed()
+
+        val shownState = state
+        restorationTester.emulateSavedInstanceStateRestore()
+        rule.waitForIdle()
+        assertThat(state).isNotSameInstanceAs(shownState)
+        assertThat(state.isVisible).isFalse()
+        rule.onNodeWithTag(ContainerTestTag).assertDoesNotExist()
+    }
+
+    @Test
+    fun richTooltip_restoresMutatorMutexExclusion() {
+        val restorationTester = StateRestorationTester(rule)
+        val mutatorMutex = MutatorMutex()
+        val secondContainerTag = "SecondContainer"
+        lateinit var firstState: TooltipState
+        lateinit var secondState: TooltipState
+        lateinit var scope: CoroutineScope
+        restorationTester.setContent {
+            MaterialTheme(lightColorScheme()) {
+                firstState = rememberTooltipState(isPersistent = true, mutatorMutex = mutatorMutex)
+                secondState = rememberTooltipState(isPersistent = true, mutatorMutex = mutatorMutex)
+                scope = rememberCoroutineScope()
+                RichTooltipTest(text = { Text("First") }, tooltipState = firstState)
+                TooltipBox(
+                    positionProvider =
+                        TooltipDefaults.rememberTooltipPositionProvider(
+                            TooltipAnchorPosition.Above
+                        ),
+                    tooltip = {
+                        RichTooltip(modifier = Modifier.testTag(secondContainerTag)) {
+                            Text("Second")
+                        }
+                    },
+                    state = secondState,
+                ) {
+                    Icon(Icons.Filled.Favorite, contentDescription = null)
+                }
+            }
+        }
+
+        scope.launch { firstState.show() }
+        rule.waitForIdle()
+        rule.onNodeWithTag(ContainerTestTag).assertIsDisplayed()
+
+        val shownFirstState = firstState
+        restorationTester.emulateSavedInstanceStateRestore()
+        rule.waitForIdle()
+        assertThat(firstState).isNotSameInstanceAs(shownFirstState)
+        assertThat(firstState.isVisible).isTrue()
+        rule.onNodeWithTag(ContainerTestTag).assertIsDisplayed()
+
+        scope.launch { secondState.show() }
+        rule.waitForIdle()
+        assertThat(firstState.isVisible).isFalse()
+        assertThat(secondState.isVisible).isTrue()
+        rule.onNodeWithTag(ContainerTestTag).assertDoesNotExist()
+        rule.onNodeWithTag(secondContainerTag).assertIsDisplayed()
     }
 }
 
