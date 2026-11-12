@@ -105,7 +105,8 @@ open class FeatureGroupTestBase(
     @get:Rule
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-            CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+            PRE_TEST_CAMERA,
+            PRE_TEST_CAMERA_ID_LIST,
         )
 
     @get:Rule val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
@@ -443,6 +444,14 @@ open class FeatureGroupTestBase(
     }
 
     companion object {
+        // PreTestCamera and PreTestCameraIdList cache their result per instance. Share them across
+        // all test instances so the device-level camera open check runs once per process instead
+        // of once per parameterized test. The rest of the rule chain (permission grant and
+        // PostTestCameraAvailability) still runs per test, so a @ClassRule is not used.
+        private val PRE_TEST_CAMERA = CameraUtil.PreTestCamera()
+        private val PRE_TEST_CAMERA_ID_LIST =
+            CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+
         /** The most common use case combinations expected for feature group API. */
         val useCaseCombinationsToTest =
             listOf(
