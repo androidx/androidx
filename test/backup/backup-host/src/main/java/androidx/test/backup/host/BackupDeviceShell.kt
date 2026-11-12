@@ -20,9 +20,7 @@ import com.android.adblib.AdbSession
 import com.android.adblib.DeviceSelector
 import com.android.adblib.RemoteFileMode
 import com.android.adblib.ShellCommandOutput
-import com.android.adblib.ShellCommandOutputElement
 import com.android.adblib.deviceProperties
-import com.android.adblib.shellAsLines
 import com.android.adblib.shellAsText
 import java.io.IOException
 import java.nio.file.Path
@@ -35,8 +33,6 @@ import kotlin.time.Duration as KotlinDuration
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 
@@ -57,54 +53,11 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, val serialN
 
     /** Runs [command] through the device shell and returns its output. */
     suspend fun exec(command: String): ShellCommandOutput {
-        logCommand(command)
-        @Suppress("AdbDeviceServicesCommand")
-        return adbSession.deviceServices.shellAsText(device, command)
-    }
-
-    /**
-     * Runs [command] through the device shell, and returns as soon as it prints a line on stdout
-     * that fully matches [lastLine], without waiting for it to exit. The output then holds the
-     * stdout up to and including that line and the stderr up to then, with the exit code 0.
-     *
-     * If no line matches, returns the whole output when the command exits, as the other `exec`
-     * does.
-     */
-    suspend fun exec(command: String, lastLine: Regex): ShellCommandOutput {
-        logCommand(command)
-        val stdout = mutableListOf<String>()
-        val stderr = mutableListOf<String>()
-        var exitCode = 0
-        @Suppress("AdbDeviceServicesCommand")
-        adbSession.deviceServices
-            .shellAsLines(device, command)
-            // Ending the collection closes the shell stream, on which the device signals the
-            // command to end.
-            .takeWhile { output ->
-                when (output) {
-                    is ShellCommandOutputElement.StdoutLine -> {
-                        stdout += output.contents
-                        !lastLine.matches(output.contents)
-                    }
-                    is ShellCommandOutputElement.StderrLine -> {
-                        stderr += output.contents
-                        true
-                    }
-                    is ShellCommandOutputElement.ExitCode -> {
-                        exitCode = output.exitCode
-                        true
-                    }
-                }
-            }
-            .collect()
-        // The last line of each stream is the text after its last line break, even when empty.
-        return ShellCommandOutput(stdout.joinToString("\n"), stderr.joinToString("\n"), exitCode)
-    }
-
-    private fun logCommand(command: String) {
         if (logger.isLoggable(Level.FINE)) {
             logger.fine("adb -s $serialNumber shell $command")
         }
+        @Suppress("AdbDeviceServicesCommand")
+        return adbSession.deviceServices.shellAsText(device, command)
     }
 
     /** Copies [devicePath] from the device to [hostPath]. */

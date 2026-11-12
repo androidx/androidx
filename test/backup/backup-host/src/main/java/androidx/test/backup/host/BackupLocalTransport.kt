@@ -50,7 +50,6 @@ internal class BackupLocalTransport(
         if (state?.isEnabled != true) {
             bmgr(
                 "enable true",
-                Regex("Backup Manager now enabled"),
                 BackupErrorCode.BMGR_INIT_FAILED,
                 "Failed to enable the backup manager with bmgr",
                 "Backup Manager now enabled",
@@ -61,8 +60,6 @@ internal class BackupLocalTransport(
             bmgr(
                 "backupnow $PACKAGE_MANAGER_SENTINEL " +
                     BackupDeviceShell.quoteIfNeeded(applicationId),
-                // A pass that does not succeed can print a hint after its result.
-                Regex("Backup finished with result: Success"),
                 BackupErrorCode.BACKUP_FAILED,
                 "Local backup of $applicationId failed",
                 // The pass reports success even when it skips a package, e.g. if it doesn't allow
@@ -109,7 +106,6 @@ internal class BackupLocalTransport(
             // bmgr reports the result only when the restore has finished.
             bmgr(
                 "restore 1 ${BackupDeviceShell.quoteIfNeeded(applicationId)}",
-                Regex("done"),
                 BackupErrorCode.RESTORE_FAILED,
                 "Local restore of $applicationId failed",
                 "restoreFinished: 0",
@@ -121,7 +117,6 @@ internal class BackupLocalTransport(
     private suspend fun selectTransport(transport: String) {
         bmgr(
             "transport ${BackupDeviceShell.quote(transport)}",
-            Regex("""Selected transport .* \(formerly .*\)"""),
             BackupErrorCode.BMGR_INIT_FAILED,
             "Failed to select backup transport $transport",
             "Selected transport $transport",
@@ -132,19 +127,15 @@ internal class BackupLocalTransport(
      * Runs `bmgr` with [arguments], and throws a [BackupRestoreException] with [errorCode] and
      * [failureMessage] unless its output contains every one of [expected].
      *
-     * bmgr reports failures only in its output: its exit code is 0 either way. It prints [lastLine]
-     * when it has done what it was asked to, and its exit after that is not waited for.
+     * bmgr reports failures only in its output: its exit code is 0 either way.
      */
     private suspend fun bmgr(
         arguments: String,
-        lastLine: Regex,
         errorCode: BackupErrorCode,
         failureMessage: String,
         vararg expected: String,
     ) {
-        // A command that asks bmgr for monitor events could not end on its last line, since
-        // another thread prints the events, which may follow that line.
-        val output = shell.exec("bmgr $arguments", lastLine)
+        val output = shell.exec("bmgr $arguments")
         if (!expected.all { output.stdout.contains(it) }) {
             throw BackupRestoreException(
                 errorCode,

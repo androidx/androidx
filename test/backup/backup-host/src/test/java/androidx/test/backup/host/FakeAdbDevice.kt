@@ -34,16 +34,13 @@ import com.android.adblib.DeviceCacheProvider
 import com.android.adblib.DeviceInfo
 import com.android.adblib.DeviceSelector
 import com.android.adblib.DeviceState
-import com.android.adblib.LineShellV2Collector
 import com.android.adblib.RemoteFileMode
 import com.android.adblib.ShellCollector
-import com.android.adblib.ShellCollectorCapabilities
 import com.android.adblib.ShellCommandOutput
 import com.android.adblib.StateFlowStatus
 import com.android.adblib.TextShellCollector
 import com.android.adblib.connectedDevicesTracker
 import com.android.adblib.deviceCacheProvider
-import java.nio.ByteBuffer
 import java.nio.file.Path
 import java.time.Duration
 import kotlinx.coroutines.CoroutineDispatcher
@@ -251,10 +248,6 @@ internal class FakeAdbDevice(
     val commands: List<String>
         get() = _commands
 
-    /** Shell commands that are running: neither ended nor cancelled. */
-    val runningCommands: List<String>
-        get() = _runningCommands
-
     /** Device paths pulled from the device, in order. */
     val pulledPaths: List<String>
         get() = _pulledPaths
@@ -272,7 +265,6 @@ internal class FakeAdbDevice(
         get() = _pushedModes
 
     private val _commands = mutableListOf<String>()
-    private val _runningCommands = mutableListOf<String>()
     private val _pulledPaths = mutableListOf<String>()
     private val _pushedPaths = mutableListOf<String>()
     private val _pushedContents = mutableMapOf<String, String>()
@@ -281,7 +273,6 @@ internal class FakeAdbDevice(
     private var shellHandler: (String) -> ShellCommandOutput? = { null }
     private var pullHandler: (String) -> String = { "" }
     private var hangPredicate: (String) -> Boolean = { false }
-    private var lingerPredicate: (String) -> Boolean = { false }
     private var onlineDevicesApi: Map<String, Int> = emptyMap()
     private var readonlyProps: Map<String, String> = emptyMap()
     private var lastCreatedHostFile: Path? = null
@@ -336,14 +327,6 @@ internal class FakeAdbDevice(
      */
     fun hangOn(predicate: (command: String) -> Boolean) {
         hangPredicate = predicate
-    }
-
-    /**
-     * Makes every later shell command matching [predicate] print its output and then run until it
-     * is cancelled, as a tool that takes its time to exit.
-     */
-    fun lingerOn(predicate: (command: String) -> Boolean) {
-        lingerPredicate = predicate
     }
 
     init {
@@ -484,45 +467,14 @@ internal class FakeAdbDevice(
                 } else {
                     checkAddressedToThisDevice(selector)
                     _commands += command
-                    val collectsLines =
-                        (invocation.getArgument<Any>(2) as? ShellCollectorCapabilities)
-                            ?.isSingleOutput != true
-                    val output =
-                        if (hangPredicate(command)) {
-                            null
-                        } else {
-                            shellHandler(command) ?: bmgrSuccessOutput(command) ?: shellOutput()
-                        }
-                    commandFlow(command, output, collectsLines)
+                    if (hangPredicate(command)) {
+                        flow<ShellCommandOutput> { awaitCancellation() }
+                    } else {
+                        flowOf(shellHandler(command) ?: bmgrSuccessOutput(command) ?: shellOutput())
+                    }
                 }
             }
     }
-
-    /**
-     * Returns the flow of [command], which prints [output], or prints nothing until it is cancelled
-     * if [output] is null.
-     *
-     * A collector of lines gets the lines of stderr, then those of stdout, as the command prints
-     * them, and the rest of both with the exit code when the command ends. Any other collector gets
-     * the whole output when the command ends.
-     */
-    private fun commandFlow(command: String, output: ShellCommandOutput?, collectsLines: Boolean) =
-        flow<Any> {
-            _runningCommands += command
-            try {
-                if (output == null) awaitCancellation()
-                val lines = LineShellV2Collector()
-                if (collectsLines) {
-                    lines.start(this)
-                    lines.collectStderr(this, ByteBuffer.wrap(output.stderr.toByteArray()))
-                    lines.collectStdout(this, ByteBuffer.wrap(output.stdout.toByteArray()))
-                }
-                if (lingerPredicate(command)) awaitCancellation()
-                if (collectsLines) lines.end(this, output.exitCode) else emit(output)
-            } finally {
-                _runningCommands -= command
-            }
-        }
 
     /**
      * Fails the test if [selector] addresses a device other than [serialNumber]. Throws an [Error]
