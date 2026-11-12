@@ -16,6 +16,7 @@
 
 package androidx.xr.scenecore.integration.tests
 
+import android.app.Activity
 import android.content.Intent
 import android.view.View
 import androidx.activity.ComponentActivity
@@ -36,7 +37,11 @@ import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.xr.runtime.Session
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
+import androidx.test.runner.lifecycle.Stage
+import androidx.xr.runtime.RequiresSpatialApi
+import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
@@ -48,23 +53,22 @@ import androidx.xr.scenecore.SpatialCapability
 import androidx.xr.scenecore.scene
 import androidx.xr.testutils.SpatialAlignment
 import androidx.xr.testutils.SpatialNode
-import androidx.xr.testutils.SpatialScene
 import androidx.xr.testutils.SpatialSceneHelper
 import androidx.xr.testutils.SpatialTask
 import androidx.xr.testutils.XrDeviceTest
+import androidx.xr.testutils.XrSessionScope
+import androidx.xr.testutils.createXrSessionRule
 import androidx.xr.testutils.performSpatialInteraction
 import androidx.xr.testutils.resetSpatialInteraction
+import androidx.xr.testutils.waitUntil
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import java.util.function.Consumer
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.TimeSource
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -84,6 +88,8 @@ import org.junit.runner.RunWith
 @LargeTest
 class ResizableComponentTest {
 
+    @get:Rule val sessionRule = createXrSessionRule()
+
     @After
     fun tearDown() {
         resetSpatialInteraction()
@@ -91,107 +97,106 @@ class ResizableComponentTest {
 
     @Test
     @XrDeviceTest
-    fun resizableComponent_mainPanelEntity_isResizable() = runTestWithSession { activity, session ->
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
+    fun resizableComponent_mainPanelEntity_isResizable() {
         val resizeListener = RecordingResizeListener()
 
         // 1. Set the Compose content of the main panel.
-        activity.setContent { CenteredLabel("This is Resizable MainPanel") }
+        sessionRule.onMainThread {
+            activity.setContent { CenteredLabel("This is Resizable MainPanel") }
+        }
 
         // 2. Request Full Space Mode and wait for the transition to complete.
-        session.scene.requestFullSpaceAndAwait()
+        sessionRule.requestFullSpace()
 
         // 3. Create the ResizableComponent and attach it to the main panel.
-        val mainPanelEntity = session.scene.mainPanelEntity
+        val mainPanelEntity = sessionRule.session.scene.mainPanelEntity
         val resizableComponent =
-            ResizableComponent.create(session = session, resizeEventListener = resizeListener)
+            ResizableComponent.create(
+                session = sessionRule.session,
+                resizeEventListener = resizeListener,
+            )
         assertThat(mainPanelEntity.addComponent(resizableComponent)).isTrue()
 
         // Wait for the system to report the main panel as resizable before sampling its size.
         val mainPanelNode =
-            awaitResizableNode(activity, "main panel") { task ->
-                task.findNodeByName(MAIN_PANEL_NODE_NAME) ?: task.taskWindowLeash
+            awaitResizableNode(sessionRule.activity, "main panel") { task ->
+                task.findNode { it.name == MAIN_PANEL_NODE_NAME }
             }
         val initialSizeInPixels = mainPanelEntity.sizeInPixels
-        try {
-            // 4. Grab the main panel by a corner of its resize affordance and drag it outwards.
-            withContext(Dispatchers.IO) {
-                mainPanelNode.performSpatialInteraction {
-                    resizeNodeBy(RESIZE_DELTA, alignment = RESIZE_CORNER)
-                }
-            }
 
-            // 5. Wait for the resize to end and verify that the main panel has grown.
-            awaitResizeEnd(resizeListener)
-            assertPanelHasGrown(mainPanelEntity, initialSizeInPixels)
-        } finally {
-            // Restore the main panel size before closing the session, since it is backed by the
-            // task-scoped window leash node.
-            mainPanelEntity.sizeInPixels = initialSizeInPixels
+        // 4. Grab the main panel by a corner of its resize affordance and drag it outwards.
+        mainPanelNode.performSpatialInteraction {
+            resizeNodeBy(RESIZE_DELTA, alignment = RESIZE_CORNER)
         }
+
+        // 5. Wait for the resize to end and verify that the main panel has grown.
+        awaitResizeEnd(resizeListener)
+        assertPanelHasGrown(mainPanelEntity, initialSizeInPixels)
     }
 
     @Test
     @XrDeviceTest
-    fun resizableComponent_panelEntity_isResizable() = runTestWithSession { activity, session ->
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
+    fun resizableComponent_panelEntity_isResizable() {
         val panelName = "resizablePanel"
         val resizeListener = RecordingResizeListener()
 
         // 1. Request Full Space Mode and wait for the transition to complete.
-        session.scene.requestFullSpaceAndAwait()
+        sessionRule.requestFullSpace()
 
-        // 2. Hide the main panel so it does not interfere with the spatial panel test, then create
-        // the PanelEntity under test.
-        session.scene.mainPanelEntity.setEnabled(false)
-        try {
-            val panelEntity =
-                createSpatialPanel(activity, session, panelName, "This is Resizable Spatial Panel")
+        val panelEntity = sessionRule.onMainThread {
+            // 2. Create the PanelEntity under test, then hide the main panel so it does not
+            // interfere with the spatial panel test.
+            val panel = createSpatialPanel(panelName, "This is Resizable Spatial Panel")
+            session.scene.mainPanelEntity.setEnabled(false)
 
             // 3. Create the ResizableComponent and attach it to the panel entity.
             val resizableComponent =
-                ResizableComponent.create(session = session, resizeEventListener = resizeListener)
-            assertThat(panelEntity.addComponent(resizableComponent)).isTrue()
-
-            // Wait for the system to report the panel as resizable before sampling its size.
-            val panelNode =
-                awaitResizableNode(activity, "spatial panel '$panelName'") { task ->
-                    task.findNode { it.name == panelName && it.isEmbeddedWindowLeash }
-                }
-            val initialSizeInPixels = panelEntity.sizeInPixels
-
-            // 4. Grab the panel by a corner of its resize affordance and drag it outwards.
-            withContext(Dispatchers.IO) {
-                panelNode.performSpatialInteraction {
-                    resizeNodeBy(RESIZE_DELTA, alignment = RESIZE_CORNER)
-                }
-            }
-
-            // 5. Wait for the resize to end and verify that the panel has grown.
-            awaitResizeEnd(resizeListener)
-            assertPanelHasGrown(panelEntity, initialSizeInPixels)
-        } finally {
-            // Restore main panel visibility before closing the session, since it is backed by the
-            // task-scoped window leash node.
-            session.scene.mainPanelEntity.setEnabled(true)
+                ResizableComponent.create(
+                    session = session,
+                    resizeEventListener = resizeListener,
+                )
+            assertThat(panel.addComponent(resizableComponent)).isTrue()
+            panel
         }
+
+        // Wait for the system to report the panel as resizable before sampling its size.
+        val panelNode =
+            awaitResizableNode(sessionRule.activity, "spatial panel '$panelName'") { task ->
+                task.findNode { it.name == panelName && it.isEmbeddedWindowLeash }
+            }
+        val initialSizeInPixels = panelEntity.sizeInPixels
+
+        // 4. Grab the panel by a corner of its resize affordance and drag it outwards.
+        panelNode.performSpatialInteraction {
+            resizeNodeBy(RESIZE_DELTA, alignment = RESIZE_CORNER)
+        }
+
+        // 5. Wait for the resize to end and verify that the panel has grown.
+        awaitResizeEnd(resizeListener)
+        assertPanelHasGrown(panelEntity, initialSizeInPixels)
     }
 
     @Test
     @XrDeviceTest
-    fun resizableComponent_activityPanelEntity_isResizable() =
-        runTestWithSession { activity, session ->
-            val panelName = "resizableActivityPanel"
-            val resizeListener = RecordingResizeListener()
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
+    fun resizableComponent_activityPanelEntity_isResizable() {
+        val panelName = "resizableActivityPanel"
+        val resizeListener = RecordingResizeListener()
 
-            // 1. Request Full Space Mode and wait for the transition to complete.
-            session.scene.requestFullSpaceAndAwait()
-            // Embedding an activity in a panel requires the EMBED_ACTIVITY capability.
-            assertThat(session.scene.spatialCapabilities).contains(SpatialCapability.EMBED_ACTIVITY)
+        // 1. Request Full Space Mode and wait for the transition to complete.
+        sessionRule.requestFullSpace()
 
-            // 2. Hide the main panel so it does not interfere with the activity panel test, then
-            // create the ActivityPanelEntity under test and launch an activity into it.
-            session.scene.mainPanelEntity.setEnabled(false)
-            try {
-                val activityPanelEntity =
+        try {
+            val activityPanelEntity = sessionRule.onMainThread {
+                // Embedding an activity in a panel requires the EMBED_ACTIVITY capability.
+                assertThat(session.scene.spatialCapabilities)
+                    .contains(SpatialCapability.EMBED_ACTIVITY)
+
+                // 2. Create the ActivityPanelEntity under test, hide the main panel so it does not
+                // interfere with the activity panel test, and launch an activity into the panel.
+                val activityPanel =
                     ActivityPanelEntity.create(
                         session = session,
                         pixelDimensions = PANEL_PIXEL_DIMENSIONS,
@@ -199,10 +204,12 @@ class ResizableComponentTest {
                         pose = PANEL_POSE,
                         parent = session.scene.activitySpace,
                     )
-                // Unlike the intent launched by runTestWithSession, this intent has no action and
-                // no category, so ActivityScenario does not mistake the embedded activity for the
-                // activity under test.
-                activityPanelEntity.startActivity(Intent(activity, ComponentActivity::class.java))
+                session.scene.mainPanelEntity.setEnabled(false)
+
+                // Unlike the intent that XrSessionRule's ActivityScenarioRule launches the activity
+                // under test with, this intent has no action and no category, so ActivityScenario
+                // does not mistake the embedded activity for the activity under test.
+                activityPanel.startActivity(Intent(activity, ComponentActivity::class.java))
 
                 // 3. Create the ResizableComponent and attach it to the activity panel entity.
                 val resizableComponent =
@@ -210,41 +217,39 @@ class ResizableComponentTest {
                         session = session,
                         resizeEventListener = resizeListener,
                     )
-                assertThat(activityPanelEntity.addComponent(resizableComponent)).isTrue()
-
-                // Wait for the embedded activity to be shown, and for the system to report the
-                // panel as resizable, before sampling its size.
-                val panelNode =
-                    awaitResizableNode(activity, "activity panel '$panelName'") { task ->
-                        task.findNode { it.name == panelName }
-                    }
-                val initialSizeInPixels = activityPanelEntity.sizeInPixels
-
-                // 4. Grab the panel by a corner of its resize affordance and drag it outwards.
-                withContext(Dispatchers.IO) {
-                    panelNode.performSpatialInteraction {
-                        resizeNodeBy(RESIZE_DELTA, alignment = RESIZE_CORNER)
-                    }
-                }
-
-                // 5. Wait for the resize to end and verify that the panel has grown.
-                awaitResizeEnd(resizeListener)
-                assertPanelHasGrown(activityPanelEntity, initialSizeInPixels)
-            } finally {
-                // Restore main panel visibility before closing the session, since it is backed by
-                // the task-scoped window leash node.
-                session.scene.mainPanelEntity.setEnabled(true)
+                assertThat(activityPanel.addComponent(resizableComponent)).isTrue()
+                activityPanel
             }
+
+            // Wait for the embedded activity to be shown, and for the system to report the panel
+            // as resizable, before sampling its size.
+            val panelNode =
+                awaitResizableNode(sessionRule.activity, "activity panel '$panelName'") { task ->
+                    task.findNode { it.name == panelName }
+                }
+            val initialSizeInPixels = activityPanelEntity.sizeInPixels
+
+            // 4. Grab the panel by a corner of its resize affordance and drag it outwards.
+            panelNode.performSpatialInteraction {
+                resizeNodeBy(RESIZE_DELTA, alignment = RESIZE_CORNER)
+            }
+
+            // 5. Wait for the resize to end and verify that the panel has grown.
+            awaitResizeEnd(resizeListener)
+            assertPanelHasGrown(activityPanelEntity, initialSizeInPixels)
+        } finally {
+            // No public API closes the embedded activity before the host finishes; finish it
+            // directly.
+            finishActivitiesOtherThan(sessionRule.activity)
         }
+    }
 
     /**
      * Creates a [PanelEntity] named [name] that hosts a [ComposeView] displaying [text].
      *
-     * Must be called on the main thread.
+     * Must be called inside `sessionRule.onMainThread { }`.
      */
-    private fun createSpatialPanel(
-        activity: ComponentActivity,
-        session: Session,
+    private fun XrSessionScope<ComponentActivity>.createSpatialPanel(
         name: String,
         text: String,
     ): PanelEntity {
@@ -278,31 +283,71 @@ class ResizableComponentTest {
     }
 
     /**
-     * Polls the task of [activity] in the spatial scene until [selectNode] returns a node that the
-     * system reports as resizable, and whose extents are known, and returns that node.
+     * Waits for the UI to sync, then polls the task of [activity] in the spatial scene until
+     * [selectNode] returns a node that the system reports as resizable, and whose extents are
+     * known, and returns that node.
      *
      * The pointer is aimed at the resize affordance based on the extents of the node, so they have
      * to be known before interacting with it. For instance, the extents of an [ActivityPanelEntity]
      * are only known once its activity has been launched.
+     *
+     * Blocks, so it must be called from the instrumentation thread.
      */
-    private suspend fun awaitResizableNode(
+    private fun awaitResizableNode(
         activity: ComponentActivity,
         description: String,
         selectNode: (SpatialTask) -> SpatialNode?,
     ): SpatialNode {
+        // Let pending layout and component transactions submit before polling CPM, so the caller
+        // samples its "before" state after the UI has synced.
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
         val node =
-            pollUntil(
+            SpatialSceneHelper.waitForSpatialScene(
                 description = "a resizable $description",
-                select = { captureSpatialScene().findTaskByActivity(activity)?.let(selectNode) },
+                timeout = POLL_TIMEOUT,
+                pollInterval = POLL_INTERVAL,
+                select = { scene -> scene.findTaskByActivity(activity)?.let(selectNode) },
                 until = { it != null && it.isResizable && it.worldExtents != null },
             )
         return checkNotNull(node)
     }
 
-    /** Suspends until [listener] has reported the end of the resize, and fails on timeout. */
-    private suspend fun awaitResizeEnd(listener: RecordingResizeListener) {
-        withTimeoutOrNull(RESIZE_TIMEOUT) { listener.resizeEnded.await() }
-            ?: throw AssertionError("Resize did not end, last state: ${listener.lastResizeState}")
+    /**
+     * Finishes every activity of this process except [host], and blocks until they are destroyed.
+     *
+     * An [ActivityPanelEntity] only destroys its embedded activity when the entity itself is
+     * destroyed, which happens after [host] has finished. If the embedded activity is still alive
+     * when [host] finishes, it becomes the top activity of the task and crashes SystemUI.
+     *
+     * Must be called from the instrumentation thread before the test finishes.
+     */
+    private fun finishActivitiesOtherThan(host: Activity) {
+        val monitor = ActivityLifecycleMonitorRegistry.getInstance()
+        fun aliveActivities(): List<Activity> =
+            Stage.values()
+                .filter { it != Stage.DESTROYED }
+                .flatMap { monitor.getActivitiesInStage(it) }
+                .filter { it !== host }
+
+        sessionRule.onMainThread { aliveActivities().forEach { it.finish() } }
+        waitUntil(
+            description = "embedded activities to be destroyed",
+            timeout = EMBEDDED_ACTIVITY_FINISH_TIMEOUT,
+            pollInterval = POLL_INTERVAL,
+        ) {
+            sessionRule.onMainThread { aliveActivities().isEmpty() }
+        }
+    }
+
+    /**
+     * Blocks the instrumentation thread until [listener] has reported the end of the resize, and
+     * fails on timeout.
+     */
+    private fun awaitResizeEnd(listener: RecordingResizeListener) {
+        val timeoutMillis = RESIZE_TIMEOUT.inWholeMilliseconds
+        if (!listener.resizeEnded.await(timeoutMillis, TimeUnit.MILLISECONDS)) {
+            throw AssertionError("Resize did not end, last state: ${listener.lastResizeState}")
+        }
     }
 
     /**
@@ -311,44 +356,23 @@ class ResizableComponentTest {
      * The size is polled because the size of the main panel is applied asynchronously, so it is not
      * necessarily up to date as soon as the resize has ended.
      */
-    private suspend fun assertPanelHasGrown(panel: PanelEntity, initialSizeInPixels: IntSize2d) {
-        pollUntil(
+    private fun assertPanelHasGrown(panel: PanelEntity, initialSizeInPixels: IntSize2d) {
+        waitUntil(
             description = "the panel to grow beyond $initialSizeInPixels",
-            select = { panel.sizeInPixels },
-            until = { size ->
-                size.width > initialSizeInPixels.width && size.height > initialSizeInPixels.height
-            },
-        )
-    }
-
-    /** Captures the spatial scene off the main thread, since the capture blocks while polling. */
-    private suspend fun captureSpatialScene(): SpatialScene =
-        withContext(Dispatchers.IO) { SpatialSceneHelper.captureSpatialScene() }
-
-    /**
-     * Repeatedly evaluates [select] until [until] holds for its result, and returns that result.
-     *
-     * @throws AssertionError if [until] does not hold within [POLL_TIMEOUT].
-     */
-    private suspend fun <T> pollUntil(
-        description: String,
-        select: suspend () -> T,
-        until: (T) -> Boolean,
-    ): T {
-        val start = TimeSource.Monotonic.markNow()
-        while (true) {
-            val value = select()
-            if (until(value)) return value
-            if (start.elapsedNow() >= POLL_TIMEOUT) {
-                throw AssertionError("Timed out waiting for $description, last value: $value")
-            }
-            delay(POLL_INTERVAL)
+            timeout = POLL_TIMEOUT,
+            pollInterval = POLL_INTERVAL,
+        ) {
+            val size = panel.sizeInPixels
+            size.width > initialSizeInPixels.width && size.height > initialSizeInPixels.height
         }
     }
 
     private companion object {
         /** Timeout applied when waiting for the end of a resize to be reported by the component. */
         val RESIZE_TIMEOUT = 5.seconds
+
+        /** Timeout applied when waiting for embedded activities to be destroyed. */
+        val EMBEDDED_ACTIVITY_FINISH_TIMEOUT = 5.seconds
 
         /** Timeout applied when polling the spatial scene or the size of a panel. */
         val POLL_TIMEOUT = 10.seconds
@@ -381,15 +405,19 @@ class ResizableComponentTest {
 
 /**
  * A resize event listener that applies the size proposed at the end of a resize to the resized
- * [PanelEntity], and completes [resizeEnded] once it has done so.
+ * [PanelEntity], and counts down [resizeEnded] once it has done so.
  *
  * [ResizableComponent] only proposes a new size and leaves it to the app to apply it. Only the
  * final size is applied, so the panel keeps its size while it is being resized.
+ *
+ * Events are delivered on the main thread, while [resizeEnded] and [lastResizeState] are read from
+ * the instrumentation thread.
  */
 private class RecordingResizeListener : Consumer<ResizeEvent> {
-    val resizeEnded = CompletableDeferred<Unit>()
+    val resizeEnded = CountDownLatch(1)
 
     /** State of the last received resize event, or null if no event has been received yet. */
+    @Volatile
     var lastResizeState: ResizeEvent.ResizeState? = null
         private set
 
@@ -397,7 +425,7 @@ private class RecordingResizeListener : Consumer<ResizeEvent> {
         lastResizeState = event.resizeState
         if (event.resizeState == ResizeEvent.ResizeState.END) {
             (event.entity as? PanelEntity)?.size = event.newSize.to2d()
-            resizeEnded.complete(Unit)
+            resizeEnded.countDown()
         }
     }
 }
