@@ -32,19 +32,31 @@ import androidx.glance.adaptive.core.slots.TrailingComponent
  * Adaptive template for a grid of tappable actions under an optional header, such as a "Start a
  * workout" quick launcher or a grid of favorite contacts.
  *
- * Host renderers adapt the populated semantic slots across
- * [androidx.glance.adaptive.core.selection.GlanceSurface] breakpoints, and decide how many of the
- * [actions] fit at a size:
- * - [actions] (required): 1 to 8 actions, in display order.
- * - [leading] and [primary] (required together, for a header): the header's icon and title.
- * - [secondary] (optional): the header's subtitle.
- * - [trailing] (optional): a button at the header's end.
+ * Build an instance with [dashboardTemplate]. Host renderers adapt the populated semantic slots
+ * across [androidx.glance.adaptive.core.selection.GlanceSurface] breakpoints, and decide how many
+ * of the [actions] fit at a size:
+ * - [DashboardTemplateScope.actions] (required): 1 to 8 actions, in display order.
+ * - [DashboardTemplateScope.leading] and [DashboardTemplateScope.primary] (required together, for a
+ *   header): the header's icon and title.
+ * - [DashboardTemplateScope.secondary] (optional): the header's subtitle.
+ * - [DashboardTemplateScope.trailing] (optional): a button at the header's end.
  *
  * The header is all or nothing: a template that sets any header slot sets [leading] and [primary].
  * Without a header, the actions take the whole widget. Taps are described as
  * [androidx.glance.adaptive.core.action.GlanceAdaptiveAction]s, never as `Intent`s or
  * `PendingIntent`s, so the template keeps value equality and can be sent to surfaces without
  * `PendingIntent` support.
+ *
+ * ```kotlin
+ * val template = dashboardTemplate {
+ *     leading { icon(TemplateIcon.fromResource(R.drawable.ic_fitbit)) }
+ *     primary { text("Start a workout") }
+ *     actions {
+ *         action(TemplateIcon.fromResource(R.drawable.ic_run), "Run") { onClick(startRun) }
+ *         action(TemplateIcon.fromResource(R.drawable.ic_walk), "Walk") { onClick(startWalk) }
+ *     }
+ * }
+ * ```
  *
  * @param actions The actions, in display order, copied so later changes to the caller's list are
  *   not seen.
