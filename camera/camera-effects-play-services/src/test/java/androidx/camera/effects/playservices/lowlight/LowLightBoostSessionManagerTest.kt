@@ -105,9 +105,16 @@ class LowLightBoostSessionManagerTest {
 
     @After
     fun tearDown() {
+        shadowOf(getMainLooper()).idle()
         sessionManager.destroySessionInternal()
+        // Run any delayed resource release scheduled for an aborted session creation.
+        shadowOf(getMainLooper()).idleFor(1, TimeUnit.SECONDS)
         surfaceRequests.forEach { it.deferrableSurface.close() }
-        createdSessions.forEach { it.cameraSurfaceTexture.release() }
+        shadowOf(getMainLooper()).idle()
+        createdSessions.forEach {
+            it.release()
+            it.cameraSurfaceTexture.release()
+        }
         outputSurface.release()
         outputTexture.release()
         PlayServicesLowLightBoostAvailability.reset()

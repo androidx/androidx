@@ -67,6 +67,7 @@ class LowLightBoostFrameRouterTest {
     @After
     fun tearDown() {
         renderPipeline.releaseBridges()
+        session.release()
         session.cameraSurfaceTexture.release()
         outputSurface.release()
         outputTexture.release()

@@ -78,8 +78,13 @@ class LowLightBoostSessionCreatorTest {
 
     @After
     fun tearDown() {
+        shadowOf(getMainLooper()).idle()
         renderPipeline.releaseBridges()
-        createdSessions.forEach { it.cameraSurfaceTexture.release() }
+        shadowOf(getMainLooper()).idleFor(1, TimeUnit.SECONDS)
+        createdSessions.forEach {
+            it.release()
+            it.cameraSurfaceTexture.release()
+        }
         PlayServicesLowLightBoostAvailability.reset()
     }
 
