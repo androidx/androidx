@@ -18,25 +18,44 @@ package androidx.xr.scenecore.integration.tests
 
 import android.graphics.Color as AndroidColor
 import android.widget.TextView
+import androidx.activity.ComponentActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.xr.runtime.math.FloatSize2d
+import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector2
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.ActivityPanelEntity
 import androidx.xr.scenecore.Entity
+import androidx.xr.scenecore.GltfModel
+import androidx.xr.scenecore.GltfModelEntity
+import androidx.xr.scenecore.MovableComponent
 import androidx.xr.scenecore.PanelEntity
+import androidx.xr.scenecore.ResizableComponent
+import androidx.xr.scenecore.ResizeEvent
 import androidx.xr.scenecore.Scene
 import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.SpatialCapability
 import androidx.xr.scenecore.scene
+import androidx.xr.testutils.SpatialAlignment
+import androidx.xr.testutils.SpatialNode
+import androidx.xr.testutils.SpatialSceneHelper
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.XrSessionRule
 import androidx.xr.testutils.createXrSessionRule
+import androidx.xr.testutils.performSpatialInteraction
+import androidx.xr.testutils.resetSpatialInteraction
+import androidx.xr.testutils.waitUntil
 import com.google.common.truth.Truth.assertThat
+import java.nio.file.Paths
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.math.abs
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
+import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -45,7 +64,7 @@ import org.junit.rules.Timeout
 import org.junit.runner.RunWith
 
 /**
- * On-device API and state integration tests for
+ * On-device API, state, and interactive spatial-resize integration tests for
  * [PanelEntity.transformPixelCoordinatesToLocalPosition] and
  * [PanelEntity.transformNormalizedCoordinatesToLocalPosition] (b/573232780):
  * - Pixel and normalized coordinate transforms across corners, edges, and center against
@@ -54,9 +73,12 @@ import org.junit.runner.RunWith
  *   ([IntSize2d] and [FloatSize2d]) and hierarchical scale changes.
  * - Linear extrapolation for out-of-bounds and sub-pixel coordinates.
  * - Coordinate transforms on [Scene.mainPanelEntity] and [ActivityPanelEntity].
+ * - Full interactive CUJ flows matching `PanelCoordinateActivity` (`models/xyzArrows.glb`
+ *   [GltfModelEntity], [MovableComponent], continuous [ResizableComponent] listener, top-right
+ *   corner drag widening and multi-stage resizes, mode switching, and post-gesture scaling).
  *
- * Tests run on the instrumentation thread. Only panel creation and resizing use
- * [XrSessionRule.onMainThread] because they update the panel's view hierarchy.
+ * Tests run on the instrumentation thread. Only panel creation and resizing, glTF calls, and reads
+ * that must not interleave with resize callbacks use [XrSessionRule.onMainThread].
  */
 @RunWith(AndroidJUnit4::class)
 @XrDeviceTest
@@ -73,6 +95,11 @@ class PanelCoordinateToPoseTest {
     @Before
     fun setUp() {
         sessionRule.requestFullSpace()
+    }
+
+    @After
+    fun tearDown() {
+        resetSpatialInteraction()
     }
 
     @Test
@@ -452,6 +479,360 @@ class PanelCoordinateToPoseTest {
     }
 
     /**
+     * CUJ Validations 3–5: places a `models/xyzArrows.glb` [GltfModelEntity] widget on a movable,
+     * resizable panel and moves it across pixel `(0, 0)`, `(width, 0)`, and `(width, height)`.
+     */
+    @Test
+    fun panelCoordinate_pixelMode_xyzWidgetFollowsCornerMoves() {
+        val fullWidthPx = INITIAL_PANEL_PIXELS.width.toFloat()
+        val fullHeightPx = INITIAL_PANEL_PIXELS.height.toFloat()
+        var activePixel = Vector2(0f, 0f)
+        val harness =
+            createInteractiveWidgetPanel("cujPixelCornersPanel") { panel ->
+                panel.transformPixelCoordinatesToLocalPosition(activePixel)
+            }
+
+        assertMarkerNormalizedOffsetOnPanel(
+            harness.xyzEntity,
+            harness.panel,
+            expectedU = -1f,
+            expectedV = 1f,
+        )
+
+        activePixel = Vector2(fullWidthPx, 0f)
+        harness.updateWidgetPose()
+        assertMarkerNormalizedOffsetOnPanel(
+            harness.xyzEntity,
+            harness.panel,
+            expectedU = 1f,
+            expectedV = 1f,
+        )
+
+        activePixel = Vector2(fullWidthPx, fullHeightPx)
+        harness.updateWidgetPose()
+        assertMarkerNormalizedOffsetOnPanel(
+            harness.xyzEntity,
+            harness.panel,
+            expectedU = 1f,
+            expectedV = -1f,
+        )
+    }
+
+    /**
+     * CUJ Validations 6–7: widens a panel via an injected `TopRight` resize drag while checking
+     * that a pixel `(width, height)` widget moves inward along the bottom edge, then scales the
+     * resized panel by `2.0f`.
+     */
+    @Test
+    fun panelCoordinate_pixelMode_topRightResizeAndScale_updatesWidget() {
+        val panelName = "cujPixelResizePanel"
+        val activePixel =
+            Vector2(INITIAL_PANEL_PIXELS.width.toFloat(), INITIAL_PANEL_PIXELS.height.toFloat())
+        val harness =
+            createInteractiveWidgetPanel(panelName) { panel ->
+                panel.transformPixelCoordinatesToLocalPosition(activePixel)
+            }
+
+        val panelNode = awaitResizablePanelNode(sessionRule.activity, panelName)
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        val initialLocalWidth = harness.panel.size.width
+
+        // Grab the top-right resize affordance and drag horizontally right by half the panel's
+        // local width so symmetric CPM resizing widens the panel toward ~2x width.
+        panelNode.performSpatialInteraction {
+            resizeNodeBy(
+                delta = Vector3(initialLocalWidth / 2f, 0f, 0f),
+                alignment = SpatialAlignment.TopRight,
+                marginMeters = RESIZE_AFFORDANCE_MARGIN_METERS,
+            )
+        }
+
+        // The resize listener updates the panel and widget before it counts END, so their state
+        // is final once END is observed.
+        waitUntil(
+            description = "ResizableComponent ResizeState.END after TopRight horizontal widen",
+            timeout = INTERACTION_TIMEOUT,
+        ) {
+            harness.resizeEndCount.get() >= 1
+        }
+        waitUntil(
+            description = "panel '$panelName' width to grow beyond ${INITIAL_PANEL_PIXELS.width}",
+            timeout = POLL_TIMEOUT,
+        ) {
+            harness.panel.sizeInPixels.width > INITIAL_PANEL_PIXELS.width
+        }
+
+        val widenedPixels = harness.panel.sizeInPixels
+        assertThat(widenedPixels.width)
+            .isGreaterThan((INITIAL_PANEL_PIXELS.width * MIN_WIDENED_WIDTH_RATIO).toInt())
+        assertThat(abs(widenedPixels.height - INITIAL_PANEL_PIXELS.height))
+            .isLessThan(MAX_HEIGHT_DRIFT_PX)
+
+        val expectedU = (activePixel.x / widenedPixels.width.toFloat()) * 2f - 1f
+        val expectedV = (1f - activePixel.y / widenedPixels.height.toFloat()) * 2f - 1f
+        assertMarkerNormalizedOffsetOnPanel(
+            marker = harness.xyzEntity,
+            panel = harness.panel,
+            expectedU = expectedU,
+            expectedV = expectedV,
+        )
+
+        assertScaleDoublesActivityOffsetAndPreservesRelativePosition(
+            panel = harness.panel,
+            xyzEntity = harness.xyzEntity,
+            expectedU = expectedU,
+            expectedV = expectedV,
+        ) {
+            harness.updateWidgetPose()
+        }
+    }
+
+    /**
+     * CUJ Validations 8–12: switches a live `models/xyzArrows.glb` widget from Pixel `(width,
+     * height)` to Normalized coordinates across `(0, 0)`, `(1, 0)`, `(1, 1)`, and `(-1, -1)`.
+     */
+    @Test
+    fun panelCoordinate_modeSwitch_pixelToNormalizedUpdatesWidget() {
+        val activePixel =
+            Vector2(INITIAL_PANEL_PIXELS.width.toFloat(), INITIAL_PANEL_PIXELS.height.toFloat())
+        var usePixelMode = true
+        var activeUv = Vector2(0f, 0f)
+        val harness =
+            createInteractiveWidgetPanel("cujModeSwitchPanel") { panel ->
+                if (usePixelMode) {
+                    panel.transformPixelCoordinatesToLocalPosition(activePixel)
+                } else {
+                    panel.transformNormalizedCoordinatesToLocalPosition(activeUv)
+                }
+            }
+
+        assertMarkerNormalizedOffsetOnPanel(
+            harness.xyzEntity,
+            harness.panel,
+            expectedU = 1f,
+            expectedV = -1f,
+        )
+
+        usePixelMode = false
+        activeUv = Vector2(0f, 0f)
+        harness.updateWidgetPose()
+        assertMarkerNormalizedOffsetOnPanel(
+            harness.xyzEntity,
+            harness.panel,
+            expectedU = 0f,
+            expectedV = 0f,
+        )
+
+        activeUv = Vector2(1f, 0f)
+        harness.updateWidgetPose()
+        assertMarkerNormalizedOffsetOnPanel(
+            harness.xyzEntity,
+            harness.panel,
+            expectedU = 1f,
+            expectedV = 0f,
+        )
+
+        activeUv = Vector2(1f, 1f)
+        harness.updateWidgetPose()
+        assertMarkerNormalizedOffsetOnPanel(
+            harness.xyzEntity,
+            harness.panel,
+            expectedU = 1f,
+            expectedV = 1f,
+        )
+
+        activeUv = Vector2(-1f, -1f)
+        harness.updateWidgetPose()
+        assertMarkerNormalizedOffsetOnPanel(
+            harness.xyzEntity,
+            harness.panel,
+            expectedU = -1f,
+            expectedV = -1f,
+        )
+    }
+
+    /**
+     * CUJ Validations 13–14: drags the `TopRight` resize affordance across two distinct pixel sizes
+     * while verifying `(-1, -1)` remains pinned at bottom-left, then scales to `2.0f`.
+     */
+    @Test
+    fun panelCoordinate_normalizedMode_multiStageTopRightResizesAndScale_pinsBottomLeft() {
+        val panelName = "cujNormalizedCoordPanel"
+        val harness =
+            createInteractiveWidgetPanel(panelName) { panel ->
+                panel.transformNormalizedCoordinatesToLocalPosition(Vector2(-1f, -1f))
+            }
+        assertMarkerNormalizedOffsetOnPanel(
+            marker = harness.xyzEntity,
+            panel = harness.panel,
+            expectedU = -1f,
+            expectedV = -1f,
+        )
+
+        val panelNode = awaitResizablePanelNode(sessionRule.activity, panelName)
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        val sizeBeforeResize = harness.panel.sizeInPixels
+        lateinit var sizeAfterFirstStep: IntSize2d
+
+        panelNode.performSpatialInteraction {
+            pointAtResizeAffordance(
+                alignment = SpatialAlignment.TopRight,
+                marginMeters = RESIZE_AFFORDANCE_MARGIN_METERS,
+            )
+            press()
+
+            // Resize #1: expand to first target size and verify (-1, -1) bottom-left pinning.
+            animate { fraction ->
+                pointAtResizeAffordance(
+                    offset = FIRST_RESIZE_LOCAL_DELTA * fraction,
+                    alignment = SpatialAlignment.TopRight,
+                    marginMeters = RESIZE_AFFORDANCE_MARGIN_METERS,
+                )
+            }
+            // The drag is still active, so read on the main thread to avoid interleaving with a
+            // resize callback.
+            waitUntil(
+                description = "panel '$panelName' sizeInPixels to grow beyond $sizeBeforeResize",
+                timeout = POLL_TIMEOUT,
+            ) {
+                sessionRule.onMainThread {
+                    val size = harness.panel.sizeInPixels
+                    size.width > sizeBeforeResize.width && size.height > sizeBeforeResize.height
+                }
+            }
+            sizeAfterFirstStep = sessionRule.onMainThread {
+                assertMarkerNormalizedOffsetOnPanel(
+                    marker = harness.xyzEntity,
+                    panel = harness.panel,
+                    expectedU = -1f,
+                    expectedV = -1f,
+                )
+                harness.panel.sizeInPixels
+            }
+
+            // Resize #2: continue dragging TopRight to a second distinct pixel size.
+            val secondDeltaStep = SECOND_RESIZE_LOCAL_DELTA - FIRST_RESIZE_LOCAL_DELTA
+            animate { fraction ->
+                pointAtResizeAffordance(
+                    offset = FIRST_RESIZE_LOCAL_DELTA + secondDeltaStep * fraction,
+                    alignment = SpatialAlignment.TopRight,
+                    marginMeters = RESIZE_AFFORDANCE_MARGIN_METERS,
+                )
+            }
+            release()
+        }
+
+        // The resize listener updates the panel and widget before it counts END, so their state
+        // is final once END is observed.
+        waitUntil(
+            description = "TopRight multi-stage resize ResizeState.END",
+            timeout = INTERACTION_TIMEOUT,
+        ) {
+            harness.resizeEndCount.get() >= 1
+        }
+        waitUntil(
+            description = "panel '$panelName' sizeInPixels to grow beyond $sizeAfterFirstStep",
+            timeout = POLL_TIMEOUT,
+        ) {
+            val size = harness.panel.sizeInPixels
+            size.width > sizeAfterFirstStep.width && size.height > sizeAfterFirstStep.height
+        }
+
+        assertMarkerNormalizedOffsetOnPanel(
+            marker = harness.xyzEntity,
+            panel = harness.panel,
+            expectedU = -1f,
+            expectedV = -1f,
+        )
+        assertScaleDoublesActivityOffsetAndPreservesRelativePosition(
+            panel = harness.panel,
+            xyzEntity = harness.xyzEntity,
+            expectedU = -1f,
+            expectedV = -1f,
+        ) {
+            harness.updateWidgetPose()
+        }
+    }
+
+    private class InteractiveWidgetHarness(
+        val panel: PanelEntity,
+        val xyzEntity: GltfModelEntity,
+        val resizeEndCount: AtomicInteger,
+        private val computeLocalPosition: (PanelEntity) -> Vector3,
+    ) {
+        fun updateWidgetPose() {
+            xyzEntity.setPose(Pose(computeLocalPosition(panel)))
+        }
+    }
+
+    private fun createInteractiveWidgetPanel(
+        panelName: String,
+        computeLocalPosition: (PanelEntity) -> Vector3,
+    ): InteractiveWidgetHarness {
+        val resizeEndCount = AtomicInteger(0)
+        scene.mainPanelEntity.setEnabled(false)
+        val panel =
+            createSpatialPanel(
+                pixelDimensions = INITIAL_PANEL_PIXELS,
+                name = panelName,
+                pose = INTERACTIVE_PANEL_POSE,
+                parent = scene.activitySpace,
+                backgroundColor = AndroidColor.BLACK,
+            )
+        val xyzEntity = createXyzWidget(parent = panel)
+        val harness =
+            InteractiveWidgetHarness(
+                panel = panel,
+                xyzEntity = xyzEntity,
+                resizeEndCount = resizeEndCount,
+                computeLocalPosition = computeLocalPosition,
+            )
+
+        val movable = MovableComponent.createSystemMovable(sessionRule.session, scaleInZ = false)
+        val resizable =
+            ResizableComponent.create(
+                session = sessionRule.session,
+                minimumSize = FloatSize3d(0.1f, 0.1f, 0.1f),
+            ) { event ->
+                // Runs on the main thread, which owns the panel's view hierarchy.
+                panel.size = FloatSize2d(event.newSize.width, event.newSize.height)
+                harness.updateWidgetPose()
+                if (event.resizeState == ResizeEvent.ResizeState.END) {
+                    resizeEndCount.incrementAndGet()
+                }
+            }
+        assertThat(panel.addComponent(movable)).isTrue()
+        assertThat(panel.addComponent(resizable)).isTrue()
+        harness.updateWidgetPose()
+        return harness
+    }
+
+    private fun assertScaleDoublesActivityOffsetAndPreservesRelativePosition(
+        panel: PanelEntity,
+        xyzEntity: GltfModelEntity,
+        expectedU: Float,
+        expectedV: Float,
+        recomputeWidgetPose: () -> Unit,
+    ) {
+        val activityOffsetBeforeScale =
+            xyzEntity.getPose(Space.ACTIVITY).translation -
+                panel.getPose(Space.ACTIVITY).translation
+        panel.setScale(2.0f)
+        recomputeWidgetPose()
+
+        val activityOffsetAfterScale =
+            xyzEntity.getPose(Space.ACTIVITY).translation -
+                panel.getPose(Space.ACTIVITY).translation
+        assertVector3(activityOffsetAfterScale, activityOffsetBeforeScale * 2.0f, ACTIVITY_EPSILON)
+        assertMarkerNormalizedOffsetOnPanel(
+            marker = xyzEntity,
+            panel = panel,
+            expectedU = expectedU,
+            expectedV = expectedV,
+        )
+    }
+
+    /**
      * Asserts that [marker]'s origin, transformed into [panel]'s coordinate space via
      * [Entity.transformPositionTo] (which accounts for both parent rotation and [panel]'s scale in
      * [Space.ACTIVITY]), lies at normalized coordinates ([expectedU], [expectedV]) on [panel].
@@ -496,13 +877,83 @@ class PanelCoordinateToPoseTest {
         )
     }
 
+    /**
+     * Creates the `models/xyzArrows.glb` widget as a child of [parent] on the main thread, which
+     * the glTF APIs require.
+     */
+    private fun createXyzWidget(parent: Entity): GltfModelEntity = sessionRule.onMainThread {
+        val xyzModel = GltfModel.create(session, XYZ_ARROWS_MODEL_PATH)
+        GltfModelEntity.create(session = session, model = xyzModel, parent = parent).apply {
+            loadNodesBeforeTeardown()
+            setScale(CUJ_XYZ_WIDGET_SCALE)
+        }
+    }
+
+    private fun awaitResizablePanelNode(
+        activity: ComponentActivity,
+        panelName: String,
+    ): SpatialNode =
+        checkNotNull(
+            SpatialSceneHelper.waitForSpatialScene(
+                description = "resizable spatial panel '$panelName' with settled extents",
+                timeout = SCENE_TIMEOUT,
+                pollInterval = POLL_INTERVAL,
+                select = { spatialScene ->
+                    spatialScene.findTaskByActivity(activity)?.embeddedWindowLeashes?.firstOrNull {
+                        it.name == panelName
+                    }
+                },
+                until = { node ->
+                    // A new panel fades in, so also wait until it and its surface are visible.
+                    node != null &&
+                        node.isResizable &&
+                        node.worldExtents != null &&
+                        node.hasVisibleAlpha() &&
+                        node.primarySurfaceNode?.hasVisibleAlpha() != false
+                },
+            )
+        )
+
+    /** Whether this node's `computedAlpha` is above zero, treating a missing value as visible. */
+    private fun SpatialNode.hasVisibleAlpha(): Boolean =
+        properties["computedAlpha"]?.toFloatOrNull()?.let { it > 0f } ?: true
+
     private companion object {
         const val LOCAL_EPSILON = 1e-4f
         const val ACTIVITY_EPSILON = 1e-3f
+        const val CUJ_XYZ_WIDGET_SCALE = 0.2f
+        const val RESIZE_AFFORDANCE_MARGIN_METERS = 0.02f
+        // The TopRight drag by half the panel width nominally doubles the width; 1.3x leaves
+        // margin for how far the system resize follows the injected drag.
+        const val MIN_WIDENED_WIDTH_RATIO = 1.3f
+        // The TopRight drag has no vertical component, so the height should barely change.
+        const val MAX_HEIGHT_DRIFT_PX = 150
+        val XYZ_ARROWS_MODEL_PATH = Paths.get("models", "xyzArrows.glb")
         val INITIAL_PANEL_PIXELS = IntSize2d(1000, 1000)
         val WIDENED_PANEL_PIXELS =
             IntSize2d(INITIAL_PANEL_PIXELS.width * 2, INITIAL_PANEL_PIXELS.height)
         val ACTIVITY_PANEL_PIXELS = IntSize2d(1280, 960)
         val SECONDARY_PANEL_POSE = Pose(Vector3(0.7f, 0.7f, -0.05f))
+        val INTERACTIVE_PANEL_POSE = Pose(Vector3(0f, 0f, 0.1f))
+        val FIRST_RESIZE_LOCAL_DELTA = Vector3(0.08f, 0.06f, 0f)
+        val SECOND_RESIZE_LOCAL_DELTA = Vector3(0.18f, 0.14f, 0f)
+        val INTERACTION_TIMEOUT = 5.seconds
+        val SCENE_TIMEOUT = 5.seconds
+        val POLL_TIMEOUT = 10.seconds
+        val POLL_INTERVAL = 100.milliseconds
     }
+}
+
+/**
+ * Reads [GltfModelEntity.nodes] while the renderer is still running.
+ *
+ * When the activity is destroyed, `Session` destroys its rendering runtime before its scene runtime
+ * disposes entities. `GltfFeatureImpl.dispose()` then builds the lazy `nodes` list if nothing read
+ * it before, querying the torn-down renderer, which intermittently crashes the test process with
+ * "IllegalArgumentException: Illegal Capacity: -1".
+ */
+internal fun GltfModelEntity.loadNodesBeforeTeardown() {
+    // TODO(b/584771482): Remove once entities are disposed before the rendering runtime is
+    // destroyed.
+    assertThat(nodes).isNotEmpty()
 }
