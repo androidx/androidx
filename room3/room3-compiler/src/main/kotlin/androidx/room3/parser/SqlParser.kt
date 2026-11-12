@@ -70,7 +70,7 @@ class QueryVisitor(
             val parentContext = ctx.parent
             val isMultiple =
                 parentContext is SQLiteParser.Comma_separated_exprContext &&
-                    !isFixedParamFunctionExpr(parentContext)
+                    !isScalarParamFunctionExpr(parentContext)
             bindingExpressions.add(BindParameterNode(node = bindParameter, isMultiple = isMultiple))
         }
         return super.visitExpr(ctx)
@@ -96,16 +96,16 @@ class QueryVisitor(
 
     /**
      * Check if a comma separated expression (where multiple binding parameters are accepted) is
-     * part of a function expression that receives a fixed number of parameters. This is important
-     * for determining the priority of type converters used when binding a collection into a binding
-     * parameters and specifically if the function takes a fixed number of parameter, the collection
-     * should not be expanded.
+     * part of a function expression whose arguments are scalar values rather than an expanded
+     * collection. This is important for determining the priority of type converters used when
+     * binding a collection into a binding parameter, ensuring collection type converters take
+     * priority over expanding the collection into multiple parameters.
      */
-    private fun isFixedParamFunctionExpr(ctx: SQLiteParser.Comma_separated_exprContext): Boolean {
+    private fun isScalarParamFunctionExpr(ctx: SQLiteParser.Comma_separated_exprContext): Boolean {
         if (ctx.parent is SQLiteParser.ExprContext) {
             val parentExpr = ctx.parent as SQLiteParser.ExprContext
             val functionName = parentExpr.function_name() ?: return false
-            return fixedParamFunctions.contains(functionName.text.lowercase(Locale.US))
+            return scalarParamFunctions.contains(functionName.text.lowercase(Locale.US))
         } else {
             return false
         }
@@ -162,11 +162,13 @@ class QueryVisitor(
     companion object {
         private val ESCAPE_LITERALS = listOf("\"", "'", "`")
 
-        // List of built-in SQLite functions that take a fixed non-zero number of parameters
+        // Built-in SQLite scalar functions where collection parameters should bind as a single
+        // converted value rather than expanding into multiple parameters.
         // See: https://sqlite.org/lang_corefunc.html
-        val fixedParamFunctions =
+        private val scalarParamFunctions =
             setOf(
                 "abs",
+                "coalesce",
                 "glob",
                 "hex",
                 "ifnull",

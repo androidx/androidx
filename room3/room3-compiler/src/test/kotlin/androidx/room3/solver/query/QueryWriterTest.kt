@@ -416,6 +416,42 @@ class QueryWriterTest {
         }
     }
 
+    @Test
+    fun coalesceCollectionWithTypeConverter() {
+        singleQueryMethod(
+            """
+                @ColumnTypeConverters(StringListConverter.class)
+                @Query("SELECT id FROM users WHERE name = COALESCE(:names, name)")
+                abstract List<Integer> selectIdsByNames(List<String> names);
+
+                static class StringListConverter {
+                    @ColumnTypeConverter
+                    public static String join(List<String> list) {
+                        return list == null ? null : String.join(",", list);
+                    }
+                }
+                """
+        ) { _, writer ->
+            val scope = testCodeGenScope()
+            writer.prepareReadAndBind("_sql", "_stmt", scope)
+            assertThat(scope.generate().toString(CodeLanguage.KOTLIN).trim())
+                .isEqualTo(
+                    """
+                val _sql: kotlin.String = "SELECT id FROM users WHERE name = COALESCE(?, name)"
+                val _stmt: $QUERY = $QUERY.Companion.acquire(_sql, 1)
+                var _argIndex: kotlin.Int = 1
+                val _tmp: kotlin.String? = foo.bar.MyClass.StringListConverter.join(names)
+                if (_tmp == null) {
+                  _stmt.bindNull(_argIndex)
+                } else {
+                  _stmt.bindText(_argIndex, _tmp)
+                }
+                """
+                        .trimIndent()
+                )
+        }
+    }
+
     fun singleQueryMethod(vararg input: String, handler: (Boolean, QueryWriter) -> Unit) {
         val source =
             Source.java("foo.bar.MyClass", DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX)

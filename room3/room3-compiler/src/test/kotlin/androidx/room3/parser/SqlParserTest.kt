@@ -251,6 +251,10 @@ class SqlParserTest {
             assertThat(it.inputs[0].isMultiple, `is`(true))
             assertThat(it.inputs[1].isMultiple, `is`(false))
         }
+        SqlParser.parse("UPDATE Foo SET data = COALESCE(:param1, data)").let {
+            assertThat(it.inputs.size, `is`(1))
+            assertThat(it.inputs[0].isMultiple, `is`(false))
+        }
         SqlParser.parse("SELECT max(:param1) FROM Foo").let {
             assertThat(it.inputs.size, `is`(1))
             assertThat(it.inputs[0].isMultiple, `is`(true))
