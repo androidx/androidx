@@ -67,6 +67,17 @@ public class TemplateText(
 
     override val capabilities: Set<Capability>
         get() = TextCapabilities
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is TemplateText) return false
+        return value == other.value && sensitiveReplacement == other.sensitiveReplacement
+    }
+
+    override fun hashCode(): Int = 31 * value.hashCode() + (sensitiveReplacement?.hashCode() ?: 0)
+
+    override fun toString(): String =
+        "TemplateText(value=$value, sensitiveReplacement=$sensitiveReplacement)"
 }
 
 /**
@@ -296,6 +307,24 @@ public class Icon(
 
     override val capabilities: Set<Capability>
         get() = emptySet()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Icon) return false
+        return icon == other.icon &&
+            contentDescription == other.contentDescription &&
+            contained == other.contained
+    }
+
+    override fun hashCode(): Int {
+        var result = icon
+        result = 31 * result + (contentDescription?.hashCode() ?: 0)
+        result = 31 * result + contained.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "Icon(icon=$icon, contentDescription=$contentDescription, contained=$contained)"
 }
 
 /**
@@ -328,6 +357,27 @@ public class IconButton(
 
     override val capabilities: Set<Capability>
         get() = if (action != null) ActionCapabilities else emptySet()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is IconButton) return false
+        return icon == other.icon &&
+            contentDescription == other.contentDescription &&
+            action == other.action &&
+            sensitiveReplacement == other.sensitiveReplacement
+    }
+
+    override fun hashCode(): Int {
+        var result = icon
+        result = 31 * result + contentDescription.hashCode()
+        result = 31 * result + (action?.hashCode() ?: 0)
+        result = 31 * result + (sensitiveReplacement?.hashCode() ?: 0)
+        return result
+    }
+
+    override fun toString(): String =
+        "IconButton(icon=$icon, contentDescription=$contentDescription, action=$action, " +
+            "sensitiveReplacement=$sensitiveReplacement)"
 }
 
 /**
@@ -414,4 +464,27 @@ public class IconTile(
             "Sensitive replacement must not be blank."
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is IconTile) return false
+        return icon == other.icon &&
+            label == other.label &&
+            action == other.action &&
+            sensitiveReplacement == other.sensitiveReplacement &&
+            subtitle == other.subtitle
+    }
+
+    override fun hashCode(): Int {
+        var result = icon
+        result = 31 * result + label.hashCode()
+        result = 31 * result + (action?.hashCode() ?: 0)
+        result = 31 * result + (sensitiveReplacement?.hashCode() ?: 0)
+        result = 31 * result + (subtitle?.hashCode() ?: 0)
+        return result
+    }
+
+    override fun toString(): String =
+        "IconTile(icon=$icon, label=$label, action=$action, " +
+            "sensitiveReplacement=$sensitiveReplacement, subtitle=$subtitle)"
 }

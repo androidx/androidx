@@ -290,6 +290,42 @@ class ComponentsTest {
             .containsExactly(Capability.Action)
     }
 
+    @Test
+    fun iconComponents_haveValueEquality() {
+        val text = TemplateText("11,056", sensitiveReplacement = "--")
+        assertThat(text).isEqualTo(TemplateText("11,056", "--"))
+        assertThat(text.hashCode()).isEqualTo(TemplateText("11,056", "--").hashCode())
+        assertThat(text).isNotEqualTo(TemplateText("11,056"))
+        assertThat(text.toString()).contains("11,056")
+
+        assertThat(Icon(GLYPH, "Fitbit", contained = true))
+            .isEqualTo(Icon(GLYPH, "Fitbit", contained = true))
+        assertThat(Icon(GLYPH, "Fitbit", contained = true).hashCode())
+            .isEqualTo(Icon(GLYPH, "Fitbit", contained = true).hashCode())
+        assertThat(Icon(GLYPH)).isNotEqualTo(Icon(GLYPH, "Fitbit"))
+        assertThat(Icon(GLYPH, "Fitbit", contained = false))
+            .isNotEqualTo(Icon(GLYPH, "Fitbit", contained = true))
+
+        val button = IconButton(GLYPH, "Log activity", ACTION, sensitiveReplacement = "Log")
+        assertThat(button).isEqualTo(IconButton(GLYPH, "Log activity", ACTION, "Log"))
+        assertThat(button.hashCode())
+            .isEqualTo(IconButton(GLYPH, "Log activity", ACTION, "Log").hashCode())
+        assertThat(button).isNotEqualTo(IconButton(GLYPH, "Log activity", ACTION))
+        assertThat(button.toString()).contains("Log activity")
+
+        val tile = IconTile(GLYPH, "Garage Door", ACTION, subtitle = TemplateText("Open"))
+        assertThat(tile)
+            .isEqualTo(IconTile(GLYPH, "Garage Door", ACTION, subtitle = TemplateText("Open")))
+        assertThat(tile.hashCode())
+            .isEqualTo(
+                IconTile(GLYPH, "Garage Door", ACTION, subtitle = TemplateText("Open")).hashCode()
+            )
+        assertThat(tile).isNotEqualTo(IconTile(GLYPH, "Garage Door", ACTION))
+        assertThat(tile)
+            .isNotEqualTo(IconTile(GLYPH, "Garage Door", subtitle = TemplateText("Open")))
+        assertThat(tile.toString()).contains("Open")
+    }
+
     private fun tiles(count: Int): List<IconTile> = List(count) { IconTile(GLYPH, "Tile $it") }
 
     private companion object {
