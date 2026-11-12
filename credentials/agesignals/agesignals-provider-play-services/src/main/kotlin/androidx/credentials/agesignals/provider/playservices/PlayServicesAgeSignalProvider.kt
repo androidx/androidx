@@ -16,9 +16,16 @@
 
 package androidx.credentials.agesignals.provider.playservices
 
+import android.app.Activity
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.os.CancellationSignal
+import android.os.Handler
+import android.os.Looper
+import android.os.Parcel
+import android.os.ResultReceiver
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
@@ -103,14 +110,12 @@ public class PlayServicesAgeSignalProvider(context: Context) : AgeSignalProvider
                         )
                     }
                     pendingIntent != null && resultData == null -> {
-                        // TODO: Launch interactive consent UI flow.
-                        dispatchError(
-                            GetAgeRangeUnknownException(
-                                "Interactive age signal flow is not yet implemented."
-                            ),
-                            cancellationSignal,
-                            executor,
-                            callback,
+                        launchHiddenActivity(
+                            context = context,
+                            pendingIntent = pendingIntent,
+                            cancellationSignal = cancellationSignal,
+                            executor = executor,
+                            callback = callback,
                         )
                     }
                     else -> {
@@ -152,6 +157,97 @@ public class PlayServicesAgeSignalProvider(context: Context) : AgeSignalProvider
     ) {
         handleResultBundle(resultData, cancellationSignal, executor, callback) {
             GetAgeRangeUnknownException("Failed to parse silent age range response.")
+        }
+    }
+
+    private fun launchHiddenActivity(
+        context: Context,
+        pendingIntent: PendingIntent,
+        cancellationSignal: CancellationSignal?,
+        executor: Executor,
+        callback: OutcomeReceiverCompat<GetAgeRangeResponse, GetAgeRangeException>,
+    ) {
+        if (cancellationReviewer(cancellationSignal)) {
+            return
+        }
+        val resultReceiver =
+            object : ResultReceiver(Handler(Looper.getMainLooper())) {
+                override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
+                    handleActivityResult(
+                        resultCode = resultCode,
+                        resultData = resultData,
+                        cancellationSignal = cancellationSignal,
+                        executor = executor,
+                        callback = callback,
+                    )
+                }
+            }
+
+        val hiddenIntent = createHiddenActivityIntent(context, pendingIntent, resultReceiver)
+        try {
+            context.startActivity(hiddenIntent)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to launch AgeSignalHiddenActivity", e)
+            dispatchError(
+                GetAgeRangeUnknownException("Failed to launch interactive UI: ${e.message}"),
+                cancellationSignal,
+                executor,
+                callback,
+            )
+        }
+    }
+
+    @VisibleForTesting
+    internal fun createHiddenActivityIntent(
+        context: Context,
+        pendingIntent: PendingIntent,
+        resultReceiver: ResultReceiver,
+    ): Intent {
+        val intent = Intent(context, AgeSignalHiddenActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
+        intent.putExtra(AgeSignalHiddenActivity.EXTRA_PENDING_INTENT, pendingIntent)
+        intent.putExtra(
+            AgeSignalHiddenActivity.EXTRA_RESULT_RECEIVER,
+            toIpcFriendlyResultReceiver(resultReceiver),
+        )
+        return intent
+    }
+
+    private fun toIpcFriendlyResultReceiver(resultReceiver: ResultReceiver): ResultReceiver {
+        val parcel = Parcel.obtain()
+        return try {
+            resultReceiver.writeToParcel(parcel, 0)
+            parcel.setDataPosition(0)
+            ResultReceiver.CREATOR.createFromParcel(parcel)
+        } finally {
+            parcel.recycle()
+        }
+    }
+
+    @VisibleForTesting
+    internal fun handleActivityResult(
+        resultCode: Int,
+        resultData: Bundle?,
+        cancellationSignal: CancellationSignal?,
+        executor: Executor,
+        callback: OutcomeReceiverCompat<GetAgeRangeResponse, GetAgeRangeException>,
+    ) {
+        if (resultCode != Activity.RESULT_OK) {
+            val exception =
+                resultData?.let { AgeSignalResultHandler.retrieveGetAgeRangeException(it) }
+                    ?: when (resultCode) {
+                        Activity.RESULT_CANCELED ->
+                            GetAgeRangeUnavailableException("Activity was cancelled by the user.")
+                        else ->
+                            GetAgeRangeUnknownException(
+                                "Activity failed with result code: $resultCode"
+                            )
+                    }
+            dispatchError(exception, cancellationSignal, executor, callback)
+            return
+        }
+        handleResultBundle(resultData, cancellationSignal, executor, callback) {
+            GetAgeRangeUnknownException("No provider data returned.")
         }
     }
 
