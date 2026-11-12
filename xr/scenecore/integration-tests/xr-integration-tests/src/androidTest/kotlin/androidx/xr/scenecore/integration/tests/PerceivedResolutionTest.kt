@@ -76,6 +76,9 @@ import org.junit.runner.RunWith
  * On-device integration tests for [MainPanelEntity.addPerceivedResolutionChangedListener],
  * [MainPanelEntity.removePerceivedResolutionChangedListener], [PanelEntity.getPerceivedResolution],
  * and [SurfaceEntity.getPerceivedResolution].
+ *
+ * Head-translation and rotation scenarios using [androidx.xr.testutils.FakeHeadTrackingRule] live
+ * in [PerceivedResolutionHeadMovementTest].
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
