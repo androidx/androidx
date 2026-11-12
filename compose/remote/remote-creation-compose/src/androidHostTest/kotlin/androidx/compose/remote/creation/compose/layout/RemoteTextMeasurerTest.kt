@@ -41,30 +41,44 @@ class RemoteTextMeasurerTest {
     private val density = RemoteDensity(2.0f.rf, 1.0f.rf)
 
     @Test
-    fun constructor_initializesDensity() {
-        val measurer = RemoteTextMeasurer(density = density)
+    fun constructor_initializesDefaults() {
+        val style = RemoteTextStyle(fontSize = 18.rsp)
+        val measurer = RemoteTextMeasurer(density = density, style = style)
 
         assertThat(measurer.density).isEqualTo(density)
+        assertThat(measurer.style).isEqualTo(style)
     }
 
     @Test
-    fun measure_returnsRemoteTextLayoutResult() {
+    fun measureSingleLine_returnsRemoteSingleLineTextBounds() {
         val measurer = RemoteTextMeasurer(density = density)
-        val result = measurer.measure("Hello".rs)
+        val result = measurer.measureSingleLine("Hello".rs)
 
         assertThat(result.size.width).isNotNull()
         assertThat(result.size.height).isNotNull()
-        assertThat(result.width).isNotNull()
-        assertThat(result.height).isNotNull()
-        assertThat(result.monospaceWidth).isNotNull()
-        assertThat(result.glyphLeft).isNotNull()
-        assertThat(result.glyphTop).isNotNull()
-        assertThat(result.glyphRight).isNotNull()
-        assertThat(result.glyphBottom).isNotNull()
-        assertThat(result.ascent).isNotNull()
-        assertThat(result.descent).isNotNull()
-        assertThat(result.firstBaseline).isNotNull()
-        assertThat(result.lastBaseline).isNotNull()
+        assertThat(result.baseline).isNotNull()
+    }
+
+    @Test
+    fun measureFontMetrics_returnsRemoteFontMetrics() {
+        val measurer = RemoteTextMeasurer(density = density)
+        val metrics = measurer.measureFontMetrics(RemoteTextStyle(fontSize = 18.rsp))
+
+        assertThat(metrics.ascent).isNotNull()
+        assertThat(metrics.descent).isNotNull()
+    }
+
+    @Test
+    fun measurePaintBounds_returnsRemotePaintBounds() {
+        val measurer = RemoteTextMeasurer(density = density)
+        val bounds = measurer.measurePaintBounds("Hello".rs)
+
+        assertThat(bounds.left).isNotNull()
+        assertThat(bounds.top).isNotNull()
+        assertThat(bounds.right).isNotNull()
+        assertThat(bounds.bottom).isNotNull()
+        assertThat(bounds.width).isNotNull()
+        assertThat(bounds.height).isNotNull()
     }
 
     @Test
@@ -140,7 +154,7 @@ class RemoteTextMeasurerTest {
     }
 
     @Test
-    fun measure_withCustomStyle() {
+    fun measureSingleLine_withCustomStyle() {
         val customStyle =
             RemoteTextStyle(
                 fontSize = 24.rsp,
@@ -150,42 +164,58 @@ class RemoteTextMeasurerTest {
         val measurer = RemoteTextMeasurer(density = density)
 
         val result =
-            measurer.measure(
+            measurer.measureSingleLine(
                 text = "Hello World".rs,
                 style = customStyle,
-                fontSize = 20.rsp,
             )
 
         assertThat(result.size.width).isNotNull()
         assertThat(result.size.height).isNotNull()
-        assertThat(result.width).isNotNull()
-        assertThat(result.height).isNotNull()
     }
 
     @Test
-    fun measure_withStyleFontSize() {
+    fun measureSingleLine_withStyleFontSize() {
         val measurer = RemoteTextMeasurer(density = density)
         val style = RemoteTextStyle(fontSize = 18.rsp)
 
-        val result = measurer.measure("Hello".rs, style = style)
+        val result = measurer.measureSingleLine("Hello".rs, style = style)
 
-        assertThat(result.width).isNotNull()
-        assertThat(result.height).isNotNull()
+        assertThat(result.size.width).isNotNull()
+        assertThat(result.size.height).isNotNull()
     }
 
     @Test
-    fun measure_withFontSizeOverride_takesPrecedence() {
-        val measurer = RemoteTextMeasurer(density = density)
-        val style = RemoteTextStyle(fontSize = 18.rsp)
+    fun measureSingleLine_withStyleOverride_fallsBackToMeasurerStyleFontSize() {
+        val measurer =
+            RemoteTextMeasurer(
+                density = density,
+                style = RemoteTextStyle(fontSize = 18.rsp),
+            )
+        val styleWithoutFontSize = RemoteTextStyle(fontWeight = RemoteFontWeight.Bold)
 
-        val result = measurer.measure("Hello".rs, style = style, fontSize = 24.rsp)
+        val result = measurer.measureSingleLine("Hello".rs, style = styleWithoutFontSize)
 
-        assertThat(result.width).isNotNull()
-        assertThat(result.height).isNotNull()
+        assertThat(result.size.width).isNotNull()
+        assertThat(result.size.height).isNotNull()
     }
 
     @Test
-    fun measure_writesToBaseRemoteComposeWriterWithoutThrowing() {
+    fun measureSingleLine_withDensityOverride_usesOverriddenDensity() {
+        val measurer =
+            RemoteTextMeasurer(
+                density = density,
+                style = RemoteTextStyle(fontSize = 16.rsp),
+            )
+        val customDensity = RemoteDensity(3.0f.rf, 1.5f.rf)
+
+        val result = measurer.measureSingleLine("Hello".rs, density = customDensity)
+
+        assertThat(result.size.width).isNotNull()
+        assertThat(result.size.height).isNotNull()
+    }
+
+    @Test
+    fun measureMethods_writeToBaseRemoteComposeWriterWithoutThrowing() {
         val displayInfo = RemoteCreationDisplayInfo(width = 200, height = 200, densityDpi = 160)
         val headlessProfile =
             Profile(
@@ -202,70 +232,54 @@ class RemoteTextMeasurerTest {
                 profile = headlessProfile,
             )
         val measurer = RemoteTextMeasurer(density = density)
-        val result =
-            measurer.measure(
-                text = "HeadlessMeasure".rs,
-                style =
-                    RemoteTextStyle(
-                        fontSize = 16.rsp,
-                        fontWeight = RemoteFontWeight.Medium,
-                        fontStyle = RemoteFontStyle.Italic,
-                    ),
+        val style =
+            RemoteTextStyle(
+                fontSize = 16.rsp,
+                fontWeight = RemoteFontWeight.Medium,
+                fontStyle = RemoteFontStyle.Italic,
             )
+        val layout = measurer.measureSingleLine(text = "HeadlessMeasure".rs, style = style)
+        val fontMetrics = measurer.measureFontMetrics(style = style)
+        val paintBounds = measurer.measurePaintBounds(text = "HeadlessMeasure".rs, style = style)
+        val monospaceWidth =
+            measurer.measureMonospaceWidth(text = "HeadlessMeasure".rs, style = style)
 
-        val widthId = result.width.getFloatIdForCreationState(creationState)
-        val heightId = result.height.getFloatIdForCreationState(creationState)
-        val monospaceWidthId = result.monospaceWidth.getFloatIdForCreationState(creationState)
-        val glyphLeftId = result.glyphLeft.getFloatIdForCreationState(creationState)
-        val glyphTopId = result.glyphTop.getFloatIdForCreationState(creationState)
-        val glyphRightId = result.glyphRight.getFloatIdForCreationState(creationState)
-        val glyphBottomId = result.glyphBottom.getFloatIdForCreationState(creationState)
-        val ascentId = result.ascent.getFloatIdForCreationState(creationState)
-        val descentId = result.descent.getFloatIdForCreationState(creationState)
-        val firstBaselineId = result.firstBaseline.getFloatIdForCreationState(creationState)
-        val lastBaselineId = result.lastBaseline.getFloatIdForCreationState(creationState)
-
-        assertThat(widthId.isNaN()).isTrue()
-        assertThat(heightId.isNaN()).isTrue()
-        assertThat(monospaceWidthId.isNaN()).isTrue()
-        assertThat(glyphLeftId.isNaN()).isTrue()
-        assertThat(glyphTopId.isNaN()).isTrue()
-        assertThat(glyphRightId.isNaN()).isTrue()
-        assertThat(glyphBottomId.isNaN()).isTrue()
-        assertThat(ascentId.isNaN()).isTrue()
-        assertThat(descentId.isNaN()).isTrue()
-        assertThat(firstBaselineId.isNaN()).isTrue()
-        assertThat(lastBaselineId.isNaN()).isTrue()
+        assertThat(layout.size.width.getFloatIdForCreationState(creationState).isNaN()).isTrue()
+        assertThat(layout.size.height.getFloatIdForCreationState(creationState).isNaN()).isTrue()
+        assertThat(layout.baseline.getFloatIdForCreationState(creationState).isNaN()).isTrue()
+        assertThat(fontMetrics.ascent.getFloatIdForCreationState(creationState).isNaN()).isTrue()
+        assertThat(fontMetrics.descent.getFloatIdForCreationState(creationState).isNaN()).isTrue()
+        assertThat(paintBounds.left.getFloatIdForCreationState(creationState).isNaN()).isTrue()
+        assertThat(paintBounds.top.getFloatIdForCreationState(creationState).isNaN()).isTrue()
+        assertThat(paintBounds.right.getFloatIdForCreationState(creationState).isNaN()).isTrue()
+        assertThat(paintBounds.bottom.getFloatIdForCreationState(creationState).isNaN()).isTrue()
+        assertThat(monospaceWidth.getFloatIdForCreationState(creationState).isNaN()).isTrue()
         assertThat(creationState.document.bufferSize()).isGreaterThan(0)
     }
 
     @Test
-    fun primaryConstructor_computesDefaultBaselinesFromAscent() {
-        val result =
-            RemoteTextLayoutResult(
-                size = RemoteSize(104f.rf, 20f.rf),
-                monospaceWidth = 110f.rf,
-                glyphLeft = 1f.rf,
-                glyphTop = -14f.rf,
-                glyphRight = 101f.rf,
-                glyphBottom = 6f.rf,
-                ascent = -16f.rf,
-                descent = 4f.rf,
-            )
+    fun resultTypes_supportStructuralEqualityAndDimensions() {
+        val layoutA = RemoteSingleLineTextBounds(RemoteSize(104f.rf, 20f.rf), 16f.rf)
+        val layoutB = RemoteSingleLineTextBounds(RemoteSize(104f.rf, 20f.rf), 16f.rf)
+        val layoutC = RemoteSingleLineTextBounds(RemoteSize(104f.rf, 20f.rf), 14f.rf)
 
-        assertThat(result.ascent.constantValueOrNull).isEqualTo(-16f)
-        assertThat(result.firstBaseline.constantValueOrNull).isEqualTo(16f)
-        assertThat(result.lastBaseline.constantValueOrNull).isEqualTo(16f)
-    }
+        assertThat(layoutA).isEqualTo(layoutB)
+        assertThat(layoutA.hashCode()).isEqualTo(layoutB.hashCode())
+        assertThat(layoutA).isNotEqualTo(layoutC)
+        assertThat(layoutA.size.width.constantValueOrNull).isEqualTo(104f)
+        assertThat(layoutA.size.height.constantValueOrNull).isEqualTo(20f)
+        assertThat(layoutA.baseline.constantValueOrNull).isEqualTo(16f)
 
-    @Test
-    fun sizeConstructor_setsZeroBaselines() {
-        val result = RemoteTextLayoutResult(RemoteSize(100f.rf, 20f.rf))
+        val metricsA = RemoteFontMetrics(-16f.rf, 4f.rf)
+        val metricsB = RemoteFontMetrics(-16f.rf, 4f.rf)
+        assertThat(metricsA).isEqualTo(metricsB)
+        assertThat(metricsA.hashCode()).isEqualTo(metricsB.hashCode())
 
-        assertThat(result.ascent.constantValueOrNull).isEqualTo(0f)
-        assertThat(result.firstBaseline.constantValueOrNull).isEqualTo(0f)
-        assertThat(result.lastBaseline.constantValueOrNull).isEqualTo(0f)
-        assertThat(result.firstBaseline.cacheKey).isEqualTo(0f.rf.cacheKey)
-        assertThat(result.lastBaseline.cacheKey).isEqualTo(0f.rf.cacheKey)
+        val boundsA = RemotePaintBounds(1f.rf, -14f.rf, 101f.rf, 6f.rf)
+        val boundsB = RemotePaintBounds(1f.rf, -14f.rf, 101f.rf, 6f.rf)
+        assertThat(boundsA).isEqualTo(boundsB)
+        assertThat(boundsA.hashCode()).isEqualTo(boundsB.hashCode())
+        assertThat(boundsA.width.constantValueOrNull).isEqualTo(100f)
+        assertThat(boundsA.height.constantValueOrNull).isEqualTo(20f)
     }
 }

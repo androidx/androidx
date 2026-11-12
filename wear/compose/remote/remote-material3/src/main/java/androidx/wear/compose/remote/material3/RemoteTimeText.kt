@@ -133,7 +133,8 @@ public fun RemoteTimeText(
             null
         } else {
             rememberRemoteTextMeasurer()
-                .measure(text, RemoteTextStyle(fontSize = resolvedFontSize))
+                .measureSingleLine(text, RemoteTextStyle(fontSize = resolvedFontSize))
+                .size
                 .width
         }
 

@@ -139,8 +139,8 @@ class RcPlayerAttributesTest {
             val textMeasurer = rememberRemoteTextMeasurer()
             val valueStyle = RemoteTextStyle(fontSize = 48.rsp)
             val labelStyle = RemoteTextStyle(fontSize = 14.rsp)
-            val valueTop = textMeasurer.measure("7".rs, valueStyle).glyphTop
-            val labelTop = textMeasurer.measure("7".rs, labelStyle).glyphTop
+            val valueTop = textMeasurer.measurePaintBounds("7".rs, valueStyle).top
+            val labelTop = textMeasurer.measurePaintBounds("7".rs, labelStyle).top
 
             RemoteRow {
                 RemoteText(
@@ -197,12 +197,13 @@ class RcPlayerAttributesTest {
             val textMeasurer = rememberRemoteTextMeasurer()
             val valueStyle = RemoteTextStyle(fontSize = 48.rsp)
             val labelStyle = RemoteTextStyle(fontSize = 14.rsp)
-            val valueLayout = textMeasurer.measure("7".rs, valueStyle)
-            val labelLayout = textMeasurer.measure("7".rs, labelStyle)
+            val valueLayout = textMeasurer.measureSingleLine("7".rs, valueStyle)
+            val labelLayout = textMeasurer.measureSingleLine("7".rs, labelStyle)
+            val valueBounds = textMeasurer.measurePaintBounds("7".rs, valueStyle)
+            val labelBounds = textMeasurer.measurePaintBounds("7".rs, labelStyle)
             val avgOffsetY =
-                (valueLayout.firstBaseline + valueLayout.glyphTop) -
-                    (labelLayout.firstBaseline + labelLayout.glyphTop)
-            val bpmOffsetY = valueLayout.firstBaseline - labelLayout.firstBaseline
+                (valueLayout.baseline + valueBounds.top) - (labelLayout.baseline + labelBounds.top)
+            val bpmOffsetY = valueLayout.baseline - labelLayout.baseline
 
             RemoteRow {
                 RemoteText(
@@ -253,13 +254,15 @@ class RcPlayerAttributesTest {
             val textMeasurer = rememberRemoteTextMeasurer()
             val sampleText = "jKbfg".rs
             val style = RemoteTextStyle(fontSize = 64.rsp)
-            val layout = textMeasurer.measure(sampleText, style)
+            val layout = textMeasurer.measureSingleLine(sampleText, style)
+            val fontMetrics = textMeasurer.measureFontMetrics(style)
+            val glyphBounds = textMeasurer.measurePaintBounds(sampleText, style)
 
-            val ascentY = layout.firstBaseline + layout.ascent
-            val topY = layout.firstBaseline + layout.glyphTop
-            val baselineY = layout.firstBaseline
-            val bottomY = layout.firstBaseline + layout.glyphBottom
-            val descentY = layout.firstBaseline + layout.descent
+            val ascentY = layout.baseline + fontMetrics.ascent
+            val topY = layout.baseline + glyphBounds.top
+            val baselineY = layout.baseline
+            val bottomY = layout.baseline + glyphBounds.bottom
+            val descentY = layout.baseline + fontMetrics.descent
 
             RemoteBox(modifier = RemoteModifier.padding(20.rdp)) {
                 RemoteBox(
@@ -273,12 +276,8 @@ class RcPlayerAttributesTest {
                                         this.style = RemotePaintingStyle.Stroke
                                         strokeWidth = 2f.rf
                                     },
-                                topLeft = RemoteOffset(layout.glyphLeft, topY),
-                                size =
-                                    RemoteSize(
-                                        layout.glyphRight - layout.glyphLeft,
-                                        bottomY - topY,
-                                    ),
+                                topLeft = RemoteOffset(glyphBounds.left, topY),
+                                size = RemoteSize(glyphBounds.width, bottomY - topY),
                             )
                             drawLine(
                                 paint =
@@ -372,7 +371,8 @@ class RcPlayerAttributesTest {
         ) {
             val textMeasurer = rememberRemoteTextMeasurer()
             val style = RemoteTextStyle(fontSize = 36.rsp)
-            val layout = textMeasurer.measure("   Hello   ".rs, style)
+            val layout = textMeasurer.measureSingleLine("   Hello   ".rs, style)
+            val glyphBounds = textMeasurer.measurePaintBounds("   Hello   ".rs, style)
 
             RemoteBox(
                 modifier =
@@ -385,7 +385,7 @@ class RcPlayerAttributesTest {
                                     strokeWidth = 4f.rf
                                 },
                             start = RemoteOffset(0f.rf, 20f.rf),
-                            end = RemoteOffset(layout.glyphRight - layout.glyphLeft, 20f.rf),
+                            end = RemoteOffset(glyphBounds.width, 20f.rf),
                         )
                         drawLine(
                             paint =
@@ -394,7 +394,7 @@ class RcPlayerAttributesTest {
                                     strokeWidth = 4f.rf
                                 },
                             start = RemoteOffset(0f.rf, 50f.rf),
-                            end = RemoteOffset(layout.width, 50f.rf),
+                            end = RemoteOffset(layout.size.width, 50f.rf),
                         )
                     }
             ) {}
@@ -453,7 +453,10 @@ class RcPlayerAttributesTest {
                 }
             ) {
                 val measurer = rememberRemoteTextMeasurer()
-                val layout = measurer.measure(sampleText.rs, RemoteTextStyle(fontSize = 32.rsp))
+                val style = RemoteTextStyle(fontSize = 32.rsp)
+                val layout = measurer.measureSingleLine(sampleText.rs, style)
+                val fontMetrics = measurer.measureFontMetrics(style)
+                val glyphBounds = measurer.measurePaintBounds(sampleText.rs, style)
 
                 RemoteBox(
                     modifier =
@@ -467,16 +470,15 @@ class RcPlayerAttributesTest {
                                 )
                             }
 
-                            export("width", layout.width)
-                            export("height", layout.height)
-                            export("firstBaseline", layout.firstBaseline)
-                            export("lastBaseline", layout.lastBaseline)
-                            export("ascent", layout.ascent)
-                            export("descent", layout.descent)
-                            export("glyphLeft", layout.glyphLeft)
-                            export("glyphTop", layout.glyphTop)
-                            export("glyphRight", layout.glyphRight)
-                            export("glyphBottom", layout.glyphBottom)
+                            export("width", layout.size.width)
+                            export("height", layout.size.height)
+                            export("baseline", layout.baseline)
+                            export("ascent", fontMetrics.ascent)
+                            export("descent", fontMetrics.descent)
+                            export("glyphLeft", glyphBounds.left)
+                            export("glyphTop", glyphBounds.top)
+                            export("glyphRight", glyphBounds.right)
+                            export("glyphBottom", glyphBounds.bottom)
                         }
                 ) {
                     RemoteText(text = sampleText.rs, style = RemoteTextStyle(fontSize = 32.rsp))
@@ -497,10 +499,7 @@ class RcPlayerAttributesTest {
         assertThat(state.floatState("height").value)
             .isWithin(1.5f)
             .of(composeUi.size.height.toFloat())
-        assertThat(state.floatState("firstBaseline").value)
-            .isWithin(1.5f)
-            .of(composeUi.firstBaseline)
-        assertThat(state.floatState("lastBaseline").value).isWithin(1.5f).of(composeUi.lastBaseline)
+        assertThat(state.floatState("baseline").value).isWithin(1.5f).of(composeUi.firstBaseline)
 
         // Font metrics match TextLayoutResult line box (includeFontPadding = false) & Paint.
         assertThat(state.floatState("ascent").value)
@@ -537,9 +536,12 @@ class RcPlayerAttributesTest {
                         RemoteModifier.drawWithContent {
                             drawContent()
                             val largeLayout =
-                                measurer.measure("MMMM".rs, RemoteTextStyle(fontSize = 72.rsp))
+                                measurer.measureSingleLine(
+                                    "MMMM".rs,
+                                    RemoteTextStyle(fontSize = 72.rsp),
+                                )
                             document.setNamedVariable(
-                                largeLayout.width.id,
+                                largeLayout.size.width.id,
                                 "USER:largeWidth",
                                 NamedVariable.FLOAT_TYPE,
                             )
