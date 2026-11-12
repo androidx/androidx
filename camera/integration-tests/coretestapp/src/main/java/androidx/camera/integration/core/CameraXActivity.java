@@ -151,6 +151,7 @@ import androidx.camera.integration.core.button.MirrorModeButton;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.testing.impl.StreamSharingForceEnabledEffect;
 import androidx.camera.testing.impl.util.EdgeToEdgeUtil;
+import androidx.camera.video.AudioSpec;
 import androidx.camera.video.ExperimentalPersistentRecording;
 import androidx.camera.video.FileOutputOptions;
 import androidx.camera.video.MediaStoreOutputOptions;
@@ -326,6 +327,14 @@ public class CameraXActivity extends AppCompatActivity {
     @VisibleForTesting
     public static final String INTENT_EXTRA_FORCE_ENABLE_STREAM_SHARING =
             "force_enable_stream_sharing";
+    // Launch the activity with the specified audio source (MediaRecorder.AudioSource / AudioSpec
+    // value, e.g. MIC = 1, CAMCORDER = 5; unsupported values keep the Recorder default).
+    @VisibleForTesting
+    public static final String INTENT_EXTRA_AUDIO_SOURCE = "audio_source";
+    // Launch the activity with the specified target audio channel count (>= 1, e.g. 1 = mono,
+    // 2 = stereo; invalid values keep the Recorder default).
+    @VisibleForTesting
+    public static final String INTENT_EXTRA_AUDIO_CHANNEL_COUNT = "audio_channel_count";
 
     private final AtomicLong mImageAnalysisFrameCount = new AtomicLong(0);
     private final AtomicInteger mCaptureFrameCount = new AtomicInteger(0);
@@ -470,6 +479,12 @@ public class CameraXActivity extends AppCompatActivity {
     private DynamicRangeUi mDynamicRangeUi;
     private Quality mVideoQuality;
     private boolean mAudioMuted = false;
+
+    @SuppressLint("RestrictedApiAndroidX")
+    @AudioSpec.Source
+    private int mAudioSource = AudioSpec.SOURCE_UNSPECIFIED;
+
+    private int mTargetAudioChannelCount = 0;
     private DynamicRange mDynamicRange = DynamicRange.SDR;
     private @ImageCapture.OutputFormat int mImageOutputFormat = OUTPUT_FORMAT_JPEG;
     private final Set<DynamicRange> mSelectableDynamicRanges = new HashSet<>();
@@ -1546,6 +1561,55 @@ public class CameraXActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("RestrictedApiAndroidX")
+    private void updateAudioConfigByIntent(@NonNull Intent intent) {
+        if (intent.hasExtra(INTENT_EXTRA_AUDIO_SOURCE)) {
+            int rawAudioSource =
+                    intent.getIntExtra(INTENT_EXTRA_AUDIO_SOURCE, AudioSpec.SOURCE_UNSPECIFIED);
+            mAudioSource = toAudioSpecSource(rawAudioSource);
+            Log.d(TAG, "updateAudioConfigByIntent: audioSource = " + mAudioSource);
+        }
+        if (intent.hasExtra(INTENT_EXTRA_AUDIO_CHANNEL_COUNT)) {
+            int channelCount = intent.getIntExtra(INTENT_EXTRA_AUDIO_CHANNEL_COUNT, 0);
+            if (channelCount >= 1) {
+                mTargetAudioChannelCount = channelCount;
+                Log.d(
+                        TAG,
+                        "updateAudioConfigByIntent: targetAudioChannelCount = "
+                                + mTargetAudioChannelCount);
+            } else {
+                Log.w(TAG, "Ignoring invalid audio channel count extra: " + channelCount);
+            }
+        }
+    }
+
+    @SuppressLint("RestrictedApiAndroidX")
+    @AudioSpec.Source
+    private static int toAudioSpecSource(int audioSource) {
+        if (Build.VERSION.SDK_INT >= 29 && audioSource == AudioSpec.SOURCE_VOICE_PERFORMANCE) {
+            return AudioSpec.SOURCE_VOICE_PERFORMANCE;
+        }
+        switch (audioSource) {
+            case AudioSpec.SOURCE_DEFAULT:
+                return AudioSpec.SOURCE_DEFAULT;
+            case AudioSpec.SOURCE_MIC:
+                return AudioSpec.SOURCE_MIC;
+            case AudioSpec.SOURCE_CAMCORDER:
+                return AudioSpec.SOURCE_CAMCORDER;
+            case AudioSpec.SOURCE_VOICE_RECOGNITION:
+                return AudioSpec.SOURCE_VOICE_RECOGNITION;
+            case AudioSpec.SOURCE_VOICE_COMMUNICATION:
+                return AudioSpec.SOURCE_VOICE_COMMUNICATION;
+            case AudioSpec.SOURCE_UNPROCESSED:
+                return AudioSpec.SOURCE_UNPROCESSED;
+            case AudioSpec.SOURCE_UNSPECIFIED:
+                return AudioSpec.SOURCE_UNSPECIFIED;
+            default:
+                Log.w(TAG, "Ignoring unsupported audio source extra: " + audioSource);
+                return AudioSpec.SOURCE_UNSPECIFIED;
+        }
+    }
+
     private void updateVideoQualityByIntent(@NonNull Intent intent) {
         Bundle bundle = intent.getExtras();
         if (bundle == null) {
@@ -1597,6 +1661,7 @@ public class CameraXActivity extends AppCompatActivity {
         ViewStub viewFinderStub = findViewById(R.id.viewFinderStub);
         updatePreviewRatioAndScaleTypeByIntent(viewFinderStub);
         updateVideoMirrorModeByIntent(getIntent());
+        updateAudioConfigByIntent(getIntent());
 
         Bundle bundle = this.getIntent().getExtras();
 
@@ -2169,6 +2234,12 @@ public class CameraXActivity extends AppCompatActivity {
                 Recorder.Builder builder = new Recorder.Builder();
                 if (mVideoQuality != QUALITY_AUTO) {
                     builder.setQualitySelector(QualitySelector.from(mVideoQuality));
+                }
+                if (mAudioSource != AudioSpec.SOURCE_UNSPECIFIED) {
+                    builder.setAudioSource(mAudioSource);
+                }
+                if (mTargetAudioChannelCount >= 1) {
+                    builder.setTargetAudioChannelCount(mTargetAudioChannelCount);
                 }
                 mRecorder = builder.setAspectRatio(mTargetAspectRatio).build();
                 VideoCapture.Builder<Recorder> videoCaptureBuilder =

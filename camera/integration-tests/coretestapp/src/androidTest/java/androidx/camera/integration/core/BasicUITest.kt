@@ -17,16 +17,23 @@
 package androidx.camera.integration.core
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.view.SurfaceView
 import android.view.TextureView
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.integration.core.CameraXActivity.BIND_PREVIEW
+import androidx.camera.integration.core.CameraXActivity.BIND_VIDEO_CAPTURE
+import androidx.camera.integration.core.CameraXActivity.INTENT_EXTRA_AUDIO_CHANNEL_COUNT
+import androidx.camera.integration.core.CameraXActivity.INTENT_EXTRA_AUDIO_SOURCE
+import androidx.camera.integration.core.CameraXActivity.INTENT_EXTRA_USE_CASE_COMBINATION
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.RequireForegroundRule
+import androidx.camera.video.AudioSpec
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -159,6 +166,68 @@ class BasicUITest(private val implName: String) {
                 } else {
                     assertThat(viewFinder).isInstanceOf(TextureView::class.java)
                 }
+            }
+        }
+    }
+
+    @SuppressLint("RestrictedApiAndroidX")
+    @Test
+    fun testVideoCaptureDefaultAudioConfig() {
+        val intent =
+            Intent(launchIntent).apply {
+                putExtra(INTENT_EXTRA_USE_CASE_COMBINATION, BIND_PREVIEW or BIND_VIDEO_CAPTURE)
+            }
+        ActivityScenario.launch<CameraXActivity>(intent).use { scenario ->
+            scenario.waitForViewfinderIdle()
+            assumeTrue(scenario.withActivity { videoCapture != null })
+
+            scenario.withActivity {
+                val recorder = requireNotNull(videoCapture).output
+                assertThat(recorder.audioSource).isEqualTo(AudioSpec.SOURCE_UNSPECIFIED)
+                assertThat(recorder.targetAudioChannelCount).isEqualTo(0)
+            }
+        }
+    }
+
+    @SuppressLint("RestrictedApiAndroidX")
+    @Test
+    fun testVideoCaptureAudioIntentExtras() {
+        val intent =
+            Intent(launchIntent).apply {
+                putExtra(INTENT_EXTRA_USE_CASE_COMBINATION, BIND_PREVIEW or BIND_VIDEO_CAPTURE)
+                putExtra(INTENT_EXTRA_AUDIO_SOURCE, AudioSpec.SOURCE_MIC)
+                putExtra(INTENT_EXTRA_AUDIO_CHANNEL_COUNT, AudioSpec.CHANNEL_COUNT_STEREO)
+            }
+        ActivityScenario.launch<CameraXActivity>(intent).use { scenario ->
+            scenario.waitForViewfinderIdle()
+            assumeTrue(scenario.withActivity { videoCapture != null })
+
+            scenario.withActivity {
+                val recorder = requireNotNull(videoCapture).output
+                assertThat(recorder.audioSource).isEqualTo(AudioSpec.SOURCE_MIC)
+                assertThat(recorder.targetAudioChannelCount)
+                    .isEqualTo(AudioSpec.CHANNEL_COUNT_STEREO)
+            }
+        }
+    }
+
+    @SuppressLint("RestrictedApiAndroidX")
+    @Test
+    fun testVideoCaptureInvalidAudioIntentExtras() {
+        val intent =
+            Intent(launchIntent).apply {
+                putExtra(INTENT_EXTRA_USE_CASE_COMBINATION, BIND_PREVIEW or BIND_VIDEO_CAPTURE)
+                putExtra(INTENT_EXTRA_AUDIO_SOURCE, 999)
+                putExtra(INTENT_EXTRA_AUDIO_CHANNEL_COUNT, 0)
+            }
+        ActivityScenario.launch<CameraXActivity>(intent).use { scenario ->
+            scenario.waitForViewfinderIdle()
+            assumeTrue(scenario.withActivity { videoCapture != null })
+
+            scenario.withActivity {
+                val recorder = requireNotNull(videoCapture).output
+                assertThat(recorder.audioSource).isEqualTo(AudioSpec.SOURCE_UNSPECIFIED)
+                assertThat(recorder.targetAudioChannelCount).isEqualTo(0)
             }
         }
     }
