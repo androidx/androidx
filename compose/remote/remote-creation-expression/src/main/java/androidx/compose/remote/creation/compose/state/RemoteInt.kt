@@ -53,7 +53,17 @@ private const val OP_XOR = 0x100000000L + IntegerExpressionEvaluator.I_XOR
 
 private const val MAX_SAFE_LONG_ARRAY = 30
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Read-only supertype for all remote integer representations.
+ *
+ * [RemoteInt] represents a 32-bit signed integer value that may be a constant, a named variable, or
+ * a dynamic expression (such as an arithmetic or bitwise operation). For writable integer
+ * variables, see [MutableRemoteInt].
+ *
+ * Operations on [RemoteInt] are evaluated dynamically on the remote player at runtime unless all
+ * inputs are known constants, in which case constant folding evaluates the result immediately at
+ * creation time (see [RemoteState]).
+ */
 @Stable
 public open class RemoteInt
 internal constructor(
@@ -214,6 +224,13 @@ internal constructor(
     internal fun hasBeenWrittenToDoc(creationState: RemoteComposeCreationState): Boolean =
         creationState.remoteVariableToId.contains(cacheKey)
 
+    /**
+     * Converts this [RemoteInt] to a [RemoteFloat]. If the [RemoteInt] is a literal, it's directly
+     * converted to a float. Otherwise, a [RemoteFloat] is created that references the remote float
+     * ID of this integer.
+     *
+     * @return A [RemoteFloat] representing this integer as a float.
+     */
     public fun toRemoteFloat(): RemoteFloat {
         constantValueOrNull?.let {
             return RemoteFloat(it.toFloat())
@@ -241,10 +258,20 @@ internal constructor(
         }
     }
 
+    /**
+     * Converts this [RemoteInt] to a [RemoteLong].
+     *
+     * @return A [RemoteLong] representing this integer as a long.
+     */
     public fun toRemoteLong(): RemoteLong {
         return RemoteLong.fromLowHigh(this, selectIfLt(this, 0.ri, (-1).ri, 0.ri))
     }
 
+    /**
+     * Converts this [RemoteInt] to a [RemoteString] using the default localized integer format.
+     *
+     * @return A [RemoteString] representing the formatted integer value.
+     */
     public fun toRemoteString(): RemoteString =
         toRemoteFloat()
             .toRemoteStringWithPadding(
@@ -289,6 +316,12 @@ internal constructor(
         }
     }
 
+    /**
+     * Adds [other] to this [RemoteInt].
+     *
+     * @param other integer value to add
+     * @return a [RemoteInt] evaluating to `this + other`
+     */
     public operator fun plus(other: Int): RemoteInt {
         if (other == 0) {
             return this
@@ -296,6 +329,12 @@ internal constructor(
         return binaryOp(this, other, OperationKey.Add, OP_ADD) { a, b -> a + b }
     }
 
+    /**
+     * Subtracts [other] from this [RemoteInt].
+     *
+     * @param other integer value to subtract
+     * @return a [RemoteInt] evaluating to `this - other`
+     */
     public operator fun minus(other: Int): RemoteInt {
         if (other == 0) {
             return this
@@ -303,6 +342,12 @@ internal constructor(
         return binaryOp(this, other, OperationKey.Sub, OP_SUB) { a, b -> a - b }
     }
 
+    /**
+     * Multiplies this [RemoteInt] by [other].
+     *
+     * @param other integer multiplier
+     * @return a [RemoteInt] evaluating to `this * other`
+     */
     public operator fun times(other: Int): RemoteInt {
         if (other == 0) {
             return RemoteInt(0)
@@ -316,6 +361,12 @@ internal constructor(
         return binaryOp(this, other, OperationKey.Mul, OP_MUL) { a, b -> a * b }
     }
 
+    /**
+     * Divides this [RemoteInt] by [other] using truncating integer division.
+     *
+     * @param other integer divisor
+     * @return a [RemoteInt] evaluating to `this / other`
+     */
     public operator fun div(other: Int): RemoteInt {
         if (constantValueOrNull != null && constantValueOrNull == 0) {
             return RemoteInt(0)
@@ -326,9 +377,21 @@ internal constructor(
         return binaryOp(this, other, OperationKey.Div, OP_DIV) { a, b -> a / b }
     }
 
+    /**
+     * Computes the remainder of truncating division of this [RemoteInt] by [other].
+     *
+     * @param other integer divisor
+     * @return a [RemoteInt] evaluating to `this % other`
+     */
     public operator fun rem(other: Int): RemoteInt =
         binaryOp(this, other, OperationKey.Mod, OP_MOD) { a, b -> a % b }
 
+    /**
+     * Adds [other] to this [RemoteInt].
+     *
+     * @param other [RemoteInt] to add
+     * @return a [RemoteInt] evaluating to `this + other`
+     */
     public operator fun plus(other: RemoteInt): RemoteInt {
         other.constantValueOrNull?.let {
             return plus(it)
@@ -339,6 +402,12 @@ internal constructor(
         return binaryOp(this, other, OperationKey.Add, OP_ADD) { a, b -> a + b }
     }
 
+    /**
+     * Subtracts [other] from this [RemoteInt].
+     *
+     * @param other [RemoteInt] to subtract
+     * @return a [RemoteInt] evaluating to `this - other`
+     */
     public operator fun minus(other: RemoteInt): RemoteInt {
         other.constantValueOrNull?.let {
             return minus(it)
@@ -349,6 +418,12 @@ internal constructor(
         return binaryOp(this, other, OperationKey.Sub, OP_SUB) { a, b -> a - b }
     }
 
+    /**
+     * Multiplies this [RemoteInt] by [other].
+     *
+     * @param other [RemoteInt] multiplier
+     * @return a [RemoteInt] evaluating to `this * other`
+     */
     public operator fun times(other: RemoteInt): RemoteInt {
         if (
             (constantValueOrNull != null && constantValueOrNull == 0) ||
@@ -365,6 +440,12 @@ internal constructor(
         return binaryOp(this, other, OperationKey.Mul, OP_MUL) { a, b -> a * b }
     }
 
+    /**
+     * Divides this [RemoteInt] by [other] using truncating integer division.
+     *
+     * @param other [RemoteInt] divisor
+     * @return a [RemoteInt] evaluating to `this / other`
+     */
     public operator fun div(other: RemoteInt): RemoteInt {
         if (constantValueOrNull != null && constantValueOrNull == 0) {
             return RemoteInt(0)
@@ -375,9 +456,20 @@ internal constructor(
         return binaryOp(this, other, OperationKey.Div, OP_DIV) { a, b -> a / b }
     }
 
+    /**
+     * Computes the remainder of truncating division of this [RemoteInt] by [other].
+     *
+     * @param other [RemoteInt] divisor
+     * @return a [RemoteInt] evaluating to `this % other`
+     */
     public operator fun rem(other: RemoteInt): RemoteInt =
         binaryOp(this, other, OperationKey.Mod, OP_MOD) { a, b -> a % b }
 
+    /**
+     * Negates this [RemoteInt].
+     *
+     * @return a [RemoteInt] evaluating to `-this`
+     */
     public operator fun unaryMinus(): RemoteInt = unaryOp(OperationKey.Neg, OP_NEG) { v -> -v }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -448,6 +540,15 @@ internal constructor(
             return false
         }
 
+        /**
+         * Creates a named [RemoteInt] with an initial value. Named remote ints can be set via
+         * AndroidRemoteContext.setNamedInt.
+         *
+         * @param name The unique name for this remote int.
+         * @param defaultValue The initial [Int] value for the named remote int.
+         * @param domain The domain of the named integer (defaults to [RemoteState.Domain.User]).
+         * @return A [RemoteInt] representing the named int.
+         */
         @JvmStatic
         public fun createNamedRemoteInt(
             name: String,
@@ -463,6 +564,13 @@ internal constructor(
         }
     }
 
+    /**
+     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this [RemoteInt]
+     * is equal to the evaluated value of [other].
+     *
+     * @param other The [RemoteInt] to compare with.
+     * @return A [RemoteBoolean] representing `this == other`.
+     */
     public fun isEqualTo(other: RemoteInt): RemoteBoolean =
         comparisonOp(
             this,
@@ -474,6 +582,13 @@ internal constructor(
             if (a == b) 1 else 0
         }
 
+    /**
+     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this [RemoteInt]
+     * is not equal to the evaluated value of [other].
+     *
+     * @param other The [RemoteInt] to compare with.
+     * @return A [RemoteBoolean] representing `this != other`.
+     */
     public fun isNotEqualTo(other: RemoteInt): RemoteBoolean =
         comparisonOp(
             this,
@@ -485,6 +600,13 @@ internal constructor(
             if (a != b) 1 else 0
         }
 
+    /**
+     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this [RemoteInt]
+     * is less than the evaluated value of [other].
+     *
+     * @param other The [RemoteInt] to compare with.
+     * @return A [RemoteBoolean] representing `this < other`.
+     */
     public fun isLessThan(other: RemoteInt): RemoteBoolean =
         comparisonOp(
             this,
@@ -496,6 +618,13 @@ internal constructor(
             if (a < b) 1 else 0
         }
 
+    /**
+     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this [RemoteInt]
+     * is less than or equal to the evaluated value of [other].
+     *
+     * @param other The [RemoteInt] to compare with.
+     * @return A [RemoteBoolean] representing `this <= other`.
+     */
     public fun isLessThanOrEqualTo(other: RemoteInt): RemoteBoolean =
         comparisonOp(
             this,
@@ -507,6 +636,13 @@ internal constructor(
             if (a <= b) 1 else 0
         }
 
+    /**
+     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this [RemoteInt]
+     * is greater than the evaluated value of [other].
+     *
+     * @param other The [RemoteInt] to compare with.
+     * @return A [RemoteBoolean] representing `this > other`.
+     */
     public fun isGreaterThan(other: RemoteInt): RemoteBoolean =
         comparisonOp(
             this,
@@ -518,6 +654,13 @@ internal constructor(
             if (a > b) 1 else 0
         }
 
+    /**
+     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this [RemoteInt]
+     * is greater than or equal to the evaluated value of [other].
+     *
+     * @param other The [RemoteInt] to compare with.
+     * @return A [RemoteBoolean] representing `this >= other`.
+     */
     public fun isGreaterThanOrEqualTo(other: RemoteInt): RemoteBoolean =
         comparisonOp(
             this,
@@ -901,7 +1044,7 @@ public fun clamp(min: RemoteInt, max: RemoteInt, value: RemoteInt): RemoteInt {
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** A mutable implementation of [RemoteInt]. */
 public class MutableRemoteInt
 @RememberInComposition
 internal constructor(
@@ -955,7 +1098,12 @@ internal constructor(
         Utils.idFromLong(idProvider(creationState)).toInt()
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Creates a [RemoteInt] from a literal constant [Int] [value].
+ *
+ * @param value The constant [Int] value.
+ * @return A [RemoteInt] representing the constant integer.
+ */
 public fun RemoteInt(value: Int): RemoteInt =
     RemoteInt(
         constantValueOrNull = value,
@@ -963,7 +1111,12 @@ public fun RemoteInt(value: Int): RemoteInt =
         arrayProvider = { longArrayOf(value.toLong()) },
     )
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Creates a [MutableRemoteInt] initialized with [initialValue].
+ *
+ * @param initialValue The initial [Int] value.
+ * @return A [MutableRemoteInt] initialized with [initialValue].
+ */
 @RememberInComposition
 public fun MutableRemoteInt(initialValue: Int): MutableRemoteInt =
     MutableRemoteInt(
@@ -1253,7 +1406,7 @@ internal class RemoteIntSelect(
         get() = ifTrue.constantValueOrNull != null && ifFalse.constantValueOrNull != null
 }
 
-@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** Extension property to convert an [Int] to a [RemoteInt]. */
 public val Int.ri: RemoteInt
     get() {
         return RemoteInt(this)

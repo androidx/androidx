@@ -21,7 +21,16 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.annotation.RememberInComposition
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Read-only supertype for all remote 64-bit integer representations.
+ *
+ * [RemoteLong] represents a 64-bit signed integer value that may be a constant, a named variable,
+ * or a dynamic expression. For writable long variables, see [MutableRemoteLong].
+ *
+ * Operations on [RemoteLong] are evaluated dynamically on the remote player at runtime unless all
+ * inputs are known constants, in which case constant folding evaluates the result immediately at
+ * creation time (see [RemoteState]).
+ */
 @Stable
 public open class RemoteLong
 internal constructor(
@@ -52,6 +61,12 @@ internal constructor(
         return provider(creationState)
     }
 
+    /**
+     * Returns a new [RemoteLong] that evaluates to this [RemoteLong] plus [other].
+     *
+     * @param other The [RemoteLong] to add.
+     * @return A new [RemoteLong] representing `this + other`.
+     */
     public operator fun plus(other: RemoteLong): RemoteLong {
         // Emulates 64-bit addition using 32-bit integer arithmetic (Multiple-precision arithmetic).
         //
@@ -68,6 +83,12 @@ internal constructor(
         return object : RemoteLong(lowAdd, highAdd, key) {}
     }
 
+    /**
+     * Returns a new [RemoteLong] that evaluates to this [RemoteLong] minus [other].
+     *
+     * @param other The [RemoteLong] to subtract.
+     * @return A new [RemoteLong] representing `this - other`.
+     */
     public operator fun minus(other: RemoteLong): RemoteLong {
         // Emulates 64-bit subtraction using 32-bit integer arithmetic (Multiple-precision
         // arithmetic).
@@ -87,6 +108,12 @@ internal constructor(
         return object : RemoteLong(lowSub, highSub, key) {}
     }
 
+    /**
+     * Returns a new [RemoteLong] that evaluates to this [RemoteLong] times [other].
+     *
+     * @param other The [RemoteLong] to multiply by.
+     * @return A new [RemoteLong] representing `this * other`.
+     */
     public operator fun times(other: RemoteLong): RemoteLong {
         // Emulates 64-bit multiplication using 32-bit integer arithmetic.
         //
@@ -127,6 +154,12 @@ internal constructor(
         return object : RemoteLong(finalLow, finalHigh, key) {}
     }
 
+    /**
+     * Returns a [RemoteInt] that evaluates to the truncating conversion of the lower 32 bits of
+     * this [RemoteLong].
+     *
+     * @return A [RemoteInt] representing the lower 32 bits of this [RemoteLong].
+     */
     public fun toRemoteInt(): RemoteInt = low
 
     public companion object {
@@ -151,6 +184,15 @@ internal constructor(
             return RemoteLong(low, high)
         }
 
+        /**
+         * Creates a named [RemoteLong] with an initial value. Named remote longs can be set via
+         * AndroidRemoteContext.setNamedLong.
+         *
+         * @param name The unique name for this remote long.
+         * @param defaultValue The initial [Long] value for the named remote long.
+         * @param domain The domain of the named long (defaults to [Domain.User]).
+         * @return A [RemoteLong] representing the named long.
+         */
         @JvmStatic
         public fun createNamedRemoteLong(
             name: String,
@@ -167,7 +209,11 @@ internal constructor(
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * A mutable implementation of [RemoteLong].
+ *
+ * @param constantValueOrNull A nullable value if this [MutableRemoteLong] is constant.
+ */
 public class MutableRemoteLong
 @RememberInComposition
 internal constructor(
@@ -215,7 +261,12 @@ internal constructor(
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Creates a [RemoteLong] from a constant [Long] [value].
+ *
+ * @param value The constant [Long] value.
+ * @return A [RemoteLong] representing the constant long.
+ */
 public fun RemoteLong(value: Long): RemoteLong =
     RemoteLong(
         low = RemoteInt(value.toInt()),
@@ -224,7 +275,12 @@ public fun RemoteLong(value: Long): RemoteLong =
         idProvider = { creationState -> creationState.document.addLong(value) },
     )
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Creates a [MutableRemoteLong] initialized with [initialValue].
+ *
+ * @param initialValue The initial [Long] value.
+ * @return A [MutableRemoteLong] initialized with [initialValue].
+ */
 @RememberInComposition
 public fun MutableRemoteLong(initialValue: Long): MutableRemoteLong =
     MutableRemoteLong(
