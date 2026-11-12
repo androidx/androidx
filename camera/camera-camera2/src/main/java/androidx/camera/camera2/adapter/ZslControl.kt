@@ -212,7 +212,7 @@ public class ZslControlImpl @Inject constructor(private val cameraProperties: Ca
                     Camera2Logger.error { "Failed to acquire latest image" }
                 }
             },
-            CameraXExecutors.ioExecutor(),
+            CameraXExecutors.highPriorityExecutor(),
         )
 
         // Init the reprocessing image reader surface and add into the target surfaces of capture
