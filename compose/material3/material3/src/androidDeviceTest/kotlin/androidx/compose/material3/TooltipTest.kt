@@ -1188,35 +1188,60 @@ class TooltipTest {
 
     @Test
     fun fullWidthTooltipCaret_xPositioning() {
-        val screenWidth = 1080
         val tooltipWidth = 1080f
 
         // Test for when the anchor is near the left side of the screen
         var caretX: Float =
             caretX(
-                screenWidthPx = screenWidth,
                 tooltipWidth = tooltipWidth,
                 anchorBounds = Rect(left = 135f, right = 185f, top = 0f, bottom = 0f),
+                tooltipLeft = 0f,
             )
         assertThat(caretX).isEqualTo(160f)
 
         // Test for when the anchor is in the middle of the screen
         caretX =
             caretX(
-                screenWidthPx = screenWidth,
                 tooltipWidth = tooltipWidth,
                 anchorBounds = Rect(left = 515.5f, right = 565.5f, top = 0f, bottom = 0f),
+                tooltipLeft = 0f,
             )
         assertThat(caretX).isEqualTo(540.5f)
 
         // Test for when the anchor is in the right side of the screen
         caretX =
             caretX(
-                screenWidthPx = screenWidth,
                 tooltipWidth = tooltipWidth,
                 anchorBounds = Rect(left = 920.88f, right = 970.88f, top = 0f, bottom = 0f),
+                tooltipLeft = 0f,
             )
         assertThat(caretX).isEqualTo(945.88f)
+    }
+
+    @Test
+    fun tooltipCaret_xPositioning_nearScreenEdges() {
+        val screenWidth = 1080f
+        val tooltipWidth = 600f
+
+        // Anchor near the left edge (anchorMid = 100f): tooltip is clamped to left=0f,
+        // so caretX should be right over anchorMid (100f).
+        val leftCaretX =
+            caretX(
+                tooltipWidth = tooltipWidth,
+                anchorBounds = Rect(left = 75f, right = 125f, top = 0f, bottom = 0f),
+                tooltipLeft = 0f,
+            )
+        assertThat(leftCaretX).isEqualTo(100f)
+
+        // Anchor near the right edge (anchorMid = 1000f): tooltip is clamped to left=480f,
+        // so caretX should be at 1000f - 480f = 520f (80px from right edge of tooltip).
+        val rightCaretX =
+            caretX(
+                tooltipWidth = tooltipWidth,
+                anchorBounds = Rect(left = 975f, right = 1025f, top = 0f, bottom = 0f),
+                tooltipLeft = screenWidth - tooltipWidth,
+            )
+        assertThat(rightCaretX).isEqualTo(520f)
     }
 }
 

@@ -356,11 +356,9 @@ public fun TooltipScope.PlainTooltip(
     if (caretShape != null) {
         val transformationMatrix = remember { mutableStateOf(Matrix()) }
         val layoutDirection = LocalLayoutDirection.current
-        val windowContainerSize = LocalWindowInfo.current.containerSize
         tooltipModifier =
             Modifier.layoutCaret(
                     transformationMatrix,
-                    windowContainerSize,
                     { obtainAnchorBounds() },
                     obtainPositionProvider(),
                     layoutDirection,
@@ -440,11 +438,9 @@ public fun TooltipScope.RichTooltip(
     if (caretShape != null) {
         val transformationMatrix = remember { mutableStateOf(Matrix()) }
         val layoutDirection = LocalLayoutDirection.current
-        val windowContainerSize = LocalWindowInfo.current.containerSize
         tooltipModifier =
             Modifier.layoutCaret(
                     transformationMatrix,
-                    windowContainerSize,
                     { obtainAnchorBounds() },
                     obtainPositionProvider(),
                     layoutDirection,
@@ -1161,38 +1157,14 @@ internal fun Modifier.textVerticalPadding(subheadExists: Boolean, actionExists: 
     }
 }
 
-internal fun caretX(tooltipWidth: Float, screenWidthPx: Int, anchorBounds: Rect): Float {
-    val anchorLeft = anchorBounds.left
-    val anchorRight = anchorBounds.right
-    val anchorMid = (anchorLeft + anchorRight) / 2
-    return if (tooltipWidth >= screenWidthPx) {
-        // Tooltip is greater than or equal to the width of the screen
-        // The horizontal placement just needs to be in the center of the anchor
-        anchorMid
-    } else if (anchorMid - tooltipWidth / 2 < 0) {
-        // The tooltip needs to be start aligned if it would
-        // collide with the left side of screen when attempting to center.
-        // We have a horizontal correction for the caret if the tooltip will
-        // also collide with the right edge of the screen when start aligned
-        val horizontalCorrection = maxOf(tooltipWidth - screenWidthPx, -anchorLeft)
-        anchorMid + horizontalCorrection
-    } else if (anchorMid + tooltipWidth / 2 > screenWidthPx) {
-        // The tooltip needs to be end aligned if it would
-        // collide with the right side of the screen when attempting to center.
-        // We have a horizontal correction for the caret if the tooltip will
-        // also collide with the left edge of the screen when end aligned
-        val horizontalCorrection = minOf(tooltipWidth - anchorRight, 0f)
-        anchorMid + horizontalCorrection
-    } else {
-        // Tooltip can centered neatly without colliding with screen edge
-        tooltipWidth / 2
-    }
+internal fun caretX(tooltipWidth: Float, anchorBounds: Rect, tooltipLeft: Float): Float {
+    val anchorMid = (anchorBounds.left + anchorBounds.right) / 2
+    return (anchorMid - tooltipLeft).coerceIn(0f, tooltipWidth)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 private fun Modifier.layoutCaret(
     transformationMatrix: MutableState<Matrix>,
-    windowContainerSize: IntSize,
     getAnchorLayoutCoordinates: () -> LayoutCoordinates?,
     positionProvider: PopupPositionProvider,
     layoutDirection: LayoutDirection,
@@ -1206,9 +1178,6 @@ private fun Modifier.layoutCaret(
             val tooltipHeight = bounds.height.toFloat()
             val anchorSize = anchorCoordinates.size
             val anchorBounds = Rect(anchorScreenPos, anchorSize.toSize())
-
-            val windowContainerWidthInPx = windowContainerSize.width
-            val screenWidthPx = windowContainerWidthInPx
 
             val isBelow = tooltipScreenPos.top > anchorScreenPos.y
             val isToTheRight = tooltipScreenPos.left > anchorScreenPos.x
@@ -1261,13 +1230,26 @@ private fun Modifier.layoutCaret(
                         }
                         else -> {
                             Offset(
-                                x = caretX(tooltipWidth, screenWidthPx, anchorBounds),
+                                x =
+                                    caretX(
+                                        tooltipWidth = tooltipWidth,
+                                        anchorBounds = anchorBounds,
+                                        tooltipLeft = tooltipScreenPos.left.toFloat(),
+                                    ),
                                 y = caretY,
                             )
                         }
                     }
                 } else {
-                    Offset(x = caretX(tooltipWidth, screenWidthPx, anchorBounds), y = caretY)
+                    Offset(
+                        x =
+                            caretX(
+                                tooltipWidth = tooltipWidth,
+                                anchorBounds = anchorBounds,
+                                tooltipLeft = tooltipScreenPos.left.toFloat(),
+                            ),
+                        y = caretY,
+                    )
                 }
 
             val matrix = Matrix()
@@ -1402,6 +1384,66 @@ private class TooltipCaretShape(
         }
 
         caretPath.transform(transformationMatrix.value)
+
+        if (tooltipOutline is Outline.Rounded) {
+            val roundRect = tooltipOutline.roundRect
+            val caretBounds = caretPath.getBounds()
+            var dx = 0f
+            var dy = 0f
+            if (caretBounds.width < size.width) {
+                if (caretBounds.top >= size.height - 1f) {
+                    // Caret is on the bottom edge
+                    val minX = roundRect.bottomLeftCornerRadius.x
+                    val maxX = size.width - roundRect.bottomRightCornerRadius.x
+                    if (maxX - minX >= caretBounds.width) {
+                        if (caretBounds.left < minX) {
+                            dx = minX - caretBounds.left
+                        } else if (caretBounds.right > maxX) {
+                            dx = maxX - caretBounds.right
+                        }
+                    }
+                } else if (caretBounds.bottom <= 1f) {
+                    // Caret is on the top edge
+                    val minX = roundRect.topLeftCornerRadius.x
+                    val maxX = size.width - roundRect.topRightCornerRadius.x
+                    if (maxX - minX >= caretBounds.width) {
+                        if (caretBounds.left < minX) {
+                            dx = minX - caretBounds.left
+                        } else if (caretBounds.right > maxX) {
+                            dx = maxX - caretBounds.right
+                        }
+                    }
+                }
+            }
+            if (caretBounds.height < size.height) {
+                if (caretBounds.left >= size.width - 1f) {
+                    // Caret is on the right edge
+                    val minY = roundRect.topRightCornerRadius.y
+                    val maxY = size.height - roundRect.bottomRightCornerRadius.y
+                    if (maxY - minY >= caretBounds.height) {
+                        if (caretBounds.top < minY) {
+                            dy = minY - caretBounds.top
+                        } else if (caretBounds.bottom > maxY) {
+                            dy = maxY - caretBounds.bottom
+                        }
+                    }
+                } else if (caretBounds.right <= 1f) {
+                    // Caret is on the left edge
+                    val minY = roundRect.topLeftCornerRadius.y
+                    val maxY = size.height - roundRect.bottomLeftCornerRadius.y
+                    if (maxY - minY >= caretBounds.height) {
+                        if (caretBounds.top < minY) {
+                            dy = minY - caretBounds.top
+                        } else if (caretBounds.bottom > maxY) {
+                            dy = maxY - caretBounds.bottom
+                        }
+                    }
+                }
+            }
+            if (dx != 0f || dy != 0f) {
+                caretPath.translate(Offset(dx, dy))
+            }
+        }
 
         combinedPath.op(path1 = tooltipPath, path2 = caretPath, operation = PathOperation.Union)
 
