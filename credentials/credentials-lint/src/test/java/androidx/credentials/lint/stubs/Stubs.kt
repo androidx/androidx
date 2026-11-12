@@ -110,6 +110,15 @@ private val CREDENTIAL_OPTIONS_AND_REQUESTS_STUB: TestFile =
 
         abstract class CreateCredentialRequest(val type: String)
 
+        class CreatePasswordRequest(
+            val id: String,
+            val password: String,
+        ) : CreateCredentialRequest("android.credentials.TYPE_PASSWORD_CREDENTIAL")
+
+        class CreatePublicKeyCredentialRequest(
+            val requestJson: String,
+        ) : CreateCredentialRequest(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
+
         class CreateRestoreCredentialRequest
         @JvmOverloads
         constructor(

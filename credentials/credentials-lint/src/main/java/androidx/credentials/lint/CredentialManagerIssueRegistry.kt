@@ -27,6 +27,7 @@ class CredentialManagerIssueRegistry : IssueRegistry() {
     override val issues =
         listOf(
             CredentialManagerMutableContextDetector.ISSUE,
+            MissingRestoreCredentialsDetector.ISSUE,
             RestoreCredentialOptionChainingDetector.ISSUE,
             RestoreCredentialInvalidCastDetector.ISSUE,
             RestoreCredentialBackupAgentDetector.ASYNC_ISSUE,
