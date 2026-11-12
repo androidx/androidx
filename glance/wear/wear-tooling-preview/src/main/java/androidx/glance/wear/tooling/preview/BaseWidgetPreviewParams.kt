@@ -44,7 +44,7 @@ public abstract class BaseWidgetPreviewParams(
      *
      * The returned string includes the widget's container type (Small or Large) and its specific
      * dimensions in DP, following the format: "{previewPrefix} {Type} {Width}x{Height}dp". For
-     * example: "Squircle Small 166x72dp".
+     * example: "Squircle Small 162x44dp".
      *
      * @param index The index of the parameter in the [values] sequence.
      * @return A human-readable label for the Android Studio preview tool.
