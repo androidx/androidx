@@ -179,7 +179,7 @@ fun RcSimpleClock1(
             // hour hand
             withTransform({
                 translate((centerX - 64f), ((centerY + top) / 2f))
-                scale(5f.rf, 5f.rf)
+                scale(5f.rf, 5f.rf, RemoteOffset.Zero)
             }) {
                 drawPath(androidPath, Color(0xFFA4C639).paint())
             }

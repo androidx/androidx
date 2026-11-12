@@ -82,7 +82,7 @@ fun TestDrawContentDemo() {
                         val paint = RemotePaint.Companion()
                         paint.color = RemoteColor.rgb(1f.rf, 1f.rf, 0f.rf, 1f.rf)
                         drawCircle(paint, 40.rf, center)
-                        rotate(30f.rf) { scale(0.5f.rf) { drawContent() } }
+                        rotate(30f.rf) { scale(0.5f.rf) { this@drawWithContent.drawContent() } }
                     }
         ) {
             RemoteText(text = "Hello world!".rs)

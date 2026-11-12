@@ -160,7 +160,9 @@ class RemoteCanvasTest {
         RemoteCanvas(
             modifier =
                 RemoteModifier.size(100.rdp).drawWithContent {
-                    rotate(45.rf, pivot = RemoteOffset(width / 2f, height / 2f)) { drawContent() }
+                    rotate(45.rf, pivot = RemoteOffset(width / 2f, height / 2f)) {
+                        this@drawWithContent.drawContent()
+                    }
                 }
         ) {
             val w = width
@@ -171,7 +173,7 @@ class RemoteCanvasTest {
                 panX = 1f.rf,
                 paint = RemotePaint(),
             )
-            rotate((-45).rf) {
+            rotate((-45).rf, pivot = RemoteOffset.Zero) {
                 drawAnchoredText(
                     text = "Rotated -45° then by canvas".rs,
                     anchorX = 10f.rf,
