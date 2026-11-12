@@ -21,6 +21,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.test.assertEquals
 import org.junit.Test
 
@@ -29,57 +30,61 @@ class SerialExecutorTest {
     @Test
     fun testExecutionIsSequential() {
         val baseExecutor = Executors.newFixedThreadPool(2)
-        val serialExecutor = SerialExecutor(baseExecutor)
-        val result = mutableListOf<Int>()
-        val concurrentCount = AtomicInteger(0)
-        val maxConcurrent = AtomicInteger(0)
-        val latch = CountDownLatch(3)
+        try {
+            val serialExecutor = SerialExecutor(baseExecutor)
+            val result = mutableListOf<Int>()
+            val concurrentCount = AtomicInteger(0)
+            val maxConcurrent = AtomicInteger(0)
+            val latch = CountDownLatch(3)
 
-        serialExecutor.execute {
-            val current = concurrentCount.incrementAndGet()
-            maxConcurrent.updateAndGet { maxCount -> maxOf(maxCount, current) }
+            serialExecutor.execute {
+                val current = concurrentCount.incrementAndGet()
+                maxConcurrent.updateAndGet { maxCount -> maxOf(maxCount, current) }
 
-            // Simulate small work
-            val dummy = mutableListOf<Int>()
-            for (i in 0..1000) {
-                dummy.add(i)
+                // Simulate small work
+                val dummy = mutableListOf<Int>()
+                for (i in 0..1000) {
+                    dummy.add(i)
+                }
+
+                synchronized(result) { result.add(1) }
+                concurrentCount.decrementAndGet()
+                latch.countDown()
+            }
+            serialExecutor.execute {
+                val current = concurrentCount.incrementAndGet()
+                maxConcurrent.updateAndGet { maxCount -> maxOf(maxCount, current) }
+
+                val dummy = mutableListOf<Int>()
+                for (i in 0..1000) {
+                    dummy.add(i)
+                }
+
+                synchronized(result) { result.add(2) }
+                concurrentCount.decrementAndGet()
+                latch.countDown()
+            }
+            serialExecutor.execute {
+                val current = concurrentCount.incrementAndGet()
+                maxConcurrent.updateAndGet { maxCount -> maxOf(maxCount, current) }
+
+                val dummy = mutableListOf<Int>()
+                for (i in 0..1000) {
+                    dummy.add(i)
+                }
+
+                synchronized(result) { result.add(3) }
+                concurrentCount.decrementAndGet()
+                latch.countDown()
             }
 
-            synchronized(result) { result.add(1) }
-            concurrentCount.decrementAndGet()
-            latch.countDown()
+            assertThat(latch.await(5, TimeUnit.SECONDS)).isTrue()
+
+            assertThat(maxConcurrent.get()).isEqualTo(1)
+            assertThat(result).containsExactly(1, 2, 3).inOrder()
+        } finally {
+            baseExecutor.shutdownNow()
         }
-        serialExecutor.execute {
-            val current = concurrentCount.incrementAndGet()
-            maxConcurrent.updateAndGet { maxCount -> maxOf(maxCount, current) }
-
-            val dummy = mutableListOf<Int>()
-            for (i in 0..1000) {
-                dummy.add(i)
-            }
-
-            synchronized(result) { result.add(2) }
-            concurrentCount.decrementAndGet()
-            latch.countDown()
-        }
-        serialExecutor.execute {
-            val current = concurrentCount.incrementAndGet()
-            maxConcurrent.updateAndGet { maxCount -> maxOf(maxCount, current) }
-
-            val dummy = mutableListOf<Int>()
-            for (i in 0..1000) {
-                dummy.add(i)
-            }
-
-            synchronized(result) { result.add(3) }
-            concurrentCount.decrementAndGet()
-            latch.countDown()
-        }
-
-        latch.await(1, TimeUnit.SECONDS)
-
-        assertThat(maxConcurrent.get()).isEqualTo(1)
-        assertThat(result).containsExactly(1, 2, 3).inOrder()
     }
 
     @Test
@@ -100,32 +105,39 @@ class SerialExecutorTest {
 
     @Test
     fun testExecutionContinuesAfterFailure() {
-        val baseExecutor = Executors.newSingleThreadExecutor()
-        val serialExecutor = SerialExecutor(baseExecutor)
-        val result = mutableListOf<Int>()
-        val latch = CountDownLatch(2)
-        val exception = RuntimeException("Test failure")
-        var caughtException: Throwable? = null
-
-        serialExecutor.execute {
-            synchronized(result) { result.add(1) }
-            latch.countDown()
+        val caughtException = AtomicReference<Throwable?>()
+        val exceptionLatch = CountDownLatch(1)
+        val baseExecutor = Executors.newSingleThreadExecutor { runnable ->
+            Thread(runnable).apply {
+                setUncaughtExceptionHandler { _, e ->
+                    caughtException.set(e)
+                    exceptionLatch.countDown()
+                }
+            }
         }
-        serialExecutor.execute {
-            // Set an uncaught exception handler to avoid logging a default error system.
-            Thread.setDefaultUncaughtExceptionHandler { _, e -> caughtException = e }
-            throw exception
-        }
-        // Reset the uncaught exception handler to keep tests hermetic.
-        Thread.setDefaultUncaughtExceptionHandler(null)
-        serialExecutor.execute {
-            synchronized(result) { result.add(3) }
-            latch.countDown()
-        }
+        try {
+            val serialExecutor = SerialExecutor(baseExecutor)
+            val result = mutableListOf<Int>()
+            val latch = CountDownLatch(2)
+            val exception = RuntimeException("Test failure")
 
-        latch.await(1, TimeUnit.SECONDS)
+            serialExecutor.execute {
+                synchronized(result) { result.add(1) }
+                latch.countDown()
+            }
+            serialExecutor.execute { throw exception }
+            serialExecutor.execute {
+                synchronized(result) { result.add(3) }
+                latch.countDown()
+            }
 
-        assertThat(result).containsExactly(1, 3).inOrder()
-        assertThat(caughtException).isEqualTo(exception)
+            assertThat(latch.await(5, TimeUnit.SECONDS)).isTrue()
+            assertThat(exceptionLatch.await(5, TimeUnit.SECONDS)).isTrue()
+
+            assertThat(result).containsExactly(1, 3).inOrder()
+            assertThat(caughtException.get()).isEqualTo(exception)
+        } finally {
+            baseExecutor.shutdownNow()
+        }
     }
 }
