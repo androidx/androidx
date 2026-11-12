@@ -42,7 +42,17 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat.OperationKey
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.annotation.RememberInComposition
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Read-only supertype for all remote float representations.
+ *
+ * [RemoteFloat] represents a floating-point value that may be a constant, a named variable, or a
+ * dynamic expression (such as an arithmetic operation). For writable float variables, see
+ * [MutableRemoteFloat].
+ *
+ * Operations on [RemoteFloat] are evaluated dynamically on the remote player at runtime unless all
+ * inputs are known constants, in which case constant folding evaluates the result immediately at
+ * creation time (see [RemoteState]).
+ */
 @Stable
 public open class RemoteFloat
 @RememberInComposition
@@ -342,6 +352,14 @@ internal constructor(
         return super.getFloatIdForCreationState(creationState)
     }
 
+    /**
+     * Converts this [RemoteFloat] to a [RemoteInt] by truncating any fractional part toward zero
+     * (matching [Float.toInt]).
+     *
+     * Use [round] first to round to the nearest integer before converting.
+     *
+     * @return A [RemoteInt] that evaluates to the truncated integer value of this [RemoteFloat].
+     */
     public fun toRemoteInt(): RemoteInt {
         constantValueOrNull?.let {
             return RemoteInt(it.toInt())
@@ -354,6 +372,11 @@ internal constructor(
         }
     }
 
+    /**
+     * Converts this [RemoteFloat] to a [RemoteString] using the default localized decimal format.
+     *
+     * @return A [RemoteString] representing the formatted float.
+     */
     public fun toRemoteString(): RemoteString =
         toRemoteStringWithPadding(
             before = 40,
@@ -499,6 +522,11 @@ internal constructor(
         }
     }
 
+    /**
+     * Returns a new [RemoteFloat] that evaluates to the negative of this [RemoteFloat].
+     *
+     * @return A new [RemoteFloat] representing `-this`.
+     */
     public operator fun unaryMinus(): RemoteFloat {
         constantValueOrNull?.let {
             return RemoteFloat(-it)
@@ -517,6 +545,12 @@ internal constructor(
     public operator fun rem(other: Float): RemoteFloat =
         binaryOp(this, other, OperationKey.Rem) { a, b -> a % b }
 
+    /**
+     * Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] modulo [other].
+     *
+     * @param other The divisor [RemoteFloat].
+     * @return A new [RemoteFloat] representing `this % other`.
+     */
     public operator fun rem(other: RemoteFloat): RemoteFloat =
         binaryOp(this, other, OperationKey.Rem) { a, b -> a % b }
 
@@ -530,6 +564,12 @@ internal constructor(
     public fun min(other: Float): RemoteFloat =
         binaryOp(this, other, OperationKey.Min, directEval = { a, b -> kotlin.math.min(a, b) })
 
+    /**
+     * Returns a new [RemoteFloat] that evaluates to the minimum of this [RemoteFloat] and [other].
+     *
+     * @param other The [RemoteFloat] to compare with.
+     * @return A new [RemoteFloat] representing the smaller of `this` and [other].
+     */
     public fun min(other: RemoteFloat): RemoteFloat =
         binaryOp(this, other, OperationKey.Min) { a, b -> kotlin.math.min(a, b) }
 
@@ -547,6 +587,12 @@ internal constructor(
         return binaryOp(this, other, OperationKey.Plus, directEval = { a, b -> a + b })
     }
 
+    /**
+     * Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] plus [other].
+     *
+     * @param other The [RemoteFloat] to add.
+     * @return A new [RemoteFloat] representing `this + other`.
+     */
     public operator fun plus(other: RemoteFloat): RemoteFloat {
         other.constantValueOrNull?.let {
             return plus(it)
@@ -571,6 +617,12 @@ internal constructor(
         return binaryOp(this, other, OperationKey.Minus, directEval = { a, b -> a - b })
     }
 
+    /**
+     * Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] minus [other].
+     *
+     * @param other The [RemoteFloat] to subtract.
+     * @return A new [RemoteFloat] representing `this - other`.
+     */
     public operator fun minus(other: RemoteFloat): RemoteFloat {
         other.constantValueOrNull?.let {
             return minus(it)
@@ -601,6 +653,12 @@ internal constructor(
         return binaryOp(this, other, OperationKey.Times, directEval = { a, b -> a * b })
     }
 
+    /**
+     * Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] times [other].
+     *
+     * @param other The [RemoteFloat] to multiply by.
+     * @return A new [RemoteFloat] representing `this * other`.
+     */
     public operator fun times(other: RemoteFloat): RemoteFloat {
         other.constantValueOrNull?.let {
             return times(it)
@@ -628,6 +686,12 @@ internal constructor(
         return binaryOp(this, other, OperationKey.Div, directEval = { a, b -> a / b })
     }
 
+    /**
+     * Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] divided by [other].
+     *
+     * @param other The divisor [RemoteFloat].
+     * @return A new [RemoteFloat] representing `this / other`.
+     */
     public operator fun div(other: RemoteFloat): RemoteFloat {
         if (constantValueOrNull != null && constantValueOrNull == 0f) {
             return RemoteFloat(0f)
@@ -657,6 +721,13 @@ internal constructor(
         }
     }
 
+    /**
+     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this
+     * [RemoteFloat] is equal to the evaluated value of [other].
+     *
+     * @param other The [RemoteFloat] to compare with.
+     * @return A [RemoteBoolean] representing `this == other`.
+     */
     public fun isEqualTo(other: RemoteFloat): RemoteBoolean =
         comparisonOp(
             this,
@@ -678,6 +749,13 @@ internal constructor(
             a == b
         }
 
+    /**
+     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this
+     * [RemoteFloat] is not equal to the evaluated value of [other].
+     *
+     * @param other The [RemoteFloat] to compare with.
+     * @return A [RemoteBoolean] representing `this != other`.
+     */
     public fun isNotEqualTo(other: RemoteFloat): RemoteBoolean =
         comparisonOp(
             this,
@@ -699,6 +777,13 @@ internal constructor(
             a != b
         }
 
+    /**
+     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this
+     * [RemoteFloat] is less than the evaluated value of [other].
+     *
+     * @param other The [RemoteFloat] to compare with.
+     * @return A [RemoteBoolean] representing `this < other`.
+     */
     public fun isLessThan(other: RemoteFloat): RemoteBoolean =
         comparisonOp(
             this,
@@ -719,6 +804,13 @@ internal constructor(
             a < b
         }
 
+    /**
+     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this
+     * [RemoteFloat] is less than or equal to the evaluated value of [other].
+     *
+     * @param other The [RemoteFloat] to compare with.
+     * @return A [RemoteBoolean] representing `this <= other`.
+     */
     public fun isLessThanOrEqualTo(other: RemoteFloat): RemoteBoolean =
         comparisonOp(
             this,
@@ -739,6 +831,13 @@ internal constructor(
             a <= b
         }
 
+    /**
+     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this
+     * [RemoteFloat] is greater than the evaluated value of [other].
+     *
+     * @param other The [RemoteFloat] to compare with.
+     * @return A [RemoteBoolean] representing `this > other`.
+     */
     public fun isGreaterThan(other: RemoteFloat): RemoteBoolean =
         comparisonOp(
             this,
@@ -759,6 +858,13 @@ internal constructor(
             a > b
         }
 
+    /**
+     * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this
+     * [RemoteFloat] is greater than or equal to the evaluated value of [other].
+     *
+     * @param other The [RemoteFloat] to compare with.
+     * @return A [RemoteBoolean] representing `this >= other`.
+     */
     public fun isGreaterThanOrEqualTo(other: RemoteFloat): RemoteBoolean =
         comparisonOp(
             this,
@@ -831,6 +937,17 @@ internal constructor(
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun createForId(id: Float): RemoteFloat = RemoteFloat(id)
 
+        /**
+         * Creates a named [RemoteFloat] with an initial value. This allows referring to a float by
+         * a symbolic name in the remote document. Named remote floats can be set via
+         * AndroidRemoteContext.setNamedFloat.
+         *
+         * @param name The name of the remote float.
+         * @param defaultValue The initial value of the remote float.
+         * @param domain The domain of the named float (defaults to [RemoteState.Domain.User]). This
+         *   helps avoid name collisions.
+         * @return A [RemoteFloat] representing the named float.
+         */
         @JvmStatic
         public fun createNamedRemoteFloat(
             name: String,
@@ -847,6 +964,17 @@ internal constructor(
             }
         }
 
+        /**
+         * Creates a named [RemoteFloat] with an initial [defaultValue]. This allows referring to a
+         * float by a symbolic name in the remote document. Named remote floats can be set via
+         * AndroidRemoteContext.setNamedFloat.
+         *
+         * @param name A unique name to identify this state within its [domain].
+         * @param defaultValue The initial [RemoteFloat] value or expression of the named float.
+         * @param domain The domain of the named float (defaults to [RemoteState.Domain.User]). This
+         *   helps avoid name collisions.
+         * @return A [RemoteFloat] representing the named float.
+         */
         @JvmStatic
         public fun createNamedRemoteFloat(
             name: String,
@@ -1529,7 +1657,7 @@ public fun yearForReference(referenceEpochMillis: RemoteLong): RemoteFloat {
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** A mutable implementation of [RemoteFloat]. It also implements [MutableRemoteState<Float>]. */
 public class MutableRemoteFloat
 @RememberInComposition
 internal constructor(
@@ -1589,7 +1717,12 @@ internal constructor(
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Creates a [RemoteFloat] from a constant [Float] [value].
+ *
+ * @param value The constant [Float] value.
+ * @return A [RemoteFloat] representing the constant float.
+ */
 public fun RemoteFloat(value: Float): RemoteFloat =
     RemoteFloat(
         constantValueOrNull = if (RemoteFloat.isConstant(value)) value else null,
@@ -1624,7 +1757,12 @@ public fun RemoteFloat(
         },
     )
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Creates a [MutableRemoteFloat] initialized with [initialValue].
+ *
+ * @param initialValue The initial [Float] value.
+ * @return A [MutableRemoteFloat] initialized with [initialValue].
+ */
 @RememberInComposition
 public fun MutableRemoteFloat(initialValue: Float): MutableRemoteFloat =
     MutableRemoteFloat(
@@ -1632,7 +1770,12 @@ public fun MutableRemoteFloat(initialValue: Float): MutableRemoteFloat =
         idProvider = { creationState -> creationState.document.floatExpression(initialValue) },
     )
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Creates a [MutableRemoteFloat] initialized with [initialValue].
+ *
+ * @param initialValue The initial [RemoteFloat] value or expression.
+ * @return A [MutableRemoteFloat] initialized with [initialValue].
+ */
 @RememberInComposition
 public fun MutableRemoteFloat(initialValue: RemoteFloat): MutableRemoteFloat =
     MutableRemoteFloat(
@@ -1938,11 +2081,11 @@ private const val MAX_SAFE_FLOAT_ARRAY = 30
 /** An inline value class representing a reference to a remote float. */
 @JvmInline internal value class RemoteFloatReference(private val v: Float)
 
-@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** Extension property to convert an [Int] to a [RemoteFloat]. */
 public val Int.rf: RemoteFloat
     get() = RemoteFloat(this.toFloat())
 
-@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** Extension property to convert a [Float] to a [RemoteFloat]. */
 public val Float.rf: RemoteFloat
     get() = RemoteFloat(this)
 

@@ -1,0 +1,17 @@
+// Baseline format: 1.0
+ReferencesHidden: androidx.compose.remote.creation.compose.state.RemoteFloat#isEqualTo(androidx.compose.remote.creation.compose.state.RemoteFloat):
+    Class androidx.compose.remote.creation.compose.state.RemoteBoolean is hidden but was referenced (in return type) from public method androidx.compose.remote.creation.compose.state.RemoteFloat.isEqualTo(androidx.compose.remote.creation.compose.state.RemoteFloat)
+ReferencesHidden: androidx.compose.remote.creation.compose.state.RemoteFloat#isGreaterThan(androidx.compose.remote.creation.compose.state.RemoteFloat):
+    Class androidx.compose.remote.creation.compose.state.RemoteBoolean is hidden but was referenced (in return type) from public method androidx.compose.remote.creation.compose.state.RemoteFloat.isGreaterThan(androidx.compose.remote.creation.compose.state.RemoteFloat)
+ReferencesHidden: androidx.compose.remote.creation.compose.state.RemoteFloat#isGreaterThanOrEqualTo(androidx.compose.remote.creation.compose.state.RemoteFloat):
+    Class androidx.compose.remote.creation.compose.state.RemoteBoolean is hidden but was referenced (in return type) from public method androidx.compose.remote.creation.compose.state.RemoteFloat.isGreaterThanOrEqualTo(androidx.compose.remote.creation.compose.state.RemoteFloat)
+ReferencesHidden: androidx.compose.remote.creation.compose.state.RemoteFloat#isLessThan(androidx.compose.remote.creation.compose.state.RemoteFloat):
+    Class androidx.compose.remote.creation.compose.state.RemoteBoolean is hidden but was referenced (in return type) from public method androidx.compose.remote.creation.compose.state.RemoteFloat.isLessThan(androidx.compose.remote.creation.compose.state.RemoteFloat)
+ReferencesHidden: androidx.compose.remote.creation.compose.state.RemoteFloat#isLessThanOrEqualTo(androidx.compose.remote.creation.compose.state.RemoteFloat):
+    Class androidx.compose.remote.creation.compose.state.RemoteBoolean is hidden but was referenced (in return type) from public method androidx.compose.remote.creation.compose.state.RemoteFloat.isLessThanOrEqualTo(androidx.compose.remote.creation.compose.state.RemoteFloat)
+ReferencesHidden: androidx.compose.remote.creation.compose.state.RemoteFloat#isNotEqualTo(androidx.compose.remote.creation.compose.state.RemoteFloat):
+    Class androidx.compose.remote.creation.compose.state.RemoteBoolean is hidden but was referenced (in return type) from public method androidx.compose.remote.creation.compose.state.RemoteFloat.isNotEqualTo(androidx.compose.remote.creation.compose.state.RemoteFloat)
+ReferencesHidden: androidx.compose.remote.creation.compose.state.RemoteFloat#toRemoteInt():
+    Class androidx.compose.remote.creation.compose.state.RemoteInt is hidden but was referenced (in return type) from public method androidx.compose.remote.creation.compose.state.RemoteFloat.toRemoteInt()
+ReferencesHidden: androidx.compose.remote.creation.compose.state.RemoteFloat#toRemoteString():
+    Class androidx.compose.remote.creation.compose.state.RemoteString is hidden but was referenced (in return type) from public method androidx.compose.remote.creation.compose.state.RemoteFloat.toRemoteString()
