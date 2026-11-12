@@ -116,11 +116,5 @@ androidx {
     enableRobolectric()
     addGoldenImageAssets()
     samples(project(":compose:remote:remote-creation-compose-samples"))
-    // TODO: b/582487979 - Remove once BanRestrictTo exemption is applied to lintJvm.
-    afterEvaluate {
-        lint {
-            disable.add("BanRestrictTo")
-        }
-    }
 }
 

@@ -48,16 +48,10 @@ fun Project.configureLint() {
                 if (project.multiplatformExtension == null) {
                     configureNonAndroidProjectForLint()
                 }
-            // Only configure non-Android multiplatform projects via KotlinBasePlugin.
-            // Multiplatform projects targeting Android (e.g. `id("com.android.library")`) are
-            // configured via AppPlugin or LibraryPlugin.
+            // Configure lint for the JVM target of multiplatform projects. Lint for the android
+            // target is configured through KotlinMultiplatformAndroidPlugin above
             is KotlinBasePlugin ->
-                if (
-                    project.multiplatformExtension != null &&
-                        !project.plugins.hasPlugin(AppPlugin::class.java) &&
-                        !project.plugins.hasPlugin(LibraryPlugin::class.java) &&
-                        !project.plugins.hasPlugin(KotlinMultiplatformAndroidPlugin::class.java)
-                ) {
+                if (project.multiplatformExtension != null) {
                     configureNonAndroidProjectForLint()
                 }
         }
