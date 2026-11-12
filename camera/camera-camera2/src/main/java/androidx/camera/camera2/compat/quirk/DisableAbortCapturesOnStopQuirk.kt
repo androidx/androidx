@@ -25,8 +25,10 @@ import androidx.camera.core.impl.Quirk
  * behaviors such as camera HAL crashing.
  *
  * QuirkSummary
- * - Bug Id: 356792947, 431912245
+ * - Bug Id: 356792947, 431912245, 583056763
  * - Description: Instructs CameraPipe to not abort captures when stopping.
+ * - Device(s): Tecno devices, Samsung Galaxy Note 10+ (d2q), Samsung Galaxy A54 5G (a54x /
+ *   SM-A546), Poco X3 Pro (M2102J20SG)
  *
  * TODO(b/270421716): enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
@@ -35,13 +37,22 @@ public class DisableAbortCapturesOnStopQuirk : Quirk {
     public companion object {
         @JvmStatic
         public fun isEnabled(): Boolean {
-            return Device.isTecnoDevice() || isSamsungNote10PlusDevice || isPocoX3ProDevice
+            return Device.isTecnoDevice() ||
+                isSamsungNote10PlusDevice ||
+                isSamsungGalaxyA54Device ||
+                isPocoX3ProDevice
         }
 
-        private val isSamsungNote10PlusDevice: Boolean =
-            Device.isSamsungDevice() && "d2q".equals(Build.DEVICE, true)
+        private val isSamsungNote10PlusDevice: Boolean
+            get() = Device.isSamsungDevice() && "d2q".equals(Build.DEVICE, ignoreCase = true)
 
-        private val isPocoX3ProDevice: Boolean =
-            Device.isPocoDevice() && "M2102J20SG".equals(Build.MODEL, true)
+        private val isSamsungGalaxyA54Device: Boolean
+            get() =
+                Device.isSamsungDevice() &&
+                    ("a54x".equals(Build.DEVICE, ignoreCase = true) ||
+                        Build.MODEL.startsWith("SM-A546", ignoreCase = true))
+
+        private val isPocoX3ProDevice: Boolean
+            get() = Device.isPocoDevice() && "M2102J20SG".equals(Build.MODEL, ignoreCase = true)
     }
 }
