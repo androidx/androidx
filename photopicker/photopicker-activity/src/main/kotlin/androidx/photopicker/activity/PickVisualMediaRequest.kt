@@ -185,43 +185,159 @@ public fun PickVisualMediaRequest(
 /** A request for a [PickMultipleVisualMedia] or [PickVisualMedia] Activity Contract. */
 public class PickVisualMediaRequest internal constructor() {
 
+    /**
+     * The type of media that can be selected in the photo picker, e.g. [PickVisualMedia.ImageOnly],
+     * [PickVisualMedia.VideoOnly], [PickVisualMedia.ImageAndVideo] or
+     * [PickVisualMedia.SingleMimeType]. Defaults to [PickVisualMedia.ImageAndVideo].
+     *
+     * @see Builder.setMediaType
+     */
     public var mediaType: VisualMediaType = ImageAndVideo
         internal set
 
+    /**
+     * The maximum number of items that can be selected when using [PickMultipleVisualMedia].
+     * Defaults to [PickMultipleVisualMedia.getMaxItems]. When launching the picker, the minimum of
+     * this value and the `maxItems` passed to [PickMultipleVisualMedia] is used as the limit. This
+     * value is ignored by [PickVisualMedia].
+     *
+     * @see Builder.setMaxItems
+     */
     public var maxItems: Int = PickMultipleVisualMedia.getMaxItems()
         internal set
 
+    /**
+     * This controls the order in which the selected media items are returned to the calling app
+     * when using [PickMultipleVisualMedia]. When `true`, the user can choose the order of the
+     * selected items and they are returned in that order. Defaults to `false`. This value is
+     * ignored by [PickVisualMedia] and might not be supported by the underlying photo picker
+     * implementation.
+     *
+     * @see Builder.setOrderedSelection
+     * @see android.provider.MediaStore.EXTRA_PICK_IMAGES_IN_ORDER
+     */
     public var isOrderedSelection: Boolean = false
         internal set
 
+    /**
+     * The tab in which the photo picker is initially opened, e.g. [DefaultTab.PhotosTab] or
+     * [DefaultTab.AlbumsTab]. Defaults to [DefaultTab.PhotosTab].
+     *
+     * This value is only passed on to the photo picker if it was explicitly set by the calling app,
+     * see [isCustomDefaultTabApplied]. Otherwise, the photo picker applies its own default
+     * behavior, which is opening to the photos tab. Support for this feature was added in API level
+     * 35 / R ext 12.
+     *
+     * @see Builder.setDefaultTab
+     * @see android.provider.MediaStore.EXTRA_PICK_IMAGES_LAUNCH_TAB
+     */
     public var defaultTab: DefaultTab = DefaultTab.PhotosTab
         internal set
 
+    /**
+     * Denotes if the calling app explicitly set a [defaultTab] for this request via
+     * [Builder.setDefaultTab].
+     *
+     * When `true`, the [defaultTab] is passed on to the photo picker as the tab to launch in. When
+     * `false`, no launch tab is requested and the photo picker applies its own default behavior, so
+     * [defaultTab] only holds its default value of [DefaultTab.PhotosTab] and is ignored.
+     *
+     * @see Builder.setDefaultTab
+     * @see android.provider.MediaStore.EXTRA_PICK_IMAGES_LAUNCH_TAB
+     */
     public var isCustomDefaultTabApplied: Boolean = false
         internal set
 
+    /**
+     * Denotes if the calling app explicitly set an [accentColor] for this request via
+     * [Builder.setAccentColor].
+     *
+     * When `true`, the [accentColor] is passed on to the photo picker. When `false`, no accent
+     * color is requested and the photo picker uses its default theme colors, so [accentColor] is
+     * ignored.
+     *
+     * @see Builder.setAccentColor
+     * @see android.provider.MediaStore.EXTRA_PICK_IMAGES_ACCENT_COLOR
+     */
     public var isCustomAccentColorApplied: Boolean = false
         internal set
 
+    /**
+     * The color used to customize the main accent color of the photo picker. Defaults to `0`.
+     *
+     * This value is only passed on to the photo picker if it was explicitly set by the calling app,
+     * see [isCustomAccentColorApplied]. Support for this feature was added in API level 35 / R
+     * ext 12.
+     *
+     * @see Builder.setAccentColor
+     * @see android.provider.MediaStore.EXTRA_PICK_IMAGES_ACCENT_COLOR
+     */
     public var accentColor: Long = 0
         internal set
 
+    /**
+     * The [MediaCapabilities] that the calling app can handle, used by the photo picker to decide
+     * whether selected videos need to be transcoded into a default supported format, or `null` if
+     * no media capabilities were specified. Defaults to `null`.
+     *
+     * @see Builder.setMediaCapabilitiesForTranscoding
+     */
     public var mediaCapabilitiesForTranscoding: MediaCapabilities? = null
         internal set
 
+    /**
+     * Denotes if the calling app requested access to location metadata for the selected media
+     * items. Defaults to `false`, meaning location metadata is redacted.
+     *
+     * Requesting location metadata does not guarantee that the calling app will receive it, as the
+     * user may deny location sharing in the photo picker UI.
+     *
+     * @see Builder.setLocationMetadataAccessRequested
+     */
     public var isLocationMetadataAccessRequested: Boolean = false
         internal set
 
+    /**
+     * The parameters used to highlight search results in the photo picker based on a text query, or
+     * `null` if no search results highlight was requested. Defaults to `null`. At most one of
+     * [highlightSearchResultsParams] and [highlightAlbumParams] can be requested.
+     *
+     * @see Builder.setHighlightSearchResultsParams
+     * @see android.provider.MediaStore.EXTRA_PICK_IMAGES_HIGHLIGHT_SEARCH_RESULTS
+     */
     public var highlightSearchResultsParams: HighlightSearchResultsParams? = null
         internal set
 
+    /**
+     * The parameters used to highlight the media of a specific album in the photo picker, or `null`
+     * if no album highlight was requested. Defaults to `null`. At most one of
+     * [highlightSearchResultsParams] and [highlightAlbumParams] can be requested.
+     *
+     * @see Builder.setHighlightAlbumParams
+     * @see android.provider.MediaStore.EXTRA_PICK_IMAGES_HIGHLIGHT_ALBUM
+     */
     public var highlightAlbumParams: HighlightAlbumParams? = null
         internal set
 
+    /**
+     * The selection constraints applied to media items in the photo picker, or `null` if no
+     * constraints were specified. Defaults to `null`. Items that do not satisfy these constraints
+     * are not selectable in the photo picker.
+     *
+     * @see Builder.setSelectionParams
+     * @see android.provider.MediaStore.EXTRA_PICK_IMAGES_SELECTION_PARAMS
+     */
     @get:RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 22)
     public var selectionParams: SelectionParams? = null
         internal set
 
+    /**
+     * The UI customization options applied to the photo picker, or `null` if no customizations are
+     * requested by the calling app. Defaults to `null`.
+     *
+     * @see Builder.setUiCustomizationParams
+     * @see android.provider.MediaStore.EXTRA_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS
+     */
     public var uiCustomizationParams: UiCustomizationParams? = null
         internal set
 
@@ -431,8 +547,9 @@ public class PickVisualMediaRequest internal constructor() {
             return this
         }
 
-        /* Sets UI customization options in the PhotoPicker. Not passing this implies the
-         * photopicker will use its default UI.
+        /**
+         * Sets UI customization options in the PhotoPicker. Not passing this implies the
+         * PhotoPicker will use its default UI.
          *
          * This feature was added for the system PhotoPicker in SDK extension version 22 on Android
          * UpsideDownCake (API level 34) and higher. For devices running a system fallback photo
