@@ -90,31 +90,34 @@ class BorderModifierTest {
                             shape = RemoteRoundedCornerShape(size = 10.rf),
                         )
                     },
-                //                     Not supported in BorderModifierOperation
-                //                    {
-                //                        border(
-                //                            width = 2.rdp,
-                //                            color = Color.Cyan.rc,
-                //                            shape = RemoteRoundedCornerShape(size = 10.rdp),
-                //                        )
-                //                    },
-                //                    {
-                //                        border(
-                //                            width = 2.rdp,
-                //                            color = Color.Gray.rc,
-                //                            shape = RemoteRoundedCornerShape(percent = 50),
-                //                        )
-                //                    },
-                //                    {
-                //                        border(
-                //                            width = 2.rdp,
-                //                            color = Color.Black.rc,
-                //                            shape = RemoteRoundedCornerShape(
-                //                                topStart =
-                //                                    10.rdp, bottomEnd = 10.rdp
-                //                            ),
-                //                        )
-                //                    },
+                "RemoteRoundedCornerShape size" to
+                    {
+                        border(
+                            width = 2.rdp,
+                            color = RemoteColor.Cyan,
+                            shape = RemoteRoundedCornerShape(size = 10.rdp),
+                        )
+                    },
+                "RemoteRoundedCornerShape percent 50" to
+                    {
+                        border(
+                            width = 2.rdp,
+                            color = RemoteColor.Gray,
+                            shape = RemoteRoundedCornerShape(percent = 50),
+                        )
+                    },
+                // Not supported in BorderModifierOperation: asymmetric corner radii
+                // (BorderModifierOperation applies topStart uniformly to all corners)
+                // {
+                //     border(
+                //         width = 2.rdp,
+                //         color = RemoteColor.Black,
+                //         shape = RemoteRoundedCornerShape(
+                //             topStart = 10.rdp,
+                //             bottomEnd = 10.rdp,
+                //         ),
+                //     )
+                // },
             )
 
         gridScreenshotUI.GridContent(
