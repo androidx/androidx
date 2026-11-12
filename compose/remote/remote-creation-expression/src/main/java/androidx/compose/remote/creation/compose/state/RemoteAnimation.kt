@@ -23,8 +23,19 @@ import androidx.compose.remote.core.operations.utilities.easing.FloatAnimation
 import androidx.compose.runtime.Immutable
 import kotlin.math.sqrt
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** Specification for animations in Remote Compose. */
 public sealed interface RemoteAnimationSpec {
+    /**
+     * Creates an animated [RemoteFloat] based on the provided [targetValue] and animation
+     * parameters.
+     *
+     * @param targetValue The target value to animate towards.
+     * @param initialValue Optional initial value if animating from a start value, or [Float.NaN] to
+     *   start from the current value without an explicit initial value.
+     * @param wrap Optional wrap modulo bound (e.g. 360f for angles), or [Float.NaN] for no
+     *   wrapping.
+     * @return An animated [RemoteFloat].
+     */
     public fun animate(
         targetValue: RemoteFloat,
         initialValue: Float = Float.NaN,
@@ -32,7 +43,7 @@ public sealed interface RemoteAnimationSpec {
     ): RemoteFloat
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** Defines the easing curve used for Remote Compose animations. */
 @Immutable
 public class RemoteEasing
 internal constructor(
@@ -40,25 +51,49 @@ internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val spec: FloatArray? = null,
 ) {
     public companion object {
+        /** Standard cubic bezier easing curve. */
         public val Standard: RemoteEasing = RemoteEasing(CUBIC_STANDARD)
 
+        /** Linear easing curve with a constant rate of change. */
         public val Linear: RemoteEasing = RemoteEasing(CUBIC_LINEAR)
 
+        /** Easing curve that starts slowly and accelerates toward the end. */
         public val Accelerate: RemoteEasing = RemoteEasing(CUBIC_ACCELERATE)
 
+        /** Easing curve that starts quickly and decelerates toward the end. */
         public val Decelerate: RemoteEasing = RemoteEasing(CUBIC_DECELERATE)
 
+        /** Easing curve that pulls back slightly before moving forward. */
         public val Anticipate: RemoteEasing = RemoteEasing(CUBIC_ANTICIPATE)
 
+        /** Easing curve that overshoots the target before settling. */
         public val Overshoot: RemoteEasing = RemoteEasing(CUBIC_OVERSHOOT)
 
+        /** Easing curve that bounces at the end of the transition. */
         public val Bounce: RemoteEasing = RemoteEasing(EASE_OUT_BOUNCE)
 
+        /** Easing curve that oscillates elastically at the end of the transition. */
         public val Elastic: RemoteEasing = RemoteEasing(EASE_OUT_ELASTIC)
 
+        /**
+         * Creates a custom cubic bezier [RemoteEasing] curve from the control points `(x1, y1)` and
+         * `(x2, y2)`.
+         *
+         * @param x1 The x-coordinate of the first control point.
+         * @param y1 The y-coordinate of the first control point.
+         * @param x2 The x-coordinate of the second control point.
+         * @param y2 The y-coordinate of the second control point.
+         * @return A custom cubic bezier [RemoteEasing].
+         */
         public fun cubic(x1: Float, y1: Float, x2: Float, y2: Float): RemoteEasing =
             RemoteEasing(CUBIC_CUSTOM, floatArrayOf(x1, y1, x2, y2))
 
+        /**
+         * Creates a custom spline [RemoteEasing] curve that interpolates through [points].
+         *
+         * @param points The control points defining the spline curve.
+         * @return A custom spline [RemoteEasing].
+         */
         public fun spline(points: FloatArray): RemoteEasing =
             RemoteEasing(SPLINE_CUSTOM, points.copyOf())
     }
@@ -83,7 +118,12 @@ internal constructor(
     override fun toString(): String = "RemoteEasing(type=$type, spec=${spec?.contentToString()})"
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Easing-based animation specification with a fixed duration.
+ *
+ * @property durationMillis The duration of the animation in milliseconds.
+ * @property easing The easing curve to apply.
+ */
 @Immutable
 public class RemoteTweenSpec(
     @IntRange(from = 0) public val durationMillis: Int = 300,
@@ -182,13 +222,33 @@ internal class RemoteSpringSpec(
         "RemoteSpringSpec(stiffness=$stiffness, dampingRatio=$dampingRatio, stopThreshold=$stopThreshold, boundaryMode=$boundaryMode)"
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Creates a [RemoteAnimationSpec] with the given duration in milliseconds and easing curve.
+ *
+ * Example of animating alpha with a fixed-duration tween specification:
+ *
+ * @sample androidx.compose.remote.creation.compose.samples.AnimateRemoteFloatSample
+ * @param durationMillis Duration of the animation in milliseconds.
+ * @param easing Easing curve to apply.
+ * @return A [RemoteTweenSpec] configured with [durationMillis] and [easing].
+ */
 public fun remoteTween(
     @IntRange(from = 0) durationMillis: Int = 300,
     easing: RemoteEasing = RemoteEasing.Standard,
 ): RemoteTweenSpec = RemoteTweenSpec(durationMillis = durationMillis, easing = easing)
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Creates a [RemoteAnimationSpec] for physics-based spring animations.
+ *
+ * Example of animating size with a spring specification:
+ *
+ * @sample androidx.compose.remote.creation.compose.samples.AnimateRemoteDpSample
+ * @param dampingRatio Damping ratio (1.0 = no bounce, < 1.0 = bouncy).
+ * @param stiffness Spring stiffness.
+ * @param stopThreshold Threshold for stopping velocity/displacement.
+ * @param boundaryMode Boundary mode for the spring.
+ * @return A spring [RemoteAnimationSpec].
+ */
 public fun remoteSpring(
     @FloatRange(from = 0.0, to = 1.0) dampingRatio: Float = 1f,
     @FloatRange(from = 0.0, fromInclusive = false) stiffness: Float = 50f,
@@ -202,7 +262,19 @@ public fun remoteSpring(
         boundaryMode = boundaryMode,
     )
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Returns a [RemoteFloat] that animates towards [targetValue] whenever it changes.
+ *
+ * Example of animating a [RemoteFloat] alpha value when state changes:
+ *
+ * @sample androidx.compose.remote.creation.compose.samples.AnimateRemoteFloatSample
+ * @param targetValue The target value to animate towards.
+ * @param animationSpec The specification for the animation (e.g. [remoteTween] or [remoteSpring]).
+ * @param initialValue Optional initial value if animating from a start value, or [Float.NaN] to
+ *   start from the current value without an explicit initial value.
+ * @param wrap Optional wrap modulo bound (e.g. 360f for angles), or [Float.NaN] for no wrapping.
+ * @return An animated [RemoteFloat] tracking [targetValue].
+ */
 public fun animateRemoteFloatAsState(
     targetValue: RemoteFloat,
     animationSpec: RemoteAnimationSpec = remoteTween(),
@@ -211,7 +283,18 @@ public fun animateRemoteFloatAsState(
 ): RemoteFloat =
     animationSpec.animate(targetValue = targetValue, initialValue = initialValue, wrap = wrap)
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Returns a [RemoteDp] that animates towards [targetValue] whenever it changes.
+ *
+ * Example of animating a [RemoteDp] dimension when state changes:
+ *
+ * @sample androidx.compose.remote.creation.compose.samples.AnimateRemoteDpSample
+ * @param targetValue The target value to animate towards.
+ * @param animationSpec The specification for the animation (e.g. [remoteTween] or [remoteSpring]).
+ * @param initialValue Optional initial value if animating from a start value, or [Float.NaN] to
+ *   start from the current value without an explicit initial value.
+ * @return An animated [RemoteDp] tracking [targetValue].
+ */
 public fun animateRemoteDpAsState(
     targetValue: RemoteDp,
     animationSpec: RemoteAnimationSpec = remoteTween(),
