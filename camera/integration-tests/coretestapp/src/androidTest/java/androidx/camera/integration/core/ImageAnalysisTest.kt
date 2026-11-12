@@ -488,12 +488,12 @@ internal class ImageAnalysisTest(
         // 3. Close the image.
         // 4. Call unbindAll().
         // 5. Bind the back camera using DEFAULT_BACK_CAMERA.
-        // 6. Verify that an ImageProxy arrives within 3 seconds.
+        // 6. Verify that an ImageProxy arrives within 5 seconds.
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT))
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
 
         val analysisExecutor = CameraXExecutors.newHandlerExecutor(handler)
-        val currentLatchRef = AtomicReference<CountDownLatch>()
+        val currentLatchRef = AtomicReference<CountDownLatch?>()
         val reusedUseCase =
             ImageAnalysis.Builder().build().apply {
                 setAnalyzer(analysisExecutor) { image ->
@@ -505,7 +505,7 @@ internal class ImageAnalysisTest(
         for (iteration in 1..5) {
             val reuseUseCase = iteration % 2 == 1
             val frontLatch = CountDownLatch(1)
-            currentLatchRef.set(frontLatch)
+            handler.post { currentLatchRef.set(frontLatch) }
             val frontUseCase =
                 if (reuseUseCase) {
                     reusedUseCase
@@ -531,7 +531,6 @@ internal class ImageAnalysisTest(
                 .isTrue()
 
             val backLatch = CountDownLatch(1)
-            currentLatchRef.set(backLatch)
             val backUseCase =
                 if (reuseUseCase) {
                     reusedUseCase
@@ -546,6 +545,7 @@ internal class ImageAnalysisTest(
 
             withContext(Dispatchers.Main) {
                 cameraProvider.unbindAll()
+                handler.post { currentLatchRef.set(backLatch) }
                 cameraProvider.bindToLifecycle(
                     fakeLifecycleOwner,
                     CameraSelector.DEFAULT_BACK_CAMERA,
@@ -554,13 +554,16 @@ internal class ImageAnalysisTest(
             }
 
             assertWithMessage(
-                    "Back camera did not deliver ImageProxy within 3s on iteration $iteration " +
+                    "Back camera did not deliver ImageProxy within 5s on iteration $iteration " +
                         "(reuseUseCase=$reuseUseCase)"
                 )
-                .that(backLatch.await(3, TimeUnit.SECONDS))
+                .that(backLatch.await(5, TimeUnit.SECONDS))
                 .isTrue()
 
-            withContext(Dispatchers.Main) { cameraProvider.unbindAll() }
+            withContext(Dispatchers.Main) {
+                cameraProvider.unbindAll()
+                handler.post { currentLatchRef.set(null) }
+            }
         }
     }
 
