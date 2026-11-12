@@ -381,6 +381,7 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
         crossinline block: () -> Placeable,
     ): Placeable {
         measurementConstraints = constraints
+        layoutPendingForAlignment = true
         return block()
     }
 

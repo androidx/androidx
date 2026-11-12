@@ -158,8 +158,10 @@ internal class LayoutNodeLayoutDelegate(internal val layoutNode: LayoutNode) {
 
     /** Marks the layoutNode dirty for another lookahead layout pass. */
     internal fun markLookaheadLayoutPending() {
+        if (lookaheadLayoutPending && lookaheadLayoutPendingForAlignment) return
         lookaheadLayoutPending = true
         lookaheadLayoutPendingForAlignment = true
+        layoutNode.forEachCoordinator { it.lookaheadDelegate?.layoutPendingForAlignment = true }
     }
 
     /** Marks the layoutNode dirty for another lookahead measure pass. */

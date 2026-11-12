@@ -223,12 +223,10 @@ class PlacementLayoutCoordinatesTest {
             }
         }
         rule.waitForIdle()
-        // There may be a way to make this only 2 invocations for the first pass rather than 3.
-        assertEquals(4, locations.size)
+        assertEquals(3, locations.size)
         assertNull(locations[0]) // Lookahead pass
-        assertNull(locations[1]) // Lookahead pass - second look at alignment line
-        assertNotNull(locations[2]) // Lookahead pass placement
-        assertNotNull(locations[3]) // Measure pass
+        assertNotNull(locations[1]) // Lookahead pass placement
+        assertNotNull(locations[2]) // Measure pass
     }
 
     /**

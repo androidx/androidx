@@ -949,8 +949,10 @@ internal class MeasurePassDelegate(private val layoutNodeLayoutDelegate: LayoutN
     }
 
     fun markLayoutPending() {
+        if (layoutPending && layoutPendingForAlignment) return
         layoutPending = true
         layoutPendingForAlignment = true
+        layoutNode.forEachCoordinator { it.layoutPendingForAlignment = true }
     }
 
     /** Marks the layoutNode dirty for another measure pass. */

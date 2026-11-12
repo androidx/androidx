@@ -145,6 +145,15 @@ internal abstract class LookaheadCapablePlaceable :
      */
     internal var isPlacingForAlignment = false
 
+    /**
+     * Tracks whether the placement block must be rerun to calculate alignment lines. This is only
+     * read for [LayoutModifierNodeCoordinator]s (and their [LookaheadDelegate]s) to avoid rerunning
+     * the modifier's placement block on every alignment line query. [InnerNodeCoordinator] uses the
+     * [AlignmentLinesOwner]'s flag instead. Set when measured or when layout is marked pending and
+     * cleared after placement.
+     */
+    internal var layoutPendingForAlignment = true
+
     /** [PlacementScope] used to place children. */
     val placementScope = PlacementScope(this)
 
@@ -698,6 +707,9 @@ internal abstract class LookaheadDelegate(val coordinator: NodeCoordinator) :
     ) {
         placeSelf(position)
         if (isShallowPlacing) return
+        if (!isPlacingForAlignment) {
+            layoutPendingForAlignment = false
+        }
         placeChildren()
     }
 
@@ -723,6 +735,7 @@ internal abstract class LookaheadDelegate(val coordinator: NodeCoordinator) :
 
     inline fun performingMeasure(constraints: Constraints, block: () -> MeasureResult): Placeable {
         measurementConstraints = constraints
+        layoutPendingForAlignment = true
         _measureResult = block()
         return this
     }
