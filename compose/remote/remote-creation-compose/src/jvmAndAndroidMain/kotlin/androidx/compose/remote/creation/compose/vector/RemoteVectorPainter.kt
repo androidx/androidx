@@ -73,7 +73,7 @@ internal class RemoteVectorPainter : RemotePainter() {
             val shouldMirror = autoMirror && layoutDirection == RemoteLayoutDirection.Rtl
             if (shouldMirror) {
                 withTransform({
-                    translate(width, 0f.rf)
+                    translate(size.width, 0f.rf)
                     scale(-1f.rf, 1f.rf, RemoteOffset.Zero)
                 }) {
                     draw(null)

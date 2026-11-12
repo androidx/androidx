@@ -43,6 +43,8 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCaptureStat
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.shapes.RemoteOutline
+import androidx.compose.remote.creation.compose.shapes.clipOutline
 import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.MutableRemoteInt
@@ -4305,6 +4307,49 @@ class RemoteCanvasTest {
 
         assertThat(fakeBuffer.calls).contains("addPaint")
         assertThat(fakeBuffer.calls.any { it.startsWith("addDrawTweenPath") }).isTrue()
+    }
+
+    @Test
+    fun testRemoteDrawScope_drawTextAndTransformsAndClips() {
+        setupRemoteCanvas()
+        val scope =
+            object : RemoteDrawScope(remoteCanvas) {
+                override val width: RemoteFloat = 100f.rf
+                override val height: RemoteFloat = 60f.rf
+            }
+
+        with(scope) {
+            drawText("Label".rs, 4f.rf, 12f.rf)
+            withTransform({
+                translate(10f.rf, 20f.rf)
+                rotate(45f.rf, RemoteOffset(5f.rf, 5f.rf))
+                scale(2f.rf, RemoteOffset(5f.rf, 5f.rf))
+                clipRect(0f.rf, 0f.rf, 40f.rf, 40f.rf)
+                clipOutline(RemoteOutline.Rectangle(RemoteOffset.Zero, RemoteSize(20f.rf, 20f.rf)))
+            }) {
+                drawRect(paint = null)
+            }
+            rotate(30f.rf) {
+                scale(1.5f.rf) {
+                    scale(2f.rf, 3f.rf, pivot = RemoteOffset.Zero) { drawRect(paint = null) }
+                }
+            }
+            clipOutline(RemoteOutline.Rectangle(RemoteOffset.Zero, RemoteSize(25f.rf, 25f.rf))) {
+                drawRect(paint = null)
+            }
+        }
+
+        remoteCanvas.flush()
+
+        assertThat(fakeBuffer.calls.any { it.startsWith("addDrawTextRun") }).isTrue()
+        assertThat(fakeBuffer.calls).contains("addMatrixTranslate(10.0, 20.0)")
+        assertThat(fakeBuffer.calls).contains("addMatrixRotate(45.0, 5.0, 5.0)")
+        assertThat(fakeBuffer.calls).contains("addMatrixScale(2.0, 2.0, 5.0, 5.0)")
+        assertThat(fakeBuffer.calls).contains("addMatrixRotate(30.0, 50.0, 30.0)")
+        assertThat(fakeBuffer.calls).contains("addMatrixScale(1.5, 1.5, 50.0, 30.0)")
+        assertThat(fakeBuffer.calls).contains("addMatrixScale(2.0, 3.0, ID(0), ID(0))")
+        assertThat(fakeBuffer.calls).contains("addClipRect(0.0, 0.0, 40.0, 40.0)")
+        assertThat(fakeBuffer.calls.count { it.startsWith("addClipPath") }).isEqualTo(2)
     }
 }
 

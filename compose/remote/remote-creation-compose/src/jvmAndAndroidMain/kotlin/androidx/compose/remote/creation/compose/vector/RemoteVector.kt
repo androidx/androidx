@@ -36,6 +36,7 @@ import androidx.compose.remote.creation.compose.capture.EmptyPath
 import androidx.compose.remote.creation.compose.capture.profile
 import androidx.compose.remote.creation.compose.capture.toRemotePath
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
+import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.state.RemoteColor
@@ -81,7 +82,11 @@ internal class RemoteVectorComponent(val root: RemoteGroupComponent) : RemoteVNo
 
     private fun RemoteDrawScope.drawVector(tintFilter: RemoteColorFilter?) {
         val targetViewportSize = this@RemoteVectorComponent.viewportSize
-        with(root) { scale(rootScaleX, rootScaleY) { draw(tintFilter, targetViewportSize) } }
+        with(root) {
+            scale(rootScaleX, rootScaleY, RemoteOffset.Zero) {
+                draw(tintFilter, targetViewportSize)
+            }
+        }
     }
 
     fun RemoteDrawScope.draw(colorFilter: RemoteColorFilter?) {
@@ -280,13 +285,13 @@ internal class RemoteGroupComponent : RemoteVNode() {
             withTransform({
                 if (hasTransform) {
                     translate(translationX + pivotX, translationY + pivotY)
-                    rotate(rotation)
-                    scale(scaleX, scaleY)
+                    rotate(rotation, RemoteOffset.Zero)
+                    scale(scaleX, scaleY, RemoteOffset.Zero)
                     translate(-pivotX, -pivotY)
                 }
                 if (hasClip) {
                     clipPathData.toRemotePath(clipPath, this@draw.remoteCanvas)
-                    clipPath(clipPath)
+                    this@draw.remoteCanvas.clipPath(clipPath)
                 }
             }) {
                 children.fastForEach { node ->

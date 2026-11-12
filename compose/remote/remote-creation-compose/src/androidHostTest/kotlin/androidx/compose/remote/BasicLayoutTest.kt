@@ -1099,15 +1099,17 @@ list:
                 RemoteBox(
                     modifier =
                         RemoteModifier.drawWithContent {
-                                rotate(degrees = 37f.rf) { drawContent() }
+                                rotate(degrees = 37f.rf) { this@drawWithContent.drawContent() }
                                 translate(left = 40f.rf, top = 40f.rf) {
                                     rotate(degrees = 45f.rf) {
-                                        scale(scale = 1.2f.rf) { drawContent() }
+                                        scale(scale = 1.2f.rf) {
+                                            this@drawWithContent.drawContent()
+                                        }
                                     }
                                 }
                                 drawContent()
                                 translate(left = -40f.rf, top = -40f.rf) {
-                                    rotate(degrees = 30f.rf) { drawContent() }
+                                    rotate(degrees = 30f.rf) { this@drawWithContent.drawContent() }
                                 }
                             }
                             .size(64.rdp)

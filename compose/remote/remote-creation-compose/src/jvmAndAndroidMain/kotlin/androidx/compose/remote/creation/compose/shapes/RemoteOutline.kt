@@ -16,9 +16,10 @@
 
 package androidx.compose.remote.creation.compose.shapes
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.RemotePath
+import androidx.compose.remote.creation.compose.layout.RemoteCanvasDrawTransform
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
+import androidx.compose.remote.creation.compose.layout.RemoteDrawTransform
 import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
@@ -120,52 +121,60 @@ public fun RemoteDrawScope.drawOutline(outline: RemoteOutline, paint: RemotePain
             drawPath(roundedOutlinePath(corners), paint)
         }
         is RemoteOutline.Generic -> {
-            val p = genericOutlinePath(outline)
-            if (p != null) {
-                drawPath(p, paint)
-            }
+            drawPath(genericOutlinePath(outline), paint)
         }
         else -> {}
     }
 }
 
 /**
- * Clips the drawing area to the [RemoteOutline] and executes [block] within it.
+ * Intersects the current clip region with [outline].
  *
- * This emits a path clip, so callers must check that the current profile supports it, for example
- * with `currentProfileSupportsPathClip()`. If the outline can't be expressed as a path, [block] is
- * executed without clipping.
+ * Emits a path clip, so callers must verify that the active profile supports path clipping (see
+ * [androidx.compose.remote.creation.compose.capture.currentProfileSupportsPathClip]).
  *
- * @param outline the outline to clip to.
- * @param block the drawing operations to execute within the clipped area.
+ * @param outline [RemoteOutline] to clip to
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteDrawScope.clipOutline(outline: RemoteOutline, block: RemoteDrawScope.() -> Unit) {
-    val path =
-        when (outline) {
-            is RemoteOutline.Rectangle -> {
-                val left = outline.topLeft.x
-                val top = outline.topLeft.y
-                val right = left + outline.size.width
-                val bottom = top + outline.size.height
-                remotePath {
-                    moveTo(left, top)
-                    lineTo(right, top)
-                    lineTo(right, bottom)
-                    lineTo(left, bottom)
-                    close()
-                }
-            }
-            is RemoteOutline.Rounded -> roundedOutlinePath(resolveRoundedCorners(outline))
-            is RemoteOutline.Generic -> genericOutlinePath(outline)
-            else -> null
+public fun RemoteDrawTransform.clipOutline(outline: RemoteOutline) {
+    when (this) {
+        is RemoteCanvasDrawTransform -> {
+            scope.remoteCanvas.clipPath(with(scope) { outlineClipPath(outline) })
         }
-    if (path != null) {
-        clipPath(path, block = block)
-    } else {
-        block()
     }
 }
+
+/**
+ * Clips the drawing area to [outline] while running [block].
+ *
+ * Emits a path clip, so callers must verify that the active profile supports path clipping (see
+ * [androidx.compose.remote.creation.compose.capture.currentProfileSupportsPathClip]).
+ *
+ * @param outline [RemoteOutline] to clip to
+ * @param block drawing commands to run within the clipped area
+ */
+public fun RemoteDrawScope.clipOutline(outline: RemoteOutline, block: RemoteDrawScope.() -> Unit) {
+    withTransform({ clipOutline(outline) }, block)
+}
+
+private fun RemoteDrawScope.outlineClipPath(outline: RemoteOutline): RemotePath =
+    when (outline) {
+        is RemoteOutline.Rectangle -> {
+            val left = outline.topLeft.x
+            val top = outline.topLeft.y
+            val right = left + outline.size.width
+            val bottom = top + outline.size.height
+            remotePath {
+                moveTo(left, top)
+                lineTo(right, top)
+                lineTo(right, bottom)
+                lineTo(left, bottom)
+                close()
+            }
+        }
+        is RemoteOutline.Rounded -> roundedOutlinePath(resolveRoundedCorners(outline))
+        is RemoteOutline.Generic -> genericOutlinePath(outline)
+        else -> throw UnsupportedOperationException("Unsupported RemoteOutline: $outline")
+    }
 
 /** The resolved bounds and layout direction aware corner radii of a [RemoteOutline.Rounded]. */
 private class RoundedCorners(
@@ -291,8 +300,10 @@ private fun RemoteDrawScope.roundedOutlinePath(corners: RoundedCorners): RemoteP
     }
 }
 
-private fun RemoteDrawScope.genericOutlinePath(outline: RemoteOutline.Generic): RemotePath? =
-    outline.path ?: outline.block?.let { remotePath(it) }
+private fun RemoteDrawScope.genericOutlinePath(outline: RemoteOutline.Generic): RemotePath =
+    outline.path
+        ?: outline.block?.let { remotePath(it) }
+        ?: error("RemoteOutline.Generic must have either path or block")
 
 private fun areEqual(a: RemoteFloat, b: RemoteFloat): Boolean =
     a === b ||

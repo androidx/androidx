@@ -31,11 +31,121 @@ import androidx.compose.remote.creation.compose.state.creationState
 import androidx.compose.remote.creation.compose.state.rf
 
 /**
+ * Marks a drawing scope for RemoteCompose, preventing implicit access to outer drawing scopes (such
+ * as calling [RemoteDrawScope] methods inside [RemoteDrawScope.withTransform]'s `transformBlock`).
+ */
+@DslMarker public annotation class RemoteDrawScopeMarker
+
+/**
+ * Defines geometric transformations and clipping operations applied within
+ * [RemoteDrawScope.withTransform].
+ */
+@RemoteDrawScopeMarker
+public sealed interface RemoteDrawTransform {
+    /** Dimensions of the current drawing area in pixels. */
+    public val size: RemoteSize
+
+    /** Center coordinate of the current drawing area in pixels. */
+    public val center: RemoteOffset
+        get() = RemoteOffset(size.width / 2f, size.height / 2f)
+
+    /**
+     * Translates the coordinate space by [left] and [top] pixels.
+     *
+     * @param left horizontal translation offset in pixels
+     * @param top vertical translation offset in pixels
+     */
+    public fun translate(left: RemoteFloat = 0f.rf, top: RemoteFloat = 0f.rf)
+
+    /**
+     * Rotates the coordinate space clockwise by [degrees] around [pivot].
+     *
+     * @param degrees clockwise rotation angle in degrees
+     * @param pivot coordinate around which the rotation occurs, defaults to [center]
+     */
+    public fun rotate(degrees: RemoteFloat, pivot: RemoteOffset = center)
+
+    /**
+     * Scales the coordinate space uniformly by [scale] along both axes around [pivot].
+     *
+     * @param scale uniform scale factor along both axes
+     * @param pivot coordinate that remains unchanged after scaling, defaults to [center]
+     */
+    public fun scale(scale: RemoteFloat, pivot: RemoteOffset = center) {
+        scale(scale, scale, pivot)
+    }
+
+    /**
+     * Scales the coordinate space by [scaleX] horizontally and [scaleY] vertically around [pivot].
+     *
+     * @param scaleX horizontal scale factor
+     * @param scaleY vertical scale factor
+     * @param pivot coordinate that remains unchanged after scaling, defaults to [center]
+     */
+    public fun scale(
+        scaleX: RemoteFloat,
+        scaleY: RemoteFloat,
+        pivot: RemoteOffset = center,
+    )
+
+    /**
+     * Intersects the current clip region with the rectangle `[left, top, right, bottom]`.
+     *
+     * @param left left bound of the clip rectangle in pixels
+     * @param top top bound of the clip rectangle in pixels
+     * @param right right bound of the clip rectangle in pixels
+     * @param bottom bottom bound of the clip rectangle in pixels
+     */
+    public fun clipRect(
+        left: RemoteFloat = 0f.rf,
+        top: RemoteFloat = 0f.rf,
+        right: RemoteFloat = size.width,
+        bottom: RemoteFloat = size.height,
+    )
+}
+
+internal class RemoteCanvasDrawTransform(internal val scope: RemoteDrawScope) :
+    RemoteDrawTransform {
+    override val size: RemoteSize
+        get() = scope.size
+
+    override fun translate(left: RemoteFloat, top: RemoteFloat) {
+        scope.remoteCanvas.translate(left, top)
+    }
+
+    override fun rotate(degrees: RemoteFloat, pivot: RemoteOffset) {
+        if (pivot.x.constantValueOrNull == 0f && pivot.y.constantValueOrNull == 0f) {
+            scope.remoteCanvas.rotate(degrees)
+        } else {
+            scope.remoteCanvas.rotate(degrees, pivot)
+        }
+    }
+
+    override fun scale(scaleX: RemoteFloat, scaleY: RemoteFloat, pivot: RemoteOffset) {
+        if (pivot.x.constantValueOrNull == 0f && pivot.y.constantValueOrNull == 0f) {
+            scope.remoteCanvas.scale(scaleX, scaleY)
+        } else {
+            scope.remoteCanvas.scale(scaleX, scaleY, pivot)
+        }
+    }
+
+    override fun clipRect(
+        left: RemoteFloat,
+        top: RemoteFloat,
+        right: RemoteFloat,
+        bottom: RemoteFloat,
+    ) {
+        scope.remoteCanvas.clipRect(left, top, right, bottom)
+    }
+}
+
+/**
  * A remote-compatible drawing scope for RemoteCompose. Unlike
  * [androidx.compose.ui.graphics.drawscope.DrawScope], this class uses remote types consistently and
  * does not attempt to implement the standard [androidx.compose.ui.graphics.drawscope.DrawScope]
  * interface to avoid API incompatibilities.
  */
+@RemoteDrawScopeMarker
 public open class RemoteDrawScope
 internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val remoteCanvas: RemoteCanvas
@@ -196,7 +306,13 @@ internal constructor(
         remoteCanvas.drawLine(start.x, start.y, end.x, end.y, paint)
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    /**
+     * Draws [image] with its top-left corner at [topLeft] using [paint].
+     *
+     * @param image [RemoteImageBitmap] to draw
+     * @param topLeft top-left coordinate where [image] is drawn in pixels
+     * @param paint [RemotePaint] applied when drawing [image], or `null` for default paint
+     */
     public fun drawImage(
         image: RemoteImageBitmap,
         topLeft: RemoteOffset = RemoteOffset.Zero,
@@ -263,9 +379,21 @@ internal constructor(
         remoteCanvas.drawTweenPath(path1, path2, tween, start, stop, paint)
     }
 
-    /** Draws text. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun drawText(text: RemoteString, x: RemoteFloat, y: RemoteFloat, paint: RemotePaint?) {
+    /**
+     * Draws [text] with its origin at `([x], [y])` on the baseline using [paint].
+     *
+     * @param text [RemoteString] to draw
+     * @param x horizontal origin in pixels
+     * @param y baseline y-coordinate in pixels
+     * @param paint [RemotePaint] controlling text size, color, and typeface, or `null` for the
+     *   active paint
+     */
+    public fun drawText(
+        text: RemoteString,
+        x: RemoteFloat,
+        y: RemoteFloat,
+        paint: RemotePaint? = null,
+    ) {
         remoteCanvas.drawText(text, x, y, paint)
     }
 
@@ -301,65 +429,80 @@ internal constructor(
         remoteCanvas.drawTextOnPath(text, path, hOffset, vOffset, paint)
     }
 
-    /** Performs a rotation. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun rotate(degrees: RemoteFloat, block: RemoteDrawScope.() -> Unit) {
-        withTransform({ rotate(degrees) }, block)
-    }
-
-    /** Performs a rotation. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    /**
+     * Rotates the coordinate space clockwise by [degrees] around [pivot] while running [block].
+     *
+     * @param degrees clockwise rotation angle in degrees
+     * @param pivot coordinate around which the rotation occurs, defaults to [center]
+     * @param block drawing commands to run in the rotated coordinate space
+     */
     public fun rotate(
         degrees: RemoteFloat,
-        pivot: RemoteOffset,
+        pivot: RemoteOffset = center,
         block: RemoteDrawScope.() -> Unit,
     ) {
         withTransform({ rotate(degrees, pivot) }, block)
     }
 
-    /** Performs a translation. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun translate(left: RemoteFloat, top: RemoteFloat, block: RemoteDrawScope.() -> Unit) {
+    /**
+     * Translates the coordinate space by [left] and [top] pixels while running [block].
+     *
+     * @param left horizontal translation offset in pixels
+     * @param top vertical translation offset in pixels
+     * @param block drawing commands to run in the translated coordinate space
+     */
+    public fun translate(
+        left: RemoteFloat = 0f.rf,
+        top: RemoteFloat = 0f.rf,
+        block: RemoteDrawScope.() -> Unit,
+    ) {
         withTransform({ translate(left, top) }, block)
     }
 
-    /** Performs a scaling. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun scale(scale: RemoteFloat, block: RemoteDrawScope.() -> Unit) {
-        withTransform({ scale(scale, scale) }, block)
+    /**
+     * Scales the coordinate space uniformly by [scale] around [pivot] while running [block].
+     *
+     * @param scale uniform scale factor along both axes
+     * @param pivot coordinate that remains unchanged after scaling, defaults to [center]
+     * @param block drawing commands to run in the scaled coordinate space
+     */
+    public fun scale(
+        scale: RemoteFloat,
+        pivot: RemoteOffset = center,
+        block: RemoteDrawScope.() -> Unit,
+    ) {
+        withTransform({ scale(scale, scale, pivot) }, block)
     }
 
-    /** Performs a scaling. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun scale(scaleX: RemoteFloat, scaleY: RemoteFloat, block: RemoteDrawScope.() -> Unit) {
-        withTransform({ scale(scaleX, scaleY) }, block)
-    }
-
-    /** Performs a scaling. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    /**
+     * Scales the coordinate space by [scaleX] and [scaleY] around [pivot] while running [block].
+     *
+     * @param scaleX horizontal scale factor
+     * @param scaleY vertical scale factor
+     * @param pivot coordinate that remains unchanged after scaling, defaults to [center]
+     * @param block drawing commands to run in the scaled coordinate space
+     */
     public fun scale(
         scaleX: RemoteFloat,
         scaleY: RemoteFloat,
-        pivot: RemoteOffset,
+        pivot: RemoteOffset = center,
         block: RemoteDrawScope.() -> Unit,
     ) {
         withTransform({ scale(scaleX, scaleY, pivot) }, block)
     }
 
     /**
-     * Executes [drawBlock] with the specified transformation applied.
+     * Saves the canvas state, applies [transformBlock], runs [drawBlock], and restores the state.
      *
-     * @param transformBlock The block defining the transformations to apply.
-     * @param drawBlock The block containing drawing operations to execute with the transformations
-     *   applied.
+     * @param transformBlock transformations and clips applied on a [RemoteDrawTransform] receiver
+     * @param drawBlock drawing commands run while the transformations and clips are active
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun withTransform(
-        transformBlock: RemoteCanvas.() -> Unit,
+        transformBlock: RemoteDrawTransform.() -> Unit,
         drawBlock: RemoteDrawScope.() -> Unit,
     ) {
         remoteCanvas.save()
-        remoteCanvas.transformBlock()
+        RemoteCanvasDrawTransform(this).transformBlock()
         this.drawBlock()
         remoteCanvas.restore()
     }
@@ -427,13 +570,20 @@ internal constructor(
             }
     }
 
-    /** Clips the drawing area to the specified rectangle and executes [block] within it. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    /**
+     * Clips the drawing area to `[left, top, right, bottom]` while running [block].
+     *
+     * @param left left bound of the clip rectangle in pixels
+     * @param top top bound of the clip rectangle in pixels
+     * @param right right bound of the clip rectangle in pixels
+     * @param bottom bottom bound of the clip rectangle in pixels
+     * @param block drawing commands to run within the clipped rectangle
+     */
     public fun clipRect(
-        left: RemoteFloat,
-        top: RemoteFloat,
-        right: RemoteFloat,
-        bottom: RemoteFloat,
+        left: RemoteFloat = 0f.rf,
+        top: RemoteFloat = 0f.rf,
+        right: RemoteFloat = width,
+        bottom: RemoteFloat = height,
         block: RemoteDrawScope.() -> Unit,
     ) {
         withTransform({ clipRect(left, top, right, bottom) }, block)
@@ -442,7 +592,10 @@ internal constructor(
     /** Clips the drawing area to the specified [path] and executes [block] within it. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun clipPath(path: RemotePath, block: RemoteDrawScope.() -> Unit) {
-        withTransform({ clipPath(path) }, block)
+        remoteCanvas.save()
+        remoteCanvas.clipPath(path)
+        this.block()
+        remoteCanvas.restore()
     }
 
     /** Executes [body] if [condition] evaluates to true. */

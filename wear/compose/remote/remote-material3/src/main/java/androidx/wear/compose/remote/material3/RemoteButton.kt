@@ -1370,7 +1370,6 @@ private fun RemoteDrawScope.drawBorder(
  * Clips [block] to the outline of [shape]. Callers must check [currentProfileSupportsPathClip]
  * first.
  */
-@Suppress("RestrictedApiAndroidX") // clipOutline
 internal fun RemoteDrawScope.clipToShape(shape: RemoteShape, block: RemoteDrawScope.() -> Unit) =
     clipOutline(
         shape.createOutline(RemoteSize(width, height), layoutDirection, remoteDensity),
