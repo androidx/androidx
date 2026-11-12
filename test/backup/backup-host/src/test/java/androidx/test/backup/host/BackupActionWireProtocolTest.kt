@@ -21,7 +21,9 @@ import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
@@ -576,6 +578,101 @@ class BackupActionWireProtocolTest {
             "CreateKeyAction returned the keys [debug], which the runner reads itself, so " +
                 "VerifyKeyAction can't get them. Use other keys.",
             e.message,
+        )
+    }
+
+    @Test
+    fun deviceRunsGroupConsecutiveDomainsWithBuiltInActions() {
+        val preference = StorageDomain.Preference("prefs", "key", "value")
+        val file = StorageDomain.TextFile("a.txt", "a")
+        val excluded = StorageDomain.ExcludedData(StorageDomain.TextFile("b.txt", "b"))
+        val custom = StorageDomain.CustomData("com.example.Create", "com.example.Verify")
+
+        assertEquals(
+            listOf(listOf(preference, file, excluded)),
+            BackupActionWireProtocol.deviceRuns(listOf(preference, file, excluded)),
+        )
+        assertEquals(
+            listOf(listOf(preference, file), listOf(custom), listOf(excluded)),
+            BackupActionWireProtocol.deviceRuns(listOf(preference, file, custom, excluded)),
+        )
+        assertEquals(
+            listOf(listOf(custom), listOf(custom), listOf(file)),
+            BackupActionWireProtocol.deviceRuns(listOf(custom, custom, file)),
+        )
+        assertEquals(listOf(listOf(file)), BackupActionWireProtocol.deviceRuns(listOf(file)))
+        assertEquals(emptyList(), BackupActionWireProtocol.deviceRuns(emptyList()))
+    }
+
+    /**
+     * Pins the class name of the batch action, its argument and the members of a call to the string
+     * that the device-side `StorageBatchActionTest` runs.
+     */
+    @Test
+    fun storageBatchCallHoldsTheCallsAsAJsonArray() {
+        val file = StorageDomain.TextFile("storage_batch.txt", "it's \"here\"\n")
+
+        assertEquals(
+            "androidx.test.backup.actions.StorageBatchAction" to
+                mapOf(
+                    "calls" to
+                        """[{"action":"androidx.test.backup.actions.PopulateStorageAction",""" +
+                            """"args":{"storage_type":"FILES","path":"storage_batch.txt",""" +
+                            """"value":"it's \"here\"\n"}},""" +
+                            """{"action":"androidx.test.backup.actions.AssertStorageAction",""" +
+                            """"args":{"storage_type":"FILES","path":"storage_batch.txt",""" +
+                            """"value":"it's \"here\"\n"}}]"""
+                ),
+            BackupActionWireProtocol.storageBatchCall(
+                listOf(
+                    BackupActionWireProtocol.populateCall(file),
+                    BackupActionWireProtocol.verifyCall(file, emptyMap()),
+                )
+            ),
+        )
+    }
+
+    @Test
+    fun failedBatchCallIsTheIndexThatTheBatchReports() {
+        assertEquals(
+            2,
+            BackupActionWireProtocol.failedBatchCall(
+                BackupActionResult.Failure("Expected 'a'", data = mapOf("failed_call" to "2"))
+            ),
+        )
+        assertNull(
+            BackupActionWireProtocol.failedBatchCall(BackupActionResult.Failure("Timed out"))
+        )
+        assertNull(
+            BackupActionWireProtocol.failedBatchCall(
+                BackupActionResult.Failure("Expected 'a'", data = mapOf("failed_call" to "two"))
+            )
+        )
+    }
+
+    /** Runners of every version report an action class that they can't load with this message. */
+    @Test
+    fun storageBatchIsMissingWhenTheRunnerCannotLoadItsClass() {
+        assertTrue(
+            BackupActionWireProtocol.isStorageBatchMissing(
+                BackupActionResult.Failure(
+                    "Exception executing action: Could not load class " +
+                        "androidx.test.backup.actions.StorageBatchAction",
+                    "java.lang.ClassNotFoundException: Could not load class",
+                )
+            )
+        )
+        assertFalse(
+            BackupActionWireProtocol.isStorageBatchMissing(
+                BackupActionResult.Failure(
+                    "Exception executing action: Could not load class com.example.MyAction"
+                )
+            )
+        )
+        assertFalse(
+            BackupActionWireProtocol.isStorageBatchMissing(
+                BackupActionResult.Failure("Timed out after 1m")
+            )
         )
     }
 
