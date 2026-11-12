@@ -309,7 +309,7 @@ class RecomposerTestsJvm {
     fun stateChangedWhileComposingPausedContentOnAnotherThread_isComposedBeforeApply() =
         runBlocking(AutoTestFrameClock()) {
             val recomposer = Recomposer(coroutineContext)
-            launch { recomposer.runRecomposeAndApplyChanges() }
+            launch(start = CoroutineStart.UNDISPATCHED) { recomposer.runRecomposeAndApplyChanges() }
             val root = View().also { it.name = "root" }
             val composition = PausableComposition(ViewApplier(root), recomposer)
             val name = mutableStateOf("a")
