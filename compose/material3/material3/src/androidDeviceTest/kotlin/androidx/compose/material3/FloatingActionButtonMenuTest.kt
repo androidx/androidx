@@ -18,6 +18,7 @@ package androidx.compose.material3
 
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -47,6 +48,7 @@ import androidx.compose.ui.test.assertHasNoClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.isFocusable
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -359,6 +361,58 @@ class FloatingActionButtonMenuTest {
         itemCount = 5
         rule.mainClock.advanceTimeBy(400L)
         repeat(5) { rule.onNodeWithTag("button_$it").assertIsDisplayed() }
+    }
+
+    @Test
+    fun fabMenu_collapsedHeightRestoredAfterExpandAndCollapse() {
+        var expanded by mutableStateOf(false)
+        rule.setContent {
+            Box(Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier.align(Alignment.BottomEnd),
+                    horizontalAlignment = Alignment.End,
+                ) {
+                    Box(Modifier.size(40.dp).testTag("secondary_fab"))
+                    FloatingActionButtonMenu(
+                        modifier = Modifier.testTag("menu"),
+                        expanded = expanded,
+                        button = {
+                            ToggleFloatingActionButton(
+                                checked = expanded,
+                                onCheckedChange = { expanded = !expanded },
+                            ) {}
+                        },
+                    ) {
+                        repeat(3) { index ->
+                            FloatingActionButtonMenuItem(
+                                modifier = Modifier.testTag("button_$index"),
+                                onClick = { expanded = false },
+                                icon = { Icon(Icons.Filled.Add, contentDescription = null) },
+                                text = { Text(text = "Item $index") },
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        val initialMenuBounds = rule.onNodeWithTag("menu").getUnclippedBoundsInRoot()
+        val initialSecondaryBounds = rule.onNodeWithTag("secondary_fab").getUnclippedBoundsInRoot()
+
+        expanded = true
+        rule.waitForIdle()
+        val expandedMenuBounds = rule.onNodeWithTag("menu").getUnclippedBoundsInRoot()
+        val expandedSecondaryBounds = rule.onNodeWithTag("secondary_fab").getUnclippedBoundsInRoot()
+        assertThat(expandedMenuBounds.top).isLessThan(initialMenuBounds.top)
+        assertThat(expandedSecondaryBounds.top).isLessThan(initialSecondaryBounds.top)
+
+        expanded = false
+        rule.waitForIdle()
+        assertThat(rule.onNodeWithTag("menu").getUnclippedBoundsInRoot())
+            .isEqualTo(initialMenuBounds)
+        assertThat(rule.onNodeWithTag("secondary_fab").getUnclippedBoundsInRoot())
+            .isEqualTo(initialSecondaryBounds)
     }
 
     @Composable
