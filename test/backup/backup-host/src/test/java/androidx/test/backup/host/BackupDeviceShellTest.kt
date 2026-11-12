@@ -31,6 +31,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
@@ -38,6 +39,8 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.yield
 import org.junit.Rule
 import org.junit.Test
@@ -84,6 +87,63 @@ class BackupDeviceShellTest {
         assertEquals("out", output.stdout)
         assertEquals("err", output.stderr)
         assertEquals(3, output.exitCode)
+    }
+
+    /** Some tools take their time to exit after their last line, which tells all there is. */
+    @Test
+    fun execWithALastLineReturnsOnThatLineWithoutWaitingForTheCommandToExit() = runBlocking {
+        device.onShell {
+            shellOutput(stdout = "Running\nResult: 1\nBye\n", stderr = "warning\n")
+        }
+        device.lingerOn { true }
+
+        val output = withTimeout(10.seconds) { shell.exec("tool", Regex("Result: \\d")) }
+
+        assertEquals(listOf("tool"), device.commands)
+        assertEquals("Running\nResult: 1", output.stdout)
+        assertEquals("warning", output.stderr)
+        assertEquals(0, output.exitCode)
+        assertEquals(emptyList(), device.runningCommands)
+    }
+
+    @Test
+    fun execWithALastLineReturnsTheWholeOutputOfACommandThatExitsWithoutThatLine() = runBlocking {
+        for (expected in
+            listOf(
+                shellOutput(stdout = "Running\nError\n", stderr = "warning\n", exitCode = 3),
+                shellOutput(stdout = "Running\nError", stderr = "warning"),
+                shellOutput(),
+            )) {
+            device.onShell { expected }
+
+            val output = shell.exec("tool", Regex("Result: \\d"))
+
+            assertEquals(expected.stdout, output.stdout)
+            assertEquals(expected.stderr, output.stderr)
+            assertEquals(expected.exitCode, output.exitCode)
+        }
+    }
+
+    @Test
+    fun execWithALastLineGoesOnAfterALineThatOnlyHoldsAMatch() = runBlocking {
+        device.onShell { shellOutput("not done\ndone, almost\ndone\nBye\n") }
+
+        val output = shell.exec("tool", Regex("done"))
+
+        assertEquals("not done\ndone, almost\ndone", output.stdout)
+    }
+
+    /** A caller that stops waiting, such as on a timeout, must not leave the command running. */
+    @Test
+    fun execWithALastLineEndsTheCommandWhenItIsCancelled() = runBlocking {
+        device.onShell { shellOutput("Running\n") }
+        device.lingerOn { true }
+
+        val output = withTimeoutOrNull(100.milliseconds) { shell.exec("tool", Regex("Result")) }
+
+        assertNull(output)
+        assertEquals(listOf("tool"), device.commands)
+        assertEquals(emptyList(), device.runningCommands)
     }
 
     @Test

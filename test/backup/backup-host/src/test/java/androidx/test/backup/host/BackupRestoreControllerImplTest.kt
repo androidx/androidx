@@ -1075,6 +1075,7 @@ class BackupRestoreControllerImplTest {
 
         assertEquals("Backup (LOCAL) timed out after 200ms", e.message)
         assertEquals("am force-stop $PACKAGE", device.commands.last())
+        assertEquals(emptyList(), device.runningCommands)
     }
 
     @Test
@@ -1091,6 +1092,7 @@ class BackupRestoreControllerImplTest {
         assertEquals("Restore timed out after 200ms", e.message)
         assertEquals(BackupErrorCode.RESTORE_POLL_TIMEOUT, e.errorCode)
         assertEquals("am force-stop $PACKAGE", device.commands.last())
+        assertEquals(emptyList(), device.runningCommands)
     }
 
     @Test
