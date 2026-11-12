@@ -410,6 +410,80 @@ class ThrottledCallbacksTest {
         assertEquals(ids, firedIds)
     }
 
+    @Test
+    fun testDebounceSetsMinDebounceDeadline() = test {
+        register(1, throttleMs = 0, debounceMs = 10) {}
+        assertEquals(-1, minDebounceDeadline)
+        fire(1)
+        assertEquals(currentTime + 10, minDebounceDeadline)
+    }
+
+    @Test
+    fun testThrottledFireSetsMinDebounceDeadline() = test {
+        var called = 0
+        register(1, throttleMs = 20, debounceMs = 10) { called++ }
+        fire(1)
+        assertEquals(1, called)
+        assertEquals(-1, minDebounceDeadline)
+        advanceBy(4)
+        // below the throttle limit, so this is deferred to the debounce deadline
+        fire(1)
+        assertEquals(1, called)
+        assertEquals(currentTime + 10, minDebounceDeadline)
+    }
+
+    @Test
+    fun testMinDebounceDeadlineIsEarliestDeadline() = test {
+        var a = 0
+        register(1, throttleMs = 0, debounceMs = 30) { a++ }
+        var b = 0
+        register(2, throttleMs = 0, debounceMs = 10) { b++ }
+        val start = currentTime
+        fire(1)
+        assertEquals(start + 30, minDebounceDeadline)
+        fire(2)
+        assertEquals(start + 10, minDebounceDeadline)
+        // a later deadline does not move the minimum
+        fire(1)
+        assertEquals(start + 10, minDebounceDeadline)
+
+        advanceBy(12)
+        assertEquals(0, a)
+        assertEquals(1, b)
+        assertEquals(start + 30, minDebounceDeadline)
+
+        advanceBy(20)
+        assertEquals(1, a)
+        assertEquals(1, b)
+        assertEquals(-1, minDebounceDeadline)
+    }
+
+    @Test
+    fun testEarlierDebounceDeadlineIsNotDelayedByLaterOne() = test {
+        var a = 0
+        register(1, throttleMs = 0, debounceMs = 30) { a++ }
+        var b = 0
+        register(2, throttleMs = 0, debounceMs = 10) { b++ }
+        fire(1)
+        // records the deadline of 1 as the pending deadline
+        advanceBy(1)
+        // deferred with an earlier deadline than the pending one
+        fire(2)
+        advanceBy(11)
+        assertEquals(0, a)
+        assertEquals(1, b)
+        advanceBy(20)
+        assertEquals(1, a)
+        assertEquals(1, b)
+    }
+
+    @Test
+    fun testFireOnRectChangedEntriesSetsMinDebounceDeadline() = test {
+        register(1, throttleMs = 0, debounceMs = 10) {}
+        fireOnRectChangedEntries(currentTime)
+        assertEquals(currentTime + 10, minDebounceDeadline)
+    }
+
     var currentTime: Long = 1
 
     private fun ThrottledCallbacks.advanceBy(ms: Long) {

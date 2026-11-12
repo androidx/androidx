@@ -188,18 +188,6 @@ internal class ThrottledCallbacks {
         }
     }
 
-    inline fun forEachNewCallbackNeverInvoked(callback: (Entry) -> Unit) {
-        rectChangedMap.forEachValue { entry ->
-            var next: Entry? = entry
-            while (next != null) {
-                if (entry.lastInvokeMillis == Long.MIN_VALUE) {
-                    callback(entry)
-                }
-                next = next.next
-            }
-        }
-    }
-
     /** Fires all [rectChangedMap] entries with latest window/screen info. */
     fun fireOnRectChangedEntries(currentMillis: Long) {
         val windowOffset = windowOffset
@@ -314,11 +302,7 @@ internal class ThrottledCallbacks {
             entry.fire(topLeft, bottomRight, windowOffset, screenOffset, viewToWindowMatrix)
         } else if (!zeroDebounce) {
             entry.lastUninvokedFireMillis = currentMillis
-            val currentMinDeadline = minDebounceDeadline
-            val thisDeadline = currentMillis + debounceMillis
-            if (currentMinDeadline > 0 && thisDeadline < currentMinDeadline) {
-                minDebounceDeadline = currentMinDeadline
-            }
+            updateMinDebounceDeadline(currentMillis + debounceMillis)
         }
     }
 
@@ -353,11 +337,19 @@ internal class ThrottledCallbacks {
             )
         } else if (entry.debounceMillis != 0L) {
             entry.lastUninvokedFireMillis = currentMillis
-            val currentMinDeadline = minDebounceDeadline
-            val thisDeadline = currentMillis + entry.debounceMillis
-            if (currentMinDeadline > 0 && thisDeadline < currentMinDeadline) {
-                minDebounceDeadline = currentMinDeadline
-            }
+            updateMinDebounceDeadline(currentMillis + entry.debounceMillis)
+        }
+    }
+
+    /**
+     * Lowers [minDebounceDeadline] to [deadline] if it is unset or later than [deadline], so that
+     * [triggerDebounced] and the scheduled dispatch run no later than the earliest pending debounce
+     * deadline.
+     */
+    private fun updateMinDebounceDeadline(deadline: Long) {
+        val currentMinDeadline = minDebounceDeadline
+        if (currentMinDeadline < 0 || deadline < currentMinDeadline) {
+            minDebounceDeadline = deadline
         }
     }
 

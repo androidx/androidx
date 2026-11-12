@@ -18,6 +18,8 @@
 
 package androidx.compose.ui.spatial
 
+import androidx.annotation.VisibleForTesting
+import androidx.collection.MutableIntList
 import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.internal.requirePrecondition
 import kotlin.jvm.JvmField
@@ -90,6 +92,28 @@ internal class RectList {
      * cheap.
      */
     @JvmField internal var itemsSize: Int = 0
+
+    /**
+     * Indices into [items] of the items whose "updated" bit is set. An index is added when the bit
+     * goes from unset to set, which only happens for items that have callbacks, so consumers of
+     * updates ([consumeUpdatedRects]) only visit the touched items instead of scanning the whole
+     * list. It may contain stale indices (e.g. for items that were removed or lost their callbacks
+     * since), so consumers must re-check the "updated" bit.
+     */
+    @JvmField internal var updatedIndices: MutableIntList? = null
+
+    /**
+     * Spare list swapped with [updatedIndices] in [consumeUpdatedRects], so that items updated
+     * while callbacks are dispatched are collected for the next dispatch.
+     */
+    @JvmField internal var consumingIndices: MutableIntList? = null
+
+    /** True while [consumeUpdatedRects] is running. */
+    @JvmField internal var isConsumingUpdates: Boolean = false
+
+    /** Whether there are updated items that were not consumed by [consumeUpdatedRects] yet. */
+    val hasPendingUpdates: Boolean
+        get() = updatedIndices?.isNotEmpty() == true
 
     /** The number of items */
     val size: Int
@@ -165,18 +189,13 @@ internal class RectList {
                 value,
                 parentId,
                 lastChildOffset = 0,
-                // TODO: consider the fact that we will be updating every rect on insert, and that
-                //  will probably impact insert times somewhat negatively. We could potentially
-                //  try and check whether or not a node has a "global rect listener" on it before
-                //  insert, or alternatively "mark" the updated array when we add a listener so
-                //  that we could avoid the "fire" for every rect in the collection. This might not
-                //  be a big deal though so let's wait until we can measure and find out if it is
-                //  a problem
-                updated = true,
+                // only items with callbacks are tracked as updated, see [updatedIndices]
+                updated = hasCallbacks,
                 focusable = focusable,
                 gesturable = gesturable,
                 hasCallbacks = hasCallbacks,
             )
+        if (hasCallbacks) addUpdatedIndex(index)
 
         if (parentId == -1) return index
         val parentId = parentId and MaxSupportedId
@@ -265,7 +284,7 @@ internal class RectList {
     fun updateAt(index: Int, l: Int, t: Int, r: Int, b: Int) {
         items[index + 0] = packXY(l, t)
         items[index + 1] = packXY(r, b)
-        items[index + 2] = metaMarkUpdatedIfHasCallbacks(items[index + 2])
+        markUpdatedIfHasCallbacks(index, items[index + 2])
     }
 
     /** Updates the focusable and/or gesturable flags found on given index. */
@@ -275,6 +294,7 @@ internal class RectList {
 
     fun updateHasCallbacksAt(index: Int, hasCallbacks: Boolean) {
         val meta = items[index + 2]
+        if (hasCallbacks && unpackMetaUpdated(meta) == 0) addUpdatedIndex(index)
         items[index + 2] =
             metaMarkUpdatedAndHasCallbacks(
                 meta,
@@ -294,7 +314,7 @@ internal class RectList {
         items[index + 0] = packXY(l, t)
         items[index + 1] = packXY(r, b)
         val meta = items[index + 2]
-        items[index + 2] = metaMarkUpdatedIfHasCallbacks(meta)
+        markUpdatedIfHasCallbacks(index, meta)
         val deltaX = l - unpackX(prevLT)
         val deltaY = t - unpackY(prevLT)
 
@@ -342,6 +362,9 @@ internal class RectList {
 
         stack[0] = stackMeta
         var stackSize = 1
+        // Defer adding to updatedIndices until after the loop so the hot loop stays call-free:
+        // -1 = none, >= 0 = single newly updated item index, -2 = multiple newly updated items.
+        var updatedHint = -1
         while (stackSize > 0) {
             val idAndStartAndOffset = stack[--stackSize]
             val parentId = unpackMetaValue(idAndStartAndOffset) // parent id is in the id slot
@@ -359,11 +382,48 @@ internal class RectList {
                     items[i + 0] = packXY(unpackX(topLeft) + deltaX, unpackY(topLeft) + deltaY)
                     items[i + 1] =
                         packXY(unpackX(bottomRight) + deltaX, unpackY(bottomRight) + deltaY)
-                    items[i + 2] = metaMarkUpdatedIfHasCallbacks(meta)
+                    if (meta < 0L && unpackMetaUpdated(meta) == 0) {
+                        updatedHint = if (updatedHint == -1) i else -2
+                    }
                     if (unpackMetaLastChildOffset(meta) > 0) {
                         // we need to store itemId, lastChildOffset, and a "start index".
                         // For convenience, we just use `meta` which already encodes two of those
                         // values, and we add `i` into the slot for "parentId"
+                        stack[stackSize++] = metaWithParentId(meta, i + LongsPerItem)
+                    }
+                }
+                i += LongsPerItem
+            }
+        }
+        if (updatedHint != -1) {
+            trackUpdatedSubhierarchy(updatedHint, stackMeta)
+        }
+    }
+
+    private fun trackUpdatedSubhierarchy(updatedHint: Int, stackMeta: Long) {
+        if (updatedHint >= 0) {
+            trackUpdated(updatedHint, items[updatedHint + 2])
+            return
+        }
+        val items = items
+        val stack = stack
+        val size = itemsSize
+        stack[0] = stackMeta
+        var stackSize = 1
+        while (stackSize > 0) {
+            val idAndStartAndOffset = stack[--stackSize]
+            val parentId = unpackMetaValue(idAndStartAndOffset)
+            var i = unpackMetaParentId(idAndStartAndOffset)
+            val offset = unpackMetaLastChildOffset(idAndStartAndOffset)
+            val endIndex =
+                if (offset == MaxSupportedLastChildOffset) size else i + (offset * LongsPerItem)
+            if (i < 0) break
+            while (i < size - 2) {
+                if (i > endIndex) break
+                val meta = items[i + 2]
+                if (unpackMetaParentId(meta) == parentId) {
+                    markUpdatedIfHasCallbacks(i, meta)
+                    if (unpackMetaLastChildOffset(meta) > 0) {
                         stack[stackSize++] = metaWithParentId(meta, i + LongsPerItem)
                     }
                 }
@@ -400,7 +460,7 @@ internal class RectList {
         val meta = items[index + 2]
         items[index + 0] = packXY(l, t)
         items[index + 1] = packXY(r, b)
-        items[index + 2] = metaMarkUpdatedIfHasCallbacks(meta)
+        markUpdatedIfHasCallbacks(index, meta)
 
         if (deltaX != 0 || deltaY != 0) {
             updateSubhierarchy(meta, index, deltaX, deltaY)
@@ -408,7 +468,36 @@ internal class RectList {
     }
 
     fun markUpdatedAt(index: Int) {
-        items[index + 2] = metaMarkUpdatedIfHasCallbacks(items[index + 2])
+        markUpdatedIfHasCallbacks(index, items[index + 2])
+    }
+
+    /**
+     * Marks the item at [index] as "updated" if it has callbacks, adding [index] to
+     * [updatedIndices] if the bit was not set before.
+     */
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun markUpdatedIfHasCallbacks(index: Int, meta: Long) {
+        if (meta < 0L && unpackMetaUpdated(meta) == 0) {
+            trackUpdated(index, meta)
+        }
+    }
+
+    private fun getOrCreateUpdatedIndices(): MutableIntList =
+        updatedIndices ?: MutableIntList().also { updatedIndices = it }
+
+    private fun trackUpdated(index: Int, meta: Long) {
+        checkPrecondition(index >= 0 && index < itemsSize - 2) {
+            "Invalid RectList index $index for itemsSize $itemsSize"
+        }
+        items[index + 2] = metaMarkUpdated(meta)
+        getOrCreateUpdatedIndices().add(index)
+    }
+
+    private fun addUpdatedIndex(index: Int) {
+        checkPrecondition(index >= 0 && index < itemsSize - 2) {
+            "Invalid RectList index $index for itemsSize $itemsSize"
+        }
+        getOrCreateUpdatedIndices().add(index)
     }
 
     inline fun withRectAt(index: Int, block: (Int, Int, Int, Int) -> Unit) {
@@ -752,20 +841,35 @@ internal class RectList {
         }
     }
 
-    /**  */
+    /** Removes the items that were removed by [removeAt] from the storage. */
+    /** Removes the items that were removed by [removeAt] from the storage. */
     fun defragment() {
+        checkPrecondition(!isConsumingUpdates) { "defragment() while consuming updated rects" }
         val from = items
         val size = itemsSize
         val to = stack
+        // indices change, so rebuild the list of updated items while compacting
+        var updatedIndices = updatedIndices
+        updatedIndices?.clear()
         var i = 0
         var j = 0
         while (i < from.size - 2) {
             if (j >= to.size - 2) break
             if (i >= size) break
-            if (from[i + 2] != TombStone) {
+            val meta = from[i + 2]
+            if (meta != TombStone) {
                 to[j + 0] = from[i + 0]
                 to[j + 1] = from[i + 1]
-                to[j + 2] = from[i + 2]
+                to[j + 2] = meta
+                if (unpackMetaUpdated(meta) != 0) {
+                    val list =
+                        updatedIndices
+                            ?: MutableIntList().also {
+                                updatedIndices = it
+                                this.updatedIndices = it
+                            }
+                    list.add(j)
+                }
                 j += LongsPerItem
             }
             i += LongsPerItem
@@ -779,30 +883,59 @@ internal class RectList {
         stack = from
     }
 
+    /** Clears the "updated" bit of every item. */
     fun clearUpdated() {
+        val updatedIndices = updatedIndices
+        if (updatedIndices == null || updatedIndices.isEmpty()) return
         val items = items
         val size = itemsSize
-        var i = 0
-        while (i < items.size - 2) {
-            if (i >= size) break
-            items[i + 2] = metaUnMarkUpdated(items[i + 2])
-            i += LongsPerItem
+        updatedIndices.forEach { i ->
+            if (i < size - 2) {
+                items[i + 2] = metaUnMarkUpdated(items[i + 2])
+            }
         }
+        updatedIndices.clear()
     }
 
-    inline fun forEachUpdatedRect(block: (Int, Long, Long) -> Unit) {
-        val items = items
-        val size = itemsSize
-        var i = 0
-        while (i < items.size - 2) {
-            if (i >= size) break
-            val meta = items[i + 2]
-            if (unpackMetaUpdated(meta) != 0) {
-                val topLeft = items[i + 0]
-                val bottomRight = items[i + 1]
-                block(unpackMetaValue(meta), topLeft, bottomRight)
+    /**
+     * Calls [block] with the value, top left and bottom right of every item whose "updated" bit is
+     * set, in [RectList] index (hierarchy) order, and clears that bit. Only the items in
+     * [updatedIndices] are visited. Items that get updated while [block] is running, including
+     * during a re-entrant call (which does nothing), are kept for the next call. [defragment] must
+     * not be called while this is running.
+     */
+    inline fun consumeUpdatedRects(block: (Int, Long, Long) -> Unit) {
+        val indices = updatedIndices
+        if (indices == null || indices.isEmpty() || isConsumingUpdates) return
+        updatedIndices = consumingIndices
+        consumingIndices = indices
+        isConsumingUpdates = true
+        val count = indices.size
+        if (count > 1) {
+            indices.sort()
+        }
+        var k = 0
+        try {
+            while (k < count) {
+                val i = indices[k++]
+                // re-read each time, block may cause the storage to be resized
+                val items = items
+                if (i < itemsSize - 2) {
+                    val meta = items[i + 2]
+                    if (unpackMetaUpdated(meta) != 0) {
+                        items[i + 2] = metaUnMarkUpdated(meta)
+                        block(unpackMetaValue(meta), items[i + 0], items[i + 1])
+                    }
+                }
             }
-            i += LongsPerItem
+        } finally {
+            // if block threw, keep the items that were not visited for the next call
+            if (k < count) {
+                val list = updatedIndices ?: MutableIntList().also { updatedIndices = it }
+                while (k < count) list.add(indices[k++])
+            }
+            indices.clear()
+            isConsumingUpdates = false
         }
     }
 
@@ -955,6 +1088,7 @@ internal inline fun unpackMetaUpdated(meta: Long): Int =
 internal inline fun unpackMetaHasCallbacks(meta: Long): Int =
     (meta shr BitOffsetForHasCallbacks).toInt() and 0b1
 
+@VisibleForTesting
 internal inline fun metaMarkUpdatedIfHasCallbacks(meta: Long): Long =
     meta or ((meta shr BitOffsetForHasCallbacks and 0b1) shl BitOffsetForUpdated)
 

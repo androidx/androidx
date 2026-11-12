@@ -20,8 +20,12 @@ package androidx.compose.ui.benchmark.spatial
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.collection.mutableIntListOf
+import androidx.collection.mutableIntObjectMapOf
+import androidx.compose.ui.node.LayoutNode
+import androidx.compose.ui.spatial.ExecuteDelayed
 import androidx.compose.ui.spatial.NotFound
 import androidx.compose.ui.spatial.RectList
+import androidx.compose.ui.spatial.RectManager
 import androidx.compose.ui.util.fastForEach
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -263,6 +267,51 @@ class RectListBenchmark {
                     runWithMeasurementDisabled { list.add(it) }
                 }
             }
+        }
+    }
+
+    private val noopExecuteDelayed =
+        object : ExecuteDelayed {
+            override fun executeDelayed(delayMillis: Long, block: () -> Unit): Any = Any()
+
+            override fun removeDelayedExecution(token: Any) {}
+        }
+
+    @Test
+    fun b08_dispatchCallbacks_singleUpdatedIn500Nodes() {
+        val count = 500
+        val layoutNodes = mutableIntObjectMapOf<LayoutNode>()
+        val rectManager =
+            RectManager(layoutNodes = layoutNodes, executeDelayed = noopExecuteDelayed)
+        val rects = rectManager.rects
+        var lastIndex = NotFound
+        for (i in 1..count) {
+            val node = LayoutNode(semanticsId = i)
+            layoutNodes[i] = node
+            lastIndex =
+                rects.insert(
+                    value = i,
+                    l = i,
+                    t = i,
+                    r = i + 10,
+                    b = i + 10,
+                    parentId = -1,
+                    parentIndex = NotFound,
+                    focusable = false,
+                    gesturable = false,
+                    hasCallbacks = (i == count),
+                )
+            node.rectListIndex = lastIndex
+        }
+        rectManager.invalidate()
+        rectManager.dispatchCallbacks()
+
+        rule.measureRepeated {
+            runWithMeasurementDisabled {
+                rects.markUpdatedAt(lastIndex)
+                rectManager.invalidate()
+            }
+            rectManager.dispatchCallbacks()
         }
     }
 }

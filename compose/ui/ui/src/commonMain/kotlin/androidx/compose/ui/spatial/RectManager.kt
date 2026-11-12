@@ -18,6 +18,7 @@ package androidx.compose.ui.spatial
 
 import androidx.annotation.VisibleForTesting
 import androidx.collection.IntObjectMap
+import androidx.collection.MutableObjectList
 import androidx.collection.intObjectMapOf
 import androidx.collection.mutableObjectListOf
 import androidx.compose.ui.currentTimeMillis
@@ -51,12 +52,17 @@ internal class RectManager(
     val rects: RectList = RectList()
 
     @VisibleForTesting internal val throttledCallbacks = ThrottledCallbacks()
-    private val callbacks = mutableObjectListOf<() -> Unit>()
+    // Only used by the RectListDebugger, so it is only allocated when a callback is registered.
+    private var callbacks: MutableObjectList<() -> Unit>? = null
     private var isDirty = false
     private var isScreenOrWindowDirty = false
     private var isFragmented = false
     private var dispatchToken: Any? = null
     private var scheduledDispatchDeadline: Long = -1
+    // Whether a dispatch was already requested since the last dispatchCallbacks() or
+    // removeScheduledCallback(). Many nodes get invalidated per frame, and only the first one
+    // needs to schedule the dispatch.
+    private var isDispatchRequested = false
     private val dispatchLambda = {
         dispatchToken = null
         trace("OnPositionedDispatch") { dispatchCallbacks() }
@@ -109,18 +115,19 @@ internal class RectManager(
 
         if (isDirty) {
             isDirty = false
-            callbacks.forEach { it() }
+            callbacks?.forEach { it() }
             // If isScreenOrWindowDirty is also true, skip firing updated rects here; the
             // isScreenOrWindowDirty block below will iterate all rects with callbacks in a single
             // RectList pass (updating their stored rect coordinates and firing with the new
             // screen/window offsets), avoiding a second pass over RectList and preventing
             // double-firing in the same dispatchCallbacks() call.
-            if (!isScreenOrWindowDirty) {
-                rects.forEachUpdatedRect { id, topLeft, bottomRight ->
+            if (isScreenOrWindowDirty) {
+                rects.clearUpdated()
+            } else {
+                rects.consumeUpdatedRects { id, topLeft, bottomRight ->
                     throttledCallbacks.fireOnUpdatedRect(id, topLeft, bottomRight, currentTime)
                 }
             }
-            rects.clearUpdated()
         }
         if (isScreenOrWindowDirty) {
             isScreenOrWindowDirty = false
@@ -131,6 +138,13 @@ internal class RectManager(
                 throttledCallbacks.fireOnUpdatedRect(id, topLeft, bottomRight, currentTime)
             }
         }
+        // rects updated by the callbacks, or not consumed because this is a re-entrant dispatch,
+        // are dispatched next time. a re-entrant dispatch removed the scheduled dispatch, so
+        // schedule it again.
+        if (rects.hasPendingUpdates) {
+            isDirty = true
+            requestDispatch()
+        }
         if (isDispatchGlobalCallbacks) {
             throttledCallbacks.fireGlobalChangeEntries(currentTime)
         }
@@ -138,7 +152,7 @@ internal class RectManager(
         // This makes it a reasonable time to "defragment" the RectList data structure. This
         // will keep operations on this data structure efficient over time. This is a fairly
         // cheap operation to run, so we just do it every time
-        if (isFragmented) {
+        if (isFragmented && !rects.isConsumingUpdates) {
             isFragmented = false
             // TODO: if we want to take advantage of the "generation", we will be motivated to
             //  call this less often. Alternatively we could track the number of remove() calls
@@ -174,13 +188,26 @@ internal class RectManager(
     }
 
     fun removeScheduledCallback() {
+        isDispatchRequested = false
         dispatchToken?.let {
             executeDelayed.removeDelayedExecution(it)
             dispatchToken = null
         }
     }
 
+    /**
+     * Makes sure a [dispatchCallbacks] is scheduled after a rect or callback got invalidated. Only
+     * the first call after a dispatch schedules it.
+     */
+    private fun requestDispatch() {
+        if (!isDispatchRequested) {
+            scheduleDebounceCallback(ensureSomethingScheduled = true)
+            isDispatchRequested = true
+        }
+    }
+
     fun registerOnChangedCallback(callback: () -> Unit): Any? {
+        val callbacks = callbacks ?: mutableObjectListOf<() -> Unit>().also { callbacks = it }
         callbacks.add(callback)
         return callback
     }
@@ -200,7 +227,7 @@ internal class RectManager(
                     rects.updateHasCallbacksAt(layoutNode.indexInRectList(), true)
                 }
                 invalidate()
-                scheduleDebounceCallback(true)
+                requestDispatch()
             }
     }
 
@@ -223,7 +250,7 @@ internal class RectManager(
     fun unregisterOnChangedCallback(token: Any?) {
         @Suppress("UNCHECKED_CAST")
         token as? (() -> Unit) ?: return
-        callbacks.remove(token)
+        callbacks?.remove(token)
     }
 
     fun invalidateCallbacksFor(layoutNode: LayoutNode) {
@@ -232,7 +259,7 @@ internal class RectManager(
             val index = layoutNode.indexInRectList()
             rects.markUpdatedAt(index)
         }
-        scheduleDebounceCallback(ensureSomethingScheduled = true)
+        requestDispatch()
     }
 
     fun updateFlagsFor(layoutNode: LayoutNode, focusable: Boolean, gesturable: Boolean) {
@@ -358,7 +385,7 @@ internal class RectManager(
         }
         layoutNode.rectInParentDirty = false
         invalidate()
-        scheduleDebounceCallback(ensureSomethingScheduled = true)
+        requestDispatch()
     }
 
     fun getOffsetFromRectListFor(layoutNode: LayoutNode): IntOffset =
