@@ -67,6 +67,12 @@ internal class BackupRestoreControllerImpl(
 
     @Volatile internal var cachedDeviceFacts: DeviceFacts? = null
 
+    /**
+     * Whether the device library in the test APK predates the action that runs several storage
+     * actions in one device run.
+     */
+    @Volatile private var lacksStorageBatch = false
+
     private val logger = Logger.getLogger(BackupRestoreControllerImpl::class.java.name)
 
     private val shell = BackupDeviceShell(adbSession, serialNumber)
@@ -191,16 +197,17 @@ internal class BackupRestoreControllerImpl(
                     "Executing standard backup and restore flow for $applicationId across " +
                         "${storages.size} storage domains..."
                 )
+                val runs = BackupActionWireProtocol.deviceRuns(storages)
                 val verifyCalls =
                     runStage(0) {
-                        storages.map { domain ->
-                            logger.info("Seeding data on device for $domain...")
+                        runs.map { domains ->
+                            domains.forEach { logger.info("Seeding data on device for $it...") }
                             val data =
-                                runStorageAction(
-                                    domain,
-                                    BackupActionWireProtocol.populateCall(domain),
+                                runStorageActions(
+                                    domains,
+                                    domains.map { BackupActionWireProtocol.populateCall(it) },
                                 )
-                            BackupActionWireProtocol.verifyCall(domain, data)
+                            domains.zip(data, BackupActionWireProtocol::verifyCall)
                         }
                     }
                 val backupFile =
@@ -220,9 +227,11 @@ internal class BackupRestoreControllerImpl(
                     restoreOn.performRestore(backupFile)
                 }
                 runStage(4) {
-                    storages.zip(verifyCalls).forEach { (domain, verifyCall) ->
-                        logger.info("Verifying restored data on device for $domain...")
-                        restoreOn.runStorageAction(domain, verifyCall)
+                    runs.zip(verifyCalls).forEach { (domains, calls) ->
+                        domains.forEach {
+                            logger.info("Verifying restored data on device for $it...")
+                        }
+                        restoreOn.runStorageActions(domains, calls)
                     }
                 }
             } catch (e: Exception) {
@@ -245,22 +254,68 @@ internal class BackupRestoreControllerImpl(
     }
 
     /**
-     * Runs the action of [call] for [domain], throws if it fails, and returns the action's data.
+     * Runs [calls], the device action calls of [domains] in the same order, and throws if an action
+     * fails. Returns the data of each action, which is empty for actions that ran in a batch.
      */
-    private suspend fun BackupRestoreController.runStorageAction(
-        domain: StorageDomain,
-        call: Pair<String, Map<String, String>>,
-    ): Map<String, String> {
-        val (actionClassName, args) = call
-        val result = runOnDevice(actionClassName = actionClassName, args = args)
-        if (result is BackupActionResult.Failure) {
-            throw IOException(
-                "${actionClassName.substringAfterLast('.')} failed for $domain: " +
-                    result.errorMessage
-            )
+    /*
+     * NOTE: Several calls are calls of the built-in storage actions, whose data nothing reads. They
+     * run in one device run, as one call of the batch action, which names the call that failed.
+     *
+     * A batch that fails without naming a call says nothing about its calls: the device library
+     * predates the batch action, or the run timed out or crashed. Its calls then run one by one,
+     * so that the call that fails reports its own failure. A controller of another implementation
+     * always runs them one by one.
+     */
+    private suspend fun BackupRestoreController.runStorageActions(
+        domains: List<StorageDomain>,
+        calls: List<Pair<String, Map<String, String>>>,
+    ): List<Map<String, String>> {
+        val controller = this as? BackupRestoreControllerImpl
+        if (calls.size > 1 && controller != null && !controller.lacksStorageBatch) {
+            val (batchAction, batchArgs) = BackupActionWireProtocol.storageBatchCall(calls)
+            val result = runOnDevice(batchAction, batchArgs)
+            if (result !is BackupActionResult.Failure) return calls.map { emptyMap() }
+            val failedCall = BackupActionWireProtocol.failedBatchCall(result)
+            if (failedCall != null && failedCall in calls.indices) {
+                throw storageActionFailure(domains[failedCall], calls[failedCall].first, result)
+            }
+            if (BackupActionWireProtocol.isStorageBatchMissing(result)) {
+                controller.lacksStorageBatch = true
+                logger.info(
+                    "The test APK on ${controller.serialNumber} has a version of " +
+                        "androidx.test.backup:backup that can't run several storage actions in " +
+                        "one device run, so they run one by one. Update it to the version of " +
+                        "androidx.test.backup:backup-host to seed and verify storage domains " +
+                        "faster."
+                )
+            } else {
+                logger.info(
+                    "Running ${calls.size} storage actions on ${controller.serialNumber} one by " +
+                        "one, because running them in one device run failed: " +
+                        result.errorMessage
+                )
+            }
         }
-        return result.data
+        return domains.zip(calls) { domain, (actionClassName, args) ->
+            val result = runOnDevice(actionClassName, args)
+            if (result is BackupActionResult.Failure) {
+                throw storageActionFailure(domain, actionClassName, result)
+            }
+            result.data
+        }
     }
+
+    /**
+     * Returns the failure of the flow for [failure] of the action [actionClassName] of [domain].
+     */
+    private fun storageActionFailure(
+        domain: StorageDomain,
+        actionClassName: String,
+        failure: BackupActionResult.Failure,
+    ) =
+        IOException(
+            "${actionClassName.substringAfterLast('.')} failed for $domain: " + failure.errorMessage
+        )
 
     /** Stores [summary] as the latest one and publishes it; publishing never fails the flow. */
     private fun record(summary: BackupExecutionSummary, capture: TestExecutionCapture? = null) {

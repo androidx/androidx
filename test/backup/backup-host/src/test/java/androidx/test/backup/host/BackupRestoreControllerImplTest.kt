@@ -27,6 +27,12 @@ import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Duration
+import java.time.Instant
+import java.util.Collections
+import java.util.logging.Handler
+import java.util.logging.Level
+import java.util.logging.LogRecord
+import java.util.logging.Logger
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlin.test.assertEquals
@@ -49,6 +55,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
@@ -652,14 +659,7 @@ class BackupRestoreControllerImplTest {
 
         controller.performRestore(localArchive())
 
-        assertEquals(
-            listOf(
-                "bmgr list transports",
-                "bmgr transport '$LOCAL_TRANSPORT'",
-                "bmgr restore 1 $PACKAGE",
-            ),
-            device.commands,
-        )
+        assertEquals(listOf("dumpsys backup", "bmgr restore 1 $PACKAGE"), device.commands)
     }
 
     @Test
@@ -1073,7 +1073,7 @@ class BackupRestoreControllerImplTest {
     @Test
     fun performBackupThrowsAndStopsTheAppWhenTheBackupTimesOut() {
         onHealthyDevice()
-        device.hangOn { it == "bmgr backupnow $PACKAGE" }
+        device.hangOn { it == "bmgr backupnow @pm@ $PACKAGE" }
 
         val e =
             assertFailsWith<IOException> {
@@ -1082,6 +1082,7 @@ class BackupRestoreControllerImplTest {
 
         assertEquals("Backup (LOCAL) timed out after 200ms", e.message)
         assertEquals("am force-stop $PACKAGE", device.commands.last())
+        assertEquals(emptyList(), device.runningCommands)
     }
 
     @Test
@@ -1098,6 +1099,7 @@ class BackupRestoreControllerImplTest {
         assertEquals("Restore timed out after 200ms", e.message)
         assertEquals(BackupErrorCode.RESTORE_POLL_TIMEOUT, e.errorCode)
         assertEquals("am force-stop $PACKAGE", device.commands.last())
+        assertEquals(emptyList(), device.runningCommands)
     }
 
     @Test
@@ -1122,7 +1124,7 @@ class BackupRestoreControllerImplTest {
         val stageCommands =
             listOf(
                     BackupRestoreController.ACTION_POPULATE_STORAGE,
-                    "bmgr backupnow $PACKAGE",
+                    "bmgr backupnow @pm@ $PACKAGE",
                     "pm clear",
                     "bmgr restore",
                     BackupRestoreController.ACTION_ASSERT_STORAGE,
@@ -1177,7 +1179,7 @@ class BackupRestoreControllerImplTest {
             }
         val backup = device.commands.indexOfFirst { it.startsWith("bmgr") }
         assertEquals(
-            listOf("dumpsys package $PACKAGE"),
+            listOf("dumpsys package $PACKAGE", "dumpsys backup"),
             device.commands.subList(seed + 1, backup),
         )
     }
@@ -1216,11 +1218,15 @@ class BackupRestoreControllerImplTest {
     fun flowClassifiesAFailureToSelectTheLocalTransportForTheRestoreAsABmgrFailure() {
         var transportSelections = 0
         onHealthyDevice { command ->
-            // The backup selects the local transport first; the restore's selection fails.
-            if (command == "bmgr transport '$LOCAL_TRANSPORT'" && ++transportSelections == 2) {
-                shellOutput("Unknown transport '$LOCAL_TRANSPORT' specified; no changes made.\n")
-            } else {
-                null
+            when {
+                command == "dumpsys backup" ->
+                    shellOutput(backupDump(enabled = true, GMS_TRANSPORT))
+                // The backup selects the local transport first; the restore's selection fails.
+                command == "bmgr transport '$LOCAL_TRANSPORT'" && ++transportSelections == 2 ->
+                    shellOutput(
+                        "Unknown transport '$LOCAL_TRANSPORT' specified; no changes made.\n"
+                    )
+                else -> null
             }
         }
 
@@ -1252,9 +1258,10 @@ class BackupRestoreControllerImplTest {
     @Test
     fun flowClassifiesAPackageThatIsNotBackedUpAsABackupFailure() {
         onHealthyDevice { command ->
-            if (command == "bmgr backupnow $PACKAGE") {
+            if (command == "bmgr backupnow @pm@ $PACKAGE") {
                 shellOutput(
-                    "Running incremental backup for 1 requested packages.\n" +
+                    "Running incremental backup for 2 requested packages.\n" +
+                        "Package @pm@ with result: Success\n" +
                         "Package $PACKAGE with result: Backup is not allowed\n" +
                         "Backup finished with result: Success\n"
                 )
@@ -1273,10 +1280,13 @@ class BackupRestoreControllerImplTest {
     @Test
     fun flowClassifiesAnUnknownLocalTransportAsABmgrFailure() {
         onHealthyDevice { command ->
-            if (command == "bmgr transport '$LOCAL_TRANSPORT'") {
-                shellOutput("Unknown transport '$LOCAL_TRANSPORT' specified; no changes made.\n")
-            } else {
-                null
+            when (command) {
+                "dumpsys backup" -> shellOutput(backupDump(enabled = true, GMS_TRANSPORT))
+                "bmgr transport '$LOCAL_TRANSPORT'" ->
+                    shellOutput(
+                        "Unknown transport '$LOCAL_TRANSPORT' specified; no changes made.\n"
+                    )
+                else -> null
             }
         }
 
@@ -1437,7 +1447,7 @@ class BackupRestoreControllerImplTest {
 
         val populate = device.commands.indexOfFirst { it.contains(CUSTOM_POPULATE) }
         val verify = device.commands.indexOfFirst { it.contains(CUSTOM_VERIFY) }
-        assertTrue(populate < device.commands.indexOf("bmgr backupnow $PACKAGE"))
+        assertTrue(populate < device.commands.indexOf("bmgr backupnow @pm@ $PACKAGE"))
         assertTrue(verify > device.commands.indexOfFirst { it.startsWith("bmgr restore") })
         assertTrue(device.commands[populate].contains("-e rp_id 'example.com'"))
         assertTrue(device.commands[verify].contains("-e rp_id 'example.com'"))
@@ -1487,6 +1497,433 @@ class BackupRestoreControllerImplTest {
         )
         assertFailure(BackupExecutionStage.SEEDING, BackupErrorCode.SEEDING_FAILED)
         assertTrue(device.commands.none { it.startsWith("bmgr backupnow") }, "${device.commands}")
+    }
+
+    /** Domains with built-in actions are seeded in one device run, and verified in one. */
+    @Test
+    fun flowSeedsAndVerifiesBuiltInDomainsInOneDeviceRunEach() {
+        onHealthyDevice()
+        val storages = listOf(PREFERENCE, DATABASE, EXCLUDED_FILE)
+
+        runBlocking { controller.runBackupRestoreFlow(storages, outputDir(), LOCAL) }
+
+        val commands = instrumentCommands()
+        assertEquals(2, commands.size, "$commands")
+        val (seed, verify) = commands
+        assertEquals(storages.map { BackupActionWireProtocol.populateCall(it) }, batchCalls(seed))
+        assertEquals(
+            storages.map { BackupActionWireProtocol.verifyCall(it, emptyMap()) },
+            batchCalls(verify),
+        )
+        assertTrue(
+            device.commands.indexOf(seed) <
+                device.commands.indexOfFirst { it.startsWith("bmgr backupnow") },
+            "${device.commands}",
+        )
+        assertTrue(
+            device.commands.indexOf(verify) >
+                device.commands.indexOfFirst { it.startsWith("bmgr restore") },
+            "${device.commands}",
+        )
+        assertEquals(3, assertNotNull(controller.lastExecutionSummary).storageDomainCount)
+    }
+
+    /** The device calls keep the order of the storages, so a custom action splits a batch. */
+    @Test
+    fun flowRunsACustomActionBetweenBuiltInDomainsOnItsOwn() {
+        onHealthyDevice { command ->
+            if (command.contains(CUSTOM_POPULATE)) {
+                shellOutput(runnerStdout("""{"status":"success","credential_id":"abc"}"""))
+            } else {
+                null
+            }
+        }
+        val before = listOf(PREFERENCE, DATABASE)
+        val after = listOf(FILE, EXCLUDED_FILE)
+
+        runBlocking {
+            controller.runBackupRestoreFlow(before + CUSTOM_DATA + after, outputDir(), LOCAL)
+        }
+
+        val commands = instrumentCommands()
+        assertEquals(
+            listOf(BATCH, CUSTOM_POPULATE, BATCH, BATCH, CUSTOM_VERIFY, BATCH),
+            commands.map { actionClassOf(it) },
+        )
+        assertEquals(
+            before.map { BackupActionWireProtocol.populateCall(it) },
+            batchCalls(commands[0]),
+        )
+        assertEquals(
+            after.map { BackupActionWireProtocol.populateCall(it) },
+            batchCalls(commands[2]),
+        )
+        assertEquals(
+            before.map { BackupActionWireProtocol.verifyCall(it, emptyMap()) },
+            batchCalls(commands[3]),
+        )
+        assertTrue(commands[4].contains("-e credential_id 'abc'"), commands[4])
+        assertEquals(
+            after.map { BackupActionWireProtocol.verifyCall(it, emptyMap()) },
+            batchCalls(commands[5]),
+        )
+    }
+
+    /** A domain with no neighbor to share a device run with is a call of its own action. */
+    @Test
+    fun flowRunsABuiltInDomainOnItsOwnAsACallOfItsAction() {
+        onHealthyDevice()
+
+        runBlocking {
+            controller.runBackupRestoreFlow(
+                listOf(PREFERENCE, CUSTOM_DATA, FILE),
+                outputDir(),
+                LOCAL,
+            )
+        }
+
+        val commands = instrumentCommands()
+        assertEquals(
+            listOf(POPULATE, CUSTOM_POPULATE, POPULATE, ASSERT, CUSTOM_VERIFY, ASSERT),
+            commands.map { actionClassOf(it) },
+        )
+        assertEquals(
+            "am instrument -w -e actionClass '$POPULATE' -e storage_type 'PREFS' " +
+                "-e pref_name 'app_prefs' -e pref_key 'key' -e value 'val' " +
+                "-e value_type 'STRING' $PACKAGE.test/$RUNNER",
+            commands[0],
+        )
+        assertEquals(
+            "am instrument -w -e actionClass '$ASSERT' -e storage_type 'FILES' " +
+                "-e path 'notes.txt' -e value 'it'\\''s here' $PACKAGE.test/$RUNNER",
+            commands[5],
+        )
+    }
+
+    /** A call that fails in a batch fails the flow with the message that it has on its own. */
+    @Test
+    fun flowReportsACallThatFailedInABatchAsItReportsTheCallOnItsOwn() {
+        val storages = listOf(PREFERENCE, FILE, DATABASE)
+        val error = "Expected 'v' but found 'x'"
+        onHealthyDevice { command ->
+            when {
+                actionClassOf(command) == BATCH -> shellOutput(missingActionStdout(BATCH))
+                actionClassOf(command) == ASSERT && command.contains("-e path 'notes.txt' ") ->
+                    shellOutput(runnerStdout("""{"status":"failure","error":"$error"}"""))
+                else -> null
+            }
+        }
+        val onItsOwn =
+            assertFailsWith<IOException> {
+                runBlocking { controller.runBackupRestoreFlow(storages, outputDir(), LOCAL) }
+            }
+        val commandsOneByOne = instrumentCommands().size
+        onHealthyDevice { command ->
+            if (actionClassOf(command) == BATCH && command.contains(ASSERT)) {
+                shellOutput(failedBatchStdout(failedCall = 1, error))
+            } else {
+                null
+            }
+        }
+        val batchingController = controllerOnApi(34)
+
+        val e =
+            assertFailsWith<IOException> {
+                runBlocking {
+                    batchingController.runBackupRestoreFlow(storages, outputDir(), LOCAL)
+                }
+            }
+
+        assertEquals("AssertStorageAction failed for $FILE: $error", e.message)
+        assertEquals(onItsOwn.message, e.message)
+        assertFailure(
+            BackupExecutionStage.VERIFICATION,
+            BackupErrorCode.VERIFICATION_FAILED,
+            batchingController,
+        )
+        // The failed batch is not run again call by call.
+        assertEquals(
+            listOf(BATCH, BATCH),
+            instrumentCommands().drop(commandsOneByOne).map { actionClassOf(it) },
+        )
+    }
+
+    @Test
+    fun flowStopsBeforeTheBackupWhenACallOfTheSeedBatchFails() {
+        onHealthyDevice { command ->
+            if (actionClassOf(command) == BATCH) {
+                shellOutput(failedBatchStdout(failedCall = 2, "Failed to open the database"))
+            } else {
+                null
+            }
+        }
+
+        val e =
+            assertFailsWith<IOException> {
+                runBlocking {
+                    controller.runBackupRestoreFlow(
+                        listOf(PREFERENCE, FILE, DATABASE),
+                        outputDir(),
+                        LOCAL,
+                    )
+                }
+            }
+
+        assertEquals(
+            "PopulateStorageAction failed for $DATABASE: Failed to open the database",
+            e.message,
+        )
+        assertFailure(BackupExecutionStage.SEEDING, BackupErrorCode.SEEDING_FAILED)
+        assertEquals(1, instrumentCommands().size, "${device.commands}")
+        assertTrue(device.commands.none { it.startsWith("bmgr backupnow") }, "${device.commands}")
+    }
+
+    /**
+     * The test report gets the same failure for a call that failed in a batch as for one that
+     * failed on its own: the failed step, the message that names the domain, and the likely cause.
+     */
+    @Test
+    fun flowReportsACallThatFailedInABatchToTheTestReport() {
+        val error = "File not found at path: /data/user/0/$PACKAGE/files/notes.txt"
+        onHealthyDevice { command ->
+            if (actionClassOf(command) == BATCH && command.contains(ASSERT)) {
+                shellOutput(failedBatchStdout(failedCall = 1, error))
+            } else {
+                null
+            }
+        }
+        val capture =
+            TestExecutionCapture(
+                start = Instant.now(),
+                isShared = false,
+                testClassName = null,
+                testMethodName = null,
+            )
+        try {
+            val e =
+                assertFailsWith<IOException> {
+                    runBlocking {
+                        controller.runBackupRestoreFlow(
+                            listOf(PREFERENCE, FILE),
+                            outputDir(),
+                            LOCAL,
+                        )
+                    }
+                }
+
+            val record =
+                capture
+                    .buildFinalizedReport(
+                        savedLogcatFiles = emptyMap(),
+                        failure = e,
+                        suiteProperties =
+                            suiteBackupProperties(
+                                fullBackupContentRef = "@xml/backup_rules",
+                                fullBackupContentXml =
+                                    """<full-backup-content><exclude domain="file" """ +
+                                        """path="notes.txt" /></full-backup-content>""",
+                            ),
+                        filePublisher = null,
+                    )
+                    .record
+            assertEquals(
+                listOf("PASSED", "PASSED", "PASSED", "PASSED", "FAILED"),
+                record.steps.map { it.status },
+            )
+            val callout = assertNotNull(record.callout)
+            assertEquals(5, callout.failedStep)
+            assertEquals("Assertion failed at Verify", callout.title)
+            assertEquals("AssertStorageAction failed for $FILE: $error", callout.message)
+            assertEquals(
+                "backup_rules.xml excludes domain=\"file\" path=\"notes.txt\" in " +
+                    "<full-backup-content>.",
+                callout.likelyCause,
+            )
+        } finally {
+            capture.close()
+        }
+    }
+
+    /**
+     * A device library that predates the batch action runs the storage actions one by one, and the
+     * controller doesn't ask it for a batch again.
+     */
+    @Test
+    fun flowRunsStorageActionsOneByOneOnADeviceLibraryWithoutTheBatchAction() {
+        onHealthyDevice { command ->
+            if (actionClassOf(command) == BATCH) shellOutput(missingActionStdout(BATCH)) else null
+        }
+        val storages = listOf(PREFERENCE, FILE)
+
+        val logs = infoLogsOf {
+            runBlocking {
+                controller.runBackupRestoreFlow(storages, outputDir(), CLOUD)
+                controller.runBackupRestoreFlow(storages, outputDir(), CLOUD)
+            }
+        }
+
+        val commands = instrumentCommands()
+        assertEquals(
+            listOf(BATCH, POPULATE, POPULATE, ASSERT, ASSERT, POPULATE, POPULATE, ASSERT, ASSERT),
+            commands.map { actionClassOf(it) },
+        )
+        for (command in listOf(commands[1], commands[3])) {
+            assertTrue(command.contains("-e pref_name 'app_prefs' "), command)
+        }
+        for (command in listOf(commands[2], commands[4])) {
+            assertTrue(command.contains("-e path 'notes.txt' "), command)
+        }
+        assertTrue(assertNotNull(controller.lastExecutionSummary).isSuccess)
+        assertEquals(
+            listOf(
+                "The test APK on $FAKE_SERIAL has a version of androidx.test.backup:backup that " +
+                    "can't run several storage actions in one device run, so they run one by " +
+                    "one. Update it to the version of androidx.test.backup:backup-host to seed " +
+                    "and verify storage domains faster."
+            ),
+            logs.filter { it.startsWith("The test APK") },
+        )
+    }
+
+    /** Each controller finds out for its own device whether it has the batch action. */
+    @Test
+    fun flowRunsStorageActionsOneByOneOnlyOnTheDeviceWithoutTheBatchAction() {
+        onHealthyDevice()
+        val targetDevice = FakeAdbDevice("target-serial")
+        targetDevice.onShell { command ->
+            when {
+                actionClassOf(command) == BATCH -> shellOutput(missingActionStdout(BATCH))
+                command.startsWith("am instrument") -> shellOutput(runnerStdout("{}"))
+                command.startsWith("pm clear") -> shellOutput("Success\n")
+                else -> null
+            }
+        }
+        val targetController =
+            BackupRestoreControllerImpl(
+                targetDevice.session,
+                "target-serial",
+                34,
+                PACKAGE,
+                backupServiceProvider = { fakeBackupService() },
+            )
+
+        runBlocking {
+            repeat(2) {
+                controller.runBackupRestoreFlow(
+                    listOf(PREFERENCE, FILE),
+                    outputDir(),
+                    CLOUD,
+                    restoreOn = targetController,
+                )
+            }
+        }
+
+        assertEquals(listOf(BATCH, BATCH), instrumentCommands().map { actionClassOf(it) })
+        assertEquals(
+            listOf(BATCH, ASSERT, ASSERT, ASSERT, ASSERT),
+            instrumentCommands(targetDevice).map { actionClassOf(it) },
+        )
+    }
+
+    /**
+     * A batch that fails without naming a call, as when its process crashes, tells nothing about
+     * its calls. They run one by one, so the call that fails reports itself as it always did.
+     */
+    @Test
+    fun flowRunsTheCallsOfABatchThatNamesNoFailedCallOneByOne() {
+        onHealthyDevice { command ->
+            when {
+                actionClassOf(command) == BATCH ->
+                    shellOutput(
+                        "INSTRUMENTATION_RESULT: shortMsg=Process crashed.\n" +
+                            "INSTRUMENTATION_CODE: 0\n"
+                    )
+                actionClassOf(command) == ASSERT && command.contains("-e path 'notes.txt' ") ->
+                    shellOutput(
+                        runnerStdout("""{"status":"failure","error":"File not found at path: x"}""")
+                    )
+                else -> null
+            }
+        }
+
+        lateinit var e: IOException
+        val logs = infoLogsOf {
+            e =
+                assertFailsWith<IOException> {
+                    runBlocking {
+                        controller.runBackupRestoreFlow(
+                            listOf(PREFERENCE, FILE, DATABASE),
+                            outputDir(),
+                            LOCAL,
+                        )
+                    }
+                }
+        }
+
+        assertEquals("AssertStorageAction failed for $FILE: File not found at path: x", e.message)
+        assertFailure(BackupExecutionStage.VERIFICATION, BackupErrorCode.VERIFICATION_FAILED)
+        // The crash says nothing about the device library, so the verification tries a batch too.
+        assertEquals(
+            listOf(BATCH, POPULATE, POPULATE, POPULATE, BATCH, ASSERT, ASSERT),
+            instrumentCommands().map { actionClassOf(it) },
+        )
+        val fallback =
+            "Running 3 storage actions on $FAKE_SERIAL one by one, because running them in one " +
+                "device run failed: No execution result was received from device."
+        assertEquals(2, logs.count { it.startsWith(fallback) }, "$logs")
+    }
+
+    /** A batch too long for the command reaches the runner in a file, as any arguments do. */
+    @Test
+    fun flowPassesABatchTooLongForTheCommandInAFile() {
+        onHealthyDevice()
+        // Each call fits in a command; both together don't.
+        val storages =
+            listOf(
+                StorageDomain.TextFile("a.txt", "a".repeat(18_000)),
+                StorageDomain.TextFile("b.txt", "b".repeat(18_000)),
+            )
+
+        runBlocking { controller.runBackupRestoreFlow(storages, outputDir(), LOCAL) }
+
+        assertEquals(2, device.pushedPaths.size, "${device.pushedPaths}")
+        val (seedFile, verifyFile) = device.pushedPaths
+        assertEquals(
+            listOf(seedFile, verifyFile).map {
+                "am instrument -w -e actionClass '$BATCH' -e argsFile '$it' $PACKAGE.test/$RUNNER"
+            },
+            instrumentCommands(),
+        )
+        val seedArgs = Json.parseToJsonElement(device.pushedContents.getValue(seedFile)).jsonObject
+        assertEquals(setOf("calls"), seedArgs.keys)
+        assertEquals(
+            storages.map { BackupActionWireProtocol.populateCall(it) },
+            decodeCalls(seedArgs.getValue("calls").jsonPrimitive.content),
+        )
+        for (file in listOf(seedFile, verifyFile)) {
+            assertTrue(device.commands.contains("rm -f -- '$file'"), "${device.commands}")
+        }
+    }
+
+    /** Only a controller of this library is known to run the batch action. */
+    @Test
+    fun flowRunsStorageActionsOneByOneOnAControllerOfAnotherImplementation() {
+        onHealthyDevice()
+        val otherImplementation = object : BackupRestoreController by controller {}
+
+        runBlocking {
+            controller.runBackupRestoreFlow(
+                listOf(PREFERENCE, FILE),
+                outputDir(),
+                LOCAL,
+                restoreOn = otherImplementation,
+            )
+        }
+
+        assertEquals(
+            listOf(BATCH, ASSERT, ASSERT),
+            instrumentCommands().map { actionClassOf(it) },
+        )
     }
 
     @Test
@@ -1703,7 +2140,8 @@ class BackupRestoreControllerImplTest {
                     command.startsWith("pm clear") -> shellOutput("Success\n")
                     command == "dumpsys package $PACKAGE" ->
                         shellOutput(packageDump(PACKAGE, stopped = false))
-                    command == "bmgr list transports" -> shellOutput("  * $LOCAL_TRANSPORT\n")
+                    command == "dumpsys backup" ->
+                        shellOutput(backupDump(enabled = true, LOCAL_TRANSPORT))
                     else -> null
                 }
         }
@@ -1731,6 +2169,106 @@ class BackupRestoreControllerImplTest {
     /** Returns the only `am instrument` command run on the device. */
     private fun instrumentCommand(): String =
         device.commands.single { it.startsWith("am instrument") }
+
+    /** Returns the `am instrument` commands run on [device], in order. */
+    private fun instrumentCommands(device: FakeAdbDevice = this.device): List<String> =
+        device.commands.filter { it.startsWith("am instrument") }
+
+    /** Returns the class of the action that [command] runs, or nothing if it runs none. */
+    private fun actionClassOf(command: String): String =
+        command.substringAfter("-e actionClass '", "").substringBefore("'")
+
+    /**
+     * Returns the class names and the arguments of the calls of the storage batch that [command]
+     * runs with its calls inline.
+     */
+    private fun batchCalls(command: String): List<Pair<String, Map<String, String>>> {
+        assertEquals(BATCH, actionClassOf(command), command)
+        return decodeCalls(
+            command
+                .substringAfter(" -e calls '")
+                .substringBeforeLast("' ")
+                // Undoes the shell quoting of the argument.
+                .replace("'\\''", "'")
+        )
+    }
+
+    /** Returns the class names and the arguments of the calls in [json], as a batch gets them. */
+    private fun decodeCalls(json: String): List<Pair<String, Map<String, String>>> =
+        Json.parseToJsonElement(json).jsonArray.map { call ->
+            val members = call.jsonObject
+            assertEquals(setOf("action", "args"), members.keys)
+            members.getValue("action").jsonPrimitive.content to
+                members.getValue("args").jsonObject.mapValues { (_, value) ->
+                    value.jsonPrimitive.content
+                }
+        }
+
+    /**
+     * Returns what `am instrument` prints for a storage batch whose call at the index [failedCall]
+     * reported [error].
+     */
+    private fun failedBatchStdout(failedCall: Int, error: String): String =
+        instrumentOutput(
+            buildJsonObject {
+                put("isSuccess", false)
+                put("errorMessage", error)
+                put("stackTrace", "")
+                put(
+                    "payloadJson",
+                    buildJsonObject {
+                        put("failed_call", failedCall.toString())
+                        put("status", "failure")
+                        put("error", error)
+                    }
+                        .toString(),
+                )
+            }
+                .toString()
+        )
+
+    /**
+     * Returns what `am instrument` prints for a runner whose device library has no action
+     * [actionClassName].
+     */
+    private fun missingActionStdout(actionClassName: String): String =
+        instrumentOutput(
+            buildJsonObject {
+                put("isSuccess", false)
+                put(
+                    "errorMessage",
+                    "Exception executing action: Could not load class $actionClassName",
+                )
+                put(
+                    "stackTrace",
+                    "java.lang.ClassNotFoundException: Could not load class $actionClassName\n",
+                )
+            }
+                .toString()
+        )
+
+    /** Returns the messages that the controllers logged at INFO while [block] ran. */
+    private fun infoLogsOf(block: () -> Unit): List<String> {
+        val logger = Logger.getLogger(BackupRestoreControllerImpl::class.java.name)
+        val messages = Collections.synchronizedList(mutableListOf<String>())
+        val handler =
+            object : Handler() {
+                override fun publish(record: LogRecord) {
+                    if (record.level == Level.INFO) messages += record.message.orEmpty()
+                }
+
+                override fun flush() {}
+
+                override fun close() {}
+            }
+        logger.addHandler(handler)
+        try {
+            block()
+        } finally {
+            logger.removeHandler(handler)
+        }
+        return messages.toList()
+    }
 
     /** Returns a controller of the app on the fake device, taken to run API level [apiLevel]. */
     private fun controllerOnApi(apiLevel: Int) =
@@ -1843,9 +2381,15 @@ class BackupRestoreControllerImplTest {
     private companion object {
         const val PACKAGE = "com.example.app"
         const val RUNNER = "androidx.test.backup.BackupRestoreTestRunner"
+        const val POPULATE = "androidx.test.backup.actions.PopulateStorageAction"
+        const val ASSERT = "androidx.test.backup.actions.AssertStorageAction"
+        const val BATCH = "androidx.test.backup.actions.StorageBatchAction"
         val LOCAL = BackupTransportMode.LOCAL
         val CLOUD = BackupTransportMode.CLOUD_ENCRYPTED
         val PREFERENCE = StorageDomain.Preference("app_prefs", "key", "val")
+        val FILE = StorageDomain.TextFile("notes.txt", "it's here")
+        val DATABASE = StorageDomain.Database("app.db", "users", "id", 1, mapOf("name" to "Ann"))
+        val EXCLUDED_FILE = StorageDomain.ExcludedData(StorageDomain.TextFile("cache.txt", "tmp"))
         val SHORT_TIMEOUT: Duration = Duration.ofMillis(200)
         const val CUSTOM_POPULATE = "com.example.backup.CreateKeyAction"
         const val CUSTOM_VERIFY = "com.example.backup.VerifyKeyAction"
