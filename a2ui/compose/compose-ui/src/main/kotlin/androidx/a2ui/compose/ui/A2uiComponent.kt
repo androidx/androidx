@@ -124,6 +124,12 @@ public interface A2uiComponent {
      * for evaluating reactive data bindings, rendering nested children, dispatching user actions,
      * and reporting runtime errors.
      *
+     * A dynamic binding that [isReady] requires can still evaluate to `null` here: when the bound
+     * data is removed or no longer resolves to a valid value, [isReady] moves the component out of
+     * the success state, but the host may keep the previous content composed while it transitions
+     * out (for example, while it animates out), and that content recomposes with the new data.
+     * Return early in that case rather than assert that the binding is present.
+     *
      * @param properties The stable properties wrapper from which to extract static payloads or bind
      *   dynamic data paths.
      * @param modifier The [Modifier] applied to the root of this component's layout.
