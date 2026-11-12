@@ -30,12 +30,39 @@ open class RecompositionData {
     var lastCountWasSkipped = false
         private set
 
+    // True, if the defaults group was started in the current recomposition and not skipped yet
+    private var inDefaults = false
+
     open fun incrementCount() {
         count++
         lastCountWasSkipped = false
+        inDefaults = false
     }
 
-    fun incrementSkip() {
+    /**
+     * The defaults group of the current recomposition was started.
+     *
+     * The compiler generates a call to skipToGroupEnd when the default parameter calculations are
+     * skipped in a recomposition (startDefaults ... skipToGroupEnd ... endDefaults), but the body
+     * of the composable is still executed.
+     */
+    fun startDefaults() {
+        inDefaults = true
+    }
+
+    /**
+     * Composer.skipToGroupEnd was called for the current recomposition. This is a skip, unless the
+     * call skips the defaults group.
+     */
+    fun skipToGroupEnd() {
+        if (inDefaults) {
+            inDefaults = false
+        } else {
+            incrementSkip()
+        }
+    }
+
+    private fun incrementSkip() {
         count--
         skips++
         lastCountWasSkipped = true

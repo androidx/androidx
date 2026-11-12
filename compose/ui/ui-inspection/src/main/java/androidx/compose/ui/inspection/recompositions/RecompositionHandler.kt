@@ -25,6 +25,7 @@ import androidx.inspection.ArtTooling
 
 private const val START_RESTART_GROUP = "startRestartGroup(I)Landroidx/compose/runtime/Composer;"
 private const val SKIP_TO_GROUP_END = "skipToGroupEnd()V"
+private const val START_DEFAULTS = "startDefaults()V"
 
 /** Detection of recompose counts and skips from installing runtime hooks. */
 internal open class RecompositionHandler<T : RecompositionData>(
@@ -115,11 +116,21 @@ internal open class RecompositionHandler<T : RecompositionData>(
         }
     }
 
-    // The last recomposition was skipped.
-    fun incrementRecompositionSkip(anchor: Any) {
+    // Called from a hook on the composition thread when [Composer.skipToGroupEnd] is called.
+    fun skipToGroupEnd(anchor: Any) {
         synchronized(lock) {
             if (collectingRecompositionCounts) {
-                counts[anchor]?.incrementSkip()
+                counts[anchor]?.skipToGroupEnd()
+            }
+        }
+    }
+
+    // The composable with [anchor] started its defaults group.
+    // This is called from a hook on the composition thread when [Composer.startDefaults] is called.
+    fun startDefaults(anchor: Any) {
+        synchronized(lock) {
+            if (collectingRecompositionCounts) {
+                counts[anchor]?.startDefaults()
             }
         }
     }
@@ -129,9 +140,11 @@ private var hooksInstalled = false
 private var currentHandler: RecompositionHandler<*>? = null
 
 /**
- * We install 2 hooks:
+ * We install 3 hooks:
  * - exit hook for ComposerImpl.startRestartGroup gives us the anchor of the composable
  * - entry hook for ComposerImpl.skipToGroupEnd converts a recompose count to a skip count.
+ * - entry hook for ComposerImpl.startDefaults lets us ignore the skipToGroupEnd call that skips the
+ *   default parameter calculations of a recomposing composable.
  */
 private fun installHooks(artTooling: ArtTooling) {
     if (hooksInstalled) {
@@ -151,7 +164,14 @@ private fun installHooks(artTooling: ArtTooling) {
         artTooling.registerEntryHook(composer, SKIP_TO_GROUP_END) { obj, _ ->
             val composer = obj as? Composer
             composer?.recomposeScopeIdentity?.let { anchor ->
-                currentHandler?.incrementRecompositionSkip(anchor)
+                currentHandler?.skipToGroupEnd(anchor)
+            }
+        }
+
+        artTooling.registerEntryHook(composer, START_DEFAULTS) { obj, _ ->
+            val composer = obj as? Composer
+            composer?.recomposeScopeIdentity?.let { anchor ->
+                currentHandler?.startDefaults(anchor)
             }
         }
     }
