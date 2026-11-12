@@ -30,6 +30,10 @@ package androidx.compose.remote.creation.compose.state {
   @androidx.compose.runtime.Stable public interface MutableRemoteState<T> extends androidx.compose.remote.creation.compose.state.RemoteState<T> {
   }
 
+  public final class MutableRemoteString extends androidx.compose.remote.creation.compose.state.RemoteString implements androidx.compose.remote.creation.compose.state.MutableRemoteState<java.lang.String> {
+    property public String? constantValueOrNull;
+  }
+
   @androidx.compose.runtime.Stable public class RemoteBoolean extends androidx.compose.remote.creation.compose.state.BaseRemoteState<java.lang.Boolean> {
     method public final infix androidx.compose.remote.creation.compose.state.RemoteBoolean and(androidx.compose.remote.creation.compose.state.RemoteBoolean other);
     method public static final androidx.compose.remote.creation.compose.state.RemoteBoolean createNamedRemoteBoolean(String name, boolean defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
@@ -238,6 +242,35 @@ package androidx.compose.remote.creation.compose.state {
 
   public static final class RemoteState.Domain.User extends androidx.compose.remote.creation.compose.state.RemoteState.Domain {
     field public static final androidx.compose.remote.creation.compose.state.RemoteState.Domain.User INSTANCE;
+  }
+
+  @androidx.compose.runtime.Stable public class RemoteString extends androidx.compose.remote.creation.compose.state.BaseRemoteState<java.lang.String> {
+    method public static final androidx.compose.remote.creation.compose.state.RemoteString createNamedRemoteString(String name, String defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+    method @InaccessibleFromKotlin public String? getConstantValueOrNull();
+    method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteInt getLength();
+    method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteBoolean isEmpty();
+    method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteBoolean isNotEmpty();
+    method public final androidx.compose.remote.creation.compose.state.RemoteString lowercase();
+    method public final operator androidx.compose.remote.creation.compose.state.RemoteString plus(androidx.compose.remote.creation.compose.state.RemoteString other);
+    method public final androidx.compose.remote.creation.compose.state.RemoteString trim();
+    method public final androidx.compose.remote.creation.compose.state.RemoteString uppercase();
+    property public String? constantValueOrNull;
+    property public final androidx.compose.remote.creation.compose.state.RemoteBoolean isEmpty;
+    property public final androidx.compose.remote.creation.compose.state.RemoteBoolean isNotEmpty;
+    property public final androidx.compose.remote.creation.compose.state.RemoteInt length;
+    field public static final androidx.compose.remote.creation.compose.state.RemoteString.Companion Companion;
+  }
+
+  public static final class RemoteString.Companion {
+    method public androidx.compose.remote.creation.compose.state.RemoteString createNamedRemoteString(String name, String defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteString! createNamedRemoteString$default(androidx.compose.remote.creation.compose.state.RemoteString.Companion!, String!, String!, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, int, Object!);
+  }
+
+  public final class RemoteStringKt {
+    method @androidx.compose.runtime.annotation.RememberInComposition public static androidx.compose.remote.creation.compose.state.MutableRemoteString MutableRemoteString(String initialValue);
+    method public static androidx.compose.remote.creation.compose.state.RemoteString RemoteString(String value);
+    method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteString getRs(String);
+    property public static androidx.compose.remote.creation.compose.state.RemoteString String.rs;
   }
 
 }
