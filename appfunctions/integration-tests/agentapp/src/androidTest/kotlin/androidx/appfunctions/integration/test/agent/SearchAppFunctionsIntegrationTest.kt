@@ -79,8 +79,6 @@ class SearchAppFunctionsIntegrationTest {
             SENTINEL_FUNCTION_ID,
             DISABLED_BY_DEFAULT_FUNCTION_ID,
             ENABLED_BY_DEFAULT_FUNCTION_ID,
-            ACTIVITY_SCOPE_DYNAMIC_FUNCTION_ID,
-            GLOBAL_SCOPE_DYNAMIC_FUNCTION_ID,
         )
 
     @Before
@@ -434,7 +432,7 @@ class SearchAppFunctionsIntegrationTest {
                 baseFunctionCount
             }
         } else {
-            1
+            2
         }
     }
 

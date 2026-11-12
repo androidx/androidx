@@ -417,10 +417,15 @@ internal object TestUtil {
     fun setAppFunctionStateRemoteAsync(appFunctionName: AppFunctionName, state: Int) = doBlocking {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val intent =
-            android.content.Intent("androidx.appfunctions.integration.testapp.ACTION_SET_STATE")
-        intent.setPackage(appFunctionName.packageName)
-        intent.putExtra("function_id", appFunctionName.functionIdentifier)
-        intent.putExtra("state", state)
+            Intent("androidx.appfunctions.integration.testapp.ACTION_SET_STATE").apply {
+                setClassName(
+                    appFunctionName.packageName,
+                    "androidx.appfunctions.integration.testapp.AppFunctionStateReceiver",
+                )
+                addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES or Intent.FLAG_RECEIVER_FOREGROUND)
+                putExtra("function_id", appFunctionName.functionIdentifier)
+                putExtra("state", state)
+            }
         context.sendBroadcast(intent)
     }
 

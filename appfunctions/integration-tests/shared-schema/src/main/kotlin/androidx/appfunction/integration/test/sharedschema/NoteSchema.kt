@@ -119,3 +119,16 @@ public data class AppFunctionNote(
         val mimeType: String? = null,
     )
 }
+
+@AppFunctionSchemaDefinition(name = "createNoteDisabled", version = 2, category = "myNotes")
+public interface CreateNoteDisabledAppFunction {
+    public suspend fun createNoteDisabled(
+        parameters: CreateNoteAppFunction.Parameters,
+        tag: String? = null,
+    ): CreateNoteAppFunction.Response
+}
+
+@AppFunctionSchemaDefinition(name = "additionalFunction", version = 1, category = "myNotes")
+public interface AdditionalSchemaAppFunction {
+    public fun additionalFunction(): String
+}
