@@ -249,6 +249,28 @@ package @SuppressCompatibility androidx.health.connect.client.devicedatasource {
 
 }
 
+package androidx.health.connect.client.exceptions {
+
+  public final class RateLimitExceededException extends java.lang.IllegalStateException {
+    ctor public RateLimitExceededException();
+    ctor public RateLimitExceededException(optional String? message, optional Throwable? cause);
+    ctor @BytecodeOnly public RateLimitExceededException(String!, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+  }
+
+  public final class RecordTooLargeException extends java.lang.IllegalArgumentException {
+    ctor public RecordTooLargeException();
+    ctor public RecordTooLargeException(optional String? message, optional Throwable? cause);
+    ctor @BytecodeOnly public RecordTooLargeException(String!, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+  }
+
+  public final class RequestTooLargeException extends java.lang.IllegalArgumentException {
+    ctor public RequestTooLargeException();
+    ctor public RequestTooLargeException(optional String? message, optional Throwable? cause);
+    ctor @BytecodeOnly public RequestTooLargeException(String!, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+  }
+
+}
+
 package @SuppressCompatibility androidx.health.connect.client.feature {
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This is a part of the Personal Health Record experimental Health Connect APIs and could change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalPersonalHealthRecordApi {

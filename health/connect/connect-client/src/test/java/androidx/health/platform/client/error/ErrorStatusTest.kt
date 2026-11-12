@@ -35,4 +35,10 @@ class ErrorStatusTest {
         val errorStatus = create(ErrorCode.DATABASE_ERROR)
         assertThat(errorStatus.errorCode).isEqualTo(ErrorCode.DATABASE_ERROR)
     }
+
+    @Test
+    fun rateLimitedErrorCode_preserved() {
+        val errorStatus = create(ErrorCode.RATE_LIMITED, "Rate limit exceeded")
+        assertThat(errorStatus.errorCode).isEqualTo(ErrorCode.RATE_LIMITED)
+    }
 }

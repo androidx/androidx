@@ -17,6 +17,7 @@ package androidx.health.platform.client.impl.error
 
 import android.os.Build
 import android.os.RemoteException
+import androidx.health.connect.client.exceptions.RateLimitExceededException
 import androidx.health.platform.client.error.ErrorCode
 import androidx.health.platform.client.error.ErrorStatus
 import java.io.IOException
@@ -38,6 +39,7 @@ internal val errorCodeExceptionMap =
         ErrorCode.INTERNAL_ERROR to RemoteException::class,
         ErrorCode.CHANGES_TOKEN_OUTDATED to RemoteException::class,
         ErrorCode.TRANSACTION_TOO_LARGE to RemoteException::class,
+        ErrorCode.RATE_LIMITED to RateLimitExceededException::class,
     )
 
 @Suppress("ObsoleteSdkInt") // We want to target lower down to 14 in the future.
@@ -51,6 +53,7 @@ internal fun ErrorStatus.toException(): Exception {
             }
             IllegalArgumentException::class -> IllegalArgumentException(this.errorMessage)
             IOException::class -> IOException(this.errorMessage)
+            RateLimitExceededException::class -> RateLimitExceededException(this.errorMessage)
             else -> UnsupportedOperationException(this.errorMessage)
         }
     }
