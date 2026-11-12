@@ -825,9 +825,6 @@ final object androidx.compose.animation.core/ComposeAnimationCoreFlags { // andr
     final var isNanosecondAnimationSpecEnabled // androidx.compose.animation.core/ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled|{}isNanosecondAnimationSpecEnabled[0]
         final fun <get-isNanosecondAnimationSpecEnabled>(): kotlin/Boolean // androidx.compose.animation.core/ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled.<get-isNanosecondAnimationSpecEnabled>|<get-isNanosecondAnimationSpecEnabled>(){}[0]
         final fun <set-isNanosecondAnimationSpecEnabled>(kotlin/Boolean) // androidx.compose.animation.core/ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled.<set-isNanosecondAnimationSpecEnabled>|<set-isNanosecondAnimationSpecEnabled>(kotlin.Boolean){}[0]
-    final var isSeekableTransitionStateStartAfterLayoutEnabled // androidx.compose.animation.core/ComposeAnimationCoreFlags.isSeekableTransitionStateStartAfterLayoutEnabled|{}isSeekableTransitionStateStartAfterLayoutEnabled[0]
-        final fun <get-isSeekableTransitionStateStartAfterLayoutEnabled>(): kotlin/Boolean // androidx.compose.animation.core/ComposeAnimationCoreFlags.isSeekableTransitionStateStartAfterLayoutEnabled.<get-isSeekableTransitionStateStartAfterLayoutEnabled>|<get-isSeekableTransitionStateStartAfterLayoutEnabled>(){}[0]
-        final fun <set-isSeekableTransitionStateStartAfterLayoutEnabled>(kotlin/Boolean) // androidx.compose.animation.core/ComposeAnimationCoreFlags.isSeekableTransitionStateStartAfterLayoutEnabled.<set-isSeekableTransitionStateStartAfterLayoutEnabled>|<set-isSeekableTransitionStateStartAfterLayoutEnabled>(kotlin.Boolean){}[0]
 }
 
 final object androidx.compose.animation.core/Spring { // androidx.compose.animation.core/Spring|null[0]

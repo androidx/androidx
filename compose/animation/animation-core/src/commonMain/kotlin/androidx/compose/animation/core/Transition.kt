@@ -765,11 +765,7 @@ public class SeekableTransitionState<S>(initialState: S) : TransitionState<S>() 
                     doOneFrame() // We have to wait a frame for the composition, so continue
                     // Now we shouldn't skip a frame while waiting for composition
                     waitForCompositionAfterTargetStateChange()
-                    @OptIn(ExperimentalAnimationCoreApi::class)
-                    if (
-                        ComposeAnimationCoreFlags
-                            .isSeekableTransitionStateStartAfterLayoutEnabled && !wasRunning
-                    ) {
+                    if (!wasRunning) {
                         isFirstFrameAfterTargetStateComposition = true
                     }
                 }
@@ -999,11 +995,7 @@ public fun <T> rememberTransition(
         LaunchedEffect(transitionState.currentState, targetState) {
             transitionState.observeTotalDuration()
             transitionState.compositionContinuationMutex.withLock {
-                @OptIn(ExperimentalAnimationCoreApi::class)
-                if (
-                    !ComposeAnimationCoreFlags.isSeekableTransitionStateStartAfterLayoutEnabled ||
-                        targetState == transitionState.targetState
-                ) {
+                if (targetState == transitionState.targetState) {
                     transitionState.composedTargetState = transitionState.targetState
                     transitionState.compositionContinuation?.resume(transitionState.targetState)
                     transitionState.compositionContinuation = null
