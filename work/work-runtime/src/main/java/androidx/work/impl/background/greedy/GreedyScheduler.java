@@ -35,6 +35,7 @@ import androidx.work.Logger;
 import androidx.work.RunnableScheduler;
 import androidx.work.WorkInfo;
 import androidx.work.impl.ExecutionListener;
+import androidx.work.impl.IsolationInternalBridge;
 import androidx.work.impl.Processor;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.StartStopToken;
@@ -85,6 +86,7 @@ public class GreedyScheduler implements Scheduler, OnConstraintsStateChangedList
     private final WorkLauncher mWorkLauncher;
 
     private final Configuration mConfiguration;
+    private final boolean mProcessIsolationEnabled;
 
     private final Map<WorkGenerationalId, AttemptData> mFirstRunAttempts = new HashMap<>();
     // Internal State
@@ -110,6 +112,8 @@ public class GreedyScheduler implements Scheduler, OnConstraintsStateChangedList
         mTaskExecutor = taskExecutor;
         mConstraintsTracker = new WorkConstraintsTracker(trackers);
         mConfiguration = configuration;
+        mProcessIsolationEnabled =
+                IsolationInternalBridge.isProcessIsolationEnabled(configuration);
         mProcessor = processor;
         mWorkLauncher = workLauncher;
     }
@@ -126,12 +130,10 @@ public class GreedyScheduler implements Scheduler, OnConstraintsStateChangedList
 
     @Override
     public void schedule(WorkSpec @NonNull ... workSpecs) {
-        if (mInDefaultProcess == null) {
-            checkDefaultProcess();
-        }
-
-        if (!mInDefaultProcess) {
-            Logger.get().info(TAG, "Ignoring schedule request in a secondary process");
+        if (!isEnabledInCurrentProcess()) {
+            Logger.get().info(TAG,
+                    "Ignoring schedule request because GreedyScheduler is disabled in this "
+                            + "process");
             return;
         }
 
@@ -203,18 +205,11 @@ public class GreedyScheduler implements Scheduler, OnConstraintsStateChangedList
         }
     }
 
-    private void checkDefaultProcess() {
-        mInDefaultProcess = ProcessUtils.isDefaultProcess(mContext, mConfiguration);
-    }
-
     @Override
     public void cancel(@NonNull String workSpecId) {
-        if (mInDefaultProcess == null) {
-            checkDefaultProcess();
-        }
-
-        if (!mInDefaultProcess) {
-            Logger.get().info(TAG, "Ignoring schedule request in non-main process");
+        if (!isEnabledInCurrentProcess()) {
+            Logger.get().info(TAG,
+                    "Ignoring cancel request because GreedyScheduler is disabled in this process");
             return;
         }
 
@@ -269,6 +264,38 @@ public class GreedyScheduler implements Scheduler, OnConstraintsStateChangedList
         }
         // onExecuted does not need to worry about unscheduling WorkSpecs with the mDelayedTracker.
         // This is because, after onExecuted(), all schedulers are asked to cancel.
+    }
+
+    /**
+     * Returns {@code true} if this {@link GreedyScheduler} may schedule and cancel work in the
+     * current process.
+     * <p>
+     * When multiprocess isolation is enabled, in-process greedy execution is enabled in every
+     * process (designed to pair with per-process {@code WorkDatabase} isolation in b/571493699)
+     * and {@link Configuration#getDefaultProcessName()} is not consulted. Otherwise, greedy
+     * execution is restricted to the default process so that multiple processes sharing the legacy
+     * {@code WorkDatabase} do not concurrently execute the same work.
+     * <p>
+     * Note: Until per-process {@code WorkDatabase} naming lands (b/571493699), enabling the
+     * internal isolation flag across multiple processes would execute work greedily against the
+     * shared database. In addition, work killed mid-run in isolated processes that do not match a
+     * configured {@code defaultProcessName} can remain stuck in {@code RUNNING} until
+     * {@code ForceStopRunnable} (b/571495145) is updated, and {@code RescheduleReceiver} is not
+     * enabled in non-default isolated processes until {@code UnfinishedWorkListener} (b/571493955)
+     * is made isolation-aware.
+     */
+    private boolean isEnabledInCurrentProcess() {
+        if (mProcessIsolationEnabled) {
+            return true;
+        }
+        // Benign race: concurrent callers may both compute and store the same value. Read the
+        // field once so the null-check and the returned value refer to the same snapshot.
+        Boolean inDefaultProcess = mInDefaultProcess;
+        if (inDefaultProcess == null) {
+            inDefaultProcess = ProcessUtils.isDefaultProcess(mContext, mConfiguration);
+            mInDefaultProcess = inDefaultProcess;
+        }
+        return inDefaultProcess;
     }
 
     private void removeConstraintTrackingFor(@NonNull WorkGenerationalId id) {
