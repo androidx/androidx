@@ -39,7 +39,7 @@ dependencies {
 }
 
 android {
-    compileSdk { version = release(37) { minorApiLevel = 2 } }
+    compileSdk { version = release(37) { minorApiLevel = 1 } }
     namespace = "androidx.a2ui.compose.runtime.samples"
 }
 
