@@ -24,15 +24,14 @@ import androidx.compose.remote.creation.compose.shaders.verticalGradient
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteTileMode
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI.Companion.DefaultContainerSize
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -58,20 +57,20 @@ class BorderModifierTest {
     fun grid() = composeTestRule.runScreenshotTest {
         val borders =
             listOf<Pair<String, @Composable RemoteModifier.() -> RemoteModifier>>(
-                "1dp" to { border(1.rdp, Color.Red.rc) },
-                "2dp" to { border(2.rdp, Color.Red.rc) },
-                "3dp" to { border(3.rdp, Color.Red.rc) },
-                "color alpha" to { border(3.rdp, Color.Blue.rc.copy(alpha = 0.5f.rf)) },
+                "1dp" to { border(1.rdp, RemoteColor.Red) },
+                "2dp" to { border(2.rdp, RemoteColor.Red) },
+                "3dp" to { border(3.rdp, RemoteColor.Red) },
+                "color alpha" to { border(3.rdp, RemoteColor.Blue.copy(alpha = 0.5f.rf)) },
                 // Ensure a non constant color
                 "color ref" to
                     {
-                        border(3.rdp, Color.Blue.rc.copy(alpha = 0.5f.rf.createReference()))
+                        border(3.rdp, RemoteColor.Blue.copy(alpha = 0.5f.rf.createReference()))
                     },
                 "RemoteRectangleShape" to
                     {
                         border(
                             width = 2.rdp,
-                            color = Color.Green.rc,
+                            color = RemoteColor.Green,
                             shape = RemoteRectangleShape,
                         )
                     },
@@ -79,7 +78,7 @@ class BorderModifierTest {
                     {
                         border(
                             width = 2.rdp,
-                            color = Color.Magenta.rc,
+                            color = RemoteColor.Magenta,
                             shape = RemoteCircleShape,
                         )
                     },
@@ -87,7 +86,7 @@ class BorderModifierTest {
                     {
                         border(
                             width = 2.rdp,
-                            color = Color.Cyan.rc,
+                            color = RemoteColor.Cyan,
                             shape = RemoteRoundedCornerShape(size = 10.rf),
                         )
                     },
@@ -145,8 +144,8 @@ class BorderModifierTest {
                 modifier =
                     RemoteModifier.fillMaxWidth()
                         .fillMaxHeight()
-                        .background(Color.Red.rc)
-                        .border(3.rdp, Color.Cyan.rc)
+                        .background(RemoteColor.Red)
+                        .border(3.rdp, RemoteColor.Cyan)
             )
         }
     }
@@ -157,7 +156,7 @@ class BorderModifierTest {
         composeTestRule.runScreenshotTest {
             val gradient =
                 RemoteBrush.verticalGradient(
-                    colors = listOf(Color.Red.rc, Color.Blue.rc, Color.Green.rc),
+                    colors = listOf(RemoteColor.Red, RemoteColor.Blue, RemoteColor.Green),
                     startY = 0f.rf,
                     endY = 10000f.rf,
                     tileMode = RemoteTileMode.Repeated,
@@ -167,7 +166,7 @@ class BorderModifierTest {
                     RemoteModifier.fillMaxWidth()
                         .fillMaxHeight()
                         .background(gradient)
-                        .border(3.rdp, Color.Cyan.rc)
+                        .border(3.rdp, RemoteColor.Cyan)
             )
         }
     }
@@ -181,8 +180,8 @@ class BorderModifierTest {
                         RemoteBox(
                             modifier =
                                 RemoteModifier.size(DefaultContainerSize)
-                                    .background(Color.Blue.rc)
-                                    .border(width = 4.rdp, color = Color.Red.rc)
+                                    .background(RemoteColor.Blue)
+                                    .border(width = 4.rdp, color = RemoteColor.Red)
                         )
                     },
                 "Background (brush) > border" to
@@ -192,10 +191,10 @@ class BorderModifierTest {
                                 RemoteModifier.size(DefaultContainerSize)
                                     .background(
                                         RemoteBrush.verticalGradient(
-                                            listOf(Color.Blue.rc, Color.Cyan.rc)
+                                            listOf(RemoteColor.Blue, RemoteColor.Cyan)
                                         )
                                     )
-                                    .border(width = 4.rdp, color = Color.Red.rc)
+                                    .border(width = 4.rdp, color = RemoteColor.Red)
                         )
                     },
                 "Empty" to {},
@@ -204,8 +203,8 @@ class BorderModifierTest {
                         RemoteBox(
                             modifier =
                                 RemoteModifier.size(DefaultContainerSize)
-                                    .border(width = 4.rdp, color = Color.Red.rc)
-                                    .background(Color.Blue.rc)
+                                    .border(width = 4.rdp, color = RemoteColor.Red)
+                                    .background(RemoteColor.Blue)
                         )
                     },
                 "Border > background (brush)" to
@@ -213,10 +212,10 @@ class BorderModifierTest {
                         RemoteBox(
                             modifier =
                                 RemoteModifier.size(DefaultContainerSize)
-                                    .border(width = 4.rdp, color = Color.Red.rc)
+                                    .border(width = 4.rdp, color = RemoteColor.Red)
                                     .background(
                                         RemoteBrush.verticalGradient(
-                                            listOf(Color.Blue.rc, Color.Cyan.rc)
+                                            listOf(RemoteColor.Blue, RemoteColor.Cyan)
                                         )
                                     )
                         )

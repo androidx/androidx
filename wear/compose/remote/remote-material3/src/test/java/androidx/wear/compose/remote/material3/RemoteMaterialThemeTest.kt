@@ -22,7 +22,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.RcPlayerTestRule
 import androidx.compose.remote.player.compose.embedded.RcPlayer
@@ -116,7 +116,7 @@ class RemoteMaterialThemeTest {
     @Test
     fun color_scheme_can_be_copied_and_overridden() {
         val expectedTint = Color.Yellow
-        val remoteColorScheme = RemoteColorScheme().copy(onSurface = Color.Yellow.rc)
+        val remoteColorScheme = RemoteColorScheme().copy(onSurface = RemoteColor.Yellow)
 
         runTest {
             RemoteMaterialTheme(colorScheme = remoteColorScheme) {

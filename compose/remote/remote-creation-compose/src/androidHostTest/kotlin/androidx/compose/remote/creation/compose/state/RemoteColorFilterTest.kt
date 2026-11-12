@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.creation.compose.state
 
-import androidx.compose.ui.graphics.Color
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,7 +26,7 @@ class RemoteColorFilterTest {
 
     @Test
     fun remoteBlendModeColorFilter_fromRemoteBlendMode() {
-        val color = Color.Red.rc
+        val color = RemoteColor.Red
         val filter = RemoteBlendModeColorFilter(color, RemoteBlendMode.Multiply)
 
         assertThat(filter.color).isEqualTo(color)

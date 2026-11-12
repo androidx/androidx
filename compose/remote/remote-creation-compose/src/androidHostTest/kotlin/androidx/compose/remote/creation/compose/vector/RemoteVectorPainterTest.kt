@@ -29,7 +29,6 @@ import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemoteBlendModeColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePathFillType
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
@@ -82,12 +81,12 @@ class RemoteVectorPainterTest {
             RemoteImageVector.Builder(
                     viewportWidth = 20f.rf,
                     viewportHeight = 20f.rf,
-                    tintColor = RemoteColor(Color.Black),
+                    tintColor = RemoteColor.Black,
                     name = "RemoteIcon20",
                 )
                 .path(
                     pathFillType = RemotePathFillType.NonZero,
-                    fill = RemoteBrush.solidColor(Color.Black.rc),
+                    fill = RemoteBrush.solidColor(RemoteColor.Black),
                 ) {
                     moveTo(0f.rf, 0f.rf)
                     lineTo(20f.rf, 20f.rf)
@@ -141,8 +140,8 @@ class RemoteVectorPainterTest {
         assertThat(group.numChildren).isEqualTo(2)
         val solidComponent = group[0] as RemotePathComponent
         assertThat(solidComponent.pathFillType).isEqualTo(RemotePathFillType.EvenOdd)
-        assertThat(solidComponent.fill).isEqualTo(RemoteBrush.solidColor(Color.Blue.rc))
-        assertThat(solidComponent.stroke).isEqualTo(RemoteBrush.solidColor(Color.Green.rc))
+        assertThat(solidComponent.fill).isEqualTo(RemoteBrush.solidColor(RemoteColor.Blue))
+        assertThat(solidComponent.stroke).isEqualTo(RemoteBrush.solidColor(RemoteColor.Green))
 
         val shaderComponent = group[1] as RemotePathComponent
         assertThat(shaderComponent.fill).isNull()
@@ -154,12 +153,12 @@ class RemoteVectorPainterTest {
             RemoteImageVector.Builder(
                     viewportWidth = 24f.rf,
                     viewportHeight = 24f.rf,
-                    tintColor = RemoteColor(Color.Black),
+                    tintColor = RemoteColor.Black,
                     name = "TestVector",
                 )
                 .path(
                     pathFillType = RemotePathFillType.EvenOdd,
-                    fill = RemoteBrush.solidColor(Color.Red.rc),
+                    fill = RemoteBrush.solidColor(RemoteColor.Red),
                     fillAlpha = 0.5f.rf,
                 ) {
                     moveTo(0f.rf, 0f.rf)
@@ -176,13 +175,14 @@ class RemoteVectorPainterTest {
 
     @Test
     fun remoteImageVector_draw_gradientFillAndStrokeWithAlpha() {
-        val fillGradient = RemoteBrush.horizontalGradient(listOf(Color.Red.rc, Color.Blue.rc))
-        val strokeGradient = RemoteBrush.radialGradient(listOf(Color.Green.rc, Color.Yellow.rc))
+        val fillGradient = RemoteBrush.horizontalGradient(listOf(RemoteColor.Red, RemoteColor.Blue))
+        val strokeGradient =
+            RemoteBrush.radialGradient(listOf(RemoteColor.Green, RemoteColor.Yellow))
         val remoteImageVector =
             RemoteImageVector.Builder(
                     viewportWidth = 24f.rf,
                     viewportHeight = 24f.rf,
-                    tintColor = Color.Unspecified.rc,
+                    tintColor = RemoteColor.Transparent,
                     name = "GradientVector",
                 )
                 .path(

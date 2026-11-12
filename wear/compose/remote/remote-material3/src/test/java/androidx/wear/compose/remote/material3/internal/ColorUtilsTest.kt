@@ -21,11 +21,12 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.RemoteColor
-import androidx.compose.remote.creation.compose.state.asConstantColor
 import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.toArgb
 import androidx.wear.compose.remote.material3.DocumentPainterRule
 import androidx.wear.compose.remote.material3.RemoteMaterialTheme
 import com.google.common.truth.Truth.assertThat
@@ -43,14 +44,14 @@ class ColorUtilsTest {
 
     @Test
     fun setLuminance_white_returnsGrayOfTone() {
-        val color = Color.White.rc.setLuminance(80f).asConstantColor()
+        val color = Color(RemoteColor.White.setLuminance(80f).constantValue)
 
         assertColor(color, ToneEightyGray)
     }
 
     @Test
     fun setLuminance_keepsAlpha() {
-        val color = Color.White.copy(alpha = 0.5f).rc.setLuminance(80f).asConstantColor()
+        val color = Color(RemoteColor.White.copy(alpha = 0.5f.rf).setLuminance(80f).constantValue)
 
         assertThat(color.alpha).isWithin(Tolerance).of(0.5f)
         assertColor(color.copy(alpha = 1f), ToneEightyGray)
@@ -60,7 +61,7 @@ class ColorUtilsTest {
     fun setLuminance_chromaticColor_setsToneAndKeepsChromaticity() {
         val source = Color(red = 103, green = 80, blue = 164)
 
-        val color = source.rc.setLuminance(30f).asConstantColor()
+        val color = Color(source.toArgb().rc.setLuminance(30f).constantValue)
 
         assertThat(color.lStar()).isWithin(0.5f).of(30f)
         val linearSource = source.convert(ColorSpaces.LinearSrgb)
@@ -75,20 +76,20 @@ class ColorUtilsTest {
 
     @Test
     fun setLuminance_black_returnsGrayOfTone() {
-        val color = Color.Black.rc.setLuminance(80f).asConstantColor()
+        val color = Color(RemoteColor.Black.setLuminance(80f).constantValue)
 
         assertColor(color, ToneEightyGray)
     }
 
     @Test
     fun setLuminance_outOfRange_isCorrected() {
-        assertColor(Color.Gray.rc.setLuminance(150f).asConstantColor(), Color.White)
-        assertColor(Color.Gray.rc.setLuminance(-10f).asConstantColor(), Color.Black)
+        assertColor(Color(RemoteColor.Gray.setLuminance(150f).constantValue), Color.White)
+        assertColor(Color(RemoteColor.Gray.setLuminance(-10f).constantValue), Color.Black)
     }
 
     @Test
     fun setLuminance_namedColor_isEvaluatedByPlayer() {
-        val named = RemoteColor.createNamedRemoteColor("test.color", Color.White.rc)
+        val named = RemoteColor.createNamedRemoteColor("test.color", RemoteColor.White)
         assertThat(named.setLuminance(80f).constantValueOrNull).isNull()
 
         val painter = painterRule.paintDocument {

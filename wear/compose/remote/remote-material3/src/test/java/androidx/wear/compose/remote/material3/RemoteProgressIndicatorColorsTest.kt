@@ -18,10 +18,9 @@ package androidx.wear.compose.remote.material3
 
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.shaders.solidColor
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.ui.graphics.Color
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,12 +29,12 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class RemoteProgressIndicatorColorsTest {
 
-    private val redBrush = RemoteBrush.solidColor(Color.Red.rc)
-    private val blueBrush = RemoteBrush.solidColor(Color.Blue.rc)
-    private val greenBrush = RemoteBrush.solidColor(Color.Green.rc)
-    private val grayBrush = RemoteBrush.solidColor(Color.Gray.rc)
-    private val darkGrayBrush = RemoteBrush.solidColor(Color.DarkGray.rc)
-    private val lightGrayBrush = RemoteBrush.solidColor(Color.LightGray.rc)
+    private val redBrush = RemoteBrush.solidColor(RemoteColor.Red)
+    private val blueBrush = RemoteBrush.solidColor(RemoteColor.Blue)
+    private val greenBrush = RemoteBrush.solidColor(RemoteColor.Green)
+    private val grayBrush = RemoteBrush.solidColor(RemoteColor.Gray)
+    private val darkGrayBrush = RemoteBrush.solidColor(RemoteColor.DarkGray)
+    private val lightGrayBrush = RemoteBrush.solidColor(RemoteColor.LightGray)
 
     private val colors =
         RemoteProgressIndicatorColors(
@@ -78,8 +77,8 @@ class RemoteProgressIndicatorColorsTest {
 
     @Test
     fun copy_overrides_specified_brushes() {
-        val yellowBrush = RemoteBrush.solidColor(Color.Yellow.rc)
-        val cyanBrush = RemoteBrush.solidColor(Color.Cyan.rc)
+        val yellowBrush = RemoteBrush.solidColor(RemoteColor.Yellow)
+        val cyanBrush = RemoteBrush.solidColor(RemoteColor.Cyan)
         val copied = colors.copy(indicatorBrush = yellowBrush, disabledTrackBrush = cyanBrush)
         assertThat(copied.indicatorBrush).isEqualTo(yellowBrush)
         assertThat(copied.trackBrush).isEqualTo(blueBrush)

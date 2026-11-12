@@ -27,7 +27,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCaptureStat
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteIntrinsicSize
-import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.util.TestRemoteComposeBuffer
 import androidx.compose.remote.creation.modifiers.HeightInModifier as CoreHeightInModifier
@@ -35,7 +35,6 @@ import androidx.compose.remote.creation.modifiers.HeightModifier as CoreHeightMo
 import androidx.compose.remote.creation.modifiers.WidthInModifier as CoreWidthInModifier
 import androidx.compose.remote.creation.modifiers.WidthModifier as CoreWidthModifier
 import androidx.compose.remote.creation.profile.Profile
-import androidx.compose.ui.graphics.Color
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -308,10 +307,10 @@ class SizeModifierTest {
     fun testDefaultMinSize_appliedTwice_withPaddingAndBackground() {
         val modifier =
             RemoteModifier.defaultMinSize(minWidth = 40.rdp, minHeight = 40.rdp)
-                .background(Color.Gray.rc)
+                .background(RemoteColor.Gray)
                 .padding(10.rdp)
                 .defaultMinSize(minWidth = 70.rdp, minHeight = 70.rdp)
-                .background(Color.Red.rc)
+                .background(RemoteColor.Red)
         val recordingModifier = creationState.toRecordingModifier(modifier)
 
         // The second defaultMinSize is a no-op because width and height are already constrained by

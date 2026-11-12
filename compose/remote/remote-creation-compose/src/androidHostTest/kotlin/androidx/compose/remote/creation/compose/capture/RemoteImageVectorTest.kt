@@ -26,7 +26,6 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePathFillType
 import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.vector.RemotePathNode
 import androidx.compose.ui.graphics.Brush
@@ -156,7 +155,7 @@ class RemoteImageVectorTest {
             RemoteImageVector.Builder(
                     viewportWidth = 24f.rf,
                     viewportHeight = 24f.rf,
-                    tintColor = RemoteColor(Color.Black),
+                    tintColor = RemoteColor.Black,
                 )
                 .group(
                     clipPathData =
@@ -167,7 +166,7 @@ class RemoteImageVectorTest {
                         )
                 ) {
                     path(
-                        fill = RemoteBrush.solidColor(Color.Red.rc),
+                        fill = RemoteBrush.solidColor(RemoteColor.Red),
                         pathFillType = RemotePathFillType.NonZero,
                     ) {
                         moveTo(0f.rf, 0f.rf)
@@ -185,11 +184,11 @@ class RemoteImageVectorTest {
             RemoteImageVector.Builder(
                     viewportWidth = 24f.rf,
                     viewportHeight = 24f.rf,
-                    tintColor = RemoteColor(Color.Black),
+                    tintColor = RemoteColor.Black,
                 )
                 .path(
                     pathFillType = RemotePathFillType.NonZero,
-                    fill = RemoteBrush.solidColor(Color.Red.rc),
+                    fill = RemoteBrush.solidColor(RemoteColor.Red),
                 ) {
                     moveTo(0f.rf, 0f.rf)
                     lineTo(24f.rf, 24f.rf)
@@ -201,17 +200,18 @@ class RemoteImageVectorTest {
 
     @Test
     fun builderPath_supportsRemoteGradientAndDynamicSolidBrushes() {
-        val dynamicColor = RemoteColor.createNamedRemoteColor("iconFill", Color.Magenta.rc)
-        val fillBrush = RemoteBrush.linearGradient(listOf(Color.Red.rc, dynamicColor))
-        val strokeBrush = RemoteBrush.radialGradient(listOf(Color.Cyan.rc, Color.Blue.rc))
-        val sweepBrush = RemoteBrush.sweepGradient(listOf(Color.Yellow.rc, Color.Green.rc))
-        val horizontalBrush = RemoteBrush.horizontalGradient(listOf(Color.White.rc, Color.Black.rc))
+        val dynamicColor = RemoteColor.createNamedRemoteColor("iconFill", RemoteColor.Magenta)
+        val fillBrush = RemoteBrush.linearGradient(listOf(RemoteColor.Red, dynamicColor))
+        val strokeBrush = RemoteBrush.radialGradient(listOf(RemoteColor.Cyan, RemoteColor.Blue))
+        val sweepBrush = RemoteBrush.sweepGradient(listOf(RemoteColor.Yellow, RemoteColor.Green))
+        val horizontalBrush =
+            RemoteBrush.horizontalGradient(listOf(RemoteColor.White, RemoteColor.Black))
 
         val remoteImageVector =
             RemoteImageVector.Builder(
                     viewportWidth = 24f.rf,
                     viewportHeight = 24f.rf,
-                    tintColor = Color.Unspecified.rc,
+                    tintColor = RemoteColor.Transparent,
                 )
                 .path(
                     name = "gradient_path",
@@ -249,14 +249,14 @@ class RemoteImageVectorTest {
 
     @Test
     fun builderRestrictedPathAndAddPath_supportRemoteTypes() {
-        val fillBrush = RemoteBrush.horizontalGradient(listOf(Color.Red.rc, Color.Blue.rc))
-        val strokeBrush = RemoteBrush.solidColor(Color.Green.rc)
+        val fillBrush = RemoteBrush.horizontalGradient(listOf(RemoteColor.Red, RemoteColor.Blue))
+        val strokeBrush = RemoteBrush.solidColor(RemoteColor.Green)
 
         val remoteImageVector =
             RemoteImageVector.Builder(
                     viewportWidth = 24f.rf,
                     viewportHeight = 24f.rf,
-                    tintColor = Color.Unspecified.rc,
+                    tintColor = RemoteColor.Transparent,
                 )
                 .path(
                     name = "remote_typed_path",
@@ -316,7 +316,7 @@ class RemoteImageVectorTest {
         val remoteImageVector = imageVector.toRemoteImageVector()
         val path = remoteImageVector.root[0] as RemoteVectorPath
 
-        assertThat(path.fill).isEqualTo(RemoteBrush.solidColor(Color.Green.rc))
+        assertThat(path.fill).isEqualTo(RemoteBrush.solidColor(RemoteColor.Green))
         assertThat(path.stroke).isNull()
     }
 }

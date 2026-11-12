@@ -46,7 +46,6 @@ import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRul
 import androidx.compose.remote.player.core.platform.AndroidComponentSupport
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -87,28 +86,28 @@ class RemoteCanvasCustomComponentScreenshotTest {
             "triangle_red" to
                 @Composable @RemoteComposable {
                     CustomShapeComponent(
-                        color = Color.Red.rc,
+                        color = RemoteColor.Red,
                         edges = 3.ri,
                     )
                 },
             "diamond_green" to
                 @Composable @RemoteComposable {
                     CustomShapeComponent(
-                        color = Color(0xFF2E7D32).rc,
+                        color = 0xFF2E7D32.rc,
                         edges = 4.ri,
                     )
                 },
             "pentagon_blue" to
                 @Composable @RemoteComposable {
                     CustomShapeComponent(
-                        color = Color(0xFF1565C0).rc,
+                        color = 0xFF1565C0.rc,
                         edges = 5.ri,
                     )
                 },
             "hexagon_magenta" to
                 @Composable @RemoteComposable {
                     CustomShapeComponent(
-                        color = Color(0xFFAD1457).rc,
+                        color = 0xFFAD1457.rc,
                         edges = 6.ri,
                     )
                 },
@@ -116,14 +115,14 @@ class RemoteCanvasCustomComponentScreenshotTest {
                 @Composable @RemoteComposable {
                     // Verify expression hoisting with dynamic RemoteInt
                     CustomShapeComponent(
-                        color = Color(0xFFEF6C00).rc,
+                        color = 0xFFEF6C00.rc,
                         edges = 5.ri + 3.ri,
                     )
                 },
             "circle_cyan" to
                 @Composable @RemoteComposable {
                     CustomShapeComponent(
-                        color = Color(0xFF00838F).rc,
+                        color = 0xFF00838F.rc,
                         edges = 0.ri,
                     )
                 },

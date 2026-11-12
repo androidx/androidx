@@ -34,10 +34,8 @@ import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.create
 import androidx.compose.remote.creation.compose.state.RemoteLong.Companion.createNamedRemoteLong
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.player.core.state.RemoteDomains
-import androidx.compose.remote.testing.LimitsRule
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.createBitmap
 import androidx.test.core.app.ApplicationProvider
@@ -60,7 +58,6 @@ import org.robolectric.annotation.Config
 class NamedVariableDiscardedTest {
 
     @get:Rule val remoteCaptureRule = RemoteCaptureTestRule()
-    @get:Rule val limitsRule = LimitsRule()
 
     private val context: Context = ApplicationProvider.getApplicationContext()
 
@@ -83,7 +80,7 @@ class NamedVariableDiscardedTest {
             remoteCaptureRule.captureDocument(context) {
                 RemoteBox {
                     val namedColor = remember {
-                        RemoteColor.createNamedRemoteColor("testColor", Color.Red.rc)
+                        RemoteColor.createNamedRemoteColor("testColor", RemoteColor.Red)
                     }
                     RemoteBox(modifier = RemoteModifier.size(10.rdp).background(namedColor))
                 }
@@ -99,7 +96,7 @@ class NamedVariableDiscardedTest {
             remoteCaptureRule.captureDocument(context) {
                 RemoteBox {
                     val namedColor = remember {
-                        RemoteColor.createNamedRemoteColor("testColor", Color.Red.rc)
+                        RemoteColor.createNamedRemoteColor("testColor", RemoteColor.Red)
                     }
                         .withGlobalScope()
                     RemoteBox(modifier = RemoteModifier.size(10.rdp).background(namedColor))
@@ -224,7 +221,7 @@ class NamedVariableDiscardedTest {
                     RemoteBox(
                         modifier =
                             RemoteModifier.size(10.rdp)
-                                .background(namedBoolean.select(Color.Red.rc, Color.Blue.rc))
+                                .background(namedBoolean.select(RemoteColor.Red, RemoteColor.Blue))
                     )
                 }
             }
@@ -245,7 +242,7 @@ class NamedVariableDiscardedTest {
                     RemoteBox(
                         modifier =
                             RemoteModifier.size(10.rdp)
-                                .background(namedBoolean.select(Color.Red.rc, Color.Blue.rc))
+                                .background(namedBoolean.select(RemoteColor.Red, RemoteColor.Blue))
                     )
                 }
             }

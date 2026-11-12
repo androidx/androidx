@@ -26,14 +26,12 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.RemoteColor
-import androidx.compose.remote.creation.compose.state.asConstantColor
-import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.compose.remote.material3.util.TestProfiles
@@ -107,7 +105,7 @@ class RemoteTimeTextTest {
             RemoteTimeText(
                 modifier = RemoteModifier.fillMaxSize(),
                 time = "10:09".rs,
-                backgroundColor = Color.Transparent.rc,
+                backgroundColor = RemoteColor.Transparent,
             )
         }
 
@@ -121,13 +119,14 @@ class RemoteTimeTextTest {
         lateinit var backgroundColor: RemoteColor
         composeTestRule.setContent {
             RemoteMaterialTheme(
-                colorScheme = RemoteColorScheme().copy(background = Color.Blue.rc)
+                colorScheme = RemoteColorScheme().copy(background = RemoteColor.Blue)
             ) {
                 backgroundColor = RemoteTimeTextDefaults.backgroundColor
             }
         }
 
-        assertThat(backgroundColor.asConstantColor()).isEqualTo(Color.Blue.copy(alpha = 0.85f))
+        assertThat(backgroundColor.constantValue)
+            .isEqualTo(RemoteColor.Blue.copy(alpha = 0.85f.rf).constantValue)
     }
 
     /** Captures [content] and returns its operations, including the operations of containers. */

@@ -34,12 +34,11 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePaint
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.player.view.RemoteComposePlayer
-import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayInputStream
@@ -68,13 +67,13 @@ class DrawWithContentModifierTest {
                                 RemoteModifier.size(100.rdp)
                                     .drawWithContent {
                                         drawRect(
-                                            paint = RemotePaint { color = Color.Red.rc },
+                                            paint = RemotePaint { color = RemoteColor.Red },
                                             topLeft = RemoteOffset.Zero,
                                             size = size,
                                         )
                                         drawContent()
                                         drawRect(
-                                            paint = RemotePaint { color = Color.Green.rc },
+                                            paint = RemotePaint { color = RemoteColor.Green },
                                             topLeft = RemoteOffset.Zero,
                                             size = RemoteSize(width, 10f.rf),
                                         )
@@ -82,7 +81,7 @@ class DrawWithContentModifierTest {
                                     .padding(20.rdp)
                                     .drawWithContent {
                                         drawRect(
-                                            paint = RemotePaint { color = Color.Blue.rc },
+                                            paint = RemotePaint { color = RemoteColor.Blue },
                                             topLeft = RemoteOffset.Zero,
                                             size = size,
                                         )
@@ -122,20 +121,20 @@ class DrawWithContentModifierTest {
                             RemoteModifier.size(100.rdp)
                                 .drawWithContent {
                                     drawRect(
-                                        paint = RemotePaint { color = Color.Red.rc },
+                                        paint = RemotePaint { color = RemoteColor.Red },
                                         topLeft = RemoteOffset.Zero,
                                         size = RemoteSize(100f.rf, 100f.rf),
                                     )
                                     drawContent()
                                     drawRect(
-                                        paint = RemotePaint { color = Color.Green.rc },
+                                        paint = RemotePaint { color = RemoteColor.Green },
                                         topLeft = RemoteOffset.Zero,
                                         size = RemoteSize(100f.rf, 10f.rf),
                                     )
                                 }
                                 .drawWithContent {
                                     drawRect(
-                                        paint = RemotePaint { color = Color.Blue.rc },
+                                        paint = RemotePaint { color = RemoteColor.Blue },
                                         topLeft = RemoteOffset(20f.rf, 20f.rf),
                                         size = RemoteSize(60f.rf, 60f.rf),
                                     )
@@ -143,7 +142,7 @@ class DrawWithContentModifierTest {
                                 }
                     ) {
                         drawRect(
-                            paint = RemotePaint { color = Color.Yellow.rc },
+                            paint = RemotePaint { color = RemoteColor.Yellow },
                             topLeft = RemoteOffset(40f.rf, 40f.rf),
                             size = RemoteSize(20f.rf, 20f.rf),
                         )

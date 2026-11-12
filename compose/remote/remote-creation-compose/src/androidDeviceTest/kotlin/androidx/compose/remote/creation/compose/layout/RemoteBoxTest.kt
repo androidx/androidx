@@ -27,7 +27,6 @@ import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
 import androidx.compose.remote.creation.compose.test.util.propertyName
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -140,12 +139,10 @@ class RemoteBoxTest {
                                 contentAlignment = alignment,
                             ) {
                                 RemoteBox(
-                                    modifier =
-                                        RemoteModifier.size(48.rdp).background(Color(0xFF6200EE).rc)
+                                    modifier = RemoteModifier.size(48.rdp).background(0xFF6200EE.rc)
                                 )
                                 RemoteBox(
-                                    modifier =
-                                        RemoteModifier.size(24.rdp).background(Color(0xFF03DAC6).rc)
+                                    modifier = RemoteModifier.size(24.rdp).background(0xFF03DAC6.rc)
                                 )
                             }
                         }

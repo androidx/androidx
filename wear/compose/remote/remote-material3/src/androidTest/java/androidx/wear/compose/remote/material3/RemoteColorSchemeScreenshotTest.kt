@@ -19,7 +19,7 @@ package androidx.wear.compose.remote.material3
 import android.R
 import android.content.Context
 import androidx.annotation.ColorRes
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -41,7 +41,6 @@ import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.GridScreenshotUI
 import androidx.compose.remote.player.compose.test.utils.RemoteEmbeddedScreenshotTestRule
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.test.core.app.ApplicationProvider
@@ -82,7 +81,13 @@ class RemoteColorSchemeScreenshotTest {
 
     private val context: Context = ApplicationProvider.getApplicationContext()
 
-    private val creationDisplayInfo = createCreationDisplayInfo(context, Size(800f, 2400f))
+    private val creationDisplayInfo =
+        RemoteCreationDisplayInfo(
+            800,
+            2400,
+            context.resources.displayMetrics.densityDpi,
+            context.resources.configuration.fontScale,
+        )
 
     @Test
     fun dynamicColorScheme() {
@@ -205,12 +210,12 @@ class RemoteColorSchemeScreenshotTest {
                 modifier =
                     RemoteModifier.width(CellSize)
                         .height(LabelHeight)
-                        .background(RemoteColor(Color.Black)),
+                        .background(RemoteColor.Black),
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteText(
                     text = "${expected.hex}\n${expected.source}".rs,
-                    color = RemoteColor(Color.White),
+                    color = RemoteColor.White,
                     fontSize = 6.rsp,
                     textAlign = RemoteTextAlign.Center,
                 )

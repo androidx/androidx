@@ -18,19 +18,17 @@ package androidx.wear.compose.remote.material3
 
 import android.content.Context
 import androidx.annotation.DrawableRes
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.vectorResource
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.padding
-import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -53,7 +51,13 @@ class RemoteIconFromResTest {
         )
     private val context: Context = ApplicationProvider.getApplicationContext()
 
-    private val creationDisplayInfo = createCreationDisplayInfo(context, Size(500f, 500f))
+    private val creationDisplayInfo =
+        RemoteCreationDisplayInfo(
+            500,
+            500,
+            context.resources.displayMetrics.densityDpi,
+            context.resources.configuration.fontScale,
+        )
 
     @Test
     fun iconsFromRes() {
@@ -91,7 +95,7 @@ class RemoteIconFromResTest {
             modifier = modifier,
             imageVector = RemoteImageVector.vectorResource(resId),
             contentDescription = null,
-            tint = Color.Black.rc,
+            tint = RemoteColor.Black,
         )
     }
 }

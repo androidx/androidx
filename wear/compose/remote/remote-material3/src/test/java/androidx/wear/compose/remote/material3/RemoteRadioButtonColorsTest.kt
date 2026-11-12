@@ -19,7 +19,6 @@ package androidx.wear.compose.remote.material3
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.ui.graphics.Color
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -47,33 +46,33 @@ class RemoteRadioButtonColorsTest {
 
     @Test
     fun radioButtonColors_resolvesCorrectly() {
-        val selectedContainer = RemoteColor(Color.Red)
-        val unselectedContainer = RemoteColor(Color.Blue)
-        val disabledSelectedContainer = RemoteColor(Color.Gray)
-        val disabledUnselectedContainer = RemoteColor(Color.DarkGray)
+        val selectedContainer = RemoteColor.Red
+        val unselectedContainer = RemoteColor.Blue
+        val disabledSelectedContainer = RemoteColor.Gray
+        val disabledUnselectedContainer = RemoteColor.DarkGray
 
         val colors =
             RemoteRadioButtonColors(
                 selectedContainerColor = selectedContainer,
-                selectedContentColor = RemoteColor(Color.White),
-                selectedSecondaryContentColor = RemoteColor(Color.LightGray),
-                selectedIconColor = RemoteColor(Color.Yellow),
-                selectedControlColor = RemoteColor(Color.Cyan),
+                selectedContentColor = RemoteColor.White,
+                selectedSecondaryContentColor = RemoteColor.LightGray,
+                selectedIconColor = RemoteColor.Yellow,
+                selectedControlColor = RemoteColor.Cyan,
                 unselectedContainerColor = unselectedContainer,
-                unselectedContentColor = RemoteColor(Color.White),
-                unselectedSecondaryContentColor = RemoteColor(Color.LightGray),
-                unselectedIconColor = RemoteColor(Color.Yellow),
-                unselectedControlColor = RemoteColor(Color.Magenta),
+                unselectedContentColor = RemoteColor.White,
+                unselectedSecondaryContentColor = RemoteColor.LightGray,
+                unselectedIconColor = RemoteColor.Yellow,
+                unselectedControlColor = RemoteColor.Magenta,
                 disabledSelectedContainerColor = disabledSelectedContainer,
-                disabledSelectedContentColor = RemoteColor(Color.DarkGray),
-                disabledSelectedSecondaryContentColor = RemoteColor(Color.DarkGray),
-                disabledSelectedIconColor = RemoteColor(Color.DarkGray),
-                disabledSelectedControlColor = RemoteColor(Color.DarkGray),
+                disabledSelectedContentColor = RemoteColor.DarkGray,
+                disabledSelectedSecondaryContentColor = RemoteColor.DarkGray,
+                disabledSelectedIconColor = RemoteColor.DarkGray,
+                disabledSelectedControlColor = RemoteColor.DarkGray,
                 disabledUnselectedContainerColor = disabledUnselectedContainer,
-                disabledUnselectedContentColor = RemoteColor(Color.DarkGray),
-                disabledUnselectedSecondaryContentColor = RemoteColor(Color.DarkGray),
-                disabledUnselectedIconColor = RemoteColor(Color.DarkGray),
-                disabledUnselectedControlColor = RemoteColor(Color.DarkGray),
+                disabledUnselectedContentColor = RemoteColor.DarkGray,
+                disabledUnselectedSecondaryContentColor = RemoteColor.DarkGray,
+                disabledUnselectedIconColor = RemoteColor.DarkGray,
+                disabledUnselectedControlColor = RemoteColor.DarkGray,
             )
 
         // Enabled + Selected
@@ -97,33 +96,33 @@ class RemoteRadioButtonColorsTest {
     fun radioButtonColors_equality() {
         val colors1 =
             RemoteRadioButtonColors(
-                selectedContainerColor = RemoteColor(Color.Red),
-                selectedContentColor = RemoteColor(Color.White),
-                selectedSecondaryContentColor = RemoteColor(Color.LightGray),
-                selectedIconColor = RemoteColor(Color.Yellow),
-                selectedControlColor = RemoteColor(Color.Cyan),
-                unselectedContainerColor = RemoteColor(Color.Blue),
-                unselectedContentColor = RemoteColor(Color.White),
-                unselectedSecondaryContentColor = RemoteColor(Color.LightGray),
-                unselectedIconColor = RemoteColor(Color.Yellow),
-                unselectedControlColor = RemoteColor(Color.Magenta),
-                disabledSelectedContainerColor = RemoteColor(Color.Gray),
-                disabledSelectedContentColor = RemoteColor(Color.DarkGray),
-                disabledSelectedSecondaryContentColor = RemoteColor(Color.DarkGray),
-                disabledSelectedIconColor = RemoteColor(Color.DarkGray),
-                disabledSelectedControlColor = RemoteColor(Color.DarkGray),
-                disabledUnselectedContainerColor = RemoteColor(Color.DarkGray),
-                disabledUnselectedContentColor = RemoteColor(Color.DarkGray),
-                disabledUnselectedSecondaryContentColor = RemoteColor(Color.DarkGray),
-                disabledUnselectedIconColor = RemoteColor(Color.DarkGray),
-                disabledUnselectedControlColor = RemoteColor(Color.DarkGray),
+                selectedContainerColor = RemoteColor.Red,
+                selectedContentColor = RemoteColor.White,
+                selectedSecondaryContentColor = RemoteColor.LightGray,
+                selectedIconColor = RemoteColor.Yellow,
+                selectedControlColor = RemoteColor.Cyan,
+                unselectedContainerColor = RemoteColor.Blue,
+                unselectedContentColor = RemoteColor.White,
+                unselectedSecondaryContentColor = RemoteColor.LightGray,
+                unselectedIconColor = RemoteColor.Yellow,
+                unselectedControlColor = RemoteColor.Magenta,
+                disabledSelectedContainerColor = RemoteColor.Gray,
+                disabledSelectedContentColor = RemoteColor.DarkGray,
+                disabledSelectedSecondaryContentColor = RemoteColor.DarkGray,
+                disabledSelectedIconColor = RemoteColor.DarkGray,
+                disabledSelectedControlColor = RemoteColor.DarkGray,
+                disabledUnselectedContainerColor = RemoteColor.DarkGray,
+                disabledUnselectedContentColor = RemoteColor.DarkGray,
+                disabledUnselectedSecondaryContentColor = RemoteColor.DarkGray,
+                disabledUnselectedIconColor = RemoteColor.DarkGray,
+                disabledUnselectedControlColor = RemoteColor.DarkGray,
             )
 
         val colors2 = colors1.copy()
         assertThat(colors2).isEqualTo(colors1)
         assertThat(colors2.hashCode()).isEqualTo(colors1.hashCode())
 
-        val colors3 = colors1.copy(selectedContainerColor = RemoteColor(Color.Green))
+        val colors3 = colors1.copy(selectedContainerColor = RemoteColor.Green)
         assertThat(colors3).isNotEqualTo(colors1)
     }
 }

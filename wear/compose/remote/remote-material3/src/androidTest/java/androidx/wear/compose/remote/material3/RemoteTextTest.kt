@@ -36,7 +36,6 @@ import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteTextUnit
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
@@ -63,7 +62,6 @@ import androidx.compose.remote.player.core.platform.FontInstance
 import androidx.compose.remote.player.core.platform.TypefaceResolver
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
@@ -122,13 +120,13 @@ class RemoteTextTest {
             RemoteColumn(modifier = RemoteModifier.size(width.rdp, height.rdp)) {
                 RemoteText(
                     text = "Hello Default!".rs,
-                    color = Color.White.rc,
+                    color = RemoteColor.White,
                     fontFamily = RemoteFontFamily.Default,
                     fontSize = 14.rsp,
                 )
                 RemoteText(
                     text = "Hello Inconsolata!".rs,
-                    color = Color.White.rc,
+                    color = RemoteColor.White,
                     fontFamily = RemoteFontFamily.Named("google:inconsolata"),
                     fontSize = 14.rsp,
                 )
@@ -155,7 +153,7 @@ class RemoteTextTest {
             val start = "START".rs
             val end = "END".rs
             val color = remember {
-                RemoteColor.createNamedRemoteColor("TestColor5_rtl", Color.Green.rc)
+                RemoteColor.createNamedRemoteColor("TestColor5_rtl", RemoteColor.Green)
             }
 
             RemoteColumn(RemoteModifier.fillMaxSize()) {
@@ -225,7 +223,7 @@ class RemoteTextTest {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
             val text = "text_withColor".rs
             val color = remember {
-                RemoteColor.createNamedRemoteColor("TestColor2", Color.Green.rc)
+                RemoteColor.createNamedRemoteColor("TestColor2", RemoteColor.Green)
             }
             RemoteText(text, color = color, fontSize = 32.rsp)
         }
@@ -236,7 +234,7 @@ class RemoteTextTest {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
             val text = "text_withOverridingColor".rs
             val color = remember {
-                RemoteColor.createNamedRemoteColor("TestColor3", Color.Green.rc)
+                RemoteColor.createNamedRemoteColor("TestColor3", RemoteColor.Green)
             }
 
             RemoteText(
@@ -245,7 +243,7 @@ class RemoteTextTest {
                 fontSize = 32.rsp,
                 style =
                     LocalRemoteTextStyle.current.copy(
-                        color = Color.Red.rc
+                        color = RemoteColor.Red
                     ), // style color should be ignored
             )
         }
@@ -256,7 +254,7 @@ class RemoteTextTest {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
             val text = "text_withParamAndStyle".rs
             val color = remember {
-                RemoteColor.createNamedRemoteColor("TestColor4", Color.Green.rc)
+                RemoteColor.createNamedRemoteColor("TestColor4", RemoteColor.Green)
             }
 
             RemoteText(
@@ -275,7 +273,7 @@ class RemoteTextTest {
             val center = "CENTER".rs
             val right = "RIGHT".rs
             val color = remember {
-                RemoteColor.createNamedRemoteColor("TestColor5", Color.Green.rc)
+                RemoteColor.createNamedRemoteColor("TestColor5", RemoteColor.Green)
             }
 
             RemoteColumn(RemoteModifier.fillMaxSize()) {
@@ -548,7 +546,7 @@ class RemoteTextTest {
             val text =
                 "a piece of writing in which the expression of feelings and ideas is given intensity by particular attention to diction (sometimes involving rhyme), rhythm, and imagery."
                     .rs
-            val color = RemoteColor(Color.Green)
+            val color = RemoteColor.Green
 
             RemoteColumn(RemoteModifier.fillMaxSize()) {
                 // Default
@@ -596,8 +594,8 @@ class RemoteTextTest {
     fun text_withLineBreakAndHyphens() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
             val text = SAMPLE_LONG_TEXT.rs
-            val dividerColor = Color.Gray.rc
-            val textColor = Color.White.rc
+            val dividerColor = RemoteColor.Gray
+            val textColor = RemoteColor.White
 
             RemoteColumn(modifier = RemoteModifier.fillMaxWidth(0.7f.rf).fillMaxHeight()) {
                 // Row 1: Header Row

@@ -18,9 +18,7 @@ package androidx.wear.compose.remote.material3
 
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -56,35 +54,35 @@ class RemoteCheckboxButtonColorsTest {
 
     @Test
     fun checkboxButtonColors_resolvesCorrectly() {
-        val checkedContainer = RemoteColor(Color.Red)
-        val uncheckedContainer = RemoteColor(Color.Blue)
-        val disabledCheckedContainer = RemoteColor(Color.Gray)
-        val disabledUncheckedContainer = RemoteColor(Color.DarkGray)
+        val checkedContainer = RemoteColor.Red
+        val uncheckedContainer = RemoteColor.Blue
+        val disabledCheckedContainer = RemoteColor.Gray
+        val disabledUncheckedContainer = RemoteColor.DarkGray
 
         val colors =
             RemoteCheckboxButtonColors(
                 checkedContainerColor = checkedContainer,
-                checkedContentColor = RemoteColor(Color.White),
-                checkedSecondaryContentColor = RemoteColor(Color.LightGray),
-                checkedIconColor = RemoteColor(Color.Yellow),
-                checkedBoxColor = RemoteColor(Color.Cyan),
-                checkedCheckmarkColor = RemoteColor(Color.Black),
+                checkedContentColor = RemoteColor.White,
+                checkedSecondaryContentColor = RemoteColor.LightGray,
+                checkedIconColor = RemoteColor.Yellow,
+                checkedBoxColor = RemoteColor.Cyan,
+                checkedCheckmarkColor = RemoteColor.Black,
                 uncheckedContainerColor = uncheckedContainer,
-                uncheckedContentColor = RemoteColor(Color.White),
-                uncheckedSecondaryContentColor = RemoteColor(Color.LightGray),
-                uncheckedIconColor = RemoteColor(Color.Yellow),
-                uncheckedBoxColor = RemoteColor(Color.Magenta),
+                uncheckedContentColor = RemoteColor.White,
+                uncheckedSecondaryContentColor = RemoteColor.LightGray,
+                uncheckedIconColor = RemoteColor.Yellow,
+                uncheckedBoxColor = RemoteColor.Magenta,
                 disabledCheckedContainerColor = disabledCheckedContainer,
-                disabledCheckedContentColor = RemoteColor(Color.DarkGray),
-                disabledCheckedSecondaryContentColor = RemoteColor(Color.DarkGray),
-                disabledCheckedIconColor = RemoteColor(Color.DarkGray),
-                disabledCheckedBoxColor = RemoteColor(Color.DarkGray),
-                disabledCheckedCheckmarkColor = RemoteColor(Color.DarkGray),
+                disabledCheckedContentColor = RemoteColor.DarkGray,
+                disabledCheckedSecondaryContentColor = RemoteColor.DarkGray,
+                disabledCheckedIconColor = RemoteColor.DarkGray,
+                disabledCheckedBoxColor = RemoteColor.DarkGray,
+                disabledCheckedCheckmarkColor = RemoteColor.DarkGray,
                 disabledUncheckedContainerColor = disabledUncheckedContainer,
-                disabledUncheckedContentColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedSecondaryContentColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedIconColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedBoxColor = RemoteColor(Color.DarkGray),
+                disabledUncheckedContentColor = RemoteColor.DarkGray,
+                disabledUncheckedSecondaryContentColor = RemoteColor.DarkGray,
+                disabledUncheckedIconColor = RemoteColor.DarkGray,
+                disabledUncheckedBoxColor = RemoteColor.DarkGray,
             )
 
         // Enabled + Checked
@@ -108,35 +106,35 @@ class RemoteCheckboxButtonColorsTest {
     fun checkboxButtonColors_equality() {
         val colors1 =
             RemoteCheckboxButtonColors(
-                checkedContainerColor = RemoteColor(Color.Red),
-                checkedContentColor = RemoteColor(Color.White),
-                checkedSecondaryContentColor = RemoteColor(Color.LightGray),
-                checkedIconColor = RemoteColor(Color.Yellow),
-                checkedBoxColor = RemoteColor(Color.Cyan),
-                checkedCheckmarkColor = RemoteColor(Color.Black),
-                uncheckedContainerColor = RemoteColor(Color.Blue),
-                uncheckedContentColor = RemoteColor(Color.White),
-                uncheckedSecondaryContentColor = RemoteColor(Color.LightGray),
-                uncheckedIconColor = RemoteColor(Color.Yellow),
-                uncheckedBoxColor = RemoteColor(Color.Magenta),
-                disabledCheckedContainerColor = RemoteColor(Color.Gray),
-                disabledCheckedContentColor = RemoteColor(Color.DarkGray),
-                disabledCheckedSecondaryContentColor = RemoteColor(Color.DarkGray),
-                disabledCheckedIconColor = RemoteColor(Color.DarkGray),
-                disabledCheckedBoxColor = RemoteColor(Color.DarkGray),
-                disabledCheckedCheckmarkColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedContainerColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedContentColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedSecondaryContentColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedIconColor = RemoteColor(Color.DarkGray),
-                disabledUncheckedBoxColor = RemoteColor(Color.DarkGray),
+                checkedContainerColor = RemoteColor.Red,
+                checkedContentColor = RemoteColor.White,
+                checkedSecondaryContentColor = RemoteColor.LightGray,
+                checkedIconColor = RemoteColor.Yellow,
+                checkedBoxColor = RemoteColor.Cyan,
+                checkedCheckmarkColor = RemoteColor.Black,
+                uncheckedContainerColor = RemoteColor.Blue,
+                uncheckedContentColor = RemoteColor.White,
+                uncheckedSecondaryContentColor = RemoteColor.LightGray,
+                uncheckedIconColor = RemoteColor.Yellow,
+                uncheckedBoxColor = RemoteColor.Magenta,
+                disabledCheckedContainerColor = RemoteColor.Gray,
+                disabledCheckedContentColor = RemoteColor.DarkGray,
+                disabledCheckedSecondaryContentColor = RemoteColor.DarkGray,
+                disabledCheckedIconColor = RemoteColor.DarkGray,
+                disabledCheckedBoxColor = RemoteColor.DarkGray,
+                disabledCheckedCheckmarkColor = RemoteColor.DarkGray,
+                disabledUncheckedContainerColor = RemoteColor.DarkGray,
+                disabledUncheckedContentColor = RemoteColor.DarkGray,
+                disabledUncheckedSecondaryContentColor = RemoteColor.DarkGray,
+                disabledUncheckedIconColor = RemoteColor.DarkGray,
+                disabledUncheckedBoxColor = RemoteColor.DarkGray,
             )
 
         val colors2 = colors1.copy()
         assertThat(colors2).isEqualTo(colors1)
         assertThat(colors2.hashCode()).isEqualTo(colors1.hashCode())
 
-        val colors3 = colors1.copy(checkedContainerColor = RemoteColor(Color.Green))
+        val colors3 = colors1.copy(checkedContainerColor = RemoteColor.Green)
         assertThat(colors3).isNotEqualTo(colors1)
     }
 
@@ -144,8 +142,8 @@ class RemoteCheckboxButtonColorsTest {
     fun checkboxButtonColors_defaultsCheckmarkColorToPrimaryContainer() {
         lateinit var colors: RemoteCheckboxButtonColors
         lateinit var splitColors: RemoteSplitCheckboxButtonColors
-        val expectedPrimaryContainer = Color.Green.rc
-        val expectedBackground = Color.Magenta.rc
+        val expectedPrimaryContainer = RemoteColor.Green
+        val expectedBackground = RemoteColor.Magenta
         composeTestRule.setContent {
             RemoteMaterialTheme(
                 colorScheme =
@@ -169,7 +167,7 @@ class RemoteCheckboxButtonColorsTest {
     @Test
     fun outlinedCardBorderColor_defaultsToOutline() {
         lateinit var borderColor: RemoteColor
-        val expectedOutline = Color.Cyan.rc
+        val expectedOutline = RemoteColor.Cyan
         composeTestRule.setContent {
             RemoteMaterialTheme(colorScheme = RemoteColorScheme().copy(outline = expectedOutline)) {
                 borderColor = RemoteCardDefaults.outlinedCardBorderColor

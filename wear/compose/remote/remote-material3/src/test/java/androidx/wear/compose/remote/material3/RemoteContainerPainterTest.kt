@@ -29,13 +29,12 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.shaders.verticalGradient
 import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.google.common.truth.Truth.assertThat
@@ -58,7 +57,7 @@ class RemoteContainerPainterTest {
                 createNamedRemoteImageBitmap("white_enabled") { solidWhiteImage }
             }
             RemoteBox(
-                modifier = RemoteModifier.fillMaxSize().background(Color.Black.rc),
+                modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Black),
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteButton(
@@ -80,7 +79,7 @@ class RemoteContainerPainterTest {
                 createNamedRemoteImageBitmap("white_disabled") { solidWhiteImage }
             }
             RemoteBox(
-                modifier = RemoteModifier.fillMaxSize().background(Color.Black.rc),
+                modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Black),
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteButton(
@@ -105,9 +104,9 @@ class RemoteContainerPainterTest {
             val bg = remember {
                 createNamedRemoteImageBitmap("blue_disabled") { solidBlueImage }
             }
-            val redGradient = RemoteBrush.verticalGradient(listOf(Color.Red.rc, Color.Red.rc))
+            val redGradient = RemoteBrush.verticalGradient(listOf(RemoteColor.Red, RemoteColor.Red))
             RemoteBox(
-                modifier = RemoteModifier.fillMaxSize().background(Color.Black.rc),
+                modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Black),
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteButton(
@@ -136,7 +135,7 @@ class RemoteContainerPainterTest {
                 createNamedRemoteImageBitmap("card_white_alpha") { solidWhiteImage }
             }
             RemoteBox(
-                modifier = RemoteModifier.fillMaxSize().background(Color.Black.rc),
+                modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Black),
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteCard(

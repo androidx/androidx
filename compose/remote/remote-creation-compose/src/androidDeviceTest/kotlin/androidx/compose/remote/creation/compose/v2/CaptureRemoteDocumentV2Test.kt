@@ -30,7 +30,6 @@ import androidx.compose.remote.creation.compose.capture.LocalRemoteDensity
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteText
@@ -38,7 +37,7 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.border
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
-import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
@@ -47,8 +46,6 @@ import androidx.compose.remote.player.compose.RemoteDocumentPlayer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -96,10 +93,10 @@ class CaptureRemoteDocumentV2Test {
                     RemoteBox(
                         modifier =
                             RemoteModifier.fillMaxSize()
-                                .background(Color.DarkGray.rc)
-                                .border(2.rdp, Color.Blue.rc)
+                                .background(RemoteColor.DarkGray)
+                                .border(2.rdp, RemoteColor.Blue)
                     ) {
-                        RemoteText(color = Color.White.rc, text = "Hello world!".rs)
+                        RemoteText(color = RemoteColor.White, text = "Hello world!".rs)
                     }
                 }
                 .bytes
@@ -130,10 +127,10 @@ class CaptureRemoteDocumentV2Test {
                     RemoteBox(
                         modifier =
                             RemoteModifier.fillMaxSize()
-                                .background(Color.DarkGray.rc)
-                                .border(2.rdp, Color.Blue.rc)
+                                .background(RemoteColor.DarkGray)
+                                .border(2.rdp, RemoteColor.Blue)
                     ) {
-                        RemoteText(color = Color.White.rc, text = "Hello world!".rs)
+                        RemoteText(color = RemoteColor.White, text = "Hello world!".rs)
                     }
                 }
                 .bytes
@@ -164,10 +161,10 @@ class CaptureRemoteDocumentV2Test {
                     RemoteBox(
                         modifier =
                             RemoteModifier.fillMaxSize()
-                                .background(Color.DarkGray.rc)
-                                .border(2.rdp, Color.Blue.rc)
+                                .background(RemoteColor.DarkGray)
+                                .border(2.rdp, RemoteColor.Blue)
                     ) {
-                        RemoteText(color = Color.White.rc, text = "Hello world!".rs)
+                        RemoteText(color = RemoteColor.White, text = "Hello world!".rs)
                     }
                 }
                 .bytes
@@ -193,10 +190,10 @@ class CaptureRemoteDocumentV2Test {
                     RemoteBox(
                         modifier =
                             RemoteModifier.fillMaxSize()
-                                .background(Color.DarkGray.rc)
-                                .border(2.rdp, Color.Blue.rc)
+                                .background(RemoteColor.DarkGray)
+                                .border(2.rdp, RemoteColor.Blue)
                     ) {
-                        RemoteText(color = Color.White.rc, text = "Hello world!".rs)
+                        RemoteText(color = RemoteColor.White, text = "Hello world!".rs)
                     }
                 }
                 .bytes
@@ -227,10 +224,10 @@ class CaptureRemoteDocumentV2Test {
                     RemoteBox(
                         modifier =
                             RemoteModifier.fillMaxSize()
-                                .background(Color.DarkGray.rc)
-                                .border(2.rdp, Color.Blue.rc)
+                                .background(RemoteColor.DarkGray)
+                                .border(2.rdp, RemoteColor.Blue)
                     ) {
-                        RemoteText(color = Color.White.rc, text = "Hello world!".rs)
+                        RemoteText(color = RemoteColor.White, text = "Hello world!".rs)
                     }
                 }
                 .bytes
@@ -254,7 +251,13 @@ class CaptureRemoteDocumentV2Test {
     @Test
     fun captureDocumentV2_withCustomFontScalingContextConstructor() = runTest {
         val customFontContext = context.withFontScale(2.0f)
-        val creationDisplayInfo = createCreationDisplayInfo(customFontContext, Size(100f, 100f))
+        val creationDisplayInfo =
+            RemoteCreationDisplayInfo(
+                width = 100,
+                height = 100,
+                densityDpi = customFontContext.resources.displayMetrics.densityDpi,
+                fontScale = customFontContext.resources.configuration.fontScale,
+            )
         val bytes =
             captureSingleRemoteDocument(
                     creationDisplayInfo = creationDisplayInfo,
@@ -263,11 +266,11 @@ class CaptureRemoteDocumentV2Test {
                     RemoteBox(
                         modifier =
                             RemoteModifier.fillMaxSize()
-                                .border(2.rdp, Color.Blue.rc)
-                                .background(Color.DarkGray.rc)
+                                .border(2.rdp, RemoteColor.Blue)
+                                .background(RemoteColor.DarkGray)
                     ) {
                         RemoteText(
-                            color = Color.White.rc,
+                            color = RemoteColor.White,
                             text = "Hello world!".rs,
                             fontSize = 12.rsp,
                         )
@@ -289,7 +292,13 @@ class CaptureRemoteDocumentV2Test {
 
     @Test
     fun captureDocumentV2_withCustomFontScalingRemoteDensityOverride30SP() = runTest {
-        val creationDisplayInfo = createCreationDisplayInfo(context, Size(100f, 100f))
+        val creationDisplayInfo =
+            RemoteCreationDisplayInfo(
+                width = 100,
+                height = 100,
+                densityDpi = context.resources.displayMetrics.densityDpi,
+                fontScale = context.resources.configuration.fontScale,
+            )
         val bytes =
             captureSingleRemoteDocument(
                     creationDisplayInfo = creationDisplayInfo,
@@ -300,11 +309,11 @@ class CaptureRemoteDocumentV2Test {
                     RemoteBox(
                         modifier =
                             RemoteModifier.fillMaxSize()
-                                .border(2.rdp, Color.Blue.rc)
-                                .background(Color.DarkGray.rc)
+                                .border(2.rdp, RemoteColor.Blue)
+                                .background(RemoteColor.DarkGray)
                     ) {
                         RemoteText(
-                            color = Color.White.rc,
+                            color = RemoteColor.White,
                             text = "Hello world!".rs,
                             fontSize = 30.rsp,
                         )
@@ -326,7 +335,13 @@ class CaptureRemoteDocumentV2Test {
 
     @Test
     fun captureDocumentV2_withCustomFontScalingRemoteDensityOverrideNonLinear18SP() = runTest {
-        val creationDisplayInfo = createCreationDisplayInfo(context, Size(100f, 100f))
+        val creationDisplayInfo =
+            RemoteCreationDisplayInfo(
+                width = 100,
+                height = 100,
+                densityDpi = context.resources.displayMetrics.densityDpi,
+                fontScale = context.resources.configuration.fontScale,
+            )
         val bytes =
             captureSingleRemoteDocument(
                     creationDisplayInfo = creationDisplayInfo,
@@ -337,11 +352,11 @@ class CaptureRemoteDocumentV2Test {
                     RemoteBox(
                         modifier =
                             RemoteModifier.fillMaxSize()
-                                .border(2.rdp, Color.Blue.rc)
-                                .background(Color.DarkGray.rc)
+                                .border(2.rdp, RemoteColor.Blue)
+                                .background(RemoteColor.DarkGray)
                     ) {
                         RemoteText(
-                            color = Color.White.rc,
+                            color = RemoteColor.White,
                             text = "Hello world!".rs,
                             fontSize = 18.rsp,
                         )
@@ -363,7 +378,13 @@ class CaptureRemoteDocumentV2Test {
 
     @Test
     fun captureDocumentV2_withCustomFontScaleOverride() = runTest {
-        val creationDisplayInfo = createCreationDisplayInfo(context, Size(100f, 100f))
+        val creationDisplayInfo =
+            RemoteCreationDisplayInfo(
+                width = 100,
+                height = 100,
+                densityDpi = context.resources.displayMetrics.densityDpi,
+                fontScale = context.resources.configuration.fontScale,
+            )
         val bytes =
             captureSingleRemoteDocument(
                     creationDisplayInfo = creationDisplayInfo,
@@ -372,12 +393,12 @@ class CaptureRemoteDocumentV2Test {
                     RemoteBox(
                         modifier =
                             RemoteModifier.fillMaxSize()
-                                .border(2.rdp, Color.Blue.rc)
-                                .background(Color.DarkGray.rc)
+                                .border(2.rdp, RemoteColor.Blue)
+                                .background(RemoteColor.DarkGray)
                     ) {
                         RemoteColumn {
                             RemoteText(
-                                color = Color.White.rc,
+                                color = RemoteColor.White,
                                 text = "No font scale override".rs,
                                 fontSize = 12.rsp,
                             )
@@ -387,7 +408,7 @@ class CaptureRemoteDocumentV2Test {
                                 LocalFontWeightAdjustment provides 200,
                             ) {
                                 RemoteText(
-                                    color = Color.White.rc,
+                                    color = RemoteColor.White,
                                     text = "Font scale override".rs,
                                     fontSize = 12.rsp,
                                 )

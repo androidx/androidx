@@ -26,7 +26,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.action.hostAction
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.toRemoteImageVector
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -35,8 +35,8 @@ import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
@@ -49,7 +49,6 @@ import androidx.compose.remote.player.view.RemoteComposePlayer
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.toArgb
@@ -98,7 +97,13 @@ class RemoteIconButtonTest {
         )
     private val context: Context = ApplicationProvider.getApplicationContext()
 
-    private val creationDisplayInfo = createCreationDisplayInfo(context, Size(180f, 180f))
+    private val creationDisplayInfo =
+        RemoteCreationDisplayInfo(
+            180,
+            180,
+            context.resources.displayMetrics.densityDpi,
+            context.resources.configuration.fontScale,
+        )
 
     @Test
     fun remote_icon_button_enabled() {
@@ -306,7 +311,13 @@ class RemoteIconButtonTest {
             val density = context.resources.displayMetrics.density
             val sizeDp = 52.dp
             val sizePx = 52f * density
-            val displayInfo = createCreationDisplayInfo(context, Size(sizePx, sizePx))
+            val displayInfo =
+                RemoteCreationDisplayInfo(
+                    sizePx.toInt(),
+                    sizePx.toInt(),
+                    context.resources.displayMetrics.densityDpi,
+                    context.resources.configuration.fontScale,
+                )
             val showWearM3 = mutableStateOf(false)
             val capturedDoc = mutableStateOf<CoreDocument?>(null)
 
@@ -350,7 +361,7 @@ class RemoteIconButtonTest {
             ) {
                 RemoteMaterialTheme {
                     RemoteBox(
-                        modifier = RemoteModifier.fillMaxSize().background(Color.Black.rc),
+                        modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Black),
                         contentAlignment = RemoteAlignment.Center,
                     ) {
                         RemoteIconButton(

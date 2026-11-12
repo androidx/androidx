@@ -79,9 +79,9 @@ class RemoteStateTest {
     fun cachesRemoteColor() = runTest {
         withContext(Dispatchers.Main) {
             captureSingleRemoteDocument(context) {
-                val blue = remember { createNamedRemoteColor("blue", Color.Blue.rc) }
-                val red = remember { createNamedRemoteColor("red", Color.Red.rc) }
-                val blue2 = remember { createNamedRemoteColor("blue", Color.Blue.rc) }
+                val blue = remember { createNamedRemoteColor("blue", RemoteColor.Blue) }
+                val red = remember { createNamedRemoteColor("red", RemoteColor.Red) }
+                val blue2 = remember { createNamedRemoteColor("blue", RemoteColor.Blue) }
 
                 AssertSameSameDifferent(blue, blue2, red)
             }

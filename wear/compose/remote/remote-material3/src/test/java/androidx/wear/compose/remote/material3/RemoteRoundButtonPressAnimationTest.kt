@@ -47,9 +47,9 @@ import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
 import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteAnimationSpec
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.rf
@@ -60,7 +60,6 @@ import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
@@ -215,8 +214,8 @@ class RemoteRoundButtonPressAnimationTest {
                 shapes = RemoteIconButtonDefaults.animatedShapes(),
                 colors =
                     RemoteIconButtonDefaults.filledIconButtonColors(
-                        containerColor = Color.Red.rc,
-                        contentColor = Color.Red.rc,
+                        containerColor = RemoteColor.Red,
+                        contentColor = RemoteColor.Red,
                     ),
                 modifier = RemoteModifier.semantics { contentDescription = ButtonLabel.rs },
             ) {}
@@ -250,8 +249,8 @@ class RemoteRoundButtonPressAnimationTest {
                 shapes = RemoteTextButtonDefaults.animatedShapes(),
                 colors =
                     RemoteTextButtonDefaults.textButtonColors(
-                        containerColor = Color.Red.rc,
-                        contentColor = Color.Red.rc,
+                        containerColor = RemoteColor.Red,
+                        contentColor = RemoteColor.Red,
                     ),
                 modifier = RemoteModifier.semantics { contentDescription = ButtonLabel.rs },
             ) {}
@@ -282,8 +281,8 @@ class RemoteRoundButtonPressAnimationTest {
                 shapes = RemoteIconButtonDefaults.animatedShapes(),
                 colors =
                     RemoteIconButtonDefaults.filledIconButtonColors(
-                        containerColor = Color.Red.rc,
-                        contentColor = Color.Red.rc,
+                        containerColor = RemoteColor.Red,
+                        contentColor = RemoteColor.Red,
                     ),
                 modifier = RemoteModifier.semantics { contentDescription = ButtonLabel.rs },
             ) {}
@@ -408,8 +407,8 @@ class RemoteRoundButtonPressAnimationTest {
                     shapes = RemoteIconButtonDefaults.animatedShapes(),
                     colors =
                         RemoteIconButtonDefaults.filledIconButtonColors(
-                            containerColor = Color.Red.rc,
-                            contentColor = Color.Red.rc,
+                            containerColor = RemoteColor.Red,
+                            contentColor = RemoteColor.Red,
                         ),
                     modifier = RemoteModifier.semantics { contentDescription = ButtonLabel.rs },
                 ) {}
@@ -434,8 +433,8 @@ class RemoteRoundButtonPressAnimationTest {
                     shapes = RemoteIconButtonDefaults.animatedShapes(),
                     colors =
                         RemoteIconButtonDefaults.filledIconButtonColors(
-                            containerColor = Color.Red.rc,
-                            contentColor = Color.Red.rc,
+                            containerColor = RemoteColor.Red,
+                            contentColor = RemoteColor.Red,
                         ),
                     modifier = RemoteModifier.semantics { contentDescription = ButtonLabel.rs },
                 ) {}
@@ -463,8 +462,8 @@ class RemoteRoundButtonPressAnimationTest {
                 onClick = RemoteAction.None,
                 colors =
                     RemoteIconButtonDefaults.filledIconButtonColors(
-                        containerColor = Color.Red.rc,
-                        contentColor = Color.Red.rc,
+                        containerColor = RemoteColor.Red,
+                        contentColor = RemoteColor.Red,
                     ),
                 modifier = RemoteModifier.semantics { contentDescription = ButtonLabel.rs },
             ) {}
@@ -482,8 +481,8 @@ class RemoteRoundButtonPressAnimationTest {
                 onClick = RemoteAction.None,
                 colors =
                     RemoteTextButtonDefaults.textButtonColors(
-                        containerColor = Color.Red.rc,
-                        contentColor = Color.Red.rc,
+                        containerColor = RemoteColor.Red,
+                        contentColor = RemoteColor.Red,
                     ),
                 modifier = RemoteModifier.semantics { contentDescription = ButtonLabel.rs },
             ) {}
@@ -601,8 +600,8 @@ class RemoteRoundButtonPressAnimationTest {
                     ),
                 colors =
                     RemoteIconButtonDefaults.filledIconButtonColors(
-                        containerColor = Color.Red.rc,
-                        contentColor = Color.Red.rc,
+                        containerColor = RemoteColor.Red,
+                        contentColor = RemoteColor.Red,
                     ),
                 modifier = RemoteModifier.semantics { contentDescription = ButtonLabel.rs },
             ) {}
@@ -627,10 +626,10 @@ class RemoteRoundButtonPressAnimationTest {
                     ),
                 colors =
                     RemoteIconToggleButtonDefaults.colors(
-                        checkedContainerColor = Color.Red.rc,
-                        checkedContentColor = Color.Red.rc,
-                        uncheckedContainerColor = Color.Red.rc,
-                        uncheckedContentColor = Color.Red.rc,
+                        checkedContainerColor = RemoteColor.Red,
+                        checkedContentColor = RemoteColor.Red,
+                        uncheckedContainerColor = RemoteColor.Red,
+                        uncheckedContentColor = RemoteColor.Red,
                     ),
                 modifier = RemoteModifier.semantics { contentDescription = ButtonLabel.rs },
             ) {}
@@ -648,10 +647,10 @@ class RemoteRoundButtonPressAnimationTest {
                 shapes = RemoteIconToggleButtonDefaults.variantAnimatedShapes(),
                 colors =
                     RemoteIconToggleButtonDefaults.colors(
-                        checkedContainerColor = Color.Red.rc,
-                        checkedContentColor = Color.Red.rc,
-                        uncheckedContainerColor = Color.Red.rc,
-                        uncheckedContentColor = Color.Red.rc,
+                        checkedContainerColor = RemoteColor.Red,
+                        checkedContentColor = RemoteColor.Red,
+                        uncheckedContainerColor = RemoteColor.Red,
+                        uncheckedContentColor = RemoteColor.Red,
                     ),
                 modifier = RemoteModifier.semantics { contentDescription = ButtonLabel.rs },
             ) {}
@@ -679,10 +678,10 @@ class RemoteRoundButtonPressAnimationTest {
                 shapes = RemoteTextToggleButtonDefaults.variantShapes(),
                 colors =
                     RemoteTextToggleButtonDefaults.colors(
-                        checkedContainerColor = Color.Red.rc,
-                        checkedContentColor = Color.Red.rc,
-                        uncheckedContainerColor = Color.Red.rc,
-                        uncheckedContentColor = Color.Red.rc,
+                        checkedContainerColor = RemoteColor.Red,
+                        checkedContentColor = RemoteColor.Red,
+                        uncheckedContainerColor = RemoteColor.Red,
+                        uncheckedContentColor = RemoteColor.Red,
                     ),
                 modifier = RemoteModifier.semantics { contentDescription = ButtonLabel.rs },
             ) {}
@@ -704,10 +703,10 @@ class RemoteRoundButtonPressAnimationTest {
                 shapes = RemoteTextToggleButtonDefaults.animatedShapes(),
                 colors =
                     RemoteTextToggleButtonDefaults.colors(
-                        checkedContainerColor = Color.Red.rc,
-                        checkedContentColor = Color.Red.rc,
-                        uncheckedContainerColor = Color.Red.rc,
-                        uncheckedContentColor = Color.Red.rc,
+                        checkedContainerColor = RemoteColor.Red,
+                        checkedContentColor = RemoteColor.Red,
+                        uncheckedContainerColor = RemoteColor.Red,
+                        uncheckedContentColor = RemoteColor.Red,
                     ),
                 modifier = RemoteModifier.semantics { contentDescription = ButtonLabel.rs },
             ) {}
@@ -781,7 +780,7 @@ class RemoteRoundButtonPressAnimationTest {
         ) {
             RemoteMaterialTheme {
                 RemoteBox(
-                    modifier = RemoteModifier.fillMaxSize().background(Color.Black.rc),
+                    modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Black),
                     contentAlignment = RemoteAlignment.Center,
                 ) {
                     content()

@@ -19,11 +19,11 @@ package androidx.wear.compose.remote.material3
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.asRemoteDp
 import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
@@ -277,8 +277,8 @@ class RemoteProgressIndicatorUnitTest {
     @RemoteComposable
     private fun testColors(): RemoteProgressIndicatorColors =
         RemoteProgressIndicatorDefaults.colors(
-            indicatorColor = Color.Red.rc,
-            trackColor = Color.Blue.rc,
+            indicatorColor = RemoteColor.Red,
+            trackColor = RemoteColor.Blue,
         )
 
     private fun isIndicator(color: Color): Boolean = color.red > 0.5f && color.blue < 0.5f

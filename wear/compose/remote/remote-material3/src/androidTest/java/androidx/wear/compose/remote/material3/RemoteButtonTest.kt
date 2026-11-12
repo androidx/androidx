@@ -20,8 +20,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import androidx.collection.buildObjectIntMap
 import androidx.compose.remote.creation.compose.action.hostAction
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
@@ -38,14 +38,12 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.remember
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
@@ -93,7 +91,13 @@ class RemoteButtonTest {
 
     private val context: Context = ApplicationProvider.getApplicationContext()
 
-    private val creationDisplayInfo = createCreationDisplayInfo(context, Size(500f, 500f))
+    private val creationDisplayInfo =
+        RemoteCreationDisplayInfo(
+            500,
+            500,
+            context.resources.displayMetrics.densityDpi,
+            context.resources.configuration.fontScale,
+        )
 
     @Test
     fun button_enabled() {
@@ -172,14 +176,14 @@ class RemoteButtonTest {
         ) {
             val colors =
                 RemoteButtonColors(
-                    containerColor = RemoteColor(Color.Yellow),
-                    contentColor = RemoteColor(Color.Cyan),
-                    secondaryContentColor = RemoteColor(Color.Black),
-                    iconColor = RemoteColor(Color.Black),
-                    disabledContainerColor = RemoteColor(Color.Black),
-                    disabledContentColor = RemoteColor(Color.Black),
-                    disabledSecondaryContentColor = RemoteColor(Color.Black),
-                    disabledIconColor = RemoteColor(Color.Black),
+                    containerColor = RemoteColor.Yellow,
+                    contentColor = RemoteColor.Cyan,
+                    secondaryContentColor = RemoteColor.Black,
+                    iconColor = RemoteColor.Black,
+                    disabledContainerColor = RemoteColor.Black,
+                    disabledContentColor = RemoteColor.Black,
+                    disabledSecondaryContentColor = RemoteColor.Black,
+                    disabledIconColor = RemoteColor.Black,
                 )
             ComponentContainer {
                 RemoteButton(
@@ -244,7 +248,7 @@ class RemoteButtonTest {
                     RemoteText(
                         "button_overrides_textStyle".rs,
                         color = null,
-                        style = RemoteMaterialTheme.typography.labelSmall.copy(Color.Cyan.rc),
+                        style = RemoteMaterialTheme.typography.labelSmall.copy(RemoteColor.Cyan),
                     )
                 }
             }
@@ -271,7 +275,7 @@ class RemoteButtonTest {
                 RemoteButton(
                     onClick = testAction,
                     modifier = RemoteModifier.size(150.rdp),
-                    border = RemoteBorderStroke(width = 8.rdp, color = Color.Green.rc),
+                    border = RemoteBorderStroke(width = 8.rdp, color = RemoteColor.Green),
                     shape = RemoteCircleShape,
                 ) {
                     RemoteText("button_with_circle_shape".rs)
@@ -290,7 +294,7 @@ class RemoteButtonTest {
                 RemoteButton(
                     onClick = testAction,
                     modifier = RemoteModifier.size(120.rdp, 50.rdp),
-                    border = RemoteBorderStroke(width = 4.rdp, color = Color.Green.rc),
+                    border = RemoteBorderStroke(width = 4.rdp, color = RemoteColor.Green),
                     shape = RemoteRoundedCornerShape(topStart = 80.rdp, bottomStart = 80.rdp),
                 ) {
                     RemoteText("scale".rs)
@@ -311,7 +315,7 @@ class RemoteButtonTest {
                 RemoteButton(
                     onClick = testAction,
                     modifier = RemoteModifier.size(120.rdp, 50.rdp),
-                    border = RemoteBorderStroke(width = 8.rdp, color = Color.Green.rc),
+                    border = RemoteBorderStroke(width = 8.rdp, color = RemoteColor.Green),
                     shape = RemoteRoundedCornerShape(2.rdp),
                 ) {
                     RemoteText("clamp".rs)
@@ -599,9 +603,9 @@ private object CornerMarkersPainter : RemotePainter() {
     override val intrinsicSize: RemoteSize? = null
 
     override fun RemoteDrawScope.onDraw() {
-        drawRect(RemotePaint { color = Color.Blue.rc })
+        drawRect(RemotePaint { color = RemoteColor.Blue })
         val marker = RemoteSize(height / 3f.rf, height / 3f.rf)
-        val markerPaint = RemotePaint { color = Color.Yellow.rc }
+        val markerPaint = RemotePaint { color = RemoteColor.Yellow }
         drawRect(markerPaint, RemoteOffset(0f.rf, 0f.rf), marker)
         drawRect(markerPaint, RemoteOffset(width - marker.width, 0f.rf), marker)
         drawRect(markerPaint, RemoteOffset(0f.rf, height - marker.height), marker)

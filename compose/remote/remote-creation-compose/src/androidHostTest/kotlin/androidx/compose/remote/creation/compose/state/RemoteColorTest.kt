@@ -38,7 +38,6 @@ import androidx.compose.remote.player.core.state.RemoteDomains
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -74,7 +73,7 @@ class RemoteColorTest {
                 context = applicationContext,
             ) {
                 val color =
-                    RemoteColor.createNamedRemoteColor("A", Color.Red.rc).copy(alpha = 0.4f.rf)
+                    RemoteColor.createNamedRemoteColor("A", RemoteColor.Red).copy(alpha = 0.4f.rf)
                 RemoteBox(modifier = RemoteModifier.background(color))
             }
 
@@ -94,7 +93,7 @@ class RemoteColorTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context = androidContext) {
                 val namedColor = remember {
-                    RemoteColor.createNamedRemoteColor(colorName, Color.Red.rc)
+                    RemoteColor.createNamedRemoteColor(colorName, RemoteColor.Red)
                 }
 
                 val copy = namedColor.copy(alpha = 0f.rf)
@@ -120,7 +119,7 @@ class RemoteColorTest {
 
     @Test
     fun playbackEvaluation_namedColorOverrides_constantAndDynamic() {
-        val constNamed = RemoteColor.createNamedRemoteColor("constColor", Color.Red.rc)
+        val constNamed = RemoteColor.createNamedRemoteColor("constColor", RemoteColor.Red)
         val dynamicRed = createNamedRemoteFloat("dynRed", 0.2f)
         val dynamicBase = RemoteColor.rgb(dynamicRed, 0.4f.rf, 0.6f.rf, 1f.rf)
         assertThat(dynamicBase.hasConstantValue).isFalse()
@@ -135,7 +134,7 @@ class RemoteColorTest {
         val doc = makeAndPaintCoreDocument()
 
         val initialDynColorInt = Utils.toARGB(1f, 0.2f, 0.4f, 0.6f)
-        assertThat(context.getColor(constId)).isEqualTo(Color.Red.toArgb())
+        assertThat(context.getColor(constId)).isEqualTo(AndroidColor.RED)
         assertThat(context.getColor(dyn1Id)).isEqualTo(initialDynColorInt)
         assertThat(context.getColor(dyn2Id)).isEqualTo(initialDynColorInt)
 

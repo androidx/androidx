@@ -30,7 +30,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
-import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
 import androidx.compose.runtime.Composable
@@ -116,9 +116,9 @@ class CaptureRemoteDocumentRecompositionScreenshotTest {
                 writerEvents = RemoteWriterEvents(),
                 context = context,
                 content = {
-                    val color = if (state.value == "Initial") Color.Red.rc else Color.Green.rc
+                    val color = if (state.value == "Initial") RemoteColor.Red else RemoteColor.Green
                     RemoteBox(modifier = RemoteModifier.fillMaxSize().background(color)) {
-                        RemoteText(state.value.rs, color = Color.White.rc)
+                        RemoteText(state.value.rs, color = RemoteColor.White)
                     }
                 },
             )

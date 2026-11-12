@@ -21,11 +21,9 @@ import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.RemoteColor
-import androidx.compose.remote.creation.compose.state.asConstantColor
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
@@ -35,7 +33,6 @@ import androidx.compose.remote.player.compose.embedded.RcPlayer
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.testTag
@@ -63,7 +60,13 @@ class RemotePageIndicatorUnitTest {
 
     private fun renderPlayerToBitmap(content: @Composable @RemoteComposable () -> Unit): Bitmap {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val displayInfo = createCreationDisplayInfo(context, Size(500f, 500f))
+        val displayInfo =
+            RemoteCreationDisplayInfo(
+                500,
+                500,
+                context.resources.displayMetrics.densityDpi,
+                context.resources.configuration.fontScale,
+            )
         val document = runBlocking {
             captureRule.captureDocument(
                 context = context,
@@ -104,7 +107,7 @@ class RemotePageIndicatorUnitTest {
             val state = rememberRemotePageIndicatorState(selectedPage = 1.ri, pageCount = 3)
             RemoteHorizontalPageIndicator(
                 state = state,
-                backgroundColor = Color.Red.rc,
+                backgroundColor = RemoteColor.Red,
             )
         }
         assertThat(bitmap.hasColorMatching { it.red > 0.8f && it.green < 0.2f && it.blue < 0.2f })
@@ -117,7 +120,7 @@ class RemotePageIndicatorUnitTest {
             val state = rememberRemotePageIndicatorState(selectedPage = 1.ri, pageCount = 3)
             RemoteVerticalPageIndicator(
                 state = state,
-                backgroundColor = Color.Blue.rc,
+                backgroundColor = RemoteColor.Blue,
             )
         }
         assertThat(bitmap.hasColorMatching { it.blue > 0.8f && it.red < 0.2f && it.green < 0.2f })
@@ -130,7 +133,7 @@ class RemotePageIndicatorUnitTest {
             val state = rememberRemotePageIndicatorState(selectedPage = 0.ri, pageCount = 1)
             RemoteHorizontalPageIndicator(
                 state = state,
-                backgroundColor = Color.Green.rc,
+                backgroundColor = RemoteColor.Green,
             )
         }
         assertThat(bitmap.hasColorMatching { it.green > 0.8f && it.red < 0.2f && it.blue < 0.2f })
@@ -140,7 +143,13 @@ class RemotePageIndicatorUnitTest {
     @Test
     fun vertical_page_indicator_offset80_shrinks_previous_dot() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val displayInfo = createCreationDisplayInfo(context, Size(500f, 500f))
+        val displayInfo =
+            RemoteCreationDisplayInfo(
+                500,
+                500,
+                context.resources.displayMetrics.densityDpi,
+                context.resources.configuration.fontScale,
+            )
         val offset80Doc = runBlocking {
             captureRule.captureDocument(context = context, creationDisplayInfo = displayInfo) {
                 val state =
@@ -151,9 +160,9 @@ class RemotePageIndicatorUnitTest {
                     )
                 RemoteVerticalPageIndicator(
                     state = state,
-                    selectedColor = Color.Blue.rc,
-                    unselectedColor = Color.Green.rc,
-                    backgroundColor = Color.Black.rc,
+                    selectedColor = RemoteColor.Blue,
+                    unselectedColor = RemoteColor.Green,
+                    backgroundColor = RemoteColor.Black,
                 )
             }
         }
@@ -167,9 +176,9 @@ class RemotePageIndicatorUnitTest {
                     )
                 RemoteVerticalPageIndicator(
                     state = state,
-                    selectedColor = Color.Blue.rc,
-                    unselectedColor = Color.Green.rc,
-                    backgroundColor = Color.Black.rc,
+                    selectedColor = RemoteColor.Blue,
+                    unselectedColor = RemoteColor.Green,
+                    backgroundColor = RemoteColor.Black,
                 )
             }
         }
@@ -199,19 +208,19 @@ class RemotePageIndicatorUnitTest {
     fun page_indicator_defaults_colors_match_onBackground() {
         lateinit var selectedColor: RemoteColor
         lateinit var unselectedColor: RemoteColor
-        val expectedOnBackground = Color.Cyan
+        val expectedOnBackground = RemoteColor.Cyan
         composeRule.setContent {
             RemoteMaterialTheme(
-                colorScheme = RemoteColorScheme().copy(onBackground = expectedOnBackground.rc)
+                colorScheme = RemoteColorScheme().copy(onBackground = expectedOnBackground)
             ) {
                 selectedColor = RemotePageIndicatorDefaults.selectedColor
                 unselectedColor = RemotePageIndicatorDefaults.unselectedColor
             }
         }
 
-        assertThat(selectedColor.asConstantColor()).isEqualTo(expectedOnBackground)
-        assertThat(unselectedColor.asConstantColor())
-            .isEqualTo(expectedOnBackground.copy(alpha = 0.3f))
+        assertThat(selectedColor.constantValue).isEqualTo(expectedOnBackground.constantValue)
+        assertThat(unselectedColor.constantValue)
+            .isEqualTo(expectedOnBackground.copy(alpha = 0.3f.rf).constantValue)
     }
 
     @Test
@@ -219,15 +228,21 @@ class RemotePageIndicatorUnitTest {
         assertThat(RemotePageIndicatorDefaults.IndicatorSize.constantValue).isEqualTo(6f)
 
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val displayInfo = createCreationDisplayInfo(context, Size(500f, 500f))
+        val displayInfo =
+            RemoteCreationDisplayInfo(
+                500,
+                500,
+                context.resources.displayMetrics.densityDpi,
+                context.resources.configuration.fontScale,
+            )
         val defaultDoc = runBlocking {
             captureRule.captureDocument(context = context, creationDisplayInfo = displayInfo) {
                 val state = rememberRemotePageIndicatorState(selectedPage = 0.ri, pageCount = 2)
                 RemoteHorizontalPageIndicator(
                     state = state,
-                    selectedColor = Color.Green.rc,
-                    unselectedColor = Color.Black.rc,
-                    backgroundColor = Color.Black.rc,
+                    selectedColor = RemoteColor.Green,
+                    unselectedColor = RemoteColor.Black,
+                    backgroundColor = RemoteColor.Black,
                 )
             }
         }
@@ -236,9 +251,9 @@ class RemotePageIndicatorUnitTest {
                 val state = rememberRemotePageIndicatorState(selectedPage = 0.ri, pageCount = 2)
                 RemoteHorizontalPageIndicator(
                     state = state,
-                    selectedColor = Color.Green.rc,
-                    unselectedColor = Color.Black.rc,
-                    backgroundColor = Color.Black.rc,
+                    selectedColor = RemoteColor.Green,
+                    unselectedColor = RemoteColor.Black,
+                    backgroundColor = RemoteColor.Black,
                     indicatorSize = 16.rdp,
                 )
             }

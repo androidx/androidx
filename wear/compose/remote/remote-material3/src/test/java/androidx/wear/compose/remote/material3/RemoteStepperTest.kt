@@ -34,7 +34,6 @@ import androidx.compose.remote.player.compose.RcPlayerTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -70,15 +69,15 @@ class RemoteStepperTest {
     fun stepperColors_copy() {
         val original =
             RemoteStepperColors(
-                contentColor = RemoteColor(Color.White),
-                buttonContainerColor = RemoteColor(Color.Red),
-                buttonIconColor = RemoteColor(Color.Blue),
-                disabledContentColor = RemoteColor(Color.Gray),
-                disabledButtonContainerColor = RemoteColor(Color.DarkGray),
-                disabledButtonIconColor = RemoteColor(Color.LightGray),
+                contentColor = RemoteColor.White,
+                buttonContainerColor = RemoteColor.Red,
+                buttonIconColor = RemoteColor.Blue,
+                disabledContentColor = RemoteColor.Gray,
+                disabledButtonContainerColor = RemoteColor.DarkGray,
+                disabledButtonIconColor = RemoteColor.LightGray,
             )
 
-        val newContentColor = RemoteColor(Color.Yellow)
+        val newContentColor = RemoteColor.Yellow
         val copy = original.copy(contentColor = newContentColor)
 
         assertThat(copy.contentColor).isEqualTo(newContentColor)
@@ -94,15 +93,15 @@ class RemoteStepperTest {
     fun stepperColors_equalsAndHashCode() {
         val colors1 =
             RemoteStepperColors(
-                contentColor = RemoteColor(Color.White),
-                buttonContainerColor = RemoteColor(Color.Red),
-                buttonIconColor = RemoteColor(Color.Blue),
-                disabledContentColor = RemoteColor(Color.Gray),
-                disabledButtonContainerColor = RemoteColor(Color.DarkGray),
-                disabledButtonIconColor = RemoteColor(Color.LightGray),
+                contentColor = RemoteColor.White,
+                buttonContainerColor = RemoteColor.Red,
+                buttonIconColor = RemoteColor.Blue,
+                disabledContentColor = RemoteColor.Gray,
+                disabledButtonContainerColor = RemoteColor.DarkGray,
+                disabledButtonIconColor = RemoteColor.LightGray,
             )
         val colors2 = colors1.copy()
-        val colors3 = colors1.copy(contentColor = RemoteColor(Color.Black))
+        val colors3 = colors1.copy(contentColor = RemoteColor.Black)
 
         assertThat(colors2).isEqualTo(colors1)
         assertThat(colors2.hashCode()).isEqualTo(colors1.hashCode())

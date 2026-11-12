@@ -36,7 +36,6 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
 import androidx.compose.remote.creation.compose.util.TestProfiles
@@ -46,7 +45,6 @@ import androidx.compose.remote.player.core.platform.AndroidComponentSupport
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -169,7 +167,7 @@ class RemoteCustomComponentScreenshotTest {
             name = "SupportAllProperties",
             modifier = RemoteModifier.size(80.rdp, 30.rdp),
         ) {
-            property(SupportAllProperties.PROP_COLOR.toInt(), Color(0xFFFF0000).rc)
+            property(SupportAllProperties.PROP_COLOR.toInt(), RemoteColor.Red)
         }
     }
 
@@ -233,7 +231,7 @@ class RemoteCustomComponentScreenshotTest {
     @RemoteComposable
     private fun RemoteColorProp() {
         val remoteColor = remember {
-            RemoteColor.createNamedRemoteColor("remote_color_prop", Color(0xFF00FF00).rc)
+            RemoteColor.createNamedRemoteColor("remote_color_prop", RemoteColor.Green)
         }
         RemoteCustomComponent(
             name = "SupportAllProperties",

@@ -18,22 +18,19 @@ package androidx.compose.remote.creation.compose.modifier
 
 import android.content.Context
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteString
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -57,8 +54,13 @@ class GraphicsLayerModifierTest {
         )
     private val context: Context = ApplicationProvider.getApplicationContext()
 
-    val size = Size(200f, 200f)
-    private val creationDisplayInfo = createCreationDisplayInfo(context, size)
+    private val creationDisplayInfo =
+        RemoteCreationDisplayInfo(
+            width = 200,
+            height = 200,
+            densityDpi = context.resources.displayMetrics.densityDpi,
+            fontScale = context.resources.configuration.fontScale,
+        )
 
     @Test
     fun graphicsLayerConstantAlpha() {
@@ -69,7 +71,7 @@ class GraphicsLayerModifierTest {
             DemoBox("graphicsLayer { alpha = 0.5f }".rs) {
                 RemoteBox(
                     modifier =
-                        RemoteModifier.fillMaxSize().background(Color.Red.rc).graphicsLayer {
+                        RemoteModifier.fillMaxSize().background(RemoteColor.Red).graphicsLayer {
                             alpha = 0.5f.rf
                         }
                 )
@@ -86,7 +88,7 @@ class GraphicsLayerModifierTest {
             DemoBox("graphicsLayer { scale = 0.7f, rotationZ = 45f }".rs) {
                 RemoteBox(
                     modifier =
-                        RemoteModifier.fillMaxSize().background(Color.Red.rc).graphicsLayer {
+                        RemoteModifier.fillMaxSize().background(RemoteColor.Red).graphicsLayer {
                             scaleX = 0.7f.rf
                             scaleY = 0.7f.rf
                             rotationZ = 45f.rf
@@ -106,7 +108,7 @@ class GraphicsLayerModifierTest {
             DemoBox("graphicsLayer { alpha(dynamic) }".rs) {
                 RemoteBox(
                     modifier =
-                        RemoteModifier.fillMaxSize().background(Color.Red.rc).graphicsLayer {
+                        RemoteModifier.fillMaxSize().background(RemoteColor.Red).graphicsLayer {
                             alpha = dynamicAlpha
                         }
                 )
@@ -126,7 +128,7 @@ class GraphicsLayerModifierTest {
                 modifier = RemoteModifier.fillMaxSize(),
                 contentAlignment = RemoteAlignment.BottomCenter,
             ) {
-                RemoteText(title, color = RemoteColor(Color.White), fontSize = 8.rsp)
+                RemoteText(title, color = RemoteColor.White, fontSize = 8.rsp)
             }
         }
     }

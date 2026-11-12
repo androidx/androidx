@@ -37,7 +37,6 @@ import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInf
 import androidx.compose.remote.creation.compose.capture.RemoteWriterEvents
 import androidx.compose.remote.creation.compose.capture.captureRemoteDocument
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.border
@@ -57,14 +56,14 @@ import androidx.compose.remote.creation.compose.modifier.widthIn
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.asRemoteDp
-import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rememberNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.rf
@@ -80,9 +79,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
@@ -121,9 +117,11 @@ class RemoteComponentEmbeddedPlayerTest {
     ): RemoteCreationDisplayInfo {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val density = context.resources.displayMetrics.density
-        return createCreationDisplayInfo(
-            context = context,
-            size = Size(widthDp * density, heightDp * density),
+        return RemoteCreationDisplayInfo(
+            width = (widthDp * density).toInt(),
+            height = (heightDp * density).toInt(),
+            densityDpi = context.resources.displayMetrics.densityDpi,
+            fontScale = context.resources.configuration.fontScale,
         )
     }
 
@@ -201,7 +199,7 @@ class RemoteComponentEmbeddedPlayerTest {
                                 contentDescription = "InnerCanvas".rs
                             }
                     ) {
-                        val paint = RemotePaint { color = Color.Blue.rc }
+                        val paint = RemotePaint { color = RemoteColor.Blue }
                         drawRect(
                             paint = paint,
                             topLeft = RemoteOffset(0f.rf, 0f.rf),
@@ -344,7 +342,7 @@ class RemoteComponentEmbeddedPlayerTest {
                     ) {
                         RemoteColumn(
                             modifier =
-                                RemoteModifier.size(140.rdp, 120.rdp).background(Color.White.rc)
+                                RemoteModifier.size(140.rdp, 120.rdp).background(RemoteColor.White)
                         ) {
                             RemoteBox(modifier = RemoteModifier.size(20.rdp, 10.rdp))
                             IndependentlyRecomposingChild(show = showDynamicChild.value)
@@ -472,7 +470,7 @@ class RemoteComponentEmbeddedPlayerTest {
             remoteCreationDisplayInfo = displayInfo(),
             onNamedAction = { name, value, _ -> recordedPx[name] = value as Float },
         ) {
-            val bitmap = remember { ImageBitmap(16, 16).rb }
+            val bitmap = remember { RemoteImageBitmap.createOffscreenRemoteBitmap(16, 16) }
             val pillShape = RemoteRoundedCornerShape(percent = 50)
 
             RemoteColumn(modifier = RemoteModifier.size(200.rdp, 220.rdp)) {
@@ -483,7 +481,7 @@ class RemoteComponentEmbeddedPlayerTest {
                     modifier =
                         RemoteModifier.size(80.rdp, 40.rdp)
                             .clip(RemoteCircleShape)
-                            .border(2.rdp, Color.Black.rc, pillShape)
+                            .border(2.rdp, RemoteColor.Black, pillShape)
                             .graphicsLayer(shape = pillShape)
                             .clickable(eagerRecordOwnSizeAction())
                             .semantics { contentDescription = "ScopedModifierBox".rs }
@@ -493,7 +491,7 @@ class RemoteComponentEmbeddedPlayerTest {
                     modifier =
                         RemoteModifier.size(60.rdp, 30.rdp)
                             .clip(pillShape)
-                            .border(1.rdp, Color.DarkGray.rc, pillShape)
+                            .border(1.rdp, RemoteColor.DarkGray, pillShape)
                             .clickable(eagerRecordOwnSizeAction())
                             .semantics { contentDescription = "ScopedModifierText".rs },
                 )
@@ -566,7 +564,7 @@ class RemoteComponentEmbeddedPlayerTest {
             remoteCreationDisplayInfo = displayInfo(),
             onNamedAction = { name, value, _ -> recordedPx[name] = value as Float },
         ) {
-            val bitmap = remember { ImageBitmap(16, 16).rb }
+            val bitmap = remember { RemoteImageBitmap.createOffscreenRemoteBitmap(16, 16) }
 
             RemoteColumn(modifier = RemoteModifier.size(200.rdp, 200.rdp)) {
                 RemoteBox(modifier = RemoteModifier.size(14.rdp, 8.rdp))
@@ -644,7 +642,7 @@ class RemoteComponentEmbeddedPlayerTest {
                             val boxComp = remoteComponent()
                             capturedBoxWidth = boxComp.width
                             drawRect(
-                                paint = RemotePaint { color = Color.Cyan.rc },
+                                paint = RemotePaint { color = RemoteColor.Cyan },
                                 topLeft = RemoteOffset.Zero,
                                 size = RemoteSize(boxComp.width, RemoteComponent(this).height),
                             )
@@ -660,7 +658,7 @@ class RemoteComponentEmbeddedPlayerTest {
                     capturedCanvasWidth = canvasComp.width
                     capturedCanvasHeight = dynamicComp.height
                     drawRect(
-                        paint = RemotePaint { color = Color.Magenta.rc },
+                        paint = RemotePaint { color = RemoteColor.Magenta },
                         topLeft = RemoteOffset.Zero,
                         size = RemoteSize(canvasComp.width, dynamicComp.height),
                     )
@@ -757,7 +755,7 @@ class RemoteComponentEmbeddedPlayerTest {
                     modifier =
                         RemoteModifier.fillMaxWidth().height(50.rdp).drawWithContent {
                             val halfWidth = remoteComponent().width / 2f.rf
-                            val paint = RemotePaint { color = Color.Blue.rc }
+                            val paint = RemotePaint { color = RemoteColor.Blue }
                             drawRect(
                                 paint = paint,
                                 topLeft = RemoteOffset.Zero,
@@ -785,7 +783,7 @@ class RemoteComponentEmbeddedPlayerTest {
                 //    inside CanvasContent before a sibling layout node uses the same expression.
                 RemoteCanvas(modifier = RemoteModifier.size(80.rdp, 20.rdp)) {
                     val halfColWidth = columnComp.width / 2f.rf
-                    val paint = RemotePaint { color = Color.Green.rc }
+                    val paint = RemotePaint { color = RemoteColor.Green }
                     drawRect(
                         paint = paint,
                         topLeft = RemoteOffset.Zero,

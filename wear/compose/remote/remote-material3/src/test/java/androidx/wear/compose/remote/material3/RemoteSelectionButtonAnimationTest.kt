@@ -25,9 +25,9 @@ import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.RemoteAnimationSpec
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteEasing
 import androidx.compose.remote.creation.compose.state.RemoteFloat
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
@@ -134,11 +134,11 @@ class RemoteSelectionButtonAnimationTest {
     fun checkbox_tickRotatesOnlyWhileBeingChecked() {
         val painter = painterRule.paintDocument {
             // On black, the red channel shows how opaque the red tick is in each pixel.
-            RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Black.rc)) {
+            RemoteBox(modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Black)) {
                 RemoteCheckboxControl(
                     checked = RemoteBoolean.createNamedRemoteBoolean(CheckedName, true),
-                    boxColor = Color.Transparent.rc,
-                    checkmarkColor = Color.Red.rc,
+                    boxColor = RemoteColor.Transparent,
+                    checkmarkColor = RemoteColor.Red,
                     progress = RemoteFloat.createNamedRemoteFloat(ProgressName, 1f),
                 )
             }
@@ -195,8 +195,8 @@ class RemoteSelectionButtonAnimationTest {
         val painter =
             checkboxButtonAfterChecking(motionScheme, afterMillis) {
                 RemoteCheckboxButtonDefaults.checkboxButtonColors(
-                    uncheckedContainerColor = Color.Black.rc,
-                    checkedContainerColor = Color.White.rc,
+                    uncheckedContainerColor = RemoteColor.Black,
+                    checkedContainerColor = RemoteColor.White,
                 )
             }
         // The middle of the start half of the button, away from the checkbox.
@@ -212,11 +212,11 @@ class RemoteSelectionButtonAnimationTest {
         val painter =
             checkboxButtonAfterChecking(motionScheme, afterMillis) {
                 RemoteCheckboxButtonDefaults.checkboxButtonColors(
-                    checkedContainerColor = Color.Black.rc,
-                    uncheckedContainerColor = Color.Black.rc,
-                    checkedBoxColor = Color.Red.rc,
-                    uncheckedBoxColor = Color.Red.rc,
-                    checkedCheckmarkColor = Color.Black.rc,
+                    checkedContainerColor = RemoteColor.Black,
+                    uncheckedContainerColor = RemoteColor.Black,
+                    checkedBoxColor = RemoteColor.Red,
+                    uncheckedBoxColor = RemoteColor.Red,
+                    checkedCheckmarkColor = RemoteColor.Black,
                 )
             }
         return painter.countPixels(::isBoxColor)
@@ -311,8 +311,8 @@ class RemoteSelectionButtonAnimationTest {
                         onCheckedChange = hostAction("toggle".rs),
                         colors =
                             RemoteCheckboxButtonDefaults.checkboxButtonColors(
-                                uncheckedIconColor = Color.Red.rc,
-                                checkedIconColor = Color.Blue.rc,
+                                uncheckedIconColor = RemoteColor.Red,
+                                checkedIconColor = RemoteColor.Blue,
                             ),
                         icon = { RemoteIcon(TestImageVectors.VolumeUp, contentDescription = null) },
                         label = {},
@@ -324,8 +324,8 @@ class RemoteSelectionButtonAnimationTest {
                         onCheckedChange = hostAction("toggle".rs),
                         colors =
                             RemoteSwitchButtonDefaults.switchButtonColors(
-                                uncheckedIconColor = Color.Red.rc,
-                                checkedIconColor = Color.Blue.rc,
+                                uncheckedIconColor = RemoteColor.Red,
+                                checkedIconColor = RemoteColor.Blue,
                             ),
                         icon = { RemoteIcon(TestImageVectors.VolumeUp, contentDescription = null) },
                         label = {},
@@ -337,8 +337,8 @@ class RemoteSelectionButtonAnimationTest {
                         onSelect = hostAction("select".rs),
                         colors =
                             RemoteRadioButtonDefaults.radioButtonColors(
-                                unselectedIconColor = Color.Red.rc,
-                                selectedIconColor = Color.Blue.rc,
+                                unselectedIconColor = RemoteColor.Red,
+                                selectedIconColor = RemoteColor.Blue,
                             ),
                         icon = { RemoteIcon(TestImageVectors.VolumeUp, contentDescription = null) },
                         label = {},

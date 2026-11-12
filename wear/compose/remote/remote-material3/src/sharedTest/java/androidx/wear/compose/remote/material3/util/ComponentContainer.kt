@@ -22,9 +22,8 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
-import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 
 @Composable
 @RemoteComposable
@@ -33,7 +32,7 @@ fun ComponentContainer(
     content: @Composable @RemoteComposable () -> Unit,
 ) {
     RemoteBox(
-        modifier = modifier.fillMaxSize().background(Color.Black.rc),
+        modifier = modifier.fillMaxSize().background(RemoteColor.Black),
         contentAlignment = RemoteAlignment.Center,
         content = content,
     )

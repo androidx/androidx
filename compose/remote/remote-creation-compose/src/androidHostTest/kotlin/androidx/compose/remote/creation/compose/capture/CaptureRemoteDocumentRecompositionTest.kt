@@ -25,8 +25,8 @@ import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePaint
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.runtime.LaunchedEffect
@@ -36,7 +36,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.atomic.AtomicInteger
@@ -242,7 +241,7 @@ class CaptureRemoteDocumentRecompositionTest {
      */
     @Test
     fun testStateReadOnlyWhileRenderingEmitsNewDocument() = runTest {
-        val fill = mutableStateOf(Color.Red)
+        val fill = mutableStateOf(RemoteColor.Red)
         val renders = AtomicInteger()
 
         val flow =
@@ -253,7 +252,7 @@ class CaptureRemoteDocumentRecompositionTest {
                 content = {
                     RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
                         renders.incrementAndGet()
-                        drawRect(paint = RemotePaint { color = fill.value.rc })
+                        drawRect(paint = RemotePaint { color = fill.value })
                     }
                 },
             )
@@ -263,7 +262,7 @@ class CaptureRemoteDocumentRecompositionTest {
         testScheduler.advanceUntilIdle()
         assertThat(documents).hasSize(1)
 
-        Snapshot.withMutableSnapshot { fill.value = Color.Blue }
+        Snapshot.withMutableSnapshot { fill.value = RemoteColor.Blue }
         Snapshot.sendApplyNotifications()
         testScheduler.advanceUntilIdle()
 
@@ -291,7 +290,7 @@ class CaptureRemoteDocumentRecompositionTest {
                 content = {
                     RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
                         renders.incrementAndGet()
-                        drawRect(paint = RemotePaint { color = Color.Red.rc })
+                        drawRect(paint = RemotePaint { color = RemoteColor.Red })
                     }
                 },
             )
@@ -330,7 +329,7 @@ class CaptureRemoteDocumentRecompositionTest {
                 content = {
                     RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
                         drawCount.value = drawCount.value + 1
-                        drawRect(paint = RemotePaint { color = Color.Red.rc })
+                        drawRect(paint = RemotePaint { color = RemoteColor.Red })
                     }
                 },
             )
@@ -365,7 +364,7 @@ class CaptureRemoteDocumentRecompositionTest {
                     val modifier = remember { RemoteModifier.fillMaxSize() }
                     RemoteCanvas(modifier = modifier) {
                         renders.incrementAndGet()
-                        drawRect(paint = RemotePaint { color = Color.Red.rc })
+                        drawRect(paint = RemotePaint { color = RemoteColor.Red })
                     }
                 },
             )

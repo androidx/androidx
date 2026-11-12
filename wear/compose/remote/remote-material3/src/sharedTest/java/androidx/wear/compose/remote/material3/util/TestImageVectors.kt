@@ -21,9 +21,7 @@ import androidx.compose.remote.creation.compose.capture.path
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.shaders.solidColor
 import androidx.compose.remote.creation.compose.state.RemoteColor
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.ui.graphics.Color
 
 internal object TestImageVectors {
 
@@ -31,11 +29,11 @@ internal object TestImageVectors {
         RemoteImageVector.Builder(
                 viewportWidth = 24.0f.rf,
                 viewportHeight = 24.0f.rf,
-                tintColor = RemoteColor(Color.Black),
+                tintColor = RemoteColor.Black,
                 name = "Volume up",
                 autoMirror = true,
             )
-            .path(fill = RemoteBrush.solidColor(Color.Black.rc)) {
+            .path(fill = RemoteBrush.solidColor(RemoteColor.Black)) {
                 moveTo(3.0f.rf, 9.0f.rf)
                 verticalLineToRelative(6.0f.rf)
                 horizontalLineToRelative(4.0f.rf)

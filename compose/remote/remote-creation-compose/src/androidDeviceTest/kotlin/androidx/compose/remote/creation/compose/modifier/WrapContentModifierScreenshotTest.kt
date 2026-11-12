@@ -19,12 +19,11 @@ package androidx.compose.remote.creation.compose.modifier
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -54,43 +53,52 @@ class WrapContentModifierScreenshotTest {
             listOf<Pair<String, @RemoteComposable @Composable () -> Unit>>(
                 "wrapContentSize" to
                     @RemoteComposable @Composable {
-                        RemoteBox(modifier = RemoteModifier.size(60.rdp).background(Color.Red.rc)) {
+                        RemoteBox(
+                            modifier = RemoteModifier.size(60.rdp).background(RemoteColor.Red)
+                        ) {
                             RemoteBox(
                                 modifier =
-                                    RemoteModifier.wrapContentSize().background(Color.Green.rc)
+                                    RemoteModifier.wrapContentSize().background(RemoteColor.Green)
                             ) {
                                 RemoteBox(
-                                    modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
+                                    modifier =
+                                        RemoteModifier.size(20.rdp).background(RemoteColor.Blue)
                                 )
                             }
                         }
                     },
                 "wrapContentWidth" to
                     @RemoteComposable @Composable {
-                        RemoteBox(modifier = RemoteModifier.size(60.rdp).background(Color.Red.rc)) {
+                        RemoteBox(
+                            modifier = RemoteModifier.size(60.rdp).background(RemoteColor.Red)
+                        ) {
                             RemoteBox(
                                 modifier =
                                     RemoteModifier.height(60.rdp)
                                         .wrapContentWidth()
-                                        .background(Color.Green.rc)
+                                        .background(RemoteColor.Green)
                             ) {
                                 RemoteBox(
-                                    modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
+                                    modifier =
+                                        RemoteModifier.size(20.rdp).background(RemoteColor.Blue)
                                 )
                             }
                         }
                     },
                 "wrapContentHeight" to
                     @RemoteComposable @Composable {
-                        RemoteBox(modifier = RemoteModifier.size(60.rdp).background(Color.Red.rc)) {
+                        RemoteBox(
+                            modifier = RemoteModifier.size(60.rdp).background(RemoteColor.Red)
+                        ) {
                             RemoteBox(
                                 modifier =
                                     RemoteModifier.width(60.rdp)
                                         .wrapContentHeight()
-                                        .background(Color.Green.rc)
+                                        .background(RemoteColor.Green)
                             ) {
                                 RemoteBox(
-                                    modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
+                                    modifier =
+                                        RemoteModifier.size(20.rdp).background(RemoteColor.Blue)
                                 )
                             }
                         }
@@ -99,16 +107,19 @@ class WrapContentModifierScreenshotTest {
                     @RemoteComposable @Composable {
                         RemoteBox(
                             modifier =
-                                RemoteModifier.width(80.rdp).height(60.rdp).background(Color.Red.rc)
+                                RemoteModifier.width(80.rdp)
+                                    .height(60.rdp)
+                                    .background(RemoteColor.Red)
                         ) {
                             RemoteBox(
                                 modifier =
                                     RemoteModifier.fillMaxWidth()
                                         .wrapContentHeight()
-                                        .background(Color.Green.rc)
+                                        .background(RemoteColor.Green)
                             ) {
                                 RemoteBox(
-                                    modifier = RemoteModifier.size(30.rdp).background(Color.Blue.rc)
+                                    modifier =
+                                        RemoteModifier.size(30.rdp).background(RemoteColor.Blue)
                                 )
                             }
                         }
@@ -117,16 +128,19 @@ class WrapContentModifierScreenshotTest {
                     @RemoteComposable @Composable {
                         RemoteBox(
                             modifier =
-                                RemoteModifier.width(60.rdp).height(80.rdp).background(Color.Red.rc)
+                                RemoteModifier.width(60.rdp)
+                                    .height(80.rdp)
+                                    .background(RemoteColor.Red)
                         ) {
                             RemoteBox(
                                 modifier =
                                     RemoteModifier.fillMaxHeight()
                                         .wrapContentWidth()
-                                        .background(Color.Green.rc)
+                                        .background(RemoteColor.Green)
                             ) {
                                 RemoteBox(
-                                    modifier = RemoteModifier.size(30.rdp).background(Color.Blue.rc)
+                                    modifier =
+                                        RemoteModifier.size(30.rdp).background(RemoteColor.Blue)
                                 )
                             }
                         }

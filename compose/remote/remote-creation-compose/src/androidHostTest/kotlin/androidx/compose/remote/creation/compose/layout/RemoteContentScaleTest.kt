@@ -20,7 +20,6 @@ import androidx.compose.remote.core.operations.utilities.ImageScaling
 import androidx.compose.remote.creation.compose.painter.RemoteColorPainter
 import androidx.compose.remote.creation.compose.painter.painterRemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteColor
-import androidx.compose.ui.graphics.Color
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,7 +41,7 @@ class RemoteContentScaleTest {
 
     @Test
     fun remoteColorPainter_instantiation() {
-        val painter = painterRemoteColor(RemoteColor(Color.Red))
+        val painter = painterRemoteColor(RemoteColor.Red)
         assertThat(painter).isInstanceOf(RemoteColorPainter::class.java)
         assertThat(painter.intrinsicSize).isNull()
     }

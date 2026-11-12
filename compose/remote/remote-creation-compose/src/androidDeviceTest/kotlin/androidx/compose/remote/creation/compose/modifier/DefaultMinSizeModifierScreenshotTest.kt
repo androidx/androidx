@@ -19,12 +19,11 @@ package androidx.compose.remote.creation.compose.modifier
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -76,10 +75,10 @@ class DefaultMinSizeModifierScreenshotTest {
                                         minWidth = 50.rdp,
                                         minHeight = 50.rdp,
                                     )
-                                    .background(Color.Red.rc)
+                                    .background(RemoteColor.Red)
                         ) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
+                                modifier = RemoteModifier.size(20.rdp).background(RemoteColor.Blue)
                             )
                         }
                     },
@@ -91,10 +90,10 @@ class DefaultMinSizeModifierScreenshotTest {
                                         minWidth = 50.rdp,
                                         minHeight = 50.rdp,
                                     )
-                                    .background(Color.Red.rc)
+                                    .background(RemoteColor.Red)
                         ) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(80.rdp).background(Color.Blue.rc)
+                                modifier = RemoteModifier.size(80.rdp).background(RemoteColor.Blue)
                             )
                         }
                     },
@@ -106,10 +105,10 @@ class DefaultMinSizeModifierScreenshotTest {
                             modifier =
                                 RemoteModifier.size(80.rdp)
                                     .defaultMinSize(minWidth = 50.rdp, minHeight = 50.rdp)
-                                    .background(Color.Red.rc)
+                                    .background(RemoteColor.Red)
                         ) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
+                                modifier = RemoteModifier.size(20.rdp).background(RemoteColor.Blue)
                             )
                         }
                     },
@@ -119,10 +118,10 @@ class DefaultMinSizeModifierScreenshotTest {
                             modifier =
                                 RemoteModifier.size(20.rdp)
                                     .defaultMinSize(minWidth = 50.rdp, minHeight = 50.rdp)
-                                    .background(Color.Red.rc)
+                                    .background(RemoteColor.Red)
                         ) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(10.rdp).background(Color.Blue.rc)
+                                modifier = RemoteModifier.size(10.rdp).background(RemoteColor.Blue)
                             )
                         }
                     },
@@ -132,10 +131,10 @@ class DefaultMinSizeModifierScreenshotTest {
                             modifier =
                                 RemoteModifier.width(20.rdp)
                                     .defaultMinSize(minWidth = 50.rdp, minHeight = 50.rdp)
-                                    .background(Color.Red.rc)
+                                    .background(RemoteColor.Red)
                         ) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(10.rdp).background(Color.Blue.rc)
+                                modifier = RemoteModifier.size(10.rdp).background(RemoteColor.Blue)
                             )
                         }
                     },
@@ -145,10 +144,10 @@ class DefaultMinSizeModifierScreenshotTest {
                             modifier =
                                 RemoteModifier.height(20.rdp)
                                     .defaultMinSize(minWidth = 50.rdp, minHeight = 50.rdp)
-                                    .background(Color.Red.rc)
+                                    .background(RemoteColor.Red)
                         ) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(10.rdp).background(Color.Blue.rc)
+                                modifier = RemoteModifier.size(10.rdp).background(RemoteColor.Blue)
                             )
                         }
                     },
@@ -163,10 +162,10 @@ class DefaultMinSizeModifierScreenshotTest {
                                         minHeight = 50.rdp,
                                     )
                                     .size(80.rdp)
-                                    .background(Color.Red.rc)
+                                    .background(RemoteColor.Red)
                         ) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
+                                modifier = RemoteModifier.size(20.rdp).background(RemoteColor.Blue)
                             )
                         }
                     },
@@ -179,10 +178,10 @@ class DefaultMinSizeModifierScreenshotTest {
                                         minHeight = 50.rdp,
                                     )
                                     .size(20.rdp)
-                                    .background(Color.Red.rc)
+                                    .background(RemoteColor.Red)
                         ) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(10.rdp).background(Color.Blue.rc)
+                                modifier = RemoteModifier.size(10.rdp).background(RemoteColor.Blue)
                             )
                         }
                     },
@@ -197,10 +196,10 @@ class DefaultMinSizeModifierScreenshotTest {
                                         minHeight = 40.rdp,
                                     )
                                     .defaultMinSize(minWidth = 70.rdp, minHeight = 70.rdp)
-                                    .background(Color.Red.rc)
+                                    .background(RemoteColor.Red)
                         ) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(10.rdp).background(Color.Blue.rc)
+                                modifier = RemoteModifier.size(10.rdp).background(RemoteColor.Blue)
                             )
                         }
                     },
@@ -212,13 +211,13 @@ class DefaultMinSizeModifierScreenshotTest {
                                         minWidth = 40.rdp,
                                         minHeight = 40.rdp,
                                     )
-                                    .background(Color.Gray.rc)
+                                    .background(RemoteColor.Gray)
                                     .padding(10.rdp)
                                     .defaultMinSize(minWidth = 70.rdp, minHeight = 70.rdp)
-                                    .background(Color.Red.rc)
+                                    .background(RemoteColor.Red)
                         ) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(10.rdp).background(Color.Blue.rc)
+                                modifier = RemoteModifier.size(10.rdp).background(RemoteColor.Blue)
                             )
                         }
                     },
@@ -229,10 +228,10 @@ class DefaultMinSizeModifierScreenshotTest {
                         RemoteBox(
                             modifier =
                                 RemoteModifier.defaultMinSize(minWidth = 50.rdp)
-                                    .background(Color.Red.rc)
+                                    .background(RemoteColor.Red)
                         ) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
+                                modifier = RemoteModifier.size(20.rdp).background(RemoteColor.Blue)
                             )
                         }
                     },
@@ -241,10 +240,10 @@ class DefaultMinSizeModifierScreenshotTest {
                         RemoteBox(
                             modifier =
                                 RemoteModifier.defaultMinSize(minHeight = 50.rdp)
-                                    .background(Color.Red.rc)
+                                    .background(RemoteColor.Red)
                         ) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
+                                modifier = RemoteModifier.size(20.rdp).background(RemoteColor.Blue)
                             )
                         }
                     },

@@ -17,7 +17,6 @@
 package androidx.wear.compose.remote.material3
 
 import androidx.compose.remote.creation.compose.state.RemoteColor
-import androidx.compose.ui.graphics.Color
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,21 +50,21 @@ class RemoteSliderTest {
     fun sliderColors_copy() {
         val original =
             RemoteSliderColors(
-                containerColor = RemoteColor(Color.DarkGray),
-                buttonIconColor = RemoteColor(Color.White),
-                selectedBarColor = RemoteColor(Color.Blue),
-                unselectedBarColor = RemoteColor(Color.LightGray),
-                selectedBarSeparatorColor = RemoteColor(Color.Black),
-                unselectedBarSeparatorColor = RemoteColor(Color.Gray),
-                disabledContainerColor = RemoteColor(Color.Black),
-                disabledButtonIconColor = RemoteColor(Color.DarkGray),
-                disabledSelectedBarColor = RemoteColor(Color.Gray),
-                disabledUnselectedBarColor = RemoteColor(Color.DarkGray),
-                disabledSelectedBarSeparatorColor = RemoteColor(Color.Black),
-                disabledUnselectedBarSeparatorColor = RemoteColor(Color.DarkGray),
+                containerColor = RemoteColor.DarkGray,
+                buttonIconColor = RemoteColor.White,
+                selectedBarColor = RemoteColor.Blue,
+                unselectedBarColor = RemoteColor.LightGray,
+                selectedBarSeparatorColor = RemoteColor.Black,
+                unselectedBarSeparatorColor = RemoteColor.Gray,
+                disabledContainerColor = RemoteColor.Black,
+                disabledButtonIconColor = RemoteColor.DarkGray,
+                disabledSelectedBarColor = RemoteColor.Gray,
+                disabledUnselectedBarColor = RemoteColor.DarkGray,
+                disabledSelectedBarSeparatorColor = RemoteColor.Black,
+                disabledUnselectedBarSeparatorColor = RemoteColor.DarkGray,
             )
 
-        val newSelectedBarColor = RemoteColor(Color.Green)
+        val newSelectedBarColor = RemoteColor.Green
         val copy = original.copy(selectedBarColor = newSelectedBarColor)
 
         assertThat(copy.selectedBarColor).isEqualTo(newSelectedBarColor)
@@ -80,21 +79,21 @@ class RemoteSliderTest {
     fun sliderColors_equalsAndHashCode() {
         val colors1 =
             RemoteSliderColors(
-                containerColor = RemoteColor(Color.DarkGray),
-                buttonIconColor = RemoteColor(Color.White),
-                selectedBarColor = RemoteColor(Color.Blue),
-                unselectedBarColor = RemoteColor(Color.LightGray),
-                selectedBarSeparatorColor = RemoteColor(Color.Black),
-                unselectedBarSeparatorColor = RemoteColor(Color.Gray),
-                disabledContainerColor = RemoteColor(Color.Black),
-                disabledButtonIconColor = RemoteColor(Color.DarkGray),
-                disabledSelectedBarColor = RemoteColor(Color.Gray),
-                disabledUnselectedBarColor = RemoteColor(Color.DarkGray),
-                disabledSelectedBarSeparatorColor = RemoteColor(Color.Black),
-                disabledUnselectedBarSeparatorColor = RemoteColor(Color.DarkGray),
+                containerColor = RemoteColor.DarkGray,
+                buttonIconColor = RemoteColor.White,
+                selectedBarColor = RemoteColor.Blue,
+                unselectedBarColor = RemoteColor.LightGray,
+                selectedBarSeparatorColor = RemoteColor.Black,
+                unselectedBarSeparatorColor = RemoteColor.Gray,
+                disabledContainerColor = RemoteColor.Black,
+                disabledButtonIconColor = RemoteColor.DarkGray,
+                disabledSelectedBarColor = RemoteColor.Gray,
+                disabledUnselectedBarColor = RemoteColor.DarkGray,
+                disabledSelectedBarSeparatorColor = RemoteColor.Black,
+                disabledUnselectedBarSeparatorColor = RemoteColor.DarkGray,
             )
         val colors2 = colors1.copy()
-        val colors3 = colors1.copy(selectedBarColor = RemoteColor(Color.Red))
+        val colors3 = colors1.copy(selectedBarColor = RemoteColor.Red)
 
         assertThat(colors2).isEqualTo(colors1)
         assertThat(colors2.hashCode()).isEqualTo(colors1.hashCode())

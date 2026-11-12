@@ -26,10 +26,8 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCaptureStat
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.state.RemoteColor
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.util.TestRemoteComposeBuffer
 import androidx.compose.remote.creation.profile.Profile
-import androidx.compose.ui.graphics.Color
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -74,7 +72,7 @@ class BackgroundModifierTest {
 
     @Test
     fun testConstantColorBackground() {
-        val color = Color.Red.rc
+        val color = RemoteColor.Red
         val modifier = RemoteModifier.background(color)
         val recordingModifier = creationState.toRecordingModifier(modifier)
 
@@ -89,7 +87,7 @@ class BackgroundModifierTest {
 
     @Test
     fun testConstantRemoteColorBackground() {
-        val color = Color.Blue.rc
+        val color = RemoteColor.Blue
         val modifier = RemoteModifier.background(color)
         val recordingModifier = creationState.toRecordingModifier(modifier)
 
@@ -105,7 +103,7 @@ class BackgroundModifierTest {
     @Test
     fun testDynamicNamedRemoteColorBackground() {
         // Named color represents a dynamic theme token
-        val color = RemoteColor.createNamedRemoteColor("color.primary", Color.Green.rc)
+        val color = RemoteColor.createNamedRemoteColor("color.primary", RemoteColor.Green)
         val modifier = RemoteModifier.background(color)
         val recordingModifier = creationState.toRecordingModifier(modifier)
 

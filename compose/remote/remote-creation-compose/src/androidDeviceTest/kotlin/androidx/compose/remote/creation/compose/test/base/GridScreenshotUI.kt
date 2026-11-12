@@ -34,7 +34,6 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteTextOverflow
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.DeviceConfigurationOverride
 import androidx.compose.ui.test.LayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
@@ -110,7 +109,7 @@ private fun Container(
     content: @RemoteComposable @Composable () -> Unit,
 ) {
     RemoteBox(
-        modifier = modifier.size(size).background(Color(0xFFCFD8DC).rc),
+        modifier = modifier.size(size).background(0xFFCFD8DC.rc),
         contentAlignment = RemoteAlignment.CenterStart,
         content = content,
     )

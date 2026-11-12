@@ -43,9 +43,7 @@ import androidx.compose.remote.player.core.state.RemoteDomains
 import androidx.compose.remote.testing.LimitsRule
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -127,7 +125,7 @@ class RemoteStateCreationTest {
                 RemoteBox(
                     modifier =
                         RemoteModifier.size(100.rdp)
-                            .background(namedBoolean.select(Color.Red.rc, Color.Blue.rc))
+                            .background(namedBoolean.select(RemoteColor.Red, RemoteColor.Blue))
                 )
             }
         assertThat(coreDoc.getNamedVariables(NamedVariable.INT_TYPE))
@@ -186,7 +184,7 @@ class RemoteStateCreationTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 val namedColor = remember {
-                    RemoteColor.createNamedRemoteColor("testColor", Color.Magenta.rc)
+                    RemoteColor.createNamedRemoteColor("testColor", RemoteColor.Magenta)
                 }
                     .withGlobalScope()
                 RemoteBox(modifier = RemoteModifier.size(10.rdp).background(namedColor))
@@ -453,8 +451,8 @@ class RemoteStateCreationTest {
             RemoteLong(42L).getIdForCreationState(state)
             RemoteBoolean(true).getIdForCreationState(state)
             RemoteString("hello").getIdForCreationState(state)
-            RemoteColor(Color.Red).getIdForCreationState(state)
-            RemoteDp(10.dp).getIdForCreationState(state)
+            RemoteColor.Red.getIdForCreationState(state)
+            10.rdp.getIdForCreationState(state)
         }
     }
 
@@ -477,7 +475,7 @@ class RemoteStateCreationTest {
             val sId = RemoteString("h").getIdForCreationState(state)
             RemoteString.createForId(sId).getIdForCreationState(state)
 
-            val cId = RemoteColor(Color.Red).getIdForCreationState(state)
+            val cId = RemoteColor.Red.getIdForCreationState(state)
             RemoteColor.createForId(cId).getIdForCreationState(state)
 
             val dpRef = RemoteFloat(10f)
@@ -494,7 +492,7 @@ class RemoteStateCreationTest {
             createNamedRemoteLong("l", defaultValue = 1L).getIdForCreationState(state)
             createNamedRemoteBoolean("b", defaultValue = true).getIdForCreationState(state)
             createNamedRemoteString("s", defaultValue = "h").getIdForCreationState(state)
-            RemoteColor.createNamedRemoteColor("c", defaultValue = Color.Red.rc)
+            RemoteColor.createNamedRemoteColor("c", defaultValue = RemoteColor.Red)
                 .getIdForCreationState(state)
             createNamedRemoteDp("d", defaultValue = 1f).getIdForCreationState(state)
         }
@@ -520,7 +518,7 @@ class RemoteStateCreationTest {
 
             // Taking expression values
             rememberNamedRemoteFloat("f", 1f.rf).getIdForCreationState(state)
-            rememberNamedRemoteColor("c", Color.Red.rc).getIdForCreationState(state)
+            rememberNamedRemoteColor("c", RemoteColor.Red).getIdForCreationState(state)
             rememberNamedRemoteDp("d", 1.rdp).getIdForCreationState(state)
 
             // Taking primitive values
@@ -536,7 +534,7 @@ class RemoteStateCreationTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 val useLargeScroll = remember { MutableRemoteBoolean(true) }
-                RemoteText(useLargeScroll.select("True".rs, "False".rs), color = Color.Black.rc)
+                RemoteText(useLargeScroll.select("True".rs, "False".rs), color = RemoteColor.Black)
             }
         val playbackContext = AndroidRemoteContext()
         playbackContext.androidContext = context
