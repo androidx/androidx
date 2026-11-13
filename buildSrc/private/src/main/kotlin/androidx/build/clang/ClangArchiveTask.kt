@@ -67,6 +67,9 @@ abstract class ClangArchiveParameters {
 
     /** The final output file that will include the archive of the given [objectFiles]. */
     @get:OutputFile abstract val outputFile: RegularFileProperty
+
+    /** Identifies the toolchain, e.g. `ndk-30.0.16248370`. Changing it rebuilds outputs. */
+    @get:Input abstract val toolchainVersion: Property<String>
 }
 
 private abstract class ClangArchiveWorker : WorkAction<ClangArchiveWorker.Params> {

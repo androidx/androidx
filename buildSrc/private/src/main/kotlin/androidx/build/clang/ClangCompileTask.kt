@@ -76,6 +76,9 @@ abstract class ClangCompileParameters {
 
     /** List of arguments that will be passed into clang during compilation. */
     @get:Input abstract val freeArgs: ListProperty<String>
+
+    /** Identifies the toolchain, e.g. `ndk-30.0.16248370`. Changing it rebuilds outputs. */
+    @get:Input abstract val toolchainVersion: Property<String>
 }
 
 private abstract class ClangCompileWorker : WorkAction<ClangCompileWorker.Params> {

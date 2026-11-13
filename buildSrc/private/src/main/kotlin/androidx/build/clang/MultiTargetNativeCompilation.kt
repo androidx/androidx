@@ -17,6 +17,7 @@
 package androidx.build.clang
 
 import androidx.build.KonanPrebuiltsSetup
+import androidx.build.defaultAndroidConfig
 import com.android.utils.appendCapitalized
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectFactory
@@ -163,6 +164,15 @@ class MultiTargetNativeCompilation(
         private val outputDir =
             project.layout.buildDirectory.dir("clang".appendCapitalized(archiveName))
 
+        /** Returns the toolchain of [target]: the NDK for Android, Kotlin/Native otherwise. */
+        private fun toolchainVersionFor(target: NativeTarget): String {
+            return if (target.isAndroid) {
+                "ndk-${project.defaultAndroidConfig.ndkVersion}"
+            } else {
+                "kotlin-native-${NativeCompilerDownloader.DEFAULT_KONAN_VERSION}"
+            }
+        }
+
         override fun create(name: String): NativeTargetCompilation {
             return create(NativeTarget.fromName(name))
         }
@@ -209,6 +219,7 @@ class MultiTargetNativeCompilation(
                         )
                         llvmAr.target.set(target.name)
                         llvmAr.objectFiles.from(compileTask.map { it.clangParameters.output })
+                        llvmAr.toolchainVersion.set(toolchainVersionFor(target))
                     }
                 }
             return archiveTask
@@ -232,6 +243,7 @@ class MultiTargetNativeCompilation(
                         clang.sources.from(sources)
                         clang.freeArgs.addAll(freeArgs)
                         clang.target.set(target.name)
+                        clang.toolchainVersion.set(toolchainVersionFor(target))
                     }
                 }
             return compileTask
@@ -267,6 +279,7 @@ class MultiTargetNativeCompilation(
                         clang.linkedObjects.from(linkedObjects)
                         clang.linkerArgs.addAll(linkerArgs)
                         clang.sources.from(sources)
+                        clang.toolchainVersion.set(toolchainVersionFor(target))
                     }
                 }
             return linkerTask
