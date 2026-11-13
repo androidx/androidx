@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -40,6 +41,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -770,6 +772,31 @@ class TimePickerTest {
                 initialSelection = TimePickerSelection.ConfirmButton,
             )
         }
+
+        rule.confirmButton().assertIsFocused()
+    }
+
+    @Test
+    fun click_action_on_selected_last_column_focuses_confirm_button() {
+        val initialTime = LocalTime.of(10, 20, 30)
+        rule.setContentWithTheme {
+            TimePicker(
+                onTimePicked = {},
+                initialTime = initialTime,
+                timePickerType = TimePickerType.HoursMinutes24H,
+                initialSelection = TimePickerSelection.Minute,
+            )
+        }
+
+        // A touch on the selected column does not advance the selection; its OnClick semantics
+        // action does.
+        rule
+            .onNodeWithTimeValue(
+                selectedValue = initialTime.minute,
+                selectionMode = SelectionMode.Minute,
+            )
+            .performSemanticsAction(SemanticsActions.OnClick)
+        rule.waitForIdle()
 
         rule.confirmButton().assertIsFocused()
     }

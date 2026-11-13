@@ -64,7 +64,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.focused
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextMeasurer
@@ -272,9 +271,12 @@ public fun TimePicker(
             selectedElement = current
         } else {
             selectedElement = findNextElement(current)
-            if (selectedElement == TimePickerSelection.ConfirmButton) {
-                focusRequesterConfirmButton.requestFocus()
-            }
+        }
+    }
+
+    LaunchedEffect(selectedElement) {
+        if (selectedElement == TimePickerSelection.ConfirmButton) {
+            focusRequesterConfirmButton.requestFocus()
         }
     }
 
@@ -365,12 +367,7 @@ public fun TimePicker(
 
                     onTimePicked(confirmedTime)
                 },
-                modifier =
-                    Modifier.semantics {
-                            focused = (selectedElement == TimePickerSelection.ConfirmButton)
-                        }
-                        .focusRequester(focusRequesterConfirmButton)
-                        .focusable(),
+                modifier = Modifier.focusRequester(focusRequesterConfirmButton).focusable(),
                 buttonSize = EdgeButtonSize.Small,
                 colors =
                     buttonColors(
