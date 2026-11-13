@@ -34,6 +34,7 @@ import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_FRAME_LIMIT
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.hasFlashUnit
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.isSupported
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsAutoFocusTrigger
 import androidx.camera.camera2.pipe.ControlMode
 import androidx.camera.camera2.pipe.Converge3ABehavior
@@ -200,6 +201,18 @@ constructor(
         awbRegions: List<MeteringRectangle>? = null,
         retainLocks: Boolean = false,
     ): Deferred<Result3A> {
+        if (
+            !areModesSupported(
+                aeMode = aeMode,
+                afMode = afMode,
+                awbMode = awbMode,
+                flashMode = flashMode,
+                controlMode = controlMode,
+            )
+        ) {
+            return deferredResult3ASubmitFailed
+        }
+
         // If the GraphProcessor does not have a repeating request we should update the current
         // parameters, but should not invalidate or set a new listener.
         if (graphProcessor.repeatingRequest == null) {
@@ -296,8 +309,15 @@ constructor(
         afRegions: List<MeteringRectangle>? = null,
         awbRegions: List<MeteringRectangle>? = null,
     ): Deferred<Result3A> {
+        if (!areModesSupported(aeMode = aeMode, afMode = afMode, awbMode = awbMode)) {
+            return deferredResult3ASubmitFailed
+        }
+
         // If the GraphProcessor does not have a repeating request, we should fail immediately.
         if (graphProcessor.repeatingRequest == null) {
+            warn {
+                "submit3A - cannot submit 3A request on ${metadata.camera} without a repeating request."
+            }
             return deferredResult3ASubmitFailed
         }
 
@@ -442,6 +462,17 @@ constructor(
         convergedTimeLimitNs: Long? = DEFAULT_TIME_LIMIT_NS,
         lockedTimeLimitNs: Long? = DEFAULT_TIME_LIMIT_NS,
     ): Deferred<Result3A> {
+        if (
+            !areModesSupported(
+                aeMode = aeMode,
+                afMode = afMode,
+                awbMode = awbMode,
+                afTriggerStartAeMode = afTriggerStartAeMode,
+            )
+        ) {
+            return deferredResult3ASubmitFailed
+        }
+
         var afLockBehaviorSanitized = afLockBehavior
         if (!metadata.supportsAutoFocusTrigger) {
             afLockBehaviorSanitized = null
@@ -1036,6 +1067,42 @@ constructor(
             // possible overhead.
             graphProcessor.trigger(parameterForAfTriggerStart)
         }
+    }
+
+    private fun areModesSupported(
+        aeMode: AeMode? = null,
+        afMode: AfMode? = null,
+        awbMode: AwbMode? = null,
+        flashMode: FlashMode? = null,
+        controlMode: ControlMode? = null,
+        afTriggerStartAeMode: AeMode? = null,
+    ): Boolean {
+        var result = true
+        if (aeMode != null && !metadata.isSupported(aeMode)) {
+            warn { "Unsupported aeMode: $aeMode on ${metadata.camera}" }
+            result = false
+        }
+        if (afMode != null && !metadata.isSupported(afMode)) {
+            warn { "Unsupported afMode: $afMode on ${metadata.camera}" }
+            result = false
+        }
+        if (awbMode != null && !metadata.isSupported(awbMode)) {
+            warn { "Unsupported awbMode: $awbMode on ${metadata.camera}" }
+            result = false
+        }
+        if (flashMode != null && !metadata.isSupported(flashMode)) {
+            warn { "Unsupported flashMode: $flashMode on ${metadata.camera}" }
+            result = false
+        }
+        if (controlMode != null && !metadata.isSupported(controlMode)) {
+            warn { "Unsupported controlMode: $controlMode on ${metadata.camera}" }
+            result = false
+        }
+        if (afTriggerStartAeMode != null && !metadata.isSupported(afTriggerStartAeMode)) {
+            warn { "Unsupported afTriggerStartAeMode: $afTriggerStartAeMode on ${metadata.camera}" }
+            result = false
+        }
+        return result
     }
 }
 

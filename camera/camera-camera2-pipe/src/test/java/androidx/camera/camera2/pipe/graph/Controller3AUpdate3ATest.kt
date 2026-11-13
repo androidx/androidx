@@ -16,9 +16,11 @@
 
 package androidx.camera.camera2.pipe.graph
 
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.params.MeteringRectangle
+import android.util.Log as AndroidLog
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
@@ -27,6 +29,7 @@ import androidx.camera.camera2.pipe.FlashMode
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
+import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.requiredParameters
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
@@ -44,6 +47,7 @@ import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLog
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
@@ -62,6 +66,7 @@ internal class Controller3AUpdate3ATest {
     @After
     fun teardown() {
         graphTestContext.close()
+        ShadowLog.clear()
     }
 
     @Test
@@ -538,5 +543,125 @@ internal class Controller3AUpdate3ATest {
 
         assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
+    }
+
+    @Test
+    fun testUpdate3AFailsImmediatelyWithUnsupportedAeMode() = runTest {
+        val result = controller3A.update3A(aeMode = AeMode.ON_EXTERNAL_FLASH)
+        assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
+        assertThat(graphState3A.current.aeMode).isNull()
+    }
+
+    @Test
+    fun testUpdate3AFailsImmediatelyWithUnsupportedAfMode() = runTest {
+        val controller =
+            Controller3A(
+                graphProcessor,
+                FakeCameraMetadata.fromTemplate(
+                    HighEndDeviceTemplate,
+                    characteristicsOverrides =
+                        mapOf(
+                            CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
+                                intArrayOf(CaptureRequest.CONTROL_AF_MODE_OFF)
+                        ),
+                ),
+                graphState3A,
+                listener3A,
+            )
+        val result = controller.update3A(afMode = AfMode.CONTINUOUS_PICTURE)
+        assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
+        assertThat(graphState3A.current.afMode).isNull()
+    }
+
+    @Test
+    fun testUpdate3AFailsImmediatelyWithUnsupportedAwbMode() = runTest {
+        val controller =
+            Controller3A(
+                graphProcessor,
+                FakeCameraMetadata.fromTemplate(
+                    HighEndDeviceTemplate,
+                    characteristicsOverrides =
+                        mapOf(
+                            CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES to
+                                intArrayOf(CaptureRequest.CONTROL_AWB_MODE_AUTO)
+                        ),
+                ),
+                graphState3A,
+                listener3A,
+            )
+        val result = controller.update3A(awbMode = AwbMode.CLOUDY_DAYLIGHT)
+        assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
+        assertThat(graphState3A.current.awbMode).isNull()
+    }
+
+    @Test
+    fun testUpdate3AFailsImmediatelyWithUnsupportedFlashMode() = runTest {
+        val controller =
+            Controller3A(
+                graphProcessor,
+                FakeCameraMetadata.fromTemplate(
+                    HighEndDeviceTemplate,
+                    characteristicsOverrides =
+                        mapOf(CameraCharacteristics.FLASH_INFO_AVAILABLE to false),
+                ),
+                graphState3A,
+                listener3A,
+            )
+        val result = controller.update3A(flashMode = FlashMode.TORCH)
+        assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
+        assertThat(graphState3A.current.flashMode).isNull()
+    }
+
+    @Test
+    fun testUpdate3AFailsImmediatelyWithUnsupportedControlMode() = runTest {
+        val result = controller3A.update3A(controlMode = ControlMode.USE_EXTENDED_SCENE_MODE)
+        assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
+        assertThat(graphState3A.current.controlMode).isNull()
+    }
+
+    @Test
+    fun testUpdate3ALogsWarningsForAllUnsupportedModes() = runTest {
+        val controller =
+            Controller3A(
+                graphProcessor,
+                FakeCameraMetadata.fromTemplate(
+                    HighEndDeviceTemplate,
+                    characteristicsOverrides =
+                        mapOf(
+                            CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
+                                intArrayOf(CaptureRequest.CONTROL_AF_MODE_OFF),
+                            CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES to
+                                intArrayOf(CaptureRequest.CONTROL_AWB_MODE_AUTO),
+                            CameraCharacteristics.FLASH_INFO_AVAILABLE to false,
+                        ),
+                ),
+                graphState3A,
+                listener3A,
+            )
+        ShadowLog.clear()
+
+        val result =
+            controller.update3A(
+                aeMode = AeMode.ON_EXTERNAL_FLASH,
+                afMode = AfMode.CONTINUOUS_PICTURE,
+                awbMode = AwbMode.CLOUDY_DAYLIGHT,
+                flashMode = FlashMode.TORCH,
+                controlMode = ControlMode.USE_EXTENDED_SCENE_MODE,
+            )
+
+        assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
+        assertThat(graphState3A.current.aeMode).isNull()
+        assertThat(graphState3A.current.afMode).isNull()
+        assertThat(graphState3A.current.awbMode).isNull()
+        assertThat(graphState3A.current.flashMode).isNull()
+        assertThat(graphState3A.current.controlMode).isNull()
+        val warnMessages =
+            ShadowLog.getLogsForTag(Log.TAG).filter { it.type == AndroidLog.WARN }.map { it.msg }
+        assertThat(warnMessages).hasSize(5)
+        assertThat(warnMessages.any { it.contains("aeMode") }).isTrue()
+        assertThat(warnMessages.any { it.contains("afMode") }).isTrue()
+        assertThat(warnMessages.any { it.contains("awbMode") }).isTrue()
+        assertThat(warnMessages.any { it.contains("flashMode") }).isTrue()
+        assertThat(warnMessages.any { it.contains("controlMode") }).isTrue()
     }
 }

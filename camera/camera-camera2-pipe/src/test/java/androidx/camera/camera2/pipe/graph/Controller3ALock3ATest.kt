@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.params.MeteringRectangle
+import android.util.Log as AndroidLog
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
@@ -27,6 +28,7 @@ import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
+import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.testing.EmulatorDeviceTemplate
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.isCapture
@@ -53,6 +55,7 @@ import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLog
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
@@ -70,6 +73,7 @@ internal class Controller3ALock3ATest {
     @After
     fun teardown() {
         graphTestContext.close()
+        ShadowLog.clear()
     }
 
     @Test
@@ -1170,6 +1174,120 @@ internal class Controller3ALock3ATest {
             )
 
         globalScope.cancel()
+    }
+
+    @Test
+    fun testLock3AFailsImmediatelyWithUnsupportedAeMode() = runTest {
+        val result =
+            controller3A.lock3A(
+                aeMode = AeMode.ON_EXTERNAL_FLASH,
+                aeLockBehavior = Lock3ABehavior.IMMEDIATE,
+            )
+        assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
+        assertThat(graphState3A.current.aeMode).isNull()
+    }
+
+    @Test
+    fun testLock3AFailsImmediatelyWithUnsupportedAfMode() = runTest {
+        val controller =
+            Controller3A(
+                graphProcessor,
+                FakeCameraMetadata.fromTemplate(
+                    HighEndDeviceTemplate,
+                    characteristicsOverrides =
+                        mapOf(
+                            CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
+                                intArrayOf(CaptureRequest.CONTROL_AF_MODE_OFF)
+                        ),
+                ),
+                graphState3A,
+                listener3A,
+            )
+        val result =
+            controller.lock3A(
+                afMode = AfMode.CONTINUOUS_PICTURE,
+                afLockBehavior = Lock3ABehavior.IMMEDIATE,
+            )
+        assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
+        assertThat(graphState3A.current.afMode).isNull()
+    }
+
+    @Test
+    fun testLock3AFailsImmediatelyWithUnsupportedAwbMode() = runTest {
+        val controller =
+            Controller3A(
+                graphProcessor,
+                FakeCameraMetadata.fromTemplate(
+                    HighEndDeviceTemplate,
+                    characteristicsOverrides =
+                        mapOf(
+                            CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES to
+                                intArrayOf(CaptureRequest.CONTROL_AWB_MODE_AUTO)
+                        ),
+                ),
+                graphState3A,
+                listener3A,
+            )
+        val result =
+            controller.lock3A(
+                awbMode = AwbMode.CLOUDY_DAYLIGHT,
+                awbLockBehavior = Lock3ABehavior.IMMEDIATE,
+            )
+        assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
+        assertThat(graphState3A.current.awbMode).isNull()
+    }
+
+    @Test
+    fun testLock3AFailsImmediatelyWithUnsupportedAfTriggerStartAeMode() = runTest {
+        val result =
+            controller3A.lock3A(
+                afLockBehavior = Lock3ABehavior.IMMEDIATE,
+                afTriggerStartAeMode = AeMode.ON_EXTERNAL_FLASH,
+            )
+        assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
+        assertThat(graphState3A.current.aeMode).isNull()
+    }
+
+    @Test
+    fun testLock3ALogsWarningsForAllUnsupportedModes() = runTest {
+        val controller =
+            Controller3A(
+                graphProcessor,
+                FakeCameraMetadata.fromTemplate(
+                    HighEndDeviceTemplate,
+                    characteristicsOverrides =
+                        mapOf(
+                            CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
+                                intArrayOf(CaptureRequest.CONTROL_AF_MODE_OFF),
+                            CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES to
+                                intArrayOf(CaptureRequest.CONTROL_AWB_MODE_AUTO),
+                        ),
+                ),
+                graphState3A,
+                listener3A,
+            )
+        ShadowLog.clear()
+
+        val result =
+            controller.lock3A(
+                aeMode = AeMode.ON_EXTERNAL_FLASH,
+                afMode = AfMode.CONTINUOUS_PICTURE,
+                awbMode = AwbMode.CLOUDY_DAYLIGHT,
+                afLockBehavior = Lock3ABehavior.IMMEDIATE,
+                afTriggerStartAeMode = AeMode.ON_EXTERNAL_FLASH,
+            )
+
+        assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
+        assertThat(graphState3A.current.aeMode).isNull()
+        assertThat(graphState3A.current.afMode).isNull()
+        assertThat(graphState3A.current.awbMode).isNull()
+        val warnMessages =
+            ShadowLog.getLogsForTag(Log.TAG).filter { it.type == AndroidLog.WARN }.map { it.msg }
+        assertThat(warnMessages).hasSize(4)
+        assertThat(warnMessages.any { it.contains("aeMode:") }).isTrue()
+        assertThat(warnMessages.any { it.contains("afMode:") }).isTrue()
+        assertThat(warnMessages.any { it.contains("awbMode:") }).isTrue()
+        assertThat(warnMessages.any { it.contains("afTriggerStartAeMode:") }).isTrue()
     }
 
     companion object {
