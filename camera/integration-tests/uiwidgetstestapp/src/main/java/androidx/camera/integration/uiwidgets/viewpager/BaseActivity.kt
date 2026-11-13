@@ -16,9 +16,12 @@
 
 package androidx.camera.integration.uiwidgets.viewpager
 
+import android.annotation.SuppressLint
+import android.os.Bundle
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.testing.impl.turnScreenOnAndShowWhenLocked
 import androidx.camera.view.PreviewView
 import androidx.lifecycle.Observer
 import java.util.concurrent.CountDownLatch
@@ -29,7 +32,7 @@ open class BaseActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "BasicActivity"
-        private const val LATCH_TIMEOUT: Long = 5000
+        private const val LATCH_TIMEOUT: Long = 10_000
         internal const val INTENT_LENS_FACING = "lens-facing"
         internal const val INTENT_IMPLEMENTATION_MODE = "implementation-mode"
         internal const val PERFORMANCE_MODE = 0
@@ -37,9 +40,16 @@ open class BaseActivity : AppCompatActivity() {
     }
 
     // The expected final streamState
+    @Volatile
     private var expectedStreamState: PreviewView.StreamState = PreviewView.StreamState.STREAMING
-    private var latchForState: CountDownLatch = CountDownLatch(0)
+    @Volatile private var latchForState: CountDownLatch = CountDownLatch(0)
     var previewView: PreviewView? = null
+
+    @SuppressLint("RestrictedApiAndroidX")
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        turnScreenOnAndShowWhenLocked()
+    }
 
     private val streamStateObserver =
         Observer<PreviewView.StreamState> { state ->
