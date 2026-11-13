@@ -18,6 +18,9 @@ package androidx.compose.ui.platform
 
 import android.os.Looper
 import android.view.Choreographer
+import androidx.collection.LongList
+import androidx.collection.emptyLongList
+import androidx.collection.longListOf
 import androidx.compose.runtime.MonotonicFrameClock
 import androidx.core.os.HandlerCompat
 import kotlin.coroutines.CoroutineContext
@@ -56,7 +59,18 @@ private constructor(
     private val dispatchCallback =
         object : Choreographer.FrameCallback, Runnable {
             override fun run() {
-                performTrampolineDispatch()
+                val tracer = AndroidUiDispatcher.tracer
+                val isEnabled = tracer?.isEnabled() == true
+                if (isEnabled) {
+                    tracer!!.beginSection("UiDispatcher:HandlerRun", emptyLongList())
+                }
+                try {
+                    performTrampolineDispatch()
+                } finally {
+                    if (isEnabled) {
+                        tracer!!.endSection()
+                    }
+                }
                 synchronized(lock) {
                     if (toRunOnFrame.isEmpty()) {
                         choreographer.removeFrameCallback(this)
@@ -67,18 +81,54 @@ private constructor(
 
             override fun doFrame(frameTimeNanos: Long) {
                 handler.removeCallbacks(this)
-                performTrampolineDispatch()
+
+                val tracer = AndroidUiDispatcher.tracer
+                val isEnabled = tracer?.isEnabled() == true
+                if (isEnabled) {
+                    tracer!!.beginSection("UiDispatcher:ChoreographerFrame", emptyLongList())
+                }
+                try {
+                    performTrampolineDispatch()
+                } finally {
+                    if (isEnabled) {
+                        tracer!!.endSection()
+                    }
+                }
+
                 performFrameDispatch(frameTimeNanos)
             }
         }
 
-    private fun nextTask(): Runnable? = synchronized(lock) { toRunTrampolined.removeFirstOrNull() }
+    private fun nextTask(): Runnable? {
+        val tracer = AndroidUiDispatcher.tracer
+        val isEnabled = tracer?.isEnabled() == true
+        return synchronized(lock) {
+            val task = toRunTrampolined.removeFirstOrNull()
+            if (isEnabled) {
+                tracer!!.counter("UiDispatcher:QueueSize", toRunTrampolined.size.toLong())
+            }
+            task
+        }
+    }
 
     private fun performTrampolineDispatch() {
+        val tracer = AndroidUiDispatcher.tracer
+        val isEnabled = tracer?.isEnabled() == true
+
         do {
             var task = nextTask()
             while (task != null) {
-                task.run()
+                if (isEnabled) {
+                    val flowId = System.identityHashCode(task).toLong()
+                    tracer!!.beginSection("UiDispatcher:UiTask", longListOf(flowId))
+                }
+                try {
+                    task.run()
+                } finally {
+                    if (isEnabled) {
+                        tracer!!.endSection()
+                    }
+                }
                 task = nextTask()
             }
         } while (
@@ -133,8 +183,19 @@ private constructor(
     public val frameClock: MonotonicFrameClock = AndroidUiFrameClock(choreographer, this)
 
     override fun dispatch(context: CoroutineContext, block: Runnable) {
+        val tracer = AndroidUiDispatcher.tracer
+        val isEnabled = tracer?.isEnabled() == true
+
+        if (isEnabled) {
+            val flowId = System.identityHashCode(block).toLong()
+            tracer!!.instant("UiDispatcher:Queued", longListOf(flowId))
+        }
+
         synchronized(lock) {
             toRunTrampolined.addLast(block)
+            if (isEnabled) {
+                tracer!!.counter("UiDispatcher:QueueSize", toRunTrampolined.size.toLong())
+            }
             if (!scheduledTrampolineDispatch) {
                 scheduledTrampolineDispatch = true
                 handler.post(dispatchCallback)
@@ -147,6 +208,32 @@ private constructor(
     }
 
     public companion object {
+        private var _tracer: UiDispatcherTracer? = null
+
+        /**
+         * Specifies a tracer that instruments task dispatch and frame callbacks. The tracer is
+         * global: it applies to every [AndroidUiDispatcher] instance in the process, and replaces
+         * any tracer installed earlier. Call [removeTracer] to stop tracing.
+         *
+         * The dispatcher reads the tracer without synchronization, so a change may not reach other
+         * threads immediately and may miss events already in flight.
+         */
+        public fun setTracer(tracer: UiDispatcherTracer) {
+            _tracer = tracer
+        }
+
+        /**
+         * Removes the tracer installed by [setTracer], if any.
+         *
+         * As with [setTracer], other threads may not see the change immediately.
+         */
+        public fun removeTracer() {
+            _tracer = null
+        }
+
+        internal val tracer: UiDispatcherTracer?
+            get() = _tracer
+
         /**
          * The [CoroutineContext] containing the [AndroidUiDispatcher] and its [frameClock] for the
          * process's main thread.
@@ -193,3 +280,39 @@ private constructor(
 }
 
 private fun isMainThread() = Looper.myLooper() === Looper.getMainLooper()
+
+/**
+ * Receives trace events from [AndroidUiDispatcher], for tools that record how tasks and frame
+ * callbacks are queued and run. Install one with [AndroidUiDispatcher.setTracer].
+ *
+ * The dispatcher may call [instant] and [counter] from any thread, since tasks reach it from
+ * arbitrary threads, and calls [beginSection] and [endSection] on its own thread. It calls all of
+ * them once per dispatched task, so implementations should not be expensive.
+ *
+ * Event names, counter names and flow IDs reflect the dispatcher's internal behavior and may change
+ * between releases.
+ */
+public interface UiDispatcherTracer {
+    /** Emits an instant event named [name], associated with [flowIds]. */
+    public fun instant(name: String, flowIds: LongList)
+
+    /**
+     * Begins a trace section named [name], associated with [flowIds]. Match this with a
+     * corresponding [endSection] on the same thread.
+     */
+    public fun beginSection(name: String, flowIds: LongList)
+
+    /** Ends the trace section that [beginSection] most recently started on this thread. */
+    public fun endSection()
+
+    /** Records [value] for the counter track named [name]. */
+    public fun counter(name: String, value: Long)
+
+    /**
+     * Returns `true` if tracing is currently active.
+     *
+     * The dispatcher calls this before doing any work to build trace arguments, so it should not be
+     * expensive.
+     */
+    public fun isEnabled(): Boolean
+}

@@ -4334,6 +4334,8 @@ package androidx.compose.ui.platform {
   public static final class AndroidUiDispatcher.Companion {
     method @InaccessibleFromKotlin public kotlin.coroutines.CoroutineContext getCurrentThread();
     method @InaccessibleFromKotlin public kotlin.coroutines.CoroutineContext getMain();
+    method public void removeTracer();
+    method public void setTracer(androidx.compose.ui.platform.UiDispatcherTracer tracer);
     property public kotlin.coroutines.CoroutineContext CurrentThread;
     property public kotlin.coroutines.CoroutineContext Main;
   }
@@ -4697,6 +4699,14 @@ package androidx.compose.ui.platform {
   public enum TextToolbarStatus {
     enum_constant public static final androidx.compose.ui.platform.TextToolbarStatus Hidden;
     enum_constant public static final androidx.compose.ui.platform.TextToolbarStatus Shown;
+  }
+
+  public interface UiDispatcherTracer {
+    method public void beginSection(String name, androidx.collection.LongList flowIds);
+    method public void counter(String name, long value);
+    method public void endSection();
+    method public void instant(String name, androidx.collection.LongList flowIds);
+    method public boolean isEnabled();
   }
 
   public interface UriHandler {
