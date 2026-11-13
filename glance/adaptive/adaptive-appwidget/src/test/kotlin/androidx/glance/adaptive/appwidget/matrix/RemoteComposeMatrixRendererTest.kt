@@ -17,6 +17,7 @@
 package androidx.glance.adaptive.appwidget.matrix
 
 import android.content.Context
+import android.net.Uri
 import android.os.Bundle
 import androidx.collection.floatListOf
 import androidx.compose.remote.core.operations.layout.modifiers.HostActionOperation
@@ -32,8 +33,8 @@ import androidx.glance.adaptive.appwidget.renderer.AppWidgetRenderOutput
 import androidx.glance.adaptive.appwidget.renderer.RemoteComposeRenderOutput
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
 import androidx.glance.adaptive.appwidget.templates.track.TrackMatrixSelector
+import androidx.glance.adaptive.core.action.GlanceAdaptiveAction
 import androidx.glance.adaptive.core.action.GlanceAdaptiveActionCallback
-import androidx.glance.adaptive.core.action.GlanceWidgetAction
 import androidx.glance.adaptive.core.renderer.ArchetypeRenderer
 import androidx.glance.adaptive.core.selection.Dimensions
 import androidx.glance.adaptive.core.slots.Badge
@@ -179,7 +180,7 @@ class RemoteComposeMatrixRendererTest {
                         IconButton(
                             icon = TEST_VECTOR_GLYPH,
                             contentDescription = "Action",
-                            action = GlanceWidgetAction.LaunchDeeplink("app://action"),
+                            action = GlanceAdaptiveAction.DeeplinkAction(Uri.parse("app://action")),
                         ),
                 ),
                 Dimensions(88, 176),
@@ -205,8 +206,8 @@ class RemoteComposeMatrixRendererTest {
 
     @Test
     fun compactHeaderAndForWidgetCallbacks_renderAndRouteTaps() = runTest {
-        val callbackAction = GlanceWidgetAction.Callback(NoOpCallback::class.java)
-        val deeplinkAction = GlanceWidgetAction.LaunchDeeplink("app://workout")
+        val callbackAction = GlanceAdaptiveAction.CallbackAction<NoOpCallback>()
+        val deeplinkAction = GlanceAdaptiveAction.DeeplinkAction(Uri.parse("app://workout"))
         val interactiveCard =
             MatrixCardContent(
                 leading =
@@ -307,7 +308,7 @@ class RemoteComposeMatrixRendererTest {
                     IconButton(
                         icon = TEST_VECTOR_GLYPH,
                         contentDescription = "Quick action",
-                        action = GlanceWidgetAction.LaunchDeeplink("app://quick"),
+                        action = GlanceAdaptiveAction.DeeplinkAction(Uri.parse("app://quick")),
                     )
                 ),
                 Dimensions(56, 56),

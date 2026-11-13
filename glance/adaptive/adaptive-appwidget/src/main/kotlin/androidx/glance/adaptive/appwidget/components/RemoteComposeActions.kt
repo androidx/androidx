@@ -22,31 +22,31 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.runtime.Composable
-import androidx.glance.adaptive.core.action.GlanceWidgetAction
+import androidx.glance.adaptive.core.action.GlanceAdaptiveAction
 import androidx.glance.adaptive.core.action.toPendingIntent
 
 // Tag length must not exceed 23 characters for pre-API 24 log compatibility.
 private const val TAG = "RemoteComposeActions"
 
 /**
- * Turns the [GlanceWidgetAction]s drawn for one widget into RemoteCompose `PendingIntent` click
+ * Turns the [GlanceAdaptiveAction]s drawn for one widget into RemoteCompose `PendingIntent` click
  * modifiers — the RemoteCompose counterpart of [RemoteViewsActions].
  *
  * Components that ignore taps are not given a [clickable] modifier at all, so accessibility
  * services never announce an inert tap target.
  *
  * @param widgetName Name of the widget the components are drawn for, which a
- *   [GlanceWidgetAction.Callback] hands to its callback, or `null` when they are not drawn for a
- *   named widget.
+ *   [GlanceAdaptiveAction.CallbackAction] hands to its callback, or `null` when they are not drawn
+ *   for a named widget.
  */
 internal class RemoteComposeActions(private val widgetName: String? = null) {
 
     /**
      * Whether a component with [action] runs it when tapped: [action] is not `null`, and it is not
-     * a [GlanceWidgetAction.Callback] with no widget name to deliver it to.
+     * a [GlanceAdaptiveAction.CallbackAction] with no widget name to deliver it to.
      */
-    fun isTappable(action: GlanceWidgetAction?): Boolean =
-        action != null && (widgetName != null || action !is GlanceWidgetAction.Callback)
+    fun isTappable(action: GlanceAdaptiveAction?): Boolean =
+        action != null && (widgetName != null || action !is GlanceAdaptiveAction.CallbackAction)
 
     /**
      * Attaches a `PendingIntent` click action for [action] when [isTappable] is `true`, or returns
@@ -54,7 +54,7 @@ internal class RemoteComposeActions(private val widgetName: String? = null) {
      */
     @RemoteComposable
     @Composable
-    fun RemoteModifier.widgetClickable(action: GlanceWidgetAction?): RemoteModifier {
+    fun RemoteModifier.widgetClickable(action: GlanceAdaptiveAction?): RemoteModifier {
         if (action == null) return this
         if (!isTappable(action)) {
             Log.w(TAG, "Ignoring $action: a callback needs the name of the widget it is drawn for.")
