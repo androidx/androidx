@@ -18,6 +18,7 @@ package androidx.camera.camera2.adapter
 
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.adapter.CameraInfoAdapter.Companion.cameraId
+import androidx.camera.camera2.compat.workaround.ConcurrentCameraDisabler
 import androidx.camera.camera2.impl.Camera2Logger
 import androidx.camera.camera2.internal.CameraCompatibilityFilter.isBackwardCompatible
 import androidx.camera.camera2.pipe.CameraDevices
@@ -42,6 +43,7 @@ public class CameraCoordinatorAdapter(
 ) : CameraCoordinator, InternalCameraPresenceListener {
 
     private val lock = Any()
+    private val concurrentCameraDisabler = ConcurrentCameraDisabler()
 
     @GuardedBy("lock") private var cameraRepository: CameraRepository? = null
 
@@ -71,7 +73,13 @@ public class CameraCoordinatorAdapter(
         val tempConcurrentCameraIdMap = mutableMapOf<String, MutableList<String>>()
 
         try {
-            val allConcurrentSets = cameraDevices.awaitConcurrentCameraIds() ?: emptySet()
+            val allConcurrentSets =
+                if (concurrentCameraDisabler.shouldDisableConcurrentCamera()) {
+                    Camera2Logger.debug { "Concurrent camera disabled by device quirk" }
+                    emptySet()
+                } else {
+                    cameraDevices.awaitConcurrentCameraIds() ?: emptySet()
+                }
             for (concurrentCameraIdSet in allConcurrentSets) {
                 val stringIdSet = concurrentCameraIdSet.map { it.value }.toSet()
                 if (!cameraIds.containsAll(stringIdSet)) {

@@ -57,6 +57,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
+import org.robolectric.shadows.ShadowBuild
 import org.robolectric.util.ReflectionHelpers
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
@@ -590,5 +591,71 @@ class CameraCoordinatorAdapterTest {
         assertThrows<CameraUpdateException> {
             coordinatorWithFailingDeps.onCamerasUpdated(listOf("0", "1"))
         }
+    }
+
+    @Test
+    fun init_disablesConcurrentCameras_onOppoFindN3Flip() {
+        ShadowBuild.setBrand("OPPO")
+        ShadowBuild.setManufacturer("OPPO")
+        ShadowBuild.setModel("PHT110")
+
+        val fakeCameraFactory =
+            FakeCameraFactory().apply {
+                insertCamera(CameraSelector.LENS_FACING_BACK, "0") { mockCameraInternalAdapter0 }
+                insertCamera(CameraSelector.LENS_FACING_BACK, "1") { mockCameraInternalAdapter1 }
+            }
+        val repository = CameraRepository().apply { init(fakeCameraFactory) }
+        val coordinator = CameraCoordinatorAdapter(cameraPipe, cameraDevices)
+        coordinator.init(repository)
+
+        assertThat(coordinator.concurrentCameraSelectors).isEmpty()
+
+        coordinator.activeConcurrentCameraInfos =
+            mutableListOf(
+                FakeCameraInfoAdapterCreator.createCameraInfoAdapter(cameraId = CameraId("0")),
+                FakeCameraInfoAdapterCreator.createCameraInfoAdapter(cameraId = CameraId("1")),
+            )
+        assertThat(coordinator.getPairedConcurrentCameraId("0")).isNull()
+    }
+
+    @Test
+    fun onCamerasUpdated_clearsConcurrentCamerasAndSkipsQuery_whenQuirkApplies() {
+        var concurrentQueryCalled = false
+        val trackingCameraDevices =
+            object : CameraDevices by cameraDevices {
+                override fun awaitConcurrentCameraIds(
+                    cameraBackendId: CameraBackendId?
+                ): Set<Set<CameraId>> {
+                    concurrentQueryCalled = true
+                    return cameraDevices.awaitConcurrentCameraIds(cameraBackendId)
+                }
+
+                override fun awaitConcurrentCameraIds() = awaitConcurrentCameraIds(null)
+            }
+        val coordinator = CameraCoordinatorAdapter(cameraPipe, trackingCameraDevices)
+
+        ShadowBuild.setBrand("Google")
+        ShadowBuild.setManufacturer("Google")
+        ShadowBuild.setModel("Pixel 9 Pro XL")
+        coordinator.onCamerasUpdated(listOf("0", "1"))
+        coordinator.activeConcurrentCameraInfos =
+            mutableListOf(
+                FakeCameraInfoAdapterCreator.createCameraInfoAdapter(cameraId = CameraId("0")),
+                FakeCameraInfoAdapterCreator.createCameraInfoAdapter(cameraId = CameraId("1")),
+            )
+
+        assertThat(concurrentQueryCalled).isTrue()
+        assertThat(coordinator.concurrentCameraSelectors).hasSize(1)
+        assertThat(coordinator.getPairedConcurrentCameraId("0")).isEqualTo("1")
+
+        concurrentQueryCalled = false
+        ShadowBuild.setBrand("oppo")
+        ShadowBuild.setManufacturer("oppo")
+        ShadowBuild.setModel("pht110")
+        coordinator.onCamerasUpdated(listOf("0", "1"))
+
+        assertThat(concurrentQueryCalled).isFalse()
+        assertThat(coordinator.concurrentCameraSelectors).isEmpty()
+        assertThat(coordinator.getPairedConcurrentCameraId("0")).isNull()
     }
 }
