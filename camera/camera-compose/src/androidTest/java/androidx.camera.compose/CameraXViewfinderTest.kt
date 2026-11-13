@@ -47,6 +47,7 @@ import androidx.camera.testing.impl.AndroidUtil
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.ExtensionsUtil
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.viewfinder.compose.MutableCoordinateTransformer
 import androidx.camera.viewfinder.core.ImplementationMode
@@ -82,9 +83,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.time.Duration
@@ -106,7 +109,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.junit.Assume
 import org.junit.Assume.assumeFalse
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -115,19 +117,19 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 class CameraXViewfinderTest(private val implName: String, private val cameraConfig: CameraXConfig) {
-    @get:Rule
-    val useCamera =
-        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraConfig))
-
-    @get:Rule val composeTest = createComposeRule()
-
-    @Before
-    fun setUp() {
+    @get:Rule(order = 0)
+    val requireForegroundRule = RequireForegroundRule {
         assumeFalse(
             "CameraXViewfinder tests are flaky on API 24 emulator (b/552066686, b/538633901)",
             AndroidUtil.isEmulator(24),
         )
     }
+
+    @get:Rule(order = 1)
+    val useCamera =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraConfig))
+
+    @get:Rule(order = 2) val composeTest = createComposeRule()
 
     @Test
     fun viewfinderIsDisplayed_withValidSurfaceRequest() = runViewfinderTest {
@@ -843,7 +845,7 @@ class CameraXViewfinderTest(private val implName: String, private val cameraConf
                 }
 
             var fakeLifecycleOwner: FakeLifecycleOwner? = null
-            var extensionsManager: ExtensionsManager? = null
+            val extensionsManagerRef = AtomicReference<ExtensionsManager?>(null)
             try {
                 val deliveredFrameCount = AtomicLong(0)
                 val preview =
@@ -899,28 +901,47 @@ class CameraXViewfinderTest(private val implName: String, private val cameraConf
                 }
 
                 val startCameraWithExtension = suspend {
-                    val manager =
-                        ExtensionsManager.getInstance(context, cameraProvider).also {
-                            extensionsManager = it
-                        }
-                    // Prefers the back camera since Extensions are usually best supported on it.
+                    // ExtensionsManager.getInstanceAsync and isExtensionAvailable query OEM vendor
+                    // characteristics synchronously on the caller thread, so run them on a
+                    // dedicated daemon executor (shut down in finally) rather than blocking the
+                    // test thread or stranding a Dispatchers.IO worker if an OEM binder hangs.
+                    val initExecutor = Executors.newSingleThreadExecutor { runnable ->
+                        Thread(runnable, "ExtensionsManagerInit").apply { isDaemon = true }
+                    }
                     val selectorAndMode =
-                        listOf(
-                                CameraSelector.DEFAULT_BACK_CAMERA,
-                                CameraSelector.DEFAULT_FRONT_CAMERA,
-                            )
-                            .filter { cameraProvider.hasCamera(it) }
-                            .firstNotNullOfOrNull { selector ->
-                                EXTENSION_MODES.firstOrNull {
-                                        manager.isExtensionAvailable(selector, it)
-                                    }
-                                    ?.let { mode -> selector to mode }
-                            }
+                        try {
+                            initExecutor
+                                .submit<Pair<CameraSelector, Int>?> {
+                                    val manager =
+                                        ExtensionsManager.getInstanceAsync(context, cameraProvider)
+                                            .get()
+                                            .also { extensionsManagerRef.set(it) }
+                                    // Prefers the back camera since Extensions are usually best
+                                    // supported on it.
+                                    listOf(
+                                            CameraSelector.DEFAULT_BACK_CAMERA,
+                                            CameraSelector.DEFAULT_FRONT_CAMERA,
+                                        )
+                                        .filter { cameraProvider.hasCamera(it) }
+                                        .firstNotNullOfOrNull { selector ->
+                                            EXTENSION_MODES.firstOrNull {
+                                                    manager.isExtensionAvailable(selector, it)
+                                                }
+                                                ?.let { mode -> selector to mode }
+                                        }
+                                }
+                                .get(10, TimeUnit.SECONDS)
+                        } finally {
+                            // Interrupts the init task if it is still blocked in an OEM binder
+                            // call.
+                            initExecutor.shutdownNow()
+                        }
                     Assume.assumeTrue(
                         "No camera supports any Extension mode.",
                         selectorAndMode != null,
                     )
                     val (cameraSelector, extensionMode) = checkNotNull(selectorAndMode)
+                    val manager = checkNotNull(extensionsManagerRef.get())
                     val imageCapture = ImageCapture.Builder().build()
                     val extensionSessionConfig =
                         ExtensionSessionConfig(extensionMode, manager, preview, imageCapture)
@@ -1014,8 +1035,13 @@ class CameraXViewfinderTest(private val implName: String, private val cameraConf
                         }
                     }
                 }
-                extensionsManager?.let { withTimeout(10.seconds) { it.shutdown().await() } }
-                withTimeout(30.seconds) { cameraProvider.shutdownAsync().await() }
+                try {
+                    extensionsManagerRef.get()?.let {
+                        withTimeout(10.seconds) { it.shutdown().await() }
+                    }
+                } finally {
+                    withTimeout(30.seconds) { cameraProvider.shutdownAsync().await() }
+                }
             }
         }
 
