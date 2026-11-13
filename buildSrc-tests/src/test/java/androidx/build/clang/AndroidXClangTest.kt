@@ -316,7 +316,7 @@ class AndroidXClangTest : BaseClangTest() {
         val testProject = ProjectBuilder.builder().withProjectDir(projectSetup.rootDir).build()
         val extension = testProject.rootProject.property("ext") as ExtraPropertiesExtension
         extension.set("supportRootFolder", mockSupportRoot)
-        extension.set("androidx.ndkVersion", "27.0.12077973")
+        extension.set("androidx.ndkVersion", "30.0.16248370")
 
         assertThrows<IllegalStateException> { testProject.getNdkDirectory() }
             .hasMessageThat()
