@@ -53,6 +53,14 @@ dependencies {
     testImplementation("androidx.xr.scenecore:scenecore-testing:1.0.0")
 }
 
+dependencies {
+    constraints {
+        implementation(libs.guavaAndroid) {
+            because("b/585285494 - upgrading to fix vulns")
+        }
+    }
+}
+
 android {
     compileSdk { version = release(37) { minorApiLevel = 1 } }
     namespace = "androidx.xr.compose.material3"
