@@ -97,6 +97,9 @@ dependencies {
 
     compileOnly(libs.androidExtensionsXr)
 
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRules)

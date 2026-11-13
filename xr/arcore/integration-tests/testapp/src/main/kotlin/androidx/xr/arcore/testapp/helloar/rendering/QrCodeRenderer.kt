@@ -45,26 +45,26 @@ internal class QrCodeRenderer {
 
     private lateinit var _coroutineScope: CoroutineScope
     private lateinit var _session: Session
-    private lateinit var _supervisorJob: Job
+    private var _supervisorJob: Job? = null
 
     val renderedQrCodes: StateFlow<Collection<QrCode>> = _renderedQrCodes.asStateFlow()
 
     fun startRendering(session: Session, coroutineScope: CoroutineScope) {
+        stopRendering()
         _session = session
 
-        _supervisorJob = SupervisorJob()
-        _coroutineScope = CoroutineScope(coroutineScope.coroutineContext + _supervisorJob)
+        val supervisorJob = SupervisorJob(coroutineScope.coroutineContext[Job])
+        _supervisorJob = supervisorJob
+        _coroutineScope = CoroutineScope(coroutineScope.coroutineContext + supervisorJob)
 
         _coroutineScope.launch { QrCode.subscribe(_session).collect { updateQrCodeModels(it) } }
     }
 
     fun stopRendering() {
-        check(::_session.isInitialized) { "_session is not initialized" }
-        check(::_supervisorJob.isInitialized) { "_supervisorJob is not initialized" }
-
         // cancel all rendering jobs
         _runningJobs.clear()
-        _supervisorJob.cancel()
+        _supervisorJob?.cancel()
+        _supervisorJob = null
 
         // emit an empty list to and flow subscribers
         _renderedQrCodes.value = emptyList()

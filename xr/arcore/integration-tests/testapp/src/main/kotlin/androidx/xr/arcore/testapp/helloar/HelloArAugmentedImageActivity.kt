@@ -61,7 +61,7 @@ import java.io.IOException
 
 class HelloArAugmentedImageActivity : ComponentActivity() {
 
-    private lateinit var session: Session
+    private var session: Session? = null
     private lateinit var sessionHelper: SessionLifecycleHelper
     private val augmentedImageRenderer = AugmentedImageRenderer()
 
@@ -118,7 +118,7 @@ class HelloArAugmentedImageActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (::session.isInitialized) augmentedImageRenderer.startRendering(session, lifecycleScope)
+        session?.let { augmentedImageRenderer.startRendering(it, lifecycleScope) }
     }
 
     @Composable

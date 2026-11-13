@@ -23,6 +23,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.lifecycleScope
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DepthEstimationMode
@@ -38,6 +39,7 @@ import androidx.xr.runtime.RequiredCalibrationType
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionConfigureCalibrationRequired
 import androidx.xr.runtime.SessionConfigureLibraryNotLinked
+import androidx.xr.runtime.SessionConfigureResult
 import androidx.xr.runtime.SessionConfigureSuccess
 import androidx.xr.runtime.SessionConfigureUnknownError
 import androidx.xr.runtime.SessionCreateApkRequired
@@ -69,6 +71,11 @@ class SessionLifecycleHelper(
     /** Accessed through the [onSessionAvailable] callback. */
     private lateinit var session: Session
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<Array<String>>
+
+    @VisibleForTesting
+    @Volatile
+    internal var lastErrorMessage: String? = null
+        private set
 
     init {
         registerRequestPermissionLauncher(activity)
@@ -145,34 +152,7 @@ class SessionLifecycleHelper(
                 when (val result = Session.create(context = context!!, lifecycleOwner = activity)) {
                     is SessionCreateSuccess -> {
                         session = result.session
-                        try {
-                            when (val configResult = session.configure(config)) {
-                                is SessionConfigureLibraryNotLinked -> {
-                                    showErrorMessage(
-                                        "Library \"${configResult.libraryName}\" not linked."
-                                    )
-                                }
-                                is SessionConfigureCalibrationRequired -> {
-                                    onSessionCalibrationRequired(configResult.calibrationType)
-                                }
-                                is SessionConfigureSuccess -> {
-                                    onSessionAvailable(session)
-                                }
-                                is SessionConfigureUnknownError -> {
-                                    showErrorMessage(configResult.errorMessage)
-                                }
-                                else -> {
-                                    showErrorMessage("Unexpected ${configResult::class.simpleName}")
-                                }
-                            }
-                        } catch (e: SecurityException) {
-                            requestPermissionLauncher.launch(
-                                getRequiredPermissions(config).toTypedArray()
-                            )
-                        } catch (e: UnsupportedOperationException) {
-                            showErrorMessage("Session configuration not supported.")
-                            activity.finish()
-                        }
+                        configureSession(config)
                     }
                     is SessionCreateApkRequired -> {
                         onSessionCreateActionRequired(result)
@@ -205,38 +185,60 @@ class SessionLifecycleHelper(
             Log.e("JetpackXR", "Can't update config, session has not been initialized")
             return
         }
-        try {
-            when (val result = session.configure(config)) {
-                is SessionConfigureLibraryNotLinked -> {
-                    showErrorMessage("Library \"${result.libraryName}\" not linked.")
-                }
-                is SessionConfigureCalibrationRequired -> {
-                    onSessionCalibrationRequired(result.calibrationType)
-                }
-                is SessionConfigureSuccess -> {
-                    onSessionAvailable(session)
-                }
-                is SessionConfigureUnknownError -> {
-                    showErrorMessage(result.errorMessage)
-                }
-                else -> {
-                    showErrorMessage("Unexpected ${result::class.simpleName}")
-                }
+        configureSession(config)
+    }
+
+    private fun configureSession(config: Config) {
+        val result =
+            try {
+                session.configure(config)
+            } catch (e: SecurityException) {
+                requestPermissionLauncher.launch(getRequiredPermissions(config).toTypedArray())
+                return
+            } catch (e: UnsupportedOperationException) {
+                handleConfigurationRejected(e)
+                return
+            } catch (e: IllegalArgumentException) {
+                handleConfigurationRejected(e)
+                return
             }
-        } catch (e: SecurityException) {
-            requestPermissionLauncher.launch(getRequiredPermissions(config).toTypedArray())
-        } catch (e: UnsupportedOperationException) {
-            showErrorMessage("Session configuration not supported.")
-            activity.finish()
+        handleConfigureResult(result)
+    }
+
+    private fun handleConfigureResult(result: SessionConfigureResult) {
+        when (result) {
+            is SessionConfigureLibraryNotLinked -> {
+                showErrorMessage("Library \"${result.libraryName}\" not linked.")
+            }
+            is SessionConfigureCalibrationRequired -> {
+                onSessionCalibrationRequired(result.calibrationType)
+            }
+            is SessionConfigureSuccess -> {
+                onSessionAvailable(session)
+            }
+            is SessionConfigureUnknownError -> {
+                showErrorMessage(result.errorMessage)
+            }
+            else -> {
+                showErrorMessage("Unexpected ${result::class.simpleName}")
+            }
         }
+    }
+
+    private fun handleConfigurationRejected(error: RuntimeException) {
+        showErrorMessage(UNSUPPORTED_CONFIG_MESSAGE, error)
+        activity.finish()
     }
 
     companion object {
         private val TAG = this::class.simpleName
+        private const val UNSUPPORTED_CONFIG_MESSAGE = "Session configuration not supported."
     }
 
-    private fun <F> showErrorMessage(error: F) {
-        Log.e("JetpackXR", error.toString())
-        Toast.makeText(activity, error.toString(), Toast.LENGTH_LONG).show()
+    private fun <F> showErrorMessage(error: F, throwable: Throwable? = null) {
+        val message = error.toString()
+        lastErrorMessage = message
+        Log.e("JetpackXR", message, throwable)
+        Toast.makeText(activity, message, Toast.LENGTH_LONG).show()
     }
 }
