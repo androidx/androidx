@@ -268,7 +268,7 @@ class SpatialGltfModelScreenshotTest {
                         width = 260.dp,
                         height = 120.dp,
                         color = Color(0xFF1565C0),
-                        modifier = SubspaceModifier.offset(y = (-1400).dp, z = 600.dp).scale(9.5f),
+                        modifier = SubspaceModifier.offset(y = (-933).dp, z = 400.dp).scale(6.33f),
                     )
                 }
             }

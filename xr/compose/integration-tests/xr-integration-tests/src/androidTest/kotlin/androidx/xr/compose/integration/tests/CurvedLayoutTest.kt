@@ -179,18 +179,24 @@ class CurvedLayoutTest {
         // Left column is angled inward (positive Y-quaternion component) with positive Z offset
         composeTestRule
             .onSubspaceNodeWithTag("leftColumn")
-            .assertXPositionInRootIsEqualTo(-94.dp)
+            .assertXPositionInRootIsEqualTo(-94.dp, PositionTolerance)
             .assertYPositionInRootIsEqualTo(0.dp)
-            .assertZPositionInRootIsEqualTo(68.dp)
-            .assertRotationInRootIsEqualTo(Quaternion(0.0f, 0.58509725f, 0.0f, 0.8109631f))
+            .assertZPositionInRootIsEqualTo(68.dp, PositionTolerance)
+            .assertRotationInRootIsEqualTo(
+                Quaternion(0.0f, 0.58509725f, 0.0f, 0.8109631f),
+                RotationTolerance,
+            )
 
         // Right column is angled inward (negative Y-quaternion component) with positive Z offset
         composeTestRule
             .onSubspaceNodeWithTag("rightColumn")
-            .assertXPositionInRootIsEqualTo(94.dp)
+            .assertXPositionInRootIsEqualTo(94.dp, PositionTolerance)
             .assertYPositionInRootIsEqualTo(0.dp)
-            .assertZPositionInRootIsEqualTo(68.dp)
-            .assertRotationInRootIsEqualTo(Quaternion(0.0f, -0.58509725f, 0.0f, 0.8109631f))
+            .assertZPositionInRootIsEqualTo(68.dp, PositionTolerance)
+            .assertRotationInRootIsEqualTo(
+                Quaternion(0.0f, -0.58509725f, 0.0f, 0.8109631f),
+                RotationTolerance,
+            )
     }
 
     /**
@@ -286,8 +292,11 @@ class CurvedLayoutTest {
         composeTestRule.onNodeWithText("Left Dynamic").assertIsDisplayed()
         composeTestRule
             .onSubspaceNodeWithTag("leftCol")
-            .assertZPositionInRootIsEqualTo(68.dp)
-            .assertRotationInRootIsEqualTo(Quaternion(0.0f, 0.58509725f, 0.0f, 0.8109631f))
+            .assertZPositionInRootIsEqualTo(68.dp, PositionTolerance)
+            .assertRotationInRootIsEqualTo(
+                Quaternion(0.0f, 0.58509725f, 0.0f, 0.8109631f),
+                RotationTolerance,
+            )
 
         // 2. Adjust radius to flat (Dp.Infinity)
         composeTestRule.runOnUiThread { curveRadius = Dp.Infinity }
@@ -296,13 +305,13 @@ class CurvedLayoutTest {
         // 3. Verify flat layout (z = 0, rotation = Identity)
         composeTestRule
             .onSubspaceNodeWithTag("leftCol")
-            .assertXPositionInRootIsEqualTo(-125.dp)
+            .assertXPositionInRootIsEqualTo(-125.dp, PositionTolerance)
             .assertZPositionInRootIsEqualTo(0.dp)
             .assertRotationInRootIsEqualTo(Quaternion.Identity)
 
         composeTestRule
             .onSubspaceNodeWithTag("rightCol")
-            .assertXPositionInRootIsEqualTo(125.dp)
+            .assertXPositionInRootIsEqualTo(125.dp, PositionTolerance)
             .assertZPositionInRootIsEqualTo(0.dp)
             .assertRotationInRootIsEqualTo(Quaternion.Identity)
     }
@@ -343,13 +352,13 @@ class CurvedLayoutTest {
         // Height is 300.dp, child height is 100.dp, aligned to Bottom -> y = -100.dp
         composeTestRule
             .onSubspaceNodeWithTag("bottomLeftCol")
-            .assertYPositionInRootIsEqualTo(-100.dp)
-            .assertZPositionInRootIsEqualTo(68.dp)
+            .assertYPositionInRootIsEqualTo(-100.dp, PositionTolerance)
+            .assertZPositionInRootIsEqualTo(68.dp, PositionTolerance)
 
         composeTestRule
             .onSubspaceNodeWithTag("bottomRightCol")
-            .assertYPositionInRootIsEqualTo(-100.dp)
-            .assertZPositionInRootIsEqualTo(68.dp)
+            .assertYPositionInRootIsEqualTo(-100.dp, PositionTolerance)
+            .assertZPositionInRootIsEqualTo(68.dp, PositionTolerance)
     }
 
     /**
@@ -398,5 +407,20 @@ class CurvedLayoutTest {
         composeTestRule.onNodeWithText("Main Center Panel").assertIsDisplayed()
         composeTestRule.onNodeWithText("Top Right").assertIsDisplayed()
         composeTestRule.onNodeWithText("Bottom Right").assertIsDisplayed()
+    }
+
+    private companion object {
+        /**
+         * Tolerance used for 3D position assertions to absorb Dp-to-pixel rounding and integer
+         * pixel truncation in curved subspace layouts across display densities (e.g. 1.5 px/dp at
+         * 240 dpi).
+         */
+        val PositionTolerance = 1.dp
+
+        /**
+         * Angular tolerance in degrees used for curved tangent rotation assertions to absorb 0.5 px
+         * integer center rounding of odd-pixel child widths along the curve radius.
+         */
+        const val RotationTolerance = 0.5f
     }
 }
