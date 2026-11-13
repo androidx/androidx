@@ -5721,6 +5721,59 @@ class SnapshotIdSetTests {
         assertTrue(diffDisjointWindow.get(201L.toSnapshotId()))
         assertFalse(diffDisjointWindow.get(202L.toSnapshotId()))
     }
+
+    @Test
+    fun windowBoundariesAndNoOpIdentity() {
+        // Jump from EMPTY to id = 320 so lowerBound = 320 and belowBound = null.
+        // Then set 384 (offset 64, shifting into upperSet with lowerBound = 320),
+        // plus all 4 window boundary bits: 320 (0), 383 (63), 384 (64), 447 (127).
+        val base =
+            SnapshotIdSet.EMPTY.set(320L.toSnapshotId())
+                .set(383L.toSnapshotId())
+                .set(384L.toSnapshotId())
+                .set(447L.toSnapshotId())
+
+        // Verify exact membership around every window boundary when belowBound == null
+        assertFalse(base.get(0L.toSnapshotId()))
+        assertFalse(base.get(319L.toSnapshotId()))
+        assertTrue(base.get(320L.toSnapshotId()))
+        assertFalse(base.get(321L.toSnapshotId()))
+        assertFalse(base.get(382L.toSnapshotId()))
+        assertTrue(base.get(383L.toSnapshotId()))
+        assertTrue(base.get(384L.toSnapshotId()))
+        assertFalse(base.get(385L.toSnapshotId()))
+        assertFalse(base.get(446L.toSnapshotId()))
+        assertTrue(base.get(447L.toSnapshotId()))
+        assertFalse(base.get(448L.toSnapshotId()))
+        assertFalse(base.get(1000L.toSnapshotId()))
+
+        // Setting already-set boundary bits and clearing already-clear boundary bits preserve ===
+        assertSame(base, base.set(320L.toSnapshotId()))
+        assertSame(base, base.set(383L.toSnapshotId()))
+        assertSame(base, base.set(384L.toSnapshotId()))
+        assertSame(base, base.set(447L.toSnapshotId()))
+        assertSame(base, base.clear(319L.toSnapshotId()))
+        assertSame(base, base.clear(321L.toSnapshotId()))
+        assertSame(base, base.clear(385L.toSnapshotId()))
+        assertSame(base, base.clear(448L.toSnapshotId()))
+
+        // Populate belowBound (10, 319) and re-verify boundaries + upperSet clearing
+        val withBelow = base.set(10L.toSnapshotId()).set(319L.toSnapshotId())
+        assertTrue(withBelow.get(10L.toSnapshotId()))
+        assertTrue(withBelow.get(319L.toSnapshotId()))
+        assertFalse(withBelow.get(11L.toSnapshotId()))
+        assertFalse(withBelow.get(448L.toSnapshotId()))
+        assertSame(withBelow, withBelow.set(319L.toSnapshotId()))
+        assertSame(withBelow, withBelow.clear(11L.toSnapshotId()))
+        assertSame(withBelow, withBelow.clear(448L.toSnapshotId()))
+
+        val clearedUpper = withBelow.clear(384L.toSnapshotId()).clear(447L.toSnapshotId())
+        assertFalse(clearedUpper.get(384L.toSnapshotId()))
+        assertFalse(clearedUpper.get(447L.toSnapshotId()))
+        assertTrue(clearedUpper.get(320L.toSnapshotId()))
+        assertTrue(clearedUpper.get(383L.toSnapshotId()))
+        assertTrue(clearedUpper.get(319L.toSnapshotId()))
+    }
 }
 
 private fun SnapshotIdSet.shouldBe(index: Long, value: Boolean): SnapshotIdSet {
