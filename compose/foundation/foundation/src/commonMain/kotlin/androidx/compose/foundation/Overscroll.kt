@@ -277,21 +277,22 @@ private class WrappedOverscrollEffect(
  */
 @Suppress("DEPRECATION_ERROR")
 public fun Modifier.overscroll(overscrollEffect: OverscrollEffect?): Modifier {
-    val effectModifier = overscrollEffect?.effectModifier ?: Modifier
+    if (overscrollEffect == null) return this
+    val effectModifier = overscrollEffect.effectModifier
     val modifier =
         if (effectModifier !== Modifier) effectModifier
         else OverscrollModifierElement(overscrollEffect)
     return this.then(modifier)
 }
 
-private class OverscrollModifierElement(private val overscrollEffect: OverscrollEffect?) :
+private class OverscrollModifierElement(private val overscrollEffect: OverscrollEffect) :
     ModifierNodeElement<OverscrollModifierNode>() {
     override fun create(): OverscrollModifierNode {
-        return OverscrollModifierNode(overscrollEffect?.node)
+        return OverscrollModifierNode(overscrollEffect.node)
     }
 
     override fun update(node: OverscrollModifierNode) {
-        node.update(overscrollEffect?.node)
+        node.update(overscrollEffect.node)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -312,29 +313,37 @@ private class OverscrollModifierElement(private val overscrollEffect: Overscroll
     }
 }
 
-private class OverscrollModifierNode(private var overscrollNode: DelegatableNode?) :
+private class OverscrollModifierNode(private var overscrollNode: DelegatableNode) :
     DelegatingNode() {
+
+    private var isDelegated = false
+
     override fun onAttach() {
-        attachIfNeeded()
+        delegateIfNeeded()
     }
 
     override fun onDetach() {
-        overscrollNode?.let { undelegate(it) }
+        undelegateIfNeeded()
     }
 
-    fun update(overscrollNode: DelegatableNode?) {
-        this.overscrollNode?.let { undelegate(it) }
+    fun update(overscrollNode: DelegatableNode) {
+        undelegateIfNeeded()
         this.overscrollNode = overscrollNode
-        attachIfNeeded()
+        delegateIfNeeded()
     }
 
-    private fun attachIfNeeded() {
-        overscrollNode =
-            if (overscrollNode?.node?.isAttached == false) {
-                delegate(overscrollNode!!)
-            } else {
-                null
-            }
+    private fun delegateIfNeeded() {
+        if (!overscrollNode.node.isAttached) {
+            delegate(overscrollNode)
+            isDelegated = true
+        }
+    }
+
+    private fun undelegateIfNeeded() {
+        if (isDelegated) {
+            undelegate(overscrollNode)
+            isDelegated = false
+        }
     }
 }
 
