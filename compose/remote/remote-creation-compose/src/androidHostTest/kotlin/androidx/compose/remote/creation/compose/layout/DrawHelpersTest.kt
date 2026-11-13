@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.creation.compose.layout
 
+import android.graphics.BlendMode as AndroidBlendMode
 import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.core.operations.paint.PaintBundle
@@ -33,7 +34,6 @@ import androidx.compose.remote.creation.compose.text.RemoteTextAlign
 import androidx.compose.remote.creation.compose.text.RemoteTextDecoration
 import androidx.compose.remote.creation.compose.text.RemoteTextOverflow
 import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -45,7 +45,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [35])
 class DrawHelpersTest {
 
     @Test
@@ -70,30 +75,31 @@ class DrawHelpersTest {
     }
 
     @Test
-    fun composeToRemote_roundTrip() {
+    fun composeToRemote() {
         assertEquals(RemoteBlendMode.SrcOver, BlendMode.SrcOver.toRemoteBlendMode())
-        assertEquals(BlendMode.SrcOver, RemoteBlendMode.SrcOver.toComposeBlendMode())
         assertEquals(RemoteBlendMode.Clear, BlendMode.Clear.toRemoteBlendMode())
-        assertEquals(BlendMode.Clear, RemoteBlendMode.Clear.toComposeBlendMode())
 
-        assertEquals(PaintingStyle.Stroke, RemotePaintingStyle.Stroke.toComposePaintingStyle())
         assertEquals(RemotePathFillType.NonZero, PathFillType.NonZero.toRemotePathFillType())
         assertEquals(RemotePathFillType.EvenOdd, PathFillType.EvenOdd.toRemotePathFillType())
         assertEquals(RemoteStrokeCap.Butt, StrokeCap.Butt.toRemoteStrokeCap())
-        assertEquals(StrokeCap.Butt, RemoteStrokeCap.Butt.toComposeStrokeCap())
         assertEquals(RemoteStrokeCap.Round, StrokeCap.Round.toRemoteStrokeCap())
-        assertEquals(StrokeCap.Round, RemoteStrokeCap.Round.toComposeStrokeCap())
         assertEquals(RemoteStrokeCap.Square, StrokeCap.Square.toRemoteStrokeCap())
-        assertEquals(StrokeCap.Square, RemoteStrokeCap.Square.toComposeStrokeCap())
         assertEquals(RemoteStrokeJoin.Miter, StrokeJoin.Miter.toRemoteStrokeJoin())
-        assertEquals(StrokeJoin.Miter, RemoteStrokeJoin.Miter.toComposeStrokeJoin())
         assertEquals(RemoteStrokeJoin.Round, StrokeJoin.Round.toRemoteStrokeJoin())
-        assertEquals(StrokeJoin.Round, RemoteStrokeJoin.Round.toComposeStrokeJoin())
         assertEquals(RemoteStrokeJoin.Bevel, StrokeJoin.Bevel.toRemoteStrokeJoin())
-        assertEquals(StrokeJoin.Bevel, RemoteStrokeJoin.Bevel.toComposeStrokeJoin())
 
         assertEquals(RemoteFontStyle.Italic, FontStyle.Italic.toRemoteFontStyle())
         assertEquals(RemoteFontWeight.Bold, FontWeight.Bold.toRemoteFontWeight())
+    }
+
+    @Test
+    fun remoteToAndroidBlendMode_roundTrip() {
+        assertEquals(AndroidBlendMode.SRC_OVER, RemoteBlendMode.SrcOver.toAndroidBlendMode())
+        assertEquals(RemoteBlendMode.SrcOver, AndroidBlendMode.SRC_OVER.toRemoteBlendMode())
+        assertEquals(AndroidBlendMode.CLEAR, RemoteBlendMode.Clear.toAndroidBlendMode())
+        assertEquals(RemoteBlendMode.Clear, AndroidBlendMode.CLEAR.toRemoteBlendMode())
+        assertEquals(AndroidBlendMode.COLOR_DODGE, RemoteBlendMode.ColorDodge.toAndroidBlendMode())
+        assertEquals(RemoteBlendMode.ColorDodge, AndroidBlendMode.COLOR_DODGE.toRemoteBlendMode())
     }
 
     @Test

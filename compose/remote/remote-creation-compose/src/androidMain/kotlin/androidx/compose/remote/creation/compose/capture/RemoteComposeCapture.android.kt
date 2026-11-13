@@ -29,12 +29,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.toSize
 import androidx.tracing.trace
 import java.io.ByteArrayInputStream
 
@@ -60,6 +57,7 @@ public fun rememberRemoteDocument(
                 context = context,
                 content = content,
                 profile = profile,
+                writerEvents = writerEvents,
                 clock = clock,
             )
         val coreDocument =
@@ -83,14 +81,6 @@ public fun rememberRemoteDocument(
         doc.value = coreDocument
     }
     return doc
-}
-
-@Composable
-internal fun displaySize(): Size {
-    // Note: Usage of LocalConfiguration.current.screenWidthDp was replaced due to
-    // `ConfigurationScreenWidthHeight` lint rule
-    // TODO: Consider to remove this function at all
-    return LocalWindowInfo.current.containerSize.toSize()
 }
 
 /** Convert an Android layout direction to a compose [layout direction][LayoutDirection]. */
