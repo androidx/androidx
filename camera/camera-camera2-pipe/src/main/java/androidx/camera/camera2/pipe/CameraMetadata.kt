@@ -182,6 +182,22 @@ public interface CameraMetadata : CameraCharacteristicsWrapper {
                 this[CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES]
                     ?: EMPTY_INT_ARRAY
 
+        public val CameraMetadata.availableAeModes: IntArray
+            @JvmStatic
+            get() = this[CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES] ?: EMPTY_INT_ARRAY
+
+        public val CameraMetadata.availableAfModes: IntArray
+            @JvmStatic
+            get() = this[CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES] ?: EMPTY_INT_ARRAY
+
+        public val CameraMetadata.availableAwbModes: IntArray
+            @JvmStatic
+            get() = this[CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES] ?: EMPTY_INT_ARRAY
+
+        public val CameraMetadata.availableControlModes: IntArray
+            @JvmStatic
+            get() = this[CameraCharacteristics.CONTROL_AVAILABLE_MODES] ?: EMPTY_INT_ARRAY
+
         public val CameraMetadata.isHardwareLevelExternal: Boolean
             @JvmStatic
             get() = this[INFO_SUPPORTED_HARDWARE_LEVEL] == INFO_SUPPORTED_HARDWARE_LEVEL_EXTERNAL
@@ -387,6 +403,61 @@ public interface CameraMetadata : CameraCharacteristicsWrapper {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM)
                     Api35Compat.getDefaultTorchStrengthLevel(this)
                 else 1
+
+        /**
+         * Returns `true` if the given [AeMode] is supported by the camera device, otherwise
+         * `false`.
+         *
+         * See [CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES].
+         */
+        public fun CameraMetadata.isSupported(aeMode: AeMode): Boolean =
+            this.availableAeModes.contains(aeMode.value)
+
+        /**
+         * Returns `true` if the given [AfMode] is supported by the camera device, otherwise
+         * `false`.
+         *
+         * See [CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES].
+         */
+        public fun CameraMetadata.isSupported(afMode: AfMode): Boolean =
+            this.availableAfModes.contains(afMode.value)
+
+        /**
+         * Returns `true` if the given [AwbMode] is supported by the camera device, otherwise
+         * `false`.
+         *
+         * See [CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES].
+         */
+        public fun CameraMetadata.isSupported(awbMode: AwbMode): Boolean =
+            this.availableAwbModes.contains(awbMode.value)
+
+        /**
+         * Returns `true` if the given [ControlMode] is supported by the camera device, otherwise
+         * `false`.
+         *
+         * See [CameraCharacteristics.CONTROL_AVAILABLE_MODES].
+         */
+        public fun CameraMetadata.isSupported(controlMode: ControlMode): Boolean =
+            this.availableControlModes.contains(controlMode.value)
+
+        /**
+         * Returns `true` if the given [FlashMode] is supported by the camera device, otherwise
+         * `false`.
+         *
+         * Only standard Camera2 flash modes ([FlashMode.OFF], [FlashMode.SINGLE], and
+         * [FlashMode.TORCH]) can be verified via [CameraCharacteristics.FLASH_INFO_AVAILABLE].
+         * [FlashMode.OFF] is always supported, [FlashMode.SINGLE] and [FlashMode.TORCH] are
+         * supported when [hasFlashUnit] is `true`, and non-standard or vendor [FlashMode] values
+         * return `false`. See [CameraCharacteristics.FLASH_INFO_AVAILABLE] and
+         * [CaptureRequest.FLASH_MODE].
+         */
+        public fun CameraMetadata.isSupported(flashMode: FlashMode): Boolean =
+            when (flashMode) {
+                FlashMode.OFF -> true
+                FlashMode.SINGLE,
+                FlashMode.TORCH -> hasFlashUnit
+                else -> false
+            }
 
         public val CameraMetadata.supportsLowLightBoost: Boolean
             @JvmStatic
