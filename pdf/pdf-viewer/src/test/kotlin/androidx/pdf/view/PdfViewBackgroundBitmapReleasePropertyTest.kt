@@ -17,6 +17,7 @@
 package androidx.pdf.view
 
 import android.app.Activity
+import androidx.pdf.BackgroundBitmapRelease
 import androidx.pdf.ExperimentalPdfApi
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
@@ -34,22 +35,20 @@ class PdfViewBackgroundBitmapReleasePropertyTest {
 
     @Test
     fun backgroundBitmapRelease_defaultsToNone() {
-        assertThat(pdfView.backgroundBitmapRelease)
-            .isEqualTo(PdfView.BACKGROUND_BITMAP_RELEASE_NONE)
+        assertThat(pdfView.backgroundBitmapRelease).isEqualTo(BackgroundBitmapRelease.NONE)
     }
 
     @Test
     fun backgroundBitmapRelease_acceptsAll() {
-        pdfView.backgroundBitmapRelease = PdfView.BACKGROUND_BITMAP_RELEASE_ALL
+        pdfView.backgroundBitmapRelease = BackgroundBitmapRelease.ALL
 
-        assertThat(pdfView.backgroundBitmapRelease).isEqualTo(PdfView.BACKGROUND_BITMAP_RELEASE_ALL)
+        assertThat(pdfView.backgroundBitmapRelease).isEqualTo(BackgroundBitmapRelease.ALL)
     }
 
     @Test
     fun backgroundBitmapRelease_rejectsUnknownValue() {
         assertThrows(IllegalArgumentException::class.java) { pdfView.backgroundBitmapRelease = 2 }
 
-        assertThat(pdfView.backgroundBitmapRelease)
-            .isEqualTo(PdfView.BACKGROUND_BITMAP_RELEASE_NONE)
+        assertThat(pdfView.backgroundBitmapRelease).isEqualTo(BackgroundBitmapRelease.NONE)
     }
 }

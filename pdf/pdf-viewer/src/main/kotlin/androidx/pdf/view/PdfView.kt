@@ -62,6 +62,8 @@ import androidx.core.util.Pools
 import androidx.core.util.keyIterator
 import androidx.core.util.valueIterator
 import androidx.core.view.ViewCompat
+import androidx.pdf.BackgroundBitmapRelease
+import androidx.pdf.BackgroundBitmapReleasePolicy
 import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.Highlight
 import androidx.pdf.PdfDocument
@@ -336,15 +338,15 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
      * visible, e.g. when the app moves to the background, or retains them so content is shown
      * immediately when the window becomes visible again.
      *
-     * Defaults to [BACKGROUND_BITMAP_RELEASE_NONE].
+     * Defaults to [BackgroundBitmapRelease.NONE].
      *
-     * @throws IllegalArgumentException if set to a value other than
-     *   [BACKGROUND_BITMAP_RELEASE_NONE] or [BACKGROUND_BITMAP_RELEASE_ALL].
+     * @throws IllegalArgumentException if set to a value other than [BackgroundBitmapRelease]
+     *   defined constant.
      */
     @Suppress("ExperimentalPropertyAnnotation")
     @ExperimentalPdfApi
-    @BackgroundBitmapRelease
-    public var backgroundBitmapRelease: Int = BACKGROUND_BITMAP_RELEASE_NONE
+    @BackgroundBitmapReleasePolicy
+    public var backgroundBitmapRelease: Int = BackgroundBitmapRelease.NONE
         set(value) {
             require(value in VALID_BACKGROUND_BITMAP_RELEASES) {
                 "Invalid background bitmap release: $value"
@@ -1620,13 +1622,13 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         super.onWindowVisibilityChanged(visibility)
         if (visibility == VISIBLE) {
             startCollectingData()
-            if (backgroundBitmapRelease == BACKGROUND_BITMAP_RELEASE_ALL) {
+            if (backgroundBitmapRelease == BackgroundBitmapRelease.ALL) {
                 maybeUpdatePageVisibility()
                 invalidate()
             }
         } else {
             stopCollectingData()
-            if (backgroundBitmapRelease == BACKGROUND_BITMAP_RELEASE_ALL) {
+            if (backgroundBitmapRelease == BackgroundBitmapRelease.ALL) {
                 pageManager?.releaseBitmaps()
                 invalidate()
             }
@@ -2580,12 +2582,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     @IntDef(GESTURE_STATE_IDLE, GESTURE_STATE_INTERACTING, GESTURE_STATE_SETTLING)
     public annotation class GestureState
 
-    @OptIn(ExperimentalPdfApi::class)
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Retention(AnnotationRetention.SOURCE)
-    @IntDef(BACKGROUND_BITMAP_RELEASE_NONE, BACKGROUND_BITMAP_RELEASE_ALL)
-    public annotation class BackgroundBitmapRelease
-
     /** Adjusts the position of [PdfView] in response to gestures detected by [GestureTracker] */
     private inner class ZoomScrollGestureHandler : GestureTracker.GestureHandler() {
 
@@ -2946,25 +2942,9 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
          */
         public const val VERTICAL_ALIGNMENT_CENTER: Int = 1
 
-        /**
-         * Retains rendered bitmaps when the window stops being visible, so content is shown
-         * immediately when it becomes visible again. This is the default.
-         *
-         * @see backgroundBitmapRelease
-         */
-        @ExperimentalPdfApi public const val BACKGROUND_BITMAP_RELEASE_NONE: Int = 0
-
-        /**
-         * Releases all rendered bitmaps when the window stops being visible, to minimize memory
-         * used in the background. Bitmaps are rendered again when the window becomes visible.
-         *
-         * @see backgroundBitmapRelease
-         */
-        @ExperimentalPdfApi public const val BACKGROUND_BITMAP_RELEASE_ALL: Int = 1
-
         @OptIn(ExperimentalPdfApi::class)
         private val VALID_BACKGROUND_BITMAP_RELEASES =
-            setOf(BACKGROUND_BITMAP_RELEASE_NONE, BACKGROUND_BITMAP_RELEASE_ALL)
+            setOf(BackgroundBitmapRelease.NONE, BackgroundBitmapRelease.ALL)
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public const val DEFAULT_INIT_ZOOM: Float = 1.0f
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

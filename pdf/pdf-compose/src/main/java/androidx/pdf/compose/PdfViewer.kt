@@ -34,11 +34,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.pdf.BackgroundBitmapRelease
+import androidx.pdf.BackgroundBitmapReleasePolicy
 import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfDocument
 import androidx.pdf.R
-import androidx.pdf.compose.FastScrollConfiguration.Companion.withDrawableAndDimensionIds
-import androidx.pdf.compose.FastScrollConfiguration.Companion.withDrawableIdsAndDp
 import androidx.pdf.content.ExternalLink
 import androidx.pdf.models.FormEditInfo
 import androidx.pdf.ocr.OcrProvider
@@ -73,6 +73,9 @@ import kotlinx.coroutines.launch
  * @param contentPadding a padding around the whole content. This will add padding for the content
  *   after it has been clipped, which is not possible via [modifier] param. Note: The content bleeds
  *   into the padded area when the view is scrolled.
+ * @param bitmapReleasePolicy policy for retaining or releasing rendered page bitmaps when the
+ *   viewer's window is hidden e.g. [BackgroundBitmapRelease.ALL] to release all rendered bitmaps,
+ *   to clarify usage can refer to [BackgroundBitmapRelease]
  * @param onUrlLinkClicked a callback to be invoked when the user taps a URL link in this PDF viewer
  * @param onFormWidgetInfoUpdated a callback to be invoked when a form widget is updated due to a
  *   user interaction. @see [PdfView.OnFormWidgetInfoUpdatedListener]
@@ -101,6 +104,7 @@ public fun PdfViewer(
     fastScrollConfig: FastScrollConfiguration =
         FastScrollConfiguration.withDrawableAndDimensionIds(),
     contentPadding: PaddingValues = NoPadding,
+    @BackgroundBitmapReleasePolicy bitmapReleasePolicy: Int = BackgroundBitmapRelease.NONE,
     appendContextMenuComponents: (PdfSelectionMenuBuilderScope.() -> Unit)? = null,
     filterContextMenuComponents: ((ContextMenuComponent) -> Boolean)? = null,
     onFormWidgetInfoUpdated: ((FormEditInfo) -> Unit)? = null,
@@ -226,6 +230,7 @@ public fun PdfViewer(
             view.horizontalPageSpacing = horizontalPageSpacingPx
             view.verticalPageSpacing = verticalPageSpacingPx
             view.isImageSelectionEnabled = isImageSelectionEnabled
+            view.backgroundBitmapRelease = bitmapReleasePolicy
             @OptIn(ExperimentalPdfApi::class) view.setOcrProvider(ocrProvider)
         },
     )

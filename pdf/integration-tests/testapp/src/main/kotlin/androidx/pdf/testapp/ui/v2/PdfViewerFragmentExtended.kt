@@ -30,6 +30,7 @@ import android.widget.ImageButton
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.os.OperationCanceledException
 import androidx.lifecycle.lifecycleScope
+import androidx.pdf.BackgroundBitmapRelease
 import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfDocument
 import androidx.pdf.content.ExternalLink
@@ -307,13 +308,12 @@ class PdfViewerFragmentExtended : PdfViewerFragment(), FeatureFlagListener {
 
     @OptIn(ExperimentalPdfApi::class)
     override fun isReleaseBitmapsInBackgroundEnabled(): Boolean =
-        pdfView.backgroundBitmapRelease == PdfView.BACKGROUND_BITMAP_RELEASE_ALL
+        pdfView.backgroundBitmapRelease == BackgroundBitmapRelease.ALL
 
     @OptIn(ExperimentalPdfApi::class)
     private fun setReleaseBitmapsInBackground(enabled: Boolean) {
         pdfView.backgroundBitmapRelease =
-            if (enabled) PdfView.BACKGROUND_BITMAP_RELEASE_ALL
-            else PdfView.BACKGROUND_BITMAP_RELEASE_NONE
+            if (enabled) BackgroundBitmapRelease.ALL else BackgroundBitmapRelease.NONE
     }
 
     private fun getDynamicThumbnailSize(): Size {

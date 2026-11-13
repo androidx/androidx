@@ -19,6 +19,7 @@ package androidx.pdf.view
 import android.graphics.Point
 import android.view.ViewGroup
 import androidx.lifecycle.Lifecycle
+import androidx.pdf.BackgroundBitmapRelease
 import androidx.pdf.ExperimentalPdfApi
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -58,7 +59,7 @@ class PdfViewBackgroundBitmapReleaseTest {
         with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
             onActivity { activity ->
                 activity.findViewById<PdfView>(PDF_VIEW_ID).apply {
-                    backgroundBitmapRelease = PdfView.BACKGROUND_BITMAP_RELEASE_ALL
+                    backgroundBitmapRelease = BackgroundBitmapRelease.ALL
                     pdfDocument = fakePdfDocument
                 }
             }
