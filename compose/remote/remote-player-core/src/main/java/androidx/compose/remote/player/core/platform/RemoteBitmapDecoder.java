@@ -89,10 +89,10 @@ public class RemoteBitmapDecoder {
                         for (int i = 0; i < idata.length; i++) {
                             int p = i * 4;
                             idata[i] =
-                                    (data[p] << 24)
-                                            | (data[p + 1] << 16)
-                                            | (data[p + 2] << 8)
-                                            | data[p + 3];
+                                    ((data[p] & 0xFF) << 24)
+                                            | ((data[p + 1] & 0xFF) << 16)
+                                            | ((data[p + 2] & 0xFF) << 8)
+                                            | (data[p + 3] & 0xFF);
                         }
                         image.setPixels(idata, 0, width, 0, 0, width, height);
                         break;
