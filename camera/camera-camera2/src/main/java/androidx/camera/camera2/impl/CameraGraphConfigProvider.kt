@@ -37,6 +37,7 @@ import androidx.camera.camera2.compat.quirk.DisableAbortCapturesOnStopWithSessio
 import androidx.camera.camera2.compat.quirk.FinalizeSessionOnCloseQuirk
 import androidx.camera.camera2.compat.quirk.QuickSuccessiveImageCaptureFailsRepeatingRequestQuirk
 import androidx.camera.camera2.compat.workaround.CloseCameraOnCameraGraphClose
+import androidx.camera.camera2.compat.workaround.DolbyVisionStreamProfileCorrector
 import androidx.camera.camera2.compat.workaround.TemplateParamsOverride
 import androidx.camera.camera2.config.CameraConfig
 import androidx.camera.camera2.config.CameraScope
@@ -97,6 +98,8 @@ constructor(
         } else {
             null
         }
+    private val dolbyVisionStreamProfileCorrector =
+        if (Build.VERSION.SDK_INT >= 33) DolbyVisionStreamProfileCorrector() else null
 
     private val lock = Any()
     @GuardedBy("lock") private var hasAttachedUseCases = true
@@ -513,7 +516,10 @@ constructor(
 
             if (supportedDynamicRangeProfiles != null) {
                 val firstSupportedProfile =
-                    dynamicRangeToFirstSupportedProfile(this, supportedDynamicRangeProfiles)
+                    dolbyVisionStreamProfileCorrector?.getStreamProfileOverride(
+                        this,
+                        supportedDynamicRangeProfiles,
+                    ) ?: dynamicRangeToFirstSupportedProfile(this, supportedDynamicRangeProfiles)
                 if (firstSupportedProfile != null) {
                     dynamicRangeProfile = DynamicRangeProfile(firstSupportedProfile)
                 } else {

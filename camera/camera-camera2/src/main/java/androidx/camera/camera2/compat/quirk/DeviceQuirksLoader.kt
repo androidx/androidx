@@ -235,6 +235,14 @@ public object DeviceQuirksLoader {
         ) {
             quirks.add(PreviewUnderExposureQuirk)
         }
+        if (
+            quirkSettings.shouldEnableQuirk(
+                DolbyVisionStreamIncorrectColorQuirk::class.java,
+                DolbyVisionStreamIncorrectColorQuirk.load(),
+            )
+        ) {
+            quirks.add(DolbyVisionStreamIncorrectColorQuirk)
+        }
         return quirks
     }
 }
