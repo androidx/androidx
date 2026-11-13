@@ -30,7 +30,7 @@ import androidx.camera.core.impl.Quirk
  * the camera device.
  *
  * QuirkSummary
- * - Bug Id: 282871038, 369300443, 425588561, 426104225, 369291594, 385881561, 538140458
+ * - Bug Id: 282871038, 369300443, 425588561, 426104225, 369291594, 385881561, 538140458, 582678736
  * - Description: Instructs CameraPipe to close the camera device before creating a new capture
  *   session to avoid undesirable behaviors
  *
@@ -44,8 +44,8 @@ public class CloseCameraDeviceOnCameraGraphCloseQuirk : Quirk {
             isXiaomiProblematicDevice ||
                 (isSamsungProblematicDevice && !isSamsungUnconditionalDevice)
         ) {
-            // Xiaomi 14 Ultra and Samsung API 31 ~ 34 devices need to apply the quirk only when
-            // Extensions is enabled.
+            // Xiaomi 14 / 14 Ultra and non-unconditional Samsung API 31+ devices need the
+            // quirk only when Extensions is enabled.
             isExtensions
         } else {
             true
@@ -77,8 +77,8 @@ public class CloseCameraDeviceOnCameraGraphCloseQuirk : Quirk {
                 // Applying this quirk when Extensions is enabled will fix it.
                 return true
             } else if (isSamsungProblematicDevice) {
-                // When Extensions is enabled, there might be some timing issue to cause the
-                // BindUnbindUseCasesStressTest to run fail easily. Applying this quirk will fix it.
+                // When Extensions is enabled, recreating a capture session without closing the
+                // camera device can stall image capture (b/426104225, b/582678736).
                 return true
             } else if (isSonyProblematicDevice) {
                 return true
@@ -155,11 +155,8 @@ public class CloseCameraDeviceOnCameraGraphCloseQuirk : Quirk {
                         )
                         .any { Build.DEVICE.startsWith(it, ignoreCase = true) }
 
-        // Samsung API 31 ~ 34 devices to apply the quirk when Extensions is enabled.
+        // Samsung API 31+ devices to apply the quirk when Extensions is enabled (b/582678736).
         private val isSamsungProblematicDevice: Boolean
-            get() =
-                isSamsungDevice() &&
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
-                    Build.VERSION.SDK_INT <= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+            get() = isSamsungDevice() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
     }
 }
