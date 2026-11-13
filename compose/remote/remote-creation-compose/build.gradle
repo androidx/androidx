@@ -36,16 +36,15 @@ androidXMultiplatform {
     sourceSets {
         jvmAndAndroidMain.dependencies {
             api(project(":compose:remote:remote-creation-expression"))
-            api(project(":compose:remote:remote-creation"))
+            api("androidx.compose.runtime:runtime:1.11.0")
+            implementation(project(":compose:remote:remote-creation"))
             implementation("androidx.collection:collection:1.7.0")
-            implementation("androidx.compose.runtime:runtime:1.11.0")
         }
 
         androidMain.dependencies {
+            api(project(":compose:remote:remote-creation"))
             api("androidx.collection:collection:1.7.0")
             api("androidx.compose.ui:ui:1.11.0")
-            implementation("androidx.core:core-ktx:1.16.0")
-            implementation("androidx.compose.foundation:foundation:1.11.0")
             implementation("androidx.lifecycle:lifecycle-viewmodel:2.10.0")
             implementation("androidx.tracing:tracing:2.0.0")
         }
@@ -61,6 +60,7 @@ androidXMultiplatform {
             implementation(project(":compose:remote:remote-player-compose-testutils"))
             implementation(project(":compose:remote:remote-player-core"))
             implementation("androidx.compose.ui:ui-test-junit4:1.12.0")
+            implementation("androidx.core:core-ktx:1.16.0")
             implementation(libs.testCoreKtx)
             implementation(libs.testRules)
             implementation(libs.kotlinCoroutinesTest)
@@ -68,6 +68,7 @@ androidXMultiplatform {
         }
 
         androidDeviceTest.dependencies {
+            implementation("androidx.compose.foundation:foundation:1.11.0")
             implementation("androidx.compose.material:material:1.11.0")
             implementation(libs.testExtJunit)
             implementation(libs.junit)
