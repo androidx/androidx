@@ -98,6 +98,9 @@ class RemotePlayerStateLayoutActivity : ComponentActivity() {
                 delay(100L)
                 state = (state + 1) % 4
                 player.setUserLocalInt("stateIndex", state)
+                // TODO(b/585202905): Remove explicit invalidate() once RemoteComposeView.setLocal*
+                // invalidates the view.
+                player.invalidate()
             }
         }
     }
