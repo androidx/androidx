@@ -45,7 +45,7 @@ import java.util.Objects;
  * the web content running in WebView, which means that writes performed on one side are visible
  * on the other side without copying the data or posting another message.
  * <p>
- * Use {@link #allocate(String, long)} to allocate a new buffer, and send it to web content by
+ * Use {@link #allocate(String, int)} to allocate a new buffer, and send it to web content by
  * posting a {@link WebMessageCompat} carrying it, or by replying with
  * {@link JavaScriptReplyProxy#postMessage(SharedArrayBuffer)}. Web content that is not <a
  * href="https://developer.mozilla.org/en-US/docs/Web/API/Window/crossOriginIsolated">cross-origin
@@ -61,7 +61,6 @@ import java.util.Objects;
  *
  * @see android.os.SharedMemory
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SharedArrayBuffer {
     private final @NonNull SharedArrayBufferBoundaryInterface mBoundaryInterface;
 
@@ -90,8 +89,8 @@ public final class SharedArrayBuffer {
     @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_SHARED_ARRAY_BUFFER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @NonNull SharedArrayBuffer allocate(@Nullable String name,
-            @IntRange(from = 1, to = Integer.MAX_VALUE) long size) throws ErrnoException {
-        if (size < 1 || size > Integer.MAX_VALUE) {
+            @IntRange(from = 1) int size) throws ErrnoException {
+        if (size < 1) {
             throw new IllegalArgumentException("SharedArrayBuffer size must be in the range [1, "
                     + Integer.MAX_VALUE + "] bytes, but was " + size + ".");
         }
@@ -129,8 +128,8 @@ public final class SharedArrayBuffer {
     /**
      * Returns the size of the shared memory region in bytes.
      */
-    public long getSize() {
-        return mBoundaryInterface.getSize();
+    public @IntRange(from = 1) int getSize() {
+        return Math.toIntExact(mBoundaryInterface.getSize());
     }
 
     /**

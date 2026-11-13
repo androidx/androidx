@@ -52,6 +52,7 @@ package androidx.webkit {
 
   @UiThread public abstract class JavaScriptReplyProxy {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.JS_INJECTION_IN_FRAME_AND_WORLD, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void executeJavaScript(String, androidx.webkit.WebViewOutcomeReceiver<java.lang.String!,androidx.webkit.JavaScriptExecutionException!>?);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_SHARED_ARRAY_BUFFER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public void postMessage(androidx.webkit.SharedArrayBuffer);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void postMessage(byte[]);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_LISTENER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void postMessage(String);
   }
@@ -387,6 +388,12 @@ package androidx.webkit {
     method @Deprecated @RequiresFeature(name="REQUESTED_WITH_HEADER_ALLOW_LIST", enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void setRequestedWithHeaderOriginAllowList(java.util.Set<java.lang.String!>);
   }
 
+  public final class SharedArrayBuffer {
+    method @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_SHARED_ARRAY_BUFFER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static androidx.webkit.SharedArrayBuffer allocate(String?, @IntRange(from=1) int) throws android.system.ErrnoException;
+    method @IntRange(from=1) public int getSize();
+    method public java.nio.ByteBuffer mapAndCreateByteBuffer() throws android.system.ErrnoException;
+  }
+
   @Deprecated @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public class SpeculativeLoadingConfig {
     method @Deprecated @IntRange(from=1) public int getMaxPrefetches();
     method @Deprecated @SuppressCompatibility @IntRange(from=1) @androidx.webkit.Profile.ExperimentalUrlPrefetch public int getMaxPrerenders();
@@ -512,6 +519,8 @@ package androidx.webkit {
   }
 
   public class WebMessageCompat {
+    ctor @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_SHARED_ARRAY_BUFFER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public WebMessageCompat(androidx.webkit.SharedArrayBuffer);
+    ctor @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_SHARED_ARRAY_BUFFER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public WebMessageCompat(androidx.webkit.SharedArrayBuffer, androidx.webkit.WebMessagePortCompat![]?);
     ctor @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public WebMessageCompat(byte[]);
     ctor @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public WebMessageCompat(byte[], androidx.webkit.WebMessagePortCompat![]?);
     ctor public WebMessageCompat(String?);
@@ -519,8 +528,10 @@ package androidx.webkit {
     method public byte[] getArrayBuffer();
     method public String? getData();
     method public androidx.webkit.WebMessagePortCompat![]? getPorts();
+    method public androidx.webkit.SharedArrayBuffer getSharedArrayBuffer();
     method public int getType();
     field public static final int TYPE_ARRAY_BUFFER = 1; // 0x1
+    field public static final int TYPE_SHARED_ARRAY_BUFFER = 2; // 0x2
     field public static final int TYPE_STRING = 0; // 0x0
   }
 
@@ -857,6 +868,7 @@ package androidx.webkit {
     field public static final String WEB_MESSAGE_PORT_CLOSE = "WEB_MESSAGE_PORT_CLOSE";
     field public static final String WEB_MESSAGE_PORT_POST_MESSAGE = "WEB_MESSAGE_PORT_POST_MESSAGE";
     field public static final String WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK = "WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK";
+    field public static final String WEB_MESSAGE_SHARED_ARRAY_BUFFER = "WEB_MESSAGE_SHARED_ARRAY_BUFFER";
     field public static final String WEB_RESOURCE_ERROR_GET_CODE = "WEB_RESOURCE_ERROR_GET_CODE";
     field public static final String WEB_RESOURCE_ERROR_GET_DESCRIPTION = "WEB_RESOURCE_ERROR_GET_DESCRIPTION";
     field public static final String WEB_RESOURCE_REQUEST_IS_REDIRECT = "WEB_RESOURCE_REQUEST_IS_REDIRECT";

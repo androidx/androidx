@@ -1086,14 +1086,14 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link SharedArrayBuffer#allocate(String, long)},
+     * {@link SharedArrayBuffer#allocate(String, int)},
      * {@link WebMessageCompat#WebMessageCompat(SharedArrayBuffer)},
      * {@link WebMessageCompat#WebMessageCompat(SharedArrayBuffer, WebMessagePortCompat[])},
      * {@link WebMessageCompat#getSharedArrayBuffer()},
-     * {@link SharedArrayBuffer#mapAndCreateByteBuffer()} and
-     * {@link SharedArrayBuffer#getSize()}.
+     * {@link SharedArrayBuffer#mapAndCreateByteBuffer()},
+     * {@link SharedArrayBuffer#getSize()},
+     * {@link JavaScriptReplyProxy#postMessage(SharedArrayBuffer)}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String WEB_MESSAGE_SHARED_ARRAY_BUFFER =
             "WEB_MESSAGE_SHARED_ARRAY_BUFFER";
 

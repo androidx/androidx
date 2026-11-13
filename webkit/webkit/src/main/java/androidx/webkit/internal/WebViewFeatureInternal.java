@@ -1175,7 +1175,7 @@ public class WebViewFeatureInternal {
     /**
      * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
      * This feature covers
-     * {@link SharedArrayBuffer#allocate(String, long)}
+     * {@link SharedArrayBuffer#allocate(String, int)}
      * {@link WebMessageCompat#getSharedArrayBuffer()}
      * {@link SharedArrayBuffer#mapAndCreateByteBuffer()}
      * {@link SharedArrayBuffer#getSize()}

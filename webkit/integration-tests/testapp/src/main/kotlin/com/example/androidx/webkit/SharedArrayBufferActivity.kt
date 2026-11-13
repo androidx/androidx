@@ -164,6 +164,6 @@ class SharedArrayBufferActivity : AppCompatActivity() {
         const val BUFFER_NAME = "androidx-webkit-demo"
 
         /** Enough room for the two `Int32` values the demo shares. */
-        const val BUFFER_SIZE = 8L
+        const val BUFFER_SIZE = 8
     }
 }
