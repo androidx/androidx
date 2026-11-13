@@ -409,8 +409,8 @@ internal abstract class BasePreparedStatementCache(
     protected class CachedStatement(val delegate: SQLiteStatement) : SQLiteStatement by delegate {
         override fun close() {
             // Reset the statement so that it can be reused from the cache
-            delegate.reset()
             delegate.clearBindings()
+            delegate.reset()
         }
     }
 }
