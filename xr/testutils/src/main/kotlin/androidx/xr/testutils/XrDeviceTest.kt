@@ -21,6 +21,7 @@ import androidx.test.filters.CustomFilter
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.xr.runtime.RequiresSpatialApi
 import androidx.xr.runtime.SpatialApiVersionHelper
+import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.runtime.manifest.FEATURE_XR_API_SPATIAL
 import org.junit.runner.Description
 
@@ -29,8 +30,9 @@ import org.junit.runner.Description
  *
  * May be placed on a test method or on a test class. An annotation on the method fully replaces the
  * one on the class (the [include] and [exclude] arrays are not merged). [RequiresSpatialApi] is
- * resolved the same way, independently of this annotation. Annotations on superclasses are not
- * inherited.
+ * resolved the same way, independently of this annotation, and defaults to
+ * [SpatialApiVersions.SPATIAL_API_V2] when absent from both the method and the class. Annotations
+ * on superclasses are not inherited.
  */
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
@@ -50,9 +52,15 @@ enum class XrDeviceConfig(val predicate: () -> Boolean) {
  *
  * Both annotations may be placed on the test method or on the test class. Each annotation is
  * resolved independently: an annotation on the method overrides the same annotation on the class,
- * and an annotation that is absent from the method is taken from the class.
+ * and an annotation that is absent from the method is taken from the class. When neither the method
+ * nor the class is annotated with [RequiresSpatialApi], [SpatialApiVersions.SPATIAL_API_V2] is used
+ * as the default minimum Spatial API version; annotate with
+ * `@RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V1)` when a test must also run on V1 devices.
  */
-class XrDeviceFilter : AbstractFilter() {
+class XrDeviceFilter internal constructor(private val spatialApiVersionProvider: () -> Int) :
+    AbstractFilter() {
+
+    constructor() : this({ SpatialApiVersionHelper.spatialApiVersion })
 
     override fun evaluateTest(description: Description): Boolean {
         if (!isXrDevice()) {
@@ -60,11 +68,10 @@ class XrDeviceFilter : AbstractFilter() {
         }
 
         val annotationValue = description.findAnnotation<XrDeviceTest>() ?: return true
-        val requiresSpatialApi = description.findAnnotation<RequiresSpatialApi>()
-        if (
-            requiresSpatialApi != null &&
-                SpatialApiVersionHelper.spatialApiVersion < requiresSpatialApi.value
-        ) {
+        val minSpatialApiVersion =
+            description.findAnnotation<RequiresSpatialApi>()?.value
+                ?: SpatialApiVersions.SPATIAL_API_V2
+        if (spatialApiVersionProvider() < minSpatialApiVersion) {
             return false
         }
 

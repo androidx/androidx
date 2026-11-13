@@ -33,6 +33,8 @@ class XrDeviceFilterTest {
     private class SampleTestClass {
         @XrDeviceTest @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V1) fun baselineMethod() {}
 
+        @XrDeviceTest fun defaultMinSpatialApiMethod() {}
+
         @SuppressLint("WrongConstant")
         @XrDeviceTest
         @RequiresSpatialApi(FUTURE_SPATIAL_API_VERSION)
@@ -47,6 +49,12 @@ class XrDeviceFilterTest {
         @XrDeviceTest(exclude = [XrDeviceConfig.PHYSICAL_DEVICE])
         fun excludePhysicalDeviceMethod() {}
 
+        fun unannotatedMethod() {}
+    }
+
+    @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V1)
+    private class V1XrDeviceTestClass {
         fun unannotatedMethod() {}
     }
 
@@ -128,6 +136,35 @@ class XrDeviceFilterTest {
     fun evaluateTest_passesWhenDeviceMeetsMinSpatialApiVersion() {
         val desc = createDescription("baselineMethod")
         assertTrue(filter.shouldRun(desc))
+    }
+
+    @Test
+    @XrDeviceTest
+    fun evaluateTest_defaultsToSpatialApiV2WhenRequiresSpatialApiIsAbsent() {
+        val v1Filter = XrDeviceFilter { SpatialApiVersions.SPATIAL_API_V1 }
+        val v2Filter = XrDeviceFilter { SpatialApiVersions.SPATIAL_API_V2 }
+        val methodDesc = createDescription("defaultMinSpatialApiMethod")
+        val classDesc = createDescription("unannotatedMethod", PlainXrDeviceTestClass::class.java)
+
+        assertFalse(v1Filter.shouldRun(methodDesc))
+        assertFalse(v1Filter.shouldRun(classDesc))
+        assertTrue(v2Filter.shouldRun(methodDesc))
+        assertTrue(v2Filter.shouldRun(classDesc))
+    }
+
+    @Test
+    @XrDeviceTest
+    fun evaluateTest_explicitSpatialApiV1RunsOnV1Device() {
+        val v1Filter = XrDeviceFilter { SpatialApiVersions.SPATIAL_API_V1 }
+        val methodLevelV1Desc = createDescription("baselineMethod")
+        val classLevelV1Desc =
+            createDescription("unannotatedMethod", V1XrDeviceTestClass::class.java)
+        val methodOverridesClassDefaultDesc =
+            createDescription("baselineMethod", PlainXrDeviceTestClass::class.java)
+
+        assertTrue(v1Filter.shouldRun(methodLevelV1Desc))
+        assertTrue(v1Filter.shouldRun(classLevelV1Desc))
+        assertTrue(v1Filter.shouldRun(methodOverridesClassDefaultDesc))
     }
 
     @Test
