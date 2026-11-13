@@ -17,7 +17,6 @@
 package androidx.ink.strokes
 
 import androidx.annotation.IntRange
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.ink.brush.ExperimentalInkBarrelTwistApi
 import androidx.ink.brush.InputToolType
@@ -137,15 +136,12 @@ public class StrokeInput {
      * [NO_BARREL_TWIST] indicates that barrel twist is not reported, which can be checked with
      * [hasBarrelTwist].
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-    @ExperimentalInkBarrelTwistApi
-    public fun getBarrelTwistRadians(): Float = _barrelTwistRadians
+    @ExperimentalInkBarrelTwistApi public fun getBarrelTwistRadians(): Float = _barrelTwistRadians
 
     /**
      * Whether the barrel twist value returned by [getBarrelTwistRadians] is a valid barrel twist
      * value.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkBarrelTwistApi
     public fun hasBarrelTwist(): Boolean = _barrelTwistRadians != NO_BARREL_TWIST
 
@@ -235,7 +231,6 @@ public class StrokeInput {
      *   axis (when looking down the stylus from its top towards its tip). Absence of
      *   [barrelTwistRadians] data is represented with [NO_BARREL_TWIST].
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkBarrelTwistApi
     @Suppress("MissingJvmstatic") // @JvmOverloads is on the non-experimental overload
     public fun update(
@@ -329,9 +324,7 @@ public class StrokeInput {
         public const val NO_PRESSURE: Float = -1f
         public const val NO_TILT: Float = -1f
         public const val NO_ORIENTATION: Float = -1f
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-        @ExperimentalInkBarrelTwistApi
-        public const val NO_BARREL_TWIST: Float = -1f
+        @ExperimentalInkBarrelTwistApi public const val NO_BARREL_TWIST: Float = -1f
 
         /**
          * Allocate and return a new [StrokeInput]. Only intended for test code - real code should
@@ -368,7 +361,6 @@ public class StrokeInput {
          * use a recycling pattern to avoid allocating during latency-sensitive real-time input,
          * using [update] on an instance allocated with the zero-argument constructor.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
         @ExperimentalInkBarrelTwistApi
         @VisibleForTesting
         @JvmStatic
