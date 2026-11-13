@@ -18,6 +18,7 @@ package androidx.camera.integration.core
 import android.Manifest
 import android.content.ContentValues
 import android.content.Context
+import android.graphics.BitmapFactory
 import android.graphics.ImageFormat
 import android.graphics.Rect
 import android.hardware.camera2.CameraCaptureSession
@@ -37,6 +38,7 @@ import android.util.Size
 import android.view.Surface
 import androidx.annotation.MainThread
 import androidx.annotation.OptIn
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.core.AspectRatio
@@ -99,7 +101,9 @@ import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.InputStream
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
@@ -573,6 +577,45 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
         // Check gainmap is existed.
         assertImageFileIsUltraHdr(saveLocation.absolutePath)
+        assertStreamHasGainmap(FileInputStream(saveLocation))
+    }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    fun canSaveToFileWithCrop_hasGainmap_whenOutputFormatIsUltraHdr(): Unit = runBlocking {
+        // Emulator has issue on checking gainmap for saved to file.
+        assumeFalse(isEmulator())
+
+        val cameraSelector = BACK_SELECTOR
+        assumeUltraHdrSupported(cameraSelector)
+
+        // Arrange.
+        val useCase = ImageCapture.Builder().setOutputFormat(OUTPUT_FORMAT_JPEG_ULTRA_HDR).build()
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, useCase)
+        }
+        val resolution = useCase.resolutionInfo!!.resolution
+        val cropAspectRatio =
+            if (
+                resolution.width * 4 == resolution.height * 5 ||
+                    resolution.height * 4 == resolution.width * 5
+            ) {
+                Rational(7, 5)
+            } else {
+                Rational(5, 4)
+            }
+        useCase.setCropAspectRatio(cropAspectRatio)
+
+        // Act.
+        val saveLocation = temporaryFolder.newFile("test_cropped_ultrahdr.jpg")
+        val outputFileOptions = ImageCapture.OutputFileOptions.Builder(saveLocation).build()
+        val callback = FakeImageSavedCallback(capturesCount = 1)
+        useCase.takePicture(outputFileOptions, mainExecutor, callback)
+
+        // Assert.
+        callback.awaitCapturesAndAssert(savedImagesCount = 1)
+        assertImageFileIsUltraHdr(saveLocation.absolutePath)
+        assertStreamHasGainmap(FileInputStream(saveLocation))
     }
 
     @Test
@@ -626,8 +669,20 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         val saveLocationUri = callback.results.first().savedUri
         assertThat(saveLocationUri).isNotNull()
 
-        // Clean up.
-        context.contentResolver.delete(saveLocationUri!!, null, null)
+        try {
+            if (
+                outputFormat == OUTPUT_FORMAT_JPEG_ULTRA_HDR &&
+                    Build.VERSION.SDK_INT >= 34 &&
+                    !isEmulator()
+            ) {
+                assertStreamHasGainmap(
+                    checkNotNull(context.contentResolver.openInputStream(saveLocationUri!!))
+                )
+            }
+        } finally {
+            // Clean up.
+            context.contentResolver.delete(saveLocationUri!!, null, null)
+        }
     }
 
     @Test
@@ -673,6 +728,28 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
             // Assert: Wait for the signal that the image has been saved.
             callback.awaitCapturesAndAssert(savedImagesCount = 1)
+        }
+
+        if (
+            outputFormat == OUTPUT_FORMAT_JPEG_ULTRA_HDR &&
+                Build.VERSION.SDK_INT >= 34 &&
+                !isEmulator()
+        ) {
+            assertImageFileIsUltraHdr(saveLocation.absolutePath)
+            assertStreamHasGainmap(FileInputStream(saveLocation))
+        }
+    }
+
+    @RequiresApi(34)
+    private fun assertStreamHasGainmap(inputStream: InputStream) {
+        inputStream.use { stream ->
+            val bitmap = BitmapFactory.decodeStream(stream)
+            assertThat(bitmap).isNotNull()
+            try {
+                assertThat(bitmap!!.hasGainmap()).isTrue()
+            } finally {
+                bitmap?.recycle()
+            }
         }
     }
 
