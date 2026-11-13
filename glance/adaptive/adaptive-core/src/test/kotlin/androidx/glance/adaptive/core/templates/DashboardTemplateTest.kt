@@ -16,7 +16,8 @@
 
 package androidx.glance.adaptive.core.templates
 
-import androidx.glance.adaptive.core.action.GlanceWidgetAction
+import android.net.Uri
+import androidx.glance.adaptive.core.action.GlanceAdaptiveAction
 import androidx.glance.adaptive.core.slots.Icon
 import androidx.glance.adaptive.core.slots.IconButton
 import androidx.glance.adaptive.core.slots.IconTile
@@ -24,7 +25,12 @@ import androidx.glance.adaptive.core.slots.TemplateText
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@Config(sdk = [Config.TARGET_SDK])
+@RunWith(RobolectricTestRunner::class)
 class DashboardTemplateTest {
 
     @Test
@@ -201,13 +207,14 @@ class DashboardTemplateTest {
     private companion object {
         const val GLYPH = 1
         const val OTHER_GLYPH = 2
-        val LOG = GlanceWidgetAction.LaunchDeeplink("app://log")
-        val RUN = IconTile(GLYPH, "Run", GlanceWidgetAction.LaunchDeeplink("app://run"))
+        val LOG = GlanceAdaptiveAction.DeeplinkAction(Uri.parse("app://log"))
+        val RUN_ACTION = GlanceAdaptiveAction.DeeplinkAction(Uri.parse("app://run"))
+        val RUN = IconTile(GLYPH, "Run", RUN_ACTION)
         val WALK =
             IconTile(
                 GLYPH,
                 "Walk",
-                GlanceWidgetAction.LaunchDeeplink("app://walk"),
+                GlanceAdaptiveAction.DeeplinkAction(Uri.parse("app://walk")),
                 subtitle = TemplateText("Yesterday"),
             )
     }

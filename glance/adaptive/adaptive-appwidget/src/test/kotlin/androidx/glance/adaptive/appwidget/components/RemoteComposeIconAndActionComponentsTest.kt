@@ -17,6 +17,7 @@
 package androidx.glance.adaptive.appwidget.components
 
 import android.content.Context
+import android.net.Uri
 import android.os.Bundle
 import androidx.compose.remote.core.operations.layout.modifiers.HostActionOperation
 import androidx.compose.remote.core.semantics.AccessibleComponent
@@ -25,8 +26,8 @@ import androidx.compose.ui.unit.dp
 import androidx.glance.adaptive.appwidget.components.icon.Content
 import androidx.glance.adaptive.appwidget.components.icon.IconDefaults
 import androidx.glance.adaptive.appwidget.components.iconbutton.Content
+import androidx.glance.adaptive.core.action.GlanceAdaptiveAction
 import androidx.glance.adaptive.core.action.GlanceAdaptiveActionCallback
-import androidx.glance.adaptive.core.action.GlanceWidgetAction
 import androidx.glance.adaptive.core.slots.Icon
 import androidx.glance.adaptive.core.slots.IconButton
 import androidx.test.core.app.ApplicationProvider
@@ -82,7 +83,7 @@ class RemoteComposeIconAndActionComponentsTest {
 
     @Test
     fun iconButton_circleAndPillShapes_handleDeeplinkNamedCallbackAndInertCallback() = runTest {
-        val deeplink = GlanceWidgetAction.LaunchDeeplink("app://lights")
+        val deeplink = GlanceAdaptiveAction.DeeplinkAction(Uri.parse("app://lights"))
         val circle =
             captureAndRender(context, widthDp = 64, heightDp = 64) {
                 IconButton(
@@ -109,7 +110,7 @@ class RemoteComposeIconAndActionComponentsTest {
             .isEqualTo("Lights")
         assertThat(tappableSemantics.role).isEqualTo(AccessibleComponent.Role.BUTTON)
 
-        val callback = GlanceWidgetAction.Callback(NoOpCallback::class.java)
+        val callback = GlanceAdaptiveAction.CallbackAction<NoOpCallback>()
         val unnamedCallback =
             captureAndRender(context, widthDp = 72, heightDp = 64) {
                 IconButton(
