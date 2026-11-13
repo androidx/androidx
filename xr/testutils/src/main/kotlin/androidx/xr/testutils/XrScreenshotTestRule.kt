@@ -23,6 +23,7 @@ import androidx.test.screenshot.ScreenshotTestRule
 import androidx.test.screenshot.ScreenshotTestRuleConfig
 import androidx.test.screenshot.matchers.BitmapMatcher
 import androidx.test.screenshot.matchers.PixelPerfectMatcher
+import androidx.xr.testutils.runtime.cpm.executeSceneShellCommand
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
