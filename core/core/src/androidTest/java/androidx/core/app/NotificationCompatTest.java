@@ -3666,14 +3666,57 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertEquals(Arrays.asList(action1, action2, action3), projectedExtender.getActions());
 
         projectedExtender.clearActions();
+        assertFalse(projectedExtender.shouldUseExtenderActions());
+        assertTrue(projectedExtender.getActions().isEmpty());
+
+        projectedExtender.addActions(Collections.emptyList());
         assertTrue(projectedExtender.shouldUseExtenderActions());
+        assertTrue(projectedExtender.getActions().isEmpty());
+
+        projectedExtender.clearActions();
+        assertFalse(projectedExtender.shouldUseExtenderActions());
         assertTrue(projectedExtender.getActions().isEmpty());
     }
 
     @Test
     public void projectedExtenderClearActionsFromNotification() {
+        NotificationCompat.Action action =
+                new NotificationCompat.Action.Builder(0, "Action", createIntent("action"))
+                        .build();
         NotificationCompat.ProjectedExtender projectedExtender =
-                new NotificationCompat.ProjectedExtender().clearActions();
+                new NotificationCompat.ProjectedExtender()
+                        .addAction(action)
+                        .clearActions();
+        Notification notification =
+                new NotificationCompat.Builder(mContext, "test channel")
+                        .setSmallIcon(0)
+                        .setContentTitle("title")
+                        .setContentText("text")
+                        .extend(projectedExtender)
+                        .build();
+
+        Bundle projectedExtensions =
+                notification.extras.getBundle(
+                        NotificationCompat.ProjectedExtender.EXTRA_PROJECTED_EXTENDER);
+        assertNotNull(projectedExtensions);
+        assertFalse(
+                projectedExtensions.containsKey(
+                        NotificationCompat.ProjectedExtender.KEY_SHOULD_USE_EXTENDER_ACTIONS));
+        assertFalse(
+                projectedExtensions.containsKey(
+                        NotificationCompat.ProjectedExtender.KEY_ACTIONS));
+        assertTrue(projectedExtensions.isEmpty());
+
+        NotificationCompat.ProjectedExtender recoveredExtender =
+                new NotificationCompat.ProjectedExtender(notification);
+        assertFalse(recoveredExtender.shouldUseExtenderActions());
+        assertTrue(recoveredExtender.getActions().isEmpty());
+    }
+
+    @Test
+    public void projectedExtenderEmptyAddActionsFromNotification() {
+        NotificationCompat.ProjectedExtender projectedExtender =
+                new NotificationCompat.ProjectedExtender().addActions(Collections.emptyList());
         Notification notification =
                 new NotificationCompat.Builder(mContext, "test channel")
                         .setSmallIcon(0)

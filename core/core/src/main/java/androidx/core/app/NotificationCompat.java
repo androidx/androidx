@@ -10536,7 +10536,7 @@ public class NotificationCompat {
          * <p>When projected actions are added using this method, they are displayed instead of the
          * main notification actions (added via {@link NotificationCompat.Builder#addAction}) when
          * the notification is presented on a projected device. If no projected actions are set
-         * (and {@link #clearActions()} is not called), the projected device may display compatible
+         * (or after {@link #clearActions()} is called), the projected device may display compatible
          * actions from the main notification by default.
          *
          * @param action The action to add.
@@ -10555,8 +10555,16 @@ public class NotificationCompat {
          * <p>When projected actions are added using this method, they are displayed instead of the
          * main notification actions (added via {@link NotificationCompat.Builder#addAction}) when
          * the notification is presented on a projected device. If no projected actions are set
-         * (and {@link #clearActions()} is not called), the projected device may display compatible
+         * (or after {@link #clearActions()} is called), the projected device may display compatible
          * actions from the main notification by default.
+         *
+         * <p>Passing an empty list marks {@link #shouldUseExtenderActions()} as {@code true}
+         * without adding any actions. On an extender with no previously added actions, this
+         * prevents any actions from being displayed on a projected device. Because this method
+         * appends to existing projected actions, if actions were previously added, call
+         * {@code clearActions().addActions(Collections.emptyList())} to display no actions
+         * (calling {@link #clearActions()} alone reverts to displaying compatible actions from
+         * the main notification).
          *
          * @param actions The list of actions to add.
          * @return This {@code ProjectedExtender} object for chaining.
@@ -10569,34 +10577,38 @@ public class NotificationCompat {
         }
 
         /**
-         * Clear all projected actions from this extender.
+         * Clear all projected actions from this extender and reset
+         * {@link #shouldUseExtenderActions()} to {@code false}.
          *
-         * <p>Calling this method sets the projected actions to an empty list and marks
-         * {@link #shouldUseExtenderActions()} as {@code true}, which prevents the projected device
-         * from using the main notification actions so that no actions are displayed on a projected
-         * device.
+         * <p>Calling this method reverts the extender to its default state so the projected device
+         * may display compatible actions from the main notification (matching
+         * {@link WearableExtender#clearActions()}). To explicitly display no actions on a projected
+         * device, call {@link #addActions(List)} with an empty list (or
+         * {@code clearActions().addActions(Collections.emptyList())} if projected actions were
+         * previously added).
          *
          * @return This {@code ProjectedExtender} object for chaining.
          * @see #addAction
+         * @see #addActions
          * @see #shouldUseExtenderActions
          */
         public @NonNull ProjectedExtender clearActions() {
-            mShouldUseExtenderActions = true;
+            mShouldUseExtenderActions = false;
             mActions.clear();
             return this;
         }
 
         /**
          * Returns whether the notifications shown on the projected device should use the actions
-         * from this extender (configured via {@link #addAction}, {@link #addActions}, or
-         * {@link #clearActions}) instead of the main notification actions.
+         * from this extender (configured via {@link #addAction} or {@link #addActions}) instead of
+         * the main notification actions.
          *
-         * <p>If this returns {@code false} (the default), no projected actions have been configured
-         * and the projected device may display compatible actions from the main notification by
-         * default. If this returns {@code true}, the projected device should display the actions
-         * returned by {@link #getActions()} instead of the main notification actions (or display no
-         * actions if {@link #getActions()} is empty, such as after calling
-         * {@link #clearActions()}).
+         * <p>If this returns {@code false} (the default, or after calling {@link #clearActions()}),
+         * no projected actions have been configured and the projected device may display compatible
+         * actions from the main notification by default. If this returns {@code true}, the
+         * projected device should display the actions returned by {@link #getActions()} instead of
+         * the main notification actions (or display no actions if {@link #getActions()} is empty,
+         * such as after calling {@link #addActions(List)} with an empty list).
          *
          * @return {@code true} if the extender's actions should be used instead of the main
          *         notification actions, {@code false} otherwise.
@@ -10608,10 +10620,11 @@ public class NotificationCompat {
         /**
          * Get the projected actions present on this notification.
          *
-         * <p>If {@link #shouldUseExtenderActions()} returns {@code false}, this returns an empty
-         * list and the projected device may display compatible actions from the main notification
-         * by default. If {@link #shouldUseExtenderActions()} returns {@code true} and this returns
-         * an empty list (for example, after calling {@link #clearActions()}), no actions are
+         * <p>If {@link #shouldUseExtenderActions()} returns {@code false} (the default, or after
+         * calling {@link #clearActions()}), this returns an empty list and the projected device may
+         * display compatible actions from the main notification by default. If
+         * {@link #shouldUseExtenderActions()} returns {@code true} and this returns an empty list
+         * (for example, after calling {@link #addActions(List)} with an empty list), no actions are
          * displayed on the projected device.
          *
          * @return List of projected actions, or an empty list if none are present.
