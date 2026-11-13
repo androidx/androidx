@@ -128,10 +128,16 @@ private suspend fun Scene.requestSpaceModeAndAwait(fullSpace: Boolean) {
 
 internal fun assertPose(actual: Pose, expected: Pose, epsilon: Float = 1e-5f) {
     assertVector3(actual.translation, expected.translation, epsilon)
-    assertThat(actual.rotation.x).isWithin(epsilon).of(expected.rotation.x)
-    assertThat(actual.rotation.y).isWithin(epsilon).of(expected.rotation.y)
-    assertThat(actual.rotation.z).isWithin(epsilon).of(expected.rotation.z)
-    assertThat(actual.rotation.w).isWithin(epsilon).of(expected.rotation.w)
+    val dot =
+        actual.rotation.x * expected.rotation.x +
+            actual.rotation.y * expected.rotation.y +
+            actual.rotation.z * expected.rotation.z +
+            actual.rotation.w * expected.rotation.w
+    val sign = if (dot < 0f) -1f else 1f
+    assertThat(actual.rotation.x * sign).isWithin(epsilon).of(expected.rotation.x)
+    assertThat(actual.rotation.y * sign).isWithin(epsilon).of(expected.rotation.y)
+    assertThat(actual.rotation.z * sign).isWithin(epsilon).of(expected.rotation.z)
+    assertThat(actual.rotation.w * sign).isWithin(epsilon).of(expected.rotation.w)
 }
 
 internal fun assertVector3(actual: Vector3, expected: Vector3, epsilon: Float = 1e-5f) {
