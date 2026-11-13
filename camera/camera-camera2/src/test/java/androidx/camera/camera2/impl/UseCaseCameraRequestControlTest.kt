@@ -26,14 +26,17 @@ import androidx.camera.camera2.adapter.CameraSessionLifecycleAdapter
 import androidx.camera.camera2.adapter.CameraStateAdapter
 import androidx.camera.camera2.adapter.GraphStateToCameraStateAdapter
 import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.compat.Camera2CameraControlCompatImpl
 import androidx.camera.camera2.compat.workaround.NoOpAutoFlashAEModeDisabler
 import androidx.camera.camera2.compat.workaround.NoOpTemplateParamsOverride
 import androidx.camera.camera2.config.UseCaseCameraContext
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.interop.setCamera2CaptureRequestConfigurator
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.METERING_REGIONS_DEFAULT
+import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.ControlMode
 import androidx.camera.camera2.pipe.FlashMode
 import androidx.camera.camera2.pipe.FrameInfo
@@ -45,6 +48,7 @@ import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
+import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.testing.FakeCameraGraph
 import androidx.camera.camera2.testing.FakeCameraGraphSession
@@ -455,6 +459,97 @@ class UseCaseCameraRequestControlTest {
                 "interop_future_listener",
             )
             .inOrder()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @androidx.annotation.OptIn(ExperimentalCamera2Interop::class)
+    @Test
+    fun camera2CameraControlCompat_onlyDispatchesFirstMatchingCompletion(): Unit = runTest {
+        // Arrange: Count drain tasks posted by the sequential executor. Each frame below is drained
+        // before the next, so every sequentialExecutor.execute() call posts exactly one task.
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        var sequentialDispatchCount = 0
+        val countingExecutor = Executor { runnable ->
+            sequentialDispatchCount++
+            testDispatcher.asExecutor().execute(runnable)
+        }
+        val testThreads =
+            UseCaseThreads(this, countingExecutor, testDispatcher).apply {
+                sequentialScope = this@runTest
+            }
+        val localRequestControl =
+            UseCaseCameraRequestControlImpl(
+                capturePipelineProvider = { FakeCapturePipeline() },
+                useCaseCameraStateProvider = { fakeUseCaseCameraState },
+                useCaseCameraContext = fakeUseCaseCameraContext,
+                useCaseSurfaceManagerProvider = {
+                    FakeUseCaseSurfaceManager(threads = testThreads)
+                },
+                threads = testThreads,
+            )
+        val compat = Camera2CameraControlCompatImpl()
+        localRequestControl.setSessionConfigAsync(
+            SessionConfig.Builder()
+                .apply {
+                    setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                    addSurface(surface)
+                }
+                .build()
+        )
+        val interopSignal = compat.applyAsync(localRequestControl, cancelPreviousTask = true)
+        advanceUntilIdle()
+
+        val repeatingRequest = fakeCameraGraph.fakeCameraGraphSession.repeatingRequests.last()
+        val matchingMetadata = FakeRequestMetadata(request = repeatingRequest, repeating = true)
+        val otherMetadata = FakeRequestMetadata(repeating = true)
+        val frameNumber = CameraFrameNumber(1L)
+        val frameInfo = FakeFrameInfo(requestMetadata = matchingMetadata)
+        fun fireFrame(block: Request.Listener.() -> Unit) {
+            repeatingRequest.listeners.forEach(block)
+            advanceUntilIdle()
+        }
+        sequentialDispatchCount = 0
+
+        // Act & Assert: Non-completion callbacks never post to the sequential executor.
+        fireFrame {
+            onRequestSequenceCreated(matchingMetadata)
+            onRequestSequenceSubmitted(matchingMetadata)
+            onStarted(matchingMetadata, frameNumber, CameraTimestamp(1L))
+            onPartialCaptureResult(matchingMetadata, frameNumber, FakeFrameMetadata())
+            onTotalCaptureResult(matchingMetadata, frameNumber, frameInfo)
+            onRequestSequenceCompleted(matchingMetadata, frameNumber)
+        }
+        assertThat(sequentialDispatchCount).isEqualTo(0)
+
+        // A completed frame without the interop tag is filtered on the camera callback thread.
+        fireFrame { onComplete(otherMetadata, frameNumber, frameInfo) }
+        assertThat(sequentialDispatchCount).isEqualTo(0)
+        assertThat(interopSignal.isCompleted).isFalse()
+
+        // The first frame carrying the interop tag dispatches once and completes the signal.
+        fireFrame { onComplete(matchingMetadata, frameNumber, frameInfo) }
+        assertThat(sequentialDispatchCount).isEqualTo(1)
+        assertThat(interopSignal.isCompleted).isTrue()
+        assertThat(interopSignal.getCompletionExceptionOrNull()).isNull()
+
+        // Later repeating frames still carry the same tag but no longer post any task.
+        repeat(3) { fireFrame { onComplete(matchingMetadata, frameNumber, frameInfo) } }
+        assertThat(sequentialDispatchCount).isEqualTo(1)
+    }
+
+    @Test
+    fun extractListeners_withoutRepeatingCallbacks_returnsEmptySet() {
+        val executor = Executor { it.run() }
+        val emptySessionConfig = SessionConfig.Builder().build()
+        val sessionConfigWithCallback =
+            SessionConfig.Builder()
+                .apply { addRepeatingCameraCaptureCallback(object : CameraCaptureCallback() {}) }
+                .build()
+
+        with(UseCaseCameraRequestControlImpl) {
+            assertThat(emptySessionConfig.extractListeners(executor)).isEmpty()
+            assertThat(sessionConfigWithCallback.extractListeners(executor)).hasSize(1)
+        }
     }
 
     @Test

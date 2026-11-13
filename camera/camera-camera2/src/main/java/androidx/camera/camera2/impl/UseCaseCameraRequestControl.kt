@@ -29,12 +29,15 @@ import androidx.camera.camera2.interop.configureWithUnchecked
 import androidx.camera.camera2.interop.getCamera2CaptureRequestConfigurator
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -201,8 +204,9 @@ public interface UseCaseCameraRequestControl {
      *
      * @param config The new configuration values to apply.
      * @param tags Optional tags to append to the repeating request.
-     * @param listeners Optional [Request.Listener]s to attach to the repeating request, dispatched
-     *   on the sequential executor after session capture callbacks.
+     * @param listeners Optional request completion [Request.Listener]s to attach to the repeating
+     *   request. Only [Request.Listener.onComplete] is forwarded, on the sequential executor after
+     *   session capture callbacks; see [FilteredRequestCompletionListener] to skip idle frames.
      * @return A [Deferred] representing the asynchronous update operation.
      */
     @AnyThread
@@ -577,9 +581,12 @@ constructor(
                 // Append request completion listeners after session capture callbacks so all
                 // repeating capture callbacks run or enqueue before interop future completion.
                 if (listeners.isNotEmpty()) {
-                    val comboListener = ComboRequestListener()
-                    listeners.forEach { comboListener.addListener(it, threads.sequentialExecutor) }
-                    mergedListeners.add(comboListener)
+                    mergedListeners.add(
+                        SequentialCompletionListener(
+                            listeners.toTypedArray(),
+                            threads.sequentialExecutor,
+                        )
+                    )
                 }
 
                 val template =
@@ -1012,9 +1019,13 @@ constructor(
         public fun SessionConfig.extractListeners(
             callbackExecutor: Executor
         ): MutableSet<Request.Listener> =
-            mutableSetOf(
-                CameraCallbackMap.createFor(repeatingCameraCaptureCallbacks, callbackExecutor)
-            )
+            if (repeatingCameraCaptureCallbacks.isEmpty()) {
+                mutableSetOf()
+            } else {
+                mutableSetOf(
+                    CameraCallbackMap.createFor(repeatingCameraCaptureCallbacks, callbackExecutor)
+                )
+            }
 
         public fun SessionConfig.extractTemplate(): RequestTemplate = RequestTemplate(templateType)
 
@@ -1039,3 +1050,41 @@ public fun TagBundle.toMap(): Map<String, Any> =
     mutableMapOf<String, Any>().also {
         listKeys().forEach { tagKey -> it[tagKey] = getTag(tagKey) as Any }
     }
+
+/**
+ * A request completion listener passed to [UseCaseCameraRequestControl.updateCamera2ConfigAsync]
+ * that can skip frames it does not care about before a task is dispatched for them.
+ */
+internal interface FilteredRequestCompletionListener : Request.Listener {
+    /**
+     * Invoked inline on the camera callback thread for every completed repeating frame, so it must
+     * be cheap and thread-safe. Returning `false` skips dispatching [onComplete] for the frame.
+     */
+    fun shouldDispatchOnComplete(requestMetadata: RequestMetadata): Boolean
+}
+
+/**
+ * Forwards only [Request.Listener.onComplete] to [listeners] on [executor], skipping any
+ * [FilteredRequestCompletionListener] that rejects the frame. Other callbacks are ignored so that
+ * idle repeating frames do not post tasks to [executor].
+ */
+private class SequentialCompletionListener(
+    private val listeners: Array<Request.Listener>,
+    private val executor: Executor,
+) : Request.Listener {
+    override fun onComplete(
+        requestMetadata: RequestMetadata,
+        frameNumber: CameraFrameNumber,
+        result: FrameInfo,
+    ) {
+        for (listener in listeners) {
+            if (
+                listener is FilteredRequestCompletionListener &&
+                    !listener.shouldDispatchOnComplete(requestMetadata)
+            ) {
+                continue
+            }
+            executor.execute { listener.onComplete(requestMetadata, frameNumber, result) }
+        }
+    }
+}

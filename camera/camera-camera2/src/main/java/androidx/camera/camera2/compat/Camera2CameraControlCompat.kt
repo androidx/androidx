@@ -22,6 +22,7 @@ import androidx.annotation.GuardedBy
 import androidx.camera.camera2.adapter.propagateTo
 import androidx.camera.camera2.config.CameraScope
 import androidx.camera.camera2.impl.Camera2ImplConfig
+import androidx.camera.camera2.impl.FilteredRequestCompletionListener
 import androidx.camera.camera2.impl.UseCaseCameraRequestControl
 import androidx.camera.camera2.impl.containsTag
 import androidx.camera.camera2.interop.CaptureRequestOptions
@@ -71,14 +72,21 @@ public interface Camera2CameraControlCompat : Request.Listener {
 
 @CameraScope
 @ExperimentalCamera2Interop
-public class Camera2CameraControlCompatImpl @Inject constructor() : Camera2CameraControlCompat {
+public class Camera2CameraControlCompatImpl @Inject constructor() :
+    Camera2CameraControlCompat, FilteredRequestCompletionListener {
 
     private val lock = Any()
     private val updateSignalLock = Any()
 
     @GuardedBy("lock") private var configBuilder = Camera2ImplConfig.Builder()
     @GuardedBy("updateSignalLock") private var nextSignalId = 0L
-    @GuardedBy("updateSignalLock") private var updateSignal: SignalWithId? = null
+
+    /**
+     * The in-flight signal awaiting a repeating result tagged with its id. Written only while
+     * holding [updateSignalLock]; [shouldDispatchOnComplete] reads it lock-free on the camera
+     * callback thread, which is safe because it is volatile.
+     */
+    @Volatile private var updateSignal: SignalWithId? = null
     @GuardedBy("updateSignalLock") private var pendingSignal: SignalWithId? = null
 
     override fun addRequestOption(bundle: CaptureRequestOptions) {
@@ -222,6 +230,18 @@ public class Camera2CameraControlCompatImpl @Inject constructor() : Camera2Camer
     private fun CompletableDeferred<Void?>.cancelSignal(
         msg: String = "Camera2CameraControl was updated with new options."
     ) = this.apply { completeExceptionally(CameraControl.OperationCanceledException(msg)) }
+
+    /**
+     * Skips dispatching [onComplete] unless the result carries the tag of the in-flight
+     * [updateSignal], so steady-state repeating frames cost a single volatile read.
+     *
+     * [applyAsync] publishes [updateSignal] before submitting the tagged repeating request, so a
+     * matching result can never observe a stale value.
+     */
+    override fun shouldDispatchOnComplete(requestMetadata: RequestMetadata): Boolean {
+        val id = updateSignal?.id ?: return false
+        return requestMetadata.containsTag(TAG_KEY, id)
+    }
 
     @ExecutedBy("UseCaseThreads")
     override fun onComplete(
