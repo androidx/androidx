@@ -10,3 +10,4 @@ per-file *AndroidXPlaygroundRootPlugin.kt = rahulrav@google.com
 per-file *LintConfiguration.kt = juliamcclellan@google.com
 per-file lint/lint.xml = juliamcclellan@google.com
 per-file *AndroidXComposeLintIssues.kt = anbailey@google.com
+per-file keep-rules-baseline.json = file:/benchmark/OWNERS

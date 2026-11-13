@@ -35,6 +35,8 @@ import androidx.build.ide.ManagedIdeTask
 import androidx.build.kythe.configureProjectForKzipTasks
 import androidx.build.license.addLicensesToPublishedArtifacts
 import androidx.build.lint.ValidateLintChecks
+import androidx.build.optimization.configureKeepRulesAnalysis
+import androidx.build.optimization.configureKeepRulesAnalysisForJar
 import androidx.build.pinneddependencies.configureDependencyExemptionsReport
 import androidx.build.resources.configurePublicResourcesStub
 import androidx.build.sbom.configureSbomPublishing
@@ -738,6 +740,7 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
                 variant.name,
                 variant.artifacts.get(SingleArtifact.AAR),
             )
+            project.configureKeepRulesAnalysis(variant, androidXExtension)
         }
 
         project.disableStrictVersionConstraints()
@@ -1018,13 +1021,16 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
         project.configureProjectForKzipTasks(apiTaskConfig, androidXExtension)
 
         if (project.multiplatformExtension == null) {
-            project.addToBuildOnServer("jar")
+            val jarTask = project.tasks.named("jar", Jar::class.java)
+            project.addToBuildOnServer(jarTask)
+            project.configureKeepRulesAnalysisForJar(jarTask, androidXExtension)
         } else {
             val multiplatformExtension = project.multiplatformExtension!!
             multiplatformExtension.targets.forEach {
                 if (it.platformType == KotlinPlatformType.jvm) {
                     val task = project.tasks.named(it.artifactsTaskName, Jar::class.java)
                     project.addToBuildOnServer(task)
+                    project.configureKeepRulesAnalysisForJar(task, androidXExtension)
                 }
             }
         }

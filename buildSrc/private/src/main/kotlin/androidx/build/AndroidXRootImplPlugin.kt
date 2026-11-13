@@ -27,6 +27,9 @@ import androidx.build.intellij.registerIntelliJTask
 import androidx.build.license.ValidateLicensesExistTask
 import androidx.build.logging.TERMINAL_RED
 import androidx.build.logging.TERMINAL_RESET
+import androidx.build.optimization.KEEP_RULES_ANALYSIS_REPORTS_CATEGORY
+import androidx.build.optimization.KEEP_RULES_BASELINE_RELATIVE_PATH
+import androidx.build.optimization.UpdateKeepRulesBaselineTask
 import androidx.build.pinneddependencies.DEPENDENCY_EXEMPTIONS_REPORTS_CATEGORY
 import androidx.build.pinneddependencies.EXEMPTIONS_FILE_NAME
 import androidx.build.pinneddependencies.UpdateDependencyExemptionsTask
@@ -143,6 +146,16 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
                 artifactCollection.dependencyExemptionsReportsIncoming.map { it.files }
             )
             task.exemptionsFile.set(layout.projectDirectory.file(EXEMPTIONS_FILE_NAME))
+        }
+
+        tasks.register(
+            UpdateKeepRulesBaselineTask.TASK_NAME,
+            UpdateKeepRulesBaselineTask::class.java,
+        ) { task ->
+            task.reportFiles.from(
+                artifactCollection.keepRulesAnalysisReportsIncoming.map { it.files }
+            )
+            task.baselineFile.set(layout.projectDirectory.file(KEEP_RULES_BASELINE_RELATIVE_PATH))
         }
 
         tasks.register(BUILD_ON_SERVER_TASK, BuildOnServerTask::class.java) { task ->
@@ -357,11 +370,17 @@ private fun Project.configureArtifactConfigurations(): RootArtifactCollection {
             "dependencyExemptionsReports",
             DEPENDENCY_EXEMPTIONS_REPORTS_CATEGORY,
         )
+    val keepRulesAnalysisReportsProvider =
+        registerArtifactConfiguration(
+            "keepRulesAnalysisReports",
+            KEEP_RULES_ANALYSIS_REPORTS_CATEGORY,
+        )
 
     subprojects { sub ->
         dependencies.add(releaseProvider.name, dependencies.create(sub))
         dependencies.add(sbomProvider.name, dependencies.create(sub))
         dependencies.add(dependencyExemptionsReportsProvider.name, dependencies.create(sub))
+        dependencies.add(keepRulesAnalysisReportsProvider.name, dependencies.create(sub))
     }
 
     val releaseView = releaseProvider.map { conf ->
@@ -372,6 +391,9 @@ private fun Project.configureArtifactConfigurations(): RootArtifactCollection {
     val dependencyExemptionsReportsView = dependencyExemptionsReportsProvider.map { conf ->
         conf.incoming.artifactView { it.lenient(true) }
     }
+    val keepRulesAnalysisReportsView = keepRulesAnalysisReportsProvider.map { conf ->
+        conf.incoming.artifactView { it.lenient(true) }
+    }
     val releaseFiles = objects.fileCollection().from(releaseView.map { it.files })
 
     return RootArtifactCollection(
@@ -379,6 +401,7 @@ private fun Project.configureArtifactConfigurations(): RootArtifactCollection {
         releaseIncoming = releaseView,
         sbomIncoming = sbomView,
         dependencyExemptionsReportsIncoming = dependencyExemptionsReportsView,
+        keepRulesAnalysisReportsIncoming = keepRulesAnalysisReportsView,
     )
 }
 
@@ -404,6 +427,7 @@ private class RootArtifactCollection(
     val releaseIncoming: Provider<ArtifactView>,
     val sbomIncoming: Provider<ArtifactView>,
     val dependencyExemptionsReportsIncoming: Provider<ArtifactView>,
+    val keepRulesAnalysisReportsIncoming: Provider<ArtifactView>,
 )
 
 /* Computes a map of projectPath to the artifact's path relative to the distDir. */
