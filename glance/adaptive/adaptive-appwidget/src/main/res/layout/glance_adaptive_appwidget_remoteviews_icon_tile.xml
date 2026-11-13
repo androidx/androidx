@@ -15,8 +15,10 @@
   limitations under the License.
   -->
 <!--
-  One cell of an icon grid: a filled tile with its glyph, and its label beneath it when the grid
-  shows labels, centered on it. The cells of a row share its width equally, and the gap after each
+  One cell of an icon grid, as the design draws a dashboard action: a filled tile with its glyph at
+  the top start, and beneath it its label and optional subtitle when the grid shows labels. The
+  label wraps to two lines and the subtitle is drawn at half opacity; the builder trims both to the
+  lines the row has room for. The cells of a row share its width equally, and the gap after each
   but the last is set at runtime on the cell, so the tile inside it keeps the gap clear. The builder
   hides the tile of an empty cell, and sets the click and the content description on the tile,
   giving a click only to a tile with an action.
@@ -35,9 +37,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/glance_adaptive_appwidget_remoteviews_tile_background"
-        android:gravity="center"
+        android:gravity="top|start"
         android:orientation="vertical"
-        android:paddingHorizontal="4dp">
+        android:paddingStart="4dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="8dp">
 
         <ImageView
             android:id="@+id/glance_adaptive_appwidget_remoteviews_icon_tile_glyph"
@@ -46,17 +51,40 @@
             android:adjustViewBounds="true"
             android:importantForAccessibility="no"
             android:scaleType="fitCenter"
-            android:tint="@color/glance_adaptive_appwidget_remoteviews_primary"
+            android:tint="@color/glance_adaptive_appwidget_remoteviews_on_primary_container"
             tools:ignore="UseAppTint" />
 
-        <TextView
-            android:id="@+id/glance_adaptive_appwidget_remoteviews_icon_tile_label"
-            style="@style/GlanceAdaptiveAppwidgetRemoteviews.Text"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/glance_adaptive_appwidget_remoteviews_icon_tile_text"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:importantForAccessibility="no"
-            android:textAppearance="@style/GlanceAdaptiveAppwidgetRemoteviews.TextAppearance.Medium"
-            android:textColor="@color/glance_adaptive_appwidget_remoteviews_primary"
-            android:visibility="gone" />
+            android:layout_marginTop="2dp"
+            android:orientation="vertical"
+            android:paddingHorizontal="4dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/glance_adaptive_appwidget_remoteviews_icon_tile_label"
+                style="@style/GlanceAdaptiveAppwidgetRemoteviews.Text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:importantForAccessibility="no"
+                android:maxLines="2"
+                android:textAppearance="@style/GlanceAdaptiveAppwidgetRemoteviews.TextAppearance.SemiBold"
+                android:textColor="@color/glance_adaptive_appwidget_remoteviews_on_primary_container" />
+
+            <TextView
+                android:id="@+id/glance_adaptive_appwidget_remoteviews_icon_tile_subtitle"
+                style="@style/GlanceAdaptiveAppwidgetRemoteviews.Text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:alpha="0.5"
+                android:gravity="start"
+                android:importantForAccessibility="no"
+                android:textAppearance="@style/GlanceAdaptiveAppwidgetRemoteviews.TextAppearance.SemiBold"
+                android:textColor="@color/glance_adaptive_appwidget_remoteviews_on_primary_container"
+                android:visibility="gone" />
+        </LinearLayout>
     </LinearLayout>
 </FrameLayout>

@@ -40,9 +40,10 @@ internal object IconButtonDefaults {
 
     /**
      * Edge length of the glyph of an icon button in the header's trailing slot, as a fraction of
-     * the button's diameter, which the matrix matches to the leading component.
+     * the button's height, which the matrix matches to the leading component: the design draws a 30
+     * dp glyph in its 56 dp tall pill.
      */
-    const val TrailingGlyphRatio: Float = 0.5f
+    const val TrailingGlyphRatio: Float = 30f / 56f
 
     /**
      * Edge length of the glyph of an icon button that is the whole widget, in a bulb

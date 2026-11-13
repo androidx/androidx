@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2026 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<!--
+  An icon drawn in a filled circle, as the design draws the dashboard header's brand icon. The
+  builder caps the glyph and pads the circle out around it to the size the matrix gives the icon.
+  The glyph uses android:tint, not app:tint: the host inflates a platform ImageView, not AppCompat.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/glance_adaptive_appwidget_remoteviews_icon_container"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/glance_adaptive_appwidget_remoteviews_icon_circle">
+
+    <ImageView
+        android:id="@+id/glance_adaptive_appwidget_remoteviews_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        android:tint="@color/glance_adaptive_appwidget_remoteviews_on_secondary_container"
+        tools:ignore="UseAppTint" />
+</FrameLayout>

@@ -126,7 +126,11 @@ private fun renderMatrix(
     taps: RemoteViewsActions,
 ): RemoteViews =
     when (content) {
-        is MatrixCardContent -> matrixCard(taps, resolve(content, surface))
+        is MatrixCardContent ->
+            matrixCard(
+                taps,
+                resolve(content, surface, taps.context.resources.configuration.fontScale),
+            )
         is MatrixBulbContent -> matrixBulb(taps, resolve(content, surface))
     }
 
@@ -171,7 +175,7 @@ private fun matrixCard(taps: RemoteViewsActions, card: ResolvedMatrixCard): Remo
     val hasActions = actions.isNotEmpty()
     views.setSlot(
         R.id.glance_adaptive_appwidget_remoteviews_slot_hero,
-        hero?.toRemoteViews(taps, card.tiers),
+        hero?.toRemoteViews(taps, card.tiers, card.heroHeight),
         tappable = hero?.isTappable() == true,
     )
     if (hero != null) {
@@ -303,13 +307,18 @@ private fun TrailingComponent.toRemoteViews(taps: RemoteViewsActions, size: Dp):
                 taps,
                 diameter = size,
                 glyphSize = size * IconButtonDefaults.TrailingGlyphRatio,
+                width = size + MatrixDefaults.TrailingExtraWidth,
             )
     }
 
-private fun HeroComponent.toRemoteViews(taps: RemoteViewsActions, tiers: SizeTiers): RemoteViews =
+private fun HeroComponent.toRemoteViews(
+    taps: RemoteViewsActions,
+    tiers: SizeTiers,
+    heroHeight: Dp?,
+): RemoteViews =
     when (this) {
         is Graph -> buildRemoteViews(taps.context, GraphDefaults.barSpacing(tiers))
-        is IconGrid -> buildRemoteViews(taps)
+        is IconGrid -> buildRemoteViews(taps, heroHeight)
     }
 
 private fun ActionComponent.toRemoteViews(taps: RemoteViewsActions): RemoteViews =

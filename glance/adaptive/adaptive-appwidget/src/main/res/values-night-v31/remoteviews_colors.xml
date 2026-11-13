@@ -22,4 +22,12 @@
     <color name="glance_adaptive_appwidget_remoteviews_tertiary">@android:color/system_accent3_200</color>
     <color name="glance_adaptive_appwidget_remoteviews_on_surface_variant">@android:color/system_neutral2_200</color>
     <color name="glance_adaptive_appwidget_remoteviews_widget_background">@android:color/system_accent2_800</color>
+    <!--
+      The Dashboard colors below follow the current M3 container roles (on-container colors at tone
+      30 in light theme), a newer token generation than the colors above, copied from Glance.
+    -->
+    <color name="glance_adaptive_appwidget_remoteviews_primary_container">@android:color/system_accent1_700</color>
+    <color name="glance_adaptive_appwidget_remoteviews_on_primary_container">@android:color/system_accent1_100</color>
+    <color name="glance_adaptive_appwidget_remoteviews_on_secondary_container">@android:color/system_accent2_100</color>
+    <color name="glance_adaptive_appwidget_remoteviews_surface_container_highest">@android:color/system_neutral1_800</color>
 </resources>

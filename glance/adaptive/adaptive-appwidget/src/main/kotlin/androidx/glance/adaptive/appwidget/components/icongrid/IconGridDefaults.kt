@@ -31,18 +31,30 @@ import androidx.glance.adaptive.core.slots.IconGrid
 internal object IconGridDefaults {
 
     /** Gap between the tiles of a grid, across and down. */
-    val Spacing: Dp = 4.dp
+    val Spacing: Dp = 6.dp
 
     /** Edge length of a tile's glyph. */
     val TileGlyphSize: Dp = 30.dp
 
-    /** Type size of a tile's label. */
+    /** Type size of a tile's label and subtitle. */
     val LabelTextSize: TextUnit = 12.sp
 
+    /** Height of a line of a tile's label or subtitle at the default font scale. */
+    val LabelLineHeight: Dp = 16.dp
+
     /**
-     * Height a tile needs to draw its label beneath its glyph: the glyph, a line of the label and
-     * some room around them, on the design's 8 dp grid. A grid whose rows are shorter should not
-     * show labels (see [IconGrid.showLabels]).
+     * Height a tile takes besides its text: its padding (4 dp above, 8 dp below), its glyph and the
+     * 2 dp gap between the glyph and the text.
      */
-    val LabelledTileMinHeight: Dp = 56.dp
+    val TileChromeHeight: Dp = 44.dp
+
+    /** Most lines a tile's label wraps to. */
+    const val MaxLabelLines: Int = 2
+
+    /**
+     * Height a tile needs to draw a line of its label beneath its glyph: [TileChromeHeight] and
+     * [LabelLineHeight]. A grid whose rows are shorter should not show labels (see
+     * [IconGrid.showLabels]).
+     */
+    val LabelledTileMinHeight: Dp = 60.dp
 }
