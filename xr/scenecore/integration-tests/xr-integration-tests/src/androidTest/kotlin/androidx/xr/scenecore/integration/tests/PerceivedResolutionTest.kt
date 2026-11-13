@@ -48,13 +48,13 @@ import androidx.xr.scenecore.scene
 import androidx.xr.testutils.SpatialAlignment
 import androidx.xr.testutils.SpatialInteractionScope
 import androidx.xr.testutils.SpatialNode
-import androidx.xr.testutils.SpatialSceneHelper
 import androidx.xr.testutils.XrDeviceConfig
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.createXrSessionRule
 import androidx.xr.testutils.filterSupportedPermissions
 import androidx.xr.testutils.performSpatialInteraction
 import androidx.xr.testutils.resetSpatialInteraction
+import androidx.xr.testutils.waitForSpatialScene
 import androidx.xr.testutils.waitUntil
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -617,7 +617,7 @@ class PerceivedResolutionTest {
         movedFromPosition: Vector3? = null,
     ): SpatialNode =
         checkNotNull(
-            SpatialSceneHelper.waitForSpatialScene(
+            waitForSpatialScene(
                 description = "settled interactive spatial panel '$panelName'",
                 timeout = POLL_TIMEOUT,
                 select = { scene ->

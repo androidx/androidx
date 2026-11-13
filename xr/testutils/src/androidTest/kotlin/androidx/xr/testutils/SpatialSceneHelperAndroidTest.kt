@@ -83,7 +83,7 @@ class SpatialSceneHelperAndroidTest {
         composeTestRule.waitForIdle()
 
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val scene = SpatialSceneHelper.captureSpatialScene()
+        val scene = captureSpatialScene()
         assertNotNull(scene)
 
         val task = assertNotNull(scene.findTaskByPackageName(context.packageName))
@@ -115,21 +115,20 @@ class SpatialSceneHelperAndroidTest {
     }
 
     @Test
-    fun spatialScene_unscopedSceneCapturesFullHierarchyAndRootNodes() {
+    fun spatialScene_capturesFullHierarchyAndRootNodes() {
         composeTestRule.setContent {
-            Box(modifier = Modifier.fillMaxSize()) { Text("Unscoped Scene Test Content") }
+            Box(modifier = Modifier.fillMaxSize()) { Text("Full Scene Test Content") }
         }
         composeTestRule.waitForIdle()
 
-        // Capture unscoped spatial scene
-        val unscopedScene = SpatialSceneHelper.captureSpatialScene()
-        assertNotNull(unscopedScene)
+        val scene = captureSpatialScene()
+        assertNotNull(scene)
 
         // Root nodes and tasks
-        val rootNodes = unscopedScene.rootNodes
+        val rootNodes = scene.rootNodes
         assertTrue(rootNodes.isNotEmpty(), "Expected at least one root node in full scene")
-        val tasks = unscopedScene.tasks
-        assertTrue(tasks.isNotEmpty(), "Expected tasks to be populated in unscoped scene")
+        val tasks = scene.tasks
+        assertTrue(tasks.isNotEmpty(), "Expected tasks to be populated in scene")
 
         // Root node integrity
         val root = rootNodes.first()
@@ -142,39 +141,6 @@ class SpatialSceneHelperAndroidTest {
     }
 
     @Test
-    fun spatialScene_packageScopingAndAppRootDiscovery() {
-        composeTestRule.setContent {
-            Box(modifier = Modifier.fillMaxSize()) { Text("Scoped Scene App Root Test") }
-        }
-        composeTestRule.waitForIdle()
-
-        val packageName = InstrumentationRegistry.getInstrumentation().targetContext.packageName
-
-        val rawDumpsys = SpatialSceneHelper.executeShellCommand("dumpsys spf_cpm")
-        val activitiesDump = SpatialSceneHelper.executeShellCommand("dumpsys activity activities")
-        val taskPackageMap = SpatialSceneHelper.parseTaskPackageMap(activitiesDump)
-        val capturedScene = SpatialSceneHelper.parseSpatialScene(rawDumpsys, taskPackageMap)
-
-        val capturedTask = assertNotNull(capturedScene.findTaskByPackageName(packageName))
-
-        // activitySpaceRoot discovery
-        val taskRoot = capturedTask.activitySpaceRoot
-        assertNotNull(taskRoot, "Expected task activitySpaceRoot to be resolved for $packageName")
-
-        // Scoped allNodes
-        val scopedNodes = capturedTask.allNodes
-        assertTrue(scopedNodes.isNotEmpty(), "Expected scoped allNodes to contain app nodes")
-        assertTrue(
-            scopedNodes.contains(taskRoot),
-            "Expected scoped allNodes to contain task activitySpaceRoot",
-        )
-
-        // Scoped inputTargets
-        val inputTargets = capturedTask.inputTargets
-        assertTrue(inputTargets.isNotEmpty(), "Expected input targets")
-    }
-
-    @Test
     fun spatialScene_queryMethodsAndPredicates() {
         composeTestRule.setContent {
             Box(modifier = Modifier.fillMaxSize()) { Text("Query Test Content") }
@@ -182,7 +148,7 @@ class SpatialSceneHelperAndroidTest {
         composeTestRule.waitForIdle()
 
         val packageName = InstrumentationRegistry.getInstrumentation().targetContext.packageName
-        val scene = SpatialSceneHelper.captureSpatialScene()
+        val scene = captureSpatialScene()
         val task = assertNotNull(scene.findTaskByPackageName(packageName))
 
         // Window leash discovery
@@ -232,7 +198,7 @@ class SpatialSceneHelperAndroidTest {
         composeTestRule.waitForIdle()
 
         val packageName = InstrumentationRegistry.getInstrumentation().targetContext.packageName
-        val scene = SpatialSceneHelper.captureSpatialScene()
+        val scene = captureSpatialScene()
         val task = assertNotNull(scene.findTaskByPackageName(packageName))
         val appRoot = task.activitySpaceRoot
 
@@ -274,7 +240,7 @@ class SpatialSceneHelperAndroidTest {
         composeTestRule.waitForIdle()
 
         val packageName = InstrumentationRegistry.getInstrumentation().targetContext.packageName
-        val scene = SpatialSceneHelper.captureSpatialScene()
+        val scene = captureSpatialScene()
         val task = assertNotNull(scene.findTaskByPackageName(packageName))
         val targetNode = task.taskWindowLeash ?: task.allNodes.first()
 
@@ -326,7 +292,7 @@ class SpatialSceneHelperAndroidTest {
         composeTestRule.waitForIdle()
 
         val packageName = InstrumentationRegistry.getInstrumentation().targetContext.packageName
-        val scene = SpatialSceneHelper.captureSpatialScene()
+        val scene = captureSpatialScene()
         val task = assertNotNull(scene.findTaskByPackageName(packageName))
         val targetNode =
             assertNotNull(
@@ -392,7 +358,7 @@ class SpatialSceneHelperAndroidTest {
                 conditionDescription = "Secondary spatial activity node to appear in scene",
                 timeoutMillis = 5000L,
             ) {
-                val currentScene = SpatialSceneHelper.captureSpatialScene()
+                val currentScene = captureSpatialScene()
                 if (
                     currentScene.tasks.any {
                         it.findNodesByName("SecondarySpatialTestActivity").isNotEmpty()
@@ -454,7 +420,7 @@ class SpatialSceneHelperAndroidTest {
         composeTestRule.waitForIdle()
 
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val scene = SpatialSceneHelper.captureSpatialScene()
+        val scene = captureSpatialScene()
         assertNotNull(scene, "Expected captured spatial scene in Full Space")
         val task =
             assertNotNull(
@@ -565,7 +531,7 @@ class SpatialSceneHelperAndroidTest {
         composeTestRule.waitForIdle()
 
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val scene = SpatialSceneHelper.captureSpatialScene()
+        val scene = captureSpatialScene()
         assertNotNull(scene)
         val task = assertNotNull(scene.findTaskByPackageName(context.packageName))
 
@@ -661,7 +627,7 @@ class SpatialSceneHelperAndroidTest {
         composeTestRule.waitForIdle()
 
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val scene = SpatialSceneHelper.captureSpatialScene()
+        val scene = captureSpatialScene()
         assertNotNull(scene)
         val task = assertNotNull(scene.findTaskByPackageName(context.packageName))
 
@@ -732,7 +698,7 @@ class SpatialSceneHelperAndroidTest {
         composeTestRule.waitForIdle()
 
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val initialScene = SpatialSceneHelper.captureSpatialScene()
+        val initialScene = captureSpatialScene()
         assertNotNull(initialScene)
         val initialTask = assertNotNull(initialScene.findTaskByPackageName(context.packageName))
         val initialPanels = initialTask.windowLeashes.filter { it.isEmbeddedWindowLeash }
@@ -745,7 +711,7 @@ class SpatialSceneHelperAndroidTest {
         panelWidth = 600.dp
         composeTestRule.waitForIdle()
 
-        val updatedScene = SpatialSceneHelper.captureSpatialScene()
+        val updatedScene = captureSpatialScene()
         assertNotNull(updatedScene)
         val updatedTask = assertNotNull(updatedScene.findTaskByPackageName(context.packageName))
         val updatedPanels = updatedTask.windowLeashes.filter { it.isEmbeddedWindowLeash }
@@ -775,7 +741,7 @@ class SpatialSceneHelperAndroidTest {
         composeTestRule.waitForIdle()
 
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val fullSpaceScene = SpatialSceneHelper.captureSpatialScene()
+        val fullSpaceScene = captureSpatialScene()
         assertNotNull(fullSpaceScene)
         val fullSpaceTask = assertNotNull(fullSpaceScene.findTaskByPackageName(context.packageName))
         val fullSpaceAppRoot = fullSpaceTask.activitySpaceRoot
@@ -794,7 +760,7 @@ class SpatialSceneHelperAndroidTest {
         runBlocking(Dispatchers.Main) { composeTestRule.activity.requestHomeSpace() }
         composeTestRule.waitForIdle()
 
-        val homeSpaceScene = SpatialSceneHelper.captureSpatialScene()
+        val homeSpaceScene = captureSpatialScene()
         assertNotNull(homeSpaceScene)
         val homeSpaceTask = assertNotNull(homeSpaceScene.findTaskByPackageName(context.packageName))
         assertNotNull(
@@ -806,7 +772,7 @@ class SpatialSceneHelperAndroidTest {
         runBlocking(Dispatchers.Main) { composeTestRule.activity.requestFullSpace() }
         composeTestRule.waitForIdle()
 
-        val restoredFullSpaceScene = SpatialSceneHelper.captureSpatialScene()
+        val restoredFullSpaceScene = captureSpatialScene()
         assertNotNull(restoredFullSpaceScene)
         val restoredFullSpaceTask =
             assertNotNull(restoredFullSpaceScene.findTaskByPackageName(context.packageName))
@@ -848,7 +814,7 @@ class SpatialSceneHelperAndroidTest {
         composeTestRule.waitForIdle()
 
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val scene = SpatialSceneHelper.captureSpatialScene()
+        val scene = captureSpatialScene()
         assertNotNull(scene)
         val task = assertNotNull(scene.findTaskByPackageName(context.packageName))
 

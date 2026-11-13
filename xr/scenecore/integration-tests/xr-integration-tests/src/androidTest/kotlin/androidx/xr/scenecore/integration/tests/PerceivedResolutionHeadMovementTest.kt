@@ -31,11 +31,11 @@ import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.scene
 import androidx.xr.testutils.FakeHeadTrackingRule
-import androidx.xr.testutils.SpatialSceneHelper
 import androidx.xr.testutils.XrDeviceConfig
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.createXrSessionRule
 import androidx.xr.testutils.filterSupportedPermissions
+import androidx.xr.testutils.waitForSettledSpatialTask
 import androidx.xr.testutils.waitUntil
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -431,7 +431,7 @@ class PerceivedResolutionHeadMovementTest {
 
     private fun locateHomeSpaceWindowWorldPosition(): Vector3 {
         val settledTask =
-            SpatialSceneHelper.waitForSettledSpatialTask(
+            waitForSettledSpatialTask(
                 activity = sessionRule.activity,
                 expectedMainPanelVisible = true,
                 requireFullSpace = false,

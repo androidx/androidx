@@ -40,11 +40,12 @@ import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.scene
 import androidx.xr.testutils.SpatialNode
 import androidx.xr.testutils.SpatialScene
-import androidx.xr.testutils.SpatialSceneHelper
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.XrSessionRule
 import androidx.xr.testutils.XrSessionScope
+import androidx.xr.testutils.captureSpatialScene
 import androidx.xr.testutils.createXrSessionRule
+import androidx.xr.testutils.waitForSpatialScene
 import androidx.xr.testutils.waitUntil
 import com.google.common.truth.Truth.assertThat
 import java.nio.file.Paths
@@ -255,9 +256,7 @@ class FieldOfViewVisibilityTest {
         // (proving neither the skybox nor GroundGeometry.glb contributes to the scene's FOV
         // bounding box).
         val systemGeometryNodeIds =
-            findEnvironmentGeometryNodes(SpatialSceneHelper.captureSpatialScene())
-                .map { it.id }
-                .toSet()
+            findEnvironmentGeometryNodes(captureSpatialScene()).map { it.id }.toSet()
         val markBeforeSetEnv = recorder.mark()
         sessionRule.onMainThread { env.preferredSpatialEnvironment = preference }
         sessionRule.waitForSpatialEnvironmentSettled()
@@ -429,7 +428,7 @@ class FieldOfViewVisibilityTest {
      * attached under [ENVIRONMENT_ROOT_NODE].
      */
     private fun awaitEnvironmentGeometryAttached(previousGeometryNodeIds: Set<Int>) {
-        SpatialSceneHelper.waitForSpatialScene(
+        waitForSpatialScene(
             description = "$ENVIRONMENT_GEOMETRY_NODE_NAME to be attached and visible",
             timeout = ENVIRONMENT_GEOMETRY_TIMEOUT,
             select = { scene ->

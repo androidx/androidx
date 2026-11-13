@@ -15,6 +15,7 @@
  */
 
 @file:Suppress("PrimitiveInCollection", "BanThreadSleep")
+@file:JvmName("SpatialSceneHelper")
 
 package androidx.xr.testutils
 
@@ -45,8 +46,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeSource
 
 /**
- * Utility for capturing, inspecting, and querying spatial scenes from Android XR devices and
- * emulators.
+ * Captures a point-in-time snapshot of the spatial scene graph from `dumpsys spf_cpm`.
  *
  * Parses point-in-time scene graph snapshots from `dumpsys spf_cpm` into a clean object structure
  * based strictly on system-guaranteed CPM and SpaceFlinger keywords, properties, and task
@@ -54,557 +54,266 @@ import kotlin.time.TimeSource
  *
  * For the complete structural and keyword specification of `dumpsys spf_cpm`, see
  * `CPM_DUMPSYS_ARCHITECTURE.md` located in the `xr:testutils` root directory.
+ *
+ * @param uiAutomation The [UiAutomation] instance used to execute the shell command.
  */
-public object SpatialSceneHelper {
+@JvmOverloads
+public fun captureSpatialScene(
+    uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
+): SpatialScene = captureSceneWithPolling(uiAutomation = uiAutomation)
 
-    /**
-     * Captures a point-in-time snapshot of the spatial scene graph from `dumpsys spf_cpm`.
-     *
-     * @param uiAutomation The [UiAutomation] instance used to execute the shell command.
-     */
-    @JvmStatic
-    @JvmOverloads
-    public fun captureSpatialScene(
-        uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
-    ): SpatialScene = captureSceneWithPolling(uiAutomation = uiAutomation)
-
-    /**
-     * Repeatedly captures the spatial scene graph until [until] holds for the value returned by
-     * [select].
-     *
-     * Note that each iteration calls [captureSpatialScene], which may itself poll internally for up
-     * to 3 seconds while waiting for window transition snapshots to clear.
-     *
-     * @param description Human-readable description of the condition being awaited, used in the
-     *   timeout error message.
-     * @param timeout Maximum duration to poll before throwing an [AssertionError].
-     * @param pollInterval Delay between successive scene captures.
-     * @param uiAutomation The [UiAutomation] instance used to execute the shell command.
-     * @param select Selector that extracts a value from each captured [SpatialScene].
-     * @param until Predicate that determines whether the selected value satisfies the condition.
-     * @return The first selected value for which [until] returns `true`.
-     * @throws AssertionError if [until] does not hold within [timeout].
-     */
-    @JvmStatic
-    @JvmOverloads
-    public fun <T> waitForSpatialScene(
-        description: String,
-        timeout: Duration = 5.seconds,
-        pollInterval: Duration = 100.milliseconds,
-        uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation,
-        select: (SpatialScene) -> T,
-        until: (T) -> Boolean,
-    ): T {
-        val start = TimeSource.Monotonic.markNow()
-        while (true) {
-            val scene = captureSpatialScene(uiAutomation = uiAutomation)
-            val selected = select(scene)
-            if (until(selected)) return selected
-            if (start.elapsedNow() >= timeout) {
-                throw AssertionError(
-                    "Timed out after $timeout waiting for $description, last value: $selected"
-                )
-            }
-            SystemClock.sleep(pollInterval.inWholeMilliseconds)
-        }
-    }
-
-    /**
-     * Repeatedly captures the spatial scene graph until the target [SpatialTask] (for [activity] if
-     * provided, or [SpatialScene.activeTask] otherwise) satisfies [SpatialTask.isSettled].
-     *
-     * @param activity Optional [Activity] whose spatial task should be awaited. When `null`, awaits
-     *   the foreground [SpatialScene.activeTask].
-     * @param expectedEmbeddedPanelCount Expected number of visible
-     *   [SpatialTask.embeddedWindowLeashes] with valid surface bounds, or `null` to not constrain
-     *   the embedded panel count.
-     * @param expectedMainPanelVisible Expected visibility of [SpatialTask.taskWindowLeash], or
-     *   `null` to not constrain the main panel visibility.
-     * @param requireFullSpace Whether the task must have an active Full Space transform
-     *   ([SpatialTask.isFullSpace]).
-     * @param timeout Maximum duration to poll before throwing an [AssertionError].
-     * @param pollInterval Delay between successive scene captures.
-     * @param uiAutomation The [UiAutomation] instance used to execute the shell command.
-     * @return The settled [SpatialTask].
-     * @throws AssertionError if the task does not settle within [timeout].
-     */
-    @JvmStatic
-    @JvmOverloads
-    public fun waitForSettledSpatialTask(
-        activity: Activity? = null,
-        expectedEmbeddedPanelCount: Int? = null,
-        expectedMainPanelVisible: Boolean? = null,
-        requireFullSpace: Boolean = true,
-        timeout: Duration = 5.seconds,
-        pollInterval: Duration = 100.milliseconds,
-        uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation,
-    ): SpatialTask {
-        val targetDesc = activity?.let { "task for $it" } ?: "active spatial task"
-        val panelDesc =
-            if (expectedEmbeddedPanelCount != null) {
-                " with $expectedEmbeddedPanelCount visible embedded window leashes"
-            } else {
-                ""
-            }
-        val settledTask =
-            waitForSpatialScene(
-                description = "settled $targetDesc$panelDesc",
-                timeout = timeout,
-                pollInterval = pollInterval,
-                uiAutomation = uiAutomation,
-                select = { scene ->
-                    if (activity != null) {
-                        scene.findTaskByActivity(activity)
-                    } else {
-                        scene.activeTask
-                    }
-                },
-                until = { task ->
-                    task != null &&
-                        task.isSettled(
-                            expectedEmbeddedPanelCount = expectedEmbeddedPanelCount,
-                            expectedMainPanelVisible = expectedMainPanelVisible,
-                            requireFullSpace = requireFullSpace,
-                        )
-                },
+/**
+ * Repeatedly captures the spatial scene graph until [until] holds for the value returned by
+ * [select].
+ *
+ * Note that each iteration calls [captureSpatialScene], which may itself poll internally for up to
+ * 3 seconds while waiting for window transition snapshots to clear.
+ *
+ * @param description Human-readable description of the condition being awaited, used in the timeout
+ *   error message.
+ * @param timeout Maximum duration to poll before throwing an [AssertionError].
+ * @param pollInterval Delay between successive scene captures.
+ * @param uiAutomation The [UiAutomation] instance used to execute the shell command.
+ * @param select Selector that extracts a value from each captured [SpatialScene].
+ * @param until Predicate that determines whether the selected value satisfies the condition.
+ * @return The first selected value for which [until] returns `true`.
+ * @throws AssertionError if [until] does not hold within [timeout].
+ */
+@JvmOverloads
+public fun <T> waitForSpatialScene(
+    description: String,
+    timeout: Duration = 5.seconds,
+    pollInterval: Duration = 100.milliseconds,
+    uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation,
+    select: (SpatialScene) -> T,
+    until: (T) -> Boolean,
+): T {
+    val start = TimeSource.Monotonic.markNow()
+    while (true) {
+        val scene = captureSpatialScene(uiAutomation = uiAutomation)
+        val selected = select(scene)
+        if (until(selected)) return selected
+        if (start.elapsedNow() >= timeout) {
+            throw AssertionError(
+                "Timed out after $timeout waiting for $description, last value: $selected"
             )
-        return checkNotNull(settledTask) {
-            "waitForSpatialScene returned null for settled $targetDesc$panelDesc"
         }
+        SystemClock.sleep(pollInterval.inWholeMilliseconds)
     }
+}
 
-    /**
-     * Captures the 3D XR compositor output via [UiAutomation.takeScreenshot], waits for consecutive
-     * compositor frames to stabilize, converts hardware-backed bitmaps to
-     * [Bitmap.Config.ARGB_8888], optionally crops to [cropBounds] (or automatically crops out the
-     * empty background when [autoCrop] is true and [cropBounds] is null), and returns the resulting
-     * [Bitmap] for assertion with `androidx.test.screenshot.assertAgainstGolden`.
-     *
-     * The caller owns the returned [Bitmap] and is responsible for calling [Bitmap.recycle] when
-     * finished (or letting higher-level test scopes manage its lifecycle).
-     *
-     * Standard Android 2D `View.drawToBitmap()` or `SemanticsNodeInteraction.captureToImage()` only
-     * captures flat 2D window surfaces and does not include 3D `GltfModelEntity`, `SurfaceEntity`,
-     * `SpatialEnvironment` skyboxes, or 3D spatial relationships rendered by SpaceFlinger/Impress.
-     * Use this helper after [waitForSpatialScene] for the scene graph to settle.
-     *
-     * @param cropBounds Optional [Rect] in screen pixel coordinates to crop the compositor
-     *   screenshot. If null and [autoCrop] is true, the screenshot is automatically cropped to the
-     *   rendered foreground content via [cropForeground].
-     * @param padding Extra padding in pixels to preserve around the cropped foreground bounds when
-     *   [cropBounds] is null and [autoCrop] is true.
-     * @param autoCrop When true and [cropBounds] is null, automatically crops out the background.
-     *   Set to false to retrieve the full uncropped compositor frame.
-     * @param timeout Maximum duration to wait for consecutive frames to stabilize. If frames have
-     *   not stabilized by then, the latest frame is returned and a warning is logged.
-     * @param pollInterval Delay between successive compositor captures.
-     * @param uiAutomation The [UiAutomation] instance used to capture the compositor frame.
-     * @return A software-backed [Bitmap.Config.ARGB_8888] [Bitmap] owned by the caller.
-     * @throws IllegalArgumentException if [cropBounds] does not overlap the screenshot.
-     * @throws AssertionError if no screenshot could be captured within [timeout].
-     */
-    @JvmStatic
-    @JvmOverloads
-    public fun captureSceneToBitmap(
-        cropBounds: Rect? = null,
-        padding: Int = 0,
-        autoCrop: Boolean = true,
-        timeout: Duration = 5.seconds,
-        pollInterval: Duration = 100.milliseconds,
-        uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation,
-    ): Bitmap {
-        if (Looper.myLooper() != Looper.getMainLooper()) {
-            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+/**
+ * Repeatedly captures the spatial scene graph until the target [SpatialTask] (for [activity] if
+ * provided, or [SpatialScene.activeTask] otherwise) satisfies [SpatialTask.isSettled].
+ *
+ * @param activity Optional [Activity] whose spatial task should be awaited. When `null`, awaits the
+ *   foreground [SpatialScene.activeTask].
+ * @param expectedEmbeddedPanelCount Expected number of visible [SpatialTask.embeddedWindowLeashes]
+ *   with valid surface bounds, or `null` to not constrain the embedded panel count.
+ * @param expectedMainPanelVisible Expected visibility of [SpatialTask.taskWindowLeash], or `null`
+ *   to not constrain the main panel visibility.
+ * @param requireFullSpace Whether the task must have an active Full Space transform
+ *   ([SpatialTask.isFullSpace]).
+ * @param timeout Maximum duration to poll before throwing an [AssertionError].
+ * @param pollInterval Delay between successive scene captures.
+ * @param uiAutomation The [UiAutomation] instance used to execute the shell command.
+ * @return The settled [SpatialTask].
+ * @throws AssertionError if the task does not settle within [timeout].
+ */
+@JvmOverloads
+public fun waitForSettledSpatialTask(
+    activity: Activity? = null,
+    expectedEmbeddedPanelCount: Int? = null,
+    expectedMainPanelVisible: Boolean? = null,
+    requireFullSpace: Boolean = true,
+    timeout: Duration = 5.seconds,
+    pollInterval: Duration = 100.milliseconds,
+    uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation,
+): SpatialTask {
+    val targetDesc = activity?.let { "task for $it" } ?: "active spatial task"
+    val panelDesc =
+        if (expectedEmbeddedPanelCount != null) {
+            " with $expectedEmbeddedPanelCount visible embedded window leashes"
+        } else {
+            ""
         }
+    val settledTask =
+        waitForSpatialScene(
+            description = "settled $targetDesc$panelDesc",
+            timeout = timeout,
+            pollInterval = pollInterval,
+            uiAutomation = uiAutomation,
+            select = { scene ->
+                if (activity != null) {
+                    scene.findTaskByActivity(activity)
+                } else {
+                    scene.activeTask
+                }
+            },
+            until = { task ->
+                task != null &&
+                    task.isSettled(
+                        expectedEmbeddedPanelCount = expectedEmbeddedPanelCount,
+                        expectedMainPanelVisible = expectedMainPanelVisible,
+                        requireFullSpace = requireFullSpace,
+                    )
+            },
+        )
+    return checkNotNull(settledTask) {
+        "waitForSpatialScene returned null for settled $targetDesc$panelDesc"
+    }
+}
+
+/**
+ * Captures the 3D XR compositor output via [UiAutomation.takeScreenshot], waits for consecutive
+ * compositor frames to stabilize, converts hardware-backed bitmaps to [Bitmap.Config.ARGB_8888],
+ * optionally crops to [cropBounds] (or automatically crops out the empty background when [autoCrop]
+ * is true and [cropBounds] is null), and returns the resulting [Bitmap] for assertion with
+ * `androidx.test.screenshot.assertAgainstGolden`.
+ *
+ * The caller owns the returned [Bitmap] and is responsible for calling [Bitmap.recycle] when
+ * finished (or letting higher-level test scopes manage its lifecycle).
+ *
+ * Standard Android 2D `View.drawToBitmap()` or `SemanticsNodeInteraction.captureToImage()` only
+ * captures flat 2D window surfaces and does not include 3D `GltfModelEntity`, `SurfaceEntity`,
+ * `SpatialEnvironment` skyboxes, or 3D spatial relationships rendered by SpaceFlinger/Impress. Use
+ * this helper after [waitForSpatialScene] for the scene graph to settle.
+ *
+ * @param cropBounds Optional [Rect] in screen pixel coordinates to crop the compositor screenshot.
+ *   If null and [autoCrop] is true, the screenshot is automatically cropped to the rendered
+ *   foreground content via [cropForeground].
+ * @param padding Extra padding in pixels to preserve around the cropped foreground bounds when
+ *   [cropBounds] is null and [autoCrop] is true.
+ * @param autoCrop When true and [cropBounds] is null, automatically crops out the background. Set
+ *   to false to retrieve the full uncropped compositor frame.
+ * @param timeout Maximum duration to wait for consecutive frames to stabilize. If frames have not
+ *   stabilized by then, the latest frame is returned and a warning is logged.
+ * @param pollInterval Delay between successive compositor captures.
+ * @param uiAutomation The [UiAutomation] instance used to capture the compositor frame.
+ * @return A software-backed [Bitmap.Config.ARGB_8888] [Bitmap] owned by the caller.
+ * @throws IllegalArgumentException if [cropBounds] does not overlap the screenshot.
+ * @throws AssertionError if no screenshot could be captured within [timeout].
+ */
+@JvmOverloads
+public fun captureSceneToBitmap(
+    cropBounds: Rect? = null,
+    padding: Int = 0,
+    autoCrop: Boolean = true,
+    timeout: Duration = 5.seconds,
+    pollInterval: Duration = 100.milliseconds,
+    uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation,
+): Bitmap {
+    if (Looper.myLooper() != Looper.getMainLooper()) {
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+    }
+    captureSceneWithPolling(
+        uiAutomation = uiAutomation,
+        maxWaitMs = max(MIN_SCREENSHOT_SCENE_SETTLE_WAIT_MS, timeout.inWholeMilliseconds),
+    )
+    val settledBitmap = waitForSettledSoftwareScreenshot(uiAutomation, timeout, pollInterval)
+    if (cropBounds != null) {
+        val cropped =
+            try {
+                crop(settledBitmap, cropBounds)
+            } catch (t: Throwable) {
+                settledBitmap.recycle()
+                throw t
+            }
+        // createBitmap returns the source itself when the crop covers the whole bitmap.
+        if (cropped !== settledBitmap) {
+            settledBitmap.recycle()
+        }
+        return cropped
+    }
+    if (autoCrop) {
+        val cropped =
+            try {
+                cropForeground(settledBitmap, padding = padding)
+            } catch (t: Throwable) {
+                settledBitmap.recycle()
+                throw t
+            }
+        if (cropped !== settledBitmap) {
+            settledBitmap.recycle()
+        }
+        return cropped
+    }
+    return settledBitmap
+}
+
+/**
+ * Captures the 3D XR compositor output and automatically crops the screenshot to the rendered
+ * content of [node], accounting for its position relative to the user's head pose.
+ *
+ * Delegates to [SpatialNode.captureToBitmap].
+ *
+ * @param node Target [SpatialNode] (such as [SpatialTask.spatialTransform],
+ *   [SpatialTask.activitySpaceRoot], or an individual window leash/panel node) whose rendered
+ *   content should be cropped.
+ * @param padding Extra padding in pixels to preserve around the cropped content bounds.
+ * @param timeout Maximum duration to wait for consecutive frames to stabilize. If frames have not
+ *   stabilized by then, the latest frame is returned and a warning is logged.
+ * @param pollInterval Delay between successive compositor captures.
+ * @param uiAutomation The [UiAutomation] instance used to capture the compositor frame.
+ * @return A cropped software-backed [Bitmap.Config.ARGB_8888] [Bitmap] owned by the caller.
+ * @throws AssertionError if no screenshot could be captured within [timeout].
+ */
+@JvmOverloads
+public fun captureSceneToBitmap(
+    node: SpatialNode,
+    padding: Int = 0,
+    timeout: Duration = 5.seconds,
+    pollInterval: Duration = 100.milliseconds,
+    uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation,
+): Bitmap =
+    node.captureToBitmap(
+        padding = padding,
+        timeout = timeout,
+        pollInterval = pollInterval,
+        uiAutomation = uiAutomation,
+    )
+
+/**
+ * Captures the spatial scene and 3D XR compositor output, resolves the target [SpatialNode] via
+ * [nodeSelector], and automatically crops the screenshot to the rendered content of the selected
+ * node.
+ *
+ * @param nodeSelector Selector invoked on the settled [SpatialScene] to identify the target
+ *   [SpatialNode] to crop.
+ * @param padding Extra padding in pixels to preserve around the cropped content bounds.
+ * @param timeout Maximum duration to wait for consecutive frames to stabilize.
+ * @param pollInterval Delay between successive compositor captures.
+ * @param uiAutomation The [UiAutomation] instance used to capture the compositor frame.
+ * @return A cropped software-backed [Bitmap.Config.ARGB_8888] [Bitmap] owned by the caller.
+ * @throws IllegalArgumentException if [nodeSelector] returns `null` for the captured scene.
+ * @throws AssertionError if no screenshot could be captured within [timeout].
+ */
+@JvmOverloads
+public fun captureSceneToBitmap(
+    nodeSelector: (SpatialScene) -> SpatialNode?,
+    padding: Int = 0,
+    timeout: Duration = 5.seconds,
+    pollInterval: Duration = 100.milliseconds,
+    uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation,
+): Bitmap {
+    if (Looper.myLooper() != Looper.getMainLooper()) {
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+    }
+    val scene =
         captureSceneWithPolling(
             uiAutomation = uiAutomation,
             maxWaitMs = max(MIN_SCREENSHOT_SCENE_SETTLE_WAIT_MS, timeout.inWholeMilliseconds),
         )
-        val settledBitmap = waitForSettledSoftwareScreenshot(uiAutomation, timeout, pollInterval)
-        if (cropBounds != null) {
-            val cropped =
-                try {
-                    crop(settledBitmap, cropBounds)
-                } catch (t: Throwable) {
-                    settledBitmap.recycle()
-                    throw t
-                }
-            // createBitmap returns the source itself when the crop covers the whole bitmap.
-            if (cropped !== settledBitmap) {
-                settledBitmap.recycle()
-            }
-            return cropped
+    val targetNode =
+        requireNotNull(nodeSelector(scene)) {
+            "nodeSelector returned null for captured SpatialScene (tasks=${scene.tasks})"
         }
-        if (autoCrop) {
-            val cropped =
-                try {
-                    cropForeground(settledBitmap, padding = padding)
-                } catch (t: Throwable) {
-                    settledBitmap.recycle()
-                    throw t
-                }
-            if (cropped !== settledBitmap) {
-                settledBitmap.recycle()
-            }
-            return cropped
-        }
-        return settledBitmap
-    }
-
-    /**
-     * Captures the 3D XR compositor output and automatically crops the screenshot to the rendered
-     * content of [node], accounting for its position relative to the user's head pose.
-     *
-     * Delegates to [SpatialNode.captureToBitmap].
-     *
-     * @param node Target [SpatialNode] (such as [SpatialTask.spatialTransform],
-     *   [SpatialTask.activitySpaceRoot], or an individual window leash/panel node) whose rendered
-     *   content should be cropped.
-     * @param padding Extra padding in pixels to preserve around the cropped content bounds.
-     * @param timeout Maximum duration to wait for consecutive frames to stabilize. If frames have
-     *   not stabilized by then, the latest frame is returned and a warning is logged.
-     * @param pollInterval Delay between successive compositor captures.
-     * @param uiAutomation The [UiAutomation] instance used to capture the compositor frame.
-     * @return A cropped software-backed [Bitmap.Config.ARGB_8888] [Bitmap] owned by the caller.
-     * @throws AssertionError if no screenshot could be captured within [timeout].
-     */
-    @JvmStatic
-    @JvmOverloads
-    public fun captureSceneToBitmap(
-        node: SpatialNode,
-        padding: Int = 0,
-        timeout: Duration = 5.seconds,
-        pollInterval: Duration = 100.milliseconds,
-        uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation,
-    ): Bitmap =
-        node.captureToBitmap(
-            padding = padding,
-            timeout = timeout,
-            pollInterval = pollInterval,
-            uiAutomation = uiAutomation,
-        )
-
-    /**
-     * Captures the spatial scene and 3D XR compositor output, resolves the target [SpatialNode] via
-     * [nodeSelector], and automatically crops the screenshot to the rendered content of the
-     * selected node.
-     *
-     * @param nodeSelector Selector invoked on the settled [SpatialScene] to identify the target
-     *   [SpatialNode] to crop.
-     * @param padding Extra padding in pixels to preserve around the cropped content bounds.
-     * @param timeout Maximum duration to wait for consecutive frames to stabilize.
-     * @param pollInterval Delay between successive compositor captures.
-     * @param uiAutomation The [UiAutomation] instance used to capture the compositor frame.
-     * @return A cropped software-backed [Bitmap.Config.ARGB_8888] [Bitmap] owned by the caller.
-     * @throws IllegalArgumentException if [nodeSelector] returns `null` for the captured scene.
-     * @throws AssertionError if no screenshot could be captured within [timeout].
-     */
-    @JvmStatic
-    @JvmOverloads
-    public fun captureSceneToBitmap(
-        nodeSelector: (SpatialScene) -> SpatialNode?,
-        padding: Int = 0,
-        timeout: Duration = 5.seconds,
-        pollInterval: Duration = 100.milliseconds,
-        uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation,
-    ): Bitmap {
-        if (Looper.myLooper() != Looper.getMainLooper()) {
-            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-        }
-        val scene =
-            captureSceneWithPolling(
-                uiAutomation = uiAutomation,
-                maxWaitMs = max(MIN_SCREENSHOT_SCENE_SETTLE_WAIT_MS, timeout.inWholeMilliseconds),
-            )
-        val targetNode =
-            requireNotNull(nodeSelector(scene)) {
-                "nodeSelector returned null for captured SpatialScene (tasks=${scene.tasks})"
-            }
-        return targetNode.captureToBitmap(
-            padding = padding,
-            timeout = timeout,
-            pollInterval = pollInterval,
-            uiAutomation = uiAutomation,
-        )
-    }
-
-    internal fun captureSceneWithPolling(
-        uiAutomation: UiAutomation,
-        maxWaitMs: Long = DEFAULT_SCENE_POLL_MAX_WAIT_MS,
-    ): SpatialScene {
-        var scene: SpatialScene
-        val startTime = System.currentTimeMillis()
-        while (true) {
-            val rawDump = executeShellCommand("dumpsys spf_cpm", uiAutomation)
-            val activitiesDump = executeShellCommand("dumpsys activity activities", uiAutomation)
-            val taskPackageMap = parseTaskPackageMap(activitiesDump)
-            scene = parseSpatialScene(rawDump = rawDump, taskPackageMap = taskPackageMap)
-            val hasTransition = scene.hasActiveTransition
-            val isReady =
-                scene.tasks.any { task ->
-                    task.allNodes.any { it.hasSurfaceBounds || it.isEmbeddedWindowLeash }
-                }
-            if ((!hasTransition && isReady) || System.currentTimeMillis() - startTime > maxWaitMs) {
-                break
-            }
-            try {
-                Thread.sleep(100)
-            } catch (_: InterruptedException) {}
-        }
-        return scene
-    }
-
-    /**
-     * Parses the raw output of `dumpsys spf_cpm` and an optional task-package mapping into a
-     * [SpatialScene].
-     */
-    @VisibleForTesting
-    internal fun parseSpatialScene(
-        rawDump: String,
-        taskPackageMap: Map<Int, String> = emptyMap(),
-    ): SpatialScene =
-        SpatialScene(rootNodes = parseRootNodes(rawDump), taskPackageMap = taskPackageMap)
-
-    /** Parses the raw output of `dumpsys spf_cpm` into a list of [SpatialNode] root entities. */
-    @VisibleForTesting
-    internal fun parseRootNodes(dump: String): List<SpatialNode> {
-        val rootNodes = mutableListOf<SpatialNode>()
-        val nodeStack = ArrayDeque<SpatialNode>()
-
-        var currentNode: SpatialNode? = null
-        val currentAttributes = mutableMapOf<String, FloatArray>()
-        val currentProperties = mutableMapOf<String, String>()
-
-        fun flushCurrentNode() {
-            val node = currentNode ?: return
-            val finishedNode =
-                SpatialNode(
-                    header = node.header,
-                    name = node.name,
-                    id = node.id,
-                    depth = node.depth,
-                    attributes = currentAttributes.toMap(),
-                    properties = currentProperties.toMap(),
-                )
-            while (nodeStack.isNotEmpty() && nodeStack.last().depth >= finishedNode.depth) {
-                nodeStack.removeLast()
-            }
-
-            if (nodeStack.isEmpty()) {
-                rootNodes.add(finishedNode)
-            } else {
-                nodeStack.last().addChild(finishedNode)
-            }
-
-            nodeStack.addLast(finishedNode)
-            currentNode = null
-            currentAttributes.clear()
-            currentProperties.clear()
-        }
-
-        for (line in dump.lineSequence()) {
-            val trimmed = line.trim()
-            if (
-                trimmed.startsWith("InputTargetManager state:") ||
-                    trimmed.startsWith("Stats since reset:") ||
-                    trimmed.startsWith("Number of living nodes:") ||
-                    trimmed.startsWith("Total size of buffers in scene:")
-            ) {
-                break
-            }
-            if (trimmed.isEmpty() || trimmed.startsWith("SPF Nodes:")) {
-                continue
-            }
-
-            var indent = 0
-            while (indent < line.length && line[indent] == ' ') {
-                indent++
-            }
-
-            if (trimmed.startsWith("Node ")) {
-                flushCurrentNode()
-
-                val matcher = NODE_LINE_PATTERN.matcher(line)
-                var nodeName = ""
-                var nodeId = -1
-
-                if (matcher.find()) {
-                    nodeName = matcher.group(1)?.trim() ?: ""
-                    nodeId = matcher.group(2)?.toIntOrNull() ?: -1
-                } else {
-                    val nodeIdx = line.indexOf("Node ")
-                    if (nodeIdx >= 0) {
-                        val rest = line.substring(nodeIdx + 5).trim()
-                        val colonIdx = rest.lastIndexOf(':')
-                        nodeName = if (colonIdx > 0) rest.substring(0, colonIdx).trim() else rest
-                    }
-                }
-
-                currentNode =
-                    SpatialNode(header = trimmed, name = nodeName, id = nodeId, depth = indent)
-            }
-
-            if (currentNode != null) {
-                if (trimmed.contains("visible on both")) {
-                    currentProperties["stereoVisibility"] = "visible on both"
-                } else if (trimmed.contains("hidden on both")) {
-                    currentProperties["stereoVisibility"] = "hidden on both"
-                }
-
-                val reformMatcher = REFORM_OPTIONS_PATTERN.matcher(line)
-                if (reformMatcher.find()) {
-                    currentProperties["reformOptions"] = reformMatcher.group(1) ?: ""
-                }
-
-                val sysUiMetadataMatcher = SYS_UI_METADATA_PATTERN.matcher(line)
-                if (sysUiMetadataMatcher.find()) {
-                    currentProperties["sysUIMetadata"] = sysUiMetadataMatcher.group(1) ?: ""
-                }
-
-                val attrMatcher = ATTR_ARRAY_PATTERN.matcher(line)
-                while (attrMatcher.find()) {
-                    val key = attrMatcher.group(1) ?: continue
-                    val valueStr = attrMatcher.group(2) ?: continue
-                    val arr = parseArray(valueStr)
-                    if (arr.isNotEmpty()) {
-                        currentAttributes[key] = arr
-                    } else {
-                        currentProperties[key] = valueStr
-                    }
-                }
-
-                val propMatcher = PROP_KEY_VALUE_PATTERN.matcher(line)
-                while (propMatcher.find()) {
-                    val key = propMatcher.group(1) ?: continue
-                    val value = propMatcher.group(2) ?: continue
-                    if (!currentProperties.containsKey(key)) {
-                        currentProperties[key] = value
-                    }
-                }
-            }
-        }
-
-        flushCurrentNode()
-        return rootNodes
-    }
-
-    private fun parseArray(input: String): FloatArray {
-        val cleaned = input.replace("(", "").replace(")", "").replace(",", " ").trim()
-        if (cleaned.isEmpty()) return FloatArray(0)
-        val parts = cleaned.split(WHITESPACE_PATTERN).filter { it.isNotEmpty() }
-        return try {
-            FloatArray(parts.size) { i -> parts[i].toFloat() }
-        } catch (e: NumberFormatException) {
-            FloatArray(0)
-        }
-    }
-
-    /**
-     * Parses the output of `dumpsys activity activities` to build a map of task IDs to their
-     * associated Android package names.
-     */
-    internal fun parseTaskPackageMap(activitiesDump: String): Map<Int, String> {
-        if (activitiesDump.isBlank()) return emptyMap()
-        val map = mutableMapOf<Int, String>()
-
-        // Pattern 1: ActivityRecord{... <package>/<activity> ... t<taskId> ...}
-        val actMatcher = ACTIVITY_RECORD_PATTERN.matcher(activitiesDump)
-        while (actMatcher.find()) {
-            val pkg = actMatcher.group(1) ?: continue
-            val taskId = actMatcher.group(2)?.toIntOrNull() ?: continue
-            map[taskId] = pkg
-        }
-
-        // Pattern 2: Task{... #<taskId> ... A=(<uid>:)?<package> ...}
-        val taskMatcher = TASK_AFFINITY_PATTERN.matcher(activitiesDump)
-        while (taskMatcher.find()) {
-            val taskId = taskMatcher.group(1)?.toIntOrNull() ?: continue
-            val pkg = taskMatcher.group(2) ?: continue
-            if (!map.containsKey(taskId)) {
-                map[taskId] = pkg
-            }
-        }
-
-        // Pattern 3: Task{... #<taskId> ... <package>/...}
-        val compMatcher = TASK_COMPONENT_PATTERN.matcher(activitiesDump)
-        while (compMatcher.find()) {
-            val taskId = compMatcher.group(1)?.toIntOrNull() ?: continue
-            val pkg = compMatcher.group(2) ?: continue
-            if (!map.containsKey(taskId)) {
-                map[taskId] = pkg
-            }
-        }
-
-        return map
-    }
-
-    /**
-     * Executes a shell command via [uiAutomation] and returns the complete trimmed stdout output.
-     */
-    internal fun executeShellCommand(
-        command: String,
-        uiAutomation: UiAutomation? = null,
-    ): String {
-        return try {
-            val automation =
-                uiAutomation
-                    ?: InstrumentationRegistry.getInstrumentation().uiAutomation
-                    ?: return ""
-            automation.executeShellCommand(command).use { pfd ->
-                ParcelFileDescriptor.AutoCloseInputStream(pfd).use { stream: InputStream ->
-                    stream.bufferedReader().readText().trim()
-                }
-            }
-        } catch (e: Exception) {
-            Log.e("SpatialSceneHelper", "Error executing shell command: $command", e)
-            ""
-        }
-    }
-
-    private fun isPackageChar(c: Char): Boolean =
-        c.isLetterOrDigit() || c == '_' || c == '.' || c == '$'
-
-    private fun containsSegment(
-        text: String,
-        target: String,
-        requireTrailingBoundary: Boolean,
-    ): Boolean {
-        if (target.isEmpty() || text.isEmpty()) return false
-        var index = 0
-        while (true) {
-            val found = text.indexOf(target, index)
-            if (found < 0) return false
-            val end = found + target.length
-            val validStart = (found == 0 || !isPackageChar(text[found - 1]))
-            val validEnd =
-                (!requireTrailingBoundary || end == text.length || !isPackageChar(text[end]))
-            if (validStart && validEnd) {
-                return true
-            }
-            index = found + 1
-        }
-    }
-
-    internal fun containsPackage(text: String, pkg: String): Boolean =
-        containsSegment(text, pkg, requireTrailingBoundary = true)
-
-    private val ACTIVITY_RECORD_PATTERN =
-        Pattern.compile(
-            "ActivityRecord\\{[^}]*?\\s+([a-zA-Z0-9_]+(?:\\.[a-zA-Z0-9_]+)+)/[^}\\s]+\\s+t(\\d+)\\b"
-        )
-    private val TASK_AFFINITY_PATTERN =
-        Pattern.compile(
-            "Task\\{[^}]*?#(\\d+)[^}]*?\\bA=(?:\\d+:)?([a-zA-Z0-9_]+(?:\\.[a-zA-Z0-9_]+)+)"
-        )
-    private val TASK_COMPONENT_PATTERN =
-        Pattern.compile("Task\\{[^}]*?#(\\d+)[^}]*?\\s+([a-zA-Z0-9_]+(?:\\.[a-zA-Z0-9_]+)+)/")
-    private val NODE_LINE_PATTERN =
-        Pattern.compile("^\\s*Node\\s+(.+?)(?:\\s*\\([^)]*\\))?(?:\\s+id=(\\d+))?\\s*:?\\s*$")
-    private val ATTR_ARRAY_PATTERN = Pattern.compile("([a-zA-Z0-9_#.-]+)=\\(([^)]+)\\)")
-    private val REFORM_OPTIONS_PATTERN = Pattern.compile("reformOptions=<([^>]+)>")
-    private val SYS_UI_METADATA_PATTERN = Pattern.compile("sysUIMetadata=<([^>]+)>")
-    private val PROP_KEY_VALUE_PATTERN = Pattern.compile("([a-zA-Z0-9_#.-]+)=([a-zA-Z0-9_#.-]+)")
-    private val WHITESPACE_PATTERN = Pattern.compile("\\s+")
+    return targetNode.captureToBitmap(
+        padding = padding,
+        timeout = timeout,
+        pollInterval = pollInterval,
+        uiAutomation = uiAutomation,
+    )
 }
 
 /**
@@ -754,7 +463,7 @@ constructor(
         pollInterval: Duration = 100.milliseconds,
         uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation,
     ): Bitmap =
-        SpatialSceneHelper.captureSceneToBitmap(
+        captureSceneToBitmap(
             cropBounds = null,
             padding = padding,
             timeout = timeout,
@@ -1780,7 +1489,7 @@ constructor(
         if (Looper.myLooper() != Looper.getMainLooper()) {
             InstrumentationRegistry.getInstrumentation().waitForIdleSync()
         }
-        SpatialSceneHelper.captureSceneWithPolling(
+        captureSceneWithPolling(
             uiAutomation = uiAutomation,
             maxWaitMs = max(MIN_SCREENSHOT_SCENE_SETTLE_WAIT_MS, timeout.inWholeMilliseconds),
         )
@@ -2004,3 +1713,247 @@ private fun waitForSettledSoftwareScreenshot(
         throw t
     }
 }
+
+internal fun captureSceneWithPolling(
+    uiAutomation: UiAutomation,
+    maxWaitMs: Long = DEFAULT_SCENE_POLL_MAX_WAIT_MS,
+): SpatialScene {
+    var scene: SpatialScene
+    val startTime = System.currentTimeMillis()
+    while (true) {
+        val rawDump = executeSceneShellCommand("dumpsys spf_cpm", uiAutomation)
+        val activitiesDump = executeSceneShellCommand("dumpsys activity activities", uiAutomation)
+        val taskPackageMap = parseTaskPackageMap(activitiesDump)
+        scene = parseSpatialScene(rawDump = rawDump, taskPackageMap = taskPackageMap)
+        val hasTransition = scene.hasActiveTransition
+        val isReady =
+            scene.tasks.any { task ->
+                task.allNodes.any { it.hasSurfaceBounds || it.isEmbeddedWindowLeash }
+            }
+        if ((!hasTransition && isReady) || System.currentTimeMillis() - startTime > maxWaitMs) {
+            break
+        }
+        try {
+            Thread.sleep(100)
+        } catch (_: InterruptedException) {}
+    }
+    return scene
+}
+
+/**
+ * Parses the raw output of `dumpsys spf_cpm` and an optional task-package mapping into a
+ * [SpatialScene].
+ */
+@VisibleForTesting
+internal fun parseSpatialScene(
+    rawDump: String,
+    taskPackageMap: Map<Int, String> = emptyMap(),
+): SpatialScene = SpatialScene(rootNodes = parseRootNodes(rawDump), taskPackageMap = taskPackageMap)
+
+/** Parses the raw output of `dumpsys spf_cpm` into a list of [SpatialNode] root entities. */
+@VisibleForTesting
+internal fun parseRootNodes(dump: String): List<SpatialNode> {
+    val rootNodes = mutableListOf<SpatialNode>()
+    val nodeStack = ArrayDeque<SpatialNode>()
+
+    var currentNode: SpatialNode? = null
+    val currentAttributes = mutableMapOf<String, FloatArray>()
+    val currentProperties = mutableMapOf<String, String>()
+
+    fun flushCurrentNode() {
+        val node = currentNode ?: return
+        val finishedNode =
+            SpatialNode(
+                header = node.header,
+                name = node.name,
+                id = node.id,
+                depth = node.depth,
+                attributes = currentAttributes.toMap(),
+                properties = currentProperties.toMap(),
+            )
+        while (nodeStack.isNotEmpty() && nodeStack.last().depth >= finishedNode.depth) {
+            nodeStack.removeLast()
+        }
+
+        if (nodeStack.isEmpty()) {
+            rootNodes.add(finishedNode)
+        } else {
+            nodeStack.last().addChild(finishedNode)
+        }
+
+        nodeStack.addLast(finishedNode)
+        currentNode = null
+        currentAttributes.clear()
+        currentProperties.clear()
+    }
+
+    for (line in dump.lineSequence()) {
+        val trimmed = line.trim()
+        if (
+            trimmed.startsWith("InputTargetManager state:") ||
+                trimmed.startsWith("Stats since reset:") ||
+                trimmed.startsWith("Number of living nodes:") ||
+                trimmed.startsWith("Total size of buffers in scene:")
+        ) {
+            break
+        }
+        if (trimmed.isEmpty() || trimmed.startsWith("SPF Nodes:")) {
+            continue
+        }
+
+        var indent = 0
+        while (indent < line.length && line[indent] == ' ') {
+            indent++
+        }
+
+        if (trimmed.startsWith("Node ")) {
+            flushCurrentNode()
+
+            val matcher = NODE_LINE_PATTERN.matcher(line)
+            var nodeName = ""
+            var nodeId = -1
+
+            if (matcher.find()) {
+                nodeName = matcher.group(1)?.trim() ?: ""
+                nodeId = matcher.group(2)?.toIntOrNull() ?: -1
+            } else {
+                val nodeIdx = line.indexOf("Node ")
+                if (nodeIdx >= 0) {
+                    val rest = line.substring(nodeIdx + 5).trim()
+                    val colonIdx = rest.lastIndexOf(':')
+                    nodeName = if (colonIdx > 0) rest.substring(0, colonIdx).trim() else rest
+                }
+            }
+
+            currentNode =
+                SpatialNode(header = trimmed, name = nodeName, id = nodeId, depth = indent)
+        }
+
+        if (currentNode != null) {
+            if (trimmed.contains("visible on both")) {
+                currentProperties["stereoVisibility"] = "visible on both"
+            } else if (trimmed.contains("hidden on both")) {
+                currentProperties["stereoVisibility"] = "hidden on both"
+            }
+
+            val reformMatcher = REFORM_OPTIONS_PATTERN.matcher(line)
+            if (reformMatcher.find()) {
+                currentProperties["reformOptions"] = reformMatcher.group(1) ?: ""
+            }
+
+            val sysUiMetadataMatcher = SYS_UI_METADATA_PATTERN.matcher(line)
+            if (sysUiMetadataMatcher.find()) {
+                currentProperties["sysUIMetadata"] = sysUiMetadataMatcher.group(1) ?: ""
+            }
+
+            val attrMatcher = ATTR_ARRAY_PATTERN.matcher(line)
+            while (attrMatcher.find()) {
+                val key = attrMatcher.group(1) ?: continue
+                val valueStr = attrMatcher.group(2) ?: continue
+                val arr = parseArray(valueStr)
+                if (arr.isNotEmpty()) {
+                    currentAttributes[key] = arr
+                } else {
+                    currentProperties[key] = valueStr
+                }
+            }
+
+            val propMatcher = PROP_KEY_VALUE_PATTERN.matcher(line)
+            while (propMatcher.find()) {
+                val key = propMatcher.group(1) ?: continue
+                val value = propMatcher.group(2) ?: continue
+                if (!currentProperties.containsKey(key)) {
+                    currentProperties[key] = value
+                }
+            }
+        }
+    }
+
+    flushCurrentNode()
+    return rootNodes
+}
+
+private fun parseArray(input: String): FloatArray {
+    val cleaned = input.replace("(", "").replace(")", "").replace(",", " ").trim()
+    if (cleaned.isEmpty()) return FloatArray(0)
+    val parts = cleaned.split(WHITESPACE_PATTERN).filter { it.isNotEmpty() }
+    return try {
+        FloatArray(parts.size) { i -> parts[i].toFloat() }
+    } catch (e: NumberFormatException) {
+        FloatArray(0)
+    }
+}
+
+/**
+ * Parses the output of `dumpsys activity activities` to build a map of task IDs to their associated
+ * Android package names.
+ */
+internal fun parseTaskPackageMap(activitiesDump: String): Map<Int, String> {
+    if (activitiesDump.isBlank()) return emptyMap()
+    val map = mutableMapOf<Int, String>()
+
+    // Pattern 1: ActivityRecord{... <package>/<activity> ... t<taskId> ...}
+    val actMatcher = ACTIVITY_RECORD_PATTERN.matcher(activitiesDump)
+    while (actMatcher.find()) {
+        val pkg = actMatcher.group(1) ?: continue
+        val taskId = actMatcher.group(2)?.toIntOrNull() ?: continue
+        map[taskId] = pkg
+    }
+
+    // Pattern 2: Task{... #<taskId> ... A=(<uid>:)?<package> ...}
+    val taskMatcher = TASK_AFFINITY_PATTERN.matcher(activitiesDump)
+    while (taskMatcher.find()) {
+        val taskId = taskMatcher.group(1)?.toIntOrNull() ?: continue
+        val pkg = taskMatcher.group(2) ?: continue
+        if (!map.containsKey(taskId)) {
+            map[taskId] = pkg
+        }
+    }
+
+    // Pattern 3: Task{... #<taskId> ... <package>/...}
+    val compMatcher = TASK_COMPONENT_PATTERN.matcher(activitiesDump)
+    while (compMatcher.find()) {
+        val taskId = compMatcher.group(1)?.toIntOrNull() ?: continue
+        val pkg = compMatcher.group(2) ?: continue
+        if (!map.containsKey(taskId)) {
+            map[taskId] = pkg
+        }
+    }
+
+    return map
+}
+
+/** Executes a shell command via [uiAutomation] and returns the complete trimmed stdout output. */
+internal fun executeSceneShellCommand(
+    command: String,
+    uiAutomation: UiAutomation? = null,
+): String {
+    return try {
+        val automation =
+            uiAutomation ?: InstrumentationRegistry.getInstrumentation().uiAutomation ?: return ""
+        automation.executeShellCommand(command).use { pfd ->
+            ParcelFileDescriptor.AutoCloseInputStream(pfd).use { stream: InputStream ->
+                stream.bufferedReader().readText().trim()
+            }
+        }
+    } catch (e: Exception) {
+        Log.e("SpatialSceneHelper", "Error executing shell command: $command", e)
+        ""
+    }
+}
+
+private val ACTIVITY_RECORD_PATTERN =
+    Pattern.compile(
+        "ActivityRecord\\{[^}]*?\\s+([a-zA-Z0-9_]+(?:\\.[a-zA-Z0-9_]+)+)/[^}\\s]+\\s+t(\\d+)\\b"
+    )
+private val TASK_AFFINITY_PATTERN =
+    Pattern.compile("Task\\{[^}]*?#(\\d+)[^}]*?\\bA=(?:\\d+:)?([a-zA-Z0-9_]+(?:\\.[a-zA-Z0-9_]+)+)")
+private val TASK_COMPONENT_PATTERN =
+    Pattern.compile("Task\\{[^}]*?#(\\d+)[^}]*?\\s+([a-zA-Z0-9_]+(?:\\.[a-zA-Z0-9_]+)+)/")
+private val NODE_LINE_PATTERN =
+    Pattern.compile("^\\s*Node\\s+(.+?)(?:\\s*\\([^)]*\\))?(?:\\s+id=(\\d+))?\\s*:?\\s*$")
+private val ATTR_ARRAY_PATTERN = Pattern.compile("([a-zA-Z0-9_#.-]+)=\\(([^)]+)\\)")
+private val REFORM_OPTIONS_PATTERN = Pattern.compile("reformOptions=<([^>]+)>")
+private val SYS_UI_METADATA_PATTERN = Pattern.compile("sysUIMetadata=<([^>]+)>")
+private val PROP_KEY_VALUE_PATTERN = Pattern.compile("([a-zA-Z0-9_#.-]+)=([a-zA-Z0-9_#.-]+)")
+private val WHITESPACE_PATTERN = Pattern.compile("\\s+")

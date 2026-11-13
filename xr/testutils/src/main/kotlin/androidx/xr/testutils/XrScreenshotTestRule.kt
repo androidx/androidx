@@ -129,7 +129,7 @@ internal constructor(
     ) : this(
         moduleDirectory = moduleDirectory,
         updateGoldens = updateGoldens,
-        shellCommandExecutor = { SpatialSceneHelper.executeShellCommand(it) },
+        shellCommandExecutor = { executeSceneShellCommand(it) },
     )
 
     /**

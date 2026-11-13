@@ -82,8 +82,8 @@ import androidx.xr.compose.testing.assertWidthIsEqualTo
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.unit.DpVolumeOffset
 import androidx.xr.testutils.SpatialNode
-import androidx.xr.testutils.SpatialSceneHelper
 import androidx.xr.testutils.XrDeviceTest
+import androidx.xr.testutils.captureSpatialScene
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.Assume
@@ -108,7 +108,7 @@ import org.junit.runner.RunWith
  * - Uniform spacing between panels in a grid built with SpatialArrangement.spacedBy
  * - Z-axis depth alignment in SpatialBox and 3D translation via SubspaceModifier.offset
  * - Rendered panel positions in the system spatial scene graph (`dumpsys spf_cpm`, queried via
- *   SpatialSceneHelper) along the X, Y, and Z axes
+ *   [captureSpatialScene]) along the X, Y, and Z axes
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -871,9 +871,7 @@ class SpatialLayoutTest {
             conditionDescription = "$count visible panel nodes in the spatial scene",
             timeoutMillis = 10_000L,
         ) {
-            val task =
-                SpatialSceneHelper.captureSpatialScene()
-                    .findTaskByActivity(composeTestRule.activity)
+            val task = captureSpatialScene().findTaskByActivity(composeTestRule.activity)
             nodes =
                 task
                     ?.findNodes {

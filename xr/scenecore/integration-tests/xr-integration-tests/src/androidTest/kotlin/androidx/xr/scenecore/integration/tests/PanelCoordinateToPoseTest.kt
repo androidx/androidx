@@ -42,12 +42,12 @@ import androidx.xr.scenecore.SpatialCapability
 import androidx.xr.scenecore.scene
 import androidx.xr.testutils.SpatialAlignment
 import androidx.xr.testutils.SpatialNode
-import androidx.xr.testutils.SpatialSceneHelper
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.XrSessionRule
 import androidx.xr.testutils.createXrSessionRule
 import androidx.xr.testutils.performSpatialInteraction
 import androidx.xr.testutils.resetSpatialInteraction
+import androidx.xr.testutils.waitForSpatialScene
 import androidx.xr.testutils.waitUntil
 import com.google.common.truth.Truth.assertThat
 import java.nio.file.Paths
@@ -894,7 +894,7 @@ class PanelCoordinateToPoseTest {
         panelName: String,
     ): SpatialNode =
         checkNotNull(
-            SpatialSceneHelper.waitForSpatialScene(
+            waitForSpatialScene(
                 description = "resizable spatial panel '$panelName' with settled extents",
                 timeout = SCENE_TIMEOUT,
                 pollInterval = POLL_INTERVAL,

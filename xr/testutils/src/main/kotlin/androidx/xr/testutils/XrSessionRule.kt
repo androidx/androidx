@@ -236,9 +236,8 @@ internal constructor(
      *
      * * Waits for active window transitions on [activity] to settle and captures a stabilized
      *   compositor frame.
-     * * Call [waitUntil] (or scene-inspection helpers such as
-     *   [SpatialSceneHelper.waitForSpatialScene]) beforehand to await asynchronous scene or
-     *   environment state.
+     * * Call [waitUntil] (or scene-inspection helpers such as [waitForSpatialScene]) beforehand to
+     *   await asynchronous scene or environment state.
      * * Must be called from the instrumentation thread while a test is running.
      *
      * @param cropBounds explicit pixel rectangle to crop from the compositor viewport, or `null`
@@ -263,12 +262,12 @@ internal constructor(
         }
         val activeActivity = activity
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-        SpatialSceneHelper.waitForSettledSpatialTask(
+        waitForSettledSpatialTask(
             activity = activeActivity,
             requireFullSpace = false,
             timeout = DEFAULT_WAIT_TIMEOUT,
         )
-        return SpatialSceneHelper.captureSceneToBitmap(
+        return captureSceneToBitmap(
             cropBounds = cropBounds,
             padding = padding,
             autoCrop = autoCrop,

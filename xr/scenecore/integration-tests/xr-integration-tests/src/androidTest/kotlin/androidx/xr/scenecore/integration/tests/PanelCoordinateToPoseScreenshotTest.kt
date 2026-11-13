@@ -37,10 +37,10 @@ import androidx.xr.testutils.DEFAULT_XR_MSSIM_THRESHOLD
 import androidx.xr.testutils.FakeHeadTrackingRule
 import androidx.xr.testutils.SpatialAlignment
 import androidx.xr.testutils.SpatialNode
-import androidx.xr.testutils.SpatialSceneHelper
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.XrScreenshotTestRule
 import androidx.xr.testutils.createXrSessionRule
+import androidx.xr.testutils.waitForSpatialScene
 import java.nio.file.Paths
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -173,7 +173,7 @@ class PanelCoordinateToPoseScreenshotTest {
 
     private fun awaitVisiblePanelAndGltfSubspace(): SpatialNode =
         checkNotNull(
-            SpatialSceneHelper.waitForSpatialScene(
+            waitForSpatialScene(
                 description = "off-center panel '$PANEL_NAME' and glTF subspace to become visible",
                 timeout = SCENE_TIMEOUT,
                 pollInterval = POLL_INTERVAL,
