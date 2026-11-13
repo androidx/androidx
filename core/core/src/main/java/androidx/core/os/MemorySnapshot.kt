@@ -342,6 +342,10 @@ public class MemorySnapshot private constructor(private val procStatus: ProcStat
                             CgroupFdHolder.getPath(targetPid, "memory.stat"),
                             status,
                         )
+                        // Any field remaining < 0 indicates reading/parsing memory.stat failed.
+                        if (status.run { minOf(anonRssBytes, fileRssBytes, shmemRssBytes) < 0 }) {
+                            return null
+                        }
                         status.swapBytes =
                             readLongFromFile(
                                 CgroupFdHolder.getPath(targetPid, "memory.swap.current")
@@ -349,17 +353,14 @@ public class MemorySnapshot private constructor(private val procStatus: ProcStat
                         val peak =
                             readLongFromFile(CgroupFdHolder.getPath(targetPid, "memory.peak"))
                         val rssSum =
-                            (if (status.anonRssBytes > 0) status.anonRssBytes else 0L) +
-                                (if (status.fileRssBytes > 0) status.fileRssBytes else 0L) +
-                                (if (status.shmemRssBytes > 0) status.shmemRssBytes else 0L)
-                        status.rssBytes =
-                            if (status.processMemoryUsageBytes > 0) {
-                                maxOf(status.processMemoryUsageBytes, rssSum)
-                            } else if (rssSum > 0) {
-                                rssSum
-                            } else {
-                                -1L
-                            }
+                            saturatingAdd(
+                                saturatingAdd(status.anonRssBytes, status.fileRssBytes),
+                                status.shmemRssBytes,
+                            )
+                        // A live cgroup v2 process can legitimately report 0 RSS (e.g., when frozen
+                        // and 100% anon-compacted to swap while Zygote CoW and shared file pages
+                        // remain charged to other cgroups under cgroup.memory=nokmem).
+                        status.rssBytes = maxOf(status.processMemoryUsageBytes, rssSum)
                         status.rssHwmBytes =
                             if (peak >= 0) {
                                 maxOf(peak, status.rssBytes)
@@ -464,6 +465,10 @@ public class MemorySnapshot private constructor(private val procStatus: ProcStat
                 }
                 return -1L
             }
+
+            /** Adds two non-negative [Long] values, saturating at [Long.MAX_VALUE] on overflow. */
+            private fun saturatingAdd(a: Long, b: Long): Long =
+                if (a > Long.MAX_VALUE - b) Long.MAX_VALUE else a + b
         }
     }
 
