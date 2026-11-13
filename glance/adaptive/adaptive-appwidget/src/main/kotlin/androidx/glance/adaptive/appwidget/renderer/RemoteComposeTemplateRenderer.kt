@@ -16,6 +16,7 @@
 
 package androidx.glance.adaptive.appwidget.renderer
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.widget.RemoteViews
@@ -62,22 +63,36 @@ internal class RemoteComposeRenderOutput(val content: @RemoteComposable @Composa
 
     @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
     private object Api37Impl {
+        /**
+         * Mirrors `PendingIntentAction.FIRST_ACTION_ID` (`0x7E000000`), the host action ID offset
+         * that `PROFILE_WIDGETS` writes for `RemoteCapturedDocument.pendingIntents` entries.
+         */
+        private const val FIRST_PENDING_INTENT_ACTION_ID = 0x7E000000
+
         @OptIn(ExperimentalRemoteCreationComposeApi::class)
         suspend fun composeRemoteCompose(
             context: Context,
             dimensions: Dimensions,
             content: @RemoteComposable @Composable () -> Unit,
         ): RemoteViews {
-            val bytes =
+            val captured =
                 captureSingleRemoteDocument(
-                        context = context,
-                        creationDisplayInfo = creationDisplayInfo(context, dimensions),
-                        profile = GlanceAppWidgetProfiles.widgetsV7,
-                        content = content,
-                    )
-                    .bytes
-            val drawInstructions = RemoteViews.DrawInstructions.Builder(listOf(bytes)).build()
-            return RemoteViews(drawInstructions)
+                    context = context,
+                    creationDisplayInfo = creationDisplayInfo(context, dimensions),
+                    profile = GlanceAppWidgetProfiles.widgetsV7,
+                    content = content,
+                )
+            val drawInstructions =
+                RemoteViews.DrawInstructions.Builder(listOf(captured.bytes)).build()
+            val remoteViews = RemoteViews(drawInstructions)
+            @SuppressLint("ResourceType")
+            captured.pendingIntents.forEach { index, pendingIntent ->
+                remoteViews.setOnClickPendingIntent(
+                    FIRST_PENDING_INTENT_ACTION_ID + index,
+                    pendingIntent,
+                )
+            }
+            return remoteViews
         }
 
         /**

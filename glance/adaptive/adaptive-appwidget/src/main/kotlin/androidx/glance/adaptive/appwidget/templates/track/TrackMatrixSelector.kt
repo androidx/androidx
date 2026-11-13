@@ -34,7 +34,8 @@ import androidx.glance.adaptive.core.templates.TrackTemplate
 
 /**
  * Maps a [TrackTemplate] onto the Information Matrix, for any backend's matrix renderer, such as
- * [androidx.glance.adaptive.appwidget.matrix.remoteviews.RemoteViewsMatrixRenderer].
+ * [androidx.glance.adaptive.appwidget.matrix.remoteviews.RemoteViewsMatrixRenderer] or
+ * [androidx.glance.adaptive.appwidget.matrix.remotecompose.RemoteComposeMatrixRenderer].
  *
  * This is the whole of the Track template: which component goes in which slot at each width and
  * height tier. Everything about the container (padding, spacing, the header's width budget, the
