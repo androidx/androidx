@@ -430,7 +430,7 @@ class RestoreCredentialBackupAgentDetectorTest : LintDetectorTest() {
     }
 
     @Test
-    fun launchWithDispatcher_preservesCoroutineContextInQuickFix() {
+    fun launchWithDispatcherPreservesContextAndExplicitJobJoinIsClean() {
         lint()
             .files(
                 *CREDENTIALS_STUBS,
@@ -449,6 +449,7 @@ class RestoreCredentialBackupAgentDetectorTest : LintDetectorTest() {
                 import kotlinx.coroutines.CoroutineScope
                 import kotlinx.coroutines.Dispatchers
                 import kotlinx.coroutines.launch
+                import kotlinx.coroutines.runBlocking
 
                 class DispatcherLaunchBackupAgent : BackupAgent() {
                     override fun onBackup(
@@ -469,6 +470,14 @@ class RestoreCredentialBackupAgentDetectorTest : LintDetectorTest() {
                         CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
                             manager.getCredential(this@DispatcherLaunchBackupAgent, request)
                         }
+
+                        runBlocking {
+                            val job =
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    manager.getCredential(this@DispatcherLaunchBackupAgent, request)
+                                }
+                            job.join()
+                        }
                     }
                 }
                 """
@@ -479,10 +488,10 @@ class RestoreCredentialBackupAgentDetectorTest : LintDetectorTest() {
             .expectErrorCount(1)
             .expectFixDiffs(
                 """
-                Fix for src/com/example/DispatcherLaunchBackupAgent.kt line 31: Replace 'CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO)' with 'runBlocking':
-                @@ -30 +30 @@
+                Fix for src/com/example/DispatcherLaunchBackupAgent.kt line 32: Replace 'CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO)' with 'runBlocking':
+                @@ -31 +31 @@
                 -        CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
-                +        kotlinx.coroutines.runBlocking(Dispatchers.IO) {
+                +        runBlocking(Dispatchers.IO) {
                 """
                     .trimIndent()
             )

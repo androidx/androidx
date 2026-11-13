@@ -391,6 +391,86 @@ class RestoreCredentialInvalidCastDetectorTest : LintDetectorTest() {
     }
 
     @Test
+    fun credentialsListFirstAndJavaTypeEquals_reportErrors() {
+        lint()
+            .files(
+                *CREDENTIALS_STUBS,
+                kotlin(
+                        """
+                package com.example
+
+                import android.content.Context
+                import androidx.credentials.CredentialManager
+                import androidx.credentials.GetCredentialRequest
+                import androidx.credentials.GetRestoreCredentialOption
+                import androidx.credentials.PublicKeyCredential
+
+                suspend fun checkFirstAndWhenType(context: Context, json: String) {
+                    val manager = CredentialManager.create(context)
+                    val response =
+                        manager.getCredential(
+                            context,
+                            GetCredentialRequest(listOf(GetRestoreCredentialOption(json))),
+                        )
+                    val firstCred = response.credentials.first() as? PublicKeyCredential
+                    when (response.credential.type) {
+                        PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL -> {}
+                    }
+                }
+                """
+                    )
+                    .indented(),
+                java(
+                        """
+                package com.example;
+
+                import android.content.Context;
+                import android.os.CancellationSignal;
+                import androidx.credentials.CredentialManager;
+                import androidx.credentials.CredentialManagerCallback;
+                import androidx.credentials.GetCredentialRequest;
+                import androidx.credentials.GetCredentialResponse;
+                import androidx.credentials.GetRestoreCredentialOption;
+                import androidx.credentials.PublicKeyCredential;
+                import androidx.credentials.exceptions.GetCredentialException;
+                import java.util.Collections;
+                import java.util.concurrent.Executor;
+
+                public final class JavaTypeEqualsBug {
+                    public void restore(Context context, String json, Executor executor) {
+                        CredentialManager manager = CredentialManager.create(context);
+                        GetCredentialRequest request =
+                                new GetCredentialRequest(
+                                        Collections.singletonList(new GetRestoreCredentialOption(json)));
+                        manager.getCredentialAsync(
+                                context,
+                                request,
+                                new CancellationSignal(),
+                                executor,
+                                new CredentialManagerCallback<GetCredentialResponse, GetCredentialException>() {
+                                    @Override
+                                    public void onResult(GetCredentialResponse result) {
+                                        if (result.getCredential()
+                                                .getType()
+                                                .equals(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)) {
+                                            // Bug: checking for passkey type on restore response
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onError(GetCredentialException e) {}
+                                });
+                    }
+                }
+                """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expectErrorCount(3)
+    }
+
+    @Test
     fun scopeFunctionLambdasOnGetCredentialResult_areFlagged() {
         lint()
             .files(

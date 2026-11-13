@@ -22,7 +22,13 @@ import androidx.credentials.lint.RestoreCredentialConstants.CLASS_CREDENTIAL_MAN
 import androidx.credentials.lint.RestoreCredentialConstants.CLASS_E2EE_UNAVAILABLE_EXCEPTION
 import androidx.credentials.lint.RestoreCredentialConstants.CREATE_CREDENTIAL_METHODS
 import androidx.credentials.lint.RestoreCredentialConstants.RESTORE_CREDENTIALS_GUIDE_URL
+import androidx.credentials.lint.RestoreCredentialConstants.anyInSubtreeOrSameFileHelpers
+import androidx.credentials.lint.RestoreCredentialConstants.asCallExpression
 import androidx.credentials.lint.RestoreCredentialConstants.findArgument
+import androidx.credentials.lint.RestoreCredentialConstants.isDescendantOf
+import androidx.credentials.lint.RestoreCredentialConstants.unwrapNamedAndParens
+import androidx.credentials.lint.RestoreCredentialConstants.unwrapVariableInitializer
+import androidx.credentials.lint.RestoreCredentialConstants.unwrapVariableOrHelperReturn
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.ConstantEvaluator
 import com.android.tools.lint.detector.api.Detector
@@ -49,7 +55,6 @@ import org.jetbrains.uast.UTryExpression
 import org.jetbrains.uast.UTypeReferenceExpression
 import org.jetbrains.uast.UVariable
 import org.jetbrains.uast.getParentOfType
-import org.jetbrains.uast.skipParenthesizedExprDown
 import org.jetbrains.uast.visitor.AbstractUastVisitor
 
 /**
@@ -63,23 +68,19 @@ class RestoreCredentialE2eeFallbackDetector : Detector(), SourceCodeScanner {
     override fun getApplicableConstructorTypes(): List<String> =
         listOf(CLASS_CREATE_RESTORE_CREDENTIAL_REQUEST)
 
+    override fun getApplicableMethodNames(): List<String> = CREATE_CREDENTIAL_METHODS.toList()
+
     override fun visitConstructor(
         context: JavaContext,
         node: UCallExpression,
         constructor: PsiMethod,
     ) {
-        val cloudBackupArg = findArgument(context, node, constructor, "isCloudBackupEnabled", 1)
-        if (cloudBackupArg != null) {
-            val evaluated = ConstantEvaluator.evaluate(context, cloudBackupArg)
-            // Explicitly false (`isCloudBackupEnabled = false`) or dynamic parameter variable is
-            // exempt.
-            if (evaluated != true) return
-        }
+        if (!isCloudBackupEnabledCtor(context, node, constructor)) return
 
         // Locate the `createCredential` / `createCredentialAsync` call(s) consuming this request.
         // Skip standalone request helpers/factories where no `createCredential` call exists in the
         // enclosing method, since `try`/`catch (E2eeUnavailableException)` belongs at the call
-        // site.
+        // site (which is checked by `visitMethodCall`).
         val consumingCalls = findConsumingCreateCredentialCalls(context, node)
         if (
             consumingCalls.isEmpty() ||
@@ -88,7 +89,7 @@ class RestoreCredentialE2eeFallbackDetector : Detector(), SourceCodeScanner {
             return
         }
 
-        val singleInlineCall = consumingCalls.singleOrNull()?.takeIf { isDescendantOf(node, it) }
+        val singleInlineCall = consumingCalls.singleOrNull()?.takeIf { node.isDescendantOf(it) }
         val fix =
             if (singleInlineCall != null) {
                 buildTryCatchFallbackQuickFix(context, singleInlineCall, node, constructor)
@@ -120,6 +121,57 @@ class RestoreCredentialE2eeFallbackDetector : Detector(), SourceCodeScanner {
         )
     }
 
+    override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
+        if (!isCreateCredentialCall(context, node)) return
+        val requestArg = findArgument(context, node, method, "request", 1) ?: return
+        // Direct constructors in the same method are already handled by visitConstructor.
+        if (
+            unwrapVariableInitializer(requestArg).asCallExpression()?.resolve()?.isConstructor ==
+                true
+        ) {
+            return
+        }
+        val ctorCall =
+            unwrapVariableOrHelperReturn(context, requestArg).asCallExpression() ?: return
+        val resolvedCtor = ctorCall.resolve() ?: return
+        val owner = resolvedCtor.containingClass ?: return
+        if (
+            !resolvedCtor.isConstructor ||
+                !context.evaluator.inheritsFrom(
+                    owner,
+                    CLASS_CREATE_RESTORE_CREDENTIAL_REQUEST,
+                    false,
+                ) ||
+                !isCloudBackupEnabledCtor(context, ctorCall, resolvedCtor) ||
+                isProtectedByE2eeFallback(context, node)
+        ) {
+            return
+        }
+
+        context.report(
+            ISSUE,
+            node,
+            context.getCallLocation(node, includeReceiver = true, includeArguments = true),
+            "`CreateRestoreCredentialRequest` with cloud backup enabled throws " +
+                "`E2eeUnavailableException` when the device lacks a screen lock or cloud E2EE; catch " +
+                "`E2eeUnavailableException` and retry with `isCloudBackupEnabled = false` so local " +
+                "Device-to-Device restore still works",
+        )
+    }
+
+    private fun isCloudBackupEnabledCtor(
+        context: JavaContext,
+        node: UCallExpression,
+        constructor: PsiMethod,
+    ): Boolean {
+        val cloudBackupArg = findArgument(context, node, constructor, "isCloudBackupEnabled", 1)
+        if (cloudBackupArg != null) {
+            val evaluated = ConstantEvaluator.evaluate(context, cloudBackupArg)
+            if (evaluated != true) return false
+        }
+        return true
+    }
+
     private fun findConsumingCreateCredentialCalls(
         context: JavaContext,
         ctorCall: UCallExpression,
@@ -145,8 +197,8 @@ class RestoreCredentialE2eeFallbackDetector : Detector(), SourceCodeScanner {
                     if (isCreateCredentialCall(context, node)) {
                         val usesVar =
                             node.valueArguments.any { arg ->
-                                val unwrapped = arg.skipParenthesizedExprDown()
-                                unwrapped is UReferenceExpression && unwrapped.resolve() == psiVar
+                                (arg.unwrapNamedAndParens() as? UReferenceExpression)?.resolve() ==
+                                    psiVar
                             }
                         if (usesVar) {
                             calls.add(node)
@@ -180,7 +232,7 @@ class RestoreCredentialE2eeFallbackDetector : Detector(), SourceCodeScanner {
     private fun isEnclosedInE2eeTryCatch(context: JavaContext, target: UElement): Boolean {
         var current: UElement? = target.uastParent
         while (current != null && current !is UMethod) {
-            if (current is UTryExpression && isDescendantOf(target, current.tryClause)) {
+            if (current is UTryExpression && target.isDescendantOf(current.tryClause)) {
                 val hasValidCatch =
                     current.catchClauses.any { catchClause ->
                         catchHandlesE2eeException(context, catchClause) &&
@@ -214,7 +266,7 @@ class RestoreCredentialE2eeFallbackDetector : Detector(), SourceCodeScanner {
                 (canonical == CLASS_CREATE_CREDENTIAL_EXCEPTION ||
                     canonical == "java.lang.Exception" ||
                     canonical == "java.lang.Throwable") &&
-                    elementReferencesE2eeException(catchClause.body)
+                    elementReferencesE2eeException(context, catchClause.body)
             ) {
                 return true
             }
@@ -227,13 +279,13 @@ class RestoreCredentialE2eeFallbackDetector : Detector(), SourceCodeScanner {
         asyncCall: UCallExpression,
     ): Boolean {
         for (arg in asyncCall.valueArguments) {
-            val unwrapped = arg.skipParenthesizedExprDown()
+            val unwrapped = unwrapVariableInitializer(arg)
             if (unwrapped is UObjectLiteralExpression) {
                 val onErrorMethod =
                     unwrapped.declaration.methods.firstOrNull { it.name == "onError" } ?: continue
                 val body = onErrorMethod.uastBody ?: continue
                 if (
-                    elementReferencesE2eeException(body) &&
+                    elementReferencesE2eeException(context, body) &&
                         containsLocalFallbackRetry(context, body)
                 ) {
                     return true
@@ -243,61 +295,38 @@ class RestoreCredentialE2eeFallbackDetector : Detector(), SourceCodeScanner {
         return false
     }
 
-    private fun elementReferencesE2eeException(scope: UElement): Boolean {
-        var found = false
-        scope.accept(
-            object : AbstractUastVisitor() {
-                override fun visitBinaryExpressionWithType(
-                    node: UBinaryExpressionWithType
-                ): Boolean {
-                    if (node.type.canonicalText == CLASS_E2EE_UNAVAILABLE_EXCEPTION) {
-                        found = true
-                    }
-                    return false
-                }
+    private fun elementReferencesE2eeException(context: JavaContext, scope: UElement): Boolean =
+        anyInSubtreeOrSameFileHelpers(context, scope, maxDepth = 0) {
+            (it is UBinaryExpressionWithType &&
+                it.type.canonicalText == CLASS_E2EE_UNAVAILABLE_EXCEPTION) ||
+                (it is UTypeReferenceExpression &&
+                    it.type.canonicalText == CLASS_E2EE_UNAVAILABLE_EXCEPTION)
+        }
 
-                override fun visitTypeReferenceExpression(node: UTypeReferenceExpression): Boolean {
-                    if (node.type.canonicalText == CLASS_E2EE_UNAVAILABLE_EXCEPTION) {
-                        found = true
-                    }
-                    return false
-                }
-            }
-        )
-        return found
-    }
+    private fun containsLocalFallbackRetry(context: JavaContext, scope: UElement): Boolean =
+        anyInSubtreeOrSameFileHelpers(context, scope) {
+            it is UCallExpression && isLocalOnlyRestoreRequestCtor(context, it)
+        }
 
-    private fun containsLocalFallbackRetry(context: JavaContext, scope: UElement): Boolean {
-        var hasRetry = false
-        scope.accept(
-            object : AbstractUastVisitor() {
-                override fun visitCallExpression(node: UCallExpression): Boolean {
-                    val resolved = node.resolve()
-                    val owner = resolved?.containingClass
-                    if (
-                        resolved != null &&
-                            resolved.isConstructor &&
-                            owner != null &&
-                            context.evaluator.inheritsFrom(
-                                owner,
-                                CLASS_CREATE_RESTORE_CREDENTIAL_REQUEST,
-                                false,
-                            )
-                    ) {
-                        val cloudArg =
-                            findArgument(context, node, resolved, "isCloudBackupEnabled", 1)
-                        if (
-                            cloudArg != null &&
-                                ConstantEvaluator.evaluate(context, cloudArg) == false
-                        ) {
-                            hasRetry = true
-                        }
-                    }
-                    return false
-                }
-            }
-        )
-        return hasRetry
+    private fun isLocalOnlyRestoreRequestCtor(
+        context: JavaContext,
+        node: UCallExpression,
+    ): Boolean {
+        val resolved = node.resolve() ?: return false
+        val owner = resolved.containingClass ?: return false
+        if (
+            !resolved.isConstructor ||
+                !context.evaluator.inheritsFrom(
+                    owner,
+                    CLASS_CREATE_RESTORE_CREDENTIAL_REQUEST,
+                    false,
+                )
+        ) {
+            return false
+        }
+        val cloudArg =
+            findArgument(context, node, resolved, "isCloudBackupEnabled", 1) ?: return false
+        return ConstantEvaluator.evaluate(context, cloudArg) == false
     }
 
     private fun buildTryCatchFallbackQuickFix(
@@ -361,15 +390,6 @@ class RestoreCredentialE2eeFallbackDetector : Detector(), SourceCodeScanner {
             .shortenNames()
             .reformat(true)
             .build()
-    }
-
-    private fun isDescendantOf(child: UElement, ancestor: UElement): Boolean {
-        var current: UElement? = child
-        while (current != null) {
-            if (current == ancestor) return true
-            current = current.uastParent
-        }
-        return false
     }
 
     companion object {

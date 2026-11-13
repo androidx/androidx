@@ -24,7 +24,11 @@ import androidx.credentials.lint.RestoreCredentialConstants.CLASS_GET_RESTORE_CR
 import androidx.credentials.lint.RestoreCredentialConstants.CLASS_PUBLIC_KEY_CREDENTIAL
 import androidx.credentials.lint.RestoreCredentialConstants.CLASS_RESTORE_CREDENTIAL
 import androidx.credentials.lint.RestoreCredentialConstants.RESTORE_CREDENTIALS_GUIDE_URL
+import androidx.credentials.lint.RestoreCredentialConstants.anyInSubtreeOrSameFileHelpers
+import androidx.credentials.lint.RestoreCredentialConstants.asCallExpression
 import androidx.credentials.lint.RestoreCredentialConstants.isDescendantOf
+import androidx.credentials.lint.RestoreCredentialConstants.selectorMatchesPropertyOrGetter
+import androidx.credentials.lint.RestoreCredentialConstants.unwrapVariableInitializer
 import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
@@ -39,6 +43,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiField
 import com.intellij.psi.PsiParameter
 import com.intellij.psi.PsiVariable
+import org.jetbrains.uast.UArrayAccessExpression
 import org.jetbrains.uast.UBinaryExpression
 import org.jetbrains.uast.UBinaryExpressionWithType
 import org.jetbrains.uast.UCallExpression
@@ -76,6 +81,7 @@ class RestoreCredentialInvalidCastDetector : Detector(), SourceCodeScanner {
             UBinaryExpressionWithType::class.java,
             USwitchClauseExpression::class.java,
             UBinaryExpression::class.java,
+            UCallExpression::class.java,
         )
 
     override fun createUastHandler(context: JavaContext): UElementHandler =
@@ -107,22 +113,35 @@ class RestoreCredentialInvalidCastDetector : Detector(), SourceCodeScanner {
             override fun visitSwitchClauseExpression(node: USwitchClauseExpression) {
                 val switchExpr = node.getParentOfType<USwitchExpression>(true) ?: return
                 val subject = extractSwitchSubject(switchExpr) ?: return
-                if (!isCredentialExpression(context, subject)) return
+                val credentialReceiver = unwrapCredentialTypeReceiver(context, subject)
+                if (credentialReceiver != null) {
+                    for (caseVal in node.caseValues) {
+                        val typeConstExpr =
+                            findPublicKeyTypeConstantInExpression(context, caseVal) ?: continue
+                        if (isFromRestoreOnlyFlow(context, credentialReceiver, node)) {
+                            reportInvalidTypeConstant(context, node, typeConstExpr)
+                        }
+                    }
+                    return
+                }
 
-                for (caseVal in node.caseValues) {
-                    // UBinaryExpressionWithType inside `when` is already handled by
-                    // visitBinaryExpressionWithType.
-                    if (caseVal is UBinaryExpressionWithType) continue
-                    if (caseVal is UTypeReferenceExpression) {
-                        val targetClass = context.evaluator.getTypeClass(caseVal.type) ?: continue
-                        if (
-                            context.evaluator.inheritsFrom(
-                                targetClass,
-                                CLASS_PUBLIC_KEY_CREDENTIAL,
-                                false,
-                            ) && isFromRestoreOnlyFlow(context, subject, node)
-                        ) {
-                            reportInvalidTypeTarget(context, node, caseVal)
+                if (isCredentialExpression(context, subject)) {
+                    for (caseVal in node.caseValues) {
+                        // UBinaryExpressionWithType inside `when` is already handled by
+                        // visitBinaryExpressionWithType.
+                        if (caseVal is UBinaryExpressionWithType) continue
+                        if (caseVal is UTypeReferenceExpression) {
+                            val targetClass =
+                                context.evaluator.getTypeClass(caseVal.type) ?: continue
+                            if (
+                                context.evaluator.inheritsFrom(
+                                    targetClass,
+                                    CLASS_PUBLIC_KEY_CREDENTIAL,
+                                    false,
+                                ) && isFromRestoreOnlyFlow(context, subject, node)
+                            ) {
+                                reportInvalidTypeTarget(context, node, caseVal)
+                            }
                         }
                     }
                 }
@@ -132,36 +151,68 @@ class RestoreCredentialInvalidCastDetector : Detector(), SourceCodeScanner {
                 val opText = node.operator.text
                 if (opText != "==" && opText != "!=") return
 
-                val publicKeyTypeConst =
-                    findPublicKeyTypeConstantRef(context, node.leftOperand, node.rightOperand)
-                        ?: return
-                val otherSide =
-                    if (publicKeyTypeConst === node.leftOperand) node.rightOperand
-                    else node.leftOperand
-                val credentialReceiver = unwrapCredentialTypeReceiver(context, otherSide) ?: return
-                if (!isFromRestoreOnlyFlow(context, credentialReceiver, node)) return
+                checkTypeConstantComparison(context, node, node.leftOperand, node.rightOperand)
+            }
 
-                val location = context.getLocation(publicKeyTypeConst)
-                val fix =
-                    fix()
-                        .name("Replace with 'RestoreCredential.TYPE_RESTORE_CREDENTIAL'")
-                        .replace()
-                        .range(location)
-                        .with("$CLASS_RESTORE_CREDENTIAL.TYPE_RESTORE_CREDENTIAL")
-                        .shortenNames()
-                        .reformat(true)
-                        .build()
-
-                context.report(
-                    ISSUE,
-                    node,
-                    location,
-                    "`GetRestoreCredentialOption` returns `RestoreCredential` (`TYPE_RESTORE_CREDENTIAL`), " +
-                        "not `PublicKeyCredential` (`TYPE_PUBLIC_KEY_CREDENTIAL`).",
-                    fix,
-                )
+            override fun visitCallExpression(node: UCallExpression) {
+                if (node.methodName != "equals") return
+                when (node.valueArguments.size) {
+                    1 -> {
+                        val left = node.receiver ?: return
+                        val right = node.valueArguments[0]
+                        checkTypeConstantComparison(context, node, left, right)
+                    }
+                    2 -> {
+                        checkTypeConstantComparison(
+                            context,
+                            node,
+                            node.valueArguments[0],
+                            node.valueArguments[1],
+                        )
+                    }
+                }
             }
         }
+
+    private fun checkTypeConstantComparison(
+        context: JavaContext,
+        scopeNode: UElement,
+        left: UExpression,
+        right: UExpression,
+    ) {
+        val publicKeyTypeConst = findPublicKeyTypeConstantRef(context, left, right) ?: return
+        val otherSide = if (publicKeyTypeConst === left) right else left
+        val credentialReceiver = unwrapCredentialTypeReceiver(context, otherSide) ?: return
+        if (!isFromRestoreOnlyFlow(context, credentialReceiver, scopeNode)) return
+
+        reportInvalidTypeConstant(context, scopeNode, publicKeyTypeConst)
+    }
+
+    private fun reportInvalidTypeConstant(
+        context: JavaContext,
+        scopeNode: UElement,
+        publicKeyTypeConst: UExpression,
+    ) {
+        val location = context.getLocation(publicKeyTypeConst)
+        val fix =
+            fix()
+                .name("Replace with 'RestoreCredential.TYPE_RESTORE_CREDENTIAL'")
+                .replace()
+                .range(location)
+                .with("$CLASS_RESTORE_CREDENTIAL.TYPE_RESTORE_CREDENTIAL")
+                .shortenNames()
+                .reformat(true)
+                .build()
+
+        context.report(
+            ISSUE,
+            scopeNode,
+            location,
+            "`GetRestoreCredentialOption` returns `RestoreCredential` (`TYPE_RESTORE_CREDENTIAL`), " +
+                "not `PublicKeyCredential` (`TYPE_PUBLIC_KEY_CREDENTIAL`).",
+            fix,
+        )
+    }
 
     private fun reportInvalidTypeTarget(
         context: JavaContext,
@@ -257,9 +308,13 @@ class RestoreCredentialInvalidCastDetector : Detector(), SourceCodeScanner {
     }
 
     private fun isCredentialExpression(context: JavaContext, expr: UExpression): Boolean {
-        val typeClass =
-            RestoreCredentialConstants.resolveExpressionClass(context, expr) ?: return false
-        return context.evaluator.inheritsFrom(typeClass, CLASS_CREDENTIAL, false)
+        val typeClass = RestoreCredentialConstants.resolveExpressionClass(context, expr)
+        if (
+            typeClass != null && context.evaluator.inheritsFrom(typeClass, CLASS_CREDENTIAL, false)
+        ) {
+            return true
+        }
+        return extractResponseFromCredentialExpr(context, expr) != null
     }
 
     private fun findPublicKeyTypeConstantRef(
@@ -272,35 +327,71 @@ class RestoreCredentialInvalidCastDetector : Detector(), SourceCodeScanner {
         return null
     }
 
+    private fun findPublicKeyTypeConstantInExpression(
+        context: JavaContext,
+        expr: UExpression,
+    ): UExpression? {
+        if (isPublicKeyTypeConstant(context, expr)) return expr
+        var found: UExpression? = null
+        expr.accept(
+            object : AbstractUastVisitor() {
+                override fun visitQualifiedReferenceExpression(
+                    node: UQualifiedReferenceExpression
+                ): Boolean {
+                    if (found == null && isPublicKeyTypeConstant(context, node)) {
+                        found = node
+                        return true
+                    }
+                    return false
+                }
+
+                override fun visitSimpleNameReferenceExpression(
+                    node: USimpleNameReferenceExpression
+                ): Boolean {
+                    if (found == null && isPublicKeyTypeConstant(context, node)) {
+                        found = node
+                        return true
+                    }
+                    return false
+                }
+            }
+        )
+        return found
+    }
+
     private fun isPublicKeyTypeConstant(context: JavaContext, expr: UExpression): Boolean {
         val unwrapped = expr.skipParenthesizedExprDown()
         val ref = unwrapped as? UReferenceExpression ?: return false
-        val resolved = ref.resolve() as? PsiField ?: return false
-        return resolved.name == "TYPE_PUBLIC_KEY_CREDENTIAL" &&
-            context.evaluator.isMemberInClass(resolved, CLASS_PUBLIC_KEY_CREDENTIAL)
+        val resolved =
+            ref.resolve()
+                ?: (ref as? UQualifiedReferenceExpression)?.let {
+                    (it.selector.skipParenthesizedExprDown() as? UReferenceExpression)?.resolve()
+                }
+        if (resolved is PsiField) {
+            return resolved.name == "TYPE_PUBLIC_KEY_CREDENTIAL" &&
+                (context.evaluator.isMemberInClass(resolved, CLASS_PUBLIC_KEY_CREDENTIAL) ||
+                    resolved.containingClass?.qualifiedName ==
+                        "$CLASS_PUBLIC_KEY_CREDENTIAL.Companion")
+        }
+        if (unwrapped is UQualifiedReferenceExpression) {
+            val selector = unwrapped.selector.skipParenthesizedExprDown()
+            if (
+                selector is USimpleNameReferenceExpression &&
+                    selector.identifier == "TYPE_PUBLIC_KEY_CREDENTIAL" &&
+                    unwrapped.receiver.asSourceString().endsWith("PublicKeyCredential")
+            ) {
+                return true
+            }
+        }
+        return false
     }
 
     private fun unwrapCredentialTypeReceiver(
         context: JavaContext,
         expr: UExpression,
-    ): UExpression? {
-        val unwrapped = RestoreCredentialConstants.unwrapVariableInitializer(expr)
-        if (unwrapped is UQualifiedReferenceExpression) {
-            val selectorText = unwrapped.selector.asSourceString()
-            if (selectorText == "type" || selectorText.startsWith("getType(")) {
-                if (isCredentialExpression(context, unwrapped.receiver)) {
-                    return unwrapped.receiver
-                }
-            }
-        }
-        if (unwrapped is UCallExpression && unwrapped.methodName == "getType") {
-            val receiver = unwrapped.receiver
-            if (receiver != null && isCredentialExpression(context, receiver)) {
-                return receiver
-            }
-        }
-        return null
-    }
+    ): UExpression? =
+        selectorMatchesPropertyOrGetter(unwrapVariableInitializer(expr), "type", "getType")
+            ?.takeIf { isCredentialExpression(context, it) }
 
     private enum class Provenance {
         RESTORE_ONLY,
@@ -315,7 +406,7 @@ class RestoreCredentialInvalidCastDetector : Detector(), SourceCodeScanner {
         site: UElement,
     ): Boolean {
         // 1. Direct variable provenance from `response = credMan.getCredential(ctx, req)` ->
-        // `response.credential`.
+        // `response.credential` or `response.credentials.first()`.
         when (traceDirectCredentialProvenance(context, credentialExpr)) {
             Provenance.RESTORE_ONLY -> return true
             Provenance.PASSKEY_PRESENT,
@@ -371,15 +462,16 @@ class RestoreCredentialInvalidCastDetector : Detector(), SourceCodeScanner {
     }
 
     private fun tracesToParameter(context: JavaContext, credentialExpr: UExpression): Boolean {
-        val unwrappedCred = RestoreCredentialConstants.unwrapVariableInitializer(credentialExpr)
+        val unwrappedCred = unwrapVariableInitializer(credentialExpr)
         if (isExternalParameterReference(context, unwrappedCred)) return true
         val receiver =
             when (unwrappedCred) {
                 is UQualifiedReferenceExpression -> unwrappedCred.receiver
                 is UCallExpression -> unwrappedCred.receiver
+                is UArrayAccessExpression -> unwrappedCred.receiver
                 else -> null
             } ?: return false
-        val unwrappedReceiver = RestoreCredentialConstants.unwrapVariableInitializer(receiver)
+        val unwrappedReceiver = unwrapVariableInitializer(receiver)
         if (isExternalParameterReference(context, unwrappedReceiver)) return true
         val nestedReceiver =
             when (unwrappedReceiver) {
@@ -387,10 +479,7 @@ class RestoreCredentialInvalidCastDetector : Detector(), SourceCodeScanner {
                 is UCallExpression -> unwrappedReceiver.receiver
                 else -> null
             } ?: return false
-        return isExternalParameterReference(
-            context,
-            RestoreCredentialConstants.unwrapVariableInitializer(nestedReceiver),
-        )
+        return isExternalParameterReference(context, unwrapVariableInitializer(nestedReceiver))
     }
 
     private fun isExternalParameterReference(context: JavaContext, expr: UExpression): Boolean {
@@ -499,126 +588,55 @@ class RestoreCredentialInvalidCastDetector : Detector(), SourceCodeScanner {
     private fun scopeExplicitlyHandlesRestoreCredential(
         context: JavaContext,
         scope: UElement,
-    ): Boolean {
-        var handlesRestore = false
-        scope.accept(
-            object : AbstractUastVisitor() {
-                override fun visitBinaryExpressionWithType(
-                    node: UBinaryExpressionWithType
-                ): Boolean {
-                    val targetClass =
-                        node.typeReference?.type?.let { context.evaluator.getTypeClass(it) }
-                    if (
-                        targetClass != null &&
-                            context.evaluator.inheritsFrom(
-                                targetClass,
-                                CLASS_RESTORE_CREDENTIAL,
-                                false,
-                            )
-                    ) {
-                        handlesRestore = true
-                    }
-                    return false
+    ): Boolean =
+        anyInSubtreeOrSameFileHelpers(context, scope, maxDepth = 0) {
+            when (it) {
+                is UBinaryExpressionWithType -> {
+                    val cls = it.typeReference?.type?.let(context.evaluator::getTypeClass)
+                    cls != null &&
+                        context.evaluator.inheritsFrom(cls, CLASS_RESTORE_CREDENTIAL, false)
                 }
-
-                override fun visitSwitchClauseExpression(node: USwitchClauseExpression): Boolean {
-                    for (caseVal in node.caseValues) {
-                        if (caseVal is UTypeReferenceExpression) {
-                            val targetClass = context.evaluator.getTypeClass(caseVal.type)
-                            if (
-                                targetClass != null &&
-                                    context.evaluator.inheritsFrom(
-                                        targetClass,
-                                        CLASS_RESTORE_CREDENTIAL,
-                                        false,
-                                    )
-                            ) {
-                                handlesRestore = true
-                            }
-                        }
+                is USwitchClauseExpression ->
+                    it.caseValues.any { caseVal ->
+                        val cls =
+                            (caseVal as? UTypeReferenceExpression)
+                                ?.type
+                                ?.let(context.evaluator::getTypeClass)
+                        cls != null &&
+                            context.evaluator.inheritsFrom(cls, CLASS_RESTORE_CREDENTIAL, false)
                     }
-                    return false
+                is USimpleNameReferenceExpression -> {
+                    val field = it.resolve() as? PsiField
+                    field?.name == "TYPE_RESTORE_CREDENTIAL" &&
+                        (context.evaluator.isMemberInClass(field, CLASS_RESTORE_CREDENTIAL) ||
+                            field.containingClass?.qualifiedName ==
+                                "$CLASS_RESTORE_CREDENTIAL.Companion")
                 }
-
-                override fun visitSimpleNameReferenceExpression(
-                    node: USimpleNameReferenceExpression
-                ): Boolean {
-                    val field = node.resolve() as? PsiField ?: return false
-                    if (
-                        field.name == "TYPE_RESTORE_CREDENTIAL" &&
-                            context.evaluator.isMemberInClass(field, CLASS_RESTORE_CREDENTIAL)
-                    ) {
-                        handlesRestore = true
-                    }
-                    return false
-                }
+                else -> false
             }
-        )
-        return handlesRestore
-    }
+        }
 
     private fun traceDirectCredentialProvenance(
         context: JavaContext,
         credentialExpr: UExpression,
     ): Provenance {
-        val unwrappedCred = RestoreCredentialConstants.unwrapVariableInitializer(credentialExpr)
-        val responseExpr: UExpression =
-            when (unwrappedCred) {
-                is UQualifiedReferenceExpression -> {
-                    val receiverType =
-                        unwrappedCred.receiver.getExpressionType()?.let {
-                            context.evaluator.getTypeClass(it)
-                        }
-                    if (
-                        receiverType != null &&
-                            context.evaluator.inheritsFrom(
-                                receiverType,
-                                CLASS_GET_CREDENTIAL_RESPONSE,
-                                false,
-                            )
-                    ) {
-                        unwrappedCred.receiver
-                    } else {
-                        return Provenance.UNKNOWN
-                    }
-                }
-                is UCallExpression -> {
-                    val receiver = unwrappedCred.receiver ?: return Provenance.UNKNOWN
-                    val receiverType =
-                        receiver.getExpressionType()?.let { context.evaluator.getTypeClass(it) }
-                    if (
-                        receiverType != null &&
-                            context.evaluator.inheritsFrom(
-                                receiverType,
-                                CLASS_GET_CREDENTIAL_RESPONSE,
-                                false,
-                            )
-                    ) {
-                        receiver
-                    } else {
-                        return Provenance.UNKNOWN
-                    }
-                }
-                else -> return Provenance.UNKNOWN
-            }
-
-        val unwrappedResp = RestoreCredentialConstants.unwrapVariableInitializer(responseExpr)
+        val responseExpr =
+            extractResponseFromCredentialExpr(context, credentialExpr) ?: return Provenance.UNKNOWN
+        val unwrappedResp = unwrapVariableInitializer(responseExpr)
         val getCredCall =
-            when (unwrappedResp) {
-                is UCallExpression -> unwrappedResp
-                is UQualifiedReferenceExpression ->
-                    unwrappedResp.selector.skipParenthesizedExprDown() as? UCallExpression
-                is UReferenceExpression ->
-                    findOwningLambda(unwrappedResp, unwrappedResp.resolve())?.let {
+            unwrappedResp.asCallExpression()
+                ?: (unwrappedResp as? UReferenceExpression)?.let { ref ->
+                    findOwningLambda(ref, ref.resolve())?.let {
                         findGetCredentialCallInLambdaReceiver(context, it)
                     }
-                else -> null
-            } ?: return Provenance.UNKNOWN
+                }
+                ?: return Provenance.UNKNOWN
 
         val resolvedMethod = getCredCall.resolve() ?: return Provenance.UNKNOWN
+        val containingClass = resolvedMethod.containingClass ?: return Provenance.UNKNOWN
         if (
             resolvedMethod.name !in RestoreCredentialConstants.GET_CREDENTIAL_METHODS ||
-                !context.evaluator.isMemberInClass(resolvedMethod, CLASS_CREDENTIAL_MANAGER)
+                !context.evaluator.inheritsFrom(containingClass, CLASS_CREDENTIAL_MANAGER, false)
         ) {
             return Provenance.UNKNOWN
         }
@@ -634,6 +652,32 @@ class RestoreCredentialInvalidCastDetector : Detector(), SourceCodeScanner {
         return when (val classified = classifyRequestOptions(context, requestArg)) {
             Provenance.UNKNOWN -> Provenance.OPAQUE_CALL
             else -> classified
+        }
+    }
+
+    private fun extractResponseFromCredentialExpr(
+        context: JavaContext,
+        credentialExpr: UExpression,
+    ): UExpression? {
+        val unwrappedCred = unwrapVariableInitializer(credentialExpr)
+        if (selectorMatchesPropertyOrGetter(unwrappedCred, "type", "getType") != null) return null
+        val candidateReceiver =
+            when (unwrappedCred) {
+                is UQualifiedReferenceExpression -> unwrappedCred.receiver
+                is UCallExpression -> unwrappedCred.receiver ?: return null
+                is UArrayAccessExpression -> unwrappedCred.receiver
+                else -> return null
+            }
+        val unwrappedReceiver = unwrapVariableInitializer(candidateReceiver)
+        val candidates =
+            listOfNotNull(
+                unwrappedReceiver,
+                selectorMatchesPropertyOrGetter(unwrappedReceiver, "credentials", "getCredentials")
+                    ?.let(::unwrapVariableInitializer),
+            )
+        return candidates.firstOrNull { candidate ->
+            val cls = RestoreCredentialConstants.resolveExpressionClass(context, candidate)
+            cls != null && context.evaluator.inheritsFrom(cls, CLASS_GET_CREDENTIAL_RESPONSE, false)
         }
     }
 

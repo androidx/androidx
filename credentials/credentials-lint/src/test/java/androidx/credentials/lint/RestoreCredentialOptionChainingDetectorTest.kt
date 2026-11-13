@@ -217,4 +217,121 @@ class RestoreCredentialOptionChainingDetectorTest : LintDetectorTest() {
             .run()
             .expectClean()
     }
+
+    @Test
+    fun companionCreateFromAndMutableListPlusAssignChaining_reportsError() {
+        lint()
+            .files(
+                *CREDENTIALS_STUBS,
+                kotlin(
+                        """
+                package com.example
+
+                import androidx.credentials.CredentialOption
+                import androidx.credentials.GetCredentialRequest
+                import androidx.credentials.GetPasswordOption
+                import androidx.credentials.GetRestoreCredentialOption
+
+                fun createFromCompanion(json: String): GetCredentialRequest {
+                    return GetCredentialRequest.createFrom(
+                        listOf(GetRestoreCredentialOption(json), GetPasswordOption())
+                    )
+                }
+
+                fun createWithPlusAssign(json: String): GetCredentialRequest {
+                    val options = mutableListOf<CredentialOption>()
+                    options += GetRestoreCredentialOption(json)
+                    options += GetPasswordOption()
+                    return GetCredentialRequest(options)
+                }
+                """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expectErrorCount(2)
+    }
+
+    @Test
+    fun reusedMutableListClearedBetweenRequests_doesNotReportFalsePositiveError() {
+        lint()
+            .files(
+                *CREDENTIALS_STUBS,
+                kotlin(
+                        """
+                package com.example
+
+                import androidx.credentials.CredentialOption
+                import androidx.credentials.GetCredentialRequest
+                import androidx.credentials.GetPasswordOption
+                import androidx.credentials.GetRestoreCredentialOption
+
+                fun buildSeparateRequests(json: String): Pair<GetCredentialRequest, GetCredentialRequest> {
+                    val options = mutableListOf<CredentialOption>()
+                    options.add(GetRestoreCredentialOption(json))
+                    val restoreReq = GetCredentialRequest(options)
+
+                    options.clear()
+                    options.add(GetPasswordOption())
+                    val interactiveReq = GetCredentialRequest(options)
+                    return restoreReq to interactiveReq
+                }
+                """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun arrayListCapacityAndMutuallyExclusiveBranches_doNotReportFalsePositiveError() {
+        lint()
+            .files(
+                *CREDENTIALS_STUBS,
+                kotlin(
+                        """
+                package com.example
+
+                import androidx.credentials.CredentialOption
+                import androidx.credentials.GetCredentialRequest
+                import androidx.credentials.GetPasswordOption
+                import androidx.credentials.GetPublicKeyCredentialOption
+                import androidx.credentials.GetRestoreCredentialOption
+                import java.util.ArrayList
+
+                fun buildWithCapacity(json: String): GetCredentialRequest {
+                    val options = ArrayList<CredentialOption>(1)
+                    options.add(GetRestoreCredentialOption(json))
+                    return GetCredentialRequest(options)
+                }
+
+                fun buildWithBranches(json: String, isRestoreFlow: Boolean): GetCredentialRequest {
+                    val options = mutableListOf<CredentialOption>()
+                    if (isRestoreFlow) {
+                        options.add(GetRestoreCredentialOption(json))
+                    } else {
+                        options.add(GetPublicKeyCredentialOption(json))
+                        options.add(GetPasswordOption())
+                    }
+                    return GetCredentialRequest(options)
+                }
+
+                fun buildWithBranchedBuilder(json: String, isRestoreFlow: Boolean): GetCredentialRequest {
+                    val builder = GetCredentialRequest.Builder()
+                    if (isRestoreFlow) {
+                        builder.addCredentialOption(GetRestoreCredentialOption(json))
+                    } else {
+                        builder.addCredentialOption(GetPublicKeyCredentialOption(json))
+                        builder.addCredentialOption(GetPasswordOption())
+                    }
+                    return builder.build()
+                }
+                """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expectClean()
+    }
 }

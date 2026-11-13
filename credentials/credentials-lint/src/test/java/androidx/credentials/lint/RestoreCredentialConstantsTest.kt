@@ -195,6 +195,57 @@ class RestoreCredentialConstantsTest : LintDetectorTest() {
             )
     }
 
+    @Test
+    fun mutableListClearPlusAssignCreateFromAndReorderedNamedArgs_extractsCorrectOptions() {
+        lint()
+            .files(
+                *CREDENTIALS_STUBS,
+                kotlin(
+                        """
+                package com.example
+
+                import android.content.Context
+                import androidx.credentials.CredentialManager
+                import androidx.credentials.CredentialOption
+                import androidx.credentials.GetCredentialRequest
+                import androidx.credentials.GetPasswordOption
+                import androidx.credentials.GetRestoreCredentialOption
+
+                suspend fun testListMutationsAndNamedArgs(context: Context, json: String) {
+                    val manager = CredentialManager.create(context)
+                    val options = mutableListOf<CredentialOption>()
+                    options += GetRestoreCredentialOption(json)
+                    val firstReq =
+                        GetCredentialRequest(
+                            origin = "com.example",
+                            credentialOptions = options.toList(),
+                        )
+                    manager.getCredential(request = firstReq, context = context)
+
+                    options.clear()
+                    options.add(0, GetPasswordOption())
+                    val secondReq = GetCredentialRequest.createFrom(options)
+                    manager.getCredential(context, secondReq)
+                }
+                """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expect(
+                """
+                src/com/example/test.kt:19: Warning: Extracted 1 option(s): androidx.credentials.GetRestoreCredentialOption [OptionExtractionProbe]
+                    manager.getCredential(request = firstReq, context = context)
+                            ~~~~~~~~~~~~~
+                src/com/example/test.kt:24: Warning: Extracted 1 option(s): androidx.credentials.GetPasswordOption [OptionExtractionProbe]
+                    manager.getCredential(context, secondReq)
+                            ~~~~~~~~~~~~~
+                0 errors, 2 warnings
+                """
+                    .trimIndent()
+            )
+    }
+
     class OptionExtractionProbeDetector : Detector(), SourceCodeScanner {
         override fun getApplicableMethodNames(): List<String> =
             listOf("getCredential", "getCredentialAsync")
