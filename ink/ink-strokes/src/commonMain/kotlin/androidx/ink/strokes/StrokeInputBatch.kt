@@ -100,7 +100,6 @@ public abstract class StrokeInputBatch internal constructor(nativeAlloc: () -> L
      * Whether all of the individual inputs have a defined value for
      * [StrokeInput.getBarrelTwistRadians]. If not, then no input items have a barrel twist value.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkBarrelTwistApi
     public fun hasBarrelTwist(): Boolean = StrokeInputBatchNative.hasBarrelTwist(nativePointer)
 
@@ -338,7 +337,6 @@ public class MutableStrokeInputBatch : StrokeInputBatch(StrokeInputBatchNative::
      *   out-of-order inputs. Therefore, users should either catch and handle this exception or
      *   sanitize the input to avoid ensure validity before passing it to this function.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkBarrelTwistApi
     @Suppress("MissingJvmstatic") // @JvmOverloads is on the non-experimental overload
     public fun add(
