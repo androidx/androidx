@@ -17,6 +17,7 @@
 package androidx.room3.processor
 
 import COMMON.EITHER
+import androidx.kruth.assertThat
 import androidx.room3.compiler.processing.isTypeElement
 import androidx.room3.compiler.processing.util.Source
 import androidx.room3.compiler.processing.util.XTestInvocation
@@ -659,6 +660,45 @@ class DaoReturnTypeConverterProcessorTest {
             expectedErrorCount = 1,
             expectedError = DAO_RETURN_TYPE_CONVERTER_LAMBDA_WITH_RAW_QUERY_MISSING_FUNCTION_PARAM,
         )
+    }
+
+    @Test
+    fun reusesAdapterStoreWhenChildAddsNoConverters() {
+        runKspTest(sources = listOf(DATABASE, DAO, FOO_BAR_TYPES, FOO_CONVERTER)) { invocation ->
+            val dbContext =
+                invocation.context.fork(invocation.processingEnv.requireTypeElement("MyDatabase"))
+            val daoContext = dbContext.fork(invocation.processingEnv.requireTypeElement("MyDao"))
+            assertThat(daoContext.typeAdapterStore.columnTypeConverterStore)
+                .isSameInstanceAs(dbContext.typeAdapterStore.columnTypeConverterStore)
+        }
+    }
+
+    @Test
+    fun reusesEntityCacheWhenChildAddsDaoReturnTypeConverters() {
+        val daoWithConverter =
+            Source.kotlin(
+                "MyDaoWithConverter.kt",
+                """
+                import androidx.room3.*
+
+                @Dao
+                @DaoReturnTypeConverters(FooReturnTypeConverter::class)
+                interface MyDaoWithConverter
+                """
+                    .trimIndent(),
+            )
+        runKspTest(
+            sources = listOf(DATABASE, DAO, daoWithConverter, FOO_BAR_TYPES, FOO_CONVERTER)
+        ) { invocation ->
+            val entityElement = invocation.processingEnv.requireTypeElement("MyEntity")
+            val rootEntity = EntityProcessor(invocation.context, entityElement).process()
+            val daoContext =
+                invocation.context.fork(
+                    invocation.processingEnv.requireTypeElement("MyDaoWithConverter")
+                )
+            val daoEntity = EntityProcessor(daoContext, entityElement).process()
+            assertThat(daoEntity).isSameInstanceAs(rootEntity)
+        }
     }
 
     private fun runTest(sources: List<Source>, expectedErrorCount: Int, expectedError: String) {

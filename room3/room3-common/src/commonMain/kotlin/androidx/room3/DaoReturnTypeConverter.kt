@@ -20,7 +20,7 @@ package androidx.room3
  * Marks a function as a DAO function return type converter.
  *
  * This annotation is used on functions within a converter class (which is registered via the
- * [DaoReturnTypeConverters] annotation on the [Database] or [Dao] annotated definitions).
+ * [DaoReturnTypeConverters] annotation on the [Database], [Dao], or [Dao] function definitions).
  *
  * This function intercepts the result of a DAO function and wraps or transforms it into a custom
  * type (e.g., `Result<T>`).

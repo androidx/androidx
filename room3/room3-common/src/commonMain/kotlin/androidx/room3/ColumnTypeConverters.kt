@@ -30,6 +30,10 @@ import kotlin.reflect.KClass
  * * [Dao] function: available to all parameters of the function.
  * * [Dao] function parameter: available only to that parameter.
  *
+ * Converters in inner scopes override matching converters in outer scopes (for example, a [Dao]
+ * converter overrides a [Database] converter, and a [Dao] function converter overrides a [Dao]
+ * converter). Defining duplicate converters within the same scope is not allowed.
+ *
  * Note: `@ColumnTypeConverters` only converts column and parameter values. To convert a DAO
  * function return value (e.g., query result transformation), use [DaoReturnTypeConverters].
  *

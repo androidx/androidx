@@ -1040,6 +1040,116 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
         }
     }
 
+    @Test
+    fun daoReturnTypeConverterOnFunction_scopesToAnnotatedFunction() {
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
+                import androidx.room3.*
+
+                @Dao
+                interface MyDao {
+                  @DaoReturnTypeConverters(FooReturnTypeConverter::class)
+                  @Query("SELECT * FROM MyEntity")
+                  suspend fun getAnnotated(): Foo<MyEntity>
+
+                  @Query("SELECT * FROM MyEntity")
+                  suspend fun getUnannotated(): Foo<MyEntity>
+                }
+
+                @Entity
+                data class MyEntity(@PrimaryKey val pk: Int)
+
+                class Foo<T>(val data: T)
+
+                object FooReturnTypeConverter {
+                    @DaoReturnTypeConverter(operations = [OperationType.READ])
+                    suspend fun <T> convert(
+                        executeAndConvert: suspend () -> T,
+                    ): Foo<T> = Foo(executeAndConvert())
+                }
+                """
+                    .trimIndent(),
+            )
+        runKspTest(sources = listOf(src)) { invocation ->
+            DaoProcessor(
+                    baseContext = invocation.context,
+                    element = invocation.processingEnv.requireTypeElement("MyDao"),
+                    dbType = invocation.context.processingEnv.requireType(ROOM_DB),
+                    dbVerifier = null,
+                )
+                .process()
+            invocation.assertCompilationResult {
+                hasErrorCount(1)
+                hasErrorContaining(ProcessorErrors.cannotFindQueryResultAdapter("Foo<MyEntity>"))
+            }
+        }
+    }
+
+    @Test
+    fun daoReturnTypeConverterOnConcreteFunction() {
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
+                import androidx.room3.*
+
+                @Dao
+                abstract class MyDao {
+                    @DaoReturnTypeConverters(Any::class)
+                    @Transaction
+                    open suspend fun wrapper() {}
+                }
+                """
+                    .trimIndent(),
+            )
+        runKspTest(sources = listOf(src)) { invocation ->
+            DaoProcessor(
+                    baseContext = invocation.context,
+                    element = invocation.processingEnv.requireTypeElement("MyDao"),
+                    dbType = invocation.context.processingEnv.requireType(ROOM_DB),
+                    dbVerifier = null,
+                )
+                .process()
+            invocation.assertCompilationResult {
+                hasErrorCount(1)
+                hasErrorContaining(ProcessorErrors.DAO_RETURN_TYPE_CONVERTER_ON_NON_DAO_OPERATION)
+            }
+        }
+    }
+
+    @Test
+    fun daoReturnTypeConverterOnUnannotatedAbstractFunction() {
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
+                import androidx.room3.*
+
+                @Dao
+                abstract class MyDao {
+                    @DaoReturnTypeConverters(Any::class)
+                    abstract suspend fun unannotated()
+                }
+                """
+                    .trimIndent(),
+            )
+        runKspTest(sources = listOf(src)) { invocation ->
+            DaoProcessor(
+                    baseContext = invocation.context,
+                    element = invocation.processingEnv.requireTypeElement("MyDao"),
+                    dbType = invocation.context.processingEnv.requireType(ROOM_DB),
+                    dbVerifier = null,
+                )
+                .process()
+            invocation.assertCompilationResult {
+                hasErrorCount(1)
+                hasErrorContaining(ProcessorErrors.INVALID_ANNOTATION_COUNT_IN_DAO_FUNCTION)
+            }
+        }
+    }
+
     private fun singleDao(
         vararg inputs: String,
         classpathFiles: List<File> = emptyList(),

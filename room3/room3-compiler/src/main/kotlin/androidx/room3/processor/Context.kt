@@ -185,8 +185,7 @@ private constructor(
                 }
             }
         val processDaoReturnTypeConvertersResult =
-            this.daoReturnTypeConverters +
-                DaoReturnTypeConverterProcessor.findConverters(this, element)
+            DaoReturnTypeConverterProcessor.findConverters(this, element)
         val subBuiltInConverterFlags =
             columnTypeConverters.builtInConverterFlags.withNext(
                 processConvertersResult.builtInConverterFlags
@@ -207,8 +206,7 @@ private constructor(
         val subCache =
             Cache(
                 parent = cache,
-                converters =
-                    subTypeConverters.classes + processDaoReturnTypeConvertersResult.classes,
+                converters = subTypeConverters.classes,
                 suppressedWarnings = subSuppressedWarnings,
                 builtInConverterFlags = subBuiltInConverterFlags,
             )
@@ -220,7 +218,8 @@ private constructor(
                 processingEnv = processingEnv,
                 logger = RLog(logger.messager, subSuppressedWarnings, element),
                 columnTypeConverters = subTypeConverters,
-                daoReturnTypeConverters = processDaoReturnTypeConvertersResult,
+                daoReturnTypeConverters =
+                    processDaoReturnTypeConvertersResult + this.daoReturnTypeConverters,
                 inheritedAdapterStore = if (canReUseAdapterStore) typeAdapterStore else null,
                 cache = subCache,
                 canRewriteQueriesToDropUnusedColumns = subCanRemoveUnusedColumns,

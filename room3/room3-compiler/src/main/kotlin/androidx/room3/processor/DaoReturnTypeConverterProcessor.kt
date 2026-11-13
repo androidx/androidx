@@ -432,7 +432,11 @@ class DaoReturnTypeConverterProcessor(
 
     companion object {
         fun findConverters(context: Context, element: XElement): ProcessResult {
-            if (!element.hasAnnotation(Database::class) && !element.hasAnnotation(Dao::class)) {
+            if (
+                !element.hasAnnotation(Database::class) &&
+                    !element.hasAnnotation(Dao::class) &&
+                    DaoProcessor.PROCESSED_ANNOTATIONS.none { element.hasAnnotation(it) }
+            ) {
                 return ProcessResult.EMPTY
             }
             if (!element.hasAnnotation(DaoReturnTypeConverters::class)) {
