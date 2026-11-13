@@ -24,16 +24,32 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewWrapperProvider
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.LocalReduceMotion
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.material3.AppScaffold
+import androidx.wear.compose.material3.PlaceholderState
+import androidx.wear.compose.material3.ScreenScaffold
+import androidx.wear.compose.material3.ScreenScaffoldDefaults
+import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.TitleCard
+import androidx.wear.compose.material3.placeholder
+import androidx.wear.compose.material3.placeholderShimmer
+import androidx.wear.compose.material3.rememberPlaceholderState
+import androidx.wear.compose.materialcore.screenHeightDp
+import androidx.wear.compose.materialcore.screenWidthDp
+import kotlin.math.ceil
 
 /**
  * Value of Wear's [LocalReduceMotion] observed by the last composition of
@@ -143,5 +159,113 @@ fun ExpandAutoCenteringAndTransformingLazyColumnsPreview() {
             }
         }
         TransformingLazyColumnWithPadding(Modifier.weight(1f).fillMaxHeight())
+    }
+}
+
+/**
+ * Screen dimensions (`screenWidthDp()` and `screenHeightDp()`) observed by the last composition of
+ * [ExpandWearPlaceholderAndScreenDimensionsPreview].
+ */
+internal var observedWearScreenSizeDp: IntSize? = null
+
+/**
+ * Default [ScreenScaffoldDefaults.contentPadding] (`PaddingDefaults.horizontalContentPadding()` and
+ * `PaddingDefaults.verticalContentPadding()`) observed by the last composition of
+ * [ExpandWearPlaceholderAndScreenDimensionsPreview].
+ */
+internal var observedWearScaffoldContentPadding: PaddingValues? = null
+
+/**
+ * [PlaceholderState] created by `rememberPlaceholderState` in the last composition of
+ * [ExpandWearPlaceholderAndScreenDimensionsPreview].
+ */
+internal var observedWearPlaceholderState: PlaceholderState? = null
+
+/**
+ * A Wear Material3 `ScreenScaffold` + `TransformingLazyColumn` preview that uses
+ * `rememberPlaceholderState` (`Modifier.placeholder` and `Modifier.placeholderShimmer`),
+ * `ScreenScaffoldDefaults.contentPadding`, `screenWidthDp()`, and `screenHeightDp()`.
+ */
+@Preview(device = EXPAND_VERTICAL_DEVICE)
+@Composable
+fun ExpandWearPlaceholderAndScreenDimensionsPreview() {
+    observedWearScreenSizeDp = IntSize(screenWidthDp(), screenHeightDp())
+    val contentPadding = ScreenScaffoldDefaults.contentPadding
+    observedWearScaffoldContentPadding = contentPadding
+    val listState = rememberTransformingLazyColumnState()
+    val placeholderState = rememberPlaceholderState(isVisible = true)
+    observedWearPlaceholderState = placeholderState
+
+    AppScaffold {
+        ScreenScaffold(scrollState = listState, contentPadding = contentPadding) { padding ->
+            TransformingLazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                state = listState,
+                contentPadding = padding,
+            ) {
+                items(5) { index ->
+                    TitleCard(
+                        onClick = {},
+                        title = {
+                            Text(
+                                text = "Item $index",
+                                modifier = Modifier.placeholder(placeholderState),
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth().placeholderShimmer(placeholderState),
+                    ) {
+                        Text(
+                            text = "Subtitle $index",
+                            modifier = Modifier.placeholder(placeholderState),
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Height-based minimum vertical content paddings (13% and 23% of `screenHeightDp()`) observed by
+ * the last composition of [ExpandWearHeightBasedVerticalPaddingPreview].
+ */
+internal var observedWearMinimumTopContentPadding: Dp? = null
+internal var observedWearMinimumBottomContentPadding: Dp? = null
+
+/**
+ * A `TransformingLazyColumn` whose top and bottom minimum vertical content paddings and item
+ * vertical padding are derived from `screenHeightDp()`.
+ */
+@Preview(device = EXPAND_VERTICAL_DEVICE)
+@Composable
+fun ExpandWearHeightBasedVerticalPaddingPreview() {
+    val screenHeight = screenHeightDp()
+    val topPadding = ceil(screenHeight * 0.13f).dp
+    val bottomPadding = ceil(screenHeight * 0.23f).dp
+    observedWearMinimumTopContentPadding = topPadding
+    observedWearMinimumBottomContentPadding = bottomPadding
+    val itemVerticalPadding = (screenHeight * 0.10f).dp
+
+    TransformingLazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(0.dp),
+        verticalArrangement = Arrangement.spacedBy(0.dp),
+    ) {
+        items(EXPAND_SHORT_LIST_ITEM_COUNT) { index ->
+            val minPaddingModifier =
+                when (index) {
+                    0 -> Modifier.minimumVerticalContentPadding(top = topPadding, bottom = 0.dp)
+                    EXPAND_SHORT_LIST_ITEM_COUNT - 1 ->
+                        Modifier.minimumVerticalContentPadding(top = 0.dp, bottom = bottomPadding)
+                    else -> Modifier
+                }
+            Box(
+                modifier =
+                    minPaddingModifier
+                        .fillMaxWidth()
+                        .padding(vertical = itemVerticalPadding)
+                        .height(EXPAND_ITEM_HEIGHT)
+            )
+        }
     }
 }

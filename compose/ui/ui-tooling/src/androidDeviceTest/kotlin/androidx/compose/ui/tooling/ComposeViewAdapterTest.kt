@@ -33,6 +33,8 @@ import androidx.compose.ui.tooling.test.R
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
@@ -40,6 +42,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.abs
+import kotlin.math.ceil
 import org.junit.After
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
@@ -79,6 +82,11 @@ class ComposeViewAdapterTest {
         scrollToEndScrollState = null
         scrollToEndScalingLazyListState = null
         scrollToEndObservedWearReduceMotion = null
+        observedWearScreenSizeDp = null
+        observedWearScaffoldContentPadding = null
+        observedWearPlaceholderState = null
+        observedWearMinimumTopContentPadding = null
+        observedWearMinimumBottomContentPadding = null
     }
 
     /** Asserts that the given Composable method executes correct and outputs some [ViewInfo]s. */
@@ -1468,6 +1476,79 @@ class ComposeViewAdapterTest {
                 className = "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
             )
         val expectedHeight = transformingLazyColumnWithPaddingHeight()
+        assertTrue(
+            "height=$height expected=$expectedHeight",
+            abs(height - expectedHeight) <= EXPAND_ROUNDING_TOLERANCE_PX,
+        )
+    }
+
+    @Test
+    fun expandVertical_wearPlaceholderAndScreenDimensions_useDeviceScreenSize() {
+        val configuration = activityTestRule.activity.resources.configuration
+        val expectedScreenSizeDp =
+            IntSize(configuration.screenWidthDp, configuration.screenHeightDp)
+        val expectedHorizontalPadding = ceil(configuration.screenWidthDp * 0.052f).dp
+
+        initAndWaitForDraw(
+            "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            "ExpandWearPlaceholderAndScreenDimensionsPreview",
+            device = "spec:width=411dp,height=891dp",
+        )
+        var unexpandedTopPadding = 0.dp
+        var unexpandedBottomPadding = 0.dp
+        activityTestRule.runOnUiThread {
+            val unexpandedPadding = observedWearScaffoldContentPadding!!
+            unexpandedTopPadding = unexpandedPadding.calculateTopPadding()
+            unexpandedBottomPadding = unexpandedPadding.calculateBottomPadding()
+        }
+
+        val height =
+            measureExpanded(
+                "ExpandWearPlaceholderAndScreenDimensionsPreview",
+                viewportHeightPx = 454,
+                className = "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            )
+        assertTrue("height=$height", height > 454)
+        assertTrue("height=$height", height < DEFAULT_EXPAND_MAX_SIZE_PX)
+        activityTestRule.runOnUiThread {
+            assertEquals(expectedScreenSizeDp, observedWearScreenSizeDp)
+            val contentPadding = observedWearScaffoldContentPadding!!
+            assertEquals(
+                expectedHorizontalPadding,
+                contentPadding.calculateLeftPadding(LayoutDirection.Ltr),
+            )
+            assertEquals(
+                expectedHorizontalPadding,
+                contentPadding.calculateRightPadding(LayoutDirection.Ltr),
+            )
+            assertEquals(unexpandedTopPadding, contentPadding.calculateTopPadding())
+            assertEquals(unexpandedBottomPadding, contentPadding.calculateBottomPadding())
+            assertTrue(observedWearPlaceholderState!!.isVisible)
+        }
+    }
+
+    @Test
+    fun expandVertical_wearHeightBasedVerticalPadding_usesDeviceScreenHeight() {
+        val screenHeightDp = activityTestRule.activity.resources.configuration.screenHeightDp
+        val expectedTopPadding = ceil(screenHeightDp * 0.13f).dp
+        val expectedBottomPadding = ceil(screenHeightDp * 0.23f).dp
+        val itemVerticalPadding = (screenHeightDp * 0.10f).dp
+        val itemHeightPx = EXPAND_ITEM_HEIGHT.toPx() + 2 * itemVerticalPadding.toPx()
+        val expectedHeight =
+            expectedTopPadding.toPx() +
+                itemHeightPx * EXPAND_SHORT_LIST_ITEM_COUNT +
+                expectedBottomPadding.toPx()
+
+        val height =
+            measureExpanded(
+                "ExpandWearHeightBasedVerticalPaddingPreview",
+                viewportHeightPx = 454,
+                className = "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            )
+        activityTestRule.runOnUiThread {
+            assertEquals(expectedTopPadding, observedWearMinimumTopContentPadding)
+            assertEquals(expectedBottomPadding, observedWearMinimumBottomContentPadding)
+        }
         assertTrue(
             "height=$height expected=$expectedHeight",
             abs(height - expectedHeight) <= EXPAND_ROUNDING_TOLERANCE_PX,
