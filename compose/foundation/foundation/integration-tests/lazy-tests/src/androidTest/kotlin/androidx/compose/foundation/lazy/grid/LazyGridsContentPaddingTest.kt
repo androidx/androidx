@@ -19,6 +19,7 @@ package androidx.compose.foundation.lazy.grid
 import androidx.compose.animation.core.snap
 import androidx.compose.foundation.AutoTestFrameClock
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
@@ -39,6 +40,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -1196,6 +1199,76 @@ class LazyGridsContentPaddingTest {
     //         .assertLeftPositionInRootIsEqualTo(smallPaddingSize - itemSize)
     //         .assertWidthIsEqualTo(itemSize)
     // }
+
+    @Test
+    fun verticalGrid_focusRequest_withAsymmetricContentPadding_scrollsItemIntoUnobstructedRegion() {
+        val containerSize = itemSize * 4
+        val topPadding = itemSize
+        val bottomPadding = itemSize * 1.5f
+        val focusRequesters = List(12) { FocusRequester() }
+
+        rule.setContent {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier.width(itemSize * 2).height(containerSize),
+                contentPadding = PaddingValues(top = topPadding, bottom = bottomPadding),
+            ) {
+                items(focusRequesters.size) { index ->
+                    Spacer(
+                        Modifier.height(itemSize)
+                            .testTag("$index")
+                            .focusRequester(focusRequesters[index])
+                            .focusable()
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle { focusRequesters[4].requestFocus() }
+        rule.waitForIdle()
+        rule
+            .onNodeWithTag("4")
+            .assertTopPositionInRootIsEqualTo(containerSize - bottomPadding - itemSize)
+
+        rule.runOnIdle { focusRequesters[2].requestFocus() }
+        rule.waitForIdle()
+        rule.onNodeWithTag("2").assertTopPositionInRootIsEqualTo(topPadding)
+    }
+
+    @Test
+    fun horizontalGrid_focusRequest_withAsymmetricContentPadding_scrollsItemIntoUnobstructedRegion() {
+        val containerSize = itemSize * 4
+        val startPadding = itemSize
+        val endPadding = itemSize * 1.5f
+        val focusRequesters = List(12) { FocusRequester() }
+
+        rule.setContent {
+            LazyHorizontalGrid(
+                rows = GridCells.Fixed(2),
+                modifier = Modifier.width(containerSize).height(itemSize * 2),
+                contentPadding = PaddingValues(start = startPadding, end = endPadding),
+            ) {
+                items(focusRequesters.size) { index ->
+                    Spacer(
+                        Modifier.width(itemSize)
+                            .testTag("$index")
+                            .focusRequester(focusRequesters[index])
+                            .focusable()
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle { focusRequesters[4].requestFocus() }
+        rule.waitForIdle()
+        rule
+            .onNodeWithTag("4")
+            .assertLeftPositionInRootIsEqualTo(containerSize - endPadding - itemSize)
+
+        rule.runOnIdle { focusRequesters[2].requestFocus() }
+        rule.waitForIdle()
+        rule.onNodeWithTag("2").assertLeftPositionInRootIsEqualTo(startPadding)
+    }
 
     private fun LazyGridState.scrollBy(offset: Dp) {
         runBlocking(Dispatchers.Main + AutoTestFrameClock()) {

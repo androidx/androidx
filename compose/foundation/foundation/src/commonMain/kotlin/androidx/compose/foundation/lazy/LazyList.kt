@@ -177,9 +177,14 @@ internal fun LazyList(
         }
 
     val bringIntoViewSpec =
-        rememberLazyLayoutBringIntoViewSpec(reverseLayout, isVertical) {
-            state.layoutInfoState.value.stickingItemsCombinedSize
-        }
+        rememberLazyLayoutBringIntoViewSpec(
+            reverseLayout = reverseLayout,
+            isVertical = isVertical,
+            layoutInfo = {
+                state.approachLayoutInfo
+                    ?: Snapshot.withoutReadObservation { state.layoutInfoState.value }
+            },
+        )
 
     LazyLayout(
         modifier =

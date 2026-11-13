@@ -458,6 +458,16 @@ public object ComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isTextFieldScrollerOrientationRestoreFixEnabled: Boolean = true
+
+    /**
+     * Controls whether bring-into-view requests in lazy layouts account for main-axis
+     * `contentPadding` when scrolling items into view. When disabled, bring-into-view only accounts
+     * for sticky header insets and ignores `contentPadding`.
+     */
+    // TODO: b/590395235
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isLazyLayoutBringIntoViewContentPaddingEnabled: Boolean = true
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */
