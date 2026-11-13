@@ -101,45 +101,50 @@ private constructor(
                         belowBound = null,
                     )
                 }
-                // Shift the bit array down
-                var newUpperSet = upperSet
-                var newLowerSet = lowerSet
-                var newLowerBound = lowerBound
-                var newBelowBound: SnapshotIdArrayBuilder? = null
+                // Shift the bit array down. The 128-bit window has only two words (lowerSet and
+                // upperSet), so advancing `lowerBound` to accommodate `id` collapses to two cases:
+                // 1) `upperSet` is non-empty and shifting by one 64-bit word reaches
+                //    `targetLowerBound`: evict only `lowerSet` and promote `upperSet` to
+                //    `lowerSet`.
+                // 2) Otherwise: evict both `lowerSet` and `upperSet` and jump directly to
+                //    `(id / SnapshotIdSize) * SnapshotIdSize`.
+                // Checking `targetLowerBound` (rather than assuming integer truncation on `/`)
+                // preserves exact behavior on JS where `SnapshotId` is `Double`.
                 val targetLowerBound = ((id / SnapshotIdSize) - 1) * SnapshotIdSize
-                while (newLowerBound < targetLowerBound) {
-                    // Shift the lower set into the array
-                    if (newLowerSet != 0L) {
-                        if (newBelowBound == null) {
-                            newBelowBound = SnapshotIdArrayBuilder(belowBound)
-                        }
-                        repeat(Long.SIZE_BITS) { bitOffset ->
-                            if (newLowerSet and (1L shl bitOffset) != 0L) {
-                                newBelowBound.add(newLowerBound + bitOffset)
-                            }
-                        }
-                    }
-                    if (newUpperSet == 0L) {
-                        newLowerBound = (id / SnapshotIdSize) * SnapshotIdSize
-                        newLowerSet = 0L
-                        break
-                    }
-                    newLowerSet = newUpperSet
-                    newUpperSet = 0
-                    newLowerBound += Long.SIZE_BITS
+                val singleShiftBound = lowerBound + Long.SIZE_BITS
+                val newLowerBound: SnapshotId
+                var newLowerSet: Long
+                val evictUpperSet: Long
+                if (upperSet != 0L && singleShiftBound >= targetLowerBound) {
+                    newLowerBound = singleShiftBound
+                    newLowerSet = upperSet
+                    evictUpperSet = 0L
+                } else {
+                    newLowerBound = (id / SnapshotIdSize) * SnapshotIdSize
+                    newLowerSet = 0L
+                    evictUpperSet = upperSet
                 }
+                val newBelowBound =
+                    belowBound.appendEvictedSets(
+                        lowerSetBound = lowerBound,
+                        lowerSet = lowerSet,
+                        upperSetBound = singleShiftBound,
+                        upperSet = evictUpperSet,
+                    )
 
                 val newOffset = (id - newLowerBound).toInt()
+                val newUpperSet: Long
                 if (newOffset < Long.SIZE_BITS) {
                     newLowerSet = newLowerSet or (1L shl newOffset)
+                    newUpperSet = 0L
                 } else {
-                    newUpperSet = newUpperSet or (1L shl newOffset)
+                    newUpperSet = 1L shl newOffset
                 }
                 return SnapshotIdSet(
                     newUpperSet,
                     newLowerSet,
                     newLowerBound,
-                    newBelowBound?.toArray() ?: belowBound,
+                    newBelowBound,
                 )
             }
         } else {
@@ -157,6 +162,45 @@ private constructor(
 
         // No changes
         return this
+    }
+
+    /**
+     * Returns a new sorted [SnapshotIdArray] containing all IDs from `this` (if non-null) followed
+     * by all set bits in [lowerSet] (relative to [lowerSetBound]) and [upperSet] (relative to
+     * [upperSetBound]), or `this` unchanged if both masks are `0L`.
+     *
+     * Preserves the strictly ascending invariant of `belowBound` without sorting under the
+     * preconditions naturally satisfied by [SnapshotIdSet]:
+     * - `this` is sorted strictly ascending, and every element is `< lowerSetBound` (i.e.,
+     *   `this[size - 1] < lowerSetBound` when non-empty).
+     * - [lowerSet] encodes IDs in `[lowerSetBound, lowerSetBound + Long.SIZE_BITS)`.
+     * - `lowerSetBound + Long.SIZE_BITS <= upperSetBound`, and [upperSet] encodes IDs in
+     *   `[upperSetBound, upperSetBound + Long.SIZE_BITS)`.
+     *
+     * Because the three ranges are disjoint and strictly ordered (`this < lowerSet < upperSet`),
+     * copying `this` and appending bits extracted via [forEachSetBit] (ascending bit indices
+     * `0..63`) produces a strictly ascending array in a single exact-sized allocation.
+     */
+    private fun SnapshotIdArray?.appendEvictedSets(
+        lowerSetBound: SnapshotId,
+        lowerSet: Long,
+        upperSetBound: SnapshotId,
+        upperSet: Long,
+    ): SnapshotIdArray? {
+        val extra = lowerSet.countOneBits() + upperSet.countOneBits()
+        if (extra == 0) return this
+        val oldSize = this?.size ?: 0
+        val out = snapshotIdArrayWithCapacity(oldSize + extra)
+        var pos =
+            if (this != null) {
+                this.copyInto(out)
+                oldSize
+            } else {
+                0
+            }
+        forEachSetBit(lowerSetBound, lowerSet) { out[pos++] = it }
+        forEachSetBit(upperSetBound, upperSet) { out[pos++] = it }
+        return out
     }
 
     /** Produce a copy of this set with the addition of the bit at index [id] cleared. */
@@ -328,19 +372,35 @@ private constructor(
 
     inline fun fastForEach(block: (SnapshotId) -> Unit) {
         this.belowBound?.forEach(block)
-        if (lowerSet != 0L) {
-            for (index in 0 until Long.SIZE_BITS) {
-                if (lowerSet and (1L shl index) != 0L) {
-                    block(lowerBound + index)
-                }
-            }
-        }
-        if (upperSet != 0L) {
-            for (index in 0 until Long.SIZE_BITS) {
-                if (upperSet and (1L shl index) != 0L) {
-                    block(lowerBound + index + Long.SIZE_BITS)
-                }
-            }
+        val lower = lowerSet
+        if (lower != 0L) forEachSetBit(lowerBound, lower, block)
+        val upper = upperSet
+        if (upper != 0L) forEachSetBit(lowerBound + Long.SIZE_BITS, upper, block)
+    }
+
+    /**
+     * Visits each set 1-bit in [bits] in ascending bit-index order (`0..63`), invoking [block] with
+     * `bound + bitIndex`.
+     *
+     * Uses Brian Kernighan's bit-clearing loop: `remaining.countTrailingZeroBits()` returns the
+     * lowest set bit's index, and `remaining and (remaining - 1L)` clears that lowest set bit while
+     * leaving all higher bits intact (subtracting 1 borrows across the trailing zeros, flipping the
+     * lowest 1-bit to 0 and all lower 0-bits to 1, so AND-ing back with `remaining` clears exactly
+     * that lowest 1-bit).
+     *
+     * Example: `bits = 0b1010_0100` (set indices 2, 5, 7)
+     * 1) `ctz = 2` -> `0b1010_0100 and 0b1010_0011 = 0b1010_0000`
+     * 2) `ctz = 5` -> `0b1010_0000 and 0b1001_1111 = 0b1000_0000`
+     * 3) `ctz = 7` -> `0b1000_0000 and 0b0111_1111 = 0`
+     *
+     * Also holds for bit 63 (`Long.MIN_VALUE`): `Long.MIN_VALUE - 1L == Long.MAX_VALUE`, whose
+     * bitwise AND with `Long.MIN_VALUE` is `0L`.
+     */
+    internal inline fun forEachSetBit(bound: SnapshotId, bits: Long, block: (SnapshotId) -> Unit) {
+        var remaining = bits
+        while (remaining != 0L) {
+            block(bound + remaining.countTrailingZeroBits())
+            remaining = remaining and (remaining - 1L)
         }
     }
 

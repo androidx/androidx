@@ -18,8 +18,6 @@
 
 package androidx.compose.runtime.snapshots
 
-import androidx.collection.mutableLongListOf
-
 @Suppress("TypealiasDefinition")
 public actual typealias SnapshotId = Long
 
@@ -124,22 +122,6 @@ internal actual fun SnapshotIdArray.withIdRemovedAt(index: Int): SnapshotIdArray
         )
     }
     return newArray
-}
-
-internal actual class SnapshotIdArrayBuilder actual constructor(array: SnapshotIdArray?) {
-    private val list = array?.let { mutableLongListOf(*array) } ?: mutableLongListOf()
-
-    actual fun add(id: SnapshotId) {
-        list.add(id)
-    }
-
-    actual fun toArray(): SnapshotIdArray? {
-        val size = list.size
-        if (size == 0) return null
-        val result = LongArray(size)
-        list.forEachIndexed { index, element -> result[index] = element }
-        return result
-    }
 }
 
 internal actual inline fun snapshotIdArrayOf(id: SnapshotId): SnapshotIdArray = longArrayOf(id)

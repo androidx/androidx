@@ -5774,6 +5774,83 @@ class SnapshotIdSetTests {
         assertTrue(clearedUpper.get(383L.toSnapshotId()))
         assertTrue(clearedUpper.get(319L.toSnapshotId()))
     }
+
+    @Test
+    fun evictionSingleShiftAndMultiWordJump() {
+        // 1a. Single-word shift with empty lowerSet (0 bits evicted, belowBound stays null)
+        val upperOnly =
+            SnapshotIdSet.EMPTY.set(0L.toSnapshotId())
+                .set(70L.toSnapshotId())
+                .clear(0L.toSnapshotId())
+        val shiftedEmptyLower = upperOnly.set(130L.toSnapshotId())
+        assertEquals(listOf(70L.toSnapshotId(), 130L.toSnapshotId()), shiftedEmptyLower.toList())
+
+        // 1b. Single-word shift with populated lowerSet (including bit 0 and sign bit 63) and
+        // existing belowBound
+        val base =
+            listOf(3L, 42L, 64L, 64L + 63L, 128L + 5L, 128L + 63L).fold(SnapshotIdSet.EMPTY) {
+                acc,
+                id ->
+                acc.set(id.toSnapshotId())
+            }
+        val singleShifted = base.set(195L.toSnapshotId())
+        val expectedSingle = listOf(3L, 42L, 64L, 127L, 133L, 191L, 195L).map { it.toSnapshotId() }
+        assertEquals(expectedSingle, singleShifted.toList())
+        expectedSingle.forEach { assertTrue(singleShifted.get(it)) }
+        assertFalse(singleShifted.get(65L.toSnapshotId()))
+        assertFalse(singleShifted.get(192L.toSnapshotId()))
+
+        // 2a. Multi-word jump when upperSet == 0L and offset in 128..191
+        val lowerOnlyWithBelow =
+            listOf(5L, 64L, 127L).fold(SnapshotIdSet.EMPTY) { acc, id ->
+                acc.set(id.toSnapshotId())
+            }
+        val jumpedFromEmptyUpper = lowerOnlyWithBelow.set(195L.toSnapshotId())
+        assertEquals(
+            listOf(5L, 64L, 127L, 195L).map { it.toSnapshotId() },
+            jumpedFromEmptyUpper.toList(),
+        )
+
+        // 2b. Multi-word jump when both lowerSet != 0L and upperSet != 0L (evicts both words in
+        // ascending order onto existing belowBound)
+        val multiJumped = base.set(500L.toSnapshotId())
+        val expectedMulti = listOf(3L, 42L, 64L, 127L, 133L, 191L, 500L).map { it.toSnapshotId() }
+        assertEquals(expectedMulti, multiJumped.toList())
+        expectedMulti.forEach { assertTrue(multiJumped.get(it)) }
+        assertFalse(multiJumped.get(499L.toSnapshotId()))
+        assertFalse(multiJumped.get(501L.toSnapshotId()))
+    }
+
+    @Test
+    fun kernighanIterationSignBitAndOrdering() {
+        val emptyVisited = mutableListOf<SnapshotId>()
+        SnapshotIdSet.EMPTY.fastForEach { emptyVisited.add(it) }
+        assertTrue(emptyVisited.isEmpty())
+        assertTrue(SnapshotIdSet.EMPTY.toList().isEmpty())
+
+        // Exercise belowBound + bit 0, 31, 32, 63 (Long.MIN_VALUE sign bit) in both lowerSet and
+        // upperSet
+        val rawIds =
+            listOf(
+                1L,
+                63L,
+                128L + 0L,
+                128L + 31L,
+                128L + 32L,
+                128L + 63L,
+                192L + 0L,
+                192L + 31L,
+                192L + 32L,
+                192L + 63L,
+            )
+        val expected = rawIds.map { it.toSnapshotId() }
+        val set = expected.fold(SnapshotIdSet.EMPTY) { acc, id -> acc.set(id) }
+
+        val fastVisited = mutableListOf<SnapshotId>()
+        set.fastForEach { fastVisited.add(it) }
+        assertEquals(expected, fastVisited)
+        assertEquals(expected, set.toList())
+    }
 }
 
 private fun SnapshotIdSet.shouldBe(index: Long, value: Boolean): SnapshotIdSet {
