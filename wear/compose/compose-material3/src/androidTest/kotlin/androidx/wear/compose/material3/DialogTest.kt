@@ -326,6 +326,52 @@ class DialogTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
     @Test
+    fun predictiveBack_clipsDialogToCircle_onlyWhenSwiping_onRoundDevice() {
+        val dialogColor = Color.Blue
+        rule.setContentWithTheme {
+            ScreenConfiguration(SCREEN_SIZE_LARGE, isRound = true) {
+                Dialog(
+                    visible = true,
+                    modifier = Modifier.testTag(TEST_TAG),
+                    onDismissRequest = {},
+                ) {
+                    Box(modifier = Modifier.fillMaxSize().background(dialogColor))
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        // Before swiping, the top-left corner of the dialog should not be clipped.
+        val initialPixelMap = rule.onNodeWithTag(TEST_TAG).captureToImage().toPixelMap()
+        Assert.assertEquals(dialogColor, initialPixelMap[2, 2])
+
+        val dispatcher = rule.dialogOnBackPressedDispatcher(TEST_TAG)
+        rule.runOnIdle {
+            dispatcher.dispatchOnBackStarted(
+                BackEventCompat(0.1f, 0.1f, 0.0f, BackEventCompat.EDGE_LEFT)
+            )
+            dispatcher.dispatchOnBackProgressed(
+                BackEventCompat(0.1f, 0.1f, 0.2f, BackEventCompat.EDGE_LEFT)
+            )
+        }
+        rule.waitForIdle()
+
+        // While swiping, the top-left corner of the dialog should be clipped to a circle.
+        val swipingPixelMap = rule.onNodeWithTag(TEST_TAG).captureToImage().toPixelMap()
+        Assert.assertEquals(dialogColor, swipingPixelMap[5, swipingPixelMap.height / 2])
+        Assert.assertNotEquals(dialogColor, swipingPixelMap[2, 2])
+
+        rule.runOnIdle { dispatcher.dispatchOnBackCancelled() }
+        rule.waitForIdle()
+
+        // After cancelling the swipe and returning to rest, the top-left corner should not be
+        // clipped.
+        val restoredPixelMap = rule.onNodeWithTag(TEST_TAG).captureToImage().toPixelMap()
+        Assert.assertEquals(dialogColor, restoredPixelMap[2, 2])
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
+    @Test
     fun predictiveBack_commitNotCancelled_bySubsequentBackGesture() {
         var dismissCounter = 0
         rule.setContentWithTheme {

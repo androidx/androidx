@@ -46,9 +46,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.CompositingStrategy
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -223,7 +221,13 @@ internal fun PredictiveBackDialog(
                     .fillMaxSize()
         ) {
             DialogContentContainer(
-                modifier = Modifier.clip(if (isRoundDevice) CircleShape else RectangleShape),
+                modifier =
+                    Modifier.graphicsLayer {
+                        if (isRoundDevice && predictiveBackProgress.value > 0f) {
+                            clip = true
+                            shape = CircleShape
+                        }
+                    },
                 content = content,
             )
         }
