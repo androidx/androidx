@@ -16,7 +16,6 @@
 
 package androidx.ink.brush.behavior
 
-import androidx.annotation.RestrictTo
 import androidx.collection.MutableIntObjectMap
 import androidx.ink.brush.ExperimentalInkBarrelTwistApi
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
@@ -158,12 +157,10 @@ public class SourceNode private constructor(nativeAlloc: () -> Long) :
             public val ORIENTATION_ABOUT_ZERO_IN_RADIANS: Source =
                 Source(5, "ORIENTATION_ABOUT_ZERO_IN_RADIANS")
             /** Stylus barrel twist with values reported in the range [0, 2π). */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
             @ExperimentalInkBarrelTwistApi
             @JvmField
             public val BARREL_TWIST_IN_RADIANS: Source = Source(6, "BARREL_TWIST_IN_RADIANS")
             /** Stylus barrel twist with values reported in the range (-π, π]. */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
             @ExperimentalInkBarrelTwistApi
             @JvmField
             public val BARREL_TWIST_ABOUT_ZERO_IN_RADIANS: Source =
