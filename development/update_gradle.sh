@@ -17,6 +17,7 @@ ZIP_FILE="gradle-${VERSION}-bin.zip"
 SRC_FILE="gradle-${VERSION}-src.zip"
 SIGNATURE_FILE="$ZIP_FILE.asc"
 SHA_FILE="${ZIP_FILE}.sha256"
+WRAPPER_SIGNATURE_FILE="gradle-${VERSION}-wrapper.jar.asc"
 
 # Function to check if a URL is valid by checking the HTTP status code
 check_url() {
@@ -38,6 +39,7 @@ check_url "$BASE_URL/$ZIP_FILE"
 check_url "$BASE_URL/$SRC_FILE"
 check_url "$BASE_URL/$SIGNATURE_FILE"
 check_url "$BASE_URL/$SHA_FILE"
+check_url "$BASE_URL/$WRAPPER_SIGNATURE_FILE"
 
 echo "Cleaning destination directory: $DEST_DIR"
 rm -rf "$DEST_DIR"/*
@@ -71,7 +73,22 @@ for file in "${WRAPPER_FILES[@]}"; do
   update_gradle_wrapper_properties "$file"
 done
 
-echo "Gradle binary downloaded, and the wrapper properties updated successfully!"
+# Regenerate gradle/wrapper/gradlew and gradle-wrapper.jar with the new Gradle, then download
+# Gradle's signature for that jar, which busytown/impl/verify-gradle-signature.sh checks. Use an
+# empty project so the wrapper task doesn't rewrite AndroidX's gradle-wrapper.properties. The
+# subshell keeps build-environment.sh from changing the environment of ./gradlew below.
+(
+  . development/build-environment/build-environment.sh
+  project="$(mktemp -d)"
+  trap 'rm -rf "$project"' EXIT
+  touch "$project/settings.gradle"
+  echo 'wrapper { scriptFile = "gradle/wrapper/gradlew" }' > "$project/build.gradle"
+  gradle/wrapper/gradlew --project-dir "$project" --no-daemon --quiet --offline wrapper
+  cp "$project/gradle/wrapper/gradlew" "$project/gradle/wrapper/gradle-wrapper.jar" gradle/wrapper/
+)
+curl -Lo gradle/wrapper/gradle-wrapper.jar.asc "$BASE_URL/$WRAPPER_SIGNATURE_FILE"
+
+echo "Gradle binary downloaded, and the wrapper properties, script and jar updated successfully!"
 
 echo "Testing the setup with './gradlew bOS --dry-run'..."
 if ./gradlew bOS --dry-run; then
