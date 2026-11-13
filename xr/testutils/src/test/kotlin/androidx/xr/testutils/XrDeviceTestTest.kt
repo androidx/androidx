@@ -18,6 +18,7 @@ package androidx.xr.testutils
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.runtime.RequiresSpatialApi
@@ -34,6 +35,7 @@ import org.junit.runner.Description
 import org.junit.runner.RunWith
 import org.robolectric.Shadows
 import org.robolectric.annotation.Config
+import org.robolectric.util.ReflectionHelpers
 
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [34])
@@ -50,6 +52,12 @@ class XrDeviceTestTest {
         @XrDeviceTest
         @RequiresSpatialApi(FUTURE_SPATIAL_API_VERSION)
         fun futureApiMethod() {}
+
+        @XrDeviceTest(include = [XrDeviceConfig.EMULATOR]) fun emulatorOnlyMethod() {}
+
+        @XrDeviceTest(exclude = [XrDeviceConfig.EMULATOR]) fun excludeEmulatorMethod() {}
+
+        @XrDeviceTest(include = [XrDeviceConfig.PHYSICAL_DEVICE]) fun physicalDeviceOnlyMethod() {}
 
         fun unannotatedMethod() {}
     }
@@ -195,6 +203,52 @@ class XrDeviceTestTest {
         assertNull(nullClassDesc.testClass)
         assertTrue(v1Filter.shouldRun(nullClassDesc))
         assertEquals("Filters tests based on XrDeviceTest annotation", v1Filter.describe())
+    }
+
+    @Test
+    fun evaluateTest_recognizesEmulatorHardwareVariants() {
+        val filter = XrDeviceFilter { SpatialApiVersions.SPATIAL_API_V2 }
+        val emulatorOnlyDesc = createDescription("emulatorOnlyMethod")
+        val excludeEmulatorDesc = createDescription("excludeEmulatorMethod")
+        val physicalOnlyDesc = createDescription("physicalDeviceOnlyMethod")
+
+        for (hardware in listOf("goldfish", "ranchu", "gce_x86", "cutf_cvm")) {
+            withHardware(hardware) {
+                assertTrue(filter.shouldRun(emulatorOnlyDesc), "Expected emulator match: $hardware")
+                assertFalse(
+                    filter.shouldRun(excludeEmulatorDesc),
+                    "Expected emulator exclusion: $hardware",
+                )
+                assertFalse(
+                    filter.shouldRun(physicalOnlyDesc),
+                    "Expected physical mismatch: $hardware",
+                )
+            }
+        }
+    }
+
+    @Test
+    fun evaluateTest_treatsNonEmulatorHardwareAsPhysicalDevice() {
+        val filter = XrDeviceFilter { SpatialApiVersions.SPATIAL_API_V2 }
+        val emulatorOnlyDesc = createDescription("emulatorOnlyMethod")
+        val excludeEmulatorDesc = createDescription("excludeEmulatorMethod")
+        val physicalOnlyDesc = createDescription("physicalDeviceOnlyMethod")
+
+        withHardware("moohan") {
+            assertFalse(filter.shouldRun(emulatorOnlyDesc))
+            assertTrue(filter.shouldRun(excludeEmulatorDesc))
+            assertTrue(filter.shouldRun(physicalOnlyDesc))
+        }
+    }
+
+    private fun withHardware(hardware: String, block: () -> Unit) {
+        val originalHardware = Build.HARDWARE
+        ReflectionHelpers.setStaticField(Build::class.java, "HARDWARE", hardware)
+        try {
+            block()
+        } finally {
+            ReflectionHelpers.setStaticField(Build::class.java, "HARDWARE", originalHardware)
+        }
     }
 }
 
