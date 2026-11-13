@@ -64,6 +64,7 @@ public class SnapshotStateListSerializer<T>(private val elementSerializer: KSeri
 
     override fun deserialize(decoder: Decoder): SnapshotStateList<T> {
         val deserialized = decoder.decodeSerializableValue(base)
+        @Suppress("ListIterator")
         return SnapshotStateList<T>().apply { addAll(deserialized.toList()) }
     }
 }

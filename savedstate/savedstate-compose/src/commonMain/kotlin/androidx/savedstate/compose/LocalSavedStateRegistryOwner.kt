@@ -14,16 +14,31 @@
  * limitations under the License.
  */
 
+@file:JvmName("LocalSavedStateRegistryOwnerKt")
+@file:JvmMultifileClass
 @file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released.
 
 package androidx.savedstate.compose
 
+import androidx.compose.runtime.HostDefaultKey
 import androidx.compose.runtime.ProvidableCompositionLocal
-import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.compositionLocalWithHostDefaultOf
 import androidx.savedstate.SavedStateRegistryOwner
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 
 /** The CompositionLocal containing the current [SavedStateRegistryOwner]. */
 public val LocalSavedStateRegistryOwner: ProvidableCompositionLocal<SavedStateRegistryOwner> =
-    staticCompositionLocalOf {
-        error("CompositionLocal LocalSavedStateRegistryOwner not present")
-    }
+    compositionLocalWithHostDefaultOf(SavedStateRegistryOwnerHostDefaultKey)
+
+/**
+ * A [HostDefaultKey] used to retrieve the [SavedStateRegistryOwner] provided by the current hosting
+ * environment.
+ *
+ * This key allows the composition to access the host's [SavedStateRegistryOwner] through a
+ * decoupled mechanism, typically used by [compositionLocalWithHostDefaultOf].
+ *
+ * @see HostDefaultKey
+ * @see compositionLocalWithHostDefaultOf
+ */
+public expect val SavedStateRegistryOwnerHostDefaultKey: HostDefaultKey<SavedStateRegistryOwner>

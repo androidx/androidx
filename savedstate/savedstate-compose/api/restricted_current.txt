@@ -4,7 +4,9 @@ package androidx.savedstate.compose {
 
   public final class LocalSavedStateRegistryOwnerKt {
     method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.savedstate.SavedStateRegistryOwner> getLocalSavedStateRegistryOwner();
+    method @InaccessibleFromKotlin public static androidx.compose.runtime.HostDefaultKey<androidx.savedstate.SavedStateRegistryOwner> getSavedStateRegistryOwnerHostDefaultKey();
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.savedstate.SavedStateRegistryOwner> LocalSavedStateRegistryOwner;
+    property public static androidx.compose.runtime.HostDefaultKey<androidx.savedstate.SavedStateRegistryOwner> SavedStateRegistryOwnerHostDefaultKey;
   }
 
 }
