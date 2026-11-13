@@ -29,6 +29,8 @@ import kotlin.jvm.JvmOverloads
  */
 public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int = 8) {
     private var elements: IntArray
+    // Unmasked 32-bit wrapping counters: physical slot is `counter and capacityBitmask`
+    // and logical size is `tail - head` (always in `0..elements.size`, `elements.size <= 2^30`).
     private var head = 0
     private var tail = 0
     private var capacityBitmask: Int
@@ -51,14 +53,15 @@ public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int 
 
     private fun doubleCapacity() {
         val n = elements.size
-        val r = n - head
+        val h = head and capacityBitmask
+        val r = n - h
         val newCapacity = n shl 1
         if (newCapacity < 0) {
             throw RuntimeException("Max array capacity exceeded")
         }
         val a = IntArray(newCapacity)
-        elements.copyInto(destination = a, destinationOffset = 0, startIndex = head, endIndex = n)
-        elements.copyInto(destination = a, destinationOffset = r, startIndex = 0, endIndex = head)
+        elements.copyInto(destination = a, destinationOffset = 0, startIndex = h, endIndex = n)
+        elements.copyInto(destination = a, destinationOffset = r, startIndex = 0, endIndex = h)
         elements = a
         head = 0
         tail = n
@@ -71,9 +74,11 @@ public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int 
      * @param element [Int] to add.
      */
     public fun addFirst(element: Int) {
-        head = (head - 1) and capacityBitmask
-        elements[head] = element
-        if (head == tail) {
+        val h = head - 1
+        head = h
+        val mask = capacityBitmask
+        elements[h and mask] = element
+        if (tail - h > mask) {
             doubleCapacity()
         }
     }
@@ -84,9 +89,11 @@ public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int 
      * @param element [Int] to add.
      */
     public fun addLast(element: Int) {
-        elements[tail] = element
-        tail = (tail + 1) and capacityBitmask
-        if (tail == head) {
+        val t = tail
+        val mask = capacityBitmask
+        elements[t and mask] = element
+        tail = t + 1
+        if (t - head == mask) {
             doubleCapacity()
         }
     }
@@ -98,9 +105,10 @@ public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int 
      * @throws IndexOutOfBoundsException if [CircularIntArray] is empty.
      */
     public fun popFirst(): Int {
-        if (head == tail) throw createIndexOutOfBoundsException()
-        val result = elements[head]
-        head = (head + 1) and capacityBitmask
+        val h = head
+        if (h == tail) throw createIndexOutOfBoundsException()
+        val result = elements[h and capacityBitmask]
+        head = h + 1
         return result
     }
 
@@ -111,10 +119,11 @@ public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int 
      * @throws IndexOutOfBoundsException if [CircularIntArray] is empty.
      */
     public fun popLast(): Int {
-        if (head == tail) throw createIndexOutOfBoundsException()
-        val t = (tail - 1) and capacityBitmask
-        val result = elements[t]
-        tail = t
+        val t = tail
+        if (head == t) throw createIndexOutOfBoundsException()
+        val newTail = t - 1
+        val result = elements[newTail and capacityBitmask]
+        tail = newTail
         return result
     }
 
@@ -134,10 +143,11 @@ public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int 
         if (count <= 0) {
             return
         }
-        if (count > size()) {
+        val h = head
+        if (count > tail - h) {
             throw createIndexOutOfBoundsException()
         }
-        head = (head + count) and capacityBitmask
+        head = h + count
     }
 
     /**
@@ -151,10 +161,11 @@ public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int 
         if (count <= 0) {
             return
         }
-        if (count > size()) {
+        val t = tail
+        if (count > t - head) {
             throw createIndexOutOfBoundsException()
         }
-        tail = (tail - count) and capacityBitmask
+        tail = t - count
     }
 
     /**
@@ -165,8 +176,9 @@ public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int 
      */
     public val first: Int
         get() {
-            if (head == tail) throw createIndexOutOfBoundsException()
-            return elements[head]
+            val h = head
+            if (h == tail) throw createIndexOutOfBoundsException()
+            return elements[h and capacityBitmask]
         }
 
     /**
@@ -177,8 +189,9 @@ public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int 
      */
     public val last: Int
         get() {
-            if (head == tail) throw createIndexOutOfBoundsException()
-            return elements[(tail - 1) and capacityBitmask]
+            val t = tail
+            if (head == t) throw createIndexOutOfBoundsException()
+            return elements[(t - 1) and capacityBitmask]
         }
 
     /**
@@ -189,8 +202,13 @@ public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int 
      * @throws [IndexOutOfBoundsException] if n < 0 or n >= size().
      */
     public operator fun get(index: Int): Int {
-        if (index < 0 || index >= size()) throw createIndexOutOfBoundsException()
-        return elements[(head + index) and capacityBitmask]
+        // Modulo 2^32, `pos - tail == index - (tail - head) == index - size`.
+        // Signed `(index or (index - size)) < index` iff `index >= 0` and `index - size < 0`.
+        val pos = index + head
+        if ((index or (pos - tail)) >= index) {
+            throw createIndexOutOfBoundsException()
+        }
+        return elements[pos and capacityBitmask]
     }
 
     /**
@@ -199,7 +217,7 @@ public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int 
      * @return Number of integers in the [CircularIntArray].
      */
     public fun size(): Int {
-        return (tail - head) and capacityBitmask
+        return tail - head
     }
 
     /**
