@@ -39,8 +39,8 @@ import androidx.glance.adaptive.appwidget.matrix.remoteviews.RemoteViewsMatrixRe
 import androidx.glance.adaptive.appwidget.renderer.RemoteViewsRenderOutput
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
 import androidx.glance.adaptive.appwidget.templates.track.TrackMatrixSelector
-import androidx.glance.adaptive.core.action.GlanceAdaptiveAction
 import androidx.glance.adaptive.core.action.GlanceAdaptiveActionCallback
+import androidx.glance.adaptive.core.action.GlanceWidgetAction
 import androidx.glance.adaptive.core.selection.Dimensions
 import androidx.glance.adaptive.core.slots.Badge
 import androidx.glance.adaptive.core.slots.ChartLabel
@@ -420,16 +420,16 @@ class RemoteViewsMatrixRendererTest {
 
         val run = actions.pendingIntentFor(RUN)
         assertThat(run).isNotNull()
-        val runCopy = GlanceAdaptiveAction.DeeplinkAction(Uri.parse(RUN_URI))
-        val bike = GlanceAdaptiveAction.DeeplinkAction(Uri.parse("app://bike"))
-        assertThat(actions.pendingIntentFor(runCopy)).isEqualTo(run)
-        assertThat(actions.pendingIntentFor(bike)).isNotEqualTo(run)
+        assertThat(actions.pendingIntentFor(GlanceWidgetAction.LaunchDeeplink(RUN_URI)))
+            .isEqualTo(run)
+        assertThat(actions.pendingIntentFor(GlanceWidgetAction.LaunchDeeplink("app://bike")))
+            .isNotEqualTo(run)
         assertThat(actions.pendingIntentFor(null)).isNull()
     }
 
     @Test
     fun actions_callbackRunsOnlyWithTheNameOfItsWidget() {
-        val callback = GlanceAdaptiveAction.CallbackAction<NoOpCallback>()
+        val callback = GlanceWidgetAction.Callback(NoOpCallback::class.java)
 
         assertThat(RemoteViewsActions(context, widgetName = "dashboard").pendingIntentFor(callback))
             .isNotNull()
@@ -666,7 +666,7 @@ class RemoteViewsMatrixRendererTest {
         val surface = AppWidgetSurface.MOBILE_HOME_SCREEN.withDimensions(Dimensions(88, 88))
         val content =
             MatrixBulbContent(
-                IconButton(GLYPH, "Run", GlanceAdaptiveAction.CallbackAction<NoOpCallback>())
+                IconButton(GLYPH, "Run", GlanceWidgetAction.Callback(NoOpCallback::class.java))
             )
         val output =
             RemoteViewsMatrixRenderer.forWidget("dashboard").render(template, content, surface)
@@ -686,7 +686,7 @@ class RemoteViewsMatrixRendererTest {
         val root =
             render(
                 MatrixBulbContent(
-                    IconButton(GLYPH, "Run", GlanceAdaptiveAction.CallbackAction<NoOpCallback>())
+                    IconButton(GLYPH, "Run", GlanceWidgetAction.Callback(NoOpCallback::class.java))
                 ),
                 Dimensions(88, 88),
             )
@@ -1165,7 +1165,7 @@ class RemoteViewsMatrixRendererTest {
         const val GLYPH = android.R.drawable.ic_menu_compass
 
         const val RUN_URI = "app://run"
-        val RUN = GlanceAdaptiveAction.DeeplinkAction(Uri.parse(RUN_URI))
+        val RUN = GlanceWidgetAction.LaunchDeeplink(RUN_URI)
 
         /** Extra under which a callback broadcast names its widget. */
         const val EXTRA_WIDGET_NAME = "androidx.glance.adaptive.core.extra.WIDGET_NAME"

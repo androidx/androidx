@@ -102,7 +102,7 @@ internal object BundleUtils {
     // but generic inspection across heterogeneous Bundle values requires untyped retrieval.
     @Suppress("DEPRECATION")
     fun bundleHashCode(bundle: Bundle): Int {
-        if (bundle === Bundle.EMPTY || bundle.isEmpty) return 0
+        if (bundle.isEmpty) return 0
         var result = 0
         val sortedKeys = bundle.keySet().sorted()
         for (i in sortedKeys.indices) {

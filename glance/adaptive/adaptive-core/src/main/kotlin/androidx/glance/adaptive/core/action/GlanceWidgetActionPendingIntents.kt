@@ -19,35 +19,36 @@ package androidx.glance.adaptive.core.action
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.annotation.RestrictTo
 
 /**
- * Converts this [GlanceAdaptiveAction] into the immutable [PendingIntent] to send when its element
- * is tapped on the widget instance identified by [widgetName] and [widgetId].
+ * Converts this [GlanceWidgetAction] into the immutable [PendingIntent] to send when its element is
+ * tapped on the widget instance identified by [widgetName] and [widgetId].
  *
- * - [GlanceAdaptiveAction.CallbackAction]: a broadcast to [ActionCallbackBroadcastReceiver].
- * - [GlanceAdaptiveAction.LaunchAction]: starts
- *   [GlanceAdaptiveAction.LaunchAction.targetActivityClass] with
- *   [GlanceAdaptiveAction.LaunchAction.parameters] as extras.
- * - [GlanceAdaptiveAction.DeeplinkAction]: starts an [Intent.ACTION_VIEW] activity for
- *   [GlanceAdaptiveAction.DeeplinkAction.uri].
+ * - [GlanceWidgetAction.Callback]: a broadcast to [ActionCallbackBroadcastReceiver].
+ * - [GlanceWidgetAction.LaunchActivity]: starts
+ *   [GlanceWidgetAction.LaunchActivity.targetActivityClass] with
+ *   [GlanceWidgetAction.LaunchActivity.parameters] as extras.
+ * - [GlanceWidgetAction.LaunchDeeplink]: starts an [Intent.ACTION_VIEW] activity for
+ *   [GlanceWidgetAction.LaunchDeeplink.uri].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun GlanceAdaptiveAction.toPendingIntent(
+public fun GlanceWidgetAction.toPendingIntent(
     context: Context,
     widgetName: String,
     widgetId: String? = null,
 ): PendingIntent {
     val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     return when (this) {
-        is GlanceAdaptiveAction.CallbackAction ->
+        is GlanceWidgetAction.Callback ->
             PendingIntent.getBroadcast(
                 context,
                 /* requestCode= */ 0,
                 ActionCallbackBroadcastReceiver.createIntent(context, this, widgetName, widgetId),
                 flags,
             )
-        is GlanceAdaptiveAction.LaunchAction ->
+        is GlanceWidgetAction.LaunchActivity ->
             PendingIntent.getActivity(
                 context,
                 // Extras are not part of PendingIntent identity, so the request code keeps
@@ -59,15 +60,15 @@ public fun GlanceAdaptiveAction.toPendingIntent(
                     .putExtras(parameters),
                 flags,
             )
-        is GlanceAdaptiveAction.DeeplinkAction ->
+        is GlanceWidgetAction.LaunchDeeplink ->
             PendingIntent.getActivity(
                 context,
                 /* requestCode= */ 0,
-                Intent(Intent.ACTION_VIEW, uri).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                Intent(Intent.ACTION_VIEW, Uri.parse(uri)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                 flags,
             )
-        // GlanceAdaptiveAction is not sealed, so new action types can be added without breaking
+        // GlanceWidgetAction is not sealed, so new action types can be added without breaking
         // callers; this is only reachable if one is added without being handled here.
-        else -> throw IllegalArgumentException("Unsupported GlanceAdaptiveAction: $this")
+        else -> throw IllegalArgumentException("Unsupported GlanceWidgetAction: $this")
     }
 }

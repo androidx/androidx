@@ -19,14 +19,14 @@ package androidx.glance.adaptive.appwidget.components
 import android.app.PendingIntent
 import android.content.Context
 import android.util.Log
-import androidx.glance.adaptive.core.action.GlanceAdaptiveAction
+import androidx.glance.adaptive.core.action.GlanceWidgetAction
 import androidx.glance.adaptive.core.action.toPendingIntent
 
 // Tag length must not exceed 23 characters for pre-API 24 log compatibility.
 private const val TAG = "RemoteViewsActions"
 
 /**
- * Turns the [GlanceAdaptiveAction]s drawn for one widget into the [PendingIntent]s its views send
+ * Turns the [GlanceWidgetAction]s drawn for one widget into the [PendingIntent]s its views send
  * when tapped.
  *
  * A [PendingIntent] is identified by its request code and its intent's action, data and component,
@@ -43,24 +43,27 @@ private const val TAG = "RemoteViewsActions"
  *
  * @property context The context the views and their [PendingIntent]s are created with.
  * @param widgetName Name of the widget the views are drawn for, which a
- *   [GlanceAdaptiveAction.CallbackAction] hands to its callback, or `null` when they are not drawn
- *   for a named widget. The target instance's `widgetId` is not yet passed to the renderer
- *   (b/580007927), so callbacks receive `widgetId = null` until the renderer is given the widget
- *   instance it renders for.
+ *   [GlanceWidgetAction.Callback] hands to its callback, or `null` when they are not drawn for a
+ *   named widget. The target instance's `widgetId` is not yet passed to the renderer (b/580007927),
+ *   so callbacks receive `widgetId = null` until the renderer is given the widget instance it
+ *   renders for.
  */
-internal class RemoteViewsActions(val context: Context, private val widgetName: String?) {
+internal class RemoteViewsActions(
+    val context: Context,
+    private val widgetName: String?,
+) {
     /**
      * Whether a view with [action] runs it when tapped: [action] is not `null`, and it is not a
-     * [GlanceAdaptiveAction.CallbackAction] with no widget name to deliver it to.
+     * [GlanceWidgetAction.Callback] with no widget name to deliver it to.
      */
-    fun isTappable(action: GlanceAdaptiveAction?): Boolean =
-        action != null && (widgetName != null || action !is GlanceAdaptiveAction.CallbackAction)
+    fun isTappable(action: GlanceWidgetAction?): Boolean =
+        action != null && (widgetName != null || action !is GlanceWidgetAction.Callback)
 
     /**
      * The [PendingIntent] a tap runs [action] with, or `null` when the view should ignore taps (see
      * [isTappable]).
      */
-    fun pendingIntentFor(action: GlanceAdaptiveAction?): PendingIntent? {
+    fun pendingIntentFor(action: GlanceWidgetAction?): PendingIntent? {
         if (action == null) return null
         if (!isTappable(action)) {
             Log.w(TAG, "Ignoring $action: a callback needs the name of the widget it is drawn for.")

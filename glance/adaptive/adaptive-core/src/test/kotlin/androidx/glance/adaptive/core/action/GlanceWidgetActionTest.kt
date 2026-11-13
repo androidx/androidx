@@ -18,7 +18,6 @@ package androidx.glance.adaptive.core.action
 
 import android.app.Activity
 import android.content.Context
-import android.net.Uri
 import android.os.Bundle
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -54,12 +53,10 @@ class GlanceWidgetActionTest {
 
     @Test
     fun callback_defaultParameters_isEmptyBundle() {
-        val action = GlanceAdaptiveAction.CallbackAction(FirstCallback::class.java)
-        val reifiedAction = GlanceAdaptiveAction.CallbackAction<FirstCallback>()
+        val action = GlanceWidgetAction.Callback(FirstCallback::class.java)
 
         assertThat(action.actionCallbackClass).isEqualTo(FirstCallback::class.java)
         assertThat(action.parameters.isEmpty).isTrue()
-        assertThat(reifiedAction).isEqualTo(action)
     }
 
     @Test
@@ -80,11 +77,11 @@ class GlanceWidgetActionTest {
                 putIntArray("counts", intArrayOf(1, 2, 3))
             }
 
-        val action1 = GlanceAdaptiveAction.CallbackAction<FirstCallback>(params1)
-        val action2 = GlanceAdaptiveAction.CallbackAction(FirstCallback::class.java, params2)
-        val differentCallback = GlanceAdaptiveAction.CallbackAction<SecondCallback>(params1)
+        val action1 = GlanceWidgetAction.Callback(FirstCallback::class.java, params1)
+        val action2 = GlanceWidgetAction.Callback(FirstCallback::class.java, params2)
+        val differentCallback = GlanceWidgetAction.Callback(SecondCallback::class.java, params1)
         val differentParamsAction =
-            GlanceAdaptiveAction.CallbackAction(FirstCallback::class.java, differentParams)
+            GlanceWidgetAction.Callback(FirstCallback::class.java, differentParams)
 
         assertThat(action1).isEqualTo(action2)
         assertThat(action1.hashCode()).isEqualTo(action2.hashCode())
@@ -98,12 +95,10 @@ class GlanceWidgetActionTest {
 
     @Test
     fun launchActivity_defaultParameters_isEmptyBundle() {
-        val action = GlanceAdaptiveAction.LaunchAction(FirstActivity::class.java)
-        val reifiedAction = GlanceAdaptiveAction.LaunchAction<FirstActivity>()
+        val action = GlanceWidgetAction.LaunchActivity(FirstActivity::class.java)
 
         assertThat(action.targetActivityClass).isEqualTo(FirstActivity::class.java)
         assertThat(action.parameters.isEmpty).isTrue()
-        assertThat(reifiedAction).isEqualTo(action)
     }
 
     @Test
@@ -112,11 +107,12 @@ class GlanceWidgetActionTest {
         val params2 = Bundle().apply { putString("tab", "details") }
         val differentParams = Bundle().apply { putString("tab", "home") }
 
-        val action1 = GlanceAdaptiveAction.LaunchAction<FirstActivity>(params1)
-        val action2 = GlanceAdaptiveAction.LaunchAction(FirstActivity::class.java, params2)
-        val differentActivity = GlanceAdaptiveAction.LaunchAction<SecondActivity>(params1)
+        val action1 = GlanceWidgetAction.LaunchActivity(FirstActivity::class.java, params1)
+        val action2 = GlanceWidgetAction.LaunchActivity(FirstActivity::class.java, params2)
+        val differentActivity =
+            GlanceWidgetAction.LaunchActivity(SecondActivity::class.java, params1)
         val differentParamsAction =
-            GlanceAdaptiveAction.LaunchAction(FirstActivity::class.java, differentParams)
+            GlanceWidgetAction.LaunchActivity(FirstActivity::class.java, differentParams)
 
         assertThat(action1).isEqualTo(action2)
         assertThat(action1.hashCode()).isEqualTo(action2.hashCode())
@@ -130,15 +126,11 @@ class GlanceWidgetActionTest {
 
     @Test
     fun launchDeeplink_equalsAndHashCode() {
-        val uri1 = Uri.parse("companion://doses/123/skip")
-        val uri2 = Uri.parse("companion://doses/123/skip")
-        val otherUri = Uri.parse("obsidian://new")
+        val action1 = GlanceWidgetAction.LaunchDeeplink("companion://doses/123/skip")
+        val action2 = GlanceWidgetAction.LaunchDeeplink("companion://doses/123/skip")
+        val differentUri = GlanceWidgetAction.LaunchDeeplink("obsidian://new")
 
-        val action1 = GlanceAdaptiveAction.DeeplinkAction(uri1)
-        val action2 = GlanceAdaptiveAction.DeeplinkAction(uri2)
-        val differentUri = GlanceAdaptiveAction.DeeplinkAction(otherUri)
-
-        assertThat(action1.uri).isEqualTo(uri1)
+        assertThat(action1.uri).isEqualTo("companion://doses/123/skip")
         assertThat(action1).isEqualTo(action2)
         assertThat(action1.hashCode()).isEqualTo(action2.hashCode())
         assertThat(action1).isNotEqualTo(differentUri)
