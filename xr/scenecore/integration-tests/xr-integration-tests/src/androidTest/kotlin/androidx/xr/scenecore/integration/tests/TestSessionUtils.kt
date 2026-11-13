@@ -21,12 +21,15 @@ import androidx.test.core.app.ActivityScenario
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.Scene
 import androidx.xr.scenecore.SpatialCapability
 import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.util.function.Consumer
+import kotlin.math.sqrt
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -128,20 +131,69 @@ private suspend fun Scene.requestSpaceModeAndAwait(fullSpace: Boolean) {
 
 internal fun assertPose(actual: Pose, expected: Pose, epsilon: Float = 1e-5f) {
     assertVector3(actual.translation, expected.translation, epsilon)
-    val dot =
-        actual.rotation.x * expected.rotation.x +
-            actual.rotation.y * expected.rotation.y +
-            actual.rotation.z * expected.rotation.z +
-            actual.rotation.w * expected.rotation.w
+    assertFiniteQuaternion(actual.rotation, "actual.rotation")
+    assertFiniteQuaternion(expected.rotation, "expected.rotation")
+
+    val actualNorm = quaternionNorm(actual.rotation)
+    val expectedNorm = quaternionNorm(expected.rotation)
+    assertWithMessage("actual.rotation norm ($actualNorm) must be positive")
+        .that(actualNorm)
+        .isGreaterThan(1e-6f)
+    assertWithMessage("expected.rotation norm ($expectedNorm) must be positive")
+        .that(expectedNorm)
+        .isGreaterThan(1e-6f)
+
+    val ax = actual.rotation.x / actualNorm
+    val ay = actual.rotation.y / actualNorm
+    val az = actual.rotation.z / actualNorm
+    val aw = actual.rotation.w / actualNorm
+
+    val ex = expected.rotation.x / expectedNorm
+    val ey = expected.rotation.y / expectedNorm
+    val ez = expected.rotation.z / expectedNorm
+    val ew = expected.rotation.w / expectedNorm
+
+    val dot = ax * ex + ay * ey + az * ez + aw * ew
     val sign = if (dot < 0f) -1f else 1f
-    assertThat(actual.rotation.x * sign).isWithin(epsilon).of(expected.rotation.x)
-    assertThat(actual.rotation.y * sign).isWithin(epsilon).of(expected.rotation.y)
-    assertThat(actual.rotation.z * sign).isWithin(epsilon).of(expected.rotation.z)
-    assertThat(actual.rotation.w * sign).isWithin(epsilon).of(expected.rotation.w)
+    assertThat(ax * sign).isWithin(epsilon).of(ex)
+    assertThat(ay * sign).isWithin(epsilon).of(ey)
+    assertThat(az * sign).isWithin(epsilon).of(ez)
+    assertThat(aw * sign).isWithin(epsilon).of(ew)
 }
 
 internal fun assertVector3(actual: Vector3, expected: Vector3, epsilon: Float = 1e-5f) {
+    assertFiniteVector3(actual, "actual")
+    assertFiniteVector3(expected, "expected")
     assertThat(actual.x).isWithin(epsilon).of(expected.x)
     assertThat(actual.y).isWithin(epsilon).of(expected.y)
     assertThat(actual.z).isWithin(epsilon).of(expected.z)
 }
+
+private fun assertFiniteVector3(vector: Vector3, label: String) {
+    assertWithMessage("$label.x (${vector.x}) must be finite").that(vector.x.isFinite()).isTrue()
+    assertWithMessage("$label.y (${vector.y}) must be finite").that(vector.y.isFinite()).isTrue()
+    assertWithMessage("$label.z (${vector.z}) must be finite").that(vector.z.isFinite()).isTrue()
+}
+
+private fun assertFiniteQuaternion(rotation: Quaternion, label: String) {
+    assertWithMessage("$label.x (${rotation.x}) must be finite")
+        .that(rotation.x.isFinite())
+        .isTrue()
+    assertWithMessage("$label.y (${rotation.y}) must be finite")
+        .that(rotation.y.isFinite())
+        .isTrue()
+    assertWithMessage("$label.z (${rotation.z}) must be finite")
+        .that(rotation.z.isFinite())
+        .isTrue()
+    assertWithMessage("$label.w (${rotation.w}) must be finite")
+        .that(rotation.w.isFinite())
+        .isTrue()
+}
+
+private fun quaternionNorm(rotation: Quaternion): Float =
+    sqrt(
+        rotation.x * rotation.x +
+            rotation.y * rotation.y +
+            rotation.z * rotation.z +
+            rotation.w * rotation.w
+    )
