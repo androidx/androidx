@@ -100,8 +100,8 @@ internal constructor(
          * Creates a named [RemoteImageBitmap] backed by an image [url].
          *
          * Defaults to `1x1` dimensions for compatibility with existing players. Pass explicit width
-         * and height or use the `IntSize` extension overload to instruct updated players to take
-         * the actual size from the loaded image.
+         * and height to the overloaded factory to instruct updated players to take the actual size
+         * from the loaded image.
          *
          * @param name unique name to identify this state within its [domain]
          * @param url URL of the image

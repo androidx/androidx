@@ -31,7 +31,6 @@ import androidx.compose.remote.creation.compose.text.RemoteLineBreak
 import androidx.compose.remote.creation.compose.text.RemoteTextAlign
 import androidx.compose.remote.creation.compose.text.RemoteTextDecoration
 import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -44,83 +43,74 @@ import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 
-/** Converts a Compose [BlendMode] to an Android framework [android.graphics.BlendMode]. */
-internal fun BlendMode.toAndroidBlendMode(): android.graphics.BlendMode {
-    return when (this) {
-        BlendMode.Clear -> AndroidBlendMode.CLEAR
-        BlendMode.Src -> AndroidBlendMode.SRC
-        BlendMode.Dst -> AndroidBlendMode.DST
-        BlendMode.SrcOver -> AndroidBlendMode.SRC_OVER
-        BlendMode.DstOver -> AndroidBlendMode.DST_OVER
-        BlendMode.SrcIn -> AndroidBlendMode.SRC_IN
-        BlendMode.DstIn -> AndroidBlendMode.DST_IN
-        BlendMode.SrcOut -> AndroidBlendMode.SRC_OUT
-        BlendMode.DstOut -> AndroidBlendMode.DST_OUT
-        BlendMode.SrcAtop -> AndroidBlendMode.SRC_ATOP
-        BlendMode.DstAtop -> AndroidBlendMode.DST_ATOP
-        BlendMode.Xor -> AndroidBlendMode.XOR
-        BlendMode.Plus -> AndroidBlendMode.PLUS
-        BlendMode.Modulate -> AndroidBlendMode.MODULATE
-        BlendMode.Screen -> AndroidBlendMode.SCREEN
-        BlendMode.Overlay -> AndroidBlendMode.OVERLAY
-        BlendMode.Darken -> AndroidBlendMode.DARKEN
-        BlendMode.Lighten -> AndroidBlendMode.LIGHTEN
-        BlendMode.ColorDodge -> AndroidBlendMode.COLOR_DODGE
-        BlendMode.ColorBurn -> AndroidBlendMode.COLOR_BURN
-        BlendMode.Hardlight -> AndroidBlendMode.HARD_LIGHT
-        BlendMode.Softlight -> AndroidBlendMode.SOFT_LIGHT
-        BlendMode.Difference -> AndroidBlendMode.DIFFERENCE
-        BlendMode.Exclusion -> AndroidBlendMode.EXCLUSION
-        BlendMode.Multiply -> AndroidBlendMode.MULTIPLY
-        BlendMode.Hue -> AndroidBlendMode.HUE
-        BlendMode.Saturation -> AndroidBlendMode.SATURATION
-        BlendMode.Color -> AndroidBlendMode.COLOR
-        BlendMode.Luminosity -> AndroidBlendMode.LUMINOSITY
-        else -> AndroidBlendMode.SRC_OVER
-    }
-}
-
 /** Converts a [RemoteBlendMode] to an Android framework [AndroidBlendMode]. */
 internal fun RemoteBlendMode.toAndroidBlendMode(): AndroidBlendMode =
-    toComposeBlendMode().toAndroidBlendMode()
-
-internal fun AndroidBlendMode.toComposeBlendMode(): BlendMode {
-    return when (this) {
-        AndroidBlendMode.CLEAR -> BlendMode.Clear
-        AndroidBlendMode.SRC -> BlendMode.Src
-        AndroidBlendMode.DST -> BlendMode.Dst
-        AndroidBlendMode.SRC_OVER -> BlendMode.SrcOver
-        AndroidBlendMode.DST_OVER -> BlendMode.DstOver
-        AndroidBlendMode.SRC_IN -> BlendMode.SrcIn
-        AndroidBlendMode.DST_IN -> BlendMode.DstIn
-        AndroidBlendMode.SRC_OUT -> BlendMode.SrcOut
-        AndroidBlendMode.DST_OUT -> BlendMode.DstOut
-        AndroidBlendMode.SRC_ATOP -> BlendMode.SrcAtop
-        AndroidBlendMode.DST_ATOP -> BlendMode.DstAtop
-        AndroidBlendMode.XOR -> BlendMode.Xor
-        AndroidBlendMode.PLUS -> BlendMode.Plus
-        AndroidBlendMode.MODULATE -> BlendMode.Modulate
-        AndroidBlendMode.SCREEN -> BlendMode.Screen
-        AndroidBlendMode.OVERLAY -> BlendMode.Overlay
-        AndroidBlendMode.DARKEN -> BlendMode.Darken
-        AndroidBlendMode.LIGHTEN -> BlendMode.Lighten
-        AndroidBlendMode.COLOR_DODGE -> BlendMode.ColorDodge
-        AndroidBlendMode.COLOR_BURN -> BlendMode.ColorBurn
-        AndroidBlendMode.HARD_LIGHT -> BlendMode.Hardlight
-        AndroidBlendMode.SOFT_LIGHT -> BlendMode.Softlight
-        AndroidBlendMode.DIFFERENCE -> BlendMode.Difference
-        AndroidBlendMode.EXCLUSION -> BlendMode.Exclusion
-        AndroidBlendMode.MULTIPLY -> BlendMode.Multiply
-        AndroidBlendMode.HUE -> BlendMode.Hue
-        AndroidBlendMode.SATURATION -> BlendMode.Saturation
-        AndroidBlendMode.COLOR -> BlendMode.Color
-        AndroidBlendMode.LUMINOSITY -> BlendMode.Luminosity
+    when (this) {
+        RemoteBlendMode.Clear -> AndroidBlendMode.CLEAR
+        RemoteBlendMode.Src -> AndroidBlendMode.SRC
+        RemoteBlendMode.Dst -> AndroidBlendMode.DST
+        RemoteBlendMode.SrcOver -> AndroidBlendMode.SRC_OVER
+        RemoteBlendMode.DstOver -> AndroidBlendMode.DST_OVER
+        RemoteBlendMode.SrcIn -> AndroidBlendMode.SRC_IN
+        RemoteBlendMode.DstIn -> AndroidBlendMode.DST_IN
+        RemoteBlendMode.SrcOut -> AndroidBlendMode.SRC_OUT
+        RemoteBlendMode.DstOut -> AndroidBlendMode.DST_OUT
+        RemoteBlendMode.SrcAtop -> AndroidBlendMode.SRC_ATOP
+        RemoteBlendMode.DstAtop -> AndroidBlendMode.DST_ATOP
+        RemoteBlendMode.Xor -> AndroidBlendMode.XOR
+        RemoteBlendMode.Plus -> AndroidBlendMode.PLUS
+        RemoteBlendMode.Modulate -> AndroidBlendMode.MODULATE
+        RemoteBlendMode.Screen -> AndroidBlendMode.SCREEN
+        RemoteBlendMode.Overlay -> AndroidBlendMode.OVERLAY
+        RemoteBlendMode.Darken -> AndroidBlendMode.DARKEN
+        RemoteBlendMode.Lighten -> AndroidBlendMode.LIGHTEN
+        RemoteBlendMode.ColorDodge -> AndroidBlendMode.COLOR_DODGE
+        RemoteBlendMode.ColorBurn -> AndroidBlendMode.COLOR_BURN
+        RemoteBlendMode.Hardlight -> AndroidBlendMode.HARD_LIGHT
+        RemoteBlendMode.Softlight -> AndroidBlendMode.SOFT_LIGHT
+        RemoteBlendMode.Difference -> AndroidBlendMode.DIFFERENCE
+        RemoteBlendMode.Exclusion -> AndroidBlendMode.EXCLUSION
+        RemoteBlendMode.Multiply -> AndroidBlendMode.MULTIPLY
+        RemoteBlendMode.Hue -> AndroidBlendMode.HUE
+        RemoteBlendMode.Saturation -> AndroidBlendMode.SATURATION
+        RemoteBlendMode.Color -> AndroidBlendMode.COLOR
+        RemoteBlendMode.Luminosity -> AndroidBlendMode.LUMINOSITY
+        else -> AndroidBlendMode.SRC_OVER
     }
-}
 
 /** Converts an Android framework [AndroidBlendMode] to a [RemoteBlendMode]. */
 internal fun AndroidBlendMode.toRemoteBlendMode(): RemoteBlendMode =
-    toComposeBlendMode().toRemoteBlendMode()
+    when (this) {
+        AndroidBlendMode.CLEAR -> RemoteBlendMode.Clear
+        AndroidBlendMode.SRC -> RemoteBlendMode.Src
+        AndroidBlendMode.DST -> RemoteBlendMode.Dst
+        AndroidBlendMode.SRC_OVER -> RemoteBlendMode.SrcOver
+        AndroidBlendMode.DST_OVER -> RemoteBlendMode.DstOver
+        AndroidBlendMode.SRC_IN -> RemoteBlendMode.SrcIn
+        AndroidBlendMode.DST_IN -> RemoteBlendMode.DstIn
+        AndroidBlendMode.SRC_OUT -> RemoteBlendMode.SrcOut
+        AndroidBlendMode.DST_OUT -> RemoteBlendMode.DstOut
+        AndroidBlendMode.SRC_ATOP -> RemoteBlendMode.SrcAtop
+        AndroidBlendMode.DST_ATOP -> RemoteBlendMode.DstAtop
+        AndroidBlendMode.XOR -> RemoteBlendMode.Xor
+        AndroidBlendMode.PLUS -> RemoteBlendMode.Plus
+        AndroidBlendMode.MODULATE -> RemoteBlendMode.Modulate
+        AndroidBlendMode.SCREEN -> RemoteBlendMode.Screen
+        AndroidBlendMode.OVERLAY -> RemoteBlendMode.Overlay
+        AndroidBlendMode.DARKEN -> RemoteBlendMode.Darken
+        AndroidBlendMode.LIGHTEN -> RemoteBlendMode.Lighten
+        AndroidBlendMode.COLOR_DODGE -> RemoteBlendMode.ColorDodge
+        AndroidBlendMode.COLOR_BURN -> RemoteBlendMode.ColorBurn
+        AndroidBlendMode.HARD_LIGHT -> RemoteBlendMode.Hardlight
+        AndroidBlendMode.SOFT_LIGHT -> RemoteBlendMode.Softlight
+        AndroidBlendMode.DIFFERENCE -> RemoteBlendMode.Difference
+        AndroidBlendMode.EXCLUSION -> RemoteBlendMode.Exclusion
+        AndroidBlendMode.MULTIPLY -> RemoteBlendMode.Multiply
+        AndroidBlendMode.HUE -> RemoteBlendMode.Hue
+        AndroidBlendMode.SATURATION -> RemoteBlendMode.Saturation
+        AndroidBlendMode.COLOR -> RemoteBlendMode.Color
+        AndroidBlendMode.LUMINOSITY -> RemoteBlendMode.Luminosity
+    }
 
 /** Converts an Android framework [AndroidPaint.Style] to a [RemotePaintingStyle]. */
 internal fun AndroidPaint.Style?.toRemotePaintingStyle(): RemotePaintingStyle =
@@ -194,40 +184,6 @@ internal fun BlendMode.toRemoteBlendMode(): RemoteBlendMode =
         else -> RemoteBlendMode.SrcOver
     }
 
-internal fun RemoteBlendMode.toComposeBlendMode(): BlendMode =
-    when (this) {
-        RemoteBlendMode.Clear -> BlendMode.Clear
-        RemoteBlendMode.Src -> BlendMode.Src
-        RemoteBlendMode.Dst -> BlendMode.Dst
-        RemoteBlendMode.SrcOver -> BlendMode.SrcOver
-        RemoteBlendMode.DstOver -> BlendMode.DstOver
-        RemoteBlendMode.SrcIn -> BlendMode.SrcIn
-        RemoteBlendMode.DstIn -> BlendMode.DstIn
-        RemoteBlendMode.SrcOut -> BlendMode.SrcOut
-        RemoteBlendMode.DstOut -> BlendMode.DstOut
-        RemoteBlendMode.SrcAtop -> BlendMode.SrcAtop
-        RemoteBlendMode.DstAtop -> BlendMode.DstAtop
-        RemoteBlendMode.Xor -> BlendMode.Xor
-        RemoteBlendMode.Plus -> BlendMode.Plus
-        RemoteBlendMode.Modulate -> BlendMode.Modulate
-        RemoteBlendMode.Screen -> BlendMode.Screen
-        RemoteBlendMode.Overlay -> BlendMode.Overlay
-        RemoteBlendMode.Darken -> BlendMode.Darken
-        RemoteBlendMode.Lighten -> BlendMode.Lighten
-        RemoteBlendMode.ColorDodge -> BlendMode.ColorDodge
-        RemoteBlendMode.ColorBurn -> BlendMode.ColorBurn
-        RemoteBlendMode.Hardlight -> BlendMode.Hardlight
-        RemoteBlendMode.Softlight -> BlendMode.Softlight
-        RemoteBlendMode.Difference -> BlendMode.Difference
-        RemoteBlendMode.Exclusion -> BlendMode.Exclusion
-        RemoteBlendMode.Multiply -> BlendMode.Multiply
-        RemoteBlendMode.Hue -> BlendMode.Hue
-        RemoteBlendMode.Saturation -> BlendMode.Saturation
-        RemoteBlendMode.Color -> BlendMode.Color
-        RemoteBlendMode.Luminosity -> BlendMode.Luminosity
-        else -> BlendMode.SrcOver
-    }
-
 internal fun StrokeCap.toRemoteStrokeCap(): RemoteStrokeCap =
     when (this) {
         StrokeCap.Butt -> RemoteStrokeCap.Butt
@@ -236,28 +192,12 @@ internal fun StrokeCap.toRemoteStrokeCap(): RemoteStrokeCap =
         else -> RemoteStrokeCap.Butt
     }
 
-internal fun RemoteStrokeCap.toComposeStrokeCap(): StrokeCap =
-    when (this) {
-        RemoteStrokeCap.Butt -> StrokeCap.Butt
-        RemoteStrokeCap.Round -> StrokeCap.Round
-        RemoteStrokeCap.Square -> StrokeCap.Square
-        else -> StrokeCap.Butt
-    }
-
 internal fun StrokeJoin.toRemoteStrokeJoin(): RemoteStrokeJoin =
     when (this) {
         StrokeJoin.Miter -> RemoteStrokeJoin.Miter
         StrokeJoin.Round -> RemoteStrokeJoin.Round
         StrokeJoin.Bevel -> RemoteStrokeJoin.Bevel
         else -> RemoteStrokeJoin.Miter
-    }
-
-internal fun RemoteStrokeJoin.toComposeStrokeJoin(): StrokeJoin =
-    when (this) {
-        RemoteStrokeJoin.Miter -> StrokeJoin.Miter
-        RemoteStrokeJoin.Round -> StrokeJoin.Round
-        RemoteStrokeJoin.Bevel -> StrokeJoin.Bevel
-        else -> StrokeJoin.Miter
     }
 
 internal fun LineBreak.toRemoteLineBreak(): RemoteLineBreak =
@@ -317,11 +257,4 @@ internal fun PathFillType.toRemotePathFillType(): RemotePathFillType =
         PathFillType.NonZero -> RemotePathFillType.NonZero
         PathFillType.EvenOdd -> RemotePathFillType.EvenOdd
         else -> RemotePathFillType.NonZero
-    }
-
-internal fun RemotePaintingStyle.toComposePaintingStyle(): PaintingStyle =
-    when (this) {
-        RemotePaintingStyle.Fill -> PaintingStyle.Fill
-        RemotePaintingStyle.Stroke -> PaintingStyle.Stroke
-        else -> PaintingStyle.Fill
     }
