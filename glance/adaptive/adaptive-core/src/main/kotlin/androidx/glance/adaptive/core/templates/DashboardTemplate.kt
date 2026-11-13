@@ -42,7 +42,7 @@ import androidx.glance.adaptive.core.slots.TrailingComponent
  *
  * The header is all or nothing: a template that sets any header slot sets [leading] and [primary].
  * Without a header, the actions take the whole widget. Taps are described as
- * [androidx.glance.adaptive.core.action.GlanceAdaptiveAction]s, never as `Intent`s or
+ * [androidx.glance.adaptive.core.action.GlanceWidgetAction]s, never as `Intent`s or
  * `PendingIntent`s, so the template keeps value equality and can be sent to surfaces without
  * `PendingIntent` support.
  *

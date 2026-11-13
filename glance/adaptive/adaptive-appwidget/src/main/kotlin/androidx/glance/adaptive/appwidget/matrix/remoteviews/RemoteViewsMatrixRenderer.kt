@@ -51,7 +51,7 @@ import androidx.glance.adaptive.appwidget.matrix.resolve
 import androidx.glance.adaptive.appwidget.renderer.AppWidgetRenderOutput
 import androidx.glance.adaptive.appwidget.renderer.RemoteViewsTemplateRenderer
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
-import androidx.glance.adaptive.core.action.GlanceAdaptiveAction
+import androidx.glance.adaptive.core.action.GlanceWidgetAction
 import androidx.glance.adaptive.core.renderer.ArchetypeRenderer
 import androidx.glance.adaptive.core.selection.SizeTiers
 import androidx.glance.adaptive.core.slots.ActionComponent
@@ -78,11 +78,11 @@ import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
  * container (see [resolve]) and draws it, so a new template needs no [RemoteViews] code at all. The
  * template payload itself is not read: everything to draw is in the matrix.
  *
- * Taps run the [GlanceAdaptiveAction]s the matrix carries. A [GlanceAdaptiveAction.CallbackAction]
- * hands its callback the name and instance ID of the widget it was tapped on, which a renderer is
- * not given, so this renderer draws a callback as inert; register the renderer of [forWidget] to
- * deliver them with the widget's name (`widgetId` remains `null` until the renderer is given the
- * target instance).
+ * Taps run the [GlanceWidgetAction]s the matrix carries. A [GlanceWidgetAction.Callback] hands its
+ * callback the name and instance ID of the widget it was tapped on, which a renderer is not given,
+ * so this renderer draws a callback as inert; register the renderer of [forWidget] to deliver them
+ * with the widget's name (`widgetId` remains `null` until the renderer is given the target
+ * instance).
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object RemoteViewsMatrixRenderer :
@@ -97,8 +97,8 @@ public object RemoteViewsMatrixRenderer :
         renderMatrix(archetype, surface, RemoteViewsActions(context, widgetName = null))
 
     /**
-     * A renderer that draws as this one does, and delivers [GlanceAdaptiveAction.CallbackAction]
-     * taps to [widgetName].
+     * A renderer that draws as this one does, and delivers [GlanceWidgetAction.Callback] taps to
+     * [widgetName].
      *
      * @param widgetName Developer widget identifier matching
      *   [androidx.glance.adaptive.appwidget.GlanceAdaptiveWidgetReceiver.widgetName], which the

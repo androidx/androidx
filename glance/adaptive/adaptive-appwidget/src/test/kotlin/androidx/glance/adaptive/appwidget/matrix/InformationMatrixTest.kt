@@ -16,11 +16,10 @@
 
 package androidx.glance.adaptive.appwidget.matrix
 
-import android.app.Activity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
-import androidx.glance.adaptive.core.action.GlanceAdaptiveAction
+import androidx.glance.adaptive.core.action.GlanceWidgetAction
 import androidx.glance.adaptive.core.selection.Dimensions
 import androidx.glance.adaptive.core.selection.HeightTier
 import androidx.glance.adaptive.core.selection.SizeTiers
@@ -451,6 +450,6 @@ class InformationMatrixTest {
 
     private companion object {
         const val GLYPH = 1
-        val ACTION = GlanceAdaptiveAction.LaunchAction<Activity>()
+        val ACTION = GlanceWidgetAction.LaunchDeeplink("app://run")
     }
 }

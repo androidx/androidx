@@ -18,15 +18,13 @@ package androidx.glance.adaptive.core.action
 
 import android.content.Context
 import android.os.Bundle
+import androidx.annotation.RestrictTo
 
 /**
  * Handles interactive widget clicks in the background.
  *
  * Implementations must have a public zero-argument constructor so the runtime can instantiate them
- * when a [GlanceAdaptiveAction.CallbackAction] triggers.
- *
- * Implement [onAction] to handle the user interaction and, if the widget UI needs to reflect the
- * new state, call [androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager.pushUpdate].
+ * when a [GlanceWidgetAction.Callback] triggers.
  *
  * [onAction] runs on a background thread while the click broadcast is handled, which the system
  * gives 10 seconds to finish. If [onAction] has not returned after 9 seconds, it is cancelled and
@@ -37,22 +35,17 @@ import android.os.Bundle
  * [android.content.BroadcastReceiver]: they crash the app. Catch the ones you expect, such as
  * network errors. A [kotlinx.coroutines.CancellationException], such as from an expired
  * `withTimeout`, only ends the call, without being reported.
- *
- * @see GlanceAdaptiveAction.CallbackAction
- * @see androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager.pushUpdate
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface GlanceAdaptiveActionCallback {
 
     /**
-     * Called on a background coroutine when the user triggers a
-     * [GlanceAdaptiveAction.CallbackAction].
+     * Runs background work for a clicked widget element.
      *
-     * @param context application or broadcast [Context] executing the callback.
-     * @param widgetName developer widget definition String identifier matching
-     *   `GlanceAdaptiveWidgetReceiver.widgetName`.
-     * @param widgetId widget instance String identifier of the clicked widget instance (matching
-     *   [androidx.glance.adaptive.core.WidgetInstanceInfo.widgetId]), or `null` if unknown.
-     * @param parameters key-value arguments supplied to [GlanceAdaptiveAction.CallbackAction].
+     * @param context application or broadcast [Context] executing the callback
+     * @param widgetName developer identifier of the clicked widget definition
+     * @param widgetId developer instance identifier of the clicked placement, or `null` if unknown
+     * @param parameters caller-supplied key-value arguments from [GlanceWidgetAction.Callback]
      */
     public suspend fun onAction(
         context: Context,

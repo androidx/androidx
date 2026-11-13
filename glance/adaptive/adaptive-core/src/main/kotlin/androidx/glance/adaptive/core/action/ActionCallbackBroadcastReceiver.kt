@@ -44,7 +44,7 @@ private const val TAG = "GlanceActionReceiver"
 internal val OnActionTimeout: Duration = 9.seconds
 
 /**
- * Dispatches [GlanceAdaptiveAction.CallbackAction] broadcast triggers to the target
+ * Dispatches [GlanceWidgetAction.Callback] broadcast triggers to the target
  * [GlanceAdaptiveActionCallback] implementation.
  *
  * Declared with `android:exported="false"` in the library manifest so that only [PendingIntent]s
@@ -167,7 +167,7 @@ internal class ActionCallbackBroadcastReceiver(
          */
         fun createIntent(
             context: Context,
-            action: GlanceAdaptiveAction.CallbackAction,
+            action: GlanceWidgetAction.Callback,
             widgetName: String,
             widgetId: String?,
         ): Intent {

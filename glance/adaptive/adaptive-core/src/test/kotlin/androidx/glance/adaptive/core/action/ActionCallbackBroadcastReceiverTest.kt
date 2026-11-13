@@ -86,7 +86,7 @@ class ActionCallbackBroadcastReceiverTest {
 
         receive(
             callbackIntent(
-                GlanceAdaptiveAction.CallbackAction(RecordingCallback::class.java, params),
+                GlanceWidgetAction.Callback(RecordingCallback::class.java, params),
                 widgetName = "obsidian_tasks",
                 widgetId = "vault_work",
             )
@@ -103,7 +103,7 @@ class ActionCallbackBroadcastReceiverTest {
     fun onReceive_withBlankWidgetId_passesNullWidgetId() = runTest {
         receive(
             callbackIntent(
-                GlanceAdaptiveAction.CallbackAction(RecordingCallback::class.java),
+                GlanceWidgetAction.Callback(RecordingCallback::class.java),
                 widgetName = "medication_widget",
                 widgetId = "   ",
             )
@@ -119,7 +119,7 @@ class ActionCallbackBroadcastReceiverTest {
     fun onReceive_ignoresUnexpectedActionOrMissingExtras() = runTest {
         val valid =
             callbackIntent(
-                GlanceAdaptiveAction.CallbackAction(RecordingCallback::class.java),
+                GlanceWidgetAction.Callback(RecordingCallback::class.java),
                 widgetName = "widget",
                 widgetId = null,
             )
@@ -156,10 +156,7 @@ class ActionCallbackBroadcastReceiverTest {
         val scheduler = TestCoroutineScheduler()
         val receiver = RecordingUncaughtReceiver(scheduler)
 
-        sendBroadcast(
-            receiver.receiver,
-            GlanceAdaptiveAction.CallbackAction(ThrowingCallback::class.java),
-        )
+        sendBroadcast(receiver.receiver, GlanceWidgetAction.Callback(ThrowingCallback::class.java))
         scheduler.advanceUntilIdle()
 
         val uncaught = receiver.uncaughtExceptions.single()
@@ -177,7 +174,7 @@ class ActionCallbackBroadcastReceiverTest {
 
         sendBroadcast(
             receiver.receiver,
-            GlanceAdaptiveAction.CallbackAction(NoZeroArgumentConstructorCallback::class.java),
+            GlanceWidgetAction.Callback(NoZeroArgumentConstructorCallback::class.java),
         )
         scheduler.advanceUntilIdle()
 
@@ -190,7 +187,7 @@ class ActionCallbackBroadcastReceiverTest {
     fun onReceive_whenCallbackClassDoesNotExist_logsErrorWithoutCrashing() = runTest {
         receive(
             callbackIntent(
-                    GlanceAdaptiveAction.CallbackAction(RecordingCallback::class.java),
+                    GlanceWidgetAction.Callback(RecordingCallback::class.java),
                     widgetName = "widget",
                     widgetId = null,
                 )
@@ -210,7 +207,7 @@ class ActionCallbackBroadcastReceiverTest {
         val scheduler = TestCoroutineScheduler()
         val receiver = ActionCallbackBroadcastReceiver(StandardTestDispatcher(scheduler))
 
-        sendBroadcast(receiver, GlanceAdaptiveAction.CallbackAction(HangingCallback::class.java))
+        sendBroadcast(receiver, GlanceWidgetAction.Callback(HangingCallback::class.java))
         scheduler.advanceTimeBy(OnActionTimeout - 1.milliseconds)
 
         assertThat(HangingCallback.started).isTrue()
@@ -232,7 +229,7 @@ class ActionCallbackBroadcastReceiverTest {
         val scheduler = TestCoroutineScheduler()
         val receiver = ActionCallbackBroadcastReceiver(StandardTestDispatcher(scheduler))
 
-        sendBroadcast(receiver, GlanceAdaptiveAction.CallbackAction(OwnTimeoutCallback::class.java))
+        sendBroadcast(receiver, GlanceWidgetAction.Callback(OwnTimeoutCallback::class.java))
         scheduler.advanceUntilIdle()
 
         assertThat(receiver.isBroadcastFinished()).isTrue()
@@ -244,10 +241,7 @@ class ActionCallbackBroadcastReceiverTest {
         val scheduler = TestCoroutineScheduler()
         val receiver = ActionCallbackBroadcastReceiver(StandardTestDispatcher(scheduler))
 
-        sendBroadcast(
-            receiver,
-            GlanceAdaptiveAction.CallbackAction(AlmostTimeoutCallback::class.java),
-        )
+        sendBroadcast(receiver, GlanceWidgetAction.Callback(AlmostTimeoutCallback::class.java))
         scheduler.advanceUntilIdle()
 
         assertThat(AlmostTimeoutCallback.completed).isTrue()
@@ -256,7 +250,7 @@ class ActionCallbackBroadcastReceiverTest {
     }
 
     private fun callbackIntent(
-        action: GlanceAdaptiveAction.CallbackAction,
+        action: GlanceWidgetAction.Callback,
         widgetName: String,
         widgetId: String?,
     ): Intent = ActionCallbackBroadcastReceiver.createIntent(context, action, widgetName, widgetId)
@@ -272,7 +266,7 @@ class ActionCallbackBroadcastReceiverTest {
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     private fun sendBroadcast(
         receiver: ActionCallbackBroadcastReceiver,
-        action: GlanceAdaptiveAction.CallbackAction,
+        action: GlanceWidgetAction.Callback,
     ) {
         context.registerReceiver(
             receiver,
