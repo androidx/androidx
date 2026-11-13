@@ -32,6 +32,8 @@ final class androidx.lifecycle.compose/LifecycleStartStopEffectScope : androidx.
     final inline fun onStopOrDispose(crossinline kotlin/Function1<androidx.lifecycle/LifecycleOwner, kotlin/Unit>): androidx.lifecycle.compose/LifecycleStopOrDisposeEffectResult // androidx.lifecycle.compose/LifecycleStartStopEffectScope.onStopOrDispose|onStopOrDispose(kotlin.Function1<androidx.lifecycle.LifecycleOwner,kotlin.Unit>){}[0]
 }
 
+final val androidx.lifecycle.compose/LifecycleOwnerHostDefaultKey // androidx.lifecycle.compose/LifecycleOwnerHostDefaultKey|{}LifecycleOwnerHostDefaultKey[0]
+    final fun <get-LifecycleOwnerHostDefaultKey>(): androidx.compose.runtime/HostDefaultKey<androidx.lifecycle/LifecycleOwner> // androidx.lifecycle.compose/LifecycleOwnerHostDefaultKey.<get-LifecycleOwnerHostDefaultKey>|<get-LifecycleOwnerHostDefaultKey>(){}[0]
 final val androidx.lifecycle.compose/LocalLifecycleOwner // androidx.lifecycle.compose/LocalLifecycleOwner|{}LocalLifecycleOwner[0]
     final fun <get-LocalLifecycleOwner>(): androidx.compose.runtime/ProvidableCompositionLocal<androidx.lifecycle/LifecycleOwner> // androidx.lifecycle.compose/LocalLifecycleOwner.<get-LocalLifecycleOwner>|<get-LocalLifecycleOwner>(){}[0]
 final val androidx.lifecycle.compose/androidx_lifecycle_compose_LifecycleResumePauseEffectScope$stableprop // androidx.lifecycle.compose/androidx_lifecycle_compose_LifecycleResumePauseEffectScope$stableprop|#static{}androidx_lifecycle_compose_LifecycleResumePauseEffectScope$stableprop[0]

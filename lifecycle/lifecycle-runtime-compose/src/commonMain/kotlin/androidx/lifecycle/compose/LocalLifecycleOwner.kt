@@ -14,16 +14,31 @@
  * limitations under the License.
  */
 
+@file:JvmName("LocalLifecycleOwnerKt")
+@file:JvmMultifileClass
 @file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released.
 
 package androidx.lifecycle.compose
 
+import androidx.compose.runtime.HostDefaultKey
 import androidx.compose.runtime.ProvidableCompositionLocal
-import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.compositionLocalWithHostDefaultOf
 import androidx.lifecycle.LifecycleOwner
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 
 /** The CompositionLocal containing the current [LifecycleOwner]. */
 public val LocalLifecycleOwner: ProvidableCompositionLocal<LifecycleOwner> =
-    staticCompositionLocalOf {
-        error("CompositionLocal LocalLifecycleOwner not present")
-    }
+    compositionLocalWithHostDefaultOf(LifecycleOwnerHostDefaultKey)
+
+/**
+ * A [HostDefaultKey] used to retrieve the [LifecycleOwner] provided by the current hosting
+ * environment.
+ *
+ * This key allows the composition to access the host's [LifecycleOwner] through a decoupled
+ * mechanism, typically used by [compositionLocalWithHostDefaultOf].
+ *
+ * @see HostDefaultKey
+ * @see compositionLocalWithHostDefaultOf
+ */
+public expect val LifecycleOwnerHostDefaultKey: HostDefaultKey<LifecycleOwner>

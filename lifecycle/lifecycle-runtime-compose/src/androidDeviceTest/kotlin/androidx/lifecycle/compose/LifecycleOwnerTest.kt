@@ -17,14 +17,19 @@
 package androidx.lifecycle.compose
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LocalHostDefaultProvider
+import androidx.compose.runtime.ViewTreeHostDefaultKey
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.kruth.assertThat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Lifecycle.State
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.runtime.R
+import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest
@@ -263,5 +268,28 @@ class LifecycleOwnerTest {
         rule.awaitIdle()
 
         assertThat(childOwner.lifecycle.currentState).isEqualTo(State.INITIALIZED)
+    }
+
+    @Test
+    fun lifecycleOwnerHostDefaultKey_isViewTreeHostDefaultKey() {
+        assertThat(LifecycleOwnerHostDefaultKey)
+            .isInstanceOf<ViewTreeHostDefaultKey<LifecycleOwner>>()
+        val viewTreeKey = LifecycleOwnerHostDefaultKey as ViewTreeHostDefaultKey<LifecycleOwner>
+        assertThat(viewTreeKey.tagKey).isEqualTo(R.id.view_tree_lifecycle_owner)
+    }
+
+    @Test
+    fun localLifecycleOwner_resolvesFromViewTreeTagViaHostDefaultKey() {
+        val expectedOwner = TestLifecycleOwner()
+        var resolvedOwner: LifecycleOwner? = null
+
+        rule.setContent {
+            val view = LocalView.current
+            view.setViewTreeLifecycleOwner(expectedOwner)
+            resolvedOwner =
+                LocalHostDefaultProvider.current.getHostDefault(LifecycleOwnerHostDefaultKey)
+        }
+
+        assertThat(resolvedOwner).isSameInstanceAs(expectedOwner)
     }
 }
