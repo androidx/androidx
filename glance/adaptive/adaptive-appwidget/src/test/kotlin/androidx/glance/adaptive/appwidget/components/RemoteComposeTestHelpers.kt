@@ -25,6 +25,7 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.operations.layout.CanvasOperations
 import androidx.compose.remote.core.operations.layout.Component
+import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.layout.RootLayoutComponent
 import androidx.compose.remote.core.operations.layout.managers.CoreText
@@ -145,8 +146,14 @@ internal class RenderedDocument(
         val result = mutableListOf<Operation>()
         fun collect(ops: List<Operation>) {
             for (op in ops) {
+                if (op is Component && op.isGone) continue
                 result.add(op)
-                if (op is Component && !op.isGone) {
+                if (op is LayoutComponent) {
+                    collect(op.componentModifiers.list)
+                }
+                if (op is Container) {
+                    collect(op.list)
+                } else if (op is Component) {
                     collect(op.list)
                 } else if (op is CanvasOperations) {
                     collect(op.list)
