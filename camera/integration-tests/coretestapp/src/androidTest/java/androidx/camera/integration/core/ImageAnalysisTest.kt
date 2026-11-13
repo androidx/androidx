@@ -23,6 +23,7 @@ import android.hardware.HardwareBuffer
 import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
+import android.util.Log
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
@@ -61,6 +62,7 @@ import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.LabTestRule
 import androidx.camera.testing.impl.LabTestUtil
+import androidx.camera.testing.impl.NativeHardwareBufferConverter
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeImageReaderProxy
@@ -71,21 +73,26 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.rule.GrantPermissionRule
 import androidx.testutils.assertThrows
+import com.google.android.gms.tasks.Tasks
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
+import java.nio.ByteBuffer
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -117,6 +124,7 @@ internal class ImageAnalysisTest(
     @get:Rule val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
 
     companion object {
+        private const val TAG = "ImageAnalysisTest"
         private val DEFAULT_RESOLUTION = Size(640, 480)
 
         @JvmStatic
@@ -1009,57 +1017,107 @@ internal class ImageAnalysisTest(
                 .build()
 
         val framesToSkip = 10
-        val framesToAnalyze = 5
-        val frameCounter = java.util.concurrent.atomic.AtomicInteger(0)
+        val frameCounter = AtomicInteger(0)
+        val scannedFrameCount = AtomicInteger(0)
+        val convertFailureCount = AtomicInteger(0)
+        val savedSample = AtomicBoolean(false)
         val latchForBarcodeDetect = CountDownLatch(1)
 
         imageAnalysis.setAnalyzer(CameraXExecutors.newHandlerExecutor(handler)) { image ->
-            if (Build.VERSION.SDK_INT >= 28) {
-                val currentFrame = frameCounter.incrementAndGet()
-                if (currentFrame > framesToSkip && currentFrame <= framesToSkip + framesToAnalyze) {
-                    Api28Impl.getHardwareBuffer(image)?.use { hwBuffer ->
-                        val width = hwBuffer.width
-                        val height = hwBuffer.height
-                        val rgbaArray = ByteArray(width * height * 4)
-
-                        if (
-                            androidx.camera.testing.impl.NativeHardwareBufferConverter
-                                .convertToRgba(hwBuffer, rgbaArray)
-                        ) {
-                            val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-                            bitmap.copyPixelsFromBuffer(java.nio.ByteBuffer.wrap(rgbaArray))
-                            if (currentFrame == framesToSkip + 1) {
-                                LabTestUtil.saveTestBitmap(
-                                    bitmap,
-                                    "ImageAnalysisTest_verifyHardwareBufferContentWithMLKit_lens${cameraSelector.lensFacing}_${width}x${height}_rot${image.imageInfo.rotationDegrees}_${System.currentTimeMillis()}",
-                                )
-                            }
-
-                            val inputImage =
-                                InputImage.fromBitmap(bitmap, image.imageInfo.rotationDegrees)
-                            barcodeScanner
-                                .process(inputImage)
-                                .addOnSuccessListener { barcodes ->
-                                    barcodes.forEach { barcode ->
-                                        if ("Hi, CamX!" == barcode.displayValue) {
-                                            latchForBarcodeDetect.countDown()
-                                        }
-                                    }
+            val rotation = image.imageInfo.rotationDegrees
+            val bitmap =
+                image.use {
+                    if (
+                        Build.VERSION.SDK_INT >= 28 &&
+                            frameCounter.incrementAndGet() > framesToSkip &&
+                            latchForBarcodeDetect.count > 0L
+                    ) {
+                        val hwBuffer = Api28Impl.getHardwareBuffer(image)
+                        if (hwBuffer == null) {
+                            convertFailureCount.incrementAndGet()
+                            null
+                        } else {
+                            hwBuffer.use { buffer ->
+                                val width = buffer.width
+                                val height = buffer.height
+                                val rgbaArray = ByteArray(width * height * 4)
+                                if (
+                                    !NativeHardwareBufferConverter.convertToRgba(buffer, rgbaArray)
+                                ) {
+                                    convertFailureCount.incrementAndGet()
+                                    null
+                                } else {
+                                    Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                                        .apply { copyPixelsFromBuffer(ByteBuffer.wrap(rgbaArray)) }
                                 }
-                                .addOnCompleteListener { bitmap.recycle() }
+                            }
                         }
+                    } else {
+                        null
                     }
+                } ?: return@setAnalyzer
+
+            var scanTimedOut = false
+            try {
+                if (savedSample.compareAndSet(false, true)) {
+                    val sampleName =
+                        "ImageAnalysisTest_verifyHardwareBufferContent" +
+                            "WithMLKit_lens${cameraSelector.lensFacing}" +
+                            "_${bitmap.width}x${bitmap.height}" +
+                            "_rot${rotation}" +
+                            "_${System.currentTimeMillis()}"
+                    LabTestUtil.saveTestBitmap(bitmap, sampleName)
+                }
+                scannedFrameCount.incrementAndGet()
+                val barcodes =
+                    Tasks.await(
+                        barcodeScanner.process(InputImage.fromBitmap(bitmap, rotation)),
+                        5,
+                        TimeUnit.SECONDS,
+                    )
+                if (barcodes.any { it.displayValue == "Hi, CamX!" }) {
+                    Log.d(TAG, "Decoded QR on frame ${frameCounter.get()}")
+                    latchForBarcodeDetect.countDown()
+                }
+            } catch (_: InterruptedException) {
+                Thread.currentThread().interrupt()
+            } catch (_: ExecutionException) {
+                // Keep scanning subsequent frames if MLKit fails on an individual frame.
+            } catch (_: TimeoutException) {
+                // Keep scanning subsequent frames if a single MLKit invocation times out;
+                // let GC reclaim bitmap since MLKit may still be reading it.
+                scanTimedOut = true
+            } finally {
+                if (!scanTimedOut) {
+                    bitmap.recycle()
                 }
             }
-            image.close()
         }
 
-        withContext(Dispatchers.Main) {
-            cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, imageAnalysis)
-        }
+        try {
+            withContext(Dispatchers.Main) {
+                cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, imageAnalysis)
+            }
 
-        assertThat(latchForBarcodeDetect.await(15000, TimeUnit.MILLISECONDS)).isTrue()
-        barcodeScanner.close()
+            val detected = latchForBarcodeDetect.await(15_000, TimeUnit.MILLISECONDS)
+            assertWithMessage(
+                    "Failed to decode QR code within 15s (totalFrames=${frameCounter.get()}, " +
+                        "scannedFrames=${scannedFrameCount.get()}, " +
+                        "convertFailures=${convertFailureCount.get()})"
+                )
+                .that(detected)
+                .isTrue()
+        } finally {
+            imageAnalysis.clearAnalyzer()
+            withContext(NonCancellable + Dispatchers.Main) {
+                cameraProvider.unbind(imageAnalysis)
+            }
+            val handlerIdleLatch = CountDownLatch(1)
+            if (handler.post { handlerIdleLatch.countDown() }) {
+                handlerIdleLatch.await(6, TimeUnit.SECONDS)
+            }
+            barcodeScanner.close()
+        }
     }
 
     @RequiresApi(28)
