@@ -103,7 +103,6 @@ import androidx.compose.ui.FrameRateCategory
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.R
-import androidx.compose.ui.SessionMutex
 import androidx.compose.ui.adaptive.UiMediaScopeImpl
 import androidx.compose.ui.adaptive.hasPhysicalKeyboard
 import androidx.compose.ui.adaptive.isDocked
@@ -227,9 +226,7 @@ import androidx.compose.ui.spatial.ExecuteDelayed
 import androidx.compose.ui.spatial.RectManager
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.TextInputService
-import androidx.compose.ui.text.input.TextInputServiceAndroid
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.Constraints
@@ -273,17 +270,10 @@ import kotlin.math.abs
 import kotlin.math.sign
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-
-/** Allows tests to inject a custom [PlatformTextInputService]. */
-internal var platformTextInputServiceInterceptor:
-    (PlatformTextInputService) -> PlatformTextInputService =
-    {
-        it
-    }
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 private const val ONE_FRAME_120_HERTZ_IN_MILLISECONDS = 8L
 
@@ -330,8 +320,18 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         }
     }
 
-    override suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing =
-        awaitCancellation()
+    override suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing {
+        // The request is cleared in the cancellation handler, which runs synchronously when the
+        // session is cancelled, in the same pass that disposes the session's connections.
+        suspendCancellableCoroutine<Nothing> { continuation ->
+            inputMethodRequest = request
+            continuation.invokeOnCancellation {
+                if (inputMethodRequest === request) {
+                    inputMethodRequest = null
+                }
+            }
+        }
+    }
 
     override fun requestHostFocus(
         focusDirection: FocusDirection,
@@ -990,62 +990,35 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
 
     private var onReadyForComposition: ((ComposeViewContext) -> Unit)? = null
 
-    private var _legacyTextInputServiceAndroid: TextInputServiceAndroid? = null
-    private var interceptedTextInputServiceAndroid: TextInputServiceAndroid? = null
-    private val legacyTextInputServiceAndroid: TextInputServiceAndroid
-        get() =
-            _legacyTextInputServiceAndroid
-                ?: TextInputServiceAndroid(
-                        this,
-                        this,
-                        afterFrameCommandExecutor =
-                            Executor { outOfFrameExecutor?.schedule(it::run) },
-                        nextFrameCommandExecutor = Executor(::postOnAnimation),
-                    )
-                    .also { _legacyTextInputServiceAndroid = it }
+    private val textInputManager =
+        AndroidPlatformTextInputManager(
+            host = this,
+            matrixPositionCalculator = this,
+            afterFrameCommandExecutor = Executor { outOfFrameExecutor?.schedule(it::run) },
+            nextFrameCommandExecutor = Executor(::postOnAnimation),
+            coroutineContext = { this.coroutineContext },
+        )
 
-    private var _textInputService: TextInputService? = null
+    /** Active [PlatformTextInputMethodRequest], if any. */
+    private var inputMethodRequest: PlatformTextInputMethodRequest? = null
+
     /**
-     * The legacy text input service. This is only used for new text input sessions if
-     * [textInputSessionMutex] is null.
+     * The legacy text input service. This is only used for new text input sessions if no text input
+     * session is active.
      */
     @Deprecated("Use PlatformTextInputModifierNode instead.")
     override val textInputService: TextInputService
-        get() =
-            _textInputService
-                ?: TextInputService(
-                        platformTextInputServiceInterceptor(legacyTextInputServiceAndroid).also {
-                            interceptedTextInputServiceAndroid = it as? TextInputServiceAndroid
-                        }
-                    )
-                    .also { _textInputService = it }
+        get() = textInputManager.textInputService
 
-    private val textInputSessionMutex = SessionMutex<AndroidPlatformTextInputSession>()
-
-    private var _softwareKeyboardController: SoftwareKeyboardController? = null
     override val softwareKeyboardController: SoftwareKeyboardController
-        get() =
-            _softwareKeyboardController
-                ?: DelegatingSoftwareKeyboardController(textInputService).also {
-                    _softwareKeyboardController = it
-                }
+        get() = textInputManager.softwareKeyboardController
 
     override val placementScope: Placeable.PlacementScope
         get() = PlacementScope(this)
 
     override suspend fun textInputSession(
         session: suspend PlatformTextInputSessionScope.() -> Nothing
-    ): Nothing =
-        textInputSessionMutex.withSessionCancellingPrevious(
-            sessionInitializer = {
-                AndroidPlatformTextInputSession(
-                    view = this,
-                    textInputService = textInputService,
-                    coroutineScope = it,
-                )
-            },
-            session = session,
-        )
+    ): Nothing = textInputManager.textInputSession(session)
 
     @Deprecated(
         "fontLoader is deprecated, use fontFamilyResolver",
@@ -3523,27 +3496,10 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         }
     }
 
-    override fun onCheckIsTextEditor(): Boolean {
-        val parentSession =
-            textInputSessionMutex.currentSession
-                ?: return legacyTextInputServiceAndroid.isEditorFocused()
-        // Don't bring this up before the ?: – establishTextInputSession has been called, but
-        // startInputMethod has not, we're not a text editor until the session is cancelled or
-        // startInputMethod is called.
-        return parentSession.isReadyForConnection
-    }
+    override fun onCheckIsTextEditor(): Boolean = inputMethodRequest != null
 
-    override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection? {
-        val parentSession =
-            textInputSessionMutex.currentSession
-                ?: return legacyTextInputServiceAndroid.createInputConnection(outAttrs)
-        // Don't bring this up before the ?: - if this returns null, we SHOULD NOT fall back to
-        // the legacy input system.
-        return parentSession.createInputConnection(outAttrs)?.also {
-            (interceptedTextInputServiceAndroid ?: legacyTextInputServiceAndroid)
-                .onInputConnectionCreated()
-        }
-    }
+    override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection? =
+        inputMethodRequest?.createInputConnection(outAttrs)
 
     override fun calculateLocalPosition(positionInWindow: Offset): Offset {
         recalculateWindowPosition()

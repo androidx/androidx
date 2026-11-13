@@ -234,10 +234,16 @@ public interface ComposeUiHost {
      * Starts a platform text input session for [request] and suspends until the session is
      * cancelled.
      *
-     * Hosts make [request] available to [view]'s `onCheckIsTextEditor` and
-     * `onCreateInputConnection` before the first suspension point, and stop using it when the call
-     * is cancelled. There is never more than one concurrent call: the previous session is cancelled
-     * and joined before a new one starts.
+     * Called on the UI thread. Hosts must expose [request] to [view]'s `onCheckIsTextEditor` and
+     * `onCreateInputConnection` before the first suspension point, and must stop using [request]
+     * synchronously inside the cancellation handler (not after resumption, such as in a `finally`
+     * block), because Compose disposes input connections in the same cancellation pass.
+     *
+     * Compose notifies the input method manager after the first suspension point; hosts must not
+     * call `restartInput` themselves. Compose cancels any previous session (running its
+     * cancellation handlers before starting the next call) and suppresses any focused legacy
+     * `TextInputService` editor while a text input session is active, so at most one call is active
+     * per host at a time.
      */
     public suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing
 

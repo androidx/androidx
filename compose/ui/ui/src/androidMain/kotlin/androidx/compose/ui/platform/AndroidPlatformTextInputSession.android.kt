@@ -19,18 +19,25 @@
 package androidx.compose.ui.platform
 
 import android.view.View
+import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.collection.mutableObjectListOf
-import androidx.compose.ui.InternalComposeUiApi
-import androidx.compose.ui.SessionMutex
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.WeakReference
 import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.input.NullableInputConnectionWrapper
 import androidx.compose.ui.text.input.TextInputService
+import java.util.concurrent.atomic.AtomicReference
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
@@ -48,61 +55,80 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * Each of these sessions is a parent of the next, in terms of lifetime and cancellation.
  *
  * This class manages child sessions started by [startInputMethod]. Each child session is
- * represented by an [InputMethodSession], which in turn coordinates between multiple calls to
- * [createInputConnection] for a single session.
+ * represented by an [InputMethodSession], which is passed to [ComposeUiHost.startInputMethod] and
+ * coordinates between multiple calls to [View.onCreateInputConnection] for a single session.
  */
-@OptIn(InternalTextApi::class, InternalComposeUiApi::class)
+@OptIn(InternalTextApi::class, ExperimentalComposeUiHostApi::class)
 internal class AndroidPlatformTextInputSession(
-    override val view: View,
+    private val host: ComposeUiHost,
     private val textInputService: TextInputService,
     private val coroutineScope: CoroutineScope,
+    private val onConnectionCreated: () -> Unit = {},
 ) : PlatformTextInputSessionScope, CoroutineScope by coroutineScope {
-    /** Coordinates between calls to [startInputMethod]. */
-    private val methodSessionMutex = SessionMutex<InputMethodSession>()
 
-    /**
-     * Returns true if [startInputMethod] has been called and is ready to respond to
-     * [createInputConnection].
-     */
-    val isReadyForConnection: Boolean
-        get() = methodSessionMutex.currentSession?.isActive == true
+    override val view: View
+        get() = host.view
+
+    /** Tracks the active [startInputMethod] coroutine so a new call can cancel it synchronously. */
+    private val activeSessionJob = AtomicReference<Job?>(null)
 
     override suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing =
-        methodSessionMutex.withSessionCancellingPrevious(
-            sessionInitializer = {
+        coroutineScope {
+            ensureActive()
+            val currentJob = coroutineContext.job
+            val methodSession =
                 InputMethodSession(
                     request = request,
+                    fallbackView = view,
+                    onConnectionCreated = onConnectionCreated,
                     onAllConnectionsClosed = { coroutineScope.cancel() },
                 )
-            }
-        ) { methodSession ->
-            @Suppress("RemoveExplicitTypeArguments")
-            suspendCancellableCoroutine<Nothing> { continuation ->
-                // Show the keyboard and ask the IMM to restart input.
-                textInputService.startInput()
+            val previousJob = activeSessionJob.getAndSet(currentJob)
+            try {
+                // Cancel the previous session synchronously so its host cancellation handler,
+                // dispose(), and stopInput() run before the new host request is installed, without
+                // suspending in join() (which would leave a gap where onCheckIsTextEditor and
+                // onCreateInputConnection see no active request).
+                previousJob?.cancel()
 
-                // The cleanup needs to be executed synchronously, otherwise the stopInput call
-                // might come too late and end up overriding the next field's startInput. This
-                // is prevented by the queuing in TextInputService, but can still happen when
-                // focus transfers from a compose text field to a view-based text field
-                // (EditText).
-                continuation.invokeOnCancellation {
-                    methodSession.dispose()
-
-                    // If this session was cancelled because another session was requested, this
-                    // call will be a noop.
-                    textInputService.stopInput()
+                // The host makes the request visible to the view before its first suspension, so
+                // it is in place when startInput asks the IMM to restart input.
+                launch(start = CoroutineStart.UNDISPATCHED) {
+                    try {
+                        host.startInputMethod(methodSession)
+                    } catch (e: CancellationException) {
+                        // A child CancellationException does not cancel coroutineScope; cancel it
+                        // so startInput() is skipped or stopped instead of hanging without a host.
+                        currentJob.cancel(e)
+                        throw e
+                    }
                 }
+                // Skip startInput if host.startInputMethod failed or cancelled synchronously.
+                ensureActive()
+
+                @Suppress("RemoveExplicitTypeArguments")
+                suspendCancellableCoroutine<Nothing> { continuation ->
+                    // Show the keyboard and ask the IMM to restart input.
+                    textInputService.startInput()
+
+                    // The cleanup needs to be executed synchronously, otherwise the stopInput call
+                    // might come too late and end up overriding the next field's startInput. This
+                    // is prevented by the queuing in TextInputService, but can still happen when
+                    // focus transfers from a compose text field to a view-based text field
+                    // (EditText).
+                    continuation.invokeOnCancellation {
+                        methodSession.dispose()
+
+                        // If this session was cancelled because another session was requested,
+                        // this call will be a noop.
+                        textInputService.stopInput()
+                    }
+                }
+            } finally {
+                methodSession.dispose()
+                activeSessionJob.compareAndSet(currentJob, null)
             }
         }
-
-    /**
-     * Creates a new [InputConnection] using the current [InputMethodSession]'s request, or returns
-     * null if there's no active [InputMethodSession] (i.e. [startInputMethod] hasn't been called
-     * yet or the session is being torn down).
-     */
-    fun createInputConnection(outAttrs: EditorInfo): InputConnection? =
-        methodSessionMutex.currentSession?.createInputConnection(outAttrs)
 }
 
 /**
@@ -111,19 +137,26 @@ internal class AndroidPlatformTextInputSession(
  * calls to [AndroidPlatformTextInputSession.startInputMethod]. This class ensures that old
  * connections are disposed before new ones are created.
  *
+ * It is also the request passed to [ComposeUiHost.startInputMethod], so hosts create connections
+ * through the same coordination.
+ *
+ * @param fallbackView the host's [ComposeUiHost.view], used to build a do-nothing
+ *   [BaseInputConnection] if a host asks for a connection after [dispose] (needed because
+ *   [PlatformTextInputMethodRequest.createInputConnection] cannot return null)
+ * @param onConnectionCreated Called when [createInputConnection] creates a non-disposed session
+ *   connection.
  * @param onAllConnectionsClosed Called when all created [InputConnection]s receive
  *   [InputConnection.closeConnection] call.
  */
 private class InputMethodSession(
     private val request: PlatformTextInputMethodRequest,
+    private val fallbackView: View,
+    private val onConnectionCreated: () -> Unit,
     private val onAllConnectionsClosed: () -> Unit,
-) {
+) : PlatformTextInputMethodRequest {
     private val lock = Any()
     private var connections = mutableObjectListOf<WeakReference<NullableInputConnectionWrapper>>()
     private var disposed = false
-
-    val isActive: Boolean
-        get() = !disposed
 
     /**
      * Creates a new [InputConnection] and initializes [outAttrs] by calling this session's
@@ -132,7 +165,7 @@ private class InputMethodSession(
      *
      * Returns null if [dispose] has been called.
      */
-    fun createInputConnection(outAttrs: EditorInfo): InputConnection? {
+    fun createInputConnectionOrNull(outAttrs: EditorInfo): InputConnection? {
         synchronized(lock) {
             if (disposed) return null
 
@@ -165,8 +198,18 @@ private class InputMethodSession(
     }
 
     /**
+     * Host entry point. [PlatformTextInputMethodRequest.createInputConnection] can't return null,
+     * so after [dispose] this returns an inert [BaseInputConnection]. Hosts stop using the request
+     * synchronously when the host call is cancelled, which happens in the same cancellation pass as
+     * [dispose].
+     */
+    override fun createInputConnection(outAttributes: EditorInfo): InputConnection =
+        createInputConnectionOrNull(outAttributes)?.also { onConnectionCreated() }
+            ?: BaseInputConnection(fallbackView, false)
+
+    /**
      * Disposes the current [InputConnection]. After calling this method, all future calls to
-     * [createInputConnection] will return null.
+     * [createInputConnectionOrNull] will return null.
      *
      * This function is only called from coroutine cancellation routine so it's not required to
      * cancel the coroutine from here.
