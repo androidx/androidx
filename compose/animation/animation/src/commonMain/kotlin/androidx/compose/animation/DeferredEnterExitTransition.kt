@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.Color
@@ -135,15 +136,18 @@ public interface TransformScope {
 
 internal class TransformScopeImpl : TransformScope {
     var isAlphaMutated by mutableStateOf(false)
-    private val _alpha = mutableFloatStateOf(1f)
+    // Not snapshot state: only read by the container's layerBlock, which placement refreshes
+    // explicitly after evaluating the transform block.
+    private var _alpha = 1f
     override var alpha: Float
-        get() = _alpha.floatValue
+        get() = _alpha
         set(value) {
-            _alpha.floatValue = value
+            _alpha = value
             isAlphaMutated = true
         }
 
     var isScaleMutated by mutableStateOf(false)
+    // Snapshot state: shared elements following the container observe it (see activeScale).
     private val _scale = mutableFloatStateOf(1f)
     override var scale: Float
         get() = _scale.floatValue
@@ -162,6 +166,8 @@ internal class TransformScopeImpl : TransformScope {
         }
 
     var isTransformOriginMutated by mutableStateOf(false)
+    // Snapshot state: shared elements following the container observe it (see
+    // activeTransformOrigin).
     private val _transformOrigin = mutableStateOf(TransformOrigin.Center)
     override var transformOrigin: TransformOrigin
         get() = _transformOrigin.value
@@ -180,7 +186,7 @@ internal class TransformScopeImpl : TransformScope {
         }
 
     fun reset() {
-        _alpha.floatValue = 1f
+        _alpha = 1f
         isAlphaMutated = false
         _scale.floatValue = 1f
         isScaleMutated = false
@@ -532,19 +538,30 @@ internal class SharedMutableTransformState {
     fun combinedScale(transitionValue: Float): Float {
         activeTransitionScale = transitionValue
 
-        val isMutated = isMutating && transformScope.isScaleMutated
+        var isMutated = false
+        var manualScale = 1f
+        if (isMutating) {
+            // Not observed: placement refreshes the layer after evaluating the transform block, so
+            // observing these here would only schedule a redundant layer update.
+            Snapshot.withoutReadObservation {
+                if (transformScope.isScaleMutated) {
+                    isMutated = true
+                    manualScale = transformScope.scale
+                }
+            }
+        }
         val combined =
             when {
                 mutationPhase == MutationPhase.MutatingCatchingUp && catchUpScale.isRunning ->
-                    catchUpScale.value + (transformScope.scale - initialManualScale)
+                    catchUpScale.value + (manualScale - initialManualScale)
                 mutationPhase == MutationPhase.MutatingCatchingUp ||
-                    mutationPhase == MutationPhase.Mutating -> transformScope.scale
+                    mutationPhase == MutationPhase.Mutating -> manualScale
                 else -> transitionValue
             }
 
         if (isMutating) {
             lastScale = combined
-            lastManualScale = if (isMutated) transformScope.scale else 1f
+            lastManualScale = manualScale
             if (isMutated) trackScaleVelocity(combined)
         }
         return combined
@@ -553,12 +570,21 @@ internal class SharedMutableTransformState {
     fun combinedTransformOrigin(transitionValue: TransformOrigin): TransformOrigin {
         activeTransitionTransformOrigin = transitionValue
 
+        var manualTransformOrigin = TransformOrigin.Center
+        if (isMutating) {
+            // Not observed, see combinedScale.
+            Snapshot.withoutReadObservation {
+                if (transformScope.isTransformOriginMutated) {
+                    manualTransformOrigin = transformScope.transformOrigin
+                }
+            }
+        }
         val combined =
             when {
                 mutationPhase == MutationPhase.MutatingCatchingUp &&
                     catchUpTransformOrigin.isRunning -> catchUpTransformOrigin.value
                 mutationPhase == MutationPhase.MutatingCatchingUp ||
-                    mutationPhase == MutationPhase.Mutating -> transformScope.transformOrigin
+                    mutationPhase == MutationPhase.Mutating -> manualTransformOrigin
                 else -> transitionValue
             }
 
@@ -568,8 +594,7 @@ internal class SharedMutableTransformState {
         return combined
     }
 
-    fun combinedSlide(transitionValue: IntOffset, fullSize: IntSize): IntOffset {
-        evaluateTransformBlock(fullSize)
+    fun combinedSlide(transitionValue: IntOffset): IntOffset {
         activeTransitionSlide = transitionValue
         val isMutated = isMutating && transformScope.isOffsetMutated
         val combined =

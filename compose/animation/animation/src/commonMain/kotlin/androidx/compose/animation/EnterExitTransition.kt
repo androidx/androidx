@@ -1766,23 +1766,21 @@ private class EnterExitTransitionModifierNode(
                 }
 
             return layout(currentSize.width, currentSize.height) {
+                val mutableState = mutableTransformState
+                if (mutableState?.isMutating == true) {
+                    mutableState.evaluateTransformBlock(measuredSize)
+                    // Force the layer to update with the newly evaluated transform immediately
+                    // before `placeWithLayer` places children (such as in-place shared elements).
+                    updateLayerBlock(layerBlock)
+                }
                 val slideOffset = animSlideOffsetState?.value ?: IntOffset.Zero
                 val combinedSlideOffset =
-                    mutableTransformState?.combinedSlide(
-                        transitionValue = slideOffset,
-                        fullSize = measuredSize,
-                    ) ?: slideOffset
+                    mutableState?.combinedSlide(transitionValue = slideOffset) ?: slideOffset
 
                 val offset =
                     (currentAlignment?.align(target, currentSize, LayoutDirection.Ltr)
                         ?: IntOffset.Zero) + combinedSlideOffset
 
-                if (mutableTransformState?.isMutating == true) {
-                    // `combinedSlide` above just evaluated the mutable transform. Force the layer
-                    // to update immediately before `placeWithLayer` places children (such as
-                    // in-place shared elements).
-                    updateLayerBlock(layerBlock)
-                }
                 placeable.placeWithLayer(
                     offset.x + offsetDelta.x,
                     offset.y + offsetDelta.y,
