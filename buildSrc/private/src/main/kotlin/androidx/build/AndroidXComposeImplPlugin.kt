@@ -49,23 +49,31 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                 is LibraryPlugin -> {
                     project.extensions
                         .findByType(LintLifecycleExtension::class.java)!!
-                        .finalizeDsl { project.configureAndroidCommonOptions(it) }
+                        .finalizeDsl { project.configureLintOptions(it) }
                 }
                 is KotlinMultiplatformAndroidPlugin -> {
                     project.extensions
                         .getByType<KotlinMultiplatformAndroidComponentsExtension>()
-                        .finalizeDsl { project.configureAndroidCommonOptions(it.lint) }
+                        .finalizeDsl { project.configureLintOptions(it.lint) }
                 }
                 is KotlinBasePluginWrapper,
                 is KotlinBaseApiPlugin -> {
                     configureComposeCompilerPlugin(project)
+
+                    // For multiplatform projects, configure lint for the JVM target (lint for the
+                    // android target is configured through KotlinMultiplatformAndroidPlugin above.)
+                    if (project.multiplatformExtension != null) {
+                        project.afterEvaluate {
+                            project.configureLintOptions(project.extensions.getByType())
+                        }
+                    }
                 }
             }
         }
     }
 
     companion object {
-        private fun Project.configureAndroidCommonOptions(lint: Lint) {
+        private fun Project.configureLintOptions(lint: Lint) {
             val isPublished = androidXExtension.shouldPublish.get()
             val type = androidXExtension.type.get()
             val isKmp = project.extensions.findByType<KotlinMultiplatformExtension>() != null
