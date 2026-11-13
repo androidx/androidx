@@ -37,14 +37,12 @@ public class CircularIntArray @JvmOverloads public constructor(minCapacity: Int 
         requirePrecondition(minCapacity >= 1) { "capacity must be >= 1" }
         requirePrecondition(minCapacity <= 2 shl 29) { "capacity must be <= 2^30" }
 
-        // If minCapacity isn't a power of 2, round up to the next highest
-        // power of 2.
-        val arrayCapacity: Int =
-            if (minCapacity.countOneBits() != 1) {
-                (minCapacity - 1).takeHighestOneBit() shl 1
-            } else {
-                minCapacity
-            }
+        // Branchlessly round minCapacity (in 1..2^30) up to the next power of 2:
+        // - When minCapacity == 1, (minCapacity - 1).countLeadingZeroBits() == 32,
+        //   yielding 1 shl 0 == 1.
+        // - When minCapacity in 2..2^30, countLeadingZeroBits() is in 2..31,
+        //   yielding 1 shl (32 - clz) in 2..2^30.
+        val arrayCapacity: Int = 1 shl (32 - (minCapacity - 1).countLeadingZeroBits())
         capacityBitmask = arrayCapacity - 1
         elements = IntArray(arrayCapacity)
     }
