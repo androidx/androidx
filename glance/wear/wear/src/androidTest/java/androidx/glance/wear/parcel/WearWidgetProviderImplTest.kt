@@ -29,7 +29,6 @@ import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.glance.wear.GlanceWearWidget
-import androidx.glance.wear.WearWidgetBrush
 import androidx.glance.wear.WearWidgetData
 import androidx.glance.wear.WearWidgetDocument
 import androidx.glance.wear.core.ActiveWearWidgetHandle
@@ -120,13 +119,16 @@ class WearWidgetProviderImplTest {
             """
             ROOT [-2:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE
               BOX [-3:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE
+                ComponentValue value 42 set to WIDTH of Component -3
+                ComponentValue value 43 set to HEIGHT of Component -3
                 MODIFIERS
-                  DRAW_CONTENT
+                  ROUNDED_CLIP_RECT = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+                  BACKGROUND = [0.0, 0.0, 0.0, 0.0] color [0.15294118, 0.14117648, 0.1882353, 1.0] shape [0]
                 BOX [-5:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE
-                  DATA_TEXT<46> = "Testing ..."
+                  DATA_TEXT<44> = "Testing ..."
                   MODIFIERS
                     PADDING = [0.0, 0.0, 0.0, 0.0]
-                  TEXT_LAYOUT [-7:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE (46:"null")
+                  TEXT_LAYOUT [-7:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE (44:"null")
                     MODIFIERS
             """
                 .trimIndent()
@@ -343,7 +345,7 @@ class WearWidgetProviderImplTest {
             if (enableFailureMode) {
                 throw Exception("Test exception")
             }
-            return WearWidgetDocument(background = WearWidgetBrush) { content() }
+            return WearWidgetDocument { content() }
         }
 
         override suspend fun onAdded(context: Context, widgetHandle: ActiveWearWidgetHandle) {

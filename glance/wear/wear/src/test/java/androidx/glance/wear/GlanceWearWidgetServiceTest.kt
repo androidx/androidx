@@ -96,7 +96,7 @@ class GlanceWearWidgetServiceTest {
             params: WearWidgetParams,
         ): WearWidgetDocument {
             instanceId = params.instanceId
-            return WearWidgetDocument(background = WearWidgetBrush) { RemoteText("Testing...".rs) }
+            return WearWidgetDocument { RemoteText("Testing...".rs) }
         }
     }
 
