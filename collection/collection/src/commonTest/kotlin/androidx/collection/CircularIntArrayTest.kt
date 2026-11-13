@@ -26,11 +26,30 @@ public class CircularIntArrayTest {
     @Test
     public fun creatingWithZeroCapacity() {
         assertFailsWith<IllegalArgumentException> { CircularIntArray(0) }
+        assertFailsWith<IllegalArgumentException> { CircularIntArray(-1) }
     }
 
     @Test
     public fun creatingWithOverCapacity() {
+        assertFailsWith<IllegalArgumentException> { CircularIntArray((1 shl 30) + 1) }
         assertFailsWith<IllegalArgumentException> { CircularIntArray(Int.MAX_VALUE) }
+    }
+
+    @Test
+    public fun variousInitialCapacities() {
+        for (minCapacity in 1..33) {
+            val array = CircularIntArray(minCapacity)
+            for (i in 0 until minCapacity) {
+                if (i % 2 == 0) {
+                    array.addLast(i)
+                } else {
+                    array.addFirst(-i)
+                }
+            }
+            assertEquals(minCapacity, array.size())
+            repeat(minCapacity) { array.popFirst() }
+            assertTrue { array.isEmpty() }
+        }
     }
 
     @Test
