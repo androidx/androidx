@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
@@ -229,9 +230,10 @@ private fun RemoteButtonWithIconAndLongLabelPreview(
 @RemoteComposable
 fun RemoteButtonWithBackground() {
     val backgroundImage = remember {
-        createNamedRemoteImageBitmap(name = "backgroundImage") {
-            createImage(200, 200).asImageBitmap()
-        }
+        RemoteImageBitmap.createNamedRemoteImageBitmap(
+            name = "backgroundImage",
+            defaultValue = createImage(200, 200).asImageBitmap(),
+        )
     }
     val containerPainter = RemoteButtonDefaults.containerPainter(backgroundImage)
     RemoteButton(
@@ -372,9 +374,10 @@ private fun RemoteButtonChildColorsDisabledPreview(
 @RemoteComposable
 fun RemoteButtonWithSmallImageBackground() {
     val smallImage = remember {
-        createNamedRemoteImageBitmap(name = "smallBackgroundImage") {
-            createImage(8, 8).asImageBitmap()
-        }
+        RemoteImageBitmap.createNamedRemoteImageBitmap(
+            name = "smallBackgroundImage",
+            defaultValue = createImage(8, 8).asImageBitmap(),
+        )
     }
     val containerPainter = RemoteButtonDefaults.containerPainter(smallImage)
     RemoteButton(

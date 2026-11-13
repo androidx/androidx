@@ -30,6 +30,7 @@ import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.shaders.verticalGradient
 import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
@@ -54,7 +55,7 @@ class RemoteContainerPainterTest {
         val solidWhiteImage = createSolidBitmap(64, 64, AndroidColor.WHITE)
         val enabledPainter = painterRule.paintDocument {
             val bg = remember {
-                createNamedRemoteImageBitmap("white_enabled") { solidWhiteImage }
+                RemoteImageBitmap.createNamedRemoteImageBitmap("white_enabled", solidWhiteImage)
             }
             RemoteBox(
                 modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Black),
@@ -76,7 +77,7 @@ class RemoteContainerPainterTest {
 
         val disabledPainter = painterRule.paintDocument {
             val bg = remember {
-                createNamedRemoteImageBitmap("white_disabled") { solidWhiteImage }
+                RemoteImageBitmap.createNamedRemoteImageBitmap("white_disabled", solidWhiteImage)
             }
             RemoteBox(
                 modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Black),
@@ -102,7 +103,7 @@ class RemoteContainerPainterTest {
         val solidBlueImage = createSolidBitmap(64, 64, AndroidColor.BLUE)
         val disabledPainter = painterRule.paintDocument {
             val bg = remember {
-                createNamedRemoteImageBitmap("blue_disabled") { solidBlueImage }
+                RemoteImageBitmap.createNamedRemoteImageBitmap("blue_disabled", solidBlueImage)
             }
             val redGradient = RemoteBrush.verticalGradient(listOf(RemoteColor.Red, RemoteColor.Red))
             RemoteBox(
@@ -132,7 +133,7 @@ class RemoteContainerPainterTest {
         val solidWhiteImage = createSolidBitmap(64, 64, AndroidColor.WHITE)
         val painter = painterRule.paintDocument {
             val bg = remember {
-                createNamedRemoteImageBitmap("card_white_alpha") { solidWhiteImage }
+                RemoteImageBitmap.createNamedRemoteImageBitmap("card_white_alpha", solidWhiteImage)
             }
             RemoteBox(
                 modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Black),

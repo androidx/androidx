@@ -52,6 +52,7 @@ import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloatArray.Companion.createNamedRemoteFloatArray
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.state.createNamedRemoteImageBitmap
@@ -668,7 +669,10 @@ class RcPlayerPixelTest {
 
         val bmp = renderPlayerToBitmap {
             val remoteImage = remember {
-                createNamedRemoteImageBitmap("white_bitmap_alpha") { whiteBitmap }
+                RemoteImageBitmap.createNamedRemoteImageBitmap(
+                    name = "white_bitmap_alpha",
+                    defaultValue = whiteBitmap,
+                )
             }
             RemoteBox(
                 modifier =
@@ -730,7 +734,10 @@ class RcPlayerPixelTest {
 
         val bmp = renderPlayerToBitmap {
             val remoteImage = remember {
-                createNamedRemoteImageBitmap("split_shader_img") { splitBitmap }
+                RemoteImageBitmap.createNamedRemoteImageBitmap(
+                    name = "split_shader_img",
+                    defaultValue = splitBitmap,
+                )
             }
             RemoteBox(
                 modifier =

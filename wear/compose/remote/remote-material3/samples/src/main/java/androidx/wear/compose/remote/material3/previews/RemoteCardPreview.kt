@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.padding
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rs
@@ -79,9 +80,10 @@ fun RemoteCardOutline() {
 @RemoteComposable
 fun RemoteCardWithImage() {
     val backgroundImage = remember {
-        createNamedRemoteImageBitmap(name = "backgroundImage") {
-            createImage(200, 200).asImageBitmap()
-        }
+        RemoteImageBitmap.createNamedRemoteImageBitmap(
+            name = "backgroundImage",
+            defaultValue = createImage(200, 200).asImageBitmap(),
+        )
     }
     val containerPainter = RemoteCardDefaults.containerPainter(backgroundImage)
     RemoteCard(onClick = RemoteAction.None, containerPainter = containerPainter) {
@@ -93,9 +95,10 @@ fun RemoteCardWithImage() {
 @RemoteComposable
 fun RemoteCardWithImageAndBorder() {
     val backgroundImage = remember {
-        createNamedRemoteImageBitmap(name = "backgroundImage") {
-            createImage(200, 200).asImageBitmap()
-        }
+        RemoteImageBitmap.createNamedRemoteImageBitmap(
+            name = "backgroundImage",
+            defaultValue = createImage(200, 200).asImageBitmap(),
+        )
     }
     val containerPainter = RemoteCardDefaults.containerPainter(backgroundImage)
     RemoteCard(

@@ -329,7 +329,7 @@ class NamedVariableDiscardedTest {
             remoteCaptureRule.captureDocument(context) {
                 RemoteBox {
                     val namedBitmap = remember {
-                        createNamedRemoteImageBitmap("testBitmap") { bitmap }
+                        RemoteImageBitmap.createNamedRemoteImageBitmap("testBitmap", bitmap)
                     }
                     RemoteBox(
                         modifier =
@@ -350,7 +350,7 @@ class NamedVariableDiscardedTest {
             remoteCaptureRule.captureDocument(context) {
                 RemoteBox {
                     val namedBitmap = remember {
-                        createNamedRemoteImageBitmap("testBitmap") { bitmap }
+                        RemoteImageBitmap.createNamedRemoteImageBitmap("testBitmap", bitmap)
                     }
                         .withGlobalScope()
                     RemoteBox(

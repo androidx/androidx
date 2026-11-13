@@ -93,18 +93,20 @@ class RemoteStateTest {
         withContext(Dispatchers.Main) {
             captureSingleRemoteDocument(context) {
                 val blue = remember {
-                    createNamedRemoteImageBitmap("blue") {
+                    RemoteImageBitmap.createNamedRemoteImageBitmap(
+                        "blue",
                         Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
                             .apply { setPixel(0, 0, Color.Blue.toArgb()) }
-                            .asImageBitmap()
-                    }
+                            .asImageBitmap(),
+                    )
                 }
                 val red = remember {
-                    createNamedRemoteImageBitmap("red") {
+                    RemoteImageBitmap.createNamedRemoteImageBitmap(
+                        "red",
                         Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
                             .apply { setPixel(0, 0, Color.Red.toArgb()) }
-                            .asImageBitmap()
-                    }
+                            .asImageBitmap(),
+                    )
                 }
                 val blue2 = remember {
                     RemoteImageBitmap.createNamedRemoteImageBitmap(

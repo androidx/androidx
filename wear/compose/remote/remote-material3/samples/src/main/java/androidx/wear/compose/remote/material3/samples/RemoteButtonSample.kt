@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.compose.capture.toRemoteImageVector
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.MutableRemoteInt
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
@@ -81,15 +82,17 @@ fun RemoteButtonWithIconAndSecondaryLabelSample(modifier: RemoteModifier = Remot
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 fun RemoteButtonWithContainerPainterSample(modifier: RemoteModifier = RemoteModifier) {
     val backgroundImage = remember {
-        createNamedRemoteImageBitmap(name = "buttonBackground") {
-            ImageBitmap(200, 100).also { bitmap ->
-                val canvas = Canvas(bitmap)
-                canvas.drawRect(
-                    Rect(0f, 0f, 200f, 100f),
-                    Paint().apply { color = Color(0xFF1A5276) },
-                )
-            }
-        }
+        RemoteImageBitmap.createNamedRemoteImageBitmap(
+            name = "buttonBackground",
+            defaultValue =
+                ImageBitmap(200, 100).also { bitmap ->
+                    val canvas = Canvas(bitmap)
+                    canvas.drawRect(
+                        Rect(0f, 0f, 200f, 100f),
+                        Paint().apply { color = Color(0xFF1A5276) },
+                    )
+                },
+        )
     }
     RemoteButton(
         onClick = hostAction("open_image".rs),

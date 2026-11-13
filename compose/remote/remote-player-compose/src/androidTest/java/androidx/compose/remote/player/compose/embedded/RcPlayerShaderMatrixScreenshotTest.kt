@@ -37,6 +37,7 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.shaders.image
 import androidx.compose.remote.creation.compose.shaders.linearGradient
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createRotationAround
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteTileMode
@@ -108,9 +109,10 @@ class RcPlayerShaderMatrixScreenshotTest {
     @RemoteComposable
     private fun ImageBrushCell(contentScale: RemoteContentScale) {
         val banner = remember {
-            createNamedRemoteImageBitmap("banner_${contentScale.getLabel()}") {
-                createTargetBannerBitmap().asImageBitmap()
-            }
+            RemoteImageBitmap.createNamedRemoteImageBitmap(
+                name = "banner_${contentScale.getLabel()}",
+                defaultValue = createTargetBannerBitmap().asImageBitmap(),
+            )
         }
         val brush =
             RemoteBrush.image(
@@ -131,9 +133,10 @@ class RcPlayerShaderMatrixScreenshotTest {
     @RemoteComposable
     private fun DimmedCropBrushCell() {
         val banner = remember {
-            createNamedRemoteImageBitmap("banner_dimmed_crop") {
-                createTargetBannerBitmap().asImageBitmap()
-            }
+            RemoteImageBitmap.createNamedRemoteImageBitmap(
+                name = "banner_dimmed_crop",
+                defaultValue = createTargetBannerBitmap().asImageBitmap(),
+            )
         }
         RemoteBox(
             modifier = RemoteModifier.size(100.rdp).background(Color.Black.rc),

@@ -50,6 +50,7 @@ public fun RemoteImageBitmap(value: ImageBitmap): RemoteImageBitmap =
  * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
  * @return A [RemoteImageBitmap] representing the named bitmap.
  */
+@RememberInComposition
 public fun RemoteImageBitmap.Companion.createNamedRemoteImageBitmap(
     name: String,
     defaultValue: ImageBitmap,
@@ -64,59 +65,6 @@ public fun RemoteImageBitmap.Companion.createNamedRemoteImageBitmap(
             defaultValue.asAndroidBitmap(),
         )
     }
-
-/**
- * Creates a named [RemoteImageBitmap] with a deferred initial value.
- *
- * @param name unique name to identify this state within its [domain]
- * @param domain domain for the named state, defaults to [RemoteState.Domain.User]
- * @param value provider of the initial [ImageBitmap] value
- * @return a [RemoteImageBitmap] representing the named bitmap
- */
-public fun RemoteImageBitmap.Companion.createNamedRemoteImageBitmap(
-    name: String,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
-    value: () -> ImageBitmap,
-): RemoteImageBitmap {
-    val bitmap = value()
-    return MutableRemoteImageBitmap(
-        constantValueOrNull = null,
-        cacheKey = RemoteNamedCacheKey(domain, name),
-    ) { creationState ->
-        creationState.document.addNamedBitmap(
-            domain.prefixed(name),
-            bitmap.asAndroidBitmap(),
-        )
-    }
-}
-
-/**
- * Creates a named [RemoteImageBitmap] with an initial value.
- *
- * @param name A unique name to identify this state within its [domain].
- * @param defaultValue The initial [ImageBitmap] value for the named remote bitmap.
- * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
- * @return A [RemoteImageBitmap] representing the named bitmap.
- */
-public fun createNamedRemoteImageBitmap(
-    name: String,
-    defaultValue: ImageBitmap,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
-): RemoteImageBitmap = RemoteImageBitmap.createNamedRemoteImageBitmap(name, defaultValue, domain)
-
-/**
- * Creates a named [RemoteImageBitmap] with a deferred initial value.
- *
- * @param name A unique name to identify this state within its [domain].
- * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
- * @param value Provider of the initial [ImageBitmap] value.
- * @return A [RemoteImageBitmap] representing the named bitmap.
- */
-public fun createNamedRemoteImageBitmap(
-    name: String,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
-    value: () -> ImageBitmap,
-): RemoteImageBitmap = RemoteImageBitmap.createNamedRemoteImageBitmap(name, domain, value)
 
 /**
  * Creates a [MutableRemoteImageBitmap] with an [initialValue].
@@ -144,26 +92,6 @@ public fun MutableRemoteImageBitmap(initialValue: ImageBitmap): MutableRemoteIma
 @Composable
 public fun rememberMutableRemoteImageBitmap(initialValue: ImageBitmap): MutableRemoteImageBitmap {
     return remember { MutableRemoteImageBitmap(initialValue) }
-}
-
-/**
- * Remembers a named [RemoteImageBitmap] initialized by [value].
- *
- * @param name unique name identifying this state within its [domain]
- * @param domain domain for the named state, defaulting to [RemoteState.Domain.User]
- * @param value lambda providing the initial [ImageBitmap] value
- * @return [RemoteImageBitmap] bound to the named bitmap state
- */
-@RemoteComposable
-@Composable
-public fun rememberNamedRemoteImageBitmap(
-    name: String,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
-    value: () -> ImageBitmap,
-): RemoteImageBitmap {
-    return remember(name, domain) {
-        RemoteImageBitmap.createNamedRemoteImageBitmap(name = name, domain = domain, value = value)
-    }
 }
 
 /** Extension property to convert a [ImageBitmap] to a [RemoteImageBitmap]. */

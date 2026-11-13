@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.padding
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rs
@@ -119,9 +120,10 @@ fun RemoteTitleCardWithTwoLineTitle() {
 @RemoteComposable
 fun RemoteTitleCardWithImage() {
     val backgroundImage = remember {
-        createNamedRemoteImageBitmap(name = "backgroundImage") {
-            createImage(200, 200).asImageBitmap()
-        }
+        RemoteImageBitmap.createNamedRemoteImageBitmap(
+            name = "backgroundImage",
+            defaultValue = createImage(200, 200).asImageBitmap(),
+        )
     }
     val containerPainter = RemoteCardDefaults.containerPainter(backgroundImage)
     RemoteTitleCard(
