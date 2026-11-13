@@ -73,7 +73,9 @@ package androidx.lifecycle.compose {
   }
 
   public final class LocalLifecycleOwnerKt {
+    method @InaccessibleFromKotlin public static androidx.compose.runtime.HostDefaultKey<androidx.lifecycle.LifecycleOwner> getLifecycleOwnerHostDefaultKey();
     method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.lifecycle.LifecycleOwner> getLocalLifecycleOwner();
+    property public static androidx.compose.runtime.HostDefaultKey<androidx.lifecycle.LifecycleOwner> LifecycleOwnerHostDefaultKey;
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.lifecycle.LifecycleOwner> LocalLifecycleOwner;
   }
 

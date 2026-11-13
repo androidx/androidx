@@ -54,7 +54,9 @@ androidXMultiplatform {
         }
 
         commonTest.dependencies {
+            implementation(project(":kruth:kruth"))
             implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesTest)
         }
 
         androidMain.dependencies {
@@ -80,6 +82,7 @@ androidXMultiplatform {
 
         desktopMain.dependsOn(nonAndroidMain)
         desktopTest.dependsOn(nonAndroidTest)
+        desktopTest.dependsOn(nonJvmTest)
 
         nonJvmMain.dependsOn(nonAndroidMain)
         nonJvmTest.dependsOn(nonAndroidTest)
@@ -90,11 +93,10 @@ dependencies {
     lintPublish(project(":lifecycle:lifecycle-runtime-compose-lint"))
 
     constraints {
-        // Prevents runtime resolution failures. The reflection fallback for Compose 1.6.*
-        // was removed to eliminate brittle cross-package coupling. This constraint ensures
-        // the runtime provides the statically defined LocalLifecycleOwner.
-        androidMainImplementation("androidx.compose.ui:ui:1.7.0") {
-            because "Requires Compose 1.7+ to resolve LocalLifecycleOwner without reflection"
+        // Prevents runtime resolution failures. Ensures the runtime provides
+        // LocalHostDefaultProvider for resolving LocalLifecycleOwner.
+        androidMainImplementation("androidx.compose.ui:ui:1.11.0") {
+            because "Requires Compose 1.11+ to resolve LocalLifecycleOwner via LocalHostDefaultProvider"
         }
 
         // Prevents symbols duplication with old versions of JetBrains' fork.
