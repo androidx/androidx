@@ -1076,7 +1076,7 @@ class SpatialSceneHelperTest {
 
     @Test
     fun spatialScene_buildsHierarchyCorrectly() {
-        val scene = SpatialSceneHelper.parseSpatialScene(fullSpaceComposeDumpsys)
+        val scene = parseSpatialScene(fullSpaceComposeDumpsys)
         assertTrue(scene.rootNodes.isNotEmpty())
 
         val root = scene.rootNodes.first()
@@ -1095,7 +1095,7 @@ class SpatialSceneHelperTest {
 
     @Test
     fun spatialScene_findTaskByPackageName_findsTaskAndQueriesTaskHierarchy() {
-        val appScene = SpatialSceneHelper.parseSpatialScene(fullSpaceComposeDumpsys)
+        val appScene = parseSpatialScene(fullSpaceComposeDumpsys)
         val task = assertNotNull(appScene.findTaskByPackageName("androidx.xr.compose.testapp"))
         assertTrue(task.activitySpaceRoot.name.startsWith("space-root-task-963"))
 
@@ -1130,12 +1130,12 @@ class SpatialSceneHelperTest {
 
     @Test
     fun spatialScene_findNodes_withPredicateFilter() {
-        val scene = SpatialSceneHelper.parseSpatialScene(fullSpaceComposeDumpsys)
+        val scene = parseSpatialScene(fullSpaceComposeDumpsys)
         val task = assertNotNull(scene.findTaskById(963))
         val gltfNodes = task.findNodes { node -> node.name.contains("gltf", ignoreCase = true) }
         assertEquals(2, gltfNodes.size)
 
-        val sceneCoreScene = SpatialSceneHelper.parseSpatialScene(fullSpaceSceneCoreDumpsys)
+        val sceneCoreScene = parseSpatialScene(fullSpaceSceneCoreDumpsys)
         val sceneCoreTask =
             assertNotNull(sceneCoreScene.findTaskByPackageName("androidx.xr.scenecore.testapp"))
         val sceneCoreGltf = sceneCoreTask.findNodes { node ->
@@ -1147,13 +1147,13 @@ class SpatialSceneHelperTest {
 
     @Test
     fun spatialScene_inputTargets_discoversTouchableSurfaces() {
-        val composeScene = SpatialSceneHelper.parseSpatialScene(fullSpaceComposeDumpsys)
+        val composeScene = parseSpatialScene(fullSpaceComposeDumpsys)
         val composeTargets =
             assertNotNull(composeScene.findTaskByPackageName("androidx.xr.compose.testapp"))
                 .inputTargets
         assertTrue(composeTargets.size >= 8)
 
-        val sceneCoreScene = SpatialSceneHelper.parseSpatialScene(fullSpaceSceneCoreDumpsys)
+        val sceneCoreScene = parseSpatialScene(fullSpaceSceneCoreDumpsys)
         val sceneCoreTargets =
             assertNotNull(sceneCoreScene.findTaskByPackageName("androidx.xr.scenecore.testapp"))
                 .inputTargets
@@ -1162,7 +1162,7 @@ class SpatialSceneHelperTest {
 
     @Test
     fun spatialScene_findNodeByName_extractsAccuratePose() {
-        val scene = SpatialSceneHelper.parseSpatialScene(fullSpaceComposeDumpsys)
+        val scene = parseSpatialScene(fullSpaceComposeDumpsys)
         val task = assertNotNull(scene.findTaskByPackageName("androidx.xr.compose.testapp"))
         val panel2 = task.findNodeByName("ViewPanel:2")
 
@@ -1179,7 +1179,7 @@ class SpatialSceneHelperTest {
 
     @Test
     fun findWindowNode_resolvesMainWindowNode() {
-        val scene = SpatialSceneHelper.parseSpatialScene(simpleDumpsys)
+        val scene = parseSpatialScene(simpleDumpsys)
         val task = assertNotNull(scene.findTaskByPackageName("com.example.myapp"))
         val node = assertNotNull(task.findNode { it.name.startsWith("window-") })
 
@@ -1203,7 +1203,7 @@ class SpatialSceneHelperTest {
             """
                 .trimIndent()
 
-        val scene = SpatialSceneHelper.parseSpatialScene(sharedPrefixDump)
+        val scene = parseSpatialScene(sharedPrefixDump)
 
         // Matching com.example.app should find only task 2 / window 21, not com.example.app.pro
         val baseAppTask = assertNotNull(scene.findTaskByPackageName("com.example.app"))
@@ -1224,40 +1224,6 @@ class SpatialSceneHelperTest {
     }
 
     @Test
-    fun containsPackage_delimiterAndSegmentBoundaryChecks() {
-        assertTrue(
-            SpatialSceneHelper.containsPackage(
-                "Node com.example.app/com.example.app.MainActivity#101",
-                "com.example.app",
-            )
-        )
-        assertFalse(
-            SpatialSceneHelper.containsPackage(
-                "Node com.example.app.pro/com.example.app.pro.MainActivity#101",
-                "com.example.app",
-            )
-        )
-        assertFalse(
-            SpatialSceneHelper.containsPackage(
-                "Node prefix.com.example.app/MainActivity#101",
-                "com.example.app",
-            )
-        )
-        assertFalse(
-            SpatialSceneHelper.containsPackage(
-                "Node com.example.app2/MainActivity#101",
-                "com.example.app",
-            )
-        )
-        assertTrue(
-            SpatialSceneHelper.containsPackage("Node com.example.app (id=1)", "com.example.app")
-        )
-        assertFalse(
-            SpatialSceneHelper.containsPackage("Node com.example.app (id=1)", "com.example")
-        )
-    }
-
-    @Test
     fun robustness_handlesIrregularSpacingAndCommas() {
         val irregularDump =
             """
@@ -1268,7 +1234,7 @@ class SpatialSceneHelperTest {
             """
                 .trimIndent()
 
-        val scene = SpatialSceneHelper.parseSpatialScene(irregularDump)
+        val scene = parseSpatialScene(irregularDump)
         val node = scene.rootNodes.first()
         assertEquals("CustomEntity", node.name)
         assertEquals(Vector3(1.5f, -2.5f, 3.0f), node.position)
@@ -1277,7 +1243,7 @@ class SpatialSceneHelperTest {
 
     @Test
     fun spatialNode_surfaceBoundsInPixels_extractsProperly() {
-        val scene = SpatialSceneHelper.parseSpatialScene(fullSpaceComposeDumpsys)
+        val scene = parseSpatialScene(fullSpaceComposeDumpsys)
         val task = assertNotNull(scene.findTaskById(963))
         val panel = assertNotNull(task.findNodeByName("ViewPanel:2"))
         // Child collider node #219 has touchableRegion=(0 0 400 400)
@@ -1286,7 +1252,7 @@ class SpatialSceneHelperTest {
 
     @Test
     fun spatialNode_worldExtents_extractsProperly() {
-        val scene = SpatialSceneHelper.parseSpatialScene(fullSpaceComposeDumpsys)
+        val scene = parseSpatialScene(fullSpaceComposeDumpsys)
         val task = assertNotNull(scene.findTaskById(963))
         val panel = assertNotNull(task.findNodeByName("ViewPanel:2"))
         // root2DSurfaceBoundsInMeters is (0.400, 0.400), ImpNodeWorldScale is (2.008, 2.008, 2.008)
@@ -1331,18 +1297,6 @@ class SpatialSceneHelperTest {
     }
 
     @Test
-    fun spatialScene_findNode_andFindTaskByPackageName() {
-        val scene = SpatialSceneHelper.parseSpatialScene(fullSpaceComposeDumpsys)
-        val task = assertNotNull(scene.findTaskById(963))
-        val firstGltf = task.findNode { it.name.contains("gltf") }
-        assertNotNull(firstGltf)
-        assertTrue(firstGltf.name.contains("gltf"))
-
-        val scopedTask = assertNotNull(scene.findTaskByPackageName("androidx.xr.compose.testapp"))
-        assertEquals(963, scopedTask.taskId)
-    }
-
-    @Test
     fun spatialNode_hierarchyRelationships() {
         val parent = SpatialNode("Parent", id = 1, depth = 0)
         val child = SpatialNode("Child", id = 2, depth = 2)
@@ -1368,9 +1322,10 @@ class SpatialSceneHelperTest {
 
     @Test
     fun spatialScene_panelsAndWindows_identifiesAllRealWindows() {
-        val composeScene = SpatialSceneHelper.parseSpatialScene(complexDumpsys)
+        val composeScene = parseSpatialScene(complexDumpsys)
         val task = assertNotNull(composeScene.findTaskByPackageName("androidx.xr.compose.testapp"))
-        val panels = task.findNodes { it.isEmbeddedWindowLeash || it.name.startsWith("window-") }
+        assertNotNull(task.spatialTransform)
+        val panels = task.windowLeashes
 
         // Full Space Compose testapp has 6 ViewPanels, 4 Orbiters, 2 window leashes
         assertTrue(panels.size >= 7, "Expected at least 7 panels, found ${panels.size}")
@@ -1380,10 +1335,10 @@ class SpatialSceneHelperTest {
             assertNotNull(panel.pose)
         }
 
-        val sceneCoreScene = SpatialSceneHelper.parseSpatialScene(fullSpaceSceneCoreDumpsys)
+        val sceneCoreScene = parseSpatialScene(fullSpaceSceneCoreDumpsys)
         val sceneCorePanels =
             assertNotNull(sceneCoreScene.findTaskByPackageName("androidx.xr.scenecore.testapp"))
-                .findNodes { it.isEmbeddedWindowLeash || it.name.startsWith("window-") }
+                .windowLeashes
         assertTrue(sceneCorePanels.isNotEmpty())
     }
 
@@ -1484,27 +1439,6 @@ class SpatialSceneHelperTest {
     }
 
     @Test
-    fun spatialScene_panelsAndTasks_extractedCorrectly() {
-        val scene = SpatialSceneHelper.parseSpatialScene(complexDumpsys)
-        val task = assertNotNull(scene.findTaskByPackageName("androidx.xr.compose.testapp"))
-        assertNotNull(task.spatialTransform)
-
-        val panels = task.findNodes { it.isEmbeddedWindowLeash || it.name.startsWith("window-") }
-        assertTrue(panels.isNotEmpty(), "Expected panels to be non-empty")
-        for (panel in panels) {
-            assertTrue(panel.hasSurfaceBounds)
-            assertNotNull(panel.pose)
-        }
-
-        val inputTargets = task.inputTargets
-        assertTrue(inputTargets.isNotEmpty(), "Expected input targets to be non-empty")
-        for (target in inputTargets) {
-            assertTrue(target.inputId >= 0)
-            assertNotNull(target.pose)
-        }
-    }
-
-    @Test
     fun spatialScene_movableSpatialRowWithOrbiter_hierarchyAndPanels() {
         val dump =
             """
@@ -1534,11 +1468,11 @@ class SpatialSceneHelperTest {
             """
                 .trimIndent()
 
-        val scene = SpatialSceneHelper.parseSpatialScene(dump)
+        val scene = parseSpatialScene(dump)
         val task = assertNotNull(scene.findTaskByPackageName("com.example.test"))
 
         // Leashes: Main window + 2 ViewPanels + 1 Orbiter
-        val leashes = task.findNodes { it.isEmbeddedWindowLeash || it.name.startsWith("window-") }
+        val leashes = task.windowLeashes
         assertTrue(leashes.size >= 3, "Expected at least 3 leashes, found ${leashes.size}")
 
         // Input targets: Main window (10), Orbiter (100), ViewPanel:1 (101), ViewPanel:2 (102)
@@ -1552,7 +1486,7 @@ class SpatialSceneHelperTest {
 
     @Test
     fun spatialScene_complexDumpsys_parsesCorrectly() {
-        val scene = SpatialSceneHelper.parseSpatialScene(complexDumpsys)
+        val scene = parseSpatialScene(complexDumpsys)
         assertNotNull(scene)
         val root = scene.rootNodes.first()
         val allNodesInScene = listOf(root) + root.getDescendants()
@@ -1592,7 +1526,7 @@ class SpatialSceneHelperTest {
             """
                 .trimIndent()
 
-        val map = SpatialSceneHelper.parseTaskPackageMap(sampleActivitiesDump)
+        val map = parseTaskPackageMap(sampleActivitiesDump)
         assertEquals("androidx.xr.compose.testapp", map[963])
         assertEquals("com.example.app", map[42])
         assertEquals("com.example.other", map[99])
@@ -1600,7 +1534,7 @@ class SpatialSceneHelperTest {
 
     @Test
     fun spatialTask_packageName_extractedInherentlyFromNodes() {
-        val scene = SpatialSceneHelper.parseSpatialScene(fullSpaceComposeDumpsys)
+        val scene = parseSpatialScene(fullSpaceComposeDumpsys)
         val task = assertNotNull(scene.findTaskById(963))
         assertEquals("androidx.xr.compose.testapp", task.packageName)
         assertEquals(
@@ -1621,13 +1555,13 @@ class SpatialSceneHelperTest {
                 .trimIndent()
 
         // Without taskPackageMap, packageName cannot be extracted from nodes without activity leash
-        val sceneWithoutMap = SpatialSceneHelper.parseSpatialScene(dump)
+        val sceneWithoutMap = parseSpatialScene(dump)
         val taskWithoutMap = assertNotNull(sceneWithoutMap.findTaskById(50))
         assertNull(taskWithoutMap.packageName)
 
         // With taskPackageMap passed to SpatialScene
         val sceneWithMap =
-            SpatialSceneHelper.parseSpatialScene(
+            parseSpatialScene(
                 dump,
                 taskPackageMap = mapOf(50 to "com.example.mapped"),
             )
@@ -1731,7 +1665,7 @@ class SpatialSceneHelperTest {
             """
                 .trimIndent()
 
-        val scene = SpatialSceneHelper.parseSpatialScene(dump)
+        val scene = parseSpatialScene(dump)
         val task = assertNotNull(scene.findTaskById(1))
         val panelNames = task.findNodes { it.isEmbeddedWindowLeash }.map { it.name }
         assertEquals(listOf("PrimaryPanel", "ChildPanel"), panelNames)
@@ -1830,7 +1764,7 @@ class SpatialSceneHelperTest {
             """
                 .trimIndent()
 
-        val scene = SpatialSceneHelper.parseSpatialScene(dump)
+        val scene = parseSpatialScene(dump)
         val task = assertNotNull(scene.findTaskById(42))
         val windowContainer = assertNotNull(task.findNodeByName("window-task-42"))
         val surface = assertNotNull(task.findNodeByName("com.example.app/MainActivity#0"))
@@ -1892,7 +1826,7 @@ class SpatialSceneHelperTest {
             """
                 .trimIndent()
 
-        val scene = SpatialSceneHelper.parseSpatialScene(dump)
+        val scene = parseSpatialScene(dump)
         val task = assertNotNull(scene.findTaskById(1206))
 
         // Task-level structural selectors (no app-imposed or Compose-imposed names needed)
@@ -2001,7 +1935,7 @@ class SpatialSceneHelperTest {
 
     @Test
     fun spatialScene_headPose_extractsActiveCoordinateSpace2Pose() {
-        val scene = SpatialSceneHelper.parseSpatialScene(complexDumpsys)
+        val scene = parseSpatialScene(complexDumpsys)
         // complexDumpsys includes PERSISTENT_INDICATOR with coordinateSpace=2
         val headPose = assertNotNull(scene.headPose)
         assertEquals(Vector3(0.0f, 1.6f, 0.0f), headPose.translation)
@@ -2014,7 +1948,7 @@ class SpatialSceneHelperTest {
 
     @Test
     fun spatialScene_activeTask_and_isSettled_resolvesCorrectly() {
-        val scene = SpatialSceneHelper.parseSpatialScene(complexDumpsys)
+        val scene = parseSpatialScene(complexDumpsys)
 
         val inactiveHomeTask = assertNotNull(scene.findTaskById(2264))
         assertFalse(inactiveHomeTask.isActive)
@@ -2054,7 +1988,7 @@ class SpatialSceneHelperTest {
 
     @Test
     fun spatialNode_and_spatialTask_computedPixelsPerMeter_resolvesCorrectly() {
-        val scene = SpatialSceneHelper.parseSpatialScene(complexDumpsys)
+        val scene = parseSpatialScene(complexDumpsys)
         val activeTask = assertNotNull(scene.activeTask)
         assertEquals(1600f, assertNotNull(activeTask.computedPixelsPerMeter), 1e-3f)
 
@@ -2073,7 +2007,7 @@ class SpatialSceneHelperTest {
                 Node space-transform-spatial-101 (stateIndex=0) id=101:
             """
                 .trimIndent()
-        val scrimScene = SpatialSceneHelper.parseSpatialScene(scrimActiveDump)
+        val scrimScene = parseSpatialScene(scrimActiveDump)
         assertTrue(scrimScene.hasActiveTransition)
         assertFalse(assertNotNull(scrimScene.findTaskById(100)).isSettled())
 
@@ -2085,7 +2019,7 @@ class SpatialSceneHelperTest {
                   Node transition snapshot (stateIndex=0) id=102:
             """
                 .trimIndent()
-        val snapshotScene = SpatialSceneHelper.parseSpatialScene(transitionSnapshotDump)
+        val snapshotScene = parseSpatialScene(transitionSnapshotDump)
         assertTrue(snapshotScene.hasActiveTransition)
         assertFalse(assertNotNull(snapshotScene.findTaskById(100)).isSettled())
     }
@@ -2117,7 +2051,7 @@ class SpatialSceneHelperTest {
                 Node space-transform-spatial-101 (stateIndex=0) id=101:
             """
                 .trimIndent()
-        val visibleToastScene = SpatialSceneHelper.parseSpatialScene(visibleToastAreaDump)
+        val visibleToastScene = parseSpatialScene(visibleToastAreaDump)
         assertTrue(visibleToastScene.hasActiveTransition)
         assertFalse(assertNotNull(visibleToastScene.findTaskById(100)).isSettled())
 
@@ -2134,7 +2068,7 @@ class SpatialSceneHelperTest {
                 Node space-transform-spatial-101 (stateIndex=0) id=101:
             """
                 .trimIndent()
-        val hiddenToastScene = SpatialSceneHelper.parseSpatialScene(hiddenToastAreaDump)
+        val hiddenToastScene = parseSpatialScene(hiddenToastAreaDump)
         assertFalse(hiddenToastScene.hasActiveTransition)
         assertTrue(assertNotNull(hiddenToastScene.findTaskById(100)).isSettled())
     }
@@ -2151,7 +2085,7 @@ class SpatialSceneHelperTest {
                 Node space-transform-spatial-101 (stateIndex=0) id=101:
             """
                 .trimIndent()
-        val moohanIdleScene = SpatialSceneHelper.parseSpatialScene(moohanIdleMirrorToastDump)
+        val moohanIdleScene = parseSpatialScene(moohanIdleMirrorToastDump)
         assertFalse(moohanIdleScene.hasActiveTransition)
         assertTrue(assertNotNull(moohanIdleScene.findTaskById(100)).isSettled())
 
@@ -2168,7 +2102,7 @@ class SpatialSceneHelperTest {
                 Node space-transform-spatial-101 (stateIndex=0) id=101:
             """
                 .trimIndent()
-        val emptyWrapperScene = SpatialSceneHelper.parseSpatialScene(emptyWrapperToastAreaDump)
+        val emptyWrapperScene = parseSpatialScene(emptyWrapperToastAreaDump)
         assertFalse(emptyWrapperScene.hasActiveTransition)
         assertTrue(assertNotNull(emptyWrapperScene.findTaskById(100)).isSettled())
 
@@ -2189,7 +2123,7 @@ class SpatialSceneHelperTest {
                 Node space-transform-spatial-101 (stateIndex=0) id=101:
             """
                 .trimIndent()
-        val inactiveToastScene = SpatialSceneHelper.parseSpatialScene(inactiveToastChildDump)
+        val inactiveToastScene = parseSpatialScene(inactiveToastChildDump)
         assertFalse(inactiveToastScene.hasActiveTransition)
         assertTrue(assertNotNull(inactiveToastScene.findTaskById(100)).isSettled())
 
@@ -2210,8 +2144,7 @@ class SpatialSceneHelperTest {
                 Node space-transform-spatial-101 (stateIndex=0) id=101:
             """
                 .trimIndent()
-        val activeSurfaceScene =
-            SpatialSceneHelper.parseSpatialScene(activeSurfaceOverlayUnderToastAreaDump)
+        val activeSurfaceScene = parseSpatialScene(activeSurfaceOverlayUnderToastAreaDump)
         assertTrue(activeSurfaceScene.hasActiveTransition)
         assertFalse(assertNotNull(activeSurfaceScene.findTaskById(100)).isSettled())
     }

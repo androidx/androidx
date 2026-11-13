@@ -53,13 +53,13 @@ import androidx.xr.scenecore.SpatialCapability
 import androidx.xr.scenecore.scene
 import androidx.xr.testutils.SpatialAlignment
 import androidx.xr.testutils.SpatialNode
-import androidx.xr.testutils.SpatialSceneHelper
 import androidx.xr.testutils.SpatialTask
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.XrSessionScope
 import androidx.xr.testutils.createXrSessionRule
 import androidx.xr.testutils.performSpatialInteraction
 import androidx.xr.testutils.resetSpatialInteraction
+import androidx.xr.testutils.waitForSpatialScene
 import androidx.xr.testutils.waitUntil
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
@@ -302,7 +302,7 @@ class ResizableComponentTest {
         // samples its "before" state after the UI has synced.
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
         val node =
-            SpatialSceneHelper.waitForSpatialScene(
+            waitForSpatialScene(
                 description = "a resizable $description",
                 timeout = POLL_TIMEOUT,
                 pollInterval = POLL_INTERVAL,

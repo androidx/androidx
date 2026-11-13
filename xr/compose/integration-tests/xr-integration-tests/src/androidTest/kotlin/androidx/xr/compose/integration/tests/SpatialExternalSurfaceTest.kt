@@ -81,8 +81,8 @@ import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.scene
 import androidx.xr.testutils.DEFAULT_MOVE_HANDLE_MARGIN
 import androidx.xr.testutils.SpatialNode
-import androidx.xr.testutils.SpatialSceneHelper
 import androidx.xr.testutils.XrDeviceTest
+import androidx.xr.testutils.captureSpatialScene
 import androidx.xr.testutils.performSpatialInteraction
 import androidx.xr.testutils.resetSpatialInteraction
 import com.google.common.truth.Truth.assertThat
@@ -928,7 +928,7 @@ class SpatialExternalSurfaceTest {
     }
 
     private fun findMovableAndResizableSurfaceNode(): SpatialNode? {
-        val scene = SpatialSceneHelper.captureSpatialScene()
+        val scene = captureSpatialScene()
         val task =
             scene.findTaskById(composeTestRule.activity.taskId)
                 ?: scene.findTaskByPackageName(appContext.packageName)

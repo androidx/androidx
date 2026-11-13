@@ -31,10 +31,10 @@ import androidx.xr.scenecore.KhronosPbrMaterial
 import androidx.xr.scenecore.SpatialEnvironment.SpatialEnvironmentPreference
 import androidx.xr.scenecore.scene
 import androidx.xr.testutils.DEFAULT_XR_MSSIM_THRESHOLD
-import androidx.xr.testutils.SpatialSceneHelper
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.XrScreenshotTestRule
 import androidx.xr.testutils.XrSessionRule
+import androidx.xr.testutils.captureSpatialScene
 import androidx.xr.testutils.createXrSessionRule
 import androidx.xr.testutils.waitUntil
 import java.nio.file.Paths
@@ -52,8 +52,8 @@ import org.junit.runner.RunWith
  *    configure the scene with SceneCore APIs (Full Space Mode via [requestFullSpace],
  *    `preferredPassthroughOpacity = 0.0f`, IBL skybox preference, and hidden 2D main panel).
  * 2. Waits for async environment/passthrough state via [waitForSpatialEnvironmentSettled] and scene
- *    graph readiness via [waitUntil] + [SpatialSceneHelper.captureSpatialScene], then captures the
- *    stabilized 3D compositor viewport via [XrSessionRule.captureToBitmap].
+ *    graph readiness via [waitUntil] + [captureSpatialScene], then captures the stabilized 3D
+ *    compositor viewport via [XrSessionRule.captureToBitmap].
  * 3. Asserts the captured bitmap against the golden image using
  *    `androidx.test.screenshot.assertAgainstGolden` with [XrScreenshotTestRule] and [MSSIMMatcher].
  */
@@ -106,8 +106,7 @@ class GltfMaterialAndIblScreenshotTest {
         }
 
         waitUntil("glTF subspace visible") {
-            val task =
-                SpatialSceneHelper.captureSpatialScene().findTaskByActivity(sessionRule.activity)
+            val task = captureSpatialScene().findTaskByActivity(sessionRule.activity)
             task != null &&
                 task.isFullSpace &&
                 task.taskWindowLeash?.isVisible != true &&
@@ -153,8 +152,7 @@ class GltfMaterialAndIblScreenshotTest {
         }
 
         waitUntil("glTF PBR subspace visible") {
-            val task =
-                SpatialSceneHelper.captureSpatialScene().findTaskByActivity(sessionRule.activity)
+            val task = captureSpatialScene().findTaskByActivity(sessionRule.activity)
             task != null &&
                 task.isFullSpace &&
                 task.taskWindowLeash?.isVisible != true &&

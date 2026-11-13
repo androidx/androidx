@@ -115,7 +115,7 @@ class SpatialInteractionHelperAndroidTest {
         composeTestRule.waitForIdle()
 
         val packageName = InstrumentationRegistry.getInstrumentation().targetContext.packageName
-        val scene = SpatialSceneHelper.captureSpatialScene()
+        val scene = captureSpatialScene()
         val task = assertNotNull(scene.findTaskByPackageName(packageName))
         val targetNode =
             assertNotNull(
@@ -250,7 +250,7 @@ class SpatialInteractionHelperAndroidTest {
         composeTestRule.waitForIdle()
 
         val packageName = InstrumentationRegistry.getInstrumentation().targetContext.packageName
-        val scene = SpatialSceneHelper.captureSpatialScene()
+        val scene = captureSpatialScene()
         val task = assertNotNull(scene.findTaskByPackageName(packageName))
         val targetNode =
             assertNotNull(
@@ -338,7 +338,7 @@ class SpatialInteractionHelperAndroidTest {
         composeTestRule.waitForIdle()
 
         val packageName = InstrumentationRegistry.getInstrumentation().targetContext.packageName
-        val scene = SpatialSceneHelper.captureSpatialScene()
+        val scene = captureSpatialScene()
         val task = assertNotNull(scene.findTaskByPackageName(packageName))
         val targetNode =
             assertNotNull(
@@ -439,7 +439,7 @@ class SpatialInteractionHelperAndroidTest {
         composeTestRule.waitForIdle()
 
         val packageName = InstrumentationRegistry.getInstrumentation().targetContext.packageName
-        val scene = SpatialSceneHelper.captureSpatialScene()
+        val scene = captureSpatialScene()
         val task = assertNotNull(scene.findTaskByPackageName(packageName))
         val targetNode =
             assertNotNull(
@@ -547,7 +547,7 @@ class SpatialInteractionHelperAndroidTest {
         composeTestRule.waitForIdle()
 
         val packageName = InstrumentationRegistry.getInstrumentation().targetContext.packageName
-        val scene = SpatialSceneHelper.captureSpatialScene()
+        val scene = captureSpatialScene()
         val task = assertNotNull(scene.findTaskByPackageName(packageName))
         val targetNode =
             assertNotNull(
@@ -600,7 +600,7 @@ class SpatialInteractionHelperAndroidTest {
         composeTestRule.waitForIdle()
 
         val packageName = InstrumentationRegistry.getInstrumentation().targetContext.packageName
-        val initialScene = SpatialSceneHelper.captureSpatialScene()
+        val initialScene = captureSpatialScene()
         val initialTask = assertNotNull(initialScene.findTaskByPackageName(packageName))
         val windowNodeInitial =
             assertNotNull(
@@ -622,7 +622,7 @@ class SpatialInteractionHelperAndroidTest {
             conditionDescription = "Window position did not change after move interaction",
             timeoutMillis = 5000L,
         ) {
-            val scene = SpatialSceneHelper.captureSpatialScene()
+            val scene = captureSpatialScene()
             val task = scene.findTaskByPackageName(packageName)
             val node = task?.taskWindowLeash ?: task?.topLevelWindowLeashes?.firstOrNull()
             if (node != null) {
@@ -661,7 +661,7 @@ class SpatialInteractionHelperAndroidTest {
         composeTestRule.waitForIdle()
 
         val packageName = InstrumentationRegistry.getInstrumentation().targetContext.packageName
-        val initialScene = SpatialSceneHelper.captureSpatialScene()
+        val initialScene = captureSpatialScene()
         val initialTask = assertNotNull(initialScene.findTaskByPackageName(packageName))
         val windowNodeInitial =
             assertNotNull(
@@ -687,7 +687,7 @@ class SpatialInteractionHelperAndroidTest {
                 "Window extents or scale did not change after resize interaction",
             timeoutMillis = 5000L,
         ) {
-            val updatedScene = SpatialSceneHelper.captureSpatialScene()
+            val updatedScene = captureSpatialScene()
             val updatedTask = updatedScene.findTaskByPackageName(packageName)
             val windowNodeUpdated =
                 updatedTask?.taskWindowLeash ?: updatedTask?.topLevelWindowLeashes?.firstOrNull()
@@ -738,7 +738,7 @@ class SpatialInteractionHelperAndroidTest {
         composeTestRule.waitForIdle()
 
         val packageName = InstrumentationRegistry.getInstrumentation().targetContext.packageName
-        val scene = SpatialSceneHelper.captureSpatialScene()
+        val scene = captureSpatialScene()
         val task = assertNotNull(scene.findTaskByPackageName(packageName))
         val targetNode =
             assertNotNull(
@@ -803,7 +803,7 @@ class SpatialInteractionHelperAndroidTest {
             }
 
         // 1. Move primary window to the left so it does not intercept center input
-        val initialScene = SpatialSceneHelper.captureSpatialScene()
+        val initialScene = captureSpatialScene()
         val primaryTask = assertNotNull(initialScene.findTaskByPackageName(context.packageName))
         val primaryWindowNode =
             assertNotNull(
@@ -821,7 +821,7 @@ class SpatialInteractionHelperAndroidTest {
             conditionDescription = "Primary window did not move to the left",
             timeoutMillis = 5000L,
         ) {
-            val scene = SpatialSceneHelper.captureSpatialScene()
+            val scene = captureSpatialScene()
             val task = scene.findTaskByPackageName(context.packageName)
             val node = task?.taskWindowLeash ?: task?.topLevelWindowLeashes?.firstOrNull()
             node != null && (node.position - initialPrimaryPos).length > 0.05f
@@ -838,7 +838,7 @@ class SpatialInteractionHelperAndroidTest {
                 conditionDescription = "Secondary spatial node to appear in scene",
                 timeoutMillis = 5000L,
             ) {
-                val currentScene = SpatialSceneHelper.captureSpatialScene()
+                val currentScene = captureSpatialScene()
                 if (
                     currentScene.tasks.any {
                         it.findNodesByName("SecondarySpatialTestActivity").isNotEmpty()
@@ -902,7 +902,7 @@ class SpatialInteractionHelperAndroidTest {
                 conditionDescription = "Secondary window did not move to the right",
                 timeoutMillis = 5000L,
             ) {
-                val currentScene = SpatialSceneHelper.captureSpatialScene()
+                val currentScene = captureSpatialScene()
                 val secTask =
                     currentScene.tasks.firstOrNull {
                         it.findNodesByName("SecondarySpatialTestActivity").isNotEmpty()
@@ -923,7 +923,7 @@ class SpatialInteractionHelperAndroidTest {
                     conditionDescription = "All activity windows to be present in scene",
                     timeoutMillis = 5000L,
                 ) {
-                    val currentScene = SpatialSceneHelper.captureSpatialScene()
+                    val currentScene = captureSpatialScene()
                     val tasks = currentScene.findTasksByPackageName(context.packageName)
                     val hasSecondary = tasks.any {
                         it.findNodesByName("SecondarySpatialTestActivity").isNotEmpty()
@@ -1009,7 +1009,7 @@ class SpatialInteractionHelperAndroidTest {
         composeTestRule.waitForIdle()
 
         val packageName = InstrumentationRegistry.getInstrumentation().targetContext.packageName
-        val initialScene = SpatialSceneHelper.captureSpatialScene()
+        val initialScene = captureSpatialScene()
         val initialTask = assertNotNull(initialScene.findTaskByPackageName(packageName))
         val windowNodeInitial =
             assertNotNull(
@@ -1036,7 +1036,7 @@ class SpatialInteractionHelperAndroidTest {
             conditionDescription = "Window position did not change with DSL move interaction",
             timeoutMillis = 5000L,
         ) {
-            val scene = SpatialSceneHelper.captureSpatialScene()
+            val scene = captureSpatialScene()
             val task = scene.findTaskByPackageName(packageName)
             val node = task?.taskWindowLeash ?: task?.topLevelWindowLeashes?.firstOrNull()
             if (node != null) {
@@ -1084,7 +1084,7 @@ class SpatialInteractionHelperAndroidTest {
         composeTestRule.waitForIdle()
 
         val packageName = InstrumentationRegistry.getInstrumentation().targetContext.packageName
-        val scene = SpatialSceneHelper.captureSpatialScene()
+        val scene = captureSpatialScene()
         val task = assertNotNull(scene.findTaskByPackageName(packageName))
         val targetNode =
             assertNotNull(

@@ -55,9 +55,9 @@ import androidx.xr.runtime.RequiresSpatialApi
 import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.testutils.SpatialNode
-import androidx.xr.testutils.SpatialSceneHelper
 import androidx.xr.testutils.SpatialTask
 import androidx.xr.testutils.XrDeviceTest
+import androidx.xr.testutils.captureSpatialScene
 import androidx.xr.testutils.performSpatialInteraction
 import androidx.xr.testutils.resetSpatialInteraction
 import java.util.concurrent.atomic.AtomicInteger
@@ -811,7 +811,7 @@ class MovablePanelTest {
     private fun capturePanelNode(): SpatialNode {
         val packageName = InstrumentationRegistry.getInstrumentation().targetContext.packageName
         val currentTaskId = composeTestRule.activity.taskId
-        val scene = SpatialSceneHelper.captureSpatialScene()
+        val scene = captureSpatialScene()
         val task =
             assertNotNull(
                 scene.findTaskById(currentTaskId)
@@ -837,7 +837,7 @@ class MovablePanelTest {
             conditionDescription = conditionDescription,
             timeoutMillis = 5000L,
         ) {
-            val scene = SpatialSceneHelper.captureSpatialScene()
+            val scene = captureSpatialScene()
             val task =
                 scene.findTaskById(currentTaskId)
                     ?: scene.tasks

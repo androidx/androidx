@@ -50,14 +50,15 @@ import androidx.xr.scenecore.SpatialCapability
 import androidx.xr.scenecore.SpatialEnvironment
 import androidx.xr.scenecore.SpatialEnvironment.SpatialEnvironmentPreference
 import androidx.xr.scenecore.scene
-import androidx.xr.testutils.SpatialSceneHelper
 import androidx.xr.testutils.SpatialTask
 import androidx.xr.testutils.XrScreenshotTestRule
+import androidx.xr.testutils.captureSceneToBitmap
 import androidx.xr.testutils.crop
 import androidx.xr.testutils.detectBackgroundColor
 import androidx.xr.testutils.findForegroundBounds
 import androidx.xr.testutils.toPixelArray
 import androidx.xr.testutils.toSoftwareBitmap
+import androidx.xr.testutils.waitForSettledSpatialTask
 import java.nio.file.Paths
 import kotlin.coroutines.resume
 import kotlin.math.abs
@@ -334,7 +335,7 @@ private fun awaitSettledSpatialTask(
             panelEntities.count { !it.isMainPanelEntity && it.isEnabled(includeParents = true) } to
                 panelEntities.any { it.isMainPanelEntity && it.isEnabled(includeParents = true) }
         }
-    return SpatialSceneHelper.waitForSettledSpatialTask(
+    return waitForSettledSpatialTask(
         activity = activity,
         expectedEmbeddedPanelCount = expectedEmbeddedPanelCount,
         expectedMainPanelVisible = expectedMainPanelVisible,
@@ -403,7 +404,7 @@ private fun captureAndCropToComposeNode(
     task: SpatialTask,
     padding: Int,
 ): Bitmap {
-    val fullBitmap = SpatialSceneHelper.captureSceneToBitmap(cropBounds = null, autoCrop = false)
+    val fullBitmap = captureSceneToBitmap(cropBounds = null, autoCrop = false)
     val cropped =
         try {
             cropToComposeNode(fullBitmap, semanticsInfo, task, padding)

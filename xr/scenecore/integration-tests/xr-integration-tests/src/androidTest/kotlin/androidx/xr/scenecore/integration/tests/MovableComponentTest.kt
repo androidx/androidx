@@ -49,13 +49,13 @@ import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.scene
 import androidx.xr.testutils.SpatialNode
-import androidx.xr.testutils.SpatialSceneHelper
 import androidx.xr.testutils.SpatialTask
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.XrSessionScope
 import androidx.xr.testutils.createXrSessionRule
 import androidx.xr.testutils.performSpatialInteraction
 import androidx.xr.testutils.resetSpatialInteraction
+import androidx.xr.testutils.waitForSpatialScene
 import androidx.xr.testutils.waitUntil
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -318,7 +318,7 @@ class MovableComponentTest {
         // samples its "before" state after the UI has synced.
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
         val node =
-            SpatialSceneHelper.waitForSpatialScene(
+            waitForSpatialScene(
                 description = "a movable $description",
                 timeout = SCENE_TIMEOUT,
                 pollInterval = SCENE_POLL_INTERVAL,
