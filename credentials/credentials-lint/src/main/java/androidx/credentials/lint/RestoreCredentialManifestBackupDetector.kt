@@ -76,11 +76,19 @@ class RestoreCredentialManifestBackupDetector : Detector(), SourceCodeScanner, X
         val fullBackupOnly = element.getAndroidAttribute(ATTR_FULL_BACKUP_ONLY)
 
         map.put(KEY_MANIFEST_SEEN, true)
-        map.put(KEY_BACKUP_AGENT, backupAgent)
-        map.put(KEY_ALLOW_BACKUP, allowBackup)
-        map.put(KEY_FULL_BACKUP_ONLY, fullBackupOnly)
-        map.put(KEY_APP_NAME_LOCATION, context.getNameLocation(element))
-        map.put(KEY_APP_ELEMENT_LOCATION, context.getElementLocation(element))
+        if (backupAgent.isNotEmpty() || map.getString(KEY_BACKUP_AGENT, null) == null) {
+            map.put(KEY_BACKUP_AGENT, backupAgent)
+        }
+        if (allowBackup.isNotEmpty() || map.getString(KEY_ALLOW_BACKUP, null) == null) {
+            map.put(KEY_ALLOW_BACKUP, allowBackup)
+        }
+        if (fullBackupOnly.isNotEmpty() || map.getString(KEY_FULL_BACKUP_ONLY, null) == null) {
+            map.put(KEY_FULL_BACKUP_ONLY, fullBackupOnly)
+        }
+        if (map.getLocation(KEY_APP_NAME_LOCATION) == null || backupAgent.isNotEmpty()) {
+            map.put(KEY_APP_NAME_LOCATION, context.getNameLocation(element))
+            map.put(KEY_APP_ELEMENT_LOCATION, context.getElementLocation(element))
+        }
 
         val allowBackupAttrNode =
             element.getAttributeNodeNS(ANDROID_URI, ATTR_ALLOW_BACKUP)
@@ -104,11 +112,12 @@ class RestoreCredentialManifestBackupDetector : Detector(), SourceCodeScanner, X
     override fun applicableSuperClasses(): List<String> = listOf(CLASS_BACKUP_AGENT)
 
     override fun visitClass(context: JavaContext, declaration: UClass) {
-        if (
-            declaration.methods.any {
-                it.name == "onRestoreFinished" && it.uastParameters.isEmpty()
+        val overridesOnRestoreFinished =
+            declaration.javaPsi.findMethodsByName("onRestoreFinished", true).any { method ->
+                method.parameterList.parametersCount == 0 &&
+                    method.containingClass?.qualifiedName != CLASS_BACKUP_AGENT
             }
-        ) {
+        if (overridesOnRestoreFinished) {
             context.getPartialResults(ISSUE).map().put(KEY_HAS_ON_RESTORE_FINISHED, true)
         }
     }
@@ -206,7 +215,7 @@ class RestoreCredentialManifestBackupDetector : Detector(), SourceCodeScanner, X
     }
 
     override fun afterCheckRootProject(context: Context) {
-        if (context.isGlobalAnalysis()) {
+        if (context.isGlobalAnalysis() && !context.driver.isIsolated()) {
             checkPartialResults(context, context.getPartialResults(ISSUE))
         }
     }

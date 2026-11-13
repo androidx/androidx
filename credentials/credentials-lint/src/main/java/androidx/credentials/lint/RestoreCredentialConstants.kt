@@ -25,6 +25,7 @@ import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UExpression
 import org.jetbrains.uast.UMethod
+import org.jetbrains.uast.UNamedExpression
 import org.jetbrains.uast.UParenthesizedExpression
 import org.jetbrains.uast.UQualifiedReferenceExpression
 import org.jetbrains.uast.UReferenceExpression
@@ -100,15 +101,33 @@ internal object RestoreCredentialConstants {
         paramIndex: Int,
     ): UExpression? {
         val mapping = context.evaluator.computeArgumentMapping(call, method)
-        for ((expr, param) in mapping) {
-            if (
-                param.name == paramName ||
-                    method.parameterList.getParameterIndex(param) == paramIndex
-            ) {
-                return expr
+        if (mapping.isNotEmpty()) {
+            for ((expr, param) in mapping) {
+                if (param.name == paramName) {
+                    return (expr as? UNamedExpression)?.expression ?: expr
+                }
+            }
+            val hasNamedMatchInSignature =
+                method.parameterList.parameters.any { it.name == paramName }
+            if (!hasNamedMatchInSignature) {
+                for ((expr, param) in mapping) {
+                    if (method.parameterList.getParameterIndex(param) == paramIndex) {
+                        return (expr as? UNamedExpression)?.expression ?: expr
+                    }
+                }
+            }
+            return null
+        }
+        for (arg in call.valueArguments) {
+            if (arg is UNamedExpression && arg.name == paramName) {
+                return arg.expression
             }
         }
-        return call.valueArguments.getOrNull(paramIndex)
+        val positional = call.valueArguments.getOrNull(paramIndex) ?: return null
+        if (positional is UNamedExpression && positional.name != paramName) {
+            return null
+        }
+        return (positional as? UNamedExpression)?.expression ?: positional
     }
 
     /**
@@ -141,15 +160,27 @@ internal object RestoreCredentialConstants {
      * Follows local variable references to their underlying initializer expression, if available.
      */
     fun unwrapVariableInitializer(expression: UExpression, maxDepth: Int = 4): UExpression {
-        var current = expression.skipParenthesizedExprDown()
+        var current = expression.unwrapNamedAndParens()
         var depth = 0
         while (depth < maxDepth && current is UReferenceExpression) {
             val resolved = current.resolve() as? PsiVariable ?: break
             val initializer = resolved.toUElementOfType<UVariable>()?.uastInitializer ?: break
-            current = initializer.skipParenthesizedExprDown()
+            current = initializer.unwrapNamedAndParens()
             depth++
         }
         return current
+    }
+
+    fun UExpression.unwrapNamedAndParens(): UExpression =
+        ((this as? UNamedExpression)?.expression ?: this).skipParenthesizedExprDown()
+
+    fun UElement.isDescendantOf(ancestor: UElement): Boolean {
+        var current: UElement? = this
+        while (current != null) {
+            if (current == ancestor) return true
+            current = current.uastParent
+        }
+        return false
     }
 
     /**

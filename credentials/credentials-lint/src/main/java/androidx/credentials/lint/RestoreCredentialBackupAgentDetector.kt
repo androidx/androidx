@@ -22,6 +22,7 @@ import androidx.credentials.lint.RestoreCredentialConstants.CLASS_CREDENTIAL_MAN
 import androidx.credentials.lint.RestoreCredentialConstants.CLASS_GET_RESTORE_CREDENTIAL_OPTION
 import androidx.credentials.lint.RestoreCredentialConstants.GET_CREDENTIAL_METHODS
 import androidx.credentials.lint.RestoreCredentialConstants.RESTORE_CREDENTIALS_GUIDE_URL
+import androidx.credentials.lint.RestoreCredentialConstants.unwrapNamedAndParens
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
@@ -33,13 +34,18 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
+import com.intellij.psi.PsiModifier
 import com.intellij.psi.PsiParameter
+import org.jetbrains.uast.UBlockExpression
 import org.jetbrains.uast.UCallExpression
+import org.jetbrains.uast.UCatchClause
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.ULambdaExpression
 import org.jetbrains.uast.UMethod
+import org.jetbrains.uast.UNamedExpression
 import org.jetbrains.uast.UQualifiedReferenceExpression
+import org.jetbrains.uast.UReturnExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.USuperExpression
 import org.jetbrains.uast.UThisExpression
@@ -186,7 +192,12 @@ class RestoreCredentialBackupAgentDetector : Detector(), SourceCodeScanner {
             val lambda = current as? ULambdaExpression
             if (lambda != null) {
                 val parentCall = lambda.getParentOfType<UCallExpression>(true)
-                if (parentCall != null && lambda in parentCall.valueArguments) {
+                if (
+                    parentCall != null &&
+                        parentCall.valueArguments.any {
+                            ((it as? UNamedExpression)?.expression ?: it) == lambda
+                        }
+                ) {
                     enclosingBuilders.add(parentCall)
                 }
             }
@@ -223,13 +234,20 @@ class RestoreCredentialBackupAgentDetector : Detector(), SourceCodeScanner {
         asyncCall: UCallExpression,
     ): LintFix? {
         if (asyncCall.methodName != "launch") return null
-        if (asyncCall.valueArgumentCount != 1) return null
-        val lambdaArg = asyncCall.valueArguments.singleOrNull() as? ULambdaExpression ?: return null
+        if (asyncCall.valueArgumentCount !in 1..2) return null
+
+        val lambdaArg =
+            asyncCall.valueArguments.lastOrNull()?.unwrapNamedAndParens() as? ULambdaExpression
+                ?: return null
+        if (containsLabeledLaunchReturn(lambdaArg)) return null
 
         val outerExpr: UElement =
             (asyncCall.uastParent as? UQualifiedReferenceExpression)?.takeIf {
                 it.selector == asyncCall
             } ?: asyncCall
+        if (outerExpr.uastParent !is UBlockExpression && outerExpr.uastParent !is UMethod) {
+            return null
+        }
 
         val fileContents = context.getContents() ?: return null
         val startOffset = outerExpr.sourcePsi?.textRange?.startOffset ?: return null
@@ -247,7 +265,35 @@ class RestoreCredentialBackupAgentDetector : Detector(), SourceCodeScanner {
             headerEndOffset--
         }
         val headerText = fileContents.substring(startOffset, headerEndOffset)
-        if (headerText.isEmpty()) return null
+        if (headerText.isEmpty() || headerText.contains("?.") || headerText.endsWith("(")) {
+            return null
+        }
+
+        val replacement =
+            if (asyncCall.valueArgumentCount == 1) {
+                "kotlinx.coroutines.runBlocking"
+            } else {
+                if (!headerText.endsWith(")")) return null
+                val firstArg = asyncCall.valueArguments[0].unwrapNamedAndParens()
+                val firstArgClass =
+                    firstArg.getExpressionType()?.let { context.evaluator.getTypeClass(it) }
+                if (
+                    firstArgClass == null ||
+                        !context.evaluator.inheritsFrom(
+                            firstArgClass,
+                            "kotlin.coroutines.CoroutineContext",
+                            false,
+                        )
+                ) {
+                    return null
+                }
+                val argRange = firstArg.sourcePsi?.textRange ?: return null
+                if (argRange.startOffset < startOffset || argRange.endOffset > headerEndOffset) {
+                    return null
+                }
+                val argText = fileContents.substring(argRange.startOffset, argRange.endOffset)
+                "kotlinx.coroutines.runBlocking($argText)"
+            }
 
         val headerLocation =
             Location.create(context.file, fileContents, startOffset, headerEndOffset)
@@ -256,10 +302,28 @@ class RestoreCredentialBackupAgentDetector : Detector(), SourceCodeScanner {
             .replace()
             .range(headerLocation)
             .text(headerText)
-            .with("kotlinx.coroutines.runBlocking")
+            .with(replacement)
             .shortenNames()
             .reformat(true)
             .build()
+    }
+
+    private fun containsLabeledLaunchReturn(lambdaArg: ULambdaExpression): Boolean {
+        var found = false
+        lambdaArg.body.accept(
+            object : AbstractUastVisitor() {
+                override fun visitReturnExpression(node: UReturnExpression): Boolean {
+                    if (
+                        node.label == "launch" ||
+                            (node.label != null && node.jumpTarget == lambdaArg)
+                    ) {
+                        found = true
+                    }
+                    return false
+                }
+            }
+        )
+        return found
     }
 
     private fun reportWrongBackupCallback(
@@ -311,6 +375,7 @@ class RestoreCredentialBackupAgentDetector : Detector(), SourceCodeScanner {
 
         var superOnRestoreExpr: UElement? = null
         var usesParamsForKeyValueData = false
+        var hasIoExceptionDependency = false
 
         body.accept(
             object : AbstractUastVisitor() {
@@ -320,6 +385,20 @@ class RestoreCredentialBackupAgentDetector : Detector(), SourceCodeScanner {
                             (node.uastParent as? UQualifiedReferenceExpression)?.takeIf {
                                 it.selector == node
                             } ?: node
+                    } else {
+                        val thrownTypes = node.resolve()?.throwsList?.referencedTypes.orEmpty()
+                        if (thrownTypes.any { it.canonicalText == "java.io.IOException" }) {
+                            hasIoExceptionDependency = true
+                        }
+                    }
+                    return false
+                }
+
+                override fun visitCatchClause(node: UCatchClause): Boolean {
+                    if (
+                        node.typeReferences.any { it.type.canonicalText == "java.io.IOException" }
+                    ) {
+                        hasIoExceptionDependency = true
                     }
                     return false
                 }
@@ -343,27 +422,93 @@ class RestoreCredentialBackupAgentDetector : Detector(), SourceCodeScanner {
             }
         )
 
-        if (usesParamsForKeyValueData) return null
+        if (usesParamsForKeyValueData || hasIoExceptionDependency) return null
 
         val fileContents = context.getContents() ?: return null
         val methodPsi = onRestoreMethod.sourcePsi ?: return null
         val bodyPsi = body.sourcePsi ?: return null
         val methodStart = methodPsi.textRange.startOffset
         val bodyStart = bodyPsi.textRange.startOffset
-        if (methodStart < 0 || bodyStart <= methodStart || bodyStart > fileContents.length)
+        val bodyEnd = bodyPsi.textRange.endOffset
+        if (
+            methodStart < 0 ||
+                bodyStart <= methodStart ||
+                bodyEnd <= bodyStart ||
+                bodyEnd > fileContents.length
+        ) {
             return null
+        }
+
+        val superImplementsOnRestore =
+            onRestoreMethod.javaPsi.findSuperMethods().any {
+                !it.hasModifierProperty(PsiModifier.ABSTRACT)
+            }
 
         val headerSlice = fileContents.substring(methodStart, bodyStart)
         val kotlinFunMatch = KOTLIN_ON_RESTORE_HEADER_REGEX.find(headerSlice)
         val javaVoidMatch = JAVA_ON_RESTORE_HEADER_REGEX.find(headerSlice)
 
+        // When extending direct `BackupAgent` (where `onRestore` is abstract), keep an empty
+        // `onRestore(...) {}` implementation and move the body into a new `onRestoreFinished()`
+        // method so the class continues to satisfy `BackupAgent`'s abstract contract.
+        if (!superImplementsOnRestore) {
+            if (kotlinFunMatch == null && javaVoidMatch == null) return null
+            val lineStart =
+                if (methodStart > 0) {
+                    val prevNewline = fileContents.lastIndexOf('\n', methodStart - 1)
+                    if (prevNewline == -1) 0 else prevNewline + 1
+                } else {
+                    0
+                }
+            val methodIndent =
+                fileContents.substring(lineStart, methodStart).takeWhile {
+                    it == ' ' || it == '\t'
+                }
+            val originalBodyText = fileContents.substring(bodyStart, bodyEnd)
+            val superPsi = superOnRestoreExpr?.sourcePsi
+            val movedBodyText =
+                if (
+                    superPsi != null &&
+                        superPsi.textRange.startOffset >= bodyStart &&
+                        superPsi.textRange.endOffset <= bodyEnd
+                ) {
+                    val relStart = superPsi.textRange.startOffset - bodyStart
+                    val relEnd = superPsi.textRange.endOffset - bodyStart
+                    originalBodyText.substring(0, relStart) +
+                        "super.onRestoreFinished()" +
+                        originalBodyText.substring(relEnd)
+                } else {
+                    originalBodyText
+                }
+            val newMethodHeader =
+                if (kotlinFunMatch != null) {
+                    "override fun onRestoreFinished()"
+                } else {
+                    "@Override\n${methodIndent}public void onRestoreFinished()"
+                }
+            val replacement = "{}\n\n$methodIndent$newMethodHeader $movedBodyText"
+            return LintFix.create()
+                .name("Move restore credential retrieval to onRestoreFinished()")
+                .replace()
+                .range(Location.create(context.file, fileContents, bodyStart, bodyEnd))
+                .text(originalBodyText)
+                .with(replacement)
+                .reformat(true)
+                .build()
+        }
+
+        val lastParamEnd =
+            onRestoreMethod.uastParameters.lastOrNull()?.sourcePsi?.textRange?.endOffset
+                ?: return null
+        val closeParenOffset = fileContents.indexOf(')', lastParamEnd)
+        if (closeParenOffset < lastParamEnd || closeParenOffset >= bodyStart) return null
+
         val signatureFix: LintFix =
             if (kotlinFunMatch != null) {
                 val kotlinFunIdx = kotlinFunMatch.range.first
-                val closeParenIdx = headerSlice.lastIndexOf(')')
-                if (closeParenIdx <= kotlinFunIdx) return null
                 val replaceStart = methodStart + kotlinFunIdx
-                val replaceEnd = methodStart + closeParenIdx + 1
+                val replaceEnd = closeParenOffset + 1
+                if (replaceEnd <= replaceStart) return null
                 val oldSig = fileContents.substring(replaceStart, replaceEnd)
                 LintFix.create()
                     .replace()

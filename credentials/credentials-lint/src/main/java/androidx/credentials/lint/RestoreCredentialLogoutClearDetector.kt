@@ -79,6 +79,13 @@ class RestoreCredentialLogoutClearDetector : Detector(), SourceCodeScanner {
                 ownerName == CLASS_GET_RESTORE_CREDENTIAL_OPTION
         ) {
             map.put(KEY_USES_RESTORE_CREDENTIALS, true)
+            if (
+                ownerName == CLASS_CREATE_RESTORE_CREDENTIAL_REQUEST &&
+                    !context.driver.isSuppressed(context, ISSUE, node as UElement) &&
+                    map.getLocation(KEY_CREATE_RESTORE_LOCATION) == null
+            ) {
+                map.put(KEY_CREATE_RESTORE_LOCATION, context.getLocation(node))
+            }
             return
         }
 
@@ -95,6 +102,8 @@ class RestoreCredentialLogoutClearDetector : Detector(), SourceCodeScanner {
         val containingClass = method.containingClass ?: return
         if (!context.evaluator.inheritsFrom(containingClass, CLASS_CREDENTIAL_MANAGER, false))
             return
+        val map = context.getPartialResults(ISSUE).map()
+        map.put(KEY_HAS_CLEAR_CALL, true)
         if (context.driver.isSuppressed(context, ISSUE, node as UElement)) return
 
         val requestArg = findArgument(context, node, method, "request", 0) ?: return
@@ -105,7 +114,6 @@ class RestoreCredentialLogoutClearDetector : Detector(), SourceCodeScanner {
             context.getCallLocation(node, includeReceiver = true, includeArguments = true)
         val fixSpec = computeAppendRestoreClearFixSpec(context, node)
 
-        val map = context.getPartialResults(ISSUE).map()
         val index = map.getInt(KEY_INCIDENT_COUNT, 0) ?: 0
         map.put("$KEY_CALL_LOCATION_PREFIX$index", reportLocation)
         if (fixSpec != null) {
@@ -164,10 +172,30 @@ class RestoreCredentialLogoutClearDetector : Detector(), SourceCodeScanner {
                 )
             }
         }
+
+        val hasClearCall = partialResults.maps().any { it.getBoolean(KEY_HAS_CLEAR_CALL) == true }
+        if (!hasClearCall) {
+            val createRestoreLocation =
+                partialResults.maps().firstNotNullOfOrNull {
+                    it.getLocation(KEY_CREATE_RESTORE_LOCATION)
+                }
+            if (createRestoreLocation != null) {
+                context.report(
+                    Incident(
+                        ISSUE,
+                        createRestoreLocation,
+                        "App creates a `RestoreCredential` but never calls " +
+                            "`CredentialManager.clearCredentialState(ClearCredentialStateRequest(" +
+                            "TYPE_CLEAR_RESTORE_CREDENTIAL))` on sign-out, which leaves the restore key " +
+                            "active after logout",
+                    )
+                )
+            }
+        }
     }
 
     override fun afterCheckRootProject(context: Context) {
-        if (context.isGlobalAnalysis()) {
+        if (context.isGlobalAnalysis() && !context.driver.isIsolated()) {
             checkPartialResults(context, context.getPartialResults(ISSUE))
         }
     }
@@ -262,6 +290,8 @@ class RestoreCredentialLogoutClearDetector : Detector(), SourceCodeScanner {
     companion object {
         private const val KEY_USES_RESTORE_CREDENTIALS = "USES_RESTORE_CREDENTIALS"
         private const val KEY_CLEARS_RESTORE_CREDENTIAL = "CLEARS_RESTORE_CREDENTIAL"
+        private const val KEY_HAS_CLEAR_CALL = "HAS_CLEAR_CALL"
+        private const val KEY_CREATE_RESTORE_LOCATION = "CREATE_RESTORE_LOCATION"
         private const val KEY_INCIDENT_COUNT = "INCIDENT_COUNT"
         private const val KEY_CALL_LOCATION_PREFIX = "CALL_LOCATION_"
         private const val KEY_FIX_LOCATION_PREFIX = "FIX_LOCATION_"
