@@ -57,7 +57,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
@@ -67,7 +66,6 @@ import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.OpenComposeView
-import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.findAndroidComposeView
@@ -83,6 +81,7 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.ComposeView
@@ -7534,27 +7533,26 @@ fun AndroidWithCompose(context: Context, androidPadding: Int, content: @Composab
     AndroidView({ anotherLayout })
 }
 
-fun Modifier.consumeMovementGestureFilter(consumeMovement: Boolean = false): Modifier = composed {
-    val filter = remember(consumeMovement) { ConsumeMovementGestureFilter(consumeMovement) }
-    PointerInputModifierImpl(filter)
-}
+fun Modifier.consumeMovementGestureFilter(consumeMovement: Boolean = false): Modifier =
+    this then ConsumeMovementGestureElement(consumeMovement)
 
-fun Modifier.consumeDownGestureFilter(onDown: (Offset) -> Unit): Modifier = composed {
-    val filter = remember { ConsumeDownChangeFilter() }
-    filter.onDown = onDown
-    this.then(PointerInputModifierImpl(filter))
-}
+fun Modifier.consumeDownGestureFilter(onDown: (Offset) -> Unit): Modifier =
+    this then ConsumeDownGestureElement(onDown)
 
 fun Modifier.logEventsGestureFilter(log: MutableList<List<PointerInputChange>>): Modifier =
-    composed {
-        val filter = remember { LogEventsGestureFilter(log) }
-        this.then(PointerInputModifierImpl(filter))
+    this then LogEventsGestureElement(log)
+
+private data class ConsumeMovementGestureElement(val consumeMovement: Boolean) :
+    ModifierNodeElement<ConsumeMovementGestureNode>() {
+    override fun create() = ConsumeMovementGestureNode(consumeMovement)
+
+    override fun update(node: ConsumeMovementGestureNode) {
+        node.consumeMovement = consumeMovement
     }
+}
 
-private class PointerInputModifierImpl(override val pointerInputFilter: PointerInputFilter) :
-    PointerInputModifier
-
-private class ConsumeMovementGestureFilter(val consumeMovement: Boolean) : PointerInputFilter() {
+private class ConsumeMovementGestureNode(var consumeMovement: Boolean) :
+    Modifier.Node(), PointerInputModifierNode {
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
@@ -7565,12 +7563,20 @@ private class ConsumeMovementGestureFilter(val consumeMovement: Boolean) : Point
         }
     }
 
-    override fun onCancel() {}
+    override fun onCancelPointerInput() {}
 }
 
-private class ConsumeDownChangeFilter : PointerInputFilter() {
-    var onDown by mutableStateOf<(Offset) -> Unit>({})
+private data class ConsumeDownGestureElement(val onDown: (Offset) -> Unit) :
+    ModifierNodeElement<ConsumeDownGestureNode>() {
+    override fun create() = ConsumeDownGestureNode(onDown)
 
+    override fun update(node: ConsumeDownGestureNode) {
+        node.onDown = onDown
+    }
+}
+
+private class ConsumeDownGestureNode(var onDown: (Offset) -> Unit) :
+    Modifier.Node(), PointerInputModifierNode {
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
@@ -7584,12 +7590,20 @@ private class ConsumeDownChangeFilter : PointerInputFilter() {
         }
     }
 
-    override fun onCancel() {}
+    override fun onCancelPointerInput() {}
 }
 
-private class LogEventsGestureFilter(val log: MutableList<List<PointerInputChange>>) :
-    PointerInputFilter() {
+private data class LogEventsGestureElement(val log: MutableList<List<PointerInputChange>>) :
+    ModifierNodeElement<LogEventsGestureNode>() {
+    override fun create() = LogEventsGestureNode(log)
 
+    override fun update(node: LogEventsGestureNode) {
+        node.log = log
+    }
+}
+
+private class LogEventsGestureNode(var log: MutableList<List<PointerInputChange>>) :
+    Modifier.Node(), PointerInputModifierNode {
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
@@ -7600,7 +7614,7 @@ private class LogEventsGestureFilter(val log: MutableList<List<PointerInputChang
         }
     }
 
-    override fun onCancel() {}
+    override fun onCancelPointerInput() {}
 }
 
 @Suppress("TestFunctionName")

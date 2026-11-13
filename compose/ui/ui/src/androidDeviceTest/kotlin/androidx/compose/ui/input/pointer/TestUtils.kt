@@ -26,9 +26,7 @@ import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_UP
 import android.view.View
 import androidx.collection.LongSparseArray
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.node.ModifierNodeElement
@@ -181,36 +179,30 @@ fun createPanMotionEvent(action: Int, x: Float, y: Float): MotionEvent {
     )
 }
 
-internal fun Modifier.spyGestureFilter(callback: (PointerEventPass) -> Unit): Modifier = composed {
-    val modifier = remember { SpyGestureModifier() }
-    modifier.callback = callback
-    modifier
+internal fun Modifier.spyGestureFilter(callback: (PointerEventPass) -> Unit): Modifier =
+    this then SpyGestureElement(callback)
+
+private data class SpyGestureElement(val callback: (PointerEventPass) -> Unit) :
+    ModifierNodeElement<SpyGestureNode>() {
+    override fun create() = SpyGestureNode(callback)
+
+    override fun update(node: SpyGestureNode) {
+        node.callback = callback
+    }
 }
 
-internal class SpyGestureModifier : PointerInputModifier {
-
-    lateinit var callback: (PointerEventPass) -> Unit
-
-    override val pointerInputFilter: PointerInputFilter =
-        object : PointerInputFilter() {
-
-            override fun onPointerEvent(
-                pointerEvent: PointerEvent,
-                pass: PointerEventPass,
-                bounds: IntSize,
-            ) {
-                callback.invoke(pass)
-            }
-
-            override fun onCancel() {
-                // Nothing
-            }
-        }
-
-    internal fun androidx.compose.ui.test.junit4.AndroidComposeTestRule<*, *>.runOnUiThreadIR(
-        block: () -> Unit
+private class SpyGestureNode(var callback: (PointerEventPass) -> Unit) :
+    Modifier.Node(), PointerInputModifierNode {
+    override fun onPointerEvent(
+        pointerEvent: PointerEvent,
+        pass: PointerEventPass,
+        bounds: IntSize,
     ) {
-        runOnUiThread(block)
+        callback.invoke(pass)
+    }
+
+    override fun onCancelPointerInput() {
+        // Nothing
     }
 }
 
