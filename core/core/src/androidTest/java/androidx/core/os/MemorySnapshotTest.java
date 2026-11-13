@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
+import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -32,9 +33,11 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.Process;
+import android.system.ErrnoException;
 import android.system.Os;
 import android.system.OsConstants;
 
+import androidx.core.content.ContextCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -51,6 +54,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -157,17 +164,51 @@ public class MemorySnapshotTest {
             assertTrue("Secondary PID (" + pid + ") should differ from calling PID (" + myPid + ")",
                     pid != myPid);
 
-            MemorySnapshot snapshot = MemorySnapshot.capture(pid);
-            assertNotNull("MemorySnapshot.capture(secondaryPid) returned null for PID " + pid,
-                    snapshot);
-            verifySnapshot(snapshot, "SecondaryProcess", true);
-            assertTrue("RssBytes must be > 0 for secondary process", snapshot.getRssBytes() > 0);
-            if (snapshot.getProcessMemoryUsageBytes() >= 0
-                    && snapshot.getPackageMemoryUsageBytes() >= 0) {
-                assertTrue("Package memory usage must be >= process memory usage",
-                        snapshot.getPackageMemoryUsageBytes()
-                                >= snapshot.getProcessMemoryUsageBytes());
+            ActivityManager am = ContextCompat.getSystemService(context, ActivityManager.class);
+            assertNotNull("ActivityManager should not be null", am);
+            List<ActivityManager.RunningAppProcessInfo> procs = am.getRunningAppProcesses();
+            int myUid = Process.myUid();
+            String pkgName = context.getPackageName();
+
+            Map<Integer, String> targetPids = new HashMap<>();
+            targetPids.put(myPid, pkgName);
+            targetPids.put(pid, pkgName + ":secondary");
+            if (procs != null) {
+                for (ActivityManager.RunningAppProcessInfo info : procs) {
+                    if (info.uid == myUid && !targetPids.containsKey(info.pid)) {
+                        targetPids.put(info.pid, info.processName);
+                    }
+                }
             }
+
+            List<Integer> capturedPids = new ArrayList<>();
+            for (Map.Entry<Integer, String> entry : targetPids.entrySet()) {
+                int targetPid = entry.getKey();
+                String procName = entry.getValue();
+                boolean isOwnedByTest = targetPid == myPid || targetPid == pid
+                        || (pkgName + ":secondary").equals(procName);
+                MemorySnapshot snapshot = MemorySnapshot.capture(targetPid);
+                // Leftover non-test processes in the same UID may exit concurrently, causing
+                // post-kill cgroup teardown (EIO) so capture() returns null.
+                if (!isOwnedByTest && snapshot == null && !isProcessAlive(targetPid)) {
+                    continue;
+                }
+                assertNotNull("MemorySnapshot.capture(" + targetPid + ") [" + procName
+                        + "] returned null", snapshot);
+                verifySnapshot(snapshot, procName + "(" + targetPid + ")", targetPid != myPid,
+                        isOwnedByTest);
+                if (snapshot.getProcessMemoryUsageBytes() >= 0
+                        && snapshot.getPackageMemoryUsageBytes() >= 0) {
+                    assertTrue("Package memory usage must be >= process memory usage for "
+                            + procName, snapshot.getPackageMemoryUsageBytes()
+                            >= snapshot.getProcessMemoryUsageBytes());
+                }
+                capturedPids.add(targetPid);
+            }
+            assertTrue("Calling PID (" + myPid + ") must be captured",
+                    capturedPids.contains(myPid));
+            assertTrue("Secondary PID (" + pid + ") must be captured",
+                    capturedPids.contains(pid));
         } finally {
             context.unbindService(connection);
         }
@@ -342,7 +383,7 @@ public class MemorySnapshotTest {
         assertTrue(pidDir.mkdirs());
         // Omit memory.current and memory.peak; set memory.swap.current to "max"
         writeToFile(new File(pidDir, "memory.swap.current"), "max\n");
-        writeToFile(new File(pidDir, "memory.stat"), "anon 1024000\n");
+        writeToFile(new File(pidDir, "memory.stat"), "anon 1024000\nfile 0\nshmem 0\n");
 
         MemorySnapshot snapshot = invokeRead(
                 secondaryPid,
@@ -351,8 +392,8 @@ public class MemorySnapshotTest {
         assertNotNull(snapshot);
         assertEquals(1024000L, snapshot.getRssBytes());
         assertEquals(1024000L, snapshot.getAnonRssBytes());
-        assertEquals(-1L, snapshot.getFileRssBytes());
-        assertEquals(-1L, snapshot.getShmemRssBytes());
+        assertEquals(0L, snapshot.getFileRssBytes());
+        assertEquals(0L, snapshot.getShmemRssBytes());
         assertEquals(Long.MAX_VALUE, snapshot.getSwapBytes());
         assertEquals(1024000L, snapshot.getRssHwmBytes());
         assertEquals(-1L, snapshot.getProcessMemoryUsageBytes());
@@ -372,6 +413,117 @@ public class MemorySnapshotTest {
                 secondaryPid,
                 new File(cgroupDir, "non_existent_proc").getAbsolutePath(),
                 cgroupDir));
+    }
+
+    @Test
+    public void testRead_secondaryProcessFallbackZeroRssCompacted() throws Exception {
+        int secondaryPid = getValidNonSelfPid();
+        File nonExistentProc = new File(mTempFolder.getRoot(), "non_existent_proc_zero");
+
+        // Case 1: Both memory.current == 0 and memory.stat fields == 0 (compacted to swap).
+        File cgroupCompacted = mTempFolder.newFolder("cgroup_compacted");
+        File pidCompacted = new File(cgroupCompacted, "pid_" + secondaryPid);
+        assertTrue(pidCompacted.mkdirs());
+        writeToFile(new File(pidCompacted, "memory.current"), "0\n");
+        writeToFile(new File(cgroupCompacted, "memory.current"), "50000000\n");
+        writeToFile(new File(pidCompacted, "memory.swap.current"), "2097152\n");
+        writeToFile(new File(pidCompacted, "memory.peak"), "2097152\n");
+        writeToFile(new File(pidCompacted, "memory.stat"), "anon 0\nfile 0\nshmem 0\n");
+
+        MemorySnapshot compacted = invokeRead(
+                secondaryPid, nonExistentProc.getAbsolutePath(), cgroupCompacted);
+        assertNotNull(compacted);
+        assertEquals(0L, compacted.getRssBytes());
+        assertEquals(0L, compacted.getAnonRssBytes());
+        assertEquals(0L, compacted.getFileRssBytes());
+        assertEquals(0L, compacted.getShmemRssBytes());
+        assertEquals(2097152L, compacted.getSwapBytes());
+        assertEquals(2097152L, compacted.getRssHwmBytes());
+        assertEquals(-1L, compacted.getVssBytes());
+        assertEquals(0L, compacted.getProcessMemoryUsageBytes());
+        assertEquals(50000000L, compacted.getPackageMemoryUsageBytes());
+
+        // Case 2: Only memory.stat was read with 0 values; memory.current and memory.peak absent.
+        File cgroupStatOnly = mTempFolder.newFolder("cgroup_stat_zero_only");
+        File pidStatOnly = new File(cgroupStatOnly, "pid_" + secondaryPid);
+        assertTrue(pidStatOnly.mkdirs());
+        writeToFile(new File(pidStatOnly, "memory.stat"), "anon 0\nfile 0\nshmem 0\n");
+
+        MemorySnapshot statOnly = invokeRead(
+                secondaryPid, nonExistentProc.getAbsolutePath(), cgroupStatOnly);
+        assertNotNull(statOnly);
+        assertEquals(0L, statOnly.getRssBytes());
+        assertEquals(0L, statOnly.getAnonRssBytes());
+        assertEquals(0L, statOnly.getFileRssBytes());
+        assertEquals(0L, statOnly.getShmemRssBytes());
+        assertEquals(-1L, statOnly.getSwapBytes());
+        assertEquals(-1L, statOnly.getVssBytes());
+        assertEquals(0L, statOnly.getRssHwmBytes());
+        assertEquals(-1L, statOnly.getProcessMemoryUsageBytes());
+        assertEquals(-1L, statOnly.getPackageMemoryUsageBytes());
+    }
+
+    @Test
+    public void testRead_secondaryProcessFallbackMissingOrInvalidMemoryStatReturnsNull()
+            throws Exception {
+        int secondaryPid = getValidNonSelfPid();
+        File nonExistentProc = new File(mTempFolder.getRoot(), "non_existent_proc_stat_err");
+
+        // Missing memory.stat returns null even when memory.current is present.
+        File cgroupCurrentOnly = mTempFolder.newFolder("cgroup_current_only");
+        File pidCurrentOnly = new File(cgroupCurrentOnly, "pid_" + secondaryPid);
+        assertTrue(pidCurrentOnly.mkdirs());
+        writeToFile(new File(pidCurrentOnly, "memory.current"), "4096\n");
+
+        assertNull(invokeRead(
+                secondaryPid, nonExistentProc.getAbsolutePath(), cgroupCurrentOnly));
+
+        // Partial memory.stat returns null even when memory.current is present.
+        File cgroupPartial = mTempFolder.newFolder("cgroup_partial_stat");
+        File pidPartial = new File(cgroupPartial, "pid_" + secondaryPid);
+        assertTrue(pidPartial.mkdirs());
+        writeToFile(new File(pidPartial, "memory.current"), "4096\n");
+        writeToFile(new File(pidPartial, "memory.stat"), "anon 0\nfile 0\n");
+
+        assertNull(invokeRead(secondaryPid, nonExistentProc.getAbsolutePath(), cgroupPartial));
+
+        // Malformed field value in memory.stat returns null.
+        File cgroupMalformed = mTempFolder.newFolder("cgroup_malformed_stat");
+        File pidMalformed = new File(cgroupMalformed, "pid_" + secondaryPid);
+        assertTrue(pidMalformed.mkdirs());
+        writeToFile(new File(pidMalformed, "memory.stat"), "anon invalid\nfile 0\nshmem 0\n");
+
+        assertNull(invokeRead(secondaryPid, nonExistentProc.getAbsolutePath(), cgroupMalformed));
+
+        // Unrecognized memory.stat content returns null.
+        File cgroupInvalid = mTempFolder.newFolder("cgroup_invalid_stat");
+        File pidInvalid = new File(cgroupInvalid, "pid_" + secondaryPid);
+        assertTrue(pidInvalid.mkdirs());
+        writeToFile(new File(pidInvalid, "memory.stat"), "invalid\n");
+
+        assertNull(invokeRead(secondaryPid, nonExistentProc.getAbsolutePath(), cgroupInvalid));
+    }
+
+    @Test
+    public void testRead_secondaryProcessFallbackRssSumSaturatesOnOverflow() throws Exception {
+        int secondaryPid = getValidNonSelfPid();
+        File cgroupDir = mTempFolder.newFolder("cgroup_overflow");
+        File pidDir = new File(cgroupDir, "pid_" + secondaryPid);
+        assertTrue(pidDir.mkdirs());
+        writeToFile(
+                new File(pidDir, "memory.stat"),
+                "anon " + Long.MAX_VALUE + "\nfile 1024\nshmem 0\n");
+
+        MemorySnapshot snapshot = invokeRead(
+                secondaryPid,
+                new File(cgroupDir, "non_existent_proc").getAbsolutePath(),
+                cgroupDir);
+        assertNotNull(snapshot);
+        assertEquals(Long.MAX_VALUE, snapshot.getRssBytes());
+        assertEquals(Long.MAX_VALUE, snapshot.getRssHwmBytes());
+        assertEquals(Long.MAX_VALUE, snapshot.getAnonRssBytes());
+        assertEquals(1024L, snapshot.getFileRssBytes());
+        assertEquals(0L, snapshot.getShmemRssBytes());
     }
 
     @Test
@@ -468,10 +620,11 @@ public class MemorySnapshotTest {
     }
 
     private void verifySnapshot(MemorySnapshot snapshot, String source) {
-        verifySnapshot(snapshot, source, false);
+        verifySnapshot(snapshot, source, false, true);
     }
 
-    private void verifySnapshot(MemorySnapshot snapshot, String source, boolean isSecondary) {
+    private void verifySnapshot(MemorySnapshot snapshot, String source, boolean isSecondary,
+            boolean requirePositiveRss) {
         long rss = snapshot.getRssBytes();
         long anon = snapshot.getAnonRssBytes();
         long file = snapshot.getFileRssBytes();
@@ -492,20 +645,42 @@ public class MemorySnapshotTest {
                 + ", ProcessMemoryUsageBytes: " + processMemoryUsage
                 + ", PackageMemoryUsageBytes: " + packageMemoryUsage);
 
-        assertTrue("RssBytes should be non-negative", rss >= 0);
+        if (!isSecondary || requirePositiveRss) {
+            assertTrue(source + ": RssBytes should be positive, was " + rss, rss > 0);
+        } else {
+            assertTrue(source + ": RssBytes should be non-negative, was " + rss, rss >= 0);
+        }
         assertTrue("AnonRssBytes should be non-negative or -1", anon >= 0 || anon == -1);
         assertTrue("FileRssBytes should be non-negative or -1", file >= 0 || file == -1);
         assertTrue("ShmemRssBytes should be non-negative or -1", shmem >= 0 || shmem == -1);
+        if (anon >= 0 && file >= 0 && shmem >= 0) {
+            long rssBreakdown = anon + file + shmem;
+            assertTrue(source + ": Anon + File + Shmem (" + rssBreakdown
+                    + ") must be <= RssBytes (" + rss + ")", rssBreakdown <= rss);
+        }
         assertTrue("SwapBytes should be non-negative or -1", swap >= 0 || swap == -1);
         assertTrue("VssBytes should be non-negative or -1", vss >= 0 || vss == -1);
         if (!isSecondary) {
             assertTrue("VssBytes should be non-negative for calling process", vss >= 0);
         }
         assertTrue("RssHwmBytes should be non-negative or -1", hwm >= 0 || hwm == -1);
+        if (hwm >= 0) {
+            assertTrue(source + ": RssHwmBytes (" + hwm + ") must be >= RssBytes (" + rss + ")",
+                    hwm >= rss);
+        }
 
         assertTrue("ProcessMemoryUsageBytes should be non-negative or -1",
                 processMemoryUsage >= 0 || processMemoryUsage == -1);
         assertTrue("PackageMemoryUsageBytes should be non-negative or -1",
                 packageMemoryUsage >= 0 || packageMemoryUsage == -1);
+    }
+
+    private static boolean isProcessAlive(int pid) {
+        try {
+            Os.kill(pid, 0);
+            return true;
+        } catch (ErrnoException e) {
+            return e.errno != OsConstants.ESRCH;
+        }
     }
 }
