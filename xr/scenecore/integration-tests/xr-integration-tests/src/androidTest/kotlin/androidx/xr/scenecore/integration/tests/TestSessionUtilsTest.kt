@@ -74,4 +74,29 @@ class TestSessionUtilsTest {
 
         assertThrows(AssertionError::class.java) { assertPose(actual, expected, epsilon = 1e-3f) }
     }
+
+    @Test
+    fun assertPose_scaledPositiveAndAntipodalQuaternions_passes() {
+        val translation = Vector3(0.1f, 0.2f, -0.3f)
+        assertPose(
+            Pose(translation, Quaternion(0f, 0f, 0f, 2f)),
+            Pose(translation, Quaternion.Identity),
+        )
+        assertPose(
+            Pose(translation, Quaternion(0f, 0f, 0f, -2f)),
+            Pose(translation, Quaternion.Identity),
+        )
+    }
+
+    @Test
+    fun assertPose_nonFiniteComponents_throwsAssertionError() {
+        val validPose = Pose(Vector3.Zero, Quaternion.Identity)
+        val nanRotationPose = Pose(Vector3.Zero, Quaternion(Float.NaN, 0f, 0f, 1f))
+        val infRotationPose = Pose(Vector3.Zero, Quaternion(Float.POSITIVE_INFINITY, 0f, 0f, 1f))
+        val nanTranslationPose = Pose(Vector3(Float.NaN, 0f, 0f), Quaternion.Identity)
+
+        assertThrows(AssertionError::class.java) { assertPose(nanRotationPose, validPose) }
+        assertThrows(AssertionError::class.java) { assertPose(infRotationPose, validPose) }
+        assertThrows(AssertionError::class.java) { assertPose(nanTranslationPose, validPose) }
+    }
 }
