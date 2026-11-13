@@ -36,6 +36,7 @@ import android.hardware.camera2.CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTUR
 import android.hardware.camera2.CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_VIDEO
 import android.hardware.camera2.CameraMetadata.CONTROL_AF_MODE_OFF
 import android.hardware.camera2.CameraMetadata.FLASH_MODE_OFF
+import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION
 import android.hardware.camera2.CaptureRequest.CONTROL_AE_MODE
 import android.hardware.camera2.CaptureRequest.CONTROL_AE_REGIONS
@@ -378,35 +379,14 @@ class CameraControlAdapterDeviceTest {
         cameraControl.startFocusAndMetering(action).await()
         cameraControl.cancelFocusAndMetering().await()
 
-        // Assert. The regions are reset to the default.
+        // Assert. Supported regions are reset to METERING_REGIONS_DEFAULT, while unsupported
+        // regions remain untouched without any weighted metering rectangles.
         waitForResult(captureCount = 60)
             .verify(
                 { requestMeta: RequestMetadata, _ ->
-                    val isDefaultAfRegion =
-                        requestMeta
-                            .getOrDefault(
-                                CONTROL_AF_REGIONS,
-                                CameraGraph.Constants3A.METERING_REGIONS_DEFAULT,
-                            )
-                            .contentEquals(CameraGraph.Constants3A.METERING_REGIONS_DEFAULT)
-
-                    val isDefaultAeRegion =
-                        requestMeta
-                            .getOrDefault(
-                                CONTROL_AE_REGIONS,
-                                CameraGraph.Constants3A.METERING_REGIONS_DEFAULT,
-                            )
-                            .contentEquals(CameraGraph.Constants3A.METERING_REGIONS_DEFAULT)
-
-                    val isDefaultAwbRegion =
-                        requestMeta
-                            .getOrDefault(
-                                CONTROL_AWB_REGIONS,
-                                CameraGraph.Constants3A.METERING_REGIONS_DEFAULT,
-                            )
-                            .contentEquals(CameraGraph.Constants3A.METERING_REGIONS_DEFAULT)
-
-                    isDefaultAfRegion && isDefaultAeRegion && isDefaultAwbRegion
+                    requestMeta.isDefaultRegion(CONTROL_AF_REGIONS, CONTROL_MAX_REGIONS_AF) &&
+                        requestMeta.isDefaultRegion(CONTROL_AE_REGIONS, CONTROL_MAX_REGIONS_AE) &&
+                        requestMeta.isDefaultRegion(CONTROL_AWB_REGIONS, CONTROL_MAX_REGIONS_AWB)
                 },
                 TIMEOUT,
             )
@@ -674,6 +654,20 @@ class CameraControlAdapterDeviceTest {
 
     private fun CameraCharacteristics.isAeModeSupported(aeMode: Int) =
         (get(CONTROL_AE_AVAILABLE_MODES) ?: intArrayOf(-1)).contains(aeMode)
+
+    private fun RequestMetadata.isDefaultRegion(
+        regionKey: CaptureRequest.Key<Array<MeteringRectangle>>,
+        maxRegionsKey: CameraCharacteristics.Key<Int>,
+    ): Boolean {
+        val regions = getOrDefault(regionKey, emptyArray())
+        return if (characteristics.getMaxRegionCount(maxRegionsKey) > 0) {
+            regions.contentEquals(CameraGraph.Constants3A.METERING_REGIONS_DEFAULT)
+        } else {
+            // Unsupported 3A regions are not overwritten on cancel (b/579150337); some devices
+            // populate a 0-weight region in TEMPLATE_PREVIEW by default.
+            regions.weightedRegionCount == 0
+        }
+    }
 
     /** Returns the number of metering regions whose weight is greater than 0. */
     private val Array<MeteringRectangle>.weightedRegionCount: Int
