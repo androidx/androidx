@@ -19,6 +19,7 @@ package androidx.wear.compose.remote.material3
 import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteContentScale
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
 import androidx.compose.remote.creation.compose.layout.RemoteSize
@@ -50,8 +51,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.DefaultAlpha
-import androidx.compose.ui.layout.ContentScale
 
 /**
  * Base level Wear Material 3 [RemoteCard] that offers a single slot to take any content.
@@ -366,9 +365,9 @@ public object RemoteCardDefaults {
     public fun containerPainter(
         image: RemoteImageBitmap,
         scrim: RemoteBrush? = scrimBrush(),
-        alpha: RemoteFloat = DefaultAlpha.rf,
+        alpha: RemoteFloat = 1f.rf,
         shape: RemoteShape = this.shape,
-        contentScale: ContentScale = ContentScale.Crop,
+        contentScale: RemoteContentScale = RemoteContentScale.Crop,
     ): RemotePainter {
         return remoteContainerPainter(image, alpha, shape, contentScale, scrim)
     }

@@ -28,14 +28,12 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.ui.graphics.DefaultAlpha
-import androidx.compose.ui.layout.ContentScale
 
 internal fun remoteContainerPainter(
     image: RemoteImageBitmap,
     alpha: RemoteFloat,
     shape: RemoteShape,
-    contentScale: ContentScale,
+    contentScale: RemoteContentScale,
     scrim: RemoteBrush? = null,
 ): RemotePainter =
     DefaultRemoteContainerPainter(
@@ -89,12 +87,12 @@ private class DefaultRemoteContainerPainter(
 internal class ShapedBitmapPainter(
     val shape: RemoteShape,
     val image: RemoteImageBitmap,
-    val contentScale: ContentScale,
-    val alpha: RemoteFloat = DefaultAlpha.rf,
+    val contentScale: RemoteContentScale,
+    val alpha: RemoteFloat = 1f.rf,
 ) : RemotePainter() {
     override fun RemoteDrawScope.onDraw() {
         val paint = RemotePaint {
-            with(RemoteBrush.image(image, contentScale = contentScale.toRemoteContentScale())) {
+            with(RemoteBrush.image(image, contentScale = contentScale)) {
                 applyTo(this@RemotePaint, size)
             }
             color = color.copy(alpha = color.alpha * this@ShapedBitmapPainter.alpha)
@@ -138,15 +136,3 @@ private class DefaultDisabledRemoteContainerPainter(
         with(painter) { draw(alpha = alpha) }
     }
 }
-
-private fun ContentScale.toRemoteContentScale(): RemoteContentScale =
-    when (this) {
-        ContentScale.Crop -> RemoteContentScale.Crop
-        ContentScale.Fit -> RemoteContentScale.Fit
-        ContentScale.FillHeight -> RemoteContentScale.FillHeight
-        ContentScale.FillWidth -> RemoteContentScale.FillWidth
-        ContentScale.Inside -> RemoteContentScale.Inside
-        ContentScale.None -> RemoteContentScale.None
-        ContentScale.FillBounds -> RemoteContentScale.FillBounds
-        else -> RemoteContentScale.None
-    }
