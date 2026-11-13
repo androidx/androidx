@@ -40,6 +40,7 @@ import androidx.wear.compose.material3.R
 import androidx.wear.utils.WearApiVersionHelper
 import com.google.wear.Sdk
 import com.google.wear.input.ForegroundGestureSubscriptionParams
+import com.google.wear.input.GestureDescriptor
 import com.google.wear.input.GestureEvent
 import com.google.wear.input.GestureInputManager
 import java.util.function.Consumer
@@ -307,7 +308,7 @@ internal class GestureRegistry(
         get() = registeredGestures.size
 
     private val gestureAccessibilityAnnouncer: GestureAccessibilityAnnouncer =
-        GestureAccessibilityAnnouncer(view)
+        GestureAccessibilityAnnouncer(view, gestureInputManager)
 
     fun register(
         gestureConfiguration: OneHandedGestureConfiguration,
@@ -621,6 +622,19 @@ internal interface SdkGestureInputManager {
     fun shouldShowIndicator(gestureId: String, sdkGestureAction: Int, isOverlay: Boolean): Boolean
 
     fun notifyIndicatorShown(gestureId: String, sdkGestureAction: Int)
+
+    /**
+     * Returns the gesture (one of the `GestureEvent.GESTURE_*` values) that is currently bound to
+     * [sdkGestureAction], or `GestureEvent.GESTURE_UNKNOWN` if it cannot be determined or the
+     * action is not supported or not enabled.
+     */
+    fun getGestureForAction(sdkGestureAction: Int): Int
+
+    /**
+     * Returns the system-provided, localized accessibility name of [sdkGesture] (for example
+     * "Double pinch"), which may be customized by OEMs, or null if it is not available.
+     */
+    fun getGestureAccessibilityName(sdkGesture: Int): CharSequence?
 }
 
 internal class SdkGestureInputManagerImpl : SdkGestureInputManager {
@@ -706,6 +720,42 @@ internal class SdkGestureInputManagerImpl : SdkGestureInputManager {
         }
     }
 
+    override fun getGestureForAction(sdkGestureAction: Int): Int {
+        val manager = gestureInputManager ?: return GestureEvent.GESTURE_UNKNOWN
+        return try {
+            if (
+                manager.isActionSupported(sdkGestureAction) &&
+                    manager.isActionEnabled(sdkGestureAction)
+            ) {
+                manager.getGestureForAction(sdkGestureAction)
+            } else {
+                GestureEvent.GESTURE_UNKNOWN
+            }
+        } catch (t: Throwable) {
+            GestureEvent.GESTURE_UNKNOWN
+        }
+    }
+
+    override fun getGestureAccessibilityName(sdkGesture: Int): CharSequence? {
+        val manager = gestureInputManager ?: return null
+        if (sdkGesture == GestureEvent.GESTURE_UNKNOWN) {
+            return null
+        }
+        return try {
+            if (
+                WearApiVersionHelper.isApiVersionAtLeast(WearApiVersionHelper.WEAR_CINNAMON_BUN_2)
+            ) {
+                manager
+                    .getGestureDescriptor(sdkGesture)
+                    ?.getAccessibilityDescription(GestureDescriptor.DESCRIPTION_TYPE_GESTURE_NAME)
+            } else {
+                null
+            }
+        } catch (t: Throwable) {
+            null
+        }
+    }
+
     private fun createSdkWearManagerIfNeeded(context: Context) {
         if (gestureInputManagerAttemptedToBeCreated) return
 
@@ -743,8 +793,13 @@ private fun fromSdkGestureAction(sdkGestureAction: Int): OneHandedGestureAction 
  *
  * @property container The host view where accessibility announcer views are added; typically an
  *   AndroidComposeView
+ * @property gestureInputManager Used to query the gesture bound to each action and its
+ *   system-provided accessibility name.
  */
-private class GestureAccessibilityAnnouncer(val container: View) {
+private class GestureAccessibilityAnnouncer(
+    val container: View,
+    private val gestureInputManager: SdkGestureInputManager,
+) {
     private val gestureAnnouncers = mutableIntObjectMapOf<ViewRefCount>()
 
     /**
@@ -796,28 +851,53 @@ private class GestureAccessibilityAnnouncer(val container: View) {
      * [gestureConfiguration] to trigger an accessibility announcement.
      * * This should be called by the `GestureManager` when a prioritized gesture is detected.
      *
+     * The gesture part of the announcement describes the gesture that is bound to the action. It
+     * uses the system-provided gesture name when available, and falls back to the library strings
+     * otherwise. If the bound gesture can't be identified, the announcement is cleared.
+     *
      * @param gestureConfiguration The [OneHandedGestureConfiguration] defining the gesture to be
      *   announced.
      * @param onGestureLabel the label to announce.
      */
     fun announce(gestureConfiguration: OneHandedGestureConfiguration, onGestureLabel: String?) {
-        val stringId = getGestureLabelStringId(gestureConfiguration.action)
-        val resources = gestureAnnouncers[gestureConfiguration.action.value]?.view?.resources
-        if (stringId != null && resources != null) {
-            gestureAnnouncers[gestureConfiguration.action.value]?.view?.contentDescription =
-                if (onGestureLabel == null) {
-                    null
-                } else {
+        val action = gestureConfiguration.action
+        val announcerView = gestureAnnouncers[action.value]?.view ?: return
+
+        if (onGestureLabel == null) {
+            announcerView.contentDescription = null
+            return
+        }
+
+        val resources = announcerView.resources
+        val sdkGesture = gestureInputManager.getGestureForAction(toSdkGestureAction(action))
+        if (sdkGesture == GestureEvent.GESTURE_UNKNOWN) {
+            announcerView.contentDescription = null
+            return
+        }
+        val systemGestureName =
+            gestureInputManager.getGestureAccessibilityName(sdkGesture)?.takeIf { it.isNotBlank() }
+        if (systemGestureName != null) {
+            announcerView.contentDescription =
+                resources.getString(
+                    R.string.one_handed_gesture_accessibility_text,
+                    systemGestureName,
+                    onGestureLabel,
+                )
+        } else {
+            // Don't announce a gesture that can't be identified.
+            announcerView.contentDescription =
+                getGestureLabelStringId(sdkGesture)?.let { stringId ->
                     resources.getString(stringId, onGestureLabel)
                 }
         }
     }
 
-    private fun getGestureLabelStringId(action: OneHandedGestureAction): Int? {
-        return when (action) {
-            OneHandedGestureAction.Primary ->
+    /** Returns the library fallback string for the given SDK gesture, if there is one. */
+    private fun getGestureLabelStringId(sdkGesture: Int): Int? {
+        return when (sdkGesture) {
+            GestureEvent.GESTURE_DOUBLE_PINCH ->
                 R.string.one_handed_gesture_primary_action_accessibility_text
-            OneHandedGestureAction.Dismiss ->
+            GestureEvent.GESTURE_WRIST_TURN ->
                 R.string.one_handed_gesture_dismiss_action_accessibility_text
             else -> null
         }

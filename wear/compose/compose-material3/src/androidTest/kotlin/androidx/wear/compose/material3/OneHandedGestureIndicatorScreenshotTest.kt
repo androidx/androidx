@@ -279,6 +279,10 @@ class OneHandedGestureIndicatorScreenshotTest {
         ): Boolean = true
 
         override fun notifyIndicatorShown(gestureId: String, sdkGestureAction: Int) {}
+
+        override fun getGestureForAction(sdkGestureAction: Int): Int = -1 /* GESTURE_UNKNOWN */
+
+        override fun getGestureAccessibilityName(sdkGesture: Int): CharSequence? = null
     }
 
     internal fun Wrist.toWristOrientation(): WristOrientation =
