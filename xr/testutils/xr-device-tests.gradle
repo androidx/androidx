@@ -355,7 +355,7 @@ abstract class PrepareXrDeviceTask extends BaseXrStagedGoldensTask {
                         "setprop cpm.fake_het_position '0.0,0.0,0.0' && " +
                         "setprop cpm.fake_het_orientation '0.0,0.0,0.0,1.0' && " +
                         "setprop cpm.disable_capture_stabilization true && " +
-                        "wm density 160 && " +
+                        "wm density 240 && " +
                         "settings put global device_provisioned 1 && " +
                         "settings put secure user_setup_complete 1 && " +
                         "settings put global stay_on_while_plugged_in 15 && " +
