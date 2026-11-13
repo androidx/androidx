@@ -224,6 +224,9 @@ public class CameraXActivity extends AppCompatActivity {
     private static final Range<Integer> FPS_UNSPECIFIED = StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED;
     private static final Map<Integer, Range<Integer>> ID_TO_FPS_RANGE_MAP = new HashMap<>();
     private static final Map<Integer, Integer> ID_TO_ASPECT_RATIO_MAP = new HashMap<>();
+    private static final Map<Integer, Integer> ID_TO_AUDIO_SAMPLE_RATE_MAP = new HashMap<>();
+    // Target audio sample rate that keeps the Recorder default.
+    private static final int AUDIO_SAMPLE_RATE_UNSPECIFIED = 0;
 
     static {
         // From Android T, skips the permission check of WRITE_EXTERNAL_STORAGE since it won't be
@@ -278,6 +281,18 @@ public class CameraXActivity extends AppCompatActivity {
         ID_TO_FPS_RANGE_MAP.put(R.id.fps_15, new Range<>(15, 15));
         ID_TO_FPS_RANGE_MAP.put(R.id.fps_30, new Range<>(30, 30));
         ID_TO_FPS_RANGE_MAP.put(R.id.fps_60, new Range<>(60, 60));
+
+        ID_TO_AUDIO_SAMPLE_RATE_MAP.put(
+                R.id.audio_sample_rate_unspecified, AUDIO_SAMPLE_RATE_UNSPECIFIED);
+        ID_TO_AUDIO_SAMPLE_RATE_MAP.put(R.id.audio_sample_rate_192000, 192000);
+        ID_TO_AUDIO_SAMPLE_RATE_MAP.put(R.id.audio_sample_rate_48000, 48000);
+        ID_TO_AUDIO_SAMPLE_RATE_MAP.put(R.id.audio_sample_rate_44100, 44100);
+        ID_TO_AUDIO_SAMPLE_RATE_MAP.put(R.id.audio_sample_rate_24000, 24000);
+        ID_TO_AUDIO_SAMPLE_RATE_MAP.put(R.id.audio_sample_rate_22050, 22050);
+        ID_TO_AUDIO_SAMPLE_RATE_MAP.put(R.id.audio_sample_rate_16000, 16000);
+        ID_TO_AUDIO_SAMPLE_RATE_MAP.put(R.id.audio_sample_rate_12000, 12000);
+        ID_TO_AUDIO_SAMPLE_RATE_MAP.put(R.id.audio_sample_rate_11025, 11025);
+        ID_TO_AUDIO_SAMPLE_RATE_MAP.put(R.id.audio_sample_rate_8000, 8000);
 
         ID_TO_ASPECT_RATIO_MAP.put(R.id.aspect_ratio_default, AspectRatio.RATIO_DEFAULT);
         ID_TO_ASPECT_RATIO_MAP.put(R.id.aspect_ratio_4_3, AspectRatio.RATIO_4_3);
@@ -485,6 +500,7 @@ public class CameraXActivity extends AppCompatActivity {
     private int mAudioSource = AudioSpec.SOURCE_UNSPECIFIED;
 
     private int mTargetAudioChannelCount = 0;
+    private int mTargetAudioSampleRate = AUDIO_SAMPLE_RATE_UNSPECIFIED;
     private DynamicRange mDynamicRange = DynamicRange.SDR;
     private @ImageCapture.OutputFormat int mImageOutputFormat = OUTPUT_FORMAT_JPEG;
     private final Set<DynamicRange> mSelectableDynamicRanges = new HashSet<>();
@@ -1921,6 +1937,10 @@ public class CameraXActivity extends AppCompatActivity {
                 true);
         menu.findItem(R.id.fps).setEnabled(mPreviewToggle.isChecked() || mVideoToggle.isChecked());
 
+        menu.findItem(requireNonNull(getKeyByValue(ID_TO_AUDIO_SAMPLE_RATE_MAP,
+                mTargetAudioSampleRate))).setChecked(true);
+        menu.findItem(R.id.audio_sample_rate).setEnabled(mVideoToggle.isChecked());
+
         menu.findItem(requireNonNull(
                 getKeyByValue(ID_TO_ASPECT_RATIO_MAP, mTargetAspectRatio))).setChecked(true);
 
@@ -1956,6 +1976,13 @@ public class CameraXActivity extends AppCompatActivity {
         if (groupId == R.id.fps_group) {
             if (ID_TO_FPS_RANGE_MAP.containsKey(itemId)) {
                 mFpsRange = ID_TO_FPS_RANGE_MAP.get(itemId);
+            } else {
+                Log.e(TAG, "Unknown item " + item.getTitle());
+                return super.onOptionsItemSelected(item);
+            }
+        } else if (groupId == R.id.audio_sample_rate_group) {
+            if (ID_TO_AUDIO_SAMPLE_RATE_MAP.containsKey(itemId)) {
+                mTargetAudioSampleRate = requireNonNull(ID_TO_AUDIO_SAMPLE_RATE_MAP.get(itemId));
             } else {
                 Log.e(TAG, "Unknown item " + item.getTitle());
                 return super.onOptionsItemSelected(item);
@@ -2240,6 +2267,9 @@ public class CameraXActivity extends AppCompatActivity {
                 }
                 if (mTargetAudioChannelCount >= 1) {
                     builder.setTargetAudioChannelCount(mTargetAudioChannelCount);
+                }
+                if (mTargetAudioSampleRate != AUDIO_SAMPLE_RATE_UNSPECIFIED) {
+                    builder.setTargetAudioSampleRate(mTargetAudioSampleRate);
                 }
                 mRecorder = builder.setAspectRatio(mTargetAspectRatio).build();
                 VideoCapture.Builder<Recorder> videoCaptureBuilder =

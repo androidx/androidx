@@ -45,6 +45,58 @@
         </menu>
     </item>
     <item
+        android:id="@+id/audio_sample_rate"
+        android:title="@string/audio_sample_rate"
+        app:showAsAction="never">
+        <menu>
+            <group
+                android:id="@+id/audio_sample_rate_group"
+                android:checkableBehavior="single">
+                <item
+                    android:id="@+id/audio_sample_rate_unspecified"
+                    android:checked="true"
+                    android:title="Unspecified"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/audio_sample_rate_192000"
+                    android:title="192000 Hz"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/audio_sample_rate_48000"
+                    android:title="48000 Hz"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/audio_sample_rate_44100"
+                    android:title="44100 Hz"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/audio_sample_rate_24000"
+                    android:title="24000 Hz"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/audio_sample_rate_22050"
+                    android:title="22050 Hz"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/audio_sample_rate_16000"
+                    android:title="16000 Hz"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/audio_sample_rate_12000"
+                    android:title="12000 Hz"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/audio_sample_rate_11025"
+                    android:title="11025 Hz"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/audio_sample_rate_8000"
+                    android:title="8000 Hz"
+                    app:showAsAction="never" />
+            </group>
+        </menu>
+    </item>
+    <item
         android:id="@+id/aspect_ratio"
         android:title="@string/aspect_ratio"
         app:showAsAction="never">
