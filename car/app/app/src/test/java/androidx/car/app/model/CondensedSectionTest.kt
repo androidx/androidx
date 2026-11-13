@@ -89,4 +89,21 @@ class CondensedSectionTest {
 
         assertThat(section1.hashCode()).isEqualTo(section2.hashCode())
     }
+
+    @Test
+    fun equalsAndHashCode_rebuiltClickableItems_match() {
+        val section1 =
+            CondensedSection.Builder()
+                .addItem(CondensedItem.Builder().setTitle("Chip 1").setOnClickListener {}.build())
+                .addItem(CondensedItem.Builder().setTitle("Chip 2").setOnClickListener {}.build())
+                .build()
+        val section2 =
+            CondensedSection.Builder()
+                .addItem(CondensedItem.Builder().setTitle("Chip 1").setOnClickListener {}.build())
+                .addItem(CondensedItem.Builder().setTitle("Chip 2").setOnClickListener {}.build())
+                .build()
+
+        assertThat(section1).isEqualTo(section2)
+        assertThat(section1.hashCode()).isEqualTo(section2.hashCode())
+    }
 }

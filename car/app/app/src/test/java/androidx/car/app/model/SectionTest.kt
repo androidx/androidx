@@ -202,6 +202,21 @@ class SectionTest {
         }
     }
 
+    @Test
+    fun equalsAndHashCode_condensedItemsWithDistinctClickListeners_match() {
+        val section1 =
+            CondensedSection.Builder()
+                .addItem(CondensedItem.Builder().setTitle("Ask").setOnClickListener {}.build())
+                .build()
+        val section2 =
+            CondensedSection.Builder()
+                .addItem(CondensedItem.Builder().setTitle("Ask").setOnClickListener {}.build())
+                .build()
+
+        assertThat(section1).isEqualTo(section2)
+        assertThat(section1.hashCode()).isEqualTo(section2.hashCode())
+    }
+
     private fun createNonTextOnlyCharSequence(): CharSequence {
         val result = SpannableString("Example text")
         val colorSpan = ForegroundCarColorSpan.create(CarColor.RED)

@@ -183,4 +183,25 @@ class CondensedItemTest {
 
         assertThat(item1.hashCode()).isEqualTo(item2.hashCode())
     }
+
+    @Test
+    fun equals_withClickListeners_hashCodeMatches() {
+        val item1 = CondensedItem.Builder().setTitle("Title").setOnClickListener {}.build()
+        val item2 = CondensedItem.Builder().setTitle("Title").setOnClickListener {}.build()
+
+        assertThat(item1).isEqualTo(item2)
+        assertThat(item1.hashCode()).isEqualTo(item2.hashCode())
+    }
+
+    @Test
+    fun equalsAndHashCode_indexable_consistent() {
+        val nonIndexable1 = CondensedItem.Builder().setTitle("Title").setIndexable(false).build()
+        val nonIndexable2 = CondensedItem.Builder().setTitle("Title").setIndexable(false).build()
+        val indexable = CondensedItem.Builder().setTitle("Title").setIndexable(true).build()
+
+        assertThat(nonIndexable1).isEqualTo(nonIndexable2)
+        assertThat(nonIndexable1.hashCode()).isEqualTo(nonIndexable2.hashCode())
+        assertThat(nonIndexable1).isNotEqualTo(indexable)
+        assertThat(nonIndexable1.hashCode()).isNotEqualTo(indexable.hashCode())
+    }
 }

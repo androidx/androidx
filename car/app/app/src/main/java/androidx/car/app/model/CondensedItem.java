@@ -181,8 +181,17 @@ public final class CondensedItem implements Item {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mTitle, mText, mLeadingImage, mLeadingImageType, mTrailingImage,
-                mTrailingImageType, mStyle, mOnClickDelegate, mProgressBar);
+        return Objects.hash(
+                mTitle,
+                mText,
+                mLeadingImage,
+                mLeadingImageType,
+                mTrailingImage,
+                mTrailingImageType,
+                mStyle,
+                mOnClickDelegate == null,
+                mIndexable,
+                mProgressBar);
     }
 
     @Override
