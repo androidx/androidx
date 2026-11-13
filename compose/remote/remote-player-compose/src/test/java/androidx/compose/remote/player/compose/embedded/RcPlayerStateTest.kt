@@ -40,6 +40,7 @@ import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.cr
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloatArray.Companion.createNamedRemoteFloatArray
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteState
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
@@ -319,7 +320,10 @@ class RcPlayerStateTest {
         val initialBitmap = initialAndroidBitmap.asImageBitmap()
         val document = createDocument {
             val remoteImage = remember {
-                createNamedRemoteImageBitmap("custom_image") { initialBitmap }
+                RemoteImageBitmap.createNamedRemoteImageBitmap(
+                    name = "custom_image",
+                    defaultValue = initialBitmap,
+                )
             }
             RemoteImage(bitmap = remoteImage, contentDescription = "image".rs)
         }

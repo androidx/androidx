@@ -253,11 +253,12 @@ class RemoteStateCreationTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 val namedBitmap = remember {
-                    createNamedRemoteImageBitmap("testBitmapImage") {
+                    RemoteImageBitmap.createNamedRemoteImageBitmap(
+                        "testBitmapImage",
                         Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
                             .apply { eraseColor(android.graphics.Color.GREEN) }
-                            .asImageBitmap()
-                    }
+                            .asImageBitmap(),
+                    )
                 }
                 RemoteBox(
                     modifier =
@@ -317,7 +318,10 @@ class RemoteStateCreationTest {
         val prevDoc =
             remoteCaptureRule.captureDocument(context) {
                 val namedBitmap = remember {
-                    createNamedRemoteImageBitmap("testBitmapImage") { createBitmap() }
+                    RemoteImageBitmap.createNamedRemoteImageBitmap(
+                        "testBitmapImage",
+                        createBitmap(),
+                    )
                 }
                 RemoteBox(
                     modifier =
@@ -328,7 +332,10 @@ class RemoteStateCreationTest {
         val newDoc =
             remoteCaptureRule.captureDocument(context) {
                 val namedBitmap = remember {
-                    createNamedRemoteImageBitmap("testBitmapImage") { createBitmap() }
+                    RemoteImageBitmap.createNamedRemoteImageBitmap(
+                        "testBitmapImage",
+                        createBitmap(),
+                    )
                 }
                 RemoteBox(
                     modifier =

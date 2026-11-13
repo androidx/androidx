@@ -86,9 +86,10 @@ class RemoteImageTest {
             playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             val avatarImage = remember {
-                createNamedRemoteImageBitmap(name = "avatarImage") {
-                    createImage(size, size).asImageBitmap()
-                }
+                RemoteImageBitmap.createNamedRemoteImageBitmap(
+                    name = "avatarImage",
+                    defaultValue = createImage(size, size).asImageBitmap(),
+                )
             }
             RemoteImage(
                 avatarImage,
@@ -115,9 +116,10 @@ class RemoteImageTest {
             playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             val backgroundImage = remember {
-                createNamedRemoteImageBitmap(name = "backgroundImage") {
-                    createImage(size, size).asImageBitmap()
-                }
+                RemoteImageBitmap.createNamedRemoteImageBitmap(
+                    name = "backgroundImage",
+                    defaultValue = createImage(size, size).asImageBitmap(),
+                )
             }
             RemoteImage(
                 bitmap = backgroundImage,

@@ -28,6 +28,7 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.runtime.remember
@@ -135,7 +136,7 @@ class RemoteContainerPainterUnitTest {
         contentScale: RemoteContentScale,
         imageName: String,
     ): DocumentPainterRule.DocumentPainter = painterRule.paintDocument {
-        val bg = remember { createNamedRemoteImageBitmap(imageName) { image } }
+        val bg = remember { RemoteImageBitmap.createNamedRemoteImageBitmap(imageName, image) }
         RemoteBox(
             modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Black),
             contentAlignment = RemoteAlignment.Center,
@@ -159,7 +160,7 @@ class RemoteContainerPainterUnitTest {
         contentScale: RemoteContentScale,
         imageName: String,
     ): DocumentPainterRule.DocumentPainter = painterRule.paintDocument {
-        val bg = remember { createNamedRemoteImageBitmap(imageName) { image } }
+        val bg = remember { RemoteImageBitmap.createNamedRemoteImageBitmap(imageName, image) }
         RemoteBox(
             modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Black),
             contentAlignment = RemoteAlignment.Center,
