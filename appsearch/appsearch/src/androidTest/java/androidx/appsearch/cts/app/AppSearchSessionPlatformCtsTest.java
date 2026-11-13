@@ -80,6 +80,8 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
         assertThat(db2.getFeatures().isFeatureSupported(
                 Features.ADD_PERMISSIONS_AND_GET_VISIBILITY))
                 .isEqualTo(Build.VERSION.SDK_INT >= 33);
+        assertThat(db2.getFeatures().isFeatureSupported(
+                Features.ENCRYPTED_BLOB)).isFalse();
     }
 
     @Test

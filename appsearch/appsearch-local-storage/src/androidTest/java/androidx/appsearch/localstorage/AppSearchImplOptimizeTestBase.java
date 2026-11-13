@@ -484,6 +484,9 @@ public abstract class AppSearchImplOptimizeTestBase {
         }
         writePfd.close();
         mAppSearchImpl.commitBlob("package", "db1", handle,
+                /* symmetricKey= */ null,
+                /* aeadParams= */ null,
+                /* ownerTag= */ null,
                 /*callStatsBuilder=*/null);
 
         mAppSearchImpl.persistToDisk("package", BaseStats.CALL_TYPE_COMMIT_BLOB,
@@ -534,6 +537,9 @@ public abstract class AppSearchImplOptimizeTestBase {
         }
         writePfd.close();
         mAppSearchImpl.commitBlob("package", "db1", handle,
+                /* symmetricKey= */ null,
+                /* aeadParams= */ null,
+                /* ownerTag= */ null,
                 /*callStatsBuilder=*/null);
 
         // Put a document link that blob handle.
@@ -822,6 +828,9 @@ public abstract class AppSearchImplOptimizeTestBase {
         callStatsBuilder = new CallStats.Builder();
         try {
             mAppSearchImpl.commitBlob("package", "database", handle,
+                    /* symmetricKey= */ null,
+                    /* aeadParams= */ null,
+                    /* ownerTag= */ null,
                     callStatsBuilder);
         } catch (Exception e) {
             // We don't care whether the write blob is success or not, just want to verify the last

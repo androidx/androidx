@@ -202,6 +202,9 @@ final class FeaturesImpl implements Features {
             case Features.SET_SCHEMA_REQUEST_MANAGED_PROFILE_CALENDAR_AND_SCREENSHOTS_ACCESS:
                 // TODO(b/573265642) : Update when feature is ready in service-appsearch.
                 // fall through
+            case Features.ENCRYPTED_BLOB:
+                // TODO(b/564581503) : Update when feature is ready in service-appsearch.
+                // fall through
                 return false;
 
             default:

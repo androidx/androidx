@@ -19,6 +19,7 @@ package androidx.appsearch.app;
 import android.annotation.SuppressLint;
 
 import androidx.annotation.RequiresFeature;
+import androidx.annotation.RestrictTo;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -227,6 +228,30 @@ public interface AppSearchSession extends Closeable {
     default @NonNull ListenableFuture<CommitBlobResponse> commitBlobAsync(
             @NonNull Set<AppSearchBlobHandle> handles) {
         throw new UnsupportedOperationException(Features.SCHEMA_BLOB_HANDLE
+                + " is not available on this AppSearch implementation.");
+    }
+
+    /**
+     * Commits a batch of encrypted blobs along with their encryption parameters to make them
+     * retrievable and immutable.
+     *
+     * <p>The symmetric Data Encryption Key (DEK) in {@link CommitEncryptedBlobRequest} is
+     * only ever stored inside AppSearch's isolated storage. If the data of the
+     * calling user is not stored in isolated storage, the result for each blob is
+     * {@link AppSearchResult#RESULT_UNAVAILABLE} and the blob is left uncommitted, so the caller
+     * still owns the DEK and may retry later.
+     *
+     * @param request The {@link CommitEncryptedBlobRequest} containing the blobs to commit and
+     *                their encryption parameters.
+     * @return a response containing the commit results.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(
+            enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+            name = Features.ENCRYPTED_BLOB)
+    default @NonNull ListenableFuture<CommitBlobResponse> commitEncryptedBlobAsync(
+            @NonNull CommitEncryptedBlobRequest request) {
+        throw new UnsupportedOperationException(Features.ENCRYPTED_BLOB
                 + " is not available on this AppSearch implementation.");
     }
 

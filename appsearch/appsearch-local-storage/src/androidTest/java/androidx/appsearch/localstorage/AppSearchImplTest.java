@@ -421,7 +421,6 @@ public class AppSearchImplTest {
         assertThat(initStats.hasReset()).isFalse();
     }
 
-
     @Test
     public void testResetNativeGetStorageInfoFails_retryWithoutReset() throws Exception {
         // Setup Icing mock to fail the first getStorageInfo call, but then succeed
@@ -655,6 +654,9 @@ public class AppSearchImplTest {
         }
         // Commit and read the blob.
         mAppSearchImpl.commitBlob(mContext.getPackageName(), "database1", blobHandle,
+                /* symmetricKey= */ null,
+                /* aeadParams= */ null,
+                /* ownerTag= */ null,
                 /*callStatsBuilder=*/ null);
         byte[] readBytes = new byte[20 * 1024];
         try (ParcelFileDescriptor readPfd = mAppSearchImpl.openReadBlob(
@@ -780,6 +782,9 @@ public class AppSearchImplTest {
         }
         // Commit and read the blob.
         mAppSearchImpl.commitBlob(mContext.getPackageName(), "database1", blobHandle,
+                /* symmetricKey= */ null,
+                /* aeadParams= */ null,
+                /* ownerTag= */ null,
                 /*callStatsBuilder=*/ null);
         readBytes = new byte[20 * 1024];
         try (ParcelFileDescriptor readPfd = mAppSearchImpl.openReadBlob(
@@ -3180,6 +3185,9 @@ public class AppSearchImplTest {
 
         // commit the change and read the blob.
         mAppSearchImpl.commitBlob("package", "db1", handle,
+                /* symmetricKey= */ null,
+                /* aeadParams= */ null,
+                /* ownerTag= */ null,
                 /*callStatsBuilder=*/null);
         byte[] readBytes = new byte[20 * 1024];
         try (ParcelFileDescriptor readPfd =  mAppSearchImpl.openReadBlob("package", "db1", handle,
@@ -3189,6 +3197,207 @@ public class AppSearchImplTest {
             inputStream.read(readBytes);
         }
         assertThat(readBytes).isEqualTo(data);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_COMMIT_ENCRYPTED_BLOB)
+    public void testCommitEncryptedBlob_icingNotInVm_throwsUnavailable() throws Exception {
+        // AppSearchImpl creates its own Icing instance, which does not run in the pVM.
+        mAppSearchImpl =
+                AppSearchImpl.create(
+                        mAppSearchDir,
+                        new AppSearchConfigImpl(
+                                new UnlimitedLimitConfig(), new LocalStorageIcingOptionsConfig()),
+                        new AppSearchUserPlugins.Builder()
+                                .setRevocableFileDescriptorStore(
+                                        new JetpackRevocableFileDescriptorStore(mUnlimitedConfig))
+                                .build(),
+                        ALWAYS_OPTIMIZE);
+        byte[] data = generateRandomBytes(20 * 1024); // 20 KiB
+        byte[] digest = calculateDigest(data);
+        AppSearchBlobHandle handle =
+                AppSearchBlobHandle.createWithSha256(digest, "package", "db1", "ns");
+        try (ParcelFileDescriptor writePfd =
+                        mAppSearchImpl.openWriteBlob(
+                                "package",
+                                "db1",
+                                handle,
+                                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
+                                /* callStatsBuilder= */ null);
+                OutputStream outputStream =
+                        new ParcelFileDescriptor.AutoCloseOutputStream(writePfd)) {
+            outputStream.write(data);
+            outputStream.flush();
+        }
+        byte[] symmetricKey = generateRandomBytes(32);
+        byte[] aeadParams = new byte[] {5, 6, 7, 8};
+
+        AppSearchException e =
+                assertThrows(
+                        AppSearchException.class,
+                        () ->
+                                mAppSearchImpl.commitBlob(
+                                        "package",
+                                        "db1",
+                                        handle,
+                                        symmetricKey,
+                                        aeadParams,
+                                        /* ownerTag= */ null,
+                                        /* callStatsBuilder= */ null));
+
+        assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_UNAVAILABLE);
+        // The blob is still pending, so it can be committed afterwards.
+        mAppSearchImpl.commitBlob(
+                "package",
+                "db1",
+                handle,
+                /* symmetricKey= */ null,
+                /* aeadParams= */ null,
+                /* ownerTag= */ null,
+                /* callStatsBuilder= */ null);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_COMMIT_ENCRYPTED_BLOB)
+    public void testCommitEncryptedBlob_vmDisabled_throwsUnavailable() throws Exception {
+        // The Icing instance is injected like the pVM one, but the VM is disabled for the user.
+        // This is the state while a migration from the pVM back to the host is pending.
+        LaunchVmFeatures launchVmFeatures = new LaunchVmFeatures();
+        launchVmFeatures.setVmEnabled(false);
+        mAppSearchImpl =
+                AppSearchImpl.create(
+                        mAppSearchDir,
+                        mUnlimitedConfig,
+                        new AppSearchUserPlugins.Builder()
+                                .setRevocableFileDescriptorStore(
+                                        new JetpackRevocableFileDescriptorStore(mUnlimitedConfig))
+                                .setIcingSearchEngine(
+                                        new IcingSearchEngine(
+                                                mUnlimitedConfig.toIcingSearchEngineOptions(
+                                                        mAppSearchDir.getAbsolutePath(),
+                                                        /* isVmEnabled= */ false)))
+                                .setLaunchVmFeatures(launchVmFeatures)
+                                .build(),
+                        ALWAYS_OPTIMIZE);
+        byte[] data = generateRandomBytes(20 * 1024); // 20 KiB
+        byte[] digest = calculateDigest(data);
+        AppSearchBlobHandle handle =
+                AppSearchBlobHandle.createWithSha256(digest, "package", "db1", "ns");
+        try (ParcelFileDescriptor writePfd =
+                        mAppSearchImpl.openWriteBlob(
+                                "package",
+                                "db1",
+                                handle,
+                                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
+                                /* callStatsBuilder= */ null);
+                OutputStream outputStream =
+                        new ParcelFileDescriptor.AutoCloseOutputStream(writePfd)) {
+            outputStream.write(data);
+            outputStream.flush();
+        }
+        byte[] symmetricKey = generateRandomBytes(32);
+        byte[] aeadParams = new byte[] {5, 6, 7, 8};
+
+        AppSearchException e =
+                assertThrows(
+                        AppSearchException.class,
+                        () ->
+                                mAppSearchImpl.commitBlob(
+                                        "package",
+                                        "db1",
+                                        handle,
+                                        symmetricKey,
+                                        aeadParams,
+                                        /* ownerTag= */ null,
+                                        /* callStatsBuilder= */ null));
+
+        assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_UNAVAILABLE);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_COMMIT_ENCRYPTED_BLOB)
+    public void testCommitEncryptedBlobAndOpenReadBlob() throws Exception {
+        // Encrypted blobs can only be committed when the Icing instance runs in the pVM, so
+        // inject the Icing instance like the pVM one and enable the VM for the user.
+        LaunchVmFeatures launchVmFeatures = new LaunchVmFeatures();
+        launchVmFeatures.setVmEnabled(true);
+        String visiblePrefix = PrefixUtil.createPrefix("package", "db1");
+        VisibilityChecker mockVisibilityChecker =
+                createMockVisibilityChecker(ImmutableSet.of(visiblePrefix + "ns"));
+        mAppSearchImpl =
+                AppSearchImpl.create(
+                        mAppSearchDir,
+                        mUnlimitedConfig,
+                        new AppSearchUserPlugins.Builder()
+                                .setVisibilityChecker(mockVisibilityChecker)
+                                .setRevocableFileDescriptorStore(
+                                        new JetpackRevocableFileDescriptorStore(mUnlimitedConfig))
+                                .setIcingSearchEngine(
+                                        new IcingSearchEngine(
+                                                mUnlimitedConfig.toIcingSearchEngineOptions(
+                                                        mAppSearchDir.getAbsolutePath(),
+                                                        /* isVmEnabled= */ true)))
+                                .setLaunchVmFeatures(launchVmFeatures)
+                                .build(),
+                        ALWAYS_OPTIMIZE);
+        // Make the blob namespace visible to other packages so that it can be read globally.
+        mAppSearchImpl.setBlobNamespaceVisibility(
+                "package",
+                "db1",
+                ImmutableList.of(new InternalVisibilityConfig.Builder("ns").build()),
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
+                /* callStatsBuilder= */ null);
+        byte[] data = generateRandomBytes(20 * 1024); // 20 KiB
+        byte[] digest = calculateDigest(data);
+        AppSearchBlobHandle handle =
+                AppSearchBlobHandle.createWithSha256(digest, "package", "db1", "ns");
+        try (ParcelFileDescriptor writePfd =
+                        mAppSearchImpl.openWriteBlob(
+                                "package",
+                                "db1",
+                                handle,
+                                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
+                                /* callStatsBuilder= */ null);
+                OutputStream outputStream =
+                        new ParcelFileDescriptor.AutoCloseOutputStream(writePfd)) {
+            outputStream.write(data);
+            outputStream.flush();
+        }
+
+        byte[] symmetricKey = generateRandomBytes(32);
+        byte[] aeadParams = new byte[] {5, 6, 7, 8};
+        byte[] ownerTag = new byte[] {9, 10};
+
+        mAppSearchImpl.commitBlob(
+                "package",
+                "db1",
+                handle,
+                symmetricKey,
+                aeadParams,
+                ownerTag,
+                /* callStatsBuilder= */ null);
+
+        byte[] readBytes = new byte[20 * 1024];
+        try (ParcelFileDescriptor readPfd =
+                        mAppSearchImpl.openReadBlob(
+                                "package",
+                                "db1",
+                                handle,
+                                new CallerAccess("package"),
+                                /* callStatsBuilder= */ null);
+                InputStream inputStream = new ParcelFileDescriptor.AutoCloseInputStream(readPfd)) {
+            inputStream.read(readBytes);
+        }
+        assertThat(readBytes).isEqualTo(data);
+
+        byte[] globalReadBytes = new byte[20 * 1024];
+        try (ParcelFileDescriptor readPfd =
+                        mAppSearchImpl.globalOpenReadBlob(
+                                handle, mSelfCallerAccess, /* callStatsBuilder= */ null);
+                InputStream inputStream = new ParcelFileDescriptor.AutoCloseInputStream(readPfd)) {
+            inputStream.read(globalReadBytes);
+        }
+        assertThat(globalReadBytes).isEqualTo(data);
     }
 
     @Test
@@ -3216,6 +3425,9 @@ public class AppSearchImplTest {
 
         // Commit the blob.
         mAppSearchImpl.commitBlob("package", "db1", handle,
+                /* symmetricKey= */ null,
+                /* aeadParams= */ null,
+                /* ownerTag= */ null,
                 /*callStatsBuilder=*/null);
 
         // Keep writing to the pfd for write.
@@ -3253,6 +3465,9 @@ public class AppSearchImplTest {
         }
 
         mAppSearchImpl.commitBlob("package", "db1", handle,
+                /* symmetricKey= */ null,
+                /* aeadParams= */ null,
+                /* ownerTag= */ null,
                 /*callStatsBuilder=*/null);
 
         // Remove the committed blob
@@ -3298,6 +3513,9 @@ public class AppSearchImplTest {
         // Commit will get NOT_FOUND
         AppSearchException e = assertThrows(AppSearchException.class,
                 () -> mAppSearchImpl.commitBlob("package", "db1", handle,
+                /* symmetricKey= */ null,
+                /* aeadParams= */ null,
+                /* ownerTag= */ null,
                 /*callStatsBuilder=*/null));
         assertThat(e.getResultCode()).isEqualTo(RESULT_NOT_FOUND);
         assertThat(e.getMessage()).contains("Cannot find the blob for handle");
@@ -3344,6 +3562,9 @@ public class AppSearchImplTest {
 
         // commit the change and read the blob.
         mAppSearchImpl.commitBlob("package", "db1", handle,
+                /* symmetricKey= */ null,
+                /* aeadParams= */ null,
+                /* ownerTag= */ null,
                 /*callStatsBuilder=*/null);
         byte[] readBytes = new byte[20 * 1024];
         try (ParcelFileDescriptor readPfd =  mAppSearchImpl.openReadBlob("package", "db1", handle,
@@ -3380,6 +3601,9 @@ public class AppSearchImplTest {
 
         // commit the change and read the blob.
         mAppSearchImpl.commitBlob("package", "db1", handle,
+                /* symmetricKey= */ null,
+                /* aeadParams= */ null,
+                /* ownerTag= */ null,
                 /*callStatsBuilder=*/null);
 
         // Open output stream on read-only pfd.
@@ -3473,6 +3697,9 @@ public class AppSearchImplTest {
         }
         // commit the change and read the blob.
         mAppSearchImpl.commitBlob("package", "db1", handle,
+                /* symmetricKey= */ null,
+                /* aeadParams= */ null,
+                /* ownerTag= */ null,
                 /*callStatsBuilder=*/null);
 
         // allow open multiple fd for reading.
@@ -3815,6 +4042,9 @@ public class AppSearchImplTest {
             outputStream.flush();
         }
         mAppSearchImpl.commitBlob("package", "db1", visibleHandle,
+                /* symmetricKey= */ null,
+                /* aeadParams= */ null,
+                /* ownerTag= */ null,
                 /*callStatsBuilder=*/null);
 
         AppSearchBlobHandle nonVisibleHandle = AppSearchBlobHandle.createWithSha256(
@@ -3829,6 +4059,9 @@ public class AppSearchImplTest {
             outputStream.flush();
         }
         mAppSearchImpl.commitBlob("package", "db1", nonVisibleHandle,
+                /* symmetricKey= */ null,
+                /* aeadParams= */ null,
+                /* ownerTag= */ null,
                 /*callStatsBuilder=*/null);
 
         // visibleHandle is visible to the caller.
@@ -3886,6 +4119,9 @@ public class AppSearchImplTest {
             outputStream.flush();
         }
         mAppSearchImpl.commitBlob("package", "db1", visibleHandle,
+                /* symmetricKey= */ null,
+                /* aeadParams= */ null,
+                /* ownerTag= */ null,
                 /*callStatsBuilder=*/null);
 
         AppSearchBlobHandle nonVisibleHandle = AppSearchBlobHandle.createWithSha256(
@@ -3900,6 +4136,9 @@ public class AppSearchImplTest {
             outputStream.flush();
         }
         mAppSearchImpl.commitBlob("package", "db1", nonVisibleHandle,
+                /* symmetricKey= */ null,
+                /* aeadParams= */ null,
+                /* ownerTag= */ null,
                 /*callStatsBuilder=*/null);
 
         // visibleHandle is visible to the caller.
@@ -4736,7 +4975,6 @@ public class AppSearchImplTest {
         assertThat(storageInfo2.getBlobsSizeBytes()).isEqualTo(20 * 1024);
         assertThat(storageInfo2.getBlobsCount()).isEqualTo(1);
     }
-
 
     @Test
     public void testGetStorageInfoForDatabase_withBlob() throws Exception {
@@ -8049,6 +8287,9 @@ public class AppSearchImplTest {
             outputStream.flush();
         }
         mAppSearchImpl.commitBlob(mContext.getPackageName(), "db1", handle,
+                /* symmetricKey= */ null,
+                /* aeadParams= */ null,
+                /* ownerTag= */ null,
                 /*callStatsBuilder=*/null);
 
         ParcelFileDescriptor reader1 =
@@ -12415,7 +12656,11 @@ public class AppSearchImplTest {
                 .isEqualTo(PersistType.Code.UNKNOWN);
 
         // Commit blob. Need persistToDisk.
-        mAppSearchImpl.commitBlob("package", "db1", handle, /* callStatsBuilder= */ null);
+        mAppSearchImpl.commitBlob("package", "db1", handle,
+                /* symmetricKey= */ null,
+                /* aeadParams= */ null,
+                /* ownerTag= */ null,
+                /* callStatsBuilder= */ null);
         assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
                 .isEqualTo(AppSearchImpl.DEFAULT_PERSIST_TYPE);
     }

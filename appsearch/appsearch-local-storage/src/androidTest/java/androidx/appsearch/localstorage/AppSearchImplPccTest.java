@@ -1830,7 +1830,11 @@ public class AppSearchImplPccTest {
             outputStream.write(data);
             outputStream.flush();
         }
-        appSearchImpl.commitBlob(packageName, databaseName, handle, /* callStatsBuilder= */ null);
+        appSearchImpl.commitBlob(packageName, databaseName, handle,
+                /* symmetricKey= */ null,
+                /* aeadParams= */ null,
+                /* ownerTag= */ null,
+                /* callStatsBuilder= */ null);
         return digest;
     }
 

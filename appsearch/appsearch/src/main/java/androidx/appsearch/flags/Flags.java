@@ -200,6 +200,12 @@ public final class Flags {
             FLAG_PREFIX + "enable_early_set_schema_exit";
 
     /**
+     * Enables committing encrypted blobs with a DEK that AppSearch stores in the AiSeal pVM.
+     */
+    public static final String FLAG_ENABLE_COMMIT_ENCRYPTED_BLOB =
+            FLAG_PREFIX + "enable_commit_encrypted_blob";
+
+    /**
      * Whether to directly write data to parcel data for remove and commit blob.
      */
     public static final String FLAG_ENABLE_DIRECTLY_WRITE_COMMIT_REMOVE_BLOB_RESPONSE =
@@ -548,6 +554,14 @@ public final class Flags {
     public static boolean enableEarlySetSchemaExit() {
         // TODO(b/436813583): Enable this once the feature is rolled out to Nextfood in platform.
         return false;
+    }
+
+    /**
+     * Whether to enable committing encrypted blobs with a DEK that AppSearch stores in the AiSeal
+     * pVM.
+     */
+    public static boolean enableCommitEncryptedBlob() {
+        return true;
     }
 
     /**
