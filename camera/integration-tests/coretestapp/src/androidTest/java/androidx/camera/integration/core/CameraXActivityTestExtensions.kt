@@ -270,3 +270,16 @@ internal fun ActivityScenario<CameraXActivity>.takePictureAndWaitForImageSavedId
         }
     }
 }
+
+/** Waits until ImageAnalysis receives the required frames without using Espresso. */
+internal fun ActivityScenario<CameraXActivity>.waitForImageAnalysisIdleDirect() {
+    val latch = withActivity { resetAnalysisIdlingLatch() }
+    latch.awaitOrThrow(message = "Image analysis failed to receive required frames.")
+
+    onActivity { activity ->
+        val textView = activity.findViewById<View>(R.id.textView)
+        assertWithMessage("Analysis text view is not displayed")
+            .that(textView != null && textView.isShown)
+            .isTrue()
+    }
+}
