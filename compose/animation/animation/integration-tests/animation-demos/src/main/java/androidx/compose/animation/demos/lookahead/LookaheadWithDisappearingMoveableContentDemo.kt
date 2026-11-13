@@ -16,7 +16,6 @@
 
 package androidx.compose.animation.demos.lookahead
 
-import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.DeferredTargetAnimation
@@ -40,16 +39,23 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ApproachLayoutModifierNode
+import androidx.compose.ui.layout.ApproachMeasureScope
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LookaheadScope
-import androidx.compose.ui.layout.approachLayout
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.sp
@@ -130,40 +136,63 @@ fun Details(visible: Boolean, modifier: Modifier = Modifier) {
     }
 }
 
-@SuppressLint("UnnecessaryComposedModifier")
 fun Modifier.animatePosition(lookaheadScope: LookaheadScope): Modifier =
-    with(lookaheadScope) {
-        composed {
-            val offsetAnimation = remember { DeferredTargetAnimation(IntOffset.VectorConverter) }
-            val coroutineScope = rememberCoroutineScope()
-            this.approachLayout(
-                isMeasurementApproachInProgress = { false },
-                isPlacementApproachInProgress = {
-                    offsetAnimation.updateTarget(
-                        lookaheadScopeCoordinates.localLookaheadPositionOf(it).round(),
-                        coroutineScope,
-                        spring(stiffness = Spring.StiffnessMediumLow),
-                    )
-                    !offsetAnimation.isIdle
-                },
-            ) { measurable, constraints ->
-                measurable.measure(constraints).run {
-                    layout(width, height) {
-                        val (x, y) =
-                            coordinates?.let { coordinates ->
-                                val origin = this.lookaheadScopeCoordinates
-                                val animOffset =
-                                    offsetAnimation.updateTarget(
-                                        origin.localLookaheadPositionOf(coordinates).round(),
-                                        coroutineScope,
-                                        spring(stiffness = Spring.StiffnessMediumLow),
-                                    )
-                                val currentOffset = origin.localPositionOf(coordinates, Offset.Zero)
-                                animOffset - currentOffset.round()
-                            } ?: IntOffset.Zero
-                        place(x, y)
-                    }
-                }
+    this then AnimatePositionElement(lookaheadScope)
+
+private data class AnimatePositionElement(val lookaheadScope: LookaheadScope) :
+    ModifierNodeElement<AnimatePositionNode>() {
+    override fun InspectorInfo.inspectableProperties() {
+        name = "animatePosition"
+    }
+
+    override fun create() = AnimatePositionNode(lookaheadScope)
+
+    override fun update(node: AnimatePositionNode) {
+        node.lookaheadScope = lookaheadScope
+    }
+}
+
+private class AnimatePositionNode(var lookaheadScope: LookaheadScope) :
+    ApproachLayoutModifierNode, Modifier.Node() {
+    private val offsetAnimation = DeferredTargetAnimation(IntOffset.VectorConverter)
+
+    override fun isMeasurementApproachInProgress(lookaheadSize: IntSize): Boolean = false
+
+    override fun Placeable.PlacementScope.isPlacementApproachInProgress(
+        lookaheadCoordinates: LayoutCoordinates
+    ): Boolean {
+        offsetAnimation.updateTarget(
+            with(lookaheadScope) {
+                lookaheadScopeCoordinates.localLookaheadPositionOf(lookaheadCoordinates).round()
+            },
+            coroutineScope,
+            spring(stiffness = Spring.StiffnessMediumLow),
+        )
+        return !offsetAnimation.isIdle
+    }
+
+    override fun ApproachMeasureScope.approachMeasure(
+        measurable: Measurable,
+        constraints: Constraints,
+    ): MeasureResult {
+        return measurable.measure(constraints).run {
+            layout(width, height) {
+                val (x, y) =
+                    coordinates?.let { coordinates ->
+                        with(lookaheadScope) {
+                            val origin = lookaheadScopeCoordinates
+                            val animOffset =
+                                offsetAnimation.updateTarget(
+                                    origin.localLookaheadPositionOf(coordinates).round(),
+                                    coroutineScope,
+                                    spring(stiffness = Spring.StiffnessMediumLow),
+                                )
+                            val currentOffset = origin.localPositionOf(coordinates, Offset.Zero)
+                            animOffset - currentOffset.round()
+                        }
+                    } ?: IntOffset.Zero
+                place(x, y)
             }
         }
     }
+}
