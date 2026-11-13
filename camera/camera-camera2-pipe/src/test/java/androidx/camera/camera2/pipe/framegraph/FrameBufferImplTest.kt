@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.framegraph
 
 import android.content.Context
+import android.hardware.camera2.CaptureRequest
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraStream
@@ -31,12 +32,14 @@ import androidx.camera.camera2.pipe.OutputStatus
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.TagBundle
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.internal.FrameImpl
 import androidx.camera.camera2.pipe.internal.FrameState
 import androidx.camera.camera2.pipe.internal.NoOpFrameGraphResourceTrimmer
 import androidx.camera.camera2.pipe.internal.OutputResult
 import androidx.camera.camera2.pipe.media.OutputImage
+import androidx.camera.camera2.pipe.tagsOf
 import androidx.camera.camera2.pipe.testing.CameraGraphSimulator
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
@@ -48,6 +51,7 @@ import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.common.CameraFrameNumber
 import androidx.camera.common.CameraId
+import androidx.camera.common.Metadata
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
@@ -106,6 +110,9 @@ class FrameBufferImplTest {
     private fun createTestFrame(
         frameNumberValue: Long,
         streams: Set<StreamId> = defaultStreams,
+        parameters: Map<CaptureRequest.Key<*>, Any?> = emptyMap(),
+        extras: Map<Metadata.Key<*>, Any?> = emptyMap(),
+        repeating: Boolean = false,
     ): Frame {
         val frameNumber = CameraFrameNumber(frameNumberValue)
         val frameTimestamp = CameraTimestamp(101L)
@@ -135,8 +142,14 @@ class FrameBufferImplTest {
             FrameState(
                 requestMetadata =
                     FakeRequestMetadata.from(
-                        request = Request(streams = streams.toList()),
+                        request =
+                            Request(
+                                streams = streams.toList(),
+                                parameters = parameters,
+                                extras = extras,
+                            ),
                         streamToSurfaces = streamToSurfaces,
+                        repeating = repeating,
                     ),
                 frameNumber = frameNumber,
                 frameTimestamp = frameTimestamp,
@@ -1573,6 +1586,264 @@ class FrameBufferImplTest {
         assertThat(frameBuffer.size.value).isEqualTo(0)
     }
 
+    @Test
+    fun onFrameStarted_requestTaggedForBuffer_addsFrame() = testScope.runTest {
+        val taggedBuffer = createFrameBuffer(parameters = mapOf(TAG_KEY to tagsOf("a")))
+
+        val frame = createTestFrame(1, extras = mapOf(TAG_KEY to tagsOf("a")))
+        taggedBuffer.onFrameStarted(frame)
+        advanceUntilIdle()
+
+        assertThat(taggedBuffer.size.value).isEqualTo(1)
+        assertThat(taggedBuffer.peekFirstReference()!!.frameNumber).isEqualTo(frame.frameNumber)
+        taggedBuffer.close()
+        frame.close()
+    }
+
+    @Test
+    fun onFrameStarted_requestMissingOneTagOfBuffer_ignoresFrame() = testScope.runTest {
+        val taggedBuffer = createFrameBuffer(parameters = mapOf(TAG_KEY to tagsOf("a", "b")))
+
+        // The request does not carry "a", so it does not carry every tag of the buffer.
+        val frame = createTestFrame(1, extras = mapOf(TAG_KEY to tagsOf("b", "c")))
+        taggedBuffer.onFrameStarted(frame)
+        advanceUntilIdle()
+
+        assertThat(taggedBuffer.size.value).isEqualTo(0)
+        taggedBuffer.close()
+        frame.close()
+    }
+
+    @Test
+    fun onFrameStarted_requestWithEveryTagOfBuffer_addsFrame() = testScope.runTest {
+        val taggedBuffer = createFrameBuffer(parameters = mapOf(TAG_KEY to tagsOf("a", "b")))
+
+        val frame = createTestFrame(1, extras = mapOf(TAG_KEY to tagsOf("a", "b", "c")))
+        taggedBuffer.onFrameStarted(frame)
+        advanceUntilIdle()
+
+        assertThat(taggedBuffer.size.value).isEqualTo(1)
+        taggedBuffer.close()
+        frame.close()
+    }
+
+    @Test
+    fun onFrameStarted_requestTaggedForOtherBuffer_ignoresFrame() = testScope.runTest {
+        val taggedBuffer =
+            createFrameBuffer(parameters = mapOf(TAG_KEY to tagsOf("a")), capacity = 1)
+        val frame1 = createTestFrame(1, extras = mapOf(TAG_KEY to tagsOf("a")))
+        taggedBuffer.onFrameStarted(frame1)
+        val emittedFrameNumbers = mutableListOf<CameraFrameNumber>()
+        val collectJob = launch {
+            taggedBuffer.frameFlow.collect { emittedFrameNumbers.add(it.frameNumber) }
+        }
+        advanceUntilIdle()
+
+        // The buffer is full. A frame tagged for another buffer must not be emitted, and must not
+        // evict the frame that is already in the buffer.
+        val frame2 = createTestFrame(2, extras = mapOf(TAG_KEY to tagsOf("b")))
+        taggedBuffer.onFrameStarted(frame2)
+        advanceUntilIdle()
+
+        assertThat(taggedBuffer.size.value).isEqualTo(1)
+        assertThat(taggedBuffer.peekFirstReference()!!.frameNumber).isEqualTo(frame1.frameNumber)
+        assertThat(emittedFrameNumbers).isEmpty()
+        collectJob.cancel()
+        taggedBuffer.close()
+        frame1.close()
+        frame2.close()
+    }
+
+    @Test
+    fun onFrameStarted_repeatingRequestTaggedForOtherBuffer_ignoresFrame() = testScope.runTest {
+        val taggedBuffer = createFrameBuffer(parameters = mapOf(TAG_KEY to tagsOf("a")))
+
+        // Repeating requests are matched the same way as non-repeating requests.
+        val frame = createTestFrame(1, extras = mapOf(TAG_KEY to tagsOf("b")), repeating = true)
+        taggedBuffer.onFrameStarted(frame)
+        advanceUntilIdle()
+
+        assertThat(taggedBuffer.size.value).isEqualTo(0)
+        taggedBuffer.close()
+        frame.close()
+    }
+
+    @Test
+    fun onFrameStarted_untaggedRequest_ignoresFrameInTaggedBuffer() = testScope.runTest {
+        val taggedBuffer = createFrameBuffer(parameters = mapOf(TAG_KEY to tagsOf("a")))
+
+        val frame = createTestFrame(1)
+        taggedBuffer.onFrameStarted(frame)
+        advanceUntilIdle()
+
+        assertThat(taggedBuffer.size.value).isEqualTo(0)
+        taggedBuffer.close()
+        frame.close()
+    }
+
+    @Test
+    fun onFrameStarted_bufferWithoutTags_addsTaggedFrame() = testScope.runTest {
+        val frame = createTestFrame(1, extras = mapOf(TAG_KEY to tagsOf("a")))
+        frameBuffer.onFrameStarted(frame)
+        advanceUntilIdle()
+
+        assertThat(frameBuffer.size.value).isEqualTo(1)
+        frame.close()
+    }
+
+    @Test
+    fun onFrameStarted_bufferWithEmptyTagBundle_addsFramesThatCarryTheKey() = testScope.runTest {
+        val emptyTagBuffer = createFrameBuffer(parameters = mapOf(TAG_KEY to tagsOf<String>()))
+
+        // An empty tag bundle has no tags that the request must carry, so every frame that carries
+        // the key is added. A frame that does not carry the key is not added.
+        val untaggedFrame = createTestFrame(1)
+        emptyTagBuffer.onFrameStarted(untaggedFrame)
+        val taggedFrame = createTestFrame(2, extras = mapOf(TAG_KEY to tagsOf("a")))
+        emptyTagBuffer.onFrameStarted(taggedFrame)
+        val emptyTaggedFrame = createTestFrame(3, extras = mapOf(TAG_KEY to tagsOf<String>()))
+        emptyTagBuffer.onFrameStarted(emptyTaggedFrame)
+        advanceUntilIdle()
+
+        assertThat(emptyTagBuffer.size.value).isEqualTo(2)
+        assertThat(emptyTagBuffer.peekAllReferences().map { it.frameNumber })
+            .containsExactly(taggedFrame.frameNumber, emptyTaggedFrame.frameNumber)
+        emptyTagBuffer.close()
+        untaggedFrame.close()
+        taggedFrame.close()
+        emptyTaggedFrame.close()
+    }
+
+    @Test
+    fun onFrameStarted_requestWithSameParameterValue_addsFrame() = testScope.runTest {
+        val buffer = createFrameBuffer(parameters = mapOf(CAPTURE_REQUEST_KEY to 1))
+
+        val frame = createTestFrame(1, parameters = mapOf(CAPTURE_REQUEST_KEY to 1))
+        buffer.onFrameStarted(frame)
+        advanceUntilIdle()
+
+        assertThat(buffer.size.value).isEqualTo(1)
+        buffer.close()
+        frame.close()
+    }
+
+    @Test
+    fun onFrameStarted_requestWithDifferentParameterValue_ignoresFrame() = testScope.runTest {
+        val buffer = createFrameBuffer(parameters = mapOf(CAPTURE_REQUEST_KEY to 1), capacity = 1)
+        val frame1 = createTestFrame(1, parameters = mapOf(CAPTURE_REQUEST_KEY to 1))
+        buffer.onFrameStarted(frame1)
+        advanceUntilIdle()
+
+        // The buffer is full. A frame with a different value must not evict the frame that is
+        // already in the buffer.
+        val frame2 = createTestFrame(2, parameters = mapOf(CAPTURE_REQUEST_KEY to 2))
+        buffer.onFrameStarted(frame2)
+        advanceUntilIdle()
+
+        assertThat(buffer.size.value).isEqualTo(1)
+        assertThat(buffer.peekFirstReference()!!.frameNumber).isEqualTo(frame1.frameNumber)
+        buffer.close()
+        frame1.close()
+        frame2.close()
+    }
+
+    @Test
+    fun onFrameStarted_repeatingRequestWithDifferentParameterValue_ignoresFrame() =
+        testScope.runTest {
+            val buffer = createFrameBuffer(parameters = mapOf(CAPTURE_REQUEST_KEY to 1))
+
+            val frame =
+                createTestFrame(1, parameters = mapOf(CAPTURE_REQUEST_KEY to 2), repeating = true)
+            buffer.onFrameStarted(frame)
+            advanceUntilIdle()
+
+            assertThat(buffer.size.value).isEqualTo(0)
+            buffer.close()
+            frame.close()
+        }
+
+    @Test
+    fun onFrameStarted_requestWithoutParameter_ignoresFrame() = testScope.runTest {
+        val buffer =
+            createFrameBuffer(parameters = mapOf(CAPTURE_REQUEST_KEY to 1, METADATA_KEY to "value"))
+
+        // The request does not carry the parameters of the buffer, so it does not match.
+        val frame = createTestFrame(1, parameters = mapOf(OTHER_CAPTURE_REQUEST_KEY to 3))
+        buffer.onFrameStarted(frame)
+        advanceUntilIdle()
+
+        assertThat(buffer.size.value).isEqualTo(0)
+        buffer.close()
+        frame.close()
+    }
+
+    @Test
+    fun onFrameStarted_requestWithNullParameterValue_ignoresFrame() = testScope.runTest {
+        val buffer = createFrameBuffer(parameters = mapOf(CAPTURE_REQUEST_KEY to 1))
+
+        val frame = createTestFrame(1, parameters = mapOf(CAPTURE_REQUEST_KEY to null))
+        buffer.onFrameStarted(frame)
+        advanceUntilIdle()
+
+        assertThat(buffer.size.value).isEqualTo(0)
+        buffer.close()
+        frame.close()
+    }
+
+    @Test
+    fun onFrameStarted_requestWithDifferentMetadataValue_ignoresFrame() = testScope.runTest {
+        val buffer = createFrameBuffer(parameters = mapOf(METADATA_KEY to "value"))
+
+        val matchingFrame = createTestFrame(1, extras = mapOf(METADATA_KEY to "value"))
+        buffer.onFrameStarted(matchingFrame)
+        val otherFrame = createTestFrame(2, extras = mapOf(METADATA_KEY to "other"))
+        buffer.onFrameStarted(otherFrame)
+        advanceUntilIdle()
+
+        assertThat(buffer.size.value).isEqualTo(1)
+        assertThat(buffer.peekFirstReference()!!.frameNumber).isEqualTo(matchingFrame.frameNumber)
+        buffer.close()
+        matchingFrame.close()
+        otherFrame.close()
+    }
+
+    @Test
+    fun onFrameStarted_requestWithEqualArrayParameter_addsFrame() = testScope.runTest {
+        val buffer =
+            createFrameBuffer(parameters = mapOf(ARRAY_CAPTURE_REQUEST_KEY to intArrayOf(1, 2)))
+
+        val frame =
+            createTestFrame(1, parameters = mapOf(ARRAY_CAPTURE_REQUEST_KEY to intArrayOf(1, 2)))
+        buffer.onFrameStarted(frame)
+        advanceUntilIdle()
+
+        assertThat(buffer.size.value).isEqualTo(1)
+        buffer.close()
+        frame.close()
+    }
+
+    @Test
+    fun onFrameStarted_requestWithMatchingTagAndDifferentParameter_ignoresFrame() =
+        testScope.runTest {
+            val buffer =
+                createFrameBuffer(
+                    parameters = mapOf(TAG_KEY to tagsOf("a"), CAPTURE_REQUEST_KEY to 1)
+                )
+
+            val frame =
+                createTestFrame(
+                    1,
+                    parameters = mapOf(CAPTURE_REQUEST_KEY to 2),
+                    extras = mapOf(TAG_KEY to tagsOf("a")),
+                )
+            buffer.onFrameStarted(frame)
+            advanceUntilIdle()
+
+            assertThat(buffer.size.value).isEqualTo(0)
+            buffer.close()
+            frame.close()
+        }
+
     @After
     fun cleanup() {
         fakeSurfaces.close()
@@ -1584,5 +1855,15 @@ class FrameBufferImplTest {
             this.imageStatus(stream2Id) == OutputStatus.AVAILABLE &&
             this.getImage(stream1Id) != null &&
             this.getImage(stream2Id) != null)
+    }
+
+    private companion object {
+        val TAG_KEY: Metadata.Key<TagBundle<String>> = Metadata.Key("test.frameBuffer.tags")
+        val METADATA_KEY: Metadata.Key<String> = Metadata.Key("test.frameBuffer.value")
+        val CAPTURE_REQUEST_KEY: CaptureRequest.Key<Int> =
+            CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION
+        val OTHER_CAPTURE_REQUEST_KEY: CaptureRequest.Key<Int> = CaptureRequest.SENSOR_SENSITIVITY
+        val ARRAY_CAPTURE_REQUEST_KEY: CaptureRequest.Key<IntArray> =
+            CaptureRequest.SENSOR_TEST_PATTERN_DATA
     }
 }

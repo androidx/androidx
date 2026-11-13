@@ -23,12 +23,15 @@ import androidx.camera.camera2.pipe.FrameBuffer
 import androidx.camera.camera2.pipe.FrameReference
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.TagBundle
 import androidx.camera.camera2.pipe.config.FrameGraphCoroutineScope
 import androidx.camera.camera2.pipe.config.FrameGraphScope
 import androidx.camera.camera2.pipe.filterToCaptureRequestParameters
 import androidx.camera.camera2.pipe.filterToMetadataParameters
 import androidx.camera.camera2.pipe.internal.FrameDistributor
 import androidx.camera.camera2.pipe.internal.FrameGraphResourceTrimmer
+import androidx.camera.camera2.pipe.isTagKey
+import androidx.camera.camera2.pipe.toTagBundle
 import androidx.camera.common.Metadata
 import java.util.Objects.deepEquals
 import javax.inject.Inject
@@ -52,6 +55,11 @@ internal constructor(
         parameters: Map<Any, Any?>,
         capacity: Int,
     ): FrameBuffer {
+        for ((key, value) in parameters) {
+            require(!key.isTagKey() || value is TagBundle<*>) {
+                "Tag parameter $key needs a TagBundle value (use tagsOf), but was $value."
+            }
+        }
         val frameBuffer = FrameBufferImpl(this, streams, parameters, capacity)
         val modified =
             synchronized(lock) {
@@ -92,9 +100,17 @@ internal constructor(
                     "Invalid type for ${parameter.key}"
                 }
 
+                val existingValue = newParameters[key]
+                if (key.isTagKey() && existingValue is TagBundle<*> && value is TagBundle<*>) {
+                    // Tag bundles from different buffers are merged, so the repeating request
+                    // carries every tag that at least one attached buffer has.
+                    newParameters[key] = (existingValue + value).toTagBundle()
+                    continue
+                }
+
                 // If the key is present the values shouldn't conflict.
-                check(!newParameters.containsKey(key) || deepEquals(newParameters[key], value)) {
-                    "Conflicting parameter values: $key has different values (${newParameters[key]} and $value)."
+                check(!newParameters.containsKey(key) || deepEquals(existingValue, value)) {
+                    "Conflicting parameter values: $key has different values ($existingValue and $value)."
                 }
 
                 newParameters[key] = value

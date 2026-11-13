@@ -16,13 +16,19 @@
 
 package androidx.camera.camera2.pipe.framegraph
 
+import android.hardware.camera2.CaptureRequest
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.Frame
 import androidx.camera.camera2.pipe.FrameBuffer
 import androidx.camera.camera2.pipe.FrameReference
+import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.TagBundle
 import androidx.camera.camera2.pipe.internal.FrameDistributor
 import androidx.camera.camera2.pipe.internal.FrameImpl
+import androidx.camera.camera2.pipe.isTagKey
+import androidx.camera.common.Metadata
+import java.util.Objects.deepEquals
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -103,8 +109,66 @@ internal class FrameBufferImpl(
             framesToClose.forEach { it.close() }
         }
 
+    /**
+     * Returns true if a frame produced by [request] should be added to this buffer, based on the
+     * tag bundles in [parameters]. For each tag bundle, [request] must carry a [TagBundle] for the
+     * key in [Request.extras] that contains every tag in the tag bundle of this buffer.
+     */
+    private fun matchesTagBundles(request: Request): Boolean {
+        for ((key, value) in parameters) {
+            // Skip parameters that are not tag keys.
+            if (!key.isTagKey()) continue
+            // attach() makes sure every tag key has a TagBundle value.
+            val bufferTags = value as TagBundle<*>
+            // Missing and non-TagBundle keys in the request do not match.
+            val requestTags =
+                request.extras[key as Metadata.Key<*>] as? TagBundle<*> ?: return false
+            // For TagBundle keys, make sure the request contains all values in the TagBundle.
+            if (!requestTags.containsAll(bufferTags)) return false
+        }
+        return true
+    }
+
+    /**
+     * Returns true if a frame produced by [request] should be added to this buffer, based on
+     * [parameters]. Tag keys are checked with [matchesTagBundles]. For every other key in
+     * [parameters], [request] must carry the key ([Request.parameters] for a [CaptureRequest.Key],
+     * [Request.extras] for a [Metadata.Key]) with a value equal to the value of this buffer. Only
+     * the [Request] values are compared, not values that CameraGraph default or required parameters
+     * may override.
+     */
+    private fun matchesParameters(request: Request): Boolean {
+        if (!matchesTagBundles(request)) return false
+        for ((key, value) in parameters) {
+            // Tag keys are checked by matchesTagBundles.
+            if (key.isTagKey()) continue
+            // A request that does not carry the key does not match.
+            val requestValue =
+                when (key) {
+                    is CaptureRequest.Key<*> ->
+                        if (key in request.parameters) request.parameters[key] else return false
+                    is Metadata.Key<*> ->
+                        if (key in request.extras) request.extras[key] else return false
+                    // FrameGraphBuffers only accepts the two key types above.
+                    else -> continue
+                }
+            // The request value must be equal to the value of this buffer.
+            if (!deepEquals(requestValue, value)) return false
+        }
+        return true
+    }
+
     override fun onFrameStarted(frameReference: FrameReference) {
         if (!frameReference.requestMetadata.streams.keys.containsAll(streams)) {
+            return
+        }
+
+        // A frame whose request does not match the parameters of this buffer is ignored entirely.
+        // It is not emitted, not acquired, and does not evict any frames that are already in the
+        // buffer. Repeating and non-repeating requests are treated the same way: the repeating
+        // request that FrameGraph builds carries the parameters of every attached buffer and the
+        // union of their tag bundles, so it matches every buffer once it is running.
+        if (!matchesParameters(frameReference.requestMetadata.request)) {
             return
         }
 

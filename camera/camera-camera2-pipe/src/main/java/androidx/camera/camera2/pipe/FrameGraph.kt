@@ -16,7 +16,9 @@
 
 package androidx.camera.camera2.pipe
 
+import android.hardware.camera2.CaptureRequest
 import androidx.annotation.RestrictTo
+import androidx.camera.common.Metadata
 import androidx.camera.common.UnsafeWrapper
 
 /** [FrameGraph] extends the capabilities of [CameraGraph] to provide stream controls. */
@@ -70,6 +72,57 @@ public interface FrameGraph : CameraGraphBase<FrameGraph.Session>, CameraControl
      *
      * Returns a buffer with [capacity] that will accumulate and cycle Frames that are produced by
      * the FrameGraph that have the attached [streamIds] and [parameters] until closed.
+     *
+     * A frame is only added to the buffer if its [Request] matches [parameters]: for each key in
+     * [parameters], the request must carry the key ([Request.parameters] for a
+     * [CaptureRequest.Key], [Request.extras] for a [Metadata.Key]) with a value equal to the buffer
+     * value. Only the [Request] values are compared, not values that
+     * [CameraGraph.Config.defaultParameters] or [CameraGraph.Config.requiredParameters] may
+     * override. A buffer whose key or value is not in the running repeating request (for example,
+     * right after a buffer with another value was closed) receives repeating frames once the new
+     * repeating request is running.
+     *
+     * ### Filtering frames with tags
+     * A [Metadata.Key] in [parameters] whose value type is a [TagBundle] (e.g.
+     * `Metadata.Key<TagBundle<Tag>>`) filters which frames enter this [FrameBuffer]. A key whose
+     * value is a plain [Set] is a regular parameter. Tags identify the consumer of a frame, not its
+     * streams; streams are already matched by [streamIds]. Passing a value that is not a
+     * [TagBundle] for a tag key throws [IllegalArgumentException].
+     * - **Repeating request union:** Unlike other parameters (which must not conflict across
+     *   attached buffers), buffers may specify different tag bundles for the same key. The union of
+     *   all attached buffers' tag bundles is placed into the repeating request's [Request.extras].
+     * - **Frame matching:** When a frame is produced (from either a repeating or non-repeating
+     *   request), it is added to this buffer only if, for every tag bundle on this buffer, the
+     *   frame's [Request.extras] contains a [TagBundle] for that key that includes every tag in
+     *   this buffer's tag bundle. A request that does not carry a [TagBundle] for the key is not
+     *   added.
+     * - **Omitted tag keys:** A buffer that does not have the tag key does not filter frames by
+     *   that key.
+     *
+     * Because repeating and non-repeating requests use the same matching rule, a buffer attached
+     * with a new tag bundle will begin receiving repeating frames once the updated repeating
+     * request carrying its tags starts running.
+     *
+     * ### Example: Isolating a one-shot capture from a FrameBuffer
+     *
+     * ```kotlin
+     * val BUFFER_TAGS = Metadata.Key<TagBundle<String>>("my.buffer.tags")
+     *
+     * // 1. Attach a buffer tagged with "continuous".
+     * val buffer = frameGraph.captureWith(
+     *     streamIds = setOf(streamId),
+     *     parameters = mapOf(BUFFER_TAGS to tagsOf("continuous")),
+     * )
+     *
+     * // 2. Submit a single capture on the same stream tagged with "oneShot".
+     * // Because tagsOf("oneShot") does not contain "continuous", this frame will NOT enter buffer.
+     * // It is still returned through the FrameCapture, which must be closed.
+     * val frameCapture = frameGraph.useSession { session ->
+     *     session.capture(
+     *         Request(streams = listOf(streamId), extras = mapOf(BUFFER_TAGS to tagsOf("oneShot")))
+     *     )
+     * }
+     * ```
      *
      * Closing the FrameBuffer will detach the streams and parameters, and the repeating request may
      * be re-issued.
