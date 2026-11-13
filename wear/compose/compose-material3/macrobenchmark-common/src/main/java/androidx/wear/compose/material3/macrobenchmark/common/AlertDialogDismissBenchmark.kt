@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material3.macrobenchmark.common
 
+import android.os.Build
 import android.os.SystemClock
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.compose.foundation.layout.Arrangement
@@ -82,7 +83,11 @@ object AlertDialogDismissBenchmark : MacrobenchmarkScreen {
             SystemClock.sleep(500)
             device.findObject(By.desc(OPEN_ALERT_DIALOG)).click()
             SystemClock.sleep(500)
-            device.findObject(By.desc(DIALOG_CONTAINER)).swipe(Direction.RIGHT, 0.95f, 400)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+                device.pressBack()
+            } else {
+                device.findObject(By.desc(DIALOG_CONTAINER)).swipe(Direction.RIGHT, 0.95f, 400)
+            }
             SystemClock.sleep(500)
         }
 
