@@ -93,6 +93,11 @@ class ComposeCameraAppTest {
     @LabTestRule.LabTestOnly
     @RepeatRule.Repeat(times = 10)
     fun testPreviewViewStreamStateOnNavigation() {
+        val scenario = androidComposeTestRule.activityRule.scenario
+
+        // Wait for the initial ImageCapture screen's PreviewView to reach STREAMING after
+        // setup()'s recreate() before navigating to avoid racing an in-flight camera open.
+        assertExpectedScreenAndStreamState(scenario)
 
         // Get VideoCapture Navigation Tab (Node)
         val node =
@@ -107,7 +112,7 @@ class ComposeCameraAppTest {
             )
 
         // Set expected ComposeCameraScreen and StreamState for testing
-        androidComposeTestRule.activityRule.scenario.onActivity {
+        scenario.onActivity {
             it.setUpExpectedScreenAndStreamState(
                 ComposeCameraScreen.VideoCapture,
                 PreviewView.StreamState.STREAMING,
@@ -118,7 +123,7 @@ class ComposeCameraAppTest {
         node.performClick().assertIsSelected()
 
         // Assert VideoCapture's PreviewView is streaming
-        assertExpectedScreenAndStreamState(androidComposeTestRule.activityRule.scenario)
+        assertExpectedScreenAndStreamState(scenario)
     }
 
     // Asserts that the StreamState in the ComposeCameraScreen reaches
@@ -134,6 +139,6 @@ class ComposeCameraAppTest {
 
     companion object {
         private const val TAG = "ComposeCameraAppTest"
-        private const val LATCH_TIMEOUT: Long = 5000
+        private const val LATCH_TIMEOUT: Long = 10_000
     }
 }
