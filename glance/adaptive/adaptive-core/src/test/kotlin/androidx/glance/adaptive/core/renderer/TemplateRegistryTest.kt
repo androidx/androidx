@@ -19,12 +19,7 @@ package androidx.glance.adaptive.core.renderer
 import androidx.glance.adaptive.core.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.selection.Dimensions
 import androidx.glance.adaptive.core.selection.GlanceSurface
-import androidx.glance.adaptive.core.slots.IconTile
-import androidx.glance.adaptive.core.slots.Ring
-import androidx.glance.adaptive.core.slots.TemplateText
-import androidx.glance.adaptive.core.templates.DashboardTemplate
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
-import androidx.glance.adaptive.core.templates.TrackTemplate
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -33,7 +28,13 @@ class TemplateRegistryTest {
 
     private class TestTemplate(val title: String) : GlanceAdaptiveTemplate(templateId = 1)
 
-    private class OtherTemplate : GlanceAdaptiveTemplate(templateId = 2)
+    private class BuiltInTemplate(val value: String) : GlanceAdaptiveTemplate(templateId = 2)
+
+    private class SecondBuiltInTemplate(val label: String) : GlanceAdaptiveTemplate(templateId = 3)
+
+    private class OtherTemplate : GlanceAdaptiveTemplate(templateId = 4)
+
+    private abstract class AbstractTestTemplate : GlanceAdaptiveTemplate(templateId = 5)
 
     private class TestSurface(tag: String, dimensions: Dimensions = Dimensions(0, 0)) :
         GlanceSurface(tag, dimensions)
@@ -42,21 +43,14 @@ class TemplateRegistryTest {
     private val lock = TestSurface("lock")
 
     private val defaultRenderers =
-        object : TemplateRegistry.DefaultRenderers<TestSurface, String> {
-            override fun trackRenderer(
-                surface: TestSurface
-            ): TemplateRenderer<TrackTemplate, TestSurface, String> =
-                TemplateRenderer { template, _ ->
-                    "builtIn(${surface.tag}):${(template.primary as TemplateText).value}"
-                }
-
-            override fun dashboardRenderer(
-                surface: TestSurface
-            ): TemplateRenderer<DashboardTemplate, TestSurface, String> =
-                TemplateRenderer { template, _ ->
-                    "builtInDashboard(${surface.tag}):${template.actions.first().label}"
-                }
-        }
+        listOf(
+            defaultRenderer<BuiltInTemplate, TestSurface, String> { template, placedSurface ->
+                "builtIn(${placedSurface.tag}):${template.value}"
+            },
+            defaultRenderer<SecondBuiltInTemplate, TestSurface, String> { template, placedSurface ->
+                "secondBuiltIn(${placedSurface.tag}):${template.label}"
+            },
+        )
 
     private val registry = TemplateRegistry(listOf(home, lock), defaultRenderers)
 
@@ -136,26 +130,28 @@ class TemplateRegistryTest {
     }
 
     @Test
-    fun builtInDefaults_coverEveryLibraryTemplateOnEverySurface() {
-        val steps = TrackTemplate(leading = Ring(0.5f), primary = TemplateText("Steps"))
-        val dashboard = DashboardTemplate(actions = listOf(IconTile(icon = 1, label = "Run")))
+    fun builtInDefaults_coverEveryRegisteredDefaultOnEverySurface() {
+        val first = BuiltInTemplate("Steps")
+        val second = SecondBuiltInTemplate("Run")
 
         for (surface in listOf(home, lock)) {
-            assertThat(registry.render(steps, surface)).isEqualTo("builtIn(${surface.tag}):Steps")
-            assertThat(registry.render(dashboard, surface))
-                .isEqualTo("builtInDashboard(${surface.tag}):Run")
+            assertThat(registry.render(first, surface)).isEqualTo("builtIn(${surface.tag}):Steps")
+            assertThat(registry.render(second, surface))
+                .isEqualTo("secondBuiltIn(${surface.tag}):Run")
         }
     }
 
     @Test
     fun resetForTesting_clearsTestEntriesAndRestoresBuiltInDefaults() {
         registry.registerDefault(TestTemplate::class.java, renderer("default"))
+        registry.registerDefault(
+            BuiltInTemplate::class.java,
+            TemplateRenderer { template, _ -> "overwrittenDefault:${template.value}" },
+        )
         registry.registerOverride(
             "custom",
-            TrackTemplate::class.java,
-            TemplateRenderer { template, _ ->
-                "override:${(template.primary as TemplateText).value}"
-            },
+            BuiltInTemplate::class.java,
+            TemplateRenderer { template, _ -> "override:${template.value}" },
         )
 
         registry.resetForTesting()
@@ -163,19 +159,76 @@ class TemplateRegistryTest {
         assertThrows(IllegalStateException::class.java) {
             registry.render(TestTemplate("Run"), home)
         }
-        val stepsTemplate = TrackTemplate(leading = Ring(0.5f), primary = TemplateText("Steps"))
-        assertThat(registry.render(stepsTemplate, home, widgetName = "custom"))
+        assertThat(registry.render(BuiltInTemplate("Steps"), home)).isEqualTo("builtIn(home):Steps")
+        assertThat(registry.render(BuiltInTemplate("Steps"), home, widgetName = "custom"))
             .isEqualTo("builtIn(home):Steps")
     }
 
     @Test
-    fun constructor_copiesSurfacesDefensively() {
+    fun constructor_copiesSurfacesAndDefaultRenderersDefensively() {
         val mutableSurfaces = mutableListOf(home)
-        val isolated = TemplateRegistry(mutableSurfaces, defaultRenderers)
+        val mutableDefaults = defaultRenderers.toMutableList()
+        val isolated = TemplateRegistry(mutableSurfaces, mutableDefaults)
         mutableSurfaces.clear()
+        mutableDefaults.clear()
 
         isolated.registerDefault(TestTemplate::class.java, renderer("default"))
-
         assertThat(isolated.render(TestTemplate("Run"), home)).startsWith("default:")
+
+        isolated.resetForTesting()
+        assertThat(isolated.render(BuiltInTemplate("Steps"), home)).isEqualTo("builtIn(home):Steps")
+    }
+
+    @Test
+    fun constructor_duplicateDefaultRenderers_throwsIllegalArgumentException() {
+        val error =
+            assertThrows(IllegalArgumentException::class.java) {
+                TemplateRegistry(
+                    listOf(home, lock),
+                    listOf(
+                        defaultRenderer<BuiltInTemplate, TestSurface, String> { _, _ -> "first" },
+                        defaultRenderer<BuiltInTemplate, TestSurface, String> { _, _ -> "second" },
+                    ),
+                )
+            }
+
+        assertThat(error).hasMessageThat().contains(BuiltInTemplate::class.java.name)
+    }
+
+    @Test
+    fun defaultRenderer_abstractTemplateClass_throwsIllegalArgumentException() {
+        val error =
+            assertThrows(IllegalArgumentException::class.java) {
+                defaultRenderer<AbstractTestTemplate, TestSurface, String> { _, _ -> "abstract" }
+            }
+
+        assertThat(error).hasMessageThat().contains(AbstractTestTemplate::class.java.name)
+    }
+
+    @Test
+    fun registerDefault_abstractTemplateClass_throwsIllegalArgumentException() {
+        val error =
+            assertThrows(IllegalArgumentException::class.java) {
+                registry.registerDefault(
+                    AbstractTestTemplate::class.java,
+                    TemplateRenderer { _, _ -> "abstract" },
+                )
+            }
+
+        assertThat(error).hasMessageThat().contains(AbstractTestTemplate::class.java.name)
+    }
+
+    @Test
+    fun registerOverride_abstractTemplateClass_throwsIllegalArgumentException() {
+        val error =
+            assertThrows(IllegalArgumentException::class.java) {
+                registry.registerOverride(
+                    "custom",
+                    AbstractTestTemplate::class.java,
+                    TemplateRenderer { _, _ -> "abstract" },
+                )
+            }
+
+        assertThat(error).hasMessageThat().contains(AbstractTestTemplate::class.java.name)
     }
 }

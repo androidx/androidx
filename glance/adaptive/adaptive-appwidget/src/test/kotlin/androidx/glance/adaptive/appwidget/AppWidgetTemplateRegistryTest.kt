@@ -36,7 +36,9 @@ import androidx.glance.adaptive.core.templates.TemplateIcon
 import androidx.glance.adaptive.core.templates.TrackTemplate
 import androidx.glance.adaptive.core.templates.dashboardTemplate
 import androidx.test.core.app.ApplicationProvider
+import com.google.common.reflect.ClassPath
 import com.google.common.truth.Truth.assertThat
+import java.lang.reflect.Modifier
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -64,6 +66,30 @@ class AppWidgetTemplateRegistryTest {
     @Before
     fun setUp() {
         AppWidgetTemplateRegistry.resetForTesting()
+    }
+
+    /**
+     * Verifies that every top-level, non-abstract [GlanceAdaptiveTemplate] subclass in
+     * `androidx.glance.adaptive.core.templates` and its subpackages (nested classes are not
+     * scanned) has exactly one built-in registration in [AppWidgetTemplateRegistry], and that no
+     * registration targets a template outside that set. Each host registry needs its own coverage
+     * test.
+     */
+    @Test
+    fun builtInTemplates_registerEveryCoreTemplateExactlyOnce() {
+        val templateClassLoader = GlanceAdaptiveTemplate::class.java.classLoader
+        val coreTemplates =
+            ClassPath.from(ClassLoader.getSystemClassLoader())
+                .getTopLevelClassesRecursive(GlanceAdaptiveTemplate::class.java.`package`!!.name)
+                .map { Class.forName(it.name, false, templateClassLoader) }
+                .filter {
+                    GlanceAdaptiveTemplate::class.java.isAssignableFrom(it) &&
+                        !Modifier.isAbstract(it.modifiers)
+                }
+        val registeredTemplates =
+            AppWidgetTemplateRegistry.builtInTemplates.map { it.renderer.templateClass }
+
+        assertThat(registeredTemplates).containsExactlyElementsIn(coreTemplates)
     }
 
     @Test

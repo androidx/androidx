@@ -18,75 +18,42 @@ package androidx.glance.adaptive.appwidget
 
 import androidx.annotation.VisibleForTesting
 import androidx.glance.adaptive.appwidget.matrix.MatrixContent
-import androidx.glance.adaptive.appwidget.matrix.remoteviews.RemoteViewsMatrixRenderer
 import androidx.glance.adaptive.appwidget.renderer.AppWidgetRenderOutput
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
-import androidx.glance.adaptive.appwidget.templates.dashboard.DashboardMatrixSelector
-import androidx.glance.adaptive.appwidget.templates.track.TrackMatrixSelector
+import androidx.glance.adaptive.appwidget.templates.AppWidgetTemplateRegistration
+import androidx.glance.adaptive.appwidget.templates.dashboard.dashboardRegistration
+import androidx.glance.adaptive.appwidget.templates.track.trackRegistration
 import androidx.glance.adaptive.core.renderer.TemplateRegistry
 import androidx.glance.adaptive.core.renderer.TemplateRenderer
-import androidx.glance.adaptive.core.templates.DashboardTemplate
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
-import androidx.glance.adaptive.core.templates.TrackTemplate
 
 /**
  * The [TemplateRegistry] of platform AppWidget surfaces, holding the library's built-in templates.
  */
 internal object AppWidgetTemplateRegistry {
-    private val defaultTrackRenderer =
-        TemplateRenderer(TrackMatrixSelector, RemoteViewsMatrixRenderer)
-    private val defaultTrackSelector =
-        TemplateRenderer<TrackTemplate, AppWidgetSurface, MatrixContent>(
-            TrackMatrixSelector::select
-        )
-    private val defaultDashboardRenderer =
-        TemplateRenderer(DashboardMatrixSelector, RemoteViewsMatrixRenderer)
-    private val defaultDashboardSelector =
-        TemplateRenderer<DashboardTemplate, AppWidgetSurface, MatrixContent>(
-            DashboardMatrixSelector::select
+    @VisibleForTesting
+    internal val builtInTemplates: List<AppWidgetTemplateRegistration<*>> =
+        listOf(
+            trackRegistration(),
+            dashboardRegistration(),
         )
 
     private val registry =
         TemplateRegistry(
             surfaces = AppWidgetSurface.ALL,
-            defaultRenderers =
-                object :
-                    TemplateRegistry.DefaultRenderers<AppWidgetSurface, AppWidgetRenderOutput> {
-                    override fun trackRenderer(
-                        surface: AppWidgetSurface
-                    ): TemplateRenderer<TrackTemplate, AppWidgetSurface, AppWidgetRenderOutput> =
-                        defaultTrackRenderer
-
-                    override fun dashboardRenderer(
-                        surface: AppWidgetSurface
-                    ): TemplateRenderer<
-                        DashboardTemplate,
-                        AppWidgetSurface,
-                        AppWidgetRenderOutput,
-                    > = defaultDashboardRenderer
-                },
+            defaultRenderers = List(builtInTemplates.size) { builtInTemplates[it].renderer },
         )
 
     private val selectorRegistry =
         TemplateRegistry(
             surfaces = AppWidgetSurface.ALL,
-            defaultRenderers =
-                object : TemplateRegistry.DefaultRenderers<AppWidgetSurface, MatrixContent> {
-                    override fun trackRenderer(
-                        surface: AppWidgetSurface
-                    ): TemplateRenderer<TrackTemplate, AppWidgetSurface, MatrixContent> =
-                        defaultTrackSelector
-
-                    override fun dashboardRenderer(
-                        surface: AppWidgetSurface
-                    ): TemplateRenderer<DashboardTemplate, AppWidgetSurface, MatrixContent> =
-                        defaultDashboardSelector
-                },
+            defaultRenderers = List(builtInTemplates.size) { builtInTemplates[it].selector },
         )
 
     @VisibleForTesting
     fun resetForTesting() {
         registry.resetForTesting()
+        selectorRegistry.resetForTesting()
     }
 
     /**
