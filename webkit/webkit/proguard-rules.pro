@@ -21,6 +21,6 @@
     private static final *** sProcessGlobalConfig;
 }
 
--keepclassmembers class androidx.webkit.internal.PageImpl {
-    private final org.chromium.support_lib_boundary.WebViewPageBoundaryInterface mPageBoundaryInterface;
+-keepclassmembers class androidx.webkit.Page {
+    private final org.chromium.support_lib_boundary.WebViewPageBoundaryInterface mPageImpl;
 }
