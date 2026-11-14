@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalRemoteCreationApi::class)
+
 package androidx.compose.remote.creation.dsl
 
+import androidx.compose.remote.creation.ExperimentalRemoteCreationApi
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

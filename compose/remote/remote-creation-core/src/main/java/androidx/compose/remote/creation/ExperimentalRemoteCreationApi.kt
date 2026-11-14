@@ -18,14 +18,16 @@ package androidx.compose.remote.creation
 
 import androidx.annotation.RestrictTo
 
-/** Annotation indicating experimental API for Remote Compose Creation. */
+/** Marks RemoteCompose creation APIs that are experimental and subject to change. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresOptIn
+@RequiresOptIn(message = "This RemoteCompose creation API is experimental and is likely to change.")
 @Retention(AnnotationRetention.BINARY)
 @Target(
     AnnotationTarget.CLASS,
     AnnotationTarget.FUNCTION,
     AnnotationTarget.CONSTRUCTOR,
     AnnotationTarget.FIELD,
+    AnnotationTarget.PROPERTY,
+    AnnotationTarget.PROPERTY_GETTER,
 )
 public annotation class ExperimentalRemoteCreationApi

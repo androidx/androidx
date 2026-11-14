@@ -20,16 +20,21 @@
 package androidx.compose.remote.creation.dsl
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.ExperimentalRemoteCreationApi
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 
 /** Root scope for building RemoteCompose documents. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) @DslMarker public annotation class RcDslMarker
 
+/**
+ * Root procedural DSL scope for constructing RemoteCompose layout trees, reactive variables, and
+ * drawing resources inside [createRcBuffer].
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RcDslMarker
 public sealed interface RcScope {
 
-    /** Adds a Box layout to the document. */
+    /** Adds a Box layout container to the document. */
     public fun Box(
         modifier: Modifier = Modifier,
         horizontal: RcHorizontalPositioning = RcHorizontalPositioning.Start,
@@ -37,7 +42,7 @@ public sealed interface RcScope {
         content: RcBoxScope.() -> Unit = {},
     )
 
-    /** Adds a FitBox layout to the document. */
+    /** Adds a FitBox layout container that scales its content to fit within its bounds. */
     public fun FitBox(
         modifier: Modifier = Modifier,
         horizontal: RcHorizontalPositioning = RcHorizontalPositioning.Start,
@@ -45,7 +50,7 @@ public sealed interface RcScope {
         content: RcScope.() -> Unit = {},
     )
 
-    /** Adds a StateLayout layout to the document. */
+    /** Adds a StateLayout container that switches its active child based on [stateIndex]. */
     public fun StateLayout(
         stateIndex: RcInteger,
         modifier: Modifier = Modifier,
@@ -53,6 +58,7 @@ public sealed interface RcScope {
     )
 
     /** Adds a platform-specific CustomComponent layout manager node to host native views. */
+    @ExperimentalRemoteCreationApi
     public fun CustomComponent(
         config: String,
         modifier: Modifier = Modifier,
@@ -62,7 +68,7 @@ public sealed interface RcScope {
 
     public fun RcRoot(content: RcScope.() -> Unit = {})
 
-    /** Adds a Column layout to the document. */
+    /** Adds a vertical Column layout container to the document. */
     public fun Column(
         modifier: Modifier = Modifier,
         horizontal: RcHorizontalPositioning = RcHorizontalPositioning.Start,
@@ -70,7 +76,7 @@ public sealed interface RcScope {
         content: RcColumnScope.() -> Unit = {},
     )
 
-    /** Adds a Row layout to the document. */
+    /** Adds a horizontal Row layout container to the document. */
     public fun Row(
         modifier: Modifier = Modifier,
         horizontal: RcRowHorizontalPositioning = RcRowHorizontalPositioning.Start,
@@ -78,7 +84,7 @@ public sealed interface RcScope {
         content: RcRowScope.() -> Unit = {},
     )
 
-    /** Adds a Flow layout to the document. */
+    /** Adds a wrapping Flow layout container to the document. */
     public fun Flow(
         modifier: Modifier = Modifier,
         horizontal: RcHorizontalPositioning = RcHorizontalPositioning.Start,
@@ -153,7 +159,7 @@ public sealed interface RcScope {
         )
     }
 
-    /** Adds a Canvas component to the document. */
+    /** Adds a Canvas drawing component to the document. */
     public fun Canvas(modifier: Modifier = Modifier, content: RcCanvasScope.() -> Unit)
 
     /**
@@ -496,16 +502,16 @@ public sealed interface RcScope {
     public fun remoteBoolean(value: Boolean): RcBool
 
     /** Allocates a custom property return slot for a dynamic [RcFloat] output of [type]. */
-    public fun customReturnFloat(type: Int): RcCustomProperty
+    @ExperimentalRemoteCreationApi public fun customReturnFloat(type: Int): RcCustomProperty
 
     /** Allocates a custom property return slot for a dynamic [RcText] output of [type]. */
-    public fun customReturnText(type: Int): RcCustomProperty
+    @ExperimentalRemoteCreationApi public fun customReturnText(type: Int): RcCustomProperty
 
     /** Allocates a custom property return slot for a dynamic [RcInteger] output of [type]. */
-    public fun customReturnInt(type: Int): RcCustomProperty
+    @ExperimentalRemoteCreationApi public fun customReturnInt(type: Int): RcCustomProperty
 
     /** Allocates a custom property return slot for a dynamic [RcColor] output of [type]. */
-    public fun customReturnColor(type: Int): RcCustomProperty
+    @ExperimentalRemoteCreationApi public fun customReturnColor(type: Int): RcCustomProperty
 
     /** Registers a path data resource and returns its reference. */
     public fun remotePathData(path: RcPathData): RcPath
@@ -584,7 +590,7 @@ public sealed interface RcScope {
      *
      * @param data SC-format audio bytes (tiny header + raw samples).
      */
-    public fun remoteSound(data: ByteArray): RcSound
+    @ExperimentalRemoteCreationApi public fun remoteSound(data: ByteArray): RcSound
 
     /**
      * Define a sound synthesis expression and register it as a resource. Returns an
@@ -601,6 +607,7 @@ public sealed interface RcScope {
      * @param rightVolume right-channel volume, 0.0–1.0
      * @param rate playback rate, 1.0 = normal
      */
+    @ExperimentalRemoteCreationApi
     public fun remoteSoundExpression(
         type: RcSoundType = RcSoundType.Tone,
         frequency: Float = 440f,
@@ -617,7 +624,7 @@ public sealed interface RcScope {
      *
      * @param expression the sound expression to play
      */
-    public fun playSound(expression: RcSoundExpression)
+    @ExperimentalRemoteCreationApi public fun playSound(expression: RcSoundExpression)
 
     /** Tells the system to wake up in a given number of seconds. */
     public fun wakeIn(seconds: Float)
@@ -694,6 +701,7 @@ public sealed interface RcScope {
      * @param path the path a [RcMeshLayout.PathStrip] follows; ignored by every other layout
      * @param block sets the channel expressions; see [RcMesh2DScope]
      */
+    @ExperimentalRemoteCreationApi
     public fun remoteMesh2D(
         layout: RcMeshLayout,
         uCount: Int,
@@ -716,6 +724,7 @@ public sealed interface RcScope {
      * @param uCount the resolution along u if the geometry describes a grid, otherwise 0
      * @param vCount the resolution along v if the geometry describes a grid, otherwise 0
      */
+    @ExperimentalRemoteCreationApi
     public fun remoteMesh2DValues(
         verts: FloatArray,
         indices: IntArray? = null,
@@ -756,6 +765,7 @@ public sealed interface RcScope {
      * @param block sets the channel expressions and returns the colour; see
      *   [RcMesh2DAntialiasScope]
      */
+    @ExperimentalRemoteCreationApi
     public fun remoteMesh2DAntialias(
         layout: RcMeshLayout,
         uCount: Int,
@@ -783,6 +793,7 @@ public sealed interface RcScope {
      * @param uv u, v pairs in 0..1, or null
      * @param halfFloat write positions and uv as IEEE half floats, halving the wire size
      */
+    @ExperimentalRemoteCreationApi
     public fun remoteMesh2DValuesAntialias(
         verts: FloatArray,
         colors: IntArray,
@@ -817,6 +828,7 @@ public sealed interface RcScope {
      *   spreads the widths evenly, so the first is the width at the start of the path and the last
      *   the width at the end. Otherwise there must be one entry per width, increasing.
      */
+    @ExperimentalRemoteCreationApi
     public fun remoteMesh2DPathStrip(
         path: RcPath,
         segments: Int,
@@ -838,6 +850,7 @@ public sealed interface RcScope {
      * @param positions where each width sits along the path as a fraction of arclength, 0..1, or
      *   null to spread the widths evenly. Otherwise there must be one entry per width.
      */
+    @ExperimentalRemoteCreationApi
     public fun remoteMesh2DPathStrip(
         path: RcPath,
         segments: Int,
@@ -868,6 +881,7 @@ public sealed interface RcScope {
      *   spreads the widths evenly, so the first is the width at the start of the path and the last
      *   the width at the end. Otherwise there must be one entry per width, increasing.
      */
+    @ExperimentalRemoteCreationApi
     public fun remoteMesh2DRoundStrip(
         path: RcPath,
         segments: Int,
@@ -887,6 +901,7 @@ public sealed interface RcScope {
      * @param positions where each width sits along the path as a fraction of arclength, 0..1, or
      *   null to spread the widths evenly. Otherwise there must be one entry per width.
      */
+    @ExperimentalRemoteCreationApi
     public fun remoteMesh2DRoundStrip(
         path: RcPath,
         segments: Int,
@@ -902,7 +917,7 @@ public sealed interface RcScope {
         content: S.() -> Unit,
     )
 
-    /** Adds an elegant conditional block based on a type-safe [RcCondition]. */
+    /** Conditionally executes [block] on the player when [condition] evaluates to `true`. */
     public fun <S : RcScope> S.ifTrue(condition: RcCondition, block: S.() -> Unit) {
         conditionalOperations(condition.op, condition.a, condition.b, block)
     }
@@ -911,6 +926,7 @@ public sealed interface RcScope {
     public val RcText.length: RcFloat
 
     /** Defines a reusable remote Macro template. */
+    @ExperimentalRemoteCreationApi
     public fun defineMacro(
         name: String,
         parameters: List<String>,
@@ -918,10 +934,11 @@ public sealed interface RcScope {
     ): RcMacro
 
     /** Inflates an existing [RcMacro] with arguments configured via [block]. */
+    @ExperimentalRemoteCreationApi
     public fun RcMacro.inflate(block: RcMacroArgsScope.() -> Unit = {})
 
     /** Inserts a macro parameter argument block placeholder at this position. */
-    public fun RcMacroArg.insertArgument()
+    @ExperimentalRemoteCreationApi public fun RcMacroArg.insertArgument()
 
     /** Extension property to convert an Int to a RcFloat within this scope. */
     public val Int.rf: RcFloat
@@ -935,14 +952,14 @@ public sealed interface RcScope {
     /** Extension property to register a Boolean constant as a typed RcBool within this scope. */
     public val Boolean.rb: RcBool
 
-    /** Add a particle system definition */
+    /** Registers a particle system definition and returns its handle. */
     public fun createParticles(
         variables: FloatArray,
         initialExpressions: List<RcFloat>,
         particleCount: Int,
     ): RcFloat
 
-    /** Add a particle loop */
+    /** Steps and renders each particle in [id] on every frame. */
     public fun particlesLoop(
         id: RcFloat,
         restart: RcFloat?,
@@ -1277,6 +1294,7 @@ public sealed interface RcCollapsibleRowScope : RcScope {
     public fun Modifier.weight(weight: Float): Modifier
 }
 
+/** Procedural 2D drawing scope inside [RcScope.Canvas] or [createRawRcBuffer]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RcDslMarker
 public sealed interface RcCanvasScope : RcScope {
@@ -1648,6 +1666,7 @@ public sealed interface RcCanvasScope : RcScope {
      * @param image the bitmap to sample through the mesh's uv, or null for an untextured mesh
      * @param blend how vertex colour and texel combine; defaults to what [image] implies
      */
+    @ExperimentalRemoteCreationApi
     public fun drawMesh2D(mesh: RcMesh, image: RcImage? = null, blend: RcMeshBlend? = null)
 
     /**
@@ -1659,6 +1678,7 @@ public sealed interface RcCanvasScope : RcScope {
      * @param v where in the domain to sample
      * @param apply how much of the local frame to apply
      */
+    @ExperimentalRemoteCreationApi
     public fun matrixFromMesh2D(
         mesh: RcMesh,
         u: Float,
@@ -1680,6 +1700,7 @@ public sealed interface RcCanvasScope : RcScope {
      * @param v where in the domain to sample
      * @param apply how much of the local frame to apply
      */
+    @ExperimentalRemoteCreationApi
     public fun matrixFromMesh2D(
         mesh: RcMesh,
         u: RcFloat,

@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalRemoteCreationApi::class)
+
 package androidx.compose.remote.integration.view.demos.dsl.games
 
 import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.creation.ExperimentalRemoteCreationApi
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcColumnVerticalPositioning
 import androidx.compose.remote.creation.dsl.RcConditionOp

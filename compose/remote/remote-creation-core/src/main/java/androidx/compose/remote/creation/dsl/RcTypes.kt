@@ -32,6 +32,7 @@ import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec
 import androidx.compose.remote.core.operations.layout.modifiers.ShapeType
 import androidx.compose.remote.core.semantics.AccessibleComponent
+import androidx.compose.remote.creation.ExperimentalRemoteCreationApi
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.RcTextFromFloatSpec.Companion.of
@@ -57,6 +58,7 @@ public value class RcComponent internal constructor(internal val id: Int)
 
 /** Type-safe reference for a raw inline PCM sound resource registered via [RcScope.remoteSound]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalRemoteCreationApi
 @JvmInline
 public value class RcSound internal constructor(internal val id: Int)
 
@@ -65,6 +67,7 @@ public value class RcSound internal constructor(internal val id: Int)
  * [RcScope.remoteSoundExpression]. Pass to [RcScope.playSound] to trigger playback.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalRemoteCreationApi
 @JvmInline
 public value class RcSoundExpression internal constructor(internal val id: Int)
 
@@ -75,6 +78,7 @@ public value class RcSoundExpression internal constructor(internal val id: Int)
  * owned by remote-core, so this value class is platform-independent.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalRemoteCreationApi
 @JvmInline
 public value class RcSoundType internal constructor(internal val value: Int) {
     public companion object {
@@ -85,6 +89,7 @@ public value class RcSoundType internal constructor(internal val value: Int) {
 
 /** Waveform shape for a [RcSoundType.Tone] sound expression. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalRemoteCreationApi
 @JvmInline
 public value class RcWaveform internal constructor(internal val value: Float) {
     public companion object {
@@ -1142,6 +1147,7 @@ public value class RcAnimationSpec internal constructor(internal val id: Int)
 
 /** Type-safe reference for remote macros defined via [RcScope.defineMacro]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalRemoteCreationApi
 public class RcMacro
 internal constructor(
     internal val id: Int,
@@ -1154,6 +1160,7 @@ internal constructor(
  * [RcScope.inflate].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalRemoteCreationApi
 @RcDslMarker
 public sealed interface RcMacroArgsScope {
     /** Binds parameter [name] to the dynamic [RcText] [value]. */
@@ -1189,6 +1196,7 @@ public sealed interface RcMacroArgsScope {
 
 /** Type-safe reference for remote macro argument placeholders or blocks. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalRemoteCreationApi
 @JvmInline
 public value class RcMacroArg internal constructor(internal val paramId: Int) {
     /** Returns this macro argument placeholder as an [RcText] handle. */
@@ -1299,6 +1307,7 @@ internal constructor(
  * host-rendered custom component.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalRemoteCreationApi
 public class RcCustomProperty {
     internal val mType: Short
     internal val mDataType: Short
