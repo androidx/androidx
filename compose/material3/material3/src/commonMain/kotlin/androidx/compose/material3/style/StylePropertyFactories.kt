@@ -44,8 +44,8 @@ import androidx.compose.ui.unit.Dp
 @OptIn(ExperimentalFoundationStyleApi::class)
 internal fun dpStylePropertyOf(
     name: String,
-    interpolate: (a: Dp, b: Dp, t: Float) -> Dp = DpLerp,
-    defaultValue: () -> Dp = DpDefault,
+    interpolate: (a: Dp, b: Dp, t: Float) -> Dp = ::dpLerp,
+    defaultValue: () -> Dp = { Dp.Unspecified },
 ): ProvidableStyleProperty<Dp> = stylePropertyOf(name, interpolate, defaultValue)
 
 /**
@@ -64,8 +64,8 @@ internal fun dpStylePropertyOf(
 @OptIn(ExperimentalFoundationStyleApi::class)
 internal fun colorStylePropertyOf(
     name: String,
-    interpolate: (a: Color, b: Color, t: Float) -> Color = ColorLerp,
-    defaultValue: () -> Color = ColorDefault,
+    interpolate: (a: Color, b: Color, t: Float) -> Color = ::colorLerp,
+    defaultValue: () -> Color = { Color.Unspecified },
 ): ProvidableStyleProperty<Color> = stylePropertyOf(name, interpolate, defaultValue)
 
 /**
@@ -81,13 +81,11 @@ internal fun colorStylePropertyOf(
  *   [Breadth.None] will be provided
  * @see stylePropertyOf
  */
-@Suppress("UNCHECKED_CAST")
 @OptIn(ExperimentalFoundationStyleApi::class)
 internal fun breadthStylePropertyOf(
     name: String,
-    interpolate: (a: Breadth, b: Breadth, t: Float) -> Breadth =
-        NonNullLerp as (a: Breadth, b: Breadth, t: Float) -> Breadth,
-    defaultValue: () -> Breadth = BreadthDefault,
+    interpolate: (a: Breadth, b: Breadth, t: Float) -> Breadth = ::interpolatableLerp,
+    defaultValue: () -> Breadth = { Breadth.None },
 ): ProvidableStyleProperty<Breadth> = nonNullStylePropertyOf(name, interpolate, defaultValue)
 
 /**
@@ -102,13 +100,11 @@ internal fun breadthStylePropertyOf(
  *   [Fill.None] will be provided
  * @see stylePropertyOf
  */
-@Suppress("UNCHECKED_CAST")
 @OptIn(ExperimentalFoundationStyleApi::class)
 internal fun fillStylePropertyOf(
     name: String,
-    interpolate: (a: Fill, b: Fill, t: Float) -> Fill =
-        NonNullLerp as (a: Fill, b: Fill, t: Float) -> Fill,
-    defaultValue: () -> Fill = FillDefault,
+    interpolate: (a: Fill, b: Fill, t: Float) -> Fill = ::interpolatableLerp,
+    defaultValue: () -> Fill = { Fill.None },
 ): ProvidableStyleProperty<Fill> = nonNullStylePropertyOf(name, interpolate, defaultValue)
 
 /**
@@ -123,11 +119,10 @@ internal fun fillStylePropertyOf(
  * @param defaultValue fallback value provider when the property is not provided
  * @see stylePropertyOf
  */
-@Suppress("UNCHECKED_CAST")
 @OptIn(ExperimentalFoundationStyleApi::class)
 internal fun <T> nonNullStylePropertyOf(
     name: String,
-    interpolate: (a: T, b: T, t: Float) -> T = NonNullLerp as (a: T, b: T, t: Float) -> T,
+    interpolate: (a: T, b: T, t: Float) -> T = ::interpolatableLerp,
     defaultValue: () -> T,
 ): ProvidableStyleProperty<T> = stylePropertyOf(name, interpolate, defaultValue)
 
@@ -144,22 +139,12 @@ internal fun <T> nonNullStylePropertyOf(
  *   will be provided
  * @see stylePropertyOf
  */
-@Suppress("UNCHECKED_CAST")
 @OptIn(ExperimentalFoundationStyleApi::class)
 internal fun <T> nullableStylePropertyOf(
     name: String,
-    interpolate: (a: T?, b: T?, t: Float) -> T? = NullableLerp as (a: T?, b: T?, t: Float) -> T?,
-    defaultValue: () -> T? = NullableDefault as () -> T?,
+    interpolate: (a: T?, b: T?, t: Float) -> T? = ::interpolatableLerp,
+    defaultValue: () -> T? = { null },
 ): ProvidableStyleProperty<T?> = stylePropertyOf(name, interpolate, defaultValue)
 
-// Below vals are used to avoid recreating lambda expressions when constructing a property.
-@OptIn(ExperimentalFoundationStyleApi::class) private val BreadthDefault = { Breadth.None }
-private val DpDefault = { Dp.Unspecified }
-private val ColorDefault = { Color.Unspecified }
-@OptIn(ExperimentalFoundationStyleApi::class) private val FillDefault = { Fill.None }
-private val NullableDefault: () -> Any? = { null }
-private val DpLerp: (Dp, Dp, Float) -> Dp = ::dpLerp
-private val ColorLerp: (Color, Color, Float) -> Color = ::colorLerp
-private val NullableLerp: (Any?, Any?, Float) -> Any? = Interpolatable::lerp
 @Suppress("UNCHECKED_CAST")
-private val NonNullLerp: (Any, Any, Float) -> Any = Interpolatable::lerp as (Any, Any, Float) -> Any
+private fun <T> interpolatableLerp(a: T, b: T, t: Float): T = Interpolatable.lerp(a, b, t) as T
