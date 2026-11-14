@@ -1116,16 +1116,18 @@ public constructor(
 
 internal inline fun createLinks(node: Long, previous: Int, next: Int, mapping: LongArray): Long {
     return (node and NodeMetaMask) or
-        (if (previous == NodeInvalidLink) NodeInvalidLink else mapping[previous].dst).toLong() shl
-        31 or
-        (if (next == NodeInvalidLink) NodeInvalidLink else mapping[next].dst).toLong()
+        (((if (previous == NodeInvalidLink) NodeInvalidLink else mapping[previous].dst).toLong() and
+            NodeLinkMask) shl 31) or
+        ((if (next == NodeInvalidLink) NodeInvalidLink else mapping[next].dst).toLong() and
+            NodeLinkMask)
 }
 
 internal inline fun createLinks(node: Long, previous: Int, next: Int, mapping: IntArray): Long {
     return (node and NodeMetaMask) or
-        (if (previous == NodeInvalidLink) NodeInvalidLink else mapping[previous]).toLong() shl
-        31 or
-        (if (next == NodeInvalidLink) NodeInvalidLink else mapping[next]).toLong()
+        (((if (previous == NodeInvalidLink) NodeInvalidLink else mapping[previous]).toLong() and
+            NodeLinkMask) shl 31) or
+        ((if (next == NodeInvalidLink) NodeInvalidLink else mapping[next]).toLong() and
+            NodeLinkMask)
 }
 
 // set meta to 0 (visited = false) and previous to NodeInvalidLink
