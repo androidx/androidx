@@ -499,4 +499,200 @@ class SpatialInteractionHelperTest {
         assertEquals(0.125f, topLeftPt.y, 1e-4f)
         assertEquals(0.0f, topLeftPt.z, 1e-4f)
     }
+
+    @Test
+    fun resolveCliPath_prefersBundledTmpAndAssetsOverSystemWhenProbePasses() {
+        resetResolvedCliPathForTesting()
+        try {
+            val commands = mutableListOf<String>()
+            var assetInstallCalled = false
+            val cachedResolved =
+                resolveCliPath(
+                    shellRunner = { cmd ->
+                        commands.add(cmd)
+                        "-rwxr-xr-x"
+                    },
+                    installer = {
+                        assetInstallCalled = true
+                        true
+                    },
+                    cliProber = { path -> path == CLI_TMP_PATH },
+                )
+
+            assertEquals(CLI_TMP_PATH, cachedResolved)
+            assertFalse(assetInstallCalled)
+            assertEquals(listOf("stat -L -c %A $CLI_TMP_PATH"), commands)
+
+            resetResolvedCliPathForTesting()
+            assetInstallCalled = false
+            val fromAssets =
+                resolveCliPath(
+                    shellRunner = { cmd ->
+                        if (cmd.contains(CLI_SYSTEM_PATH)) "-rwxr-xr-x" else ""
+                    },
+                    installer = {
+                        assetInstallCalled = true
+                        true
+                    },
+                    cliProber = { path -> path == CLI_TMP_PATH || path == CLI_SYSTEM_PATH },
+                )
+            assertEquals(CLI_TMP_PATH, fromAssets)
+            assertTrue(assetInstallCalled)
+        } finally {
+            resetResolvedCliPathForTesting()
+        }
+    }
+
+    @Test
+    fun resolveCliPath_fallsBackToSystemAndPathWhenTmpBlockedByProbe() {
+        resetResolvedCliPathForTesting()
+        try {
+            val systemFallback =
+                resolveCliPath(
+                    shellRunner = { cmd ->
+                        if (cmd.contains(CLI_TMP_PATH) || cmd.contains(CLI_SYSTEM_PATH)) {
+                            "-rwxr-xr-x"
+                        } else {
+                            ""
+                        }
+                    },
+                    installer = { true },
+                    cliProber = { path -> path != CLI_TMP_PATH },
+                )
+            assertEquals(CLI_SYSTEM_PATH, systemFallback)
+
+            resetResolvedCliPathForTesting()
+            val pathFallback =
+                resolveCliPath(
+                    shellRunner = { cmd ->
+                        when {
+                            cmd == "which $CLI_BINARY_NAME" -> "/custom/bin/$CLI_BINARY_NAME\n"
+                            cmd.contains("/custom/bin/$CLI_BINARY_NAME") -> "-rwxr-xr-x"
+                            else -> ""
+                        }
+                    },
+                    installer = { false },
+                    cliProber = { path -> path == "/custom/bin/$CLI_BINARY_NAME" },
+                )
+            assertEquals("/custom/bin/$CLI_BINARY_NAME", pathFallback)
+
+            resetResolvedCliPathForTesting()
+            var error: IllegalStateException? = null
+            try {
+                resolveCliPath(
+                    shellRunner = { "-rwxr-xr-x" },
+                    installer = { true },
+                    cliProber = { false },
+                )
+            } catch (e: IllegalStateException) {
+                error = e
+            }
+            assertTrue(error != null)
+            assertTrue(error!!.message!!.contains("failed execution probe"))
+        } finally {
+            resetResolvedCliPathForTesting()
+        }
+    }
+
+    @Test
+    fun isStatModeExecutable_validatesRegularExecutableModesOnly() {
+        assertTrue(isStatModeExecutable("-rwxr-xr-x\n"))
+        assertTrue(isStatModeExecutable("-rwsr-x---"))
+        assertFalse(isStatModeExecutable("-rw-r--r--"))
+        assertFalse(isStatModeExecutable("drwxr-xr-x"))
+        assertFalse(isStatModeExecutable("stat: No such file or directory"))
+        assertFalse(isStatModeExecutable(""))
+    }
+
+    @Test
+    fun parseStrictShellOutput_handlesExitSentinelAndErrors() {
+        assertEquals("", parseStrictShellOutput("cmd", "\n__XR_EXIT_CODE:0\n", ""))
+        assertEquals(
+            "ok\n",
+            parseStrictShellOutput("cmd", "ok\n\n__XR_EXIT_CODE:0\n", "WARNING: harmless"),
+        )
+
+        var nonZeroThrown: IllegalStateException? = null
+        try {
+            parseStrictShellOutput("cmd", "partial\n__XR_EXIT_CODE:17\n", "")
+        } catch (e: IllegalStateException) {
+            nonZeroThrown = e
+        }
+        assertTrue(nonZeroThrown != null && nonZeroThrown.message!!.contains("code 17"))
+
+        var missingSentinelThrown: IllegalStateException? = null
+        try {
+            parseStrictShellOutput("cmd", "no sentinel output", "")
+        } catch (e: IllegalStateException) {
+            missingSentinelThrown = e
+        }
+        assertTrue(
+            missingSentinelThrown != null && missingSentinelThrown.message!!.contains("exit status")
+        )
+
+        var stderrThrown: IllegalStateException? = null
+        try {
+            parseStrictShellOutput("cmd", "\n__XR_EXIT_CODE:0\n", "fatal error")
+        } catch (e: IllegalStateException) {
+            stderrThrown = e
+        }
+        assertTrue(stderrThrown != null && stderrThrown.message!!.contains("fatal error"))
+    }
+
+    @Test
+    fun resolveCliPath_throwsWhenNoExecutableExists() {
+        resetResolvedCliPathForTesting()
+        try {
+            var thrown: IllegalStateException? = null
+            try {
+                resolveCliPath(shellRunner = { "INVALID" }, installer = { false })
+            } catch (e: IllegalStateException) {
+                thrown = e
+            }
+            assertTrue(thrown != null && thrown.message!!.contains(CLI_BINARY_NAME))
+        } finally {
+            resetResolvedCliPathForTesting()
+        }
+    }
+
+    @Test
+    fun readStrictShellStreams_timesOutCleanly() {
+        var timedOutCleanup = false
+        var thrown: IllegalStateException? = null
+        try {
+            readStrictShellStreams(
+                command = "sleep 5",
+                timeoutMs = 30L,
+                reader = {
+                    java.util.concurrent
+                        .CountDownLatch(1)
+                        .await(500L, java.util.concurrent.TimeUnit.MILLISECONDS)
+                    "" to ""
+                },
+                onTimeout = { timedOutCleanup = true },
+            )
+        } catch (e: IllegalStateException) {
+            thrown = e
+        }
+        assertTrue(timedOutCleanup)
+        assertTrue(thrown != null && thrown.message!!.contains("timed out"))
+    }
+
+    @Test
+    fun assertDelivered_passesWhenObservedAndThrowsWhenUnobserved() {
+        var delivered = true
+        assertDelivered(sentinelDelivered = { delivered }, sentinelDescription = "test panel") {}
+
+        delivered = false
+        var thrown: AssertionError? = null
+        try {
+            assertDelivered(
+                sentinelDelivered = { delivered },
+                sentinelDescription = "test panel",
+            ) {}
+        } catch (e: AssertionError) {
+            thrown = e
+        }
+        assertTrue(thrown != null && thrown.message!!.contains("test panel"))
+    }
 }
