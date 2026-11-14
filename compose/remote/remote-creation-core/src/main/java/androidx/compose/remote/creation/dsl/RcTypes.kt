@@ -15,7 +15,7 @@
  */
 
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@file:JvmName("RcTypesKt")
+@file:JvmName("RcTypes")
 
 package androidx.compose.remote.creation.dsl
 
@@ -27,6 +27,8 @@ import androidx.compose.remote.core.operations.DrawTextOnCircle
 import androidx.compose.remote.core.operations.MatrixFromPath
 import androidx.compose.remote.core.operations.SoundExpression
 import androidx.compose.remote.core.operations.TextFromFloat
+import androidx.compose.remote.core.operations.TextMeasure
+import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec
 import androidx.compose.remote.core.operations.layout.modifiers.ShapeType
 import androidx.compose.remote.core.semantics.AccessibleComponent
@@ -53,21 +55,21 @@ public value class RcImage internal constructor(internal val id: Int)
 @JvmInline
 public value class RcComponent internal constructor(internal val id: Int)
 
-/** Type-safe reference for a raw inline PCM sound resource registered via [RcScope.addSound]. */
+/** Type-safe reference for a raw inline PCM sound resource registered via [RcScope.remoteSound]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 public value class RcSound internal constructor(internal val id: Int)
 
 /**
- * Type-safe reference for a sound synthesis expression registered via [RcScope.soundExpression].
- * Pass to [RcScope.playSound] to trigger playback.
+ * Type-safe reference for a sound synthesis expression registered via
+ * [RcScope.remoteSoundExpression]. Pass to [RcScope.playSound] to trigger playback.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 public value class RcSoundExpression internal constructor(internal val id: Int)
 
 /**
- * Synthesis type for a [RcScope.soundExpression].
+ * Synthesis type for a [RcScope.remoteSoundExpression].
  *
  * Values mirror the NaN-encoded type constants in `SoundExpression.java` but the wire format is
  * owned by remote-core, so this value class is platform-independent.
@@ -134,11 +136,6 @@ public value class RcShader internal constructor(internal val id: Int) {
         public val None: RcShader = RcShader(0)
     }
 }
-
-/** Returns an [RcFloat] interpolated from [array] at [position]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun arraySpline(array: RcFloat, position: Float): RcFloat =
-    RcFloat(array.writer, floatArrayOf(*array.toArray(), position, Rc.FloatExpression.A_SPLINE))
 
 /**
  * The current touch X position, as an [RcFloat] expression. This is in window/event pixels; scale
@@ -465,12 +462,6 @@ public value class RcFontWeight(public val value: Float) {
         public val Bold: RcFontWeight = W700
         public val ExtraBold: RcFontWeight = W800
         public val Black: RcFontWeight = W900
-
-        /** Construct a weight from the raw CSS weight (100..900). */
-        public fun of(value: Float): RcFontWeight = RcFontWeight(value)
-
-        /** Construct a dynamic weight from a remote [RcFloat] variable or expression. */
-        public fun of(value: RcFloat): RcFontWeight = RcFontWeight(value.toFloat())
     }
 }
 
@@ -847,8 +838,7 @@ public value class RcAnimationCurve internal constructor(internal val value: Int
 }
 
 /**
- * Border / dynamicBorder shape selector for [Modifier.border] and [Modifier.dynamicBorder]. Wraps
- * `ShapeType.*` constants from the layout core.
+ * Border shape selector for [Modifier.border]. Wraps `ShapeType.*` constants from the layout core.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
@@ -1150,10 +1140,52 @@ public value class RcComponentId internal constructor(internal val id: Int) {
 @JvmInline
 public value class RcAnimationSpec internal constructor(internal val id: Int)
 
-/** Type-safe reference for remote macros. */
+/** Type-safe reference for remote macros defined via [RcScope.defineMacro]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@JvmInline
-public value class RcMacro internal constructor(internal val id: Int)
+public class RcMacro
+internal constructor(
+    internal val id: Int,
+    internal val parameters: List<String> = emptyList(),
+    internal val paramIds: IntArray = IntArray(0),
+)
+
+/**
+ * Builder scope for supplying named arguments and content blocks when inflating an [RcMacro] via
+ * [RcScope.inflate].
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RcDslMarker
+public sealed interface RcMacroArgsScope {
+    /** Binds parameter [name] to the dynamic [RcText] [value]. */
+    public fun text(name: String, value: RcText)
+
+    /** Binds parameter [name] to the static string [value]. */
+    public fun text(name: String, value: String)
+
+    /** Binds parameter [name] to the dynamic [RcFloat] [value]. */
+    public fun float(name: String, value: RcFloat)
+
+    /** Binds parameter [name] to the static float [value]. */
+    public fun float(name: String, value: Float)
+
+    /** Binds parameter [name] to the dynamic [RcInteger] [value]. */
+    public fun int(name: String, value: RcInteger)
+
+    /** Binds parameter [name] to the static integer [value]. */
+    public fun int(name: String, value: Int)
+
+    /** Binds parameter [name] to the dynamic [RcColor] [value]. */
+    public fun color(name: String, value: RcColor)
+
+    /** Binds parameter [name] to the static [RcColorValue] [value]. */
+    public fun color(name: String, value: RcColorValue)
+
+    /** Binds parameter [name] to the [RcImage] [value]. */
+    public fun image(name: String, value: RcImage)
+
+    /** Binds parameter [name] to an inline [RcScope] content block. */
+    public fun block(name: String, content: RcScope.() -> Unit)
+}
 
 /** Type-safe reference for remote macro argument placeholders or blocks. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -1167,6 +1199,12 @@ public value class RcMacroArg internal constructor(internal val paramId: Int) {
 
     /** Returns this macro argument placeholder as an [RcImage] handle. */
     public fun asImage(): RcImage = RcImage(paramId)
+
+    /** Returns this macro argument placeholder as an [RcFloat] handle. */
+    public fun asFloat(): RcFloat = RcFloat(Utils.asNan(paramId))
+
+    /** Returns this macro argument placeholder as an [RcInteger] handle. */
+    public fun asInteger(): RcInteger = RcInteger(0x100000000L + paramId.toLong())
 }
 
 /** Type-safe reference for remote key-value data maps. */
@@ -1256,26 +1294,42 @@ internal constructor(
     }
 }
 
+/**
+ * Typed key-value property binding passed to [RcScope.CustomComponent] to configure or observe a
+ * host-rendered custom component.
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Suppress("NoByteOrShort")
 public class RcCustomProperty {
     internal val mType: Short
     internal val mDataType: Short
     internal val mIntValue: Int
     internal val mFloatValue: Float
+    internal val writer: RemoteComposeWriter?
 
-    internal constructor(type: Short, dataType: Short, value: Int) {
+    internal constructor(
+        type: Short,
+        dataType: Short,
+        value: Int,
+        writer: RemoteComposeWriter? = null,
+    ) {
         mType = type
         mDataType = dataType
         mIntValue = value
         mFloatValue = 0f
+        this.writer = writer
     }
 
-    internal constructor(type: Short, dataType: Short, value: Float) {
+    internal constructor(
+        type: Short,
+        dataType: Short,
+        value: Float,
+        writer: RemoteComposeWriter? = null,
+    ) {
         mType = type
         mDataType = dataType
         mFloatValue = value
         mIntValue = 0
+        this.writer = writer
     }
 
     internal constructor(type: Short, dataType: Short, value: RcFloat) {
@@ -1283,6 +1337,7 @@ public class RcCustomProperty {
         mDataType = dataType
         mFloatValue = value.toFloat()
         mIntValue = 0
+        this.writer = value.writer
     }
 
     internal constructor(type: Short, dataType: Short, value: RcInteger) {
@@ -1290,23 +1345,24 @@ public class RcCustomProperty {
         mDataType = dataType
         mIntValue = value.toRawInt()
         mFloatValue = 0f
+        this.writer = value.writer
     }
 
-    public fun getFloatValue(): RcFloat {
-        return RcFloat(mFloatValue)
-    }
+    /** Float handle associated with this property (or return channel). */
+    public val floatValue: RcFloat
+        get() = RcFloat(writer, mFloatValue)
 
-    public fun getStringValue(): RcText {
-        return RcText(mIntValue)
-    }
+    /** Text handle associated with this property (or return channel). */
+    public val textValue: RcText
+        get() = RcText(mIntValue)
 
-    public fun getIntValue(): RcInteger {
-        return RcInteger(mIntValue.toLong())
-    }
+    /** Integer handle associated with this property (or return channel). */
+    public val intValue: RcInteger
+        get() = RcInteger(0x100000000L + mIntValue.toLong(), writer)
 
-    public fun getColorValue(): RcColor {
-        return RcColor(mIntValue)
-    }
+    /** Color handle associated with this property (or return channel). */
+    public val colorValue: RcColor
+        get() = RcColor(mIntValue)
 
     public companion object {
         internal const val INT_PROP: Short = 0
@@ -1320,79 +1376,33 @@ public class RcCustomProperty {
         internal const val COLOR_PROP: Short = 8
         internal const val INT_ID_PROP: Short = 9
 
-        public fun int(type: Short, value: Int): RcCustomProperty =
-            RcCustomProperty(type, INT_PROP, value)
-
+        /** Creates a static integer custom property binding for key [type]. */
         public fun int(type: Int, value: Int): RcCustomProperty =
             RcCustomProperty(type.toShort(), INT_PROP, value)
 
-        public fun int(type: Short, value: RcInteger): RcCustomProperty =
-            RcCustomProperty(type, INT_ID_PROP, value.toRawInt())
-
+        /** Creates a dynamic [RcInteger] custom property binding for key [type]. */
         public fun int(type: Int, value: RcInteger): RcCustomProperty =
-            RcCustomProperty(type.toShort(), INT_ID_PROP, value.toRawInt())
+            RcCustomProperty(type.toShort(), INT_ID_PROP, value)
 
-        public fun float(type: Short, value: Float): RcCustomProperty =
-            RcCustomProperty(type, FLOAT_PROP, value)
-
+        /** Creates a static float custom property binding for key [type]. */
         public fun float(type: Int, value: Float): RcCustomProperty =
             RcCustomProperty(type.toShort(), FLOAT_PROP, value)
 
-        public fun float(type: Short, value: RcFloat): RcCustomProperty =
-            RcCustomProperty(type, FLOAT_PROP, value)
-
+        /** Creates a dynamic [RcFloat] custom property binding for key [type]. */
         public fun float(type: Int, value: RcFloat): RcCustomProperty =
             RcCustomProperty(type.toShort(), FLOAT_PROP, value)
 
-        public fun color(type: Short, value: RcColorValue): RcCustomProperty =
-            RcCustomProperty(type, COLOR_PROP, value.id)
-
+        /** Creates a static [RcColorValue] custom property binding for key [type]. */
         public fun color(type: Int, value: RcColorValue): RcCustomProperty =
             RcCustomProperty(type.toShort(), COLOR_PROP, value.id)
 
-        public fun color(type: Short, value: RcColor): RcCustomProperty =
-            RcCustomProperty(type, COLOR_ID_PROP, value.id)
-
+        /** Creates a dynamic [RcColor] custom property binding for key [type]. */
         public fun color(type: Int, value: RcColor): RcCustomProperty =
             RcCustomProperty(type.toShort(), COLOR_ID_PROP, value.id)
 
-        public fun text(type: Short, value: RcText): RcCustomProperty =
-            RcCustomProperty(type, STRING_PROP, value.id)
-
+        /** Creates an [RcText] custom property binding for key [type]. */
         public fun text(type: Int, value: RcText): RcCustomProperty =
             RcCustomProperty(type.toShort(), STRING_PROP, value.id)
-
-        public fun returnFloat(type: Short, scope: RcScope): RcCustomProperty {
-            val id = (scope as RcScopeImpl).writer.createFloatId()
-            return RcCustomProperty(type, FLOAT_RETURN, id)
-        }
-
-        public fun returnFloat(type: Int, scope: RcScope): RcCustomProperty =
-            returnFloat(type.toShort(), scope)
-
-        public fun returnText(type: Short, scope: RcScope): RcCustomProperty {
-            val id = (scope as RcScopeImpl).writer.nextId()
-            return RcCustomProperty(type, TEXT_RETURN, id)
-        }
-
-        public fun returnText(type: Int, scope: RcScope): RcCustomProperty =
-            returnText(type.toShort(), scope)
-
-        public fun returnInt(type: Short, scope: RcScope): RcCustomProperty {
-            val id = (scope as RcScopeImpl).writer.nextId()
-            return RcCustomProperty(type, INT_RETURN, id)
-        }
-
-        public fun returnInt(type: Int, scope: RcScope): RcCustomProperty =
-            returnInt(type.toShort(), scope)
-
-        public fun returnColor(type: Short, scope: RcScope): RcCustomProperty {
-            val id = (scope as RcScopeImpl).writer.nextId()
-            return RcCustomProperty(type, COLOR_RETURN, id)
-        }
-
-        public fun returnColor(type: Int, scope: RcScope): RcCustomProperty =
-            returnColor(type.toShort(), scope)
     }
 }
 
@@ -1586,5 +1596,105 @@ public value class RcSemanticsMode internal constructor(internal val value: Int)
             RcSemanticsMode(AccessibleComponent.Mode.CLEAR_AND_SET.ordinal)
         /** Merges descendant semantic properties into this node. */
         public val Merge: RcSemanticsMode = RcSemanticsMode(AccessibleComponent.Mode.MERGE.ordinal)
+    }
+}
+
+/** Texture sampling filter mode for [RcPaintScope.textureShader]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcTextureFilterMode internal constructor(internal val value: Short) {
+    public companion object {
+        /** Uses the player's default texture sampling filter. */
+        public val Default: RcTextureFilterMode = RcTextureFilterMode(Rc.Texture.FILTER_DEFAULT)
+        /** Nearest-neighbor point sampling without interpolation. */
+        public val Nearest: RcTextureFilterMode = RcTextureFilterMode(Rc.Texture.FILTER_NEAREST)
+        /** Bilinear interpolation across adjacent texels. */
+        public val Linear: RcTextureFilterMode = RcTextureFilterMode(Rc.Texture.FILTER_LINEAR)
+    }
+}
+
+/** Behavior flags for [RcCanvasScope.particlesComparison]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcParticleComparisonFlags internal constructor(internal val value: Short) {
+    public companion object {
+        /** Default particle comparison behavior with no modifier flags set. */
+        public val None: RcParticleComparisonFlags = RcParticleComparisonFlags(0)
+    }
+}
+
+/**
+ * Measurement dimension and flag selector for [RcScope.textMeasure]. Combine base dimensions with
+ * modifier flags such as [MonospaceWidth] or [FontHeight] using [or].
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcTextMeasureMode internal constructor(internal val value: Int) {
+    /** Combines this measurement mode with a modifier flag. */
+    public infix fun or(other: RcTextMeasureMode): RcTextMeasureMode =
+        RcTextMeasureMode(value or other.value)
+
+    public companion object {
+        /** Measures the horizontal width of the text bounds. */
+        public val Width: RcTextMeasureMode = RcTextMeasureMode(TextMeasure.MEASURE_WIDTH)
+        /** Measures the vertical height of the text bounds. */
+        public val Height: RcTextMeasureMode = RcTextMeasureMode(TextMeasure.MEASURE_HEIGHT)
+        /** Measures the left bound offset of the text. */
+        public val Left: RcTextMeasureMode = RcTextMeasureMode(TextMeasure.MEASURE_LEFT)
+        /** Measures the right bound offset of the text. */
+        public val Right: RcTextMeasureMode = RcTextMeasureMode(TextMeasure.MEASURE_RIGHT)
+        /** Measures the top bound offset of the text relative to the baseline. */
+        public val Top: RcTextMeasureMode = RcTextMeasureMode(TextMeasure.MEASURE_TOP)
+        /** Measures the bottom bound offset of the text relative to the baseline. */
+        public val Bottom: RcTextMeasureMode = RcTextMeasureMode(TextMeasure.MEASURE_BOTTOM)
+        /** Modifier flag to measure glyphs using uniform monospace advance width. */
+        public val MonospaceWidth: RcTextMeasureMode =
+            RcTextMeasureMode(TextMeasure.MEASURE_MONOSPACE_FLAG)
+        /**
+         * Modifier flag to measure vertical bounds using full font metrics instead of ink bounds.
+         */
+        public val FontHeight: RcTextMeasureMode =
+            RcTextMeasureMode(TextMeasure.MEASURE_MAX_HEIGHT_FLAG)
+    }
+}
+
+/** Boundary reflection behavior for [RcFloat.spring]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcSpringBoundaryMode internal constructor(internal val value: Int) {
+    public companion object {
+        /** Allows the spring to overshoot target bounds freely without reflection. */
+        public val Overshoot: RcSpringBoundaryMode = RcSpringBoundaryMode(0)
+        /** Reflects velocity when crossing the lower bound (`0`). */
+        public val BounceStart: RcSpringBoundaryMode = RcSpringBoundaryMode(1)
+        /** Reflects velocity when crossing the upper bound (`1`). */
+        public val BounceEnd: RcSpringBoundaryMode = RcSpringBoundaryMode(2)
+        /** Reflects velocity at both the lower (`0`) and upper (`1`) bounds. */
+        public val BounceBoth: RcSpringBoundaryMode = RcSpringBoundaryMode(3)
+    }
+}
+
+/** Trigger condition for horizontal marquee scrolling in [Modifier.marquee]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcMarqueeAnimationMode internal constructor(internal val value: Int) {
+    public companion object {
+        /** Starts marquee scrolling as soon as content overflows. */
+        public val Immediately: RcMarqueeAnimationMode = RcMarqueeAnimationMode(0)
+        /** Scrolls marquee content only while the component holds focus. */
+        public val WhileFocused: RcMarqueeAnimationMode = RcMarqueeAnimationMode(1)
+    }
+}
+
+/**
+ * Type-safe handle to a custom visibility animation registered via
+ * [RcScope.defineVisibilityAnimation] and referenced in [Modifier.animationSpec].
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcVisibilityAnimation internal constructor(internal val id: Int) {
+    public companion object {
+        /** Sentinel indicating no custom visibility animation function is attached. */
+        public val None: RcVisibilityAnimation = RcVisibilityAnimation(-1)
     }
 }

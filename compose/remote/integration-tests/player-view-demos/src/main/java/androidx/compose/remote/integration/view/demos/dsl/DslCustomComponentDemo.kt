@@ -87,7 +87,7 @@ public fun dslCustomComponentDemo(): ByteArray {
                 textAlign = RcTextAlign.Center,
                 color = 0xFF94A3B8.toInt(),
             )
-            val timeCount = createTextFromFloat(minutes(), 2, 0, 0)
+            val timeCount = createTextFromFloat(minutes(), 2, 0)
 
             Row(Modifier.padding(8f), vertical = RcVerticalPositioning.Center) {
                 Text(
@@ -104,7 +104,7 @@ public fun dslCustomComponentDemo(): ByteArray {
                         .background(col)
                 ) {
                     paint { textSize(48f) }
-                    drawTextAnchored(timeCount, width / 2f, height / 2f, 0.rf, 0.rf, 0)
+                    drawTextAnchored(timeCount, width / 2f, height / 2f, 0.rf, 0.rf)
                 }
             }
 
@@ -118,7 +118,7 @@ public fun dslCustomComponentDemo(): ByteArray {
                 )
                 val col = remoteColorExpression(255, (continuousSeconds() / 2f) % 1f, 0.8f, 1f)
 
-                Custom(
+                CustomComponent(
                     config = "TextView",
                     properties =
                         listOf(
@@ -144,7 +144,7 @@ public fun dslCustomComponentDemo(): ByteArray {
                 )
                 val col = remoteColorExpression(255, (continuousSeconds() / 2f) % 1f, 0.8f, 1f)
                 println("custom .............. ")
-                Custom(
+                CustomComponent(
                     config = "TextView",
                     properties =
                         listOf(
@@ -163,8 +163,8 @@ public fun dslCustomComponentDemo(): ByteArray {
                 )
             }
 
-            val prop = RcCustomProperty.returnFloat(SupportProgressBar.RET_PROGRESS, this)
-            val slider = prop.getFloatValue()
+            val prop = customReturnFloat(SupportProgressBar.RET_PROGRESS)
+            val slider = prop.floatValue
             // Native hosted Custom Component ProgressBar!
             val progressProps =
                 listOf(
@@ -185,7 +185,7 @@ public fun dslCustomComponentDemo(): ByteArray {
                     color = 0xFF94A3B8.toInt(),
                     modifier = Modifier.width(300.rdp),
                 )
-                Custom(
+                CustomComponent(
                     config = "ProgressBar",
                     properties = progressProps,
                     modifier = Modifier.width(450.rdp),
@@ -193,7 +193,7 @@ public fun dslCustomComponentDemo(): ByteArray {
             }
 
             Spacer(Modifier.height(12.rdp))
-            val sliderValText = createTextFromFloat(slider, 3, 0, 0)
+            val sliderValText = createTextFromFloat(slider, 3, 0)
             Text(
                 text = "Text Slider Value: " join slider.format(3),
                 fontWeight = RcFontWeight.Normal,
@@ -210,7 +210,7 @@ public fun dslCustomComponentDemo(): ByteArray {
                     modifier = Modifier.width(300.rdp),
                 )
                 val sum = slider + seconds() % 100f
-                Custom(
+                CustomComponent(
                     config = "TextView",
                     properties =
                         listOf(

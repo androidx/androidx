@@ -121,11 +121,11 @@ public sealed interface RcPaintScope {
 
     // ---- Font Axis & Font Data ----
 
-    /** Sets the font/variable typeface axes by tag names and values. */
-    public fun axis(tags: Array<String>, values: FloatArray)
+    /** Sets the font/variable typeface axes by 4-character OpenType [tags] and [values]. */
+    public fun axis(tags: List<String>, values: FloatArray)
 
-    /** Sets the typeface using a registered font data ID. */
-    public fun typeface(fontDataId: Int)
+    /** Sets the typeface using a registered [RcFont] resource. */
+    public fun typeface(font: RcFont)
 
     // ---- Shaders ----
 
@@ -141,19 +141,16 @@ public sealed interface RcPaintScope {
      * @param texture the bitmap-resource reference to sample
      * @param tileX tiling mode along the x axis (default [RcTileMode.Clamp])
      * @param tileY tiling mode along the y axis (default [RcTileMode.Clamp])
-     * @param filterMode 0 = nearest, 1 = linear, 2 = nearest-mipmap (raw int for now)
-     * @param maxAnisotropy 0 disables anisotropic filtering
+     * @param filterMode sampling filter mode (default [RcTextureFilterMode.Default])
+     * @param maxAnisotropy maximum anisotropic filtering level (`0` disables anisotropic filtering)
      */
     public fun textureShader(
         texture: RcImage,
         tileX: RcTileMode = RcTileMode.Clamp,
         tileY: RcTileMode = RcTileMode.Clamp,
-        filterMode: Short = 0,
-        maxAnisotropy: Short = 0,
+        filterMode: RcTextureFilterMode = RcTextureFilterMode.Default,
+        maxAnisotropy: Int = 0,
     )
-
-    /** Sets the shader-transform matrix by id. */
-    public fun shaderMatrix(matrixId: Float)
 
     // ---- Gradients ----
 
@@ -167,7 +164,6 @@ public sealed interface RcPaintScope {
      * @param colors sRGB stops along the line
      * @param positions optional per-stop position in `[0, 1]`; `null` distributes evenly
      * @param tileMode behavior outside the gradient line
-     * @param colorMask bitmask marking which entries of [colors] are remote color IDs
      */
     public fun linearGradient(
         startX: Float,
@@ -177,7 +173,6 @@ public sealed interface RcPaintScope {
         colors: IntArray,
         positions: FloatArray? = null,
         tileMode: RcTileMode = RcTileMode.Clamp,
-        colorMask: Int = 0,
     )
 
     /** Radial gradient around a center point. */
@@ -188,7 +183,6 @@ public sealed interface RcPaintScope {
         colors: IntArray,
         positions: FloatArray? = null,
         tileMode: RcTileMode = RcTileMode.Clamp,
-        colorMask: Int = 0,
     )
 
     /**
@@ -212,7 +206,6 @@ public sealed interface RcPaintScope {
      * @param colors sRGB colors distributed between the start and end circle
      * @param positions relative position of each color, or `null` for even distribution
      * @param tileMode how the gradient repeats outside the end circle
-     * @param colorMask bit mask marking which entries of [colors] are color ids
      */
     public fun radialGradient(
         startX: Float,
@@ -224,7 +217,6 @@ public sealed interface RcPaintScope {
         colors: IntArray,
         positions: FloatArray? = null,
         tileMode: RcTileMode = RcTileMode.Clamp,
-        colorMask: Int = 0,
     )
 
     /** Sweep gradient around a center point. */
@@ -233,7 +225,6 @@ public sealed interface RcPaintScope {
         centerY: Float,
         colors: IntArray,
         positions: FloatArray? = null,
-        colorMask: Int = 0,
     )
 
     /** Linear gradient between two endpoints using dynamic [RcColor] stops. */
@@ -245,18 +236,7 @@ public sealed interface RcPaintScope {
         colors: List<RcColor>,
         positions: FloatArray? = null,
         tileMode: RcTileMode = RcTileMode.Clamp,
-    ) {
-        linearGradient(
-            startX = startX,
-            startY = startY,
-            endX = endX,
-            endY = endY,
-            colors = IntArray(colors.size) { colors[it].id },
-            positions = positions,
-            tileMode = tileMode,
-            colorMask = dynamicColorMask(colors),
-        )
-    }
+    )
 
     /** Radial gradient around a center point using dynamic [RcColor] stops. */
     public fun radialGradient(
@@ -266,17 +246,7 @@ public sealed interface RcPaintScope {
         colors: List<RcColor>,
         positions: FloatArray? = null,
         tileMode: RcTileMode = RcTileMode.Clamp,
-    ) {
-        radialGradient(
-            centerX = centerX,
-            centerY = centerY,
-            radius = radius,
-            colors = IntArray(colors.size) { colors[it].id },
-            positions = positions,
-            tileMode = tileMode,
-            colorMask = dynamicColorMask(colors),
-        )
-    }
+    )
 
     /** Radial gradient between two circles using dynamic [RcColor] stops. */
     public fun radialGradient(
@@ -289,20 +259,7 @@ public sealed interface RcPaintScope {
         colors: List<RcColor>,
         positions: FloatArray? = null,
         tileMode: RcTileMode = RcTileMode.Clamp,
-    ) {
-        radialGradient(
-            startX = startX,
-            startY = startY,
-            startRadius = startRadius,
-            endX = endX,
-            endY = endY,
-            endRadius = endRadius,
-            colors = IntArray(colors.size) { colors[it].id },
-            positions = positions,
-            tileMode = tileMode,
-            colorMask = dynamicColorMask(colors),
-        )
-    }
+    )
 
     /** Sweep gradient around a center point using dynamic [RcColor] stops. */
     public fun sweepGradient(
@@ -310,29 +267,21 @@ public sealed interface RcPaintScope {
         centerY: Float,
         colors: List<RcColor>,
         positions: FloatArray? = null,
-    ) {
-        sweepGradient(
-            centerX = centerX,
-            centerY = centerY,
-            colors = IntArray(colors.size) { colors[it].id },
-            positions = positions,
-            colorMask = dynamicColorMask(colors),
-        )
-    }
-}
-
-private fun dynamicColorMask(colors: List<RcColor>): Int {
-    var mask = 0
-    for (i in colors.indices) {
-        if (colors[i].id != 0) {
-            mask = mask or (1 shl i)
-        }
-    }
-    return mask
+    )
 }
 
 /** Internal implementation that forwards every method to a wrapped legacy [RcPaint]. */
 internal class RcPaintScopeImpl(internal val raw: RcPaint) : RcPaintScope {
+
+    private fun dynamicColorMask(colors: List<RcColor>): Int {
+        var mask = 0
+        for (i in colors.indices) {
+            if (colors[i].id != 0) {
+                mask = mask or (1 shl i)
+            }
+        }
+        return mask
+    }
 
     override fun color(value: Int) {
         raw.setColor(value)
@@ -418,12 +367,12 @@ internal class RcPaintScopeImpl(internal val raw: RcPaint) : RcPaintScope {
         raw.setTypeface(name)
     }
 
-    override fun axis(tags: Array<String>, values: FloatArray) {
-        raw.setAxis(tags, values)
+    override fun axis(tags: List<String>, values: FloatArray) {
+        raw.setAxis(tags.toTypedArray(), values)
     }
 
-    override fun typeface(fontDataId: Int) {
-        raw.setTypeface(fontDataId)
+    override fun typeface(font: RcFont) {
+        raw.setTypeface(font.id)
     }
 
     override fun shader(value: RcShader) {
@@ -438,14 +387,16 @@ internal class RcPaintScopeImpl(internal val raw: RcPaint) : RcPaintScope {
         texture: RcImage,
         tileX: RcTileMode,
         tileY: RcTileMode,
-        filterMode: Short,
-        maxAnisotropy: Short,
+        filterMode: RcTextureFilterMode,
+        maxAnisotropy: Int,
     ) {
-        raw.setTextureShader(texture.id, tileX.value, tileY.value, filterMode, maxAnisotropy)
-    }
-
-    override fun shaderMatrix(matrixId: Float) {
-        raw.setShaderMatrix(matrixId)
+        raw.setTextureShader(
+            texture.id,
+            tileX.value,
+            tileY.value,
+            filterMode.value,
+            maxAnisotropy.toShort(),
+        )
     }
 
     override fun linearGradient(
@@ -456,7 +407,6 @@ internal class RcPaintScopeImpl(internal val raw: RcPaint) : RcPaintScope {
         colors: IntArray,
         positions: FloatArray?,
         tileMode: RcTileMode,
-        colorMask: Int,
     ) {
         raw.setLinearGradient(
             startX,
@@ -464,7 +414,7 @@ internal class RcPaintScopeImpl(internal val raw: RcPaint) : RcPaintScope {
             endX,
             endY,
             colors,
-            colorMask,
+            0,
             positions,
             tileMode.value.toInt(),
         )
@@ -477,14 +427,13 @@ internal class RcPaintScopeImpl(internal val raw: RcPaint) : RcPaintScope {
         colors: IntArray,
         positions: FloatArray?,
         tileMode: RcTileMode,
-        colorMask: Int,
     ) {
         raw.setRadialGradient(
             centerX,
             centerY,
             radius,
             colors,
-            colorMask,
+            0,
             positions,
             tileMode.value.toInt(),
         )
@@ -500,7 +449,6 @@ internal class RcPaintScopeImpl(internal val raw: RcPaint) : RcPaintScope {
         colors: IntArray,
         positions: FloatArray?,
         tileMode: RcTileMode,
-        colorMask: Int,
     ) {
         raw.setRadialGradient(
             startX,
@@ -510,7 +458,7 @@ internal class RcPaintScopeImpl(internal val raw: RcPaint) : RcPaintScope {
             endY,
             endRadius,
             colors,
-            colorMask,
+            0,
             positions,
             tileMode.value.toInt(),
         )
@@ -521,8 +469,87 @@ internal class RcPaintScopeImpl(internal val raw: RcPaint) : RcPaintScope {
         centerY: Float,
         colors: IntArray,
         positions: FloatArray?,
-        colorMask: Int,
     ) {
-        raw.setSweepGradient(centerX, centerY, colors, colorMask, positions)
+        raw.setSweepGradient(centerX, centerY, colors, 0, positions)
+    }
+
+    override fun linearGradient(
+        startX: Float,
+        startY: Float,
+        endX: Float,
+        endY: Float,
+        colors: List<RcColor>,
+        positions: FloatArray?,
+        tileMode: RcTileMode,
+    ) {
+        raw.setLinearGradient(
+            startX,
+            startY,
+            endX,
+            endY,
+            IntArray(colors.size) { colors[it].id },
+            dynamicColorMask(colors),
+            positions,
+            tileMode.value.toInt(),
+        )
+    }
+
+    override fun radialGradient(
+        centerX: Float,
+        centerY: Float,
+        radius: Float,
+        colors: List<RcColor>,
+        positions: FloatArray?,
+        tileMode: RcTileMode,
+    ) {
+        raw.setRadialGradient(
+            centerX,
+            centerY,
+            radius,
+            IntArray(colors.size) { colors[it].id },
+            dynamicColorMask(colors),
+            positions,
+            tileMode.value.toInt(),
+        )
+    }
+
+    override fun radialGradient(
+        startX: Float,
+        startY: Float,
+        startRadius: Float,
+        endX: Float,
+        endY: Float,
+        endRadius: Float,
+        colors: List<RcColor>,
+        positions: FloatArray?,
+        tileMode: RcTileMode,
+    ) {
+        raw.setRadialGradient(
+            startX,
+            startY,
+            startRadius,
+            endX,
+            endY,
+            endRadius,
+            IntArray(colors.size) { colors[it].id },
+            dynamicColorMask(colors),
+            positions,
+            tileMode.value.toInt(),
+        )
+    }
+
+    override fun sweepGradient(
+        centerX: Float,
+        centerY: Float,
+        colors: List<RcColor>,
+        positions: FloatArray?,
+    ) {
+        raw.setSweepGradient(
+            centerX,
+            centerY,
+            IntArray(colors.size) { colors[it].id },
+            dynamicColorMask(colors),
+            positions,
+        )
     }
 }

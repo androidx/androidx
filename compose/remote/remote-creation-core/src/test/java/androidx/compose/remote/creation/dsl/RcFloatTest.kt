@@ -122,4 +122,52 @@ class RcFloatTest {
             assertEquals(expr1, expr2)
         }
     }
+
+    @Test
+    fun renamedMathAndArrayHelpers() {
+        val angle = RcFloat(180f)
+        assertArrayEquals(
+            floatArrayOf(180.0f, Rc.FloatExpression.RAD),
+            toRadians(angle).toArray(),
+            0.0001f,
+        )
+        assertArrayEquals(
+            floatArrayOf(3.14f, Rc.FloatExpression.DEG),
+            toDegrees(RcFloat(3.14f)).toArray(),
+            0.0001f,
+        )
+        assertArrayEquals(
+            floatArrayOf(3.0f, 4.0f, Rc.FloatExpression.MAX),
+            RcFloat(3f).max(4f).toArray(),
+            0.0001f,
+        )
+        assertArrayEquals(
+            floatArrayOf(3.0f, 4.0f, Rc.FloatExpression.MAX),
+            RcFloat(3f).max(RcFloat(4f)).toArray(),
+            0.0001f,
+        )
+
+        assertArrayEquals(
+            floatArrayOf(3.0f, 4.0f, Rc.FloatExpression.SQUARE_SUM),
+            squareSum(RcFloat(3f), RcFloat(4f)).toArray(),
+            0.0001f,
+        )
+
+        val writer = RemoteComposeWriter(testProfile)
+        val scope = RcScopeImpl(writer)
+        scope.apply {
+            val arr = remoteFloatArray(floatArrayOf(1f, 2f, 3f))
+            val arrId = arr.toFloat()
+            assertArrayEquals(
+                floatArrayOf(arrId, Rc.FloatExpression.A_SUM_SQR),
+                arraySumSqr(arr).toArray(),
+                0.0001f,
+            )
+            assertArrayEquals(
+                floatArrayOf(arrId, 0.5f, Rc.FloatExpression.A_SPLINE),
+                arraySpline(arr, 0.5f).toArray(),
+                0.0001f,
+            )
+        }
+    }
 }

@@ -89,7 +89,7 @@ public fun dslBasicTimer(): ByteArray {
                     )
                 save {
                     scale(continuousSeconds() % 1f, continuousSeconds() % 1f, cx, cy)
-                    drawTextAnchored(id, cx, cy, 0f.rf, 0f.rf, 0)
+                    drawTextAnchored(id, cx, cy, 0f.rf, 0f.rf)
                 }
 
                 paint {

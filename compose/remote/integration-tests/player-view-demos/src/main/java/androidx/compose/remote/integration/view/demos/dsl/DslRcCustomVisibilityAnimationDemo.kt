@@ -34,6 +34,7 @@ import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
 import androidx.compose.remote.creation.dsl.height
 import androidx.compose.remote.creation.dsl.max
+import androidx.compose.remote.creation.dsl.min
 import androidx.compose.remote.creation.dsl.onClick
 import androidx.compose.remote.creation.dsl.padding
 import androidx.compose.remote.creation.dsl.rsp
@@ -1470,8 +1471,8 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                             visibilityDuration = 1000f,
                             enterAnimation = RcEnterExitAnimation.Custom,
                             exitAnimation = RcEnterExitAnimation.Custom,
-                            enterFunctionId = customScaleRotateEnter,
-                            exitFunctionId = customScaleRotateExit,
+                            enterAnimationFunction = customScaleRotateEnter,
+                            exitAnimationFunction = customScaleRotateExit,
                         )
                         .clip(RcShape.roundedCorner(10f))
                         .background(0xFFFF5722.toInt()),
@@ -1494,8 +1495,8 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                             visibilityDuration = 1000f,
                             enterAnimation = RcEnterExitAnimation.Custom,
                             exitAnimation = RcEnterExitAnimation.Custom,
-                            enterFunctionId = customSlideRingEnter,
-                            exitFunctionId = customSlideRingExit,
+                            enterAnimationFunction = customSlideRingEnter,
+                            exitAnimationFunction = customSlideRingExit,
                         )
                         .clip(RcShape.roundedCorner(10f))
                         .background(0xFF3F51B5.toInt()),
@@ -1518,8 +1519,8 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                             visibilityDuration = 1000f,
                             enterAnimation = RcEnterExitAnimation.Custom,
                             exitAnimation = RcEnterExitAnimation.Custom,
-                            enterFunctionId = customParticleAssembleEnter,
-                            exitFunctionId = customParticleExplodeExit,
+                            enterAnimationFunction = customParticleAssembleEnter,
+                            exitAnimationFunction = customParticleExplodeExit,
                         )
                         .clip(RcShape.roundedCorner(10f))
                         .background(0xFF9C27B0.toInt()),
@@ -1542,8 +1543,8 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                             visibilityDuration = 1000f,
                             enterAnimation = RcEnterExitAnimation.Custom,
                             exitAnimation = RcEnterExitAnimation.Custom,
-                            enterFunctionId = customVortexEnter,
-                            exitFunctionId = customVortexExit,
+                            enterAnimationFunction = customVortexEnter,
+                            exitAnimationFunction = customVortexExit,
                         )
                         .clip(RcShape.roundedCorner(10f))
                         .background(0xFF1A237E.toInt()),
@@ -1566,8 +1567,8 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                             visibilityDuration = 1000f,
                             enterAnimation = RcEnterExitAnimation.Custom,
                             exitAnimation = RcEnterExitAnimation.Custom,
-                            enterFunctionId = customGlitchHologramEnter,
-                            exitFunctionId = customGlitchHologramExit,
+                            enterAnimationFunction = customGlitchHologramEnter,
+                            exitAnimationFunction = customGlitchHologramExit,
                         )
                         .clip(RcShape.roundedCorner(10f))
                         .background(0xFF004D40.toInt()),
@@ -1590,8 +1591,8 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                             visibilityDuration = 1000f,
                             enterAnimation = RcEnterExitAnimation.Custom,
                             exitAnimation = RcEnterExitAnimation.Custom,
-                            enterFunctionId = customShaderMeltEnter,
-                            exitFunctionId = customShaderMeltExit,
+                            enterAnimationFunction = customShaderMeltEnter,
+                            exitAnimationFunction = customShaderMeltExit,
                         )
                         .clip(RcShape.roundedCorner(10f))
                         .background(0xFF006064.toInt()),
@@ -1614,8 +1615,8 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                             visibilityDuration = 1000f,
                             enterAnimation = RcEnterExitAnimation.Custom,
                             exitAnimation = RcEnterExitAnimation.Custom,
-                            enterFunctionId = customSnapDustEnter,
-                            exitFunctionId = customSnapDustExit,
+                            enterAnimationFunction = customSnapDustEnter,
+                            exitAnimationFunction = customSnapDustExit,
                         )
                         .clip(RcShape.roundedCorner(10f))
                         .background(0xFF3E2723.toInt()),
@@ -1638,8 +1639,8 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                             visibilityDuration = 1000f,
                             enterAnimation = RcEnterExitAnimation.Custom,
                             exitAnimation = RcEnterExitAnimation.Custom,
-                            enterFunctionId = customSingularityEnter,
-                            exitFunctionId = customSingularityExit,
+                            enterAnimationFunction = customSingularityEnter,
+                            exitAnimationFunction = customSingularityExit,
                         )
                         .clip(RcShape.roundedCorner(10f))
                         .background(0xFF1A0033.toInt()),
@@ -1662,8 +1663,8 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                             visibilityDuration = 1000f,
                             enterAnimation = RcEnterExitAnimation.Custom,
                             exitAnimation = RcEnterExitAnimation.Custom,
-                            enterFunctionId = customMatrixGlitchEnter,
-                            exitFunctionId = customMatrixGlitchExit,
+                            enterAnimationFunction = customMatrixGlitchEnter,
+                            exitAnimationFunction = customMatrixGlitchExit,
                         )
                         .clip(RcShape.roundedCorner(10f))
                         .background(0xFF003314.toInt()),
@@ -1686,8 +1687,8 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                             visibilityDuration = 1000f,
                             enterAnimation = RcEnterExitAnimation.Custom,
                             exitAnimation = RcEnterExitAnimation.Custom,
-                            enterFunctionId = customFireSweepEnter,
-                            exitFunctionId = customFireSweepExit,
+                            enterAnimationFunction = customFireSweepEnter,
+                            exitAnimationFunction = customFireSweepExit,
                         )
                         .clip(RcShape.roundedCorner(10f))
                         .background(0xFF4A1000.toInt()),
@@ -1711,8 +1712,8 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                             visibilityDuration = 1000f,
                             enterAnimation = RcEnterExitAnimation.Custom,
                             exitAnimation = RcEnterExitAnimation.Custom,
-                            enterFunctionId = customLiquidFillEnter,
-                            exitFunctionId = customLiquidDrainExit,
+                            enterAnimationFunction = customLiquidFillEnter,
+                            exitAnimationFunction = customLiquidDrainExit,
                             enterSequence = RcAnimationSequence.After,
                             exitSequence = RcAnimationSequence.Before,
                         )
@@ -1737,8 +1738,8 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                             visibilityDuration = 1000f,
                             enterAnimation = RcEnterExitAnimation.Custom,
                             exitAnimation = RcEnterExitAnimation.Custom,
-                            enterFunctionId = customShardExplodeEnter,
-                            exitFunctionId = customShardExplodeExit,
+                            enterAnimationFunction = customShardExplodeEnter,
+                            exitAnimationFunction = customShardExplodeExit,
                         )
                         .clip(RcShape.roundedCorner(10f))
                         .background(0xFF880E4F.toInt()),
@@ -1761,8 +1762,8 @@ public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
                             visibilityDuration = 1000f,
                             enterAnimation = RcEnterExitAnimation.Custom,
                             exitAnimation = RcEnterExitAnimation.Custom,
-                            enterFunctionId = customLiquidChromeEnter,
-                            exitFunctionId = customLiquidChromeExit,
+                            enterAnimationFunction = customLiquidChromeEnter,
+                            exitAnimationFunction = customLiquidChromeExit,
                         )
                         .clip(RcShape.roundedCorner(10f))
                         .background(0xFF263238.toInt()),

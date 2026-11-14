@@ -29,6 +29,8 @@ import androidx.compose.remote.creation.dsl.RcWaveform
 import androidx.compose.remote.creation.dsl.background
 import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
+import androidx.compose.remote.creation.dsl.max
+import androidx.compose.remote.creation.dsl.sin
 import androidx.compose.remote.creation.dsl.sqrt
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 
@@ -41,7 +43,7 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
 fun dslGameCannonShoot(): ByteArray {
     return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
         val fireSound =
-            soundExpression(
+            remoteSoundExpression(
                 type = RcSoundType.Tone,
                 frequency = 180f,
                 durationSeconds = 0.1f,
@@ -49,7 +51,7 @@ fun dslGameCannonShoot(): ByteArray {
             )
 
         val hitSound =
-            soundExpression(
+            remoteSoundExpression(
                 type = RcSoundType.Tone,
                 frequency = 880f,
                 durationSeconds = 0.15f,

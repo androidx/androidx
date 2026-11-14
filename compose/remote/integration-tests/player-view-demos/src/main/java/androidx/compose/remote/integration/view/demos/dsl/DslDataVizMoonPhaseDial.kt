@@ -122,7 +122,7 @@ public fun dslDemoMoonPhaseDial(): ByteArray {
                 textSize((density * 18f).toFloat())
                 typeface(RcFontType.Default, RcFontWeight.SemiBold, italic = false)
             }
-            drawTextAnchored(phaseName, cx, h * 0.74f, 0f.rf, 0f.rf, 0)
+            drawTextAnchored(phaseName, cx, h * 0.74f, 0f.rf, 0f.rf)
 
             // Illumination percentage.
             paint {
@@ -138,7 +138,7 @@ public fun dslDemoMoonPhaseDial(): ByteArray {
                     RcTextFromFloatSpec.of(padPre = RcTextFromFloatSpec.PadPre.None),
                 )
             val illumLabel = illumText + "% illuminated"
-            drawTextAnchored(illumLabel, cx, h * 0.81f, 0f.rf, 0f.rf, 0)
+            drawTextAnchored(illumLabel, cx, h * 0.81f, 0f.rf, 0f.rf)
 
             // Decorative stars.
             paint {
@@ -167,7 +167,6 @@ public fun dslDemoMoonPhaseDial(): ByteArray {
                     h * starPositions[s * 2 + 1],
                     0f.rf,
                     0f.rf,
-                    0,
                 )
             }
         }

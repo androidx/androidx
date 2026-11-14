@@ -118,7 +118,7 @@ public fun dslDemoStockSparkline(): ByteArray {
                     0,
                     RcTextFromFloatSpec.of(padPre = RcTextFromFloatSpec.PadPre.None),
                 )
-            drawTextAnchored(priceText, density * 20f, h * 0.12f, (-1f).rf, 0f.rf, 0)
+            drawTextAnchored(priceText, density * 20f, h * 0.12f, (-1f).rf, 0f.rf)
 
             // Change percentage.
             paint {
@@ -136,13 +136,13 @@ public fun dslDemoStockSparkline(): ByteArray {
                     ),
                 )
             val changeLabel = remoteText("▲ ") + changeText + "%"
-            drawTextAnchored(changeLabel, density * 20f, h * 0.22f, (-1f).rf, 0f.rf, 0)
+            drawTextAnchored(changeLabel, density * 20f, h * 0.22f, (-1f).rf, 0f.rf)
 
             paint {
                 color(0x66FFFFFF)
                 textSize((density * 11f).toFloat())
             }
-            drawTextAnchored(remoteText("24h"), density * 20f, h * 0.30f, (-1f).rf, 0f.rf, 0)
+            drawTextAnchored(remoteText("24h"), density * 20f, h * 0.30f, (-1f).rf, 0f.rf)
 
             // Build the spline-smoothed sparkline path.
             val startY = gBottom - (arraySpline(prices, 0f.rf) - priceMin) / priceRange * gH
@@ -164,7 +164,7 @@ public fun dslDemoStockSparkline(): ByteArray {
                 strokeWidth((density * 2f).toFloat())
                 strokeCap(RcStrokeCap.Round)
             }
-            drawPath(linePath.getPath())
+            drawPath(linePath.toPath())
 
             // Close the path to form a polygon for gradient fill.
             linePath.lineTo(gRight.toFloat(), gBottom.toFloat())
@@ -182,7 +182,7 @@ public fun dslDemoStockSparkline(): ByteArray {
                     tileMode = RcTileMode.Clamp,
                 )
             }
-            drawPath(linePath.getPath())
+            drawPath(linePath.toPath())
 
             // Reset shader so the labels below render as solid colour.
             paint { clearShader() }
@@ -207,8 +207,8 @@ public fun dslDemoStockSparkline(): ByteArray {
                     0,
                     RcTextFromFloatSpec.of(padPre = RcTextFromFloatSpec.PadPre.None),
                 )
-            drawTextAnchored(minText, gRight, gBottom + density * 10f, 1f.rf, 0f.rf, 0)
-            drawTextAnchored(maxText, gRight, gTop - density * 4f, 1f.rf, 0f.rf, 0)
+            drawTextAnchored(minText, gRight, gBottom + density * 10f, 1f.rf, 0f.rf)
+            drawTextAnchored(maxText, gRight, gTop - density * 4f, 1f.rf, 0f.rf)
         }
     }
 }

@@ -43,12 +43,12 @@ import org.jspecify.annotations.Nullable;
 @SuppressLint("RestrictedApiAndroidX")
 public class SupportEditText implements AndroidComponentSupport {
 
-    public static final short PROP_TEXT = 1;
-    public static final short PROP_TEXT_COLOR = 2;
-    public static final short PROP_TEXT_SIZE = 3;
-    public static final short PROP_BACKGROUND_COLOR = 4;
-    public static final short PROP_HINT = 5;
-    public static final short RET_TEXT = 6;
+    public static final int PROP_TEXT = 1;
+    public static final int PROP_TEXT_COLOR = 2;
+    public static final int PROP_TEXT_SIZE = 3;
+    public static final int PROP_BACKGROUND_COLOR = 4;
+    public static final int PROP_HINT = 5;
+    public static final int RET_TEXT = 6;
 
     private final @NonNull AndroidCustomSupport mSupport;
 

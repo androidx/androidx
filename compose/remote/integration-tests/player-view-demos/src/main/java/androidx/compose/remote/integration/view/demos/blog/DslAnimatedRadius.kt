@@ -22,7 +22,9 @@ import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.background
 import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
+import androidx.compose.remote.creation.dsl.min
 import androidx.compose.remote.creation.dsl.plus
+import androidx.compose.remote.creation.dsl.sin
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.tooling.preview.RemoteDocumentPreview

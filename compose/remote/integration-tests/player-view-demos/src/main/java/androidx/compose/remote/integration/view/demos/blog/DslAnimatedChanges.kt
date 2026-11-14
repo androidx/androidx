@@ -26,9 +26,11 @@ import androidx.compose.remote.creation.dsl.RcHeaderTag
 import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcStrokeCap
+import androidx.compose.remote.creation.dsl.abs
 import androidx.compose.remote.creation.dsl.background
 import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
+import androidx.compose.remote.creation.dsl.min
 import androidx.compose.remote.creation.dsl.round
 import androidx.compose.remote.creation.dsl.times
 import androidx.compose.remote.creation.profile.RcPlatformProfiles

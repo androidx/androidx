@@ -131,7 +131,7 @@ public fun dslDemoHydrationWave(): ByteArray {
                     (glassRight - density * 2f).toFloat(),
                     (glassBottom - density * 2f).toFloat(),
                 )
-                drawPath(wavePath.getPath())
+                drawPath(wavePath.toPath())
             }
             paint { clearShader() }
 
@@ -149,7 +149,7 @@ public fun dslDemoHydrationWave(): ByteArray {
                     0,
                     RcTextFromFloatSpec.of(padPre = RcTextFromFloatSpec.PadPre.None),
                 )
-            drawTextAnchored(cupsText, cx, h * 0.83f, 0f.rf, 0f.rf, 0)
+            drawTextAnchored(cupsText, cx, h * 0.83f, 0f.rf, 0f.rf)
 
             paint {
                 color(0xAAFFFFFF.toInt())
@@ -164,7 +164,7 @@ public fun dslDemoHydrationWave(): ByteArray {
                     RcTextFromFloatSpec.of(padPre = RcTextFromFloatSpec.PadPre.None),
                 )
             val label = remoteText("of ") + goalText + " cups"
-            drawTextAnchored(label, cx, h * 0.90f, 0f.rf, 0f.rf, 0)
+            drawTextAnchored(label, cx, h * 0.90f, 0f.rf, 0f.rf)
 
             // Progress percentage inside glass.
             paint {
@@ -181,19 +181,19 @@ public fun dslDemoHydrationWave(): ByteArray {
                     RcTextFromFloatSpec.of(padPre = RcTextFromFloatSpec.PadPre.None),
                 )
             val pctLabel = pctText + "%"
-            drawTextAnchored(pctLabel, cx, glassTop + glassH * 0.4f, 0f.rf, 0f.rf, 0)
+            drawTextAnchored(pctLabel, cx, glassTop + glassH * 0.4f, 0f.rf, 0f.rf)
 
             // Water drop icon + label.
             paint {
                 color(0xFF38BDF8.toInt())
                 textSize((density * 24f).toFloat())
             }
-            drawTextAnchored(remoteText("⬩"), cx, h * 0.10f, 0f.rf, 0f.rf, 0)
+            drawTextAnchored(remoteText("⬩"), cx, h * 0.10f, 0f.rf, 0f.rf)
             paint {
                 color(0xFFFFFFFF.toInt())
                 textSize((density * 14f).toFloat())
             }
-            drawTextAnchored(remoteText("Hydration"), cx, h * 0.10f, 0f.rf, 3f.rf, 0)
+            drawTextAnchored(remoteText("Hydration"), cx, h * 0.10f, 0f.rf, 3f.rf)
         }
     }
 }

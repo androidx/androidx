@@ -15,7 +15,7 @@
  */
 
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@file:JvmName("RcScopeKt")
+@file:JvmName("RcScopes")
 
 package androidx.compose.remote.creation.dsl
 
@@ -52,8 +52,8 @@ public sealed interface RcScope {
         content: RcScope.() -> Unit = {},
     )
 
-    /** Adds a platform-specific Custom layout manager node to host native views. */
-    public fun Custom(
+    /** Adds a platform-specific CustomComponent layout manager node to host native views. */
+    public fun CustomComponent(
         config: String,
         modifier: Modifier = Modifier,
         properties: List<RcCustomProperty> = emptyList(),
@@ -189,7 +189,7 @@ public sealed interface RcScope {
      * Call [drawComponentContent] or [drawComponentToBitmap] inside the block to render the
      * component content.
      *
-     * @return the function ID that can be passed to `Modifier.animationSpec`.
+     * @return an [RcVisibilityAnimation] handle that can be passed to [Modifier.animationSpec].
      */
     public fun defineVisibilityAnimation(
         block:
@@ -201,7 +201,7 @@ public sealed interface RcScope {
                 x: RcFloat,
                 y: RcFloat,
             ) -> Unit
-    ): Int
+    ): RcVisibilityAnimation
 
     /**
      * Define a custom visibility animation function without requiring the component ID parameter.
@@ -215,7 +215,7 @@ public sealed interface RcScope {
                 x: RcFloat,
                 y: RcFloat,
             ) -> Unit
-    ): Int = defineVisibilityAnimation { _, progress, width, height, x, y ->
+    ): RcVisibilityAnimation = defineVisibilityAnimation { _, progress, width, height, x, y ->
         block(progress, width, height, x, y)
     }
 
@@ -281,22 +281,42 @@ public sealed interface RcScope {
     ): RcColor
 
     /** Creates a color resource from an HSV expression. */
-    public fun remoteColorExpression(alpha: Int, hue: RcFloat, sat: Float, value: Float): RcColor
+    public fun remoteColorExpression(
+        alpha: Int,
+        hue: RcFloat,
+        saturation: Float,
+        value: Float,
+    ): RcColor
 
     /** Creates a color resource from an HSV expression. */
-    public fun remoteColorExpression(alpha: Int, hue: Float, sat: Float, value: Float): RcColor
+    public fun remoteColorExpression(
+        alpha: Int,
+        hue: Float,
+        saturation: Float,
+        value: Float,
+    ): RcColor
 
     /** Creates a text resource from a float value with formatting. */
-    public fun createTextFromFloat(value: Float, whole: Short, decimal: Short, flags: Int): RcText
+    public fun createTextFromFloat(
+        value: Float,
+        whole: Int,
+        decimal: Int = 0,
+        spec: RcTextFromFloatSpec = RcTextFromFloatSpec.Default,
+    ): RcText
 
     /** Creates a text resource from a remote float with formatting. */
-    public fun createTextFromFloat(value: RcFloat, whole: Short, decimal: Short, flags: Int): RcText
+    public fun createTextFromFloat(
+        value: RcFloat,
+        whole: Int,
+        decimal: Int = 0,
+        spec: RcTextFromFloatSpec = RcTextFromFloatSpec.Default,
+    ): RcText
 
     /** Registers a float array and returns its reference. */
     public fun remoteFloatArray(array: FloatArray): RcFloat
 
     /** Registers a named float array and returns its reference. */
-    public fun addNamedFloatArray(name: String, array: FloatArray): RcFloat
+    public fun remoteNamedFloatArray(name: String, array: FloatArray): RcFloat
 
     /** Sets the name of a remote float in the buffer. */
     public fun RcFloat.named(name: String): RcFloat
@@ -330,59 +350,6 @@ public sealed interface RcScope {
 
     /** Returns an RcFloat representing continuous seconds. */
     public fun continuousSeconds(): RcFloat
-
-    /** Returns an RcFloat representing the maximum of a and b. */
-    public fun max(a: RcFloat, b: RcFloat): RcFloat
-
-    /** Returns an RcFloat representing the maximum of a and b. */
-    public fun max(a: Float, b: RcFloat): RcFloat
-
-    /** Returns an RcFloat representing the maximum of a and b. */
-    public fun max(a: RcFloat, b: Float): RcFloat
-
-    /** Returns an RcFloat representing the minimum of a and b. */
-    public fun min(a: RcFloat, b: RcFloat): RcFloat
-
-    /** Returns an RcFloat representing the minimum of a and b. */
-    public fun min(a: Float, b: RcFloat): RcFloat
-
-    /** Returns an RcFloat representing the minimum of a and b. */
-    public fun min(a: RcFloat, b: Float): RcFloat
-
-    /** Returns an RcFloat representing the sign of v. */
-    public fun sign(v: RcFloat): RcFloat
-
-    /** Returns an RcFloat representing the sine of v. */
-    public fun sin(v: RcFloat): RcFloat
-
-    /** Returns an RcFloat representing the cosine of v. */
-    public fun cos(v: RcFloat): RcFloat
-
-    public fun abs(v: RcFloat): RcFloat
-
-    /** Returns an RcFloat representing the maximum value in the array. */
-    public fun arrayMax(array: RcFloat): RcFloat
-
-    /** Returns an RcFloat representing the minimum value in the array. */
-    public fun arrayMin(array: RcFloat): RcFloat
-
-    /** Returns an RcFloat interpolated from array at position. */
-    public fun arraySpline(array: RcFloat, position: RcFloat): RcFloat
-
-    /** Returns an RcFloat interpolated from array at position. */
-    public fun arraySpline(array: RcFloat, position: Float): RcFloat
-
-    public fun arrayLength(a: RcFloat): RcFloat
-
-    public fun arraySum(a: RcFloat): RcFloat
-
-    public fun arraySum(a: RcFloat, index: RcFloat): RcFloat
-
-    public fun arraySumXY(a: RcFloat, b: RcFloat): RcFloat
-
-    public fun arraySumSqr(a: RcFloat): RcFloat
-
-    public fun arrayAvg(a: RcFloat): RcFloat
 
     /**
      * Adds a Cartesian parametric `(x(t), y(t))` path expression and returns its reference.
@@ -425,11 +392,11 @@ public sealed interface RcScope {
     ): RcPath
 
     /**
-     * Returns an RcFloat representing a function of a single variable.
+     * Returns an [RcFloat] representing a function of a single variable.
      *
      * @param block the function block
      */
-    public fun rFun(block: (RcFloat) -> RcFloat): RcFloat
+    public fun remoteFunction(block: (RcFloat) -> RcFloat): RcFloat
 
     public fun density(): RcFloat
 
@@ -486,17 +453,29 @@ public sealed interface RcScope {
     /** Returns the component's height as a remote float. */
     public fun componentHeight(): RcFloat
 
-    /** Registers a bitmap resource and returns its reference. */
-    public fun remoteBitmap(image: Any): RcImage
+    /** Internal bridge for platform-specific bitmap handles (e.g. Android `Bitmap`). */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun remotePlatformBitmap(image: Any): RcImage
 
-    /** Registers a named bitmap resource and returns its reference. */
-    public fun remoteNamedBitmap(name: String, image: Any): RcImage
+    /** Internal bridge for named platform-specific bitmap handles (e.g. Android `Bitmap`). */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun remoteNamedPlatformBitmap(name: String, image: Any): RcImage
+
+    /** Registers an encoded bitmap resource (e.g. PNG/WebP bytes) and returns its reference. */
+    public fun remoteBitmap(width: Int, height: Int, data: ByteArray): RcImage
+
+    /**
+     * Registers a named encoded bitmap resource (e.g. PNG/WebP bytes) and returns its reference.
+     */
+    public fun remoteNamedBitmap(name: String, width: Int, height: Int, data: ByteArray): RcImage
 
     /** Registers a bitmap URL resource and returns its reference. */
     public fun remoteBitmapUrl(url: String): RcImage
 
     /** Registers a named bitmap URL resource and returns its reference. */
     public fun remoteNamedBitmapUrl(name: String, url: String): RcImage
+
+    /** Registers an embedded font resource (e.g. TTF/OTF bytes) and returns its reference. */
+    public fun remoteFont(data: ByteArray): RcFont
 
     /** Registers a float variable and returns its reference. */
     public fun remoteFloat(value: Float): RcFloat
@@ -513,8 +492,20 @@ public sealed interface RcScope {
     /** Registers a long constant and returns its reference. */
     public fun remoteLong(value: Long): RcInteger
 
-    /** Registers a boolean constant and returns its reference. */
-    public fun remoteBoolean(value: Boolean): RcInteger
+    /** Registers a boolean constant and returns a typed [RcBool] reference. */
+    public fun remoteBoolean(value: Boolean): RcBool
+
+    /** Allocates a custom property return slot for a dynamic [RcFloat] output of [type]. */
+    public fun customReturnFloat(type: Int): RcCustomProperty
+
+    /** Allocates a custom property return slot for a dynamic [RcText] output of [type]. */
+    public fun customReturnText(type: Int): RcCustomProperty
+
+    /** Allocates a custom property return slot for a dynamic [RcInteger] output of [type]. */
+    public fun customReturnInt(type: Int): RcCustomProperty
+
+    /** Allocates a custom property return slot for a dynamic [RcColor] output of [type]. */
+    public fun customReturnColor(type: Int): RcCustomProperty
 
     /** Registers a path data resource and returns its reference. */
     public fun remotePathData(path: RcPathData): RcPath
@@ -555,15 +546,8 @@ public sealed interface RcScope {
      */
     public fun createOffscreenBitmap(): RcImage
 
-    /** Convenience alias for [createOffscreenBitmap]. */
-    public fun createBitmap(): RcImage = createOffscreenBitmap()
-
     /** Renders the [component] into the specified offscreen [image]. */
     public fun drawComponentToBitmap(component: RcComponent, image: RcImage)
-
-    /** Renders the [component] into the specified offscreen [image]. */
-    public fun drawComponentToBitmap(image: RcImage, component: RcComponent): Unit =
-        drawComponentToBitmap(component, image)
 
     /** Renders the active component's content into the specified offscreen [image]. */
     public fun drawComponentToBitmap(image: RcImage)
@@ -585,8 +569,8 @@ public sealed interface RcScope {
     /** Adds a spacer component. */
     public fun Spacer(modifier: Modifier = Modifier)
 
-    /** debug */
-    public fun debug(msg: String, value: RcFloat)
+    /** Emits a player debug log [message] along with the current evaluated [value]. */
+    public fun debug(message: String, value: RcFloat)
 
     /** Combines two paths using the specified operation. */
     public fun RcPath.combine(path2: RcPath, op: RcPathCombineOp): RcPath
@@ -595,29 +579,29 @@ public sealed interface RcScope {
     public fun performHaptic(haptic: RcHaptic)
 
     /**
-     * Register raw inline PCM sound data (SC format) as a reusable resource. Returns an RcSound ID
-     * for use in soundExpression or playSound.
+     * Register raw inline PCM sound data (SC format) as a reusable resource. Returns an [RcSound]
+     * ID for use in [remoteSoundExpression] or [playSound].
      *
      * @param data SC-format audio bytes (tiny header + raw samples).
      */
-    public fun addSound(data: ByteArray): RcSound
+    public fun remoteSound(data: ByteArray): RcSound
 
     /**
      * Define a sound synthesis expression and register it as a resource. Returns an
-     * RcSoundExpression ID to pass to playSound.
+     * [RcSoundExpression] ID to pass to [playSound].
      *
-     * For RcSoundType.Tone: the tone is synthesized from frequency (Hz), durationSeconds, and
-     * waveform on the player device at load time.
+     * For [RcSoundType.Tone]: the tone is synthesized from [frequency] (Hz), [durationSeconds], and
+     * [waveform] on the player device at load time.
      *
-     * @param type synthesis type (currently only RcSoundType.Tone)
-     * @param frequency tone frequency in Hz (RcSoundType.Tone only)
-     * @param durationSeconds tone duration in seconds (RcSoundType.Tone only)
-     * @param waveform waveform shape (RcSoundType.Tone only)
-     * @param leftVolume left-channel volume, 0.0–1.0 (supports dynamic RFloat)
-     * @param rightVolume right-channel volume, 0.0–1.0 (supports dynamic RFloat)
-     * @param rate playback rate, 1.0 = normal (supports dynamic RFloat)
+     * @param type synthesis type (currently only [RcSoundType.Tone])
+     * @param frequency tone frequency in Hz ([RcSoundType.Tone] only)
+     * @param durationSeconds tone duration in seconds ([RcSoundType.Tone] only)
+     * @param waveform waveform shape ([RcSoundType.Tone] only)
+     * @param leftVolume left-channel volume, 0.0–1.0
+     * @param rightVolume right-channel volume, 0.0–1.0
+     * @param rate playback rate, 1.0 = normal
      */
-    public fun soundExpression(
+    public fun remoteSoundExpression(
         type: RcSoundType = RcSoundType.Tone,
         frequency: Float = 440f,
         durationSeconds: Float = 0.1f,
@@ -628,8 +612,8 @@ public sealed interface RcScope {
     ): RcSoundExpression
 
     /**
-     * Trigger playback of a previously defined RcSoundExpression. Usable anywhere performHaptic is
-     * usable (action handlers, onClick, etc.).
+     * Trigger playback of a previously defined [RcSoundExpression]. Usable anywhere [performHaptic]
+     * is usable (action handlers, `onClick`, etc.).
      *
      * @param expression the sound expression to play
      */
@@ -638,36 +622,33 @@ public sealed interface RcScope {
     /** Tells the system to wake up in a given number of seconds. */
     public fun wakeIn(seconds: Float)
 
-    /** Returns the color attribute. */
-    public fun getColorAttribute(baseColor: RcColor, type: Short): RcFloat
+    /** Read a single attribute (HSV/RGBA component) of a color resource. */
+    public fun getColorAttribute(baseColor: RcColor, attr: RcColorAttr): RcFloat
 
     /** Returns a substring of the text. */
-    public fun RcText.substring(start: RcFloat, len: RcFloat = (-1f).rf): RcText
+    public fun RcText.substring(start: RcFloat, length: RcFloat = (-1f).rf): RcText
 
     /** Returns a substring of the text. */
-    public fun RcText.substring(start: Float, len: Float = -1f): RcText
+    public fun RcText.substring(start: Float, length: Float = -1f): RcText
 
     /** Measure bitmap font text dimensions. */
     public fun RcText.measure(
-        bmFontId: RcBitmapFont,
-        measureWidth: Int,
-        glyphSpacing: Float,
-    ): RcFloat
+        font: RcBitmapFont,
+        type: RcBitmapTextMeasure,
+        glyphSpacing: Float = 0f,
+    ): RcFloat = font.measure(this, type, glyphSpacing)
 
     /** Measure bitmap font text dimensions. */
     public fun RcBitmapFont.measure(
         text: RcText,
         type: RcBitmapTextMeasure,
-        glyphSpacing: Float,
+        glyphSpacing: Float = 0f,
     ): RcFloat
 
-    /** Registers a bitmap font and returns its reference. */
-    public fun createBitmapFont(glyphs: Array<RcBitmapFontGlyph>): RcBitmapFont
-
-    /** Registers a bitmap font with kerning table and returns its reference. */
+    /** Registers a bitmap font with an optional kerning table and returns its reference. */
     public fun createBitmapFont(
-        glyphs: Array<RcBitmapFontGlyph>,
-        kerningTable: Map<String, Short>,
+        glyphs: List<RcBitmapFontGlyph>,
+        kerningTable: Map<String, Int> = emptyMap(),
     ): RcBitmapFont
 
     /** Interpolates between two paths. */
@@ -677,16 +658,20 @@ public sealed interface RcScope {
     public fun RcPath.tween(path2: RcPath, tween: RcFloat): RcPath
 
     /** Transforms the text. */
-    public fun RcText.transform(start: RcFloat, len: RcFloat, operation: RcTextTransformOp): RcText
+    public fun RcText.transform(
+        start: RcFloat,
+        length: RcFloat,
+        operation: RcTextTransformOp,
+    ): RcText
 
     /** Transforms the text. */
-    public fun RcText.transform(start: Float, len: Float, operation: RcTextTransformOp): RcText
+    public fun RcText.transform(start: Float, length: Float, operation: RcTextTransformOp): RcText
 
-    /** Measure the text and return a measure as a float. */
-    public fun textMeasure(text: RcText, mode: Int): RcFloat
+    /** Measure the text and return the requested dimension as an [RcFloat]. */
+    public fun textMeasure(text: RcText, mode: RcTextMeasureMode = RcTextMeasureMode.Width): RcFloat
 
-    /** Creates a time attribute. */
-    public fun timeAttribute(variable: RcInteger, type: Short, vararg args: Int): RcFloat
+    /** Compute a derived float from a time-valued integer variable. */
+    public fun timeAttribute(variable: RcInteger, attr: RcTimeAttr, vararg args: Int): RcFloat
 
     /**
      * Adds a parametric 2D mesh whose vertices come from expressions over `(u, v)`, and returns a
@@ -856,8 +841,8 @@ public sealed interface RcScope {
     public fun remoteMesh2DPathStrip(
         path: RcPath,
         segments: Int,
-        widths: Array<RcFloat>,
-        positions: Array<RcFloat>? = null,
+        widths: List<RcFloat>,
+        positions: List<RcFloat>? = null,
     ): RcMesh
 
     /**
@@ -905,21 +890,21 @@ public sealed interface RcScope {
     public fun remoteMesh2DRoundStrip(
         path: RcPath,
         segments: Int,
-        widths: Array<RcFloat>,
-        positions: Array<RcFloat>? = null,
+        widths: List<RcFloat>,
+        positions: List<RcFloat>? = null,
     ): RcMesh
 
-    /** Adds a conditional block based on the comparison of two values. */
+    /** Conditionally execute [content] if `op(a, b)` holds on the player. */
     public fun <S : RcScope> S.conditionalOperations(
-        type: Byte,
+        op: RcConditionOp,
         a: RcFloat,
         b: RcFloat,
         content: S.() -> Unit,
     )
 
-    /** Adds an elegant conditional block based on a type-safe RcCondition. */
+    /** Adds an elegant conditional block based on a type-safe [RcCondition]. */
     public fun <S : RcScope> S.ifTrue(condition: RcCondition, block: S.() -> Unit) {
-        conditionalOperations(condition.op.value, condition.a, condition.b, block)
+        conditionalOperations(condition.op, condition.a, condition.b, block)
     }
 
     /** Returns the length of this RcText as an RcFloat. */
@@ -932,14 +917,11 @@ public sealed interface RcScope {
         content: RcScope.(Map<String, RcMacroArg>) -> Unit,
     ): RcMacro
 
-    /** Inflates an existing RcMacro with the specified arguments. */
-    public fun RcMacro.inflate(arguments: Map<String, Any>)
+    /** Inflates an existing [RcMacro] with arguments configured via [block]. */
+    public fun RcMacro.inflate(block: RcMacroArgsScope.() -> Unit = {})
 
-    /** Inserts a macro parameter argument placeholder at this position. */
+    /** Inserts a macro parameter argument block placeholder at this position. */
     public fun RcMacroArg.insertArgument()
-
-    /** Inserts a macro parameter argument block at this position. */
-    public fun RcMacroArg.insertBlock(content: RcScope.() -> Unit)
 
     /** Extension property to convert an Int to a RcFloat within this scope. */
     public val Int.rf: RcFloat
@@ -953,18 +935,10 @@ public sealed interface RcScope {
     /** Extension property to register a Boolean constant as a typed RcBool within this scope. */
     public val Boolean.rb: RcBool
 
-    /**
-     * Registers a boolean constant and returns a typed RcBool reference.
-     *
-     * Distinct from remoteBoolean which returns the more general RcInteger. Prefer this overload
-     * when the value is logically boolean to keep boolean→int arithmetic from compiling.
-     */
-    public fun remoteBool(value: Boolean): RcBool
-
     /** Add a particle system definition */
     public fun createParticles(
         variables: FloatArray,
-        initialExpressions: Array<RcFloat>,
+        initialExpressions: List<RcFloat>,
         particleCount: Int,
     ): RcFloat
 
@@ -972,30 +946,30 @@ public sealed interface RcScope {
     public fun particlesLoop(
         id: RcFloat,
         restart: RcFloat?,
-        expressions: Array<RcFloat>,
+        expressions: List<RcFloat>,
         block: RcCanvasScope.() -> Unit,
     )
 
     /** Add a particle - particle comparison */
     public fun particlesComparison(
         id: RcFloat,
-        flags: Short,
         min: RcFloat,
         max: RcFloat,
         condition: RcFloat?,
-        then1: Array<RcFloat>?,
-        then2: Array<RcFloat>?,
+        then1: List<RcFloat>?,
+        then2: List<RcFloat>?,
+        flags: RcParticleComparisonFlags = RcParticleComparisonFlags.None,
         block: RcCanvasScope.() -> Unit,
     )
 
     /** Add a particle test */
     public fun particlesComparison(
         id: RcFloat,
-        flags: Short,
         min: RcFloat,
         max: RcFloat,
         condition: RcFloat?,
-        then: Array<RcFloat>?,
+        then: List<RcFloat>?,
+        flags: RcParticleComparisonFlags = RcParticleComparisonFlags.None,
         block: RcCanvasScope.() -> Unit,
     )
 
@@ -1010,21 +984,13 @@ public sealed interface RcScope {
 
     public fun runAction(block: RcRunActionScope.() -> Unit)
 
-    /** Conditionally skip a segment */
-    public fun <S : RcScope> S.skip(type: Short, value: Int, block: S.() -> Unit)
+    /** Skip [block] when the player matches [kind] against [value]. */
+    public fun <S : RcScope> S.skip(kind: RcSkipKind, value: Int, block: S.() -> Unit)
 
     /** Loops from [start] to [end] with a specified [step]. */
-    public fun <S : RcScope> S.rcLoop(
+    public fun <S : RcScope> S.loop(
         start: RcFloat,
         step: Float,
-        end: RcFloat,
-        block: S.(RcFloat) -> Unit,
-    )
-
-    /** Loops from [start] to [end] with a specified [step]. */
-    public fun <S : RcScope> S.rcLoop(
-        start: RcFloat,
-        step: RcFloat,
         end: RcFloat,
         block: S.(RcFloat) -> Unit,
     )
@@ -1035,7 +1001,7 @@ public sealed interface RcScope {
         step: RcFloat,
         end: RcFloat,
         block: S.(RcFloat) -> Unit,
-    ): Unit = rcLoop(start, step, end, block)
+    )
 
     /** Returns an RcFloat representing the animation delta time. */
     public fun deltaTime(): RcFloat
@@ -1090,7 +1056,8 @@ public sealed interface RcScope {
         y: Float,
     )
 
-    public fun RcDynamicPath.getPath(): RcPath
+    /** Returns the [RcPath] handle for this dynamic path. */
+    public fun RcDynamicPath.toPath(): RcPath
 
     public fun RcDynamicPath.close()
 
@@ -1106,54 +1073,10 @@ public sealed interface RcScope {
     public fun remoteFloatList(values: FloatArray): RcFloat
 
     /** Registers a float map and returns its reference. */
-    public fun remoteFloatMap(keys: Array<String>, values: FloatArray): RcFloat
+    public fun remoteFloatMap(keys: List<String>, values: FloatArray): RcFloat
 
     /** Sets a value in the array at the given index. */
     public fun setArrayValue(array: RcFloat, index: RcFloat, value: RcFloat)
-
-    // =================================================================================
-    // Typed default-method overloads. Each delegates to the raw-opcode method above.
-    //
-    // Declared as members (not extensions) so they don't require per-caller imports —
-    // overload resolution finds them via the implicit RcScope receiver. The raw forms
-    // remain abstract for backward compatibility; new code should prefer the typed.
-    // =================================================================================
-
-    /** Conditionally execute content if `op(a, b)` holds on the player. */
-    public fun <S : RcScope> S.conditionalOperations(
-        op: RcConditionOp,
-        a: RcFloat,
-        b: RcFloat,
-        content: S.() -> Unit,
-    ): Unit = conditionalOperations(op.value, a, b, content)
-
-    /** Read a single attribute (HSV/RGBA component) of a color resource. */
-    public fun getColorAttribute(baseColor: RcColor, attr: RcColorAttr): RcFloat =
-        getColorAttribute(baseColor, attr.value)
-
-    /** Compute a derived float from a time-valued integer variable. */
-    public fun timeAttribute(variable: RcInteger, attr: RcTimeAttr, vararg args: Int): RcFloat =
-        timeAttribute(variable, attr.value, *args)
-
-    /** Skip when the player matches kind against value. */
-    public fun <S : RcScope> S.skip(kind: RcSkipKind, value: Int, block: S.() -> Unit): Unit =
-        skip(kind.value, value, block)
-
-    /** createTextFromFloat with a typed RcTextFromFloatSpec format. */
-    public fun createTextFromFloat(
-        value: Float,
-        whole: Short,
-        decimal: Short,
-        spec: RcTextFromFloatSpec,
-    ): RcText = createTextFromFloat(value, whole, decimal, spec.bits)
-
-    /** createTextFromFloat with a typed RcTextFromFloatSpec format using a remote float. */
-    public fun createTextFromFloat(
-        value: RcFloat,
-        whole: Short,
-        decimal: Short,
-        spec: RcTextFromFloatSpec,
-    ): RcText = createTextFromFloat(value, whole, decimal, spec.bits)
 
     /** Text overload taking a Long color literal. */
     public fun Text(
@@ -1274,11 +1197,10 @@ public sealed interface RcScope {
     /** Executes a block of raw canvas operations. */
     public fun canvasOperations(block: RcCanvasScope.() -> Unit)
 
-    public fun rcFloats(variables: FloatArray): Array<RcFloat> {
-        return Array<RcFloat>(variables.size) { RcFloat(variables[it]) }
+    /** Wraps each allocated particle register in [variables] as an [RcFloat] handle. */
+    public fun rcFloats(variables: FloatArray): List<RcFloat> {
+        return List(variables.size) { RcFloat(variables[it]) }
     }
-
-    // ###############################################
 
     /** Content Width */
     public fun componentContentWidth(): RcFloat
@@ -1303,15 +1225,6 @@ public sealed interface RcScope {
 
     /** the index variable in the particle system */
     public fun index(): RcFloat
-
-    public val var1: RcFloat
-
-    /** Creates an [RcFloat] from raw RPN expression [elements]. */
-    public fun rf(vararg elements: Float): RcFloat
-
-    public fun rf(v: Number): RcFloat
-
-    // ###############################################
 }
 
 /** Impulse container scope. */
@@ -1396,27 +1309,21 @@ public sealed interface RcCanvasScope : RcScope {
     /** Pre-concat the current matrix with the specified skew. */
     public fun skew(skewX: Float, skewY: Float)
 
-    /** Sets the Matrix relative to the path. */
-    public fun matrixFromPath(path: RcPath, fraction: Float, vOffset: Float, flags: Int)
-
-    /** Sets the Matrix relative to the path using remote floats. */
-    public fun matrixFromPath(path: RcPath, fraction: RcFloat, vOffset: RcFloat, flags: Int)
-
-    /** matrixFromPath with typed RcMatrixFromPathFlags. */
+    /** Sets the matrix relative to [path] according to [flags]. */
     public fun matrixFromPath(
         path: RcPath,
         fraction: Float,
         vOffset: Float,
-        flags: RcMatrixFromPathFlags,
-    ): Unit = matrixFromPath(path, fraction, vOffset, flags.bits)
+        flags: RcMatrixFromPathFlags = RcMatrixFromPathFlags.None,
+    )
 
-    /** matrixFromPath with typed RcMatrixFromPathFlags using remote floats. */
+    /** Sets the matrix relative to [path] according to [flags] using remote floats. */
     public fun matrixFromPath(
         path: RcPath,
         fraction: RcFloat,
         vOffset: RcFloat,
-        flags: RcMatrixFromPathFlags,
-    ): Unit = matrixFromPath(path, fraction, vOffset, flags.bits)
+        flags: RcMatrixFromPathFlags = RcMatrixFromPathFlags.None,
+    )
 
     /** Draws a rectangle. */
     public fun drawRect(left: Float, top: Float, right: Float, bottom: Float)
@@ -1563,45 +1470,25 @@ public sealed interface RcCanvasScope : RcScope {
         stop: RcFloat,
     )
 
-    /** Draws a text with specified anchor/pan. */
+    /** Draws text with specified anchor/pan and optional [flags]. */
     public fun drawTextAnchored(
         text: RcText,
         x: Float,
         y: Float,
         panX: Float,
         panY: Float,
-        flags: Int = 0,
+        flags: RcTextAnchorFlags = RcTextAnchorFlags.None,
     )
 
-    /** Draws a text with specified anchor/pan using remote floats. */
+    /** Draws text with specified anchor/pan and optional [flags] using remote floats. */
     public fun drawTextAnchored(
         text: RcText,
         x: RcFloat,
         y: RcFloat,
         panX: RcFloat,
         panY: RcFloat,
-        flags: Int = 0,
+        flags: RcTextAnchorFlags = RcTextAnchorFlags.None,
     )
-
-    /** drawTextAnchored with typed RcTextAnchorFlags. */
-    public fun drawTextAnchored(
-        text: RcText,
-        x: Float,
-        y: Float,
-        panX: Float,
-        panY: Float,
-        flags: RcTextAnchorFlags,
-    ): Unit = drawTextAnchored(text, x, y, panX, panY, flags.bits)
-
-    /** drawTextAnchored with typed RcTextAnchorFlags using remote floats. */
-    public fun drawTextAnchored(
-        text: RcText,
-        x: RcFloat,
-        y: RcFloat,
-        panX: RcFloat,
-        panY: RcFloat,
-        flags: RcTextAnchorFlags,
-    ): Unit = drawTextAnchored(text, x, y, panX, panY, flags.bits)
 
     /** Draws a text along a path. */
     public fun drawTextOnPath(text: RcText, path: RcPath, hOffset: Float, vOffset: Float)
@@ -1662,7 +1549,7 @@ public sealed interface RcCanvasScope : RcScope {
         path: RcPath,
         start: Int,
         end: Int,
-        yAdj: Float,
+        yOffset: Float,
         glyphSpacing: Float,
     )
 
@@ -1673,7 +1560,7 @@ public sealed interface RcCanvasScope : RcScope {
         path: RcPath,
         start: Int,
         end: Int,
-        yAdj: RcFloat,
+        yOffset: RcFloat,
         glyphSpacing: Float,
     )
 
@@ -1827,69 +1714,56 @@ public sealed interface RcCanvasScope : RcScope {
     /** Clips the current canvas to the specified path. */
     public fun clipPath(path: RcPath)
 
-    /** Add touch handling on canvas. */
+    /**
+     * Adds a touch handler with reactive [defaultValue], [min], and [max] bounds and an [RcFloat]
+     * touch input [expression] (typically built from [touchPosX] or [touchPosY]).
+     */
     public fun addTouch(
-        defValue: Float,
-        min: Float,
-        max: Float,
-        touchMode: Int,
-        velocityId: Float,
-        touchEffects: Int,
-        touchSpec: FloatArray?,
-        easingSpec: FloatArray?,
-        vararg exp: Float,
-    ): RcFloat
-
-    public fun addTouch(
-        defValue: RcFloat,
+        defaultValue: RcFloat,
         min: RcFloat,
         max: RcFloat,
-        exp: RcFloat,
+        expression: RcFloat,
         stopMode: RcTouchStopMode = RcTouchStopMode.Gently,
         velocity: RcFloat = RcFloat(0f),
         notchHaptic: RcHaptic = RcHaptic.NoHaptics,
-        touchSpec: FloatArray? = null,
-        easingSpec: FloatArray? = null,
+        notches: FloatArray? = null,
+        easing: FloatArray? = null,
     ): RcFloat
 
     /**
-     * Typed touch handler.
-     *
-     * Replaces the raw `touchMode: Int` with a typed RcTouchStopMode enum and the raw
-     * `touchEffects: Int` with a typed RcHaptic (the haptic to fire when a notch is crossed). The
-     * `touchEffects` parameter at the wire level supports an additional "indirect via integer
-     * variable" mode (bit 15); use the raw addTouch above for that case until it's typed properly.
+     * Adds a touch handler over a static [range] driven by [expression] (typically [touchPosX] or
+     * [touchPosY]).
      *
      * @param defaultValue initial value of the touch variable
      * @param range allowed range of the touch variable
      * @param stopMode behavior when the user releases the touch
-     * @param velocity remote-float channel exposed by the touch (see Rc.Touch.VELOCITY_*)
+     * @param expression touch input expression evaluated on each event
+     * @param velocity initial/reference velocity value
      * @param notchHaptic haptic kind to fire when the touch crosses a notch
-     * @param notches notch positions (interpretation depends on stopMode); null for the non-notch
+     * @param notches notch positions (interpretation depends on [stopMode]); null for non-notch
      *   modes
-     * @param easing easing-spec FloatArray (see PaintPathEffects); null for default
-     * @param expressions trailing variadic expression coefficients (raw)
+     * @param easing easing-spec `FloatArray`; null for default
      */
     public fun addTouch(
         defaultValue: Float,
         range: ClosedFloatingPointRange<Float>,
         stopMode: RcTouchStopMode,
+        expression: RcFloat,
         velocity: Float = 0f,
         notchHaptic: RcHaptic = RcHaptic.NoHaptics,
         notches: FloatArray? = null,
         easing: FloatArray? = null,
-        vararg expressions: Float,
     ): RcFloat =
         addTouch(
-            defaultValue,
-            range.start,
-            range.endInclusive,
-            stopMode.value,
-            velocity,
-            notchHaptic.value,
-            notches,
-            easing,
-            *expressions,
+            defaultValue = RcFloat(defaultValue),
+            min = RcFloat(range.start),
+            max = RcFloat(range.endInclusive),
+            expression = expression,
+            stopMode = stopMode,
+            velocity = RcFloat(velocity),
+            notchHaptic = notchHaptic,
+            notches = notches,
+            easing = easing,
         )
 
     /**
@@ -1911,15 +1785,15 @@ public sealed interface RcCanvasScope : RcScope {
         easing: FloatArray? = null,
     ): RcFloat =
         addTouch(
-            defaultValue,
-            min.toFloat(),
-            max.toFloat(),
-            stopMode.value,
-            velocity,
-            notchHaptic.value,
-            notches,
-            easing,
-            *expression.toArray(),
+            defaultValue = RcFloat(defaultValue),
+            min = min,
+            max = max,
+            expression = expression,
+            stopMode = stopMode,
+            velocity = RcFloat(velocity),
+            notchHaptic = notchHaptic,
+            notches = notches,
+            easing = easing,
         )
 }
 

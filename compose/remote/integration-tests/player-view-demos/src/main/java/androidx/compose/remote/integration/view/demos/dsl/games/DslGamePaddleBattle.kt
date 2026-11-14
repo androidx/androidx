@@ -23,12 +23,14 @@ import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcScope
 import androidx.compose.remote.creation.dsl.RcTouchStopMode
+import androidx.compose.remote.creation.dsl.abs
 import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
 import androidx.compose.remote.creation.dsl.ifElse
 import androidx.compose.remote.creation.dsl.padding
 import androidx.compose.remote.creation.dsl.rdp
 import androidx.compose.remote.creation.dsl.rsp
+import androidx.compose.remote.creation.dsl.sign
 import androidx.compose.remote.creation.dsl.times
 import androidx.compose.remote.creation.dsl.touchPosX
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
@@ -72,15 +74,13 @@ fun dslGamePaddleBattle(): ByteArray {
                 // 2. Spaceship X controlled by drag/touch
                 val paddleX =
                     addTouch(
-                        defValue = w / 2f,
+                        defaultValue = w / 2f,
                         min = paddleWidth,
                         max = w - paddleWidth,
+                        expression = touchPosX(),
                         stopMode = RcTouchStopMode.Gently,
                         velocity = 0.rf,
                         notchHaptic = RcHaptic.NoHaptics,
-                        touchSpec = null,
-                        easingSpec = null,
-                        exp = touchPosX(),
                     )
 
                 // 2. Ball position using ping-pong math
@@ -120,7 +120,7 @@ fun dslGamePaddleBattle(): ByteArray {
             // Score / Time display overlay
             Row(modifier = Modifier.padding(24.rdp)) {
                 Text(text = remoteText("TIME: "), color = 0xFFFFFFFF.toInt(), fontSize = 18.rsp)
-                Text(text = t.format(3, 0, 0), color = 0xFFFFCC00.toInt(), fontSize = 18.rsp)
+                Text(text = t.format(3, 0), color = 0xFFFFCC00.toInt(), fontSize = 18.rsp)
             }
         }
     }
@@ -149,7 +149,7 @@ fun RcScope.ball(
     val accX: RcFloat = accelerometerX() * -100f
     val accY: RcFloat = accelerometerY() * 100f
     impulse(200000.rf, 0.rf) {
-        val ps = createParticles(variables, arrayOf(w / 2f, h / 2f, 500f.rf, 500f.rf), 1)
+        val ps = createParticles(variables, listOf(w / 2f, h / 2f, 500f.rf, 500f.rf), 1)
         val (x, y, dx, dy) = rcFloats(variables)
         returnX = x
         returnY = y
@@ -158,29 +158,26 @@ fun RcScope.ball(
             // hit the walls
             particlesComparison(
                 id = ps,
-                flags = 0,
                 min = 0.rf,
                 max = 1.rf,
                 condition = (y - rad) * (h - y) * -1f,
-                then = arrayOf(x, y - dy * dt, dx, dy * -1f),
+                then = listOf(x, y - dy * dt, dx, dy * -1f),
             ) {}
             particlesComparison(
                 id = ps,
-                flags = 0,
                 min = 0.rf,
                 max = 1.rf,
                 condition = (x - rad) * (w - x) * -1f,
-                then = arrayOf(x - dx * dt, y, dx * -1f, dy),
+                then = listOf(x - dx * dt, y, dx * -1f, dy),
             ) {}
 
             // hit the paddle
             particlesComparison(
                 id = ps,
-                flags = 0,
                 min = 0.rf,
                 max = 1.rf,
                 condition = -1f * ifElse((x - px1) * (px2 - x), (y - py1) * (py2 - y) * -1f, 1.rf),
-                then = arrayOf(x, y - dy * dt * 2f, abs(dx) * sign(x - paddleX), dy * -1f),
+                then = listOf(x, y - dy * dt * 2f, abs(dx) * sign(x - paddleX), dy * -1f),
             ) {
                 paint {
                     color(0xFFFFFF00.toInt())
@@ -199,7 +196,7 @@ fun RcScope.ball(
             particlesLoop(
                 ps,
                 null,
-                arrayOf(x + dx * dt, y + dy * dt, dx * 0.999f + accX * dt, dy * 0.999f + accY * dt),
+                listOf(x + dx * dt, y + dy * dt, dx * 0.999f + accX * dt, dy * 0.999f + accY * dt),
             ) {
                 paint {
                     color(0xFF007AFF.toInt())
@@ -213,7 +210,7 @@ fun RcScope.ball(
                 }
                 drawCircle(x - 8f, y - 8f, 8f.rf)
 
-                drawTextAnchored(createTextFromFloat(count, 3, 0, 0), 100.rf, 200.rf, 0.rf, 0.rf, 0)
+                drawTextAnchored(createTextFromFloat(count, 3, 0), 100.rf, 200.rf, 0.rf, 0.rf)
             }
         }
     }

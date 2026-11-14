@@ -58,7 +58,7 @@ public fun dslDemoPressureGauge(): ByteArray {
                 textSize((density * 24f).toFloat())
             }
             val labelId = remoteText("PRESSURE")
-            drawTextAnchored(labelId, 50f, 40f, -1f, 1f, 0)
+            drawTextAnchored(labelId, 50f, 40f, -1f, 1f)
 
             paint {
                 style(RcPaintStyle.Stroke)
@@ -133,11 +133,11 @@ public fun dslDemoPressureGauge(): ByteArray {
             // Draw the correct arrow based on the pressure direction.
             ifTrue(0f.rf lt deltaPressure) {
                 val up = remoteText("↑")
-                drawTextAnchored(up, cx, dialY, 0f.rf, (-3f).rf, 0)
+                drawTextAnchored(up, cx, dialY, 0f.rf, (-3f).rf)
             }
             ifTrue(0f.rf gte deltaPressure) {
                 val down = remoteText("↓")
-                drawTextAnchored(down, cx, dialY, 0f.rf, (-3f).rf, 0)
+                drawTextAnchored(down, cx, dialY, 0f.rf, (-3f).rf)
             }
 
             // Draw the formatted pressure text.
@@ -148,12 +148,12 @@ public fun dslDemoPressureGauge(): ByteArray {
                     0,
                     RcTextFromFloatSpec.of(padAfter = RcTextFromFloatSpec.PadAfter.Zero),
                 )
-            drawTextAnchored(textId, cx, dialY, 0f.rf, 0f.rf, 0)
+            drawTextAnchored(textId, cx, dialY, 0f.rf, 0f.rf)
 
             // Labels.
             paint { textSize((density * 32f).toFloat()) }
             val mmhg = remoteText("mmHg")
-            drawTextAnchored(mmhg, cx, dialY, 0f.rf, 4f.rf, 0)
+            drawTextAnchored(mmhg, cx, dialY, 0f.rf, 4f.rf)
 
             val low = remoteText("Low")
             drawTextAnchored(
@@ -162,7 +162,6 @@ public fun dslDemoPressureGauge(): ByteArray {
                 dialY + dialRadius * 0.9f,
                 0f.rf,
                 0f.rf,
-                0,
             )
             val high = remoteText("High")
             drawTextAnchored(
@@ -171,7 +170,6 @@ public fun dslDemoPressureGauge(): ByteArray {
                 dialY + dialRadius * 0.9f,
                 0f.rf,
                 0f.rf,
-                0,
             )
         }
     }

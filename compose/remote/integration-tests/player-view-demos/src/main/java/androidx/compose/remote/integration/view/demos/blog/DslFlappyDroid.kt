@@ -25,13 +25,18 @@ import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcPath
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcStrokeCap
+import androidx.compose.remote.creation.dsl.abs
 import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
 import androidx.compose.remote.creation.dsl.floor
 import androidx.compose.remote.creation.dsl.ifElse
 import androidx.compose.remote.creation.dsl.lerp
+import androidx.compose.remote.creation.dsl.max
+import androidx.compose.remote.creation.dsl.min
 import androidx.compose.remote.creation.dsl.minus
 import androidx.compose.remote.creation.dsl.onClick
+import androidx.compose.remote.creation.dsl.sign
+import androidx.compose.remote.creation.dsl.sin
 import androidx.compose.remote.creation.dsl.smoothStep
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.core.RemoteDocument
@@ -182,7 +187,7 @@ public fun dslFlappyDroid(): ByteArray {
 
                     // Registers: [py, pdy] = vertical position and velocity.
                     val variables = FloatArray(2)
-                    val ps = createParticles(variables, arrayOf(h / 2f, 0f.rf), 1)
+                    val ps = createParticles(variables, listOf(h / 2f, 0f.rf), 1)
                     val py = RcFloat(variables[0])
                     val pdy = RcFloat(variables[1])
                     val dt = deltaTime()
@@ -191,11 +196,10 @@ public fun dslFlappyDroid(): ByteArray {
                         // Collision test: condition > 0 only while px is between the pipe edges.
                         particlesComparison(
                             id = ps,
-                            flags = 0,
                             min = 0.rf,
                             max = 1.rf,
                             condition = (pipeX - px) * (px - (pipeX + pipeWidth)),
-                            then = arrayOf(py, pdy),
+                            then = listOf(py, pdy),
                         ) {
                             // Inside the gap: bank the score, draw nothing.
                             conditionalOperations(RcConditionOp.Gt, gapHalf, abs(gapY - py)) {
@@ -214,7 +218,7 @@ public fun dslFlappyDroid(): ByteArray {
                         particlesLoop(
                             ps,
                             null,
-                            arrayOf(
+                            listOf(
                                 // Fall, but never below the ground.
                                 min(h * 0.95f, py + pdy * dt),
                                 // Gravity while released; fixed upward thrust while touching.
@@ -227,7 +231,7 @@ public fun dslFlappyDroid(): ByteArray {
                             val hitWall = sign(flow - current)
                             // Pulses the score briefly each time a new pipe is cleared.
                             val scale = max(0f, (floatCount - count - 0.9f) * 10f) + 1f
-                            drawTextAnchored(scale.format(3, 3), w, 0.rf, 4.rf, 2.rf, 0)
+                            drawTextAnchored(scale.format(3, 3), w, 0.rf, 4.rf, 2.rf)
 
                             // Current score
                             save()
@@ -239,7 +243,7 @@ public fun dslFlappyDroid(): ByteArray {
                                 strokeWidth(8f)
                                 textSize(120f)
                             }
-                            drawTextAnchored(count.format(3, 0), w, 0.rf, 3.rf, 2.rf, 0)
+                            drawTextAnchored(count.format(3, 0), w, 0.rf, 3.rf, 2.rf)
                             restore()
 
                             // High score
@@ -255,7 +259,6 @@ public fun dslFlappyDroid(): ByteArray {
                                 h,
                                 1.2f.rf,
                                 (-2f).rf,
-                                0,
                             )
 
                             // The droid itself. Qualified because the particle loop body runs in a

@@ -108,14 +108,14 @@ public fun dslDemoActivityRings(): ByteArray {
                         RcTextFromFloatSpec.of(padPre = RcTextFromFloatSpec.PadPre.None),
                     )
                 val pctLabel = pctText + "%"
-                drawTextAnchored(pctLabel, labelX, labelY, 0f.rf, 0f.rf, 0)
+                drawTextAnchored(pctLabel, labelX, labelY, 0f.rf, 0f.rf)
 
                 paint {
                     textSize((density * 11f).toFloat())
                     typeface(RcFontType.Default, RcFontWeight.Normal, italic = false)
                 }
                 val labelText = remoteText(labels[i])
-                drawTextAnchored(labelText, labelX, labelY, 0f.rf, 2.5f.rf, 0)
+                drawTextAnchored(labelText, labelX, labelY, 0f.rf, 2.5f.rf)
             }
         }
     }

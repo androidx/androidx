@@ -20,6 +20,7 @@ package androidx.compose.remote.creation.dsl
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.Utils
+import androidx.compose.remote.core.operations.layout.modifiers.HostNamedActionOperation
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.actions.Action
 import androidx.compose.remote.creation.actions.HostAction
@@ -55,13 +56,27 @@ public sealed interface RcRunActionScope {
     public fun setValue(variable: RcBool, expression: RcBool)
 }
 
+/** Scope for recording click and touch actions including host callbacks. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RcDslMarker
 public sealed interface RcActionScope : RcRunActionScope {
-    public fun hostAction(name: String)
+    /** Dispatches a host callback identified by numeric [id]. */
+    public fun hostAction(id: Int)
 
+    /** Dispatches a host callback identified by numeric [id] with [metadata] text. */
     public fun hostAction(id: Int, metadata: RcText)
 
-    public fun hostAction(name: String, type: Int, value: Int)
+    /** Dispatches a named host callback [name] with no payload. */
+    public fun hostAction(name: String)
+
+    /** Dispatches a named host callback [name] carrying dynamic float [value]. */
+    public fun hostAction(name: String, value: RcFloat)
+
+    /** Dispatches a named host callback [name] carrying dynamic integer [value]. */
+    public fun hostAction(name: String, value: RcInteger)
+
+    /** Dispatches a named host callback [name] carrying dynamic text [value]. */
+    public fun hostAction(name: String, value: RcText)
 }
 
 /** Internal implementation of [RcActionScope] that bridges to the legacy [Action] system. */
@@ -112,15 +127,34 @@ internal open class RcRunActionScopeImpl : RcRunActionScope {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal class RcActionScopeImpl : RcRunActionScopeImpl(), RcActionScope {
 
-    override fun hostAction(name: String) {
-        actionBuilders.add { _ -> HostAction(name) }
+    override fun hostAction(id: Int) {
+        actionBuilders.add { _ -> HostAction(id) }
     }
 
     override fun hostAction(id: Int, metadata: RcText) {
         actionBuilders.add { _ -> HostAction(id, metadata.id) }
     }
 
-    override fun hostAction(name: String, type: Int, value: Int) {
-        actionBuilders.add { _ -> HostAction(name, type, value) }
+    override fun hostAction(name: String) {
+        actionBuilders.add { _ -> HostAction(name) }
+    }
+
+    override fun hostAction(name: String, value: RcFloat) {
+        actionBuilders.add { writer ->
+            val f = value.withWriter(writer).toFloat()
+            val id =
+                if (f.isNaN()) Utils.idFromNan(f) else Utils.idFromNan(writer.addFloatConstant(f))
+            HostAction(name, HostNamedActionOperation.FLOAT_TYPE, id)
+        }
+    }
+
+    override fun hostAction(name: String, value: RcInteger) {
+        actionBuilders.add { _ ->
+            HostAction(name, HostNamedActionOperation.INT_TYPE, value.toRawInt())
+        }
+    }
+
+    override fun hostAction(name: String, value: RcText) {
+        actionBuilders.add { _ -> HostAction(name, HostNamedActionOperation.STRING_TYPE, value.id) }
     }
 }

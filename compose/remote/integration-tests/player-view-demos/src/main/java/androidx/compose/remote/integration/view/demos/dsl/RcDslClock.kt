@@ -23,8 +23,10 @@ import androidx.compose.remote.creation.dsl.RcPathType
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcScope
 import androidx.compose.remote.creation.dsl.RcStrokeCap
+import androidx.compose.remote.creation.dsl.cos
 import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
+import androidx.compose.remote.creation.dsl.min
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.tooling.preview.RemoteDocumentPreview
@@ -61,7 +63,7 @@ fun dslClock(): ByteArray {
                 val rad = min(cx, cy)
                 val strokeWidth = (rad / 6f)
 
-                val equ = rFun { x -> rad * (0.97f.rf + 0.03f.rf * cos(x * 12f)) }
+                val equ = remoteFunction { x -> rad * (0.97f.rf + 0.03f.rf * cos(x * 12f)) }
 
                 val textSize = rad / 5f
                 paint {
@@ -104,7 +106,7 @@ fun dslClock(): ByteArray {
 
                 val textPath =
                     remotePolarPath(
-                        rFun { rad * 0.7f },
+                        remoteFunction { rad * 0.7f },
                         minX,
                         maxX,
                         64,

@@ -43,8 +43,8 @@ private const val HINT = 0xFFB6C2D4.toInt()
 @Suppress("RestrictedApiAndroidX")
 private fun RcScope.waveAt(y: Float) =
     remoteXYPath(
-        rFun { s -> s * 320f + 40f },
-        rFun { s -> sin(s * SPLINE_TAU) * 22f + y },
+        remoteFunction { s -> s * 320f + 40f },
+        remoteFunction { s -> sin(s * SPLINE_TAU) * 22f + y },
         0f,
         1f,
         64,
@@ -186,7 +186,7 @@ public fun dslMesh2DSplineBreathingRibbon(): ByteArray {
                         spine,
                         segments = 64,
                         widths =
-                            arrayOf(
+                            listOf(
                                 sin(t * 1.7f) * 5f + 6f,
                                 sin(t * 1.1f) * 14f + 18f,
                                 sin(t * 1.7f + 3.14f) * 5f + 6f,
@@ -209,7 +209,7 @@ private fun RcCanvasScope.rowLabel(text: String, y: Float) {
         textSize(14f)
         antiAlias(true)
     }
-    drawTextAnchored(remoteText(text), 200f.rf, y.rf, 0f.rf, 0f.rf, 0)
+    drawTextAnchored(remoteText(text), 200f.rf, y.rf, 0f.rf, 0f.rf)
 }
 
 /**
@@ -345,7 +345,7 @@ public fun dslMesh2DRoundStripBreathing(): ByteArray {
                         flat,
                         segments = 64,
                         widths =
-                            arrayOf(
+                            listOf(
                                 sin(t * 1.3f) * 9f + 11f,
                                 sin(t * 0.9f + 3.14f) * 8f + 14f,
                                 sin(t * 1.3f) * 9f + 11f,
@@ -357,7 +357,7 @@ public fun dslMesh2DRoundStripBreathing(): ByteArray {
                         round,
                         segments = 64,
                         widths =
-                            arrayOf(
+                            listOf(
                                 sin(t * 1.3f) * 9f + 11f,
                                 sin(t * 0.9f + 3.14f) * 8f + 14f,
                                 sin(t * 1.3f) * 9f + 11f,

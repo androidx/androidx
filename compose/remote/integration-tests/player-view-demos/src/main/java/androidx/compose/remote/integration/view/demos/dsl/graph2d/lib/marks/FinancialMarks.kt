@@ -111,7 +111,7 @@ internal fun RcCanvasScope.renderFunnel(
             color(color)
             style(RcPaintStyle.Fill)
         }
-        drawPath(path.getPath())
+        drawPath(path.toPath())
         val pct = (values[i] / maxV * 100f).roundToInt()
         labelR(
             "${labels[i]}  $pct%",

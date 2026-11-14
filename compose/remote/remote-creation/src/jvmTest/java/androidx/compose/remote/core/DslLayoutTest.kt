@@ -21,6 +21,7 @@ import androidx.compose.remote.core.layout.ResizeDocument
 import androidx.compose.remote.core.layout.TestOperation
 import androidx.compose.remote.core.layout.TestParameters
 import androidx.compose.remote.creation.dsl.Modifier
+import androidx.compose.remote.creation.dsl.RcComponentId
 import androidx.compose.remote.creation.dsl.RcContentScale
 import androidx.compose.remote.creation.dsl.RcRowHorizontalPositioning
 import androidx.compose.remote.creation.dsl.RcVerticalPositioning
@@ -62,10 +63,15 @@ class DslLayoutTest : BaseLayoutTest() {
             )
 
         checkDslLayout(400, 400, ops = ops) {
-            Box(modifier = Modifier.componentId(10).fillMaxSize().background(0xFFFF0000.toInt())) {
+            Box(
+                modifier =
+                    Modifier.componentId(RcComponentId.of(10))
+                        .fillMaxSize()
+                        .background(0xFFFF0000.toInt())
+            ) {
                 Box(
                     modifier =
-                        Modifier.componentId(11)
+                        Modifier.componentId(RcComponentId.of(11))
                             .padding(20f)
                             .size(100f)
                             .background(0xFF00FF00.toInt())
@@ -86,24 +92,29 @@ class DslLayoutTest : BaseLayoutTest() {
             )
 
         checkDslLayout(600, 200, ops = ops) {
-            Row(modifier = Modifier.componentId(1).fillMaxSize().background(0xFFFFFFFF.toInt())) {
+            Row(
+                modifier =
+                    Modifier.componentId(RcComponentId.of(1))
+                        .fillMaxSize()
+                        .background(0xFFFFFFFF.toInt())
+            ) {
                 Box(
                     modifier =
-                        Modifier.componentId(2)
+                        Modifier.componentId(RcComponentId.of(2))
                             .horizontalWeight(1.0f)
                             .fillMaxHeight()
                             .background(0xFF00FF00.toInt())
                 )
                 Box(
                     modifier =
-                        Modifier.componentId(3)
+                        Modifier.componentId(RcComponentId.of(3))
                             .horizontalWeight(3.0f)
                             .fillMaxHeight()
                             .background(0xFF0000FF.toInt())
                 )
                 Box(
                     modifier =
-                        Modifier.componentId(4)
+                        Modifier.componentId(RcComponentId.of(4))
                             .width(200f)
                             .fillMaxHeight()
                             .background(0xFFFF0000.toInt())
@@ -125,11 +136,14 @@ class DslLayoutTest : BaseLayoutTest() {
 
         checkDslLayout(400, 400, ops = ops) {
             Column(
-                modifier = Modifier.componentId(1).fillMaxSize().background(0xFFFFFFFF.toInt())
+                modifier =
+                    Modifier.componentId(RcComponentId.of(1))
+                        .fillMaxSize()
+                        .background(0xFFFFFFFF.toInt())
             ) {
                 Box(
                     modifier =
-                        Modifier.componentId(2)
+                        Modifier.componentId(RcComponentId.of(2))
                             .widthIn(min = 150f, max = 250f)
                             .height(50f)
                             .background(0xFF00FF00.toInt())
@@ -153,16 +167,31 @@ class DslLayoutTest : BaseLayoutTest() {
             )
 
         checkDslLayout(400, 400, ops = ops) {
-            Row(modifier = Modifier.componentId(1).fillMaxSize().background(0xFFFFFFFF.toInt())) {
-                Box(modifier = Modifier.componentId(2).size(100f).background(0xFF00FF00.toInt()))
+            Row(
+                modifier =
+                    Modifier.componentId(RcComponentId.of(1))
+                        .fillMaxSize()
+                        .background(0xFFFFFFFF.toInt())
+            ) {
                 Box(
                     modifier =
-                        Modifier.componentId(3)
+                        Modifier.componentId(RcComponentId.of(2))
+                            .size(100f)
+                            .background(0xFF00FF00.toInt())
+                )
+                Box(
+                    modifier =
+                        Modifier.componentId(RcComponentId.of(3))
                             .offset(x = 50f, y = 50f)
                             .size(100f)
                             .background(0xFFFF0000.toInt())
                 )
-                Box(modifier = Modifier.componentId(4).size(100f).background(0xFF0000FF.toInt()))
+                Box(
+                    modifier =
+                        Modifier.componentId(RcComponentId.of(4))
+                            .size(100f)
+                            .background(0xFF0000FF.toInt())
+                )
             }
         }
     }
@@ -180,20 +209,29 @@ class DslLayoutTest : BaseLayoutTest() {
 
         checkDslLayout(600, 200, ops = ops) {
             Row(
-                modifier = Modifier.componentId(10).fillMaxSize().background(0xFFFFFFFF.toInt()),
+                modifier =
+                    Modifier.componentId(RcComponentId.of(10))
+                        .fillMaxSize()
+                        .background(0xFFFFFFFF.toInt()),
                 horizontal = RcRowHorizontalPositioning.SpaceBetween,
             ) {
                 Box(
                     modifier =
-                        Modifier.componentId(11).size(100f, 200f).background(0xFF00FF00.toInt())
+                        Modifier.componentId(RcComponentId.of(11))
+                            .size(100f, 200f)
+                            .background(0xFF00FF00.toInt())
                 )
                 Box(
                     modifier =
-                        Modifier.componentId(12).size(100f, 200f).background(0xFF0000FF.toInt())
+                        Modifier.componentId(RcComponentId.of(12))
+                            .size(100f, 200f)
+                            .background(0xFF0000FF.toInt())
                 )
                 Box(
                     modifier =
-                        Modifier.componentId(13).size(100f, 200f).background(0xFFFF0000.toInt())
+                        Modifier.componentId(RcComponentId.of(13))
+                            .size(100f, 200f)
+                            .background(0xFFFF0000.toInt())
                 )
             }
         }
@@ -235,25 +273,28 @@ class DslLayoutTest : BaseLayoutTest() {
 
         checkDslLayout(400, 200, ops = ops) {
             CollapsibleRow(
-                modifier = Modifier.componentId(10).fillMaxSize().background(0xFFFFFFFF.toInt())
+                modifier =
+                    Modifier.componentId(RcComponentId.of(10))
+                        .fillMaxSize()
+                        .background(0xFFFFFFFF.toInt())
             ) {
                 Box(
                     modifier =
-                        Modifier.componentId(11)
+                        Modifier.componentId(RcComponentId.of(11))
                             .size(150f, 200f)
                             .horizontalCollapsiblePriority(1.0f)
                             .background(0xFF00FF00.toInt())
                 )
                 Box(
                     modifier =
-                        Modifier.componentId(12)
+                        Modifier.componentId(RcComponentId.of(12))
                             .size(150f, 200f)
                             .horizontalCollapsiblePriority(2.0f)
                             .background(0xFF0000FF.toInt())
                 )
                 Box(
                     modifier =
-                        Modifier.componentId(13)
+                        Modifier.componentId(RcComponentId.of(13))
                             .size(150f, 200f)
                             .horizontalCollapsiblePriority(3.0f)
                             .background(0xFFFF0000.toInt())
@@ -281,16 +322,34 @@ class DslLayoutTest : BaseLayoutTest() {
         checkDslLayout(300, 300, ops = ops) {
             // FitBox responsive selection test
             FitBox(
-                modifier = Modifier.componentId(10).fillMaxSize().background(0xFFFFFFFF.toInt()),
+                modifier =
+                    Modifier.componentId(RcComponentId.of(10))
+                        .fillMaxSize()
+                        .background(0xFFFFFFFF.toInt()),
                 vertical = RcVerticalPositioning.Center,
             ) {
                 // Child A: 400x400 (too large, should be GONE)
-                Box(modifier = Modifier.componentId(11).size(400f).background(0xFFFF0000.toInt()))
+                Box(
+                    modifier =
+                        Modifier.componentId(RcComponentId.of(11))
+                            .size(400f)
+                            .background(0xFFFF0000.toInt())
+                )
                 // Child B: 200x200 (fits, should be VISIBLE)
-                Box(modifier = Modifier.componentId(12).size(200f).background(0xFF00FF00.toInt()))
+                Box(
+                    modifier =
+                        Modifier.componentId(RcComponentId.of(12))
+                            .size(200f)
+                            .background(0xFF00FF00.toInt())
+                )
                 // Child C: 100x100 (fits, but since Child B already fit and is first, Child C
                 // should be GONE)
-                Box(modifier = Modifier.componentId(13).size(100f).background(0xFF0000FF.toInt()))
+                Box(
+                    modifier =
+                        Modifier.componentId(RcComponentId.of(13))
+                            .size(100f)
+                            .background(0xFF0000FF.toInt())
+                )
             }
         }
     }
@@ -309,26 +368,41 @@ class DslLayoutTest : BaseLayoutTest() {
             )
 
         checkDslLayout(400, 200, ops = ops) {
-            Flow(modifier = Modifier.componentId(10).fillMaxSize().background(0xFFFFFFFF.toInt())) {
+            Flow(
+                modifier =
+                    Modifier.componentId(RcComponentId.of(10))
+                        .fillMaxSize()
+                        .background(0xFFFFFFFF.toInt())
+            ) {
                 Box(
                     modifier =
-                        Modifier.componentId(11).size(100f, 50f).background(0xFF00FF00.toInt())
+                        Modifier.componentId(RcComponentId.of(11))
+                            .size(100f, 50f)
+                            .background(0xFF00FF00.toInt())
                 )
                 Box(
                     modifier =
-                        Modifier.componentId(12).size(100f, 50f).background(0xFF0000FF.toInt())
+                        Modifier.componentId(RcComponentId.of(12))
+                            .size(100f, 50f)
+                            .background(0xFF0000FF.toInt())
                 )
                 Box(
                     modifier =
-                        Modifier.componentId(13).size(100f, 50f).background(0xFFFF0000.toInt())
+                        Modifier.componentId(RcComponentId.of(13))
+                            .size(100f, 50f)
+                            .background(0xFFFF0000.toInt())
                 )
                 Box(
                     modifier =
-                        Modifier.componentId(14).size(100f, 50f).background(0xFFFFFF00.toInt())
+                        Modifier.componentId(RcComponentId.of(14))
+                            .size(100f, 50f)
+                            .background(0xFFFFFF00.toInt())
                 )
                 Box(
                     modifier =
-                        Modifier.componentId(15).size(100f, 50f).background(0xFF00FFFF.toInt())
+                        Modifier.componentId(RcComponentId.of(15))
+                            .size(100f, 50f)
+                            .background(0xFF00FFFF.toInt())
                 )
             }
         }
@@ -361,13 +435,22 @@ class DslLayoutTest : BaseLayoutTest() {
             val stateIndex = remoteNamedInteger("layout_state", 0)
             StateLayout(
                 stateIndex = stateIndex,
-                modifier = Modifier.componentId(10).fillMaxSize().background(0xFFFFFFFF.toInt()),
+                modifier =
+                    Modifier.componentId(RcComponentId.of(10))
+                        .fillMaxSize()
+                        .background(0xFFFFFFFF.toInt()),
             ) {
                 Box(
-                    modifier = Modifier.componentId(11).fillMaxSize().background(0xFF00FF00.toInt())
+                    modifier =
+                        Modifier.componentId(RcComponentId.of(11))
+                            .fillMaxSize()
+                            .background(0xFF00FF00.toInt())
                 )
                 Box(
-                    modifier = Modifier.componentId(12).fillMaxSize().background(0xFF0000FF.toInt())
+                    modifier =
+                        Modifier.componentId(RcComponentId.of(12))
+                            .fillMaxSize()
+                            .background(0xFF0000FF.toInt())
                 )
             }
         }
@@ -386,20 +469,25 @@ class DslLayoutTest : BaseLayoutTest() {
 
         checkDslLayout(900, 300, ops = ops) {
             val img = createBitmap(200, 100) // 2:1 aspect ratio
-            Row(modifier = Modifier.componentId(10).fillMaxSize().background(0xFFFFFFFF.toInt())) {
+            Row(
+                modifier =
+                    Modifier.componentId(RcComponentId.of(10))
+                        .fillMaxSize()
+                        .background(0xFFFFFFFF.toInt())
+            ) {
                 Image(
                     image = img,
-                    modifier = Modifier.componentId(11).size(300f),
+                    modifier = Modifier.componentId(RcComponentId.of(11)).size(300f),
                     contentScale = RcContentScale.Fit,
                 )
                 Image(
                     image = img,
-                    modifier = Modifier.componentId(12).size(300f),
+                    modifier = Modifier.componentId(RcComponentId.of(12)).size(300f),
                     contentScale = RcContentScale.Crop,
                 )
                 Image(
                     image = img,
-                    modifier = Modifier.componentId(13).size(300f),
+                    modifier = Modifier.componentId(RcComponentId.of(13)).size(300f),
                     contentScale = RcContentScale.FillBounds,
                 )
             }
@@ -418,12 +506,29 @@ class DslLayoutTest : BaseLayoutTest() {
             )
 
         checkDslLayout(300, 100, ops = ops) {
-            Row(modifier = Modifier.componentId(10).fillMaxSize().background(0xFFFFFFFF.toInt())) {
-                Box(modifier = Modifier.componentId(11).size(100f).background(0xFF00FF00.toInt()))
-                Spacer(modifier = Modifier.componentId(12).horizontalWeight(1f).fillMaxHeight())
+            Row(
+                modifier =
+                    Modifier.componentId(RcComponentId.of(10))
+                        .fillMaxSize()
+                        .background(0xFFFFFFFF.toInt())
+            ) {
                 Box(
                     modifier =
-                        Modifier.componentId(13).size(50f, 100f).background(0xFF0000FF.toInt())
+                        Modifier.componentId(RcComponentId.of(11))
+                            .size(100f)
+                            .background(0xFF00FF00.toInt())
+                )
+                Spacer(
+                    modifier =
+                        Modifier.componentId(RcComponentId.of(12))
+                            .horizontalWeight(1f)
+                            .fillMaxHeight()
+                )
+                Box(
+                    modifier =
+                        Modifier.componentId(RcComponentId.of(13))
+                            .size(50f, 100f)
+                            .background(0xFF0000FF.toInt())
                 )
             }
         }
@@ -453,11 +558,16 @@ class DslLayoutTest : BaseLayoutTest() {
             )
 
         checkDslLayout(100, 100, ops = ops) {
-            Box(modifier = Modifier.componentId(10).fillMaxSize().background(0xFFFFFFFF.toInt())) {
+            Box(
+                modifier =
+                    Modifier.componentId(RcComponentId.of(10))
+                        .fillMaxSize()
+                        .background(0xFFFFFFFF.toInt())
+            ) {
                 // Child 1: standard width/height (should clamp)
                 Box(
                     modifier =
-                        Modifier.componentId(11)
+                        Modifier.componentId(RcComponentId.of(11))
                             .width(200f)
                             .height(200f)
                             .background(0xFF00FF00.toInt())
@@ -465,7 +575,7 @@ class DslLayoutTest : BaseLayoutTest() {
                 // Child 2: required width/height (should bypass clamp)
                 Box(
                     modifier =
-                        Modifier.componentId(12)
+                        Modifier.componentId(RcComponentId.of(12))
                             .requiredWidthIn(min = 200f, max = 200f)
                             .requiredHeightIn(min = 200f, max = 200f)
                             .background(0xFF0000FF.toInt())

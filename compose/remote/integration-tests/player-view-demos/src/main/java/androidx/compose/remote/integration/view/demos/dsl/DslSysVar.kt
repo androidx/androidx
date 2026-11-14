@@ -98,7 +98,7 @@ private fun RcCanvasScope.printLine(
     label: String,
     value: RcFloat,
 ) {
-    val valueText: RcText = createTextFromFloat(value, 7, 1, 0)
+    val valueText: RcText = createTextFromFloat(value, 7, 1)
     val merged: RcText = remoteText("$label: ") + valueText
-    drawTextAnchored(merged, x, y, 0f.rf, lineOffset, 0)
+    drawTextAnchored(merged, x, y, 0f.rf, lineOffset)
 }

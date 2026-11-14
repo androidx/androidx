@@ -106,7 +106,7 @@ internal fun RcCanvasScope.touchCrosshair(
         textSize(theme.labelSize + 1f)
         typeface(RcFontType.Default, RcFontWeight.Bold, italic = false)
     }
-    drawTextAnchored(textLookup(catList, idx), px, py, -1f, 0f, 0)
+    drawTextAnchored(textLookup(catList, idx), px, py, -1f, 0f)
     val sw = theme.labelSize * 0.7f
     for (si in arrays.indices) {
         py += theme.labelSize + theme.labelGap
@@ -124,6 +124,6 @@ internal fun RcCanvasScope.touchCrosshair(
             textSize(theme.labelSize)
             typeface(RcFontType.Default, RcFontWeight.Normal, italic = false)
         }
-        drawTextAnchored(text, px + sw + theme.labelGap, py, -1f, 0f, 0)
+        drawTextAnchored(text, px + sw + theme.labelGap, py, -1f, 0f)
     }
 }

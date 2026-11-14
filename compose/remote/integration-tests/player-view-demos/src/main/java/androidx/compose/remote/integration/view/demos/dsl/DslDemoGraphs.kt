@@ -66,7 +66,7 @@ fun dslDemoGraphs2(): ByteArray {
                 val h = componentHeight()
 
                 val scale = global { abs((sin(continuousSeconds()) + 1.5f.rf) * 10f.rf).flush() }
-                val equ = rFun { x ->
+                val equ = remoteFunction { x ->
                     min(scale, 15f.rf) * sin(x * 0.3f.rf + continuousSeconds()) * sin(x * 7f.rf)
                 }
 

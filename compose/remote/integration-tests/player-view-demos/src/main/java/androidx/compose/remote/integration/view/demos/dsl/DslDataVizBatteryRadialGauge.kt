@@ -31,7 +31,7 @@ import androidx.compose.remote.creation.dsl.fillMaxSize
 import androidx.compose.remote.creation.dsl.min
 import androidx.compose.remote.creation.dsl.rcColor
 import androidx.compose.remote.creation.dsl.sin
-import androidx.compose.remote.creation.dsl.toRad
+import androidx.compose.remote.creation.dsl.toRadians
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 
 /**
@@ -107,7 +107,7 @@ public fun dslDemoBatteryRadialGauge(): ByteArray {
             val tickR2 = tickR1 + density * 6f
             for (pct in intArrayOf(0, 25, 50, 75, 100)) {
                 val angle = 135f + pct.toFloat() / 100f * 270f
-                val rad = toRad(angle.rf)
+                val rad = toRadians(angle.rf)
                 drawLine(
                     cx + tickR1 * cos(rad),
                     cy + tickR1 * sin(rad),
@@ -131,7 +131,7 @@ public fun dslDemoBatteryRadialGauge(): ByteArray {
                     RcTextFromFloatSpec.of(padPre = RcTextFromFloatSpec.PadPre.None),
                 )
             val pctLabel = pctText + "%"
-            drawTextAnchored(pctLabel, cx, cy, 0f.rf, 0f.rf, 0)
+            drawTextAnchored(pctLabel, cx, cy, 0f.rf, 0f.rf)
 
             // Hours remaining.
             paint {
@@ -147,14 +147,14 @@ public fun dslDemoBatteryRadialGauge(): ByteArray {
                     RcTextFromFloatSpec.of(padPre = RcTextFromFloatSpec.PadPre.None),
                 )
             val hrsLabel = hrsText + "h remaining"
-            drawTextAnchored(hrsLabel, cx, cy, 0f.rf, 3.5f.rf, 0)
+            drawTextAnchored(hrsLabel, cx, cy, 0f.rf, 3.5f.rf)
 
             // Battery icon indicator (using same gauge color).
             paint {
                 color(gaugeColor)
                 textSize((density * 20f).toFloat())
             }
-            drawTextAnchored(remoteText("⚡"), cx, cy, 0f.rf, (-3.5f).rf, 0)
+            drawTextAnchored(remoteText("⚡"), cx, cy, 0f.rf, (-3.5f).rf)
         }
     }
 }

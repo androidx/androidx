@@ -15,7 +15,7 @@
  */
 
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@file:JvmName("ModifierKt")
+@file:JvmName("RcModifiers")
 
 package androidx.compose.remote.creation.dsl
 
@@ -182,8 +182,8 @@ public fun Modifier.heightIn(min: Float = 0f, max: Float = Float.MAX_VALUE): Mod
 
 public fun Modifier.heightIn(min: RcDp, max: RcDp): Modifier = heightIn(min.value, max.value)
 
-/** componentId modifier. */
-public fun Modifier.componentId(id: Int): Modifier = then(ComponentIdModifier(id))
+/** Assigns a typed [RcComponentId] to this component. */
+public fun Modifier.componentId(id: RcComponentId): Modifier = then(ComponentIdModifier(id.id))
 
 /** onClick modifier with ActionScope. */
 public fun Modifier.onClick(block: RcActionScope.() -> Unit): Modifier =
@@ -244,10 +244,7 @@ public fun Modifier.fillParentMaxHeight(fraction: Float = 1f): Modifier =
 public fun Modifier.fillParentMaxSize(fraction: Float = 1f): Modifier =
     then(FillParentMaxSizeModifier(fraction))
 
-/** border modifier. */
-public fun Modifier.border(width: Float, roundedCorner: Float, color: Int, shape: Int): Modifier =
-    then(BorderModifier(width, roundedCorner, color, shape))
-
+/** Draws a border with static [RcDp] dimensions and a static [RcColorValue]. */
 public fun Modifier.border(
     width: RcDp,
     roundedCorner: RcDp,
@@ -255,15 +252,8 @@ public fun Modifier.border(
     shape: RcBorderShape = RcBorderShape.Rectangle,
 ): Modifier = then(BorderModifier(width.value, roundedCorner.value, color.id, shape.value))
 
-/** dynamicBorder modifier. */
-public fun Modifier.dynamicBorder(
-    width: Float,
-    roundedCorner: Float,
-    color: Short,
-    shape: Int,
-): Modifier = then(DynamicBorderModifier(width, roundedCorner, color, shape))
-
-public fun Modifier.dynamicBorder(
+/** Draws a border with static [RcDp] dimensions and a dynamic [RcColor]. */
+public fun Modifier.border(
     width: RcDp,
     roundedCorner: RcDp,
     color: RcColor,
@@ -271,22 +261,60 @@ public fun Modifier.dynamicBorder(
 ): Modifier =
     then(DynamicBorderModifier(width.value, roundedCorner.value, color.id.toShort(), shape.value))
 
-/** visibility modifier. */
+/** Draws a border with static `Float` dimensions and a static [RcColorValue]. */
+public fun Modifier.border(
+    width: Float,
+    roundedCorner: Float,
+    color: RcColorValue,
+    shape: RcBorderShape = RcBorderShape.Rectangle,
+): Modifier = then(BorderModifier(width, roundedCorner, color.id, shape.value))
+
+/** Draws a border with static `Float` dimensions and a dynamic [RcColor]. */
+public fun Modifier.border(
+    width: Float,
+    roundedCorner: Float,
+    color: RcColor,
+    shape: RcBorderShape = RcBorderShape.Rectangle,
+): Modifier = then(DynamicBorderModifier(width, roundedCorner, color.id.toShort(), shape.value))
+
+/** Draws a border with dynamic [RcFloat] dimensions and a static [RcColorValue]. */
+public fun Modifier.border(
+    width: RcFloat,
+    roundedCorner: RcFloat,
+    color: RcColorValue,
+    shape: RcBorderShape = RcBorderShape.Rectangle,
+): Modifier = then(BorderModifier(width.toFloat(), roundedCorner.toFloat(), color.id, shape.value))
+
+/** Draws a border with dynamic [RcFloat] dimensions and a dynamic [RcColor]. */
+public fun Modifier.border(
+    width: RcFloat,
+    roundedCorner: RcFloat,
+    color: RcColor,
+    shape: RcBorderShape = RcBorderShape.Rectangle,
+): Modifier =
+    then(
+        DynamicBorderModifier(
+            width.toFloat(),
+            roundedCorner.toFloat(),
+            color.id.toShort(),
+            shape.value,
+        )
+    )
+
+/** Controls component visibility (`VISIBLE`, `INVISIBLE`, or `GONE`) from [visible]. */
 public fun Modifier.visibility(visible: RcInteger): Modifier = then(VisibilityModifier(visible))
 
-/** animationSpec modifier. */
+/** Configures layout motion and enter/exit visibility animations on this component. */
 public fun Modifier.animationSpec(
     animationId: Int = -1,
     motionDuration: Float = 300f,
-    motionEasingType: Int =
-        androidx.compose.remote.core.operations.utilities.easing.GeneralEasing.CUBIC_STANDARD,
+    motionEasing: RcAnimationCurve = RcAnimationCurve.CubicStandard,
     visibilityDuration: Float = 300f,
-    visibilityEasingType: Int =
-        androidx.compose.remote.core.operations.utilities.easing.GeneralEasing.CUBIC_STANDARD,
+    visibilityEasing: RcAnimationCurve = RcAnimationCurve.CubicStandard,
     enterAnimation: RcEnterExitAnimation = RcEnterExitAnimation.FadeIn,
     exitAnimation: RcEnterExitAnimation = RcEnterExitAnimation.FadeOut,
-    enterFunctionId: Int = -1,
-    exitFunctionId: Int = -1,
+    enterAnimationFunction: RcVisibilityAnimation = RcVisibilityAnimation.None,
+    exitAnimationFunction: RcVisibilityAnimation = RcVisibilityAnimation.None,
     enterSequence: RcAnimationSequence = RcAnimationSequence.Concurrent,
     exitSequence: RcAnimationSequence = RcAnimationSequence.Concurrent,
 ): Modifier =
@@ -294,13 +322,13 @@ public fun Modifier.animationSpec(
         AnimationSpecModifier(
             animationId,
             motionDuration,
-            motionEasingType,
+            motionEasing.value,
             visibilityDuration,
-            visibilityEasingType,
+            visibilityEasing.value,
             enterAnimation.toCore(),
             exitAnimation.toCore(),
-            enterFunctionId,
-            exitFunctionId,
+            enterAnimationFunction.id,
+            exitAnimationFunction.id,
             enterSequence.toCore(),
             exitSequence.toCore(),
         )
@@ -320,19 +348,19 @@ public fun Modifier.requiredWidthIn(min: Float = 0f, max: Float = Float.MAX_VALU
 public fun Modifier.requiredHeightIn(min: Float = 0f, max: Float = Float.MAX_VALUE): Modifier =
     then(RequiredHeightInModifier(min, max))
 
-/** marquee modifier. */
+/** Scrolls overflowing horizontal content using a marquee animation. */
 public fun Modifier.marquee(
-    iterations: Int,
-    animationMode: Int,
-    repeatDelayMillis: Float,
-    initialDelayMillis: Float,
-    spacing: Float,
-    velocity: Float,
+    iterations: Int = Int.MAX_VALUE,
+    animationMode: RcMarqueeAnimationMode = RcMarqueeAnimationMode.Immediately,
+    repeatDelayMillis: Float = 0f,
+    initialDelayMillis: Float = 0f,
+    spacing: Float = 0f,
+    velocity: Float = 20f,
 ): Modifier =
     then(
         MarqueeModifier(
             iterations,
-            animationMode,
+            animationMode.value,
             repeatDelayMillis,
             initialDelayMillis,
             spacing,
@@ -466,48 +494,6 @@ public fun Modifier.computeMeasure(block: RcLayoutScope.() -> Unit): Modifier =
  */
 public fun Modifier.computePosition(block: RcLayoutScope.() -> Unit): Modifier =
     then(ComponentLayoutComputeModifierElement(1 /* TYPE_POSITION */, block))
-
-// =====================================================================================
-//
-// Each delegates to the matching raw-Int border / componentId modifier above. The
-// raw-Int variants stay for backward compatibility; new code should prefer these.
-// @TODO remove non RcBorderShape
-// =====================================================================================
-
-/** Border with a typed [RcBorderShape]. */
-public fun Modifier.border(
-    width: Float,
-    roundedCorner: Float,
-    color: RcColorValue,
-    shape: RcBorderShape = RcBorderShape.Rectangle,
-): Modifier = border(width, roundedCorner, color.id, shape.value)
-
-/** Dynamic border with a typed [RcBorderShape]. */
-public fun Modifier.border(
-    width: Float,
-    roundedCorner: Float,
-    color: RcColor,
-    shape: RcBorderShape = RcBorderShape.Rectangle,
-): Modifier = dynamicBorder(width, roundedCorner, color.id.toShort(), shape.value)
-
-/** Border with a typed [RcBorderShape]. */
-public fun Modifier.border(
-    width: RcFloat,
-    roundedCorner: RcFloat,
-    color: RcColorValue,
-    shape: RcBorderShape = RcBorderShape.Rectangle,
-): Modifier = border(width.id, roundedCorner.id, color.id, shape.value)
-
-/** Dynamic border with a typed [RcBorderShape]. */
-public fun Modifier.border(
-    width: RcFloat,
-    roundedCorner: RcFloat,
-    color: RcColor,
-    shape: RcBorderShape = RcBorderShape.Rectangle,
-): Modifier = dynamicBorder(width.id, roundedCorner.id, color.id.toShort(), shape.value)
-
-/** Component ID using a typed [RcComponentId]. */
-public fun Modifier.componentId(id: RcComponentId): Modifier = componentId(id.id)
 
 internal class PaddingModifier(
     val start: Float,

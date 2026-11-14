@@ -24,13 +24,18 @@ import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcPath
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcStrokeCap
+import androidx.compose.remote.creation.dsl.abs
 import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
 import androidx.compose.remote.creation.dsl.floor
 import androidx.compose.remote.creation.dsl.ifElse
 import androidx.compose.remote.creation.dsl.lerp
+import androidx.compose.remote.creation.dsl.max
+import androidx.compose.remote.creation.dsl.min
 import androidx.compose.remote.creation.dsl.minus
 import androidx.compose.remote.creation.dsl.onClick
+import androidx.compose.remote.creation.dsl.sign
+import androidx.compose.remote.creation.dsl.sin
 import androidx.compose.remote.creation.dsl.smoothStep
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 
@@ -160,18 +165,17 @@ fun dslGameFlappyDroid(): ByteArray {
                     val droidHead = this@Canvas.remotePathData("M -290,0 A 290 290 0 0 1 290,0 Z")
                     // =========== Create Paths ==========
 
-                    val ps = createParticles(variables, arrayOf(h / 2f, 0f.rf), 1)
+                    val ps = createParticles(variables, listOf(h / 2f, 0f.rf), 1)
                     val py = RcFloat(variables[0])
                     val pdy = RcFloat(variables[1])
                     val dt = deltaTime()
                     impulseProcess() {
                         particlesComparison(
                             id = ps,
-                            flags = 0,
                             min = 0.rf,
                             max = 1.rf,
                             condition = (pipeX - px) * (px - (pipeX + pipeWidth)),
-                            then = arrayOf(py, pdy),
+                            then = listOf(py, pdy),
                         ) {
                             conditionalOperations(RcConditionOp.Gt, gapHalf, abs(gapY - py)) {
                                 val hs =
@@ -193,7 +197,7 @@ fun dslGameFlappyDroid(): ByteArray {
                         particlesLoop(
                             ps,
                             null,
-                            arrayOf(
+                            listOf(
                                 min(h * 0.95f, py + pdy * dt),
                                 (pdy + dt * 900f) * (1f - isTouching) - isTouching * 200f,
                             ),
@@ -202,11 +206,11 @@ fun dslGameFlappyDroid(): ByteArray {
                             val floatCount = ((positionGap) / (w + 100f)).flush()
                             val count = floor(floatCount)
                             //                            drawTextAnchored(count.genTextId(3, 0), w,
-                            // 0.rf, 2.rf, 2.rf, 0)
+                            // 0.rf, 2.rf, 2.rf)
                             val hitWall = sign(flow - current)
 
                             val scale = max(0f, (floatCount - count - 0.9f) * 10f) + 1f
-                            drawTextAnchored(scale.format(3, 3), w, 0.rf, 4.rf, 2.rf, 0)
+                            drawTextAnchored(scale.format(3, 3), w, 0.rf, 4.rf, 2.rf)
 
                             save()
 
@@ -218,7 +222,7 @@ fun dslGameFlappyDroid(): ByteArray {
                                 strokeWidth(8f)
                                 textSize(120f)
                             }
-                            drawTextAnchored(count.format(3, 0), w, 0.rf, 3.rf, 2.rf, 0)
+                            drawTextAnchored(count.format(3, 0), w, 0.rf, 3.rf, 2.rf)
 
                             restore()
                             paint {
@@ -233,7 +237,6 @@ fun dslGameFlappyDroid(): ByteArray {
                                 h,
                                 1.2f.rf,
                                 (-2).rf,
-                                0,
                             )
                             this@Canvas.drawAndroid(
                                 px,

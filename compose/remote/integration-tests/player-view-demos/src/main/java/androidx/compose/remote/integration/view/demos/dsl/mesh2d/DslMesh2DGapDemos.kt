@@ -164,15 +164,14 @@ public fun dslMesh2DDefaultGeometry(): ByteArray {
                     textSize(13f)
                     antiAlias(true)
                 }
-                drawTextAnchored(remoteText("Polar (x/y=null)"), 102f.rf, 212f.rf, 0f.rf, 0f.rf, 0)
-                drawTextAnchored(remoteText("Ring (x/y=null)"), 298f.rf, 212f.rf, 0f.rf, 0f.rf, 0)
+                drawTextAnchored(remoteText("Polar (x/y=null)"), 102f.rf, 212f.rf, 0f.rf, 0f.rf)
+                drawTextAnchored(remoteText("Ring (x/y=null)"), 298f.rf, 212f.rf, 0f.rf, 0f.rf)
                 drawTextAnchored(
                     remoteText("Fan + v=0 Apex Full"),
                     102f.rf,
                     388f.rf,
                     0f.rf,
                     0f.rf,
-                    0,
                 )
                 drawTextAnchored(
                     remoteText("Grid (x=null, y=expr)"),
@@ -180,7 +179,6 @@ public fun dslMesh2DDefaultGeometry(): ByteArray {
                     388f.rf,
                     0f.rf,
                     0f.rf,
-                    0,
                 )
             }
 
@@ -322,7 +320,6 @@ public fun dslMesh2DTexturedValues(): ByteArray {
                     368f.rf,
                     0f.rf,
                     0f.rf,
-                    0,
                 )
                 drawTextAnchored(
                     remoteText("colors != null (Modulate)"),
@@ -330,7 +327,6 @@ public fun dslMesh2DTexturedValues(): ByteArray {
                     368f.rf,
                     0f.rf,
                     0f.rf,
-                    0,
                 )
             }
 
@@ -413,7 +409,6 @@ public fun dslMesh2DInvisibleScaffold(): ByteArray {
                 h - 26f.rf,
                 0f.rf,
                 0f.rf,
-                0,
             )
 
             drawMesh2DLabel("mesh2d Invisible mesh, matrix scaffold", color = DARK_SLATE)

@@ -118,7 +118,6 @@ public fun dslDemoCalendarHeatmap(): ByteArray {
                 density * 20f,
                 0f.rf,
                 0f.rf,
-                0,
             )
 
             // Day-of-week headers.
@@ -135,7 +134,6 @@ public fun dslDemoCalendarHeatmap(): ByteArray {
                     gridTop - density * 8f,
                     0f.rf,
                     0f.rf,
-                    0,
                 )
             }
 
@@ -153,7 +151,7 @@ public fun dslDemoCalendarHeatmap(): ByteArray {
                     remoteColorExpression(
                         alpha = 0xFF,
                         hue = 0.33f,
-                        sat = (intensity * 0.8f + 0.1f).toFloat(),
+                        saturation = (intensity * 0.8f + 0.1f).toFloat(),
                         value = (intensity * 0.7f + 0.15f).toFloat(),
                     )
                 paint {
@@ -182,8 +180,8 @@ public fun dslDemoCalendarHeatmap(): ByteArray {
                 color(0x99FFFFFF.rcColor())
                 textSize((density * 10f).toFloat())
             }
-            drawTextAnchored(remoteText("Less"), w * 0.3f, legendY, 1.5f.rf, 0f.rf, 0)
-            drawTextAnchored(remoteText("More"), w * 0.7f, legendY, (-1.5f).rf, 0f.rf, 0)
+            drawTextAnchored(remoteText("Less"), w * 0.3f, legendY, 1.5f.rf, 0f.rf)
+            drawTextAnchored(remoteText("More"), w * 0.7f, legendY, (-1.5f).rf, 0f.rf)
             for (level in 0..4) {
                 val lx = w * 0.35f + level.rf * density * 16f
                 val intensity = level.toFloat() / 4f
@@ -191,7 +189,7 @@ public fun dslDemoCalendarHeatmap(): ByteArray {
                     remoteColorExpression(
                         alpha = 0xFF,
                         hue = 0.33f,
-                        sat = intensity * 0.8f + 0.1f,
+                        saturation = intensity * 0.8f + 0.1f,
                         value = intensity * 0.7f + 0.15f,
                     )
                 paint { color(colorId) }

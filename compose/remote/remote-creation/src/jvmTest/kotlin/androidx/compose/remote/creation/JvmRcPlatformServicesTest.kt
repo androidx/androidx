@@ -15,6 +15,13 @@
  */
 package androidx.compose.remote.creation
 
+import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RcProfiles
+import androidx.compose.remote.creation.dsl.RcProfile
+import androidx.compose.remote.creation.dsl.createRcBuffer
+import androidx.compose.remote.creation.dsl.remoteBitmap
+import androidx.compose.remote.creation.dsl.remoteNamedBitmap
+import androidx.compose.remote.creation.profile.Profile
 import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
 import javax.imageio.ImageIO
@@ -69,5 +76,30 @@ class JvmRcPlatformServicesTest {
 
         val grayImage = BufferedImage(10, 10, BufferedImage.TYPE_BYTE_GRAY)
         assertTrue(services.isAlpha8Image(grayImage))
+    }
+
+    @Test
+    fun testDslRemoteBitmapBufferedImage() {
+        val profile =
+            RcProfile(
+                Profile(
+                    CoreDocument.DOCUMENT_API_LEVEL,
+                    RcProfiles.PROFILE_ANDROIDX,
+                    services,
+                ) { _, p, _ ->
+                    RemoteComposeWriter(p)
+                }
+            )
+        val image = BufferedImage(8, 6, BufferedImage.TYPE_INT_ARGB)
+        val bytes =
+            createRcBuffer(profile) {
+                val bmp = remoteBitmap(image)
+                val namedBmp = remoteNamedBitmap("jvm_img", image)
+                Box {
+                    Image(bmp)
+                    Image(namedBmp)
+                }
+            }
+        assertTrue(bytes.isNotEmpty())
     }
 }

@@ -24,10 +24,13 @@ import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcSoundType
 import androidx.compose.remote.creation.dsl.RcTouchStopMode
 import androidx.compose.remote.creation.dsl.RcWaveform
+import androidx.compose.remote.creation.dsl.abs
 import androidx.compose.remote.creation.dsl.background
+import androidx.compose.remote.creation.dsl.cos
 import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
 import androidx.compose.remote.creation.dsl.noiseFrom
+import androidx.compose.remote.creation.dsl.sin
 import androidx.compose.remote.creation.dsl.touchPosX
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 
@@ -40,7 +43,7 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
 fun dslGameAstroDodger(): ByteArray {
     return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
         val explosionSound =
-            soundExpression(
+            remoteSoundExpression(
                 type = RcSoundType.Tone,
                 frequency = 120f,
                 durationSeconds = 0.3f,
@@ -66,17 +69,15 @@ fun dslGameAstroDodger(): ByteArray {
             // 2. Spaceship X controlled by drag/touch
             val goalX =
                 addTouch(
-                    defValue = w / 2f,
+                    defaultValue = w / 2f,
                     min = rocketSize,
                     max = w - rocketSize,
+                    expression = touchPosX(),
                     stopMode = RcTouchStopMode.Gently,
                     velocity = 0.rf,
                     notchHaptic = RcHaptic.NoHaptics,
-                    touchSpec = null,
-                    easingSpec = null,
-                    exp = touchPosX(),
                 )
-            val shipX = (goalX + 0.0f).spring(1f, 1f, 0.01f, 0)
+            val shipX = (goalX + 0.0f).spring(1f, 1f, 0.01f)
             val shipY = h - 120f.rf
 
             // 3. Falling Asteroids
@@ -112,7 +113,7 @@ fun dslGameAstroDodger(): ByteArray {
                 shipPath.lineTo(-25f, 25f)
                 shipPath.lineTo(25f, 25f)
                 shipPath.close()
-                drawPath(shipPath.getPath())
+                drawPath(shipPath.toPath())
 
                 // Engine flame
                 paint {

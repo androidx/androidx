@@ -34,25 +34,24 @@ import androidx.compose.ui.graphics.Color
 
 @SuppressLint("RestrictedApiAndroidX")
 public object SupportSlider {
-    public const val PROP_PROGRESS: Short = 5
-    public const val PROP_MAX_PROGRESS: Short = 6
-    public const val PROP_INDETERMINATE: Short = 7
-    public const val PROP_PROGRESS_COLOR: Short = 8
-    public const val RET_PROGRESS: Short = 9
+    public const val PROP_PROGRESS: Int = 5
+    public const val PROP_MAX_PROGRESS: Int = 6
+    public const val PROP_INDETERMINATE: Int = 7
+    public const val PROP_PROGRESS_COLOR: Int = 8
+    public const val RET_PROGRESS: Int = 9
 
     @Suppress("DEPRECATION")
     @Composable
     @SuppressLint("RestrictedApiAndroidX")
     public fun Content(state: ComposeCustomSupport.ComponentState, remoteContext: RemoteContext?) {
         var opProgress =
-            state.floatProps[PROP_PROGRESS.toInt()]
-                ?: (state.intProps[PROP_PROGRESS.toInt()]?.toFloat() ?: 0f)
+            state.floatProps[PROP_PROGRESS] ?: (state.intProps[PROP_PROGRESS]?.toFloat() ?: 0f)
         val maxProgress =
-            state.floatProps[PROP_MAX_PROGRESS.toInt()]
-                ?: (state.intProps[PROP_MAX_PROGRESS.toInt()]?.toFloat() ?: 100f)
+            state.floatProps[PROP_MAX_PROGRESS]
+                ?: (state.intProps[PROP_MAX_PROGRESS]?.toFloat() ?: 100f)
         val sliderColor =
-            state.intProps[PROP_PROGRESS_COLOR.toInt()]?.let { Color(it) } ?: Color.Unspecified
-        val retId = state.intProps[RET_PROGRESS.toInt()] ?: -1
+            state.intProps[PROP_PROGRESS_COLOR]?.let { Color(it) } ?: Color.Unspecified
+        val retId = state.intProps[RET_PROGRESS] ?: -1
 
         if (retId != -1 && remoteContext != null) {
             val loaded = remoteContext.getFloat(retId)

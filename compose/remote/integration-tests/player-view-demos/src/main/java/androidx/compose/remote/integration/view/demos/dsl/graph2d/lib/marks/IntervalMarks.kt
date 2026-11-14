@@ -56,7 +56,7 @@ internal fun RcCanvasScope.renderBand(
         color(Palette.fadeAlpha(color, fillAlpha))
         style(RcPaintStyle.Fill)
     }
-    drawPath(path.getPath())
+    drawPath(path.toPath())
 }
 
 /** Stroke a polyline through [values] on the point-scale x axis (e.g. a band's center line). */
@@ -81,7 +81,7 @@ internal fun RcCanvasScope.strokePolyline(
         strokeCap(RcStrokeCap.Round)
         strokeJoin(RcStrokeJoin.Round)
     }
-    drawPath(path.getPath())
+    drawPath(path.toPath())
     if (markers) {
         paint {
             color(color)

@@ -17,10 +17,10 @@
 package androidx.compose.remote.integration.view.demos.dsl
 
 import android.graphics.Color
-import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcCanvasScope
 import androidx.compose.remote.creation.dsl.RcColor
+import androidx.compose.remote.creation.dsl.RcComponentId
 import androidx.compose.remote.creation.dsl.RcFloat
 import androidx.compose.remote.creation.dsl.RcFlowScope
 import androidx.compose.remote.creation.dsl.RcHorizontalPositioning
@@ -31,7 +31,11 @@ import androidx.compose.remote.creation.dsl.RcScope
 import androidx.compose.remote.creation.dsl.RcShader
 import androidx.compose.remote.creation.dsl.RcShape
 import androidx.compose.remote.creation.dsl.RcSp
+import androidx.compose.remote.creation.dsl.RcTextFromFloatSpec
 import androidx.compose.remote.creation.dsl.RcVerticalPositioning
+import androidx.compose.remote.creation.dsl.arrayMax
+import androidx.compose.remote.creation.dsl.arrayMin
+import androidx.compose.remote.creation.dsl.arraySpline
 import androidx.compose.remote.creation.dsl.background
 import androidx.compose.remote.creation.dsl.clip
 import androidx.compose.remote.creation.dsl.componentId
@@ -39,9 +43,12 @@ import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
 import androidx.compose.remote.creation.dsl.fillMaxWidth
 import androidx.compose.remote.creation.dsl.height
+import androidx.compose.remote.creation.dsl.max
+import androidx.compose.remote.creation.dsl.min
 import androidx.compose.remote.creation.dsl.padding
 import androidx.compose.remote.creation.dsl.rdp
 import androidx.compose.remote.creation.dsl.rsp
+import androidx.compose.remote.creation.dsl.sign
 import androidx.compose.remote.creation.dsl.size
 import androidx.compose.remote.creation.dsl.verticalScroll
 import androidx.compose.remote.creation.dsl.widthIn
@@ -106,7 +113,8 @@ private fun RcScope.MyScroll(content: RcScope.() -> Unit) {
         val position = 0f.rf
         var sHeight = 0f.rf
         Column(
-            modifier = Modifier.fillMaxSize().componentId(4343).verticalScroll(position),
+            modifier =
+                Modifier.fillMaxSize().componentId(RcComponentId.of(4343)).verticalScroll(position),
             horizontal = RcHorizontalPositioning.Center,
         ) {
             Column(horizontal = RcHorizontalPositioning.Center) {
@@ -133,9 +141,11 @@ private fun RcFlowScope.Stock(name: String, price: Float, change: String) {
         Column {
             Row(vertical = RcVerticalPositioning.Bottom) {
                 val numFlags =
-                    Rc.TextFromFloat.PAD_PRE_NONE or
-                        Rc.TextFromFloat.GROUPING_BY3 or
-                        Rc.TextFromFloat.PAD_AFTER_ZERO
+                    RcTextFromFloatSpec.of(
+                        padPre = RcTextFromFloatSpec.PadPre.None,
+                        grouping = RcTextFromFloatSpec.Grouping.By3,
+                        padAfter = RcTextFromFloatSpec.PadAfter.Zero,
+                    )
                 Text(
                     price.rf.format(8, 0, numFlags),
                     color = colors.stockPrice,
@@ -165,9 +175,11 @@ private fun RcScope.BigStock(name: String, price: Float, change: String) {
         Row {
             Column {
                 val numFlags =
-                    Rc.TextFromFloat.PAD_PRE_NONE or
-                        Rc.TextFromFloat.GROUPING_BY3 or
-                        Rc.TextFromFloat.PAD_AFTER_ZERO
+                    RcTextFromFloatSpec.of(
+                        padPre = RcTextFromFloatSpec.PadPre.None,
+                        grouping = RcTextFromFloatSpec.Grouping.By3,
+                        padAfter = RcTextFromFloatSpec.PadAfter.Zero,
+                    )
                 Row(vertical = RcVerticalPositioning.Bottom) {
                     Text(
                         price.rf.format(8, 0, numFlags),
@@ -234,7 +246,7 @@ private fun RcScope.StockGraph() {
         save {
             val cut = 5f
             clipRect(margin + cut, margin + cut, xEnd - cut, lineBottom - cut)
-            drawPath(path.getPath())
+            drawPath(path.toPath())
 
             paint {
                 shader(RcShader.None)
@@ -242,7 +254,7 @@ private fun RcScope.StockGraph() {
                 style(RcPaintStyle.Stroke)
                 strokeWidth(6f)
             }
-            drawPath(path.getPath())
+            drawPath(path.toPath())
         }
     }
 }

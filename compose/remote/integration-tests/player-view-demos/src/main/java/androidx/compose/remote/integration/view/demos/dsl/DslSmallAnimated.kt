@@ -35,12 +35,12 @@ fun SmallAnimatedPreview() {
 fun smallAnimated(): ByteArray {
     return createRawRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
         val sec = continuousSeconds()
-        val text = sec.format(2, 2, 0)
+        val text = sec.format(2, 2)
 
         paint {
             textSize(120f)
             color(Color.WHITE)
         }
-        drawTextAnchored(text, 0f, 0f, -1f, 1f, 0)
+        drawTextAnchored(text, 0f, 0f, -1f, 1f)
     }
 }

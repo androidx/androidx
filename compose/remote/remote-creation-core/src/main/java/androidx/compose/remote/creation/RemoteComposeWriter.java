@@ -2620,6 +2620,23 @@ public class RemoteComposeWriter {
     }
 
     /**
+     * Stores an encoded bitmap payload (such as PNG or WebP bytes) as a named bitmap variable.
+     *
+     * @param name the variable name of the bitmap
+     * @param width the bitmap width in pixels
+     * @param height the bitmap height in pixels
+     * @param data the encoded image bytes
+     * @return the id of the bitmap
+     */
+    public int addNamedBitmap(
+            @NonNull String name, int width, int height, byte @NonNull [] data) {
+        int id = addBitmap(width, height, data);
+        mBuffer.setNamedVariable(id, name, NamedVariable.IMAGE_TYPE);
+        mState.updateObject(id, data);
+        return id;
+    }
+
+    /**
      * @param name The String representing the name of the url.
      * @param url  the initial url
      * @return the id of the RemoteBitmap
@@ -4686,6 +4703,23 @@ public class RemoteComposeWriter {
      */
     public int addBitmap(@NonNull Object image) {
         return storeBitmap(image);
+    }
+
+    /**
+     * Stores an encoded bitmap payload (such as PNG or WebP bytes) in the buffer.
+     *
+     * @param width the bitmap width in pixels
+     * @param height the bitmap height in pixels
+     * @param data the encoded image bytes
+     * @return the id of the bitmap
+     */
+    public int addBitmap(int width, int height, byte @NonNull [] data) {
+        int imageId = mState.dataGetId(data);
+        if (imageId == -1) {
+            imageId = mState.cacheData(data);
+            mBuffer.storeBitmap(imageId, (short) width, (short) height, data);
+        }
+        return imageId;
     }
 
     /**

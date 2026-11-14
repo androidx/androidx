@@ -89,7 +89,7 @@ fun dslDragCirclesDsl(): ByteArray {
                     paint {
                         color(0xFF_FF_FF_AA)
                     }
-                    drawTextAnchored(remoteText("$objIndex"), px, py, 0.rf, 0.rf, 0)
+                    drawTextAnchored(remoteText("$objIndex"), px, py, 0.rf, 0.rf)
                 }
             }
         }
@@ -160,7 +160,7 @@ fun dslDragCirclesDsl_old2(): ByteArray {
                     paint {
                         color(0xFF_FF_FF_AA)
                     }
-                    drawTextAnchored(remoteText("$objIndex"), px, py, 0.rf, 0.rf, 0)
+                    drawTextAnchored(remoteText("$objIndex"), px, py, 0.rf, 0.rf)
                 }
             }
             //        }
@@ -271,7 +271,7 @@ fun dslDragCirclesDsl_old2(): ByteArray {
 //                    paint {
 //                        color(0xFF_FF_FF_AA)
 //                    }
-//                    drawTextAnchored(idx.genTextId(2, 0), px, py, 0.rf, 0.rf, 0);
+//                    drawTextAnchored(idx.genTextId(2, 0), px, py, 0.rf, 0.rf);
 //
 //                }
 //            }
@@ -345,5 +345,5 @@ fun dslDragCirclesDsl_old2(): ByteArray {
 //                                color(0xFFE8EAF0.toInt())
 //                                textSize(50f)
 //                            }
-//                            drawTextAnchored(i.genTextId(2, 0) ,cx, cy, 0.rf, 0.rf, 0);
+//                            drawTextAnchored(i.genTextId(2, 0) ,cx, cy, 0.rf, 0.rf);
 //                        }

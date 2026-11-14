@@ -149,7 +149,7 @@ internal fun RcCanvasScope.renderRadar(
                 color(fill)
                 style(RcPaintStyle.Fill)
             }
-            drawPath(path.getPath())
+            drawPath(path.toPath())
         }
         paint {
             color(stroke)
@@ -157,7 +157,7 @@ internal fun RcCanvasScope.renderRadar(
             strokeWidth(width)
             strokeJoin(RcStrokeJoin.Round)
         }
-        drawPath(path.getPath())
+        drawPath(path.toPath())
     }
 
     // Grid rings.

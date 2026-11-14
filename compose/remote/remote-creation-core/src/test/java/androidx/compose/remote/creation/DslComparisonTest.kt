@@ -23,6 +23,7 @@ import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.actions.ValueFloatChange
 import androidx.compose.remote.creation.actions.ValueStringChange
 import androidx.compose.remote.creation.dsl.Modifier
+import androidx.compose.remote.creation.dsl.RcColor
 import androidx.compose.remote.creation.dsl.RcColumnVerticalPositioning
 import androidx.compose.remote.creation.dsl.RcFontWeight
 import androidx.compose.remote.creation.dsl.RcHeaderTag
@@ -410,16 +411,15 @@ class DslComparisonTest {
     @Test
     fun testLinearGradientWithMaskComparison() {
         val profile = RcProfile(testProfile)
-        val colorId = 0x10000001
-        val colorsArray = intArrayOf(colorId, 0x00)
         val positions: FloatArray? = null
 
         // 1. Legacy
         val legacyContext = RemoteComposeContext(100, 100, "", testProfile)
         legacyContext.mRemoteWriter.root {
+            val colorId = legacyContext.mRemoteWriter.addColor(0xFFFF0000.toInt())
             legacyContext.mRemoteWriter.startCanvas(RecordingModifier())
             legacyContext.mRemoteWriter.rcPaint
-                .setLinearGradient(0f, 0f, 0f, 100f, colorsArray, 1, null, 0)
+                .setLinearGradient(0f, 0f, 0f, 100f, intArrayOf(colorId, 0x00), 1, null, 0)
                 .commit()
             legacyContext.mRemoteWriter.drawRect(0f, 0f, 100f, 100f)
             legacyContext.mRemoteWriter.endCanvas()
@@ -436,9 +436,17 @@ class DslComparisonTest {
                 RcHeaderTag.contentDescription(""),
                 RcHeaderTag.raw(Header.DOC_PROFILES, 0),
             ) {
+                val dynamicColor = remoteColor(0xFFFF0000.toInt())
                 Canvas {
                     paint {
-                        linearGradient(0f, 0f, 0f, 100f, colorsArray, positions, colorMask = 1)
+                        linearGradient(
+                            0f,
+                            0f,
+                            0f,
+                            100f,
+                            listOf(dynamicColor, RcColor.None),
+                            positions,
+                        )
                     }
                     drawRect(0f, 0f, 100f, 100f)
                 }

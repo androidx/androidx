@@ -24,11 +24,14 @@ import androidx.compose.remote.creation.dsl.RcHorizontalPositioning
 import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcTouchStopMode
+import androidx.compose.remote.creation.dsl.abs
 import androidx.compose.remote.creation.dsl.background
+import androidx.compose.remote.creation.dsl.cos
 import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
 import androidx.compose.remote.creation.dsl.padding
 import androidx.compose.remote.creation.dsl.rsp
+import androidx.compose.remote.creation.dsl.sin
 import androidx.compose.remote.creation.dsl.touchPosY
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 
@@ -50,15 +53,13 @@ fun dslGameSideScroller(): ByteArray {
                 // 2. Spaceship X controlled by drag/touch
                 val playerY =
                     addTouch(
-                        defValue = h / 2f,
+                        defaultValue = h / 2f,
                         min = rocketSize,
                         max = h - rocketSize,
+                        expression = touchPosY(),
                         stopMode = RcTouchStopMode.Gently,
                         velocity = 0.rf,
                         notchHaptic = RcHaptic.NoHaptics,
-                        touchSpec = null,
-                        easingSpec = null,
-                        exp = touchPosY(),
                     )
                 // 2. Incoming Obstacles (moving right to left)
                 // Obstacle 1: Medium speed, sways up/down
@@ -111,7 +112,7 @@ fun dslGameSideScroller(): ByteArray {
                     shipPath.lineTo(-10f, 0f)
                     shipPath.lineTo(-20f, 20f)
                     shipPath.close()
-                    drawPath(shipPath.getPath())
+                    drawPath(shipPath.toPath())
 
                     // Thruster flame
                     paint {

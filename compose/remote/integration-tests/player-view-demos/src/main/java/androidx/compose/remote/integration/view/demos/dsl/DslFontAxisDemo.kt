@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.integration.view.demos.dsl
 
-import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.creation.dsl.*
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
@@ -83,11 +82,7 @@ public fun dslFontAxisDemo(): ByteArray {
                         defaultValue = 400f,
                         range = 100f..900f,
                         stopMode = RcTouchStopMode.Gently,
-                        velocity = 0f,
-                        notchHaptic = RcHaptic.NoHaptics,
-                        notches = null,
-                        easing = null,
-                        RemoteContext.FLOAT_TOUCH_POS_X,
+                        expression = touchPosX(),
                     )
 
                 // Draw track for weight slider
@@ -127,7 +122,7 @@ public fun dslFontAxisDemo(): ByteArray {
 
                 // --- Draw Variable Axis Font ---
                 // Create format string for weight value: e.g., "Weight: 400"
-                val valStr = wghtVal.format(3, 0, 0)
+                val valStr = wghtVal.format(3, 0)
                 val label = remoteText("Axis: 'wght' = ") + valStr
 
                 paint {
@@ -143,7 +138,7 @@ public fun dslFontAxisDemo(): ByteArray {
                     textSize(64f)
                     typeface("sans-serif")
                     // Apply the new axis(...) paint property!
-                    axis(arrayOf("wght"), floatArrayOf(wghtVal.toFloat()))
+                    axis(listOf("wght"), floatArrayOf(wghtVal.toFloat()))
                 }
                 drawTextAnchored(
                     remoteText("VARIABLE FONT"),
