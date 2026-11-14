@@ -80,6 +80,10 @@ internal class ParseContext {
      * Opens a new [ParseBlock] on [currentLine], falling back to [ParagraphParseBlock] for plain
      * text.
      *
+     * A container block start consumes only its own prefix and returns an empty container. This
+     * function then opens the container's first child on the rest of the line (and, if that child
+     * is a container too, its first child, and so on), so block starts never build children.
+     *
      * Incremental parsing relies on this function returning the same block for an unchanged line
      * (see [ContainerParseBlock.processLine]).
      */
@@ -91,10 +95,27 @@ internal class ParseContext {
     /**
      * Attempts to open a [ParseBlock] that interrupts an open [ParagraphParseBlock] on
      * [currentLine], or returns `null` (consuming nothing) if none matches.
+     *
+     * Only the returned block must be able to interrupt a paragraph. If it is a container, its
+     * first child is opened on the rest of the line as in [startBlock], with a normal block start.
      */
     fun tryStartInterruptingBlock(): ParseBlock? = startBlock(isInterrupting = true)
 
     private fun startBlock(isInterrupting: Boolean): ParseBlock? {
+        val block = matchBlockStart(isInterrupting) ?: return null
+        if (block is ContainerParseBlock) {
+            // The child is complete (with its own first child) before it is attached, because
+            // initFirstChild takes the child's line count.
+            block.initFirstChild(startBlock())
+        }
+        return block
+    }
+
+    /**
+     * Matches the block that starts on [currentLine] and returns it without any children, or `null`
+     * (consuming nothing) if [isInterrupting] and no block can interrupt a paragraph.
+     */
+    private fun matchBlockStart(isInterrupting: Boolean): ParseBlock? {
         val scanner = currentLine
 
         // 1. Empty Line
@@ -136,7 +157,7 @@ internal class ParseContext {
     }
 
     /**
-     * Matches a block that starts with a marker character (step 2 of [startBlock]), or returns
+     * Matches a block that starts with a marker character (step 2 of [matchBlockStart]), or returns
      * `null` (consuming nothing) if none matches.
      */
     private fun matchMarkedBlockStart(): ParseBlock? {
