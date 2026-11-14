@@ -26,7 +26,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.pointer.PointerEvent
@@ -188,12 +187,13 @@ internal data class PointerInputChangeLogEntry(
     val pass: PointerEventPass,
 )
 
+@Composable
 private fun Modifier.gestureSpy(
     onPointerInput: (PointerEvent, PointerEventPass) -> Unit
-): Modifier = composed {
+): Modifier {
     val spy = remember { GestureSpy() }
     spy.onPointerInput = onPointerInput
-    spy
+    return this then spy
 }
 
 private class GestureSpy : PointerInputModifier {

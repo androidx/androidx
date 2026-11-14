@@ -37,7 +37,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.platform.InspectableValue
@@ -939,6 +938,7 @@ class Draggable2DTest {
         }
     }
 
+    @Composable
     private fun Modifier.draggable2D(
         enabled: Boolean = true,
         reverseDirection: Boolean = false,
@@ -947,9 +947,9 @@ class Draggable2DTest {
         onDragStarted: (startedPosition: Offset) -> Unit = {},
         onDragStopped: (velocity: Velocity) -> Unit = {},
         onDrag: (Offset) -> Unit,
-    ): Modifier = composed {
+    ): Modifier {
         val state = rememberDraggable2DState(onDrag)
-        draggable2D(
+        return draggable2D(
             enabled = enabled,
             reverseDirection = reverseDirection,
             interactionSource = interactionSource,
@@ -960,6 +960,7 @@ class Draggable2DTest {
         )
     }
 
+    @Composable
     private fun Modifier.draggable(
         orientation: Orientation,
         enabled: Boolean = true,
@@ -969,9 +970,9 @@ class Draggable2DTest {
         onDragStarted: (startedPosition: Offset) -> Unit = {},
         onDragStopped: (velocity: Float) -> Unit = {},
         onDrag: (Float) -> Unit,
-    ): Modifier = composed {
+    ): Modifier {
         val state = rememberDraggableState(onDrag)
-        draggable(
+        return draggable(
             orientation = orientation,
             enabled = enabled,
             reverseDirection = reverseDirection,
