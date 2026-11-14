@@ -453,6 +453,11 @@ public class RequireForegroundRule(private val preTestCheck: suspend () -> Unit)
                 } catch (_: IOException) {}
             }
 
+            // Some focused system sheets, such as the "Use USB for" sheet on ColorOS and Realme UI,
+            // survive returning Home and ACTION_CLOSE_SYSTEM_DIALOGS but are dismissed by Back.
+            // This runs before the test Activity is launched and is followed by returning Home, so
+            // Back can only close a system window or leave a screen that Home leaves anyway.
+            device.pressBack()
             backToHome(instrumentation)
 
             try {
