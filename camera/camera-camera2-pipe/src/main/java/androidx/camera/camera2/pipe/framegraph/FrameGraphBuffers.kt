@@ -49,6 +49,7 @@ internal constructor(
     @GuardedBy("lock") private val buffers = mutableListOf<FrameBufferImpl>()
     @GuardedBy("lock") private var streams = mutableSetOf<StreamId>()
     @GuardedBy("lock") private var parameters = mutableMapOf<Any, Any?>()
+    @GuardedBy("lock") private var dirty = false
 
     internal fun attach(
         streams: Set<StreamId>,
@@ -61,12 +62,12 @@ internal constructor(
             }
         }
         val frameBuffer = FrameBufferImpl(this, streams, parameters, capacity)
-        val modified =
+        val shouldFlush =
             synchronized(lock) {
                 buffers.add(frameBuffer)
-                updateStreamsAndParameters()
+                shouldApplyUpdate(updateStreamsAndParameters())
             }
-        if (modified) {
+        if (shouldFlush) {
             invalidate()
         }
         frameGraphResourceTrimmer.onFrameBufferAttached(frameBuffer)
@@ -75,12 +76,12 @@ internal constructor(
     }
 
     internal fun detach(frameBuffer: FrameBufferImpl) {
-        val modified =
+        val shouldFlush =
             synchronized(lock) {
                 buffers.remove(frameBuffer)
-                updateStreamsAndParameters()
+                shouldApplyUpdate(updateStreamsAndParameters())
             }
-        if (modified) {
+        if (shouldFlush) {
             invalidate()
         }
         frameGraphResourceTrimmer.onFrameBufferDetached(frameBuffer)
@@ -93,11 +94,9 @@ internal constructor(
         for (buffer in buffers) {
             newStreams.addAll(buffer.streams)
 
-            for (parameter in buffer.parameters) {
-                val key = parameter.key
-                val value = parameter.value
+            for ((key, value) in buffer.parameters) {
                 check(key is CaptureRequest.Key<*> || key is Metadata.Key<*>) {
-                    "Invalid type for ${parameter.key}"
+                    "Invalid type for $key"
                 }
 
                 val existingValue = newParameters[key]
@@ -122,8 +121,19 @@ internal constructor(
         return modified
     }
 
+    @GuardedBy("lock")
+    private fun shouldApplyUpdate(modified: Boolean): Boolean {
+        if (!modified) return false
+        if (!dirty) {
+            dirty = true
+            return true
+        }
+        return false
+    }
+
     fun flush(session: CameraGraph.Session) {
         synchronized(lock) {
+            dirty = false
             if (buffers.isEmpty()) {
                 session.stopRepeating()
                 frameGraphResourceTrimmer.onRepeatingRequestUpdated(null)
@@ -148,7 +158,13 @@ internal constructor(
     }
 
     fun invalidate() {
-        cameraGraph.useSessionIn(frameGraphCoroutineScope) { session -> flush(session) }
+        cameraGraph.useSessionIn(frameGraphCoroutineScope) { session ->
+            synchronized(lock) {
+                if (dirty) {
+                    flush(session)
+                }
+            }
+        }
     }
 
     override fun onFrameStarted(frameReference: FrameReference) {
