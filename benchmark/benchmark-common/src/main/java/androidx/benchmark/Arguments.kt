@@ -90,7 +90,7 @@ public object Arguments {
      *
      * Specifies that one sample is recorded every [loadOrderSampleFreq] `page-faults` events. Lower
      * values increase sampling fidelity at the cost of larger trace files and higher overhead.
-     * Defaults to `10`.
+     * Defaults to `1`.
      */
     public val loadOrderSampleFreq: Int
 
@@ -227,8 +227,7 @@ public object Arguments {
             arguments
                 .getBenchmarkArgument(
                     key = "enabledRules",
-                    defaultValue =
-                        RuleType.values().joinToString(separator = ",") { it.toString() },
+                    defaultValue = RuleType.entries.joinToString(separator = ",") { it.toString() },
                 )
                 .run {
                     if (this.lowercase() == "none") {
@@ -240,14 +239,14 @@ public object Arguments {
                                 .map { it.trim() }
                                 .filter { it.isNotEmpty() }
                                 .map { arg ->
-                                    RuleType.values().find {
-                                        arg.lowercase() == it.toString().lowercase()
+                                    RuleType.entries.find {
+                                        arg.equals(it.toString(), ignoreCase = true)
                                     } ?: throw Throwable("unable to find $arg")
                                 }
                                 .toSet()
                         } catch (e: Throwable) {
                             // defer parse error, so it doesn't show up as a missing class
-                            val allRules = RuleType.values()
+                            val allRules = RuleType.entries.toTypedArray()
                             val allRulesString = allRules.joinToString(",") { it.toString() }
                             error =
                                 "unable to parse enabledRules='$this', should be 'None' or" +
@@ -371,7 +370,7 @@ public object Arguments {
                 ?: true
 
         loadOrderSampleFreq =
-            arguments.getBenchmarkArgument("loadOrder.sampleFreq")?.ifBlank { null }?.toInt() ?: 10
+            arguments.getBenchmarkArgument("loadOrder.sampleFreq")?.ifBlank { null }?.toInt() ?: 1
 
         if (arguments.getString("orchestratorService") != null) {
             InstrumentationResults.scheduleIdeWarningOnNextReport(
