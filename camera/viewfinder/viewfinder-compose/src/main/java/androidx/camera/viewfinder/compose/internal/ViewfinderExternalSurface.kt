@@ -147,7 +147,7 @@ private class ViewfinderExternalSurfaceHolder(
 
 /**
  * [SurfaceView] host for [ViewfinderExternalSurface] that tracks its bound
- * [ViewfinderExternalSurfaceState] and whether it has been abandoned on API 29-30 after surface
+ * [ViewfinderExternalSurfaceState] and whether it has been abandoned on API 29-31 after surface
  * destruction.
  */
 private class ViewfinderSurfaceView(context: Context) : SurfaceView(context) {
@@ -252,14 +252,14 @@ private class ViewfinderExternalSurfaceState(
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {
         viewfinderSurfaceHolder?.detach()
-        // On API 29-30, if a SurfaceView is detached and reattached within the same frame at the
+        // On API 29-31, if a SurfaceView is detached and reattached within the same frame at the
         // same window bounds (e.g. via movableContentOf), SurfaceView recreates its SurfaceControl
         // with un-scaled UI-thread geometry without resetting its cached render position, causing
         // PositionUpdateListener.positionChanged to early-return and leave the new SurfaceControl
         // un-scaled (and the previous SurfaceControl not released until positionLost). Abandon
-        // this SurfaceView and schedule a fresh instance; API 31+ replaces the
-        // PositionUpdateListener whenever it recreates its SurfaceControl.
-        if (Build.VERSION.SDK_INT in Build.VERSION_CODES.Q..Build.VERSION_CODES.R) {
+        // this SurfaceView and schedule a fresh instance; API 32+ forces the first position
+        // update after it recreates its SurfaceControl.
+        if (Build.VERSION.SDK_INT in Build.VERSION_CODES.Q..Build.VERSION_CODES.S) {
             surfaceView?.let { view ->
                 if (view.holder === holder) {
                     view.isAbandoned = true

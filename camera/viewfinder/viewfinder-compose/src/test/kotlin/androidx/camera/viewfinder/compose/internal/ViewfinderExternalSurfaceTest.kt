@@ -46,13 +46,13 @@ class ViewfinderExternalSurfaceTest {
     @get:Rule val composeTestRule = createComposeRule()
 
     @Test
-    @Config(sdk = [29, 30])
-    fun surfaceDestroyed_recreatesSurfaceViewWithoutReinvokingOnInit_onApi29To30() =
+    @Config(sdk = [29, 31])
+    fun surfaceDestroyed_recreatesSurfaceViewWithoutReinvokingOnInit_onApi29To31() =
         assertSurfaceDestroyedInMovableContent(expectRecreated = true)
 
     @Test
-    @Config(sdk = [31, Config.TARGET_SDK])
-    fun surfaceDestroyed_retainsSurfaceView_onApi31Plus() =
+    @Config(sdk = [32, Config.TARGET_SDK])
+    fun surfaceDestroyed_retainsSurfaceView_onApi32Plus() =
         assertSurfaceDestroyedInMovableContent(expectRecreated = false)
 
     @Test
@@ -77,7 +77,7 @@ class ViewfinderExternalSurfaceTest {
 
     /**
      * Moves a [ViewfinderExternalSurface] within `movableContentOf` while its surface is destroyed,
-     * as happens on API 29-30, and asserts that `onInit` isn't re-invoked and that the SurfaceView
+     * as happens on API 29-31, and asserts that `onInit` isn't re-invoked and that the SurfaceView
      * is replaced by a fresh one with the state's callback if [expectRecreated], or kept otherwise.
      */
     private fun assertSurfaceDestroyedInMovableContent(expectRecreated: Boolean) {
