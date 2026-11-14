@@ -20,10 +20,7 @@ import androidx.appstate.statestore.StateStore
 import androidx.appstate.statestore.StateStoreKey
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot.Companion.sendApplyNotifications
-import androidx.datastore.core.DataStoreFactory
-import androidx.datastore.core.okio.OkioStorage
 import androidx.kruth.assertThat
-import kotlin.random.Random
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlinx.coroutines.Dispatchers
@@ -35,14 +32,12 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import okio.FileSystem
+import kotlinx.serialization.builtins.serializer
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class StateStoreDataStoreTest {
-
-    private val testFile =
-        FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "test_datastore_${Random.nextInt()}.json"
 
     @AfterTest
     fun tearDown() {
@@ -51,9 +46,17 @@ class StateStoreDataStoreTest {
 
     val defaultValue = "default"
 
-    @Serializable object StringKey : StateStoreKey<String>("default"), PersistToDataStore
+    @Serializable
+    object StringKey : StateStoreKey<String>("default"), PersistToDataStore<String> {
+        override val name: String = "string"
+        override val serializer: KSerializer<String> = String.serializer()
+    }
 
-    @Serializable object IntKey : StateStoreKey<Int>(0), PersistToDataStore
+    @Serializable
+    object IntKey : StateStoreKey<Int>(0), PersistToDataStore<Int> {
+        override val name: String = "int"
+        override val serializer: KSerializer<Int> = Int.serializer()
+    }
 
     @Serializable object NonPersistedStringKey : StateStoreKey<String>("default")
 
@@ -62,19 +65,17 @@ class StateStoreDataStoreTest {
         // Required for Compose state observation in JVM tests, even though our logic runs on
         // Dispatchers.Default.
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        val dataStore = inMemoryStateStoreDataStore()
         val stateStore = StateStore()
-        val job = launch { stateStore.syncToDataStore(testFile.toString(), backgroundScope) }
+        val job = launch { stateStore.syncToDataStore(dataStore) }
 
         val state = stateStore.getState(StringKey)
         assertThat(state.value).isEqualTo(defaultValue)
 
-        val dataStore =
-            DataStoreFactory.create(
-                storage = OkioStorage(FileSystem.SYSTEM, StateStoreSerializer) { testFile },
-                scope = backgroundScope,
-            )
-        val stateStoreDataStore = dataStore.data.first()
-        assertThat(stateStoreDataStore.asMap().isEmpty()).isTrue()
+        // Nothing is written until the value changes
+        sendApplyNotifications()
+        advanceUntilIdle()
+        assertThat(dataStore.data.first().asMap().isEmpty()).isTrue()
 
         job.cancel()
     }
@@ -84,11 +85,7 @@ class StateStoreDataStoreTest {
         // Required for Compose state observation in JVM tests, even though our logic runs on
         // Dispatchers.Default.
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
-        val dataStore =
-            DataStoreFactory.create(
-                storage = OkioStorage(FileSystem.SYSTEM, StateStoreSerializer) { testFile },
-                scope = backgroundScope,
-            )
+        val dataStore = inMemoryStateStoreDataStore()
         val updatedValue = "new value"
         val stateStore = StateStore()
         stateStore.getState(StringKey)
@@ -118,11 +115,7 @@ class StateStoreDataStoreTest {
         // Required for Compose state observation in JVM tests, even though our logic runs on
         // Dispatchers.Default.
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
-        val dataStore =
-            DataStoreFactory.create(
-                storage = OkioStorage(FileSystem.SYSTEM, StateStoreSerializer) { testFile },
-                scope = backgroundScope,
-            )
+        val dataStore = inMemoryStateStoreDataStore()
         val initialValue = 5
         val updatedValue = 10
 
@@ -153,11 +146,7 @@ class StateStoreDataStoreTest {
         // Required for Compose state observation in JVM tests, even though our logic runs on
         // Dispatchers.Default.
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
-        val dataStore =
-            DataStoreFactory.create(
-                storage = OkioStorage(FileSystem.SYSTEM, StateStoreSerializer) { testFile },
-                scope = backgroundScope,
-            )
+        val dataStore = inMemoryStateStoreDataStore()
         val updatedValue = "new value"
         val stateStore = StateStore()
         stateStore.getState(NonPersistedStringKey)
@@ -176,8 +165,7 @@ class StateStoreDataStoreTest {
         val stateStoreDataStore = dataStore.data.first()
 
         // Confirm datastore does not reflect the updated state store
-        val keyName = NonPersistedStringKey::class.qualifiedName
-        assertThat(stateStoreDataStore.asMap().containsKey(keyName)).isFalse()
+        assertThat(stateStoreDataStore.asMap()).isEmpty()
 
         job.cancel()
     }
@@ -187,14 +175,7 @@ class StateStoreDataStoreTest {
         // Required for Compose state observation in JVM tests, even though our logic runs on
         // Dispatchers.Default.
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
-        val dataStore =
-            DataStoreFactory.create(
-                storage =
-                    OkioStorage<StateStorePreferences>(FileSystem.SYSTEM, StateStoreSerializer) {
-                        testFile
-                    },
-                scope = backgroundScope,
-            )
+        val dataStore = inMemoryStateStoreDataStore()
         val storedValue = "stored value"
 
         // Setup the datastore with an existing value first
@@ -225,14 +206,7 @@ class StateStoreDataStoreTest {
         // Required for Compose state observation in JVM tests, even though our logic runs on
         // Dispatchers.Default.
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
-        val dataStore =
-            DataStoreFactory.create(
-                storage =
-                    OkioStorage<StateStorePreferences>(FileSystem.SYSTEM, StateStoreSerializer) {
-                        testFile
-                    },
-                scope = backgroundScope,
-            )
+        val dataStore = inMemoryStateStoreDataStore()
         val firstValue = "first value"
         val secondValue = "second value"
 

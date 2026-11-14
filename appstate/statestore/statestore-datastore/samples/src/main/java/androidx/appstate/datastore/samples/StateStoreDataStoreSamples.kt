@@ -25,9 +25,15 @@ import androidx.appstate.statestore.StateStoreKey
 import androidx.datastore.core.DataStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.serializer
 
-@Serializable private object SampleKey : StateStoreKey<String>("default"), PersistToDataStore
+@Serializable
+private object SampleKey : StateStoreKey<String>("default"), PersistToDataStore<String> {
+    override val name: String = "sample"
+    override val serializer: KSerializer<String> = String.serializer()
+}
 
 @Sampled
 suspend fun SyncStateStoreDataStoreSample(dataStore: DataStore<StateStorePreferences>) {
