@@ -255,7 +255,7 @@ public final class PatternsCompat {
     public static final Pattern DOMAIN_NAME
             = Pattern.compile("(" + HOST_NAME + "|" + IP_ADDRESS + ")");
 
-    private static final String PROTOCOL = "(?i:http|https|rtsp)://";
+    private static final String PROTOCOL = "(?i:http|https|rtsp|ftp)://";
 
     /* A word boundary or end of input.  This is to stop foo.sure from matching as foo.su */
     private static final String WORD_BOUNDARY = "(?:\\b|$|^)";
