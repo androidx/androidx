@@ -138,7 +138,7 @@ public class AppSearchTestUtils {
             }
 
             @Override
-            public boolean doesCallerHaveSystemAccess(@NonNull String s) {
+            public boolean doesCallerHaveSystemAccess(@NonNull String s, int uid) {
                 return false;
             }
 
@@ -173,7 +173,7 @@ public class AppSearchTestUtils {
             }
 
             @Override
-            public boolean doesCallerHaveSystemAccess(@NonNull String s) {
+            public boolean doesCallerHaveSystemAccess(@NonNull String s, int uid) {
                 return false;
             }
 

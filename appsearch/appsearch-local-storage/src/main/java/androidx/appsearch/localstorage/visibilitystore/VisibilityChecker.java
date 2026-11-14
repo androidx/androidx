@@ -41,11 +41,12 @@ public interface VisibilityChecker {
             @NonNull VisibilityStore visibilityStore);
 
     /**
-     * Checks whether the given package has access to system-surfaceable schemas.
+     * Checks whether the given caller has access to system-surfaceable schemas.
      *
      * @param callerPackageName Package name of the caller.
+     * @param callerUid UID of the caller.
      */
-    boolean doesCallerHaveSystemAccess(@NonNull String callerPackageName);
+    boolean doesCallerHaveSystemAccess(@NonNull String callerPackageName, int callerUid);
 
     /**
      * Checks whether the given UID is a Private Compute Core UID.

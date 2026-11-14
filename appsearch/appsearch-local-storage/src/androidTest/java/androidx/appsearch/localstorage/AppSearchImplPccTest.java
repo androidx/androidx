@@ -114,7 +114,8 @@ public class AppSearchImplPccTest {
                 }
 
                 @Override
-                public boolean doesCallerHaveSystemAccess(@NonNull String callerPackageName) {
+                public boolean doesCallerHaveSystemAccess(
+                        @NonNull String callerPackageName, int callerUid) {
                     return false;
                 }
 

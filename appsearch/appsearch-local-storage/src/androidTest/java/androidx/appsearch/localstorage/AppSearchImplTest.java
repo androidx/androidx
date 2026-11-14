@@ -8399,7 +8399,8 @@ public class AppSearchImplTest {
             }
 
             @Override
-            public boolean doesCallerHaveSystemAccess(@NonNull String callerPackageName) {
+            public boolean doesCallerHaveSystemAccess(
+                    @NonNull String callerPackageName, int callerUid) {
                 return false;
             }
 
@@ -9013,7 +9014,8 @@ public class AppSearchImplTest {
             }
 
             @Override
-            public boolean doesCallerHaveSystemAccess(@NonNull String callerPackageName) {
+            public boolean doesCallerHaveSystemAccess(
+                    @NonNull String callerPackageName, int callerUid) {
                 return false;
             }
 
@@ -9097,7 +9099,8 @@ public class AppSearchImplTest {
             }
 
             @Override
-            public boolean doesCallerHaveSystemAccess(@NonNull String callerPackageName) {
+            public boolean doesCallerHaveSystemAccess(
+                    @NonNull String callerPackageName, int callerUid) {
                 return false;
             }
 
@@ -9203,7 +9206,8 @@ public class AppSearchImplTest {
             }
 
             @Override
-            public boolean doesCallerHaveSystemAccess(@NonNull String callerPackageName) {
+            public boolean doesCallerHaveSystemAccess(
+                    @NonNull String callerPackageName, int callerUid) {
                 return false;
             }
 
@@ -9509,7 +9513,8 @@ public class AppSearchImplTest {
             }
 
             @Override
-            public boolean doesCallerHaveSystemAccess(@NonNull String callerPackageName) {
+            public boolean doesCallerHaveSystemAccess(
+                    @NonNull String callerPackageName, int callerUid) {
                 return false;
             }
 
@@ -9952,7 +9957,8 @@ public class AppSearchImplTest {
             }
 
             @Override
-            public boolean doesCallerHaveSystemAccess(@NonNull String callerPackageName) {
+            public boolean doesCallerHaveSystemAccess(
+                    @NonNull String callerPackageName, int callerUid) {
                 return false;
             }
 
@@ -10134,7 +10140,8 @@ public class AppSearchImplTest {
             }
 
             @Override
-            public boolean doesCallerHaveSystemAccess(@NonNull String callerPackageName) {
+            public boolean doesCallerHaveSystemAccess(
+                    @NonNull String callerPackageName, int callerUid) {
                 return false;
             }
 
@@ -10244,7 +10251,8 @@ public class AppSearchImplTest {
             }
 
             @Override
-            public boolean doesCallerHaveSystemAccess(@NonNull String callerPackageName) {
+            public boolean doesCallerHaveSystemAccess(
+                    @NonNull String callerPackageName, int callerUid) {
                 return false;
             }
 
@@ -10359,7 +10367,8 @@ public class AppSearchImplTest {
             }
 
             @Override
-            public boolean doesCallerHaveSystemAccess(@NonNull String callerPackageName) {
+            public boolean doesCallerHaveSystemAccess(
+                    @NonNull String callerPackageName, int callerUid) {
                 return false;
             }
 
