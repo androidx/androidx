@@ -66,7 +66,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -388,8 +387,9 @@ class ReceiveContentState(private val onReceive: (TransferableContent) -> Transf
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-fun Modifier.dropReceiveContent(state: ReceiveContentState) = composed {
-    contentReceiver(state.listener)
+@Composable
+fun Modifier.dropReceiveContent(state: ReceiveContentState): Modifier =
+    this.contentReceiver(state.listener)
         .background(
             color =
                 if (state.hovering) {
@@ -401,7 +401,6 @@ fun Modifier.dropReceiveContent(state: ReceiveContentState) = composed {
                 },
             shape = RoundedCornerShape(8.dp),
         )
-}
 
 private const val Description =
     "Below setup works as follows;\n" +
