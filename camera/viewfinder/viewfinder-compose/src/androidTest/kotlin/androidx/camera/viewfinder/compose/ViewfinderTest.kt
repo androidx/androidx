@@ -26,6 +26,7 @@ import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.testing.impl.AndroidUtil
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.viewfinder.core.FrameRenderedListener
 import androidx.camera.viewfinder.core.ImplementationMode
 import androidx.camera.viewfinder.core.TransformationInfo
@@ -111,7 +112,9 @@ class ViewfinderTest(private val implementationMode: ImplementationMode) {
             arrayOf(ImplementationMode.EXTERNAL, ImplementationMode.EMBEDDED)
     }
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule(order = 0) val requireForegroundRule = RequireForegroundRule()
+
+    @get:Rule(order = 1) val rule = createComposeRule()
 
     @After
     fun tearDown() {

@@ -20,6 +20,7 @@ import android.graphics.Color
 import android.os.Build
 import android.util.Size
 import android.view.Surface
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.viewfinder.core.ImplementationMode
 import androidx.camera.viewfinder.core.TransformationInfo
 import androidx.camera.viewfinder.core.TransformationMode
@@ -60,7 +61,9 @@ class ViewfinderViewTest(private val implementationMode: ImplementationMode) {
         fun data() = arrayOf(ImplementationMode.EMBEDDED, ImplementationMode.EXTERNAL)
     }
 
-    @get:Rule val testName = TestName()
+    @get:Rule(order = 0) val requireForegroundRule = RequireForegroundRule()
+
+    @get:Rule(order = 1) val testName = TestName()
 
     private val requestNum = AtomicInteger(1)
     private val surfaceRequest: ViewfinderSurfaceRequest
