@@ -105,7 +105,8 @@ private inline fun <reified T : Annotation> Description.findAnnotation(): T? =
 private fun isEmulator(): Boolean =
     Build.HARDWARE.contains("goldfish") ||
         Build.HARDWARE.contains("ranchu") ||
-        Build.HARDWARE.contains("gce_x86")
+        Build.HARDWARE.contains("gce_x86") ||
+        Build.HARDWARE.contains("cutf_cvm")
 
 internal fun isXrDevice(): Boolean {
     val context = InstrumentationRegistry.getInstrumentation().targetContext
