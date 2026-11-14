@@ -34,6 +34,23 @@
     </plurals>
     <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"കാലയളവ്"</string>
     <string name="wear_m3c_time_picker_heading" msgid="1741225633698384262">"സമയം സജ്ജീകരിക്കാൻ സ്‍ക്രോള്‍ ചെയ്യുക"</string>
+    <string name="wear_m3c_duration_picker_hours" msgid="4288300928880452564">"മണിക്കൂർ"</string>
+    <string name="wear_m3c_duration_picker_minutes" msgid="6759764208576885024">"മിനിറ്റ്"</string>
+    <string name="wear_m3c_duration_picker_seconds" msgid="5624751791165971941">"സെക്കൻഡ്"</string>
+    <plurals name="wear_m3c_duration_picker_hours_content_description" formatted="false" msgid="2486089619879985882">
+      <item quantity="other">%d മണിക്കൂർ</item>
+      <item quantity="one">%d മണിക്കൂർ</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_minutes_content_description" formatted="false" msgid="2507197697775462986">
+      <item quantity="other">%d മിനിറ്റ്</item>
+      <item quantity="one">%d മിനിറ്റ്</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_seconds_content_description" formatted="false" msgid="6578662344009900525">
+      <item quantity="other">%d സെക്കൻഡ്</item>
+      <item quantity="one">%d സെക്കൻഡ്</item>
+    </plurals>
+    <string name="wear_m3c_duration_picker_heading" msgid="6793820977433803332">"ദൈർഘ്യം സജ്ജീകരിക്കാൻ സ്ക്രോൾ ചെയ്യുക"</string>
+    <string name="wear_m3c_duration_picker_disabled_range_description" msgid="2362628454721917282">"ദൈർഘ്യം %1$s-നും %2$s-നും ഇടയിലായിരിക്കണം."</string>
     <string name="wear_m3c_date_picker_day" msgid="8932770593644830235">"ദിവസം"</string>
     <string name="wear_m3c_date_picker_month" msgid="5962969526377479136">"മാസം"</string>
     <string name="wear_m3c_date_picker_year" msgid="4697690064312147449">"വർഷം"</string>

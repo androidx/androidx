@@ -37,6 +37,26 @@
     </plurals>
     <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"Perioada"</string>
     <string name="wear_m3c_time_picker_heading" msgid="1741225633698384262">"Derulează pentru a seta ora"</string>
+    <string name="wear_m3c_duration_picker_hours" msgid="4288300928880452564">"Ore"</string>
+    <string name="wear_m3c_duration_picker_minutes" msgid="6759764208576885024">"Minute"</string>
+    <string name="wear_m3c_duration_picker_seconds" msgid="5624751791165971941">"Secunde"</string>
+    <plurals name="wear_m3c_duration_picker_hours_content_description" formatted="false" msgid="2486089619879985882">
+      <item quantity="few">%d ore</item>
+      <item quantity="other">%d de ore</item>
+      <item quantity="one">%d oră</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_minutes_content_description" formatted="false" msgid="2507197697775462986">
+      <item quantity="few">%d minute</item>
+      <item quantity="other">%d de minute</item>
+      <item quantity="one">%d minut</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_seconds_content_description" formatted="false" msgid="6578662344009900525">
+      <item quantity="few">%d secunde</item>
+      <item quantity="other">%d de secunde</item>
+      <item quantity="one">%d secundă</item>
+    </plurals>
+    <string name="wear_m3c_duration_picker_heading" msgid="6793820977433803332">"Derulează pentru a seta durata"</string>
+    <string name="wear_m3c_duration_picker_disabled_range_description" msgid="2362628454721917282">"Durata trebuie să fie între %1$s și %2$s."</string>
     <string name="wear_m3c_date_picker_day" msgid="8932770593644830235">"Zi"</string>
     <string name="wear_m3c_date_picker_month" msgid="5962969526377479136">"Lună"</string>
     <string name="wear_m3c_date_picker_year" msgid="4697690064312147449">"An"</string>

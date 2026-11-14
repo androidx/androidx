@@ -34,6 +34,23 @@
     </plurals>
     <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"Period"</string>
     <string name="wear_m3c_time_picker_heading" msgid="1741225633698384262">"Scroll to set time"</string>
+    <string name="wear_m3c_duration_picker_hours" msgid="4288300928880452564">"Hours"</string>
+    <string name="wear_m3c_duration_picker_minutes" msgid="6759764208576885024">"Minutes"</string>
+    <string name="wear_m3c_duration_picker_seconds" msgid="5624751791165971941">"Seconds"</string>
+    <plurals name="wear_m3c_duration_picker_hours_content_description" formatted="false" msgid="2486089619879985882">
+      <item quantity="other">%d Hours</item>
+      <item quantity="one">%d Hour</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_minutes_content_description" formatted="false" msgid="2507197697775462986">
+      <item quantity="other">%d Minutes</item>
+      <item quantity="one">%d Minute</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_seconds_content_description" formatted="false" msgid="6578662344009900525">
+      <item quantity="other">%d Seconds</item>
+      <item quantity="one">%d Second</item>
+    </plurals>
+    <string name="wear_m3c_duration_picker_heading" msgid="6793820977433803332">"Scroll to set duration"</string>
+    <string name="wear_m3c_duration_picker_disabled_range_description" msgid="2362628454721917282">"Duration must be between %1$s and %2$s."</string>
     <string name="wear_m3c_date_picker_day" msgid="8932770593644830235">"Day"</string>
     <string name="wear_m3c_date_picker_month" msgid="5962969526377479136">"Month"</string>
     <string name="wear_m3c_date_picker_year" msgid="4697690064312147449">"Year"</string>

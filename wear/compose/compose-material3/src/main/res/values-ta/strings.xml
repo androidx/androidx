@@ -34,6 +34,23 @@
     </plurals>
     <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"கால இடைவெளி"</string>
     <string name="wear_m3c_time_picker_heading" msgid="1741225633698384262">"நேரத்தை அமைக்க ஸ்க்ரோல் செய்யவும்"</string>
+    <string name="wear_m3c_duration_picker_hours" msgid="4288300928880452564">"மணிநேரம்"</string>
+    <string name="wear_m3c_duration_picker_minutes" msgid="6759764208576885024">"நிமிடம்"</string>
+    <string name="wear_m3c_duration_picker_seconds" msgid="5624751791165971941">"வினாடி"</string>
+    <plurals name="wear_m3c_duration_picker_hours_content_description" formatted="false" msgid="2486089619879985882">
+      <item quantity="other">%d மணிநேரம்</item>
+      <item quantity="one">%d மணிநேரம்</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_minutes_content_description" formatted="false" msgid="2507197697775462986">
+      <item quantity="other">%d நிமிடங்கள்</item>
+      <item quantity="one">%d நிமிடம்</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_seconds_content_description" formatted="false" msgid="6578662344009900525">
+      <item quantity="other">%d வினாடிகள்</item>
+      <item quantity="one">%d வினாடி</item>
+    </plurals>
+    <string name="wear_m3c_duration_picker_heading" msgid="6793820977433803332">"கால அளவை அமைக்க ஸ்க்ரோல் செய்யுங்கள்"</string>
+    <string name="wear_m3c_duration_picker_disabled_range_description" msgid="2362628454721917282">"கால அளவு %1$s முதல் %2$s வரை இருக்க வேண்டும்."</string>
     <string name="wear_m3c_date_picker_day" msgid="8932770593644830235">"நாள்"</string>
     <string name="wear_m3c_date_picker_month" msgid="5962969526377479136">"மாதம்"</string>
     <string name="wear_m3c_date_picker_year" msgid="4697690064312147449">"ஆண்டு"</string>

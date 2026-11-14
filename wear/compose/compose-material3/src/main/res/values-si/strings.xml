@@ -34,6 +34,23 @@
     </plurals>
     <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"කාල පරිච්ඡේදය"</string>
     <string name="wear_m3c_time_picker_heading" msgid="1741225633698384262">"වේලාව සැකසීමට අනුචලනය කරන්න"</string>
+    <string name="wear_m3c_duration_picker_hours" msgid="4288300928880452564">"පැය"</string>
+    <string name="wear_m3c_duration_picker_minutes" msgid="6759764208576885024">"මිනිත්තු"</string>
+    <string name="wear_m3c_duration_picker_seconds" msgid="5624751791165971941">"තත්පර"</string>
+    <plurals name="wear_m3c_duration_picker_hours_content_description" formatted="false" msgid="2486089619879985882">
+      <item quantity="one">පැය %d</item>
+      <item quantity="other">පැය %d</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_minutes_content_description" formatted="false" msgid="2507197697775462986">
+      <item quantity="one">මිනිත්තු %d</item>
+      <item quantity="other">මිනිත්තු %d</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_seconds_content_description" formatted="false" msgid="6578662344009900525">
+      <item quantity="one">තත්පර %d</item>
+      <item quantity="other">තත්පර %d</item>
+    </plurals>
+    <string name="wear_m3c_duration_picker_heading" msgid="6793820977433803332">"කාල සීමාව සැකසීමට අනුචලනය කරන්න"</string>
+    <string name="wear_m3c_duration_picker_disabled_range_description" msgid="2362628454721917282">"ቆይታ %1$s සහ %2$s අතර විය යුතු යි."</string>
     <string name="wear_m3c_date_picker_day" msgid="8932770593644830235">"දවස"</string>
     <string name="wear_m3c_date_picker_month" msgid="5962969526377479136">"මාසය"</string>
     <string name="wear_m3c_date_picker_year" msgid="4697690064312147449">"වසර"</string>

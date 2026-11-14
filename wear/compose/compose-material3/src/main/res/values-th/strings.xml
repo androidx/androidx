@@ -34,6 +34,23 @@
     </plurals>
     <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"ระยะเวลา"</string>
     <string name="wear_m3c_time_picker_heading" msgid="1741225633698384262">"เลื่อนเพื่อตั้งค่าเวลา"</string>
+    <string name="wear_m3c_duration_picker_hours" msgid="4288300928880452564">"ชั่วโมง"</string>
+    <string name="wear_m3c_duration_picker_minutes" msgid="6759764208576885024">"นาที"</string>
+    <string name="wear_m3c_duration_picker_seconds" msgid="5624751791165971941">"วินาที"</string>
+    <plurals name="wear_m3c_duration_picker_hours_content_description" formatted="false" msgid="2486089619879985882">
+      <item quantity="other">%d ชั่วโมง</item>
+      <item quantity="one">%d ชั่วโมง</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_minutes_content_description" formatted="false" msgid="2507197697775462986">
+      <item quantity="other">%d นาที</item>
+      <item quantity="one">%d นาที</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_seconds_content_description" formatted="false" msgid="6578662344009900525">
+      <item quantity="other">%d วินาที</item>
+      <item quantity="one">%d วินาที</item>
+    </plurals>
+    <string name="wear_m3c_duration_picker_heading" msgid="6793820977433803332">"เลื่อนเพื่อตั้งค่าระยะเวลา"</string>
+    <string name="wear_m3c_duration_picker_disabled_range_description" msgid="2362628454721917282">"ระยะเวลาต้องอยู่ระหว่าง %1$s ถึง %2$s"</string>
     <string name="wear_m3c_date_picker_day" msgid="8932770593644830235">"วัน"</string>
     <string name="wear_m3c_date_picker_month" msgid="5962969526377479136">"เดือน"</string>
     <string name="wear_m3c_date_picker_year" msgid="4697690064312147449">"ปี"</string>

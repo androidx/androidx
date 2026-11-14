@@ -34,6 +34,23 @@
     </plurals>
     <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"時段"</string>
     <string name="wear_m3c_time_picker_heading" msgid="1741225633698384262">"捲動以設定時間"</string>
+    <string name="wear_m3c_duration_picker_hours" msgid="4288300928880452564">"小時"</string>
+    <string name="wear_m3c_duration_picker_minutes" msgid="6759764208576885024">"分鐘"</string>
+    <string name="wear_m3c_duration_picker_seconds" msgid="5624751791165971941">"秒"</string>
+    <plurals name="wear_m3c_duration_picker_hours_content_description" formatted="false" msgid="2486089619879985882">
+      <item quantity="other">%d 小時</item>
+      <item quantity="one">%d 小時</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_minutes_content_description" formatted="false" msgid="2507197697775462986">
+      <item quantity="other">%d 分鐘</item>
+      <item quantity="one">%d 分鐘</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_seconds_content_description" formatted="false" msgid="6578662344009900525">
+      <item quantity="other">%d 秒</item>
+      <item quantity="one">%d 秒</item>
+    </plurals>
+    <string name="wear_m3c_duration_picker_heading" msgid="6793820977433803332">"捲動以設定時間長度"</string>
+    <string name="wear_m3c_duration_picker_disabled_range_description" msgid="2362628454721917282">"時間長度必須介乎 %1$s 至 %2$s 之間。"</string>
     <string name="wear_m3c_date_picker_day" msgid="8932770593644830235">"日"</string>
     <string name="wear_m3c_date_picker_month" msgid="5962969526377479136">"月"</string>
     <string name="wear_m3c_date_picker_year" msgid="4697690064312147449">"年"</string>

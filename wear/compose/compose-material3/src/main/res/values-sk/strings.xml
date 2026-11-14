@@ -40,6 +40,29 @@
     </plurals>
     <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"Obdobie"</string>
     <string name="wear_m3c_time_picker_heading" msgid="1741225633698384262">"Nastavte čas posunutím"</string>
+    <string name="wear_m3c_duration_picker_hours" msgid="4288300928880452564">"Hodiny"</string>
+    <string name="wear_m3c_duration_picker_minutes" msgid="6759764208576885024">"Minúty"</string>
+    <string name="wear_m3c_duration_picker_seconds" msgid="5624751791165971941">"Sekundy"</string>
+    <plurals name="wear_m3c_duration_picker_hours_content_description" formatted="false" msgid="2486089619879985882">
+      <item quantity="few">%d hodiny</item>
+      <item quantity="many">%d hodiny</item>
+      <item quantity="other">%d hodín</item>
+      <item quantity="one">%d hodina</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_minutes_content_description" formatted="false" msgid="2507197697775462986">
+      <item quantity="few">%d minúty</item>
+      <item quantity="many">%d minúty</item>
+      <item quantity="other">%d minút</item>
+      <item quantity="one">%d minúta</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_seconds_content_description" formatted="false" msgid="6578662344009900525">
+      <item quantity="few">%d sekundy</item>
+      <item quantity="many">%d sekundy</item>
+      <item quantity="other">%d sekúnd</item>
+      <item quantity="one">%d sekunda</item>
+    </plurals>
+    <string name="wear_m3c_duration_picker_heading" msgid="6793820977433803332">"Nastavte trvanie posunutím"</string>
+    <string name="wear_m3c_duration_picker_disabled_range_description" msgid="2362628454721917282">"Trvanie musí byť v rozsahu od %1$s do %2$s."</string>
     <string name="wear_m3c_date_picker_day" msgid="8932770593644830235">"Deň"</string>
     <string name="wear_m3c_date_picker_month" msgid="5962969526377479136">"Mesiac"</string>
     <string name="wear_m3c_date_picker_year" msgid="4697690064312147449">"Rok"</string>
