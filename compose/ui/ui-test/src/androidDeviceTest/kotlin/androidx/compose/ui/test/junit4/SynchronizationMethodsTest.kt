@@ -16,15 +16,18 @@
 
 package androidx.compose.ui.test.junit4
 
+import android.content.Context
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.v2.AndroidComposeUiTestEnvironment
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -134,6 +137,37 @@ class SynchronizationMethodsTest {
     @Test
     fun runOnIdle_runOnIdle() {
         test.runOnIdle { test.runOnIdle {} }
+    }
+
+    @Test(timeout = 10_000)
+    fun waitForIdle_rootViewDetachedAfterAttachCheck() {
+        assertFrameWaitIgnoresDetachedRootView { test.waitForIdle() }
+    }
+
+    @Test(timeout = 10_000)
+    fun awaitIdle_rootViewDetachedAfterAttachCheck() {
+        assertFrameWaitIgnoresDetachedRootView { runBlocking { test.awaitIdle() } }
+    }
+
+    /**
+     * Runs [wait] with a registered root whose view reports that it's attached but isn't, like a
+     * dialog that's dismissed right after the frame wait checked it. A detached view holds anything
+     * posted to it until it's attached again, so [wait] hangs if it posts through that view.
+     */
+    private fun assertFrameWaitIgnoresDetachedRootView(wait: () -> Unit) {
+        val view = test.runOnUiThread {
+            StaleAttachStateView(ApplicationProvider.getApplicationContext())
+        }
+        val root = mock<ViewRootForTest>()
+        doReturn(true).whenever(root).isLifecycleInResumedState
+        doReturn(view).whenever(root).view
+        composeRootRegistry.registerComposeRoot(root)
+        wait()
+    }
+
+    /** A view that was attached when it was checked, but has been detached since. */
+    private class StaleAttachStateView(context: Context) : View(context) {
+        override fun isAttachedToWindow(): Boolean = true
     }
 
     private fun mockResumedComposeRoot(): ViewRootForTest {
