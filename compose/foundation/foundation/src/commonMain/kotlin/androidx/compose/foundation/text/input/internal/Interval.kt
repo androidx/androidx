@@ -131,7 +131,7 @@ internal fun packValue1(packed: Long, val1: Int): Long =
 
 /** Update the value2 in the [packed] with the given [val2] and return the new packed value. */
 internal fun packValue2(packed: Long, val2: Int): Long =
-    (packed and INT2_MASK.inv()) or val2.toLong()
+    (packed and INT2_MASK.inv()) or (val2.toLong() and INT2_MASK)
 
 /** Update the flag1 in the [packed] with the given [flag1] and return the new packed value. */
 internal fun packFlag1(packed: Long, flag1: Boolean): Long =

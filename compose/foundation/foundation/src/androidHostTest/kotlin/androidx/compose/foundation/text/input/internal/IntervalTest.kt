@@ -104,4 +104,55 @@ class IntervalTest {
         assertThat(interval.flag1).isFalse()
         assertThat(interval.flag2).isFalse()
     }
+
+    @Test
+    fun packValue1AndPackValue2_positiveValues_preserveOtherFields() {
+        val flags = listOf(false to false, true to false, false to true, true to true)
+
+        for ((flag1, flag2) in flags) {
+            val base = Interval(start = 10, end = 20, flag1 = flag1, flag2 = flag2)
+
+            val updatedStart = Interval(packValue1(base.packed, 42))
+            assertThat(updatedStart.start).isEqualTo(42)
+            assertThat(updatedStart.end).isEqualTo(20)
+            assertThat(updatedStart.flag1).isEqualTo(flag1)
+            assertThat(updatedStart.flag2).isEqualTo(flag2)
+
+            val updatedEnd = Interval(packValue2(base.packed, 99))
+            assertThat(updatedEnd.start).isEqualTo(10)
+            assertThat(updatedEnd.end).isEqualTo(99)
+            assertThat(updatedEnd.flag1).isEqualTo(flag1)
+            assertThat(updatedEnd.flag2).isEqualTo(flag2)
+        }
+    }
+
+    @Test
+    fun packValue1_invalidNegativeValue_doesNotCorruptOtherFields() {
+        val baseTrue = Interval(start = 10, end = 20, flag1 = true, flag2 = true)
+        val updatedTrue = Interval(packValue1(baseTrue.packed, -10))
+        assertThat(updatedTrue.end).isEqualTo(20)
+        assertThat(updatedTrue.flag1).isTrue()
+        assertThat(updatedTrue.flag2).isTrue()
+
+        val baseFalse = Interval(start = 10, end = 20, flag1 = false, flag2 = false)
+        val updatedFalse = Interval(packValue1(baseFalse.packed, -10))
+        assertThat(updatedFalse.end).isEqualTo(20)
+        assertThat(updatedFalse.flag1).isFalse()
+        assertThat(updatedFalse.flag2).isFalse()
+    }
+
+    @Test
+    fun packValue2_invalidNegativeValue_doesNotCorruptOtherFields() {
+        val baseTrue = Interval(start = 10, end = 20, flag1 = true, flag2 = true)
+        val updatedTrue = Interval(packValue2(baseTrue.packed, -20))
+        assertThat(updatedTrue.start).isEqualTo(10)
+        assertThat(updatedTrue.flag1).isTrue()
+        assertThat(updatedTrue.flag2).isTrue()
+
+        val baseFalse = Interval(start = 10, end = 20, flag1 = false, flag2 = false)
+        val updatedFalse = Interval(packValue2(baseFalse.packed, -20))
+        assertThat(updatedFalse.start).isEqualTo(10)
+        assertThat(updatedFalse.flag1).isFalse()
+        assertThat(updatedFalse.flag2).isFalse()
+    }
 }
