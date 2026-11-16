@@ -118,6 +118,7 @@ import androidx.camera.video.internal.config.MediaInfo;
 import androidx.camera.video.internal.config.VideoMimeInfo;
 import androidx.camera.video.internal.encoder.AudioEncoderConfig;
 import androidx.camera.video.internal.encoder.AudioEncoderFactory;
+import androidx.camera.video.internal.encoder.AudioEncoderInfo;
 import androidx.camera.video.internal.encoder.BufferCopiedEncodedData;
 import androidx.camera.video.internal.encoder.DefaultAudioEncoderFactory;
 import androidx.camera.video.internal.encoder.DefaultVideoEncoderFactory;
@@ -949,7 +950,8 @@ public final class Recorder implements VideoOutput {
     }
 
     /**
-     * Returns the target audio channel count of this Recorder.
+     * Returns the target audio channel count of this Recorder, before any audio processing is
+     * applied.
      *
      * @return the value provided to {@link Builder#setTargetAudioChannelCount(int)} on the
      * builder used to create this recorder. Returns 0 if
@@ -959,6 +961,20 @@ public final class Recorder implements VideoOutput {
     public int getTargetAudioChannelCount() {
         int channelCount = getObservableData(mMediaSpec).getAudioSpec().getChannelCount();
         return channelCount == AudioSpec.CHANNEL_COUNT_UNSPECIFIED ? 0 : channelCount;
+    }
+
+    /**
+     * Returns the target audio sample rate of this Recorder, before any audio processing is
+     * applied.
+     *
+     * @return the value provided to {@link Builder#setTargetAudioSampleRate(int)} on the
+     * builder used to create this recorder. Returns 0 if
+     * {@link Builder#setTargetAudioSampleRate(int)} is not called.
+     */
+    @IntRange(from = 0)
+    public int getTargetAudioSampleRate() {
+        int sampleRate = getObservableData(mMediaSpec).getAudioSpec().getSampleRate();
+        return sampleRate == AudioSpec.SAMPLE_RATE_UNSPECIFIED ? 0 : sampleRate;
     }
 
     /**
@@ -1844,10 +1860,13 @@ public final class Recorder implements VideoOutput {
             expectedSampleRateRatio = null;
         }
 
-        // Select and create the audio source
+        // Select and create the audio source. Query the audio encoder capabilities up front so the
+        // resolved sample rate is supported by both the audio source and the audio encoder.
+        AudioEncoderInfo audioEncoderInfo =
+                mAudioEncoderFactory.getEncoderInfo(audioMimeInfo.getMimeType());
         AudioSettings audioSettings = resolveAudioSettings(mediaSpec.getAudioSpec(),
                 audioMimeInfo.getCompatibleAudioProfile(), expectedSampleRateRatio,
-                audioMimeInfo.getMimeType());
+                audioMimeInfo.getMimeType(), audioEncoderInfo);
         if (mAudioSource != null) {
             releaseCurrentAudioSource();
         }
@@ -4466,7 +4485,8 @@ public final class Recorder implements VideoOutput {
         }
 
         /**
-         * Sets the intended audio channel count for recording.
+         * Sets the intended audio channel count for recording, before any audio processing is
+         * applied.
          *
          * <p>Common values are 1 for mono and 2 for stereo. If the requested channel count is
          * not supported by the device, CameraX will fall back to a supported channel count. If
@@ -4483,6 +4503,29 @@ public final class Recorder implements VideoOutput {
             }
 
             mMediaSpecBuilder.configureAudio(builder -> builder.setChannelCount(channelCount));
+            return this;
+        }
+
+        /**
+         * Sets the intended audio sample rate for recording, before any audio processing is
+         * applied.
+         *
+         * <p>Common values are 44100 Hz and 48000 Hz. If the requested sample rate is not
+         * supported by the device or the selected audio codec, CameraX will fall back to a
+         * supported sample rate, preferring the closest one. If this method is not called, an
+         * appropriate default sample rate will be selected.
+         *
+         * @param sampleRate the target audio sample rate in Hz.
+         * @return the builder instance.
+         * @throws IllegalArgumentException if {@code sampleRate} is less than 1.
+         */
+        public @NonNull Builder setTargetAudioSampleRate(@IntRange(from = 1) int sampleRate) {
+            if (sampleRate < 1) {
+                throw new IllegalArgumentException("Target sample rate must be greater than 0, "
+                        + "but was " + sampleRate);
+            }
+
+            mMediaSpecBuilder.configureAudio(builder -> builder.setSampleRate(sampleRate));
             return this;
         }
 
@@ -4586,6 +4629,14 @@ public final class Recorder implements VideoOutput {
          *   <li><b>Reuse:</b> The same processor instances are reused for every recording made
          *       with the built {@link Recorder}, and are flushed or reset between them. Do not
          *       share processor instances between {@link Recorder}s.</li>
+         *   <li><b>Audio Settings:</b> The first processor receives audio at the channel count
+         *       and sample rate resolved from {@link #setTargetAudioChannelCount(int)} and
+         *       {@link #setTargetAudioSampleRate(int)}. Processors may change them, in which case
+         *       the audio output by the final processor is what gets encoded. Avoid changing the
+         *       sample rate unless needed, and prefer common rates such as 44100 Hz or 48000 Hz.
+         *       If the processed audio cannot be encoded, audio recording will fail with
+         *       {@link AudioStats#AUDIO_STATE_ENCODER_ERROR} and recording will proceed without
+         *       audio.</li>
          * </ul>
          *
          * <p>See {@link AudioProcessor} for the complete contract.

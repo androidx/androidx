@@ -51,6 +51,7 @@
     <string name="toggle_video_dyn_rng_hdr_dolby_vision_8">Dlby\n8bit</string>
     <string name="toggle_video_dyn_rng_unknown">\?</string>
     <string name="fps">FPS</string>
+    <string name="audio_sample_rate">Audio Sample Rate</string>
     <string name="aspect_ratio">Aspect Ratio</string>
     <string name="force_stream_sharing">Force Stream Sharing</string>
     <string name="disable_view_port">Disable View Port</string>

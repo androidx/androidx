@@ -74,8 +74,10 @@ import androidx.camera.video.VideoRecordEvent.Pause
 import androidx.camera.video.VideoRecordEvent.Resume
 import androidx.camera.video.internal.BufferProvider
 import androidx.camera.video.internal.OutputStorage
+import androidx.camera.video.internal.audio.AudioSettings
 import androidx.camera.video.internal.audio.AudioStreamFactory
 import androidx.camera.video.internal.audio.FakeAudioStream
+import androidx.camera.video.internal.encoder.AudioEncoderConfig
 import androidx.camera.video.internal.encoder.AudioEncoderFactory
 import androidx.camera.video.internal.encoder.DefaultVideoEncoderFactory
 import androidx.camera.video.internal.encoder.EncodeException
@@ -83,6 +85,7 @@ import androidx.camera.video.internal.encoder.EncodedData
 import androidx.camera.video.internal.encoder.Encoder
 import androidx.camera.video.internal.encoder.EncoderCallback
 import androidx.camera.video.internal.encoder.FakeAudioEncoderFactory
+import androidx.camera.video.internal.encoder.FakeAudioEncoderInfo
 import androidx.camera.video.internal.encoder.FakeEncodedData
 import androidx.camera.video.internal.encoder.FakeVideoEncoderFactory
 import androidx.camera.video.internal.encoder.InvalidConfigException
@@ -285,6 +288,30 @@ class RecorderTest {
 
         assertThat(recorder.videoEncoderInfoFinder.find(MIMETYPE_VIDEO_AVC))
             .isSameInstanceAs(videoEncoderInfo)
+    }
+
+    @Test
+    fun canSetTargetAudioSampleRate() {
+        val recorder = Recorder.Builder().setTargetAudioSampleRate(48_000).build()
+
+        assertThat(recorder.targetAudioSampleRate).isEqualTo(48_000)
+    }
+
+    @Test
+    fun targetAudioSampleRate_isZeroWhenNotSet() {
+        val recorder = Recorder.Builder().build()
+
+        assertThat(recorder.targetAudioSampleRate).isEqualTo(0)
+    }
+
+    @Test
+    fun recordingWithNonPositiveAudioSampleRate() {
+        assertThrows(IllegalArgumentException::class.java) {
+            Recorder.Builder().setTargetAudioSampleRate(0)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            Recorder.Builder().setTargetAudioSampleRate(-5)
+        }
     }
 
     @Test
@@ -1898,6 +1925,63 @@ class RecorderTest {
     }
 
     @Test
+    fun audioSampleRateUnsupportedByEncoder_audioStreamUsesEncoderSupportedRate() {
+        // Arrange: the encoder only supports 48000 Hz, which differs from the target.
+        var audioSettings: AudioSettings? = null
+        var audioEncoderConfig: AudioEncoderConfig? = null
+        val recorder =
+            createRecorder(
+                audioStreamFactory = { settings, _ ->
+                    audioSettings = settings
+                    createFakeAudioStream()
+                },
+                targetAudioSampleRate = 44_100,
+                audioEncoderFactory =
+                    FakeAudioEncoderFactory(
+                        encoderInfoProvider = {
+                            FakeAudioEncoderInfo(supportedSampleRates = setOf(48_000))
+                        }
+                    ) { _, config ->
+                        audioEncoderConfig = config
+                        createFakeAudioEncoder()
+                    },
+            )
+
+        // Act.
+        val recording = createRecording(recorder, withAudio = true).startAndVerify()
+
+        // Assert: both the audio stream and the audio encoder use the encoder-supported rate.
+        assertThat(checkNotNull(audioSettings).captureSampleRate).isEqualTo(48_000)
+        assertThat(checkNotNull(audioEncoderConfig).encodeSampleRate).isEqualTo(48_000)
+        recording.sendFrames().stopAndVerify()
+    }
+
+    @Test
+    fun audioEncoderInfoUnavailable_audioStreamUsesTargetSampleRate() {
+        // Arrange: the audio encoder factory can't report encoder info.
+        var audioSettings: AudioSettings? = null
+        val recorder =
+            createRecorder(
+                audioStreamFactory = { settings, _ ->
+                    audioSettings = settings
+                    createFakeAudioStream()
+                },
+                targetAudioSampleRate = 44_100,
+                audioEncoderFactory =
+                    FakeAudioEncoderFactory(encoderInfoProvider = { null }) { _, _ ->
+                        createFakeAudioEncoder()
+                    },
+            )
+
+        // Act.
+        val recording = createRecording(recorder, withAudio = true).startAndVerify()
+
+        // Assert: the sample rate is resolved against the audio source only.
+        assertThat(checkNotNull(audioSettings).encodeSampleRate).isEqualTo(44_100)
+        recording.sendFrames().stopAndVerify()
+    }
+
+    @Test
     fun audioEncoderError_stopsAudioSourceWhenRecordingFinalized() {
         // Arrange.
         val audioStream = createFakeAudioStream()
@@ -2455,6 +2539,7 @@ class RecorderTest {
         audioSource: Int? = null,
         requiredFreeStorageBytes: Long? = null,
         audioProcessors: List<AudioProcessor>? = null,
+        targetAudioSampleRate: Int? = null,
     ): Recorder {
         val defaultVideoEncoderFactory = FakeVideoEncoderFactory { _, config ->
             FakeEncoder(
@@ -2490,6 +2575,7 @@ class RecorderTest {
                     audioSource?.let { setAudioSource(it) }
                     requiredFreeStorageBytes?.let { setRequiredFreeStorageBytes(it) }
                     audioProcessors?.let { setAudioProcessors(it) }
+                    targetAudioSampleRate?.let { setTargetAudioSampleRate(it) }
                 }
                 .build()
                 .apply {

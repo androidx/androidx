@@ -33,6 +33,7 @@ import androidx.camera.video.AudioSpec.Companion.SOURCE_FORMAT_PCM_16BIT
 import androidx.camera.video.MediaConstants.MIME_TYPE_UNSPECIFIED
 import androidx.camera.video.internal.audio.AudioSource
 import androidx.camera.video.internal.encoder.EncoderConfig.CODEC_PROFILE_NONE
+import androidx.camera.video.internal.encoder.FakeAudioEncoderInfo
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
@@ -107,6 +108,85 @@ class AudioConfigUtilTest {
         // 3. Then it falls back to Mono (default) + 44100Hz -> Succeeds
         assertThat(settings.channelCount).isEqualTo(1)
         assertThat(settings.captureSampleRate).isEqualTo(44100)
+    }
+
+    @Test
+    fun resolveAudioSettings_sampleRateUnsupportedByEncoder_fallsBackToEncoderSupportedRate() {
+        // Arrange: AudioRecord supports everything, encoder (e.g. Opus) only supports 48000/24000.
+        val audioSpec = AudioSpec.builder().setSampleRate(44100).build()
+        val audioEncoderInfo = FakeAudioEncoderInfo(supportedSampleRates = setOf(48000, 24000))
+
+        // Act
+        val settings =
+            AudioConfigUtil.resolveAudioSettings(
+                audioSpec,
+                audioMime = MIMETYPE_AUDIO_OPUS,
+                audioEncoderInfo = audioEncoderInfo,
+            )
+
+        // Assert: 44100 is rejected by the encoder, nearest encoder-supported rate is chosen.
+        assertThat(settings.captureSampleRate).isEqualTo(48000)
+        assertThat(settings.encodeSampleRate).isEqualTo(48000)
+    }
+
+    @Test
+    fun resolveAudioSettings_sampleRateSupportedByEncoder_isKept() {
+        val audioSpec = AudioSpec.builder().setSampleRate(44100).build()
+        val audioEncoderInfo = FakeAudioEncoderInfo(supportedSampleRates = setOf(44100, 48000))
+
+        val settings =
+            AudioConfigUtil.resolveAudioSettings(audioSpec, audioEncoderInfo = audioEncoderInfo)
+
+        assertThat(settings.captureSampleRate).isEqualTo(44100)
+    }
+
+    @Test
+    fun resolveAudioSettings_encoderAndSourceIntersection_isPreferredOverChannelCount() {
+        // Arrange: Stereo is only supported by AudioRecord at 44100, which the encoder rejects.
+        // Mono is supported by AudioRecord at 48000, which the encoder accepts.
+        val audioSpec = AudioSpec.builder().setChannelCount(2).setSampleRate(44100).build()
+        ShadowAudioRecord.setSupportedSettings(
+            listOf(ShadowAudioRecord.Setting(44100, 2), ShadowAudioRecord.Setting(48000, 1))
+        )
+        val audioEncoderInfo = FakeAudioEncoderInfo(supportedSampleRates = setOf(48000))
+
+        // Act
+        val settings =
+            AudioConfigUtil.resolveAudioSettings(audioSpec, audioEncoderInfo = audioEncoderInfo)
+
+        // Assert: an encoder-compatible combination wins over the preferred channel count.
+        assertThat(settings.channelCount).isEqualTo(1)
+        assertThat(settings.captureSampleRate).isEqualTo(48000)
+    }
+
+    @Test
+    fun resolveAudioSettings_noRateSupportedByEncoder_fallsBackToSourceOnlyResolution() {
+        val audioSpec = AudioSpec.builder().setSampleRate(44100).build()
+        val audioEncoderInfo = FakeAudioEncoderInfo(supportedSampleRates = emptySet())
+
+        val settings =
+            AudioConfigUtil.resolveAudioSettings(audioSpec, audioEncoderInfo = audioEncoderInfo)
+
+        // Assert: preserves the previous behavior (source-only validation).
+        assertThat(settings.captureSampleRate).isEqualTo(44100)
+    }
+
+    @Test
+    fun resolveSampleRates_withRatio_encoderCheckAppliesToEncodeRate() {
+        // Capture-to-encode ratio 2: target encode 24000 -> capture 48000 -> encode 24000.
+        // Encoder rejects 24000 but accepts 22050, so capture 44100 -> encode 22050 is chosen.
+        val result =
+            AudioConfigUtil.resolveSampleRates(
+                targetEncodeSampleRate = 24000,
+                channelCount = CHANNEL_COUNT_MONO,
+                sourceFormat = SOURCE_FORMAT_PCM_16BIT,
+                captureToEncodeRatio = Rational(2, 1),
+                isEncodeSampleRateSupported = { it == 22050 },
+            )
+
+        assertThat(result).isNotNull()
+        assertThat(result!!.captureRate).isEqualTo(44100)
+        assertThat(result.encodeRate).isEqualTo(22050)
     }
 
     @Test
