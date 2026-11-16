@@ -68,17 +68,30 @@ package androidx.collection {
     method public void addFirst(E element);
     method public void addLast(E element);
     method public void clear();
+    method public operator boolean contains(E element);
+    method public inline void forEach(kotlin.jvm.functions.Function1<? super E,kotlin.Unit> action);
     method public operator E get(int index);
     method @InaccessibleFromKotlin public E getFirst();
+    method @InaccessibleFromKotlin public inline kotlin.ranges.IntRange getIndices();
     method @InaccessibleFromKotlin public E getLast();
+    method @InaccessibleFromKotlin public inline int getLastIndex();
+    method public int indexOf(E element);
     method public boolean isEmpty();
+    method public boolean isNotEmpty();
     method public E popFirst();
     method public E popLast();
     method public void removeFromEnd(int count);
     method public void removeFromStart(int count);
     method public int size();
     property public E first;
+    property public inline kotlin.ranges.IntRange indices;
     property public E last;
+    property public inline int lastIndex;
+  }
+
+  public final class CircularArrayKt {
+    method @InaccessibleFromKotlin public static inline <E> int getSize(androidx.collection.CircularArray<E>);
+    property public static inline <E> int androidx.collection.CircularArray<E>.size;
   }
 
   public final class CircularIntArray {
@@ -88,17 +101,30 @@ package androidx.collection {
     method public void addFirst(int element);
     method public void addLast(int element);
     method public void clear();
+    method public operator boolean contains(int element);
+    method public inline void forEach(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> action);
     method public operator int get(int index);
     method @InaccessibleFromKotlin public int getFirst();
+    method @InaccessibleFromKotlin public inline kotlin.ranges.IntRange getIndices();
     method @InaccessibleFromKotlin public int getLast();
+    method @InaccessibleFromKotlin public inline int getLastIndex();
+    method public int indexOf(int element);
     method public boolean isEmpty();
+    method public boolean isNotEmpty();
     method public int popFirst();
     method public int popLast();
     method public void removeFromEnd(int count);
     method public void removeFromStart(int count);
     method public int size();
     property public int first;
+    property public inline kotlin.ranges.IntRange indices;
     property public int last;
+    property public inline int lastIndex;
+  }
+
+  public final class CircularIntArrayKt {
+    method @InaccessibleFromKotlin public static inline int getSize(androidx.collection.CircularIntArray);
+    property public static inline int androidx.collection.CircularIntArray.size;
   }
 
   public abstract sealed exhaustive class DoubleList {

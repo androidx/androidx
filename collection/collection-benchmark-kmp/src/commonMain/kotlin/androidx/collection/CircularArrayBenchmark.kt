@@ -25,6 +25,12 @@ import kotlinx.benchmark.State
 @State(Scope.Benchmark)
 open class CircularArrayBenchmark {
     private val source = Array(10_000) { "value $it" }
+    private val populatedArray =
+        CircularArray<String>(source.size).apply {
+            for (element in source) {
+                addLast(element)
+            }
+        }
 
     @Benchmark
     open fun addFromHeadAndPopFromTail() {
@@ -54,5 +60,19 @@ open class CircularArrayBenchmark {
         repeat(source.size) { array.popFirst() }
 
         assertTrue(array.isEmpty())
+    }
+
+    @Benchmark
+    open fun forEachIteration() {
+        var count = 0
+        populatedArray.forEach { _ -> count++ }
+        assertEquals(source.size, count)
+    }
+
+    @Benchmark
+    open fun indexOfAndContains() {
+        val target = "value 9999"
+        assertTrue(target in populatedArray)
+        assertEquals(9999, populatedArray.indexOf(target))
     }
 }
