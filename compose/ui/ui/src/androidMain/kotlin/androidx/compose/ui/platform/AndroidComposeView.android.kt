@@ -1360,10 +1360,17 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             if (SDK_INT >= 31 && scrollCapture?.scrollCaptureInProgress == true) {
                 return true
             }
+            // Hosts that run their own scroll capture publish it on their View with
+            // isComposeScrollCaptureInProgress. Skip those lookups until a host first does so;
+            // this read invalidates the caller when that happens.
+            val checkHostViews = isAnyComposeScrollCaptureInProgressStateCreated
             var p = parent
             while (p != null) {
                 if (p is AndroidComposeView) {
                     return p.scrollCaptureInProgress
+                }
+                if (checkHostViews && p is View && p.isComposeScrollCaptureInProgressSet) {
+                    return true
                 }
                 p = p.parent
             }

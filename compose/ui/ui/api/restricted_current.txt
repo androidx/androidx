@@ -4657,6 +4657,12 @@ package androidx.compose.ui.platform {
   public interface PlatformTextInputSessionScope extends androidx.compose.ui.platform.PlatformTextInputSession kotlinx.coroutines.CoroutineScope {
   }
 
+  @SuppressCompatibility public final class ScrollCaptureInProgress_androidKt {
+    method @InaccessibleFromKotlin @SuppressCompatibility @UiThread @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public static boolean isComposeScrollCaptureInProgress(android.view.View);
+    method @InaccessibleFromKotlin @SuppressCompatibility @UiThread @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public static void setComposeScrollCaptureInProgress(android.view.View, boolean);
+    property @SuppressCompatibility @UiThread @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public static boolean android.view.View.isComposeScrollCaptureInProgress;
+  }
+
   @androidx.compose.runtime.Stable public interface SoftwareKeyboardController {
     method public void hide();
     method public void show();
