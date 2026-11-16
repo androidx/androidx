@@ -42,6 +42,16 @@
             </intent-filter>
         </activity>
 
+        <!-- Starts in Full Space Mode, like the SceneCore testapp. Used by ModeChangeTest. -->
+        <activity
+            android:name=".FullSpaceStartActivity"
+            android:exported="false"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout">
+            <property
+                android:name="android.window.PROPERTY_XR_ACTIVITY_START_MODE"
+                android:value="XR_ACTIVITY_START_MODE_FULL_SPACE_MANAGED" />
+        </activity>
+
         <!-- Scenario activities driven by :xr:scenecore:integration-tests:release-tests. -->
         <activity
             android:name=".e2e.GltfAnimationScenarioActivity"
