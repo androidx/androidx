@@ -134,26 +134,21 @@ class RemoteStateCreationTest {
     }
 
     @Test
-    fun rememberNamedRemoteBoolean_sharedNameWithOtherTypes_doesNotThrowClassCastException() =
-        runTest {
-            val coreDoc =
+    fun createNamedRemote_duplicateName_throwsIllegalStateException() = runTest {
+        val exception =
+            kotlin.test.assertFailsWith<IllegalStateException> {
                 remoteCaptureRule.captureDocument(context) {
                     val namedFloat = remember { createNamedRemoteFloat("shared", 10f) }
                     val namedInt = remember { createNamedRemoteInt("shared", 5) }
-                    val namedBoolean = remember { createNamedRemoteBoolean("shared", true) }
 
-                    val selectedFloat = namedBoolean.select(namedFloat, 0f.rf)
-                    val selectedInt = namedBoolean.select(namedInt, 0.ri)
+                    val selectedFloat = namedFloat + 1f.rf
+                    val selectedInt = namedInt + 1.ri
                     selectedFloat.getIdForCreationState(LocalRemoteComposeCreationState.current)
                     selectedInt.getIdForCreationState(LocalRemoteComposeCreationState.current)
                 }
-            assertThat(coreDoc.getNamedVariables(NamedVariable.FLOAT_TYPE))
-                .asList()
-                .contains("${RemoteDomains.USER}:shared")
-            assertThat(coreDoc.getNamedVariables(NamedVariable.INT_TYPE))
-                .asList()
-                .contains("${RemoteDomains.USER}:shared")
-        }
+            }
+        assertThat(exception).hasMessageThat().contains("Duplicate named variable: USER:shared")
+    }
 
     @Test
     fun rememberNamedRemoteString_isTracked() = runTest {
