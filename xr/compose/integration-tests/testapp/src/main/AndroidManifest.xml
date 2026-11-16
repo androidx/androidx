@@ -307,6 +307,13 @@
             android:label="@string/spatial_navigation_test"
             android:theme="@style/Theme.IntegrationTestsApp" />
         <activity
+            android:name=".navigation.ActivityB"
+            android:exported="true"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
+            android:enableOnBackInvokedCallback="true"
+            android:label="NavigationActivityB"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+        <activity
             android:name=".modifierchain.ModifierChainActivity"
             android:exported="true"
             android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"

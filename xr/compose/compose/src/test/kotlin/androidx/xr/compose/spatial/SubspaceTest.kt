@@ -903,9 +903,11 @@ class SubspaceTest {
             showSubspace = false
             composeTestRule.waitForIdle()
 
-            // With flag disabled, mainPanel is re-enabled but pose/size are not reset
+            // With flag disabled, mainPanel is re-enabled and its pose is reset on unmount, but 2D
+            // window properties (like size and contentDescription) are not reset.
             assertThat(mainPanelEntity.isEnabled()).isTrue()
-            assertThat(mainPanelEntity.getPose()).isNotEqualTo(Pose.Identity)
+            assertThat(mainPanelEntity.getPose()).isEqualTo(Pose.Identity)
+            assertThat(mainPanelEntity.contentDescription).isEqualTo("Spatial Main Panel")
             assertThat(mainPanelEntity.sizeInPixels).isEqualTo(subspaceSize)
         } finally {
             SpatialComposeFlags.isMainPanelResetOnSubspaceDisposeEnabled = originalFlag

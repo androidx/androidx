@@ -165,7 +165,7 @@ internal sealed class CoreEntity(val pixelDensity: PixelDensity, initialEntity: 
      * SceneCore parents all newly-created non-Anchor entities under a world space point of
      * reference for the activity space, which we save for future use.
      */
-    private val originalParent: Entity? = entity?.parent
+    protected open val originalParent: Entity? = entity?.parent
 
     /**
      * Compose-level [CoreEntity] children whose [parent] is set to this entity.
@@ -409,8 +409,10 @@ internal class CoreActivityPanelEntity(
  * Wrapper class for SceneCore's PanelEntity associated with the "main window" for the Activity.
  * This wrapper provides convenience methods for working with the main panel from SceneCore.
  */
-internal class CoreMainPanelEntity(private val session: Session) :
-    CoreBasePanelEntity(session.scene.virtualPixelDensity, session.scene.mainPanelEntity) {
+internal class CoreMainPanelEntity(
+    private val session: Session,
+    override val originalParent: Entity?,
+) : CoreBasePanelEntity(session.scene.virtualPixelDensity, session.scene.mainPanelEntity) {
 
     /**
      * The original 2D window size captured before spatial layout modifiers alter the panel size.
@@ -448,10 +450,13 @@ internal class CoreMainPanelEntity(private val session: Session) :
     override fun dispose() {
         // [CoreMainPanelEntity] is backed by SceneCore's singleton "Main Panel Entity" which
         // outlives individual composables and is never deleted. When [SpatialMainPanel] unmounts
-        // from a Subspace, we disable it and detach it from the scene graph. The full 2D window
-        // reset is handled by Subspace when all Subspaces exit (SceneCount == 0).
+        // from a Subspace, we disable it and set its Compose-level [parent] to null, which
+        // restores the underlying SceneCore entity's parent to [originalParent] at the origin.
+        // The full 2D window reset is handled by Subspace when all Subspaces exit (SceneCount ==
+        // 0).
         enabled = false
         parent = null
+        poseInMeters = Pose.Identity
     }
 }
 

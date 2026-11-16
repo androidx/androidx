@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.AnchorCreateSuccess
+import androidx.xr.compose.platform.LocalComposeXrOwners
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialActivityPanel
 import androidx.xr.compose.subspace.SpatialAndroidViewPanel
@@ -656,19 +657,70 @@ class CoreEntityTest {
     }
 
     @Test
-    fun coreMainPanelEntity_dispose_disablesAndDetaches() {
+    fun coreMainPanelEntity_dispose_disablesAndReparentsToOriginalParentAtIdentity() {
         val session = composeTestRule.configureFakeSession()
-        val coreMainPanelEntity = CoreMainPanelEntity(assertNotNull(session))
+        val subspaceRootNode =
+            Entity.create(
+                session = session,
+                name = "SubspaceRootContainer",
+                parent = session.scene.activitySpace,
+            )
+        val groupEntity =
+            CoreGroupEntity(
+                session.scene.virtualPixelDensity,
+                Entity.create(session = session, name = "Group"),
+            )
+        val coreMainPanelEntity =
+            CoreMainPanelEntity(session = session, originalParent = subspaceRootNode)
+        coreMainPanelEntity.parent = groupEntity
+        coreMainPanelEntity.poseInMeters = Pose(Vector3(1f, 2f, 3f))
+
         coreMainPanelEntity.dispose()
 
         assertThat(coreMainPanelEntity.enabled).isFalse()
         assertThat(coreMainPanelEntity.parent).isNull()
+        assertThat(session.scene.mainPanelEntity.parent).isEqualTo(subspaceRootNode)
+        assertThat(session.scene.mainPanelEntity.getPose()).isEqualTo(Pose.Identity)
+    }
+
+    @Test
+    fun spatialMainPanel_removedWhileSubspaceActive_reparentsMainPanelToSubspaceRootNode() {
+        var showMainPanel by mutableStateOf(true)
+        var subspaceRootNode: Entity? = null
+
+        composeTestRule.setContent {
+            subspaceRootNode = LocalComposeXrOwners.current.subspaceRootNode
+            Subspace {
+                if (showMainPanel) {
+                    SpatialMainPanel(
+                        SubspaceModifier.width(100.dp)
+                            .height(100.dp)
+                            .offset(x = 50.dp, y = 50.dp)
+                            .testTag("mainPanel")
+                    )
+                }
+                SpatialPanel(SubspaceModifier.width(100.dp).height(100.dp).testTag("panel")) {}
+            }
+        }
+        composeTestRule.waitForIdle()
+
+        val session = assertNotNull(composeTestRule.session)
+        assertThat(session.scene.mainPanelEntity.parent).isNotNull()
+        assertThat(session.scene.mainPanelEntity.parent).isNotEqualTo(subspaceRootNode)
+
+        showMainPanel = false
+        composeTestRule.waitForIdle()
+
+        assertThat(session.scene.mainPanelEntity.isEnabled()).isFalse()
+        assertThat(session.scene.mainPanelEntity.parent).isEqualTo(subspaceRootNode)
+        assertThat(session.scene.mainPanelEntity.getPose()).isEqualTo(Pose.Identity)
     }
 
     @Test
     fun coreMainPanelEntity_reset_restoresDefaultProperties() {
         val session = composeTestRule.configureFakeSession()
-        val coreMainPanelEntity = CoreMainPanelEntity(assertNotNull(session))
+        val coreMainPanelEntity =
+            CoreMainPanelEntity(session = assertNotNull(session), originalParent = null)
         val initialSize = session.scene.mainPanelEntity.sizeInPixels
         coreMainPanelEntity.size = IntVolumeSize(500, 500, 0)
         coreMainPanelEntity.poseInMeters = Pose(Vector3(1f, 2f, 3f))
@@ -687,7 +739,8 @@ class CoreEntityTest {
     @Test
     fun coreMainPanelEntity_resetWithoutSizeMutation_doesNotModifyProperties() {
         val session = composeTestRule.configureFakeSession()
-        val coreMainPanelEntity = CoreMainPanelEntity(assertNotNull(session))
+        val coreMainPanelEntity =
+            CoreMainPanelEntity(session = assertNotNull(session), originalParent = null)
         coreMainPanelEntity.poseInMeters = Pose(Vector3(1f, 2f, 3f))
         coreMainPanelEntity.alpha = 0.5f
 
@@ -701,7 +754,8 @@ class CoreEntityTest {
     fun coreMainPanelEntity_setShape_updatesAndRestoresCornerRadius() {
         val session = composeTestRule.configureFakeSession()
         val pixelDensity = session.scene.virtualPixelDensity
-        val coreMainPanelEntity = CoreMainPanelEntity(assertNotNull(session))
+        val coreMainPanelEntity =
+            CoreMainPanelEntity(session = assertNotNull(session), originalParent = null)
         coreMainPanelEntity.size = IntVolumeSize(100, 200, 0)
         val density = Density(1.0f)
         val shape = SpatialRoundedCornerShape(CornerSize(25.dp))
