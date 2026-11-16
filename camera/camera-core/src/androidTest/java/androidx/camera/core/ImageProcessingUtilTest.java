@@ -53,6 +53,8 @@ import androidx.core.util.Preconditions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
+import dalvik.system.BaseDexClassLoader;
+
 import org.jspecify.annotations.NonNull;
 import org.junit.After;
 import org.junit.Before;
@@ -553,6 +555,24 @@ public class ImageProcessingUtilTest {
 
         // Assert second bitmap now has the same color as first bitmap
         assertBitmapColor(bitmap2, Color.YELLOW, 0);
+    }
+
+    @Test
+    public void jniLib_resolvesFromAppAndLegacyNameIsNotPackaged() {
+        ClassLoader classLoader = ImageProcessingUtil.class.getClassLoader();
+        assertThat(classLoader).isInstanceOf(BaseDexClassLoader.class);
+        BaseDexClassLoader loader = (BaseDexClassLoader) classLoader;
+
+        String path = loader.findLibrary(ImageProcessingUtil.JNI_LIB_NAME);
+        assertThat(path).isNotNull();
+        assertThat(path).doesNotMatch("^/(system|system_ext|product|vendor|odm)/.*");
+
+        // The legacy generic soname must no longer ship in the APK; if anything resolves
+        // (e.g. an OEM /system copy on b/333473705 devices), it must not come from the app.
+        String legacy = loader.findLibrary("image_processing_util_jni");
+        if (legacy != null) {
+            assertThat(legacy).matches("^/(system|system_ext|product|vendor|odm)/.*");
+        }
     }
 
     private void assertSolidYUVColorConvertedToRGBMatchesReferenceRGB(int[] yuvColor,
