@@ -533,7 +533,7 @@ class AndroidImageReaderTest {
         Api37Compat.setOnActiveOutputSurfacesListener(
             mockMultiReader,
             executor,
-            multiImageReader,
+            multiImageReader::onActiveOutputSurfaces,
         )
 
         val listenerCaptor =
