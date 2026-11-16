@@ -697,6 +697,200 @@ class ModalBottomSheetTest {
         }
 
     @Test
+    fun modalBottomSheet_nestedScrollPostFling_doesNotReportChildHorizontalVelocityAsConsumed() =
+        runBlocking(AutoTestFrameClock()) {
+            lateinit var scope: CoroutineScope
+            lateinit var sheetState: SheetState
+            val scrollConnection = object : NestedScrollConnection {}
+            val scrollDispatcher = NestedScrollDispatcher()
+            var consumedByParent: Velocity? = null
+
+            rule.setContent {
+                scope = rememberCoroutineScope()
+                sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
+                ModalBottomSheet(sheetState = sheetState, onDismissRequest = {}) {
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .requiredHeight(300.dp)
+                            .nestedScroll(scrollConnection, scrollDispatcher)
+                            .testTag(sheetTag)
+                    )
+                }
+            }
+            scope.launch { sheetState.expand() }
+            rule.waitForIdle()
+            assertThat(sheetState.currentValue).isEqualTo(SheetValue.Expanded)
+
+            // A horizontal child, for example a pager, consumed its whole fling. The sheet is
+            // vertical, so it must not report any of that horizontal velocity as its own.
+            val consumedByChild = Velocity(x = with(rule.density) { 500.dp.toPx() }, y = 0f)
+            scope.launch {
+                consumedByParent =
+                    scrollDispatcher.dispatchPostFling(
+                        consumed = consumedByChild,
+                        available = Velocity.Zero,
+                    )
+            }
+            rule.waitForIdle()
+
+            assertWithMessage("Velocity the settled sheet reported as consumed in onPostFling")
+                .that(consumedByParent)
+                .isEqualTo(Velocity.Zero)
+        }
+
+    @Test
+    fun modalBottomSheet_nestedScrollPreFling_consumesOnlyTheSheetAxis() =
+        runBlocking(AutoTestFrameClock()) {
+            lateinit var scope: CoroutineScope
+            lateinit var sheetState: SheetState
+            val scrollConnection = object : NestedScrollConnection {}
+            val scrollDispatcher = NestedScrollDispatcher()
+            var consumedByParent: Velocity? = null
+
+            rule.setContent {
+                scope = rememberCoroutineScope()
+                sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
+                ModalBottomSheet(sheetState = sheetState, onDismissRequest = {}) {
+                    Box(
+                        Modifier.fillMaxSize()
+                            .nestedScroll(scrollConnection, scrollDispatcher)
+                            .testTag(sheetTag)
+                    )
+                }
+            }
+            scope.launch { sheetState.partialExpand() }
+            rule.waitForIdle()
+            assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
+            // A fling only picks a new anchor from an offset between anchors, as after a drag.
+            scrollDispatcher.dispatchPreScroll(
+                Offset(x = 0f, y = -with(rule.density) { 20.dp.toPx() }),
+                NestedScrollSource.UserInput,
+            )
+            rule.waitForIdle()
+
+            // An upward fling that also carries horizontal velocity. The sheet expands and owns
+            // the vertical part; the horizontal part is not the sheet's to consume.
+            val available =
+                Velocity(
+                    x = with(rule.density) { 500.dp.toPx() },
+                    y = -with(rule.density) { 1000.dp.toPx() },
+                )
+            scope.launch { consumedByParent = scrollDispatcher.dispatchPreFling(available) }
+            rule.waitForIdle()
+
+            assertThat(sheetState.currentValue).isEqualTo(SheetValue.Expanded)
+            assertWithMessage("Horizontal velocity the sheet reported as consumed in onPreFling")
+                .that(consumedByParent?.x)
+                .isEqualTo(0f)
+            assertWithMessage("Vertical velocity the sheet reported as consumed in onPreFling")
+                .that(consumedByParent?.y)
+                .isEqualTo(available.y)
+        }
+
+    @Test
+    fun modalBottomSheet_nestedScrollPostFling_reportsSheetAxisVelocityWhenSheetMoves() =
+        runBlocking(AutoTestFrameClock()) {
+            lateinit var scope: CoroutineScope
+            lateinit var sheetState: SheetState
+            val scrollConnection = object : NestedScrollConnection {}
+            val scrollDispatcher = NestedScrollDispatcher()
+            var consumedByParent: Velocity? = null
+
+            rule.setContent {
+                scope = rememberCoroutineScope()
+                sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
+                ModalBottomSheet(sheetState = sheetState, onDismissRequest = {}) {
+                    Box(
+                        Modifier.fillMaxSize()
+                            .nestedScroll(scrollConnection, scrollDispatcher)
+                            .testTag(sheetTag)
+                    )
+                }
+            }
+            scope.launch { sheetState.partialExpand() }
+            rule.waitForIdle()
+            assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
+            // A fling only picks a new anchor from an offset between anchors, as after a drag.
+            scrollDispatcher.dispatchPreScroll(
+                Offset(x = 0f, y = -with(rule.density) { 20.dp.toPx() }),
+                NestedScrollSource.UserInput,
+            )
+            rule.waitForIdle()
+
+            // The child left all of its upward velocity. The sheet uses it to expand, so it must
+            // report that velocity as consumed, not the velocity the fling had left over.
+            val available = Velocity(x = 0f, y = -with(rule.density) { 1000.dp.toPx() })
+            scope.launch {
+                consumedByParent =
+                    scrollDispatcher.dispatchPostFling(
+                        consumed = Velocity.Zero,
+                        available = available,
+                    )
+            }
+            rule.waitForIdle()
+
+            assertThat(sheetState.currentValue).isEqualTo(SheetValue.Expanded)
+            // The snap fling leaves no velocity over, so the sheet consumed all of it.
+            assertWithMessage("Vertical velocity the sheet reported as consumed in onPostFling")
+                .that(consumedByParent?.y)
+                .isWithin(1f)
+                .of(available.y)
+            assertWithMessage("Horizontal velocity the sheet reported as consumed in onPostFling")
+                .that(consumedByParent?.x)
+                .isEqualTo(0f)
+        }
+
+    @Test
+    fun modalBottomSheet_nestedScrollPostFling_settlesPartialDragReleasedWithoutVelocity() =
+        runBlocking(AutoTestFrameClock()) {
+            lateinit var scope: CoroutineScope
+            lateinit var sheetState: SheetState
+            val scrollConnection = object : NestedScrollConnection {}
+            val scrollDispatcher = NestedScrollDispatcher()
+
+            rule.setContent {
+                scope = rememberCoroutineScope()
+                sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
+                ModalBottomSheet(sheetState = sheetState, onDismissRequest = {}) {
+                    Box(
+                        Modifier.fillMaxSize()
+                            .nestedScroll(scrollConnection, scrollDispatcher)
+                            .testTag(sheetTag)
+                    )
+                }
+            }
+            scope.launch { sheetState.partialExpand() }
+            rule.waitForIdle()
+            assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
+            val restingOffset = sheetState.requireOffset()
+
+            // Drag the sheet a little off its anchor through nested scroll, then release it with
+            // no velocity at all. The sheet must still settle back onto an anchor.
+            scrollDispatcher.dispatchPreScroll(
+                Offset(x = 0f, y = -with(rule.density) { 20.dp.toPx() }),
+                NestedScrollSource.UserInput,
+            )
+            rule.waitForIdle()
+            assertWithMessage("Offset after a partial drag")
+                .that(sheetState.requireOffset())
+                .isNotEqualTo(restingOffset)
+
+            scope.launch {
+                scrollDispatcher.dispatchPostFling(
+                    consumed = Velocity.Zero,
+                    available = Velocity.Zero,
+                )
+            }
+            rule.waitForIdle()
+
+            assertWithMessage("Offset after releasing the partial drag without velocity")
+                .that(sheetState.requireOffset())
+                .isEqualTo(
+                    sheetState.anchoredDraggableState.anchors.positionOf(sheetState.currentValue)
+                )
+        }
+
+    @Test
     fun modalBottomSheet_respectsContentWindowInsets_whenImeIsPresent() {
         val imeHeightDp = 200.dp
         var showBottomSheet by mutableStateOf(true)

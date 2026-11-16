@@ -368,9 +368,15 @@ internal constructor(
             anchoredDraggableState.anchors.maxPosition(),
         )
 
+    /**
+     * Flings the sheet with [initialVelocity] and returns the velocity the sheet consumed.
+     * [FlingBehavior.performFling] reports the velocity that is left over, so the consumed part is
+     * the difference, and it is only reported when the sheet actually moved.
+     */
     internal suspend fun anchoredDrag(flingBehavior: FlingBehavior, initialVelocity: Float): Float {
         var consumedVelocity = 0f
         anchoredDraggableState.anchoredDrag {
+            val prevOffset = offset
             val scrollScope =
                 object : ScrollScope {
                     override fun scrollBy(pixels: Float): Float {
@@ -380,10 +386,16 @@ internal constructor(
                         return consumed
                     }
                 }
-            consumedVelocity = with(flingBehavior) { scrollScope.performFling(initialVelocity) }
+            val remainingVelocity =
+                with(flingBehavior) { scrollScope.performFling(initialVelocity) }
+            consumedVelocity = if (offset != prevOffset) initialVelocity - remainingVelocity else 0f
         }
         return consumedVelocity
     }
+
+    /** Whether the sheet is resting exactly on the anchor of its [currentValue]. */
+    internal val isSettled: Boolean
+        get() = offset == anchoredDraggableState.anchors.positionOf(currentValue)
 
     internal val offset: Float
         get() = anchoredDraggableState.offset
@@ -662,8 +674,9 @@ internal fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
             val minAnchor = sheetState.anchoredDraggableState.anchors.minPosition()
             return if (toFling < 0 && currentOffset > minAnchor) {
                 sheetState.anchoredDrag(flingBehavior, toFling)
-                // since we go to the anchor with tween settling, consume all for the best UX
-                available
+                // since we go to the anchor with tween settling, consume all of the sheet's own
+                // axis for the best UX. The cross axis belongs to the child.
+                toFling.toVelocity()
             } else {
                 Velocity.Zero
             }
@@ -671,12 +684,21 @@ internal fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
 
         override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
             val toFling = available.toFloat()
-            val consumedByAnchoredDraggableFling = sheetState.anchoredDrag(flingBehavior, toFling)
-            return Velocity(consumed.x, consumedByAnchoredDraggableFling)
+            // Nothing left on the sheet axis and the sheet already rests on an anchor, for
+            // example after a purely horizontal fling in a pager. Do not start a drag at all;
+            // a partial vertical drag released at 0 velocity still falls through and settles.
+            if (toFling == 0f && sheetState.isSettled) return Velocity.Zero
+            return sheetState.anchoredDrag(flingBehavior, toFling).toVelocity()
         }
 
         private fun Float.toOffset(): Offset =
             Offset(
+                x = if (orientation == Orientation.Horizontal) this else 0f,
+                y = if (orientation == Orientation.Vertical) this else 0f,
+            )
+
+        private fun Float.toVelocity(): Velocity =
+            Velocity(
                 x = if (orientation == Orientation.Horizontal) this else 0f,
                 y = if (orientation == Orientation.Vertical) this else 0f,
             )
