@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.testing
 
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraError
@@ -593,11 +594,15 @@ class CameraGraphSimulatorTest {
         simulator.setSurface(cameraStream.id, fakeImageReader.surface)
         simulator.simulateCameraStarted()
 
-        val request = Request(streams = listOf(cameraStream.id), listeners = listOf(listener))
+        val request =
+            Request(
+                streams = listOf(cameraStream.id),
+                parameters = mapOf(CaptureRequest.LENS_APERTURE to 1.8f),
+                listeners = listOf(listener),
+            )
         simulator.acquireSession().use { it.submit(request) }
 
-        val resultMetadata = mapOf<CaptureResult.Key<*>, Any?>(CaptureResult.LENS_APERTURE to 1.8f)
-        val completedFrame = simulator.simulateAndCompleteNextFrame(resultMetadata = resultMetadata)
+        val completedFrame = simulator.simulateAndCompleteNextFrame()
         advanceUntilIdle()
 
         assertThat(lastStreamId).isEqualTo(cameraStream.id)
@@ -635,5 +640,86 @@ class CameraGraphSimulatorTest {
 
         fakeImageReader.close()
         simulator.close()
+    }
+
+    @Test
+    fun simulateTotalAndComplete_propagatesParametersTimestampAndCallerOverrides() =
+        testScope.runTest {
+            val listener = FakeRequestListener()
+            simulator.parameters[CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION] = 3
+            val request =
+                Request(
+                    streams = listOf(stream.id),
+                    parameters =
+                        mapOf(
+                            CaptureRequest.JPEG_QUALITY to 92.toByte(),
+                            CaptureRequest.LENS_FOCAL_LENGTH to 4.5f,
+                        ),
+                    listeners = listOf(listener),
+                )
+            simulator.acquireSession().use { it.submit(request = request) }
+            simulator.start()
+            simulator.initializeSurfaces()
+            simulator.simulateCameraStarted()
+
+            val frame = simulator.simulateNextFrame()
+            frame.simulateTotalCaptureResult()
+            frame.simulateComplete(mapOf(CaptureResult.LENS_FOCAL_LENGTH to 5.0f))
+
+            val totalMetadata = listener.onTotalCaptureResultFlow.first().frameInfo.metadata
+            assertThat(totalMetadata[CaptureResult.SENSOR_TIMESTAMP])
+                .isEqualTo(frame.timestampNanos)
+            assertThat(totalMetadata[CaptureResult.CONTROL_AE_EXPOSURE_COMPENSATION]).isEqualTo(3)
+            assertThat(totalMetadata[CaptureResult.JPEG_QUALITY]).isEqualTo(92.toByte())
+            assertThat(totalMetadata[CaptureResult.LENS_FOCAL_LENGTH]).isEqualTo(4.5f)
+            assertThat(totalMetadata.captureRequest[CaptureRequest.JPEG_QUALITY])
+                .isEqualTo(92.toByte())
+            val completeMetadata = listener.onCompleteFlow.first().frameInfo.metadata
+            assertThat(completeMetadata[CaptureResult.SENSOR_TIMESTAMP])
+                .isEqualTo(frame.timestampNanos)
+            assertThat(completeMetadata[CaptureResult.LENS_FOCAL_LENGTH]).isEqualTo(5.0f)
+        }
+
+    @Test
+    fun fakeCaptureSequenceCreate_3ARequiredParametersDoNotOverwriteRequestOrGraph3AParameters() {
+        val request =
+            Request(
+                streams = listOf(stream.id),
+                parameters =
+                    mapOf(
+                        CaptureRequest.CONTROL_AF_MODE to CaptureRequest.CONTROL_AF_MODE_MACRO,
+                        CaptureRequest.JPEG_ORIENTATION to 90,
+                    ),
+            )
+
+        val sequence =
+            checkNotNull(
+                FakeCaptureSequence.create(
+                    cameraId = metadata.camera,
+                    repeating = false,
+                    requests = listOf(request),
+                    surfaceMap = mapOf(stream.id to fakeSurfaces.createFakeSurface()),
+                    graphParameters =
+                        mapOf(CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_OFF),
+                    requiredParameters =
+                        mapOf(
+                            CaptureRequest.CONTROL_AF_MODE to
+                                CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE,
+                            CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_ON,
+                            CaptureRequest.CONTROL_AWB_MODE to
+                                CaptureRequest.CONTROL_AWB_MODE_DAYLIGHT,
+                            CaptureRequest.JPEG_ORIENTATION to 270,
+                        ),
+                )
+            )
+
+        val builtMetadata = sequence.captureMetadataList.single()
+        assertThat(builtMetadata[CaptureRequest.CONTROL_AF_MODE])
+            .isEqualTo(CaptureRequest.CONTROL_AF_MODE_MACRO)
+        assertThat(builtMetadata[CaptureRequest.CONTROL_AE_MODE])
+            .isEqualTo(CaptureRequest.CONTROL_AE_MODE_OFF)
+        assertThat(builtMetadata[CaptureRequest.CONTROL_AWB_MODE])
+            .isEqualTo(CaptureRequest.CONTROL_AWB_MODE_DAYLIGHT)
+        assertThat(builtMetadata[CaptureRequest.JPEG_ORIENTATION]).isEqualTo(270)
     }
 }

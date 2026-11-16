@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.testing
 
 import android.hardware.camera2.CaptureRequest
 import android.view.Surface
+import androidx.camera.camera2.pipe.CameraControls3A.Companion.REQUEST_3A_KEYS
 import androidx.camera.camera2.pipe.CaptureSequence
 import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequests
 import androidx.camera.camera2.pipe.Request
@@ -115,7 +116,17 @@ public data class FakeCaptureSequence(
                 for ((k, v) in requiredParameters) {
                     if (k != null) {
                         if (k is CaptureRequest.Key<*>) {
-                            captureParameters[k] = v
+                            // Same rule as Camera2CaptureSequenceProcessor: requiredParameters do
+                            // not overwrite a 3A key that is already set by the default, graph, or
+                            // request parameters.
+                            val isAlreadySet3AKey =
+                                REQUEST_3A_KEYS.contains(k) &&
+                                    (defaultParameters.containsKey(k) ||
+                                        graphParameters.containsKey(k) ||
+                                        request.parameters.containsKey(k))
+                            if (!isAlreadySet3AKey) {
+                                captureParameters[k] = v
+                            }
                         } else if (k is Metadata.Key<*>) {
                             metadataParameters[k] = v
                         }
