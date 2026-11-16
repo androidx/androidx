@@ -17,23 +17,39 @@
 package androidx.room3
 
 import androidx.annotation.RestrictTo
+import androidx.room3.util.SQLiteVersion
+import androidx.room3.util.getSQLiteVersion
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteException
+import kotlin.concurrent.Volatile
 
 /**
  * This class knows how to insert an entity. When the insertion fails due to a unique constraint
  * conflict (i.e. primary key conflict), it will perform an update.
  *
  * @param T the type param of the entity to be upserted
- * @constructor Creates an EntityUpsertionAdapter that can upsert entity of type T into the database
- *   using the given insertionAdapter to perform insertion and updateAdapter to perform update when
- *   the insertion fails
+ * @constructor Creates an EntityUpsertAdapter that upserts entities of type T using native SQLite
+ *   `INSERT ... ON CONFLICT` syntax via [upsertQuery] on SQLite 3.24.0+, or falls back to
+ *   [entityInsertAdapter] and [updateAdapter] when [upsertQuery] is `null` or SQLite is older than
+ *   3.24.0.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 public class EntityUpsertAdapter<T>(
     private val entityInsertAdapter: EntityInsertAdapter<T>,
     private val updateAdapter: EntityDeleteOrUpdateAdapter<T>,
+    private val upsertQuery: String?,
 ) {
+    /**
+     * Creates an EntityUpsertAdapter that can upsert an entity of type T into the database using
+     * [entityInsertAdapter] to perform insertion and [updateAdapter] to perform an update when the
+     * insertion fails.
+     */
+    public constructor(
+        entityInsertAdapter: EntityInsertAdapter<T>,
+        updateAdapter: EntityDeleteOrUpdateAdapter<T>,
+    ) : this(entityInsertAdapter, updateAdapter, null)
+
+    @Volatile private var supportsNativeUpsertCached: Boolean? = null
 
     /**
      * Inserts the entity into the database. If a constraint exception is thrown i.e. a primary key
@@ -42,6 +58,11 @@ public class EntityUpsertAdapter<T>(
      * @param entity The entity to insert
      */
     public suspend fun upsert(connection: SQLiteConnection, entity: T?) {
+        if (entity == null) return
+        if (upsertQuery != null && isNativeUpsertSupported(connection)) {
+            entityInsertAdapter.insert(connection, upsertQuery, entity)
+            return
+        }
         try {
             entityInsertAdapter.insert(connection, entity)
         } catch (ex: SQLiteException) {
@@ -58,6 +79,10 @@ public class EntityUpsertAdapter<T>(
      */
     public suspend fun upsert(connection: SQLiteConnection, entities: Array<out T?>?) {
         if (entities == null) return
+        if (upsertQuery != null && isNativeUpsertSupported(connection)) {
+            entityInsertAdapter.insert(connection, upsertQuery, entities)
+            return
+        }
         entities.forEach { entity ->
             try {
                 entityInsertAdapter.insert(connection, entity)
@@ -70,6 +95,10 @@ public class EntityUpsertAdapter<T>(
 
     public suspend fun upsert(connection: SQLiteConnection, entities: Iterable<T?>?) {
         if (entities == null) return
+        if (upsertQuery != null && isNativeUpsertSupported(connection)) {
+            entityInsertAdapter.insert(connection, upsertQuery, entities)
+            return
+        }
         entities.forEach { entity ->
             try {
                 entityInsertAdapter.insert(connection, entity)
@@ -204,6 +233,12 @@ public class EntityUpsertAdapter<T>(
         }
     }
 
+    private suspend fun isNativeUpsertSupported(connection: SQLiteConnection): Boolean =
+        supportsNativeUpsertCached
+            ?: (getSQLiteVersion(connection) >= MIN_NATIVE_UPSERT_VERSION).also {
+                supportsNativeUpsertCached = it
+            }
+
     /**
      * Verify if the exception is caused by Uniqueness constraint (Primary Key Conflict). If yes,
      * upsert should update the existing one. If not, upsert should re-throw the exception. For
@@ -225,6 +260,8 @@ public class EntityUpsertAdapter<T>(
     }
 
     public companion object {
+        // `ON CONFLICT DO UPDATE / DO NOTHING` requires SQLite 3.24.0.
+        private val MIN_NATIVE_UPSERT_VERSION = SQLiteVersion(3, 24, 0)
         /**
          * The error code defined by SQLite Library for SQLITE_CONSTRAINT_PRIMARYKEY error Only used
          * by android of version newer than 19.

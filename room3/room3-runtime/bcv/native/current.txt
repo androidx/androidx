@@ -216,6 +216,7 @@ final class <#A: kotlin/Any?> androidx.room3.concurrent/ThreadLocal { // android
 
 final class <#A: kotlin/Any?> androidx.room3/EntityUpsertAdapter { // androidx.room3/EntityUpsertAdapter|null[0]
     constructor <init>(androidx.room3/EntityInsertAdapter<#A>, androidx.room3/EntityDeleteOrUpdateAdapter<#A>) // androidx.room3/EntityUpsertAdapter.<init>|<init>(androidx.room3.EntityInsertAdapter<1:0>;androidx.room3.EntityDeleteOrUpdateAdapter<1:0>){}[0]
+    constructor <init>(androidx.room3/EntityInsertAdapter<#A>, androidx.room3/EntityDeleteOrUpdateAdapter<#A>, kotlin/String?) // androidx.room3/EntityUpsertAdapter.<init>|<init>(androidx.room3.EntityInsertAdapter<1:0>;androidx.room3.EntityDeleteOrUpdateAdapter<1:0>;kotlin.String?){}[0]
 
     final suspend fun upsert(androidx.sqlite/SQLiteConnection, #A?) // androidx.room3/EntityUpsertAdapter.upsert|upsert(androidx.sqlite.SQLiteConnection;1:0?){}[0]
     final suspend fun upsert(androidx.sqlite/SQLiteConnection, kotlin.collections/Iterable<#A?>?) // androidx.room3/EntityUpsertAdapter.upsert|upsert(androidx.sqlite.SQLiteConnection;kotlin.collections.Iterable<1:0?>?){}[0]

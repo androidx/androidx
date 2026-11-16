@@ -73,7 +73,7 @@ internal class MyDao_Impl(
         statement.bindText(2, entity.other)
         statement.bindLong(3, entity.pk.toLong())
       }
-    })
+    }, "INSERT INTO `MyEntity` (`pk`,`other`) VALUES (?,?) ON CONFLICT (`pk`) DO UPDATE SET `other` = excluded.`other`")
   }
 
   public override fun insertSingle(vararg entities: MyEntity): Single<List<Long>> = __rxDaoReturnTypeConverters.convertSingle(__db) {

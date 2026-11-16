@@ -18,12 +18,15 @@ package androidx.room3.integration.kotlintestapp.dao
 import androidx.room3.Dao
 import androidx.room3.Insert
 import androidx.room3.Query
+import androidx.room3.Upsert
 import androidx.room3.integration.kotlintestapp.vo.Fts4Mail
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface Fts4MailDao {
     @Insert fun insert(mail: Fts4Mail)
+
+    @Upsert fun upsert(mail: Fts4Mail)
 
     @Insert fun insert(mails: List<Fts4Mail>)
 

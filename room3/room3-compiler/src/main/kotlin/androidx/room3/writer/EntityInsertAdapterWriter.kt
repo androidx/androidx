@@ -64,6 +64,26 @@ private constructor(
         }
     }
 
+    fun createInsertQuery(): String = buildString {
+        if (onConflict.isNotEmpty()) {
+            append("INSERT OR $onConflict INTO `$tableName`")
+        } else {
+            append("INSERT INTO `$tableName`")
+        }
+        append(" (${dataClass.columnNames.joinToString(",") { "`$it`" }})")
+        append(" VALUES (")
+        append(
+            dataClass.properties.joinToString(",") {
+                if (it.columnName == primitiveAutoGenerateColumn) {
+                    "nullif(?, 0)"
+                } else {
+                    "?"
+                }
+            }
+        )
+        append(")")
+    }
+
     fun createAnonymous(typeWriter: TypeWriter): XTypeSpec {
         return XTypeSpec.anonymousClassBuilder()
             .apply {
@@ -76,26 +96,7 @@ private constructor(
                         )
                         .apply {
                             returns(CommonTypeNames.STRING)
-                            val query = buildString {
-                                if (onConflict.isNotEmpty()) {
-                                    append("INSERT OR $onConflict INTO `$tableName`")
-                                } else {
-                                    append("INSERT INTO `$tableName`")
-                                }
-                                append(" (${dataClass.columnNames.joinToString(",") { "`$it`" }})")
-                                append(" VALUES (")
-                                append(
-                                    dataClass.properties.joinToString(",") {
-                                        if (it.columnName == primitiveAutoGenerateColumn) {
-                                            "nullif(?, 0)"
-                                        } else {
-                                            "?"
-                                        }
-                                    }
-                                )
-                                append(")")
-                            }
-                            addStatement("return %S", query)
+                            addStatement("return %S", createInsertQuery())
                         }
                         .build()
                 )
