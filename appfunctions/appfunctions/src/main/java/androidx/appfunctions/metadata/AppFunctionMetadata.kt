@@ -113,7 +113,6 @@ internal constructor(
      * Advisory hints about the runtime behavior of this app function, or `null` if no behavior
      * hints were declared.
      */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val behaviorHints: AppFunctionBehaviorHintsMetadata? = null,
 ) {
     @JvmOverloads
@@ -205,7 +204,7 @@ internal constructor(
         behaviorHints = null,
     )
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ExperimentalAppFunctionsApi
     public constructor(
         /** The qualified name of the app function. */
         name: AppFunctionName,

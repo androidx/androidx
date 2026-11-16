@@ -327,7 +327,13 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                     ),
                 description = "Test function without schema, enabled by default.",
                 scope = AppFunctionMetadata.SCOPE_GLOBAL,
-                behaviorHints = AppFunctionBehaviorHintsMetadata(),
+                behaviorHints =
+                    AppFunctionBehaviorHintsMetadata(
+                        isReadOnly = false,
+                        isDestructive = true,
+                        isIdempotent = false,
+                        isOpenWorld = true,
+                    ),
             )
 
         val MEDIA_SCHEMA2_PRINT =

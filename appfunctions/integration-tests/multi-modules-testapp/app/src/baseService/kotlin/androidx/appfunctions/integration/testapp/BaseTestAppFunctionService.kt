@@ -364,6 +364,8 @@ abstract class BaseTestAppFunctionService :
     @AppFunctionDeclaration(isDescribedByKDoc = false)
     @AppFunctionBehaviorHints(
         isReadOnly = true,
+        isDestructive = true,
+        isIdempotent = false,
         isOpenWorld = true,
     )
     internal fun behaviorHintsFunction(): String = "behavior_hints_success"
