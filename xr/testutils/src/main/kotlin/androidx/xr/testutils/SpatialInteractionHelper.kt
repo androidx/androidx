@@ -25,6 +25,7 @@ import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.os.SystemClock
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.test.platform.app.InstrumentationRegistry
@@ -116,6 +117,8 @@ public fun SpatialTask.performSpatialInteraction(
 /**
  * Performs a single discrete ray action event defined by [ray] via [uiAutomation].
  *
+ * Throws [IllegalStateException] if the shell command fails, times out, or writes errors to stderr.
+ *
  * @param ray The [Ray] defining origin and direction.
  * @param action Input action phase.
  * @param deviceType Device type.
@@ -136,7 +139,7 @@ public fun performRayAction(
         "$cliPath ${ray.origin.x} ${ray.origin.y} ${ray.origin.z} " +
             "${endPoint.x} ${endPoint.y} ${endPoint.z} " +
             "${action.value} ${deviceType.value} ${pointerType.value}"
-    return executeShellCommand(command, uiAutomation)
+    return executeShellCommandStrict(command, uiAutomation)
 }
 
 /**
@@ -147,12 +150,20 @@ public fun performRayAction(
  * and restore standard input handling.
  *
  * @param uiAutomation The [UiAutomation] instance to execute shell commands with.
+ * @param strict When `true`, propagates shell execution failures, timeouts, and non-warning stderr
+ *   errors instead of logging a warning and returning an empty string. Defaults to `false` so
+ *   calling this from `@After` or `finally` teardown does not swallow an earlier test-body failure.
  * @return The output string returned by the CLI command.
  */
 @JvmOverloads
 public fun resetSpatialInteraction(
-    uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
+    uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation,
+    strict: Boolean = false,
 ): String {
+    if (strict) {
+        val cliPath = getOrInstallCli(uiAutomation)
+        return executeShellCommandStrict("$cliPath stop", uiAutomation)
+    }
     return try {
         val cliPath = getOrInstallCli(uiAutomation)
         val command = "$cliPath stop"
@@ -160,6 +171,31 @@ public fun resetSpatialInteraction(
     } catch (e: Exception) {
         Log.w("SpatialInteractionHelper", "Could not execute CLI reset: ${e.message}")
         ""
+    }
+}
+
+/**
+ * Executes [action] and asserts that [sentinelDelivered] returns `true` afterwards.
+ *
+ * Use this wrapper around injected spatial interactions to catch silent ray misses or wrong-window
+ * targeting when the target application or component did not observe delivery.
+ *
+ * @param sentinelDelivered Predicate queried immediately after [action] completes.
+ * @param sentinelDescription Human-readable description of the expected delivery target.
+ * @param action Interaction block to execute.
+ * @throws AssertionError if [sentinelDelivered] returns `false` after [action].
+ */
+@JvmOverloads
+public fun assertDelivered(
+    sentinelDelivered: () -> Boolean,
+    sentinelDescription: String = "sentinel target",
+    action: () -> Unit,
+) {
+    action()
+    if (!sentinelDelivered()) {
+        throw AssertionError(
+            "Expected spatial interaction to be delivered to $sentinelDescription, but it was not."
+        )
     }
 }
 
@@ -766,50 +802,63 @@ internal fun calculateAlignedPoint(
 /**
  * Resolves the executable path for the raycast injection CLI.
  *
- * If `xr_inject_input_cli` is found on the device (e.g. in `/system/bin/xr_inject_input_cli`,
- * standard binary directories, or `/data/local/tmp/xr_inject_input_cli`), returns that path. If not
- * found on the device, attempts to copy the prebuilt binary/script from library assets to
- * `/data/local/tmp/xr_inject_input_cli`, makes it executable, and returns
- * `"/data/local/tmp/xr_inject_input_cli"`.
+ * Prefers the bundled CLI in `/data/local/tmp/xr_inject_input_cli` (extracting from assets if
+ * needed) and probes execution so versioned AndroidX prebuilts are used when allowed. If
+ * `/data/local/tmp` execution is blocked (for example by SELinux) or asset extraction is
+ * unavailable, falls back to system paths (`/system/bin/xr_inject_input_cli` and standard
+ * vendor/product bin directories) and `PATH`.
  *
- * @throws IllegalStateException if the CLI is not found on the device and cannot be installed from
- *   assets.
+ * @throws IllegalStateException if no executable CLI passes the execution probe.
  */
 private fun getOrInstallCli(
     uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
+): String =
+    resolveCliPath(
+        shellRunner = { cmd -> executeShellCommand(cmd, uiAutomation) },
+        installer = { installCliFromAssets(uiAutomation) },
+        cliProber = { path -> probeCliExecution(path, uiAutomation) },
+    )
+
+private fun probeCliExecution(path: String, uiAutomation: UiAutomation): Boolean =
+    try {
+        executeShellCommandStrict("$path stop", uiAutomation)
+        true
+    } catch (e: Exception) {
+        Log.w(
+            "SpatialInteractionHelper",
+            "CLI execution probe failed for $path; trying fallback paths: ${e.message}",
+        )
+        false
+    }
+
+@VisibleForTesting
+internal fun resolveCliPath(
+    shellRunner: (String) -> String,
+    installer: () -> Boolean,
+    cliProber: (String) -> Boolean = { true },
 ): String {
     resolvedCliPath?.let {
         return it
     }
 
-    // 1. Check if an existing valid non-empty binary is already present at /data/local/tmp
-    val tmpCheck =
-        executeShellCommand("test -s $CLI_TMP_PATH && echo VALID || echo INVALID", uiAutomation)
-            .trim()
-    if (tmpCheck == "VALID") {
-        resolvedCliPath = CLI_TMP_PATH
-        return CLI_TMP_PATH
+    fun cacheAndLog(path: String, source: String): String {
+        resolvedCliPath = path
+        Log.i("SpatialInteractionHelper", "Resolved $CLI_BINARY_NAME path ($source): $path")
+        return path
     }
 
-    // 2. Prioritize extracting the bundled binary from assets directly to /data/local/tmp
-    if (installCliFromAssets(uiAutomation)) {
-        resolvedCliPath = CLI_TMP_PATH
-        return CLI_TMP_PATH
+    // 1. Prefer an already executable bundled binary in /data/local/tmp that passes probing
+    val tmpCheck = shellRunner("stat -L -c %A $CLI_TMP_PATH")
+    if (isStatModeExecutable(tmpCheck) && cliProber(CLI_TMP_PATH)) {
+        return cacheAndLog(CLI_TMP_PATH, "cached_tmp")
     }
 
-    // 3. Fall back to which CLI_BINARY_NAME in PATH
-    val whichCheck = executeShellCommand("which $CLI_BINARY_NAME", uiAutomation).trim()
-    if (
-        whichCheck.isNotEmpty() &&
-            !whichCheck.contains("not found") &&
-            !whichCheck.contains("No such") &&
-            !whichCheck.contains("[TIMED_OUT]")
-    ) {
-        resolvedCliPath = whichCheck
-        return whichCheck
+    // 2. Extract bundled binary from library/test assets to /data/local/tmp and probe execution
+    if (installer() && cliProber(CLI_TMP_PATH)) {
+        return cacheAndLog(CLI_TMP_PATH, "assets")
     }
 
-    // 4. Fall back to standard executable locations on system image
+    // 3. Fall back to standard executable system locations if /data/local/tmp fails SELinux/probe
     val candidatePaths =
         listOf(
             CLI_SYSTEM_PATH,
@@ -818,25 +867,204 @@ private fun getOrInstallCli(
             "/system/xbin/$CLI_BINARY_NAME",
         )
     for (candidatePath in candidatePaths) {
-        val check = executeShellCommand("ls -d $candidatePath", uiAutomation).trim()
-        if (
-            check.contains(candidatePath) &&
-                !check.contains("No such") &&
-                !check.contains("not found") &&
-                !check.contains("[TIMED_OUT]")
-        ) {
-            resolvedCliPath = candidatePath
-            return candidatePath
+        val check = shellRunner("stat -L -c %A $candidatePath")
+        if (isStatModeExecutable(check) && cliProber(candidatePath)) {
+            return cacheAndLog(candidatePath, "system")
+        }
+    }
+
+    // 4. Fall back to which CLI_BINARY_NAME in PATH
+    val whichCheck = shellRunner("which $CLI_BINARY_NAME").trim()
+    if (
+        whichCheck.isNotEmpty() &&
+            !whichCheck.contains("not found") &&
+            !whichCheck.contains("No such") &&
+            !whichCheck.contains("[TIMED_OUT]")
+    ) {
+        val execCheck = shellRunner("stat -L -c %A $whichCheck")
+        if (isStatModeExecutable(execCheck) && cliProber(whichCheck)) {
+            return cacheAndLog(whichCheck, "PATH")
         }
     }
 
     throw IllegalStateException(
-        "XR raycast injection CLI '$CLI_BINARY_NAME' could not be installed from assets " +
-            "and was not found on the device (checked $CLI_TMP_PATH, $candidatePaths)."
+        "XR raycast injection CLI '$CLI_BINARY_NAME' failed execution probe from assets " +
+            "($CLI_TMP_PATH) and was not found as a working executable on the device " +
+            "(checked $candidatePaths, PATH)."
     )
 }
 
-private val commandExecutor = java.util.concurrent.Executors.newCachedThreadPool()
+@VisibleForTesting
+internal fun isStatModeExecutable(statOutput: String): Boolean {
+    val line = statOutput.trim()
+    if (line.length != 10 || line[0] != '-') return false
+    return line[3] == 'x' ||
+        line[3] == 's' ||
+        line[6] == 'x' ||
+        line[6] == 's' ||
+        line[9] == 'x' ||
+        line[9] == 't'
+}
+
+@VisibleForTesting
+internal fun resetResolvedCliPathForTesting() {
+    resolvedCliPath = null
+}
+
+private val commandExecutor =
+    java.util.concurrent.Executors.newCachedThreadPool { runnable ->
+        Thread(runnable, "XrSpatialShellExecutor").apply { isDaemon = true }
+    }
+
+private val strictExitCodeRegex = Regex("(?:^|\\n)__XR_EXIT_CODE:(-?\\d+)\\s*$")
+
+/**
+ * Parses raw [rawStdout] and [stderr] from an exit-code-wrapped strict shell command, failing
+ * loudly on non-warning [stderr], missing exit sentinel, or non-zero exit code.
+ */
+@VisibleForTesting
+internal fun parseStrictShellOutput(
+    command: String,
+    rawStdout: String,
+    stderr: String,
+): String {
+    requireNoShellError(command, stderr)
+    val match =
+        strictExitCodeRegex.find(rawStdout)
+            ?: throw IllegalStateException(
+                "Shell command did not report exit status: $command (output='${rawStdout.trim()}')"
+            )
+    val exitCode =
+        match.groupValues[1].toIntOrNull()
+            ?: throw IllegalStateException(
+                "Shell command reported invalid exit status '${match.groupValues[1]}': $command"
+            )
+    val cleanedStdout = rawStdout.substring(0, match.range.first)
+    if (exitCode != 0) {
+        throw IllegalStateException(
+            "Shell command exited with code $exitCode: $command " +
+                "(output='${cleanedStdout.trim()}', stderr='${stderr.trim()}')"
+        )
+    }
+    return cleanedStdout
+}
+
+/**
+ * Executes a shell command synchronously via [uiAutomation], throwing [IllegalStateException] if
+ * execution fails, exits non-zero, times out after [timeoutMs], or writes non-warning errors to
+ * stderr.
+ */
+internal fun executeShellCommandStrict(
+    command: String,
+    uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation,
+    timeoutMs: Long = 3000L,
+): String {
+    Log.i("SpatialInteractionHelper", "Executing shell command strictly: $command")
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        // UiAutomation.executeShellCommandRwe executes via Runtime.exec (splitting on whitespace,
+        // without sh -c), so invoke `sh -s` and pass the command + exit sentinel via stdin.
+        val pfds =
+            try {
+                uiAutomation.executeShellCommandRwe("sh -s")
+            } catch (e: Exception) {
+                throw IllegalStateException("Failed to execute command: $command", e)
+            }
+        val stdout = pfds[0]
+        val stdin = pfds[1]
+        val stderr = pfds[2]
+        val (output, error) =
+            readStrictShellStreams(
+                command = command,
+                timeoutMs = timeoutMs,
+                reader = {
+                    ParcelFileDescriptor.AutoCloseInputStream(stdout).use { outStream ->
+                        ParcelFileDescriptor.AutoCloseInputStream(stderr).use { errStream ->
+                            ParcelFileDescriptor.AutoCloseOutputStream(stdin)
+                                .bufferedWriter()
+                                .use { writer ->
+                                    writer.write(command)
+                                    writer.newLine()
+                                    writer.write("printf '\\n__XR_EXIT_CODE:%d\\n' \$?")
+                                    writer.newLine()
+                                }
+                            val errFuture =
+                                commandExecutor.submit(
+                                    java.util.concurrent.Callable {
+                                        errStream.bufferedReader().readText()
+                                    }
+                                )
+                            try {
+                                val outText = outStream.bufferedReader().readText()
+                                outText to errFuture.get()
+                            } finally {
+                                errFuture.cancel(true)
+                            }
+                        }
+                    }
+                },
+                onTimeout = {
+                    try {
+                        stdout.close()
+                    } catch (_: Exception) {}
+                    try {
+                        stdin.close()
+                    } catch (_: Exception) {}
+                    try {
+                        stderr.close()
+                    } catch (_: Exception) {}
+                },
+            )
+        val cleaned = parseStrictShellOutput(command, output, error)
+        Log.i("SpatialInteractionHelper", "Shell command output: '$cleaned'")
+        return cleaned
+    } else {
+        val pfd =
+            try {
+                uiAutomation.executeShellCommand(command)
+            } catch (e: Exception) {
+                throw IllegalStateException("Failed to execute command: $command", e)
+            }
+        val (output, _) =
+            readStrictShellStreams(
+                command = command,
+                timeoutMs = timeoutMs,
+                reader = {
+                    ParcelFileDescriptor.AutoCloseInputStream(pfd).bufferedReader().use {
+                        it.readText()
+                    } to ""
+                },
+                onTimeout = {
+                    try {
+                        pfd.close()
+                    } catch (_: Exception) {}
+                },
+            )
+        Log.i("SpatialInteractionHelper", "Shell command output: '$output'")
+        return output
+    }
+}
+
+@VisibleForTesting
+internal fun readStrictShellStreams(
+    command: String,
+    timeoutMs: Long,
+    reader: () -> Pair<String, String>,
+    onTimeout: () -> Unit = {},
+): Pair<String, String> {
+    val future = commandExecutor.submit(java.util.concurrent.Callable(reader))
+    return try {
+        future.get(timeoutMs, java.util.concurrent.TimeUnit.MILLISECONDS)
+    } catch (e: java.util.concurrent.TimeoutException) {
+        future.cancel(true)
+        onTimeout()
+        throw IllegalStateException("Command timed out after ${timeoutMs}ms: $command", e)
+    } catch (e: java.util.concurrent.ExecutionException) {
+        throw IllegalStateException(
+            "Error reading command output: $command",
+            e.cause ?: e,
+        )
+    }
+}
 
 /** Executes a shell command synchronously via [uiAutomation] and returns stdout as a string. */
 internal fun executeShellCommand(

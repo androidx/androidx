@@ -1127,4 +1127,61 @@ class SpatialInteractionHelperAndroidTest {
         assertTrue(clicked, "Expected select() in scope to trigger Compose click")
         assertTrue(pointerMoveCount > 0, "Expected drag in scope to trigger pointer move events")
     }
+
+    @Test
+    fun assertDelivered_verifiesLiveClickAndRejectsUnobservedSentinel() {
+        var clicked by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            Box(
+                modifier = Modifier.fillMaxSize().clickable { clicked = true },
+                contentAlignment = Alignment.Center,
+            ) {
+                Text("AssertDelivered Sentinel Test")
+            }
+        }
+        composeTestRule.waitForIdle()
+
+        val packageName = InstrumentationRegistry.getInstrumentation().targetContext.packageName
+        val scene = captureSpatialScene()
+        val task = assertNotNull(scene.findTaskByPackageName(packageName))
+        val targetNode =
+            assertNotNull(
+                task.taskWindowLeash ?: task.topLevelWindowLeashes.firstOrNull(),
+                "Expected active target node",
+            )
+
+        try {
+            assertDelivered(
+                sentinelDelivered = {
+                    try {
+                        composeTestRule.waitUntil(timeoutMillis = 3000L) { clicked }
+                        true
+                    } catch (_: AssertionError) {
+                        false
+                    }
+                },
+                sentinelDescription = "Compose click target in SpatialInteractionHelperAndroidTest",
+            ) {
+                targetNode.performSpatialInteraction { select() }
+            }
+            assertTrue(clicked, "Expected sentinel delivery to observe click")
+
+            var failedAsExpected = false
+            try {
+                assertDelivered(
+                    sentinelDelivered = { false },
+                    sentinelDescription = "unobserved sentinel target",
+                ) {}
+            } catch (_: AssertionError) {
+                failedAsExpected = true
+            }
+            assertTrue(
+                failedAsExpected,
+                "Expected assertDelivered to throw AssertionError when unobserved",
+            )
+        } finally {
+            resetSpatialInteraction(strict = true)
+        }
+    }
 }
