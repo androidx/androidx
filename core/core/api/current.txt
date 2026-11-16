@@ -4338,6 +4338,29 @@ package androidx.core.view {
     method public static androidx.core.view.ViewStructureCompat toViewStructureCompat(android.view.ViewStructure);
   }
 
+  public final class ViewTreeObserverListeners {
+    method @MainThread public static androidx.core.view.ViewTreeObserverRegistration addOnDrawListener(android.view.View, android.view.View scope, android.view.ViewTreeObserver.OnDrawListener listener);
+    method @MainThread public static androidx.core.view.ViewTreeObserverRegistration addOnDrawListener(android.view.View, androidx.lifecycle.LifecycleOwner scope, android.view.ViewTreeObserver.OnDrawListener listener);
+    method @MainThread public static androidx.core.view.ViewTreeObserverRegistration addOnGlobalFocusChangeListener(android.view.View, android.view.View scope, android.view.ViewTreeObserver.OnGlobalFocusChangeListener listener);
+    method @MainThread public static androidx.core.view.ViewTreeObserverRegistration addOnGlobalFocusChangeListener(android.view.View, androidx.lifecycle.LifecycleOwner scope, android.view.ViewTreeObserver.OnGlobalFocusChangeListener listener);
+    method @MainThread public static androidx.core.view.ViewTreeObserverRegistration addOnGlobalLayoutListener(android.view.View, android.view.View scope, android.view.ViewTreeObserver.OnGlobalLayoutListener listener);
+    method @MainThread public static androidx.core.view.ViewTreeObserverRegistration addOnGlobalLayoutListener(android.view.View, androidx.lifecycle.LifecycleOwner scope, android.view.ViewTreeObserver.OnGlobalLayoutListener listener);
+    method @MainThread public static androidx.core.view.ViewTreeObserverRegistration addOnPreDrawListener(android.view.View, android.view.View scope, android.view.ViewTreeObserver.OnPreDrawListener listener);
+    method @MainThread public static androidx.core.view.ViewTreeObserverRegistration addOnPreDrawListener(android.view.View, androidx.lifecycle.LifecycleOwner scope, android.view.ViewTreeObserver.OnPreDrawListener listener);
+    method @MainThread public static androidx.core.view.ViewTreeObserverRegistration addOnScrollChangedListener(android.view.View, android.view.View scope, android.view.ViewTreeObserver.OnScrollChangedListener listener);
+    method @MainThread public static androidx.core.view.ViewTreeObserverRegistration addOnScrollChangedListener(android.view.View, androidx.lifecycle.LifecycleOwner scope, android.view.ViewTreeObserver.OnScrollChangedListener listener);
+    method @MainThread public static androidx.core.view.ViewTreeObserverRegistration addOnTouchModeChangeListener(android.view.View, android.view.View scope, android.view.ViewTreeObserver.OnTouchModeChangeListener listener);
+    method @MainThread public static androidx.core.view.ViewTreeObserverRegistration addOnTouchModeChangeListener(android.view.View, androidx.lifecycle.LifecycleOwner scope, android.view.ViewTreeObserver.OnTouchModeChangeListener listener);
+    method @MainThread public static androidx.core.view.ViewTreeObserverRegistration addOnWindowAttachListener(android.view.View, android.view.View scope, android.view.ViewTreeObserver.OnWindowAttachListener listener);
+    method @MainThread public static androidx.core.view.ViewTreeObserverRegistration addOnWindowAttachListener(android.view.View, androidx.lifecycle.LifecycleOwner scope, android.view.ViewTreeObserver.OnWindowAttachListener listener);
+    method @MainThread public static androidx.core.view.ViewTreeObserverRegistration addOnWindowFocusChangeListener(android.view.View, android.view.View scope, android.view.ViewTreeObserver.OnWindowFocusChangeListener listener);
+    method @MainThread public static androidx.core.view.ViewTreeObserverRegistration addOnWindowFocusChangeListener(android.view.View, androidx.lifecycle.LifecycleOwner scope, android.view.ViewTreeObserver.OnWindowFocusChangeListener listener);
+  }
+
+  public fun interface ViewTreeObserverRegistration {
+    method @MainThread public void remove();
+  }
+
   public final class WindowCompat {
     method public static void enableEdgeToEdge(android.view.Window);
     method public static androidx.core.view.WindowInsetsControllerCompat getInsetsController(android.view.Window, android.view.View);
