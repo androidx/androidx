@@ -81,7 +81,7 @@ public fun RemoteModifier.combinedClickable(
             if (role != null)
                 RemoteModifier.semantics {
                     this.role = role
-                    this.enabled = enabled
+                    this.isEnabled = enabled
                 }
             else RemoteModifier
         )

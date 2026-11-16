@@ -32,7 +32,7 @@ import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.capture.RemoteCapturedDocument
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
@@ -70,7 +70,7 @@ internal suspend fun captureAndRender(
         captureSingleRemoteDocument(
             context = context,
             creationDisplayInfo =
-                createCreationDisplayInfo(
+                createRemoteCreationDisplayInfo(
                     context = context,
                     size = Size(widthPx.toFloat(), heightPx.toFloat()),
                 ),

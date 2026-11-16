@@ -41,7 +41,7 @@ import kotlin.enums.enumEntries
  * Remembers a named remote boolean expression.
  *
  * @param name A unique name to identify this state within its [domain].
- * @param initialValue The initial [Boolean] value.
+ * @param defaultValue The initial [Boolean] value.
  * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
  * @return A [RemoteBoolean] instance representing the named expression.
  */
@@ -49,10 +49,10 @@ import kotlin.enums.enumEntries
 @RemoteComposable
 public fun rememberNamedRemoteBoolean(
     name: String,
-    initialValue: Boolean,
+    defaultValue: Boolean,
     domain: RemoteState.Domain = RemoteState.Domain.User,
 ): RemoteBoolean {
-    return remember(name, domain) { createNamedRemoteBoolean(name, initialValue, domain) }
+    return remember(name, domain) { createNamedRemoteBoolean(name, defaultValue, domain) }
 }
 
 // ==============================================================================================
@@ -107,7 +107,7 @@ public fun rememberNamedRemoteLong(
  * Remembers a named remote enum expression.
  *
  * @param name A unique name to identify this state within its [domain].
- * @param initialValue The initial [Enum] value.
+ * @param defaultValue The initial [Enum] value.
  * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
  * @return A [RemoteEnum] instance representing the named expression.
  */
@@ -115,17 +115,17 @@ public fun rememberNamedRemoteLong(
 @RemoteComposable
 public inline fun <reified T : Enum<T>> rememberNamedRemoteEnum(
     name: String,
-    initialValue: T,
+    defaultValue: T,
     domain: RemoteState.Domain = RemoteState.Domain.User,
 ): RemoteEnum<T> {
-    return rememberNamedRemoteEnum(name, initialValue, enumEntries(), domain)
+    return rememberNamedRemoteEnum(name, defaultValue, enumEntries(), domain)
 }
 
 /**
  * Remembers a named [RemoteEnum] expression using the given [enumEntries].
  *
  * @param name unique name identifying this state within its [domain]
- * @param initialValue initial [Enum] value
+ * @param defaultValue initial [Enum] value
  * @param enumEntries [EnumEntries] containing all values of [T]
  * @param domain domain for the named state, defaulting to [RemoteState.Domain.User]
  * @return a [RemoteEnum] backed by the named state
@@ -134,12 +134,12 @@ public inline fun <reified T : Enum<T>> rememberNamedRemoteEnum(
 @RemoteComposable
 public fun <T : Enum<T>> rememberNamedRemoteEnum(
     name: String,
-    initialValue: T,
+    defaultValue: T,
     enumEntries: EnumEntries<T>,
     domain: RemoteState.Domain = RemoteState.Domain.User,
 ): RemoteEnum<T> {
     return remember(name, domain) {
-        RemoteEnum(createNamedRemoteInt(name, initialValue.ordinal, domain), enumEntries)
+        RemoteEnum(createNamedRemoteInt(name, defaultValue.ordinal, domain), enumEntries)
     }
 }
 
@@ -253,8 +253,8 @@ public fun rememberNamedRemoteImageBitmap(
  * Remembers a named remote integer expression.
  *
  * @param name A unique name to identify this state within its [domain].
- * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
  * @param defaultValue The initial [Int] value.
+ * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
  * @return A [RemoteInt] instance representing the named expression.
  */
 @Composable

@@ -223,11 +223,11 @@ class AnimateSpecModifierTest {
 
     @Test
     fun testAnimationSpecIdAndEnabled() {
-        val modifierEnabled = RemoteModifier.animationSpec(100, true)
+        val modifierEnabled = RemoteModifier.animationSpec(100, enabled = true)
         val recEnabled = creationState.toRecordingModifier(modifierEnabled)
         (recEnabled.list[0] as CreationAnimateSpecModifier).write(creationState.document)
 
-        val modifierDisabled = RemoteModifier.animationSpec(100, false)
+        val modifierDisabled = RemoteModifier.animationSpec(100, enabled = false)
         val recDisabled = creationState.toRecordingModifier(modifierDisabled)
         (recDisabled.list[0] as CreationAnimateSpecModifier).write(creationState.document)
 
@@ -259,8 +259,6 @@ class AnimateSpecModifierTest {
 
     @Test
     fun testTransitionEquivalenceAndHelpers() {
-        assertThat(remoteFadeIn()).isEqualTo(RemoteEnterTransition.FadeIn)
-        assertThat(remoteFadeOut()).isEqualTo(RemoteExitTransition.FadeOut)
         assertThat(RemoteEnterTransition.FadeIn.hashCode())
             .isEqualTo(RemoteEnterTransition(ANIMATION.FADE_IN).hashCode())
         assertThat(RemoteEnterTransition.FadeIn).isEqualTo(RemoteEnterTransition(ANIMATION.FADE_IN))

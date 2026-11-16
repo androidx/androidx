@@ -21,7 +21,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.operations.layout.Component
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCollapsibleColumn
 import androidx.compose.remote.creation.compose.layout.RemoteCollapsibleRow
@@ -71,7 +71,7 @@ class RemoteFitBoxCollapsibleMeasurementTest {
         val density = context.resources.displayMetrics.density
         rule.setRemoteContent(
             remoteCreationDisplayInfo =
-                createCreationDisplayInfo(
+                createRemoteCreationDisplayInfo(
                     context = context,
                     size = Size(400f * density, 500f * density),
                 ),
@@ -151,7 +151,7 @@ class RemoteFitBoxCollapsibleMeasurementTest {
         val density = context.resources.displayMetrics.density
         rule.setRemoteContent(
             remoteCreationDisplayInfo =
-                createCreationDisplayInfo(
+                createRemoteCreationDisplayInfo(
                     context = context,
                     size = Size(411f * density, 891f * density),
                 ),
@@ -188,7 +188,7 @@ class RemoteFitBoxCollapsibleMeasurementTest {
         val density = context.resources.displayMetrics.density
         rule.setRemoteContent(
             remoteCreationDisplayInfo =
-                createCreationDisplayInfo(
+                createRemoteCreationDisplayInfo(
                     context = context,
                     size = Size(350f * density, 800f * density),
                 ),
@@ -226,7 +226,7 @@ class RemoteFitBoxCollapsibleMeasurementTest {
         val density = context.resources.displayMetrics.density
         rule.setRemoteContent(
             remoteCreationDisplayInfo =
-                createCreationDisplayInfo(
+                createRemoteCreationDisplayInfo(
                     context = context,
                     size = Size(411f * density, 600f * density),
                 ),
@@ -279,7 +279,7 @@ class RemoteFitBoxCollapsibleMeasurementTest {
         val density = context.resources.displayMetrics.density
         rule.setRemoteContent(
             remoteCreationDisplayInfo =
-                createCreationDisplayInfo(
+                createRemoteCreationDisplayInfo(
                     context = context,
                     size = Size(400f * density, 300f * density),
                 ),
@@ -317,7 +317,7 @@ class RemoteFitBoxCollapsibleMeasurementTest {
         val density = context.resources.displayMetrics.density
         rule.setRemoteContent(
             remoteCreationDisplayInfo =
-                createCreationDisplayInfo(
+                createRemoteCreationDisplayInfo(
                     context = context,
                     size = Size(400f * density, 120f * density),
                 ),
@@ -357,7 +357,7 @@ class RemoteFitBoxCollapsibleMeasurementTest {
         val density = context.resources.displayMetrics.density
         rule.setRemoteContent(
             remoteCreationDisplayInfo =
-                createCreationDisplayInfo(
+                createRemoteCreationDisplayInfo(
                     context = context,
                     size = Size(411f * density, 400f * density),
                 ),
@@ -426,7 +426,7 @@ class RemoteFitBoxCollapsibleMeasurementTest {
         val density = context.resources.displayMetrics.density
         rule.setRemoteContent(
             remoteCreationDisplayInfo =
-                createCreationDisplayInfo(
+                createRemoteCreationDisplayInfo(
                     context = context,
                     size = Size(300f * density, 200f * density),
                 ),
@@ -460,7 +460,7 @@ class RemoteFitBoxCollapsibleMeasurementTest {
         val density = context.resources.displayMetrics.density
         rule.setRemoteContent(
             remoteCreationDisplayInfo =
-                createCreationDisplayInfo(
+                createRemoteCreationDisplayInfo(
                     context = context,
                     size = Size(300f * density, 300f * density),
                 ),
@@ -501,7 +501,7 @@ class RemoteFitBoxCollapsibleMeasurementTest {
         val density = context.resources.displayMetrics.density
         rule.setRemoteContent(
             remoteCreationDisplayInfo =
-                createCreationDisplayInfo(
+                createRemoteCreationDisplayInfo(
                     context = context,
                     size = Size(300f * density, 200f * density),
                 ),
@@ -544,7 +544,7 @@ class RemoteFitBoxCollapsibleMeasurementTest {
         val density = context.resources.displayMetrics.density
         rule.setRemoteContent(
             remoteCreationDisplayInfo =
-                createCreationDisplayInfo(
+                createRemoteCreationDisplayInfo(
                     context = context,
                     size = Size(300f * density, 300f * density),
                 ),

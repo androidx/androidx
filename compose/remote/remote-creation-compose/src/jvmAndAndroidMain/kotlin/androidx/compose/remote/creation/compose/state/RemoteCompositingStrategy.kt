@@ -17,6 +17,7 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import kotlin.jvm.JvmInline
 
 /** Determines when to render content into an offscreen buffer before compositing. */
@@ -37,14 +38,14 @@ public value class RemoteCompositingStrategy internal constructor(internal val v
          * Renders content directly into the destination unless layer parameters require an
          * offscreen buffer.
          */
-        public val Auto: RemoteCompositingStrategy = RemoteCompositingStrategy(0)
+        @Stable public val Auto: RemoteCompositingStrategy = RemoteCompositingStrategy(0)
 
         /**
          * Always renders layer content into an intermediate offscreen buffer before compositing.
          */
-        public val Offscreen: RemoteCompositingStrategy = RemoteCompositingStrategy(1)
+        @Stable public val Offscreen: RemoteCompositingStrategy = RemoteCompositingStrategy(1)
 
         /** Modulates alpha directly during rendering operations where supported. */
-        public val ModulateAlpha: RemoteCompositingStrategy = RemoteCompositingStrategy(2)
+        @Stable public val ModulateAlpha: RemoteCompositingStrategy = RemoteCompositingStrategy(2)
     }
 }

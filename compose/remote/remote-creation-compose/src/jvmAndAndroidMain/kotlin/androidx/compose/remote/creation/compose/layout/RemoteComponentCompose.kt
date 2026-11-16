@@ -19,8 +19,10 @@ package androidx.compose.remote.creation.compose.layout
 import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.drawWithContent
+import androidx.compose.remote.creation.compose.state.InternalRemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.compose.state.resolveComponentToken
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
@@ -67,5 +69,6 @@ public fun remoteComponent(): RemoteComponent {
  */
 public fun RemoteStateScope.remoteComponent(): RemoteComponent {
     val token = resolveComponentToken()
-    return if (token != null) RemoteComponent(token) else RemoteComponent(this)
+    return if (token != null) RemoteComponent(token)
+    else RemoteComponent(this as InternalRemoteStateScope)
 }

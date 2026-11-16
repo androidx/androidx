@@ -19,7 +19,7 @@
 package androidx.compose.remote.player.compose.embedded
 
 import android.content.res.Resources
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -73,7 +73,7 @@ class RcPlayerCompositingStrategyScreenshotTest {
         RemoteEmbeddedScreenshotTestRule(
             moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
             remoteCreationDisplayInfo =
-                createCreationDisplayInfo(
+                createRemoteCreationDisplayInfo(
                     context = ApplicationProvider.getApplicationContext(),
                     size = Size(WIDTH_DP * density, HEIGHT_DP * density),
                 ),

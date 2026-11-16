@@ -28,6 +28,7 @@ import androidx.compose.remote.creation.compose.modifier.resolveBottom
 import androidx.compose.remote.creation.compose.modifier.resolveLeft
 import androidx.compose.remote.creation.compose.modifier.resolveRight
 import androidx.compose.remote.creation.compose.modifier.resolveTop
+import androidx.compose.remote.creation.compose.state.InternalRemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.rf
@@ -359,6 +360,6 @@ internal class OverriddenScope(
     override val remoteDensity: RemoteDensity,
     override val layoutDirection: RemoteLayoutDirection,
     val node: RemoteComposeNode,
-) : RemoteStateScope {
+) : InternalRemoteStateScope {
     override fun resolveComponentToken(): RemoteComponentToken? = node.getOrCreateComponentToken()
 }

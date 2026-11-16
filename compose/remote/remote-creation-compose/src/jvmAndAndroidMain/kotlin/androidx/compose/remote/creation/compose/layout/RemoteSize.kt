@@ -40,7 +40,7 @@ public class RemoteSize(
      * @param offset The [RemoteOffset] to subtract from this size.
      * @return a [RemoteSize] reduced by [offset]
      */
-    public fun offsetSize(offset: RemoteOffset): RemoteSize {
+    public operator fun minus(offset: RemoteOffset): RemoteSize {
         return RemoteSize(width - offset.x, height - offset.y)
     }
 
@@ -51,6 +51,20 @@ public class RemoteSize(
     /** The offset to the center of this [RemoteSize]. */
     public val center: RemoteOffset
         get() = RemoteOffset(width / 2f, height / 2f)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RemoteSize) return false
+        return width == other.width && height == other.height
+    }
+
+    override fun hashCode(): Int {
+        var result = width.hashCode()
+        result = 31 * result + height.hashCode()
+        return result
+    }
+
+    override fun toString(): String = "RemoteSize(width=$width, height=$height)"
 
     public companion object {
         /** A [RemoteSize] with [width] and [height] set to 0. */

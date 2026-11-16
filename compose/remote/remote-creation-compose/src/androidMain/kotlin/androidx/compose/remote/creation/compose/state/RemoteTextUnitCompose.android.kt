@@ -27,7 +27,10 @@ import androidx.compose.ui.unit.sp
 /**
  * Creates a [RemoteTextUnit] from a [RemoteFloat] and a Compose [TextUnitType].
  *
+ * @param value The [RemoteFloat] value of the text unit.
+ * @param textUnitType The [TextUnitType] (only [TextUnitType.Sp] is supported).
  * @return a [RemoteTextUnit] with the given [value] and [textUnitType]
+ * @throws IllegalArgumentException if [textUnitType] is not [TextUnitType.Sp].
  */
 public fun RemoteTextUnit(
     value: RemoteFloat,

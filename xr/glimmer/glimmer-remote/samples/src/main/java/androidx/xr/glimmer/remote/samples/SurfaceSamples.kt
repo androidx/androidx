@@ -69,7 +69,7 @@ fun StaticSurfaceSample() {
 fun HostStateSurfaceSample() {
     // A named remote boolean can be updated by the host at runtime, for example when
     // the host moves focus to the element that is displayed by this document.
-    val focused = rememberNamedRemoteBoolean(name = "surfaceFocused", initialValue = false)
+    val focused = rememberNamedRemoteBoolean(name = "surfaceFocused", defaultValue = false)
     RemoteBox(modifier = RemoteModifier.surface(focused = focused)) {
         RemoteText(
             text = "This is a focusable surface".rs,

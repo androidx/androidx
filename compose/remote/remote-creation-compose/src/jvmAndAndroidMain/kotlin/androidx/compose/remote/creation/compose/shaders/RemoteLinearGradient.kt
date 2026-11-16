@@ -160,7 +160,7 @@ public fun RemoteBrush.Companion.horizontalGradient(
  * ```
  *
  * @param colorStops Colors and offsets to determine how the colors are dispersed throughout the
- *   vertical gradient
+ *   horizontal gradient
  * @param startX Starting x position of the horizontal gradient. Defaults to 0 which represents the
  *   left of the drawing area
  * @param endX Ending x position of the horizontal gradient. Defaults to [Float.POSITIVE_INFINITY]
@@ -237,7 +237,7 @@ public fun RemoteBrush.Companion.verticalGradient(
  * ```
  *
  * @param colorStops Colors and offsets to determine how the colors are dispersed throughout the
- *   vertical gradient
+ *   horizontal gradient
  * @param startY Starting y position of the vertical gradient. Defaults to 0 which represents the
  *   top of the drawing area
  * @param endY Ending y position of the vertical gradient. Defaults to [Float.POSITIVE_INFINITY]

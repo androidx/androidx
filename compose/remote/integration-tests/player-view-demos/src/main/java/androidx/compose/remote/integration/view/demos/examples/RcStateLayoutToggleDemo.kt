@@ -77,7 +77,7 @@ fun StateLayoutToggleDemo() {
                 ) {
                     RemoteBox(
                         modifier =
-                            RemoteModifier.animationSpec(100, true)
+                            RemoteModifier.animationSpec(animationId = 100)
                                 .size(50.rdp)
                                 .background(Color.Red.rc)
                     )
@@ -94,7 +94,7 @@ fun StateLayoutToggleDemo() {
                 ) {
                     RemoteBox(
                         modifier =
-                            RemoteModifier.animationSpec(100, true)
+                            RemoteModifier.animationSpec(animationId = 100)
                                 .size(50.rdp)
                                 .background(Color.Red.rc)
                     )

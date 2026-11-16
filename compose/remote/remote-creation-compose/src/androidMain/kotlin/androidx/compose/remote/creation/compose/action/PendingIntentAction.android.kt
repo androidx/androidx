@@ -33,6 +33,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.creationState
+import androidx.compose.remote.creation.compose.state.document
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.util.fastFilter
 import androidx.compose.remote.creation.compose.util.fastForEachIndexed
@@ -44,13 +45,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 
 /**
- * Creates an [RemoteAction] that sends a [PendingIntent], filling in [extras] when the action runs.
+ * Creates a [RemoteAction] that sends a [PendingIntent], filling in [extras] when the action runs.
  *
  * The [PendingIntent] is not serialized into the document. It is stored in
  * [androidx.compose.remote.creation.compose.capture.RemoteCapturedDocument.pendingIntents], keyed
  * by its index, and the host sends it when the action runs: the embedded player through
  * `PendingIntentActionHandler`, and `RemoteViews` hosts once it is registered with
- * `setOnClickPendingIntent(PendingIntentAction.FIRST_ACTION_ID + index, it)`.
+ * `setOnClickPendingIntent` using the action id associated with that index.
  *
  * [extras] are for values that are only known during playback, such as remote state. Each one is
  * added to the sent [android.content.Intent] as a [String] extra. Put constant values in the

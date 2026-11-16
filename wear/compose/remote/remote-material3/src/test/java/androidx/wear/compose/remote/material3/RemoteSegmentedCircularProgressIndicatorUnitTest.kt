@@ -17,7 +17,7 @@
 package androidx.wear.compose.remote.material3
 
 import android.content.Context
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.rb
@@ -119,7 +119,7 @@ class RemoteSegmentedCircularProgressIndicatorUnitTest {
         runBlocking {
             captureRule.captureDocument(
                 context = context,
-                creationDisplayInfo = createCreationDisplayInfo(context, Size(500f, 500f)),
+                creationDisplayInfo = createRemoteCreationDisplayInfo(context, Size(500f, 500f)),
                 content = content,
             )
         }

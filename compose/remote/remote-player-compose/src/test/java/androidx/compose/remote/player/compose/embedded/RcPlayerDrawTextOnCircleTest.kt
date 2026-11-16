@@ -26,6 +26,7 @@ import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
+import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.RemoteColor
@@ -123,8 +124,7 @@ class RcPlayerDrawTextOnCircleTest {
             RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
                 drawTextOnCircle(
                     text = RemoteString("WWWWW"),
-                    centerX = centerX(sizePx),
-                    centerY = centerY(sizePx),
+                    center = RemoteOffset(centerX(sizePx), centerY(sizePx)),
                     radius = radius(sizePx),
                     startAngle = 270f.rf,
                     warpRadiusOffset = 0f.rf,

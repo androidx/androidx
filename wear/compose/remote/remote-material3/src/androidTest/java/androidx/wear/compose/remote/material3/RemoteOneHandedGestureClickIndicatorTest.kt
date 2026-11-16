@@ -20,7 +20,7 @@ package androidx.wear.compose.remote.material3
 
 import android.content.Context
 import androidx.compose.remote.creation.compose.action.hostAction
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rb
@@ -65,9 +65,12 @@ class RemoteOneHandedGestureClickIndicatorTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     private val buttonCreationDisplayInfo =
-        createCreationDisplayInfo(context, Size(BUTTON_DISPLAY_SIZE_PX, BUTTON_DISPLAY_SIZE_PX))
+        createRemoteCreationDisplayInfo(
+            context,
+            Size(BUTTON_DISPLAY_SIZE_PX, BUTTON_DISPLAY_SIZE_PX),
+        )
     private val iconButtonCreationDisplayInfo =
-        createCreationDisplayInfo(
+        createRemoteCreationDisplayInfo(
             context,
             Size(ICON_BUTTON_DISPLAY_SIZE_PX, ICON_BUTTON_DISPLAY_SIZE_PX),
         )

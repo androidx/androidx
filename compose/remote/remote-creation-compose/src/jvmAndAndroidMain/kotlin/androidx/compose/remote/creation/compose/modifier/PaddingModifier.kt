@@ -19,9 +19,11 @@ package androidx.compose.remote.creation.compose.modifier
 import androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior
 import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
+import androidx.compose.remote.creation.compose.state.InternalRemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.compose.state.densityBehavior
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.modifiers.PaddingModifier as CreationPaddingModifier
@@ -65,18 +67,19 @@ internal class PaddingModifier(
         }
     }
 
-    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
-        val resolvedLeft = resolveLeft(this)
-        val resolvedTop = resolveTop(this)
-        val resolvedRight = resolveRight(this)
-        val resolvedBottom = resolveBottom(this)
-        return CreationPaddingModifier(
-            resolvedLeft.floatId,
-            resolvedTop.floatId,
-            resolvedRight.floatId,
-            resolvedBottom.floatId,
-        )
-    }
+    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element =
+        with(this as InternalRemoteStateScope) {
+            val resolvedLeft = resolveLeft(this)
+            val resolvedTop = resolveTop(this)
+            val resolvedRight = resolveRight(this)
+            val resolvedBottom = resolveBottom(this)
+            CreationPaddingModifier(
+                resolvedLeft.floatId,
+                resolvedTop.floatId,
+                resolvedRight.floatId,
+                resolvedBottom.floatId,
+            )
+        }
 }
 
 internal fun PaddingModifier.resolveStart(scope: RemoteStateScope): RemoteFloat =
@@ -160,9 +163,9 @@ public fun RemoteModifier.padding(
  */
 public fun RemoteModifier.padding(paddingValues: RemotePaddingValues): RemoteModifier =
     padding(
-        start = paddingValues.leftPadding,
+        start = paddingValues.startPadding,
         top = paddingValues.topPadding,
-        end = paddingValues.rightPadding,
+        end = paddingValues.endPadding,
         bottom = paddingValues.bottomPadding,
     )
 

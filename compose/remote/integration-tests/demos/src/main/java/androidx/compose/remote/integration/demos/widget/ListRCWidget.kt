@@ -25,7 +25,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.remote.creation.ExperimentalRemoteCreationApi
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
@@ -63,7 +63,7 @@ suspend fun record(context: Context, content: @RemoteComposable @Composable () -
     withContext(Dispatchers.Main) {
         captureSingleRemoteDocument(
                 context = context,
-                creationDisplayInfo = createCreationDisplayInfo(context),
+                creationDisplayInfo = createRemoteCreationDisplayInfo(context),
                 profile = RcPlatformProfiles.WIDGETS_V6,
                 content = content,
             )

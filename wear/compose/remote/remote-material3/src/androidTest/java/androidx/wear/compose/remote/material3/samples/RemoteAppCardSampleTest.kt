@@ -16,7 +16,7 @@
 
 package androidx.wear.compose.remote.material3.samples
 
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.ui.geometry.Size
 import androidx.test.core.app.ApplicationProvider
@@ -42,7 +42,10 @@ class RemoteAppCardSampleTest {
         )
 
     private val creationDisplayInfo =
-        createCreationDisplayInfo(ApplicationProvider.getApplicationContext(), Size(500f, 500f))
+        createRemoteCreationDisplayInfo(
+            ApplicationProvider.getApplicationContext(),
+            Size(500f, 500f),
+        )
 
     @Test
     fun RemoteAppCardSampleTest() {

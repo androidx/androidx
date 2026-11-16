@@ -20,7 +20,7 @@ import android.content.Context
 import androidx.annotation.Sampled
 import androidx.compose.remote.creation.compose.capture.captureRemoteDocument
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteText
@@ -39,7 +39,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Sampled
 suspend fun CaptureSingleRemoteDocumentSample(context: Context): ByteArray {
-    val displayInfo = createCreationDisplayInfo(context, Size(width = 400f, height = 200f))
+    val displayInfo = createRemoteCreationDisplayInfo(context, Size(width = 400f, height = 200f))
     val capturedDocument =
         captureSingleRemoteDocument(context = context, creationDisplayInfo = displayInfo) {
             RemoteBox(
@@ -58,7 +58,7 @@ suspend fun CaptureRemoteDocumentSample(
     titleFlow: Flow<String>,
     onDocumentUpdated: (ByteArray) -> Unit,
 ) {
-    val displayInfo = createCreationDisplayInfo(context, Size(width = 400f, height = 200f))
+    val displayInfo = createRemoteCreationDisplayInfo(context, Size(width = 400f, height = 200f))
     captureRemoteDocument(context = context, creationDisplayInfo = displayInfo) {
             val title by titleFlow.collectAsState(initial = "Loading...")
             RemoteBox(

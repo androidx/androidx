@@ -24,6 +24,7 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.runtime.Immutable
 import kotlin.math.min as kotlinMin
 
 /**
@@ -35,6 +36,7 @@ import kotlin.math.min as kotlinMin
  * @param bottomStart a size of the bottom start corner
  * @see RemoteRoundedCornerShape for an example of the usage.
  */
+@Immutable
 public abstract class RemoteCornerBasedShape(
     public val topStart: RemoteCornerSize,
     public val topEnd: RemoteCornerSize,

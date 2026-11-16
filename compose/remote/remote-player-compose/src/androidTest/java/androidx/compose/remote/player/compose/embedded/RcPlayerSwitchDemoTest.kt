@@ -18,7 +18,7 @@ package androidx.compose.remote.player.compose.embedded
 
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.creation.compose.action.valueChangeAction
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -85,7 +85,7 @@ class RcPlayerSwitchDemoTest {
         val heightPx = with(rule.density) { 240.dp.toPx() }
         rule.setRemoteContent(
             remoteCreationDisplayInfo =
-                createCreationDisplayInfo(
+                createRemoteCreationDisplayInfo(
                     context = ApplicationProvider.getApplicationContext(),
                     size = Size(widthPx, heightPx),
                 )
@@ -108,7 +108,7 @@ class RcPlayerSwitchDemoTest {
         val heightPx = with(rule.density) { 240.dp.toPx() }
         rule.setRemoteContent(
             remoteCreationDisplayInfo =
-                createCreationDisplayInfo(
+                createRemoteCreationDisplayInfo(
                     context = ApplicationProvider.getApplicationContext(),
                     size = Size(widthPx, heightPx),
                 )

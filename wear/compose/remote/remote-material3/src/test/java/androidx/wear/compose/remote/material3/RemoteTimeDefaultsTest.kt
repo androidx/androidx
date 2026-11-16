@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.remote.creation.compose.text
+package androidx.wear.compose.remote.material3
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -106,6 +106,7 @@ class RemoteTimeDefaultsTest {
             assertThat(result).isEqualTo("00:05")
         }
 
+    @Suppress("RestrictedApiAndroidX")
     private suspend fun evaluateDefaultTimeString(
         is24Hour: Boolean,
         isoInstant: String,
@@ -114,7 +115,9 @@ class RemoteTimeDefaultsTest {
         val captured =
             captureSingleRemoteDocument(appContext) {
                 val timeString: RemoteString =
-                    RemoteTimeDefaults.defaultTimeString(is24HourFormat = RemoteBoolean(is24Hour))
+                    RemoteTimeTextDefaults.defaultTimeString(
+                        is24HourFormat = RemoteBoolean(is24Hour)
+                    )
                 val creationState = LocalRemoteComposeCreationState.current
                 RemoteCanvas(RemoteModifier.fillMaxSize()) {
                     timeTextId = timeString.getIdForCreationState(creationState)

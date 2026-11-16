@@ -16,21 +16,47 @@
 
 package androidx.compose.remote.creation.compose.modifier
 
+import androidx.compose.remote.core.operations.layout.Component
+import androidx.compose.remote.creation.compose.state.InternalRemoteStateScope
+import androidx.compose.remote.creation.compose.state.RemoteEnum
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 
+/** Visibility states for a remote component. */
+public enum class RemoteVisibility(internal val value: Int) {
+    /** The component is visible and takes up space in the layout. */
+    Visible(Component.Visibility.VISIBLE),
+
+    /** The component is invisible, but still takes up space in the layout. */
+    Invisible(Component.Visibility.INVISIBLE),
+
+    /** The component is hidden and does not take up any space in the layout. */
+    Gone(Component.Visibility.GONE),
+}
+
 internal class VisibilityModifier(public val visible: RemoteInt) : RemoteModifier.Element {
-    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
-        return androidx.compose.remote.creation.modifiers.VisibilityModifier(visible.id)
-    }
+    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element =
+        with(this as InternalRemoteStateScope) {
+            androidx.compose.remote.creation.modifiers.VisibilityModifier(visible.id)
+        }
 }
 
 /**
  * Sets the visibility of the element.
  *
- * @param visible A [RemoteInt] indicating visibility (`Component.Visibility.VISIBLE`, `INVISIBLE`,
- *   or `GONE`).
+ * @param visible A [RemoteEnum] of [RemoteVisibility] indicating the visibility state.
+ * @return a [RemoteModifier] that sets visibility to [visible]
+ */
+public fun RemoteModifier.visibility(visible: RemoteEnum<RemoteVisibility>): RemoteModifier =
+    visibility(visible.toRemoteInt { it.value.ri })
+
+/**
+ * Sets the visibility of the element.
+ *
+ * @param visible A [RemoteInt] indicating visibility (e.g. [RemoteVisibility.Visible],
+ *   [RemoteVisibility.Invisible], or [RemoteVisibility.Gone]).
  * @return a [RemoteModifier] that sets visibility to [visible]
  */
 public fun RemoteModifier.visibility(visible: RemoteInt): RemoteModifier =

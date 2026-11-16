@@ -159,7 +159,7 @@ private fun HostStateSurfaceDemo() {
     val documentBytes: ByteArray? by rememberRemoteDocumentState {
         // TODO: b/574504841 - The animation doesn't work when flips from `true` to `false`.
         val remoteFocused =
-            rememberNamedRemoteBoolean(name = remoteBooleanName, initialValue = false)
+            rememberNamedRemoteBoolean(name = remoteBooleanName, defaultValue = false)
         RemoteColumn(
             verticalArrangement = RemoteArrangement.spacedBy(24.rdp),
             modifier = RemoteModifier.padding(2.rdp),

@@ -28,6 +28,7 @@ import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.remotePath
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.vector.RemotePathScope
+import androidx.compose.runtime.Immutable
 
 /**
  * Defines a simple shape, used for bounding graphical regions.
@@ -35,6 +36,7 @@ import androidx.compose.remote.creation.compose.vector.RemotePathScope
  * Can be used for defining a shape of the component background, a shape of shadows cast by the
  * component, or to clip the contents.
  */
+@Immutable
 public sealed class RemoteOutline {
 
     /**
@@ -43,8 +45,23 @@ public sealed class RemoteOutline {
      * @param topLeft The top-left offset of the rectangle.
      * @param size The dimensions of the rectangle.
      */
+    @Immutable
     public class Rectangle(public val topLeft: RemoteOffset, public val size: RemoteSize) :
-        RemoteOutline()
+        RemoteOutline() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Rectangle) return false
+            return topLeft == other.topLeft && size == other.size
+        }
+
+        override fun hashCode(): Int {
+            var result = topLeft.hashCode()
+            result = 31 * result + size.hashCode()
+            return result
+        }
+
+        override fun toString(): String = "RemoteOutline.Rectangle(topLeft=$topLeft, size=$size)"
+    }
 
     /**
      * Rectangular area with rounded corners.
@@ -53,23 +70,51 @@ public sealed class RemoteOutline {
      * @param topEnd the resolved corner radius of the top end corner
      * @param bottomEnd the resolved corner radius of the bottom end corner
      * @param bottomStart the resolved corner radius of the bottom start corner
-     * @param offset the top-left offset of the rounded rectangle bounding box (e.g. `(0, 0)` for a
+     * @param topLeft the top-left offset of the rounded rectangle bounding box (e.g. `(0, 0)` for a
      *   solid background fill, or `(halfStroke, halfStroke)` to center a stroked border within the
      *   component bounds)
      * @param size the dimensions (width and height) of the rounded rectangle (e.g. `(width -
-     *   strokeWidth, height - strokeWidth)` for an inset stroked border). If null, defaults to the
-     *   full canvas width and height.
+     *   strokeWidth, height - strokeWidth)` for an inset stroked border). If null, defaults to full
+     *   canvas width and height.
      */
+    @Immutable
     public class Rounded(
         public val topStart: RemoteFloat,
         public val topEnd: RemoteFloat,
         public val bottomEnd: RemoteFloat,
         public val bottomStart: RemoteFloat,
-        public val offset: RemoteOffset = RemoteOffset.Zero,
+        public val topLeft: RemoteOffset = RemoteOffset.Zero,
         public val size: RemoteSize? = null,
-    ) : RemoteOutline()
+    ) : RemoteOutline() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Rounded) return false
+            if (topStart != other.topStart) return false
+            if (topEnd != other.topEnd) return false
+            if (bottomEnd != other.bottomEnd) return false
+            if (bottomStart != other.bottomStart) return false
+            if (topLeft != other.topLeft) return false
+            if (size != other.size) return false
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = topStart.hashCode()
+            result = 31 * result + topEnd.hashCode()
+            result = 31 * result + bottomEnd.hashCode()
+            result = 31 * result + bottomStart.hashCode()
+            result = 31 * result + topLeft.hashCode()
+            result = 31 * result + (size?.hashCode() ?: 0)
+            return result
+        }
+
+        override fun toString(): String {
+            return "RemoteOutline.Rounded(topStart=$topStart, topEnd=$topEnd, bottomEnd=$bottomEnd, bottomStart=$bottomStart, topLeft=$topLeft, size=$size)"
+        }
+    }
 
     /** An area defined as a path. */
+    @Immutable
     public class Generic : RemoteOutline {
         internal val path: RemotePath?
         internal val block: (RemotePathScope.() -> Unit)?
@@ -88,6 +133,20 @@ public sealed class RemoteOutline {
             this.path = null
             this.block = block
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Generic) return false
+            return path == other.path && block === other.block
+        }
+
+        override fun hashCode(): Int {
+            var result = path?.hashCode() ?: 0
+            result = 31 * result + (block?.hashCode() ?: 0)
+            return result
+        }
+
+        override fun toString(): String = "RemoteOutline.Generic(path=$path, block=$block)"
     }
 
     private object NonExhaustive : RemoteOutline()
@@ -199,8 +258,8 @@ private fun RemoteDrawScope.resolveRoundedCorners(outline: RemoteOutline.Rounded
     // and dimensions `size`. When drawing a centered stroke of width S, `offset` is
     // (S/2, S/2) and `size` is (W - S, H - S), yielding bounds [S/2, S/2, W - S/2, H -
     // S/2].
-    val left = outline.offset.x
-    val top = outline.offset.y
+    val left = outline.topLeft.x
+    val top = outline.topLeft.y
     val right = left + (outline.size?.width ?: width)
     val bottom = top + (outline.size?.height ?: height)
 

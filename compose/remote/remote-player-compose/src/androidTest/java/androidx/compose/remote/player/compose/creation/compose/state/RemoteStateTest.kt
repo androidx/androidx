@@ -19,7 +19,7 @@ package androidx.compose.remote.player.compose.creation.compose.state
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.layout.remoteComponent
@@ -70,7 +70,7 @@ class RemoteStateTest {
 
         composeTestRule.setContent(
             remoteCreationDisplayInfo =
-                createCreationDisplayInfo(ApplicationProvider.getApplicationContext())
+                createRemoteCreationDisplayInfo(ApplicationProvider.getApplicationContext())
         ) {
             RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
                 val creationState = LocalRemoteComposeCreationState.current
@@ -115,7 +115,7 @@ class RemoteStateTest {
 
         composeTestRule.setContent(
             remoteCreationDisplayInfo =
-                createCreationDisplayInfo(ApplicationProvider.getApplicationContext())
+                createRemoteCreationDisplayInfo(ApplicationProvider.getApplicationContext())
         ) {
             RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
                 val valString = "Hello".rs

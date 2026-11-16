@@ -20,7 +20,7 @@ import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.path
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
@@ -90,7 +90,7 @@ class RcPlayerVectorBrushScreenshotTest {
                 .build()
 
         remoteComposeTestRule.runScreenshotTest(
-            remoteCreationDisplayInfo = createCreationDisplayInfo(context, Size(96f, 96f)),
+            remoteCreationDisplayInfo = createRemoteCreationDisplayInfo(context, Size(96f, 96f)),
             playComposableWrapper = whiteBackground,
         ) {
             RemoteBox(RemoteModifier.fillMaxSize()) {

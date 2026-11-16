@@ -17,6 +17,7 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import kotlin.jvm.JvmInline
 
 /** Rule used to determine how the interior of a path is calculated. */
@@ -32,9 +33,9 @@ public value class RemotePathFillType internal constructor(internal val value: I
 
     public companion object {
         /** The interior is defined by a non-zero sum of signed edge crossings. */
-        public val NonZero: RemotePathFillType = RemotePathFillType(0)
+        @Stable public val NonZero: RemotePathFillType = RemotePathFillType(0)
 
         /** The interior is defined by an odd number of edge crossings. */
-        public val EvenOdd: RemotePathFillType = RemotePathFillType(1)
+        @Stable public val EvenOdd: RemotePathFillType = RemotePathFillType(1)
     }
 }

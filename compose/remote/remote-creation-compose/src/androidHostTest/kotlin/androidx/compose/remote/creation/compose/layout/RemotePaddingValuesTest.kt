@@ -49,16 +49,16 @@ class RemotePaddingValuesTest {
     @Test
     fun init_negativeConstantValue_throwsIllegalArgumentException() {
         val exception = assertFailsWith<IllegalArgumentException> { RemotePaddingValues((-10).rdp) }
-        assertThat(exception).hasMessageThat().contains("Left padding must be non negative")
+        assertThat(exception).hasMessageThat().contains("Start padding must be non negative")
     }
 
     @Test
-    fun init_negativeLeftPadding_throwsIllegalArgumentException() {
+    fun init_negativeStartPadding_throwsIllegalArgumentException() {
         val exception =
             assertFailsWith<IllegalArgumentException> {
                 RemotePaddingValues((-10).rdp, 10.rdp, 10.rdp, 10.rdp)
             }
-        assertThat(exception).hasMessageThat().contains("Left padding must be non negative")
+        assertThat(exception).hasMessageThat().contains("Start padding must be non negative")
     }
 
     @Test
@@ -71,12 +71,12 @@ class RemotePaddingValuesTest {
     }
 
     @Test
-    fun init_negativeRightPadding_throwsIllegalArgumentException() {
+    fun init_negativeEndPadding_throwsIllegalArgumentException() {
         val exception =
             assertFailsWith<IllegalArgumentException> {
                 RemotePaddingValues(10.rdp, 10.rdp, (-10).rdp, 10.rdp)
             }
-        assertThat(exception).hasMessageThat().contains("Right padding must be non negative")
+        assertThat(exception).hasMessageThat().contains("End padding must be non negative")
     }
 
     @Test
@@ -92,23 +92,23 @@ class RemotePaddingValuesTest {
     fun init_singleArgument() {
         val all = 10.rdp
         val remotePaddingValues = RemotePaddingValues(all)
-        assertThat(remotePaddingValues.rightPadding).isEqualTo(all)
+        assertThat(remotePaddingValues.endPadding).isEqualTo(all)
         assertThat(remotePaddingValues.topPadding).isEqualTo(all)
         assertThat(remotePaddingValues.bottomPadding).isEqualTo(all)
-        assertThat(remotePaddingValues.leftPadding).isEqualTo(all)
+        assertThat(remotePaddingValues.startPadding).isEqualTo(all)
     }
 
     @Test
     fun init_multipleArguments() {
-        val left = 1.rdp
+        val start = 1.rdp
         val top = 2.rdp
-        val right = 3.rdp
+        val end = 3.rdp
         val bottom = 4.rdp
-        val remotePaddingValues = RemotePaddingValues(left, top, right, bottom)
-        assertThat(remotePaddingValues.rightPadding).isEqualTo(right)
+        val remotePaddingValues = RemotePaddingValues(start, top, end, bottom)
+        assertThat(remotePaddingValues.endPadding).isEqualTo(end)
         assertThat(remotePaddingValues.topPadding).isEqualTo(top)
         assertThat(remotePaddingValues.bottomPadding).isEqualTo(bottom)
-        assertThat(remotePaddingValues.leftPadding).isEqualTo(left)
+        assertThat(remotePaddingValues.startPadding).isEqualTo(start)
     }
 
     @Test
@@ -116,8 +116,8 @@ class RemotePaddingValuesTest {
         val horizontal = 10.rdp
         val vertical = 20.rdp
         val remotePaddingValues = RemotePaddingValues(horizontal, vertical)
-        assertThat(remotePaddingValues.rightPadding).isEqualTo(horizontal)
-        assertThat(remotePaddingValues.leftPadding).isEqualTo(horizontal)
+        assertThat(remotePaddingValues.endPadding).isEqualTo(horizontal)
+        assertThat(remotePaddingValues.startPadding).isEqualTo(horizontal)
         assertThat(remotePaddingValues.topPadding).isEqualTo(vertical)
         assertThat(remotePaddingValues.bottomPadding).isEqualTo(vertical)
     }

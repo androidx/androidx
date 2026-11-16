@@ -21,7 +21,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.heightDp
 import androidx.compose.remote.creation.compose.capture.widthDp
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -91,7 +91,7 @@ class RcPlayerTestRule(val baseRule: RemoteBaseContentTestRule = RemoteBaseConte
             },
         onAction: (actionId: Int, value: String?) -> Unit = { _, _ -> },
         remoteCreationDisplayInfo: RemoteCreationDisplayInfo =
-            createCreationDisplayInfo(
+            createRemoteCreationDisplayInfo(
                 context = ApplicationProvider.getApplicationContext(),
                 size =
                     run {

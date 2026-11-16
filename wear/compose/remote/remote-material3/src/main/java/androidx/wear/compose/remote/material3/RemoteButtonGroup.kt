@@ -324,8 +324,8 @@ private class RemoteButtonGroupScopeImpl(
         val sharedWidth =
             max(
                 ((rowWidth / RemoteDensity.Host.density).asRemoteDp() -
-                    contentPadding.leftPadding -
-                    contentPadding.rightPadding -
+                    contentPadding.startPadding -
+                    contentPadding.endPadding -
                     spacing * (items.size - 1)) / 1.rdp,
                 0f.rf,
             )

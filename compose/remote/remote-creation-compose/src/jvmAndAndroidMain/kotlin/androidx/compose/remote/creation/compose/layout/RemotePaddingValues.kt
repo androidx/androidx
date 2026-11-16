@@ -22,43 +22,48 @@ import androidx.compose.runtime.Immutable
 /**
  * Describes a padding to be applied along the edges inside a box. Use the various
  * [RemotePaddingValues] constructors for convenient ways to build instances.
+ *
+ * @param startPadding Padding at the start edge.
+ * @param topPadding Padding at the top edge.
+ * @param endPadding Padding at the end edge.
+ * @param bottomPadding Padding at the bottom edge.
  */
 @Immutable
 public class RemotePaddingValues(
-    public val leftPadding: RemoteDp = 0.rdp,
+    public val startPadding: RemoteDp = 0.rdp,
     public val topPadding: RemoteDp = 0.rdp,
-    public val rightPadding: RemoteDp = 0.rdp,
+    public val endPadding: RemoteDp = 0.rdp,
     public val bottomPadding: RemoteDp = 0.rdp,
 ) {
 
     /** Creates a padding of [all] RemoteDp along all 4 edges. */
     public constructor(
         all: RemoteDp
-    ) : this(leftPadding = all, topPadding = all, rightPadding = all, bottomPadding = all)
+    ) : this(startPadding = all, topPadding = all, endPadding = all, bottomPadding = all)
 
     /**
-     * Creates a padding of [horizontal] RemoteDp along the left and right edges, and of [vertical]
+     * Creates a padding of [horizontal] RemoteDp along the start and end edges, and of [vertical]
      * RemoteDp along the top and bottom edges.
      */
     public constructor(
         horizontal: RemoteDp = 0.rdp,
         vertical: RemoteDp = 0.rdp,
     ) : this(
-        leftPadding = horizontal,
+        startPadding = horizontal,
         topPadding = vertical,
-        rightPadding = horizontal,
+        endPadding = horizontal,
         bottomPadding = vertical,
     )
 
     init {
-        leftPadding.value.constantValueOrNull?.let {
-            require(it >= 0f) { "Left padding must be non negative" }
+        startPadding.value.constantValueOrNull?.let {
+            require(it >= 0f) { "Start padding must be non negative" }
         }
         topPadding.value.constantValueOrNull?.let {
             require(it >= 0f) { "Top padding must be non negative" }
         }
-        rightPadding.value.constantValueOrNull?.let {
-            require(it >= 0f) { "Right padding must be non negative" }
+        endPadding.value.constantValueOrNull?.let {
+            require(it >= 0f) { "End padding must be non negative" }
         }
         bottomPadding.value.constantValueOrNull?.let {
             require(it >= 0f) { "Bottom padding must be non negative" }
@@ -70,29 +75,28 @@ public class RemotePaddingValues(
 
         // If any of the values is an expression, the paddings are not considered equals.
         if (
-            !leftPadding.value.hasConstantValue ||
+            !startPadding.value.hasConstantValue ||
                 !topPadding.value.hasConstantValue ||
-                !rightPadding.value.hasConstantValue ||
+                !endPadding.value.hasConstantValue ||
                 !bottomPadding.value.hasConstantValue ||
-                !other.leftPadding.value.hasConstantValue ||
+                !other.startPadding.value.hasConstantValue ||
                 !other.topPadding.value.hasConstantValue ||
-                !other.rightPadding.value.hasConstantValue ||
+                !other.endPadding.value.hasConstantValue ||
                 !other.bottomPadding.value.hasConstantValue
         ) {
             return false
         }
-        return leftPadding.value.constantValueOrNull ==
-            other.leftPadding.value.constantValueOrNull &&
+        return startPadding.value.constantValueOrNull ==
+            other.startPadding.value.constantValueOrNull &&
             topPadding.value.constantValueOrNull == other.topPadding.value.constantValueOrNull &&
-            rightPadding.value.constantValueOrNull ==
-                other.rightPadding.value.constantValueOrNull &&
+            endPadding.value.constantValueOrNull == other.endPadding.value.constantValueOrNull &&
             bottomPadding.value.constantValueOrNull == other.bottomPadding.value.constantValueOrNull
     }
 
     override fun hashCode(): Int =
-        ((leftPadding.hashCode() * 31 + topPadding.hashCode()) * 31 + rightPadding.hashCode()) *
-            31 + bottomPadding.hashCode()
+        ((startPadding.hashCode() * 31 + topPadding.hashCode()) * 31 + endPadding.hashCode()) * 31 +
+            bottomPadding.hashCode()
 
     override fun toString(): String =
-        "RemotePaddingValues(left=$leftPadding, top=$topPadding, right=$rightPadding, bottom=$bottomPadding)"
+        "RemotePaddingValues(start=$startPadding, top=$topPadding, end=$endPadding, bottom=$bottomPadding)"
 }

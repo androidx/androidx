@@ -23,13 +23,11 @@ import org.junit.Test
 class RemoteTypefaceTest {
 
     @Test
-    fun create_withNullFontName_returnsNamedWithDefault() {
-        val remote = create(null, RemoteTypeface.Style.Normal)
-        assertThat(remote).isInstanceOf(RemoteTypeface.Named::class.java)
-        remote as RemoteTypeface.Named
-        assertThat(remote.name).isEqualTo("default")
-        assertThat(remote.weight).isEqualTo(400)
-        assertThat(remote.isItalic).isFalse()
+    fun create_withNullFontName_returnsDefaultTypeface() {
+        assertThat(create(null, RemoteTypeface.Style.Normal))
+            .isSameInstanceAs(RemoteTypeface.Default)
+        assertThat(create(null, RemoteTypeface.Style.Bold))
+            .isSameInstanceAs(RemoteTypeface.DefaultBold)
     }
 
     @Test

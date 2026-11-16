@@ -24,7 +24,7 @@ import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.layout.RemoteComponentToken
 import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
-import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.compose.state.InternalRemoteStateScope
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.ProvidableCompositionLocal
@@ -32,7 +32,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.mutableLongStateOf
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public open class RemoteComposeCaptureState : RemoteComposeCreationState, RemoteStateScope {
+public open class RemoteComposeCaptureState : RemoteComposeCreationState, InternalRemoteStateScope {
 
     override val parentScope: RemoteComposeCaptureState
         get() = this

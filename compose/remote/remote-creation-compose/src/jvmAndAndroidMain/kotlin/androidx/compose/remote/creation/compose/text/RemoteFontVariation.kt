@@ -77,6 +77,8 @@ public object RemoteFontVariation {
 
         /**
          * Creates [Settings] from the given [settings], which must be unique by [Setting.axisName].
+         *
+         * @param settings The settings to apply, which must be unique by [Setting.axisName].
          */
         public constructor(vararg settings: Setting) : this(settings.asList())
 

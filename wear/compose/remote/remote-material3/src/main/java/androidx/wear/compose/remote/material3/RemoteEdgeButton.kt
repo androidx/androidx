@@ -482,9 +482,9 @@ public object RemoteEdgeButtonDefaults {
     /** The default content padding used by [RemoteEdgeButton]. */
     public val ContentPadding: RemotePaddingValues =
         RemotePaddingValues(
-            leftPadding = HorizontalContentPadding,
+            startPadding = HorizontalContentPadding,
             topPadding = TopContentPadding,
-            rightPadding = HorizontalContentPadding,
+            endPadding = HorizontalContentPadding,
             bottomPadding = BottomContentPadding,
         )
 }

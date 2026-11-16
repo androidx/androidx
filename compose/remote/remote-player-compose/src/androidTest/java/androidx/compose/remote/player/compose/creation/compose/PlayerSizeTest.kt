@@ -24,7 +24,7 @@ import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -161,7 +161,8 @@ class PlayerSizeTest {
 
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
         composeTestRule.runScreenshotTest(
-            remoteCreationDisplayInfo = createCreationDisplayInfo(context, Size(1050f, 1050f)),
+            remoteCreationDisplayInfo =
+                createRemoteCreationDisplayInfo(context, Size(1050f, 1050f)),
             profile = profileFeaturePaintMeasureDisabled,
             playComposableWrapper = Scenario.playComposableWrapper,
             composable = Scenario.content,
@@ -187,7 +188,8 @@ class PlayerSizeTest {
 
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
         composeTestRule.runScreenshotTest(
-            remoteCreationDisplayInfo = createCreationDisplayInfo(context, Size(1050f, 1050f)),
+            remoteCreationDisplayInfo =
+                createRemoteCreationDisplayInfo(context, Size(1050f, 1050f)),
             profile = profileFeaturePaintMeasureDisabled,
             playComposableWrapper = Scenario.playComposableWrapper,
             composable = Scenario.content,

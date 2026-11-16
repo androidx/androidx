@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.modifier
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.painter.RemotePainter
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
+import androidx.compose.remote.creation.compose.state.InternalRemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
@@ -27,18 +28,19 @@ import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.SolidBackgroundModifier
 
 internal data class BackgroundModifier(val color: RemoteColor) : RemoteModifier.Element {
-    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
-        return if (color.hasConstantValue) {
-            SolidBackgroundModifier(
-                color.red.floatId,
-                color.green.floatId,
-                color.blue.floatId,
-                color.alpha.floatId,
-            )
-        } else {
-            DynamicSolidBackgroundModifier(color.id)
+    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element =
+        with(this as InternalRemoteStateScope) {
+            if (color.hasConstantValue) {
+                SolidBackgroundModifier(
+                    color.red.floatId,
+                    color.green.floatId,
+                    color.blue.floatId,
+                    color.alpha.floatId,
+                )
+            } else {
+                DynamicSolidBackgroundModifier(color.id)
+            }
         }
-    }
 }
 
 /**

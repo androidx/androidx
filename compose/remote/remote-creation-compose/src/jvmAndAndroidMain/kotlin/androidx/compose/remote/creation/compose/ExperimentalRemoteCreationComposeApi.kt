@@ -24,5 +24,6 @@ package androidx.compose.remote.creation.compose
     AnnotationTarget.FUNCTION,
     AnnotationTarget.CONSTRUCTOR,
     AnnotationTarget.FIELD,
+    AnnotationTarget.PROPERTY,
 )
 public annotation class ExperimentalRemoteCreationComposeApi

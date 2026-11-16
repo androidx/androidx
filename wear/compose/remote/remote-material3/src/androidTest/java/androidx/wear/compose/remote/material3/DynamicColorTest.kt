@@ -18,7 +18,7 @@ package androidx.wear.compose.remote.material3
 
 import androidx.collection.buildObjectIntMap
 import androidx.compose.foundation.background
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -56,7 +56,10 @@ class DynamicColorTest {
             matcher = MSSIMMatcher(threshold = 0.999),
         )
     private val creationDisplayInfo =
-        createCreationDisplayInfo(ApplicationProvider.getApplicationContext(), Size(800f, 2000f))
+        createRemoteCreationDisplayInfo(
+            ApplicationProvider.getApplicationContext(),
+            Size(800f, 2000f),
+        )
 
     @Test
     fun dynamic_color_grid() {

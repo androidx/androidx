@@ -79,7 +79,7 @@ fun TestDrawContentDemo() {
                     .border(1.rdp, Color.Companion.Blue.rc)
                     .drawWithContent {
                         drawContent()
-                        val paint = RemotePaint.Companion()
+                        val paint = RemotePaint()
                         paint.color = RemoteColor.rgb(1f.rf, 1f.rf, 0f.rf, 1f.rf)
                         drawCircle(paint, 40.rf, center)
                         rotate(30f.rf) { scale(0.5f.rf) { this@drawWithContent.drawContent() } }

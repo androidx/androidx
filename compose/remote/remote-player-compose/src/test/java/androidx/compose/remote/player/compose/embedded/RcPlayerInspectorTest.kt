@@ -35,7 +35,7 @@ import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.LoopOperation
 import androidx.compose.remote.core.operations.layout.managers.CanvasLayout
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -152,7 +152,7 @@ class RcPlayerInspectorTest {
         isDebugInspectorInfoEnabled = false
         rule.setRemoteContent(
             remoteCreationDisplayInfo =
-                createCreationDisplayInfo(
+                createRemoteCreationDisplayInfo(
                     context = ApplicationProvider.getApplicationContext(),
                     size = Size(200f, 200f),
                 )
@@ -172,7 +172,7 @@ class RcPlayerInspectorTest {
                 captureSingleRemoteDocument(
                         context = ApplicationProvider.getApplicationContext(),
                         creationDisplayInfo =
-                            createCreationDisplayInfo(
+                            createRemoteCreationDisplayInfo(
                                 context = ApplicationProvider.getApplicationContext(),
                                 size = Size(200f, 200f),
                             ),

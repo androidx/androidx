@@ -32,7 +32,7 @@ import androidx.compose.runtime.remember
 /** Scope for the children of [RemoteCollapsibleRow]. */
 @RemoteLayoutScopeMarker
 @Immutable
-public class RemoteCollapsibleRowScope {
+public class RemoteCollapsibleRowScope internal constructor() {
     /**
      * Sets the horizontal weight of the child.
      *

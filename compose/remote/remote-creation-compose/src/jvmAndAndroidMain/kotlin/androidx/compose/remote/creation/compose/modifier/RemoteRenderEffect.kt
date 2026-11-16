@@ -15,7 +15,10 @@
  */
 package androidx.compose.remote.creation.compose.modifier
 
+import androidx.compose.runtime.Immutable
+
 /** Visual effect applied to a [graphicsLayer], such as blur. */
+@Immutable
 public sealed class RemoteRenderEffect {
     private object NonExhaustive : RemoteRenderEffect()
 }

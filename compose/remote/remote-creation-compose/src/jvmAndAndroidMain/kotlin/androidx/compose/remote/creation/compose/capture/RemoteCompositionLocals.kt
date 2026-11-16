@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.compose.capture
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
+import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 
@@ -41,6 +42,8 @@ internal val LocalFontWeightAdjustment: ProvidableCompositionLocal<Int> = static
 }
 
 /** Composition local for 24-hour time format setting. */
-internal val LocalIs24HourFormat: ProvidableCompositionLocal<Boolean> = staticCompositionLocalOf {
-    false
-}
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public val LocalIs24HourFormat: ProvidableCompositionLocal<RemoteBoolean> =
+    staticCompositionLocalOf {
+        RemoteBoolean(false)
+    }

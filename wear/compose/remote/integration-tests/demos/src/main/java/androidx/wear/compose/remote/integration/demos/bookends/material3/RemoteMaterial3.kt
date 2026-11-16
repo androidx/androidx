@@ -22,6 +22,7 @@ import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteCustomComponent
 import androidx.compose.remote.creation.compose.layout.RemoteImage
+import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteRowScope
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
@@ -37,9 +38,7 @@ import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.text.RemoteTextAlign
-import androidx.compose.remote.creation.compose.text.RemoteTimeDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.wear.compose.remote.integration.demos.bookends.BookendsSpec
 import androidx.wear.compose.remote.integration.demos.bookends.BookendsSpec.toWire
 import androidx.wear.compose.remote.material3.LocalRemoteTextConfiguration
@@ -47,6 +46,7 @@ import androidx.wear.compose.remote.material3.RemoteButton as RemoteMaterial3But
 import androidx.wear.compose.remote.material3.RemoteSwitchButton as RemoteMaterial3SwitchButton
 import androidx.wear.compose.remote.material3.RemoteText as RemoteMaterial3Text
 import androidx.wear.compose.remote.material3.RemoteTimeText as RemoteMaterial3TimeText
+import androidx.wear.compose.remote.material3.RemoteTimeTextDefaults
 
 /*
  * The creation-side bookend: an API shaped like `androidx.wear.compose.remote.material3` (and
@@ -134,7 +134,7 @@ fun RemoteTimeText(modifier: RemoteModifier = RemoteModifier, time: RemoteString
     if (LocalBookendsImplementation.current == BookendsImplementation.RemoteMaterial3) {
         RemoteMaterial3TimeText(
             modifier = modifier,
-            time = time ?: RemoteTimeDefaults.defaultTimeString(),
+            time = time ?: RemoteTimeTextDefaults.defaultTimeString(),
         )
         return
     }
@@ -235,15 +235,16 @@ fun RemoteButton(
         )
         return
     }
-    val rowScope = remember { RemoteRowScope() }
     // The click is dispatched from the native Material3 Button on the host, so no ripple or
     // semantics role is added here.
     RemoteCustomComponent(
         name = BookendsSpec.BUTTON,
         modifier = modifier.clickable(onClick, role = null),
         content = {
-            RemoteSlot(BookendsSpec.SLOT_LABEL) { rowScope.label() }
-            secondaryLabel?.let { RemoteSlot(BookendsSpec.SLOT_SECONDARY_LABEL) { rowScope.it() } }
+            RemoteSlot(BookendsSpec.SLOT_LABEL) { RemoteRow(content = label) }
+            secondaryLabel?.let {
+                RemoteSlot(BookendsSpec.SLOT_SECONDARY_LABEL) { RemoteRow(content = it) }
+            }
             icon?.let { RemoteSlot(BookendsSpec.SLOT_ICON, it) }
         },
         properties = { property(BookendsSpec.PROP_ENABLED, enabled) },
@@ -285,15 +286,16 @@ fun RemoteSwitchButton(
         )
         return
     }
-    val rowScope = remember { RemoteRowScope() }
     // The click is dispatched from the native Material3 SwitchButton on the host, so no ripple or
     // semantics role is added here.
     RemoteCustomComponent(
         name = BookendsSpec.SWITCH_BUTTON,
         modifier = modifier.clickable(onCheckedChange, role = null),
         content = {
-            RemoteSlot(BookendsSpec.SLOT_LABEL) { rowScope.label() }
-            secondaryLabel?.let { RemoteSlot(BookendsSpec.SLOT_SECONDARY_LABEL) { rowScope.it() } }
+            RemoteSlot(BookendsSpec.SLOT_LABEL) { RemoteRow(content = label) }
+            secondaryLabel?.let {
+                RemoteSlot(BookendsSpec.SLOT_SECONDARY_LABEL) { RemoteRow(content = it) }
+            }
             icon?.let { RemoteSlot(BookendsSpec.SLOT_ICON, it) }
         },
         properties = {

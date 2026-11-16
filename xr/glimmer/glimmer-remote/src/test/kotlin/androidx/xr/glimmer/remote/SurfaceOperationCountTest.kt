@@ -20,7 +20,7 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.creation.compose.capture.RemoteCapturedDocument
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
@@ -63,7 +63,7 @@ class SurfaceOperationCountTest {
 
     private val context: Context = ApplicationProvider.getApplicationContext()
 
-    private val displayInfo = createCreationDisplayInfo(context, Size(500f, 500f))
+    private val displayInfo = createRemoteCreationDisplayInfo(context, Size(500f, 500f))
 
     @Test
     fun enabled() = runTest {

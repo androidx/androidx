@@ -22,7 +22,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteClock
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.heightDp
 import androidx.compose.remote.creation.compose.capture.widthDp
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -78,7 +78,7 @@ class DocumentPainterRule(val canvasSize: Float = DefaultCanvasSize) : TestRule 
         clock: RemoteClock = RemoteClock.SYSTEM,
         content: @Composable @RemoteComposable () -> Unit,
     ): DocumentPainter {
-        val displayInfo = createCreationDisplayInfo(context, Size(canvasSize, canvasSize))
+        val displayInfo = createRemoteCreationDisplayInfo(context, Size(canvasSize, canvasSize))
         val document = runBlocking {
             captureRule.captureDocument(
                 context = context,
@@ -121,7 +121,7 @@ class DocumentPainterRule(val canvasSize: Float = DefaultCanvasSize) : TestRule 
             captureRule.captureDocument(
                 context = context,
                 creationDisplayInfo =
-                    createCreationDisplayInfo(context, Size(canvasSize, canvasSize)),
+                    createRemoteCreationDisplayInfo(context, Size(canvasSize, canvasSize)),
                 content = content,
             )
         }

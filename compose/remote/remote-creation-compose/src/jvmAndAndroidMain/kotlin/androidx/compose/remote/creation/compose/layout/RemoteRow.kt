@@ -29,7 +29,7 @@ import androidx.compose.runtime.remember
 /** Receiver scope used by [RemoteRow] for its content. */
 @RemoteLayoutScopeMarker
 @Immutable
-public class RemoteRowScope {
+public class RemoteRowScope internal constructor() {
     /**
      * Sets the horizontal weight of this element relative to its siblings in the [RemoteRow].
      *

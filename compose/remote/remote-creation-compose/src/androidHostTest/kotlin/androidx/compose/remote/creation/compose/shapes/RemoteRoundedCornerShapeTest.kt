@@ -158,8 +158,8 @@ class RemoteRoundedCornerShapeTest {
 
         assertTrue(outline is RemoteOutline.Rounded)
         val rounded = outline as RemoteOutline.Rounded
-        assertEquals(5f, rounded.offset.x.constantValue)
-        assertEquals(5f, rounded.offset.y.constantValue)
+        assertEquals(5f, rounded.topLeft.x.constantValue)
+        assertEquals(5f, rounded.topLeft.y.constantValue)
         assertEquals(90f, rounded.size?.width?.constantValue)
         assertEquals(40f, rounded.size?.height?.constantValue)
         assertEquals(15f, rounded.topStart.constantValue)
@@ -176,7 +176,7 @@ class RemoteRoundedCornerShapeTest {
                 topEnd = 10f.rf,
                 bottomEnd = 10f.rf,
                 bottomStart = 10f.rf,
-                offset = RemoteOffset(10f.rf, 20f.rf),
+                topLeft = RemoteOffset(10f.rf, 20f.rf),
                 size = null,
             )
 
@@ -205,7 +205,7 @@ class RemoteRoundedCornerShapeTest {
                 topEnd = 10f.rf,
                 bottomEnd = 10f.rf,
                 bottomStart = 10f.rf,
-                offset = RemoteOffset.Zero,
+                topLeft = RemoteOffset.Zero,
                 size = null,
             )
 
@@ -232,7 +232,7 @@ class RemoteRoundedCornerShapeTest {
                 topEnd = 10f.rf,
                 bottomEnd = 10f.rf,
                 bottomStart = 10f.rf,
-                offset = RemoteOffset(5f.rf, 5f.rf),
+                topLeft = RemoteOffset(5f.rf, 5f.rf),
                 size = RemoteSize(90f.rf, 40f.rf),
             )
 

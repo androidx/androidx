@@ -39,7 +39,7 @@ import androidx.compose.remote.core.RcProfiles.PROFILE_ANDROIDX
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior
 import androidx.compose.remote.creation.compose.capture.captureRemoteDocument
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
@@ -89,7 +89,7 @@ internal fun remoteDocumentFlow(
     return captureRemoteDocument(
         context = context,
         creationDisplayInfo =
-            createCreationDisplayInfo(
+            createRemoteCreationDisplayInfo(
                 context = context,
                 densityBehavior = RemoteDensityBehavior.Dp,
             ),

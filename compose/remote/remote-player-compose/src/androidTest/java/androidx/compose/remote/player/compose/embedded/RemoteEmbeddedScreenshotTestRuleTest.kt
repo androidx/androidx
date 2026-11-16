@@ -18,7 +18,7 @@ package androidx.compose.remote.player.compose.embedded
 
 import android.content.Context
 import android.graphics.Color as AndroidColor
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
@@ -59,7 +59,7 @@ class RemoteEmbeddedScreenshotTestRuleTest {
 
     private val context: Context = ApplicationProvider.getApplicationContext()
 
-    private val creationDisplayInfo = createCreationDisplayInfo(context, Size(100f, 100f))
+    private val creationDisplayInfo = createRemoteCreationDisplayInfo(context, Size(100f, 100f))
 
     @Test
     fun embeddedPlayerIsEnabled() {

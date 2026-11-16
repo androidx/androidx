@@ -67,7 +67,7 @@ class SemanticsModifierTest {
                             text = "test text".rs
                             stateDescription = "test state".rs
                             role = RemoteRole.Button
-                            enabled = false
+                            isEnabled = false
                         }
                 ) {}
             }

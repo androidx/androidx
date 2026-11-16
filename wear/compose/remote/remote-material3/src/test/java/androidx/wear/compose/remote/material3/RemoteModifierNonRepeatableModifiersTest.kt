@@ -26,7 +26,7 @@ import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.layout.modifiers.HeightModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.WidthModifierOperation
 import androidx.compose.remote.creation.compose.action.RemoteAction
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -235,7 +235,7 @@ class RemoteModifierNonRepeatableModifiersTest {
         content: @Composable @RemoteComposable () -> Unit
     ): CoreDocument {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val displayInfo = createCreationDisplayInfo(context, Size(500f, 500f))
+        val displayInfo = createRemoteCreationDisplayInfo(context, Size(500f, 500f))
         return playerRule.setRemoteContent(
             remoteCreationDisplayInfo = displayInfo,
             content = content,

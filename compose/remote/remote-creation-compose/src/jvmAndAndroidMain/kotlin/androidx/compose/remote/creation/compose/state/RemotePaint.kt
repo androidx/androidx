@@ -81,18 +81,16 @@ public sealed interface RemotePaint {
 
     /** The [RemoteFontVariation.Settings] to use for drawing text. */
     public var fontVariationSettings: RemoteFontVariation.Settings?
-
-    public companion object {
-        /**
-         * Creates a new [RemotePaint] instance using [StandardRemotePaint].
-         *
-         * @param init An optional initialization block to configure the paint.
-         * @return a new [RemotePaint] configured by [init]
-         */
-        public operator fun invoke(init: RemotePaint.() -> Unit = {}): RemotePaint =
-            StandardRemotePaint().apply(init)
-    }
 }
+
+/**
+ * Creates a new [RemotePaint] instance using [StandardRemotePaint].
+ *
+ * @param init An optional initialization block to configure the paint.
+ * @return a new [RemotePaint] configured by [init]
+ */
+public fun RemotePaint(init: RemotePaint.() -> Unit = {}): RemotePaint =
+    StandardRemotePaint().apply(init)
 
 /** A default implementation of [RemotePaint] that stores properties as fields. */
 internal class StandardRemotePaint() : RemotePaint {

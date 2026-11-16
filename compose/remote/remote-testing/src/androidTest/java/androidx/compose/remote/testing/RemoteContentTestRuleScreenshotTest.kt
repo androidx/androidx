@@ -17,7 +17,7 @@
 package androidx.compose.remote.testing
 
 import androidx.compose.remote.creation.compose.action.valueChangeAction
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteText
@@ -50,7 +50,7 @@ class RemoteContentTestRuleScreenshotTest {
     @Test
     fun textValueChange() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        remoteContentTestRule.setContent(createCreationDisplayInfo(context)) {
+        remoteContentTestRule.setContent(createRemoteCreationDisplayInfo(context)) {
             val text = remember { MutableRemoteString("Initial") }
             RemoteBox(
                 modifier =

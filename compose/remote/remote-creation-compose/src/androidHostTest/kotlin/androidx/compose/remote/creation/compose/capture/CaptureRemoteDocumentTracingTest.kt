@@ -110,7 +110,7 @@ class CaptureRemoteDocumentTracingTest {
             val collector = launch {
                 captureRemoteDocument(
                         context = context,
-                        creationDisplayInfo = createCreationDisplayInfo(context),
+                        creationDisplayInfo = createRemoteCreationDisplayInfo(context),
                         updateThrottle = CaptureUpdateThrottle.None,
                         coroutineContext = EmptyCoroutineContext,
                     ) {

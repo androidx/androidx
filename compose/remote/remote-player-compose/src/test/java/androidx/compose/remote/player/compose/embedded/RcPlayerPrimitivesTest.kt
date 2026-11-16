@@ -495,8 +495,7 @@ class RcPlayerPrimitivesTest {
             RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                 drawTextOnCircle(
                     text = remoteString,
-                    centerX = 50f.rf,
-                    centerY = 50f.rf,
+                    center = RemoteOffset(50f.rf, 50f.rf),
                     radius = 40f.rf,
                     startAngle = 0f.rf,
                     warpRadiusOffset = 0f.rf,

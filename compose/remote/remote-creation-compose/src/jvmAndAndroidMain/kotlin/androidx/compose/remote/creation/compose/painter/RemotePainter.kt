@@ -67,6 +67,10 @@ public abstract class RemotePainter {
     /**
      * The main entry point for drawing. This method is called by the remote compose framework to
      * draw the painter.
+     *
+     * @param blendMode Optional [RemoteBlendMode] applied when drawing the painter.
+     * @param alpha Alpha opacity applied when drawing the painter. Defaults to
+     *   [RemoteDefaultAlpha].
      */
     public fun RemoteDrawScope.draw(
         blendMode: RemoteBlendMode? = null,

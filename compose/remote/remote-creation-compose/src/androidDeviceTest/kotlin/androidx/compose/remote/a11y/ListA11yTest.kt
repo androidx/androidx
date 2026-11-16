@@ -152,7 +152,7 @@ class ListA11yTest {
         items: Int = 50,
         notches: Int = items,
     ) {
-        val scrollState = remember { RemoteScrollState(notches) }
+        val scrollState = remember { RemoteScrollState(notches = notches) }
         RemoteColumn(
             modifier = modifier.verticalScroll(scrollState).background(RemoteColor.White),
             horizontalAlignment = RemoteAlignment.CenterHorizontally,

@@ -60,6 +60,7 @@ public abstract class RemoteBrush internal constructor() {
  *
  * Base class for shader-based brushes such as gradients and image textures.
  */
+@Immutable
 public abstract class RemoteShaderBrush internal constructor() : RemoteBrush() {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public abstract fun RemoteStateScope.createShader(size: RemoteSize): RemoteShader

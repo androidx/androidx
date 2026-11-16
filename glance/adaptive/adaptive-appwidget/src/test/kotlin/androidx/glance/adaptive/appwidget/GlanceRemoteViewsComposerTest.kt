@@ -27,8 +27,8 @@ import android.util.SizeF
 import android.widget.RemoteViews
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.createProfile
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.profile.Profile
@@ -756,7 +756,8 @@ class GlanceRemoteViewsComposerTest {
         val bytes =
             captureSingleRemoteDocument(
                     context = context,
-                    creationDisplayInfo = createCreationDisplayInfo(context = context, size = size),
+                    creationDisplayInfo =
+                        createRemoteCreationDisplayInfo(context = context, size = size),
                     profile = profile,
                     content = content,
                 )

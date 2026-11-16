@@ -15,6 +15,9 @@
  */
 package androidx.wear.compose.remote.material3
 
+import androidx.compose.remote.core.operations.TextFromFloat.PAD_PRE_NONE
+import androidx.compose.remote.core.operations.TextFromFloat.PAD_PRE_ZERO
+import androidx.compose.remote.creation.compose.capture.LocalIs24HourFormat
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -25,6 +28,7 @@ import androidx.compose.remote.creation.compose.layout.rememberRemoteTextMeasure
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clearAndSetSemantics
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
@@ -32,13 +36,13 @@ import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.RemoteTextUnit
+import androidx.compose.remote.creation.compose.state.RemoteTimeVariables
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
-import androidx.compose.remote.creation.compose.text.RemoteTimeDefaults
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.compose.text.toRemoteTypeface
 import androidx.compose.runtime.Composable
@@ -93,7 +97,7 @@ import androidx.wear.compose.remote.material3.internal.setLuminance
 @Composable
 public fun RemoteTimeText(
     modifier: RemoteModifier = RemoteModifier,
-    time: RemoteString = RemoteTimeDefaults.defaultTimeString(),
+    time: RemoteString = RemoteTimeTextDefaults.defaultTimeString(),
     fontSize: RemoteTextUnit? = null,
     fontFamily: RemoteFontFamily? = null,
     leadingText: RemoteString? = null,
@@ -218,8 +222,7 @@ private fun RemoteDrawScope.drawTimeText(
 
     drawTextOnCircle(
         text,
-        width / 2f.rf,
-        height / 2f.rf,
+        RemoteOffset(width / 2f.rf, height / 2f.rf),
         width / 2f.rf - fontSize,
         270f.rf,
         0f.rf,
@@ -269,4 +272,46 @@ public object RemoteTimeTextDefaults {
             fontFeatureSettings = FontFeatureSettings,
             fontVariationSettings = FontVariationSettings,
         )
+
+    /**
+     * Returns a [RemoteBoolean] indicating whether the time should be displayed in 24-hour format.
+     * Currently captured at recording time.
+     *
+     * @return a [RemoteBoolean] that is `true` when 24-hour format is enabled
+     */
+    @Suppress("RestrictedApiAndroidX")
+    @RemoteComposable
+    @Composable
+    public fun is24HourFormat(): RemoteBoolean = LocalIs24HourFormat.current
+
+    /**
+     * Creates a [RemoteString] representing the current time in either 12-hour or 24-hour format.
+     *
+     * The 24-hour format is represented as "HH:mm", while the 12-hour format is represented as
+     * "h:mm".
+     *
+     * @param is24HourFormat A [RemoteBoolean] indicating whether to use 24-hour format. Defaults to
+     *   the system's current setting at the time of recording.
+     * @return A [RemoteString] that evaluates to the formatted time string.
+     */
+    @RemoteComposable
+    @Composable
+    @Suppress("RestrictedApiAndroidX")
+    public fun defaultTimeString(is24HourFormat: RemoteBoolean = is24HourFormat()): RemoteString {
+        val mins =
+            (RemoteTimeVariables.minuteOfDay.toRemoteFloat() % 60f).toRemoteStringOptions(
+                2,
+                0,
+                PAD_PRE_ZERO,
+            )
+        val currentHour = RemoteTimeVariables.hourOfDay.toRemoteFloat()
+        val hours24String: RemoteString = currentHour.toRemoteStringOptions(2, 0, PAD_PRE_ZERO)
+        val hour12: RemoteFloat =
+            ((currentHour % 12f).isEqualTo(0.rf)).select(RemoteFloat(12f), currentHour % 12f)
+        val hours12String: RemoteString = hour12.toRemoteStringOptions(2, 0, PAD_PRE_NONE)
+
+        val time24 = hours24String + ":" + mins
+        val time12 = hours12String + ":" + mins
+        return is24HourFormat.select(time24, time12)
+    }
 }

@@ -24,6 +24,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteAlignment.Companion
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment.Companion.End
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment.Companion.Start
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment.Companion.Top
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 
 /**
@@ -35,7 +36,7 @@ import androidx.compose.runtime.Stable
  * - Vertical: [Top], [CenterVertically], [Bottom]
  */
 @Stable
-public interface RemoteAlignment {
+public sealed interface RemoteAlignment {
     @get:Suppress("HiddenAbstractMethodInInterface")
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val horizontal: Horizontal
@@ -126,6 +127,7 @@ public interface RemoteAlignment {
 }
 
 /** A collection of common [RemoteAlignment]s unaware of the layout direction. */
+@Immutable
 public object RemoteAbsoluteAlignment {
     // 2D AbsoluteAlignments.
 

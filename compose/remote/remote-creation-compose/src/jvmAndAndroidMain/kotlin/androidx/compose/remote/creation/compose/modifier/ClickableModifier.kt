@@ -41,9 +41,6 @@ internal class ClickableModifier(
  *
  * Add this modifier to the element to make it clickable within its bounds.
  *
- * If you need to support double click or long click alongside the single click, consider using
- * [combinedClickable].
- *
  * Example of toggling remote state when an element is clicked:
  *
  * @sample androidx.compose.remote.creation.compose.samples.ClickableValueChangeSample
@@ -75,7 +72,7 @@ public fun RemoteModifier.clickable(
             if (role != null)
                 RemoteModifier.semantics {
                     this.role = role
-                    this.enabled = enabled
+                    this.isEnabled = enabled
                 }
             else RemoteModifier
         )

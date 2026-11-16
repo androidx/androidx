@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInf
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
+import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.RemoteColor
@@ -139,8 +140,7 @@ private fun RemoteDrawScope.drawCircleText(
 ) {
     drawTextOnCircle(
         text = RemoteString(text),
-        centerX = width / 2f.rf,
-        centerY = height / 2f.rf,
+        center = RemoteOffset(width / 2f.rf, height / 2f.rf),
         radius = radius,
         startAngle = startAngle.rf,
         warpRadiusOffset = 0f.rf,

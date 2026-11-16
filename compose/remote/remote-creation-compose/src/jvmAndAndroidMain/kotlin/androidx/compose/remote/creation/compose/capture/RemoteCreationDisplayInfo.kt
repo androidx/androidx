@@ -25,22 +25,42 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
+import kotlin.jvm.JvmInline
 
 private const val baseDensity = 160f
 
 /** Density behavior for the RemoteCompose document. */
-public enum class RemoteDensityBehavior(internal val value: Int) {
-    /**
-     * Legacy mode. Values are interpreted as pixels, but historically some layout properties might
-     * have behaved differently.
-     */
-    Legacy(CoreDocument.DENSITY_BEHAVIOR_LEGACY),
+@Immutable
+@JvmInline
+public value class RemoteDensityBehavior internal constructor(internal val value: Int) {
+    override fun toString(): String =
+        when (this) {
+            Legacy -> "RemoteDensityBehavior.Legacy"
+            Pixels -> "RemoteDensityBehavior.Pixels"
+            Dp -> "RemoteDensityBehavior.Dp"
+            else -> "RemoteDensityBehavior($value)"
+        }
 
-    /** Values are interpreted as pixels. No density scaling is applied by the player. */
-    Pixels(CoreDocument.DENSITY_BEHAVIOR_PIXELS),
+    public companion object {
+        /**
+         * Legacy mode. Values are interpreted as pixels, but historically some layout properties
+         * might have behaved differently.
+         */
+        @Stable
+        public val Legacy: RemoteDensityBehavior =
+            RemoteDensityBehavior(CoreDocument.DENSITY_BEHAVIOR_LEGACY)
 
-    /** Values are interpreted as DP. Density scaling is applied by the player. */
-    Dp(CoreDocument.DENSITY_BEHAVIOR_DP),
+        /** Values are interpreted as pixels. No density scaling is applied by the player. */
+        @Stable
+        public val Pixels: RemoteDensityBehavior =
+            RemoteDensityBehavior(CoreDocument.DENSITY_BEHAVIOR_PIXELS)
+
+        /** Values are interpreted as DP. Density scaling is applied by the player. */
+        @Stable
+        public val Dp: RemoteDensityBehavior =
+            RemoteDensityBehavior(CoreDocument.DENSITY_BEHAVIOR_DP)
+    }
 }
 
 /**
@@ -54,10 +74,11 @@ public enum class RemoteDensityBehavior(internal val value: Int) {
  * @property height The height of the virtual display in pixels.
  * @property density The logical density of the virtual display.
  * @property fontScale The user preference for the scaling factor for fonts, relative to the base
- *   density scaling.
+ *   density scaling. Defaults to `1.0f`.
  * @property isInspectionMode Whether the capture is happening in an inspection or preview
- *   environment (e.g. inside an IDE preview). Defaults to false.
+ *   environment (e.g. inside an IDE preview). Defaults to `false`.
  * @property densityBehavior The [RemoteDensityBehavior] to use for interpreting dimension values.
+ *   Defaults to [RemoteDensityBehavior.Legacy].
  */
 @Immutable
 public class RemoteCreationDisplayInfo
@@ -68,7 +89,40 @@ internal constructor(
     public val fontScale: Float = 1.0f,
     public val isInspectionMode: Boolean = false,
     public val densityBehavior: RemoteDensityBehavior = RemoteDensityBehavior.Legacy,
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RemoteCreationDisplayInfo) return false
+        if (width != other.width) return false
+        if (height != other.height) return false
+        if (density != other.density) return false
+        if (fontScale != other.fontScale) return false
+        if (isInspectionMode != other.isInspectionMode) return false
+        if (densityBehavior != other.densityBehavior) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = width
+        result = 31 * result + height
+        result = 31 * result + density.hashCode()
+        result = 31 * result + fontScale.hashCode()
+        result = 31 * result + isInspectionMode.hashCode()
+        result = 31 * result + densityBehavior.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "RemoteCreationDisplayInfo(" +
+            "width=$width, " +
+            "height=$height, " +
+            "density=$density, " +
+            "fontScale=$fontScale, " +
+            "isInspectionMode=$isInspectionMode, " +
+            "densityBehavior=$densityBehavior" +
+            ")"
+    }
+}
 
 /**
  * Creates a [RemoteCreationDisplayInfo] instance from width, height, and density metrics.
@@ -77,9 +131,9 @@ internal constructor(
  * @param height The height of the display in pixels.
  * @param densityDpi The logical densityDpi of the display.
  * @param fontScale The user preference for the scaling factor for fonts, relative to the base
- *   density scaling.
+ *   density scaling. Defaults to `1.0f`.
  * @param isInspectionMode Whether the capture is happening in inspection mode (e.g. for a preview).
- *   Defaults to false.
+ *   Defaults to `false`.
  * @param densityBehavior The [RemoteDensityBehavior] to use. Defaults to
  *   [RemoteDensityBehavior.Legacy].
  * @return A [RemoteCreationDisplayInfo] object containing the specified display metrics.
