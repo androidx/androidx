@@ -21,6 +21,7 @@ import androidx.compose.foundation.internal.requirePreconditionNotNull
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimation.Companion.NotInitialized
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasuredItem
+import androidx.compose.foundation.lazy.layout.mirroredForRtl
 import androidx.compose.foundation.lazy.layout.placeablesCount
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.layer.GraphicsLayer
@@ -266,15 +267,11 @@ constructor(
                 if (!isLookingAhead) {
                     animation?.placementOffset =
                         if (!isVertical && layoutDirection == LayoutDirection.Rtl) {
-                            /**
-                             * [offset] here is relative to the absolute size of the layout, hence
-                             * we add back padding.
-                             */
-                            offset.copy { mainAxisOffset ->
-                                (mainAxisLayoutSize + beforeContentPadding + afterContentPadding) -
-                                    mainAxisOffset -
-                                    placeable.mainAxisSize
-                            }
+                            offset.mirroredForRtl(
+                                layoutWidth =
+                                    mainAxisLayoutSize + beforeContentPadding + afterContentPadding,
+                                itemWidth = placeable.width,
+                            )
                         } else {
                             offset
                         }

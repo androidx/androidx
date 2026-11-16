@@ -27,6 +27,7 @@ import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
 import kotlinx.coroutines.CoroutineScope
@@ -84,7 +85,8 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
         coroutineScope: CoroutineScope,
         graphicsContext: GraphicsContext,
         shouldRunItemAnimation: Boolean,
-        reverseLayout: Boolean = false,
+        layoutDirection: LayoutDirection,
+        reverseLayout: Boolean,
     ) {
         val previousKeyToIndexMap = this.keyIndexMap
         this.keyIndexMap = keyIndexMap
@@ -123,14 +125,6 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
         val previousFirstVisibleIndex = firstVisibleIndex
         firstVisibleIndex = positionedItems.firstOrNull()?.index ?: 0
 
-        // the consumed scroll is considered as a delta we don't need to animate
-        val scrollOffset =
-            if (isVertical) {
-                IntOffset(0, consumedScroll)
-            } else {
-                IntOffset(consumedScroll, 0)
-            }
-
         // first add all items we had in the previous run
         keyToItemInfoMap.forEachKey { movingAwayKeys.add(it) }
         // iterate through the items which are visible (without animated offsets)
@@ -146,12 +140,14 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                 if (itemInfo == null) {
                     val newItemInfo = ItemInfo()
                     newItemInfo.updateAnimation(
-                        item,
-                        coroutineScope,
-                        graphicsContext,
-                        layoutMinOffset,
-                        layoutMaxOffset,
-                        isVertical,
+                        positionedItem = item,
+                        coroutineScope = coroutineScope,
+                        graphicsContext = graphicsContext,
+                        layoutMinOffset = layoutMinOffset,
+                        layoutMaxOffset = layoutMaxOffset,
+                        isVertical = isVertical,
+                        reverseLayout = reverseLayout,
+                        layoutDirection = layoutDirection,
                     )
                     keyToItemInfoMap[item.key] = newItemInfo
                     if (item.index != previousIndex && previousIndex != -1) {
@@ -175,19 +171,21 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                 } else {
                     if (shouldSetupAnimation) {
                         itemInfo.updateAnimation(
-                            item,
-                            coroutineScope,
-                            graphicsContext,
-                            layoutMinOffset,
-                            layoutMaxOffset,
-                            isVertical,
+                            positionedItem = item,
+                            coroutineScope = coroutineScope,
+                            graphicsContext = graphicsContext,
+                            layoutMinOffset = layoutMinOffset,
+                            layoutMaxOffset = layoutMaxOffset,
+                            isVertical = isVertical,
+                            reverseLayout = reverseLayout,
+                            layoutDirection = layoutDirection,
                         )
                         itemInfo.animations.forEach { animation ->
                             if (
                                 animation != null &&
                                     animation.targetOffset != LazyLayoutItemAnimation.NotInitialized
                             ) {
-                                animation.applyScrollOffset(scrollOffset)
+                                animation.applyScrollOffset(consumedScroll)
                             }
                         }
                         if (shouldAnimateAppearance) {
@@ -303,12 +301,14 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                     // we need to update our item info mapping
                     if (shouldSetupAnimation) {
                         info.updateAnimation(
-                            item,
-                            coroutineScope,
-                            graphicsContext,
-                            layoutMinOffset,
-                            layoutMaxOffset,
-                            isVertical,
+                            positionedItem = item,
+                            coroutineScope = coroutineScope,
+                            graphicsContext = graphicsContext,
+                            layoutMinOffset = layoutMinOffset,
+                            layoutMaxOffset = layoutMaxOffset,
+                            isVertical = isVertical,
+                            reverseLayout = reverseLayout,
+                            layoutDirection = layoutDirection,
                             crossAxisOffset = info.crossAxisOffset,
                         )
                     }
@@ -320,6 +320,8 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                 }
             }
         }
+
+        applyScrollToDisappearingItems(consumedScroll)
 
         if (movingAwayToStartBound.isNotEmpty()) {
             movingAwayToStartBound.sortByDescending { keyIndexMap.getIndex(it.key) }
@@ -546,6 +548,8 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
             layoutMinOffset: Int,
             layoutMaxOffset: Int,
             isVertical: Boolean,
+            reverseLayout: Boolean,
+            layoutDirection: LayoutDirection,
             crossAxisOffset: Int = positionedItem.crossAxisOffset(isVertical),
         ) {
             if (!isRunningPlacement) {
@@ -589,9 +593,18 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                             animation.itemSize = IntSize(placeable.width, placeable.height)
                         }
                     }
+                    animation.layoutDirection = layoutDirection
+                    animation.reverseLayout = reverseLayout
+                    animation.isVertical = isVertical
                 }
             }
         }
+    }
+
+    fun applyScrollToDisappearingItems(delta: Int) {
+        if (delta == 0 || disappearingItems.isEmpty()) return
+        disappearingItems.fastForEach { it.applyScrollOffset(delta) }
+        displayingNode?.invalidateDraw()
     }
 
     fun DrawScope.onDrawDisappearingItems() {

@@ -561,14 +561,103 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
         }
     }
 
+    @Test
+    fun scrollingDuringSlideOut_slideContinuesRelativeToItemPosition() {
+        assertSlidingOutItemFollowsScroll()
+    }
+
+    @Test
+    fun scrollingDuringSlideOut_withoutRemeasure_slideContinuesRelativeToItemPosition() {
+        assertSlidingOutItemFollowsScroll(scrollWithoutRemeasure = true)
+    }
+
+    @Test
+    fun scrollingDuringSlideOut_reverseLayout_slideContinuesRelativeToItemPosition() {
+        assertSlidingOutItemFollowsScroll(reverseLayout = true)
+    }
+
+    @Test
+    fun scrollingDuringSlideOut_reverseLayout_withoutRemeasure_slideContinuesRelativeToItemPosition() {
+        assertSlidingOutItemFollowsScroll(reverseLayout = true, scrollWithoutRemeasure = true)
+    }
+
+    @Test
+    fun scrollingDuringSlideOut_rtl_slideContinuesRelativeToItemPosition() {
+        assertSlidingOutItemFollowsScroll(layoutDirection = LayoutDirection.Rtl)
+    }
+
+    private fun assertSlidingOutItemFollowsScroll(
+        reverseLayout: Boolean = false,
+        layoutDirection: LayoutDirection = LayoutDirection.Ltr,
+        scrollWithoutRemeasure: Boolean = false,
+    ) {
+        val startOffset = if (scrollWithoutRemeasure) ItemHeight / 2 else 0
+        val scrollAmount = if (scrollWithoutRemeasure) ItemHeight / 4 else ItemHeight / 2
+        val isRtl = layoutDirection == LayoutDirection.Rtl
+        // In RTL the items are aligned to the end of the wider container, which is on the right.
+        val containerWidth = if (isRtl) ItemWidth * 2 else ItemWidth
+        val itemX = if (isRtl) ItemWidth else 0
+        var list by
+            mutableStateOf(listOf(Color.Black, Color.Red, Color.Green, Color.Blue, Color.Yellow))
+        rule.setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                LazyList(
+                    containerHeight = ItemHeight * 2,
+                    containerWidth = containerWidth,
+                    reverseLayout = reverseLayout,
+                    firstVisibleItemIndex = 1,
+                    firstVisibleItemScrollOffset = startOffset,
+                ) {
+                    items(list, key = { it.toArgb() }) {
+                        Item(
+                            it,
+                            exit = slideOutHorizontally(SlideSpec) { it },
+                            placementSpec = PlacementHoldSpec,
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.runOnUiThread { list = listOf(Color.Black, Color.Green, Color.Blue, Color.Yellow) }
+
+        onAnimationStep { step ->
+            if (step == Steps / 2) {
+                rule.runOnIdle { runBlocking { state.scrollBy(-scrollAmount.toFloat()) } }
+            }
+            val scrolled = if (step >= Steps / 2) scrollAmount else 0
+            // Converts an item's start, relative to the start of the list's content before
+            // scrolling, into its y position in the container.
+            fun y(start: Int): Int {
+                val logicalStart = start - startOffset + scrolled
+                return if (reverseLayout) ItemHeight * 2 - logicalStart - ItemHeight
+                else logicalStart
+            }
+            assertItems(
+                containerHeight = ItemHeight * 2,
+                ExpectedItem(Color.Black, x = itemX, y = y(-ItemHeight)),
+                ExpectedItem(
+                    Color.Red,
+                    x = itemX + interpolate(0, ItemWidth, step / Steps.toFloat()),
+                    y = y(0),
+                ),
+                ExpectedItem(Color.Green, x = itemX, y = y(ItemHeight)),
+                ExpectedItem(Color.Blue, x = itemX, y = y(ItemHeight * 2)),
+                containerWidth = containerWidth,
+            )
+        }
+    }
+
     @Composable
     private fun LazyList(
         containerHeight: Int,
         containerWidth: Int = ItemWidth,
         reverseLayout: Boolean = false,
+        firstVisibleItemIndex: Int = 0,
+        firstVisibleItemScrollOffset: Int = 0,
         content: LazyListScope.() -> Unit,
     ) {
-        state = rememberLazyListState()
+        state = rememberLazyListState(firstVisibleItemIndex, firstVisibleItemScrollOffset)
         val density = rule.density
         LazyColumn(
             state = state,
@@ -584,4 +673,6 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
 
     private val SlideSpec = tween<IntOffset>(DurationMillis, easing = LinearEasing)
     private val FadeSpec = tween<Float>(DurationMillis, easing = LinearEasing)
+    // Holds items at their previous positions for longer than the exit transition runs.
+    private val PlacementHoldSpec = tween<IntOffset>(DurationMillis * 2, easing = { 0f })
 }

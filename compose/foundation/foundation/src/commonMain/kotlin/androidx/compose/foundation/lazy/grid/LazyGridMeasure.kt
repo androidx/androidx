@@ -82,6 +82,7 @@ internal fun measureLazyGrid(
     prefetchInfoRetriever: (line: Int) -> List<Pair<Int, Constraints>>,
     lineIndexProvider: (itemIndex: Int) -> Int,
     stickyItemsScrollBehavior: StickyItemsPlacement?,
+    layoutDirection: LayoutDirection,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult,
     prefetchState: LazyLayoutPrefetchState?,
     @Suppress("DEPRECATION") prefetchStrategy: LazyGridPrefetchStrategy?,
@@ -108,6 +109,7 @@ internal fun measureLazyGrid(
             coroutineScope = coroutineScope,
             graphicsContext = graphicsContext,
             shouldRunItemAnimation = true,
+            layoutDirection = layoutDirection,
             reverseLayout = reverseLayout,
         )
         if (!isLookingAhead) {
@@ -397,6 +399,7 @@ internal fun measureLazyGrid(
             coroutineScope = coroutineScope,
             graphicsContext = graphicsContext,
             shouldRunItemAnimation = true,
+            layoutDirection = layoutDirection,
             reverseLayout = reverseLayout,
         )
 

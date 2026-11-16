@@ -475,6 +475,7 @@ private fun rememberLazyGridMeasurePolicy(
                     lineIndexProvider = lineIndexProvider,
                     graphicsContext = graphicsContext,
                     stickyItemsScrollBehavior = stickyItemsScrollBehavior,
+                    layoutDirection = layoutDirection,
                     layout = { width, height, placement ->
                         layout(
                             containerConstraints.constrainWidth(width + totalHorizontalPadding),

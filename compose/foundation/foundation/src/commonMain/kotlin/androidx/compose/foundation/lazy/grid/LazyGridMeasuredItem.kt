@@ -20,6 +20,7 @@ import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimation.Companion.NotInitialized
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasuredItem
+import androidx.compose.foundation.lazy.layout.mirroredForRtl
 import androidx.compose.foundation.lazy.layout.placeablesCount
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.layout.Placeable
@@ -251,7 +252,16 @@ internal class LazyGridMeasuredItem(
                 }
                 offset += visualOffset
                 if (!isLookingAhead) {
-                    animation?.placementOffset = offset
+                    animation?.placementOffset =
+                        if (!isVertical && layoutDirection == LayoutDirection.Rtl) {
+                            offset.mirroredForRtl(
+                                layoutWidth =
+                                    mainAxisLayoutSize + beforeContentPadding + afterContentPadding,
+                                itemWidth = placeable.width,
+                            )
+                        } else {
+                            offset
+                        }
                 }
                 if (isVertical) {
                     if (layer != null) {
