@@ -27,7 +27,7 @@ dependencies {
     implementation(project(":xr:scenecore:scenecore"))
     implementation(project(":xr:scenecore:scenecore-spatial-core"))
     implementation(project(":xr:scenecore:scenecore-spatial-rendering"))
-    implementation(project(":compose:material3:material3"))
+    implementation("androidx.compose.material3:material3:1.5.0")
 
     compileOnly(project(":annotation:annotation-sampled"))
 

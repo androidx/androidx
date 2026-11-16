@@ -26,7 +26,7 @@ dependencies {
     implementation(project(":xr:compose:compose"))
     implementation(project(":xr:compose:compose-testing"))
     implementation(project(":xr:scenecore:scenecore"))
-    implementation(project(":compose:material3:material3"))
+    implementation("androidx.compose.material3:material3:1.5.0")
 
     compileOnly(project(":annotation:annotation-sampled"))
 

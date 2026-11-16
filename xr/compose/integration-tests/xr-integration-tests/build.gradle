@@ -49,7 +49,7 @@ androidx {
 
 dependencies {
     // Project dependencies
-    implementation(project(":compose:material3:material3"))
+    implementation("androidx.compose.material3:material3:1.5.0")
     implementation(project(":xr:compose:compose"))
     implementation(project(":xr:assets"))
     implementation(project(":xr:compose:material3:material3"))
@@ -61,10 +61,10 @@ dependencies {
     implementation(project(":xr:arcore:arcore"))
 
     // Compose projects
-    implementation(project(":compose:ui:ui"))
-    implementation(project(":compose:ui:ui-tooling-preview"))
-    implementation(project(":compose:runtime:runtime"))
-    implementation(project(":compose:foundation:foundation"))
+    implementation("androidx.compose.ui:ui:1.13.0")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.13.0")
+    implementation("androidx.compose.runtime:runtime:1.13.0")
+    implementation("androidx.compose.foundation:foundation:1.13.0")
 
     // External dependencies
     implementation("androidx.activity:activity-compose:1.10.0")
@@ -78,8 +78,8 @@ dependencies {
     compileOnly(libs.androidExtensionsXr)
 
     // Test dependencies
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.7.0")
-    androidTestImplementation("androidx.compose.ui:ui-test:1.7.0")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.13.0")
+    androidTestImplementation("androidx.compose.ui:ui-test:1.13.0")
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRules)
@@ -88,20 +88,6 @@ dependencies {
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(project(":xr:testutils"))
     androidTestImplementation(project(":xr:compose:compose-testing"))
-
-    // Aligned project dependencies for tests required by AndroidX DependencyAlignmentPlugin
-    androidTestImplementation(project(":compose:runtime:runtime"))
-    androidTestImplementation(project(":compose:runtime:runtime-annotation"))
-    androidTestImplementation(project(":compose:runtime:runtime-saveable"))
-    androidTestImplementation(project(":compose:ui:ui-graphics"))
-    androidTestImplementation(project(":compose:ui:ui-unit"))
-    androidTestImplementation(project(":compose:ui:ui-geometry"))
-    androidTestImplementation(project(":compose:ui:ui-util"))
-    androidTestImplementation(project(":compose:ui:ui-text"))
-    androidTestImplementation(project(":compose:animation:animation-core"))
-    androidTestImplementation(project(":compose:animation:animation"))
-    androidTestImplementation(project(":compose:foundation:foundation-layout"))
-    androidTestImplementation(project(":compose:foundation:foundation"))
     androidTestImplementation(project(":xr:scenecore:scenecore"))
 
     androidTestUtil(libs.testOrchestrator)

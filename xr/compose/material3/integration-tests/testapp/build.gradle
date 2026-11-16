@@ -28,19 +28,19 @@ dependencies {
     implementation(project(":appcompat:appcompat"))
     implementation("androidx.activity:activity-compose:1.10.1")
     implementation("androidx.core:core-ktx:1.17.0")
-    implementation(project(":compose:foundation:foundation"))
-    implementation(project(":compose:foundation:foundation-layout"))
-    implementation(project(":compose:material3:material3"))
+    implementation("androidx.compose.foundation:foundation:1.13.0")
+    implementation("androidx.compose.foundation:foundation-layout:1.13.0")
+    implementation("androidx.compose.material3:material3:1.5.0")
     implementation("androidx.compose.material:material-icons-core:1.6.8")
-    implementation(project(":compose:runtime:runtime"))
-    implementation(project(":compose:ui:ui"))
-    implementation(project(":compose:ui:ui-tooling-preview"))
+    implementation("androidx.compose.runtime:runtime:1.13.0")
+    implementation("androidx.compose.ui:ui:1.13.0")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.13.0")
 
     // Adaptive (CAMAL) dependencies
     implementation("androidx.compose.material3.adaptive:adaptive:1.2.0")
     implementation("androidx.compose.material3.adaptive:adaptive-layout:1.2.0")
     implementation("androidx.compose.material3.adaptive:adaptive-navigation:1.2.0")
-    implementation(project(":compose:material3:material3-adaptive-navigation-suite"))
+    implementation("androidx.compose.material3:material3-adaptive-navigation-suite:1.5.0")
 
     // XR Adaptive integration library
     implementation(project(":xr:compose:material3:material3"))
