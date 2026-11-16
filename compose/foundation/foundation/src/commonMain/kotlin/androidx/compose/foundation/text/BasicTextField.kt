@@ -31,6 +31,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.overscroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.contextmenu.modifier.ToolbarRequesterImpl
 import androidx.compose.foundation.text.handwriting.stylusHandwriting
@@ -510,6 +511,7 @@ internal fun BasicTextField(
                     modifier =
                         textFieldSize
                             .clipToBounds()
+                            .overscroll(overscrollEffect)
                             .then(
                                 TextFieldCoreModifier(
                                     isFocused = isWindowAndTextFieldFocused,
