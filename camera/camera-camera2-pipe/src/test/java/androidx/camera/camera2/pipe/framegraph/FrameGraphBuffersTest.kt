@@ -27,6 +27,7 @@ import androidx.camera.camera2.pipe.Frame
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.TagBundle
+import androidx.camera.camera2.pipe.internal.FrameGraphResourceTrimmer
 import androidx.camera.camera2.pipe.internal.FrameImpl
 import androidx.camera.camera2.pipe.internal.FrameState
 import androidx.camera.camera2.pipe.internal.NoOpFrameGraphResourceTrimmer
@@ -67,8 +68,14 @@ class FrameGraphBuffersTest {
     private val graphConfig =
         CameraGraph.Config(camera = metadata.camera, streams = listOf(stream1Config, stream2Config))
     private val simulator = CameraGraphSimulator.create(testScope, context, metadata, graphConfig)
-    private val frameGraphBuffers =
-        FrameGraphBuffers(simulator, testScope, NoOpFrameGraphResourceTrimmer)
+    private val repeatingRequestUpdates = mutableListOf<Request?>()
+    private val fakeResourceTrimmer =
+        object : FrameGraphResourceTrimmer by NoOpFrameGraphResourceTrimmer {
+            override fun onRepeatingRequestUpdated(request: Request?) {
+                repeatingRequestUpdates.add(request)
+            }
+        }
+    private val frameGraphBuffers = FrameGraphBuffers(simulator, testScope, fakeResourceTrimmer)
     private val streamIdList = simulator.streams.streamIds.toList()
     private val streamId1 = streamIdList[0]
     private val streamId2 = streamIdList[1]
@@ -433,6 +440,60 @@ class FrameGraphBuffersTest {
             1,
         )
     }
+
+    @Test
+    fun detachAndAttachBackToBack_coalescesIntoSingleFlush() = testScope.runTest {
+        val buffer1 = frameGraphBuffers.attach(setOf(streamId1), mapOf(CAPTURE_REQUEST_KEY to 1), 1)
+        advanceUntilIdle()
+        assertThat(repeatingRequestUpdates).hasSize(1)
+        repeatingRequestUpdates.clear()
+
+        // Detach buffer1 and immediately attach buffer2 and buffer3 before coroutine dispatch.
+        buffer1.close()
+        val buffer2 = frameGraphBuffers.attach(setOf(streamId2), mapOf(CAPTURE_REQUEST_KEY to 2), 1)
+        val buffer3 = frameGraphBuffers.attach(setOf(streamId1), mapOf(TEST_NULLABLE_KEY to 42), 1)
+        advanceUntilIdle()
+
+        // All three mutations should coalesce into a single repeating request flush.
+        assertThat(repeatingRequestUpdates).hasSize(1)
+        val updatedRequest = repeatingRequestUpdates.single()
+        assertThat(updatedRequest).isNotNull()
+        assertThat(updatedRequest!!.streams).containsExactly(streamId2, streamId1)
+        assertThat(updatedRequest.parameters)
+            .isEqualTo(
+                mapOf<CaptureRequest.Key<*>, Any?>(
+                    CAPTURE_REQUEST_KEY to 2,
+                    TEST_NULLABLE_KEY to 42,
+                )
+            )
+
+        buffer2.close()
+        buffer3.close()
+    }
+
+    @Test
+    fun attachWhileSessionHeld_flushedBeforeClose_doesNotFlushAgainAfterClose() =
+        testScope.runTest {
+            val session = simulator.acquireSession()
+
+            val buffer1 = frameGraphBuffers.attach(setOf(streamId1), emptyMap(), 1)
+            val buffer2 = frameGraphBuffers.attach(setOf(streamId2), emptyMap(), 1)
+            advanceUntilIdle()
+            assertThat(repeatingRequestUpdates).isEmpty()
+
+            // Flushing while holding the session (as FrameGraphSessionImpl.close() does) clears
+            // dirty so the queued invalidate() coroutine does not flush a second time.
+            frameGraphBuffers.flush(session)
+            session.close()
+            advanceUntilIdle()
+
+            assertThat(repeatingRequestUpdates).hasSize(1)
+            assertThat(repeatingRequestUpdates.single()!!.streams)
+                .containsExactly(streamId1, streamId2)
+
+            buffer1.close()
+            buffer2.close()
+        }
 
     companion object {
         private val CAPTURE_REQUEST_KEY = CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION
