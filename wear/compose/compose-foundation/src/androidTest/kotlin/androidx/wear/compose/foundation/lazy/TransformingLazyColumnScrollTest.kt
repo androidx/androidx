@@ -272,7 +272,7 @@ class TransformingLazyColumnScrollTest {
             val targetItem = state.layoutInfo.visibleItems.first { it.index == targetIndex }
             assertThat(targetItem.transformedHeight).isLessThan(itemSizePx)
             assertThat(targetItem.offset)
-                .isEqualTo(viewportCenterPx - itemSizePx / 2 - targetScrollOffset)
+                .isEqualTo(viewportCenterPx - targetItem.transformedHeight / 2 - targetScrollOffset)
         }
     }
 

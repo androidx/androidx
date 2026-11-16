@@ -41,6 +41,7 @@ import androidx.wear.compose.foundation.lazy.layout.LazyLayoutItemAnimator
 import androidx.wear.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import com.google.common.truth.Truth.assertThat
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.math.roundToInt
 import kotlin.test.Test
 import kotlinx.coroutines.CoroutineScope
 import org.junit.runner.RunWith
@@ -1577,6 +1578,201 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
         assertThat(measuredItemOffsets[0]).isEqualTo(0)
         // item-1 (index 1) is extraItemsAfter (starts at topOffset = 100 -> offset = 100)
         assertThat(measuredItemOffsets[1]).isEqualTo(100)
+    }
+
+    @Test
+    fun initialCenterAnchor_nonZeroScrollOffsetInSteepTransitionArea_convergesAccurately() {
+        // Scales down in the top transition area steep enough that fixed-point iteration would
+        // oscillate; binary search should still converge to the exact centered offset.
+        val itemHeights = listOf(25, 25, 25, 76, 25, 25, 25)
+        val transformedHeight: (Int, TransformingLazyColumnItemScrollProgress) -> Int =
+            { height, progress ->
+                val scale = 0.6f + 0.4f * (progress.topOffsetFraction / 0.1f).coerceIn(0f, 1f)
+                (height * scale).roundToInt()
+            }
+
+        val pass1 =
+            strategy.measure(
+                itemHeights = itemHeights,
+                transformedHeight = transformedHeight,
+                anchorItemIndex = 3,
+                anchorItemScrollOffset = 7,
+                lastMeasuredAnchorItemHeight = Int.MIN_VALUE,
+            )
+        val pass1Item = pass1.visibleItems.first { it.index == 3 }
+        assertThat(pass1.anchorItemIndex).isEqualTo(3)
+        assertThat(pass1.anchorItemScrollOffset).isEqualTo(7)
+        assertThat(pass1Item.offset).isEqualTo(8)
+        assertThat(pass1Item.transformedHeight).isEqualTo(70)
+
+        val pass2 =
+            strategy.measure(
+                itemHeights = itemHeights,
+                transformedHeight = transformedHeight,
+                anchorItemKey = pass1.anchorItemKey,
+                anchorItemIndex = pass1.anchorItemIndex,
+                anchorItemScrollOffset = pass1.anchorItemScrollOffset,
+                lastMeasuredAnchorItemHeight = pass1.lastMeasuredItemHeight,
+            )
+        val pass2Item = pass2.visibleItems.first { it.index == 3 }
+        assertThat(pass2.anchorItemIndex).isEqualTo(3)
+        assertThat(pass2.anchorItemScrollOffset).isEqualTo(7)
+        assertThat(pass2Item.offset).isEqualTo(pass1Item.offset)
+        assertThat(pass2Item.transformedHeight).isEqualTo(pass1Item.transformedHeight)
+    }
+
+    @Test
+    fun initialCenterAnchor_negativeScrollOffsetInBottomTransitionArea_convergesAccurately() {
+        // Scales down in the bottom transition area so both initial probes sit above the target
+        // center, exercising binary search above the scaled probe.
+        val itemHeights = listOf(25, 25, 25, 80, 25, 25, 25)
+        val transformedHeight: (Int, TransformingLazyColumnItemScrollProgress) -> Int =
+            { height, progress ->
+                val scale =
+                    1f - 0.5f * ((progress.bottomOffsetFraction - 0.8f) / 0.4f).coerceIn(0f, 1f)
+                (height * scale).roundToInt()
+            }
+
+        val pass1 =
+            strategy.measure(
+                itemHeights = itemHeights,
+                transformedHeight = transformedHeight,
+                anchorItemIndex = 3,
+                anchorItemScrollOffset = -5,
+                lastMeasuredAnchorItemHeight = Int.MIN_VALUE,
+            )
+        val pass1Item = pass1.visibleItems.first { it.index == 3 }
+        assertThat(pass1.anchorItemIndex).isEqualTo(3)
+        assertThat(pass1.anchorItemScrollOffset).isEqualTo(-5)
+        assertThat(pass1Item.offset).isEqualTo(31)
+        assertThat(pass1Item.transformedHeight).isEqualTo(49)
+
+        val pass2 =
+            strategy.measure(
+                itemHeights = itemHeights,
+                transformedHeight = transformedHeight,
+                anchorItemKey = pass1.anchorItemKey,
+                anchorItemIndex = pass1.anchorItemIndex,
+                anchorItemScrollOffset = pass1.anchorItemScrollOffset,
+                lastMeasuredAnchorItemHeight = pass1.lastMeasuredItemHeight,
+            )
+        val pass2Item = pass2.visibleItems.first { it.index == 3 }
+        assertThat(pass2.anchorItemIndex).isEqualTo(3)
+        assertThat(pass2.anchorItemScrollOffset).isEqualTo(-5)
+        assertThat(pass2Item.offset).isEqualTo(pass1Item.offset)
+        assertThat(pass2Item.transformedHeight).isEqualTo(pass1Item.transformedHeight)
+    }
+
+    @Test
+    fun initialCenterAnchor_noExactCenterMatch_restoresClosestOffsetAndStaysStable() {
+        // Steep scaling skips an exact center match for scrollOffset = 8, exercising the
+        // post-loop restoration to the closest probed offset.
+        val itemHeights = listOf(25, 25, 25, 76, 25, 25, 25)
+        val transformedHeight: (Int, TransformingLazyColumnItemScrollProgress) -> Int =
+            { height, progress ->
+                val scale = 0.6f + 0.4f * (progress.topOffsetFraction / 0.1f).coerceIn(0f, 1f)
+                (height * scale).roundToInt()
+            }
+
+        val pass1 =
+            strategy.measure(
+                itemHeights = itemHeights,
+                transformedHeight = transformedHeight,
+                anchorItemIndex = 3,
+                anchorItemScrollOffset = 8,
+                lastMeasuredAnchorItemHeight = Int.MIN_VALUE,
+            )
+        val pass1Item = pass1.visibleItems.first { it.index == 3 }
+        assertThat(pass1.anchorItemIndex).isEqualTo(3)
+        assertThat(pass1.anchorItemScrollOffset).isEqualTo(7)
+        assertThat(pass1Item.offset).isEqualTo(8)
+        assertThat(pass1Item.transformedHeight).isEqualTo(70)
+
+        val pass2 =
+            strategy.measure(
+                itemHeights = itemHeights,
+                transformedHeight = transformedHeight,
+                anchorItemKey = pass1.anchorItemKey,
+                anchorItemIndex = pass1.anchorItemIndex,
+                anchorItemScrollOffset = pass1.anchorItemScrollOffset,
+                lastMeasuredAnchorItemHeight = pass1.lastMeasuredItemHeight,
+            )
+        val pass2Item = pass2.visibleItems.first { it.index == 3 }
+        assertThat(pass2.anchorItemIndex).isEqualTo(3)
+        assertThat(pass2.anchorItemScrollOffset).isEqualTo(pass1.anchorItemScrollOffset)
+        assertThat(pass2Item.offset).isEqualTo(pass1Item.offset)
+        assertThat(pass2Item.transformedHeight).isEqualTo(pass1Item.transformedHeight)
+    }
+
+    @Test
+    fun initialCenterAnchor_oddHeightItem_placesAtExactOffsetAndStaysStable() {
+        val itemHeights = listOf(25, 25, 51, 25, 25)
+
+        val pass1 =
+            strategy.measure(
+                itemHeights = itemHeights,
+                anchorItemIndex = 2,
+                anchorItemScrollOffset = 5,
+                lastMeasuredAnchorItemHeight = Int.MIN_VALUE,
+            )
+        val pass1Item = pass1.visibleItems.first { it.index == 2 }
+        assertThat(pass1.anchorItemIndex).isEqualTo(2)
+        assertThat(pass1.anchorItemScrollOffset).isEqualTo(5)
+        assertThat(pass1Item.offset).isEqualTo(20)
+        assertThat(pass1Item.transformedHeight).isEqualTo(51)
+
+        val pass2 =
+            strategy.measure(
+                itemHeights = itemHeights,
+                anchorItemKey = pass1.anchorItemKey,
+                anchorItemIndex = pass1.anchorItemIndex,
+                anchorItemScrollOffset = pass1.anchorItemScrollOffset,
+                lastMeasuredAnchorItemHeight = pass1.lastMeasuredItemHeight,
+            )
+        val pass2Item = pass2.visibleItems.first { it.index == 2 }
+        assertThat(pass2.anchorItemIndex).isEqualTo(2)
+        assertThat(pass2.anchorItemScrollOffset).isEqualTo(5)
+        assertThat(pass2Item.offset).isEqualTo(pass1Item.offset)
+        assertThat(pass2Item.transformedHeight).isEqualTo(pass1Item.transformedHeight)
+    }
+
+    @Test
+    fun initialCenterAnchor_expandingTransformation_convergesAccurately() {
+        val itemHeights = listOf(25, 25, 25, 50, 25, 25, 25)
+        val transformedHeight: (Int, TransformingLazyColumnItemScrollProgress) -> Int =
+            { height, progress ->
+                val scale = 1f + 0.4f * (1f - (progress.topOffsetFraction / 0.5f).coerceIn(0f, 1f))
+                (height * scale).roundToInt()
+            }
+
+        val pass1 =
+            strategy.measure(
+                itemHeights = itemHeights,
+                transformedHeight = transformedHeight,
+                anchorItemIndex = 3,
+                anchorItemScrollOffset = 0,
+                lastMeasuredAnchorItemHeight = Int.MIN_VALUE,
+            )
+        val pass1Item = pass1.visibleItems.first { it.index == 3 }
+        assertThat(pass1.anchorItemIndex).isEqualTo(3)
+        assertThat(pass1.anchorItemScrollOffset).isEqualTo(0)
+        assertThat(pass1Item.offset).isEqualTo(19)
+        assertThat(pass1Item.transformedHeight).isEqualTo(62)
+
+        val pass2 =
+            strategy.measure(
+                itemHeights = itemHeights,
+                transformedHeight = transformedHeight,
+                anchorItemKey = pass1.anchorItemKey,
+                anchorItemIndex = pass1.anchorItemIndex,
+                anchorItemScrollOffset = pass1.anchorItemScrollOffset,
+                lastMeasuredAnchorItemHeight = pass1.lastMeasuredItemHeight,
+            )
+        val pass2Item = pass2.visibleItems.first { it.index == 3 }
+        assertThat(pass2.anchorItemIndex).isEqualTo(3)
+        assertThat(pass2.anchorItemScrollOffset).isEqualTo(0)
+        assertThat(pass2Item.offset).isEqualTo(pass1Item.offset)
+        assertThat(pass2Item.transformedHeight).isEqualTo(pass1Item.transformedHeight)
     }
 
     private val mockGraphicContext =
