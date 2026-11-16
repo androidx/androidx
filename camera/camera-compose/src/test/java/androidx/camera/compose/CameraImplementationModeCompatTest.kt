@@ -16,9 +16,14 @@
 
 package androidx.camera.compose
 
+import android.annotation.SuppressLint
+import android.graphics.Matrix
+import android.graphics.Rect
 import android.os.Build
+import android.view.Surface
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
+import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.Identifier
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.testing.fakes.FakeCamera
@@ -33,6 +38,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
+@SuppressLint("RestrictedApiAndroidX")
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Config.TARGET_SDK])
 @DoNotInstrument // Needed for Robolectric to correctly instrument classes in the same module
@@ -116,6 +122,44 @@ class CameraImplementationModeCompatTest {
         assertThat(mode).isEqualTo(ImplementationMode.EXTERNAL)
     }
 
+    @Test
+    @Config(maxSdk = Build.VERSION_CODES.P)
+    fun resolveImplementationMode_onApiBelow29_fallsBackToEmbeddedWithoutCameraTransform() {
+        assertThat(
+                CameraImplementationModeCompat.resolveImplementationMode(
+                    ImplementationMode.EXTERNAL,
+                    transformationInfo(hasCameraTransform = false),
+                )
+            )
+            .isEqualTo(ImplementationMode.EMBEDDED)
+        assertThat(
+                CameraImplementationModeCompat.resolveImplementationMode(
+                    ImplementationMode.EXTERNAL,
+                    transformationInfo(hasCameraTransform = true),
+                )
+            )
+            .isEqualTo(ImplementationMode.EXTERNAL)
+        assertThat(
+                CameraImplementationModeCompat.resolveImplementationMode(
+                    ImplementationMode.EMBEDDED,
+                    transformationInfo(hasCameraTransform = false),
+                )
+            )
+            .isEqualTo(ImplementationMode.EMBEDDED)
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.Q)
+    fun resolveImplementationMode_onApi29AndAbove_keepsExternalWithoutCameraTransform() {
+        assertThat(
+                CameraImplementationModeCompat.resolveImplementationMode(
+                    ImplementationMode.EXTERNAL,
+                    transformationInfo(hasCameraTransform = false),
+                )
+            )
+            .isEqualTo(ImplementationMode.EXTERNAL)
+    }
+
     private fun fakeCamera(
         implementationType: String,
         isExtensionEnabled: Boolean = false,
@@ -136,4 +180,14 @@ class CameraImplementationModeCompatTest {
             }
         }
     }
+
+    private fun transformationInfo(hasCameraTransform: Boolean): SurfaceRequest.TransformationInfo =
+        SurfaceRequest.TransformationInfo.of(
+            Rect(0, 0, 640, 480),
+            /* rotationDegrees= */ 90,
+            Surface.ROTATION_0,
+            hasCameraTransform,
+            Matrix(),
+            /* mirroring= */ false,
+        )
 }

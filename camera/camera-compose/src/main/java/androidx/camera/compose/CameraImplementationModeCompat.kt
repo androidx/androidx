@@ -16,10 +16,12 @@
 
 package androidx.camera.compose
 
+import android.os.Build
 import androidx.camera.compose.internal.compat.quirk.DeviceQuirks
 import androidx.camera.compose.internal.compat.quirk.SurfaceViewNotSupportedInExtensionSessionQuirk
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
+import androidx.camera.core.SurfaceRequest
 import androidx.camera.viewfinder.core.ImplementationMode
 import androidx.camera.viewfinder.core.ViewfinderDefaults
 
@@ -68,5 +70,36 @@ internal class CameraImplementationModeCompat {
                 ViewfinderDefaults.implementationMode
             }
         }
+
+        /**
+         * Resolves the [ImplementationMode] used to display a stream with the given
+         * [transformationInfo].
+         *
+         * When the stream has no camera transform (e.g. it was produced by a
+         * [androidx.camera.core.CameraEffect] or stream sharing), any remaining rotation must be
+         * applied by the viewfinder. On API levels below 29, [ImplementationMode.EXTERNAL] cannot
+         * rotate the content of its surface, so [ImplementationMode.EMBEDDED] is used instead
+         * (matching [androidx.camera.viewfinder.compose.Viewfinder]'s default fallback without
+         * depending on `viewfinder` internal APIs across Maven groups). The result only depends on
+         * whether the stream has the camera transform, so rotation updates never recreate the
+         * surface.
+         *
+         * @param implementationMode The requested [ImplementationMode].
+         * @param transformationInfo The [SurfaceRequest.TransformationInfo] of the stream.
+         * @return The resolved [ImplementationMode] to use.
+         */
+        fun resolveImplementationMode(
+            implementationMode: ImplementationMode,
+            transformationInfo: SurfaceRequest.TransformationInfo,
+        ): ImplementationMode =
+            if (
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.Q &&
+                    implementationMode == ImplementationMode.EXTERNAL &&
+                    !transformationInfo.hasCameraTransform()
+            ) {
+                ImplementationMode.EMBEDDED
+            } else {
+                implementationMode
+            }
     }
 }

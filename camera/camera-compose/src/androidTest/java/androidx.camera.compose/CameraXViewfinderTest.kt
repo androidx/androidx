@@ -19,10 +19,13 @@
 package androidx.camera.compose
 
 import android.content.Context
+import android.graphics.Matrix
+import android.graphics.Rect
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
 import android.os.Build
+import android.view.Surface
 import android.view.SurfaceView
 import android.view.TextureView
 import android.view.View
@@ -35,6 +38,7 @@ import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
+import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionSessionConfig
 import androidx.camera.extensions.ExtensionsManager
@@ -44,8 +48,10 @@ import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.ExtensionsUtil
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
+import androidx.camera.viewfinder.compose.MutableCoordinateTransformer
 import androidx.camera.viewfinder.core.ImplementationMode
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
@@ -70,11 +76,13 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pinch
+import androidx.compose.ui.unit.dp
 import androidx.concurrent.futures.await
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.CoroutineContext
@@ -588,6 +596,223 @@ class CameraXViewfinderTest(private val implName: String, private val cameraConf
                 assertThat(rootView.containsViewOfType(TextureView::class.java)).isTrue()
             }
         }
+    }
+
+    @Test
+    fun preAppliedTransformationInfoUpdate_updatesCoordinateTransformerOnNextFrame() =
+        runViewfinderTest {
+            runManualClockTransformationTest { surfaceRequest, displayRotation, transformer ->
+                val displaySensorRotation =
+                    surfaceRequest.camera.cameraInfo.getSensorRotationDegrees(displayRotation)
+                val sensorToBufferAt0 =
+                    Matrix().apply { setRotate(displaySensorRotation.toFloat()) }
+                val sensorToBufferAt180 =
+                    Matrix().apply { setRotate(((displaySensorRotation + 180) % 360).toFloat()) }
+                val cropRect =
+                    Rect(0, 0, surfaceRequest.resolution.width, surfaceRequest.resolution.height)
+                composeTest.runOnUiThread {
+                    surfaceRequest.updateTransformationInfo(
+                        SurfaceRequest.TransformationInfo.of(
+                            cropRect,
+                            /* rotationDegrees= */ 0,
+                            ImageOutputConfig.ROTATION_NOT_SPECIFIED,
+                            /* hasCameraTransform= */ false,
+                            sensorToBufferAt0,
+                            /* mirroring= */ false,
+                        )
+                    )
+                }
+                composeTest.mainClock.advanceTimeByFrame()
+                val pointAt0Degrees = with(transformer) { Offset(10f, 20f).transform() }
+
+                composeTest.runOnUiThread {
+                    surfaceRequest.updateTransformationInfo(
+                        SurfaceRequest.TransformationInfo.of(
+                            cropRect,
+                            /* rotationDegrees= */ 180,
+                            ImageOutputConfig.ROTATION_NOT_SPECIFIED,
+                            /* hasCameraTransform= */ false,
+                            sensorToBufferAt180,
+                            /* mirroring= */ false,
+                        )
+                    )
+                }
+                // Advance a single frame without pumping extra coroutine dispatches: the updated
+                // TransformationInfo should take effect immediately in the next composition pass.
+                composeTest.mainClock.advanceTimeByFrame()
+                val pointAt180Degrees = with(transformer) { Offset(10f, 20f).transform() }
+
+                assertThat(pointAt180Degrees).isNotEqualTo(pointAt0Degrees)
+                assertThat(pointAt0Degrees.x + pointAt180Degrees.x)
+                    .isWithin(1f)
+                    .of(surfaceRequest.resolution.width.toFloat())
+                assertThat(pointAt0Degrees.y + pointAt180Degrees.y)
+                    .isWithin(1f)
+                    .of(surfaceRequest.resolution.height.toFloat())
+            }
+        }
+
+    @Test
+    fun deferredTransformationInfo_alwaysUsesDisplayRotation() = runViewfinderTest {
+        runManualClockTransformationTest { surfaceRequest, displayRotation, transformer ->
+            val displaySourceRotation =
+                surfaceRequest.camera.cameraInfo.getSensorRotationDegrees(displayRotation)
+            val staleRotation = (displaySourceRotation + 180) % 360
+            val cropRect =
+                Rect(0, 0, surfaceRequest.resolution.width, surfaceRequest.resolution.height)
+
+            // First, record the expected transformed point when the source rotation is
+            // displaySourceRotation (identity sensorToBufferTransform -> bakedRotation = 0).
+            composeTest.runOnUiThread {
+                surfaceRequest.updateTransformationInfo(
+                    SurfaceRequest.TransformationInfo.of(
+                        cropRect,
+                        displaySourceRotation,
+                        displayRotation,
+                        /* hasCameraTransform= */ false,
+                        Matrix(),
+                        /* mirroring= */ false,
+                    )
+                )
+            }
+            composeTest.mainClock.advanceTimeByFrame()
+            val expectedPointForDisplayRotation = with(transformer) { Offset(10f, 20f).transform() }
+
+            // Now send DEFERRED (hasCameraTransform = true) TransformationInfo updates whose
+            // rotationDegrees is stale (180 degrees off from the current display rotation), both
+            // with ROTATION_NOT_SPECIFIED and with an explicit non-display targetRotation.
+            // CameraXViewfinder should orient the preview upright for the display in both cases.
+            for (targetRotation in
+                listOf(ImageOutputConfig.ROTATION_NOT_SPECIFIED, (displayRotation + 2) % 4)) {
+                composeTest.runOnUiThread {
+                    surfaceRequest.updateTransformationInfo(
+                        SurfaceRequest.TransformationInfo.of(
+                            cropRect,
+                            staleRotation,
+                            targetRotation,
+                            /* hasCameraTransform= */ true,
+                            Matrix(),
+                            /* mirroring= */ false,
+                        )
+                    )
+                }
+                composeTest.mainClock.advanceTimeByFrame()
+                val pointWithDeferredTransform = with(transformer) { Offset(10f, 20f).transform() }
+
+                assertThat(pointWithDeferredTransform.x)
+                    .isWithin(1f)
+                    .of(expectedPointForDisplayRotation.x)
+                assertThat(pointWithDeferredTransform.y)
+                    .isWithin(1f)
+                    .of(expectedPointForDisplayRotation.y)
+            }
+        }
+    }
+
+    /**
+     * Shows an [ImplementationMode.EMBEDDED] [CameraXViewfinder], starts the camera and waits for
+     * it to stream, then runs [block] with the first [SurfaceRequest], the display rotation, and
+     * the viewfinder's [MutableCoordinateTransformer] while the compose clock only advances
+     * manually.
+     */
+    private suspend fun PreviewTestScope.runManualClockTransformationTest(
+        block:
+            suspend (
+                surfaceRequest: SurfaceRequest,
+                displayRotation: Int,
+                coordinateTransformer: MutableCoordinateTransformer,
+            ) -> Unit
+    ) {
+        val coordinateTransformer = MutableCoordinateTransformer()
+        var displayRotation = Surface.ROTATION_0
+        composeTest.setContent {
+            displayRotation = LocalView.current.display?.rotation ?: Surface.ROTATION_0
+            val currentSurfaceRequest: SurfaceRequest? by surfaceRequests.collectAsState()
+            currentSurfaceRequest?.let { surfaceRequest ->
+                CameraXViewfinder(
+                    surfaceRequest = surfaceRequest,
+                    implementationMode = ImplementationMode.EMBEDDED,
+                    coordinateTransformer = coordinateTransformer,
+                    modifier = Modifier.size(100.dp, 200.dp).testTag(CAMERAX_VIEWFINDER_TEST_TAG),
+                )
+            }
+        }
+
+        startCamera()
+        val surfaceRequest = surfaceRequests.filterNotNull().first()
+        composeTest.awaitIdle()
+        ensureCameraIsStreaming()
+
+        composeTest.mainClock.autoAdvance = false
+        try {
+            block(surfaceRequest, displayRotation, coordinateTransformer)
+        } finally {
+            composeTest.mainClock.autoAdvance = true
+        }
+    }
+
+    @Test
+    fun cancelledReplacementSurfaceRequest_tearsDownPreviousViewfinder() = runViewfinderTest {
+        var displayedSurfaceRequest by mutableStateOf<SurfaceRequest?>(null)
+        composeTest.setContent {
+            displayedSurfaceRequest?.let { surfaceRequest ->
+                CameraXViewfinder(
+                    surfaceRequest = surfaceRequest,
+                    modifier = Modifier.testTag(CAMERAX_VIEWFINDER_TEST_TAG),
+                )
+            }
+        }
+
+        startCamera()
+        val firstRequest = surfaceRequests.filterNotNull().first()
+        displayedSurfaceRequest = firstRequest
+        composeTest.awaitIdle()
+        composeTest
+            .onNodeWithTag(CAMERAX_VIEWFINDER_TEST_TAG)
+            .assertIsDisplayed()
+            .assert(SemanticsMatcher.hasChild())
+        ensureCameraIsStreaming()
+
+        // Trigger a replacement SurfaceRequest, cancel it before handing it to CameraXViewfinder,
+        // and verify that the previous Viewfinder is torn down rather than stranded.
+        firstRequest.invalidate()
+        val secondRequest = surfaceRequests.filterNotNull().first { it !== firstRequest }
+        resetPreviewSurfaceProvider()
+        secondRequest.awaitCancellation()
+
+        displayedSurfaceRequest = secondRequest
+        composeTest.awaitIdle()
+
+        composeTest.onNodeWithTag(CAMERAX_VIEWFINDER_TEST_TAG).assertIsNotDisplayed()
+    }
+
+    @Test
+    fun newSurfaceRequest_withSameResolution_reusesSurface() = runViewfinderTest {
+        composeTest.setContent {
+            val currentSurfaceRequest: SurfaceRequest? by surfaceRequests.collectAsState()
+            currentSurfaceRequest?.let { surfaceRequest ->
+                CameraXViewfinder(
+                    surfaceRequest = surfaceRequest,
+                    modifier = Modifier.testTag(CAMERAX_VIEWFINDER_TEST_TAG),
+                )
+            }
+        }
+
+        startCamera()
+        val firstRequest = surfaceRequests.filterNotNull().first()
+        composeTest.awaitIdle()
+        ensureCameraIsStreaming()
+        val firstSurface = firstRequest.deferrableSurface.surface.get(5, TimeUnit.SECONDS)
+
+        // Invalidating the request makes the Preview send a new request with the same resolution.
+        firstRequest.invalidate()
+        val secondRequest = surfaceRequests.filterNotNull().first { it !== firstRequest }
+        composeTest.awaitIdle()
+        ensureCameraIsStreaming()
+        val secondSurface = secondRequest.deferrableSurface.surface.get(5, TimeUnit.SECONDS)
+
+        assertThat(secondRequest.resolution).isEqualTo(firstRequest.resolution)
+        assertThat(secondSurface).isSameInstanceAs(firstSurface)
     }
 
     companion object {
