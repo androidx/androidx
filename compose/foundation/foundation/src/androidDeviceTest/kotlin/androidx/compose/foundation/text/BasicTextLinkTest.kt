@@ -371,6 +371,68 @@ class BasicTextLinkTest {
     }
 
     @Test
+    fun singleLineLink_rtlRunInLtrParagraph_onClick_opensUrlOnlyInsideLink() {
+        assumeTrue(ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled)
+        setupContent {
+            val text = buildAnnotatedString {
+                append("aaa ")
+                withLink(Url(Url1)) { append("\u05D0\u05D1\u05D2") }
+                append(" bbb")
+            }
+            BasicText(
+                text = text,
+                style = TextStyle(fontSize = fontSize),
+                onTextLayout = { layoutResult = it },
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(layoutResult).isNotNull()
+            assertThat(layoutResult!!.lineCount).isEqualTo(1)
+        }
+        val textNode = rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text))
+        textNode.performTouchInput { click(layoutResult!!.getBoundingBox(1).center) }
+        rule.runOnIdle { assertThat(openedUri).isNull() }
+
+        textNode.performTouchInput { click(layoutResult!!.getBoundingBox(9).center) }
+        rule.runOnIdle { assertThat(openedUri).isNull() }
+
+        textNode.performTouchInput { click(layoutResult!!.getBoundingBox(5).center) }
+        rule.runOnIdle { assertThat(openedUri).isEqualTo(Url1) }
+    }
+
+    @Test
+    fun singleLineLink_ltrRunInRtlParagraph_onClick_opensUrlOnlyInsideLink() {
+        assumeTrue(ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled)
+        setupContent {
+            val text = buildAnnotatedString {
+                append("\u05D0\u05D1\u05D2 ")
+                withLink(Url(Url1)) { append("link") }
+                append(" \u05D3\u05D4\u05D5")
+            }
+            BasicText(
+                text = text,
+                style = TextStyle(fontSize = fontSize),
+                onTextLayout = { layoutResult = it },
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(layoutResult).isNotNull()
+            assertThat(layoutResult!!.lineCount).isEqualTo(1)
+        }
+        val textNode = rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text))
+        textNode.performTouchInput { click(layoutResult!!.getBoundingBox(1).center) }
+        rule.runOnIdle { assertThat(openedUri).isNull() }
+
+        textNode.performTouchInput { click(layoutResult!!.getBoundingBox(10).center) }
+        rule.runOnIdle { assertThat(openedUri).isNull() }
+
+        textNode.performTouchInput { click(layoutResult!!.getBoundingBox(5).center) }
+        rule.runOnIdle { assertThat(openedUri).isEqualTo(Url1) }
+    }
+
+    @Test
     fun mixedBidiLink_onClick_visuallyLeftmostCharacter_opensUrl() {
         assumeTrue(ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled)
         setupContent { MixedBidiTextWithLink() }
